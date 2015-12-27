@@ -1,0 +1,385 @@
+/*
+ * (C) Copyright 1996-2013 ECMWF.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+#include <algorithm>
+
+#include "eckit/parser/JSON.h"
+#include "eckit/log/Log.h"
+#include "eckit/config/Resource.h"
+#include "eckit/utils/Translator.h"
+
+#include "marskit/MarsRequest.h"
+
+using namespace eckit;
+
+namespace marskit {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template<class T>
+static void setV(const std::string& name, MarsRequest::Params& r, const std::vector<T>& v, bool append)
+{
+	MarsRequest::Values& values = r[name];
+
+	if(!append)
+		values.clear();
+
+	for(int i = 0; i < v.size(); i++)
+	{
+		std::string s = Translator<T,std::string>()(v[i]);
+		values.push_back(s);
+	}
+}
+
+static bool has(const MarsRequest::Values& v, const std::string& s) {
+	return std::find(v.begin(), v.end(), s) != v.end();
+}
+
+static void appendValues(const std::string& name, const MarsRequest::Values& v, MarsRequest::Params& r)
+{
+	MarsRequest::Values& values = r[name];
+
+	for(MarsRequest::Values::const_iterator i = v.begin(); i != v.end(); ++i) {
+
+		if(!has(values,*i))
+			values.push_back(*i);
+	}
+}
+
+template<class T>
+static long copyValues(const std::string& name, const MarsRequest::Params& r, std::vector<T>& v,bool append)
+{
+
+	if(!append) v.clear();
+
+	MarsRequest::Params::const_iterator i = r.find(name);
+	if(i == r.end())
+		return 0;
+
+	if((*i).second.size() == 0)
+		throw eckit::SeriousBug("No values found for parameter '" + name  + "'");
+
+	v.reserve(v.size() + (*i).second.size());
+
+	for(MarsRequest::Values::const_iterator k = (*i).second.begin();
+		k != (*i).second.end(); ++k)
+			v.push_back(Translator<std::string,T>()(*k));
+
+	return (*i).second.size();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+eckit::ClassSpec MarsRequest::classSpec_ = {&Streamable::classSpec(),"MarsRequest",};
+Reanimator<MarsRequest> MarsRequest::reanimator_;
+
+
+MarsRequest::MarsRequest()
+{
+}
+
+
+MarsRequest::MarsRequest(const std::string& s):
+	name_(s)
+{
+}
+
+MarsRequest::MarsRequest(eckit::Stream& s)
+{
+	int size;
+
+	s >> name_;
+	s >> size;
+
+	for(int i=0; i<size; i++)
+	{
+		std::string param;
+		int    count;
+
+		s >> param;
+		s >> count;
+
+		Values& v = params_[param];
+
+		for(int k=0; k<count; k++)
+		{
+			std::string value;
+			s >> value;
+			v.push_back(value);
+		}
+	}
+}
+
+void MarsRequest::encode(eckit::Stream& s) const
+{
+	s << name_;
+	int size = params_.size();
+	s << size;
+
+	Params::const_iterator begin = params_.begin();
+	Params::const_iterator end   =  params_.end();
+
+	for(Params::const_iterator i = begin; i != end; ++i)
+	{
+		s << (*i).first;
+
+		int size = (*i).second.size();
+		s << size;
+
+		for(Values::const_iterator k = (*i).second.begin();
+			k != (*i).second.end(); ++k)
+				s << *k;
+	}
+}
+
+void MarsRequest::merge(const MarsRequest& other) {
+
+	Params::const_iterator begin = other.params_.begin();
+	Params::const_iterator end   = other.params_.end();
+
+	for(Params::const_iterator i = begin; i != end; ++i) {
+
+		appendValues((*i).first, (*i).second, params_);
+	}
+}
+
+void MarsRequest::print(std::ostream& s) const
+{
+	s << name_ << ',' << std::endl;
+
+	Params::const_iterator begin = params_.begin();
+	Params::const_iterator end   =  params_.end();
+
+	int a = 0;
+	for(Params::const_iterator i = begin; i != end; ++i)
+	{
+		if(a++) s << ',' << std::endl;
+
+		int b = 0;
+		s << '\t' << (*i).first << " = ";
+		for(Values::const_iterator k = (*i).second.begin();
+			k != (*i).second.end(); ++k)
+			{
+				if(b++) s << '/';
+				s << (*k);
+			}
+	}
+
+	s << std::endl;
+}
+
+void MarsRequest::json(eckit::JSON& s) const
+{
+    s.startObject();
+    s << "verb" << name_;
+
+	Params::const_iterator begin = params_.begin();
+	Params::const_iterator end   =  params_.end();
+
+	for(Params::const_iterator i = begin; i != end; ++i)
+	{
+
+		s << (*i).first;
+
+		if((*i).second.size() != 1) s.startList();
+
+		for(Values::const_iterator k = (*i).second.begin(); k != (*i).second.end(); ++k)
+        {
+            s << (*k) ;
+        }
+
+		if((*i).second.size() != 1) s.endList();
+	}
+
+    s.endObject();
+}
+
+MarsRequest::~MarsRequest()
+{
+}
+
+void MarsRequest::unsetValues(const std::string& name)
+{
+	Params::iterator i = params_.find(name);
+	if(i != params_.end()) params_.erase(i);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<double>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<Double>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<std::string>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<long>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<unsigned long>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<Date>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<Time>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<char>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+long MarsRequest::getValues(const std::string& name,std::vector<Value>& v,bool append) const
+{
+	return marskit::copyValues(name,params_,v,append);
+}
+
+static void lowcase(const std::string& o,std::string& s)
+{
+
+    static bool isODBserver = std::string(eckit::Resource<std::string>("requestNameSpace","")) == "odb.";
+
+	for(int i=0;i<s.length();i++)
+		s[i] = tolower(s[i]);
+
+	if(o == "obsgroup" && !isODBserver)
+	{
+		s = s.substr(0,3);
+	}
+
+	if(o == "stream")
+	{
+		if(s == "da")           s = "oper";
+		else if(s == "wv")      s = "wave";
+		else if(s == "ef")      s = "enfo";
+		else if(s == "sf")      s = "sens";
+		else if(s == "tg")      s = "toga";
+		else if(s == "mo")      s = "mnth";
+		else if(s == "e1")      s = "ers1";
+		else if(s == "sd")      s = "supd";
+		else if(s == "wm")      s = "wamo";
+		else if(s == "ch")      s = "cher";
+		else if(s == "fg")      s = "fgge";
+		else if(s == "mv")      s = "msdc";
+
+		if(s != "all") {
+		if(s.length() != 4)
+			Log::info() << "assert will fail on stream = '" << s << "'" << std::endl;
+		ASSERT(s.length() == 4);
+		}
+	}
+
+	if(s == "_number") s = "number";
+
+	if(s[0] == '"') s = s.substr(1,s.length()-2);
+
+	// ... an so on ...
+}
+
+void MarsRequest::patch()
+{
+	lowcase("",name_);
+
+	Params p;
+
+	Params::iterator begin = params_.begin();
+	Params::iterator end   = params_.end();
+
+	for(Params::iterator i = begin; i != end; ++i)
+	{
+		std::string  n = (*i).first;
+		Values& v = (*i).second;
+
+		lowcase(name_,n);
+
+		for(Values::iterator k = v.begin(); k != v.end(); ++k)
+				lowcase(n,*k);
+
+		if( ! ((v.size() == 1) && (*(v.begin()) == "all")))
+			p[n].swap(v);
+	}
+
+	params_.swap(p);
+}
+
+MarsRequest::MarsRequest(const MarsRequest& other):
+	name_(other.name_),
+	params_(other.params_)
+{
+}
+
+MarsRequest& MarsRequest::operator=(const MarsRequest& other)
+{
+	name_   = other.name_;
+	params_ = other.params_;
+	return *this;
+}
+
+void MarsRequest::setValues(const std::string& name,const std::vector<std::string>& v)
+{
+	marskit::setV(name,params_,v,false);
+}
+
+void MarsRequest::setValues(const std::string& name,const std::vector<long>& v)
+{
+	marskit::setV(name,params_,v,false);
+}
+
+void MarsRequest::setValues(const std::string& name,const std::vector<unsigned long>& v)
+{
+	marskit::setV(name,params_,v,false);
+}
+
+void MarsRequest::setValues(const std::string& name,const std::vector<Date>& v)
+{
+	marskit::setV(name,params_,v,false);
+}
+
+void MarsRequest::setValues(const std::string& name,const std::vector<Time>& v)
+{
+	marskit::setV(name,params_,v,false);
+}
+
+void MarsRequest::setValues(const std::string& name,const std::vector<char>& v)
+{
+	marskit::setV(name,params_,v,false);
+}
+
+long MarsRequest::getParams(std::vector<std::string>& p, bool) const
+{
+	for(Params::const_iterator i = params_.begin(); i != params_.end(); ++i)
+		p.push_back((*i).first);
+
+	return p.size();
+}
+
+void MarsRequest::name(const std::string& s)
+{
+	name_ = s;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+} // namespace marskit
