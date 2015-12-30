@@ -9,11 +9,14 @@
  */
 
 #include <algorithm>
+#include <set>
 
 #include "eckit/parser/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/config/Resource.h"
 #include "eckit/utils/Translator.h"
+#include "eckit/utils/MD5.h"
+#include "eckit/parser/StringTools.h"
 
 #include "marskit/MarsRequest.h"
 
@@ -95,8 +98,14 @@ MarsRequest::MarsRequest(eckit::Stream& s)
 {
 	int size;
 
+
 	s >> name_;
-	s >> size;
+
+//    Log::info() << "MarsRequest name : " << name_ << std::endl;
+
+    s >> size;
+
+//    Log::info() << "MarsRequest size : " << size << std::endl;
 
 	for(int i=0; i<size; i++)
 	{
@@ -104,15 +113,18 @@ MarsRequest::MarsRequest(eckit::Stream& s)
 		int    count;
 
 		s >> param;
-		s >> count;
+//        Log::info() << "MarsRequest param : " << param << std::endl;
+        s >> count;
+//        Log::info() << "MarsRequest count : " << count << std::endl;
 
 		Values& v = params_[param];
 
 		for(int k=0; k<count; k++)
 		{
 			std::string value;
-			s >> value;
-			v.push_back(value);
+            s >> value;
+//            Log::info() << "MarsRequest value : " << value << std::endl;
+            v.push_back(value);
 		}
 	}
 }
@@ -199,6 +211,31 @@ void MarsRequest::json(eckit::JSON& s) const
 	}
 
     s.endObject();
+}
+
+void MarsRequest::md5(eckit::MD5& md5) const
+{
+    md5.add( StringTools::lower(name_));
+
+    Params::const_iterator begin = params_.begin();
+    Params::const_iterator end   = params_.end();
+
+    for(Params::const_iterator i = begin; i != end; ++i) {
+
+        md5.add( StringTools::lower((*i).first) );
+
+        std::set<std::string> s; // ensures order is same and unique
+
+        for(std::list<std::string>::const_iterator j = (*i).second.begin(); j != (*i).second.end(); ++j) {
+            s.insert(*j);
+        }
+
+//        std::copy((*i).second.begin(), (*i).second.end(), s.begin());
+
+        for(std::set<std::string>::const_iterator i = s.begin(); i != s.end(); ++i) {
+            md5.add( StringTools::lower(*i) );
+        }
+    }
 }
 
 MarsRequest::~MarsRequest()

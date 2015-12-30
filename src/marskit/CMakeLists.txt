@@ -1,4 +1,6 @@
 list( APPEND marskit_srcs
+    MarsLocation.h
+    MarsLocation.cc
     MarsRequest.h
     MarsRequest.cc
     GribToRequest.h

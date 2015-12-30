@@ -23,7 +23,10 @@
 #include "eckit/types/Time.h"
 #include "eckit/value/Value.h"
 
-namespace eckit { class JSON; }
+namespace eckit {
+    class JSON;
+    class MD5;
+}
 
 namespace marskit {
 
@@ -51,7 +54,7 @@ public:
 
 // -- Destructor
 
-	~MarsRequest();
+    virtual ~MarsRequest();
 
 // -- Operators
 
@@ -102,6 +105,8 @@ public:
 
 	void json(eckit::JSON&) const;
 
+    void md5(eckit::MD5&) const;
+
 // -- Overridden methods
 
     // From Streamble
@@ -113,27 +118,27 @@ public:
 
 	static  const eckit::ClassSpec&  classSpec()        { return classSpec_;}
 
-private:
+private: // members
 
-// -- Members
-
-	std::string	        name_;
+    std::string	    name_;
 	Params          params_;
 
-// -- Methods
+private: // methods
 
 	void print(std::ostream&) const;
 
 // -- Class members
 
-	static eckit::ClassSpec               classSpec_;
-	static eckit::Reanimator<MarsRequest>     reanimator_;
+    static eckit::ClassSpec                 classSpec_;
+    static eckit::Reanimator<MarsRequest>   reanimator_;
 
-	friend std::ostream& operator<<(std::ostream& s, const MarsRequest& r)
-		{ r.print(s); return s; }
+    friend std::ostream& operator<<(std::ostream& s, const MarsRequest& r) {
+        r.print(s); return s;
+    }
 
-	friend eckit::JSON& operator<<(eckit::JSON& s, const MarsRequest& r)
-		{ r.json(s); return s; }
+    friend eckit::JSON& operator<<(eckit::JSON& s, const MarsRequest& r) {
+        r.json(s); return s;
+    }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
