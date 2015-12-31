@@ -19,7 +19,7 @@
 
 struct grib_handle;
 
-#include "oogrib/GribHandle.h"
+#include "gribpp/GribHandle.h"
 
 namespace marskit {
 
@@ -37,7 +37,7 @@ public: // methods
 
 	static void handleToRequest(grib_handle * const grib, MarsRequest& req);
 
-	static void handleToRequest(const oogrib::GribHandle& grib, MarsRequest& req);
+	static void handleToRequest(const gribpp::GribHandle& grib, MarsRequest& req);
 
 	static void gribToRequest(void* buffer, size_t length, MarsRequest& req);
 

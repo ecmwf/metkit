@@ -8,7 +8,7 @@ ecbuild_add_executable(
 
     INCLUDES
         ${ECKIT_INCLUDE_DIRS}
-        ${OOGRIB_INCLUDE_DIRS}
+        ${GRIBPP_INCLUDE_DIRS}
 
     LIBS     marskit
 )

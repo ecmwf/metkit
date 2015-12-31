@@ -20,8 +20,8 @@ ecbuild_add_library(
         ${marskit_srcs}
 
     PRIVATE_INCLUDES
-        ${OOGRIB_INCLUDE_DIRS}
+        ${GRIBPP_INCLUDE_DIRS}
         ${ECKIT_INCLUDE_DIRS}
 
     LIBS
-        oogrib eckit )
+        gribpp eckit )

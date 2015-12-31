@@ -12,7 +12,7 @@ ecbuild_requires_macro_version( 2.0 )
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" )
 
-ecbuild_use_package( PROJECT oogrib VERSION  0.1  REQUIRED )
+ecbuild_use_package( PROJECT gribpp VERSION  0.1  REQUIRED )
 ecbuild_use_package( PROJECT eckit  VERSION  0.10 REQUIRED )
 
 ### start project

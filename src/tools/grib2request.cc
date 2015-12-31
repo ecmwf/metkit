@@ -13,7 +13,7 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
-#include "oogrib/EmosFile.h"
+#include "gribpp/EmosFile.h"
 
 #include "marskit/GribToRequest.h"
 #include "marskit/MarsRequest.h"
@@ -52,7 +52,7 @@ void Grib2Request::run()
 
     long len = 0;
 
-    oogrib::EmosFile file( path_ );
+    gribpp::EmosFile file( path_ );
 
     marskit::MarsRequest onereq("GRIB");
 

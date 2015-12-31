@@ -170,7 +170,7 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 	grib_keys_iterator_delete(ks);
 }
 
-void GribToRequest::handleToRequest(const oogrib::GribHandle& grib, MarsRequest& req) {
+void GribToRequest::handleToRequest(const gribpp::GribHandle& grib, MarsRequest& req) {
 	NOTIMP;
 }
 
