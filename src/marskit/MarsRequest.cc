@@ -10,7 +10,9 @@
 
 #include <algorithm>
 #include <set>
+#include <list>
 
+#include "eckit/types/Types.h"
 #include "eckit/parser/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/config/Resource.h"
@@ -126,7 +128,7 @@ MarsRequest::MarsRequest(eckit::Stream& s)
 //            Log::info() << "MarsRequest value : " << value << std::endl;
             v.push_back(value);
 		}
-	}
+    }
 }
 
 void MarsRequest::encode(eckit::Stream& s) const
@@ -136,7 +138,7 @@ void MarsRequest::encode(eckit::Stream& s) const
 	s << size;
 
 	Params::const_iterator begin = params_.begin();
-	Params::const_iterator end   =  params_.end();
+    Params::const_iterator end   = params_.end();
 
 	for(Params::const_iterator i = begin; i != end; ++i)
 	{
@@ -149,6 +151,57 @@ void MarsRequest::encode(eckit::Stream& s) const
 			k != (*i).second.end(); ++k)
 				s << *k;
 	}
+}
+
+MarsRequest::MarsRequest(const ValueMap& v)
+{
+    ValueMap::const_iterator iverb = v.find(Value("verb"));
+    if(iverb == v.end())
+        throw BadParameter("ValueMap does not represent a MarsRequest", Here());
+
+    name_ = std::string( (*iverb).second );
+
+//    Log::info() << "MarsRequest name : " << name_ << std::endl;
+
+    ValueMap::const_iterator iparm = v.find(Value("params"));
+    if(iparm == v.end())
+        throw BadParameter("ValueMap does not represent a MarsRequest", Here());
+
+    ValueMap params = (*iparm).second;
+
+    for(ValueMap::iterator i = params.begin(); i != params.end(); ++i) {
+        std::string pname = (*i).first;
+        ValueList   list  = (*i).second;
+        Values& mp = params_[pname];
+        for(ValueList::iterator j = list.begin(); j != list.end(); ++j) {
+            mp.push_back(*j);
+        }
+
+//        Log::info() << "MarsRequest param : " << pname << " = ";
+//        std::ostream_iterator<std::string> outitr (Log::info(),"/");
+//        std::copy(mp.begin(), mp.end(), outitr );
+//        Log::info() << std::endl;
+    }
+}
+
+marskit::MarsRequest::operator Value() const
+{
+    Value dict = Value::makeMap();
+
+    dict["verb"] = name_;
+
+    dict["params"] = Value::makeMap();
+
+    Value& params = dict["params"];
+
+    Params::const_iterator begin = params_.begin();
+    Params::const_iterator end   = params_.end();
+
+    for(Params::const_iterator i = begin; i != end; ++i) {
+        params[ (*i).first ] = eckit::makeVectorValue( (*i).second );
+    }
+
+    return dict;
 }
 
 void MarsRequest::merge(const MarsRequest& other) {
@@ -183,8 +236,6 @@ void MarsRequest::print(std::ostream& s) const
 				s << (*k);
 			}
 	}
-
-	s << std::endl;
 }
 
 void MarsRequest::json(eckit::JSON& s) const

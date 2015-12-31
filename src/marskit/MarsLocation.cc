@@ -17,6 +17,8 @@
 #include "eckit/utils/Translator.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/parser/StringTools.h"
+#include "eckit/config/Configuration.h"
+#include "eckit/config/LocalConfiguration.h"
 
 #include "marskit/MarsLocation.h"
 
@@ -29,6 +31,14 @@ namespace marskit {
 eckit::ClassSpec MarsLocation::classSpec_ = {&Streamable::classSpec(),"MarsLocation",};
 Reanimator<MarsLocation> MarsLocation::reanimator_;
 
+MarsLocation::MarsLocation(const Configuration& cfg) :
+    request_( static_cast<ValueMap>( cfg.getSubConfiguration("request").get() ) ),
+    hostname_(cfg.getString("server")),
+    port_(cfg.getInt("port"))
+{
+    Log::info() << "MarsLocation: " << *this << std::endl;
+}
+
 MarsLocation::MarsLocation(const MarsRequest& r, const std::string& hostname, int port) :
        request_(r),
        hostname_(hostname),
@@ -38,6 +48,17 @@ MarsLocation::MarsLocation(const MarsRequest& r, const std::string& hostname, in
 
 MarsLocation::~MarsLocation()
 {
+}
+
+marskit::MarsLocation::operator eckit::Value() const
+{
+    Value dict = Value::makeMap();
+
+    dict["request"] = request_;
+    dict["server"]  = hostname_;
+    dict["port"]    = port_;
+
+    return dict;
 }
 
 MarsLocation::MarsLocation(eckit::Stream& s) :

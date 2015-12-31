@@ -21,6 +21,7 @@
 
 namespace eckit {
     class JSON;
+    class Configuration;
 }
 
 namespace marskit {
@@ -40,6 +41,7 @@ public: // methods
 
 // - Constructors
 
+    MarsLocation(const eckit::Configuration&);
     MarsLocation(const MarsRequest& r, const std::string& hostname, int port);
     MarsLocation(eckit::Stream&);
 
@@ -47,20 +49,24 @@ public: // methods
 
     virtual ~MarsLocation();
 
-	void json(eckit::JSON&) const;
+// -- Operators
 
-    // Overridden from Streamble
+    operator eckit::Value() const;
 
-	virtual void encode(eckit::Stream&) const;
-	virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
-
-	static  const eckit::ClassSpec&  classSpec()        { return classSpec_;}
+    void json(eckit::JSON&) const;
 
     const MarsRequest& request() const;
 
     std::string hostname() const;
 
     int port() const;
+
+    // Overridden from Streamble
+
+    virtual void encode(eckit::Stream&) const;
+    virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
+
+    static  const eckit::ClassSpec&  classSpec()        { return classSpec_;}
 
 private: // members
 

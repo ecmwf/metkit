@@ -45,7 +45,9 @@ public:
 
 	MarsRequest();
 	MarsRequest(const std::string&);
-	MarsRequest(eckit::Stream&);
+    MarsRequest(eckit::Stream&);
+
+    MarsRequest(const eckit::ValueMap&);
 
 // -- Copy
 
@@ -58,9 +60,7 @@ public:
 
 // -- Operators
 
-
-	// eckit::Value&        operator[](const std::string&);
-	// const eckit::Value&  operator[](const std::string&) const;
+    operator eckit::Value() const;
 
 // -- Methods
 
