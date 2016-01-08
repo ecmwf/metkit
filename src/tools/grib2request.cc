@@ -78,5 +78,5 @@ void Grib2Request::run()
 int main(int argc,char **argv)
 {
     Grib2Request tool(argc,argv);
-    return tool.execute();
+    return tool.start();
 }
