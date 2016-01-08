@@ -349,7 +349,7 @@ static void lowcase(const std::string& o,std::string& s)
 
     static bool isODBserver = std::string(eckit::Resource<std::string>("requestNameSpace","")) == "odb.";
 
-	for(int i=0;i<s.length();i++)
+    for(size_t i=0;i<s.length();i++)
 		s[i] = tolower(s[i]);
 
 	if(o == "obsgroup" && !isODBserver)

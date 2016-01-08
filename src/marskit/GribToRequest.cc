@@ -42,9 +42,7 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 
 	char value[80];
 	size_t len = sizeof(value);
-	long local;
 	int e;
-	const char *p;
 
 	ASSERT(g);
 
