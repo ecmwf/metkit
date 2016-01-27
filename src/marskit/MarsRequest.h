@@ -60,7 +60,10 @@ public:
 
 // -- Operators
 
-    operator eckit::Value() const;
+	// eckit::Value&        operator[](const std::string&);
+	// const eckit::Value&  operator[](const std::string&) const;    
+
+	operator eckit::Value() const;
 
 // -- Methods
 
