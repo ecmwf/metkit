@@ -8,6 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
+#include <unistd.h>
+
 #include "marskit/ClientTask.h"
 #include "marskit/MarsHandle.h"
 
