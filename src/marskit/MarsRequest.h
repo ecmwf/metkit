@@ -19,7 +19,6 @@
 
 #include "eckit/types/Date.h"
 #include "eckit/types/Double.h"
-#include "eckit/serialisation/Streamable.h"
 #include "eckit/types/Time.h"
 #include "eckit/value/Value.h"
 
@@ -32,7 +31,7 @@ namespace marskit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsRequest : public eckit::Streamable {
+class MarsRequest {
 
 public:
 
@@ -56,16 +55,17 @@ public:
 
 // -- Destructor
 
-    virtual ~MarsRequest();
+    ~MarsRequest();
 
 // -- Operators
 
 	// eckit::Value&        operator[](const std::string&);
-	// const eckit::Value&  operator[](const std::string&) const;    
+	// const eckit::Value&  operator[](const std::string&) const;
 
 	operator eckit::Value() const;
 
 // -- Methods
+
 
 	const std::string& name() const { return name_; }
 
@@ -81,7 +81,6 @@ public:
 
 	long getParams(std::vector<std::string>&, bool = false) const;
 
-	void patch();
 	void name(const std::string&);
 
 	void setValues(const std::string&,const std::vector<std::string>&);
@@ -114,12 +113,9 @@ public:
 
     // From Streamble
 
-	virtual void encode(eckit::Stream&) const;
-	virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
 
 // -- Class methods
 
-	static  const eckit::ClassSpec&  classSpec()        { return classSpec_;}
 
 private: // members
 
@@ -129,6 +125,7 @@ private: // members
 private: // methods
 
 	void print(std::ostream&) const;
+    void encode(eckit::Stream&) const;
 
 // -- Class members
 
@@ -141,6 +138,10 @@ private: // methods
 
     friend eckit::JSON& operator<<(eckit::JSON& s, const MarsRequest& r) {
         r.json(s); return s;
+    }
+
+    friend eckit::Stream& operator<<(eckit::Stream& s, const MarsRequest& r) {
+        r.encode(s); return s;
     }
 };
 

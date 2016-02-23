@@ -82,9 +82,6 @@ static long copyValues(const std::string& name, const MarsRequest::Params& r, st
 
 //----------------------------------------------------------------------------------------------------------------------
 
-eckit::ClassSpec MarsRequest::classSpec_ = {&Streamable::classSpec(),"MarsRequest",};
-Reanimator<MarsRequest> MarsRequest::reanimator_;
-
 
 MarsRequest::MarsRequest()
 {
@@ -342,74 +339,6 @@ long MarsRequest::getValues(const std::string& name,std::vector<char>& v,bool ap
 long MarsRequest::getValues(const std::string& name,std::vector<Value>& v,bool append) const
 {
 	return marskit::copyValues(name,params_,v,append);
-}
-
-static void lowcase(const std::string& o,std::string& s)
-{
-
-    static bool isODBserver = std::string(eckit::Resource<std::string>("requestNameSpace","")) == "odb.";
-
-    for(size_t i=0;i<s.length();i++)
-		s[i] = tolower(s[i]);
-
-	if(o == "obsgroup" && !isODBserver)
-	{
-		s = s.substr(0,3);
-	}
-
-	if(o == "stream")
-	{
-		if(s == "da")           s = "oper";
-		else if(s == "wv")      s = "wave";
-		else if(s == "ef")      s = "enfo";
-		else if(s == "sf")      s = "sens";
-		else if(s == "tg")      s = "toga";
-		else if(s == "mo")      s = "mnth";
-		else if(s == "e1")      s = "ers1";
-		else if(s == "sd")      s = "supd";
-		else if(s == "wm")      s = "wamo";
-		else if(s == "ch")      s = "cher";
-		else if(s == "fg")      s = "fgge";
-		else if(s == "mv")      s = "msdc";
-
-		if(s != "all") {
-		if(s.length() != 4)
-			Log::info() << "assert will fail on stream = '" << s << "'" << std::endl;
-		ASSERT(s.length() == 4);
-		}
-	}
-
-	if(s == "_number") s = "number";
-
-	if(s[0] == '"') s = s.substr(1,s.length()-2);
-
-	// ... an so on ...
-}
-
-void MarsRequest::patch()
-{
-	lowcase("",name_);
-
-	Params p;
-
-	Params::iterator begin = params_.begin();
-	Params::iterator end   = params_.end();
-
-	for(Params::iterator i = begin; i != end; ++i)
-	{
-		std::string  n = (*i).first;
-		Values& v = (*i).second;
-
-		lowcase(name_,n);
-
-		for(Values::iterator k = v.begin(); k != v.end(); ++k)
-				lowcase(n,*k);
-
-		if( ! ((v.size() == 1) && (*(v.begin()) == "all")))
-			p[n].swap(v);
-	}
-
-	params_.swap(p);
 }
 
 MarsRequest::MarsRequest(const MarsRequest& other):
