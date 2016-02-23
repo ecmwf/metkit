@@ -7,8 +7,6 @@ ClientTask.cc
 ClientTask.h
 DHSProtocol.cc
 DHSProtocol.h
-GribToRequest.cc
-GribToRequest.h
 MarsHandle.cc
 MarsHandle.h
 MarsHandleFactory.cc
@@ -22,6 +20,12 @@ MarsRequestHandle.h
 RequestEnvironment.cc
 RequestEnvironment.h
 )
+
+if ( HAVE_GRIBPP )
+    list( APPEND marskit_srcs
+        GribToRequest.cc
+        GribToRequest.h )
+endif ()
 
 ecbuild_add_library(
 
