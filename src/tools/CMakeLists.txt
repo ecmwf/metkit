@@ -12,6 +12,7 @@ ecbuild_add_executable(
     LIBS     marskit
 )
 
+if ( HAVE_GRIBPP )
 
 ecbuild_add_executable(
 
@@ -25,3 +26,5 @@ ecbuild_add_executable(
 
     LIBS     marskit
 )
+
+endif()

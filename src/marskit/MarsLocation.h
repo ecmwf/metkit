@@ -15,13 +15,13 @@
 #ifndef marskit_MarsLocation_H
 #define marskit_MarsLocation_H
 
-#include "eckit/serialisation/Streamable.h"
 
 #include "marskit/MarsRequest.h"
 
 namespace eckit {
     class JSON;
     class Configuration;
+    class Stream;
 }
 
 namespace marskit {
@@ -35,7 +35,7 @@ namespace marskit {
 ///
 /// If we consider that a MarsRequest is analogue to a URI, then a MarsLocation is an analogue to a URL
 
-class MarsLocation : public eckit::Streamable {
+class MarsLocation {
 
 public: // methods
 
@@ -47,7 +47,7 @@ public: // methods
 
 // -- Destructor
 
-    virtual ~MarsLocation();
+    ~MarsLocation();
 
 // -- Operators
 
@@ -61,12 +61,6 @@ public: // methods
 
     int port() const;
 
-    // Overridden from Streamble
-
-    virtual void encode(eckit::Stream&) const;
-    virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
-
-    static  const eckit::ClassSpec&  classSpec()        { return classSpec_;}
 
 private: // members
 
@@ -77,11 +71,10 @@ private: // members
 private: // methods
 
 	void print(std::ostream&) const;
+    void encode(eckit::Stream&) const;
 
 // -- Class members
 
-    static eckit::ClassSpec                  classSpec_;
-    static eckit::Reanimator<MarsLocation>   reanimator_;
 
     friend std::ostream& operator<<(std::ostream& s, const MarsLocation& r) {
         r.print(s); return s;
@@ -89,6 +82,10 @@ private: // methods
 
     friend eckit::JSON& operator<<(eckit::JSON& s, const MarsLocation& r) {
         r.json(s); return s;
+    }
+
+    friend eckit::Stream& operator<<(eckit::Stream& s, const MarsLocation& r) {
+        r.encode(s); return s;
     }
 };
 

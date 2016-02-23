@@ -41,8 +41,15 @@ void ClientTask::send(eckit::Stream &s) const {
 
     /* Send requests */
 
+    s.startObject(); // The DHS expects a Streamable version of MarsRequest
+    s << "MarsRequest";
     s << request_;
+    s.endObject();
+
+    s.startObject();
+    s << "MarsRequest";
     s << environ_;
+    s.endObject();
 
 
     /* Send cb info */

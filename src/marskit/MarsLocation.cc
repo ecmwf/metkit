@@ -28,8 +28,6 @@ namespace marskit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-eckit::ClassSpec MarsLocation::classSpec_ = {&Streamable::classSpec(),"MarsLocation",};
-Reanimator<MarsLocation> MarsLocation::reanimator_;
 
 MarsLocation::MarsLocation(const Configuration& cfg) :
     request_( static_cast<ValueMap>( cfg.getSubConfiguration("request").get() ) ),
