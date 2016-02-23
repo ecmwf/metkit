@@ -1,3 +1,8 @@
+ecbuild_add_option( FEATURE GRIBPP
+                    DEFAULT ON
+                    DESCRIPTION "Support for GRIBPP requests"
+                    REQUIRED_PACKAGES "PROJECT gribpp  VERSION 0.10" )
+
 list( APPEND marskit_srcs
 BaseProtocol.cc
 BaseProtocol.h
