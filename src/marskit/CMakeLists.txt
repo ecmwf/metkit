@@ -40,4 +40,4 @@ ecbuild_add_library(
         ${ECKIT_INCLUDE_DIRS}
 
     LIBS
-        gribpp eckit )
+        gribpp eckit_ecml eckit )

@@ -27,6 +27,7 @@
 #endif
 
 using namespace std;
+using namespace marskit;
 
 void test() {
     MarsRequest a("archive");
