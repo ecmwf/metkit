@@ -12,8 +12,11 @@ ecbuild_requires_macro_version( 2.0 )
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" )
 
-ecbuild_use_package( PROJECT gribpp VERSION  0.1  QUIET )
 ecbuild_use_package( PROJECT eckit  VERSION  0.10 REQUIRED )
+ecbuild_add_option( FEATURE GRIBPP
+                    DEFAULT ON
+                    DESCRIPTION "Support for GRIBPP requests"
+                    REQUIRED_PACKAGES "PROJECT gribpp  VERSION 0.1" )
 
 ### start project
 
