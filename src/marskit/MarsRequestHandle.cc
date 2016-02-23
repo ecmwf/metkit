@@ -35,7 +35,9 @@ MarsRequestHandle::MarsRequestHandle(const Request request, BaseProtocol* protoc
         for (Request v (r->value()); v; v = v->rest())
             vs.push_back(v->value()->text());
 
-        Log::debug() << "MarsRequestHandle: " << key <<" = " << vs << std::endl;
+        // FIXME: lookup failure for the overloaded operator from Types.h:
+        //   std::ostream& operator<<(std::ostream& s,const std::vector<T>& v)
+        // Log::debug() << "MarsRequestHandle: " << key <<" = " << vs << std::endl;
 
         request_.setValues(key, vs);
     }
