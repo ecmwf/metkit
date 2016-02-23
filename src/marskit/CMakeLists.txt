@@ -1,10 +1,26 @@
 list( APPEND marskit_srcs
-    MarsLocation.h
-    MarsLocation.cc
-    MarsRequest.h
-    MarsRequest.cc
-    GribToRequest.h
-    GribToRequest.cc
+BaseProtocol.cc
+BaseProtocol.h
+Client.cc
+Client.h
+ClientTask.cc
+ClientTask.h
+DHSProtocol.cc
+DHSProtocol.h
+GribToRequest.cc
+GribToRequest.h
+MarsHandle.cc
+MarsHandle.h
+MarsHandleFactory.cc
+MarsHandleFactory.h
+MarsLocation.cc
+MarsLocation.h
+MarsRequest.cc
+MarsRequest.h
+MarsRequestHandle.cc
+MarsRequestHandle.h
+RequestEnvironment.cc
+RequestEnvironment.h
 )
 
 ecbuild_add_library(

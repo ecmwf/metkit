@@ -29,7 +29,7 @@ class MarsRequest;
 
 /// Utility class to build MarsRequest from GribHandle
 
-/// Part of this code is taken from mars-client grib.c
+/// Part of this code is taken from mars-marskit grib.c
 
 class GribToRequest {
 
