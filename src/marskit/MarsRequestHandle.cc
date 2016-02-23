@@ -16,7 +16,6 @@
 #include "eckit/types/Types.h"
 
 using namespace eckit;
-using namespace std;
 
 namespace marskit {
 
@@ -28,15 +27,15 @@ MarsRequestHandle::MarsRequestHandle(const Request request, BaseProtocol* protoc
     //request->showGraph(string("MarsRequestHandle: request: ") + request->str());
     for (Request r(request->rest()); r; r = r->rest())
     {
-        string key (r->text());
-        vector<string> vs;
+        std::string key (r->text());
+        std::vector<std::string> vs;
 
         ASSERT(r->value() && r->value()->tag() == "_list");
 
         for (Request v (r->value()); v; v = v->rest())
             vs.push_back(v->value()->text());
 
-        Log::debug() << "MarsRequestHandle: " << key <<" = " << vs << endl;
+        Log::debug() << "MarsRequestHandle: " << key <<" = " << vs << std::endl;
 
         request_.setValues(key, vs);
     }
@@ -59,7 +58,7 @@ Length MarsRequestHandle::openForRead()
 
 void MarsRequestHandle::openForWrite(const Length& size)
 {
-    Log::debug() << "openForWrite: request_.name()=" << request_.name() << endl;
+    Log::debug() << "openForWrite: request_.name()=" << request_.name() << std::endl;
 
     ASSERT(StringTools::lower(request_.name()) == "archive");
     protocol_->archive(request_, size);
