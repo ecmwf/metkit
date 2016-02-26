@@ -18,7 +18,7 @@
 #include "marskit/Client.h"
 #include "marskit/MarsRequest.h"
 
-#include "../marskit_config.h"
+#include "marskit/marskit_config.h"
 
 #ifdef HAVE_MARSKIT_ODB_VERBS
 #include "odb_api/ODBBehavior.h"

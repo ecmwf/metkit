@@ -53,8 +53,4 @@ ecbuild_pkgconfig( NAME marskit
 
 ecbuild_install_project( NAME ${PROJECT_NAME} )
 
-ecbuild_generate_config_headers()
-configure_file( marskit_config.h.in marskit_config.h )
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/marskit_config.h DESTINATION ${INSTALL_INCLUDE_DIR} )
-
 ecbuild_print_summary()

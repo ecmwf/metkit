@@ -27,6 +27,12 @@ if ( HAVE_GRIBPP )
         GribToRequest.h )
 endif ()
 
+ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/eckit )
+
+configure_file( marskit_config.h.in marskit_config.h )
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/marskit_config.h
+         DESTINATION ${INSTALL_INCLUDE_DIR}/marskit )
+
 ecbuild_add_library(
 
     TARGET marskit
