@@ -13,10 +13,20 @@ ecbuild_requires_macro_version( 2.0 )
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" )
 
 ecbuild_use_package( PROJECT eckit  VERSION  0.10 REQUIRED )
+
 ecbuild_add_option( FEATURE GRIBPP
                     DEFAULT ON
                     DESCRIPTION "Support for GRIBPP requests"
                     REQUIRED_PACKAGES "PROJECT gribpp  VERSION 0.1" )
+
+ecbuild_add_option( FEATURE MARSKIT_ODB_VERBS
+                    DEFAULT ON
+                    DESCRIPTION "Support for ODB requests in marskit"
+                    REQUIRED_PACKAGES "PROJECT odb_api  VERSION 0.10" )
+
+if ( HAVE_MARSKIT_ODB_VERBS )
+    set ( odblibs Odb )
+endif ()
 
 ### start project
 
@@ -42,5 +52,9 @@ ecbuild_pkgconfig( NAME marskit
                    LIBRARIES marskit )
 
 ecbuild_install_project( NAME ${PROJECT_NAME} )
+
+ecbuild_generate_config_headers()
+configure_file( marskit_config.h.in marskit_config.h )
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/marskit_config.h DESTINATION ${INSTALL_INCLUDE_DIR} )
 
 ecbuild_print_summary()

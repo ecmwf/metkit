@@ -8,8 +8,9 @@ ecbuild_add_executable(
 
     INCLUDES
         ${ECKIT_INCLUDE_DIRS}
+        ${ODB_API_INCLUDE_DIRS}
 
-    LIBS     marskit
+    LIBS     marskit ${odblibs} 
 )
 
 if ( HAVE_GRIBPP )

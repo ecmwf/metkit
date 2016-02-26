@@ -21,41 +21,30 @@ ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::st
     request_(r),
     environ_(e),
     host_(host),
-    port_(port) {
+    port_(port) 
+{
     // Try something unique (per machine)
     marskitID_ = ((unsigned long long)::getpid()) << 32 | ((unsigned long long)::time(0));
     handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, marskitID_));
 }
 
 
-ClientTask::~ClientTask() {
-}
+ClientTask::~ClientTask() {}
 
-void ClientTask::send(eckit::Stream &s) const {
-
+void ClientTask::send(eckit::Stream &s) const 
+{
     unsigned long long dummy = 0;
-
     s.startObject();
-    s << "ClientTask";
+    s << "MarsTask";
 
     /* send mars request id */
     s << dummy;
 
     /* Send requests */
-
-    s.startObject(); // The DHS expects a Streamable version of MarsRequest
-    s << "MarsRequest";
     s << request_;
-    s.endObject();
-
-    s.startObject();
-    s << "MarsRequest";
     s << environ_;
-    s.endObject();
-
 
     /* Send cb info */
-
     s << host_;
     s << port_;
     s << marskitID_;
@@ -68,7 +57,8 @@ void ClientTask::send(eckit::Stream &s) const {
 }
 
 
-char ClientTask::receive(eckit::Stream &s) const {
+char ClientTask::receive(eckit::Stream &s) const 
+{
     unsigned long long id;
     char mode;
 

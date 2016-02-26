@@ -16,12 +16,11 @@
 #include "marskit/DHSProtocol.h"
 #include "marskit/MarsRequestHandle.h"
 #include "marskit/Client.h"
-
-
-
 #include "marskit/MarsRequest.h"
 
-#ifdef HAVE_ODB
+#include "../marskit_config.h"
+
+#ifdef HAVE_MARSKIT_ODB_VERBS
 #include "odb_api/ODBBehavior.h"
 #include "odb_api/ODBModule.h"
 #endif
@@ -74,18 +73,18 @@ void test() {
 
 int main(int argc,char **argv)
 {
-
-#ifdef HAVE_ODB
-    Context::instance().behavior( new odb::ODBBehavior() );
+#ifdef HAVE_MARSKIT_ODB_VERBS
+    eckit::Context::instance().behavior( new odb::ODBBehavior() );
     // TODO: enable $DEBUG (Log::debug)
 #endif
 
     Client app(argc, argv);
 
-#ifdef HAVE_ODB
+#ifdef HAVE_MARSKIT_ODB_VERBS
     odb::ODBModule odbModule;
     app.executionContext().import(odbModule);
+    eckit::Log::info() << argv[0] << ": imported ODB module"   << std::endl;
 #endif
     app.start();
-    return 0;
+    return app.noException() ? 0 : 1;
 }
