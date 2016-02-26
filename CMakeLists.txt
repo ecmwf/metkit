@@ -42,6 +42,9 @@ get_directory_property( MARSKIT_DEFINITIONS COMPILE_DEFINITIONS )
 ### sources
 
 include_directories( ${MARSKIT_INCLUDE_DIRS} )
+if ( HAVE_MARSKIT_ODB_VERBS )
+    include_directories( ${ODB_API_INCLUDE_DIRS} )
+endif ()
 
 add_subdirectory( src )
 
