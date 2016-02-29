@@ -31,24 +31,24 @@ MarsHandleFactory::MarsHandleFactory()
 
 DataHandle* MarsHandleFactory::makeHandle(const string& r) const
 {
-    Log::info() << "MarsHandleFactory::makeHandle: parsing " << r << endl;
+    Log::debug() << "MarsHandleFactory::makeHandle: parsing " << r << endl;
 
     Request requests (eckit::RequestParser::parse(r));
 
-    Log::info() << "MarsHandleFactory::makeHandle: requests = " << requests << endl;
+    Log::debug() << "MarsHandleFactory::makeHandle: requests = " << requests << endl;
 
-    Request request(requests->value());
+    Request request (requests->value());
 
-    Log::info() << "MarsHandleFactory::makeHandle: request = " << request << endl;
+    Log::debug() << "MarsHandleFactory::makeHandle: request = " << request << endl;
 
     if (requests->rest())
         Log::warning() << "MarsHandleFactory: Only " << request << " used, skipped rest of " << requests << endl;
 
-    string host(RequestHandler::database(request));
-    long port(RequestHandler::port(request));
-    return new MarsRequestHandle(request, new DHSProtocol(host, host, port));
+    string host (RequestHandler::database(request));
+    long port (RequestHandler::port(request));
+    return new marskit::MarsRequestHandle(request, new DHSProtocol(host, host, port));
 }
 
 static MarsHandleFactory marsHandleFactory;
 
-}
+} // namespace marskit

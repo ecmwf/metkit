@@ -73,13 +73,15 @@ void DHSProtocol::archive(const MarsRequest& request, const eckit::Length& size)
 
     task_->send(s);
 
+    eckit::Log::info() << "DHSProtocol: task sent." << std::endl;
+
     ASSERT(task_->receive(s) == 'a'); // Acknoledgement
 
     eckit::Length result = size;
     while(wait(result)) {
         ;
     }
-
+    eckit::Log::info() << "DHSProtocol: archive completed." << std::endl;
 }
 
 void DHSProtocol::cleanup()

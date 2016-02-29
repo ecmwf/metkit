@@ -12,7 +12,6 @@
 
 #include "marskit/DHSProtocol.h"
 #include "marskit/MarsRequestHandle.h"
-#include "eckit/ecml/parser/RequestParser.h"
 #include "marskit/Client.h"
 
 #include "eckit/runtime/Tool.h"
@@ -27,10 +26,12 @@
 
 using namespace std;
 
-eckit::ExecutionContext& Client::executionContext() { return context_; }
 Client::Client(int argc, char** argv) 
 : eckit::Tool(argc,argv),
-  noException_(false) {} 
+  noException_(false) 
+{} 
+
+eckit::ExecutionContext& Client::executionContext() { return context_; }
 
 void Client::run()
 {
