@@ -24,7 +24,7 @@ bool shortName(const std::string& prefix, const std::string& s)
     return std::equal(prefix.begin(), prefix.end(), s.begin());
 }
 
-std::string verb(const eckit::Request request)
+std::string MarsRequestHandle::verb(const eckit::Request request)
 {
     std::string v (eckit::StringTools::lower(request->text()));
 
@@ -43,27 +43,9 @@ MarsRequestHandle::MarsRequestHandle(const eckit::Request request, BaseProtocol*
   protocol_(protocol)
 {
     eckit::Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << std::endl;
-
     ASSERT(protocol);
-    //request->showGraph(string("MarsRequestHandle: request: ") + request->str());
-    for (eckit::Request r(request->rest()); r; r = r->rest())
-    {
-        std::string key (r->text());
-        std::vector<std::string> vs;
 
-        ASSERT(r->value() && r->value()->tag() == "_list");
-
-        for (eckit::Request v (r->value()); v; v = v->rest())
-        {
-            std::stringstream ss;
-            ss << v->value();
-            vs.push_back(ss.str());
-        }
-
-        eckit::Log::debug() << "MarsRequestHandle: " << key << " = " << eckit::StringTools::join(" / ", vs) << std::endl;
-
-        request_.setValues(key, vs);
-    }
+    eckit::convertToMarsRequest<marskit::MarsRequest> (request, request_);
 }
 
 MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* protocol)

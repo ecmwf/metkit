@@ -14,21 +14,24 @@
 #ifndef MarsRequestHandle_H
 #define MarsRequestHandle_H
 
-#include "marskit/BaseProtocol.h"
 #include "eckit/io/DataHandle.h"
-#include "marskit/MarsRequest.h"
 #include "eckit/ecml/parser/Request.h"
+
+#include "marskit/BaseProtocol.h"
+#include "marskit/MarsRequest.h"
 
 namespace marskit {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
-	MarsRequestHandle(const eckit::Request request, BaseProtocol* protocol);
-	MarsRequestHandle(const MarsRequest& request, BaseProtocol* protocol);
+	MarsRequestHandle(const eckit::Request request, marskit::BaseProtocol* protocol);
+	MarsRequestHandle(const marskit::MarsRequest& request, marskit::BaseProtocol* protocol);
 	~MarsRequestHandle();
 
+    static std::string verb(const eckit::Request);
+
 private:
-    MarsRequest request_;
+    marskit::MarsRequest request_;
     std::auto_ptr<BaseProtocol> protocol_;
 
 // -- Overridden methods
