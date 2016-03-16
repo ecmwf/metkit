@@ -9,6 +9,7 @@
  */
 
 #include <unistd.h>
+#include <pthread.h>
 
 #include "marskit/ClientTask.h"
 #include "marskit/MarsHandle.h"
@@ -24,7 +25,11 @@ ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::st
     port_(port) 
 {
     // Try something unique (per machine)
-    marskitID_ = ((unsigned long long)::getpid()) << 32 | ((unsigned long long)::time(0));
+    typedef unsigned long long ull;
+    marskitID_ = (ull(::getpid()) << 32 )
+               | (ull(::pthread_self()) << 16)
+               | (ull(::time(0)) && ull(0xffff));
+
     handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, marskitID_));
 }
 
