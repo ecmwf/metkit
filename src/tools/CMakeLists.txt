@@ -13,11 +13,11 @@ ecbuild_add_executable(
     LIBS     marskit ${odblibs} 
 )
 
-if ( HAVE_GRIBPP )
-
 ecbuild_add_executable(
 
     TARGET   grib2request
+
+    CONDITION HAVE_GRIBPP
 
     SOURCES  grib2request.cc
 
@@ -27,5 +27,3 @@ ecbuild_add_executable(
 
     LIBS     marskit
 )
-
-endif()
