@@ -33,12 +33,12 @@ namespace marskit {
 
 class MarsRequest {
 
-public:
+public: // types
 
     typedef std::list< std::string > Values;
     typedef std::map< std::string, Values, std::less<std::string> >  Params;
 
-public:
+public: // methods
 
 // -- Contructors
 
@@ -108,14 +108,6 @@ public:
 	void json(eckit::JSON&) const;
 
     void md5(eckit::MD5&) const;
-
-// -- Overridden methods
-
-    // From Streamble
-
-
-// -- Class methods
-
 
 private: // members
 
