@@ -17,6 +17,9 @@
 #include "eckit/thread/Mutex.h"
 #include "marskit/RequestEnvironment.h"
 
+#include <sys/types.h>
+#include <pwd.h>
+
 using namespace eckit;
 
 namespace marskit {
@@ -25,9 +28,22 @@ static Mutex local_mutex;
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
-    // TODO....
-    request_.setValue("user","max");
-    request_.setValue("host","localhost");
+	char buf[1024];
+	if(gethostname(buf,sizeof(buf)) != 0) 
+		throw SeriousBug("Cannot establish current hostname");
+
+    request_.setValue("host", std::string(buf));
+
+
+	struct passwd *pw; 
+	setpwent(); 
+	
+	if((pw = getpwuid(getuid())) == NULL) 
+		throw SeriousBug("Cannot establish current user");
+
+	endpwent();
+
+
     request_.setValue("pid",long(::getpid()));
 }
 

@@ -4,6 +4,8 @@ ecbuild_add_executable(
 
     TARGET   client_cli
 
+	CONDITION HAVE_MARSKIT_ODB_VERBS
+
     SOURCES  client_cli.cc
 
     INCLUDES
