@@ -24,7 +24,7 @@ namespace marskit {
 
 class DHSProtocol : public BaseProtocol {
 public:
-	DHSProtocol(const std::string& name, const std::string& host, int port);
+	DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
 	~DHSProtocol();
 
 private:
@@ -43,6 +43,7 @@ private:
     bool        error_;
     bool        sending_;
     std::auto_ptr<ClientTask> task_;
+    bool        foreward_;
 
 // -- Methods
     bool wait(eckit::Length&);

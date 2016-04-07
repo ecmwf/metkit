@@ -20,13 +20,14 @@
 
 namespace marskit {
 
-DHSProtocol::DHSProtocol(const std::string& name,const std::string& host, int port)
+DHSProtocol::DHSProtocol(const std::string& name,const std::string& host, int port, bool forwardMessages )
 : name_(name),
   host_(host),
   port_(port),
   done_(false),
   error_(false),
-  sending_(false)
+  sending_(false),
+  foreward_(forwardMessages)
 {}
 
 DHSProtocol::~DHSProtocol()
@@ -205,21 +206,33 @@ bool DHSProtocol::wait(eckit::Length& size)
             case 'I': /* info */
                 s >> msg;
                 eckit::Log::info() << msg << " [" << name_ << "]" << std::endl;
+				if(foreward_) {
+					eckit::Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+				}
                 break;
 
             case 'W': /* warning */
                 s >> msg;
                 eckit::Log::warning() << msg << " [" << name_ << "]" << std::endl;
+				if(foreward_) {
+					eckit::Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
+				}
                 break;
 
             case 'D': /* debug */
                 s >> msg;
                 eckit::Log::debug() << msg << " [" << name_ << "]" << std::endl;
+				if(foreward_) {
+					eckit::Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+				}
                 break;
 
             case 'E': /* error */
                 s >> msg;
                 eckit::Log::error() << msg << " [" << name_ << "]" << std::endl;
+				if(foreward_) {
+					eckit::Log::userError() << msg << " [" << name_ << "]" << std::endl;
+				}
                 break;
 
             case 'N': /* notification */
