@@ -41,6 +41,8 @@ RequestEnvironment::RequestEnvironment():
 	if((pw = getpwuid(getuid())) == NULL) 
 		throw SeriousBug("Cannot establish current user");
 
+    request_.setValue("user", std::string(pw->pw_name));
+
 	endpwent();
 
 
