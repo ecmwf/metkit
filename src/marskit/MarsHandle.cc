@@ -182,8 +182,11 @@ void MarsHandle::close()
 		Log::error() << "Recieved/Sent " << total_
 					 << " bytes instead of " << length_ << std::endl;
         if(Exception::throwing())
+        {
             Log::error() << "A expection is already active" << std::endl;
-		throw ShortFile("Bad total in MarsHandle");
+            return;
+        }
+        throw ShortFile("Bad total in MarsHandle");
 	}
 
     if(receiving_)
