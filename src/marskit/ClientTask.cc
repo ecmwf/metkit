@@ -17,13 +17,12 @@
 namespace marskit {
 
 // Call by the clien code
-ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::string &host, int port):
-    handle_(0),
-    request_(r),
-    environ_(e),
-    host_(host),
-    port_(port) 
-{
+ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::string &host, int port)
+    : request_(r),
+      environ_(e),
+      port_(port),
+      host_(host),
+      handle_(0) {
     // Try something unique (per machine)
     typedef unsigned long long ull;
     marskitID_ = (ull(::getpid()) << 32 )

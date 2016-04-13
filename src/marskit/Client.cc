@@ -39,8 +39,7 @@ void Client::run()
     if (argc < 2)
         throw eckit::UserError("Command line required (name(s) of file(s) with MARS requests)");
 
-    eckit::Values r(0);
-    for (size_t i(1); i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
         const string& arg (eckit::Context::instance().argv(i));
         if (arg == "-e")

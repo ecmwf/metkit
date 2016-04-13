@@ -46,15 +46,14 @@ void MarsHandle::encode(eckit::Stream& s) const
     s << doCRC_;
 }
 
-MarsHandle::MarsHandle(eckit::Stream& s):
-    TCPHandle(s),
-    length_(0),
-    total_(0),
-    receiving_(false),
-    crc_(startCRC),
-    streamMode_(false),
-    doCRC_(false)
-{
+MarsHandle::MarsHandle(eckit::Stream& s)
+    : TCPHandle(s),
+      length_(0),
+      total_(0),
+      receiving_(false),
+      streamMode_(false),
+      doCRC_(false),
+      crc_(startCRC) {
     s >> clientID_;
 
     if(s.endObjectFound())
@@ -67,17 +66,15 @@ MarsHandle::MarsHandle(eckit::Stream& s):
     if(doCRC_) Log::info() << "Got new marskit with CRC" << std::endl;
 }
 
-MarsHandle::MarsHandle(const std::string& host, int port, unsigned long long clientID):
-    TCPHandle(host, port),
-    length_(0),
-    total_(0),
-    clientID_(clientID),
-    receiving_(false),
-    crc_(startCRC),
-    streamMode_(false),
-    doCRC_(false)
-{
-}
+MarsHandle::MarsHandle(const std::string& host, int port, unsigned long long clientID)
+    : TCPHandle(host, port),
+      clientID_(clientID),
+      length_(0),
+      total_(0),
+      receiving_(false),
+      streamMode_(false),
+      doCRC_(false),
+      crc_(startCRC) {}
 
 MarsHandle::~MarsHandle()
 {
