@@ -22,9 +22,10 @@ RequestEnvironment.h
 )
 
 if ( HAVE_GRIBPP )
-    list( APPEND marskit_srcs
+  list( APPEND marskit_srcs
         GribToRequest.cc
         GribToRequest.h )
+  set( GRIBPP_LIB gribpp )
 endif ()
 
 ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/eckit )
@@ -33,7 +34,6 @@ configure_file( marskit_config.h.in marskit_config.h )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/marskit_config.h
          DESTINATION ${INSTALL_INCLUDE_DIR}/marskit )
 
-if ( HAVE_GRIBPP )
 ecbuild_add_library(
 
     TARGET marskit
@@ -51,24 +51,4 @@ ecbuild_add_library(
         ${ECKIT_INCLUDE_DIRS}
 
     LIBS
-        gribpp eckit_ecml eckit )
-else()
-ecbuild_add_library(
-
-    TARGET marskit
-
-    INSTALL_HEADERS LISTED
-
-    HEADER_DESTINATION
-        ${INSTALL_INCLUDE_DIR}/marskit
-
-    SOURCES
-        ${marskit_srcs}
-
-    PRIVATE_INCLUDES
-        ${GRIBPP_INCLUDE_DIRS}
-        ${ECKIT_INCLUDE_DIRS}
-
-    LIBS
-        eckit_ecml eckit )
-endif()
+        eckit_ecml eckit ${GRIBPP_LIB} )
