@@ -27,7 +27,7 @@ ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::st
     typedef unsigned long long ull;
     marskitID_ = (ull(::getpid()) << 32 )
                | (ull(::pthread_self()) << 16)
-               | (ull(::time(0)) && ull(0xffff));
+               | (ull(::time(0)) & ull(0xffff));
 
     handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, marskitID_));
 }
