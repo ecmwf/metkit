@@ -39,7 +39,7 @@ public: // methods
 
 	static void handleToRequest(const gribpp::GribHandle& grib, MarsRequest& req);
 
-	static void gribToRequest(void* buffer, size_t length, MarsRequest& req);
+    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
 
 private: // methods
 
