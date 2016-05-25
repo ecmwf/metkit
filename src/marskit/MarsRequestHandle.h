@@ -15,7 +15,6 @@
 #define MarsRequestHandle_H
 
 #include "eckit/io/DataHandle.h"
-#include "eckit/ecml/parser/Request.h"
 
 #include "marskit/BaseProtocol.h"
 #include "marskit/MarsRequest.h"
@@ -24,11 +23,9 @@ namespace marskit {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
-	MarsRequestHandle(const eckit::Request request, marskit::BaseProtocol* protocol);
 	MarsRequestHandle(const marskit::MarsRequest& request, marskit::BaseProtocol* protocol);
 	~MarsRequestHandle();
 
-    static std::string verb(const eckit::Request);
 
 private:
     marskit::MarsRequest request_;

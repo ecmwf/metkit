@@ -24,30 +24,6 @@ bool shortName(const std::string& prefix, const std::string& s)
     return std::equal(prefix.begin(), prefix.end(), s.begin());
 }
 
-std::string MarsRequestHandle::verb(const eckit::Request request)
-{
-    std::string v (eckit::StringTools::lower(request->text()));
-
-    const char* verbs[] = {"retrieve", "stage", "list", "archive", 0};
-
-    for (size_t i (0); verbs[i]; ++i)
-        if (shortName(v, verbs[i])) 
-            return verbs[i];
-
-    throw eckit::UserError(std::string("Unknown request '") + v + "'");
-    return v;
-}
-
-MarsRequestHandle::MarsRequestHandle(const eckit::Request request, BaseProtocol* protocol)
-: request_(verb(request)),
-  protocol_(protocol)
-{
-    eckit::Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << std::endl;
-    ASSERT(protocol);
-
-    eckit::convertToMarsRequest<marskit::MarsRequest> (request, request_);
-}
-
 MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* protocol)
 : request_(request),
   protocol_(protocol)

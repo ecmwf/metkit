@@ -1,16 +1,12 @@
 list( APPEND marskit_srcs
 BaseProtocol.cc
 BaseProtocol.h
-Client.cc
-Client.h
 ClientTask.cc
 ClientTask.h
 DHSProtocol.cc
 DHSProtocol.h
 MarsHandle.cc
 MarsHandle.h
-MarsHandleFactory.cc
-MarsHandleFactory.h
 MarsLocation.cc
 MarsLocation.h
 MarsRequest.cc
@@ -51,4 +47,4 @@ ecbuild_add_library(
         ${ECKIT_INCLUDE_DIRS}
 
     LIBS
-        eckit_ecml eckit ${GRIBPP_LIB} )
+        eckit ${GRIBPP_LIB} )
