@@ -2,21 +2,6 @@
 
 ecbuild_add_executable(
 
-    TARGET   client_cli
-
-	CONDITION HAVE_MARSKIT_ODB_VERBS
-
-    SOURCES  client_cli.cc
-
-    INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
-        ${ODB_API_INCLUDE_DIRS}
-
-    LIBS     marskit ${odblibs} 
-)
-
-ecbuild_add_executable(
-
     TARGET   grib2request
 
     CONDITION HAVE_GRIBPP
