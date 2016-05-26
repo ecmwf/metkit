@@ -23,7 +23,4 @@
 
 /* packages */
 
-#cmakedefine HAVE_MARSKIT_ODB_VERBS
-
-
 #endif /* marskit_config_h */

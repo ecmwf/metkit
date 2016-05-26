@@ -19,15 +19,6 @@ ecbuild_add_option( FEATURE GRIBPP
                     DESCRIPTION "Support for GRIBPP requests"
                     REQUIRED_PACKAGES "PROJECT gribpp  VERSION 0.1" )
 
-ecbuild_add_option( FEATURE MARSKIT_ODB_VERBS
-                    DEFAULT ON
-                    DESCRIPTION "Support for ODB requests in marskit"
-                    REQUIRED_PACKAGES "PROJECT odb_api  VERSION 0.10" )
-
-if ( HAVE_MARSKIT_ODB_VERBS )
-    set ( odblibs Odb )
-endif ()
-
 ### start project
 
 ecbuild_declare_project()
@@ -42,9 +33,6 @@ get_directory_property( MARSKIT_DEFINITIONS COMPILE_DEFINITIONS )
 ### sources
 
 include_directories( ${MARSKIT_INCLUDE_DIRS} )
-if ( HAVE_MARSKIT_ODB_VERBS )
-    include_directories( ${ODB_API_INCLUDE_DIRS} )
-endif ()
 
 add_subdirectory( src )
 
