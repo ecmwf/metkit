@@ -42,9 +42,7 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 
 	char value[80];
 	size_t len = sizeof(value);
-	long local;
 	int e;
-	const char *p;
 
 	ASSERT(g);
 
@@ -174,9 +172,9 @@ void GribToRequest::handleToRequest(const gribpp::GribHandle& grib, MarsRequest&
 	NOTIMP;
 }
 
-void GribToRequest::gribToRequest(void* buffer, size_t length, MarsRequest& req) {
+void GribToRequest::gribToRequest(const void* buffer, size_t length, MarsRequest& req) {
 
-	grib_handle* grib = grib_handle_new_from_message(0, buffer, length);
+    grib_handle* grib = grib_handle_new_from_message(0, const_cast<void*>(buffer), length);
 
 	GribToRequest::handleToRequest(grib, req);
 

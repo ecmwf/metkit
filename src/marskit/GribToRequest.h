@@ -29,7 +29,7 @@ class MarsRequest;
 
 /// Utility class to build MarsRequest from GribHandle
 
-/// Part of this code is taken from mars-client grib.c
+/// Part of this code is taken from mars-marskit grib.c
 
 class GribToRequest {
 
@@ -39,7 +39,7 @@ public: // methods
 
 	static void handleToRequest(const gribpp::GribHandle& grib, MarsRequest& req);
 
-	static void gribToRequest(void* buffer, size_t length, MarsRequest& req);
+    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
 
 private: // methods
 

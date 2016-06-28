@@ -1,11 +1,34 @@
 list( APPEND marskit_srcs
-    MarsLocation.h
-    MarsLocation.cc
-    MarsRequest.h
-    MarsRequest.cc
-    GribToRequest.h
-    GribToRequest.cc
+BaseProtocol.cc
+BaseProtocol.h
+ClientTask.cc
+ClientTask.h
+DHSProtocol.cc
+DHSProtocol.h
+MarsHandle.cc
+MarsHandle.h
+MarsLocation.cc
+MarsLocation.h
+MarsRequest.cc
+MarsRequest.h
+MarsRequestHandle.cc
+MarsRequestHandle.h
+RequestEnvironment.cc
+RequestEnvironment.h
 )
+
+if ( HAVE_GRIBPP )
+  list( APPEND marskit_srcs
+        GribToRequest.cc
+        GribToRequest.h )
+  set( GRIBPP_LIB gribpp )
+endif ()
+
+ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/eckit )
+
+configure_file( marskit_config.h.in marskit_config.h )
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/marskit_config.h
+         DESTINATION ${INSTALL_INCLUDE_DIR}/marskit )
 
 ecbuild_add_library(
 
@@ -24,4 +47,4 @@ ecbuild_add_library(
         ${ECKIT_INCLUDE_DIRS}
 
     LIBS
-        gribpp eckit )
+        eckit ${GRIBPP_LIB} )

@@ -2,9 +2,11 @@
 
 ecbuild_add_executable(
 
-    TARGET   grib2request
+    TARGET   grib-to-mars-request
 
-    SOURCES  grib2request.cc
+    CONDITION HAVE_GRIBPP
+
+    SOURCES  grib-to-mars-request.cc
 
     INCLUDES
         ${ECKIT_INCLUDE_DIRS}
