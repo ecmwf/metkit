@@ -24,9 +24,10 @@ if ( HAVE_GRIBPP )
   set( GRIBPP_LIB gribpp )
 endif ()
 
-ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/eckit )
+ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
 
 configure_file( metkit_config.h.in metkit_config.h )
+
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/metkit_config.h
          DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
 
