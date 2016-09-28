@@ -12,5 +12,5 @@ ecbuild_add_executable(
         ${ECKIT_INCLUDE_DIRS}
         ${GRIBPP_INCLUDE_DIRS}
 
-    LIBS     marskit
+    LIBS     metkit
 )

@@ -18,7 +18,7 @@
 
 #include "eckit/io/Length.h"
 
-namespace marskit {
+namespace metkit {
 
 class MarsRequest;
 

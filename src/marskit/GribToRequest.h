@@ -14,14 +14,14 @@
 
 /// @date Dec 2015
 
-#ifndef marskit_GribToRequest_H
-#define marskit_GribToRequest_H
+#ifndef metkit_GribToRequest_H
+#define metkit_GribToRequest_H
 
 struct grib_handle;
 
 #include "gribpp/GribHandle.h"
 
-namespace marskit {
+namespace metkit {
 
 class MarsRequest;
 
@@ -29,7 +29,7 @@ class MarsRequest;
 
 /// Utility class to build MarsRequest from GribHandle
 
-/// Part of this code is taken from mars-marskit grib.c
+/// Part of this code is taken from mars-metkit grib.c
 
 class GribToRequest {
 
@@ -50,6 +50,6 @@ private: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace metkit
 
 #endif

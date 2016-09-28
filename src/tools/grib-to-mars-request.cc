@@ -15,11 +15,11 @@
 
 #include "gribpp/EmosFile.h"
 
-#include "marskit/GribToRequest.h"
-#include "marskit/MarsRequest.h"
+#include "metkit/GribToRequest.h"
+#include "metkit/MarsRequest.h"
 
 using namespace eckit;
-using namespace marskit;
+using namespace metkit;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -54,12 +54,12 @@ void Grib2Request::run()
 
     gribpp::EmosFile file( path_ );
 
-    marskit::MarsRequest onereq("GRIB");
+    metkit::MarsRequest onereq("GRIB");
 
     size_t nMsg = 0;
     while( (len = file.readSome(buffer)) != 0 )
     {
-        marskit::MarsRequest req("GRIB");
+        metkit::MarsRequest req("GRIB");
 
         GribToRequest::gribToRequest(buffer, len, req);
 

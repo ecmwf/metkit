@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "marskit/GribToRequest.h"
+#include "metkit/GribToRequest.h"
 
 #include "grib_api.h"
 
@@ -16,11 +16,11 @@
 #include "eckit/log/Log.h"
 #include "eckit/parser/StringTools.h"
 
-#include "marskit/MarsRequest.h"
+#include "metkit/MarsRequest.h"
 
 using namespace eckit;
 
-namespace marskit {
+namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -183,4 +183,4 @@ void GribToRequest::gribToRequest(const void* buffer, size_t length, MarsRequest
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace metkit

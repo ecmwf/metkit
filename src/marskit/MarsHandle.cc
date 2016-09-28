@@ -15,7 +15,7 @@
 #include "eckit/log/Log.h"
 #include "eckit/serialisation/HandleStream.h"
 
-#include "marskit/MarsHandle.h"
+#include "metkit/MarsHandle.h"
 
 using namespace eckit;
 
@@ -58,12 +58,12 @@ MarsHandle::MarsHandle(eckit::Stream& s)
 
     if(s.endObjectFound())
     {
-        Log::info() << "Got old marskit without CRC" << std::endl;
+        Log::info() << "Got old metkit without CRC" << std::endl;
         return;
     }
 
     s >> doCRC_;
-    if(doCRC_) Log::info() << "Got new marskit with CRC" << std::endl;
+    if(doCRC_) Log::info() << "Got new metkit with CRC" << std::endl;
 }
 
 MarsHandle::MarsHandle(const std::string& host, int port, unsigned long long clientID)

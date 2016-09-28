@@ -20,11 +20,11 @@
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
 
-#include "marskit/MarsLocation.h"
+#include "metkit/MarsLocation.h"
 
 using namespace eckit;
 
-namespace marskit {
+namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ MarsLocation::~MarsLocation()
 {
 }
 
-marskit::MarsLocation::operator eckit::Value() const
+metkit::MarsLocation::operator eckit::Value() const
 {
     Value dict = Value::makeMap();
 
@@ -106,4 +106,4 @@ void MarsLocation::json(eckit::JSON& s) const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace metkit

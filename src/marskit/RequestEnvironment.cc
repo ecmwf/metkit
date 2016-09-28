@@ -15,30 +15,30 @@
 
 #include "eckit/thread/AutoLock.h"
 #include "eckit/thread/Mutex.h"
-#include "marskit/RequestEnvironment.h"
+#include "metkit/RequestEnvironment.h"
 
 #include <sys/types.h>
 #include <pwd.h>
 
 using namespace eckit;
 
-namespace marskit {
+namespace metkit {
 
 static Mutex local_mutex;
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
 	char buf[1024];
-	if(gethostname(buf,sizeof(buf)) != 0) 
+	if(gethostname(buf,sizeof(buf)) != 0)
 		throw SeriousBug("Cannot establish current hostname");
 
     request_.setValue("host", std::string(buf));
 
 
-	struct passwd *pw; 
-	setpwent(); 
-	
-	if((pw = getpwuid(getuid())) == NULL) 
+	struct passwd *pw;
+	setpwent();
+
+	if((pw = getpwuid(getuid())) == NULL)
 		throw SeriousBug("Cannot establish current user");
 
     request_.setValue("user", std::string(pw->pw_name));

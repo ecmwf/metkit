@@ -8,7 +8,7 @@
     ],
     "build_systems": [
         {
-            "working_dir": "${project_path}/../../build/marskit",
+            "working_dir": "${project_path}/../../build/metkit",
             "cmd": [
                 "make"
             ],

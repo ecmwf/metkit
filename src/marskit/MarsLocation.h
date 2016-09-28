@@ -12,11 +12,11 @@
 
 /// @date Dec 2015
 
-#ifndef marskit_MarsLocation_H
-#define marskit_MarsLocation_H
+#ifndef metkit_MarsLocation_H
+#define metkit_MarsLocation_H
 
 
-#include "marskit/MarsRequest.h"
+#include "metkit/MarsRequest.h"
 
 namespace eckit {
     class JSON;
@@ -24,7 +24,7 @@ namespace eckit {
     class Stream;
 }
 
-namespace marskit {
+namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -91,6 +91,6 @@ private: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace metkit
 
 #endif

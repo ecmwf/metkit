@@ -1,9 +1,9 @@
 /*
  * (C) Copyright 1996-2013 ECMWF.
- * 
+ *
  * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0. 
- * In applying this licence, ECMWF does not waive the privileges and immunities 
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
@@ -11,11 +11,11 @@
 // File MarsRequestHandle.cc
 // Baudouin Raoult - (c) ECMWF Feb 12
 
-#include "marskit/MarsRequestHandle.h"
+#include "metkit/MarsRequestHandle.h"
 #include "eckit/parser/StringTools.h"
 #include "eckit/types/Types.h"
 
-namespace marskit {
+namespace metkit {
 
 bool shortName(const std::string& prefix, const std::string& s)
 {
@@ -77,4 +77,4 @@ void MarsRequestHandle::print(std::ostream& s) const
     s << "MarsRequestHandle["<< *protocol_ << "," << request_ << "]";
 }
 
-} // namespace marskit 
+} // namespace metkit
