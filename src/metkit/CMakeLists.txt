@@ -21,7 +21,7 @@ if ( HAVE_GRIBPP )
   list( APPEND metkit_srcs
         GribToRequest.cc
         GribToRequest.h )
-  set( GRIBPP_LIB gribpp )
+  set( GRIBPP_LIB grib )
 endif ()
 
 ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )

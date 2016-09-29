@@ -9,47 +9,51 @@
  */
 
 /// @author Baudouin Raoult
-/// @author Manuel Fuentes
 /// @author Tiago Quintino
+/// @date Jan 2016
 
-/// @date Dec 2015
+#include <string>
 
-#ifndef metkit_GribToRequest_H
-#define metkit_GribToRequest_H
+#include "grib_api.h"
 
-struct grib_handle;
+#include "eckit/exception/Exceptions.h"
 
+#include "grib/GribFile.h"
 #include "grib/GribHandle.h"
 
-namespace metkit {
+using namespace eckit;
 
-class MarsRequest;
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/// Utility class to build MarsRequest from GribHandle
-
-/// Part of this code is taken from mars-metkit grib.c
-
-class GribToRequest {
-
-public: // methods
-
-	static void handleToRequest(grib_handle * const grib, MarsRequest& req);
-
-	static void handleToRequest(const grib::GribHandle& grib, MarsRequest& req);
-
-    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
-
-private: // methods
-
-	GribToRequest();
-
-	~GribToRequest();
-};
+namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+GribFile::GribFile(const PathName& path) :
+    path_(path),
+    file_(path_) {
+}
 
-#endif
+GribFile::~GribFile() {
+}
+
+GribHandle* GribFile::next() {
+
+    int err = 0;
+    grib_handle* h = grib_handle_new_from_file(NULL, file_, &err);
+
+    if(err == GRIB_SUCCESS)
+        return new GribHandle(h);
+
+    if(err == GRIB_END_OF_FILE)
+        return NULL;
+
+    std::ostringstream msg;
+    msg << "Error reading GRIB file " << path_
+        << " : " << grib_get_error_message(err);
+    throw ReadError(msg.str(), Here());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+} // namespace grib
+
+

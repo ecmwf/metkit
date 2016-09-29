@@ -10,6 +10,34 @@ ecbuild_requires_macro_version( 2.0 )
 
 ### dependencies
 
+# grib support
+
+ecbuild_add_option( FEATURE GRIB
+                    DEFAULT ON
+                    DESCRIPTION "Add support for GRIB format" )
+
+ecbuild_add_option( FEATURE ECCODES
+                    CONDITION HAVE_GRIB
+                    DEFAULT OFF
+                    DESCRIPTION "Use ecCodes instead of grib_api"
+                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 0.14" )
+
+if( HAVE_GRIB AND HAVE_ECCODES )
+  set( GRIB_API_INCLUDE_DIRS ${ECCODES_INCLUDE_DIRS} )
+  set( GRIB_API_LIBRARIES    ${ECCODES_LIBRARIES} )
+  set( GRIB_API_DEFINITIONS  ${ECCODES_DEFINITIONS} )
+  set( grib_api_BASE_DIR     ${eccodes_BASE_DIR} )
+  set( GRIB_API_FOUND        1 )
+else()
+  ecbuild_use_package( PROJECT grib_api VERSION 1.14 )
+endif()
+
+if(HAVE_GRIB AND NOT GRIB_API_FOUND)
+    set(HAVE_GRIB 0)
+endif()
+
+# eckit
+
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" )
 
 ecbuild_use_package( PROJECT eckit  VERSION  0.13 REQUIRED )
