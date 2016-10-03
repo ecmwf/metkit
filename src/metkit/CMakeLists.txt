@@ -17,11 +17,11 @@ RequestEnvironment.cc
 RequestEnvironment.h
 )
 
-if ( HAVE_GRIBPP )
+if ( HAVE_GRIB )
   list( APPEND metkit_srcs
         GribToRequest.cc
         GribToRequest.h )
-  set( GRIBPP_LIB grib )
+  set( GRIB_LIB grib )
 endif ()
 
 ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
@@ -44,8 +44,8 @@ ecbuild_add_library(
         ${metkit_srcs}
 
     PRIVATE_INCLUDES
-        ${GRIBPP_INCLUDE_DIRS}
         ${ECKIT_INCLUDE_DIRS}
+        ${GRIB_API_INCLUDE_DIRS}
 
     LIBS
-        eckit ${GRIBPP_LIB} )
+        eckit ${GRIB_LIB} )
