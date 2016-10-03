@@ -36,7 +36,7 @@ static void setV(const std::string& name, MarsRequest::Params& r, const std::vec
 	if(!append)
 		values.clear();
 
-	for(int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		std::string s = Translator<T,std::string>()(v[i]);
 		values.push_back(s);
