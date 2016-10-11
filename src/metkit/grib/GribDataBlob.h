@@ -19,8 +19,9 @@
 
 #include "eckit/io/DataBlob.h"
 
-#include "grib/GribMetaData.h"
+#include "metkit/grib/GribMetaData.h"
 
+namespace metkit {
 namespace grib {
 
 class GribHandle;
@@ -53,5 +54,6 @@ private: // members
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif

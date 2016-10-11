@@ -15,7 +15,8 @@ ecbuild_get_test_multidata( TARGET grib_get_data
 ecbuild_add_test( TARGET        grib_test_emosfile
                   ARGS          --log_level=message
                   BOOST
+                  CONDITION     HAVE_GRIB
                   SOURCES       test_emosfile.cc
-                  LIBS          grib
+                  LIBS          metkit
                   TEST_DEPENDS  grib_get_data
 )

@@ -22,6 +22,7 @@
 #include "eckit/serialisation/Stream.h"
 #include "eckit/types/Metadata.h"
 
+namespace metkit {
 namespace grib {
 
     class GribHandle;
@@ -76,5 +77,6 @@ private: // members
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif

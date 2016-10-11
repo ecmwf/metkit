@@ -18,10 +18,33 @@ RequestEnvironment.h
 )
 
 if ( HAVE_GRIB )
-  list( APPEND metkit_srcs
-        GribToRequest.cc
-        GribToRequest.h )
-  set( GRIB_LIB grib )
+
+    list( APPEND metkit_srcs
+        grib/GribToRequest.cc
+        grib/GribToRequest.h
+        grib/EmosFile.h
+        grib/EmosFile.cc
+        grib/GribFile.h
+        grib/GribFile.cc
+        grib/GribAccessor.h
+        grib/GribAccessor.cc
+        grib/GribMutator.h
+        grib/GribMutator.cc
+        grib/GribIndex.h
+        grib/GribIndex.cc
+        grib/GribHandle.h
+        grib/GribHandle.cc
+        grib/GribDataBlob.h
+        grib/GribDataBlob.cc
+        grib/GribMetaData.h
+        grib/GribMetaData.cc
+        )
+
+        set( grib_handling_pkg grib_api )
+        if( HAVE_ECCODES )
+          set( grib_handling_pkg eccodes )
+        endif()
+
 endif ()
 
 ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
@@ -48,4 +71,4 @@ ecbuild_add_library(
         ${GRIB_API_INCLUDE_DIRS}
 
     LIBS
-        eckit ${GRIB_LIB} )
+        eckit ${grib_handling_pkg} )

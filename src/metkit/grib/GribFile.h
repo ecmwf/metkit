@@ -9,47 +9,51 @@
  */
 
 /// @author Baudouin Raoult
-/// @author Manuel Fuentes
 /// @author Tiago Quintino
 
-/// @date Dec 2015
+/// @date Jan 2016
 
-#ifndef metkit_GribToRequest_H
-#define metkit_GribToRequest_H
+#ifndef grib_GribFile_H
+#define grib_GribFile_H
 
-struct grib_handle;
+#include "eckit/memory/NonCopyable.h"
+#include "eckit/io/StdFile.h"
+#include "eckit/filesystem/PathName.h"
 
-#include "grib/GribHandle.h"
+namespace eckit { class PathName; }
 
 namespace metkit {
+namespace grib {
 
-class MarsRequest;
+  class GribHandle;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Utility class to build MarsRequest from GribHandle
-
-/// Part of this code is taken from mars-metkit grib.c
-
-class GribToRequest {
+class GribFile : private eckit::NonCopyable {
 
 public: // methods
 
-	static void handleToRequest(grib_handle * const grib, MarsRequest& req);
+    /// Contructor
 
-	static void handleToRequest(const grib::GribHandle& grib, MarsRequest& req);
+    GribFile(const eckit::PathName&);
 
-    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
+    /// Destructor
 
-private: // methods
+    ~GribFile();
 
-	GribToRequest();
+    GribHandle* next();
 
-	~GribToRequest();
+private: // members
+
+    eckit::PathName path_;
+
+    eckit::StdFile file_;
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
+} // namespace grib
 } // namespace metkit
 
 #endif

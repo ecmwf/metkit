@@ -20,17 +20,18 @@
 
 #include "eckit/testing/Setup.h"
 
-#include "grib/EmosFile.h"
+#include "metkit/grib/EmosFile.h"
 
 using namespace eckit;
 using namespace eckit::testing;
 
 BOOST_GLOBAL_FIXTURE(Setup);
 
+namespace metkit {
 namespace grib {
 namespace test {
 
-//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static const size_t GRIB_SIZE = 858;
 
@@ -39,7 +40,7 @@ struct F {
     EmosFile file;
 };
 
-//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_SUITE( GribppTestEmosFile )
 
@@ -68,4 +69,5 @@ BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace test
 } // namespace grib
+} // namespace metkit
 

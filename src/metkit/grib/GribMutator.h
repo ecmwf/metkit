@@ -11,10 +11,11 @@
 #ifndef grib_GribMutator_H
 #define grib_GribMutator_H
 
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribHandle.h"
 
 struct grib_handle;
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -65,5 +66,6 @@ public: // methods
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif

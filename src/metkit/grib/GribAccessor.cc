@@ -8,12 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
-#include "grib/GribAccessor.h"
+#include "metkit/grib/GribAccessor.h"
 
 #include "grib_api.h"
 
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribHandle.h"
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -89,3 +90,4 @@ void GribAccessorBase::grib_get_value(const GribHandle& h, const std::string& na
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit

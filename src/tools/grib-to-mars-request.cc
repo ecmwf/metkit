@@ -13,9 +13,9 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
-#include "grib/EmosFile.h"
+#include "metkit/grib/EmosFile.h"
 
-#include "metkit/GribToRequest.h"
+#include "metkit/grib/GribToRequest.h"
 #include "metkit/MarsRequest.h"
 
 using namespace eckit;

@@ -9,49 +9,39 @@
  */
 
 /// @author Baudouin Raoult
+/// @author Manuel Fuentes
 /// @author Tiago Quintino
 
-/// @date Jan 2016
+/// @date Dec 2015
 
-#ifndef grib_GribFile_H
-#define grib_GribFile_H
+#ifndef grib_GribIndex_H
+#define grib_GribIndex_H
 
-#include "eckit/memory/NonCopyable.h"
-#include "eckit/io/StdFile.h"
-#include "eckit/filesystem/PathName.h"
+#include "eckit/types/Types.h"
+#include "eckit/io/Offset.h"
+#include "eckit/serialisation/Stream.h"
 
-namespace eckit { class PathName; }
-
+namespace metkit {
 namespace grib {
-
-  class GribHandle;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class GribFile : private eckit::NonCopyable {
+class GribMetaData;
 
-public: // methods
+struct GribIndex
+{
+    ~GribIndex();
 
-    /// Contructor
+    void readFrom( eckit::Stream& s );
 
-    GribFile(const eckit::PathName&);
-
-    /// Destructor
-
-    ~GribFile();
-
-    GribHandle* next();
-
-private: // members
-
-    eckit::PathName path_;
-
-    eckit::StdFile file_;
-
+    eckit::OffsetList         offset_;
+    eckit::LengthList         length_;
+    std::vector<GribMetaData*>  handle_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif
