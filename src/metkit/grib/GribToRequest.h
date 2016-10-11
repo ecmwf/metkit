@@ -25,6 +25,8 @@ namespace metkit {
 
 class MarsRequest;
 
+namespace grib {
+
 //----------------------------------------------------------------------------------------------------------------------
 
 /// Utility class to build MarsRequest from GribHandle
@@ -50,6 +52,7 @@ private: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
+} // namespace grib
 } // namespace metkit
 
 #endif

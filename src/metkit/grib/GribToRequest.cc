@@ -21,6 +21,7 @@
 using namespace eckit;
 
 namespace metkit {
+namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -183,4 +184,5 @@ void GribToRequest::gribToRequest(const void* buffer, size_t length, MarsRequest
 
 //----------------------------------------------------------------------------------------------------------------------
 
+} // namespace grib
 } // namespace metkit

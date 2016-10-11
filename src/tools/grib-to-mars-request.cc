@@ -61,7 +61,7 @@ void Grib2Request::run()
     {
         metkit::MarsRequest req("GRIB");
 
-        GribToRequest::gribToRequest(buffer, len, req);
+        grib::GribToRequest::gribToRequest(buffer, len, req);
 
         // Log::info() << req << std::endl;
 
