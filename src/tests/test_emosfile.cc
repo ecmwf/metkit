@@ -12,7 +12,7 @@
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#define BOOST_TEST_MODULE GribppTestEmosFile
+#define BOOST_TEST_MODULE metkit_grib_EmosFile
 #include "ecbuild/boost_test_framework.h"
 
 #include "eckit/filesystem/PathName.h"
@@ -41,7 +41,7 @@ struct F {
 
 //----------------------------------------------------------------------------
 
-BOOST_AUTO_TEST_SUITE( GribppTestEmosFile )
+BOOST_AUTO_TEST_SUITE( metkit_grib_EmosFile )
 
 BOOST_FIXTURE_TEST_CASE( test_read, F ) {
     Buffer buf(1024);
