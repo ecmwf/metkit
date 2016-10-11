@@ -26,6 +26,7 @@
 namespace eckit { class Buffer; }
 namespace eckit { class PathName; }
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -70,5 +71,6 @@ private: // members
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif

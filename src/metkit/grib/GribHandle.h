@@ -22,6 +22,7 @@ namespace eckit {
     class DataHandle;
 }
 
+namespace metkit {
 namespace grib {
 
     class GribMetaData;
@@ -114,5 +115,6 @@ private: // members
 //------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif

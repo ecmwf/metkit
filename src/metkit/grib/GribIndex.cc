@@ -8,11 +8,12 @@
  * does it submit to any jurisdiction.
  */
 
-#include "grib/GribMetaData.h"
-#include "grib/GribIndex.h"
+#include "metkit/grib/GribMetaData.h"
+#include "metkit/grib/GribIndex.h"
 
 using namespace eckit;
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -51,3 +52,4 @@ void GribIndex::readFrom( eckit::Stream& s )
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit

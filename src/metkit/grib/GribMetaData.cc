@@ -13,11 +13,12 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/parser/StringTools.h"
 
-#include "grib/GribMetaData.h"
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribMetaData.h"
+#include "metkit/grib/GribHandle.h"
 
 using namespace eckit;
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -197,3 +198,4 @@ void GribMetaData::print(std::ostream& os) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit

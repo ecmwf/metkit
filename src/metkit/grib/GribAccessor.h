@@ -13,8 +13,9 @@
 
 #include "eckit/log/Log.h"
 #include "eckit/exception/Exceptions.h"
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribHandle.h"
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -81,5 +82,6 @@ public: // methods
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 #endif

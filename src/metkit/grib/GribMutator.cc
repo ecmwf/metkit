@@ -8,18 +8,17 @@
  * does it submit to any jurisdiction.
  */
 
-#include "grib/GribMutator.h"
+#include "metkit/grib/GribMutator.h"
 
 #include "grib_api.h"
 
 #include "eckit/exception/Exceptions.h"
 
-#include "grib/GribHandle.h"
-
-using namespace eckit;
+#include "metkit/grib/GribHandle.h"
 
 //----------------------------------------------------------------------------------------------------------------------
 
+namespace metkit {
 namespace grib {
 
 static void check_error_code( const std::string& name, int err, bool quiet = false )
@@ -76,3 +75,4 @@ void GribMutatorBase::grib_set_value(GribHandle& h, const std::string& name, std
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit

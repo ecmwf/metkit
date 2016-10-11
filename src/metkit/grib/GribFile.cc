@@ -18,11 +18,12 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "grib/GribFile.h"
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribFile.h"
+#include "metkit/grib/GribHandle.h"
 
 using namespace eckit;
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -55,5 +56,6 @@ GribHandle* GribFile::next() {
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 

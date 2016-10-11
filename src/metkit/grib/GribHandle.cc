@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribHandle.h"
 
 #include "grib_api.h"
 
@@ -16,14 +16,15 @@
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/StdFile.h"
 
-#include "grib/GribMetaData.h"
-#include "grib/GribAccessor.h"
-#include "grib/GribDataBlob.h"
-#include "grib/GribMetaData.h"
+#include "metkit/grib/GribMetaData.h"
+#include "metkit/grib/GribAccessor.h"
+#include "metkit/grib/GribDataBlob.h"
+#include "metkit/grib/GribMetaData.h"
 
 using namespace std;
 using namespace eckit;
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -223,3 +224,4 @@ bool GribHandle::hasKey(const char* key) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit

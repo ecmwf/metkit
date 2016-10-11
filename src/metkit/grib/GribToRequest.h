@@ -14,32 +14,42 @@
 
 /// @date Dec 2015
 
-#ifndef grib_GribIndex_H
-#define grib_GribIndex_H
+#ifndef metkit_GribToRequest_H
+#define metkit_GribToRequest_H
 
-#include "eckit/types/Types.h"
-#include "eckit/io/Offset.h"
-#include "eckit/serialisation/Stream.h"
+struct grib_handle;
 
-namespace grib {
+#include "metkit/grib/GribHandle.h"
+
+namespace metkit {
+
+class MarsRequest;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class GribMetaData;
+/// Utility class to build MarsRequest from GribHandle
 
-struct GribIndex
-{
-    ~GribIndex();
+/// Part of this code is taken from mars-metkit grib.c
 
-    void readFrom( eckit::Stream& s );
+class GribToRequest {
 
-    eckit::OffsetList         offset_;
-    eckit::LengthList         length_;
-    std::vector<GribMetaData*>  handle_;
+public: // methods
+
+	static void handleToRequest(grib_handle * const grib, MarsRequest& req);
+
+	static void handleToRequest(const grib::GribHandle& grib, MarsRequest& req);
+
+    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
+
+private: // methods
+
+	GribToRequest();
+
+	~GribToRequest();
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace grib
+} // namespace metkit
 
 #endif

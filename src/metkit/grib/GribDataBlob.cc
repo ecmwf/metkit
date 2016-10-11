@@ -15,11 +15,12 @@
 #include "eckit/log/Bytes.h"
 #include "eckit/parser/StringTools.h"
 
-#include "grib/GribDataBlob.h"
-#include "grib/GribHandle.h"
+#include "metkit/grib/GribDataBlob.h"
+#include "metkit/grib/GribHandle.h"
 
 using namespace eckit;
 
+namespace metkit {
 namespace grib {
 
 // -------------------------------------------------------------------------------------------------
@@ -66,3 +67,4 @@ void GribDataBlob::print(std::ostream& os) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit

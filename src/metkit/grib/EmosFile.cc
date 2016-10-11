@@ -21,10 +21,11 @@
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
 
-#include "grib/EmosFile.h"
+#include "metkit/grib/EmosFile.h"
 
 using namespace eckit;
 
+namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -96,5 +97,6 @@ long EmosFile::readSome(Buffer& buffer)
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
+} // namespace metkit
 
 

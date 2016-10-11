@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/GribToRequest.h"
+#include "metkit/grib/GribToRequest.h"
 
 #include "grib_api.h"
 
