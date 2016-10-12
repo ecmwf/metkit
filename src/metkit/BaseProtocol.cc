@@ -12,9 +12,9 @@
 // Baudouin Raoult - (c) ECMWF Feb 12
 
 
-#include "marskit/BaseProtocol.h"
+#include "metkit/BaseProtocol.h"
 
-namespace marskit {
+namespace metkit {
 
 BaseProtocol::BaseProtocol()
 {

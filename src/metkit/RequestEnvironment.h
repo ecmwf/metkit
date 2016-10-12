@@ -15,9 +15,9 @@
 #define RequestEnvironment_H
 
 #include "eckit/memory/NonCopyable.h"
-#include "marskit/MarsRequest.h"
+#include "metkit/MarsRequest.h"
 
-namespace marskit {
+namespace metkit {
 
 class RequestEnvironment : private eckit::NonCopyable {
 public:

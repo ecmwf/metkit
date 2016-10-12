@@ -14,13 +14,13 @@
 #ifndef DHSProtocol_H
 #define DHSProtocol_H
 
-#include "marskit/BaseProtocol.h"
+#include "metkit/BaseProtocol.h"
 #include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
-#include "marskit/MarsRequest.h"
-#include "marskit/ClientTask.h"
+#include "metkit/MarsRequest.h"
+#include "metkit/ClientTask.h"
 
-namespace marskit {
+namespace metkit {
 
 class DHSProtocol : public BaseProtocol {
 public:

@@ -20,11 +20,11 @@
 #include "eckit/utils/MD5.h"
 #include "eckit/parser/StringTools.h"
 
-#include "marskit/MarsRequest.h"
+#include "metkit/MarsRequest.h"
 
 using namespace eckit;
 
-namespace marskit {
+namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ static void setV(const std::string& name, MarsRequest::Params& r, const std::vec
 	if(!append)
 		values.clear();
 
-	for(int i = 0; i < v.size(); i++)
+	for(size_t i = 0; i < v.size(); i++)
 	{
 		std::string s = Translator<T,std::string>()(v[i]);
 		values.push_back(s);
@@ -181,7 +181,7 @@ MarsRequest::MarsRequest(const ValueMap& v)
     }
 }
 
-marskit::MarsRequest::operator Value() const
+metkit::MarsRequest::operator Value() const
 {
     Value dict = Value::makeMap();
 
@@ -298,47 +298,47 @@ void MarsRequest::unsetValues(const std::string& name)
 
 long MarsRequest::getValues(const std::string& name,std::vector<double>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<Double>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<std::string>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<long>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<unsigned long>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<Date>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<Time>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<char>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 long MarsRequest::getValues(const std::string& name,std::vector<Value>& v,bool append) const
 {
-	return marskit::copyValues(name,params_,v,append);
+	return metkit::copyValues(name,params_,v,append);
 }
 
 MarsRequest::MarsRequest(const MarsRequest& other):
@@ -356,32 +356,32 @@ MarsRequest& MarsRequest::operator=(const MarsRequest& other)
 
 void MarsRequest::setValues(const std::string& name,const std::vector<std::string>& v)
 {
-	marskit::setV(name,params_,v,false);
+	metkit::setV(name,params_,v,false);
 }
 
 void MarsRequest::setValues(const std::string& name,const std::vector<long>& v)
 {
-	marskit::setV(name,params_,v,false);
+	metkit::setV(name,params_,v,false);
 }
 
 void MarsRequest::setValues(const std::string& name,const std::vector<unsigned long>& v)
 {
-	marskit::setV(name,params_,v,false);
+	metkit::setV(name,params_,v,false);
 }
 
 void MarsRequest::setValues(const std::string& name,const std::vector<Date>& v)
 {
-	marskit::setV(name,params_,v,false);
+	metkit::setV(name,params_,v,false);
 }
 
 void MarsRequest::setValues(const std::string& name,const std::vector<Time>& v)
 {
-	marskit::setV(name,params_,v,false);
+	metkit::setV(name,params_,v,false);
 }
 
 void MarsRequest::setValues(const std::string& name,const std::vector<char>& v)
 {
-	marskit::setV(name,params_,v,false);
+	metkit::setV(name,params_,v,false);
 }
 
 long MarsRequest::getParams(std::vector<std::string>& p, bool) const
@@ -399,4 +399,4 @@ void MarsRequest::name(const std::string& s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace metkit

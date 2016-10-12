@@ -13,13 +13,13 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
-#include "gribpp/EmosFile.h"
+#include "metkit/grib/EmosFile.h"
 
-#include "marskit/GribToRequest.h"
-#include "marskit/MarsRequest.h"
+#include "metkit/grib/GribToRequest.h"
+#include "metkit/MarsRequest.h"
 
 using namespace eckit;
-using namespace marskit;
+using namespace metkit;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -52,16 +52,16 @@ void Grib2Request::run()
 
     long len = 0;
 
-    gribpp::EmosFile file( path_ );
+    grib::EmosFile file( path_ );
 
-    marskit::MarsRequest onereq("GRIB");
+    metkit::MarsRequest onereq("GRIB");
 
     size_t nMsg = 0;
     while( (len = file.readSome(buffer)) != 0 )
     {
-        marskit::MarsRequest req("GRIB");
+        metkit::MarsRequest req("GRIB");
 
-        GribToRequest::gribToRequest(buffer, len, req);
+        grib::GribToRequest::gribToRequest(buffer, len, req);
 
         // Log::info() << req << std::endl;
 

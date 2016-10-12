@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "marskit/GribToRequest.h"
+#include "metkit/grib/GribToRequest.h"
 
 #include "grib_api.h"
 
@@ -16,11 +16,12 @@
 #include "eckit/log/Log.h"
 #include "eckit/parser/StringTools.h"
 
-#include "marskit/MarsRequest.h"
+#include "metkit/MarsRequest.h"
 
 using namespace eckit;
 
-namespace marskit {
+namespace metkit {
+namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -168,7 +169,7 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 	grib_keys_iterator_delete(ks);
 }
 
-void GribToRequest::handleToRequest(const gribpp::GribHandle& grib, MarsRequest& req) {
+void GribToRequest::handleToRequest(const grib::GribHandle& grib, MarsRequest& req) {
 	NOTIMP;
 }
 
@@ -183,4 +184,5 @@ void GribToRequest::gribToRequest(const void* buffer, size_t length, MarsRequest
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace grib
+} // namespace metkit

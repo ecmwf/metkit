@@ -16,19 +16,19 @@
 
 #include "eckit/io/DataHandle.h"
 
-#include "marskit/BaseProtocol.h"
-#include "marskit/MarsRequest.h"
+#include "metkit/BaseProtocol.h"
+#include "metkit/MarsRequest.h"
 
-namespace marskit {
+namespace metkit {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
-	MarsRequestHandle(const marskit::MarsRequest& request, marskit::BaseProtocol* protocol);
+	MarsRequestHandle(const metkit::MarsRequest& request, metkit::BaseProtocol* protocol);
 	~MarsRequestHandle();
 
 
 private:
-    marskit::MarsRequest request_;
+    metkit::MarsRequest request_;
     std::auto_ptr<BaseProtocol> protocol_;
 
 // -- Overridden methods

@@ -20,9 +20,9 @@
 // #include "eckit/log/UserChannel.h"
 #include "eckit/transaction/TxnEvent.h"
 
-#include "marskit/MarsRequest.h"
+#include "metkit/MarsRequest.h"
 
-namespace marskit {
+namespace metkit {
 
 class ClientTask {
 public:
@@ -118,7 +118,7 @@ public:
 	// const eckit::StringList& treeNames() const { return treeNames_; }
 	// const eckit::StringList& treeValues() const { return treeValues_; }
 
- //    // For the marskit
+ //    // For the metkit
     void send(eckit::Stream&) const;
 	char receive(eckit::Stream&) const;
 
@@ -155,7 +155,7 @@ private:
 // -- Members
 
     unsigned long long   txnID_;
-	unsigned long long   marskitID_;
+	unsigned long long   metkitID_;
 	int                  port_;
 	std::string               host_;
 	std::auto_ptr<eckit::DataHandle> handle_;

@@ -14,42 +14,46 @@
 
 /// @date Dec 2015
 
-#ifndef marskit_GribToRequest_H
-#define marskit_GribToRequest_H
+#ifndef grib_GribDataBlob_H
+#define grib_GribDataBlob_H
 
-struct grib_handle;
+#include "eckit/io/DataBlob.h"
 
-#include "gribpp/GribHandle.h"
+#include "metkit/grib/GribMetaData.h"
 
-namespace marskit {
+namespace metkit {
+namespace grib {
 
-class MarsRequest;
+class GribHandle;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Utility class to build MarsRequest from GribHandle
-
-/// Part of this code is taken from mars-marskit grib.c
-
-class GribToRequest {
+///
+///
+class GribDataBlob : public eckit::DataBlob {
 
 public: // methods
 
-	static void handleToRequest(grib_handle * const grib, MarsRequest& req);
+    GribDataBlob(const void* data, size_t length);
+    GribDataBlob(eckit::DataHandle& dh, size_t length);
 
-	static void handleToRequest(const gribpp::GribHandle& grib, MarsRequest& req);
+	virtual ~GribDataBlob();
 
-    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
+    virtual const eckit::Metadata& metadata() const;
 
-private: // methods
+private: // members
 
-	GribToRequest();
+    virtual void print(std::ostream&) const;
 
-	~GribToRequest();
+private: // members
+
+    grib::GribMetaData metadata_;
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace grib
+} // namespace metkit
 
 #endif

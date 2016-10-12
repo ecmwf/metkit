@@ -11,10 +11,10 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "marskit/ClientTask.h"
-#include "marskit/MarsHandle.h"
+#include "metkit/ClientTask.h"
+#include "metkit/MarsHandle.h"
 
-namespace marskit {
+namespace metkit {
 
 // Call by the clien code
 ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::string &host, int port)
@@ -25,17 +25,17 @@ ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::st
       handle_(0) {
     // Try something unique (per machine)
     typedef unsigned long long ull;
-    marskitID_ = (ull(::getpid()) << 32 )
+    metkitID_ = (ull(::getpid()) << 32 )
                | (ull(::pthread_self()) << 16)
                | (ull(::time(0)) & ull(0xffff));
 
-    handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, marskitID_));
+    handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, metkitID_));
 }
 
 
 ClientTask::~ClientTask() {}
 
-void ClientTask::send(eckit::Stream &s) const 
+void ClientTask::send(eckit::Stream &s) const
 {
     unsigned long long dummy = 0;
     s.startObject();
@@ -51,7 +51,7 @@ void ClientTask::send(eckit::Stream &s) const
     /* Send cb info */
     s << host_;
     s << port_;
-    s << marskitID_;
+    s << metkitID_;
 
     /* Send datahandle */
 
@@ -61,12 +61,12 @@ void ClientTask::send(eckit::Stream &s) const
 }
 
 
-char ClientTask::receive(eckit::Stream &s) const 
+char ClientTask::receive(eckit::Stream &s) const
 {
     unsigned long long id;
     char mode;
 
-    s >> id; ASSERT(id == marskitID_);
+    s >> id; ASSERT(id == metkitID_);
     s >> mode;
 
     return mode;

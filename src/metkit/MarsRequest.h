@@ -14,8 +14,8 @@
 
 /// @date Sep 96
 
-#ifndef marskit_MarsRequest_H
-#define marskit_MarsRequest_H
+#ifndef metkit_MarsRequest_H
+#define metkit_MarsRequest_H
 
 #include "eckit/types/Date.h"
 #include "eckit/types/Double.h"
@@ -27,7 +27,7 @@ namespace eckit {
     class MD5;
 }
 
-namespace marskit {
+namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -139,6 +139,6 @@ private: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace marskit
+} // namespace metkit
 
 #endif

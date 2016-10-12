@@ -11,14 +11,14 @@
 // File DHSProtocol.cc
 // Baudouin Raoult - (c) ECMWF Feb 12
 
-#include "marskit/DHSProtocol.h"
-#include "marskit/RequestEnvironment.h"
+#include "metkit/DHSProtocol.h"
+#include "metkit/RequestEnvironment.h"
 
 #include "eckit/net/TCPClient.h"
 #include "eckit/net/TCPStream.h"
-#include "marskit/ClientTask.h"
+#include "metkit/ClientTask.h"
 
-namespace marskit {
+namespace metkit {
 
 DHSProtocol::DHSProtocol(const std::string& name,const std::string& host, int port, bool forwardMessages )
 : name_(name),
