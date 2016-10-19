@@ -14,30 +14,34 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsExpension_H
-#define metkit_MarsExpension_H
+#ifndef metkit_MarsLanguage_H
+#define metkit_MarsLanguage_H
 
 #include "metkit/MarsRequest.h"
-#include "metkit/MarsLanguage.h"
 
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpension {
+class MarsLanguage {
 public:
+
+    MarsLanguage(const std::string& verb);
+
+    typedef std::map<std::string, std::vector<std::string> >::iterator iterator;
+
+    iterator begin() { return language_.begin(); }
+    iterator end() { return language_.end(); }
+
+    void set(const std::string& name, const std::vector<std::string>& values);
+
+private:
 // -- Contructors
 
-    MarsExpension();
+    std::string verb_;
 
-    std::vector<MarsRequest> operator()(const std::vector<MarsRequest>&);
-
-private: // members
-
-    MarsLanguage& language(const std::string& verb);
-
-    std::map<std::string, MarsLanguage> languages_;
+    std::map<std::string, std::vector<std::string> > language_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

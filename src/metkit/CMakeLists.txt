@@ -13,12 +13,16 @@ MarsRequest.cc
 MarsRequest.h
 MarsExpension.cc
 MarsExpension.h
+MarsLanguage.cc
+MarsLanguage.h
 MarsParser.cc
 MarsParser.h
 MarsRequestHandle.cc
 MarsRequestHandle.h
 RequestEnvironment.cc
 RequestEnvironment.h
+config/LibMetkit.cc
+config/LibMetkit.h
 )
 
 if ( HAVE_GRIB )

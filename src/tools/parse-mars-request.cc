@@ -25,17 +25,17 @@ using namespace metkit;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Grib2Request : public Tool {
+class ParseRequest : public Tool {
 public:
 
-    Grib2Request(int argc,char **argv) :
+    ParseRequest(int argc,char **argv) :
         Tool(argc,argv) {
 
         path_ = eckit::Resource<std::string>("-in","/Users/baudouin/Dropbox/B1.diss"); ///< @todo Move to use Option
 
     }
 
-    virtual ~Grib2Request() {}
+    virtual ~ParseRequest() {}
 
     virtual void run();
 
@@ -44,7 +44,7 @@ private: // members
      eckit::PathName path_;
 };
 
-void Grib2Request::run()
+void ParseRequest::run()
 {
     std::ifstream in(path_);
     MarsParser parser(in);
@@ -59,6 +59,6 @@ void Grib2Request::run()
 
 int main(int argc,char **argv)
 {
-    Grib2Request tool(argc,argv);
+    ParseRequest tool(argc,argv);
     return tool.start();
 }

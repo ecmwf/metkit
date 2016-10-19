@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996-2013 ECMWF.
+ * (C) Copyright 1996-2016 ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -8,36 +8,36 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Manuel Fuentes
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @date   August 2016
 
-/// @date Sep 96
+#ifndef mir_LibMetkit_H
+#define mir_LibMetkit_H
 
-#ifndef metkit_MarsExpension_H
-#define metkit_MarsExpension_H
-
-#include "metkit/MarsRequest.h"
-#include "metkit/MarsLanguage.h"
-
+#include "eckit/system/Library.h"
+#include "eckit/filesystem/PathName.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpension {
+class LibMetkit : public eckit::system::Library {
 public:
-// -- Contructors
 
-    MarsExpension();
+    LibMetkit();
 
-    std::vector<MarsRequest> operator()(const std::vector<MarsRequest>&);
+    static eckit::PathName cacheDir();
 
-private: // members
+    static const LibMetkit& instance();
 
-    MarsLanguage& language(const std::string& verb);
+protected:
 
-    std::map<std::string, MarsLanguage> languages_;
+    const void* addr() const;
+
+    virtual std::string version() const;
+
+    virtual std::string gitsha1(unsigned int count) const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

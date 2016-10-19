@@ -31,6 +31,17 @@ MarsExpension::MarsExpension() {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+MarsLanguage& MarsExpension::language(const std::string& verb) {
+    std::map<std::string, MarsLanguage>::iterator j = languages_.find(verb);
+    if (j == languages_.end()) {
+        languages_.insert(std::make_pair(verb, MarsLanguage(verb)));
+        j = languages_.find(verb);
+    }
+    return (*j).second;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest>& requests) {
     std::vector<MarsRequest> result(requests);
 
@@ -38,15 +49,14 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
     for (std::vector<MarsRequest>::iterator j = result.begin(); j != result.end(); ++j) {
         MarsRequest& r = (*j);
 
-        MarsRequest::Params& language = languages_[r.name()];
+        MarsLanguage& lang = language(r.name());
 
-        for (MarsRequest::Params::iterator k = language.begin(); k != language.end(); ++k) {
+        for (MarsLanguage::iterator k = lang.begin(); k != lang.end(); ++k) {
             const std::string& name = (*k).first;
             std::vector<std::string> values;
             if (r.getValues(name, values) == 0) {
-
-                const MarsRequest::Values& inherited = (*k).second;
-                r.setValues(name, std::vector<std::string>(inherited.begin(), inherited.end()));
+                const std::vector<std::string> & inherited = (*k).second;
+                r.setValues(name, inherited);
             }
         }
 
@@ -55,7 +65,7 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
             std::vector<std::string> values;
             r.getValues(*k, values);
-            language[*k] = std::list<std::string>(values.begin(), values.end());
+            lang.set(*k, values);
         }
     }
 

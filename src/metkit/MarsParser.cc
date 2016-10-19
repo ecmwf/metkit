@@ -154,6 +154,8 @@ std::vector<MarsRequest> MarsParser::parse()
         result.push_back(parseRequest());
     }
 
+    std::cout << "MarsParser ===> " << result.size() << std::endl;
+
     return result;
 }
 
