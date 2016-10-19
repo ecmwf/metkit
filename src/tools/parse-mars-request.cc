@@ -49,8 +49,8 @@ void Grib2Request::run()
     std::ifstream in(path_);
     MarsParser parser(in);
     MarsExpension expand;
-    auto v = expand(parser.parse());
-    for(auto j = v.begin(); j != v.end(); ++j) {
+    std::vector<MarsRequest> v = expand(parser.parse());
+    for(std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
         std::cout << *j << std::endl;
     }
 }

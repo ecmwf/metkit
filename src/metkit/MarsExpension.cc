@@ -35,24 +35,24 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
     std::vector<MarsRequest> result(requests);
 
     // Implement inheritence
-    for (auto j = result.begin(); j != result.end(); ++j) {
+    for (std::vector<MarsRequest>::iterator j = result.begin(); j != result.end(); ++j) {
         MarsRequest& r = (*j);
 
         MarsRequest::Params& language = languages_[r.name()];
 
-        for (auto k = language.begin(); k != language.end(); ++k) {
+        for (MarsRequest::Params::iterator k = language.begin(); k != language.end(); ++k) {
             const std::string& name = (*k).first;
             std::vector<std::string> values;
             if (r.getValues(name, values) == 0) {
 
-                const auto& inherited = (*k).second;
+                const MarsRequest::Values& inherited = (*k).second;
                 r.setValues(name, std::vector<std::string>(inherited.begin(), inherited.end()));
             }
         }
 
         std::vector<std::string> params;
         r.getParams(params);
-        for (auto k = params.begin(); k != params.end(); ++k) {
+        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
             std::vector<std::string> values;
             r.getValues(*k, values);
             language[*k] = std::list<std::string>(values.begin(), values.end());
