@@ -18,6 +18,7 @@
 #include "metkit/grib/GribToRequest.h"
 #include "metkit/MarsRequest.h"
 #include "metkit/MarsParser.h"
+#include "metkit/MarsExpension.h"
 
 using namespace eckit;
 using namespace metkit;
@@ -47,7 +48,8 @@ void Grib2Request::run()
 {
     std::ifstream in(path_);
     MarsParser parser(in);
-    auto v = parser.parse();
+    MarsExpension expand;
+    auto v = expand(parser.parse());
     for(auto j = v.begin(); j != v.end(); ++j) {
         std::cout << *j << std::endl;
     }

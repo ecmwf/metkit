@@ -11,6 +11,8 @@ MarsLocation.cc
 MarsLocation.h
 MarsRequest.cc
 MarsRequest.h
+MarsExpension.cc
+MarsExpension.h
 MarsParser.cc
 MarsParser.h
 MarsRequestHandle.cc
