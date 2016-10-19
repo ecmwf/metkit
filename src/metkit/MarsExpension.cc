@@ -38,7 +38,9 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
     for (auto j = result.begin(); j != result.end(); ++j) {
         MarsRequest& r = (*j);
 
-        for (auto k = inheritence_.begin(); k != inheritence_.end(); ++k) {
+        MarsRequest::Params& language = languages_[r.name()];
+
+        for (auto k = language.begin(); k != language.end(); ++k) {
             const std::string& name = (*k).first;
             std::vector<std::string> values;
             if (r.getValues(name, values) == 0) {
@@ -53,7 +55,7 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
         for (auto k = params.begin(); k != params.end(); ++k) {
             std::vector<std::string> values;
             r.getValues(*k, values);
-            inheritence_[*k] = std::list<std::string>(values.begin(), values.end());
+            language[*k] = std::list<std::string>(values.begin(), values.end());
         }
     }
 

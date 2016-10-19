@@ -34,7 +34,7 @@ public:
 
 private: // members
 
-    MarsRequest::Params inheritence_;
+    std::map<std::string, MarsRequest::Params> languages_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
