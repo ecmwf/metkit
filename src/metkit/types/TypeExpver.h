@@ -8,13 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeEnum.h
+/// @file   TypeExpver.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypeEnum_H
-#define metkit_TypeEnum_H
+#ifndef metkit_TypeExpver_H
+#define metkit_TypeExpver_H
 
 #include "metkit/types/Type.h"
 
@@ -22,25 +22,20 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeEnum : public Type {
+class TypeExpver : public Type {
 
 public: // methods
 
-    TypeEnum(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeExpver(const std::string &name, const std::string &type, const eckit::Value& value);
 
-    virtual ~TypeEnum();
+    virtual ~TypeExpver();
 
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const;
-
-        virtual void expand(std::vector<std::string>& values) const;
+    virtual std::string tidy(const std::string &keyword,
+                             const std::string &value) const ;
 
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-
-    std::map<std::string, std::string> values_;
 
 };
 

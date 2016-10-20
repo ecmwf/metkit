@@ -51,6 +51,13 @@ bool Type::match(const std::string&, const std::string& value1, const std::strin
 
 
 void Type::expand(std::vector<std::string>& values) const {
+    std::vector<std::string> newvals;
+
+    for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
+        newvals.push_back(tidy(name_, *j));
+    }
+
+    std::swap(newvals, values);
 
 }
 

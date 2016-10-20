@@ -8,13 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeEnum.h
+/// @file   TypeToByList.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypeEnum_H
-#define metkit_TypeEnum_H
+#ifndef metkit_TypeToByList_H
+#define metkit_TypeToByList_H
 
 #include "metkit/types/Type.h"
 
@@ -22,13 +22,13 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeEnum : public Type {
+class TypeToByList : public Type {
 
 public: // methods
 
-    TypeEnum(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeToByList(const std::string &name, const std::string &type, const eckit::Value& value);
 
-    virtual ~TypeEnum();
+    virtual ~TypeToByList();
 
     virtual void toKey(std::ostream &out,
                        const std::string &keyword,
@@ -40,7 +40,7 @@ private: // methods
 
     virtual void print( std::ostream &out ) const;
 
-    std::map<std::string, std::string> values_;
+    long by_;
 
 };
 

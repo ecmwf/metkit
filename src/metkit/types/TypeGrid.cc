@@ -39,7 +39,7 @@ void TypeGrid::print(std::ostream &out) const {
     out << "TypeGrid[name=" << name_ << "]";
 }
 
-static TypeBuilder<TypeGrid> type("Grid");
+static TypeBuilder<TypeGrid> type("grid");
 
 //----------------------------------------------------------------------------------------------------------------------
 

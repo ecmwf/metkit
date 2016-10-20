@@ -31,6 +31,10 @@ types/TypeArea.cc
 types/TypeArea.h
 types/TypeAny.cc
 types/TypeAny.h
+types/TypeExpver.cc
+types/TypeExpver.h
+types/TypeToByList.cc
+types/TypeToByList.h
 types/TypeEnum.cc
 types/TypeEnum.h
 types/TypeGrid.cc

@@ -14,38 +14,31 @@
 #include "metkit/MarsRequest.h"
 
 #include "metkit/types/TypesFactory.h"
-#include "metkit/types/TypeTime.h"
+#include "metkit/types/TypeExpver.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeTime::TypeTime(const std::string &name, const std::string &type, const eckit::Value& value) :
+TypeExpver::TypeExpver(const std::string &name, const std::string &type, const eckit::Value& value) :
     Type(name, type, value) {
 }
 
-TypeTime::~TypeTime() {
+TypeExpver::~TypeExpver() {
 }
 
-std::string TypeTime::tidy(const std::string &keyword,
+std::string TypeExpver::tidy(const std::string &keyword,
                            const std::string &value) const {
-    eckit::Translator<std::string, long> t;
-
-    long n = t(value);
-    if (n < 100) {
-        n *= 100;
-    }
-
     std::ostringstream oss;
-    oss << std::setfill('0') << std::setw(4) << n;
+    oss << std::setfill('0') << std::setw(4) << value;
     return oss.str();
 }
 
-void TypeTime::print(std::ostream &out) const {
-    out << "TypeTime[name=" << name_ << "]";
+void TypeExpver::print(std::ostream &out) const {
+    out << "TypeExpver[name=" << name_ << "]";
 }
 
-static TypeBuilder<TypeTime> type("time");
+static TypeBuilder<TypeExpver> type("expver");
 
 //----------------------------------------------------------------------------------------------------------------------
 
