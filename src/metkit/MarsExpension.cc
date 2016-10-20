@@ -33,23 +33,26 @@ MarsExpension::MarsExpension() {
 //----------------------------------------------------------------------------------------------------------------------
 
 MarsLanguage& MarsExpension::language(const std::string& verb) {
-    std::map<std::string, MarsLanguage>::iterator j = languages_.find(verb);
+
+    std::string v = MarsLanguage::expandVerb(v);
+
+    std::map<std::string, MarsLanguage>::iterator j = languages_.find(v);
     if (j == languages_.end()) {
-        languages_.insert(std::make_pair(verb, MarsLanguage(verb)));
-        j = languages_.find(verb);
+        languages_.insert(std::make_pair(v, MarsLanguage(v)));
+        j = languages_.find(v);
     }
     return (*j).second;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest>& requests) {
-    std::vector<MarsRequest> result(requests);
+    std::vector<MarsRequest> result;
 
     // Implement inheritence
-    for (std::vector<MarsRequest>::iterator j = result.begin(); j != result.end(); ++j) {
-        MarsRequest& r = (*j);
+    for (std::vector<MarsRequest>::const_iterator j = requests.begin(); j != requests.end(); ++j) {
 
-        MarsLanguage& lang = language(r.name());
+        MarsLanguage& lang = language((*j).name());
+        MarsRequest r = lang.expand(*j);
 
         for (MarsLanguage::iterator k = lang.begin(); k != lang.end(); ++k) {
             const std::string& name = (*k).first;
@@ -67,6 +70,8 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
             r.getValues(*k, values);
             lang.set(*k, values);
         }
+
+        result.push_back(r);
     }
 
     return result;

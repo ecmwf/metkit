@@ -1,0 +1,19 @@
+{
+    "dissemination": {
+        "area": [null],
+        "domain": ["g", "m"],
+        "expver": {},
+        "format": [null, "grib", "grib2", "bufr"],
+        "grid": {},
+        "levelist": {},
+        "levtype": ["pl", "ml", "sfc"],
+        "param": {},
+        "priority": {},
+        "step": {},
+        "stream": ["oper"],
+        "target": {},
+        "time": {},
+        "type": ["an"],
+        "use": [null, "bc"]
+    }
+}

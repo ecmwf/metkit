@@ -29,19 +29,33 @@ public:
 
     MarsLanguage(const std::string& verb);
 
+    MarsRequest expand(const MarsRequest& r) const;
+
     typedef std::map<std::string, std::vector<std::string> >::iterator iterator;
 
-    iterator begin() { return language_.begin(); }
-    iterator end() { return language_.end(); }
+    iterator begin() { return inheritence_.begin(); }
+    iterator end() { return inheritence_.end(); }
 
     void set(const std::string& name, const std::vector<std::string>& values);
+
+    const std::string& verb() const;
+
+// - Class methds
+
+    static std::string expandVerb(const std::string& verb);
 
 private:
 // -- Contructors
 
     std::string verb_;
 
-    std::map<std::string, std::vector<std::string> > language_;
+    eckit::Value lang_;
+
+    std::map<std::string, std::vector<std::string> > inheritence_;
+
+private: // Methods
+    std::string expandKeyword(const std::string& keyword);
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
