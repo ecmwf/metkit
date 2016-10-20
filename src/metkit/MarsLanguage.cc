@@ -19,9 +19,12 @@
 #include "eckit/utils/Translator.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/parser/StringTools.h"
+#include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/MarsLanguage.h"
 #include "eckit/parser/JSONParser.h"
+#include "metkit/types/TypesFactory.h"
+#include "metkit/types/Type.h"
 
 using namespace eckit;
 
@@ -29,53 +32,15 @@ using namespace eckit;
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static Value languages;
 
-#define MULTI_LINE_STRING(a) #a
-
-static void replace(std::string& txt,
-                    const std::string& s,
-                    const std::string& r) {
-    size_t pos = 0;
-    while ((pos = txt.find(s, pos)) != std::string::npos) {
-        txt.replace(pos, s.length(), r);
-        pos += r.length();
-    }
-}
-
 static void init() {
 
     eckit::PathName language("~metkit/etc/language.json");
+    std::cout << "Loading " << language << std::endl;
     std::ifstream in(language.asString().c_str());
-    if(!in) {
+    if (!in) {
         throw eckit::CantOpenFile(language);
     }
 
-    std::string s = MULTI_LINE_STRING(
-
-    {
-"dissemination" : {
-"area" : {}(,)
-            "domain" : {}(,)
-            "expver" : {}(,)
-            "format" : {}(,)
-            "grid" : {}(,)
-            "levelist" : {}(,)
-            "levtype" : {}(,)
-            "param" : {}(,)
-            "priority" : {}(,)
-            "step" : {}(,)
-            "stream" : {}(,)
-            "target" : {}(,)
-            "time" : {}(,)
-            "type" : {}(,)
-            "use": {}
-        }
-    }
-
-                    );
-
-    replace(s, "(,)", ",");
-
-    // std::istringstream in(s);
     eckit::JSONParser parser(in);
 
     languages =  parser.parse();
@@ -116,6 +81,14 @@ std::string MarsLanguage::expandKeyword(const std::string& keyword) {
     return bestMatch(keyword, lang_.keys());
 }
 
+void MarsLanguage::expandValues(const std::string& keyword,
+                                const Value& language,
+                                std::vector<std::string>& values) const {
+
+    eckit::ScopedPtr<Type> type(TypesFactory::build(language["type"], keyword, language));
+    type->expand(values);
+}
+
 MarsRequest MarsLanguage::expand(const MarsRequest& r) const {
     MarsRequest result(verb_);
 
@@ -127,6 +100,9 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r) const {
 
         std::vector<std::string> values;
         r.getValues(*j, values);
+
+        expandValues(p, lang_[p], values);
+
         result.setValues(p, values);
     }
 

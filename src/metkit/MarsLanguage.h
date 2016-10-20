@@ -55,6 +55,7 @@ private:
 
 private: // Methods
     std::string expandKeyword(const std::string& keyword);
+    void expandValues(const std::string& keyword, const eckit::Value& language, std::vector<std::string>& values) const;
 
 };
 

@@ -1,19 +1,52 @@
 {
     "dissemination": {
-        "area": [null],
-        "domain": ["g", "m"],
-        "expver": {},
-        "format": [null, "grib", "grib2", "bufr"],
-        "grid": {},
-        "levelist": {},
-        "levtype": ["pl", "ml", "sfc"],
-        "param": {},
-        "priority": {},
-        "step": {},
-        "stream": ["oper"],
-        "target": {},
-        "time": {},
-        "type": ["an"],
-        "use": [null, "bc"]
+        "area": {
+            "type": "area"
+        },
+        "domain": {
+            "type": "enum",
+            "values": ["g", "m"]
+        },
+        "expver": {
+            "type": "any"
+        },
+        "format": {
+            "type": "enum",
+            "values": ["grib", "grib2", "bufr", "off"]
+        },
+        "grid": {
+            "type": "any"
+        },
+        "levelist": {
+            "type": "any"
+        },
+        "levtype": {
+            "type": "enum",
+            "values": ["pl", "ml", "sfc"]
+        },
+        "param": {
+            "type": "any"
+        },
+        "priority": {
+            "type": "any"
+        },
+        "step": {
+            "type": "any"
+        },
+        "stream": {
+            "type": "any"
+        },
+        "target": {
+            "type": "any"
+        },
+        "time": {
+            "type": "any"
+        },
+        "type": {
+            "type": "any"
+        },
+        "use": {
+            "type": "any"
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Previously existed in mars-server code as marslib/GribHandle
+/// Previously existed in mars-server code as metkit/GribHandle
 
 class GribMetaData : public eckit::Metadata {
 

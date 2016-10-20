@@ -31,7 +31,7 @@ namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Previously existed in mars-server code as marslib/EmosFile
+/// Previously existed in mars-server code as metkit/EmosFile
 
 class EmosFile : private eckit::NonCopyable {
 

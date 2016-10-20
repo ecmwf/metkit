@@ -23,6 +23,24 @@ RequestEnvironment.cc
 RequestEnvironment.h
 config/LibMetkit.cc
 config/LibMetkit.h
+types/Type.cc
+types/Type.h
+types/TypeDate.cc
+types/TypeDate.h
+types/TypeArea.cc
+types/TypeArea.h
+types/TypeAny.cc
+types/TypeAny.h
+types/TypeEnum.cc
+types/TypeEnum.h
+types/TypeGrid.cc
+types/TypeGrid.h
+types/TypeInteger.cc
+types/TypeInteger.h
+types/TypeTime.cc
+types/TypeTime.h
+types/TypesFactory.cc
+types/TypesFactory.h
 )
 
 if ( HAVE_GRIB )
