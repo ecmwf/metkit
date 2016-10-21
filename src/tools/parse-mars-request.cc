@@ -46,7 +46,7 @@ private: // members
 
 void ParseRequest::run()
 {
-    std::ifstream in(path_);
+    std::ifstream in(path_.asString().c_str());
     MarsParser parser(in);
     MarsExpension expand;
 
