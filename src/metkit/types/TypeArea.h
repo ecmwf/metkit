@@ -26,15 +26,11 @@ class TypeArea : public Type {
 
 public: // methods
 
-    TypeArea(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeArea(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeArea();
 
 private: // methods
-
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const ;
 
     virtual void print( std::ostream &out ) const;
 

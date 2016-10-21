@@ -26,19 +26,14 @@ class TypeToByList : public Type {
 
 public: // methods
 
-    TypeToByList(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeToByList(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeToByList();
-
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const;
-
-        virtual void expand(std::vector<std::string>& values) const;
 
 private: // methods
 
     virtual void print( std::ostream &out ) const;
+    virtual void expand(std::vector<std::string>& values) const;
 
     long by_;
 

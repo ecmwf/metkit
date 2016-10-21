@@ -17,17 +17,11 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeAny::TypeAny(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value) {
+TypeAny::TypeAny(const std::string &name, const eckit::Value& value) :
+    Type(name, value) {
 }
 
 TypeAny::~TypeAny() {
-}
-
-
-void TypeAny::toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const {
 }
 
 void TypeAny::print(std::ostream &out) const {

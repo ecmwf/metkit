@@ -28,10 +28,10 @@ using namespace metkit;
 class ParseRequest : public Tool {
 public:
 
-    ParseRequest(int argc,char **argv) :
-        Tool(argc,argv) {
+    ParseRequest(int argc, char **argv) :
+        Tool(argc, argv) {
 
-        path_ = eckit::Resource<std::string>("-in","/Users/baudouin/Dropbox/B1.diss"); ///< @todo Move to use Option
+        path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/B1.diss"); ///< @todo Move to use Option
 
     }
 
@@ -41,7 +41,7 @@ public:
 
 private: // members
 
-     eckit::PathName path_;
+    eckit::PathName path_;
 };
 
 void ParseRequest::run()
@@ -49,16 +49,22 @@ void ParseRequest::run()
     std::ifstream in(path_);
     MarsParser parser(in);
     MarsExpension expand;
+
     std::vector<MarsRequest> v = expand(parser.parse());
-    for(std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+
+    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
         std::cout << *j << std::endl;
     }
+
+    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+    //     expand.flatten(*j);
+    // }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int main(int argc,char **argv)
+int main(int argc, char **argv)
 {
-    ParseRequest tool(argc,argv);
+    ParseRequest tool(argc, argv);
     return tool.start();
 }

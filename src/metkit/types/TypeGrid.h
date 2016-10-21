@@ -26,15 +26,11 @@ class TypeGrid : public Type {
 
 public: // methods
 
-    TypeGrid(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeGrid(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeGrid();
 
 private: // methods
-
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const ;
 
     virtual void print( std::ostream &out ) const;
 

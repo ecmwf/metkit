@@ -58,7 +58,7 @@ template< class T>
 class TypeBuilder : public TypesFactory {
 
     virtual Type *make(const std::string &keyword, const eckit::Value& value) const {
-        return new T(keyword, name_, value);
+        return new T(keyword, value);
     }
 
 public:

@@ -26,12 +26,11 @@ class TypeTime : public Type {
 
 public: // methods
 
-    TypeTime(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeTime(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeTime();
 
-    virtual std::string tidy(const std::string &keyword,
-                             const std::string &value) const ;
+    virtual std::string tidy(const std::string &value) const ;
 
 private: // methods
 

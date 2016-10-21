@@ -18,18 +18,12 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByList::TypeToByList(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value),
+TypeToByList::TypeToByList(const std::string &name, const eckit::Value& value) :
+    Type(name, value),
     by_(value["by"]) {
 }
 
 TypeToByList::~TypeToByList() {
-}
-
-
-void TypeToByList::toKey(std::ostream &out,
-                         const std::string &keyword,
-                         const std::string &value) const {
 }
 
 void TypeToByList::print(std::ostream &out) const {

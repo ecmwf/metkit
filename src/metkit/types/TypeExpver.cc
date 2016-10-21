@@ -20,15 +20,14 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeExpver::TypeExpver(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value) {
+TypeExpver::TypeExpver(const std::string &name, const eckit::Value& value) :
+    Type(name, value) {
 }
 
 TypeExpver::~TypeExpver() {
 }
 
-std::string TypeExpver::tidy(const std::string &keyword,
-                           const std::string &value) const {
+std::string TypeExpver::tidy(const std::string &value) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << value;
     return oss.str();

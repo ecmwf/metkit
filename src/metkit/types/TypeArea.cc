@@ -18,22 +18,12 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeArea::TypeArea(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value) {
+TypeArea::TypeArea(const std::string &name, const eckit::Value& value) :
+    Type(name, value) {
 }
 
 TypeArea::~TypeArea() {
 }
-
-void TypeArea::toKey(std::ostream &out,
-                     const std::string &keyword,
-                     const std::string &value) const {
-
-    std::string s(value);
-    std::replace( s.begin(), s.end(), '/', '+');
-    out << s;
-}
-
 
 void TypeArea::print(std::ostream &out) const {
     out << "TypeArea[name=" << name_ << "]";

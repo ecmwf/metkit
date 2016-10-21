@@ -26,15 +26,9 @@ class TypeInteger : public Type {
 
 public: // methods
 
-    TypeInteger(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeInteger(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeInteger();
-
-    virtual void getValues(const MarsRequest &request,
-                           const std::string &keyword,
-                           eckit::StringList &values,
-                           const NotifyWind &wind,
-                           const DB *db) const;
 
 private: // methods
 

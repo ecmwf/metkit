@@ -19,29 +19,11 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeInteger::TypeInteger(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value) {
+TypeInteger::TypeInteger(const std::string &name, const eckit::Value& value) :
+    Type(name, value) {
 }
 
 TypeInteger::~TypeInteger() {
-}
-
-void TypeInteger::getValues(const MarsRequest &request,
-                            const std::string &keyword,
-                            eckit::StringList &values,
-                            const NotifyWind &wind,
-                            const DB *db) const {
-    std::vector<long> intValues;
-
-    request.getValues(keyword, intValues);
-
-    eckit::Translator<long, std::string> t;
-
-    values.reserve(intValues.size());
-
-    for (std::vector<long>::const_iterator i = intValues.begin(); i != intValues.end(); ++i) {
-        values.push_back(t(*i));
-    }
 }
 
 void TypeInteger::print(std::ostream &out) const {

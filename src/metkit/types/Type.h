@@ -25,8 +25,7 @@
 
 namespace metkit {
 
-class DB;
-class NotifyWind;
+class MarsRequest;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -34,29 +33,22 @@ class Type : private eckit::NonCopyable {
 
 public: // methods
 
-    Type(const std::string &name, const std::string &type, const eckit::Value& value);
+    Type(const std::string &name, const eckit::Value& value);
 
     virtual ~Type();
 
-    virtual std::string tidy(const std::string &keyword,
-                             const std::string &value) const ;
-
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const ;
-
-    virtual bool match(const std::string& keyword, const std::string& value1, const std::string& value2) const;
+    virtual std::string tidy(const std::string &value) const ;
 
     virtual void expand(std::vector<std::string>& values) const;
+    virtual void setDefaults(MarsRequest& request) const;
+    virtual void setDefaults(const std::vector<std::string>& defaults);
+
 
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 
 public: // class methods
 
     static const Type &lookup(const std::string &keyword);
-
-    const std::string &type() const;
-
 
 
 private: // methods
@@ -66,9 +58,8 @@ private: // methods
 protected: // members
 
     std::string name_;
-    std::string type_;
-    eckit::Value value_;
 
+    std::vector<std::string> defaults_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

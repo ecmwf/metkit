@@ -21,6 +21,8 @@
 #include "eckit/parser/StringTools.h"
 
 #include "metkit/MarsExpension.h"
+#include "metkit/types/Type.h"
+#include "metkit/MarsLanguage.h"
 
 using namespace eckit;
 
@@ -30,18 +32,25 @@ MarsExpension::MarsExpension() {
 
 }
 
+
+MarsExpension::~MarsExpension() {
+ for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {
+        delete (*j).second;
+    }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 MarsLanguage& MarsExpension::language(const std::string& verb) {
 
     std::string v = MarsLanguage::expandVerb(v);
 
-    std::map<std::string, MarsLanguage>::iterator j = languages_.find(v);
+    std::map<std::string, MarsLanguage*>::iterator j = languages_.find(v);
     if (j == languages_.end()) {
-        languages_.insert(std::make_pair(v, MarsLanguage(v)));
+        languages_.insert(std::make_pair(v, new MarsLanguage(v)));
         j = languages_.find(v);
     }
-    return (*j).second;
+    return *(*j).second;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -58,8 +67,7 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
             const std::string& name = (*k).first;
             std::vector<std::string> values;
             if (r.getValues(name, values) == 0) {
-                const std::vector<std::string> & inherited = (*k).second;
-                r.setValues(name, inherited);
+                (*k).second->setDefaults(r);
             }
         }
 
@@ -75,6 +83,11 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
     }
 
     return result;
+}
+
+void MarsExpension::flatten(const MarsRequest& request) {
+    MarsLanguage& lang = language(request.name());
+    lang.flatten(request);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -15,28 +15,16 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string &name, const std::string &type, const eckit::Value& value) :
-    name_(name),
-    type_(type),
-    value_(value) {
+Type::Type(const std::string &name, const eckit::Value& value) :
+    name_(name) {
 }
 
 Type::~Type() {
 }
 
-const std::string &Type::type() const {
-    return type_;
-}
 
-std::string Type::tidy(const std::string &keyword,
-                       const std::string &value) const  {
+std::string Type::tidy(const std::string &value) const  {
     return value;
-}
-
-void Type::toKey(std::ostream &out,
-                 const std::string &keyword,
-                 const std::string &value) const {
-    out << value;
 }
 
 std::ostream &operator<<(std::ostream &s, const Type &x) {
@@ -44,21 +32,25 @@ std::ostream &operator<<(std::ostream &s, const Type &x) {
     return s;
 }
 
-bool Type::match(const std::string&, const std::string& value1, const std::string& value2) const
-{
-    return (value1 == value2);
-}
-
-
 void Type::expand(std::vector<std::string>& values) const {
     std::vector<std::string> newvals;
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        newvals.push_back(tidy(name_, *j));
+        newvals.push_back(tidy(*j));
     }
 
     std::swap(newvals, values);
 
+}
+
+void Type::setDefaults(MarsRequest& request) const {
+    if (!defaults_.empty()) {
+        request.setValues(name_, defaults_);
+    }
+}
+
+void Type::setDefaults(const std::vector<std::string>& defaults) {
+    defaults_ = defaults;
 }
 
 

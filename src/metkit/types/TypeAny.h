@@ -26,13 +26,10 @@ class TypeAny : public Type {
 
 public: // methods
 
-    TypeAny(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeAny(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeAny();
 
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const;
 private: // methods
 
     virtual void print( std::ostream &out ) const;

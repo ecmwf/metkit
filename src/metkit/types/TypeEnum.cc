@@ -17,8 +17,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeEnum::TypeEnum(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value) {
+TypeEnum::TypeEnum(const std::string &name, const eckit::Value& value) :
+    Type(name, value) {
 
     eckit::Value values = value["values"];
     for(size_t i = 0; i < values.size(); ++i) {
@@ -30,18 +30,11 @@ TypeEnum::TypeEnum(const std::string &name, const std::string &type, const eckit
 TypeEnum::~TypeEnum() {
 }
 
-
-void TypeEnum::toKey(std::ostream &out,
-                     const std::string &keyword,
-                     const std::string &value) const {
-}
-
 void TypeEnum::print(std::ostream &out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
 void TypeEnum::expand(std::vector<std::string>& values) const {
-    std::cout << "EXPAND " << values << " " << value_ << std::endl;
 
     std::vector<std::string> newval;
     for(std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {

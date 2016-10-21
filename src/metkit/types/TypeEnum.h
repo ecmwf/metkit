@@ -26,15 +26,11 @@ class TypeEnum : public Type {
 
 public: // methods
 
-    TypeEnum(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeEnum(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeEnum();
 
-    virtual void toKey(std::ostream &out,
-                       const std::string &keyword,
-                       const std::string &value) const;
-
-        virtual void expand(std::vector<std::string>& values) const;
+    virtual void expand(std::vector<std::string>& values) const;
 
 private: // methods
 

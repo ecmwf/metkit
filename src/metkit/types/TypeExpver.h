@@ -26,12 +26,11 @@ class TypeExpver : public Type {
 
 public: // methods
 
-    TypeExpver(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeExpver(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeExpver();
 
-    virtual std::string tidy(const std::string &keyword,
-                             const std::string &value) const ;
+    virtual std::string tidy(const std::string &value) const ;
 
 private: // methods
 

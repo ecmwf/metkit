@@ -26,12 +26,11 @@ class TypeDate : public Type {
 
 public: // methods
 
-    TypeDate(const std::string &name, const std::string &type, const eckit::Value& value);
+    TypeDate(const std::string &name, const eckit::Value& value);
 
     virtual ~TypeDate();
 
-    virtual std::string tidy(const std::string &keyword,
-                             const std::string &value) const ;
+    virtual std::string tidy(const std::string &value) const ;
 
 
 private: // methods

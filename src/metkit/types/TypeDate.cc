@@ -20,17 +20,15 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeDate::TypeDate(const std::string &name, const std::string &type, const eckit::Value& value) :
-    Type(name, type, value) {
+TypeDate::TypeDate(const std::string &name, const eckit::Value& value) :
+    Type(name, value) {
 }
 
 TypeDate::~TypeDate() {
 }
 
 
-std::string TypeDate::tidy(
-                     const std::string &keyword,
-                     const std::string &value) const {
+std::string TypeDate::tidy(const std::string &value) const {
     if (!value.empty() && (value[0] == '0' || value[0] == '-')) {
         eckit::Translator<std::string, long> t;
         long n = t(value);

@@ -18,26 +18,30 @@
 #define metkit_MarsExpension_H
 
 #include "metkit/MarsRequest.h"
-#include "metkit/MarsLanguage.h"
+#include "eckit/memory/NonCopyable.h"
 
 
 namespace metkit {
 
+class MarsLanguage;
+
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpension {
+class MarsExpension : public eckit::NonCopyable {
 public:
 // -- Contructors
 
     MarsExpension();
+    ~MarsExpension();
 
     std::vector<MarsRequest> operator()(const std::vector<MarsRequest>&);
+    void flatten(const MarsRequest& request);
 
 private: // members
 
     MarsLanguage& language(const std::string& verb);
 
-    std::map<std::string, MarsLanguage> languages_;
+    std::map<std::string, MarsLanguage*> languages_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -30,7 +30,8 @@ using namespace eckit;
 
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
-static Value languages;
+static Value languages_;
+static std::vector<std::string> verbs_;
 
 static void init() {
 
@@ -43,7 +44,11 @@ static void init() {
 
     eckit::JSONParser parser(in);
 
-    languages =  parser.parse();
+    languages_ =  parser.parse();
+    Value verbs = languages_.keys();
+    for (size_t i = 0; i < verbs.size(); ++i) {
+        verbs_.push_back(verbs[i]);
+    }
 
 }
 
@@ -54,12 +59,27 @@ namespace metkit {
 MarsLanguage::MarsLanguage(const std::string& verb):
     verb_(verb) {
     pthread_once(&once, init);
-    lang_ = languages[verb];
+    Value lang = languages_[verb];
+    Value params = lang.keys();
+    for (size_t i = 0; i < params.size(); ++i) {
+        std::string keyword = params[i];
+        Value definition = lang[keyword];
+        types_[keyword] = TypesFactory::build(definition["type"], keyword, definition);
+        keywords_.push_back(keyword);
+    }
+    std::cout << verb << " loaded" << std::endl;
 }
 
-static std::string bestMatch(const std::string& name, const Value& values) {
+MarsLanguage::~MarsLanguage() {
+    for (std::map<std::string, Type* >::iterator j = types_.begin(); j != types_.end(); ++j) {
+        delete (*j).second;
+    }
+}
+
+
+static std::string bestMatch(const std::string& name, const std::vector<std::string>& values) {
     for (size_t i = 0; i < values.size(); ++i) {
-        std::string value = values[i];
+        const std::string& value = values[i];
         if (value.find(name) == 0) {
             return value;
         }
@@ -73,12 +93,12 @@ static std::string bestMatch(const std::string& name, const Value& values) {
 std::string MarsLanguage::expandVerb(const std::string& verb) {
     pthread_once(&once, init);
 
-    return bestMatch(verb, languages.keys());
+    return bestMatch(verb, verbs_);
 
 }
 
 std::string MarsLanguage::expandKeyword(const std::string& keyword) {
-    return bestMatch(keyword, lang_.keys());
+    return bestMatch(keyword, keywords_);
 }
 
 void MarsLanguage::expandValues(const std::string& keyword,
@@ -90,18 +110,22 @@ void MarsLanguage::expandValues(const std::string& keyword,
 }
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r) const {
+    std::cout << "expand " << r << std::endl;
     MarsRequest result(verb_);
 
     std::vector<std::string> params;
     r.getParams(params);
 
+    std::cout << params << std::endl;
+
     for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-        std::string p = bestMatch(*j, lang_.keys());
+        std::string p = bestMatch(*j, keywords_);
 
         std::vector<std::string> values;
         r.getValues(*j, values);
 
-        expandValues(p, lang_[p], values);
+        ASSERT(types_.find(p) != types_.end());
+        types_.find(p)->second->expand(values);
 
         result.setValues(p, values);
     }
@@ -115,9 +139,17 @@ const std::string& MarsLanguage::verb() const {
 }
 
 
+void MarsLanguage::flatten(const MarsRequest& request) {
+    std::vector<std::string> params;
+    request.getParams(params);
+
+
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void MarsLanguage::set(const std::string& name, const std::vector<std::string>& values) {
-    inheritence_[name] = values;
+    ASSERT(types_.find(name) != types_.end());
+    types_.find(name)->second->setDefaults(values);
 }
 
 
