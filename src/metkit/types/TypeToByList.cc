@@ -18,9 +18,9 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByList::TypeToByList(const std::string &name, const eckit::Value& value) :
-    Type(name, value),
-    by_(value["by"]) {
+TypeToByList::TypeToByList(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings),
+    by_(settings["by"]) {
 }
 
 TypeToByList::~TypeToByList() {

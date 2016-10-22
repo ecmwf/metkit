@@ -35,7 +35,7 @@ class Type;
 
 class TypesFactory {
 
-    virtual Type *make(const std::string &keyword, const eckit::Value& value) const = 0 ;
+    virtual Type *make(const std::string &keyword, const eckit::Value& settings) const = 0 ;
 
 protected:
 
@@ -47,7 +47,7 @@ protected:
 public:
 
     static void list(std::ostream &);
-    static Type *build(const std::string &name, const std::string &keyword, const eckit::Value&);
+    static Type *build(const std::string &keyword, const eckit::Value&);
 
 };
 
@@ -57,8 +57,8 @@ public:
 template< class T>
 class TypeBuilder : public TypesFactory {
 
-    virtual Type *make(const std::string &keyword, const eckit::Value& value) const {
-        return new T(keyword, value);
+    virtual Type *make(const std::string &keyword, const eckit::Value& settings) const {
+        return new T(keyword, settings);
     }
 
 public:

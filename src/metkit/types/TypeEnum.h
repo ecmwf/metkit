@@ -26,7 +26,7 @@ class TypeEnum : public Type {
 
 public: // methods
 
-    TypeEnum(const std::string &name, const eckit::Value& value);
+    TypeEnum(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeEnum();
 

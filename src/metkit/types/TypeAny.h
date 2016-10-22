@@ -26,7 +26,7 @@ class TypeAny : public Type {
 
 public: // methods
 
-    TypeAny(const std::string &name, const eckit::Value& value);
+    TypeAny(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeAny();
 

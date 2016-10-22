@@ -18,8 +18,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeArea::TypeArea(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeArea::TypeArea(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeArea::~TypeArea() {
@@ -27,6 +27,11 @@ TypeArea::~TypeArea() {
 
 void TypeArea::print(std::ostream &out) const {
     out << "TypeArea[name=" << name_ << "]";
+}
+
+
+void TypeArea::flattenValues(const MarsRequest& request, std::vector<std::string>& values) {
+    // Empty
 }
 
 static TypeBuilder<TypeArea> type("area");

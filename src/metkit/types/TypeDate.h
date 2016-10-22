@@ -26,7 +26,7 @@ class TypeDate : public Type {
 
 public: // methods
 
-    TypeDate(const std::string &name, const eckit::Value& value);
+    TypeDate(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeDate();
 

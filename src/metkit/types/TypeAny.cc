@@ -17,8 +17,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeAny::TypeAny(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeAny::TypeAny(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeAny::~TypeAny() {

@@ -15,7 +15,7 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Type::Type(const std::string &name, const eckit::Value& value) :
+Type::Type(const std::string &name, const eckit::Value& settings) :
     name_(name) {
 }
 
@@ -53,6 +53,9 @@ void Type::setDefaults(const std::vector<std::string>& defaults) {
     defaults_ = defaults;
 }
 
+void Type::flattenValues(const MarsRequest& request, std::vector<std::string>& values) {
+    request.getValues(name_, values);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

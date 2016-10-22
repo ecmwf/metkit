@@ -26,7 +26,7 @@ class TypeToByList : public Type {
 
 public: // methods
 
-    TypeToByList(const std::string &name, const eckit::Value& value);
+    TypeToByList(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeToByList();
 

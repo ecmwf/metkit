@@ -56,9 +56,9 @@ void ParseRequest::run()
         std::cout << *j << std::endl;
     }
 
-    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-    //     expand.flatten(*j);
-    // }
+    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+        expand.flatten(*j);
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

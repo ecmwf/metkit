@@ -146,17 +146,17 @@ bool GribMetaData::has(const std::string& key) const
 
 void GribMetaData::get(const std::string &name, std::string &value) const
 {
-    getValue(name, value);
+    getValue(name, settings);
 }
 
 void GribMetaData::get(const std::string &name, long &value) const
 {
-    getValue(name, value);
+    getValue(name, settings);
 }
 
 void GribMetaData::get(const std::string &name, double &value) const
 {
-    getValue(name, value);
+    getValue(name, settings);
 }
 
 std::string GribMetaData::substitute(const std::string& pattern) const

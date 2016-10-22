@@ -26,7 +26,7 @@ class TypeExpver : public Type {
 
 public: // methods
 
-    TypeExpver(const std::string &name, const eckit::Value& value);
+    TypeExpver(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeExpver();
 

@@ -20,8 +20,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeTime::TypeTime(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeTime::~TypeTime() {

@@ -19,8 +19,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeInteger::TypeInteger(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeInteger::TypeInteger(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeInteger::~TypeInteger() {

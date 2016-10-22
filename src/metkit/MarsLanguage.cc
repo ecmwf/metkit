@@ -61,16 +61,18 @@ MarsLanguage::MarsLanguage(const std::string& verb):
     pthread_once(&once, init);
     Value lang = languages_[verb];
     Value params = lang.keys();
+
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
-        Value definition = lang[keyword];
-        types_[keyword] = TypesFactory::build(definition["type"], keyword, definition);
+        Value settings = lang[keyword];
+        types_[keyword] = TypesFactory::build(keyword, settings);
         keywords_.push_back(keyword);
     }
     std::cout << verb << " loaded" << std::endl;
 }
 
 MarsLanguage::~MarsLanguage() {
+    std::cout << "MarsLanguage::~MarsLanguage " << verbs_ << std::endl;
     for (std::map<std::string, Type* >::iterator j = types_.begin(); j != types_.end(); ++j) {
         delete (*j).second;
     }
@@ -97,18 +99,6 @@ std::string MarsLanguage::expandVerb(const std::string& verb) {
 
 }
 
-std::string MarsLanguage::expandKeyword(const std::string& keyword) {
-    return bestMatch(keyword, keywords_);
-}
-
-void MarsLanguage::expandValues(const std::string& keyword,
-                                const Value& language,
-                                std::vector<std::string>& values) const {
-
-    eckit::ScopedPtr<Type> type(TypesFactory::build(language["type"], keyword, language));
-    type->expand(values);
-}
-
 MarsRequest MarsLanguage::expand(const MarsRequest& r) const {
     std::cout << "expand " << r << std::endl;
     MarsRequest result(verb_);
@@ -116,19 +106,30 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r) const {
     std::vector<std::string> params;
     r.getParams(params);
 
+
     std::cout << params << std::endl;
 
     for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
         std::string p = bestMatch(*j, keywords_);
 
+        std::cout << p << std::endl;
+
         std::vector<std::string> values;
         r.getValues(*j, values);
 
-        ASSERT(types_.find(p) != types_.end());
-        types_.find(p)->second->expand(values);
+        std::cout << values << std::endl;
+
+        std::map<std::string, Type* >::const_iterator k = types_.find(p);
+        ASSERT(k != types_.end());
+        Type* type = (*k).second;
+        std::cout << *type << std::endl;
+
+        type->expand(values);
 
         result.setValues(p, values);
     }
+
+    std::cout << "result " << result << std::endl;
 
     return result;
 }
@@ -139,17 +140,52 @@ const std::string& MarsLanguage::verb() const {
 }
 
 
+void MarsLanguage::flatten(const MarsRequest& request,
+                           const std::vector<std::string>& params,
+                           size_t i,
+                           MarsRequest& result) {
+
+    if (i == params.size()) {
+        std::cout << result << std::endl;
+        return;
+    }
+
+    const std::string& param = params[i];
+
+    std::map<std::string, Type* >::const_iterator k = types_.find(param);
+    ASSERT(k != types_.end());
+
+    std::vector<std::string> values;
+    (*k).second->flattenValues(request, values);
+
+    if(values.empty()) {
+        flatten(request, params, i+1, result);
+        return;
+    }
+
+    for(std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
+        result.setValue(param, *j);
+        flatten(request, params, i+1, result);
+    }
+
+}
+
 void MarsLanguage::flatten(const MarsRequest& request) {
     std::vector<std::string> params;
     request.getParams(params);
 
+    MarsRequest result(request);
+    flatten(request, params, 0, result);
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void MarsLanguage::set(const std::string& name, const std::vector<std::string>& values) {
-    ASSERT(types_.find(name) != types_.end());
-    types_.find(name)->second->setDefaults(values);
+    std::cout << "set " << name << " " << values << std::endl;
+    std::map<std::string, Type* >::const_iterator k = types_.find(name);
+    ASSERT(k != types_.end());
+    (*k).second->setDefaults(values);
+    std::cout << "done" << std::endl;
 }
 
 

@@ -26,13 +26,14 @@ class TypeArea : public Type {
 
 public: // methods
 
-    TypeArea(const std::string &name, const eckit::Value& value);
+    TypeArea(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeArea();
 
 private: // methods
 
     virtual void print( std::ostream &out ) const;
+    virtual void flattenValues(const MarsRequest& request, std::vector<std::string>& values);
 
 };
 

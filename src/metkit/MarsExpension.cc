@@ -34,7 +34,7 @@ MarsExpension::MarsExpension() {
 
 
 MarsExpension::~MarsExpension() {
- for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {
+    for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {
         delete (*j).second;
     }
 }
@@ -43,7 +43,7 @@ MarsExpension::~MarsExpension() {
 
 MarsLanguage& MarsExpension::language(const std::string& verb) {
 
-    std::string v = MarsLanguage::expandVerb(v);
+    std::string v = MarsLanguage::expandVerb(verb);
 
     std::map<std::string, MarsLanguage*>::iterator j = languages_.find(v);
     if (j == languages_.end()) {
@@ -79,7 +79,10 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
             lang.set(*k, values);
         }
 
+        std::cout << "push_back " << r << std::endl;
         result.push_back(r);
+        std::cout << "push_back done" << std::endl;
+
     }
 
     return result;

@@ -20,8 +20,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeExpver::TypeExpver(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeExpver::TypeExpver(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeExpver::~TypeExpver() {

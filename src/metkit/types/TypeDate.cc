@@ -20,8 +20,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeDate::TypeDate(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeDate::~TypeDate() {

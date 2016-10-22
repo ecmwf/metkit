@@ -10,6 +10,7 @@
 
 #include "eckit/thread/AutoLock.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/value/Value.h"
 
 #include "metkit/types/TypesFactory.h"
 
@@ -41,9 +42,11 @@ TypesFactory::~TypesFactory() {
     m->erase(name_);
 }
 
-Type *TypesFactory::build(const std::string &name, const std::string &keyword, const eckit::Value& value) {
+Type *TypesFactory::build(const std::string &keyword, const eckit::Value& settings) {
     pthread_once(&once, init);
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
+
+    std::string name = settings["type"];
 
     std::map<std::string, TypesFactory *>::const_iterator j = m->find(name);
 
@@ -55,7 +58,7 @@ Type *TypesFactory::build(const std::string &name, const std::string &keyword, c
         throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
     }
 
-    return (*j).second->make(keyword, value);
+    return (*j).second->make(keyword, settings);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -17,10 +17,10 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeEnum::TypeEnum(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 
-    eckit::Value values = value["values"];
+    eckit::Value values = settings["values"];
     for(size_t i = 0; i < values.size(); ++i) {
         std::string v = values[i];
         values_[v] = v;

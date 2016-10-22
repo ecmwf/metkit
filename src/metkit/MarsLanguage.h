@@ -59,8 +59,11 @@ private:
     std::vector<std::string> keywords_;;
 
 private: // Methods
-    std::string expandKeyword(const std::string& keyword);
-    void expandValues(const std::string& keyword, const eckit::Value& language, std::vector<std::string>& values) const;
+
+    void flatten(const MarsRequest& request,
+        const std::vector<std::string>& params,
+                 size_t i,
+                 MarsRequest& result);
 
 };
 

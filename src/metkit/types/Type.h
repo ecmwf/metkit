@@ -33,7 +33,7 @@ class Type : private eckit::NonCopyable {
 
 public: // methods
 
-    Type(const std::string &name, const eckit::Value& value);
+    Type(const std::string &name, const eckit::Value& settings);
 
     virtual ~Type();
 
@@ -43,6 +43,7 @@ public: // methods
     virtual void setDefaults(MarsRequest& request) const;
     virtual void setDefaults(const std::vector<std::string>& defaults);
 
+    virtual void flattenValues(const MarsRequest& request, std::vector<std::string>& values);
 
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 

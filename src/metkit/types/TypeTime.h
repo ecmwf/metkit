@@ -26,7 +26,7 @@ class TypeTime : public Type {
 
 public: // methods
 
-    TypeTime(const std::string &name, const eckit::Value& value);
+    TypeTime(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeTime();
 

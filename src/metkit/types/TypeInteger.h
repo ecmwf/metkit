@@ -26,7 +26,7 @@ class TypeInteger : public Type {
 
 public: // methods
 
-    TypeInteger(const std::string &name, const eckit::Value& value);
+    TypeInteger(const std::string &name, const eckit::Value& settings);
 
     virtual ~TypeInteger();
 

@@ -18,8 +18,8 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeGrid::TypeGrid(const std::string &name, const eckit::Value& value) :
-    Type(name, value) {
+TypeGrid::TypeGrid(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings) {
 }
 
 TypeGrid::~TypeGrid() {
@@ -27,6 +27,10 @@ TypeGrid::~TypeGrid() {
 
 void TypeGrid::print(std::ostream &out) const {
     out << "TypeGrid[name=" << name_ << "]";
+}
+
+void TypeGrid::flattenValues(const MarsRequest& request, std::vector<std::string>& values) {
+    // Empty
 }
 
 static TypeBuilder<TypeGrid> type("grid");
