@@ -25,6 +25,7 @@
 #include "eckit/parser/JSONParser.h"
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/Type.h"
+#include "metkit/MarsExpension.h"
 
 using namespace eckit;
 
@@ -143,10 +144,11 @@ const std::string& MarsLanguage::verb() const {
 void MarsLanguage::flatten(const MarsRequest& request,
                            const std::vector<std::string>& params,
                            size_t i,
-                           MarsRequest& result) {
+                           MarsRequest& result,
+                           FlattenCallback& callback) {
 
     if (i == params.size()) {
-        std::cout << result << std::endl;
+        callback(result);
         return;
     }
 
@@ -159,23 +161,23 @@ void MarsLanguage::flatten(const MarsRequest& request,
     (*k).second->flattenValues(request, values);
 
     if(values.empty()) {
-        flatten(request, params, i+1, result);
+        flatten(request, params, i+1, result, callback);
         return;
     }
 
     for(std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
         result.setValue(param, *j);
-        flatten(request, params, i+1, result);
+        flatten(request, params, i+1, result, callback);
     }
 
 }
 
-void MarsLanguage::flatten(const MarsRequest& request) {
+void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
     std::vector<std::string> params;
     request.getParams(params);
 
     MarsRequest result(request);
-    flatten(request, params, 0, result);
+    flatten(request, params, 0, result, callback);
 
 }
 

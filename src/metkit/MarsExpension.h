@@ -25,6 +25,16 @@ namespace metkit {
 
 class MarsLanguage;
 
+class FlattenCallback {
+public:
+    virtual void operator()(const MarsRequest&) = 0;
+};
+
+class FlattenFilter {
+public:
+    virtual bool operator()(const MarsRequest&) = 0;
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsExpension : public eckit::NonCopyable {
@@ -35,7 +45,7 @@ public:
     ~MarsExpension();
 
     std::vector<MarsRequest> operator()(const std::vector<MarsRequest>&);
-    void flatten(const MarsRequest& request);
+    void flatten(const MarsRequest& request, FlattenCallback& callback);
 
 private: // members
 

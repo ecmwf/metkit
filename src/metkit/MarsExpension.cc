@@ -88,9 +88,9 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
     return result;
 }
 
-void MarsExpension::flatten(const MarsRequest& request) {
+void MarsExpension::flatten(const MarsRequest& request, FlattenCallback& callback) {
     MarsLanguage& lang = language(request.name());
-    lang.flatten(request);
+    lang.flatten(request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
