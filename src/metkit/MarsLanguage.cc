@@ -80,16 +80,55 @@ MarsLanguage::~MarsLanguage() {
 }
 
 
-static std::string bestMatch(const std::string& name, const std::vector<std::string>& values) {
+std::string MarsLanguage::bestMatch(const std::string& name,
+                                    const std::vector<std::string>& values) {
+
+    size_t score = 0;
+    std::vector<std::string> best;
+
+    std::cout << "Match [" << name  << "] in " << values << std::endl;
+
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
-        if (value.find(name) == 0) {
+
+        size_t len = std::min(name.length(), value.length());
+        size_t s = 0;
+
+        for (size_t j = 0; j < len; ++j) {
+            if (::tolower(name[j]) == ::tolower(value[j])) {
+                s++;
+            }
+            else {
+                break;
+            }
+        }
+
+        if(s == value.length()) {
             return value;
+        }
+
+        if (s > 0 && s >= score) {
+            if (s > score) {
+                best.clear();
+            }
+            best.push_back(value);
+            score = s;
         }
     }
 
+
+    if (best.size() == 1) {
+        return best[0];
+    }
+
+    if (best.empty()) {
+        std::ostringstream oss;
+        oss << "Cannot match '" << name << "' in " << values;
+        throw eckit::UserError(oss.str());
+    }
+
     std::ostringstream oss;
-    oss << "Cannot match '" << name << "' in " << values;
+    oss << "Ambiguous value '" << name << "' could be " << best;
     throw eckit::UserError(oss.str());
 }
 
@@ -145,7 +184,8 @@ void MarsLanguage::flatten(const MarsRequest& request,
                            const std::vector<std::string>& params,
                            size_t i,
                            MarsRequest& result,
-                           FlattenCallback& callback) {
+                           FlattenCallback& callback,
+                           FlattenFilter& filter) {
 
     if (i == params.size()) {
         callback(result);
@@ -160,29 +200,35 @@ void MarsLanguage::flatten(const MarsRequest& request,
     std::vector<std::string> values;
     (*k).second->flattenValues(request, values);
 
-    if(values.empty()) {
-        flatten(request, params, i+1, result, callback);
-        return;
-    }
+    if (filter(param, values, request)) {
 
-    for(std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        result.setValue(param, *j);
-        flatten(request, params, i+1, result, callback);
+        if (values.empty()) {
+            flatten(request, params, i + 1, result, callback, filter);
+            return;
+        }
+
+        for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
+            result.setValue(param, *j);
+            flatten(request, params, i + 1, result, callback, filter);
+        }
     }
 
 }
 
-void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
+void MarsLanguage::flatten(const MarsRequest& request,
+                           FlattenCallback& callback,
+                           FlattenFilter& filter) {
     std::vector<std::string> params;
     request.getParams(params);
 
     MarsRequest result(request);
-    flatten(request, params, 0, result, callback);
+    flatten(request, params, 0, result, callback, filter);
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void MarsLanguage::set(const std::string& name, const std::vector<std::string>& values) {
+void MarsLanguage::set(const std::string& name,
+                       const std::vector<std::string>& values) {
     std::cout << "set " << name << " " << values << std::endl;
     std::map<std::string, Type* >::const_iterator k = types_.find(name);
     ASSERT(k != types_.end());

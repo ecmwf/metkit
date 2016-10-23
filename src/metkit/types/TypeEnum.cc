@@ -11,6 +11,7 @@
 
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeEnum.h"
+#include "metkit/MarsLanguage.h"
 
 
 namespace metkit {
@@ -21,9 +22,26 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
     Type(name, settings) {
 
     eckit::Value values = settings["values"];
-    for(size_t i = 0; i < values.size(); ++i) {
-        std::string v = values[i];
-        values_[v] = v;
+    for (size_t i = 0; i < values.size(); ++i) {
+
+        const eckit::Value& val = values[i];
+
+        if (val.isList()) {
+            ASSERT(val.size() > 0);
+
+            std::string first = val[0];
+
+            for (size_t j = 0; j < val.size(); ++j) {
+                std::string v = val[j];
+                mapping_[v] = first;
+                values_.push_back(v);
+            }
+        }
+        else {
+            std::string v = val;
+            mapping_[v] = v;
+            values_.push_back(v);
+        }
     }
 }
 
@@ -37,13 +55,8 @@ void TypeEnum::print(std::ostream &out) const {
 void TypeEnum::expand(std::vector<std::string>& values) const {
 
     std::vector<std::string> newval;
-    for(std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        for(std::map<std::string, std::string>::const_iterator k = values_.begin(); k != values_.end(); ++k) {
-            if((*k).first.find(*j) == 0) {
-                newval.push_back((*k).second);
-                break;
-            }
-        }
+    for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
+        newval.push_back(MarsLanguage::bestMatch((*j), values_));
     }
     std::swap(values, newval);
 }

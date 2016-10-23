@@ -3,19 +3,32 @@
         "area": {
             "type": "area"
         },
+        "class": {
+            "type": "enum",
+            "values": ["od"]
+        },
         "domain": {
             "type": "enum",
-            "values": ["global", "m"]
+            "values": ["g", "m", "c", "h"]
         },
         "expver": {
             "type": "expver"
         },
+        "catn": {
+            "type": "any"
+        },
         "format": {
             "type": "enum",
-            "values": ["grib", "grib2", "bufr", "off"]
+            "values": ["gb", "grib", "grib1", "grib2", "bufr", "bf", "grid", "gd", "off"]
         },
         "grid": {
             "type": "grid"
+        },
+        "rotation": {
+            "type": "grid"
+        },
+        "fcperiod": {
+            "type": "any"
         },
         "levelist": {
             "type": "to-by-list",
@@ -23,7 +36,7 @@
         },
         "levtype": {
             "type": "enum",
-            "values": ["pl", "ml", "sfc"]
+            "values": ["pl", "ml", ["sfc", "surface"], "pt", "pv", "off"]
         },
         "param": {
             "type": "any"
@@ -38,17 +51,107 @@
         "stream": {
             "type": "any"
         },
+        "number": {
+            "type": "any"
+        },
+        "quantile": {
+            "type": "any"
+        },
+        "channel": {
+            "type": "any"
+        },
+        "ident": {
+            "type": "any"
+        },
+        "instrument": {
+            "type": "any"
+        },
         "target": {
+            "type": "any"
+        },
+        "fcmonth": {
+            "type": "any"
+        },
+        "method": {
+            "type": "any"
+        },
+        "origin": {
+            "type": "any"
+        },
+        "system": {
             "type": "any"
         },
         "time": {
             "type": "time"
         },
-        "type": {
+        "date": {
             "type": "any"
         },
+        "type": {
+            "type": "enum",
+            "values": ["an", "fc", "cf",
+                "pf", "em", "es", "cm", "cs", "efi",
+                "taem", "cr", "wp", "pd", "tf", "ssd", "sot", ["ep", "event probability"], "fp"
+            ]
+        },
         "use": {
+            "type": "enum",
+            "values": ["bc", ["mt", "monthly run thursday", "monthly thursday", "thursday"],
+                ["mm", "monthly run monday", "monthly monday", "monday"],
+                "off"
+            ]
+        },
+        "options": {
+            "type": "enum",
+            "values": ["normal", "delay", "wmoe", "gts", "tcpip", "nobackup"]
+        },
+        "padding": {
+            "type": "enum",
+            "values": ["none", "auto"]
+        },
+        "accuracy": {
+            "type": "any"
+        },
+        "country": {
+            "type": "any"
+        },
+        "file": {
+            "type": "any"
+        },
+        "bitmap": {
+            "type": "any"
+        },
+        "direction": {
+            "type": "any"
+        }, "frequency": {
+            "type": "any"
+        },
+        "frame": {
+            "type": "any"
+        },
+        "packing": {
+            "type": "enum",
+            "values": [
+                ["so", "secondorder"], "av", "sim"
+            ]
+        },
+        "repres": {
+            "type": "any"
+        },
+        "resol": {
+            "type": "any"
+        },
+        "gaussian": {
+            "type": "any"
+        },
+        "ensemble": {
+            "type": "any"
+        },
+        "reference": {
             "type": "any"
         }
+    },
+    "end": {
+
     }
 }

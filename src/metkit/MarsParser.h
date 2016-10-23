@@ -38,6 +38,8 @@ private: // methods
     std::vector<std::string> parseValues();
     std::string parseValue();
     std::string parseIndent();
+        std::string parseIndents();
+
     std::string parseString(char c);
 
 };

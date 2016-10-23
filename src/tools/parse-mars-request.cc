@@ -31,7 +31,11 @@ public:
     ParseRequest(int argc, char **argv) :
         Tool(argc, argv) {
 
-        path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/B1.diss"); ///< @todo Move to use Option
+        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/EC/EC1/req/curr/C1"); ///< @todo Move to use Option
+        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/XS/NA4/req/curr/N2");
+        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/CZ/CZM/req/curr/CJ");
+        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/FR/FRA/req/curr/FR");
+        path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/all");
 
     }
 
@@ -63,10 +67,37 @@ void ParseRequest::run()
 
     };
 
+    class Filter : public FlattenFilter {
+        virtual bool operator()(const std::string& keyword,
+                                std::vector<std::string>& values,
+                                const MarsRequest& request)  {
+
+            if (keyword == "levelist") {
+                values.erase(
+                    std::remove_if(values.begin(),
+                                   values.end(),
+                                   std::bind1st(std::equal_to<std::string>(), "850")),
+                    values.end());
+            }
+
+            if (keyword == "step") {
+                values.erase(
+                    std::remove_if(values.begin(),
+                                   values.end(),
+                                   std::bind1st(std::equal_to<std::string>(), "216-240")),
+                    values.end());
+            }
+            return true;
+        }
+
+    };
+
     Print cb;
-    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-        expand.flatten(*j, cb);
-    }
+    Filter filter;
+
+    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+    //     expand.flatten(*j, cb, filter);
+    // }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

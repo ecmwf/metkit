@@ -89,6 +89,33 @@ std::string MarsParser::parseString(char quote)
 
 }
 
+static bool inindent(char c) {
+    return isalnum(c) || c == '_' || c == ':' || c == '-' || c == '.';
+}
+
+
+
+std::string MarsParser::parseIndents() {
+    std::ostringstream oss;
+    oss << parseIndent();
+
+    for (;;) {
+        char c = peek(true);
+        while (c == ' ') {
+            next(true);
+            c = peek(true);
+        }
+
+        if (!inindent(c)) {
+            break;
+        }
+
+        oss << " " << parseIndent();
+    }
+
+    return oss.str();
+}
+
 std::string MarsParser::parseValue() {
     char c = peek();
 
@@ -96,7 +123,7 @@ std::string MarsParser::parseValue() {
         return parseString(c);
     }
 
-    return parseIndent();
+    return parseIndents();
 
 }
 
@@ -115,15 +142,18 @@ std::string MarsParser::parseIndent()
 {
     char c = peek();
     std::string s;
-    while (isalnum(c) || c == '_' || c == ':' || c == '-' || c == '.') {
+    while (inindent(c)) {
         s += next(true);
         c = peek(true);
     }
-    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
     return s;
 }
 
 std::string MarsParser::parseVerb() {
+    char c = peek();
+    if (!isalpha(c) && c != '_') {
+        throw  StreamParser::Error(std::string("MarsParser::parseVerb invalid char '") + c + "'", line_ + 1);
+    }
     return parseIndent();
 }
 
@@ -132,7 +162,7 @@ MarsRequest MarsParser::parseRequest() {
     char c = peek();
     while (c == ',') {
         consume(',');
-        std::string key = parseIndent();
+        std::string key = parseIndents();
         consume('=');
         r.setValues(key, parseValues());
         c = peek();
@@ -141,7 +171,7 @@ MarsRequest MarsParser::parseRequest() {
 }
 
 MarsParser::MarsParser(std::istream &in):
-    StreamParser(in, true, '*')
+    StreamParser(in, true, "*#")
 {
 }
 
@@ -153,8 +183,6 @@ std::vector<MarsRequest> MarsParser::parse()
     while ((c = peek()) != 0) {
         result.push_back(parseRequest());
     }
-
-    std::cout << "MarsParser ===> " << result.size() << std::endl;
 
     return result;
 }

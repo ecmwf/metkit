@@ -36,7 +36,8 @@ private: // methods
 
     virtual void print( std::ostream &out ) const;
 
-    std::map<std::string, std::string> values_;
+    std::map<std::string, std::string> mapping_;
+    std::vector<std::string> values_;
 
 };
 
