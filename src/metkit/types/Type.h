@@ -52,15 +52,17 @@ public: // class methods
     static const Type &lookup(const std::string &keyword);
 
 
-private: // methods
-
-    virtual void print( std::ostream &out ) const = 0;
-
 protected: // members
 
     std::string name_;
-
     std::vector<std::string> defaults_;
+
+protected: // methods
+
+
+private: // methods
+
+    virtual void print( std::ostream &out ) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

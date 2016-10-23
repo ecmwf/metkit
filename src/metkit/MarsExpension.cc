@@ -63,25 +63,8 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
         MarsLanguage& lang = language((*j).name());
         MarsRequest r = lang.expand(*j);
 
-        for (MarsLanguage::iterator k = lang.begin(); k != lang.end(); ++k) {
-            const std::string& name = (*k).first;
-            std::vector<std::string> values;
-            if (r.getValues(name, values) == 0) {
-                (*k).second->setDefaults(r);
-            }
-        }
 
-        std::vector<std::string> params;
-        r.getParams(params);
-        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            std::vector<std::string> values;
-            r.getValues(*k, values);
-            lang.set(*k, values);
-        }
-
-        std::cout << "push_back " << r << std::endl;
         result.push_back(r);
-        std::cout << "push_back done" << std::endl;
 
     }
 

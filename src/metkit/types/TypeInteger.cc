@@ -30,7 +30,14 @@ void TypeInteger::print(std::ostream &out) const {
     out << "TypeInteger[name=" << name_ << "]";
 }
 
-static TypeBuilder<TypeInteger> type("Integer");
+std::string TypeInteger::tidy(const std::string &value) const  {
+    static eckit::Translator<std::string, long> s2l;
+    static eckit::Translator<long, std::string> l2s;
+    return l2s(s2l(value));
+}
+
+
+static TypeBuilder<TypeInteger> type("integer");
 
 //----------------------------------------------------------------------------------------------------------------------
 

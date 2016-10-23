@@ -56,7 +56,10 @@ void TypeEnum::expand(std::vector<std::string>& values) const {
 
     std::vector<std::string> newval;
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        newval.push_back(MarsLanguage::bestMatch((*j), values_));
+        std::string v = MarsLanguage::bestMatch((*j), values_, mapping_);
+        std::map<std::string, std::string>::const_iterator k = mapping_.find(v);
+        ASSERT(k != mapping_.end());
+        newval.push_back((*k).second);
     }
     std::swap(values, newval);
 }

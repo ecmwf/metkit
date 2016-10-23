@@ -27,8 +27,6 @@ types/Type.cc
 types/Type.h
 types/TypeDate.cc
 types/TypeDate.h
-types/TypeArea.cc
-types/TypeArea.h
 types/TypeAny.cc
 types/TypeAny.h
 types/TypeExpver.cc
@@ -37,10 +35,12 @@ types/TypeToByList.cc
 types/TypeToByList.h
 types/TypeEnum.cc
 types/TypeEnum.h
-types/TypeGrid.cc
-types/TypeGrid.h
+types/TypePostProc.cc
+types/TypePostProc.h
 types/TypeInteger.cc
 types/TypeInteger.h
+types/TypeFloat.cc
+types/TypeFloat.h
 types/TypeTime.cc
 types/TypeTime.h
 types/TypesFactory.cc

@@ -1,15 +1,22 @@
 {
     "dissemination": {
         "area": {
-            "type": "area"
+            "type": "postproc"
         },
         "class": {
             "type": "enum",
-            "values": ["od"]
+            "values": [
+                "od"
+            ]
         },
         "domain": {
             "type": "enum",
-            "values": ["g", "m", "c", "h"]
+            "values": [
+                "g",
+                "m",
+                "c",
+                "h"
+            ]
         },
         "expver": {
             "type": "expver"
@@ -19,16 +26,24 @@
         },
         "format": {
             "type": "enum",
-            "values": ["gb", "grib", "grib1", "grib2", "bufr", "bf", "grid", "gd", "off"]
+            "values": [
+                "gb",
+                ["grib", "bg"],
+                "grib1",
+                "grib2",
+                ["bufr", "bf"],
+                ["grid", "gd"],
+                "off"
+            ]
         },
         "grid": {
-            "type": "grid"
+            "type": "postproc"
         },
         "rotation": {
-            "type": "grid"
+            "type": "postproc"
         },
         "fcperiod": {
-            "type": "any"
+            "type": "integer"
         },
         "levelist": {
             "type": "to-by-list",
@@ -36,29 +51,480 @@
         },
         "levtype": {
             "type": "enum",
-            "values": ["pl", "ml", ["sfc", "surface"], "pt", "pv", "off"]
+            "values": [
+                "pl",
+                "ml",
+                [
+                    "sfc",
+                    "surface"
+                ],
+                "pt",
+                "pv",
+                "off"
+            ]
         },
         "param": {
-            "type": "any"
+            "type": "enum",
+            "values": [
+                "100u",
+                "100v",
+                "100vdis",
+                "10fg",
+                "10fg3",
+                "10fg6",
+                "10fgg15",
+                "10fgg20",
+                "10fgg25",
+                "10fgi",
+                "10gi",
+                "10si",
+                "10sp",
+                "10spg10",
+                "10spg15",
+                "10u",
+                "10ua",
+                "10v",
+                "10va",
+                "10wsi",
+                "10wsidis",
+                "129",
+                "130",
+                "131",
+                "132",
+                "133",
+                "134",
+                "139",
+                "141",
+                "142",
+                "143",
+                "144.132",
+                "146",
+                "147",
+                "151",
+                "151.171",
+                "157",
+                "159",
+                "165.132",
+                "167",
+                "167.132",
+                "167.171",
+                "168",
+                "170",
+                "172",
+                "174.128",
+                "180",
+                "181",
+                "183",
+                "198",
+                "201.132",
+                "202.132",
+                "203",
+                "216.132",
+                "228.132",
+                "228.173",
+                "24.228",
+                "246",
+                "248",
+                "260510",
+                "2d",
+                "2da",
+                "2dfd",
+                "2t",
+                "2ta",
+                "2tag0",
+                "2tag1",
+                "2tag2",
+                "2talm1",
+                "2talm2",
+                "2tdis",
+                "2ti",
+                "2tl273",
+                "3020",
+                "3041",
+                "31",
+                "32",
+                "33",
+                "34",
+                "39",
+                "40",
+                "41",
+                "42",
+                "49.132",
+                "89.131",
+                "90.131",
+                "91.131",
+                "acwh",
+                "al",
+                "alnid",
+                "alnip",
+                "aluvd",
+                "aluvp",
+                "anor",
+                "asn",
+                "awh",
+                "bfi",
+                "bld",
+                "bldvar",
+                "blh",
+                "cape",
+                "capei",
+                "capes",
+                "capesi",
+                "cbh",
+                "cbhdis",
+                "cc",
+                "ccdiss",
+                "cdir",
+                "cdww",
+                "chnk",
+                "ci",
+                "cin",
+                "ciwc",
+                "clbt",
+                "clwc",
+                "cp",
+                "cpvar",
+                "crr",
+                "crwc",
+                "csfr",
+                "cswc",
+                "cvh",
+                "cvl",
+                "d",
+                "deg0",
+                "deg0l",
+                "degol",
+                "dwi",
+                "dwps",
+                "dwww",
+                "e",
+                "es",
+                "etad",
+                "etadot",
+                "evar",
+                "ewss",
+                "ewssvar",
+                "fal",
+                "fdir",
+                "fdirdis",
+                "fdirvar",
+                "flsr",
+                "fsr",
+                "fzra",
+                "gh",
+                "gha",
+                "gwd",
+                "gwdvar",
+                "hcc",
+                "hmax",
+                "i10fg",
+                "i10fgdis",
+                "ie",
+                "iews",
+                "ilspf",
+                "inss",
+                "ishf",
+                "isor",
+                "istl1",
+                "istl2",
+                "istl3",
+                "istl4",
+                "kx",
+                "laihv",
+                "lailv",
+                "lblt",
+                "lcc",
+                "lgws",
+                "lgwsvar",
+                "licd",
+                "lict",
+                "lmld",
+                "lmlt",
+                "lnsp",
+                "lshf",
+                "lsm",
+                "lsp",
+                "lspf",
+                "lspvar",
+                "lsrh",
+                "lsrr",
+                "lssfr",
+                "ltlt",
+                "maxswhi",
+                "mcc",
+                "mdts",
+                "mdww",
+                "mean2t24",
+                "mgws",
+                "mgwsvar",
+                "mn2t",
+                "mn2t24",
+                "mn2t24a",
+                "mn2t3",
+                "mn2t6",
+                "mn2t6a",
+                "mn2ta",
+                "mn2ti",
+                "mntpr3",
+                "mntpr6",
+                "mp1",
+                "mp2",
+                "mpts",
+                "mpww",
+                "msl",
+                "msla",
+                "mslag0",
+                "msqs",
+                "mwd",
+                "mwd1",
+                "mwd2",
+                "mwd3",
+                "mwp",
+                "mwp1",
+                "mwp2",
+                "mwp3",
+                "mwpg10",
+                "mwpg12",
+                "mwpg15",
+                "mwpg8",
+                "mwpp",
+                "mx2t",
+                "mx2t24",
+                "mx2t24a",
+                "mx2t3",
+                "mx2t6",
+                "mx2t6a",
+                "mx2ta",
+                "mx2ti",
+                "mxtpr3",
+                "mxtpr6",
+                "nsss",
+                "nsssvar",
+                "o3",
+                "off",
+                "p1ps",
+                "p1ww",
+                "p2ps",
+                "p2ww",
+                "par",
+                "parcs",
+                "pev",
+                "ph",
+                "phiaw",
+                "phioc",
+                "pp1d",
+                "pres",
+                "pt",
+                "ptd",
+                "pts",
+                "ptype",
+                "pv",
+                "q",
+                "r",
+                "ro",
+                "rovar",
+                "rsn",
+                "rsna",
+                "sd",
+                "sda",
+                "sdor",
+                "sf",
+                "sfa",
+                "sfara",
+                "sfi",
+                "sfvar",
+                "sh10",
+                "shts",
+                "shww",
+                "skt",
+                "slhf",
+                "slhfvar",
+                "slor",
+                "slt",
+                "smlt",
+                "sp",
+                "sr",
+                "src",
+                "sro",
+                "srovar",
+                "sshf",
+                "sshfvar",
+                "ssr",
+                "ssrc",
+                "ssrd",
+                "ssrddis",
+                "ssrdvar",
+                "ssro",
+                "ssrovar",
+                "ssrvar",
+                "ssta",
+                "sstak",
+                "sstk",
+                "st",
+                "stal1",
+                "stl1",
+                "stl2",
+                "stl3",
+                "stl4",
+                "str",
+                "strc",
+                "strd",
+                "strdvar",
+                "strf",
+                "strfa",
+                "strvar",
+                "sund",
+                "sundara",
+                "sundvar",
+                "swh",
+                "swh1",
+                "swh2",
+                "swh3",
+                "swhg2",
+                "swhg4",
+                "swhg6",
+                "swhg8",
+                "swhp",
+                "swv1",
+                "swv2",
+                "swv3",
+                "swv4",
+                "swvl1",
+                "swvl2",
+                "swvl3",
+                "swvl4",
+                "t",
+                "ta",
+                "tag2",
+                "tag2k",
+                "tag4",
+                "tag4k",
+                "tag8",
+                "tag8k",
+                "talm2",
+                "talm2k",
+                "talm4",
+                "talm4k",
+                "talm8",
+                "talm8k",
+                "tap",
+                "tauoc",
+                "tc",
+                "tcc",
+                "tcca",
+                "tccdis",
+                "tcdis",
+                "tciw",
+                "tclw",
+                "tco3",
+                "tcrw",
+                "tcslw",
+                "tcsw",
+                "tcw",
+                "tcwv",
+                "temperature anomaly of at least 2 k",
+                "temperature anomaly of at least 4 k",
+                "temperature anomaly of at least 8 k",
+                "temperature anomaly of at most -2 k",
+                "temperature anomaly of at most -4 k",
+                "temperature anomaly of at most -8 k",
+                "thk",
+                "tmax",
+                "totalx",
+                "tp",
+                "tpag0",
+                "tpag10",
+                "tpag20",
+                "tpara",
+                "tpg1",
+                "tpg10",
+                "tpg1dis",
+                "tpg20",
+                "tpg5",
+                "tpi",
+                "tpl01",
+                "tplo1",
+                "tpp",
+                "tprg3",
+                "tprg5",
+                "tprl1",
+                "tpvar",
+                "tsn",
+                "tsr",
+                "tsrc",
+                "tsrvar",
+                "ttr",
+                "ttrc",
+                "ttru",
+                "ttrvar",
+                "tvh",
+                "tvl",
+                "u",
+                "u10n",
+                "ua",
+                "ust",
+                "uvb",
+                "v",
+                "v10n",
+                "va",
+                "vdis",
+                "vimd",
+                "vis",
+                "vo",
+                "vpot",
+                "vpota",
+                "vst",
+                "w",
+                "wdw",
+                "wind",
+                "wmb",
+                "ws",
+                "wsk",
+                "wss",
+                "z",
+                "za",
+                "zdis",
+                "zust"
+            ]
         },
         "priority": {
-            "type": "any"
+            "type": "integer"
         },
         "step": {
             "type": "to-by-list",
             "by": 12
         },
         "stream": {
-            "type": "any"
+            "type": "enum",
+            "values": [
+                [
+                    "oper",
+                    "da"
+                ],
+                [
+                    "enfo",
+                    "ef"
+                ],
+                [
+                    "wave",
+                    "wv"
+                ],
+                "we",
+                "esmm",
+                "ehmm",
+                "mmsm",
+                "scda"
+            ]
         },
         "number": {
-            "type": "any"
+            "type": "to-by-list",
+            "by": 1
         },
         "quantile": {
-            "type": "any"
+            "type": "integer"
         },
         "channel": {
-            "type": "any"
+            "type": "integer"
         },
         "ident": {
             "type": "any"
@@ -70,16 +536,17 @@
             "type": "any"
         },
         "fcmonth": {
-            "type": "any"
+            "type": "integer"
         },
         "method": {
             "type": "any"
         },
         "origin": {
-            "type": "any"
+            "type": "enum",
+            "values": []
         },
         "system": {
-            "type": "any"
+            "type": "integer"
         },
         "time": {
             "type": "time"
@@ -89,25 +556,69 @@
         },
         "type": {
             "type": "enum",
-            "values": ["an", "fc", "cf",
-                "pf", "em", "es", "cm", "cs", "efi",
-                "taem", "cr", "wp", "pd", "tf", "ssd", "sot", ["ep", "event probability"], "fp"
+            "values": [
+                "an",
+                "fc",
+                "cf",
+                "pf",
+                "em",
+                "es",
+                "cm",
+                "cs",
+                "efi",
+                "taem",
+                "cr",
+                "wp",
+                "pd",
+                "tf",
+                "ssd",
+                "sot",
+                "cv",
+                "pb",
+                [
+                    "ep",
+                    "event probability"
+                ],
+                "fp"
             ]
         },
         "use": {
             "type": "enum",
-            "values": ["bc", ["mt", "monthly run thursday", "monthly thursday", "thursday"],
-                ["mm", "monthly run monday", "monthly monday", "monday"],
+            "values": [
+                "bc",
+                "daily",
+                [
+                    "mt",
+                    "monthly run thursday",
+                    "monthly thursday",
+                    "thursday"
+                ],
+                [
+                    "mm",
+                    "monthly run monday",
+                    "monthly monday",
+                    "monday"
+                ],
                 "off"
             ]
         },
         "options": {
             "type": "enum",
-            "values": ["normal", "delay", "wmoe", "gts", "tcpip", "nobackup"]
+            "values": [
+                "normal",
+                "delay",
+                "wmoe",
+                "gts",
+                "tcpip",
+                "nobackup"
+            ]
         },
         "padding": {
             "type": "enum",
-            "values": ["none", "auto"]
+            "values": [
+                "none",
+                "auto"
+            ]
         },
         "accuracy": {
             "type": "any"
@@ -116,42 +627,61 @@
             "type": "any"
         },
         "file": {
-            "type": "any"
+            "type": "enum",
+            "values": [
+                "bin"
+            ]
         },
         "bitmap": {
             "type": "any"
         },
         "direction": {
-            "type": "any"
-        }, "frequency": {
-            "type": "any"
+            "type": "integer"
+        },
+        "frequency": {
+            "type": "integer"
         },
         "frame": {
-            "type": "any"
+            "type": "integer"
         },
         "packing": {
             "type": "enum",
             "values": [
-                ["so", "secondorder"], "av", "sim"
+                [
+                    "so",
+                    "secondorder"
+                ],
+                "av",
+                "co",
+                "off"
             ]
         },
         "repres": {
-            "type": "any"
+            "type": "enum",
+            "values": [
+                "gg",
+                "sh",
+                "ll",
+                "np",
+                "rl",
+                [
+                    "0.25",
+                    "fix me HUE:E1 !"
+                ]
+            ]
         },
         "resol": {
-            "type": "any"
+            "type": "integer"
         },
         "gaussian": {
             "type": "any"
         },
         "ensemble": {
-            "type": "any"
+            "type": "integer"
         },
         "reference": {
             "type": "any"
         }
     },
-    "end": {
-
-    }
+    "end": {}
 }

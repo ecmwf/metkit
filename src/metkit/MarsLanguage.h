@@ -35,15 +35,8 @@ public:
     MarsLanguage(const std::string& verb);
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsRequest& r) const;
+    MarsRequest expand(const MarsRequest& r);
 
-    typedef std::map<std::string, Type* >::iterator iterator;
-
-    iterator begin() { return types_.begin(); }
-    iterator end() { return types_.end(); }
-
-    void set(const std::string& name,
-             const std::vector<std::string>& values);
 
     const std::string& verb() const;
 
@@ -56,14 +49,15 @@ public:
 
     static std::string expandVerb(const std::string& verb);
     static std::string bestMatch(const std::string& what,
-                                 const std::vector<std::string>& values);
+                                 const std::vector<std::string>& values,
+                                 const std::map<std::string, std::string>& aliases = std::map<std::string, std::string>());
 
 private:
 // -- Contructors
 
     std::string verb_;
     std::map<std::string, Type* > types_;
-    std::vector<std::string> keywords_;;
+    std::vector<std::string> keywords_;
 
 private: // Methods
 
@@ -73,6 +67,8 @@ private: // Methods
                  MarsRequest& result,
                  FlattenCallback& callback,
                  FlattenFilter& filter);
+
+    Type& type(const std::string& name) const;
 
 };
 
