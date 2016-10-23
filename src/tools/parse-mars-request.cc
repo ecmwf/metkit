@@ -35,69 +35,101 @@ public:
         // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/XS/NA4/req/curr/N2");
         // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/CZ/CZM/req/curr/CJ");
         // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/FR/FRA/req/curr/FR");
-        path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/all");
+        path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss");
 
     }
 
     virtual ~ParseRequest() {}
 
+private: // methods
+
     virtual void run();
+    void process(const eckit::PathName& path);
 
 private: // members
 
     eckit::PathName path_;
+
+
 };
 
-void ParseRequest::run()
+void ParseRequest::run() {
+    process(path_);
+}
+
+void ParseRequest::process(const eckit::PathName& path)
 {
-    std::ifstream in(path_.asString().c_str());
-    MarsParser parser(in);
-    MarsExpension expand;
 
-    std::vector<MarsRequest> v = expand(parser.parse());
+    if (path.isDir()) {
+        std::vector<PathName> files;
+        std::vector<PathName> directories;
 
-    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-        std::cout << *j << std::endl;
+        path.children(files, directories);
+
+        for (std::vector<PathName>::const_iterator j = files.begin(); j != files.end(); ++j) {
+            process(*j);
+        }
+
+        for (std::vector<PathName>::const_iterator j = directories.begin(); j != directories.end(); ++j) {
+            process(*j);
+        }
+        return;
     }
 
-    class Print : public FlattenCallback {
-        virtual void operator()(const MarsRequest& request)  {
-            std::cout << request << std::endl;
-        }
+    try {
 
-    };
+        std::cout << "============= " << path << std::endl;
+        std::ifstream in(path.asString().c_str());
+        MarsParser parser(in);
+        MarsExpension expand;
 
-    class Filter : public FlattenFilter {
-        virtual bool operator()(const std::string& keyword,
-                                std::vector<std::string>& values,
-                                const MarsRequest& request)  {
+        std::vector<MarsRequest> v = expand(parser.parse());
 
-            if (keyword == "levelist") {
-                values.erase(
-                    std::remove_if(values.begin(),
-                                   values.end(),
-                                   std::bind1st(std::equal_to<std::string>(), "850")),
-                    values.end());
+        // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+        //     std::cout << *j << std::endl;
+        // }
+
+        class Print : public FlattenCallback {
+            virtual void operator()(const MarsRequest& request)  {
+                std::cout << request << std::endl;
             }
 
-            if (keyword == "step") {
-                values.erase(
-                    std::remove_if(values.begin(),
-                                   values.end(),
-                                   std::bind1st(std::equal_to<std::string>(), "216-240")),
-                    values.end());
+        };
+
+        class Filter : public FlattenFilter {
+            virtual bool operator()(const std::string& keyword,
+                                    std::vector<std::string>& values,
+                                    const MarsRequest& request)  {
+
+                if (keyword == "levelist") {
+                    values.erase(
+                        std::remove_if(values.begin(),
+                                       values.end(),
+                                       std::bind1st(std::equal_to<std::string>(), "850")),
+                        values.end());
+                }
+
+                if (keyword == "step") {
+                    values.erase(
+                        std::remove_if(values.begin(),
+                                       values.end(),
+                                       std::bind1st(std::equal_to<std::string>(), "216-240")),
+                        values.end());
+                }
+                return true;
             }
-            return true;
-        }
 
-    };
+        };
 
-    Print cb;
-    Filter filter;
+        Print cb;
+        Filter filter;
 
-    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-    //     expand.flatten(*j, cb, filter);
-    // }
+        // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+        //     expand.flatten(*j, cb, filter);
+        // }
+    } catch (Exception& e) {
+        std::cout << "============= ERROR " << path << ": " << e.what() << std::endl;
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

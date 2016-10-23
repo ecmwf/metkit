@@ -57,6 +57,11 @@ void Type::flattenValues(const MarsRequest& request, std::vector<std::string>& v
     request.getValues(name_, values);
 }
 
+
+void Type::clearDefaults() {
+    defaults_.clear();
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit

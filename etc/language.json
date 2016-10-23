@@ -1,7 +1,8 @@
 {
     "dissemination": {
         "area": {
-            "type": "postproc"
+            "type": "postproc",
+             "values": ["g"]
         },
         "class": {
             "type": "enum",
@@ -37,7 +38,8 @@
             ]
         },
         "grid": {
-            "type": "postproc"
+            "type": "postproc",
+            "values": []
         },
         "rotation": {
             "type": "postproc"
@@ -68,7 +70,6 @@
             "values": [
                 "100u",
                 "100v",
-                "100vdis",
                 "10fg",
                 "10fg3",
                 "10fg6",
@@ -86,7 +87,6 @@
                 "10v",
                 "10va",
                 "10wsi",
-                "10wsidis",
                 "129",
                 "130",
                 "131",
@@ -136,7 +136,6 @@
                 "2tag2",
                 "2talm1",
                 "2talm2",
-                "2tdis",
                 "2ti",
                 "2tl273",
                 "3020",
@@ -171,9 +170,7 @@
                 "capes",
                 "capesi",
                 "cbh",
-                "cbhdis",
                 "cc",
-                "ccdiss",
                 "cdir",
                 "cdww",
                 "chnk",
@@ -206,7 +203,6 @@
                 "ewssvar",
                 "fal",
                 "fdir",
-                "fdirdis",
                 "fdirvar",
                 "flsr",
                 "fsr",
@@ -218,7 +214,6 @@
                 "hcc",
                 "hmax",
                 "i10fg",
-                "i10fgdis",
                 "ie",
                 "iews",
                 "ilspf",
@@ -352,7 +347,6 @@
                 "ssr",
                 "ssrc",
                 "ssrd",
-                "ssrddis",
                 "ssrdvar",
                 "ssro",
                 "ssrovar",
@@ -412,8 +406,6 @@
                 "tc",
                 "tcc",
                 "tcca",
-                "tccdis",
-                "tcdis",
                 "tciw",
                 "tclw",
                 "tco3",
@@ -438,7 +430,6 @@
                 "tpara",
                 "tpg1",
                 "tpg10",
-                "tpg1dis",
                 "tpg20",
                 "tpg5",
                 "tpi",
@@ -467,7 +458,6 @@
                 "v",
                 "v10n",
                 "va",
-                "vdis",
                 "vimd",
                 "vis",
                 "vo",
@@ -483,7 +473,6 @@
                 "wss",
                 "z",
                 "za",
-                "zdis",
                 "zust"
             ]
         },
@@ -543,7 +532,7 @@
         },
         "origin": {
             "type": "enum",
-            "values": []
+            "values": [ "ecmwf" ]
         },
         "system": {
             "type": "integer"

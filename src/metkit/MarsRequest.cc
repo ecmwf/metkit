@@ -386,6 +386,8 @@ void MarsRequest::setValues(const std::string& name,const std::vector<char>& v)
 
 long MarsRequest::getParams(std::vector<std::string>& p, bool) const
 {
+    p.clear();
+
 	for(Params::const_iterator i = params_.begin(); i != params_.end(); ++i)
 		p.push_back((*i).first);
 

@@ -153,7 +153,9 @@ std::string MarsLanguage::expandVerb(const std::string& verb) {
 
 Type& MarsLanguage::type(const std::string& name) const {
     std::map<std::string, Type* >::const_iterator k = types_.find(name);
-    ASSERT(k != types_.end());
+    if(k == types_.end()) {
+        throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
+    }
     return *((*k).second);
 }
 
@@ -178,6 +180,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
             const std::string& s = values[0];
             if (s == "off" || s == "OFF") {
                 result.unsetValues(p);
+                type(p).clearDefaults();
                 continue;
             }
         }
