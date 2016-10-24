@@ -76,60 +76,57 @@ void ParseRequest::process(const eckit::PathName& path)
         return;
     }
 
-    try {
 
-        std::cout << "============= " << path << std::endl;
-        std::ifstream in(path.asString().c_str());
-        MarsParser parser(in);
-        MarsExpension expand;
+    std::cout << "============= " << path << std::endl;
+    std::ifstream in(path.asString().c_str());
+    MarsParser parser(in);
+    MarsExpension expand;
 
-        std::vector<MarsRequest> v = expand(parser.parse());
+    std::vector<MarsRequest> v = expand(parser.parse());
 
-        // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-        //     std::cout << *j << std::endl;
-        // }
-
-        class Print : public FlattenCallback {
-            virtual void operator()(const MarsRequest& request)  {
-                std::cout << request << std::endl;
-            }
-
-        };
-
-        class Filter : public FlattenFilter {
-            virtual bool operator()(const std::string& keyword,
-                                    std::vector<std::string>& values,
-                                    const MarsRequest& request)  {
-
-                if (keyword == "levelist") {
-                    values.erase(
-                        std::remove_if(values.begin(),
-                                       values.end(),
-                                       std::bind1st(std::equal_to<std::string>(), "850")),
-                        values.end());
-                }
-
-                if (keyword == "step") {
-                    values.erase(
-                        std::remove_if(values.begin(),
-                                       values.end(),
-                                       std::bind1st(std::equal_to<std::string>(), "216-240")),
-                        values.end());
-                }
-                return true;
-            }
-
-        };
-
-        Print cb;
-        Filter filter;
-
-        // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-        //     expand.flatten(*j, cb, filter);
-        // }
-    } catch (Exception& e) {
-        std::cout << "============= ERROR " << path << ": " << e.what() << std::endl;
+    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+        std::cout << *j << std::endl;
     }
+
+    class Print : public FlattenCallback {
+        virtual void operator()(const MarsRequest& request)  {
+            std::cout << request << std::endl;
+        }
+
+    };
+
+    class Filter : public FlattenFilter {
+        virtual bool operator()(const std::string& keyword,
+                                std::vector<std::string>& values,
+                                const MarsRequest& request)  {
+
+            if (keyword == "levelist") {
+                values.erase(
+                    std::remove_if(values.begin(),
+                                   values.end(),
+                                   std::bind1st(std::equal_to<std::string>(), "850")),
+                    values.end());
+            }
+
+            if (keyword == "step") {
+                values.erase(
+                    std::remove_if(values.begin(),
+                                   values.end(),
+                                   std::bind1st(std::equal_to<std::string>(), "216-240")),
+                    values.end());
+            }
+            return true;
+        }
+
+    };
+
+    Print cb;
+    Filter filter;
+
+    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+    //     expand.flatten(*j, cb, filter);
+    // }
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------

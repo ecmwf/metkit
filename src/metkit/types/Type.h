@@ -44,8 +44,8 @@ public: // methods
     virtual void setDefaults(const std::vector<std::string>& defaults);
     virtual void clearDefaults();
 
-
     virtual void flattenValues(const MarsRequest& request, std::vector<std::string>& values);
+    virtual bool flatten() const;
 
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 
@@ -58,6 +58,7 @@ protected: // members
 
     std::string name_;
     std::vector<std::string> defaults_;
+    bool flatten_;
 
 protected: // methods
 

@@ -35,14 +35,14 @@ types/TypeToByList.cc
 types/TypeToByList.h
 types/TypeEnum.cc
 types/TypeEnum.h
-types/TypePostProc.cc
-types/TypePostProc.h
 types/TypeInteger.cc
 types/TypeInteger.h
 types/TypeFloat.cc
 types/TypeFloat.h
 types/TypeTime.cc
 types/TypeTime.h
+types/TypeMixed.cc
+types/TypeMixed.h
 types/TypesFactory.cc
 types/TypesFactory.h
 )

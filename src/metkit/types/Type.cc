@@ -16,12 +16,33 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 Type::Type(const std::string &name, const eckit::Value& settings) :
-    name_(name) {
+    name_(name),
+    flatten_(true) {
+
+    if (settings.contains("flatten")) {
+        flatten_ = settings["flatten"];
+    }
+
+    if (settings.contains("default")) {
+        eckit::Value d = settings["default"];
+        if(d.isList()) {
+            size_t len = d.size();
+            for(size_t i = 0; i < len; i++) {
+                defaults_.push_back(d[i]);
+            }
+        }
+        else {
+            defaults_.push_back(d);
+        }
+    }
 }
 
 Type::~Type() {
 }
 
+bool Type::flatten() const {
+    return flatten_;
+}
 
 std::string Type::tidy(const std::string &value) const  {
     return value;

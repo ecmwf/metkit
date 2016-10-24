@@ -32,12 +32,17 @@ public: // methods
 
     virtual void expand(std::vector<std::string>& values) const;
 
+protected:
+    virtual bool expand(std::vector<std::string>& values, bool fail) const;
+
 private: // methods
 
     virtual void print( std::ostream &out ) const;
 
+
     std::map<std::string, std::string> mapping_;
     std::vector<std::string> values_;
+    bool multiple_;
 
 };
 

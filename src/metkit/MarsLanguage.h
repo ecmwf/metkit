@@ -50,6 +50,7 @@ public:
     static std::string expandVerb(const std::string& verb);
     static std::string bestMatch(const std::string& what,
                                  const std::vector<std::string>& values,
+                                 bool fail,
                                  const std::map<std::string, std::string>& aliases = std::map<std::string, std::string>());
 
 private:

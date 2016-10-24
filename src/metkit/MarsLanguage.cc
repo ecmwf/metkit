@@ -73,7 +73,6 @@ MarsLanguage::MarsLanguage(const std::string& verb):
 }
 
 MarsLanguage::~MarsLanguage() {
-    std::cout << "MarsLanguage::~MarsLanguage " << verbs_ << std::endl;
     for (std::map<std::string, Type* >::iterator j = types_.begin(); j != types_.end(); ++j) {
         delete (*j).second;
     }
@@ -82,6 +81,7 @@ MarsLanguage::~MarsLanguage() {
 
 std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::vector<std::string>& values,
+                                    bool fail,
                                     const std::map<std::string, std::string>& aliases) {
 
     size_t score = 0;
@@ -115,12 +115,28 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
     }
 
+    if (best.size() > 0 && score < 3) {
+        std::cerr << "Matching '"
+                  << name
+                  << "' with "
+                  << best
+                  << " "
+                  << "Please give at least 3 first letters"
+                  << std::endl;
+    }
+
 
     if (best.size() == 1) {
         return best[0];
     }
 
     if (best.empty()) {
+
+        if(!fail) {
+            static std::string empty;
+            return empty;
+        }
+
         std::ostringstream oss;
         oss << "Cannot match '" << name << "' in " << values;
         throw eckit::UserError(oss.str());
@@ -148,12 +164,12 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
 std::string MarsLanguage::expandVerb(const std::string& verb) {
     pthread_once(&once, init);
-    return bestMatch(verb, verbs_);
+    return bestMatch(verb, verbs_, true);
 }
 
 Type& MarsLanguage::type(const std::string& name) const {
     std::map<std::string, Type* >::const_iterator k = types_.find(name);
-    if(k == types_.end()) {
+    if (k == types_.end()) {
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
     return *((*k).second);
@@ -162,16 +178,13 @@ Type& MarsLanguage::type(const std::string& name) const {
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
 
-    std::cout << "---------------" << std::endl;
-    std::cout << r << std::endl;
-
     MarsRequest result(verb_);
 
     std::vector<std::string> params;
     r.getParams(params);
 
     for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-        std::string p = bestMatch(*j, keywords_);
+        std::string p = bestMatch(*j, keywords_, true);
 
         std::vector<std::string> values;
         r.getValues(*j, values);
@@ -206,9 +219,6 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
         type(*k).setDefaults(values);
     }
 
-    std::cout << std::endl << result << std::endl;
-
-
     return result;
 }
 
@@ -232,27 +242,26 @@ void MarsLanguage::flatten(const MarsRequest& request,
 
     const std::string& param = params[i];
 
+    Type& t = type(param);
+    if (!t.flatten()) {
+        flatten(request, params, i + 1, result, callback, filter);
+        return;
+    }
+
     std::vector<std::string> values;
-    type(param).flattenValues(request, values);
+    t.flattenValues(request, values);
+    filter(param, values, request);
 
-    if (filter(param, values, request)) {
-
-        if (values.empty()) {
-            flatten(request, params, i + 1, result, callback, filter);
-            return;
-        }
-
-        for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-            result.setValue(param, *j);
-            flatten(request, params, i + 1, result, callback, filter);
-        }
+    for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
+        result.setValue(param, *j);
+        flatten(request, params, i + 1, result, callback, filter);
     }
 
 }
 
-void MarsLanguage::flatten(const MarsRequest& request,
-                           FlattenCallback& callback,
-                           FlattenFilter& filter) {
+void MarsLanguage::flatten(const MarsRequest & request,
+                           FlattenCallback & callback,
+                           FlattenFilter & filter) {
     std::vector<std::string> params;
     request.getParams(params);
 

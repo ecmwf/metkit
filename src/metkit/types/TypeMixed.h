@@ -8,34 +8,40 @@
  * does it submit to any jurisdiction.
  */
 
-#include "eckit/parser/StringTools.h"
-#include "metkit/MarsRequest.h"
+/// @file   TypeMixed.h
+/// @author Baudouin Raoult
+/// @author Tiago Quintino
+/// @date   April 2016
 
-#include "metkit/types/TypesFactory.h"
-#include "metkit/types/TypePostProc.h"
+#ifndef metkit_TypeMixed_H
+#define metkit_TypeMixed_H
+
+#include "metkit/types/TypeEnum.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypePostProc::TypePostProc(const std::string &name, const eckit::Value& settings) :
-    TypeFloat(name, settings) {
-}
+class TypeMixed : public TypeEnum {
 
-TypePostProc::~TypePostProc() {
-}
+public: // methods
 
-void TypePostProc::print(std::ostream &out) const {
-    out << "TypePostProc[name=" << name_ << "]";
-}
+    TypeMixed(const std::string &name, const eckit::Value& settings);
 
+    virtual ~TypeMixed();
 
-void TypePostProc::flattenValues(const MarsRequest& request, std::vector<std::string>& values) {
-    // Empty, so that the values are not considered a list when flattening the requests
-}
+private: // methods
 
-static TypeBuilder<TypePostProc> type("postproc");
+    virtual void print( std::ostream &out ) const;
+    virtual std::string tidy(const std::string &value) const ;
+    virtual void expand(std::vector<std::string>& values) const;
+
+    std::vector<Type*> types_;
+
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit
+
+#endif

@@ -1,48 +1,80 @@
 {
     "dissemination": {
         "area": {
-            "type": "postproc",
-             "values": ["g"]
+            "type": "enum-or-more",
+            "values": [
+                "g"
+            ],
+            "flatten": false,
+            "more": [{"type":"float"}]
         },
         "class": {
             "type": "enum",
             "values": [
                 "od"
-            ]
+            ],
+            "default": "od"
         },
         "domain": {
             "type": "enum",
             "values": [
-                "g",
+                [
+                    "g",
+                    "global"
+                ],
                 "m",
                 "c",
                 "h"
-            ]
+            ],
+            "default": "g"
         },
         "expver": {
-            "type": "expver"
+            "type": "expver",
+            "default": "0001"
         },
         "catn": {
-            "type": "any"
+            "type": "integer"
         },
         "format": {
             "type": "enum",
             "values": [
-                "gb",
-                ["grib", "bg"],
-                "grib1",
-                "grib2",
-                ["bufr", "bf"],
-                ["grid", "gd"],
-                "off"
+                [
+                    "grib",
+                    "gb"
+                ],
+                [
+                    "grib1"
+                ],
+                [
+                    "grib2"
+                ],
+                [
+                    "bufr",
+                    "bf"
+                ],
+                [
+                    "grid",
+                    "gd"
+                ]
             ]
         },
         "grid": {
-            "type": "postproc",
-            "values": []
+            "type": "any",
+            "types": [{
+                "type": "enum",
+                "values": [
+                    "auto",
+                    "O1280",
+                    "F1280",
+                    "N640"
+                ]
+            }, {
+                "type": "float"
+            }]
         },
         "rotation": {
-            "type": "postproc"
+            "type": "any",
+            "flatten": false
         },
         "fcperiod": {
             "type": "integer"
@@ -54,19 +86,27 @@
         "levtype": {
             "type": "enum",
             "values": [
-                "pl",
-                "ml",
+                [
+                    "pl",
+                    "pressure levels"
+                ],
+                [
+                    "ml",
+                    "model levels"
+                ],
                 [
                     "sfc",
                     "surface"
                 ],
                 "pt",
-                "pv",
-                "off"
-            ]
+                "pv"
+            ],
+            "default": "pl"
         },
         "param": {
             "type": "enum",
+            "default": "z",
+            "multiple": true,
             "values": [
                 "100u",
                 "100v",
@@ -296,7 +336,6 @@
                 "nsss",
                 "nsssvar",
                 "o3",
-                "off",
                 "p1ps",
                 "p1ww",
                 "p2ps",
@@ -485,6 +524,7 @@
         },
         "stream": {
             "type": "enum",
+            "default": "oper",
             "values": [
                 [
                     "oper",
@@ -498,12 +538,27 @@
                     "wave",
                     "wv"
                 ],
-                "we",
+                [
+                    "scwv"
+                ],
+                [
+                    "enwh"
+                ],
+                [
+                    "waef",
+                    "we"
+                ],
                 "esmm",
                 "ehmm",
                 "mmsm",
-                "scda"
+                "scda",
+                "msmm",
+                "efhs",
+                "efov"
             ]
+        },
+        "projection": {
+            "type": "any"
         },
         "number": {
             "type": "to-by-list",
@@ -516,10 +571,10 @@
             "type": "integer"
         },
         "ident": {
-            "type": "any"
+            "type": "integer"
         },
         "instrument": {
-            "type": "any"
+            "type": "integer"
         },
         "target": {
             "type": "any"
@@ -528,27 +583,40 @@
             "type": "integer"
         },
         "method": {
-            "type": "any"
+            "type": "integer"
         },
         "origin": {
             "type": "enum",
-            "values": [ "ecmwf" ]
+            "values": [
+                "ecmwf"
+            ]
         },
         "system": {
             "type": "integer"
         },
         "time": {
-            "type": "time"
+            "type": "time",
+            "default": "1200"
         },
         "date": {
             "type": "any"
         },
         "type": {
             "type": "enum",
+            "default": "an",
             "values": [
-                "an",
-                "fc",
-                "cf",
+                [
+                    "an",
+                    "analysis"
+                ],
+                [
+                    "fc",
+                    "forecast"
+                ],
+                [
+                    "cf",
+                    "control forecast"
+                ],
                 "pf",
                 "em",
                 "es",
@@ -563,20 +631,20 @@
                 "ssd",
                 "sot",
                 "cv",
-                "pb",
-                [
+                "pb", [
                     "ep",
                     "event probability"
                 ],
-                "fp"
+                "fp",
+                "fcmean"
             ]
         },
         "use": {
             "type": "enum",
+            "multiple": true,
             "values": [
                 "bc",
-                "daily",
-                [
+                "daily", [
                     "mt",
                     "monthly run thursday",
                     "monthly thursday",
@@ -587,19 +655,20 @@
                     "monthly run monday",
                     "monthly monday",
                     "monday"
-                ],
-                "off"
+                ]
             ]
         },
         "options": {
             "type": "enum",
+            "multiple": true,
             "values": [
                 "normal",
                 "delay",
                 "wmoe",
                 "gts",
                 "tcpip",
-                "nobackup"
+                "nobackup",
+                "grib1table1"
             ]
         },
         "padding": {
@@ -611,6 +680,13 @@
         },
         "accuracy": {
             "type": "any"
+        },
+        "interpolation": {
+            "type": "enum",
+            "values": [
+                "nearest lsm",
+                "default"
+            ]
         },
         "country": {
             "type": "any"
@@ -638,22 +714,21 @@
             "values": [
                 [
                     "so",
-                    "secondorder"
+                    "second order"
                 ],
                 "av",
                 "co",
-                "off"
+                "simple"
             ]
         },
         "repres": {
-            "type": "enum",
+            "type": "any",
             "values": [
                 "gg",
                 "sh",
                 "ll",
                 "np",
-                "rl",
-                [
+                "rl", [
                     "0.25",
                     "fix me HUE:E1 !"
                 ]
@@ -663,13 +738,13 @@
             "type": "integer"
         },
         "gaussian": {
-            "type": "any"
+            "type": "integer"
         },
         "ensemble": {
             "type": "integer"
         },
         "reference": {
-            "type": "any"
+            "type": "integer"
         }
     },
     "end": {}

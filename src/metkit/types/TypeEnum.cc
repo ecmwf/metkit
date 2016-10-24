@@ -19,7 +19,12 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+    Type(name, settings),
+    multiple_(false) {
+
+    if (settings.contains("multiple")) {
+        multiple_ = settings["multiple"];
+    }
 
     eckit::Value values = settings["values"];
     for (size_t i = 0; i < values.size(); ++i) {
@@ -52,16 +57,30 @@ void TypeEnum::print(std::ostream &out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-void TypeEnum::expand(std::vector<std::string>& values) const {
+bool TypeEnum::expand(std::vector<std::string>& values, bool fail) const {
 
     std::vector<std::string> newval;
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        std::string v = MarsLanguage::bestMatch((*j), values_, mapping_);
+        std::string v = MarsLanguage::bestMatch((*j), values_, fail, mapping_);
+        if(v.empty()) {
+            return false;
+        }
         std::map<std::string, std::string>::const_iterator k = mapping_.find(v);
         ASSERT(k != mapping_.end());
         newval.push_back((*k).second);
     }
     std::swap(values, newval);
+
+    if (!multiple_ && values.size() > 1) {
+        throw eckit::UserError("Only one value passible for '" + name_ + "'");
+    }
+
+    return true;
+}
+
+
+void TypeEnum::expand(std::vector<std::string>& values) const {
+    expand(values, true);
 }
 
 static TypeBuilder<TypeEnum> type("enum");
