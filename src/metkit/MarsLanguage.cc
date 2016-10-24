@@ -68,7 +68,18 @@ MarsLanguage::MarsLanguage(const std::string& verb):
         Value settings = lang[keyword];
         types_[keyword] = TypesFactory::build(keyword, settings);
         keywords_.push_back(keyword);
+
+        if (settings.contains("aliases")) {
+            Value aliases = settings["aliases"];
+            for (size_t j = 0; j < aliases.size(); ++j) {
+                aliases_[aliases[j]] = keyword;
+                keywords_.push_back(aliases[j]);
+            }
+        }
+
     }
+
+    std::cout << aliases_ << std::endl;
 
 }
 
@@ -103,6 +114,9 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
 
         if (s == value.length() && s == name.length()) {
+            if (aliases.find(value) != aliases.end()) {
+                return aliases.find(value)->second;
+            }
             return value;
         }
 
@@ -127,12 +141,15 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
 
     if (best.size() == 1) {
+        if (aliases.find(best[0]) != aliases.end()) {
+            return aliases.find(best[0])->second;
+        }
         return best[0];
     }
 
     if (best.empty()) {
 
-        if(!fail) {
+        if (!fail) {
             static std::string empty;
             return empty;
         }
@@ -184,7 +201,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
     r.getParams(params);
 
     for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-        std::string p = bestMatch(*j, keywords_, true);
+        std::string p = bestMatch(*j, keywords_, true, aliases_);
 
         std::vector<std::string> values;
         r.getValues(*j, values);

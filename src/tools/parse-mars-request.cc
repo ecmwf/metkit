@@ -66,6 +66,9 @@ void ParseRequest::process(const eckit::PathName& path)
 
         path.children(files, directories);
 
+        std::sort(files.begin(), files.end());
+        std::sort(directories.begin(), directories.end());
+
         for (std::vector<PathName>::const_iterator j = files.begin(); j != files.end(); ++j) {
             process(*j);
         }

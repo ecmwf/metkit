@@ -59,6 +59,7 @@ private:
     std::string verb_;
     std::map<std::string, Type* > types_;
     std::vector<std::string> keywords_;
+    std::map<std::string, std::string> aliases_;
 
 private: // Methods
 
