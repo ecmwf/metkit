@@ -25,7 +25,6 @@ namespace metkit {
 
 class Type;
 class FlattenCallback;
-class FlattenFilter;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -42,8 +41,7 @@ public:
     const std::string& verb() const;
 
     void flatten(const MarsRequest& request,
-                 FlattenCallback& callback,
-                 FlattenFilter& filter);
+                 FlattenCallback& callback);
 
 
 // - Class methds
@@ -70,8 +68,7 @@ private: // Methods
                  const std::vector<std::string>& params,
                  size_t i,
                  MarsRequest& result,
-                 FlattenCallback& callback,
-                 FlattenFilter& filter);
+                 FlattenCallback& callback);
 
     Type& type(const std::string& name) const;
 

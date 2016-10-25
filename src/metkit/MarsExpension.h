@@ -30,18 +30,6 @@ public:
     virtual void operator()(const MarsRequest&) = 0;
 };
 
-class FlattenFilter {
-public:
-
-    virtual bool operator()(const std::string& keyword,
-                            const MarsRequest& request) = 0;
-
-    virtual void operator()(const std::string& keyword,
-                            std::vector<std::string>& values,
-                            const MarsRequest& request) = 0;
-};
-
-
 class ExpandCallback {
 public:
     virtual void operator()(const MarsRequest&) = 0;
@@ -63,8 +51,7 @@ public:
 
 
     void flatten(const MarsRequest& request,
-                 FlattenCallback& callback,
-                 FlattenFilter& filter);
+                 FlattenCallback& callback);
 
 
 private: // members

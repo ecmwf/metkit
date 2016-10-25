@@ -98,48 +98,8 @@ void ParseRequest::process(const eckit::PathName& path)
 
     };
 
-    class Filter : public FlattenFilter {
-        virtual bool operator()(const std::string& keyword,
-                                const MarsRequest& request)  {
-            return true;
-        }
-
-        virtual void operator()(const std::string& keyword,
-                                std::vector<std::string>& values,
-                                const MarsRequest& request)  {
-
-            if (keyword == "time") {
-                values.erase(
-                    std::remove_if(values.begin(),
-                                   values.end(),
-                                   std::bind1st(std::not_equal_to<std::string>(), "0000")),
-                    values.end());
-            }
-
-
-            if (keyword == "step") {
-                values.erase(
-                    std::remove_if(values.begin(),
-                                   values.end(),
-                                   std::bind1st(std::not_equal_to<std::string>(), "240")),
-                    values.end());
-            }
-
-
-            if (keyword == "type") {
-                values.erase(
-                    std::remove_if(values.begin(),
-                                   values.end(),
-                                   std::bind1st(std::not_equal_to<std::string>(), "fc")),
-                    values.end());
-            }
-
-        }
-
-    };
 
     Print cb;
-    Filter filter;
 
     // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
     //     expand.flatten(*j, cb, filter);

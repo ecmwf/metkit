@@ -277,8 +277,7 @@ void MarsLanguage::flatten(const MarsRequest& request,
                            const std::vector<std::string>& params,
                            size_t i,
                            MarsRequest& result,
-                           FlattenCallback& callback,
-                           FlattenFilter& filter) {
+                           FlattenCallback& callback) {
 
     if (i == params.size()) {
         callback(result);
@@ -289,31 +288,27 @@ void MarsLanguage::flatten(const MarsRequest& request,
 
     Type& t = type(param);
     if (!t.flatten()) {
-        if (filter(param, request)) {
-            flatten(request, params, i + 1, result, callback, filter);
-        }
+        flatten(request, params, i + 1, result, callback);
         return;
     }
 
     std::vector<std::string> values;
     t.flattenValues(request, values);
-    filter(param, values, request);
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
         result.setValue(param, *j);
-        flatten(request, params, i + 1, result, callback, filter);
+        flatten(request, params, i + 1, result, callback);
     }
 
 }
 
 void MarsLanguage::flatten(const MarsRequest & request,
-                           FlattenCallback & callback,
-                           FlattenFilter & filter) {
+                           FlattenCallback & callback) {
     std::vector<std::string> params;
     request.getParams(params);
 
     MarsRequest result(request);
-    flatten(request, params, 0, result, callback, filter);
+    flatten(request, params, 0, result, callback);
 
 }
 

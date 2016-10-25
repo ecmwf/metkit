@@ -78,18 +78,16 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void MarsExpension::expand(const MarsRequest& request, ExpandCallback& cb) {
-    cb(language(request.name()).expand(request));
+void MarsExpension::expand(const MarsRequest& request, ExpandCallback& callback) {
+    callback(language(request.name()).expand(request));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
 void MarsExpension::flatten(const MarsRequest& request,
-                            FlattenCallback& callback,
-                            FlattenFilter& filter) {
-    MarsLanguage& lang = language(request.name());
-    lang.flatten(request, callback, filter);
+                            FlattenCallback& callback) {
+    language(request.name()).flatten(request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
