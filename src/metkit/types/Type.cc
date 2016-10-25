@@ -19,15 +19,19 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
     name_(name),
     flatten_(true) {
 
+    // if (settings.contains("multiple")) {
+    //     flatten_ = settings["multiple"];
+    // }
+
     if (settings.contains("flatten")) {
         flatten_ = settings["flatten"];
     }
 
     if (settings.contains("default")) {
         eckit::Value d = settings["default"];
-        if(d.isList()) {
+        if (d.isList()) {
             size_t len = d.size();
-            for(size_t i = 0; i < len; i++) {
+            for (size_t i = 0; i < len; i++) {
                 defaults_.push_back(d[i]);
             }
         }
@@ -35,6 +39,8 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
             defaults_.push_back(d);
         }
     }
+
+    originalDefaults_ = defaults_;
 }
 
 Type::~Type() {
@@ -60,6 +66,8 @@ void Type::expand(std::vector<std::string>& values) const {
         newvals.push_back(tidy(*j));
     }
 
+    // std::cout << "expand " << name_ << " " << values << " " << newvals << std::endl;
+
     std::swap(newvals, values);
 
 }
@@ -81,6 +89,10 @@ void Type::flattenValues(const MarsRequest& request, std::vector<std::string>& v
 
 void Type::clearDefaults() {
     defaults_.clear();
+}
+
+void Type::reset() {
+    defaults_ = originalDefaults_;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

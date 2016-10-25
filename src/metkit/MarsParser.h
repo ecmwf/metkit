@@ -22,6 +22,11 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class MarsParserCallback {
+public:
+    virtual void operator()(const MarsRequest&) = 0;
+};
+
 class MarsParser : public eckit::StreamParser {
 
 public: // methods
@@ -29,6 +34,8 @@ public: // methods
     MarsParser(std::istream& in);
 
     std::vector<MarsRequest> parse();
+
+    void parse(MarsParserCallback& cb);
 
 private: // methods
 
@@ -38,7 +45,7 @@ private: // methods
     std::vector<std::string> parseValues();
     std::string parseValue();
     std::string parseIndent();
-        std::string parseIndents();
+    std::string parseIndents();
 
     std::string parseString(char c);
 

@@ -85,11 +85,11 @@ void ParseRequest::process(const eckit::PathName& path)
     MarsParser parser(in);
     MarsExpension expand;
 
-    std::vector<MarsRequest> v = expand(parser.parse());
+    std::vector<MarsRequest> v = expand.expand(parser.parse());
 
-    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-        std::cout << *j << std::endl;
-    }
+    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+    //     std::cout << *j << std::endl;
+    // }
 
     class Print : public FlattenCallback {
         virtual void operator()(const MarsRequest& request)  {
@@ -100,25 +100,40 @@ void ParseRequest::process(const eckit::PathName& path)
 
     class Filter : public FlattenFilter {
         virtual bool operator()(const std::string& keyword,
+                                const MarsRequest& request)  {
+            return true;
+        }
+
+        virtual void operator()(const std::string& keyword,
                                 std::vector<std::string>& values,
                                 const MarsRequest& request)  {
 
-            if (keyword == "levelist") {
+            if (keyword == "time") {
                 values.erase(
                     std::remove_if(values.begin(),
                                    values.end(),
-                                   std::bind1st(std::equal_to<std::string>(), "850")),
+                                   std::bind1st(std::not_equal_to<std::string>(), "0000")),
                     values.end());
             }
+
 
             if (keyword == "step") {
                 values.erase(
                     std::remove_if(values.begin(),
                                    values.end(),
-                                   std::bind1st(std::equal_to<std::string>(), "216-240")),
+                                   std::bind1st(std::not_equal_to<std::string>(), "240")),
                     values.end());
             }
-            return true;
+
+
+            if (keyword == "type") {
+                values.erase(
+                    std::remove_if(values.begin(),
+                                   values.end(),
+                                   std::bind1st(std::not_equal_to<std::string>(), "fc")),
+                    values.end());
+            }
+
         }
 
     };

@@ -6,10 +6,15 @@
                 "g"
             ],
             "flatten": false,
-            "more": [{"type":"float"}]
+            "more": [
+                {
+                    "type": "float"
+                }
+            ]
         },
         "class": {
             "type": "enum",
+            "flatten": false,
             "values": [
                 "od"
             ],
@@ -17,6 +22,7 @@
         },
         "domain": {
             "type": "enum",
+            "flatten": false,
             "values": [
                 [
                     "g",
@@ -30,15 +36,19 @@
         },
         "expver": {
             "type": "expver",
+            "flatten": false,
             "default": "0001"
         },
         "catn": {
-            "type": "integer"
+            "type": "integer",
+            "flatten": false
         },
         "format": {
             "type": "enum",
+            "flatten": false,
             "values": [
-                ["grib",
+                [
+                    "grib",
                     "grib1",
                     "gb"
                 ],
@@ -57,16 +67,23 @@
         },
         "grid": {
             "type": "enum-or-more",
-
-                "values": [
-                    "auto",
-                    "O1280",
-                    "F1280",
-                    "N640"
-                ],
-            "more":[{
-                "type": "float"
-            }]
+            "flatten": false,
+            "values": [
+                "auto",
+                "O1280",
+                "F1280",
+                "N640",
+                "O640",
+                "O320",
+                "O160",
+                "N160",
+                "N320"
+            ],
+            "more": [
+                {
+                    "type": "float"
+                }
+            ]
         },
         "rotation": {
             "type": "any",
@@ -81,6 +98,7 @@
         },
         "levtype": {
             "type": "enum",
+            "flatten": false,
             "values": [
                 [
                     "pl",
@@ -512,7 +530,8 @@
             ]
         },
         "priority": {
-            "type": "integer"
+            "type": "integer",
+            "flatten": false
         },
         "step": {
             "type": "to-by-list",
@@ -521,6 +540,7 @@
         "stream": {
             "type": "enum",
             "default": "oper",
+            "flatten": false,
             "values": [
                 [
                     "oper",
@@ -559,7 +579,9 @@
         "number": {
             "type": "to-by-list",
             "by": 1,
-            "aliases": ["ensemble"]
+            "aliases": [
+                "ensemble"
+            ]
         },
         "quantile": {
             "type": "integer"
@@ -574,7 +596,8 @@
             "type": "integer"
         },
         "target": {
-            "type": "any"
+            "type": "any",
+            "flatten": false
         },
         "fcmonth": {
             "type": "integer"
@@ -593,7 +616,8 @@
         },
         "time": {
             "type": "time",
-            "default": 12
+            "default": 9999,
+            "multiple": true
         },
         "date": {
             "type": "any"
@@ -601,6 +625,7 @@
         "type": {
             "type": "enum",
             "default": "an",
+            "flatten": false,
             "values": [
                 [
                     "an",
@@ -628,7 +653,8 @@
                 "ssd",
                 "sot",
                 "cv",
-                "pb", [
+                "pb",
+                [
                     "ep",
                     "event probability"
                 ],
@@ -639,9 +665,11 @@
         "use": {
             "type": "enum",
             "multiple": true,
+            "flatten": false,
             "values": [
                 "bc",
-                "daily", [
+                "daily",
+                [
                     "mt",
                     "monthly run thursday",
                     "monthly thursday",
@@ -658,6 +686,7 @@
         "options": {
             "type": "enum",
             "multiple": true,
+            "flatten": false,
             "values": [
                 "normal",
                 "delay",
@@ -670,16 +699,19 @@
         },
         "padding": {
             "type": "enum",
+            "flatten": false,
             "values": [
                 "none",
                 "auto"
             ]
         },
         "accuracy": {
-            "type": "any"
+            "type": "any",
+            "flatten": false
         },
         "interpolation": {
             "type": "enum",
+            "flatten": false,
             "values": [
                 "nearest lsm",
                 "default"
@@ -695,7 +727,8 @@
             ]
         },
         "bitmap": {
-            "type": "any"
+            "type": "any",
+            "flatten": false
         },
         "direction": {
             "type": "integer"
@@ -708,6 +741,7 @@
         },
         "packing": {
             "type": "enum",
+            "flatten": false,
             "values": [
                 [
                     "so",
@@ -720,12 +754,14 @@
         },
         "repres": {
             "type": "any",
+            "flatten": false,
             "values": [
                 "gg",
                 "sh",
                 "ll",
                 "np",
-                "rl", [
+                "rl",
+                [
                     "0.25",
                     "fix me HUE:E1 !"
                 ]

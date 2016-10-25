@@ -37,6 +37,7 @@ public:
 
     MarsRequest expand(const MarsRequest& r);
 
+    void reset();
 
     const std::string& verb() const;
 
@@ -60,6 +61,8 @@ private:
     std::map<std::string, Type* > types_;
     std::vector<std::string> keywords_;
     std::map<std::string, std::string> aliases_;
+
+    mutable std::map<std::string, std::string> cache_;
 
 private: // Methods
 

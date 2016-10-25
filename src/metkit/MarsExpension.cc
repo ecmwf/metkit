@@ -39,6 +39,12 @@ MarsExpension::~MarsExpension() {
     }
 }
 
+void MarsExpension::reset() {
+    for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {
+        (*j).second->reset();
+    }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 MarsLanguage& MarsExpension::language(const std::string& verb) {
@@ -54,7 +60,7 @@ MarsLanguage& MarsExpension::language(const std::string& verb) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest>& requests) {
+std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& requests) {
     std::vector<MarsRequest> result;
 
     // Implement inheritence
@@ -71,9 +77,17 @@ std::vector<MarsRequest> MarsExpension::operator()(const std::vector<MarsRequest
     return result;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+void MarsExpension::expand(const MarsRequest& request, ExpandCallback& cb) {
+    cb(language(request.name()).expand(request));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 void MarsExpension::flatten(const MarsRequest& request,
-    FlattenCallback& callback,
-    FlattenFilter& filter) {
+                            FlattenCallback& callback,
+                            FlattenFilter& filter) {
     MarsLanguage& lang = language(request.name());
     lang.flatten(request, callback, filter);
 }

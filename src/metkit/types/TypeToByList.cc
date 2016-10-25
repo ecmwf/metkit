@@ -19,7 +19,7 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeToByList::TypeToByList(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings),
+    TypeInteger(name, settings),
     by_(settings["by"]) {
 }
 
@@ -41,6 +41,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
             long to = s2l(values[2]);
             long by = by_;
             values.clear();
+            values.reserve((to - from) / by + 1);
             for (long i = from; i <= to; i += by) {
                 values.push_back(l2s(i));
             }
@@ -55,6 +56,8 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
                 long to = s2l(values[2]);
                 long by = s2l(values[4]);
                 values.clear();
+                values.reserve((to - from) / by + 1);
+
                 for (long i = from; i <= to; i += by) {
                     values.push_back(l2s(i));
                 }
@@ -63,6 +66,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
         }
     }
 
+    TypeInteger::expand(values);
 }
 
 static TypeBuilder<TypeToByList> type("to-by-list");

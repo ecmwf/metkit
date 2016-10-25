@@ -32,9 +32,19 @@ public:
 
 class FlattenFilter {
 public:
+
     virtual bool operator()(const std::string& keyword,
+                            const MarsRequest& request) = 0;
+
+    virtual void operator()(const std::string& keyword,
                             std::vector<std::string>& values,
                             const MarsRequest& request) = 0;
+};
+
+
+class ExpandCallback {
+public:
+    virtual void operator()(const MarsRequest&) = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -46,8 +56,16 @@ public:
     MarsExpension();
     ~MarsExpension();
 
-    std::vector<MarsRequest> operator()(const std::vector<MarsRequest>&);
-    void flatten(const MarsRequest& request, FlattenCallback& callback, FlattenFilter& filter);
+    void reset();
+
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
+    void expand(const MarsRequest& request, ExpandCallback& cb);
+
+
+    void flatten(const MarsRequest& request,
+                 FlattenCallback& callback,
+                 FlattenFilter& filter);
+
 
 private: // members
 

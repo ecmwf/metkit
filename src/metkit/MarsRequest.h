@@ -35,8 +35,8 @@ class MarsRequest {
 
 public: // types
 
-    typedef std::list< std::string > Values;
-    typedef std::map< std::string, Values, std::less<std::string> >  Params;
+    typedef std::vector< std::string > Values;
+    typedef std::map< std::string, Values>  Params;
 
 public: // methods
 
@@ -68,6 +68,10 @@ public: // methods
 
 
 	const std::string& name() const { return name_; }
+
+    long countValues(const std::string&) const;
+
+    bool is(const std::string& param, const std::string& value) const;
 
 	long getValues(const std::string&,std::vector<std::string>&,bool = false) const;
 	long getValues(const std::string&,std::vector<double>&,bool = false) const;
@@ -135,6 +139,8 @@ private: // methods
     friend eckit::Stream& operator<<(eckit::Stream& s, const MarsRequest& r) {
         r.encode(s); return s;
     }
+
+    friend class MarsLanguage; // For speed
 };
 
 //----------------------------------------------------------------------------------------------------------------------

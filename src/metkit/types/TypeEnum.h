@@ -38,11 +38,14 @@ protected:
 private: // methods
 
     virtual void print( std::ostream &out ) const;
+    virtual void reset();
 
 
     std::map<std::string, std::string> mapping_;
     std::vector<std::string> values_;
     bool multiple_;
+
+    mutable std::map<std::string, std::string> cache_;
 
 };
 

@@ -60,14 +60,24 @@ void TypeEnum::print(std::ostream &out) const {
 bool TypeEnum::expand(std::vector<std::string>& values, bool fail) const {
 
     std::vector<std::string> newval;
+    newval.reserve(values.size());
+
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
+
+        std::map<std::string, std::string>::iterator c = cache_.find(*j);
+        if (c != cache_.end()) {
+            newval.push_back((*c).second);
+            continue;
+        }
+
         std::string v = MarsLanguage::bestMatch((*j), values_, fail, mapping_);
-        if(v.empty()) {
+        if (v.empty()) {
             return false;
         }
         std::map<std::string, std::string>::const_iterator k = mapping_.find(v);
         ASSERT(k != mapping_.end());
         newval.push_back((*k).second);
+        cache_[*j] = (*k).second;
     }
     std::swap(values, newval);
 
@@ -81,6 +91,11 @@ bool TypeEnum::expand(std::vector<std::string>& values, bool fail) const {
 
 void TypeEnum::expand(std::vector<std::string>& values) const {
     expand(values, true);
+}
+
+void TypeEnum::reset() {
+    // cache_.clear();
+    Type::reset();
 }
 
 static TypeBuilder<TypeEnum> type("enum");

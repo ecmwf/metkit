@@ -16,13 +16,13 @@
 #ifndef metkit_TypeToByList_H
 #define metkit_TypeToByList_H
 
-#include "metkit/types/Type.h"
+#include "metkit/types/TypeInteger.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeToByList : public Type {
+class TypeToByList : public TypeInteger {
 
 public: // methods
 

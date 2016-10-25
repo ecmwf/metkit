@@ -187,6 +187,13 @@ std::vector<MarsRequest> MarsParser::parse()
     return result;
 }
 
+void MarsParser::parse(MarsParserCallback& cb) {
+    char c;
+    while ((c = peek()) != 0) {
+        cb(parseRequest());
+    }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit
