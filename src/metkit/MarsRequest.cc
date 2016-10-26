@@ -215,6 +215,10 @@ void MarsRequest::merge(const MarsRequest& other) {
 
 void MarsRequest::print(std::ostream& s) const
 {
+    dump(s, "", "");
+}
+
+void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
 
     Params::const_iterator begin = params_.begin();
     Params::const_iterator end   =  params_.end();
@@ -222,27 +226,30 @@ void MarsRequest::print(std::ostream& s) const
     s << name_ ;
 
     if (begin != end) {
-        s << ',' ;
-    }
+        s << ',' << cr << tab;
 
-    int a = 0;
-    for (Params::const_iterator i = begin; i != end; ++i)
-    {
-        if (a++) {
-            s << ',';
-        }
-
-        int b = 0;
-        s << (*i).first << "=";
-        for (Values::const_iterator k = (*i).second.begin();
-                k != (*i).second.end(); ++k)
+        int a = 0;
+        for (Params::const_iterator i = begin; i != end; ++i)
         {
-            if (b++) {
-                s << '/';
+            if (a++) {
+                s << ',';
+                s << cr << tab;
             }
-            s << *k;
+
+            int b = 0;
+            s  << (*i).first << "=";
+            for (Values::const_iterator k = (*i).second.begin();
+                    k != (*i).second.end(); ++k)
+            {
+                if (b++) {
+                    s << '/';
+                }
+                s << *k;
+            }
         }
     }
+
+    s << cr << cr;
 }
 
 void MarsRequest::json(eckit::JSON& s) const

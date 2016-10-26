@@ -113,6 +113,9 @@ public: // methods
 
     void md5(eckit::MD5&) const;
 
+    void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t") const;
+
+
 private: // members
 
     std::string	    name_;
