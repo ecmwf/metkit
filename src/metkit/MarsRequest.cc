@@ -34,6 +34,11 @@ class UndefinedType : public Type {
         out << "<undefined type>";
     }
 
+    virtual bool filter(const std::vector< std::string >& filter, std::vector<std::string>& values) {
+        NOTIMP;
+    }
+
+
 public:
     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
 };
@@ -79,6 +84,10 @@ Parameter& Parameter::operator=(const Parameter& other) {
 
 void Parameter::values(const std::vector<std::string>& values) {
     values_ = values;
+}
+
+bool Parameter::filter(const std::vector<std::string> &filter) {
+    return type_->filter(filter, values_);
 }
 
 
@@ -177,7 +186,9 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
             }
 
             int b = 0;
-            s  << (*i).first << "=";
+            s  << (*i).first
+//               << "." << (*i).second.type()
+                 << "=";
             const std::vector<std::string>& v = (*i).second.values();
 
             for (std::vector<std::string>::const_iterator k = v.begin();
@@ -222,30 +233,9 @@ void MarsRequest::json(eckit::JSON& s) const
 
 void MarsRequest::md5(eckit::MD5& md5) const
 {
-    md5.add( StringTools::lower(verb_));
-
-    std::map<std::string, Parameter>::const_iterator begin = params_.begin();
-    std::map<std::string, Parameter>::const_iterator end = params_.end();
-
-
-    for (std::map<std::string, Parameter>::const_iterator i = begin; i != end; ++i) {
-
-        md5.add( StringTools::lower((*i).first) );
-
-        std::set<std::string> s; // ensures order is same and unique
-
-        const std::vector<std::string>& v = (*i).second.values();
-
-        for (std::vector<std::string>::const_iterator j = v.begin(); j != v.end(); ++j) {
-            s.insert(*j);
-        }
-
-//        std::copy((*i).second.begin(), (*i).second.end(), s.begin());
-
-        for (std::set<std::string>::const_iterator i = s.begin(); i != s.end(); ++i) {
-            md5.add( StringTools::lower(*i) );
-        }
-    }
+    std::ostringstream oss;
+    oss << *this;
+    md5.add(oss.str());
 }
 
 MarsRequest::~MarsRequest()
@@ -264,7 +254,22 @@ void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& val
     params_[type->name()] = Parameter(values, type);
 }
 
-void MarsRequest::setValues(const std::string& name, const std::vector<std::string>& v)
+bool MarsRequest::filter(const MarsRequest &filter) {
+    for (std::map<std::string, Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
+
+        std::map<std::string, Parameter>::const_iterator j = filter.params_.find((*i).first);
+        if(j == filter.params_.end()) {
+            continue;
+        }
+
+        if(!(*i).second.filter((*j).second.values())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MarsRequest::values(const std::string& name, const std::vector<std::string>& v)
 {
     params_[name].values(v);
 }

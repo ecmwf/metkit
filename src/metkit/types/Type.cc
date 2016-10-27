@@ -50,6 +50,29 @@ bool Type::flatten() const {
     return flatten_;
 }
 
+class NotInSet {
+
+    std::set<std::string> set_;
+public:
+
+    NotInSet(const std::vector<std::string>& f):
+        set_(f.begin(), f.end()) {}
+
+    bool operator()(const std::string& s) const {
+        return set_.find(s) == set_.end();
+    }
+};
+
+bool Type::filter(const std::vector<std::string> &filter, std::vector<std::string> &values) {
+
+   NotInSet not_in_set(filter);
+
+    values.erase(std::remove_if(values.begin(), values.end(), not_in_set), values.end());
+
+    return !values.empty();
+
+}
+
 std::string Type::tidy(const std::string &value) const  {
     return value;
 }
@@ -72,9 +95,9 @@ void Type::expand(std::vector<std::string>& values) const {
 
 }
 
-void Type::setDefaults(MarsRequest& request) const {
+void Type::setDefaults(MarsRequest& request) {
     if (!defaults_.empty()) {
-        request.setValues(name_, defaults_);
+        request.setValuesTyped(this, defaults_);
     }
 }
 

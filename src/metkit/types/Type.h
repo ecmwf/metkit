@@ -39,13 +39,15 @@ public: // methods
     virtual std::string tidy(const std::string &value) const ;
 
     virtual void expand(std::vector<std::string>& values) const;
-    virtual void setDefaults(MarsRequest& request) const;
+    virtual void setDefaults(MarsRequest& request);
     virtual void setDefaults(const std::vector<std::string>& defaults);
     virtual void clearDefaults();
     virtual void reset();
 
     virtual void flattenValues(const MarsRequest& request, std::vector<std::string>& values);
     virtual bool flatten() const;
+
+    virtual bool filter(const std::vector< std::string >& filter, std::vector<std::string>& values);
 
     const std::string& name() const;
 

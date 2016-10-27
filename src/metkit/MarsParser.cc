@@ -164,7 +164,7 @@ MarsRequest MarsParser::parseRequest() {
         consume(',');
         std::string key = parseIndents();
         consume('=');
-        r.setValues(key, parseValues());
+        r.values(key, parseValues());
         c = peek();
     }
     return r;

@@ -30,6 +30,7 @@ class MD5;
 namespace metkit {
 
 class Type;
+class MarsRequest;
 
 class Parameter {
     Type* type_;
@@ -45,6 +46,10 @@ public:
 
     const std::vector< std::string >& values() const { return values_; }
     void values(const std::vector< std::string >& values);
+
+    bool filter(const std::vector< std::string >& filter);
+
+    Type& type() const { return *type_; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -87,31 +92,16 @@ public: // methods
     bool is(const std::string& param, const std::string& value) const;
 
     const std::vector<std::string> &values(const std::string&) const;
-//    long getValues(const std::string&, std::vector<double>&) const;
-//    long getValues(const std::string&, std::vector<eckit::Double>&) const;
-//    long getValues(const std::string&, std::vector<long>&) const;
-//    long getValues(const std::string&, std::vector<unsigned long>&) const;
-//    long getValues(const std::string&, std::vector<eckit::Date>&) const;
-//    long getValues(const std::string&, std::vector<eckit::Time>&) const;
-//    long getValues(const std::string&, std::vector<char>&) const;
-//    long getValues(const std::string&, std::vector<eckit::Value>&) const;
 
     void getParams(std::vector<std::string>&) const;
 
     void verb(const std::string&);
 
-    void setValues(const std::string&, const std::vector<std::string>&);
-//    void setValues(const std::string&, const std::vector<long>&);
-//    void setValues(const std::string&, const std::vector<unsigned long>&);
-//    void setValues(const std::string&, const std::vector<eckit::Date>&);
-//    void setValues(const std::string&, const std::vector<eckit::Time>&);
-//    void setValues(const std::string&, const std::vector<char>&);
-//    void setValues(const std::string&, const std::vector<double>&);
-//    void setValues(const std::string&, const std::vector<eckit::Double>&);
+    void values(const std::string&, const std::vector<std::string>&);
 
     template<class T>
     void setValue(const std::string& name, const T& value)
-    { std::vector<T> v(1, value); setValues(name, v); }
+    { std::vector<T> v(1, value); values(name, v); }
 
     void setValue(const std::string& name, const char* value)
     { std::string v(value); setValue(name, v); }
@@ -129,6 +119,8 @@ public: // methods
     void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t") const;
 
     void setValuesTyped(Type*, const std::vector<std::string>&);
+
+    bool filter(const MarsRequest& filter);
 
 
 private: // members
