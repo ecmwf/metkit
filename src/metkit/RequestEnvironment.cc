@@ -46,7 +46,7 @@ RequestEnvironment::RequestEnvironment():
 	endpwent();
 
 
-    request_.setValue("pid",long(::getpid()));
+//    request_.setValue("pid",long(::getpid()));
 }
 
 RequestEnvironment::~RequestEnvironment()

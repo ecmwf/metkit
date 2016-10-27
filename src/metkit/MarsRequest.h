@@ -82,32 +82,32 @@ public: // methods
 
     const std::string& verb() const { return verb_; }
 
-    long countValues(const std::string&) const;
+    size_t countValues(const std::string&) const;
 
     bool is(const std::string& param, const std::string& value) const;
 
-    long getValues(const std::string&, std::vector<std::string>&) const;
-    long getValues(const std::string&, std::vector<double>&) const;
-    long getValues(const std::string&, std::vector<eckit::Double>&) const;
-    long getValues(const std::string&, std::vector<long>&) const;
-    long getValues(const std::string&, std::vector<unsigned long>&) const;
-    long getValues(const std::string&, std::vector<eckit::Date>&) const;
-    long getValues(const std::string&, std::vector<eckit::Time>&) const;
-    long getValues(const std::string&, std::vector<char>&) const;
-    long getValues(const std::string&, std::vector<eckit::Value>&) const;
+    const std::vector<std::string> &values(const std::string&) const;
+//    long getValues(const std::string&, std::vector<double>&) const;
+//    long getValues(const std::string&, std::vector<eckit::Double>&) const;
+//    long getValues(const std::string&, std::vector<long>&) const;
+//    long getValues(const std::string&, std::vector<unsigned long>&) const;
+//    long getValues(const std::string&, std::vector<eckit::Date>&) const;
+//    long getValues(const std::string&, std::vector<eckit::Time>&) const;
+//    long getValues(const std::string&, std::vector<char>&) const;
+//    long getValues(const std::string&, std::vector<eckit::Value>&) const;
 
-    long getParams(std::vector<std::string>&) const;
+    void getParams(std::vector<std::string>&) const;
 
-    void name(const std::string&);
+    void verb(const std::string&);
 
     void setValues(const std::string&, const std::vector<std::string>&);
-    void setValues(const std::string&, const std::vector<long>&);
-    void setValues(const std::string&, const std::vector<unsigned long>&);
-    void setValues(const std::string&, const std::vector<eckit::Date>&);
-    void setValues(const std::string&, const std::vector<eckit::Time>&);
-    void setValues(const std::string&, const std::vector<char>&);
-    void setValues(const std::string&, const std::vector<double>&);
-    void setValues(const std::string&, const std::vector<eckit::Double>&);
+//    void setValues(const std::string&, const std::vector<long>&);
+//    void setValues(const std::string&, const std::vector<unsigned long>&);
+//    void setValues(const std::string&, const std::vector<eckit::Date>&);
+//    void setValues(const std::string&, const std::vector<eckit::Time>&);
+//    void setValues(const std::string&, const std::vector<char>&);
+//    void setValues(const std::string&, const std::vector<double>&);
+//    void setValues(const std::string&, const std::vector<eckit::Double>&);
 
     template<class T>
     void setValue(const std::string& name, const T& value)

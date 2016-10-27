@@ -83,7 +83,7 @@ void Type::setDefaults(const std::vector<std::string>& defaults) {
 }
 
 void Type::flattenValues(const MarsRequest& request, std::vector<std::string>& values) {
-    request.getValues(name_, values);
+    values = request.values(name_);
 }
 
 

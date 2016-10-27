@@ -270,7 +270,7 @@ void MarsRequest::setValues(const std::string& name, const std::vector<std::stri
 }
 
 
-long MarsRequest::countValues(const std::string& name) const
+size_t MarsRequest::countValues(const std::string& name) const
 {
     std::map<std::string, Parameter>::const_iterator i = params_.find(name);
     if (i != params_.end()) {
@@ -283,97 +283,44 @@ bool MarsRequest::is(const std::string& name, const std::string& value) const
 {
     std::map<std::string, Parameter>::const_iterator i = params_.find(name);
     if (i != params_.end()) {
-        NOTIMP;
+        const std::vector<std::string>& v = (*i).second.values();
+        return v.size() == 1 && v[0] == value;
     }
     return false;
 }
 
-long MarsRequest::getValues(const std::string& name, std::vector<double>& v) const
+
+const std::vector<std::string>& MarsRequest::values(const std::string& name) const
 {
-    NOTIMP;
+    std::map<std::string, Parameter>::const_iterator i = params_.find(name);
+    if (i == params_.end()) {
+        throw eckit::UserError("No parameter called '" + name + "' in request");
+    }
+    return (*i).second.values();
 }
 
-long MarsRequest::getValues(const std::string& name, std::vector<Double>& v) const
-{
-    NOTIMP;
-}
 
-long MarsRequest::getValues(const std::string& name, std::vector<std::string>& v) const
+void MarsRequest::getParams(std::vector<std::string>& p) const
 {
-    NOTIMP;
-}
-
-long MarsRequest::getValues(const std::string& name, std::vector<long>& v) const
-{
-    NOTIMP;
-}
-
-long MarsRequest::getValues(const std::string& name, std::vector<unsigned long>& v) const
-{
-    NOTIMP;
-}
-
-long MarsRequest::getValues(const std::string& name, std::vector<Date>& v) const
-{
-    NOTIMP;
-}
-
-long MarsRequest::getValues(const std::string& name, std::vector<Time>& v) const
-{
-    NOTIMP;
-}
-
-long MarsRequest::getValues(const std::string& name, std::vector<char>& v) const
-{
-    NOTIMP;
-}
-
-long MarsRequest::getValues(const std::string& name, std::vector<Value>& v) const
-{
-    NOTIMP;
-}
-
-void MarsRequest::setValues(const std::string& name, const std::vector<long>& v)
-{
-    NOTIMP;
-}
-
-void MarsRequest::setValues(const std::string& name, const std::vector<unsigned long>& v)
-{
-    NOTIMP;
-}
-
-void MarsRequest::setValues(const std::string& name, const std::vector<Date>& v)
-{
-    NOTIMP;
-}
-
-void MarsRequest::setValues(const std::string& name, const std::vector<Time>& v)
-{
-    NOTIMP;
-}
-
-long MarsRequest::getParams(std::vector<std::string>& p) const
-{
-
+    p.clear();
     for (std::map<std::string, Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
         p.push_back((*i).first);
     }
 
-    return p.size();
 }
 
 MarsRequest::operator eckit::Value() const {
     NOTIMP;
 }
 
-/*
-void MarsRequest::name(const std::string& s)
-{
-    verb_ = s;
+void MarsRequest::merge(const MarsRequest &other) {
+    NOTIMP;
 }
-*/
 
+
+void MarsRequest::verb(const std::string &verb) {
+    verb_ = verb;
+}
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit

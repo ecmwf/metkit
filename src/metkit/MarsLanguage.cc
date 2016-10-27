@@ -225,8 +225,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
             p =  cache_[*j] = bestMatch(*j, keywords_, true, aliases_);
         }
 
-        std::vector<std::string> values;
-        r.getValues(*j, values);
+        std::vector<std::string> values = r.values(*j);
 
         if (values.size() == 1) {
             const std::string& s = values[0];
@@ -247,7 +246,6 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
 
     for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
         const std::string& name = (*k).first;
-        std::vector<std::string> values;
         if (result.countValues(name) == 0) {
             (*k).second->setDefaults(result);
         }
@@ -255,9 +253,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
 
     result.getParams(params);
     for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        std::vector<std::string> values;
-        result.getValues(*k, values);
-        type(*k)->setDefaults(values);
+        type(*k)->setDefaults(result.values(*k));
     }
 
     return result;
