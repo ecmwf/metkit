@@ -6,11 +6,9 @@
                 "g"
             ],
             "flatten": false,
-            "more": [
-                {
-                    "type": "float"
-                }
-            ]
+            "more": [{
+                "type": "float"
+            }]
         },
         "class": {
             "type": "enum",
@@ -79,11 +77,9 @@
                 "N160",
                 "N320"
             ],
-            "more": [
-                {
-                    "type": "float"
-                }
-            ]
+            "more": [{
+                "type": "float"
+            }]
         },
         "rotation": {
             "type": "any",
@@ -364,7 +360,7 @@
                 ],
                 [
                     "15",
-                    "alvp"
+                    "alvp", "aluvp"
                 ],
                 [
                     "151",
@@ -1960,8 +1956,7 @@
                 "ssd",
                 "sot",
                 "cv",
-                "pb",
-                [
+                "pb", [
                     "ep",
                     "event probability"
                 ],
@@ -1975,8 +1970,7 @@
             "flatten": false,
             "values": [
                 "bc",
-                "daily",
-                [
+                "daily", [
                     "mt",
                     "monthly run thursday",
                     "monthly thursday",
@@ -2067,8 +2061,7 @@
                 "sh",
                 "ll",
                 "np",
-                "rl",
-                [
+                "rl", [
                     "0.25",
                     "fix me HUE:E1 !"
                 ]
