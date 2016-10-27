@@ -44,7 +44,7 @@ public: // methods
     virtual void clearDefaults();
     virtual void reset();
 
-    virtual void flattenValues(const MarsRequest& request, std::vector<std::string>& values);
+    virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;
 
     virtual bool filter(const std::vector< std::string >& filter, std::vector<std::string>& values);

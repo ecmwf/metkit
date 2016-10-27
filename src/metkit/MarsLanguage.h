@@ -34,7 +34,7 @@ public:
     MarsLanguage(const std::string& verb);
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsRequest& r);
+    MarsRequest expand(const MarsRequest& r, bool inherit);
 
     void reset();
 

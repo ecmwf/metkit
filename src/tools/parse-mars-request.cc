@@ -83,7 +83,7 @@ void ParseRequest::process(const eckit::PathName& path)
     std::cout << "============= " << path << std::endl;
     std::ifstream in(path.asString().c_str());
     MarsParser parser(in);
-    MarsExpension expand;
+    MarsExpension expand(true);
 
     std::vector<MarsRequest> v = expand.expand(parser.parse());
 

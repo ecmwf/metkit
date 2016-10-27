@@ -105,8 +105,8 @@ void Type::setDefaults(const std::vector<std::string>& defaults) {
     defaults_ = defaults;
 }
 
-void Type::flattenValues(const MarsRequest& request, std::vector<std::string>& values) {
-    values = request.values(name_);
+const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) {
+    return request.values(name_);
 }
 
 

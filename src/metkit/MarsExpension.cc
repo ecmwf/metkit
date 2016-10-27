@@ -28,7 +28,8 @@ using namespace eckit;
 
 namespace metkit {
 
-MarsExpension::MarsExpension() {
+MarsExpension::MarsExpension(bool inherit):
+    inherit_(inherit) {
 
 }
 
@@ -67,7 +68,7 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
     for (std::vector<MarsRequest>::const_iterator j = requests.begin(); j != requests.end(); ++j) {
 
         MarsLanguage& lang = language((*j).verb());
-        MarsRequest r = lang.expand(*j);
+        MarsRequest r = lang.expand(*j, inherit_);
 
 
         result.push_back(r);
@@ -79,7 +80,7 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
 
 //----------------------------------------------------------------------------------------------------------------------
 void MarsExpension::expand(const MarsRequest& request, ExpandCallback& callback) {
-    MarsRequest r = language(request.verb()).expand(request);
+    MarsRequest r = language(request.verb()).expand(request, inherit_);
     callback(r);
 }
 

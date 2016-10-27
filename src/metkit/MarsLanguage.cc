@@ -206,7 +206,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
     // std::cout << r << std::endl;
 
     MarsRequest result(verb_);
@@ -244,16 +244,18 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
 
     }
 
-    for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
-        const std::string& name = (*k).first;
-        if (result.countValues(name) == 0) {
-            (*k).second->setDefaults(result);
+    if (inherit) {
+        for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
+            const std::string& name = (*k).first;
+            if (result.countValues(name) == 0) {
+                (*k).second->setDefaults(result);
+            }
         }
-    }
 
-    result.getParams(params);
-    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        type(*k)->setDefaults(result.values(*k));
+        result.getParams(params);
+        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+            type(*k)->setDefaults(result.values(*k));
+        }
     }
 
     return result;
@@ -284,8 +286,7 @@ void MarsLanguage::flatten(const MarsRequest& request,
         return;
     }
 
-    std::vector<std::string> values;
-    t->flattenValues(request, values);
+    const std::vector<std::string>& values = t->flattenValues(request);
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
         result.setValue(param, *j);
