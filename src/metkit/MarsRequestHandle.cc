@@ -38,7 +38,7 @@ eckit::Length MarsRequestHandle::openForRead()
 {
     eckit::Log::debug() << "MarsRequestHandle::openForRead: request_: " << request_ << std::endl;
 
-    const std::string v (eckit::StringTools::lower(request_.name()));
+    const std::string v (eckit::StringTools::lower(request_.verb()));
     ASSERT(v == "retrieve" || v == "stage" || v == "list");
 
     return protocol_->retrieve(request_);
@@ -46,9 +46,9 @@ eckit::Length MarsRequestHandle::openForRead()
 
 void MarsRequestHandle::openForWrite(const eckit::Length& size)
 {
-    eckit::Log::debug() << "MarsRequestHandle::openForWrite: request_.name()=" << request_.name() << std::endl;
+    eckit::Log::debug() << "MarsRequestHandle::openForWrite: request_.name()=" << request_.verb() << std::endl;
 
-    ASSERT(eckit::StringTools::lower(request_.name()) == "archive");
+    ASSERT(eckit::StringTools::lower(request_.verb()) == "archive");
     protocol_->archive(request_, size);
 }
 

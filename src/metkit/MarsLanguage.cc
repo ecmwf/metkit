@@ -37,10 +37,8 @@ static std::vector<std::string> verbs_;
 
 static void init() {
 
-    eckit::Timer timer("Load language");
-
     eckit::PathName language("~metkit/etc/language.json");
-    std::cout << "Loading " << language << std::endl;
+
     std::ifstream in(language.asString().c_str());
     if (!in) {
         throw eckit::CantOpenFile(language);
@@ -70,6 +68,7 @@ MarsLanguage::MarsLanguage(const std::string& verb):
         std::string keyword = params[i];
         Value settings = lang[keyword];
         types_[keyword] = TypesFactory::build(keyword, settings);
+        types_[keyword]->attach();
         keywords_.push_back(keyword);
 
         if (settings.contains("aliases")) {
@@ -81,14 +80,11 @@ MarsLanguage::MarsLanguage(const std::string& verb):
         }
 
     }
-
-    std::cout << aliases_ << std::endl;
-
 }
 
 MarsLanguage::~MarsLanguage() {
     for (std::map<std::string, Type* >::iterator j = types_.begin(); j != types_.end(); ++j) {
-        delete (*j).second;
+        (*j).second->detach();
     }
 }
 
@@ -201,12 +197,12 @@ std::string MarsLanguage::expandVerb(const std::string& verb) {
     return bestMatch(verb, verbs_, true);
 }
 
-Type& MarsLanguage::type(const std::string& name) const {
+Type* MarsLanguage::type(const std::string& name) const {
     std::map<std::string, Type* >::const_iterator k = types_.find(name);
     if (k == types_.end()) {
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
-    return *((*k).second);
+    return (*k).second;
 }
 
 
@@ -236,14 +232,14 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
             const std::string& s = values[0];
             if (s == "off" || s == "OFF") {
                 result.unsetValues(p);
-                type(p).clearDefaults();
+                type(p)->clearDefaults();
                 continue;
             }
         }
 
-        type(p).expand(values);
+        type(p)->expand(values);
+        result.setValuesTyped(type(p), values);
 
-        std::swap(result.params_[p], values);
 
         // result.setValues(p, values);
 
@@ -261,7 +257,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r)  {
     for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
         std::vector<std::string> values;
         result.getValues(*k, values);
-        type(*k).setDefaults(values);
+        type(*k)->setDefaults(values);
     }
 
     return result;
@@ -286,14 +282,14 @@ void MarsLanguage::flatten(const MarsRequest& request,
 
     const std::string& param = params[i];
 
-    Type& t = type(param);
-    if (!t.flatten()) {
+    Type* t = type(param);
+    if (!t->flatten()) {
         flatten(request, params, i + 1, result, callback);
         return;
     }
 
     std::vector<std::string> values;
-    t.flattenValues(request, values);
+    t->flattenValues(request, values);
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
         result.setValue(param, *j);

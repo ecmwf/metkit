@@ -92,7 +92,7 @@ void ParseRequest::process(const eckit::PathName& path)
     // }
 
     class Print : public FlattenCallback {
-        virtual void operator()(const MarsRequest& request)  {
+        virtual void operator()(MarsRequest& request)  {
             std::cout << request << std::endl;
         }
 

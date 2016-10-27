@@ -95,6 +95,10 @@ void Type::reset() {
     defaults_ = originalDefaults_;
 }
 
+const std::string& Type::name() const {
+    return name_;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit

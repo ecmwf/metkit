@@ -21,13 +21,15 @@ TypeMixed::TypeMixed(const std::string &name, const eckit::Value& settings) :
     TypeEnum(name, settings) {
     eckit::Value types = settings["more"];
     for (size_t i = 0; i < types.size(); ++i) {
-        types_.push_back(TypesFactory::build(name, types[i]));
+        Type *k = TypesFactory::build(name, types[i]);
+        k->attach();
+        types_.push_back(k);
     }
 }
 
 TypeMixed::~TypeMixed() {
     for (std::vector<Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        delete (*j);
+         (*j)->detach();
     }
 }
 

@@ -70,7 +70,7 @@ private: // Methods
                  MarsRequest& result,
                  FlattenCallback& callback);
 
-    Type& type(const std::string& name) const;
+    Type* type(const std::string& name) const;
 
 };
 

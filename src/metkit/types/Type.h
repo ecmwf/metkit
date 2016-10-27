@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "eckit/memory/NonCopyable.h"
+#include "eckit/memory/Counted.h"
 #include "eckit/types/Types.h"
 #include "eckit/value/Value.h"
 
@@ -29,13 +29,12 @@ class MarsRequest;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Type : private eckit::NonCopyable {
+class Type : public eckit::Counted {
 
 public: // methods
 
     Type(const std::string &name, const eckit::Value& settings);
 
-    virtual ~Type();
 
     virtual std::string tidy(const std::string &value) const ;
 
@@ -48,12 +47,13 @@ public: // methods
     virtual void flattenValues(const MarsRequest& request, std::vector<std::string>& values);
     virtual bool flatten() const;
 
+    const std::string& name() const;
+
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 
 public: // class methods
 
     static const Type &lookup(const std::string &keyword);
-
 
 protected: // members
 
@@ -65,6 +65,7 @@ protected: // members
 
 protected: // methods
 
+    virtual ~Type();
 
 private: // methods
 
