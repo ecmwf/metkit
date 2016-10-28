@@ -172,7 +172,8 @@
             "by": 1,
             "aliases": [
                 "ensemble"
-            ]
+            ],
+            "only": [ {"type" : "pf"} ]
         },
         "quantile": {
             "type": "integer"

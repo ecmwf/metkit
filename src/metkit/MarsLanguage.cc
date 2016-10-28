@@ -253,9 +253,13 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         type(p)->expand(values);
         result.setValuesTyped(type(p), values);
 
-
         // result.setValues(p, values);
 
+    }
+
+    result.getParams(params);
+    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+        type(*k)->finalise(result);
     }
 
     if (inherit) {

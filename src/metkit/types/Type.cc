@@ -41,6 +41,31 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
     }
 
     originalDefaults_ = defaults_;
+
+    if (settings.contains("only")) {
+        eckit::Value d = settings["only"];
+
+        size_t len = d.size();
+        for (size_t i = 0; i < len; i++) {
+            eckit::Value a = d[i];
+            eckit::Value keys = a.keys();
+
+            for (size_t j = 0; j < keys.size(); j++) {
+                std::string key = keys[i];
+                eckit::Value v = a[key];
+
+                if(v.isList())
+{
+                for (size_t k = 0; k < v.size(); k++) {
+                    only_[key].insert(v[k]);
+                }}
+                else {
+                    only_[key].insert(v);
+                }
+            }
+        }
+    }
+
 }
 
 Type::~Type() {
@@ -65,7 +90,7 @@ public:
 
 bool Type::filter(const std::vector<std::string> &filter, std::vector<std::string> &values) {
 
-   NotInSet not_in_set(filter);
+    NotInSet not_in_set(filter);
 
     values.erase(std::remove_if(values.begin(), values.end(), not_in_set), values.end());
 
@@ -121,6 +146,29 @@ void Type::reset() {
 const std::string& Type::name() const {
     return name_;
 }
+
+void Type::finalise(MarsRequest& request) {
+    bool ok = true;
+    for (std::map<std::string, std::set<std::string> >::const_iterator
+            j = only_.begin(); ok && j != only_.end(); ++j) {
+
+        const std::string& name = (*j).first;
+        const std::set<std::string>& only = (*j).second;
+
+        const std::vector<std::string>& values = request.values(name);
+        for(std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end(); ++k) {
+            if(only.find(*k) == only.end()) {
+                ok = false;
+            }
+        }
+    }
+
+    if(!ok) {
+        request.unsetValues(name_);
+    }
+
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 

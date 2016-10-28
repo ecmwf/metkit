@@ -44,6 +44,8 @@ public: // methods
     virtual void clearDefaults();
     virtual void reset();
 
+    virtual void finalise(MarsRequest& request);
+
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;
 
@@ -64,6 +66,7 @@ protected: // members
     bool flatten_;
     std::vector<std::string> originalDefaults_;
 
+    std::map<std::string, std::set<std::string> > only_;
 
 protected: // methods
 
