@@ -90,7 +90,8 @@
         },
         "levelist": {
             "type": "to-by-list",
-            "by": 1
+            "by": 1,
+            "never": [{"levtype": "sfc"}]
         },
         "levtype": {
             "type": "enum",

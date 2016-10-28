@@ -67,6 +67,7 @@ protected: // members
     std::vector<std::string> originalDefaults_;
 
     std::map<std::string, std::set<std::string> > only_;
+    std::map<std::string, std::set<std::string> > never_;
 
 protected: // methods
 

@@ -54,13 +54,39 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
                 std::string key = keys[i];
                 eckit::Value v = a[key];
 
-                if(v.isList())
-{
-                for (size_t k = 0; k < v.size(); k++) {
-                    only_[key].insert(v[k]);
-                }}
+                if (v.isList())
+                {
+                    for (size_t k = 0; k < v.size(); k++) {
+                        only_[key].insert(v[k]);
+                    }
+                }
                 else {
                     only_[key].insert(v);
+                }
+            }
+        }
+    }
+
+    if (settings.contains("never")) {
+        eckit::Value d = settings["never"];
+
+        size_t len = d.size();
+        for (size_t i = 0; i < len; i++) {
+            eckit::Value a = d[i];
+            eckit::Value keys = a.keys();
+
+            for (size_t j = 0; j < keys.size(); j++) {
+                std::string key = keys[i];
+                eckit::Value v = a[key];
+
+                if (v.isList())
+                {
+                    for (size_t k = 0; k < v.size(); k++) {
+                        never_[key].insert(v[k]);
+                    }
+                }
+                else {
+                    never_[key].insert(v);
                 }
             }
         }
@@ -156,14 +182,28 @@ void Type::finalise(MarsRequest& request) {
         const std::set<std::string>& only = (*j).second;
 
         const std::vector<std::string>& values = request.values(name);
-        for(std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end(); ++k) {
-            if(only.find(*k) == only.end()) {
+        for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end(); ++k) {
+            if (only.find(*k) == only.end()) {
                 ok = false;
             }
         }
     }
 
-    if(!ok) {
+     for (std::map<std::string, std::set<std::string> >::const_iterator
+            j = never_.begin(); ok && j != never_.end(); ++j) {
+
+        const std::string& name = (*j).first;
+        const std::set<std::string>& never = (*j).second;
+
+        const std::vector<std::string>& values = request.values(name);
+        for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end(); ++k) {
+            if (never.find(*k) != never.end()) {
+                ok = false;
+            }
+        }
+    }
+
+    if (!ok) {
         request.unsetValues(name_);
     }
 
