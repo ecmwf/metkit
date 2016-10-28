@@ -9,7 +9,9 @@
             "more": [{
                 "type": "float"
             }],
-            "never": [{"repres": "sh"}]
+            "never": [{
+                "repres": "sh"
+            }]
         },
         "class": {
             "type": "enum",
@@ -92,7 +94,9 @@
         "levelist": {
             "type": "to-by-list",
             "by": 1,
-            "never": [{"levtype": "sfc"}]
+            "never": [{
+                "levtype": "sfc"
+            }]
         },
         "levtype": {
             "type": "enum",
@@ -119,7 +123,7 @@
             "type": "enum",
             "default": "z",
             "multiple": true,
-            "values":  "param.json"
+            "values": "param.json"
         },
         "priority": {
             "type": "integer",
@@ -175,7 +179,9 @@
             "aliases": [
                 "ensemble"
             ],
-            "only": [ {"type" : "pf"} ]
+            "only": [{
+                "type": "pf"
+            }]
         },
         "quantile": {
             "type": "integer"
@@ -357,7 +363,8 @@
                     "0.25",
                     "fix me HUE:E1 !"
                 ]
-            ]
+            ],
+            "multiple": true
         },
         "resol": {
             "type": "any"
