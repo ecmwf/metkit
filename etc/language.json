@@ -332,10 +332,12 @@
             "flatten": false
         },
         "direction": {
-            "type": "integer"
+            "type": "integer",
+            "only": [{"param": "251"}]
         },
         "frequency": {
-            "type": "integer"
+            "type": "integer",
+            "only": [{"param": "251"}]
         },
         "frame": {
             "type": "integer"
