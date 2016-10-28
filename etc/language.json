@@ -8,7 +8,8 @@
             "flatten": false,
             "more": [{
                 "type": "float"
-            }]
+            }],
+            "never": [{"repres": "sh"}]
         },
         "class": {
             "type": "enum",
@@ -345,7 +346,7 @@
             ]
         },
         "repres": {
-            "type": "any",
+            "type": "enum",
             "flatten": false,
             "values": [
                 "gg",
