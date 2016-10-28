@@ -121,7 +121,8 @@
         },
         "priority": {
             "type": "integer",
-            "flatten": false
+            "flatten": false,
+            "default": "50"
         },
         "step": {
             "type": "to-by-list",
