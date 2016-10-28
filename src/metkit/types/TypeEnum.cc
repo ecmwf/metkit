@@ -12,6 +12,7 @@
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeEnum.h"
 #include "metkit/MarsLanguage.h"
+#include "eckit/parser/JSONParser.h"
 
 
 namespace metkit {
@@ -27,6 +28,12 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
     }
 
     eckit::Value values = settings["values"];
+
+    if (!values.isList()) {
+        values = MarsLanguage::jsonFile(values);
+        ASSERT(values.isList());
+    }
+
     for (size_t i = 0; i < values.size(); ++i) {
 
         const eckit::Value& val = values[i];
@@ -48,6 +55,8 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
             values_.push_back(v);
         }
     }
+
+
 }
 
 TypeEnum::~TypeEnum() {

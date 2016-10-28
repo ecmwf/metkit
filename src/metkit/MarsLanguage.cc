@@ -96,6 +96,20 @@ void MarsLanguage::reset() {
     }
 }
 
+eckit::Value MarsLanguage::jsonFile(const std::string& name) {
+    // TODO: cache
+
+    eckit::PathName path = std::string("~metkit/etc/" + name);
+
+    std::ifstream in(path.asString().c_str());
+    if (!in) {
+        throw eckit::CantOpenFile(path);
+    }
+
+    eckit::JSONParser parser(in);
+
+    return parser.parse();
+}
 
 std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::vector<std::string>& values,

@@ -52,6 +52,8 @@ public:
                                  bool fail,
                                  const std::map<std::string, std::string>& aliases = std::map<std::string, std::string>());
 
+    static eckit::Value jsonFile(const std::string& name);
+
 private:
 // -- Contructors
 
