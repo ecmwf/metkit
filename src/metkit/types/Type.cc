@@ -175,6 +175,12 @@ const std::string& Type::name() const {
 
 void Type::finalise(MarsRequest& request) {
     bool ok = true;
+
+    const std::vector<std::string>& values = request.values(name_, true);
+    if (values.size() == 1 && values[0] == "off") {
+        ok = false;
+    }
+
     for (std::map<std::string, std::set<std::string> >::const_iterator
             j = only_.begin(); ok && j != only_.end(); ++j) {
 
@@ -189,7 +195,7 @@ void Type::finalise(MarsRequest& request) {
         }
     }
 
-     for (std::map<std::string, std::set<std::string> >::const_iterator
+    for (std::map<std::string, std::set<std::string> >::const_iterator
             j = never_.begin(); ok && j != never_.end(); ++j) {
 
         const std::string& name = (*j).first;
