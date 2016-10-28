@@ -305,7 +305,7 @@
             "type": "enum",
             "flatten": false,
             "values": [
-                "nearest lsm",
+                ["nearest-lsm", "nearest lsm"],
                 "default"
             ]
         },
