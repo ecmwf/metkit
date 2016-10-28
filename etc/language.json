@@ -364,7 +364,7 @@
         },
         "gaussian": {
             "type": "enum",
-            "values": ["reduced"]
+            "values": ["reduced", "regular"]
         },
         "reference": {
             "type": "integer"
