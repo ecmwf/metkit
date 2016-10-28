@@ -299,7 +299,9 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name) con
 {
     std::map<std::string, Parameter>::const_iterator i = params_.find(name);
     if (i == params_.end()) {
-        throw eckit::UserError("No parameter called '" + name + "' in request");
+        std::ostringstream oss;
+        oss << "No parameter called '" << name << "' in request " << *this;
+        throw eckit::UserError(oss.str());
     }
     return (*i).second.values();
 }
