@@ -181,7 +181,7 @@ void Type::finalise(MarsRequest& request) {
         const std::string& name = (*j).first;
         const std::set<std::string>& only = (*j).second;
 
-        const std::vector<std::string>& values = request.values(name);
+        const std::vector<std::string>& values = request.values(name, true);
         for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end(); ++k) {
             if (only.find(*k) == only.end()) {
                 ok = false;
@@ -195,7 +195,7 @@ void Type::finalise(MarsRequest& request) {
         const std::string& name = (*j).first;
         const std::set<std::string>& never = (*j).second;
 
-        const std::vector<std::string>& values = request.values(name);
+        const std::vector<std::string>& values = request.values(name, true);
         for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end(); ++k) {
             if (never.find(*k) != never.end()) {
                 ok = false;

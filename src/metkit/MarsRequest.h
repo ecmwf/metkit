@@ -91,7 +91,7 @@ public: // methods
 
     bool is(const std::string& param, const std::string& value) const;
 
-    const std::vector<std::string> &values(const std::string&) const;
+    const std::vector<std::string> &values(const std::string&, bool emptyOk = false) const;
 
     void getParams(std::vector<std::string>&) const;
 

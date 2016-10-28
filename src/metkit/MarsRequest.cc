@@ -295,10 +295,16 @@ bool MarsRequest::is(const std::string& name, const std::string& value) const
 }
 
 
-const std::vector<std::string>& MarsRequest::values(const std::string& name) const
+const std::vector<std::string>& MarsRequest::values(const std::string& name, bool emptyOk) const
 {
     std::map<std::string, Parameter>::const_iterator i = params_.find(name);
     if (i == params_.end()) {
+
+        if(emptyOk) {
+            static std::vector<std::string> empty;
+            return empty;
+        }
+
         std::ostringstream oss;
         oss << "No parameter called '" << name << "' in request " << *this;
         throw eckit::UserError(oss.str());
