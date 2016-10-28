@@ -257,10 +257,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
 
     }
 
-    result.getParams(params);
-    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        type(*k)->finalise(result);
-    }
+
 
     if (inherit) {
         for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
@@ -274,6 +271,11 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
             type(*k)->setDefaults(result.values(*k));
         }
+    }
+
+      result.getParams(params);
+    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+        type(*k)->finalise(result);
     }
 
     return result;

@@ -85,11 +85,16 @@ void ParseRequest::process(const eckit::PathName& path)
     MarsParser parser(in);
     MarsExpension expand(true);
 
-    std::vector<MarsRequest> v = expand.expand(parser.parse());
+    std::vector<MarsRequest> p = parser.parse();
+  for (std::vector<MarsRequest>::const_iterator j = p.begin(); j != p.end(); ++j) {
+       (*j).dump(std::cout);
+    }
 
-    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-    //     std::cout << *j << std::endl;
-    // }
+    std::vector<MarsRequest> v = expand.expand(p);
+
+    for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
+       (*j).dump(std::cout);
+    }
 
     class Print : public FlattenCallback {
         virtual void operator()(MarsRequest& request)  {
