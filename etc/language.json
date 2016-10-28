@@ -363,7 +363,8 @@
             "type": "any"
         },
         "gaussian": {
-            "type": "any"
+            "type": "enum",
+            "values": ["reduced"]
         },
         "reference": {
             "type": "integer"
