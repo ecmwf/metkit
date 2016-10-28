@@ -12,6 +12,8 @@
 
 #include "grib_api.h"
 
+#include "eckit/config/Resource.h"
+#include "eckit/config/ResourceMgr.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/StringTools.h"
@@ -47,7 +49,9 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 
 	ASSERT(g);
 
-	ks  = grib_keys_iterator_new(g,GRIB_KEYS_ITERATOR_ALL_KEYS,"mars");
+    static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
+
+    ks  = grib_keys_iterator_new(g, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
 
 	while(grib_keys_iterator_next(ks))
 	{

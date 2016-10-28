@@ -12,6 +12,7 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/parser/StringTools.h"
+#include "eckit/config/Resource.h"
 
 #include "metkit/grib/GribMetaData.h"
 #include "metkit/grib/GribHandle.h"
@@ -68,8 +69,9 @@ GribMetaData::GribMetaData(const void *buffer, size_t length)
     grib_handle* h = grib_handle_new_from_message(NULL, const_cast<void*>(buffer), length);
     ASSERT(h);
 
-    char mars_str [] = "mars";
-    grib_keys_iterator* ks = grib_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, mars_str);
+    static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
+
+    grib_keys_iterator* ks = grib_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
     ASSERT(ks);
 
     while(grib_keys_iterator_next(ks))
