@@ -315,7 +315,7 @@
             "flatten": false,
             "values": [
                 ["nearest-lsm", "nearest lsm"],
-                "default"
+                ["off", "default"]
             ]
         },
         "country": {
