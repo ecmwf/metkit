@@ -11,7 +11,8 @@
             }],
             "never": [{
                 "repres": "sh"
-            }]
+            }],
+            "only": [{}]
         },
         "class": {
             "type": "enum",
@@ -132,7 +133,8 @@
         },
         "step": {
             "type": "to-by-list",
-            "by": 12
+            "by": 12,
+            "default": "0"
         },
         "stream": {
             "type": "enum",
