@@ -37,6 +37,8 @@ public: // methods
 
     void parse(MarsParserCallback& cb);
 
+    static void quoted(std::ostream& out, const std::string& value);
+
 private: // methods
 
     MarsRequest parseRequest();

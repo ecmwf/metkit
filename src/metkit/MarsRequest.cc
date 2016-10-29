@@ -22,6 +22,7 @@
 
 #include "metkit/MarsRequest.h"
 #include "metkit/types/TypeAny.h"
+#include "metkit/MarsParser.h"
 
 using namespace eckit;
 
@@ -197,7 +198,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
                 if (b++) {
                     s << '/';
                 }
-                s << *k;
+                MarsParser::quoted(s, *k);
             }
         }
     }

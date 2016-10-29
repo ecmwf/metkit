@@ -6,13 +6,19 @@
                 "g"
             ],
             "flatten": false,
-            "more": [{
-                "type": "float"
-            }],
-            "never": [{
-                "repres": "sh"
-            }],
-            "only": [{}]
+            "more": [
+                {
+                    "type": "float"
+                }
+            ],
+            "never": [
+                {
+                    "repres": "sh"
+                }
+            ],
+            "only": [
+                {}
+            ]
         },
         "class": {
             "type": "enum",
@@ -81,9 +87,11 @@
                 "N160",
                 "N320"
             ],
-            "more": [{
-                "type": "float"
-            }]
+            "more": [
+                {
+                    "type": "float"
+                }
+            ]
         },
         "rotation": {
             "type": "any",
@@ -95,9 +103,11 @@
         "levelist": {
             "type": "to-by-list",
             "by": 1,
-            "never": [{
-                "levtype": "sfc"
-            }]
+            "never": [
+                {
+                    "levtype": "sfc"
+                }
+            ]
         },
         "levtype": {
             "type": "enum",
@@ -181,9 +191,11 @@
             "aliases": [
                 "ensemble"
             ],
-            "only": [{
-                "type": "pf"
-            }]
+            "only": [
+                {
+                    "type": "pf"
+                }
+            ]
         },
         "quantile": {
             "type": "integer"
@@ -255,7 +267,8 @@
                 "ssd",
                 "sot",
                 "cv",
-                "pb", [
+                "pb",
+                [
                     "ep",
                     "event probability"
                 ],
@@ -269,7 +282,8 @@
             "flatten": false,
             "values": [
                 "bc",
-                "daily", [
+                "daily",
+                [
                     "mt",
                     "monthly run thursday",
                     "monthly thursday",
@@ -314,8 +328,14 @@
             "type": "enum",
             "flatten": false,
             "values": [
-                ["nearest-lsm", "nearest lsm"],
-                ["off", "default"]
+                [
+                    "nearest-lsm",
+                    "nearest lsm"
+                ],
+                [
+                    "off",
+                    "default"
+                ]
             ]
         },
         "country": {
@@ -332,12 +352,22 @@
             "flatten": false
         },
         "direction": {
-            "type": "integer",
-            "only": [{"param": "251"}]
+            "type": "to-by-list",
+            "by": 1,
+            "only": [
+                {
+                    "param": "251"
+                }
+            ]
         },
         "frequency": {
-            "type": "integer",
-            "only": [{"param": "251"}]
+            "type": "to-by-list",
+            "by": 1,
+            "only": [
+                {
+                    "param": "251"
+                }
+            ]
         },
         "frame": {
             "type": "integer"
@@ -363,7 +393,8 @@
                 "sh",
                 "ll",
                 "np",
-                "rl", [
+                "rl",
+                [
                     "0.25",
                     "fix me HUE:E1 !"
                 ]
@@ -375,10 +406,16 @@
         },
         "gaussian": {
             "type": "enum",
-            "values": ["reduced", "regular"]
+            "values": [
+                "reduced",
+                "regular"
+            ]
         },
         "reference": {
             "type": "integer"
+        },
+        "requirements": {
+            "type": "any"
         }
     },
     "end": {}

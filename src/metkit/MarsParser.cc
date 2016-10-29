@@ -94,6 +94,23 @@ static bool inindent(char c) {
 }
 
 
+void MarsParser::quoted(std::ostream& out, const std::string& value) {
+    char quote = 0;
+    for(std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+        if(!inindent(*j)) {
+            quote = '"';
+            break;
+        }
+    }
+
+    if(quote) {
+        out << quote << value << quote;
+    }
+    else {
+        out << value;
+    }
+}
+
 
 std::string MarsParser::parseIndents() {
     std::ostringstream oss;
