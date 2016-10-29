@@ -31,13 +31,30 @@ void TypeInteger::print(std::ostream &out) const {
 }
 
 std::string TypeInteger::tidy(const std::string &value) const  {
+    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+        switch (*j) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '-':
+            break;
+
+
+        default:
+            throw eckit::UserError(name_ + ": invalid integer '" + value + "'");
+            break;
+        }
+    }
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
-    long l = s2l(value);
-    if (l == 0) {
-        ASSERT(value == "0");
-    }
-    return l2s(l);
+    return l2s(s2l(value));
 }
 
 

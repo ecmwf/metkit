@@ -27,13 +27,33 @@ TypeFloat::~TypeFloat() {
 }
 
 std::string TypeFloat::tidy(const std::string &value) const  {
+
+    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+        switch (*j) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '-':
+        case '.':
+            break;
+
+
+        default:
+            throw eckit::UserError(name_ + ": invalid float '" + value + "'");
+            break;
+        }
+    }
+
     static eckit::Translator<std::string, double> s2d;
     static eckit::Translator<double, std::string> d2s;
-    double d = s2d(value);
-    if (d == 0) {
-        ASSERT(value == "0");
-    }
-    return d2s(d);
+    return d2s(s2d(value));
 }
 
 

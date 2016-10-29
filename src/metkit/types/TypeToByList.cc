@@ -37,7 +37,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
     static eckit::Translator<long, std::string> l2s;
 
     if (values.size() == 3) {
-        if (eckit::StringTools::lower(values[1]) == "to") {
+        if (eckit::StringTools::lower(values[1])[0] == 't') {
             long from = s2l(values[0]);
             long to = s2l(values[2]);
             long by = by_;
@@ -51,7 +51,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
     }
 
     if (values.size() == 5) {
-        if (eckit::StringTools::lower(values[1]) == "to" && eckit::StringTools::lower((values[3])) == "by") {
+        if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
                 long from = s2l(values[0]);
                 long to = s2l(values[2]);
                 long by = s2l(values[4]);
