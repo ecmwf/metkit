@@ -1472,6 +1472,7 @@
     [
         "49.132",
         "10fgi",
+        "10gi",
         "ten metre wind gust index"
     ],
     [
@@ -1886,22 +1887,22 @@
     ],
     [
         "39",
-        "swvl1",
+        "swvl1", "swv1",
         "volumetric soil water layer 1"
     ],
     [
         "40",
-        "swvl2",
+        "swvl2","swv2",
         "volumetric soil water layer 2"
     ],
     [
         "41",
-        "swvl3",
+        "swvl3","swv3",
         "volumetric soil water layer 3"
     ],
     [
         "42",
-        "swvl4",
+        "swvl4","swv4",
         "volumetric soil water layer 4"
     ],
     [
@@ -2463,5 +2464,6 @@
         "207",
         "wss",
         "wave spectral skewness"
-    ]
+    ],
+    ["3041"]
 ]
