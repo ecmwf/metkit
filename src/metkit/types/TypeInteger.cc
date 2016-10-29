@@ -33,7 +33,11 @@ void TypeInteger::print(std::ostream &out) const {
 std::string TypeInteger::tidy(const std::string &value) const  {
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
-    return l2s(s2l(value));
+    long l = s2l(value);
+    if (l == 0) {
+        ASSERT(value == "0");
+    }
+    return l2s(l);
 }
 
 

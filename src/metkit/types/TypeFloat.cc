@@ -29,7 +29,11 @@ TypeFloat::~TypeFloat() {
 std::string TypeFloat::tidy(const std::string &value) const  {
     static eckit::Translator<std::string, double> s2d;
     static eckit::Translator<double, std::string> d2s;
-    return d2s(s2d(value));
+    double d = s2d(value);
+    if (d == 0) {
+        ASSERT(value == "0");
+    }
+    return d2s(d);
 }
 
 
