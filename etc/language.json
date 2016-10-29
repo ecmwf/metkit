@@ -138,8 +138,7 @@
         },
         "priority": {
             "type": "integer",
-            "flatten": false,
-            "default": "50"
+            "flatten": false
         },
         "step": {
             "type": "to-by-list",
