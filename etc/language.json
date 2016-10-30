@@ -370,7 +370,8 @@
                 ],
                 [
                     "off",
-                    "default"
+                    "default",
+                    "any"
                 ]
             ]
         },
