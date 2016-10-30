@@ -50,6 +50,7 @@ public:
     bool filter(const std::vector< std::string >& filter);
 
     Type& type() const { return *type_; }
+    const std::string& name() const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -126,12 +127,15 @@ public: // methods
 private: // members
 
     std::string         verb_;
-    std::map<std::string, Parameter> params_;
+    std::list<Parameter> params_;
 
 private: // methods
 
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
+
+    std::list<Parameter>::const_iterator find(const std::string&) const;
+    std::list<Parameter>::iterator find(const std::string&);
 
 // -- Class members
 

@@ -91,6 +91,10 @@ bool Parameter::filter(const std::vector<std::string> &filter) {
     return type_->filter(filter, values_);
 }
 
+const std::string& Parameter::name() const {
+    return type_->name();
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -131,7 +135,7 @@ MarsRequest::MarsRequest(eckit::Stream& s)
             v.push_back(value);
         }
 
-        params_[param] = Parameter(v, new TypeAny(param));
+        params_.push_back(Parameter(v, new TypeAny(param)));
     }
 }
 
@@ -142,11 +146,11 @@ void MarsRequest::encode(eckit::Stream& s) const
     s << size;
 
 
-    for (std::map<std::string, Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i)
+    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i)
     {
-        s << (*i).first;
+        s << (*i).name();
 
-        const std::vector<std::string>& v = (*i).second.values();
+        const std::vector<std::string>& v = (*i).values();
 
         int size = v.size(); // For backward compatibility
         s << size;
@@ -169,8 +173,8 @@ void MarsRequest::print(std::ostream& s) const
 
 void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
 
-    std::map<std::string, Parameter>::const_iterator begin = params_.begin();
-    std::map<std::string, Parameter>::const_iterator end = params_.end();
+    std::list<Parameter>::const_iterator begin = params_.begin();
+    std::list<Parameter>::const_iterator end = params_.end();
 
 
     s << verb_ ;
@@ -179,7 +183,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
         s << ',' << cr << tab;
 
         int a = 0;
-        for (std::map<std::string, Parameter>::const_iterator i = begin; i != end; ++i)
+        for (std::list<Parameter>::const_iterator i = begin; i != end; ++i)
         {
             if (a++) {
                 s << ',';
@@ -187,10 +191,10 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
             }
 
             int b = 0;
-            s  << (*i).first
+            s  << (*i).name()
 //               << "." << (*i).second.type()
-                 << "=";
-            const std::vector<std::string>& v = (*i).second.values();
+               << "=";
+            const std::vector<std::string>& v = (*i).values();
 
             for (std::vector<std::string>::const_iterator k = v.begin();
                     k != v.end(); ++k)
@@ -210,13 +214,13 @@ void MarsRequest::json(eckit::JSON& s) const
 {
     s.startObject();
     s << "verb" << verb_;
-    std::map<std::string, Parameter>::const_iterator begin = params_.begin();
-    std::map<std::string, Parameter>::const_iterator end = params_.end();
+    std::list<Parameter>::const_iterator begin = params_.begin();
+    std::list<Parameter>::const_iterator end = params_.end();
 
-    for (std::map<std::string, Parameter>::const_iterator i = begin; i != end; ++i)
+    for (std::list<Parameter>::const_iterator i = begin; i != end; ++i)
     {
-        s << (*i).first;
-        const std::vector<std::string>& v = (*i).second.values();
+        s << (*i).name();
+        const std::vector<std::string>& v = (*i).values();
 
         if (v.size() != 1) {
             s.startList();
@@ -245,25 +249,31 @@ MarsRequest::~MarsRequest()
 
 void MarsRequest::unsetValues(const std::string& name)
 {
-    std::map<std::string, Parameter>::iterator i = params_.find(name);
+    std::list<Parameter>::iterator i = find(name);
     if (i != params_.end()) {
         params_.erase(i);
     }
 }
 
 void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& values) {
-    params_[type->name()] = Parameter(values, type);
+    std::list<Parameter>::iterator i = find(type->name());
+    if (i != params_.end()) {
+        (*i) = Parameter(values, type);
+    }
+    else {
+        params_.push_back(Parameter(values, type));
+    }
 }
 
 bool MarsRequest::filter(const MarsRequest &filter) {
-    for (std::map<std::string, Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
+    for (std::list<Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
 
-        std::map<std::string, Parameter>::const_iterator j = filter.params_.find((*i).first);
-        if(j == filter.params_.end()) {
+        std::list<Parameter>::const_iterator j = filter.find((*i).name());
+        if (j == filter.params_.end()) {
             continue;
         }
 
-        if(!(*i).second.filter((*j).second.values())) {
+        if (!(*i).filter((*j).values())) {
             return false;
         }
     }
@@ -272,24 +282,30 @@ bool MarsRequest::filter(const MarsRequest &filter) {
 
 void MarsRequest::values(const std::string& name, const std::vector<std::string>& v)
 {
-    params_[name].values(v);
+    std::list<Parameter>::iterator i = find(name);
+    if (i != params_.end()) {
+        (*i).values(v);
+    }
+    else {
+        params_.push_back(Parameter(v, new TypeAny(name)));
+    }
 }
 
 
 size_t MarsRequest::countValues(const std::string& name) const
 {
-    std::map<std::string, Parameter>::const_iterator i = params_.find(name);
+    std::list<Parameter>::const_iterator i = find(name);
     if (i != params_.end()) {
-        return (*i).second.values().size();
+        return (*i).values().size();
     }
     return 0;
 }
 
 bool MarsRequest::is(const std::string& name, const std::string& value) const
 {
-    std::map<std::string, Parameter>::const_iterator i = params_.find(name);
+    std::list<Parameter>::const_iterator i = find(name);
     if (i != params_.end()) {
-        const std::vector<std::string>& v = (*i).second.values();
+        const std::vector<std::string>& v = (*i).values();
         return v.size() == 1 && v[0] == value;
     }
     return false;
@@ -298,10 +314,10 @@ bool MarsRequest::is(const std::string& name, const std::string& value) const
 
 const std::vector<std::string>& MarsRequest::values(const std::string& name, bool emptyOk) const
 {
-    std::map<std::string, Parameter>::const_iterator i = params_.find(name);
+    std::list<Parameter>::const_iterator i = find(name);
     if (i == params_.end()) {
 
-        if(emptyOk) {
+        if (emptyOk) {
             static std::vector<std::string> empty;
             return empty;
         }
@@ -310,15 +326,15 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
         oss << "No parameter called '" << name << "' in request " << *this;
         throw eckit::UserError(oss.str());
     }
-    return (*i).second.values();
+    return (*i).values();
 }
 
 
 void MarsRequest::getParams(std::vector<std::string>& p) const
 {
     p.clear();
-    for (std::map<std::string, Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-        p.push_back((*i).first);
+    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
+        p.push_back((*i).name());
     }
 
 }
@@ -334,6 +350,24 @@ void MarsRequest::merge(const MarsRequest &other) {
 
 void MarsRequest::verb(const std::string &verb) {
     verb_ = verb;
+}
+
+std::list<Parameter>::const_iterator MarsRequest::find(const std::string& name) const {
+    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
+        if ((*i).name() == name) {
+            return i;
+        }
+    }
+    return params_.end();
+}
+
+std::list<Parameter>::iterator MarsRequest::find(const std::string & name) {
+    for (std::list<Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
+        if ((*i).name() == name) {
+            return i;
+        }
+    }
+    return params_.end();
 }
 //----------------------------------------------------------------------------------------------------------------------
 
