@@ -197,6 +197,18 @@
                 }
             ]
         },
+         "ensemble": {
+            "type": "to-by-list",
+            "by": 1,
+            "XXXaliases": [
+                "ensemble"
+            ],
+            "only": [
+                {
+                    "type": "pf"
+                }
+            ]
+        },
         "quantile": {
             "type": "enum",
             "values": [
