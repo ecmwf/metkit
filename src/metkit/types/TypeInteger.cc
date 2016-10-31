@@ -30,8 +30,8 @@ void TypeInteger::print(std::ostream &out) const {
     out << "TypeInteger[name=" << name_ << "]";
 }
 
-std::string TypeInteger::tidy(const std::string &value) const  {
-    long n = 0;
+bool TypeInteger::ok(const std::string &value, long& n) const {
+    n = 0;
     long sign = 1;
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
@@ -40,7 +40,7 @@ std::string TypeInteger::tidy(const std::string &value) const  {
                 sign = -1;
             }
             else {
-                throw eckit::UserError(name_ + ": invalid integer '" + value + "'");
+                return false;
             }
             break;
 
@@ -58,14 +58,22 @@ std::string TypeInteger::tidy(const std::string &value) const  {
             n += (*j) - '0';
             break;
 
-
         default:
-            throw eckit::UserError(name_ + ": invalid integer '" + value + "'");
+            return false;
             break;
         }
     }
-    static eckit::Translator<long, std::string> l2s;
-    return l2s(n);
+    n *= sign;
+    return true;
+}
+
+std::string TypeInteger::tidy(const std::string &value) const  {
+    long n = 0;
+    if (ok(value, n)) {
+        static eckit::Translator<long, std::string> l2s;
+        return l2s(n);
+    }
+    throw eckit::UserError(name_ + ": invalid integer '" + value + "'");
 }
 
 

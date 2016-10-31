@@ -32,11 +32,10 @@ void TypeRange::print(std::ostream &out) const {
 
 std::string TypeRange::tidy(const std::string &value) const  {
 
-    try {
-        return TypeInteger::tidy(value);
-    }
-    catch(...) {
-
+   long p = 0;
+    if (ok(value, p)) {
+        static eckit::Translator<long, std::string> l2s;
+        return l2s(p);
     }
 
     long a = 0;

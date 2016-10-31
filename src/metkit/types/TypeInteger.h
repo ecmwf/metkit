@@ -32,9 +32,11 @@ public: // methods
 
 protected:
 
-    virtual std::string tidy(const std::string &value) const;
+    bool ok(const std::string &value, long& n) const;
 
 private: // methods
+
+    virtual std::string tidy(const std::string &value) const;
 
     virtual void print( std::ostream &out ) const;
 
