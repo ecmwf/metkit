@@ -41,13 +41,13 @@ std::string TypeRange::tidy(const std::string &value) const  {
         case '-':
             if (j != value.begin()) {
                 if (n == &b) {
-                    throw eckit::UserError(name_ + ": invalid integer range '" + value + "'");
+                    throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (a)");
 
                 }
                 n = &b;
             }
             else {
-                throw eckit::UserError(name_ + ": invalid integer range '" + value + "'");
+                throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (b)");
             }
             break;
 
@@ -68,12 +68,12 @@ std::string TypeRange::tidy(const std::string &value) const  {
 
         default:
 
-            throw eckit::UserError(name_ + ": invalid integer range '" + value + "'");            break;
+            throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");            break;
         }
     }
 
     if (a == -1) {// || b == -1) {
-        throw eckit::UserError(name_ + ": invalid integer range '" + value + "'");
+        throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (d)");
     }
 
     if(b == -1) {
