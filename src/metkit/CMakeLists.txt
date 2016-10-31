@@ -37,6 +37,8 @@ types/TypeEnum.cc
 types/TypeEnum.h
 types/TypeInteger.cc
 types/TypeInteger.h
+types/TypeRange.cc
+types/TypeRange.h
 types/TypeFloat.cc
 types/TypeFloat.h
 types/TypeTime.cc

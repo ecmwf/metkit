@@ -142,7 +142,7 @@
             "flatten": false
         },
         "step": {
-            "type": "to-by-list",
+            "type": "range",
             "by": 12,
             "default": "0"
         },
