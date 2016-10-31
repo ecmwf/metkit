@@ -203,7 +203,10 @@
             ],
             "only": [
                 {
-                    "type": ["pf", "sot"]
+                    "type": [
+                        "pf",
+                        "sot"
+                    ]
                 }
             ]
         },
@@ -252,13 +255,28 @@
             "multiple": true
         },
         "channel": {
-            "type": "integer"
+            "type": "integer",
+            "only": [
+                {
+                    "type": "ssd"
+                }
+            ]
         },
         "ident": {
-            "type": "integer"
+            "type": "integer",
+            "only": [
+                {
+                    "type": "ssd"
+                }
+            ]
         },
         "instrument": {
-            "type": "integer"
+            "type": "integer",
+            "only": [
+                {
+                    "type": "ssd"
+                }
+            ]
         },
         "target": {
             "type": "any",
