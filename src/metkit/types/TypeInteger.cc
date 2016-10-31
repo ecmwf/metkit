@@ -31,8 +31,19 @@ void TypeInteger::print(std::ostream &out) const {
 }
 
 std::string TypeInteger::tidy(const std::string &value) const  {
+    long n = 0;
+    long sign = 1;
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
+        case '-':
+            if (j == value.begin()) {
+                sign = -1;
+            }
+            else {
+                throw eckit::UserError(name_ + ": invalid integer '" + value + "'");
+            }
+            break;
+
         case '0':
         case '1':
         case '2':
@@ -43,7 +54,8 @@ std::string TypeInteger::tidy(const std::string &value) const  {
         case '7':
         case '8':
         case '9':
-        case '-':
+            n *= 10;
+            n += (*j) - '0';
             break;
 
 
@@ -52,9 +64,8 @@ std::string TypeInteger::tidy(const std::string &value) const  {
             break;
         }
     }
-    static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
-    return l2s(s2l(value));
+    return l2s(n);
 }
 
 
