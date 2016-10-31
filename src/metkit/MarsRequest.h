@@ -95,6 +95,7 @@ public: // methods
     const std::vector<std::string> &values(const std::string&, bool emptyOk = false) const;
 
     void getParams(std::vector<std::string>&) const;
+    std::vector<std::string> params() const;
 
     void verb(const std::string&);
 

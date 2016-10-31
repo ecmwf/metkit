@@ -339,6 +339,14 @@ void MarsRequest::getParams(std::vector<std::string>& p) const
 
 }
 
+
+std::vector<std::string> MarsRequest::params() const
+{
+   std::vector<std::string> p;
+   getParams(p);
+   return p;
+}
+
 MarsRequest::operator eckit::Value() const {
     NOTIMP;
 }
