@@ -90,7 +90,7 @@ std::string TypeRange::tidy(const std::string &value) const  {
 }
 
 
-static TypeBuilder<TypeRange> type("integer");
+static TypeBuilder<TypeRange> type("range");
 
 //----------------------------------------------------------------------------------------------------------------------
 
