@@ -205,7 +205,8 @@
                 {
                     "type": [
                         "pf",
-                        "sot"
+                        "sot",
+                        "fcmean"
                     ]
                 }
             ]
@@ -224,6 +225,11 @@
         },
         "quantile": {
             "type": "enum",
+            "only": [
+                {
+                    "type": ["pd", "pb", "taem"]
+                }
+            ],
             "values": [
                 "1:3",
                 "2:3",
