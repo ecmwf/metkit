@@ -30,10 +30,13 @@ public: // methods
 
     virtual ~TypeInteger();
 
+protected:
+
+    virtual std::string tidy(const std::string &value) const;
+
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-    virtual std::string tidy(const std::string &value) const;
 
 };
 

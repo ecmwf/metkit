@@ -3,7 +3,10 @@
         "area": {
             "type": "enum-or-more",
             "values": [
-                ["off", "g"]
+                [
+                    "off",
+                    "g"
+                ]
             ],
             "flatten": false,
             "more": [
@@ -108,7 +111,14 @@
                     "levtype": "sfc"
                 }
             ],
-            "default" : ["1000","850","700","500","400","300"]
+            "default": [
+                "1000",
+                "850",
+                "700",
+                "500",
+                "400",
+                "300"
+            ]
         },
         "levtype": {
             "type": "enum",
@@ -197,7 +207,7 @@
                 }
             ]
         },
-         "ensemble": {
+        "ensemble": {
             "type": "to-by-list",
             "by": 1,
             "XXXaliases": [
@@ -230,8 +240,14 @@
                 "8:10",
                 "9:10",
                 "10:10",
-                ["off", "100"],
-                ["off", "900"]
+                [
+                    "off",
+                    "100"
+                ],
+                [
+                    "off",
+                    "900"
+                ]
             ],
             "multiple": true
         },
