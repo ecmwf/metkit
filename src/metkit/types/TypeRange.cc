@@ -31,8 +31,8 @@ void TypeRange::print(std::ostream &out) const {
 }
 
 std::string TypeRange::tidy(const std::string &value) const  {
-    long a = -1;
-    long b = -1;
+    long a = 0;
+    long b = 0;
 
     long *n = &a;
 
@@ -68,7 +68,8 @@ std::string TypeRange::tidy(const std::string &value) const  {
 
         default:
 
-            throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");            break;
+            throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");
+               break;
         }
     }
 
@@ -76,11 +77,11 @@ std::string TypeRange::tidy(const std::string &value) const  {
         throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (d)");
     }
 
-    if(b == -1) {
-         std::ostringstream oss;
-    oss << a << "-" << b;
+    if (n == &a) {
+        std::ostringstream oss;
+        oss << a;
 
-    return oss.str();
+        return oss.str();
     }
 
     std::ostringstream oss;
