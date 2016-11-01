@@ -136,8 +136,8 @@
                     "sfc",
                     "surface"
                 ],
-                "pt",
-                "pv"
+                ["pt", "potential temperature"],
+                ["pv","potential vorticity"]
             ],
             "default": "pl"
         },

@@ -33,10 +33,10 @@ public: // methods
 protected:
 
     bool ok(const std::string &value, long& n) const;
+    virtual std::string tidy(const std::string &value) const;
 
 private: // methods
 
-    virtual std::string tidy(const std::string &value) const;
 
     virtual void print( std::ostream &out ) const;
 

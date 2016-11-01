@@ -38,8 +38,8 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 3) {
         if (eckit::StringTools::lower(values[1])[0] == 't') {
-            long from = s2l(values[0]);
-            long to = s2l(values[2]);
+            long from = s2l(tidy(values[0]));
+            long to = s2l(tidy(values[2]));
             long by = by_;
             values.clear();
             values.reserve((to - from) / by + 1);
@@ -52,9 +52,9 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 5) {
         if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
-                long from = s2l(values[0]);
-                long to = s2l(values[2]);
-                long by = s2l(values[4]);
+                long from = s2l(tidy(values[0]));
+                long to = s2l(tidy(values[2]));
+                long by = s2l(tidy(values[4]));
                 values.clear();
                 values.reserve((to - from) / by + 1);
 

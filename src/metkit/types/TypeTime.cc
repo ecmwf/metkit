@@ -15,22 +15,55 @@
 
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeTime.h"
+#include "eckit/parser/StringTools.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+    Type(name, settings), by_(6) {
 }
 
 TypeTime::~TypeTime() {
 }
 
 std::string TypeTime::tidy(const std::string &value) const {
-    eckit::Translator<std::string, long> t;
 
-    long n = t(value);
+    long n = 0;
+    int colon = 0;
+
+    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+        switch (*j) {
+
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            n *= 10;
+            n += (*j) - '0';
+            break;
+
+        case ':':
+            colon++;
+            break;
+
+        default:
+            throw eckit::UserError(name_ + ": invalid time '" + value + "'");
+            break;
+        }
+    }
+
+    if (colon == 2) {
+        n /= 100;
+    }
+
     if (n < 100) {
         n *= 100;
     }
@@ -38,6 +71,44 @@ std::string TypeTime::tidy(const std::string &value) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << n;
     return oss.str();
+}
+
+
+void TypeTime::expand(std::vector<std::string>& values) const {
+
+     static eckit::Translator<std::string, long> s2l;
+    static eckit::Translator<long, std::string> l2s;
+
+    if (values.size() == 3) {
+        if (eckit::StringTools::lower(values[1])[0] == 't') {
+            long from = s2l(tidy(values[0]));
+            long to = s2l(tidy(values[2]));
+            long by = by_;
+            values.clear();
+            values.reserve((to - from) / by + 1);
+            for (long i = from; i <= to; i += by) {
+                values.push_back(l2s(i));
+            }
+            return;
+        }
+    }
+
+    if (values.size() == 5) {
+        if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
+            long from = s2l(tidy(values[0]));
+            long to = s2l(tidy(values[2]));
+            long by = s2l(tidy(values[4]));
+            values.clear();
+            values.reserve((to - from) / by + 1);
+
+            for (long i = from; i <= to; i += by) {
+                values.push_back(l2s(i));
+            }
+            return;
+        }
+    }
+
+    Type::expand(values);
 }
 
 void TypeTime::print(std::ostream &out) const {
