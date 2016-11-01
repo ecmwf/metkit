@@ -87,7 +87,7 @@ void TypeTime::expand(std::vector<std::string>& values) const {
             values.clear();
             values.reserve((to - from) / by + 1);
             for (long i = from; i <= to; i += by) {
-                values.push_back(l2s(i));
+                values.push_back(tidy(l2s(i)));
             }
             return;
         }
@@ -102,7 +102,7 @@ void TypeTime::expand(std::vector<std::string>& values) const {
             values.reserve((to - from) / by + 1);
 
             for (long i = from; i <= to; i += by) {
-                values.push_back(l2s(i));
+                values.push_back(tidy(l2s(i)));
             }
             return;
         }
