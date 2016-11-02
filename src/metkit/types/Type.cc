@@ -114,7 +114,7 @@ public:
     }
 };
 
-bool Type::filter(const std::vector<std::string> &filter, std::vector<std::string> &values) {
+bool Type::filter(const std::vector<std::string> &filter, std::vector<std::string> &values) const {
 
     NotInSet not_in_set(filter);
 
@@ -122,6 +122,24 @@ bool Type::filter(const std::vector<std::string> &filter, std::vector<std::strin
 
     return !values.empty();
 
+}
+
+class InSet {
+
+    std::set<std::string> set_;
+public:
+
+    InSet(const std::vector<std::string>& f):
+        set_(f.begin(), f.end()) {}
+
+    bool operator()(const std::string& s) const {
+        return set_.find(s) != set_.end();
+    }
+};
+
+bool Type::require(const std::vector<std::string> &require, std::vector<std::string> &values) const {
+    InSet in_set(require);
+    return std::find_if(values.begin(), values.end(), in_set))!= , values.end();
 }
 
 std::string Type::tidy(const std::string &value) const  {

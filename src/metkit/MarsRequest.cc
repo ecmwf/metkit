@@ -87,9 +87,15 @@ void Parameter::values(const std::vector<std::string>& values) {
     values_ = values;
 }
 
-bool Parameter::filter(const std::vector<std::string> &filter) {
+bool Parameter::filter(const std::vector<std::string> &filter)  {
     return type_->filter(filter, values_);
 }
+
+
+bool Parameter::require(const std::vector<std::string> &require) const {
+    return type_->require(require, values_);
+}
+
 
 const std::string& Parameter::name() const {
     return type_->name();
@@ -274,6 +280,24 @@ bool MarsRequest::filter(const MarsRequest &filter) {
         }
 
         if (!(*i).filter((*j).values())) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool MarsRequest::require(const MarsRequest &require) const {
+
+    std::vector<std::string> params = require.params();
+    for(std::vector<std::string>::const_iterator j = params)
+    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
+
+        std::list<Parameter>::const_iterator j = require.find((*i).name());
+        if (j == require.params_.end()) {
+            return false;
+        }
+
+        if (!(*i).require((*j).values())) {
             return false;
         }
     }
