@@ -137,9 +137,9 @@ public:
     }
 };
 
-bool Type::require(const std::vector<std::string> &require, std::vector<std::string> &values) const {
+bool Type::require(const std::vector<std::string> &require, const std::vector<std::string> &values) const {
     InSet in_set(require);
-    return std::find_if(values.begin(), values.end(), in_set))!= , values.end();
+    return std::find_if(values.begin(), values.end(), in_set) !=  values.end();
 }
 
 std::string Type::tidy(const std::string &value) const  {

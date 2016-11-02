@@ -289,18 +289,17 @@ bool MarsRequest::filter(const MarsRequest &filter) {
 bool MarsRequest::require(const MarsRequest &require) const {
 
     std::vector<std::string> params = require.params();
-    for(std::vector<std::string>::const_iterator j = params)
-    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-
-        std::list<Parameter>::const_iterator j = require.find((*i).name());
-        if (j == require.params_.end()) {
+    for (std::vector<std::string>::const_iterator j = params.begin(); j != params.end(); ++j) {
+        std::list<Parameter>::const_iterator k = find(*j);
+        if (k == params_.end()) {
             return false;
         }
 
-        if (!(*i).require((*j).values())) {
+        if (!(*k).require(require.values(*j))) {
             return false;
         }
     }
+
     return true;
 }
 
@@ -366,9 +365,9 @@ void MarsRequest::getParams(std::vector<std::string>& p) const
 
 std::vector<std::string> MarsRequest::params() const
 {
-   std::vector<std::string> p;
-   getParams(p);
-   return p;
+    std::vector<std::string> p;
+    getParams(p);
+    return p;
 }
 
 MarsRequest::operator eckit::Value() const {
