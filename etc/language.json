@@ -399,11 +399,9 @@
             "type": "enum",
             "multiple": true,
             "flatten": false,
-            "default": "normal",
             "values": [
                 "bc",
                 "daily",
-                "normal",
                 [
                     "mt",
                     "monthly run thursday",
