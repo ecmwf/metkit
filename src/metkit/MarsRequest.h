@@ -48,7 +48,7 @@ public:
     void values(const std::vector< std::string >& values);
 
     bool filter(const std::vector< std::string >& filter);
-    bool require(const std::vector< std::string >& require) const;
+    bool matches(const std::vector< std::string >& matches) const;
 
     Type& type() const { return *type_; }
     const std::string& name() const;
@@ -124,7 +124,8 @@ public: // methods
     void setValuesTyped(Type*, const std::vector<std::string>&);
 
     bool filter(const MarsRequest& filter);
-    bool require(const MarsRequest& filter) const;
+    bool matches(const MarsRequest& filter) const;
+    bool empty() const;
 
 
 private: // members

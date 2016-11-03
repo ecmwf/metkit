@@ -92,8 +92,8 @@ bool Parameter::filter(const std::vector<std::string> &filter)  {
 }
 
 
-bool Parameter::require(const std::vector<std::string> &require) const {
-    return type_->require(require, values_);
+bool Parameter::matches(const std::vector<std::string> &match) const {
+    return type_->matches(match, values_);
 }
 
 
@@ -169,6 +169,10 @@ void MarsRequest::encode(eckit::Stream& s) const
 
 MarsRequest::MarsRequest(const eckit::ValueMap&) {
     NOTIMP;
+}
+
+bool MarsRequest::empty() const {
+    return params_.empty();
 }
 
 
@@ -286,16 +290,16 @@ bool MarsRequest::filter(const MarsRequest &filter) {
     return true;
 }
 
-bool MarsRequest::require(const MarsRequest &require) const {
+bool MarsRequest::matches(const MarsRequest &matches) const {
 
-    std::vector<std::string> params = require.params();
+    std::vector<std::string> params = matches.params();
     for (std::vector<std::string>::const_iterator j = params.begin(); j != params.end(); ++j) {
         std::list<Parameter>::const_iterator k = find(*j);
         if (k == params_.end()) {
             return false;
         }
 
-        if (!(*k).require(require.values(*j))) {
+        if (!(*k).matches(matches.values(*j))) {
             return false;
         }
     }

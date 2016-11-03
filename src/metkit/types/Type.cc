@@ -137,8 +137,8 @@ public:
     }
 };
 
-bool Type::require(const std::vector<std::string> &require, const std::vector<std::string> &values) const {
-    InSet in_set(require);
+bool Type::matches(const std::vector<std::string> &match, const std::vector<std::string> &values) const {
+    InSet in_set(match);
     return std::find_if(values.begin(), values.end(), in_set) !=  values.end();
 }
 
