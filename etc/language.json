@@ -9,19 +9,13 @@
                 ]
             ],
             "flatten": false,
-            "more": [
-                {
-                    "type": "float"
-                }
-            ],
-            "never": [
-                {
-                    "repres": "sh"
-                }
-            ],
-            "only": [
-                {}
-            ]
+            "more": [{
+                "type": "float"
+            }],
+            "never": [{
+                "repres": "sh"
+            }],
+            "only": [{}]
         },
         "class": {
             "type": "enum",
@@ -90,11 +84,9 @@
                 "N160",
                 "N320"
             ],
-            "more": [
-                {
-                    "type": "float"
-                }
-            ]
+            "more": [{
+                "type": "float"
+            }]
         },
         "rotation": {
             "type": "any",
@@ -106,11 +98,9 @@
         "levelist": {
             "type": "to-by-list",
             "by": 1,
-            "never": [
-                {
-                    "levtype": "sfc"
-                }
-            ],
+            "never": [{
+                "levtype": "sfc"
+            }],
             "default": [
                 "1000",
                 "850",
@@ -137,7 +127,7 @@
                     "surface"
                 ],
                 ["pt", "potential temperature"],
-                ["pv","potential vorticity"]
+                ["pv", "potential vorticity"]
             ],
             "default": "pl"
         },
@@ -202,15 +192,13 @@
             "XXXaliases": [
                 "ensemble"
             ],
-            "only": [
-                {
-                    "type": [
-                        "pf",
-                        "sot",
-                        "fcmean"
-                    ]
-                }
-            ]
+            "only": [{
+                "type": [
+                    "pf",
+                    "sot",
+                    "fcmean"
+                ]
+            }]
         },
         "ensemble": {
             "type": "to-by-list",
@@ -218,28 +206,24 @@
             "XXXaliases": [
                 "ensemble"
             ],
-            "only": [
-                {
-                    "type": [
-                        "pf",
-                        "sot",
-                        "fcmean"
-                    ]
-                }
-            ]
+            "only": [{
+                "type": [
+                    "pf",
+                    "sot",
+                    "fcmean"
+                ]
+            }]
         },
         "quantile": {
             "type": "enum",
-            "only": [
-                {
-                    "type": [
-                        "pd",
-                        "pb",
-                        "taem",
-                        "sot"
-                    ]
-                }
-            ],
+            "only": [{
+                "type": [
+                    "pd",
+                    "pb",
+                    "taem",
+                    "sot"
+                ]
+            }],
             "values": [
                 "1:3",
                 "2:3",
@@ -266,27 +250,21 @@
         },
         "channel": {
             "type": "integer",
-            "only": [
-                {
-                    "type": "ssd"
-                }
-            ]
+            "only": [{
+                "type": "ssd"
+            }]
         },
         "ident": {
             "type": "integer",
-            "only": [
-                {
-                    "type": "ssd"
-                }
-            ]
+            "only": [{
+                "type": "ssd"
+            }]
         },
         "instrument": {
             "type": "integer",
-            "only": [
-                {
-                    "type": "ssd"
-                }
-            ]
+            "only": [{
+                "type": "ssd"
+            }]
         },
         "target": {
             "type": "any",
@@ -349,7 +327,7 @@
                     "cm",
                     "cluster mean"
                 ],
-                ["cs","cluster standard deviation"],
+                ["cs", "cluster standard deviation"],
                 [
                     "efi",
                     "extreme forecast index"
@@ -358,20 +336,18 @@
                     "efic",
                     "extreme forecast index control"
                 ],
-                ["taem","time average ensemble mean"],
-                ["taes","time average ensemble standard deviation"],
+                ["taem", "time average ensemble mean"],
+                ["taes", "time average ensemble standard deviation"],
                 [
                     "cr",
                     "cluster representative"
                 ],
-                ["wp","weather parameter"],
-                "pd",
-                [
+                ["wp", "weather parameter"],
+                "pd", [
                     "tf",
                     "trajectory forecast"
                 ],
-                "ssd",
-                [
+                "ssd", [
                     "sot",
                     "shift of tails index"
                 ],
@@ -379,8 +355,7 @@
                     "cv",
                     "calibration validation"
                 ],
-                "pb",
-                [
+                "pb", [
                     "ep",
                     "event probability"
                 ],
@@ -388,8 +363,7 @@
                 "fcmean",
                 "fcmax",
                 "fcmin",
-                "fcstdev",
-                [
+                "fcstdev", [
                     "tu",
                     "tubes"
                 ]
@@ -401,18 +375,17 @@
             "flatten": false,
             "values": [
                 "bc",
-                "daily",
-                [
+                "daily", [
+                    "thursday",
                     "mt",
                     "monthly run thursday",
-                    "monthly thursday",
-                    "thursday"
+                    "monthly thursday"
                 ],
                 [
+                    "monday",
                     "mm",
                     "monthly run monday",
-                    "monthly monday",
-                    "monday"
+                    "monthly monday"
                 ]
             ]
         },
@@ -474,20 +447,16 @@
         "direction": {
             "type": "to-by-list",
             "by": 1,
-            "only": [
-                {
-                    "param": "251"
-                }
-            ]
+            "only": [{
+                "param": "251"
+            }]
         },
         "frequency": {
             "type": "to-by-list",
             "by": 1,
-            "only": [
-                {
-                    "param": "251"
-                }
-            ]
+            "only": [{
+                "param": "251"
+            }]
         },
         "frame": {
             "type": "integer"
@@ -513,8 +482,7 @@
                 "sh",
                 "ll",
                 "np",
-                "rl",
-                [
+                "rl", [
                     "0.25",
                     "fix me HUE:E1 !"
                 ]
