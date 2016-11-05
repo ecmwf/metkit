@@ -1532,11 +1532,12 @@
     [
         "165",
         "10wsi",
+        "10si",
         "ten metre windspeed index"
     ],
     [
         "207",
-        "10si",
+        "xxx10si",
         "ten metre windspeed irresp of dir"
     ],
     [
