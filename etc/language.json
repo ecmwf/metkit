@@ -195,7 +195,9 @@
             "only": [{
                 "type": [
                     "pf",
-                    "fcmean"
+                    "fcmean",
+                    "cm",
+                    "cr"
                 ]
             }]
         },
