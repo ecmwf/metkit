@@ -35,6 +35,8 @@ types/TypeToByList.cc
 types/TypeToByList.h
 types/TypeEnum.cc
 types/TypeEnum.h
+types/TypeParam.cc
+types/TypeParam.h
 types/TypeInteger.cc
 types/TypeInteger.h
 types/TypeRange.cc

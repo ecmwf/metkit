@@ -132,10 +132,9 @@
             "default": "pl"
         },
         "param": {
-            "type": "enum",
-            "default": "z",
-            "multiple": true,
-            "values": "param.json"
+            "type": "param",
+            "default": "129",
+            "multiple": true
         },
         "priority": {
             "type": "integer",
