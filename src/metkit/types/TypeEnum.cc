@@ -48,7 +48,7 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
 
                 if(mapping_.find(v) != mapping_.end()) {
                     std::ostringstream oss;
-                    oss << "Redefined enum " << v << ", " << first << " and " << mapping_[v];
+                    oss << "Redefined enum '" << v << "', '" << first << "' and '" << mapping_[v] << "'";
                     throw eckit::SeriousBug(oss.str());
                 }
 
@@ -60,7 +60,7 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
             std::string v = val;
                 if(mapping_.find(v) != mapping_.end()) {
                     std::ostringstream oss;
-                    oss << "Redefined enum " << v << " and " << mapping_[v];
+                    oss << "Redefined enum '" << v << "' and '" << mapping_[v] << "'";
                     throw eckit::SeriousBug(oss.str());
                 }
             mapping_[v] = v;
