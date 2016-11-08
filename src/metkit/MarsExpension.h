@@ -27,12 +27,12 @@ class MarsLanguage;
 
 class FlattenCallback {
 public:
-    virtual void operator()(MarsRequest&) = 0;
+    virtual void operator()(const MarsRequest&) = 0;
 };
 
 class ExpandCallback {
 public:
-    virtual void operator()(MarsRequest&) = 0;
+    virtual void operator()(const MarsRequest&) = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
