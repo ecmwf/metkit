@@ -190,7 +190,7 @@
         "number": {
             "type": "to-by-list",
             "by": 1,
-            "XXXaliases": [
+            "aliases": [
                 "ensemble"
             ],
             "only": [{
@@ -199,20 +199,6 @@
                     "fcmean",
                     "cm",
                     "cr"
-                ]
-            }]
-        },
-        "ensemble": {
-            "type": "to-by-list",
-            "by": 1,
-            "XXXaliases": [
-                "ensemble"
-            ],
-            "only": [{
-                "type": [
-                    "pf",
-                    "sot",
-                    "fcmean"
                 ]
             }]
         },
