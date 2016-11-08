@@ -101,6 +101,9 @@ const std::string& Parameter::name() const {
     return type_->name();
 }
 
+size_t Parameter::count() const {
+    return type_->count(values_);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -364,6 +367,15 @@ void MarsRequest::getParams(std::vector<std::string>& p) const
         p.push_back((*i).name());
     }
 
+}
+
+size_t MarsRequest::count() const
+{
+    size_t result = 1;
+    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
+        result *= (*i).count();
+    }
+    return result;
 }
 
 

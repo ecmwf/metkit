@@ -52,6 +52,8 @@ public:
 
     Type& type() const { return *type_; }
     const std::string& name() const;
+
+    size_t count() const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -126,6 +128,8 @@ public: // methods
     bool filter(const MarsRequest& filter);
     bool matches(const MarsRequest& filter) const;
     bool empty() const;
+
+    size_t count() const;
 
 
 private: // members

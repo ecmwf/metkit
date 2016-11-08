@@ -101,6 +101,10 @@ bool Type::flatten() const {
     return flatten_;
 }
 
+size_t Type::count(const std::vector<std::string>& values) const {
+    return flatten_ ? values.size() : 1;
+}
+
 class NotInSet {
 
     std::set<std::string> set_;

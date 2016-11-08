@@ -56,6 +56,9 @@ public: // methods
 
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 
+    virtual size_t count(const std::vector<std::string>& values) const;
+
+
 public: // class methods
 
     static const Type &lookup(const std::string &keyword);
