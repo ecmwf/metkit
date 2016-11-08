@@ -225,8 +225,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
 
     MarsRequest result(verb_);
 
-    std::vector<std::string> params;
-    r.getParams(params);
+    std::vector<std::string> params = r.params();
+    std::set<std::string> seen;
 
     for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
         std::string p;
@@ -238,6 +238,20 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         } else {
             p =  cache_[*j] = bestMatch(*j, keywords_, true, aliases_);
         }
+
+        // if (seen.find(p) != seen.end()) {
+        //     std::cout << "Duplicate " << p << " " << *j << std::endl;
+        //     std::cout << r << std::endl;
+        //     if (result.countValues(p)) {
+        //         std::cout << result.values(p) << std::endl;
+        //     }
+        //     else {
+        //         std::cout << "off" << std::endl;
+        //     }
+        //     std::cout << r.values(*j) << std::endl;
+        // }
+
+        // seen.insert(p);
 
         std::vector<std::string> values = r.values(*j);
 
@@ -273,7 +287,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         }
     }
 
-      result.getParams(params);
+    result.getParams(params);
     for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
         type(*k)->finalise(result);
     }
