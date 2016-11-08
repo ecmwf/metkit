@@ -150,13 +150,14 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
     }
 
-    if (best.size() > 0 && score < 3) {
+    size_t max = 3;
+    if (best.size() > 0 && score < max) {
         std::cerr << "Matching '"
                   << name
                   << "' with "
                   << best
                   << " "
-                  << "Please give at least 3 first letters"
+                  << "Please give at least " << max << " first letters"
                   << std::endl;
     }
 

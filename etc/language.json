@@ -181,7 +181,9 @@
                 "msmm",
                 "efhs",
                 "efov",
-                "enfh"
+                "enfh",
+                "mmsf",
+                "mmsa"
             ]
         },
         "projection": {
@@ -268,6 +270,7 @@
         "origin": {
             "type": "enum",
             "values": [
+                "ecmf",
                 "ecmwf"
             ]
         },
