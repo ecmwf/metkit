@@ -183,7 +183,8 @@
                 "efov",
                 "enfh",
                 "mmsf",
-                "mmsa"
+                "mmsa",
+                "scef"
             ]
         },
         "projection": {
