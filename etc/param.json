@@ -116,14 +116,6 @@
         "unbalanced component of divergence"
     ],
     [
-        "24",
-        "reserved for future unbalanced components"
-    ],
-    [
-        "25",
-        "reserved for future unbalanced components"
-    ],
-    [
         "26",
         "cl",
         "lake cover"
@@ -19602,13 +19594,12 @@
         "spp50",
         "random pattern 50 for spp scheme"
     ],
-
-     [
+    [
         "999",
         "tc",
         "tropical cyclone"
     ],
-[
+    [
         "928",
         "thk",
         "thicknes"
@@ -19618,6 +19609,4 @@
         "thka",
         "thicknes anomaly"
     ]
-
-
 ]
