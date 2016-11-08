@@ -45,12 +45,24 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
 
             for (size_t j = 0; j < val.size(); ++j) {
                 std::string v = val[j];
+
+                if(mapping_.find(v) != mapping_.end()) {
+                    std::ostringstream oss;
+                    oss << "Redefined enum " << v << ", " << first << " and " << mapping_[v];
+                    throw eckit::SeriousBug(oss.str());
+                }
+
                 mapping_[v] = first;
                 values_.push_back(v);
             }
         }
         else {
             std::string v = val;
+                if(mapping_.find(v) != mapping_.end()) {
+                    std::ostringstream oss;
+                    oss << "Redefined enum " << v << " and " << mapping_[v];
+                    throw eckit::SeriousBug(oss.str());
+                }
             mapping_[v] = v;
             values_.push_back(v);
         }
