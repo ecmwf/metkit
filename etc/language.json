@@ -135,7 +135,9 @@
                     "potential vorticity"
                 ]
             ],
-            "default": "pl"
+            "default": "pl",
+            "_comment": "CH/SW6/req/curr/N5 has 2 levtype",
+            "multiple": true
         },
         "param": {
             "type": "param",
@@ -189,7 +191,8 @@
                 "enfh",
                 "mmsf",
                 "mmsa",
-                "scef"
+                "scef",
+                "mnfc"
             ]
         },
         "projection": {
@@ -198,7 +201,7 @@
         "number": {
             "type": "to-by-list",
             "by": 1,
-            "aliases": [
+            "xxxaliases": [
                 "ensemble"
             ],
             "only": [{
@@ -210,6 +213,23 @@
                 ]
             }]
         },
+
+        "ensemble": {
+            "type": "to-by-list",
+            "by": 1,
+            "xxxxaliases": [
+                "ensemble"
+            ],
+            "only": [{
+                "type": [
+                    "pf",
+                    "fcmean",
+                    "cm",
+                    "cr"
+                ]
+            }]
+        },
+
         "quantile": {
             "type": "enum",
             "only": [{
