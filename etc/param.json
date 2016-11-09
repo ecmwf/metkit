@@ -1059,10 +1059,6 @@
         "adiabatic tendency of meridional wind"
     ],
     [
-        "255",
-        "indicates a missing value"
-    ],
-    [
         "129001",
         "strfgrd",
         "stream function gradient"
@@ -2010,10 +2006,6 @@
         "adiabatic tendency of meridional wind gradient"
     ],
     [
-        "129255",
-        "indicates a missing value"
-    ],
-    [
         "130208",
         "tsru",
         "top solar radiation upward"
@@ -2455,10 +2447,6 @@
         "131232",
         "mwpp",
         "mean wave period probability"
-    ],
-    [
-        "131255",
-        "indicates a missing value"
     ],
     [
         "132049",
@@ -3163,10 +3151,6 @@
         "wave spectral peakedness"
     ],
     [
-        "140255",
-        "indicates a missing value"
-    ],
-    [
         "150129",
         "ocpt",
         "ocean potential temperature"
@@ -3304,10 +3288,6 @@
     [
         "150183",
         "observed heat flux"
-    ],
-    [
-        "150255",
-        "indicates a missing value"
     ],
     [
         "151128",
@@ -3701,10 +3681,6 @@
         "151212",
         "psa",
         "bias in salinity (applied)"
-    ],
-    [
-        "151255",
-        "indicates a missing value"
     ],
     [
         "160049",
@@ -4306,10 +4282,6 @@
     [
         "162233",
         "variance of ozone"
-    ],
-    [
-        "162255",
-        "indicates a missing value"
     ],
     [
         "170149",
@@ -5238,10 +5210,6 @@
         "adiabatic tendency of meridional wind anomaly"
     ],
     [
-        "171255",
-        "indicates a missing value"
-    ],
-    [
         "172044",
         "esrate",
         "snow evaporation"
@@ -5388,10 +5356,6 @@
         "large scale snowfall"
     ],
     [
-        "172255",
-        "indicates a missing value"
-    ],
-    [
         "173044",
         "snow evaporation anomaly"
     ],
@@ -5536,10 +5500,6 @@
         "large scale snowfall anomaly"
     ],
     [
-        "173255",
-        "indicates a missing value"
-    ],
-    [
         "174006",
         "total soil moisture"
     ],
@@ -5679,10 +5639,6 @@
         "soil temperature layer 4"
     ],
     [
-        "174255",
-        "indicates a missing value"
-    ],
-    [
         "175006",
         "total soil moisture"
     ],
@@ -5793,10 +5749,6 @@
     [
         "175236",
         "soil temperature layer 4"
-    ],
-    [
-        "175255",
-        "indicates a missing value"
     ],
     [
         "180149",
@@ -6796,10 +6748,6 @@
         "adiabatic tendency of meridional wind difference"
     ],
     [
-        "200255",
-        "indicates a missing value"
-    ],
-    [
         "201001",
         "downward shortwave radiant flux density"
     ],
@@ -7134,10 +7082,6 @@
         "201241",
         "cape_con",
         "convective available potential energy"
-    ],
-    [
-        "201255",
-        "indicates a missing value"
     ],
     [
         "210001",
