@@ -11117,11 +11117,6 @@
         "max 2m temperature (i)"
     ],
     [
-        "500014",
-        "t",
-        "temperature"
-    ],
-    [
         "500013",
         "t_2m_cl",
         "climat. temperature, 2m temperature"
