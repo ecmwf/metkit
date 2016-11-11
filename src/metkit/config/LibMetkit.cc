@@ -15,17 +15,12 @@
 #include "metkit/config/LibMetkit.h"
 
 #include "eckit/config/Resource.h"
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
-#include "eckit/thread/Once.h"
 
-// #include "metkit/api/mir_version.h"
+#include "metkit/metkit_version.h"
 
 using namespace eckit;
 
 namespace metkit {
-
-static Once<Mutex> local_mutex;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -41,12 +36,11 @@ const LibMetkit& LibMetkit::instance()
 const void* LibMetkit::addr() const { return this; }
 
 std::string LibMetkit::version() const {
-    // return mir_version_str();
-    return "0.1";
+    return metkit_version_str();
 }
 
 std::string LibMetkit::gitsha1(unsigned int count) const {
-    std::string sha1(""/*mir_git_sha1()*/);
+    std::string sha1(metkit_git_sha1());
     if (sha1.empty()) {
         return "not available";
     }

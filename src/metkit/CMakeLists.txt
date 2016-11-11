@@ -1,4 +1,21 @@
+### config headers
+
+ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
+
+configure_file( metkit_config.h.in    metkit_config.h )
+configure_file( metkit_version.h.in   metkit_version.h )
+configure_file( metkit_version.cc.in  metkit_version.cc )
+
+install(FILES
+            ${CMAKE_CURRENT_BINARY_DIR}/metkit_config.h
+            ${CMAKE_CURRENT_BINARY_DIR}/metkit_version.h
+        DESTINATION
+            ${INSTALL_INCLUDE_DIR}/metkit )
+
+### metkit sources
+
 list( APPEND metkit_srcs
+metkit_version.cc
 BaseProtocol.cc
 BaseProtocol.h
 ClientTask.cc
@@ -81,13 +98,6 @@ if ( HAVE_GRIB )
 
 endif ()
 
-ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
-
-configure_file( metkit_config.h.in metkit_config.h )
-
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/metkit_config.h
-         DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
-
 ecbuild_add_library(
 
     TARGET metkit
@@ -96,6 +106,9 @@ ecbuild_add_library(
 
     HEADER_DESTINATION
         ${INSTALL_INCLUDE_DIR}/metkit
+
+    GENERATED
+        metkit_version.cc
 
     SOURCES
         ${metkit_srcs}
