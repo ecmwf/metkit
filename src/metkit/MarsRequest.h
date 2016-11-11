@@ -86,8 +86,17 @@ public: // methods
 
     operator eckit::Value() const;
 
-// -- Methods
+    /* DEPRECATED METHODS */
 
+    // These methods are required for ODB_API 0.15.x
+    // to maintain temporary compatibility with metkit 0.3.0
+
+    void name(const std::string& v) { verb(v); }
+    void setValues(const std::string& name, const std::vector<std::string>& v) { values(name, v); }
+
+    /* END DEPRECATED METHODS */
+
+// -- Methods
 
     const std::string& verb() const { return verb_; }
 
