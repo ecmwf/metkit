@@ -201,7 +201,21 @@
         "number": {
             "type": "to-by-list",
             "by": 1,
-            "aliases": [
+            "xxxaliases": [
+                "ensemble"
+            ],
+            "only": [{
+                "type": [
+                    "pf",
+                    "fcmean",
+                    "cm",
+                    "cr"
+                ]
+            }]
+        },"ensemble": {
+            "type": "to-by-list",
+            "by": 1,
+            "xxxaliases": [
                 "ensemble"
             ],
             "only": [{
