@@ -201,21 +201,7 @@
         "number": {
             "type": "to-by-list",
             "by": 1,
-            "xxxaliases": [
-                "ensemble"
-            ],
-            "only": [{
-                "type": [
-                    "pf",
-                    "fcmean",
-                    "cm",
-                    "cr"
-                ]
-            }]
-        },"ensemble": {
-            "type": "to-by-list",
-            "by": 1,
-            "xxxaliases": [
+            "aliases": [
                 "ensemble"
             ],
             "only": [{
@@ -227,6 +213,21 @@
                 ]
             }]
         },
+        // "ensemble": {
+        //     "type": "to-by-list",
+        //     "by": 1,
+        //     "xxxaliases": [
+        //         "ensemble"
+        //     ],
+        //     "only": [{
+        //         "type": [
+        //             "pf",
+        //             "fcmean",
+        //             "cm",
+        //             "cr"
+        //         ]
+        //     }]
+        // },
         "quantile": {
             "type": "enum",
             "only": [{
