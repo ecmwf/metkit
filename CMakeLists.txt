@@ -22,18 +22,20 @@ ecbuild_add_option( FEATURE ECCODES
                     DESCRIPTION "Use ecCodes instead of grib_api"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 0.14" )
 
-if( HAVE_GRIB AND HAVE_ECCODES )
-  set( GRIB_API_INCLUDE_DIRS ${ECCODES_INCLUDE_DIRS} )
-  set( GRIB_API_LIBRARIES    ${ECCODES_LIBRARIES} )
-  set( GRIB_API_DEFINITIONS  ${ECCODES_DEFINITIONS} )
-  set( grib_api_BASE_DIR     ${eccodes_BASE_DIR} )
-  set( GRIB_API_FOUND        1 )
-else()
-  ecbuild_use_package( PROJECT grib_api VERSION 1.14 )
-endif()
+if( HAVE_GRIB )
 
-if(HAVE_GRIB AND NOT GRIB_API_FOUND)
-    set(HAVE_GRIB 0)
+  if( HAVE_ECCODES )
+    set( GRIB_API_INCLUDE_DIRS ${ECCODES_INCLUDE_DIRS} )
+    set( GRIB_API_LIBRARIES    ${ECCODES_LIBRARIES} )
+    set( GRIB_API_DEFINITIONS  ${ECCODES_DEFINITIONS} )
+    set( grib_api_BASE_DIR     ${eccodes_BASE_DIR} )
+  else()
+    ecbuild_use_package( PROJECT grib_api VERSION 1.14 )
+    if(NOT GRIB_API_FOUND)
+      set(HAVE_GRIB 0)
+    endif()
+  endif()
+
 endif()
 
 # eckit
