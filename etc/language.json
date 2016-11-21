@@ -48,6 +48,9 @@
             "type": "integer",
             "flatten": false
         },
+         "hdate": {
+            "type": "integer"
+        },
         "format": {
             "type": "enum",
             "flatten": false,
