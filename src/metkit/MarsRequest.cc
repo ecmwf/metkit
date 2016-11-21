@@ -105,6 +105,13 @@ size_t Parameter::count() const {
     return type_->count(values_);
 }
 
+bool Parameter::operator<(const Parameter& other) const {
+    if (name() != other.name()) {
+        return name() < other.name();
+    }
+    return values_ < other.values_;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 
@@ -398,6 +405,14 @@ void MarsRequest::merge(const MarsRequest &other) {
 void MarsRequest::verb(const std::string &verb) {
     verb_ = verb;
 }
+
+bool MarsRequest::operator<(const MarsRequest& other) const {
+    if (verb_ != other.verb_) {
+        return verb_ < other.verb_;
+    }
+    return params_ < other.params_;
+}
+
 
 std::list<Parameter>::const_iterator MarsRequest::find(const std::string& name) const {
     for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
