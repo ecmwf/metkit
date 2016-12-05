@@ -40,8 +40,6 @@ endif()
 
 # eckit
 
-set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" )
-
 ecbuild_use_package( PROJECT eckit  VERSION  0.13 REQUIRED )
 
 ### start project
