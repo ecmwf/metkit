@@ -42,7 +42,7 @@ public:
     Parameter(const std::vector<std::string>& values, Type* = 0);
     Parameter(const Parameter&);
     Parameter& operator=(const Parameter&);
-    bool operator<(const Parameter&);
+    bool operator<(const Parameter&) const;
 
     const std::vector< std::string >& values() const { return values_; }
     void values(const std::vector< std::string >& values);
@@ -80,6 +80,8 @@ public: // methods
     ~MarsRequest();
 
 // -- Operators
+
+    bool operator<(const MarsRequest& other) const;
 
     // eckit::Value&        operator[](const std::string&);
     // const eckit::Value&  operator[](const std::string&) const;
