@@ -213,21 +213,6 @@
                 ]
             }]
         },
-        // "ensemble": {
-        //     "type": "to-by-list",
-        //     "by": 1,
-        //     "xxxaliases": [
-        //         "ensemble"
-        //     ],
-        //     "only": [{
-        //         "type": [
-        //             "pf",
-        //             "fcmean",
-        //             "cm",
-        //             "cr"
-        //         ]
-        //     }]
-        // },
         "quantile": {
             "type": "enum",
             "only": [{
