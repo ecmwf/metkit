@@ -205,7 +205,19 @@
             "type": "to-by-list",
             "by": 1,
             "aliases": [
-                "ensemble"
+                "xxxxensemble"
+            ],
+            "only": [{
+                "type": [
+                    "pf"
+                ]
+            }]
+        },
+          "ensemble": {
+            "type": "to-by-list",
+            "by": 1,
+            "aliases": [
+                "xxxxxensemble"
             ],
             "only": [{
                 "type": [
