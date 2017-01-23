@@ -28,11 +28,18 @@ using namespace eckit;
 
 namespace metkit {
 
+//----------------------------------------------------------------------------------------------------------------------
+
+FlattenCallback::~FlattenCallback() {}
+
+ExpandCallback::~ExpandCallback() {}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 MarsExpension::MarsExpension(bool inherit):
     inherit_(inherit) {
 
 }
-
 
 MarsExpension::~MarsExpension() {
     for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {

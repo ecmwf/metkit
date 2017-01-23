@@ -25,13 +25,17 @@ namespace metkit {
 
 class MarsLanguage;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class FlattenCallback {
 public:
+    virtual ~FlattenCallback();
     virtual void operator()(const MarsRequest&) = 0;
 };
 
 class ExpandCallback {
 public:
+    virtual ~ExpandCallback();
     virtual void operator()(const MarsRequest&) = 0;
 };
 
