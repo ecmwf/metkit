@@ -54,7 +54,7 @@ BOOST_FIXTURE_TEST_CASE( fopen, F ) {
     mh += new FileHandle("latlon.grib");
     mh += new FileHandle("latlon.grib");
 
-    FILE* f = mh.fopen("r");
+    FILE* f = mh.openf("r");
 
     grib_handle* h;
 
