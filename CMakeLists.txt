@@ -40,8 +40,6 @@ endif()
 
 # eckit
 
-set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" )
-
 ecbuild_use_package( PROJECT eckit  VERSION  0.13 REQUIRED )
 
 ### start project
@@ -60,6 +58,7 @@ get_directory_property( METKIT_DEFINITIONS COMPILE_DEFINITIONS )
 include_directories( ${METKIT_INCLUDE_DIRS} )
 
 add_subdirectory( src )
+add_subdirectory( etc )
 
 ### finalize project
 

@@ -1,0 +1,12 @@
+#include "metkit/metkit_version.h"
+
+const char * metkit_version()     { return METKIT_VERSION; }
+const char * metkit_version_str() { return METKIT_VERSION_STR; }
+
+unsigned int metkit_version_int()
+{
+  return 10000*METKIT_MAJOR_VERSION + 100*METKIT_MINOR_VERSION + 1*METKIT_PATCH_VERSION;
+}
+
+const char * metkit_git_sha1() { return "@METKIT_GIT_SHA1@"; }
+

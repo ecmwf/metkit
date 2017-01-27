@@ -1,0 +1,19 @@
+#ifndef metkit_version_h
+#define metkit_version_h
+
+#define METKIT_VERSION_STR "@METKIT_VERSION_STR@"
+#define METKIT_VERSION     "@METKIT_VERSION@"
+
+#define METKIT_MAJOR_VERSION @METKIT_MAJOR_VERSION@
+#define METKIT_MINOR_VERSION @METKIT_MINOR_VERSION@
+#define METKIT_PATCH_VERSION @METKIT_PATCH_VERSION@
+
+const char * metkit_version();
+
+unsigned int metkit_version_int();
+
+const char * metkit_version_str();
+
+const char * metkit_git_sha1();
+
+#endif // metkit_version_h
