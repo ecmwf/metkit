@@ -67,7 +67,7 @@ BOOST_FIXTURE_TEST_CASE( fopen, F ) {
 
     fclose(f);
     BOOST_CHECK_EQUAL(count, 2);
-    BOOST_CHECK_EQUAL(err, -1);
+    BOOST_CHECK_EQUAL(err, GRIB_SUCCESS);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
