@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996-2013 ECMWF.
+ * (C) Copyright 1996-2017 ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -29,6 +29,8 @@ class FlattenCallback;
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsLanguage : private eckit::NonCopyable {
+    typedef std::map<std::string, std::string> StringMap;
+
 public:
 
     MarsLanguage(const std::string& verb);
@@ -50,7 +52,7 @@ public:
     static std::string bestMatch(const std::string& what,
                                  const std::vector<std::string>& values,
                                  bool fail,
-                                 const std::map<std::string, std::string>& aliases = std::map<std::string, std::string>());
+                                 const StringMap& aliases = StringMap());
 
     static eckit::Value jsonFile(const std::string& name);
 
@@ -61,9 +63,9 @@ private:
     std::string verb_;
     std::map<std::string, Type* > types_;
     std::vector<std::string> keywords_;
-    std::map<std::string, std::string> aliases_;
+    StringMap aliases_;
 
-    mutable std::map<std::string, std::string> cache_;
+    mutable StringMap cache_;
 
 private: // Methods
 
