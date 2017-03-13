@@ -53,9 +53,7 @@
               "only": [{
                 "stream": [
                     "enfh",
-                    "enwh",
-                    "enfo",
-                    "waef"
+                    "enwh"
                 ]
             }]
         },
