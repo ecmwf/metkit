@@ -48,8 +48,14 @@
             "type": "integer",
             "flatten": false
         },
-         "hdate": {
-            "type": "integer"
+        "hdate": {
+            "type": "integer",
+              "only": [{
+                "stream": [
+                    "enfh",
+                    "enwh",
+                ]
+            }]
         },
         "format": {
             "type": "enum",
