@@ -12,9 +12,6 @@
             "more": [{
                 "type": "float"
             }],
-            // "never": [{
-            //     "repres": "sh"
-            // }],
             "only": [{}]
         },
         "class": {
