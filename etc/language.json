@@ -500,7 +500,7 @@
             }]
         },
         "frame": {
-            "type": "integer
+            "type": "integer"
         },
         "packing": {
             "type": "enum",
