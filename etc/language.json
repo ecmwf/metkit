@@ -12,9 +12,9 @@
             "more": [{
                 "type": "float"
             }],
-            "never": [{
-                "repres": "sh"
-            }],
+            // "never": [{
+            //     "repres": "sh"
+            // }],
             "only": [{}]
         },
         "class": {
@@ -503,7 +503,7 @@
             }]
         },
         "frame": {
-            "type": "integer"
+            "type": "integer
         },
         "packing": {
             "type": "enum",
