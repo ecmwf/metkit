@@ -6,16 +6,37 @@
             "follow_symlinks": true
         }
     ],
-    "build_systems": [
+   "build_systems":
+    [
         {
-            "working_dir": "${project_path}/../../build/metkit",
-            "cmd": [
-                "make"
-            ],
             "file_regex": "([/\\w\\-\\.]+):(\\d+):(\\d+:)?",
-            "name": "ecbuild"
-        }
+            "name": "metkit",
+            "shell_cmd": "make",
+            "syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+            "working_dir": "${project_path}/../../build/metkit",
+            "variants" : [
+                {
+                    "name":"clean",
+                    "shell_cmd": "make clean",
+                }
+            ]
+        },
+        {
+            "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+            "name": "Anaconda Python Builder",
+            "selector": "source.python",
+            "shell_cmd": "\"python\" -u \"$file\""
+        },
+
     ],
+    "cmake":
+    {
+        "build_folder": "${project_path}/../../build/metkit",
+        "command_line_overrides":
+        {
+            "DEVELOPER_MODE": 1
+        }
+    },
     "SublimeLinter":
     {
         "linters":
