@@ -448,8 +448,14 @@
             ]
         },
         "accuracy": {
-            "type": "any",
-            "flatten": false
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                "normal"
+            ],
+            "more": [{
+                "type": "integer"
+            }]
         },
         "interpolation": {
             "type": "enum",
