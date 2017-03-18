@@ -451,7 +451,9 @@
             "type": "enum-or-more",
             "flatten": false,
             "values": [
-                "normal"
+                "off",
+                ["normal", "auto"],
+                "av"
             ],
             "more": [{
                 "type": "integer"
