@@ -47,7 +47,7 @@
         },
         "hdate": {
             "type": "integer",
-              "only": [{
+            "only": [{
                 "stream": [
                     "enfh",
                     "enwh"
@@ -219,7 +219,7 @@
                 ]
             }]
         },
-          "ensemble": {
+        "ensemble": {
             "type": "to-by-list",
             "by": 1,
             "aliases": [
@@ -451,9 +451,8 @@
             "type": "enum-or-more",
             "flatten": false,
             "values": [
-                "off",
-                ["normal", "auto"],
-                "av"
+                ["off", "av"],
+                ["normal", "auto"]
             ],
             "more": [{
                 "type": "integer"
