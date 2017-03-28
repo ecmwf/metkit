@@ -541,7 +541,7 @@
             "type": "enum-or-more",
             "flatten": false,
             "values": [
-                ["av", "off"]
+                ["av", "off", "reduced gaussian 160"]
             ],
             "more": [{
                 "type": "integer"
