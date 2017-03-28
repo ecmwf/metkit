@@ -538,7 +538,14 @@
             "multiple": true
         },
         "resol": {
-            "type": "any"
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                ["av", "off"],
+            ],
+            "more": [{
+                "type": "integer"
+            }]
         },
         "gaussian": {
             "type": "enum",
