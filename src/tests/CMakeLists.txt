@@ -20,6 +20,10 @@ ecbuild_add_test( TARGET        metkit_test_emosfile
                   TEST_DEPENDS  grib_get_data
 )
 
+if( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/${grib_handling_pkg}/definitions" )
+  set( eccodes_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/${grib_handling_pkg}/definitions" )
+endif()
+
 ecbuild_add_test( TARGET        metkit_test_multihandle
                   BOOST
                   CONDITION     HAVE_GRIB
@@ -27,4 +31,5 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   SOURCES       test_multihandle.cc
                   LIBS          metkit
                   TEST_DEPENDS  grib_get_data
+                  ENVIRONMENT   "${eccodes_env}"
 )
