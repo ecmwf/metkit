@@ -303,8 +303,8 @@
         "origin": {
             "type": "enum",
             "values": [
-                "ecmf",
-                "ecmwf"
+                ["ecmf",
+                "ecmwf"]
             ]
         },
         "system": {
