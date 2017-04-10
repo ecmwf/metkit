@@ -215,7 +215,8 @@
                     "pf",
                     "cr",
                     "cm",
-                    "fcmean"
+                    "fcmean",
+                    "fc"
                 ]
             }]
         },
