@@ -15,6 +15,7 @@
 #include "eckit/parser/JSONParser.h"
 #include "eckit/types/Types.h"
 #include "eckit/parser/StringTools.h"
+#include "metkit/MarsLanguage.h"
 
 #include "eckit/thread/AutoLock.h"
 
@@ -55,7 +56,7 @@ bool Matcher::match(const metkit::MarsRequest& request) const {
         return false;
     }
 
-                // std::cout << vals << std::endl;
+    // std::cout << vals << std::endl;
 
 
     for (size_t i = 0; i < values_.size(); i++) {
@@ -74,12 +75,14 @@ bool Matcher::match(const metkit::MarsRequest& request) const {
 class Rule {
 
     std::vector<Matcher> matchers_;
+    std::vector<std::string> values_;
+
     mutable std::map<std::string, std::string> mapping_;
 
 public:
 
     bool match(const metkit::MarsRequest& request) const;
-    const std::string& lookup(const std::string & s, bool fail) const;
+    std::string lookup(const std::string & s, bool fail) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters);
 };
@@ -111,6 +114,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
             }
 
             mapping_[v] = first;
+            values_.push_back(v);
         }
     }
 
@@ -128,28 +132,14 @@ bool Rule::match(const metkit::MarsRequest& request) const {
 }
 
 
-const std::string& Rule::lookup(const std::string & s, bool fail) const {
-
-
-
-    std::map<std::string, std::string>::const_iterator j = mapping_.find(s);
-    if (j != mapping_.end()) {
-        return (*j).second;
-    }
-
-    std::string low = eckit::StringTools::lower(s);
-    j = mapping_.find(low);
-    if (j != mapping_.end()) {
-        mapping_[low] = (*j).second;
-        return (*j).second;
-    }
+std::string Rule::lookup(const std::string & s, bool fail) const {
 
     size_t table = 0;
     size_t param = 0;
     size_t *n = &param;
     bool ok = true;
 
-    for (std::string::const_iterator k = low.begin(); k != low.end(); ++k) {
+    for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
         case '0':
         case '1':
@@ -183,17 +173,10 @@ const std::string& Rule::lookup(const std::string & s, bool fail) const {
     if (ok && param > 0) {
         std::ostringstream oss;
         oss <<  table * 1000 + param;
-        mapping_[s] = oss.str();
-        return mapping_[s];
-
+        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, mapping_);
     }
 
-    if (fail) {
-        throw eckit::UserError("Invalid parameter '" + s + "'");
-    }
-
-    static std::string empty;
-    return empty;
+    return metkit::MarsLanguage::bestMatch(s, values_, fail, mapping_);
 }
 
 static std::vector<Rule>* rules = 0;
@@ -272,6 +255,7 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
 
 
 void TypeParam::finalise(MarsRequest& request) {
+    std::cout << request << std::endl;
     std::vector<std::string> values = request.values(name_, true);
     expand(request, values, true);
     request.setValuesTyped(this, values);
