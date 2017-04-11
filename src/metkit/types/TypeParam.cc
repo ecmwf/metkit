@@ -54,14 +54,16 @@ bool Matcher::match(const metkit::MarsRequest& request) const {
         std::string v = values_[i];
         std::vector<std::string> vals = request.values(name_, true);
 
+        std::cout << name_ << " " << vals << " " << v << std::endl;
+
         if (vals.size() == 0) {
             return false;
         }
-        if (v != vals[0]) {
-            return false;
-        }
+
+        return (v == vals[0]);
 
     }
+
     return true;
 }
 
