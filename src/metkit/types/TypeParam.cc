@@ -50,15 +50,17 @@ Matcher::Matcher(const std::string& name,
 
 bool Matcher::match(const metkit::MarsRequest& request) const {
 
-
     for (size_t i = 0; i < values_.size(); i++) {
         std::string v = values_[i];
-        std::vector<std::string> vals = request.values(name_);
-        if (vals.size() > 0) {
-            if (v != vals[0]) {
-                return false;
-            }
+        std::vector<std::string> vals = request.values(name_, true);
+
+        if (vals.size() == 0) {
+            return false;
         }
+        if (v != vals[0]) {
+            return false;
+        }
+
     }
     return true;
 }
