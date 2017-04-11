@@ -50,21 +50,23 @@ Matcher::Matcher(const std::string& name,
 
 bool Matcher::match(const metkit::MarsRequest& request) const {
 
-    for (size_t i = 0; i < values_.size(); i++) {
-        std::string v = values_[i];
-        std::vector<std::string> vals = request.values(name_, true);
-
-        std::cout << name_ << " " << vals << " " << v << std::endl;
-
-        if (vals.size() == 0) {
-            return false;
-        }
-
-        return (v == vals[0]);
-
+    std::vector<std::string> vals = request.values(name_, true);
+    if (vals.size() == 0) {
+        return false;
     }
 
-    return true;
+                // std::cout << vals << std::endl;
+
+
+    for (size_t i = 0; i < values_.size(); i++) {
+        std::string v = values_[i];
+
+        if (v == vals[0]) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -269,8 +271,16 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
 }
 
 
-void TypeParam::expand(const MarsRequest& request, std::vector<std::string>& values) const {
+void TypeParam::finalise(MarsRequest& request) {
+    std::vector<std::string> values = request.values(name_, true);
     expand(request, values, true);
+    request.setValuesTyped(this, values);
+    Type::finalise(request);
+}
+
+
+void TypeParam::expand(const MarsRequest& request, std::vector<std::string>& values) const {
+
 }
 
 void TypeParam::reset() {

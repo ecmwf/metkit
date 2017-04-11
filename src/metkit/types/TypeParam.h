@@ -39,6 +39,8 @@ private: // methods
 
     virtual void print( std::ostream &out ) const;
     virtual void reset();
+    virtual void finalise(MarsRequest& request);
+
 
 };
 

@@ -1,9 +1,97 @@
 [
     [
         {
+            "stream": "waef",
+            "type": [
+                "efi",
+                "sot"
+            ]
+        },
+        [
+            [
+                "132216",
+                "216",
+                "maxswhi",
+                "maximum of significant wave height index",
+                "216.132"
+            ]
+        ]
+    ],
+    [
+        {
+            "stream": "waef",
+            "type": "fp"
+        },
+        [
+            [
+                "131229",
+                "229",
+                "swhp",
+                "significant wave height probability"
+            ],
+            [
+                "131232",
+                "232",
+                "mwpp",
+                "mean wave period probability"
+            ]
+        ]
+    ],
+    [
+        {
+            "stream": "waef",
+            "type": "ep"
+        },
+        [
+            [
+                "131074",
+                "swhg2",
+                "significant wave height of at least 2 m"
+            ],
+            [
+                "131075",
+                "swhg4",
+                "significant wave height of at least 4 m"
+            ],
+            [
+                "131076",
+                "swhg6",
+                "significant wave height of at least 6 m"
+            ],
+            [
+                "131077",
+                "swhg8",
+                "significant wave height of at least 8 m"
+            ],
+            [
+                "131078",
+                "mwpg8",
+                "mean wave period of at least 8 s"
+            ],
+            [
+                "131079",
+                "mwpg10",
+                "mean wave period of at least 10 s"
+            ],
+            [
+                "131080",
+                "mwpg12",
+                "mean wave period of at least 12 s"
+            ],
+            [
+                "131081",
+                "mwpg15",
+                "mean wave period of at least 15 s"
+            ]
+        ]
+    ],
+    [
+        {
             "stream": [
                 "wave",
-                "waef"
+                "waef",
+                "scwv",
+                "enwh"
             ]
         },
         [
@@ -240,6 +328,174 @@
                 "254",
                 "wsp",
                 "wave spectral peakedness"
+            ],
+            [
+                "140121",
+                "121",
+                "swh1",
+                "significant wave height of first swell partition"
+            ],
+            [
+                "140122",
+                "122",
+                "mwd1",
+                "mean wave direction of first swell partition"
+            ],
+            [
+                "140123",
+                "123",
+                "mwp1",
+                "mean wave period of first swell partition"
+            ],
+            [
+                "140124",
+                "124",
+                "swh2",
+                "significant wave height of second swell partition"
+            ],
+            [
+                "140211",
+                "211",
+                "phiaw",
+                "normalized energy flux into waves"
+            ],
+            [
+                "140212",
+                "212",
+                "phioc",
+                "normalized energy flux into ocean"
+            ],
+            [
+                "140213",
+                "213",
+                "tla",
+                "turbulent langmuir number"
+            ],
+            [
+                "140214",
+                "214",
+                "tauoc",
+                "normalized stress into ocean"
+            ],
+            [
+                "140125",
+                "125",
+                "mwd2",
+                "mean wave direction of second swell partition"
+            ],
+            [
+                "140126",
+                "126",
+                "mwp2",
+                "mean wave period of second swell partition"
+            ],
+            [
+                "140127",
+                "127",
+                "swh3",
+                "significant wave height of third swell partition"
+            ],
+            [
+                "140128",
+                "128",
+                "mwd3",
+                "mean wave direction of third swell partition"
+            ],
+            [
+                "140129",
+                "129",
+                "mwp3",
+                "mean wave period of third swell partition"
+            ],
+            [
+                "140208",
+                "208",
+                "wstar",
+                "free convective velocity over the oceans"
+            ],
+            [
+                "140209",
+                "209",
+                "rhoao",
+                "air density over the oceans"
+            ],
+            [
+                "140210",
+                "210",
+                "mswsi",
+                "mean square wave strain in sea ice"
+            ],
+            [
+                "140207",
+                "207",
+                "wss",
+                "wave spectral skewness"
+            ],
+            [
+                "140120",
+                "120",
+                "sh10",
+                "significant wave height of all waves with period larger than 10s"
+            ],
+            [
+                "140215",
+                "215",
+                "ust",
+                "u-component stokes drift"
+            ],
+            [
+                "140216",
+                "216",
+                "vst",
+                "v-component stokes drift"
+            ],
+            [
+                "140114",
+                "114",
+                "h1012",
+                "significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds"
+            ],
+            [
+                "140115",
+                "115",
+                "h1214",
+                "significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds"
+            ],
+            [
+                "140116",
+                "116",
+                "h1417",
+                "significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds"
+            ],
+            [
+                "140117",
+                "117",
+                "h1721",
+                "significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds"
+            ],
+            [
+                "140118",
+                "118",
+                "h2125",
+                "significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds"
+            ],
+            [
+                "140119",
+                "119",
+                "h2530",
+                "significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds"
+            ],
+            [
+                "140113",
+                "113",
+                "wefxd",
+                "wave energy flux mean direction"
+            ],
+            [
+                "140112",
+                "112",
+                "wefxm",
+                "wave energy flux magnitude"
             ]
         ]
     ],
@@ -2557,46 +2813,6 @@
                 "2 metre temperature less than 273.15 k"
             ],
             [
-                "131074",
-                "swhg2",
-                "significant wave height of at least 2 m"
-            ],
-            [
-                "131075",
-                "swhg4",
-                "significant wave height of at least 4 m"
-            ],
-            [
-                "131076",
-                "swhg6",
-                "significant wave height of at least 6 m"
-            ],
-            [
-                "131077",
-                "swhg8",
-                "significant wave height of at least 8 m"
-            ],
-            [
-                "131078",
-                "mwpg8",
-                "mean wave period of at least 8 s"
-            ],
-            [
-                "131079",
-                "mwpg10",
-                "mean wave period of at least 10 s"
-            ],
-            [
-                "131080",
-                "mwpg12",
-                "mean wave period of at least 12 s"
-            ],
-            [
-                "131081",
-                "mwpg15",
-                "mean wave period of at least 15 s"
-            ],
-            [
                 "131082",
                 "tpg40",
                 "total precipitation of at least 40 mm"
@@ -2685,16 +2901,6 @@
                 "131228",
                 "tpp",
                 "total precipitation probability"
-            ],
-            [
-                "131229",
-                "swhp",
-                "significant wave height probability"
-            ],
-            [
-                "131232",
-                "mwpp",
-                "mean wave period probability"
             ],
             [
                 "132049",
@@ -10873,20 +11079,9 @@
                 "albedo"
             ],
             [
-                "132216",
-                "maxswhi",
-                "maximum of significant wave height index",
-                "216.132"
-            ],
-            [
                 "500008",
                 "hhl",
                 "geometric height of the layer limits above sea level(nn)"
-            ],
-            [
-                "140216",
-                "vst",
-                "v-component stokes drift"
             ],
             [
                 "210101",
@@ -10927,11 +11122,6 @@
                 "228254",
                 "ascat_sm_cdfb",
                 "ascat second soil moisture cdf matching parameter"
-            ],
-            [
-                "140215",
-                "ust",
-                "u-component stokes drift"
             ],
             [
                 "500050",
@@ -16596,26 +16786,6 @@
                 "convective available potential energy instantaneous"
             ],
             [
-                "140211",
-                "phiaw",
-                "normalized energy flux into waves"
-            ],
-            [
-                "140212",
-                "phioc",
-                "normalized energy flux into ocean"
-            ],
-            [
-                "140213",
-                "tla",
-                "turbulent langmuir number"
-            ],
-            [
-                "140214",
-                "tauoc",
-                "normalized stress into ocean"
-            ],
-            [
                 "228081",
                 "aco2gpp",
                 "accumulated carbon dioxide gross primary production"
@@ -17056,74 +17226,14 @@
                 "wave experimental parameter 5"
             ],
             [
-                "140121",
-                "swh1",
-                "significant wave height of first swell partition"
-            ],
-            [
-                "140122",
-                "mwd1",
-                "mean wave direction of first swell partition"
-            ],
-            [
-                "140123",
-                "mwp1",
-                "mean wave period of first swell partition"
-            ],
-            [
-                "140124",
-                "swh2",
-                "significant wave height of second swell partition"
-            ],
-            [
                 "260256",
                 "hindex",
                 "haines index"
             ],
             [
-                "140125",
-                "mwd2",
-                "mean wave direction of second swell partition"
-            ],
-            [
-                "140126",
-                "mwp2",
-                "mean wave period of second swell partition"
-            ],
-            [
-                "140127",
-                "swh3",
-                "significant wave height of third swell partition"
-            ],
-            [
                 "260255",
                 "aptmp",
                 "apparent temperature"
-            ],
-            [
-                "140128",
-                "mwd3",
-                "mean wave direction of third swell partition"
-            ],
-            [
-                "140129",
-                "mwp3",
-                "mean wave period of third swell partition"
-            ],
-            [
-                "140208",
-                "wstar",
-                "free convective velocity over the oceans"
-            ],
-            [
-                "140209",
-                "rhoao",
-                "air density over the oceans"
-            ],
-            [
-                "140210",
-                "mswsi",
-                "mean square wave strain in sea ice"
             ],
             [
                 "260530",
@@ -18634,11 +18744,6 @@
                 "total column supercooled liquid water"
             ],
             [
-                "140207",
-                "wss",
-                "wave spectral skewness"
-            ],
-            [
                 "228030",
                 "rhw",
                 "relative humidity with respect to water"
@@ -19114,11 +19219,6 @@
                 "convective available potential energy shear index"
             ],
             [
-                "140120",
-                "sh10",
-                "significant wave height of all waves with period larger than 10s"
-            ],
-            [
                 "228046",
                 "hcct",
                 "height of convective cloud top"
@@ -19229,16 +19329,6 @@
                 "icing severity"
             ],
             [
-                "140113",
-                "wefxd",
-                "wave energy flux mean direction"
-            ],
-            [
-                "140112",
-                "wefxm",
-                "wave energy flux magnitude"
-            ],
-            [
                 "260262",
                 "dirswrf",
                 "direct short wave radiation flux"
@@ -19306,36 +19396,6 @@
             [
                 "174096",
                 "2m specific humidity"
-            ],
-            [
-                "140114",
-                "h1012",
-                "significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds"
-            ],
-            [
-                "140115",
-                "h1214",
-                "significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds"
-            ],
-            [
-                "140116",
-                "h1417",
-                "significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds"
-            ],
-            [
-                "140117",
-                "h1721",
-                "significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds"
-            ],
-            [
-                "140118",
-                "h2125",
-                "significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds"
-            ],
-            [
-                "140119",
-                "h2530",
-                "significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds"
             ],
             [
                 "213101",
