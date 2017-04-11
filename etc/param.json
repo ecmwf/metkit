@@ -369,13 +369,15 @@
             [
                 "171138",
                 "voa",
-                "relative vorticity anomaly"
+                "relative vorticity anomaly",
+                "vo"
             ],
             [
                 "171139",
                 "stal1",
                 "soil temperature anomaly level 1",
-                "stl1"
+                "stl1",
+                "st"
             ],
             [
                 "171140",
@@ -391,17 +393,20 @@
             [
                 "171142",
                 "lspa",
-                "stratiform precipitation (large-scale precipitation) anomaly"
+                "stratiform precipitation (large-scale precipitation) anomaly",
+                "lsp"
             ],
             [
                 "171143",
                 "cpa",
-                "convective precipitation anomaly"
+                "convective precipitation anomaly",
+                "cp"
             ],
             [
                 "171144",
                 "sfa",
-                "snowfall (convective + stratiform) anomaly"
+                "snowfall (convective + stratiform) anomaly",
+                "sf"
             ],
             [
                 "171145",
@@ -437,7 +442,7 @@
                 "171151",
                 "msla",
                 "mean sea level pressure anomaly",
-                "151.171"
+                "msl"
             ],
             [
                 "171152",
@@ -457,7 +462,8 @@
             [
                 "171155",
                 "da",
-                "relative divergence anomaly"
+                "relative divergence anomaly",
+                "d"
             ],
             [
                 "171156",
@@ -557,27 +563,32 @@
             [
                 "171176",
                 "ssra",
-                "surface net solar radiation anomaly"
+                "surface net solar radiation anomaly",
+                "ssr"
             ],
             [
                 "171177",
                 "stra",
-                "surface net thermal radiation anomaly"
+                "surface net thermal radiation anomaly",
+                "str"
             ],
             [
                 "171178",
                 "tsra",
-                "top net solar radiation anomaly"
+                "top net solar radiation anomaly",
+                "tsr"
             ],
             [
                 "171179",
                 "ttra",
-                "top net thermal radiation anomaly"
+                "top net thermal radiation anomaly",
+                "ttr"
             ],
             [
                 "171180",
                 "eqssa",
-                "east-west surface stress anomaly"
+                "east-west surface stress anomaly",
+                "ewss"
             ],
             [
                 "171181",
@@ -587,7 +598,8 @@
             [
                 "171182",
                 "ea",
-                "evaporation anomaly"
+                "evaporation anomaly",
+                "e"
             ],
             [
                 "171183",
@@ -712,7 +724,8 @@
             [
                 "171207",
                 "10ua",
-                "10 metre wind speed anomaly"
+                "10 metre wind speed anomaly",
+                "10si"
             ],
             [
                 "171208",

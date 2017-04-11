@@ -255,7 +255,7 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
 
 
 void TypeParam::finalise(MarsRequest& request) {
-    std::cout << request << std::endl;
+    // std::cout << request << std::endl;
     std::vector<std::string> values = request.values(name_, true);
     expand(request, values, true);
     request.setValuesTyped(this, values);
