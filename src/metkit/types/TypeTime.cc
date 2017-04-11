@@ -74,7 +74,7 @@ std::string TypeTime::tidy(const std::string &value) const {
 }
 
 
-void TypeTime::expand(std::vector<std::string>& values) const {
+void TypeTime::expand(const MarsRequest& request, std::vector<std::string>& values) const {
 
      static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
@@ -108,7 +108,7 @@ void TypeTime::expand(std::vector<std::string>& values) const {
         }
     }
 
-    Type::expand(values);
+    Type::expand(request, values);
 }
 
 void TypeTime::print(std::ostream &out) const {

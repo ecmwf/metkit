@@ -484,7 +484,7 @@
             ]
         },
         "bitmap": {
-            "type": "any",
+        "type": "any",
             "flatten": false
         },
         "direction": {

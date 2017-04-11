@@ -265,7 +265,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
             }
         }
 
-        type(p)->expand(values);
+        type(p)->expand(result, values);
         result.setValuesTyped(type(p), values);
 
         // result.setValues(p, values);

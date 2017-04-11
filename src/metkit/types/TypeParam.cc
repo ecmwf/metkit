@@ -18,32 +18,80 @@
 
 #include "eckit/thread/AutoLock.h"
 
+namespace {
+
 static eckit::Mutex *local_mutex = 0;
 static pthread_once_t once = PTHREAD_ONCE_INIT;
-static std::map<std::string, std::string> *m = 0;
 
-static void init() {
 
-    local_mutex = new eckit::Mutex();
-    m = new std::map<std::string, std::string>();
 
-    eckit::PathName language("~metkit/etc/param.json");
+class Matcher {
 
-    std::ifstream in(language.asString().c_str());
-    if (!in) {
-        throw eckit::CantOpenFile(language);
+    std::string name_;
+    eckit::Value values_;
+public:
+
+    Matcher(const std::string& name,
+            const eckit::Value values);
+
+    bool match(const metkit::MarsRequest& request) const ;
+};
+
+Matcher::Matcher(const std::string& name,
+                 const eckit::Value values):
+    name_(name),
+    values_(values) {
+
+    if (!values_.isList()) {
+        values_ = eckit::Value::makeList(values_);
     }
 
-    eckit::JSONParser parser(in);
+}
 
-    const eckit::Value values = parser.parse();
-    std::map<std::string, std::string>& mapping = *m;
+bool Matcher::match(const metkit::MarsRequest& request) const {
+
+
+    for (size_t i = 0; i < values_.size(); i++) {
+        std::string v = values_[i];
+        std::vector<std::string> vals = request.values(name_);
+        if (vals.size() > 0) {
+            if (v != vals[0]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class Rule {
+
+    std::vector<Matcher> matchers_;
+    mutable std::map<std::string, std::string> mapping_;
+
+public:
+
+    bool match(const metkit::MarsRequest& request) const;
+    const std::string& lookup(const std::string & s, bool fail) const;
+
+    Rule(const eckit::Value& matchers, const eckit::Value& setters);
+};
+
+
+Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
+
+    const eckit::Value& keys = matchers.keys();
+    for (size_t i = 0; i < keys.size(); ++i) {
+        std::string name = keys[i];
+        matchers_.push_back(Matcher(name, matchers[name]));
+    }
 
     for (size_t i = 0; i < values.size(); ++i) {
 
         const eckit::Value& val = values[i];
 
-        ASSERT (val.isList()) ;
+        ASSERT(val.isList()) ;
         ASSERT(val.size() > 0);
 
         std::string first = val[0];
@@ -51,31 +99,42 @@ static void init() {
         for (size_t j = 0; j < val.size(); ++j) {
             std::string v = val[j];
 
-            if (mapping.find(v) != mapping.end()) {
-                std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping[v] << "'" << std::endl;
+            if (mapping_.find(v) != mapping_.end()) {
+                std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
                 continue;
             }
 
-            mapping[v] = first;
+            mapping_[v] = first;
         }
     }
+
 }
 
-static const std::string& lookup(const std::string & s, bool fail) {
-    pthread_once(&once, init);
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
 
-    std::map<std::string, std::string>& mapping = *m;
 
-    std::map<std::string, std::string>::const_iterator j = mapping.find(s);
-    if (j != mapping.end()) {
+bool Rule::match(const metkit::MarsRequest& request) const {
+    for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
+        if (!(*j).match(request)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+const std::string& Rule::lookup(const std::string & s, bool fail) const {
+
+
+
+    std::map<std::string, std::string>::const_iterator j = mapping_.find(s);
+    if (j != mapping_.end()) {
         return (*j).second;
     }
 
     std::string low = eckit::StringTools::lower(s);
-    j = mapping.find(low);
-    if (j != mapping.end()) {
-        mapping[low] = (*j).second;
+    j = mapping_.find(low);
+    if (j != mapping_.end()) {
+        mapping_[low] = (*j).second;
         return (*j).second;
     }
 
@@ -98,10 +157,10 @@ static const std::string& lookup(const std::string & s, bool fail) {
         case '9':
             (*n) *= 10;
             (*n) += (*k) - '0';
-             break;
+            break;
 
         case '.':
-            if(n == &param) {
+            if (n == &param) {
                 n = &table;
             }
             else {
@@ -115,21 +174,52 @@ static const std::string& lookup(const std::string & s, bool fail) {
         }
     }
 
-    if(ok && param > 0) {
+    if (ok && param > 0) {
         std::ostringstream oss;
         oss <<  table * 1000 + param;
-        mapping[s] = oss.str();
-        return mapping[s];
+        mapping_[s] = oss.str();
+        return mapping_[s];
 
     }
 
-    if(fail) {
+    if (fail) {
         throw eckit::UserError("Invalid parameter '" + s + "'");
     }
 
     static std::string empty;
     return empty;
 }
+
+static std::vector<Rule>* rules = 0;
+
+}
+
+static void init() {
+
+    local_mutex = new eckit::Mutex();
+    rules = new std::vector<Rule>();
+
+    eckit::PathName language("~metkit/etc/param.json");
+
+    std::ifstream in(language.asString().c_str());
+    if (!in) {
+        throw eckit::CantOpenFile(language);
+    }
+
+    eckit::JSONParser parser(in);
+
+    const eckit::Value r = parser.parse();
+    ASSERT(r.isList());
+
+    for (size_t i = 0; i < r.size(); ++i) {
+        const eckit::Value& rule = r[i];
+        ASSERT(rule.isList());
+        ASSERT(rule.size() == 2);
+        (*rules).push_back(Rule(rule[0], rule[1]));
+    }
+
+}
+
 
 
 namespace metkit {
@@ -150,20 +240,33 @@ void TypeParam::print(std::ostream &out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-bool TypeParam::expand(std::vector<std::string>& values, bool fail) const {
+bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const {
 
+    pthread_once(&once, init);
+    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
+
+    const Rule* rule = 0;
+
+    for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
+        if ((*j).match(request)) {
+            rule = &(*j);
+            break;
+        }
+    }
+
+    ASSERT(rule);
 
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
-        s = ::lookup(s, fail);
+        s = rule->lookup(s, fail);
     }
 
     return true;
 }
 
 
-void TypeParam::expand(std::vector<std::string>& values) const {
-    expand(values, true);
+void TypeParam::expand(const MarsRequest& request, std::vector<std::string>& values) const {
+    expand(request, values, true);
 }
 
 void TypeParam::reset() {
