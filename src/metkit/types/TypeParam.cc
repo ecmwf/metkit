@@ -254,17 +254,16 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
 }
 
 
-void TypeParam::finalise(MarsRequest& request) {
+void TypeParam::pass2(MarsRequest& request) {
     // std::cout << request << std::endl;
     std::vector<std::string> values = request.values(name_, true);
     expand(request, values, true);
     request.setValuesTyped(this, values);
-    Type::finalise(request);
 }
 
 
-void TypeParam::expand(const MarsRequest& request, std::vector<std::string>& values) const {
-
+void TypeParam::expand(std::vector<std::string>& values) const {
+// Work done on pass2()
 }
 
 void TypeParam::reset() {

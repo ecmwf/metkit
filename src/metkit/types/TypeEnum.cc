@@ -110,7 +110,7 @@ bool TypeEnum::expand(std::vector<std::string>& values, bool fail) const {
 }
 
 
-void TypeEnum::expand(const MarsRequest& request, std::vector<std::string>& values) const {
+void TypeEnum::expand(std::vector<std::string>& values) const {
     expand(values, true);
 }
 

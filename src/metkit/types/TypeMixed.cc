@@ -41,10 +41,10 @@ std::string TypeMixed::tidy(const std::string &value) const {
     NOTIMP;
 }
 
-void TypeMixed::expand(const MarsRequest& request, std::vector<std::string>& values) const {
+void TypeMixed::expand(std::vector<std::string>& values) const {
     if (!TypeEnum::expand(values, false)) {
         for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
-            (*j)->expand(request, values);
+            (*j)->expand(values);
         }
     }
 }

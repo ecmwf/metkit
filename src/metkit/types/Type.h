@@ -38,12 +38,13 @@ public: // methods
 
     virtual std::string tidy(const std::string &value) const ;
 
-    virtual void expand(const MarsRequest& request, std::vector<std::string>& values) const;
+    virtual void expand(std::vector<std::string>& values) const;
     virtual void setDefaults(MarsRequest& request);
     virtual void setDefaults(const std::vector<std::string>& defaults);
     virtual void clearDefaults();
     virtual void reset();
 
+    virtual void pass2(MarsRequest& request);
     virtual void finalise(MarsRequest& request);
 
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);

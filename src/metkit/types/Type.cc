@@ -155,7 +155,7 @@ std::ostream &operator<<(std::ostream &s, const Type &x) {
     return s;
 }
 
-void Type::expand(const MarsRequest& request, std::vector<std::string>& values) const {
+void Type::expand(std::vector<std::string>& values) const {
     std::vector<std::string> newvals;
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
@@ -193,6 +193,9 @@ void Type::reset() {
 
 const std::string& Type::name() const {
     return name_;
+}
+
+void Type::pass2(MarsRequest& request) {
 }
 
 void Type::finalise(MarsRequest& request) {

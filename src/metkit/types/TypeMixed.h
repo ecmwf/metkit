@@ -34,7 +34,7 @@ private: // methods
 
     virtual void print( std::ostream &out ) const;
     virtual std::string tidy(const std::string &value) const ;
-    virtual void expand(const MarsRequest& request, std::vector<std::string>& values) const;
+    virtual void expand(std::vector<std::string>& values) const;
 
     std::vector<Type*> types_;
 

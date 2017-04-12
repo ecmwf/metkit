@@ -30,7 +30,7 @@ public: // methods
 
     virtual ~TypeParam();
 
-    virtual void expand(const MarsRequest& request, std::vector<std::string>& values) const;
+    virtual void expand(std::vector<std::string>& values) const;
 
 protected:
     virtual bool expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
@@ -39,7 +39,7 @@ private: // methods
 
     virtual void print( std::ostream &out ) const;
     virtual void reset();
-    virtual void finalise(MarsRequest& request);
+    virtual void pass2(MarsRequest& request);
 
 
 };
