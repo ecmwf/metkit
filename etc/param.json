@@ -538,7 +538,8 @@
             [
                 "171170",
                 "slal2",
-                "soil temperature anomaly level 2"
+                "soil temperature anomaly level 2",
+                "stl2"
             ],
             [
                 "171171",
@@ -20180,7 +20181,7 @@
             [
                 "171170",
                 "slal2",
-                "soil temperature anomaly level 2"
+                "soil temperature anomaly level 2",
             ],
             [
                 "171171",
