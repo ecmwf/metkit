@@ -13,7 +13,6 @@
                 "216",
                 "maxswhi",
                 "maximum of significant wave height index",
-                "216.132"
             ]
         ]
     ],
@@ -2103,7 +2102,6 @@
                 "174",
                 "al",
                 "albedo",
-                "174.128"
             ],
             [
                 "175",
@@ -3849,26 +3847,22 @@
                 "132049",
                 "10fgi",
                 "10 metre wind gust index",
-                "49.132",
                 "10gi"
             ],
             [
                 "132144",
                 "sfi",
                 "snowfall index",
-                "144.132"
             ],
             [
                 "132165",
                 "10wsi",
                 "10 metre speed index",
-                "165.132"
             ],
             [
                 "132167",
                 "2ti",
                 "2 metre temperature index",
-                "167.132"
             ],
             [
                 "214001",
@@ -3879,13 +3873,11 @@
                 "132201",
                 "mx2ti",
                 "maximum temperature at 2 metres index",
-                "201.132"
             ],
             [
                 "132202",
                 "mn2ti",
                 "minimum temperature at 2 metres index",
-                "202.132"
             ],
             [
                 "132228",
@@ -5781,7 +5773,6 @@
                 "173228",
                 "tpara",
                 "total precipitation anomalous rate of accumulation",
-                "228.173"
             ],
             [
                 "173239",
@@ -13270,19 +13261,16 @@
                 "131089",
                 "pts",
                 "probability of a tropical storm",
-                "89.131"
             ],
             [
                 "131090",
                 "ph",
                 "probability of a hurricane",
-                "90.131"
             ],
             [
                 "131091",
                 "ptd",
                 "probability of a tropical depression",
-                "91.131"
             ],
             [
                 "131092",
@@ -13363,7 +13351,6 @@
                 "228024",
                 "deg0l",
                 "zero degree level",
-                "24.228",
                 "degol",
                 "deg0"
             ],
@@ -20099,7 +20086,6 @@
                 "171151",
                 "msla",
                 "mean sea level pressure anomaly",
-                "151.171"
             ],
             [
                 "171152",
