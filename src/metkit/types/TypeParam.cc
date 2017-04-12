@@ -175,6 +175,9 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
         if(table == 128) {
             table = 0;
         }
+
+    std::cerr << "Param " << param << " " << table << std::endl;
+
         oss <<  table * 1000 + param;
         return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, mapping_);
     }
