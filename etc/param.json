@@ -12,17 +12,18 @@
                 "132216",
                 "216",
                 "maxswhi",
-                "maximum of significant wave height index",
+                "maximum of significant wave height index"
             ]
         ]
     ],
-     [
+    [
         {
-            "stream": ["mmsa"]
+            "stream": [
+                "mmsa"
+            ]
         },
         [
-
-             [
+            [
                 "171001",
                 "strfa",
                 "stream function anomaly"
@@ -333,7 +334,7 @@
                 "ua",
                 "u component of wind anomaly",
                 "u"
-                          ],
+            ],
             [
                 "171132",
                 "va",
@@ -2101,7 +2102,7 @@
             [
                 "174",
                 "al",
-                "albedo",
+                "albedo"
             ],
             [
                 "175",
@@ -3852,17 +3853,17 @@
             [
                 "132144",
                 "sfi",
-                "snowfall index",
+                "snowfall index"
             ],
             [
                 "132165",
                 "10wsi",
-                "10 metre speed index",
+                "10 metre speed index"
             ],
             [
                 "132167",
                 "2ti",
-                "2 metre temperature index",
+                "2 metre temperature index"
             ],
             [
                 "214001",
@@ -3872,12 +3873,12 @@
             [
                 "132201",
                 "mx2ti",
-                "maximum temperature at 2 metres index",
+                "maximum temperature at 2 metres index"
             ],
             [
                 "132202",
                 "mn2ti",
-                "minimum temperature at 2 metres index",
+                "minimum temperature at 2 metres index"
             ],
             [
                 "132228",
@@ -5492,7 +5493,6 @@
                 "ttr",
                 "top net thermal radiation"
             ],
-
             [
                 "172044",
                 "esrate",
@@ -5772,7 +5772,7 @@
             [
                 "173228",
                 "tpara",
-                "total precipitation anomalous rate of accumulation",
+                "total precipitation anomalous rate of accumulation"
             ],
             [
                 "173239",
@@ -13260,17 +13260,17 @@
             [
                 "131089",
                 "pts",
-                "probability of a tropical storm",
+                "probability of a tropical storm"
             ],
             [
                 "131090",
                 "ph",
-                "probability of a hurricane",
+                "probability of a hurricane"
             ],
             [
                 "131091",
                 "ptd",
-                "probability of a tropical depression",
+                "probability of a tropical depression"
             ],
             [
                 "131092",
@@ -19682,7 +19682,7 @@
                 "thka",
                 "thicknes anomaly"
             ],
-             [
+            [
                 "171001",
                 "strfa",
                 "stream function anomaly"
@@ -20085,7 +20085,7 @@
             [
                 "171151",
                 "msla",
-                "mean sea level pressure anomaly",
+                "mean sea level pressure anomaly"
             ],
             [
                 "171152",
