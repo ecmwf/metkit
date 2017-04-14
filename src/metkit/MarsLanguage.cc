@@ -226,79 +226,88 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
 
     MarsRequest result(verb_);
 
-    std::vector<std::string> params = r.params();
-    std::set<std::string> seen;
+    try {
 
-    for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-        std::string p;
+        std::vector<std::string> params = r.params();
+        std::set<std::string> seen;
+
+        for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
+            std::string p;
 
 
-        std::map<std::string, std::string>::iterator c = cache_.find(*j);
-        if (c != cache_.end()) {
-            p = (*c).second;
-        } else {
-            p =  cache_[*j] = bestMatch(*j, keywords_, true, aliases_);
-        }
-
-        // if (seen.find(p) != seen.end()) {
-        //     std::cout << "Duplicate " << p << " " << *j << std::endl;
-        //     std::cout << r << std::endl;
-        //     if (result.countValues(p)) {
-        //         std::cout << result.values(p) << std::endl;
-        //     }
-        //     else {
-        //         std::cout << "off" << std::endl;
-        //     }
-        //     std::cout << r.values(*j) << std::endl;
-        // }
-
-        // seen.insert(p);
-
-        std::vector<std::string> values = r.values(*j);
-
-        if (values.size() == 1) {
-            const std::string& s = values[0];
-            if (s == "off" || s == "OFF") {
-                result.unsetValues(p);
-                type(p)->clearDefaults();
-                continue;
+            std::map<std::string, std::string>::iterator c = cache_.find(*j);
+            if (c != cache_.end()) {
+                p = (*c).second;
+            } else {
+                p =  cache_[*j] = bestMatch(*j, keywords_, true, aliases_);
             }
+
+            // if (seen.find(p) != seen.end()) {
+            //     std::cout << "Duplicate " << p << " " << *j << std::endl;
+            //     std::cout << r << std::endl;
+            //     if (result.countValues(p)) {
+            //         std::cout << result.values(p) << std::endl;
+            //     }
+            //     else {
+            //         std::cout << "off" << std::endl;
+            //     }
+            //     std::cout << r.values(*j) << std::endl;
+            // }
+
+            // seen.insert(p);
+
+            std::vector<std::string> values = r.values(*j);
+
+            if (values.size() == 1) {
+                const std::string& s = values[0];
+                if (s == "off" || s == "OFF") {
+                    result.unsetValues(p);
+                    type(p)->clearDefaults();
+                    continue;
+                }
+            }
+
+            type(p)->expand(values);
+            result.setValuesTyped(type(p), values);
+
+            // result.setValues(p, values);
+
         }
 
-        type(p)->expand(values);
-        result.setValuesTyped(type(p), values);
-
-        // result.setValues(p, values);
-
-    }
 
 
+        if (inherit) {
+            for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
+                const std::string& name = (*k).first;
+                if (result.countValues(name) == 0) {
+                    (*k).second->setDefaults(result);
+                }
+            }
 
-    if (inherit) {
-        for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
-            const std::string& name = (*k).first;
-            if (result.countValues(name) == 0) {
-                (*k).second->setDefaults(result);
+            result.getParams(params);
+            for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+                type(*k)->setDefaults(result.values(*k));
             }
         }
 
         result.getParams(params);
+
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->setDefaults(result.values(*k));
+            type(*k)->pass2(result);
         }
+
+        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+            type(*k)->finalise(result);
+        }
+
     }
-
-    result.getParams(params);
-
-    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        type(*k)->pass2(result);
+    catch (Exception& e) {
+        std::ostringstream oss;
+        oss << e.what() << " request=" << r << ", expanded=" << result;
+        throw eckit::UserError(oss.str());
     }
-
-    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        type(*k)->finalise(result);
-    }
-
     return result;
+
 }
 
 

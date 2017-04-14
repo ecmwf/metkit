@@ -84,11 +84,11 @@ public:
     bool match(const metkit::MarsRequest& request) const;
     std::string lookup(const std::string & s, bool fail) const;
 
-    Rule(const eckit::Value& matchers, const eckit::Value& setters);
+    Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& tables);
 };
 
 
-Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
+Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& tables) {
 
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
@@ -98,23 +98,34 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
 
     for (size_t i = 0; i < values.size(); ++i) {
 
-        const eckit::Value& val = values[i];
+        eckit::Value v = values[i];
 
-        ASSERT(val.isList()) ;
-        ASSERT(val.size() > 0);
+        if (!v.isList()) {
+            v = tables[v];
+        }
+        else {
+            v = eckit::Value::makeList(v);
+        }
 
-        std::string first = val[0];
+        for (size_t k = 0; k < v.size(); ++k) {
+            const eckit::Value& val = v[k];
 
-        for (size_t j = 0; j < val.size(); ++j) {
-            std::string v = val[j];
+            ASSERT(val.isList()) ;
+            ASSERT(val.size() > 0);
 
-            if (mapping_.find(v) != mapping_.end()) {
-                std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
-                continue;
+            std::string first = val[0];
+
+            for (size_t j = 0; j < val.size(); ++j) {
+                std::string v = val[j];
+
+                if (mapping_.find(v) != mapping_.end()) {
+                    std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
+                    continue;
+                }
+
+                mapping_[v] = first;
+                values_.push_back(v);
             }
-
-            mapping_[v] = first;
-            values_.push_back(v);
         }
     }
 
@@ -172,11 +183,11 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
 
     if (ok && param > 0) {
         std::ostringstream oss;
-        if(table == 128) {
+        if (table == 128) {
             table = 0;
         }
 
-    // std::cerr << "Param " << param << " " << table << std::endl;
+        // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
         return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, mapping_);
@@ -203,15 +214,24 @@ static void init() {
 
     eckit::JSONParser parser(in);
 
-    const eckit::Value r = parser.parse();
+    const eckit::Value parsed = parser.parse();
+
+
+    const eckit::Value tables = parsed["tables"];
+    ASSERT(tables.isMap());
+
+
+    const eckit::Value r = parsed["parameters"];
+
     ASSERT(r.isList());
 
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
-        (*rules).push_back(Rule(rule[0], rule[1]));
+        (*rules).push_back(Rule(rule[0], rule[1], tables));
     }
+
 
 }
 
