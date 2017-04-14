@@ -1240,7 +1240,8 @@
             [
                 "3031",
                 "wdir",
-                "wind direction"
+                "wind direction",
+                "wind"
             ],
             [
                 "3021",
