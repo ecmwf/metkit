@@ -84,11 +84,11 @@ public:
     bool match(const metkit::MarsRequest& request) const;
     std::string lookup(const std::string & s, bool fail) const;
 
-    Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& tables);
+    Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
 };
 
 
-Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& tables) {
+Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
 
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
@@ -98,37 +98,30 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
 
     for (size_t i = 0; i < values.size(); ++i) {
 
-        eckit::Value v = values[i];
+        const eckit::Value& id = values[i];
 
-        if (!v.isList()) {
-            v = tables[v];
+        std::string first = id;
+        values_.push_back(first);
+
+        const eckit::Value& aliases = ids[id];
+
+        if(aliases.isNil()) {
+            std::cerr << "No aliases for " << id << std::endl;
+            return;
         }
-        else {
-            v = eckit::Value::makeList(v);
-        }
 
-        for (size_t k = 0; k < v.size(); ++k) {
-            const eckit::Value& val = v[k];
+        for (size_t j = 0; j < aliases.size(); ++j) {
+            std::string v = aliases[j];
 
-            ASSERT(val.isList()) ;
-            ASSERT(val.size() > 0);
-
-            std::string first = val[0];
-
-            for (size_t j = 0; j < val.size(); ++j) {
-                std::string v = val[j];
-
-                if (mapping_.find(v) != mapping_.end()) {
-                    std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
-                    continue;
-                }
-
-                mapping_[v] = first;
-                values_.push_back(v);
+            if (mapping_.find(v) != mapping_.end()) {
+                std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
+                continue;
             }
+
+            mapping_[v] = first;
+            values_.push_back(v);
         }
     }
-
 }
 
 
@@ -217,8 +210,8 @@ static void init() {
     const eckit::Value parsed = parser.parse();
 
 
-    const eckit::Value tables = parsed["tables"];
-    ASSERT(tables.isMap());
+    const eckit::Value ids = parsed["ids"];
+    ASSERT(ids.isMap());
 
 
     const eckit::Value r = parsed["parameters"];
@@ -229,7 +222,7 @@ static void init() {
         const eckit::Value& rule = r[i];
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
-        (*rules).push_back(Rule(rule[0], rule[1], tables));
+        (*rules).push_back(Rule(rule[0], rule[1], ids));
     }
 
 
@@ -269,6 +262,10 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
         }
     }
 
+
+    if(!rule) {
+        std::cerr << "Not rule for " << request << std::endl;
+    }
     ASSERT(rule);
 
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
