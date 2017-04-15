@@ -15726,12 +15726,6 @@
             },
             []
         ],
- [
-        {
-            "stream": "enfo",
-            "type": ["em", "efi", "efic", "cm", "cs", "es", "cv", "sot"]
-        },
-        []],
 
     [
         {
