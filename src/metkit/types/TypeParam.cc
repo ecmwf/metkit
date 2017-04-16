@@ -199,10 +199,10 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
         // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
-        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, mapping_);
+        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_);
     }
 
-    return metkit::MarsLanguage::bestMatch(s, values_, fail, mapping_);
+    return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_);
 }
 
 static std::vector<Rule>* rules = 0;

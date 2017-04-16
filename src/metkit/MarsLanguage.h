@@ -52,6 +52,7 @@ public:
     static std::string bestMatch(const std::string& what,
                                  const std::vector<std::string>& values,
                                  bool fail,
+                                 bool quiet,
                                  const StringMap& aliases = StringMap());
 
     static eckit::Value jsonFile(const std::string& name);

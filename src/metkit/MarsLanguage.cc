@@ -114,6 +114,7 @@ eckit::Value MarsLanguage::jsonFile(const std::string& name) {
 std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::vector<std::string>& values,
                                     bool fail,
+                                    bool quiet,
                                     const std::map<std::string, std::string>& aliases) {
 
     size_t score = 0;
@@ -150,17 +151,24 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
     }
 
-    size_t max = 3;
-    if (best.size() > 0 && score < max) {
+    if (!quiet && best.size() > 0) {
         std::cerr << "Matching '"
                   << name
                   << "' with "
                   << best
-                  << " "
-                  << "Please give at least " << max << " first letters"
                   << std::endl;
     }
 
+    // size_t max = 3;
+    // if (best.size() > 0 && score < max) {
+    //     std::cerr << "Matching '"
+    //               << name
+    //               << "' with "
+    //               << best
+    //               << " "
+    //               << "Please give at least " << max << " first letters"
+    //               << std::endl;
+    // }
 
     if (best.size() == 1) {
         if (aliases.find(best[0]) != aliases.end()) {
@@ -209,7 +217,7 @@ std::string MarsLanguage::expandVerb(const std::string& verb) {
     // }
 
     // return cache_[verb] = bestMatch(verb, verbs_, true);
-    return bestMatch(verb, verbs_, true);
+    return bestMatch(verb, verbs_, true, true);
 }
 
 Type* MarsLanguage::type(const std::string& name) const {
@@ -239,7 +247,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
             if (c != cache_.end()) {
                 p = (*c).second;
             } else {
-                p =  cache_[*j] = bestMatch(*j, keywords_, true, aliases_);
+                p =  cache_[*j] = bestMatch(*j, keywords_, true, false, aliases_);
             }
 
             // if (seen.find(p) != seen.end()) {
