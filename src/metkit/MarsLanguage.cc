@@ -115,7 +115,8 @@ std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::vector<std::string>& values,
                                     bool fail,
                                     bool quiet,
-                                    const std::map<std::string, std::string>& aliases) {
+                                    const std::map<std::string, std::string>& aliases,
+                                    const ExpandContext* ctx) {
 
     size_t score = 0;
     std::vector<std::string> best;
@@ -156,7 +157,12 @@ std::string MarsLanguage::bestMatch(const std::string& name,
                   << name
                   << "' with "
                   << best
-                  << std::endl;
+                  ;
+        if (ctx) {
+            std::cerr << " ";
+            ctx->print(std::cerr);
+        }
+        std::cerr << std::endl;
     }
 
     // size_t max = 3;
@@ -186,6 +192,10 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
         std::ostringstream oss;
         oss << "Cannot match '" << name << "' in " << values;
+        if (ctx) {
+            oss << " ";
+            ctx->print(oss);
+        }
         throw eckit::UserError(oss.str());
     }
 
@@ -206,6 +216,10 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
     std::ostringstream oss;
     oss << "Ambiguous value '" << name << "' could be " << best;
+    if (ctx) {
+        oss << " ";
+        ctx->print(oss);
+    }
     throw eckit::UserError(oss.str());
 }
 

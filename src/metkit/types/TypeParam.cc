@@ -77,7 +77,7 @@ bool Matcher::match(const metkit::MarsRequest& request) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Rule {
+class Rule : private metkit::ExpandContext {
 
     std::vector<Matcher> matchers_;
     std::vector<std::string> values_;
@@ -91,16 +91,21 @@ public:
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
 
-    friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
+    void print(std::ostream& out) const {
         out << "{";
         const char* sep = "";
-        for (std::vector<Matcher>::const_iterator j = rule.matchers_.begin(); j != rule.matchers_.end(); ++j) {
+        for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
             out << sep << (*j);
             sep = ",";
         }
         out << "}";
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
+        rule.print(out);
         return out;
     }
+
 };
 
 
@@ -122,7 +127,11 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         const eckit::Value& aliases = ids[id];
 
         if (aliases.isNil()) {
-            std::cerr << "No aliases for " << id << std::endl;
+            std::cerr << "No aliases for "
+                      << id
+                      << " "
+                      << *this
+                      << std::endl;
             return;
         }
 
@@ -130,7 +139,15 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
             std::string v = aliases[j];
 
             if (mapping_.find(v) != mapping_.end()) {
-                std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
+                std::cerr << "Redefined param '"
+                          << v
+                          << "', '"
+                          << first
+                          << "' and '"
+                          << mapping_[v]
+                          << "' "
+                          << *this
+                          << std::endl;
                 continue;
             }
 
@@ -199,10 +216,10 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
         // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
-        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_);
+        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
     }
 
-    return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_);
+    return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
 }
 
 static std::vector<Rule>* rules = 0;
