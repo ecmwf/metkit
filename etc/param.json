@@ -812,7 +812,8 @@
         ],
         "130": [
             "t",
-            "temperature"
+            "temperature",
+            "ta"
         ],
         "130208": [
             "tsru",
@@ -3552,11 +3553,13 @@
         ],
         "171146": [
             "sshfa",
-            "surface sensible heat flux anomaly"
+            "surface sensible heat flux anomaly",
+            "sshf"
         ],
         "171147": [
             "slhfa",
-            "surface latent heat flux anomaly"
+            "surface latent heat flux anomaly",
+            "slhf"
         ],
         "171148": [
             "chnka",
@@ -4030,6 +4033,7 @@
             "convective precipitation"
         ],
         "172144": [
+            "sf",
             "snowfall (convective + stratiform)"
         ],
         "172145": [
@@ -4037,9 +4041,11 @@
             "boundary layer dissipation"
         ],
         "172146": [
+            "sshf",
             "surface sensible heat flux"
         ],
         "172147": [
+            "slhf",
             "surface latent heat flux"
         ],
         "172149": [
@@ -4064,22 +4070,28 @@
             "surface thermal radiation"
         ],
         "172178": [
+            "tsr",
             "top solar radiation"
         ],
         "172179": [
+            "ttr",
             "top thermal radiation"
         ],
         "172180": [
+            "ewss",
             "east-west surface stress"
         ],
         "172181": [
+            "nsss",
             "north-south surface stress"
         ],
         "172182": [
             "erate",
-            "evaporation"
+            "evaporation",
+            "e"
         ],
         "172189": [
+            "sd",
             "sunshine duration"
         ],
         "172195": [
@@ -4150,6 +4162,7 @@
             "boundary layer dissipation anomaly"
         ],
         "173146": [
+            "sshfa",
             "surface sensible heat flux anomaly"
         ],
         "173147": [
@@ -4177,19 +4190,25 @@
             "surface thermal radiation anomaly"
         ],
         "173178": [
+            "tsra",
             "top solar radiation anomaly"
         ],
         "173179": [
+            "ttra",
             "top thermal radiation anomaly"
         ],
         "173180": [
+            "ewssa",
             "east-west surface stress anomaly"
         ],
         "173181": [
+            "nsssa",
             "north-south surface stress anomaly"
         ],
         "173182": [
-            "evaporation anomaly"
+            "ea",
+            "evaporation anomaly",
+            "e"
         ],
         "173189": [
             "sundara",
@@ -15712,7 +15731,7 @@
         ]
     },
     "parameters":
- [
+[
     [
         {
             "stream": "efhs",
@@ -15829,7 +15848,8 @@
             "type": [
                 "cf",
                 "pf",
-                "wp"
+                "wp",
+                "cv"
             ]
         },
         [
@@ -15991,7 +16011,8 @@
             "type": [
                 "cf",
                 "pf",
-                "wp"
+                "wp",
+                "cv"
             ]
         },
         [
@@ -16333,7 +16354,8 @@
             "type": [
                 "cf",
                 "pf",
-                "wp"
+                "wp",
+                "cv"
             ]
         },
         [
@@ -16522,16 +16544,8 @@
             "type": "cs"
         },
         [
-            "129"
-        ]
-    ],
-    [
-        {
-            "stream": "enfo",
-            "type": "cv"
-        },
-        [
-            "129"
+            "129",
+            "130"
         ]
     ],
     [
@@ -17087,7 +17101,8 @@
             "type": [
                 "cf",
                 "pf",
-                "wp"
+                "wp",
+                "cv"
             ]
         },
         [
@@ -17434,7 +17449,9 @@
             ]
         },
         [
+            "129",
             "151",
+            "2",
             "228"
         ]
     ],
@@ -17905,6 +17922,7 @@
             "3",
             "30",
             "3020",
+            "3041",
             "31",
             "32",
             "33",
@@ -17973,7 +17991,8 @@
             "type": [
                 "cf",
                 "pf",
-                "wp"
+                "wp",
+                "cv"
             ]
         },
         [
@@ -18217,7 +18236,6 @@
         ]
     ]
 ]
-
 
 
 }

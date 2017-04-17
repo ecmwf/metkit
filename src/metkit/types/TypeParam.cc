@@ -132,7 +132,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
                       << " "
                       << *this
                       << std::endl;
-            return;
+            continue;
         }
 
         for (size_t j = 0; j < aliases.size(); ++j) {

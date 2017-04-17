@@ -214,6 +214,9 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         return best[0];
     }
 
+
+    std::cerr << "Ambiguous " << values << std::endl;
+
     std::ostringstream oss;
     oss << "Ambiguous value '" << name << "' could be " << best;
     if (ctx) {
