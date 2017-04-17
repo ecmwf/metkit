@@ -4026,11 +4026,13 @@
             "large-scale precipitation fraction"
         ],
         "172142": [
+            "lsp",
             "stratiform precipitation (large-scale precipitation)"
         ],
         "172143": [
             "cprate",
-            "convective precipitation"
+            "convective precipitation",
+            "cp"
         ],
         "172144": [
             "sf",
