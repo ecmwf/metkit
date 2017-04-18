@@ -36,6 +36,11 @@ public:
             const eckit::Value values);
 
     bool match(const metkit::MarsRequest& request) const ;
+
+    friend std::ostream& operator<<(std::ostream& out, const Matcher& matcher) {
+        out << matcher.name_ << "=" << matcher.values_;
+        return out;
+    }
 };
 
 Matcher::Matcher(const std::string& name,
@@ -72,7 +77,7 @@ bool Matcher::match(const metkit::MarsRequest& request) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Rule {
+class Rule : private metkit::ExpandContext {
 
     std::vector<Matcher> matchers_;
     std::vector<std::string> values_;
@@ -84,11 +89,27 @@ public:
     bool match(const metkit::MarsRequest& request) const;
     std::string lookup(const std::string & s, bool fail) const;
 
-    Rule(const eckit::Value& matchers, const eckit::Value& setters);
+    Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
+
+    void print(std::ostream& out) const {
+        out << "{";
+        const char* sep = "";
+        for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
+            out << sep << (*j);
+            sep = ",";
+        }
+        out << "}";
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
+        rule.print(out);
+        return out;
+    }
+
 };
 
 
-Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
+Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
 
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
@@ -98,18 +119,35 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
 
     for (size_t i = 0; i < values.size(); ++i) {
 
-        const eckit::Value& val = values[i];
+        const eckit::Value& id = values[i];
 
-        ASSERT(val.isList()) ;
-        ASSERT(val.size() > 0);
+        std::string first = id;
+        values_.push_back(first);
 
-        std::string first = val[0];
+        const eckit::Value& aliases = ids[id];
 
-        for (size_t j = 0; j < val.size(); ++j) {
-            std::string v = val[j];
+        if (aliases.isNil()) {
+            std::cerr << "No aliases for "
+                      << id
+                      << " "
+                      << *this
+                      << std::endl;
+            continue;
+        }
+
+        for (size_t j = 0; j < aliases.size(); ++j) {
+            std::string v = aliases[j];
 
             if (mapping_.find(v) != mapping_.end()) {
-                std::cerr << "Redefined param '" << v << "', '" << first << "' and '" << mapping_[v] << "'" << std::endl;
+                std::cerr << "Redefined param '"
+                          << v
+                          << "', '"
+                          << first
+                          << "' and '"
+                          << mapping_[v]
+                          << "' "
+                          << *this
+                          << std::endl;
                 continue;
             }
 
@@ -117,7 +155,6 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values) {
             values_.push_back(v);
         }
     }
-
 }
 
 
@@ -172,17 +209,17 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
 
     if (ok && param > 0) {
         std::ostringstream oss;
-        if(table == 128) {
+        if (table == 128) {
             table = 0;
         }
 
-    // std::cerr << "Param " << param << " " << table << std::endl;
+        // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
-        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, mapping_);
+        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
     }
 
-    return metkit::MarsLanguage::bestMatch(s, values_, fail, mapping_);
+    return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
 }
 
 static std::vector<Rule>* rules = 0;
@@ -203,15 +240,24 @@ static void init() {
 
     eckit::JSONParser parser(in);
 
-    const eckit::Value r = parser.parse();
+    const eckit::Value parsed = parser.parse();
+
+
+    const eckit::Value ids = parsed["ids"];
+    ASSERT(ids.isMap());
+
+
+    const eckit::Value r = parsed["parameters"];
+
     ASSERT(r.isList());
 
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
-        (*rules).push_back(Rule(rule[0], rule[1]));
+        (*rules).push_back(Rule(rule[0], rule[1], ids));
     }
+
 
 }
 
@@ -249,11 +295,21 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
         }
     }
 
+
+    if (!rule) {
+        std::cerr << "Not rule for " << request << std::endl;
+    }
     ASSERT(rule);
+
 
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
-        s = rule->lookup(s, fail);
+        try {
+            s = rule->lookup(s, fail);
+        } catch (...) {
+            std::cerr << *rule << std::endl;
+            throw;
+        }
     }
 
     return true;

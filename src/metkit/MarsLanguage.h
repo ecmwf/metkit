@@ -28,6 +28,12 @@ class FlattenCallback;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class ExpandContext {
+public:
+    virtual void print(std::ostream&) const = 0;
+};
+
+
 class MarsLanguage : private eckit::NonCopyable {
     typedef std::map<std::string, std::string> StringMap;
 
@@ -52,7 +58,9 @@ public:
     static std::string bestMatch(const std::string& what,
                                  const std::vector<std::string>& values,
                                  bool fail,
-                                 const StringMap& aliases = StringMap());
+                                 bool quiet,
+                                 const StringMap& aliases = StringMap(),
+                                 const ExpandContext* = 0);
 
     static eckit::Value jsonFile(const std::string& name);
 
