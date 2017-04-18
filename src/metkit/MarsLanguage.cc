@@ -55,7 +55,6 @@ static void init() {
 }
 
 
-
 namespace metkit {
 
 MarsLanguage::MarsLanguage(const std::string& verb):
@@ -118,11 +117,13 @@ std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::map<std::string, std::string>& aliases,
                                     const ExpandContext* ctx) {
 
-    size_t score = 0;
+    size_t score = 1;
     std::vector<std::string> best;
 
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
+
+        // std::cout << name << " " << value << " " << dist << std::endl;
 
         size_t len = std::min(name.length(), value.length());
         size_t s = 0;
@@ -143,7 +144,7 @@ std::string MarsLanguage::bestMatch(const std::string& name,
             return value;
         }
 
-        if (s > 0 && s >= score) {
+        if (s >= score) {
             if (s > score) {
                 best.clear();
             }
