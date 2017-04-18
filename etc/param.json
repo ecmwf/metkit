@@ -127,8 +127,7 @@
                 "171034",
                 "ssta",
                 "sea surface temperature anomaly",
-                "sstak",
-                "sstka"
+                "sstak"
             ],
             [
                 "171035",
@@ -153,26 +152,22 @@
             [
                 "171039",
                 "swval1",
-                "volumetric soil water anomaly layer 1",
-                "swv1"
+                "volumetric soil water anomaly layer 1"
             ],
             [
                 "171040",
                 "swval2",
-                "volumetric soil water anomaly layer 2",
-                "swv2"
+                "volumetric soil water anomaly layer 2"
             ],
             [
                 "171041",
                 "swval3",
-                "volumetric soil water anomaly layer 3",
-                "swv3"
+                "volumetric soil water anomaly layer 3"
             ],
             [
                 "171042",
                 "swval4",
-                "volumetric soil water anomaly layer 4",
-                "swv4"
+                "volumetric soil water anomaly layer 4"
             ],
             [
                 "171043",
@@ -320,52 +315,38 @@
             ],
             [
                 "171129",
-                "129",
                 "za",
-                "geopotential anomaly",
-                "z"
+                "geopotential anomaly"
             ],
             [
                 "171130",
-                "130",
                 "ta",
-                "temperature anomaly",
-                "t"
+                "temperature anomaly"
             ],
             [
                 "171131",
-                "131",
                 "ua",
-                "u component of wind anomaly",
-                "u"
+                "u component of wind anomaly"
             ],
             [
                 "171132",
-                "132",
                 "va",
-                "v component of wind anomaly",
-                "v"
+                "v component of wind anomaly"
             ],
             [
                 "171133",
-                "133",
                 "qa",
-                "specific humidity anomaly",
-                "q"
+                "specific humidity anomaly"
             ],
             [
                 "171134",
-                "134",
                 "spa",
-                "surface pressure anomaly",
-                "sp"
+                "surface pressure anomaly"
             ],
             [
                 "171135",
-                "135",
                 "wa",
-                "vertical velocity (pressure) anomaly",
-                "w"
+                "vertical velocity (pressure) anomaly"
             ],
             [
                 "171136",
@@ -379,17 +360,13 @@
             ],
             [
                 "171138",
-                "139",
                 "voa",
-                "relative vorticity anomaly",
-                "vo"
+                "relative vorticity anomaly"
             ],
             [
                 "171139",
                 "stal1",
-                "soil temperature anomaly level 1",
-                "stl1",
-                "st"
+                "soil temperature anomaly level 1"
             ],
             [
                 "171140",
@@ -399,26 +376,22 @@
             [
                 "171141",
                 "sda",
-                "snow depth anomaly",
-                "sd"
+                "snow depth anomaly"
             ],
             [
                 "171142",
                 "lspa",
-                "stratiform precipitation (large-scale precipitation) anomaly",
-                "lsp"
+                "stratiform precipitation (large-scale precipitation) anomaly"
             ],
             [
                 "171143",
                 "cpa",
-                "convective precipitation anomaly",
-                "cp"
+                "convective precipitation anomaly"
             ],
             [
                 "171144",
                 "sfa",
-                "snowfall (convective + stratiform) anomaly",
-                "sf"
+                "snowfall (convective + stratiform) anomaly"
             ],
             [
                 "171145",
@@ -452,10 +425,8 @@
             ],
             [
                 "171151",
-                "151",
                 "msla",
-                "mean sea level pressure anomaly",
-                "msl"
+                "mean sea level pressure anomaly"
             ],
             [
                 "171152",
@@ -475,22 +446,17 @@
             [
                 "171155",
                 "da",
-                "relative divergence anomaly",
-                "d"
+                "relative divergence anomaly"
             ],
             [
                 "171156",
-                "156",
                 "gha",
-                "height anomaly",
-                "gh"
+                "height anomaly"
             ],
             [
                 "171157",
-                "157",
                 "ra",
-                "relative humidity anomaly",
-                "r"
+                "relative humidity anomaly"
             ],
             [
                 "171158",
@@ -529,31 +495,23 @@
             ],
             [
                 "171165",
-                "165",
                 "10ua",
-                "10 metre u wind component anomaly",
-                "10u"
+                "10 metre u wind component anomaly"
             ],
             [
                 "171166",
-                "166",
                 "10va",
-                "10 metre v wind component anomaly",
-                "10v"
+                "10 metre v wind component anomaly"
             ],
             [
                 "171167",
-                "167",
                 "2ta",
-                "2 metre temperature anomaly",
-                "2t"
+                "2 metre temperature anomaly"
             ],
             [
                 "171168",
-                "168",
                 "2da",
-                "2 metre dewpoint temperature anomaly",
-                "2d"
+                "2 metre dewpoint temperature anomaly"
             ],
             [
                 "171169",
@@ -563,8 +521,7 @@
             [
                 "171170",
                 "slal2",
-                "soil temperature anomaly level 2",
-                "stl2"
+                "soil temperature anomaly level 2"
             ],
             [
                 "171171",
@@ -589,32 +546,27 @@
             [
                 "171176",
                 "ssra",
-                "surface net solar radiation anomaly",
-                "ssr"
+                "surface net solar radiation anomaly"
             ],
             [
                 "171177",
                 "stra",
-                "surface net thermal radiation anomaly",
-                "str"
+                "surface net thermal radiation anomaly"
             ],
             [
                 "171178",
                 "tsra",
-                "top net solar radiation anomaly",
-                "tsr"
+                "top net solar radiation anomaly"
             ],
             [
                 "171179",
                 "ttra",
-                "top net thermal radiation anomaly",
-                "ttr"
+                "top net thermal radiation anomaly"
             ],
             [
                 "171180",
-                "eqssa",
-                "east-west surface stress anomaly",
-                "ewss"
+                "ewssa",
+                "east-west surface stress anomaly"
             ],
             [
                 "171181",
@@ -624,8 +576,7 @@
             [
                 "171182",
                 "ea",
-                "evaporation anomaly",
-                "e"
+                "evaporation anomaly"
             ],
             [
                 "171183",
@@ -750,8 +701,7 @@
             [
                 "171207",
                 "10ua",
-                "10 metre wind speed anomaly",
-                "10si"
+                "10 metre wind speed anomaly"
             ],
             [
                 "171208",
