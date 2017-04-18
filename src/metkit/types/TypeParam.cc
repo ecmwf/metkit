@@ -111,6 +111,8 @@ public:
 
 Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
 
+    std::map<std::string, size_t> precedence;
+
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
         std::string name = keys[i];
@@ -135,20 +137,42 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
             continue;
         }
 
+
+
         for (size_t j = 0; j < aliases.size(); ++j) {
             std::string v = aliases[j];
 
             if (mapping_.find(v) != mapping_.end()) {
-                std::cerr << "Redefined param '"
-                          << v
-                          << "', '"
-                          << first
-                          << "' and '"
-                          << mapping_[v]
-                          << "' "
-                          << *this
-                          << std::endl;
-                continue;
+
+                if (precedence[v] <= j) {
+
+                    std::cerr << "Redefinition ignored: param "
+                              << v
+                              << "='"
+                              << first
+                              << "', keeping previous value of '"
+                              << mapping_[v]
+                              << "' "
+                              << *this
+                              << std::endl;
+                    continue;
+                }
+                else {
+
+                    std::cerr << "Redefinition of param "
+                              << v
+                              << "='"
+                              << first
+                              << "', overriding previous value of '"
+                              << mapping_[v]
+                              << "' "
+                              << *this
+                              << std::endl;
+
+                    precedence[v] = j;
+                }
+            } else {
+                precedence[v] = j;
             }
 
             mapping_[v] = first;
