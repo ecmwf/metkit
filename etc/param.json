@@ -4121,18 +4121,23 @@
             "surface roughness"
         ],
         "173044": [
+            "esa",
             "snow evaporation anomaly"
         ],
         "173045": [
+            "smlta",
             "snowmelt anomaly"
         ],
         "173048": [
+            "magssa",
             "magnitude of turbulent surface stress anomaly"
         ],
         "173050": [
+             "lspfa",
             "large-scale precipitation fraction anomaly"
         ],
         "173142": [
+            "lspa",
             "stratiform precipitation (large-scale precipitation) anomaly"
         ],
         "173143": [
