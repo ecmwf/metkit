@@ -110,6 +110,16 @@ eckit::Value MarsLanguage::jsonFile(const std::string& name) {
     return parser.parse();
 }
 
+static bool isnumber(const std::string& s) {
+    for(size_t i = 0; i < s.length(); i++) {
+        if(!::isdigit(s[i])) {
+            return false;
+        }
+    }
+
+    return s.length() > 0;
+}
+
 std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::vector<std::string>& values,
                                     bool fail,
@@ -178,6 +188,17 @@ std::string MarsLanguage::bestMatch(const std::string& name,
     // }
 
     if (best.size() == 1) {
+
+        if (isnumber(name) && isnumber(best[0])) {
+            std::ostringstream oss;
+            oss << "Cannot match '" << name << "' and " << best[0];
+            if (ctx) {
+                oss << " ";
+                ctx->print(oss);
+            }
+            throw eckit::UserError(oss.str());
+        }
+
         if (aliases.find(best[0]) != aliases.end()) {
             return aliases.find(best[0])->second;
         }
@@ -280,8 +301,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
                 p =  cache_[*j] = bestMatch(*j, keywords_, true, false, aliases_);
             }
 
-            // if (seen.find(p) != seen.end()) {
-            //     std::cout << "Duplicate " << p << " " << *j << std::endl;
+            if (seen.find(p) != seen.end()) {
+                std::cerr << "Duplicate " << p << " " << *j << std::endl;
             //     std::cout << r << std::endl;
             //     if (result.countValues(p)) {
             //         std::cout << result.values(p) << std::endl;
@@ -290,9 +311,9 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
             //         std::cout << "off" << std::endl;
             //     }
             //     std::cout << r.values(*j) << std::endl;
-            // }
+            }
 
-            // seen.insert(p);
+            seen.insert(p);
 
             std::vector<std::string> values = r.values(*j);
 
