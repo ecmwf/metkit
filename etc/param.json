@@ -3458,7 +3458,8 @@
         ],
         "171129": [
             "za",
-            "geopotential anomaly"
+            "geopotential anomaly",
+            "z"
         ],
         "171130": [
             "ta",
@@ -3501,7 +3502,8 @@
         ],
         "171139": [
             "stal1",
-            "soil temperature anomaly level 1"
+            "soil temperature anomaly level 1",
+            "st"
         ],
         "171140": [
             "swal1",
@@ -3549,7 +3551,8 @@
         ],
         "171151": [
             "msla",
-            "mean sea level pressure anomaly"
+            "mean sea level pressure anomaly",
+            "msl"
         ],
         "171152": [
             "lspa",
@@ -3850,7 +3853,8 @@
         ],
         "171228": [
             "tpa",
-            "total precipitation anomaly"
+            "total precipitation anomaly",
+            "tp"
         ],
         "171229": [
             "iewsa",
