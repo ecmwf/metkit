@@ -3504,11 +3504,13 @@
         "171139": [
             "stal1",
             "soil temperature anomaly level 1",
+            "stl1",
             "st"
         ],
         "171140": [
             "swal1",
-            "soil wetness anomaly level 1"
+            "soil wetness anomaly level 1",
+            "swl1"
         ],
         "171141": [
             "sda",
@@ -3637,7 +3639,8 @@
         ],
         "171171": [
             "swal2",
-            "soil wetness anomaly level 2"
+            "soil wetness anomaly level 2",
+            "swl2"
         ],
         "171173": [
             "sra",
@@ -3681,11 +3684,13 @@
         ],
         "171183": [
             "stal3",
-            "soil temperature anomaly level 3"
+            "soil temperature anomaly level 3",
+            "stl3"
         ],
         "171184": [
             "swal3",
-            "soil wetness anomaly level 3"
+            "soil wetness anomaly level 3",
+            "swl3"
         ],
         "171185": [
             "ccca",
@@ -3893,7 +3898,8 @@
         ],
         "171237": [
             "swal4",
-            "soil wetness level 4 anomaly"
+            "soil wetness level 4 anomaly",
+            "swl4"
         ],
         "171238": [
             "tsna",
