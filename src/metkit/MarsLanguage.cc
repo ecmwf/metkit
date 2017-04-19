@@ -301,19 +301,11 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
                 p =  cache_[*j] = bestMatch(*j, keywords_, true, false, aliases_);
             }
 
-            if (seen.find(p) != seen.end()) {
-                std::cerr << "Duplicate " << p << " " << *j << std::endl;
-            //     std::cout << r << std::endl;
-            //     if (result.countValues(p)) {
-            //         std::cout << result.values(p) << std::endl;
-            //     }
-            //     else {
-            //         std::cout << "off" << std::endl;
-            //     }
-            //     std::cout << r.values(*j) << std::endl;
-            }
+            // if (seen.find(p) != seen.end()) {
+            //     std::cerr << "Duplicate " << p << " " << *j << std::endl;
+            // }
 
-            seen.insert(p);
+            // seen.insert(p);
 
             std::vector<std::string> values = r.values(*j);
 
