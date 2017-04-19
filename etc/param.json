@@ -4182,19 +4182,23 @@
         ],
         "173176": [
             "ssra",
-            "surface solar radiation anomaly"
+            "surface solar radiation anomaly",
+            "ssr"
         ],
         "173177": [
             "stra",
-            "surface thermal radiation anomaly"
+            "surface thermal radiation anomaly",
+            "str"
         ],
         "173178": [
             "tsra",
-            "top solar radiation anomaly"
+            "top solar radiation anomaly",
+            "tsr"
         ],
         "173179": [
             "ttra",
-            "top thermal radiation anomaly"
+            "top thermal radiation anomaly",
+            "ttr"
         ],
         "173180": [
             "ewssa",
