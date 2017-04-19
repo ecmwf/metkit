@@ -4136,6 +4136,7 @@
             "stratiform precipitation (large-scale precipitation) anomaly"
         ],
         "173143": [
+            "cpa",
             "convective precipitation anomaly"
         ],
         "173144": [
@@ -4143,6 +4144,7 @@
             "snowfall (convective + stratiform) anomalous rate of accumulation"
         ],
         "173145": [
+            "blda",
             "boundary layer dissipation anomaly"
         ],
         "173146": [
@@ -4150,27 +4152,35 @@
             "surface sensible heat flux anomaly"
         ],
         "173147": [
+            "slhfa",
             "surface latent heat flux anomaly"
         ],
         "173149": [
+            "snra",
             "surface net radiation anomaly"
         ],
         "173153": [
+             "swhra",
             "short-wave heating rate anomaly"
         ],
         "173154": [
+            "lwhra",
             "long-wave heating rate anomaly"
         ],
         "173169": [
+            "ssrda",
             "surface solar radiation downwards anomaly"
         ],
         "173175": [
+            "strda",
             "surface thermal radiation downwards anomaly"
         ],
         "173176": [
+            "ssra",
             "surface solar radiation anomaly"
         ],
         "173177": [
+            "stra",
             "surface thermal radiation anomaly"
         ],
         "173178": [
@@ -4199,30 +4209,39 @@
             "sunshine duration anomalous rate of accumulation"
         ],
         "173195": [
+            "lgwsa",
             "longitudinal component of gravity wave stress anomaly"
         ],
         "173196": [
+            "mgwa",
             "meridional component of gravity wave stress anomaly"
         ],
         "173197": [
+            "gwa",
             "gravity wave dissipation anomaly"
         ],
         "173205": [
+            "roa",
             "runoff anomaly"
         ],
         "173208": [
+             "tsrca",
             "top net solar radiation, clear sky anomaly"
         ],
         "173209": [
+            "ttrca",
             "top net thermal radiation, clear sky anomaly"
         ],
         "173210": [
+            "ssrca",
             "surface net solar radiation, clear sky anomaly"
         ],
         "173211": [
+             "strca",
             "surface net thermal radiation, clear sky anomaly"
         ],
         "173212": [
+            "tisra",
             "solar insolation anomaly"
         ],
         "173228": [
@@ -4230,9 +4249,11 @@
             "total precipitation anomalous rate of accumulation"
         ],
         "173239": [
+            "csfa",
             "convective snowfall anomaly"
         ],
         "173240": [
+            "lsfa",
             "large scale snowfall anomaly"
         ],
         "174": [
