@@ -3315,7 +3315,8 @@
         ],
         "171039": [
             "swval1",
-            "volumetric soil water anomaly layer 1"
+            "volumetric soil water anomaly layer 1",
+            "swv1"
         ],
         "171040": [
             "swval2",
