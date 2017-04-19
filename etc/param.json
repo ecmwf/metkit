@@ -3498,7 +3498,8 @@
         ],
         "171138": [
             "voa",
-            "relative vorticity anomaly"
+            "relative vorticity anomaly",
+            "vo"
         ],
         "171139": [
             "stal1",
@@ -3568,15 +3569,18 @@
         ],
         "171155": [
             "da",
-            "relative divergence anomaly"
+            "relative divergence anomaly",
+            "d"
         ],
         "171156": [
             "gha",
-            "height anomaly"
+            "height anomaly",
+            "gh"
         ],
         "171157": [
             "ra",
-            "relative humidity anomaly"
+            "relative humidity anomaly",
+            "r"
         ],
         "171158": [
             "tspa",
