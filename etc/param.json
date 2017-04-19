@@ -4081,7 +4081,8 @@
         ],
         "172228": [
             "tprate",
-            "total precipitation"
+            "total precipitation",
+            "tp"
         ],
         "172239": [
             "convective snowfall"
@@ -4200,8 +4201,7 @@
         ],
         "173228": [
             "tpara",
-            "total precipitation anomalous rate of accumulation",
-            "tp"
+            "total precipitation anomalous rate of accumulation"
         ],
         "173239": [
             "convective snowfall anomaly"
