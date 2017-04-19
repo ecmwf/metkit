@@ -222,10 +222,10 @@ std::string MarsLanguage::bestMatch(const std::string& name,
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
         std::map<std::string, std::string>::const_iterator k = aliases.find(*j);
         if (k == aliases.end()) {
-            oss << " '" << best << "'";
+            oss << " '" << *j << "'";
         }
         else {
-            oss << " '" << best << "' (";
+            oss << " '" << *j << "' (";
             oss << (*k).second;
             oss << ")";
         }
