@@ -3463,11 +3463,13 @@
         ],
         "171131": [
             "ua",
-            "u component of wind anomaly"
+            "u component of wind anomaly",
+            "u"
         ],
         "171132": [
             "va",
-            "v component of wind anomaly"
+            "v component of wind anomaly",
+            "v"
         ],
         "171133": [
             "qa",
