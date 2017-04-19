@@ -4067,7 +4067,8 @@
         ],
         "172228": [
             "tprate",
-            "total precipitation"
+            "total precipitation",
+            "tp"
         ],
         "172239": [
             "convective snowfall"
