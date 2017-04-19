@@ -3969,15 +3969,19 @@
         ],
         "172044": [
             "esrate",
-            "snow evaporation"
+            "snow evaporation",
+            "es"
         ],
         "172045": [
+            "smlt",
             "snowmelt"
         ],
         "172048": [
+            "magss",
             "magnitude of turbulent surface stress"
         ],
         "172050": [
+            "lspf",
             "large-scale precipitation fraction"
         ],
         "172142": [
@@ -4014,9 +4018,11 @@
             "short-wave heating rate"
         ],
         "172154": [
+            "lwhr",
             "long-wave heating rate"
         ],
         "172169": [
+            "ssrd",
             "surface solar radiation downwards"
         ],
         "172175": [
@@ -4067,18 +4073,23 @@
             "gravity wave dissipation"
         ],
         "172205": [
+            "ro",
             "runoff"
         ],
         "172208": [
+            "tsrc",
             "top net solar radiation, clear sky"
         ],
         "172209": [
+            "ttrc",
             "top net thermal radiation, clear sky"
         ],
         "172210": [
+            "ssrc",
             "surface net solar radiation, clear sky"
         ],
         "172211": [
+            "strc",
             "surface net thermal radiation, clear sky"
         ],
         "172212": [
@@ -4090,10 +4101,12 @@
             "tp"
         ],
         "172239": [
+            "csf",
             "convective snowfall"
         ],
         "172240": [
-            "large scale snowfall"
+            "lsf",
+            "large-scale snowfall"
         ],
         "173": [
             "sr",
