@@ -216,14 +216,26 @@ std::string MarsLanguage::bestMatch(const std::string& name,
     }
 
 
-    std::cerr << "Ambiguous " << values << std::endl;
-
     std::ostringstream oss;
-    oss << "Ambiguous value '" << name << "' could be " << best;
+    oss << "Ambiguous value '" << name << "' could be";
+
+    for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
+        std::map<std::string, std::string>::const_iterator k = aliases.find(*j);
+        if (k == aliases.end()) {
+            oss << " '" << best << "'";
+        }
+        else {
+            oss << " '" << best << "' (";
+            oss << (*k).second;
+            oss << ")";
+        }
+    }
     if (ctx) {
         oss << " ";
         ctx->print(oss);
     }
+
+
     throw eckit::UserError(oss.str());
 }
 
