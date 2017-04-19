@@ -4003,11 +4003,13 @@
         ],
         "172146": [
             "sshf",
-            "surface sensible heat flux"
+            "surface sensible heat flux",
+            "146"
         ],
         "172147": [
             "slhf",
-            "surface latent heat flux"
+            "surface latent heat flux",
+            "147"
         ],
         "172149": [
             "snr",
