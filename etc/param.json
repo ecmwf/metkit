@@ -4006,9 +4006,11 @@
             "surface latent heat flux"
         ],
         "172149": [
+            "snr",
             "surface net radiation"
         ],
         "172153": [
+            "swhr",
             "short-wave heating rate"
         ],
         "172154": [
@@ -4018,12 +4020,15 @@
             "surface solar radiation downwards"
         ],
         "172175": [
+            "strd",
             "surface thermal radiation downwards"
         ],
         "172176": [
+            "ssr",
             "surface solar radiation"
         ],
         "172177": [
+            "str",
             "surface thermal radiation"
         ],
         "172178": [
