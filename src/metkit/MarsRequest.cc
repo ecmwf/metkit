@@ -64,6 +64,7 @@ Parameter::Parameter(const std::vector<std::string>& values, Type* type):
         type_ = &undefined;
     }
     type_->attach();
+    type_->check(values);
 }
 
 

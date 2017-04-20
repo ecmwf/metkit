@@ -240,6 +240,13 @@ void Type::finalise(MarsRequest& request) {
 
 }
 
+ void Type::check(const std::vector<std::string>& values) {
+    std::set<std::string> s(values.begin(), values.end());
+    if(values.size() != s.size()) {
+        std::cerr << "Duplicate values in " << values << std::endl;
+    }
+ }
+
 
 //----------------------------------------------------------------------------------------------------------------------
 

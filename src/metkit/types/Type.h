@@ -41,6 +41,7 @@ public: // methods
     virtual void expand(std::vector<std::string>& values) const;
     virtual void setDefaults(MarsRequest& request);
     virtual void setDefaults(const std::vector<std::string>& defaults);
+    virtual void check(const std::vector<std::string>& values);
     virtual void clearDefaults();
     virtual void reset();
 
