@@ -216,7 +216,10 @@
                     "cr",
                     "cm",
                     "fcmean",
-                    "fc"
+                    "fc",
+                    "fcmin",
+                    "fcmax",
+                    "fcstdev"
                 ]
             }]
         },
