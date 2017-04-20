@@ -111,8 +111,8 @@ eckit::Value MarsLanguage::jsonFile(const std::string& name) {
 }
 
 static bool isnumber(const std::string& s) {
-    for(size_t i = 0; i < s.length(); i++) {
-        if(!::isdigit(s[i])) {
+    for (size_t i = 0; i < s.length(); i++) {
+        if (!::isdigit(s[i])) {
             return false;
         }
     }
@@ -320,7 +320,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
 
             type(p)->expand(values);
             result.setValuesTyped(type(p), values);
-
+            type(p)->check(values);
             // result.setValues(p, values);
 
         }
