@@ -11,8 +11,8 @@
 /// @author Baudouin Raoult
 /// @date Jun 2012
 
-#ifndef eckit_JSONParser_h
-#define eckit_JSONParser_h
+#ifndef metkit_MARSParser_h
+#define metkit_MARSParser_h
 
 #include "eckit/parser/StreamParser.h"
 #include "eckit/types/Types.h"
