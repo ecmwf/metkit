@@ -44,6 +44,10 @@ Type* TypesRegistry::build(const std::string &keyword, const eckit::Value& setti
     return (*j).second->make(keyword, settings);
 }
 
+Type* TypesFactory::build(const std::string &keyword, const eckit::Value& settings) {
+    return TypesRegistry::instance().build(keyword, settings);
+}
+
 TypesRegistry& TypesRegistry::instance()
 {
     static TypesRegistry instance;

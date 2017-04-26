@@ -56,6 +56,8 @@ public:
 
     virtual Type *make(const std::string &keyword, const eckit::Value& settings) const = 0 ;
 
+    static Type* build(const std::string &keyword, const eckit::Value& settings);
+
 protected:
 
     TypesFactory(const std::string &);
