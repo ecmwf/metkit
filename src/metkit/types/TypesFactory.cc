@@ -18,47 +18,47 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static eckit::Mutex *local_mutex = 0;
-static std::map<std::string, TypesFactory *> *m = 0;
-static pthread_once_t once = PTHREAD_ONCE_INIT;
-static void init() {
-    local_mutex = new eckit::Mutex();
-    m = new std::map<std::string, TypesFactory *>();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 TypesFactory::TypesFactory(const std::string &name) :
     name_(name) {
-    pthread_once(&once, init);
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-
-    ASSERT(m->find(name) == m->end());
-    (*m)[name] = this;
+    TypesRegistry::instance().add(name, this);
 }
 
 TypesFactory::~TypesFactory() {
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    m->erase(name_);
+    TypesRegistry::instance().remove(name_);
 }
 
-Type *TypesFactory::build(const std::string &keyword, const eckit::Value& settings) {
-    pthread_once(&once, init);
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
+Type* TypesRegistry::build(const std::string &keyword, const eckit::Value& settings) {
 
     std::string name = settings["type"];
 
-    std::map<std::string, TypesFactory *>::const_iterator j = m->find(name);
+    std::map<std::string, TypesFactory *>::const_iterator j = m_.find(name);
 
-    if (j == m->end()) {
+    if (j == m_.end()) {
         eckit::Log::error() << "No TypesFactory for [" << name << "]" << std::endl;
         eckit::Log::error() << "KeywordTypes are:" << std::endl;
-        for (j = m->begin() ; j != m->end() ; ++j)
+        for (j = m_.begin() ; j != m_.end() ; ++j)
             eckit::Log::error() << "   " << (*j).first << std::endl;
         throw eckit::SeriousBug(std::string("No TypesFactory called ") + name);
     }
 
     return (*j).second->make(keyword, settings);
+}
+
+TypesRegistry& TypesRegistry::instance()
+{
+    static TypesRegistry instance;
+    return instance;
+}
+
+void TypesRegistry::add(const std::string& name, TypesFactory* f)
+{
+    ASSERT(m_.find(name) == m_.end());
+    m_[name] = f;
+}
+
+void TypesRegistry::remove(const std::string& name)
+{
+    m_.erase(name);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
