@@ -14,6 +14,8 @@
 
 #include "metkit/types/TypesFactory.h"
 
+using namespace eckit;
+
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -31,6 +33,8 @@ Type* TypesRegistry::build(const std::string &keyword, const eckit::Value& setti
 
     std::string name = settings["type"];
 
+    AutoLock<Mutex> lock(mutex_);
+
     std::map<std::string, TypesFactory *>::const_iterator j = m_.find(name);
 
     if (j == m_.end()) {
@@ -44,8 +48,29 @@ Type* TypesRegistry::build(const std::string &keyword, const eckit::Value& setti
     return (*j).second->make(keyword, settings);
 }
 
+void TypesRegistry::list(std::ostream& s) {
+
+    AutoLock<Mutex> lock(mutex_);
+
+    s << "[";
+
+    bool first = true;
+    std::map<std::string, TypesFactory*>::const_iterator j = m_.begin();
+    while (j != m_.end()) {
+        if (!first) s << ",";
+        s << (j++)->first;
+        first = false;
+    }
+
+    s << "]";
+}
+
 Type* TypesFactory::build(const std::string &keyword, const eckit::Value& settings) {
     return TypesRegistry::instance().build(keyword, settings);
+}
+
+void TypesFactory::list(std::ostream& s) {
+    TypesRegistry::instance().list(s);
 }
 
 TypesRegistry& TypesRegistry::instance()
@@ -54,14 +79,17 @@ TypesRegistry& TypesRegistry::instance()
     return instance;
 }
 
-void TypesRegistry::add(const std::string& name, TypesFactory* f)
-{
+void TypesRegistry::add(const std::string& name, TypesFactory* f) {
+
+    AutoLock<Mutex> lock(mutex_);
+
     ASSERT(m_.find(name) == m_.end());
     m_[name] = f;
 }
 
-void TypesRegistry::remove(const std::string& name)
-{
+void TypesRegistry::remove(const std::string& name) {
+
+    AutoLock<Mutex> lock(mutex_);
     m_.erase(name);
 }
 

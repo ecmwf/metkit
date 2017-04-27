@@ -47,6 +47,7 @@ public:
 
     Type* build(const std::string &keyword, const eckit::Value&);
 
+    void list(std::ostream& s);
 };
 
 /// A self-registering factory for producing TypesFactory instances
@@ -57,6 +58,8 @@ public:
     virtual Type *make(const std::string &keyword, const eckit::Value& settings) const = 0 ;
 
     static Type* build(const std::string &keyword, const eckit::Value& settings);
+
+    static void list(std::ostream& s);
 
 protected:
 
