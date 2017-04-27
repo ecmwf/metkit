@@ -13,9 +13,11 @@
 /// @date   April 2017
 
 #include "metkit/types/TypesFactory.h"
+#include "metkit/types/TypeDate.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Tool.h"
+#include "eckit/value/Value.h"
 
 using namespace eckit;
 using namespace metkit;
@@ -38,6 +40,7 @@ private: // methods
 
     void test_list_types();
 
+    void test_build();
 };
 
 
@@ -56,8 +59,27 @@ void TypesFactoryTest::test_list_types() {
 }
 
 
+void TypesFactoryTest::test_build() {
+
+    ValueMap settings;
+    settings["type"] = "date";
+
+    Type* t1(TypesFactory::build("abcd", Value(settings)));
+
+    ASSERT(t1 != 0);
+    t1->attach();
+
+    // Check that we have obtained the correct type
+    ASSERT(dynamic_cast<TypeDate*>(t1) != 0);
+
+    // Clean up, taking into account that ~Type is protected.
+    t1->detach();
+}
+
+
 void TypesFactoryTest::run() {
     test_list_types();
+    test_build();
 }
 
 
