@@ -28,3 +28,7 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   LIBS          metkit
                   TEST_DEPENDS  grib_get_data
 )
+
+ecbuild_add_test( TARGET    test_typesfactory
+                  SOURCES   test_typesfactory.cc
+                  LIBS      metkit )

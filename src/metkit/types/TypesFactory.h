@@ -28,14 +28,38 @@ class Value;
 namespace metkit {
 
 class Type;
+class TypesFactory;
 
 //----------------------------------------------------------------------------------------------------------------------
+
+
+class TypesRegistry : private eckit::NonCopyable {
+
+    eckit::Mutex mutex_;
+    std::map<std::string, TypesFactory*> m_;
+
+public:
+
+    static TypesRegistry& instance();
+
+    void add(const std::string& name, TypesFactory* f);
+    void remove(const std::string& name);
+
+    Type* build(const std::string &keyword, const eckit::Value&);
+
+    void list(std::ostream& s);
+};
 
 /// A self-registering factory for producing TypesFactory instances
 
 class TypesFactory {
+public:
 
     virtual Type *make(const std::string &keyword, const eckit::Value& settings) const = 0 ;
+
+    static Type* build(const std::string &keyword, const eckit::Value& settings);
+
+    static void list(std::ostream& s);
 
 protected:
 
@@ -43,11 +67,6 @@ protected:
     virtual ~TypesFactory();
 
     std::string name_;
-
-public:
-
-    static void list(std::ostream &);
-    static Type *build(const std::string &keyword, const eckit::Value&);
 
 };
 
