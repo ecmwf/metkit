@@ -24,12 +24,12 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static LibMetkit libmetkit;
+REGISTER_LIBRARY(LibMetkit);
 
 LibMetkit::LibMetkit() : Library("metkit") {}
 
-const LibMetkit& LibMetkit::instance()
-{
+const LibMetkit& LibMetkit::instance() {
+    static LibMetkit libmetkit;
     return libmetkit;
 }
 
