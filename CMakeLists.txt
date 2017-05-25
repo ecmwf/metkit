@@ -42,7 +42,7 @@ endif()
 
 # eckit
 
-ecbuild_use_package( PROJECT eckit  VERSION  0.13 REQUIRED )
+ecbuild_use_package( PROJECT eckit  VERSION  0.16.5 REQUIRED )
 
 ### start project
 
