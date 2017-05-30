@@ -243,7 +243,7 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
         // return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
 
         std::string p = oss.str();
-        for (auto j = values_.begin(); j != values_.end(); ++j) {
+        for (std::vector<std::string>::const_iterator j = values_.begin(); j != values_.end(); ++j) {
             if ((*j) == p) {
                 return p;
             }
