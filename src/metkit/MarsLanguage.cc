@@ -37,7 +37,7 @@ static std::vector<std::string> verbs_;
 
 static void init() {
 
-    eckit::PathName language("~metkit/etc/language.json");
+    eckit::PathName language = eckit::Resource<eckit::PathName>("$METKIT_LANGUAGE_PATH", "~metkit/share/metkit/language.json");
 
     std::ifstream in(language.asString().c_str());
     if (!in) {
@@ -96,9 +96,10 @@ void MarsLanguage::reset() {
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
+
     // TODO: cache
 
-    eckit::PathName path = std::string("~metkit/etc/" + name);
+    eckit::PathName path = std::string("~metkit/share/metkit/" + name);
 
     std::ifstream in(path.asString().c_str());
     if (!in) {

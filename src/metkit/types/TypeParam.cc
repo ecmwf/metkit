@@ -9,15 +9,16 @@
  */
 
 
-#include "metkit/types/TypesFactory.h"
-#include "metkit/types/TypeParam.h"
-#include "metkit/MarsLanguage.h"
 #include "eckit/parser/JSONParser.h"
 #include "eckit/types/Types.h"
 #include "eckit/parser/StringTools.h"
-#include "metkit/MarsLanguage.h"
-
 #include "eckit/thread/AutoLock.h"
+#include "eckit/config/Resource.h"
+
+#include "metkit/types/TypesFactory.h"
+#include "metkit/types/TypeParam.h"
+#include "metkit/MarsLanguage.h"
+#include "metkit/MarsLanguage.h"
 
 namespace {
 
@@ -265,11 +266,11 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    eckit::PathName language("~metkit/etc/param.json");
+    eckit::PathName param = eckit::Resource<eckit::PathName>("$METKIT_PARAM_PATH", "~metkit/share/metkit/param.json");
 
-    std::ifstream in(language.asString().c_str());
+    std::ifstream in(param.asString().c_str());
     if (!in) {
-        throw eckit::CantOpenFile(language);
+        throw eckit::CantOpenFile(param);
     }
 
     eckit::JSONParser parser(in);

@@ -60,7 +60,7 @@ get_directory_property( METKIT_DEFINITIONS COMPILE_DEFINITIONS )
 include_directories( ${METKIT_INCLUDE_DIRS} )
 
 add_subdirectory( src )
-add_subdirectory( etc )
+add_subdirectory( share )
 
 ### finalize project
 
