@@ -91,7 +91,7 @@ bool TypeEnum::expand(std::vector<std::string>& values, bool fail) const {
             continue;
         }
 
-        std::string v = MarsLanguage::bestMatch((*j), values_, fail, mapping_);
+        std::string v = MarsLanguage::bestMatch((*j), values_, fail, false, mapping_);
         if (v.empty()) {
             return false;
         }

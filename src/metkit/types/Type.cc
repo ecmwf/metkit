@@ -195,6 +195,9 @@ const std::string& Type::name() const {
     return name_;
 }
 
+void Type::pass2(MarsRequest& request) {
+}
+
 void Type::finalise(MarsRequest& request) {
     bool ok = true;
 
@@ -235,6 +238,15 @@ void Type::finalise(MarsRequest& request) {
         request.unsetValues(name_);
     }
 
+}
+
+void Type::check(const std::vector<std::string>& values) const {
+    if (flatten_) {
+        std::set<std::string> s(values.begin(), values.end());
+        if (values.size() != s.size()) {
+            std::cerr << "Duplicate values in " << values << std::endl;
+        }
+    }
 }
 
 

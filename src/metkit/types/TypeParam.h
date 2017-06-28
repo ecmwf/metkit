@@ -33,12 +33,14 @@ public: // methods
     virtual void expand(std::vector<std::string>& values) const;
 
 protected:
-    virtual bool expand(std::vector<std::string>& values, bool fail) const;
+    virtual bool expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
 
 private: // methods
 
     virtual void print( std::ostream &out ) const;
     virtual void reset();
+    virtual void pass2(MarsRequest& request);
+
 
 };
 

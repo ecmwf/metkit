@@ -12,9 +12,6 @@
             "more": [{
                 "type": "float"
             }],
-            "never": [{
-                "repres": "sh"
-            }],
             "only": [{}]
         },
         "class": {
@@ -48,8 +45,14 @@
             "type": "integer",
             "flatten": false
         },
-         "hdate": {
-            "type": "integer"
+        "hdate": {
+            "type": "integer",
+            "only": [{
+                "stream": [
+                    "enfh",
+                    "enwh"
+                ]
+            }]
         },
         "format": {
             "type": "enum",
@@ -211,11 +214,16 @@
                 "type": [
                     "pf",
                     "cr",
-                    "cm"
+                    "cm",
+                    "fcmean",
+                    "fc",
+                    "fcmin",
+                    "fcmax",
+                    "fcstdev"
                 ]
             }]
         },
-          "ensemble": {
+        "ensemble": {
             "type": "to-by-list",
             "by": 1,
             "aliases": [
@@ -298,8 +306,8 @@
         "origin": {
             "type": "enum",
             "values": [
-                "ecmf",
-                "ecmwf"
+                ["ecmf",
+                "ecmwf"]
             ]
         },
         "system": {
@@ -444,8 +452,15 @@
             ]
         },
         "accuracy": {
-            "type": "any",
-            "flatten": false
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                ["av"],
+                ["off", "normal", "auto"]
+            ],
+            "more": [{
+                "type": "integer"
+            }]
         },
         "interpolation": {
             "type": "enum",
@@ -472,7 +487,7 @@
             ]
         },
         "bitmap": {
-            "type": "any",
+        "type": "any",
             "flatten": false
         },
         "direction": {
@@ -480,7 +495,6 @@
             "by": 1,
             "only": [{
                 "param": [
-                    "251",
                     "140251"
                 ]
             }]
@@ -490,7 +504,6 @@
             "by": 1,
             "only": [{
                 "param": [
-                    "251",
                     "140251"
                 ]
             }]
@@ -527,7 +540,14 @@
             "multiple": true
         },
         "resol": {
-            "type": "any"
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                ["off", "av", "reduced gaussian 160"]
+            ],
+            "more": [{
+                "type": "integer"
+            }]
         },
         "gaussian": {
             "type": "enum",

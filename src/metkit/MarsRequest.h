@@ -21,6 +21,7 @@
 #include "eckit/types/Double.h"
 #include "eckit/types/Time.h"
 #include "eckit/value/Value.h"
+#include "eckit/utils/Translator.h"
 
 namespace eckit {
 class JSON;
@@ -107,6 +108,21 @@ public: // methods
     bool is(const std::string& param, const std::string& value) const;
 
     const std::vector<std::string> &values(const std::string&, bool emptyOk = false) const;
+
+
+    template<class T>
+    void getValues(const std::string& name, std::vector<T>& v) const {
+        const std::vector< std::string >& s = values(name);
+
+        eckit::Translator<std::string, T> t;
+
+        v.clear();
+
+        for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
+            v.push_back(t(*j));
+        }
+    }
+
 
     void getParams(std::vector<std::string>&) const;
     std::vector<std::string> params() const;

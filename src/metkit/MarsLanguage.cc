@@ -55,7 +55,6 @@ static void init() {
 }
 
 
-
 namespace metkit {
 
 MarsLanguage::MarsLanguage(const std::string& verb):
@@ -111,16 +110,30 @@ eckit::Value MarsLanguage::jsonFile(const std::string& name) {
     return parser.parse();
 }
 
+static bool isnumber(const std::string& s) {
+    for (size_t i = 0; i < s.length(); i++) {
+        if (!::isdigit(s[i])) {
+            return false;
+        }
+    }
+
+    return s.length() > 0;
+}
+
 std::string MarsLanguage::bestMatch(const std::string& name,
                                     const std::vector<std::string>& values,
                                     bool fail,
-                                    const std::map<std::string, std::string>& aliases) {
+                                    bool quiet,
+                                    const std::map<std::string, std::string>& aliases,
+                                    const ExpandContext* ctx) {
 
-    size_t score = 0;
+    size_t score = 1;
     std::vector<std::string> best;
 
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
+
+        // std::cout << name << " " << value << " " << dist << std::endl;
 
         size_t len = std::min(name.length(), value.length());
         size_t s = 0;
@@ -141,7 +154,7 @@ std::string MarsLanguage::bestMatch(const std::string& name,
             return value;
         }
 
-        if (s > 0 && s >= score) {
+        if (s >= score) {
             if (s > score) {
                 best.clear();
             }
@@ -150,19 +163,42 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
     }
 
-    size_t max = 3;
-    if (best.size() > 0 && score < max) {
+    if (!quiet && best.size() > 0) {
         std::cerr << "Matching '"
                   << name
                   << "' with "
                   << best
-                  << " "
-                  << "Please give at least " << max << " first letters"
-                  << std::endl;
+                  ;
+        if (ctx) {
+            std::cerr << " ";
+            ctx->print(std::cerr);
+        }
+        std::cerr << std::endl;
     }
 
+    // size_t max = 3;
+    // if (best.size() > 0 && score < max) {
+    //     std::cerr << "Matching '"
+    //               << name
+    //               << "' with "
+    //               << best
+    //               << " "
+    //               << "Please give at least " << max << " first letters"
+    //               << std::endl;
+    // }
 
     if (best.size() == 1) {
+
+        if (isnumber(name) && isnumber(best[0])) {
+            std::ostringstream oss;
+            oss << "Cannot match '" << name << "' and " << best[0];
+            if (ctx) {
+                oss << " ";
+                ctx->print(oss);
+            }
+            throw eckit::UserError(oss.str());
+        }
+
         if (aliases.find(best[0]) != aliases.end()) {
             return aliases.find(best[0])->second;
         }
@@ -178,6 +214,10 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
         std::ostringstream oss;
         oss << "Cannot match '" << name << "' in " << values;
+        if (ctx) {
+            oss << " ";
+            ctx->print(oss);
+        }
         throw eckit::UserError(oss.str());
     }
 
@@ -196,8 +236,27 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         return best[0];
     }
 
+
     std::ostringstream oss;
-    oss << "Ambiguous value '" << name << "' could be " << best;
+    oss << "Ambiguous value '" << name << "' could be";
+
+    for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
+        std::map<std::string, std::string>::const_iterator k = aliases.find(*j);
+        if (k == aliases.end()) {
+            oss << " '" << *j << "'";
+        }
+        else {
+            oss << " '" << *j << "' (";
+            oss << (*k).second;
+            oss << ")";
+        }
+    }
+    if (ctx) {
+        oss << " ";
+        ctx->print(oss);
+    }
+
+
     throw eckit::UserError(oss.str());
 }
 
@@ -209,7 +268,7 @@ std::string MarsLanguage::expandVerb(const std::string& verb) {
     // }
 
     // return cache_[verb] = bestMatch(verb, verbs_, true);
-    return bestMatch(verb, verbs_, true);
+    return bestMatch(verb, verbs_, true, true);
 }
 
 Type* MarsLanguage::type(const std::string& name) const {
@@ -226,74 +285,80 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
 
     MarsRequest result(verb_);
 
-    std::vector<std::string> params = r.params();
-    std::set<std::string> seen;
+    try {
 
-    for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-        std::string p;
+        std::vector<std::string> params = r.params();
+        std::set<std::string> seen;
+
+        for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
+            std::string p;
 
 
-        std::map<std::string, std::string>::iterator c = cache_.find(*j);
-        if (c != cache_.end()) {
-            p = (*c).second;
-        } else {
-            p =  cache_[*j] = bestMatch(*j, keywords_, true, aliases_);
-        }
-
-        // if (seen.find(p) != seen.end()) {
-        //     std::cout << "Duplicate " << p << " " << *j << std::endl;
-        //     std::cout << r << std::endl;
-        //     if (result.countValues(p)) {
-        //         std::cout << result.values(p) << std::endl;
-        //     }
-        //     else {
-        //         std::cout << "off" << std::endl;
-        //     }
-        //     std::cout << r.values(*j) << std::endl;
-        // }
-
-        // seen.insert(p);
-
-        std::vector<std::string> values = r.values(*j);
-
-        if (values.size() == 1) {
-            const std::string& s = values[0];
-            if (s == "off" || s == "OFF") {
-                result.unsetValues(p);
-                type(p)->clearDefaults();
-                continue;
+            std::map<std::string, std::string>::iterator c = cache_.find(*j);
+            if (c != cache_.end()) {
+                p = (*c).second;
+            } else {
+                p =  cache_[*j] = bestMatch(*j, keywords_, true, false, aliases_);
             }
+
+            // if (seen.find(p) != seen.end()) {
+            //     std::cerr << "Duplicate " << p << " " << *j << std::endl;
+            // }
+
+            // seen.insert(p);
+
+            std::vector<std::string> values = r.values(*j);
+
+            if (values.size() == 1) {
+                const std::string& s = values[0];
+                if (s == "off" || s == "OFF") {
+                    result.unsetValues(p);
+                    type(p)->clearDefaults();
+                    continue;
+                }
+            }
+
+            type(p)->expand(values);
+            result.setValuesTyped(type(p), values);
+            type(p)->check(values);
+            // result.setValues(p, values);
+
         }
 
-        type(p)->expand(values);
-        result.setValuesTyped(type(p), values);
-
-        // result.setValues(p, values);
-
-    }
 
 
+        if (inherit) {
+            for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
+                const std::string& name = (*k).first;
+                if (result.countValues(name) == 0) {
+                    (*k).second->setDefaults(result);
+                }
+            }
 
-    if (inherit) {
-        for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end(); ++k) {
-            const std::string& name = (*k).first;
-            if (result.countValues(name) == 0) {
-                (*k).second->setDefaults(result);
+            result.getParams(params);
+            for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+                type(*k)->setDefaults(result.values(*k));
             }
         }
 
         result.getParams(params);
+
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->setDefaults(result.values(*k));
+            type(*k)->pass2(result);
         }
-    }
 
-    result.getParams(params);
-    for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        type(*k)->finalise(result);
-    }
+        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+            type(*k)->finalise(result);
+        }
 
+    }
+    catch (Exception& e) {
+        std::ostringstream oss;
+        oss << e.what() << " request=" << r << ", expanded=" << result;
+        throw eckit::UserError(oss.str());
+    }
     return result;
+
 }
 
 
