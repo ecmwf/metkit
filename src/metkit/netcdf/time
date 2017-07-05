@@ -1,0 +1,53 @@
+netcdf  time {
+dimensions:
+
+  reftime = 2;
+  pertime = 2;
+  pres    = 1;
+  lat     = 1;
+  lon     = 1;
+
+variables:
+
+  float pres(pres);
+      pres:units = "hPa";
+      pres:standard_name = "pressure";
+      pres:axis = "Z";   
+
+  float lat(lat);
+      lat:units = "degree_north";
+      lat:standard_name = "latitude";
+      lat:axis = "Y";
+
+  float lon(lon);
+      lon:units = "degree_east";
+      lon:standard_name = "longitude";
+      lon:axis = "X";
+
+  double reftime(reftime);
+      reftime:units = "hours since 2009-01-20 00:00:00" ;
+      reftime:standard_name = "forecast_reference_time";
+
+  double pertime(pertime);
+      pertime:units = "hours";
+      pertime:standard_name = "forecast_period";
+
+  double leadtime(reftime,pertime);
+      leadtime:units = "hours since 2009-01-20 00:00:00";
+      leadtime:standard_name = "time";
+      leadtime:axis = "T";
+
+  float temp(reftime,pertime,pres,lat,lon);
+      temp:units = "K";
+      temp:standard_name = "air_temperature";
+      temp:coordinates = "leadtime pres lat lon";
+
+data:
+ lat = 1;
+ lon = 1;
+ pres = 1000;
+ reftime = 12,24;
+ pertime = 0,6;
+ leadtime = 12,18,24,30;
+ temp = 300,301,300,300;
+}

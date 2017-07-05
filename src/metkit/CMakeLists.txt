@@ -98,6 +98,128 @@ if ( HAVE_GRIB )
 
 endif ()
 
+if ( HAVE_NETCDF )
+
+  list( APPEND metkit_srcs 
+netcdf/NetCDFToRequest.h 
+netcdf/Attribute.h
+netcdf/CellMethodInputVariable.h
+netcdf/CellMethodOutputVariable.h
+netcdf/Codec.h
+netcdf/CoordinateInputVariable.h
+netcdf/CoordinateOutputVariable.h
+netcdf/Counted.h
+netcdf/DataInputVariable.h
+netcdf/DataOutputVariable.h
+netcdf/Date.h
+netcdf/DateTime.h
+netcdf/Dimension.h
+netcdf/DummyInputVariable.h
+netcdf/DummyMatrix.h
+netcdf/DummyVariable.h
+netcdf/Endowed.h
+netcdf/Exceptions.h
+netcdf/Field.h
+netcdf/GregorianDateCodec.h
+netcdf/HyperCube.h
+netcdf/InputAttribute.h
+netcdf/InputDimension.h
+netcdf/InputField.h
+netcdf/InputMatrix.h
+netcdf/InputVariable.h
+netcdf/Mapper.h
+netcdf/Matrix.h
+netcdf/MergeCoordinateMatrix.h
+netcdf/MergeCoordinateStep.h
+netcdf/MergeDataMatrix.h
+netcdf/MergeDataStep.h
+netcdf/MergePlan.h
+netcdf/NCFile.h
+netcdf/NCFileCache.h
+netcdf/NetCDFToRequest.h
+netcdf/OutputAttribute.h
+netcdf/OutputDimension.h
+netcdf/OutputField.h
+netcdf/OutputVariable.h
+netcdf/Remapping.h
+netcdf/Reshape.h
+netcdf/ReshapeVariableStep.h
+netcdf/ScalarCoordinateInputVariable.h
+netcdf/ScalarCoordinateOutputVariable.h
+netcdf/Seconds.h
+netcdf/SimpleInputVariable.h
+netcdf/SimpleOutputVariable.h
+netcdf/Step.h
+netcdf/Time.h
+netcdf/Tokenizer.h
+netcdf/Translator.h
+netcdf/Type.h
+netcdf/UpdateCoordinateStep.h
+netcdf/Value.h
+netcdf/Variable.h
+netcdf/VirtualInputDimension.h
+netcdf/VirtualOutputDimension.h
+netcdf/Attribute.cc
+netcdf/CellMethodInputVariable.cc
+netcdf/CellMethodOutputVariable.cc
+netcdf/Codec.cc
+netcdf/CoordinateInputVariable.cc
+netcdf/CoordinateOutputVariable.cc
+netcdf/Counted.cc
+netcdf/DataInputVariable.cc
+netcdf/DataOutputVariable.cc
+netcdf/Date.cc
+netcdf/DateTime.cc
+netcdf/Dimension.cc
+netcdf/DummyInputVariable.cc
+netcdf/DummyMatrix.cc
+netcdf/Endowed.cc
+netcdf/Exceptions.cc
+netcdf/Field.cc
+netcdf/GregorianDateCodec.cc
+netcdf/HyperCube.cc
+netcdf/InputAttribute.cc
+netcdf/InputDimension.cc
+netcdf/InputField.cc
+netcdf/InputMatrix.cc
+netcdf/InputVariable.cc
+netcdf/Matrix.cc
+netcdf/MergeCoordinateMatrix.cc
+netcdf/MergeCoordinateStep.cc
+netcdf/MergeDataMatrix.cc
+netcdf/MergeDataStep.cc
+netcdf/MergePlan.cc
+netcdf/NCFile.cc
+netcdf/NCFileCache.cc
+netcdf/OutputAttribute.cc
+netcdf/OutputDimension.cc
+netcdf/OutputField.cc
+netcdf/OutputVariable.cc
+netcdf/Remapping.cc
+netcdf/Reshape.cc
+netcdf/ReshapeVariableStep.cc
+netcdf/ScalarCoordinateInputVariable.cc
+netcdf/ScalarCoordinateOutputVariable.cc
+netcdf/Seconds.cc
+netcdf/SimpleInputVariable.cc
+netcdf/SimpleOutputVariable.cc
+netcdf/Step.cc
+netcdf/Time.cc
+netcdf/Tokenizer.cc
+netcdf/Translator.cc
+netcdf/Type.cc
+netcdf/UpdateCoordinateStep.cc
+netcdf/Value.cc
+netcdf/Variable.cc
+netcdf/VirtualInputDimension.cc
+netcdf/VirtualOutputDimension.cc
+#netcdf/ncmerge.cc
+  )
+
+  list( APPEND netcdflibs ${NETCDF_LIBRARIES} )
+
+endif()
+
 ecbuild_add_library(
 
     TARGET metkit
@@ -116,6 +238,10 @@ ecbuild_add_library(
     PRIVATE_INCLUDES
         ${ECKIT_INCLUDE_DIRS}
         ${GRIB_API_INCLUDE_DIRS}
+        ${NETCDF_INCLUDE_DIRS}
 
     LIBS
-        eckit ${grib_handling_pkg} )
+        eckit
+        ${grib_handling_pkg}
+        ${netcdflibs}
+)
