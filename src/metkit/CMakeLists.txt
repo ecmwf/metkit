@@ -99,9 +99,10 @@ if ( HAVE_GRIB )
 endif ()
 
 if ( HAVE_NETCDF )
-  list( APPEND metkit_srcs
-      netcdf/NetCDFToRequest.h
-      )
+
+  list( APPEND metkit_srcs netcdf/NetCDFToRequest.h )
+
+  list( APPEND netcdflibs ${NETCDF_LIBRARIES} )
 
 endif()
 
@@ -123,6 +124,10 @@ ecbuild_add_library(
     PRIVATE_INCLUDES
         ${ECKIT_INCLUDE_DIRS}
         ${GRIB_API_INCLUDE_DIRS}
+        ${NETCDF_INCLUDE_DIRS}
 
     LIBS
-        eckit ${grib_handling_pkg} )
+        eckit
+        ${grib_handling_pkg}
+        ${netcdflibs}
+)
