@@ -98,6 +98,13 @@ if ( HAVE_GRIB )
 
 endif ()
 
+if ( HAVE_NETCDF )
+  list( APPEND metkit_srcs
+      netcdf/NetCDFToRequest.h
+      )
+
+endif()
+
 ecbuild_add_library(
 
     TARGET metkit
