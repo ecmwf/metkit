@@ -10,10 +10,12 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "NCFileCache.h"
-#include "NCFile.h"
-namespace metkit{
-namespace netcdf{
+#include "metkit/netcdf/NCFileCache.h"
+#include "metkit/netcdf/NCFile.h"
+
+namespace metkit {
+namespace netcdf {
+
 NCFileCache::NCFileCache() {
 
 }

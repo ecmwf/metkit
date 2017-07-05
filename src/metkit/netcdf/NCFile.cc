@@ -10,19 +10,18 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "NCFile.h"
-
-#include "Exceptions.h"
+#include "metkit/netcdf/NCFile.h"
+#include "metkit/netcdf/Exceptions.h"
 
 #include <netcdf.h>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
 
 NCFile::NCFile(const std::string &path):
     path_(path),
     nc_(-1),
-    open_(false)
-{
+    open_(false) {
 }
 
 NCFile::~NCFile() {
@@ -53,5 +52,6 @@ void NCFile::close() {
 const std::string &NCFile::path() const {
     return path_;
 }
+
 }
 }

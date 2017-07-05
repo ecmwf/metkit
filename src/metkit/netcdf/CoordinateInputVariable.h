@@ -16,18 +16,24 @@
 #include "metkit/netcdf/InputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class CoordinateInputVariable : public InputVariable {
 public:
 
-    CoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions);
+    CoordinateInputVariable(Field &owner,
+                            const std::string &name,
+                            int id,
+                            const std::vector<Dimension *> &dimensions);
     virtual ~CoordinateInputVariable();
 
 private:
 
-    Variable *makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const ;
+    Variable *makeOutputVariable(Field &owner,
+                                 const std::string &name,
+                                 const std::vector<Dimension *> &dimensions) const ;
+
     virtual Variable *makeCoordinateVariable();
     virtual Variable *makeScalarCoordinateVariable();
 

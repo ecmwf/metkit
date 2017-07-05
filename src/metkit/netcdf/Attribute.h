@@ -16,14 +16,13 @@
 #include <iosfwd>
 #include <string>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class Endowed;
 class Value;
 
-class Attribute
-{
+class Attribute {
 public:
 
     Attribute(Endowed &owner, const std::string &name, Value *value);

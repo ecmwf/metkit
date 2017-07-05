@@ -13,11 +13,11 @@
 #ifndef metkit_netcdf_CellMethodInputVariable
 #define metkit_netcdf_CellMethodInputVariable
 
-#include "InputVariable.h"
+#include "metkit/netcdf/InputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class CellMethodInputVariable : public InputVariable {
 public:

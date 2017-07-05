@@ -16,13 +16,16 @@
 #include "metkit/netcdf/OutputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class CoordinateOutputVariable : public OutputVariable {
 public:
 
-    CoordinateOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
+    CoordinateOutputVariable(Field &owner,
+                             const std::string &name,
+                             const std::vector<Dimension *> &dimensions);
+
     virtual ~CoordinateOutputVariable();
 
 private:

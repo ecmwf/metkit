@@ -10,14 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "CoordinateInputVariable.h"
+#include "metkit/netcdf/CoordinateInputVariable.h"
+#include "metkit/netcdf/CoordinateOutputVariable.h"
+#include "metkit/netcdf/ScalarCoordinateInputVariable.h"
 
-#include "CoordinateOutputVariable.h"
-#include "ScalarCoordinateInputVariable.h"
+namespace metkit {
+namespace netcdf {
 
-namespace metkit{
-namespace netcdf{
-CoordinateInputVariable::CoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
+CoordinateInputVariable::CoordinateInputVariable(Field &owner,
+        const std::string &name,
+        int id,
+        const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
 }
@@ -25,7 +28,9 @@ CoordinateInputVariable::CoordinateInputVariable(Field &owner, const std::string
 CoordinateInputVariable::~CoordinateInputVariable() {
 }
 
-Variable *CoordinateInputVariable::makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
+Variable *CoordinateInputVariable::makeOutputVariable(Field &owner,
+        const std::string &name,
+        const std::vector<Dimension *> &dimensions) const {
     return new CoordinateOutputVariable(owner, name, dimensions);
 }
 
@@ -43,5 +48,6 @@ Variable *CoordinateInputVariable::makeScalarCoordinateVariable() {
 void CoordinateInputVariable::print(std::ostream &out) const {
     out << "CoordinateInputVariable[name=" << name_ << "]";
 }
+
 }
 }

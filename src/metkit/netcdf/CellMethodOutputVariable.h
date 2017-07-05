@@ -13,16 +13,17 @@
 #ifndef metkit_netcdf_CellMethodOutputVariable
 #define metkit_netcdf_CellMethodOutputVariable
 
-#include "OutputVariable.h"
+#include "metkit/netcdf/OutputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class CellMethodOutputVariable : public OutputVariable {
 public:
 
-    CellMethodOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
+    CellMethodOutputVariable(Field &owner, const std::string &name,
+                             const std::vector<Dimension *> &dimensions);
     virtual ~CellMethodOutputVariable();
 
 private:

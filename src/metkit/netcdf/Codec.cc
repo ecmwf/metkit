@@ -11,16 +11,14 @@
 // Baudouin Raoult - ECMWF Jan 2015
 
 #include "metkit/netcdf/Codec.h"
-
 #include "metkit/netcdf/Exceptions.h"
 
 #include <iostream>
 
-namespace metkit{
-namespace netcdf{
-    
-Codec::Codec()
-{
+namespace metkit {
+namespace netcdf {
+
+Codec::Codec() {
 }
 
 Codec::~Codec() {
@@ -89,6 +87,6 @@ void Codec::updateAttributes(int nc, int varid, const std::string &path) {
 bool Codec::timeAxis() const {
     return false;
 }
+
 }
-    
 }

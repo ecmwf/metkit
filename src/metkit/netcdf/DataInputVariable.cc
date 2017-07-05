@@ -10,14 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "DataInputVariable.h"
+#include "metkit/netcdf/DataInputVariable.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/DataOutputVariable.h"
 
-#include "Attribute.h"
-#include "DataOutputVariable.h"
+namespace metkit {
+namespace netcdf {
 
-namespace metkit{
-namespace netcdf{
-DataInputVariable::DataInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
+DataInputVariable::DataInputVariable(Field &owner,
+                                     const std::string &name,
+                                     int id,
+                                     const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
 }
@@ -25,7 +28,9 @@ DataInputVariable::DataInputVariable(Field &owner, const std::string &name, int 
 DataInputVariable::~DataInputVariable() {
 }
 
-Variable *DataInputVariable::makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
+Variable *DataInputVariable::makeOutputVariable(Field &owner,
+        const std::string &name,
+        const std::vector<Dimension *> &dimensions) const {
     return new DataOutputVariable(owner, name, dimensions);
 }
 
@@ -41,5 +46,6 @@ const std::string &DataInputVariable::ncname() const {
     }
     return name();
 }
+
 }
 }

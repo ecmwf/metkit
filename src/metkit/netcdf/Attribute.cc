@@ -18,12 +18,13 @@
 
 #include <iostream>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 Attribute::Attribute(Endowed &owner, const std::string &name, Value *value):
-    owner_(owner), name_(name), value_(value)
-{
+    owner_(owner),
+    name_(name),
+    value_(value) {
 }
 
 Attribute::~Attribute()
@@ -78,6 +79,6 @@ void Attribute::create(int) const {
     std::cout << __FUNCTION__ << " " << *this << std::endl;
     NOTIMP;
 }
-    
+
 }
 }

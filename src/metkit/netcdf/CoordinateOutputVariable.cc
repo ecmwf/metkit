@@ -10,13 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "CoordinateOutputVariable.h"
+#include "metkit/netcdf/CoordinateOutputVariable.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/Type.h"
 
-#include "Matrix.h"
-#include "Type.h"
-namespace metkit{
-namespace netcdf{
-CoordinateOutputVariable::CoordinateOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
+namespace metkit {
+namespace netcdf {
+
+CoordinateOutputVariable::CoordinateOutputVariable(Field &owner,
+        const std::string &name,
+        const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
 {
 }
@@ -53,5 +56,6 @@ void CoordinateOutputVariable::merge(const Variable &other, MergePlan &plan)
 
     }
 }
+
 }
 }

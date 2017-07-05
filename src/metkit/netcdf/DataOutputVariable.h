@@ -16,13 +16,16 @@
 #include "metkit/netcdf/OutputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class DataOutputVariable : public OutputVariable {
 public:
 
-    DataOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
+    DataOutputVariable(Field &owner,
+                       const std::string &name,
+                       const std::vector<Dimension *> &dimensions);
+
     virtual ~DataOutputVariable();
 
 private:
