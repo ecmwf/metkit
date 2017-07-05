@@ -10,12 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "InputField.h"
-#include "NCFileCache.h"
-#include "OutputField.h"
+#include "metkit/netcdf/InputField.h"
+#include "metkit/netcdf/NCFileCache.h"
+#include "metkit/netcdf/OutputField.h"
 
 #include <iostream>
 
+using namespace metkit::netcdf;
 
 int main(int argc, char **argv)
 {
@@ -37,5 +38,4 @@ int main(int argc, char **argv)
     return 0;
 
 }
-}
-}
+
