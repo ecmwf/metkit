@@ -13,13 +13,13 @@
 #ifndef metkit_netcdf_Remapping
 #define metkit_netcdf_Remapping
 
-#include "Counted.h"
-#include "HyperCube.h"
+#include "eckit/memory/Counted.h"
+#include "metkit/netcdf/HyperCube.h"
 
 namespace metkit{
 namespace netcdf{
 
-class Remapping : public HyperCube::Remapping, public Counted {
+class Remapping : public HyperCube::Remapping, public eckit::Counted {
 
 public:
     Remapping(size_t = 0);

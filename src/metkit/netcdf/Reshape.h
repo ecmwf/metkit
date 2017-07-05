@@ -13,15 +13,14 @@
 #ifndef metkit_netcdf_Reshape
 #define metkit_netcdf_Reshape
 
-#include "Counted.h"
-#include "HyperCube.h"
+#include "eckit/memory/Counted.h"
+#include "metkit/netcdf/HyperCube.h"
 
 
 namespace metkit{
 namespace netcdf{
 
-class Reshape : public Counted
-{
+class Reshape : public eckit::Counted {
 public:
 
     Reshape(const HyperCube &cube, size_t which, size_t where, size_t count, char tag);

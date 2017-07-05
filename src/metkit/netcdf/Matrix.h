@@ -15,7 +15,7 @@
 
 
 
-#include "Counted.h"
+#include "eckit/memory/Counted.h"
 
 #include <string>
 #include <vector>
@@ -31,8 +31,7 @@ class Codec;
 class Reshape;
 template<class T> class Mapper;
 
-class Matrix : public Counted
-{
+class Matrix : public eckit::Counted {
 public:
 
     Matrix(Type &type, const std::string &name, size_t size);

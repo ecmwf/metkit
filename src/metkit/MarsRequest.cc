@@ -35,10 +35,10 @@ class UndefinedType : public Type {
         out << "<undefined type>";
     }
 
-    virtual bool filter(const std::vector< std::string >& filter, std::vector<std::string>& values) {
+    virtual bool filter(const std::vector< std::string >& filter,
+                        std::vector<std::string>& values) const {
         NOTIMP;
     }
-
 
 public:
     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }

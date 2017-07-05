@@ -20,11 +20,8 @@ namespace netcdf {
 
 class NCError : public eckit::Exception
 {
-    std::string msg_;
-    virtual const char *what() const throw();
 public:
     NCError(int e, const std::string &call, const std::string &path);
-    virtual ~NCError() throw();
 };
 
 

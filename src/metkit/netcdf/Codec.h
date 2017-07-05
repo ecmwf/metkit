@@ -16,15 +16,14 @@
 #include <iosfwd>
 #include <vector>
 
-#include "metkit/netcdf/Counted.h"
+#include "eckit/memory/Counted.h"
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class Variable;
 
-class Codec : public Counted
-{
+class Codec : public eckit::Counted {
 public:
     Codec();
     virtual ~Codec();
