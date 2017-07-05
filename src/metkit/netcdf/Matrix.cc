@@ -22,7 +22,8 @@
 #include "Value.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 
 Matrix::Matrix(Type &type, const std::string &name, size_t size):
     type_(&type),
@@ -243,4 +244,6 @@ void Matrix::decache() const {
     short_cache_.clear();
     unsigned_char_cache_.clear();
     string_cache_.clear();
+}
+}
 }

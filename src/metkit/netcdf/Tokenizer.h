@@ -25,6 +25,9 @@
 
 //-----------------------------------------------------------------------------
 
+namespace metkit{
+namespace netcdf{
+
 class Tokenizer /*: private NonCopyable */ {
 
 public: // methods
@@ -62,4 +65,6 @@ private: // methods
 
 
 
+}
+}
 #endif

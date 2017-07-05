@@ -14,7 +14,8 @@
 
 #include <netcdf.h>
 
-
+namespace metkit{
+namespace netcdf{
 NCError::NCError(int e, const std::string& call, const std::string &path):
     msg_(std::string("NCError: ") + nc_strerror(e) +  + " " + call +  " (" + path + ")") {}
 
@@ -25,4 +26,6 @@ const char *NCError::what() const throw()
 
 NCError::~NCError() throw()
 {
+}
+}
 }

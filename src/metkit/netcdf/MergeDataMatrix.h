@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef MergeDataMatrix_H
-#define MergeDataMatrix_H
+#ifndef metkit_netcdf_MergeDataMatrix
+#define metkit_netcdf_MergeDataMatrix
 
 #include "Matrix.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class MergeDataMatrix : public Matrix
 {
@@ -42,4 +45,6 @@ private:
 
 };
 
+}
+}
 #endif

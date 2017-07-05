@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "DataOutputVariable.h"
+#include "metkit/netcdf/DataOutputVariable.h"
 
-#include "Attribute.h"
-#include "MergeDataStep.h"
-#include "MergePlan.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/MergeDataStep.h"
+#include "metkit/netcdf/MergePlan.h"
+
+namespace metkit {
+namespace netcdf {
 
 DataOutputVariable::DataOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
@@ -42,4 +45,7 @@ const std::string &DataOutputVariable::ncname() const {
         return ncname_;
     }
     return name();
+}
+
+}
 }

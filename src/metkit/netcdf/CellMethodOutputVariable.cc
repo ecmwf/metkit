@@ -10,11 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "CellMethodOutputVariable.h"
+#include "metkit/netcdf/CellMethodOutputVariable.h"
 
-#include "MergeDataStep.h"
-#include "MergePlan.h"
+#include "metkit/netcdf/MergeDataStep.h"
+#include "metkit/netcdf/MergePlan.h"
 
+namespace metkit{
+namespace netcdf{
 
 CellMethodOutputVariable::CellMethodOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
@@ -33,4 +35,7 @@ void CellMethodOutputVariable::merge(const Variable &other, MergePlan &plan)
 {
     Variable::merge(other, plan);
     plan.add(new MergeDataStep(*this, other));
+}
+    
+}
 }

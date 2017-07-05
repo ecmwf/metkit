@@ -21,7 +21,8 @@
 #include "Type.h"
 
 #include <netcdf.h>
-
+namespace metkit{
+namespace netcdf{
 
 InputField::InputField(const std::string &path, NCFileCache &cache):
     Field(path),
@@ -200,4 +201,6 @@ InputField::~InputField()
 void InputField::print(std::ostream &out) const
 {
     out << "InputField[path=" << path_ << "]";
+}
+}
 }

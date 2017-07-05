@@ -13,12 +13,15 @@
 
 /// @date July 2017
 
-#ifndef metkit_netcdf_NetCDFToRequest_H
-#define metkit_netcdf_NetCDFToRequest_H
+#ifndef metkit_netcdf_metkit_netcdf_NetCDFToRequest
+#define metkit_netcdf_metkit_netcdf_NetCDFToRequest
 
 #include "eckit/filesystem/PathName.h"
 
 namespace metkit {
+
+namespace metkit{
+namespace netcdf{
 
 class MarsRequest;
 
@@ -27,6 +30,9 @@ namespace netcdf {
 //----------------------------------------------------------------------------------------------------------------------
 
 /// Utility class to build MarsRequest from a NetCDF
+
+namespace metkit{
+namespace netcdf{
 
 class NetCDFToRequest {
 
@@ -41,4 +47,6 @@ public: // methods
 } // namespace netcdf
 } // namespace metkit
 
+}
+}
 #endif

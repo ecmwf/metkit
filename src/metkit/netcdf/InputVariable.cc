@@ -16,7 +16,8 @@
 #include "Dimension.h"
 #include "Exceptions.h"
 #include "Field.h"
-
+namespace metkit{
+namespace netcdf{
 
 InputVariable::InputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     Variable(owner, name, dimensions),
@@ -57,3 +58,5 @@ void InputVariable::print(std::ostream &out) const {
     out << "InputVariable[name=" << name_ << "]";
 }
 
+}
+}

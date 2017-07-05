@@ -16,7 +16,8 @@
 #include "ScalarCoordinateOutputVariable.h"
 #include "VirtualInputDimension.h"
 
-
+namespace metkit{
+namespace netcdf{
 ScalarCoordinateInputVariable::ScalarCoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -45,4 +46,6 @@ Dimension *ScalarCoordinateInputVariable::getVirtualDimension() {
         resetCube();
     }
     return dimensions_[0];
+}
+}
 }

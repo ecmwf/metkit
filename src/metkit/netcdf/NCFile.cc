@@ -15,7 +15,8 @@
 #include "Exceptions.h"
 
 #include <netcdf.h>
-
+namespace metkit{
+namespace netcdf{
 
 NCFile::NCFile(const std::string &path):
     path_(path),
@@ -51,4 +52,6 @@ void NCFile::close() {
 
 const std::string &NCFile::path() const {
     return path_;
+}
+}
 }

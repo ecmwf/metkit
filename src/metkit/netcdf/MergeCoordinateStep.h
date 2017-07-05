@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef MergeCoordinateStep_H
-#define MergeCoordinateStep_H
+#ifndef metkit_netcdf_MergeCoordinateStep
+#define metkit_netcdf_MergeCoordinateStep
 
 #include "Step.h"
 
+namespace metkit{
+namespace netcdf{
+
 class Variable;
+
 
 class MergeCoordinateStep : public Step  {
 public:
@@ -36,4 +40,6 @@ private:
     virtual void execute(MergePlan &plan);
 };
 
+}
+}
 #endif

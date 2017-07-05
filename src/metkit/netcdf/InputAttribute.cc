@@ -10,13 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "InputAttribute.h"
+#include "metkit/netcdf/InputAttribute.h"
 
-#include "Endowed.h"
-#include "OutputAttribute.h"
-#include "Value.h"
+#include "metkit/netcdf/Endowed.h"
+#include "metkit/netcdf/OutputAttribute.h"
+#include "metkit/netcdf/Value.h"
 
 #include <ostream>
+
+namespace metkit {
+namespace netcdf {
 
 InputAttribute::InputAttribute(Endowed &owner, const std::string &name, Value *value):
     Attribute(owner, name, value)
@@ -33,4 +36,7 @@ void InputAttribute::clone(Endowed &owner) const {
 
 void InputAttribute::print(std::ostream &out) const {
     out << "InputAttribute[name=" << name_ << "]";
+}
+
+}
 }

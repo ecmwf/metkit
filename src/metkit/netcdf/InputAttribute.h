@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef InputAttribute_H
-#define InputAttribute_H
+#ifndef metkit_netcdf_InputAttribute
+#define metkit_netcdf_InputAttribute
 
 #include "Attribute.h"
+
+namespace metkit{
+namespace netcdf{
 
 class InputAttribute : public Attribute
 {
@@ -30,4 +33,6 @@ private:
 
 };
 
+}
+}
 #endif

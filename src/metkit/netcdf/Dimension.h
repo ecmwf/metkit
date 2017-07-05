@@ -10,14 +10,18 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Dimension_H
-#define Dimension_H
+#ifndef metkit_netcdf_Dimension
+#define metkit_netcdf_Dimension
 
 #include <iosfwd>
 #include <string>
 
+namespace metkit{
+namespace netcdf{
+
 class Field;
 class Remapping;
+
 
 class Dimension {
 public:
@@ -65,4 +69,6 @@ private:
 
 };
 
+}
+}
 #endif

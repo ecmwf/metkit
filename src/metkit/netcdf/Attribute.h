@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Attribute_H
-#define Attribute_H
+#ifndef metkit_netcdf_Attribute
+#define metkit_netcdf_Attribute
 
 #include <iosfwd>
 #include <string>
+
+namespace metkit{
+namespace netcdf{
 
 class Endowed;
 class Value;
@@ -66,4 +69,6 @@ private:
 
 };
 
+}
+}
 #endif

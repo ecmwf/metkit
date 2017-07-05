@@ -17,7 +17,8 @@
 #include "Value.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 /*
 See http://www.unidata.ucar.edu/software/netcdf/docs/netcdf/Attribute-Conventions.html
 */
@@ -76,4 +77,6 @@ void OutputAttribute::invalidate() {
 
 void OutputAttribute::print(std::ostream &out) const {
     out << "OutputAttribute[name=" << name_ << "]";
+}
+}
 }

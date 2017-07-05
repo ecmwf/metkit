@@ -10,8 +10,8 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Matrix_H
-#define Matrix_H
+#ifndef metkit_netcdf_Matrix
+#define metkit_netcdf_Matrix
 
 
 
@@ -20,10 +20,14 @@
 #include <string>
 #include <vector>
 
+namespace metkit{
+namespace netcdf{
+
 class Type;
 class Value;
 class Remapping;
 class Codec;
+
 class Reshape;
 template<class T> class Mapper;
 
@@ -136,4 +140,6 @@ const std::vector<T> &Matrix::values() const {
     return vals;
 }
 
+}
+}
 #endif

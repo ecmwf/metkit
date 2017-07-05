@@ -15,7 +15,8 @@
 #include "CoordinateOutputVariable.h"
 #include "ScalarCoordinateInputVariable.h"
 
-
+namespace metkit{
+namespace netcdf{
 CoordinateInputVariable::CoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -41,4 +42,6 @@ Variable *CoordinateInputVariable::makeScalarCoordinateVariable() {
 
 void CoordinateInputVariable::print(std::ostream &out) const {
     out << "CoordinateInputVariable[name=" << name_ << "]";
+}
+}
 }

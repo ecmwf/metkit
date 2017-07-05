@@ -10,8 +10,8 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Variable_H
-#define Variable_H
+#ifndef metkit_netcdf_Variable
+#define metkit_netcdf_Variable
 
 #include <string>
 #include <vector>
@@ -19,6 +19,9 @@
 #include "Endowed.h"
 #include "HyperCube.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class Field;
 class Type;
@@ -120,4 +123,6 @@ private:
     }
 };
 
+}
+}
 #endif

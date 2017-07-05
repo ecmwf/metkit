@@ -13,9 +13,10 @@
 
 #include "Exceptions.h"
 
-#include "DateTime.h"
+#include "Dateeckit/types/Time.h"
 #include "Tokenizer.h"
-
+namespace metkit{
+namespace netcdf{
 //-----------------------------------------------------------------------------
 
 #include <stdlib.h>
@@ -193,3 +194,5 @@ std::string DateTime::iso(bool UTC) const
 //-----------------------------------------------------------------------------
 
 
+}
+}

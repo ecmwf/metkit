@@ -25,6 +25,9 @@
 
 //class Bless;
 
+namespace metkit{
+namespace netcdf{
+
 class Seconds {
 public:
 
@@ -56,4 +59,6 @@ private:
 //-----------------------------------------------------------------------------
 
 
+}
+}
 #endif

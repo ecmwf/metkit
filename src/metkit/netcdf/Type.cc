@@ -28,7 +28,8 @@
 
 #include <netcdf.h>
 
-
+namespace metkit{
+namespace netcdf{
 static Type *types_[NC_MAX_ATOMIC_TYPE + 1] = {0,};
 
 Type::Type(int code, const std::string &name, const std::string &dump, int super):
@@ -363,3 +364,5 @@ T(long, NC_LONG, NC_DOUBLE);
 T(std::string, NC_CHAR, -1);
 T(float, NC_FLOAT, NC_DOUBLE);
 T(double, NC_DOUBLE, -1);
+}
+}

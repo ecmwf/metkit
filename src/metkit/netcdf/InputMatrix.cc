@@ -10,19 +10,21 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "InputMatrix.h"
+#include "metkit/netcdf/InputMatrix.h"
 
-#include "Codec.h"
-#include "Exceptions.h"
-#include "Mapper.h"
-#include "NCFile.h"
-#include "Type.h"
-#include "Value.h"
+#include "metkit/netcdf/Codec.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Mapper.h"
+#include "metkit/netcdf/NCFile.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Value.h"
 
 #include <ostream>
 
 #include <netcdf.h>
 
+namespace metkit{
+namespace netcdf{
 
 InputMatrix::InputMatrix(Type &type, int varid, const std::string &name, size_t size, NCFile &file):
     Matrix(type, name, size),
@@ -123,4 +125,7 @@ void InputMatrix::fill(Mapper<short> &v) const {
 
 void InputMatrix::fill(Mapper<unsigned char> &v) const {
     _fill(v);
+}
+}
+
 }

@@ -15,7 +15,8 @@
 #include "Exceptions.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 Remapping::Remapping(size_t s) {
     reserve(s);
     for (size_t i = 0; i < s; i++) {
@@ -43,4 +44,6 @@ void Remapping::validate() const {
     for (size_t i = 1; i < size(); i++) {
         ASSERT((*this)[i - 1] < (*this)[i]);
     }
+}
+}
 }

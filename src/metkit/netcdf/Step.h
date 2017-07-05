@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Step_H
-#define Step_H
+#ifndef metkit_netcdf_Step
+#define metkit_netcdf_Step
 
 #include <iosfwd>
 
+namespace metkit{
+namespace netcdf{
+
 class MergePlan;
+
 
 class Step
 {
@@ -46,4 +50,6 @@ struct CompareSteps {
     }
 };
 
+}
+}
 #endif

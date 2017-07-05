@@ -25,6 +25,9 @@
 // class DumpLoad;
 // class Bless;
 
+namespace metkit{
+namespace netcdf{
+
 class Date {
 public:
 
@@ -162,4 +165,6 @@ private:
 //-----------------------------------------------------------------------------
 
 
+}
+}
 #endif

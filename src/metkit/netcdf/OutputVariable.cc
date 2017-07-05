@@ -22,7 +22,8 @@
 
 #include <netcdf.h>
 
-
+namespace metkit{
+namespace netcdf{
 OutputVariable::OutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     Variable(owner, name, dimensions),
     created_(false),
@@ -86,3 +87,5 @@ int OutputVariable::varid() const {
     return id_;
 }
 
+}
+}

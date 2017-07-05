@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef InputMatrix_H
-#define InputMatrix_H
+#ifndef metkit_netcdf_InputMatrix
+#define metkit_netcdf_InputMatrix
 
 #include "Matrix.h"
 
+namespace metkit{
+namespace netcdf{
+
 class NCFile;
+
 
 class InputMatrix : public Matrix {
 public:
@@ -47,4 +51,6 @@ private:
 
 };
 
+}
+}
 #endif

@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef CoordinateOutputVariable_H
-#define CoordinateOutputVariable_H
+#ifndef metkit_netcdf_CoordinateOutputVariable
+#define metkit_netcdf_CoordinateOutputVariable
 
-#include "OutputVariable.h"
+#include "metkit/netcdf/OutputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class CoordinateOutputVariable : public OutputVariable {
 public:
@@ -29,4 +32,6 @@ private:
 
 };
 
+}
+}
 #endif

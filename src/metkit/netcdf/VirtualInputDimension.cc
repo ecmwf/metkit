@@ -17,7 +17,8 @@
 
 #include <ostream>
 
-
+namespace metkit{
+namespace netcdf{
 VirtualInputDimension::VirtualInputDimension(Field &owner, const std::string &name):
     Dimension(owner, name, 1)
 {
@@ -37,4 +38,6 @@ void VirtualInputDimension::print(std::ostream &out) const {
 
 int VirtualInputDimension::id() const {
     return -1;
+}
+}
 }

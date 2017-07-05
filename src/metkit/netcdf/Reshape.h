@@ -10,12 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Reshape_H
-#define Reshape_H
+#ifndef metkit_netcdf_Reshape
+#define metkit_netcdf_Reshape
 
 #include "Counted.h"
 #include "HyperCube.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class Reshape : public Counted
 {
@@ -56,4 +59,6 @@ private:
 };
 
 
+}
+}
 #endif

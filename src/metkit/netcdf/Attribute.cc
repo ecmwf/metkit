@@ -10,13 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Attribute.h"
+#include "metkit/netcdf/Attribute.h"
 
-#include "Endowed.h"
-#include "Exceptions.h"
-#include "Value.h"
+#include "metkit/netcdf/Endowed.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Value.h"
 
 #include <iostream>
+
+namespace metkit{
+namespace netcdf{
 
 Attribute::Attribute(Endowed &owner, const std::string &name, Value *value):
     owner_(owner), name_(name), value_(value)
@@ -74,4 +77,7 @@ void Attribute::clone(Endowed &) const {
 void Attribute::create(int) const {
     std::cout << __FUNCTION__ << " " << *this << std::endl;
     NOTIMP;
+}
+    
+}
 }

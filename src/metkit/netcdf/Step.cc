@@ -11,7 +11,8 @@
 // Baudouin Raoult - ECMWF Jan 2015
 
 #include "Step.h"
-
+namespace metkit{
+namespace netcdf{
 Step::Step() {
 }
 
@@ -20,4 +21,6 @@ Step::~Step() {
 
 bool Step::merge(Step *other) {
     return false;
+}
+}
 }

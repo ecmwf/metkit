@@ -10,15 +10,19 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Endowed.h"
+#include "metkit/netcdf/Endowed.h"
 
-#include "Attribute.h"
-#include "Exceptions.h"
-#include "InputAttribute.h"
-#include "Type.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/InputAttribute.h"
+#include "metkit/netcdf/Type.h"
 
 #include <netcdf.h>
 #include <string.h>
+
+namespace metkit {
+namespace netcdf {
+
 
 Endowed::Endowed() {
 
@@ -109,4 +113,7 @@ void Endowed::mergeAttributes(const Endowed &other) {
 
 const std::map<std::string, Attribute *> &Endowed::attributes() const {
     return attributes_;
+}
+
+}
 }

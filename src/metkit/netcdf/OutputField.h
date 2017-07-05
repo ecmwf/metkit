@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef OutputField_H
-#define OutputField_H
+#ifndef metkit_netcdf_OutputField
+#define metkit_netcdf_OutputField
 
 #include "Field.h"
 
+namespace metkit{
+namespace netcdf{
+
 class NCFileCache;
+
 
 class OutputField : public Field {
 public:
@@ -44,4 +48,6 @@ private:
 
 };
 
+}
+}
 #endif

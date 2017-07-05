@@ -16,7 +16,8 @@
 #include "Variable.h"
 
 #include <ostream>
-
+namespace metkit{
+namespace netcdf{
 DummyMatrix::DummyMatrix(const Variable &v):
     Matrix(v.matrix()->type(), v.name(), v.matrix()->size()),
     other_(v.matrix()),
@@ -74,4 +75,6 @@ Matrix *DummyMatrix::merged() {
     // We should not use 'other_'
     merged_ = true;
     return this;
+}
+}
 }

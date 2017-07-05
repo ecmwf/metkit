@@ -15,7 +15,8 @@
 #include "Attribute.h"
 #include "DataOutputVariable.h"
 
-
+namespace metkit{
+namespace netcdf{
 DataInputVariable::DataInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -39,4 +40,6 @@ const std::string &DataInputVariable::ncname() const {
         return ncname_;
     }
     return name();
+}
+}
 }

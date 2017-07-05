@@ -16,7 +16,8 @@
 #include "OutputDimension.h"
 
 #include <ostream>
-
+namespace metkit{
+namespace netcdf{
 InputDimension::InputDimension(Field &owner, const std::string &name, int id, size_t len):
     Dimension(owner, name, len),
     id_(id)
@@ -38,4 +39,6 @@ void InputDimension::print(std::ostream &out) const {
 
 int InputDimension::id() const {
     return id_;
+}
+}
 }

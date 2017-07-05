@@ -17,7 +17,8 @@
 #include "Exceptions.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 DummyInputVariable::DummyInputVariable(Field &owner, const Variable &parent):
     Variable(owner, parent.name(), parent.dimensions()),
     parent_(parent)
@@ -63,4 +64,6 @@ bool DummyInputVariable::dummy() const {
 
 bool DummyInputVariable::sameAsDummy(const Variable &other) const {
     return &parent_ == &other;
+}
+}
 }

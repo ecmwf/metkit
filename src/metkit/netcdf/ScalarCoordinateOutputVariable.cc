@@ -14,7 +14,8 @@
 
 #include "Matrix.h"
 #include "Type.h"
-
+namespace metkit{
+namespace netcdf{
 ScalarCoordinateOutputVariable::ScalarCoordinateOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
 {
@@ -50,4 +51,6 @@ void ScalarCoordinateOutputVariable::merge(const Variable &other, MergePlan &pla
         }
 
     }
+}
+}
 }

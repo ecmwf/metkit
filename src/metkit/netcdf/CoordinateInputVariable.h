@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef CoordinateInputVariable_H
-#define CoordinateInputVariable_H
+#ifndef metkit_netcdf_CoordinateInputVariable
+#define metkit_netcdf_CoordinateInputVariable
 
-#include "InputVariable.h"
+#include "metkit/netcdf/InputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class CoordinateInputVariable : public InputVariable {
 public:
@@ -32,4 +35,6 @@ private:
 
 };
 
+}
+}
 #endif

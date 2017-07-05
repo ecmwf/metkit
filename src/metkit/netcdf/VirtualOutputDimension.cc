@@ -17,6 +17,8 @@
 
 #include <netcdf.h>
 
+namespace metkit{
+namespace netcdf{
 
 VirtualOutputDimension::VirtualOutputDimension(Field &owner, const std::string &name):
     Dimension(owner, name, 1),
@@ -59,4 +61,6 @@ void VirtualOutputDimension::grow(size_t count) {
     ASSERT(count >= len_);
     len_ = count;
     grown_ = true;
+}
+}
 }

@@ -10,15 +10,19 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Field_H
-#define Field_H
+#ifndef metkit_netcdf_Field
+#define metkit_netcdf_Field
 
 #include "Endowed.h"
 #include <string>
 #include <vector>
 
+namespace metkit{
+namespace netcdf{
+
 class Dimension;
 class Variable;
+
 
 class Field : public Endowed {
 public:
@@ -73,4 +77,6 @@ private:
     }
 };
 
+}
+}
 #endif

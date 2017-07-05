@@ -9,11 +9,12 @@
  */
 
 #include "Seconds.h"
-#include <sys/time.h>
+#include <sys/eckit/types/Time.h>
 #include <ostream>
 #include <sstream>
 //-----------------------------------------------------------------------------
-
+namespace metkit{
+namespace netcdf{
 
 //-----------------------------------------------------------------------------
 
@@ -72,3 +73,5 @@ Seconds::operator std::string() const
 //-----------------------------------------------------------------------------
 
 
+}
+}

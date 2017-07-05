@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef InputDimension_H
-#define InputDimension_H
+#ifndef metkit_netcdf_InputDimension
+#define metkit_netcdf_InputDimension
 
 #include "Dimension.h"
+
+namespace metkit{
+namespace netcdf{
 
 class InputDimension : public Dimension {
 public:
@@ -34,4 +37,6 @@ private:
     virtual int id() const;
 };
 
+}
+}
 #endif

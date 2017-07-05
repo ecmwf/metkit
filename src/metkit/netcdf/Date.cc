@@ -15,7 +15,8 @@
 #include <ostream>
 #include <iomanip>
 #include <stdlib.h>
-
+namespace metkit{
+namespace netcdf{
 //-----------------------------------------------------------------------------
 
 
@@ -339,3 +340,5 @@ std::string Date::monthName() const
 
 //-----------------------------------------------------------------------------
 
+}
+}

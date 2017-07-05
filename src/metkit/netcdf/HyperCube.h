@@ -11,8 +11,8 @@
 // File HyperCube.h
 // Baudouin Raoult - ECMWF Oct 96
 
-#ifndef eckit_HyperCube_h
-#define eckit_HyperCube_h
+#ifndef metkit_netcdf_eckityperCube_h
+#define metkit_netcdf_eckityperCube_h
 
 #include <vector>
 #include <functional>
@@ -26,6 +26,9 @@
 
 // Helper class to handle multi-dimension objects
 // The first dimension should be the one most likely to change
+
+namespace metkit{
+namespace netcdf{
 
 class HyperCube {
 public:
@@ -134,4 +137,6 @@ std::ostream &operator<<(std::ostream &out, const HyperCube &cube);
 //-----------------------------------------------------------------------------
 
 
+}
+}
 #endif

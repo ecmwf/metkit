@@ -10,12 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "MergePlan.h"
+#include "metkit/netcdf/MergePlan.h"
 
-#include "Exceptions.h"
-#include "Variable.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
+
+namespace metkit {
+namespace netcdf {
 
 MergePlan::MergePlan(Field &field):
     field_(field)
@@ -63,4 +66,7 @@ const Variable &MergePlan::link(const Variable &out) {
 
 Field &MergePlan::field() const {
     return field_;
+}
+
+}
 }

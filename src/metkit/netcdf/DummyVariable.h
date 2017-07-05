@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef DummyVariable_H
-#define DummyVariable_H
+#ifndef metkit_netcdf_DummyVariable
+#define metkit_netcdf_DummyVariable
 
-#include "Variable.h"
+#include "metkit/netcdf/Variable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class DummyVariable : public Variable {
 public:
@@ -41,4 +44,6 @@ protected:
     virtual int varid() const;
 };
 
+}
+}
 #endif

@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef MergeDataStep_H
-#define MergeDataStep_H
+#ifndef metkit_netcdf_MergeDataStep
+#define metkit_netcdf_MergeDataStep
 
 #include "Step.h"
 
+namespace metkit{
+namespace netcdf{
+
 class Variable;
+
 
 class MergeDataStep : public Step  {
 public:
@@ -36,4 +40,6 @@ private:
     virtual void execute(MergePlan &plan);
 };
 
+}
+}
 #endif

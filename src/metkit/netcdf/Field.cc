@@ -18,7 +18,8 @@
 #include "Variable.h"
 
 #include <netcdf.h>
-
+namespace metkit{
+namespace netcdf{
 
 Field::Field(const std::string &path):
     path_(path)
@@ -143,3 +144,5 @@ std::vector<Variable *> Field::variablesForDimension(const Dimension &dim) const
 
 
 
+}
+}

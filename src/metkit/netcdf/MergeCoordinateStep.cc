@@ -18,7 +18,8 @@
 #include "Variable.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 
 MergeCoordinateStep::MergeCoordinateStep( Variable &out, const Variable &in):
     out_(out),
@@ -66,4 +67,6 @@ void MergeCoordinateStep::execute(MergePlan &plan) {
     // Save matrix
     Matrix *m = out_.matrix()->mergeCoordinates(in_.matrix(), out_.cube().count());
     out_.setMatrix(m);
+}
+}
 }

@@ -10,15 +10,19 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Mapper_H
-#define Mapper_H
+#ifndef metkit_netcdf_Mapper
+#define metkit_netcdf_Mapper
 
 #include "Exceptions.h"
 #include "Reshape.h"
 
 #include <iostream>
 
+namespace metkit{
+namespace netcdf{
+
 template<class T>
+
 class Mapper {
 public:
     Mapper(std::vector<T> &v, std::vector<bool> &set, bool &overlap);
@@ -106,5 +110,7 @@ void Mapper<T>::set(size_t i, T v) {
     set_[i] = true;
 
     v_[i] = v;
+}
+}
 }
 #endif

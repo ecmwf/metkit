@@ -10,19 +10,20 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "GregorianDateCodec.h"
+#include "metkit/netcdf/GregorianDateCodec.h"
 
-#include "Exceptions.h"
-#include "OutputAttribute.h"
-#include "Value.h"
-#include "Variable.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/OutputAttribute.h"
+#include "metkit/netcdf/Value.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <ostream>
 #include <sstream>
 #include <algorithm>
 
 #include <netcdf.h>
-
+namespace metkit{
+namespace netcdf{
 static long long offset = 0;
 
 GregorianDateCodec::GregorianDateCodec(const std::string &units, const std::string &calendar):
@@ -32,7 +33,7 @@ GregorianDateCodec::GregorianDateCodec(const std::string &units, const std::stri
     calendar_(calendar)
 
 {
-    offset_ = reference_.date().julian() * 24 * 60 * 60 + Second(reference_.time());
+    offset_ = reference_.date().julian() * 24 * 60 * 60 + eckit::Second(reference_.time());
     if (offset == 0) { // Not thread safe
         offset = offset_;
     }
@@ -116,7 +117,7 @@ void GregorianDateCodec::addAttributes(Variable &v) const {
 
 void GregorianDateCodec::updateAttributes(int nc, int varid, const std::string &path) {
     std::stringstream s;
-    DateTime dt = reference_ + Second(zero_);
+    eckit::DateTime dt = reference_ + eckit::Second(zero_);
     s << "seconds since " << dt.date() << " " << dt.time();
     std::string value = s.str();
     NC_CALL(nc_put_att_text(nc, varid, "units", value.size(), value.c_str()), path);
@@ -124,4 +125,6 @@ void GregorianDateCodec::updateAttributes(int nc, int varid, const std::string &
 
 bool GregorianDateCodec::timeAxis() const {
     return true;
+}
+}
 }

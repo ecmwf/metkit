@@ -10,13 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef NCFileCache_H
-#define NCFileCache_H
+#ifndef metkit_netcdf_NCFileCache
+#define metkit_netcdf_NCFileCache
 
 #include <string>
 #include <map>
 
+namespace metkit{
+namespace netcdf{
+
 class NCFile;
+
 
 class NCFileCache
 {
@@ -35,4 +39,6 @@ private:
     std::map<std::string, NCFile *> files_;
 };
 
+}
+}
 #endif

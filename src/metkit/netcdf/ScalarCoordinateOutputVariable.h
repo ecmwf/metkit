@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef ScalarCoordinateOutputVariable_H
-#define ScalarCoordinateOutputVariable_H
+#ifndef metkit_netcdf_ScalarCoordinateOutputVariable
+#define metkit_netcdf_ScalarCoordinateOutputVariable
 
 #include "OutputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class ScalarCoordinateOutputVariable : public OutputVariable {
 public:
@@ -29,4 +32,6 @@ private:
 
 };
 
+}
+}
 #endif

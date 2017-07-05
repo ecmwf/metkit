@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Type_H
-#define Type_H
+#ifndef metkit_netcdf_Type
+#define metkit_netcdf_Type
 
 #include <string>
+
+namespace metkit{
+namespace netcdf{
 
 class Value;
 class Matrix;
@@ -89,4 +92,6 @@ private:
 
 
 
+}
+}
 #endif

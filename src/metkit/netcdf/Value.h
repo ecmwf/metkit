@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Value_H
-#define Value_H
+#ifndef metkit_netcdf_Value
+#define metkit_netcdf_Value
 
 #include <string>
 #include <vector>
+
+namespace metkit {
+namespace netcdf {
 
 class Type;
 
@@ -83,8 +86,7 @@ private:
 };
 
 template<class T>
-class ValueT : public Value
-{
+class ValueT : public Value {
 public:
     ValueT(Type &type, const T &value) : Value(type), value_(value) {}
     virtual void createAttribute(int nc, int varid, const std::string &name, const std::string &path);
@@ -143,4 +145,6 @@ private:
 
 };
 
+}
+}
 #endif

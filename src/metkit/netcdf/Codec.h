@@ -10,16 +10,18 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Codec_H
-#define Codec_H
+#ifndef metkit_netcdf_Codec
+#define metkit_netcdf_Codec
 
 #include <iosfwd>
 #include <vector>
 
-#include "Counted.h"
+#include "metkit/netcdf/Counted.h"
+
+namespace metkit{
+namespace netcdf{
 
 class Variable;
-
 
 class Codec : public Counted
 {
@@ -64,5 +66,8 @@ private:
     }
 };
 
+
+}
+}
 
 #endif

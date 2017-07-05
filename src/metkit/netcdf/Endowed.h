@@ -10,16 +10,18 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Endowned_H
-#define Endowned_H
+#ifndef metkit_netcdf_Endowned
+#define metkit_netcdf_Endowned
 
 #include <string>
 #include <map>
 
+namespace metkit {
+namespace netcdf {
+
 class Attribute;
 
-class Endowed
-{
+class Endowed {
 public:
     Endowed();
     virtual ~Endowed();
@@ -48,7 +50,8 @@ private:
     Endowed(const Endowed &);
     Endowed &operator=(const Endowed &);
 
-
 };
 
+}
+}
 #endif

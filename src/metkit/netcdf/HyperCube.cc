@@ -11,7 +11,8 @@
 
 #include "HyperCube.h"
 #include "Exceptions.h"
-
+namespace metkit{
+namespace netcdf{
 #if 0
 static void addLoop(
     size_t      d,
@@ -114,3 +115,5 @@ std::ostream &operator<<(std::ostream &out, const HyperCube &cube) {
     return out;
 }
 
+}
+}

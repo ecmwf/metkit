@@ -21,7 +21,8 @@
 
 #include <iostream>
 
-
+namespace metkit{
+namespace netcdf{
 UpdateCoordinateStep::UpdateCoordinateStep( Variable &out, const Variable &in, size_t growth):
     out_(out),
     in_(in),
@@ -55,4 +56,6 @@ void UpdateCoordinateStep::execute(MergePlan &plan) {
     }
 
     plan.add(new MergeCoordinateStep(out_, in_));
+}
+}
 }

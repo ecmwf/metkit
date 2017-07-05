@@ -146,13 +146,9 @@ netcdf/Reshape.h
 netcdf/ReshapeVariableStep.h
 netcdf/ScalarCoordinateInputVariable.h
 netcdf/ScalarCoordinateOutputVariable.h
-netcdf/Seconds.h
 netcdf/SimpleInputVariable.h
 netcdf/SimpleOutputVariable.h
 netcdf/Step.h
-netcdf/Time.h
-netcdf/Tokenizer.h
-netcdf/Translator.h
 netcdf/Type.h
 netcdf/UpdateCoordinateStep.h
 netcdf/Value.h
@@ -168,8 +164,6 @@ netcdf/CoordinateOutputVariable.cc
 netcdf/Counted.cc
 netcdf/DataInputVariable.cc
 netcdf/DataOutputVariable.cc
-netcdf/Date.cc
-netcdf/DateTime.cc
 netcdf/Dimension.cc
 netcdf/DummyInputVariable.cc
 netcdf/DummyMatrix.cc
@@ -200,13 +194,9 @@ netcdf/Reshape.cc
 netcdf/ReshapeVariableStep.cc
 netcdf/ScalarCoordinateInputVariable.cc
 netcdf/ScalarCoordinateOutputVariable.cc
-netcdf/Seconds.cc
 netcdf/SimpleInputVariable.cc
 netcdf/SimpleOutputVariable.cc
 netcdf/Step.cc
-netcdf/Time.cc
-netcdf/Tokenizer.cc
-netcdf/Translator.cc
 netcdf/Type.cc
 netcdf/UpdateCoordinateStep.cc
 netcdf/Value.cc

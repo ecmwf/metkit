@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef UpdateCoordinateStep_H
-#define UpdateCoordinateStep_H
+#ifndef metkit_netcdf_UpdateCoordinateStep
+#define metkit_netcdf_UpdateCoordinateStep
 
 #include "Step.h"
 
+namespace metkit{
+namespace netcdf{
+
 class Variable;
+
 
 class UpdateCoordinateStep : public Step  {
 public:
@@ -38,4 +42,6 @@ private:
 
 };
 
+}
+}
 #endif

@@ -18,7 +18,8 @@
 #include "Variable.h"
 
 #include <ostream>
-
+namespace metkit{
+namespace netcdf{
 MergeDataStep::MergeDataStep( Variable &out, const Variable &in):
     out_(out),
     in_(in)
@@ -63,4 +64,6 @@ void MergeDataStep::execute(MergePlan &plan) {
     // Save matrix
     Matrix *m = out_.matrix()->mergeData(in_.matrix(), out_.cube().count());
     out_.setMatrix(m);
+}
+}
 }

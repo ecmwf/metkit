@@ -10,18 +10,20 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef MergePlan_H
-#define MergePlan_H
+#ifndef metkit_netcdf_MergePlan
+#define metkit_netcdf_MergePlan
 
-#include "Step.h"
+#include "metkit/netcdf/Step.h"
 
 #include <queue>
 #include <map>
 
+namespace metkit{
+namespace netcdf{
+
 class Variable;
 class Dimension;
 class Field;
-
 
 class MergePlan
 {
@@ -52,4 +54,6 @@ private:
 
 };
 
+}
+}
 #endif

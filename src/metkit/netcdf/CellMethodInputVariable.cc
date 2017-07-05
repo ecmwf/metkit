@@ -10,9 +10,12 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "CellMethodInputVariable.h"
-#include "CellMethodOutputVariable.h"
+#include "metkit/netcdf/CellMethodInputVariable.h"
+#include "metkit/netcdf/CellMethodOutputVariable.h"
 
+namespace metkit{
+namespace netcdf{
+    
 CellMethodInputVariable::CellMethodInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -29,3 +32,5 @@ void CellMethodInputVariable::print(std::ostream &out) const {
     out << "CellMethodInputVariable[name=" << name_ << "]";
 }
 
+}
+}

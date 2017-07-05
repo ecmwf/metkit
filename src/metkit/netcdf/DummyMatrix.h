@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef DummyMatrix_H
-#define DummyMatrix_H
+#ifndef metkit_netcdf_DummyMatrix
+#define metkit_netcdf_DummyMatrix
 
-#include "Matrix.h"
+#include "metkit/netcdf/Matrix.h"
+
+namespace metkit{
+namespace netcdf{
 
 class Variable;
+
 
 class DummyMatrix : public Matrix {
 public:
@@ -41,4 +45,6 @@ private:
 
 };
 
+}
+}
 #endif

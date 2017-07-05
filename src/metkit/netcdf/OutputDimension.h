@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef OutputDimension_H
-#define OutputDimension_H
+#ifndef metkit_netcdf_OutputDimension
+#define metkit_netcdf_OutputDimension
 
 #include "Dimension.h"
+
+namespace metkit{
+namespace netcdf{
 
 class OutputDimension : public Dimension {
 public:
@@ -36,4 +39,6 @@ private:
     virtual void grow(size_t n);
 };
 
+}
+}
 #endif

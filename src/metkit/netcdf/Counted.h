@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Counted_H
-#define Counted_H
+#ifndef metkit_netcdf_Counted
+#define metkit_netcdf_Counted
 
 #include <cstring>
+
+namespace metkit{
+namespace netcdf{
 
 class Counted
 {
@@ -37,4 +40,6 @@ private:
     size_t refcount_;
 };
 
+}
+}
 #endif

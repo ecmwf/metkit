@@ -16,7 +16,8 @@
 #include "Field.h"
 
 #include <netcdf.h>
-
+namespace metkit{
+namespace netcdf{
 OutputDimension::OutputDimension(Field &owner, const std::string &name, size_t len):
     Dimension(owner, name, len),
     id_(-1),
@@ -50,4 +51,6 @@ void OutputDimension::grow(size_t count) {
     ASSERT(count >= len_);
     len_ = count;
     grown_ = true;
+}
+}
 }

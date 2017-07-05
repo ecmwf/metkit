@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Remapping_H
-#define Remapping_H
+#ifndef metkit_netcdf_Remapping
+#define metkit_netcdf_Remapping
 
 #include "Counted.h"
 #include "HyperCube.h"
+
+namespace metkit{
+namespace netcdf{
 
 class Remapping : public HyperCube::Remapping, public Counted {
 
@@ -39,4 +42,6 @@ public:
     }
 };
 
+}
+}
 #endif

@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef ScalarCoordinateInputVariable_H
-#define ScalarCoordinateInputVariable_H
+#ifndef metkit_netcdf_ScalarCoordinateInputVariable
+#define metkit_netcdf_ScalarCoordinateInputVariable
 
 #include "InputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class ScalarCoordinateInputVariable : public InputVariable {
 public:
@@ -30,4 +33,6 @@ private:
     virtual void print(std::ostream &s) const;
 };
 
+}
+}
 #endif

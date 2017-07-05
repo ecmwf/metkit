@@ -20,7 +20,8 @@
 
 //-----------------------------------------------------------------------------
 
-
+namespace metkit{
+namespace netcdf{
 static unsigned long long multiplier(const char* p) {
     while(isspace(*p)) p++;
 
@@ -269,3 +270,5 @@ std::string Translator<char,std::string>::operator()(char c)
 //-----------------------------------------------------------------------------
 
 
+}
+}

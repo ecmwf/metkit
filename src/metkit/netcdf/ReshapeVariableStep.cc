@@ -21,7 +21,8 @@
 #include "Variable.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 ReshapeVariableStep::ReshapeVariableStep(Variable &out, const Dimension &dimension, size_t growth):
     out_(out),
     dimension_(dimension),
@@ -151,4 +152,6 @@ bool ReshapeVariableStep::merge(Step *other) {
         }
     }
     return false;
+}
+}
 }

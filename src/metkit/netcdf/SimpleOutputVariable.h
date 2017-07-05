@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef SimpleOutputVariable_H
-#define SimpleOutputVariable_H
+#ifndef metkit_netcdf_SimpleOutputVariable
+#define metkit_netcdf_SimpleOutputVariable
 
 #include "OutputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class SimpleOutputVariable : public OutputVariable {
 public:
@@ -24,4 +27,6 @@ private:
     virtual void print(std::ostream &s) const;
 };
 
+}
+}
 #endif

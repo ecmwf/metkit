@@ -10,13 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef ReshapeVariableStep_H
-#define ReshapeVariableStep_H
+#ifndef metkit_netcdf_ReshapeVariableStep
+#define metkit_netcdf_ReshapeVariableStep
 
 #include "Step.h"
 
+namespace metkit{
+namespace netcdf{
+
 class Variable;
 class Dimension;
+
 
 class ReshapeVariableStep : public Step {
 public:
@@ -40,4 +44,6 @@ private:
 
 };
 
+}
+}
 #endif

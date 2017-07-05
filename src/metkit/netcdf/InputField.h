@@ -10,12 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef InputField_H
-#define InputField_H
+#ifndef metkit_netcdf_InputField
+#define metkit_netcdf_InputField
 
 #include "Field.h"
 
+namespace metkit{
+namespace netcdf{
+
 class NCFileCache;
+
 
 class InputField : public Field {
 public:
@@ -44,4 +48,6 @@ private:
 
 };
 
+}
+}
 #endif

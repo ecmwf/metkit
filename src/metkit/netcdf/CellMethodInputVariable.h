@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef CellMethodInputVariable_H
-#define CellMethodInputVariable_H
+#ifndef metkit_netcdf_CellMethodInputVariable
+#define metkit_netcdf_CellMethodInputVariable
 
 #include "InputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class CellMethodInputVariable : public InputVariable {
 public:
@@ -34,4 +37,6 @@ private:
 
 };
 
+}
+}
 #endif

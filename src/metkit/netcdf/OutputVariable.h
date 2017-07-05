@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef OutputVariable_H
-#define OutputVariable_H
+#ifndef metkit_netcdf_OutputVariable
+#define metkit_netcdf_OutputVariable
 
 #include "Variable.h"
+
+namespace metkit{
+namespace netcdf{
 
 class OutputVariable : public Variable {
 public:
@@ -40,4 +43,6 @@ private:
 
 };
 
+}
+}
 #endif

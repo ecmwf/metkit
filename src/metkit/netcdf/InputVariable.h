@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef InputVariable_H
-#define InputVariable_H
+#ifndef metkit_netcdf_InputVariable
+#define metkit_netcdf_InputVariable
 
 #include "Variable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class InputVariable : public Variable {
 public:
@@ -40,4 +43,6 @@ protected:
     virtual int varid() const;
 };
 
+}
+}
 #endif

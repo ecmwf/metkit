@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef CellMethodOutputVariable_H
-#define CellMethodOutputVariable_H
+#ifndef metkit_netcdf_CellMethodOutputVariable
+#define metkit_netcdf_CellMethodOutputVariable
 
 #include "OutputVariable.h"
 
+
+namespace metkit{
+namespace netcdf{
 
 class CellMethodOutputVariable : public OutputVariable {
 public:
@@ -29,4 +32,6 @@ private:
 
 };
 
+}
+}
 #endif

@@ -11,7 +11,8 @@
 // Baudouin Raoult - ECMWF Jan 2015
 
 #include "Counted.h"
-
+namespace metkit{
+namespace netcdf{
 Counted::Counted():
     refcount_(0)
 {
@@ -31,4 +32,6 @@ void Counted::detach() {
     if (refcount_ == 0) {
         delete this;
     }
+}
+}
 }

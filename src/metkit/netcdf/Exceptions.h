@@ -10,14 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef Exceptions_H
-#define Exceptions_H
+#ifndef metkit_netcdf_Exceptions
+#define metkit_netcdf_Exceptions
 
-#include <string>
-#include <sstream>
+#include "eckit/exception/Exceptions.h"
 
+namespace metkit {
+namespace netcdf {
 
-class NCError : public std::exception
+class NCError : public eckit::Exception
 {
     std::string msg_;
     virtual const char *what() const throw();
@@ -27,38 +28,12 @@ public:
 };
 
 
-class NotImplemented : public std::exception
-{
-    std::string msg_;
-    virtual const char *what() const throw() {
-        return msg_.c_str();
-    }
+class MergeError : public eckit::Exception {
 public:
-    NotImplemented(const std::string &msg) : msg_(msg) {};
-    virtual ~NotImplemented() throw() {};
+    MergeError(const std::string &message):
+        eckit::Exception("MergeError: " + message) {}
 };
 
-class AssertionFailed : public std::exception
-{
-    std::string msg_;
-    virtual const char *what() const throw() {
-        return msg_.c_str();
-    }
-public:
-    AssertionFailed(const std::string &msg) : msg_(msg) {};
-    virtual ~AssertionFailed() throw() {};
-};
-
-class MergeError : public std::exception
-{
-    std::string msg_;
-    virtual const char *what() const throw() {
-        return msg_.c_str();
-    }
-public:
-    MergeError(const std::string &msg) : msg_(std::string("MergeError: ") + msg) {};
-    virtual ~MergeError() throw() {};
-};
 
 inline int _nc_call(int e, const char *call, const std::string &path)
 {
@@ -69,26 +44,9 @@ inline int _nc_call(int e, const char *call, const std::string &path)
     return e;
 }
 
-inline void _assert(int e, const char *call, const char *file, int line, const char *function)
-{
-    if (!e)
-    {
-        std::stringstream s;
-        s << "Assertion Failed: " << call << ", file " << file << ", line " << line << " (" << function << ")";
-        throw  AssertionFailed(s.str());
-    }
-}
-
-inline void _notimp(const char *file, int line, const char *function)
-{
-    std::stringstream s;
-    s << "NotImplemented: " << file << ", line " << line << " (" << function << ")";
-    throw  NotImplemented(s.str());
-}
-
 
 #define NC_CALL(a, path) _nc_call(a, #a, path)
-#define ASSERT(a) _assert(a, #a, __FILE__, __LINE__, __FUNCTION__)
-#define NOTIMP _notimp(__FILE__, __LINE__, __FUNCTION__)
 
+}
+}
 #endif

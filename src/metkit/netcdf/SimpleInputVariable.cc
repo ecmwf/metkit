@@ -18,7 +18,8 @@
 #include "Exceptions.h"
 #include "SimpleOutputVariable.h"
 
-
+namespace metkit{
+namespace netcdf{
 SimpleInputVariable::SimpleInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -59,4 +60,6 @@ void SimpleInputVariable::print(std::ostream &out) const {
 
 void SimpleInputVariable::validate() const {
     throw MergeError(std::string("Variable ") + name_ + " is not data, coordinate or cell method.");
+}
+}
 }

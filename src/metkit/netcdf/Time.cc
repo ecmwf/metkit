@@ -9,11 +9,12 @@
  */
 
 
-#include "Time.h"
+#include "eckit/types/Time.h"
 #include "Tokenizer.h"
 #include "Translator.h"
 #include "Exceptions.h"
-
+namespace metkit{
+namespace netcdf{
 
 //-----------------------------------------------------------------------------
 #include <ostream>
@@ -199,3 +200,5 @@ Time Time::now()
 //-----------------------------------------------------------------------------
 
 
+}
+}

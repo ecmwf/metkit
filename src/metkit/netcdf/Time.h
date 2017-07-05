@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-// File Time.h
+// File eckit/types/Time.h
 // Manuel Fuentes - ECMWF Oct 96
 
 #ifndef eckit_Time_h
@@ -28,6 +28,9 @@
 // Forwarded declarations
 
 typedef double Second;
+
+namespace metkit{
+namespace netcdf{
 
 class Time {
 
@@ -130,4 +133,6 @@ private:
 //-----------------------------------------------------------------------------
 
 
+}
+}
 #endif

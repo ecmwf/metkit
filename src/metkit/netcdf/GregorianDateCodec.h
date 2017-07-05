@@ -10,13 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef GregorianDateCodec_H
-#define GregorianDateCodec_H
+#ifndef metkit_netcdf_GregorianDateCodec
+#define metkit_netcdf_GregorianDateCodec
 
-#include "Codec.h"
-#include "DateTime.h"
+#include "metkit/netcdf/Codec.h"
+#include "eckit/types/DateTime.h"
+
+namespace metkit{
+namespace netcdf{
 
 class Variable;
+
 
 class GregorianDateCodec : public Codec
 {
@@ -27,7 +31,7 @@ public:
 
 private:
 
-    DateTime reference_;
+    eckit::DateTime reference_;
     long long offset_;
     mutable long long zero_;
 
@@ -60,4 +64,6 @@ private:
 
 };
 
+}
+}
 #endif

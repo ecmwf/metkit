@@ -10,11 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef NCFile_H
-#define NCFile_H
+#ifndef metkit_netcdf_NCFile
+#define metkit_netcdf_NCFile
 
 #include <string>
 
+
+namespace metkit{
+namespace netcdf{
 
 class NCFile
 {
@@ -51,4 +54,6 @@ private:
 };
 
 
+}
+}
 #endif

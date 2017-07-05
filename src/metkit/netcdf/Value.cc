@@ -10,13 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Value.h"
+#include "metkit/netcdf/Value.h"
 
-#include "Exceptions.h"
-#include "Type.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Type.h"
 
 #include <netcdf.h>
 
+namespace metkit{
+namespace netcdf{
 
 template<>
 void ValueT<unsigned char>::createAttribute(int nc, int varid, const std::string &name, const std::string &path) {
@@ -821,3 +823,5 @@ void ValueT<std::string>::get(std::string &v) {
     NOTIMP;
 }
 
+}
+}

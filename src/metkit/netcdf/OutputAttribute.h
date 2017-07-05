@@ -10,10 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef OutputAttribute_H
-#define OutputAttribute_H
+#ifndef metkit_netcdf_OutputAttribute
+#define metkit_netcdf_OutputAttribute
 
 #include "Attribute.h"
+
+namespace metkit{
+namespace netcdf{
 
 class OutputAttribute : public Attribute
 {
@@ -37,4 +40,6 @@ private:
 
 };
 
+}
+}
 #endif

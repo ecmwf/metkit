@@ -23,7 +23,8 @@
 #include "GregorianDateCodec.h"
 
 #include <iostream>
-
+namespace metkit{
+namespace netcdf{
 static HyperCube::Dimensions cubedims(const std::vector<Dimension *> &dimensions) {
     HyperCube::Dimensions cdims;
     for (std::vector<Dimension *>::const_iterator j = dimensions.begin(); j != dimensions.end(); ++j) {
@@ -356,3 +357,5 @@ bool Variable::timeAxis() const {
     return (matrix_->codec() && matrix_->codec()->timeAxis());
 }
 
+}
+}

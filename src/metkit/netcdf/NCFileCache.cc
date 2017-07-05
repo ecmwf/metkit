@@ -12,7 +12,8 @@
 
 #include "NCFileCache.h"
 #include "NCFile.h"
-
+namespace metkit{
+namespace netcdf{
 NCFileCache::NCFileCache() {
 
 }
@@ -34,3 +35,5 @@ NCFile &NCFileCache::lookUp(const std::string &path) {
     return *((*j).second);
 }
 
+}
+}

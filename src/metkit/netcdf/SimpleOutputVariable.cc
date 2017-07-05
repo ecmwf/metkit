@@ -11,7 +11,8 @@
 // Baudouin Raoult - ECMWF Jan 2015
 
 #include "SimpleOutputVariable.h"
-
+namespace metkit{
+namespace netcdf{
 
 SimpleOutputVariable::SimpleOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
@@ -23,4 +24,6 @@ SimpleOutputVariable::~SimpleOutputVariable() {
 
 void SimpleOutputVariable::print(std::ostream &out) const {
     out << "SimpleOutputVariable[name=" << name_ << "]";
+}
+}
 }

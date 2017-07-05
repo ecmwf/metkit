@@ -23,7 +23,8 @@
 #include <iostream>
 
 #include <netcdf.h>
-
+namespace metkit{
+namespace netcdf{
 
 OutputField::OutputField(const std::string &path, NCFileCache &cache, int format):
     Field(path),
@@ -193,4 +194,6 @@ void OutputField::save() const
     }
 
     NC_CALL(nc_close(nc), path_);
+}
+}
 }
