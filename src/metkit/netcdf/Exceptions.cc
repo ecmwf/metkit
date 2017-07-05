@@ -10,12 +10,12 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Exceptions.h"
+#include "metkit/netcdf/Exceptions.h"
 
 #include <netcdf.h>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 NCError::NCError(int e, const std::string& call, const std::string &path):
     eckit::Exception(std::string("NCError: ") + nc_strerror(e) +  + " " + call +  " (" + path + ")") {}

@@ -18,15 +18,14 @@
 #include <queue>
 #include <map>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class Variable;
 class Dimension;
 class Field;
 
-class MergePlan
-{
+class MergePlan {
 public:
     MergePlan(Field &);
     ~MergePlan();

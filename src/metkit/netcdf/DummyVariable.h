@@ -16,8 +16,8 @@
 #include "metkit/netcdf/Variable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class DummyVariable : public Variable {
 public:

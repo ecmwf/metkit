@@ -13,8 +13,8 @@
 #ifndef metkit_netcdf_Mapper
 #define metkit_netcdf_Mapper
 
-#include "Exceptions.h"
-#include "Reshape.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Reshape.h"
 
 #include <iostream>
 
@@ -111,6 +111,7 @@ void Mapper<T>::set(size_t i, T v) {
 
     v_[i] = v;
 }
+
 }
 }
 #endif

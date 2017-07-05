@@ -10,15 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "DummyInputVariable.h"
+#include "metkit/netcdf/DummyInputVariable.h"
 
-#include "Attribute.h"
-#include "DummyMatrix.h"
-#include "Exceptions.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/DummyMatrix.h"
+#include "metkit/netcdf/Exceptions.h"
 
 #include <iostream>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
+
 DummyInputVariable::DummyInputVariable(Field &owner, const Variable &parent):
     Variable(owner, parent.name(), parent.dimensions()),
     parent_(parent)
@@ -65,5 +67,6 @@ bool DummyInputVariable::dummy() const {
 bool DummyInputVariable::sameAsDummy(const Variable &other) const {
     return &parent_ == &other;
 }
+
 }
 }

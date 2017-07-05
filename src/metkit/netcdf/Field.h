@@ -13,7 +13,8 @@
 #ifndef metkit_netcdf_Field
 #define metkit_netcdf_Field
 
-#include "Endowed.h"
+#include "metkit/netcdf/Endowed.h"
+
 #include <string>
 #include <vector>
 

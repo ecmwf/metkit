@@ -10,19 +10,21 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "ReshapeVariableStep.h"
+#include "metkit/netcdf/ReshapeVariableStep.h"
 
-#include "Dimension.h"
-#include "Exceptions.h"
-#include "Matrix.h"
-#include "MergePlan.h"
-#include "Remapping.h"
-#include "Reshape.h"
-#include "Variable.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/MergePlan.h"
+#include "metkit/netcdf/Remapping.h"
+#include "metkit/netcdf/Reshape.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
+
 ReshapeVariableStep::ReshapeVariableStep(Variable &out, const Dimension &dimension, size_t growth):
     out_(out),
     dimension_(dimension),
@@ -153,5 +155,6 @@ bool ReshapeVariableStep::merge(Step *other) {
     }
     return false;
 }
+
 }
 }

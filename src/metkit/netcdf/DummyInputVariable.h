@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_DummyInputVariable
 #define metkit_netcdf_DummyInputVariable
 
-#include "Variable.h"
+#include "metkit/netcdf/Variable.h"
 
 
 namespace metkit{

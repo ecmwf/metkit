@@ -10,16 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Field.h"
+#include "metkit/netcdf/Field.h"
 
-#include "Attribute.h"
-#include "Dimension.h"
-#include "Exceptions.h"
-#include "Variable.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <netcdf.h>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
 
 Field::Field(const std::string &path):
     path_(path)
@@ -141,8 +142,6 @@ std::vector<Variable *> Field::variablesForDimension(const Dimension &dim) const
     }
     return result;
 }
-
-
 
 }
 }

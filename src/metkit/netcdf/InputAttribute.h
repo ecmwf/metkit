@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_InputAttribute
 #define metkit_netcdf_InputAttribute
 
-#include "Attribute.h"
+#include "metkit/netcdf/Attribute.h"
 
 namespace metkit{
 namespace netcdf{

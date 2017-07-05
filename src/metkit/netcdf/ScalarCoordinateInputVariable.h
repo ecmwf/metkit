@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_ScalarCoordinateInputVariable
 #define metkit_netcdf_ScalarCoordinateInputVariable
 
-#include "InputVariable.h"
+#include "metkit/netcdf/InputVariable.h"
 
 
 namespace metkit{

@@ -20,7 +20,6 @@ namespace netcdf{
 
 class Variable;
 
-
 class DummyMatrix : public Matrix {
 public:
     DummyMatrix(const Variable &);

@@ -9,39 +9,12 @@
  */
 
 
-#include "HyperCube.h"
-#include "Exceptions.h"
-namespace metkit{
-namespace netcdf{
-#if 0
-static void addLoop(
-    size_t      d,
-    size_t      which,
-    size_t      where,
-    size_t      count,
-    size_t      depth,
-    HyperCube   &target,
-    const HyperCube::Dimensions  &dims,
-    HyperCube::Coordinates &coord,
-    HyperCube::Remapping   &remap)
-{
-    if (d == depth)
-        remap.push_back(target.index(coord));
-    else {
+#include "metkit/netcdf/HyperCube.h"
+#include "metkit/netcdf/Exceptions.h"
 
-        int k = 0;
-        for ( size_t i = 0; i < dims[d]; i++, k++)
-        {
-            if (which == d && i == where) {
-                std::cout << " addLoop1 k+=" << count <<  " at " << which << std::endl;
-                k += count;
-            }
-            coord[d]   = k;
-            addLoop(d + 1, which, where, count, depth, target, dims, coord, remap);
-        }
-    }
-}
-#endif
+namespace metkit {
+namespace netcdf {
+
 
 static void addLoop2(
     int         d,
@@ -75,7 +48,9 @@ static void addLoop2(
 }
 
 HyperCube HyperCube::addToDimension(size_t which,
-                                    size_t where, size_t howMuch, Remapping &remap) const
+                                    size_t where,
+                                    size_t howMuch,
+                                    Remapping &remap) const
 {
 
     remap.clear();

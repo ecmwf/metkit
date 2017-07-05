@@ -13,21 +13,27 @@
 #ifndef metkit_netcdf_SimpleInputVariable
 #define metkit_netcdf_SimpleInputVariable
 
-#include "InputVariable.h"
+#include "metkit/netcdf/InputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class SimpleInputVariable : public InputVariable {
 public:
 
-    SimpleInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions);
+    SimpleInputVariable(Field &owner,
+                        const std::string &name,
+                        int id,
+                        const std::vector<Dimension *> &dimensions);
+
     virtual ~SimpleInputVariable();
 
 private:
 
-    Variable *makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const ;
+    Variable *makeOutputVariable(Field &owner,
+                                 const std::string &name,
+                                 const std::vector<Dimension *> &dimensions) const ;
 
     virtual Variable *makeDataVariable();
     virtual Variable *makeCoordinateVariable();

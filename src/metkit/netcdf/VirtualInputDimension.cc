@@ -10,15 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "VirtualInputDimension.h"
+#include "metkit/netcdf/VirtualInputDimension.h"
 
-#include "Field.h"
-#include "VirtualOutputDimension.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/VirtualOutputDimension.h"
 
 #include <ostream>
 
 namespace metkit{
 namespace netcdf{
+
 VirtualInputDimension::VirtualInputDimension(Field &owner, const std::string &name):
     Dimension(owner, name, 1)
 {
@@ -39,5 +40,6 @@ void VirtualInputDimension::print(std::ostream &out) const {
 int VirtualInputDimension::id() const {
     return -1;
 }
+
 }
 }

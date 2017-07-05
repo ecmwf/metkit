@@ -22,8 +22,10 @@
 #include <algorithm>
 
 #include <netcdf.h>
+
 namespace metkit{
 namespace netcdf{
+
 static long long offset = 0;
 
 GregorianDateCodec::GregorianDateCodec(const std::string &units, const std::string &calendar):
@@ -126,5 +128,6 @@ void GregorianDateCodec::updateAttributes(int nc, int varid, const std::string &
 bool GregorianDateCodec::timeAxis() const {
     return true;
 }
+
 }
 }

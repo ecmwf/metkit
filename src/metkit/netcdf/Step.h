@@ -15,14 +15,13 @@
 
 #include <iosfwd>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class MergePlan;
 
 
-class Step
-{
+class Step {
 public:
     Step();
     virtual ~Step();

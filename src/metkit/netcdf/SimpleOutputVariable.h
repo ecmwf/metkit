@@ -13,11 +13,11 @@
 #ifndef metkit_netcdf_SimpleOutputVariable
 #define metkit_netcdf_SimpleOutputVariable
 
-#include "OutputVariable.h"
+#include "metkit/netcdf/OutputVariable.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class SimpleOutputVariable : public OutputVariable {
 public:

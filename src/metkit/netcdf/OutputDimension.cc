@@ -10,14 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "OutputDimension.h"
+#include "metkit/netcdf/OutputDimension.h"
 
-#include "Exceptions.h"
-#include "Field.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
 
 #include <netcdf.h>
+
 namespace metkit{
 namespace netcdf{
+
 OutputDimension::OutputDimension(Field &owner, const std::string &name, size_t len):
     Dimension(owner, name, len),
     id_(-1),
@@ -52,5 +54,6 @@ void OutputDimension::grow(size_t count) {
     len_ = count;
     grown_ = true;
 }
+
 }
 }

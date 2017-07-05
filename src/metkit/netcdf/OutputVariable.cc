@@ -10,20 +10,21 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "OutputVariable.h"
+#include "metkit/netcdf/OutputVariable.h"
 
-#include "Attribute.h"
-#include "Dimension.h"
-#include "Exceptions.h"
-#include "Field.h"
-#include "Matrix.h"
-#include "Type.h"
-#include "Codec.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Codec.h"
 
 #include <netcdf.h>
 
 namespace metkit{
 namespace netcdf{
+
 OutputVariable::OutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     Variable(owner, name, dimensions),
     created_(false),

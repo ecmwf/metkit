@@ -10,21 +10,23 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Variable.h"
+#include "metkit/netcdf/Variable.h"
 
-#include "Attribute.h"
-#include "Dimension.h"
-#include "Exceptions.h"
-#include "Field.h"
-#include "Matrix.h"
-#include "MergePlan.h"
-#include "Type.h"
-#include "Value.h"
-#include "GregorianDateCodec.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/MergePlan.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Value.h"
+#include "metkit/netcdf/GregorianDateCodec.h"
 
 #include <iostream>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
+
 static HyperCube::Dimensions cubedims(const std::vector<Dimension *> &dimensions) {
     HyperCube::Dimensions cdims;
     for (std::vector<Dimension *>::const_iterator j = dimensions.begin(); j != dimensions.end(); ++j) {

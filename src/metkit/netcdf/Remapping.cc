@@ -10,13 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Remapping.h"
+#include "metkit/netcdf/Remapping.h"
 
-#include "Exceptions.h"
+#include "metkit/netcdf/Exceptions.h"
 
 #include <iostream>
+
 namespace metkit{
 namespace netcdf{
+
 Remapping::Remapping(size_t s) {
     reserve(s);
     for (size_t i = 0; i < s; i++) {
@@ -45,5 +47,6 @@ void Remapping::validate() const {
         ASSERT((*this)[i - 1] < (*this)[i]);
     }
 }
+
 }
 }

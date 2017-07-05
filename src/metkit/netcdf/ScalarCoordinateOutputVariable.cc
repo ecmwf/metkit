@@ -10,12 +10,14 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "ScalarCoordinateOutputVariable.h"
+#include "metkit/netcdf/ScalarCoordinateOutputVariable.h"
 
-#include "Matrix.h"
-#include "Type.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/Type.h"
+
 namespace metkit{
 namespace netcdf{
+
 ScalarCoordinateOutputVariable::ScalarCoordinateOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
 {
@@ -52,5 +54,6 @@ void ScalarCoordinateOutputVariable::merge(const Variable &other, MergePlan &pla
 
     }
 }
+
 }
 }

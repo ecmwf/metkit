@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_OutputField
 #define metkit_netcdf_OutputField
 
-#include "Field.h"
+#include "metkit/netcdf/Field.h"
 
 namespace metkit{
 namespace netcdf{

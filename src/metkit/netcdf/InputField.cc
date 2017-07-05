@@ -10,17 +10,18 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "InputField.h"
+#include "metkit/netcdf/InputField.h"
 
-#include "Exceptions.h"
-#include "InputDimension.h"
-#include "InputMatrix.h"
-#include "NCFile.h"
-#include "NCFileCache.h"
-#include "SimpleInputVariable.h"
-#include "Type.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/InputDimension.h"
+#include "metkit/netcdf/InputMatrix.h"
+#include "metkit/netcdf/NCFile.h"
+#include "metkit/netcdf/NCFileCache.h"
+#include "metkit/netcdf/SimpleInputVariable.h"
+#include "metkit/netcdf/Type.h"
 
 #include <netcdf.h>
+
 namespace metkit{
 namespace netcdf{
 
@@ -202,5 +203,6 @@ void InputField::print(std::ostream &out) const
 {
     out << "InputField[path=" << path_ << "]";
 }
+
 }
 }

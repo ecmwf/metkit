@@ -10,14 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "InputDimension.h"
+#include "metkit/netcdf/InputDimension.h"
 
-#include "Field.h"
-#include "OutputDimension.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/OutputDimension.h"
 
 #include <ostream>
+
 namespace metkit{
 namespace netcdf{
+
 InputDimension::InputDimension(Field &owner, const std::string &name, int id, size_t len):
     Dimension(owner, name, len),
     id_(id)
@@ -40,5 +42,6 @@ void InputDimension::print(std::ostream &out) const {
 int InputDimension::id() const {
     return id_;
 }
+
 }
 }

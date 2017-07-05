@@ -21,8 +21,7 @@ namespace netcdf {
 
 class Type;
 
-class Value
-{
+class Value {
 public:
     Value(Type &type): type_(type) {}
     virtual ~Value() {}

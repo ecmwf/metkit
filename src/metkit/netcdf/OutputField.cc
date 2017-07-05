@@ -10,19 +10,20 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "OutputField.h"
+#include "metkit/netcdf/OutputField.h"
 
-#include "Attribute.h"
-#include "Dimension.h"
-#include "DummyInputVariable.h"
-#include "DummyMatrix.h"
-#include "Exceptions.h"
-#include "MergePlan.h"
-#include "Variable.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/DummyInputVariable.h"
+#include "metkit/netcdf/DummyMatrix.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/MergePlan.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
 
 #include <netcdf.h>
+
 namespace metkit{
 namespace netcdf{
 
@@ -195,5 +196,6 @@ void OutputField::save() const
 
     NC_CALL(nc_close(nc), path_);
 }
+
 }
 }

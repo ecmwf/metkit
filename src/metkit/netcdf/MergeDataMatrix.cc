@@ -10,14 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "MergeDataMatrix.h"
+#include "metkit/netcdf/MergeDataMatrix.h"
 
-#include "Mapper.h"
-#include "Type.h"
+#include "metkit/netcdf/Mapper.h"
+#include "metkit/netcdf/Type.h"
 
 #include <ostream>
+
 namespace metkit{
 namespace netcdf{
+
 MergeDataMatrix::MergeDataMatrix(Matrix *out, Matrix *in, size_t size):
     Matrix(Type::lookup(out->type(), in->type()), out->name(), size),
     out_(out),
@@ -71,5 +73,6 @@ void MergeDataMatrix::fill(Mapper<short> &v) const {
 void MergeDataMatrix::fill(Mapper<unsigned char> &v) const {
     _fill(v);
 }
+
 }
 }

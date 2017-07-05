@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_UpdateCoordinateStep
 #define metkit_netcdf_UpdateCoordinateStep
 
-#include "Step.h"
+#include "metkit/netcdf/Step.h"
 
 namespace metkit{
 namespace netcdf{

@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_VirtualOutputDimension
 #define metkit_netcdf_VirtualOutputDimension
 
-#include "Dimension.h"
+#include "metkit/netcdf/Dimension.h"
 
 namespace metkit{
 namespace netcdf{

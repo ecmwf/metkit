@@ -10,17 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Type.h"
+#include "metkit/netcdf/Type.h"
 
-#include "Codec.h"
-#include "Dimension.h"
-#include "Exceptions.h"
-#include "Matrix.h"
-#include "MergePlan.h"
-#include "Remapping.h"
-#include "UpdateCoordinateStep.h"
-#include "Value.h"
-#include "Variable.h"
+#include "metkit/netcdf/Codec.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/MergePlan.h"
+#include "metkit/netcdf/Remapping.h"
+#include "metkit/netcdf/UpdateCoordinateStep.h"
+#include "metkit/netcdf/Value.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
 #include <vector>
@@ -28,8 +28,9 @@
 
 #include <netcdf.h>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
+
 static Type *types_[NC_MAX_ATOMIC_TYPE + 1] = {0,};
 
 Type::Type(int code, const std::string &name, const std::string &dump, int super):
@@ -107,8 +108,7 @@ bool Type::operator!=(const Type &other) const {
 //===============================================================================================
 
 template<class T>
-class TypeT : public Type
-{
+class TypeT : public Type {
 
 public:
     TypeT(int code, const std::string &name, const std::string &dump, int super) : Type(code, name, dump, super) {}
@@ -364,5 +364,7 @@ T(long, NC_LONG, NC_DOUBLE);
 T(std::string, NC_CHAR, -1);
 T(float, NC_FLOAT, NC_DOUBLE);
 T(double, NC_DOUBLE, -1);
+
+
 }
 }

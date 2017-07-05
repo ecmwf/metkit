@@ -15,8 +15,8 @@
 
 #include <string>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class Value;
 class Matrix;
@@ -24,8 +24,7 @@ class Variable;
 class MergePlan;
 
 
-class Type
-{
+class Type {
 public:
 
     // -- Methods
@@ -88,8 +87,6 @@ private:
         return s;
     }
 };
-
-
 
 
 }

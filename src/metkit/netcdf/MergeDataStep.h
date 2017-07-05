@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_MergeDataStep
 #define metkit_netcdf_MergeDataStep
 
-#include "Step.h"
+#include "metkit/netcdf/Step.h"
 
 namespace metkit{
 namespace netcdf{

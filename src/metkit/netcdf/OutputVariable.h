@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_OutputVariable
 #define metkit_netcdf_OutputVariable
 
-#include "Variable.h"
+#include "metkit/netcdf/Variable.h"
 
 namespace metkit{
 namespace netcdf{

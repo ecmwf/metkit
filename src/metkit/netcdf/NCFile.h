@@ -15,7 +15,6 @@
 
 #include <string>
 
-
 namespace metkit{
 namespace netcdf{
 

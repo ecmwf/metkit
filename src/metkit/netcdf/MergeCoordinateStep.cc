@@ -10,14 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "MergeCoordinateStep.h"
+#include "metkit/netcdf/MergeCoordinateStep.h"
 
-#include "Dimension.h"
-#include "Matrix.h"
-#include "Type.h"
-#include "Variable.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
+
 namespace metkit{
 namespace netcdf{
 
@@ -68,5 +69,6 @@ void MergeCoordinateStep::execute(MergePlan &plan) {
     Matrix *m = out_.matrix()->mergeCoordinates(in_.matrix(), out_.cube().count());
     out_.setMatrix(m);
 }
+
 }
 }

@@ -10,19 +10,20 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "UpdateCoordinateStep.h"
+#include "metkit/netcdf/UpdateCoordinateStep.h"
 
-#include "Exceptions.h"
-#include "Field.h"
-#include "MergeCoordinateStep.h"
-#include "MergePlan.h"
-#include "ReshapeVariableStep.h"
-#include "Variable.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/MergeCoordinateStep.h"
+#include "metkit/netcdf/MergePlan.h"
+#include "metkit/netcdf/ReshapeVariableStep.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
 
 namespace metkit{
 namespace netcdf{
+
 UpdateCoordinateStep::UpdateCoordinateStep( Variable &out, const Variable &in, size_t growth):
     out_(out),
     in_(in),
@@ -57,5 +58,6 @@ void UpdateCoordinateStep::execute(MergePlan &plan) {
 
     plan.add(new MergeCoordinateStep(out_, in_));
 }
+
 }
 }

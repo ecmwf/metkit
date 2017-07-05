@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_OutputAttribute
 #define metkit_netcdf_OutputAttribute
 
-#include "Attribute.h"
+#include "metkit/netcdf/Attribute.h"
 
 namespace metkit{
 namespace netcdf{

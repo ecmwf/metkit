@@ -34,8 +34,7 @@ public:
 
 inline int _nc_call(int e, const char *call, const std::string &path)
 {
-    if (e)
-    {
+    if (e) {
         throw  NCError(e, call, path);
     }
     return e;

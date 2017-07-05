@@ -13,14 +13,13 @@
 #ifndef metkit_netcdf_MergeDataMatrix
 #define metkit_netcdf_MergeDataMatrix
 
-#include "Matrix.h"
+#include "metkit/netcdf/Matrix.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
-class MergeDataMatrix : public Matrix
-{
+class MergeDataMatrix : public Matrix {
 public:
 
     MergeDataMatrix(Matrix *out, Matrix *in, size_t size);

@@ -10,14 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "MergeCoordinateMatrix.h"
+#include "metkit/netcdf/MergeCoordinateMatrix.h"
 
-#include "Mapper.h"
-#include "Type.h"
+#include "metkit/netcdf/Mapper.h"
+#include "metkit/netcdf/Type.h"
 
 #include <ostream>
+
 namespace metkit{
 namespace netcdf{
+
 MergeCoordinateMatrix::MergeCoordinateMatrix(Matrix *out, Matrix *in, size_t size):
     Matrix(Type::lookup(out->type(), in->type()), out->name(), size),
     out_(out),
@@ -76,5 +78,6 @@ void MergeCoordinateMatrix::fill(Mapper<short> &v) const {
 void MergeCoordinateMatrix::fill(Mapper<unsigned char> &v) const {
     _fill(v);
 }
+
 }
 }

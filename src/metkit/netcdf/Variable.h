@@ -16,8 +16,8 @@
 #include <string>
 #include <vector>
 
-#include "Endowed.h"
-#include "HyperCube.h"
+#include "metkit/netcdf/Endowed.h"
+#include "metkit/netcdf/HyperCube.h"
 
 
 namespace metkit{

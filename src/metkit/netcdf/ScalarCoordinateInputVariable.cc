@@ -10,14 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "ScalarCoordinateInputVariable.h"
+#include "metkit/netcdf/ScalarCoordinateInputVariable.h"
 
-#include "Field.h"
-#include "ScalarCoordinateOutputVariable.h"
-#include "VirtualInputDimension.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/ScalarCoordinateOutputVariable.h"
+#include "metkit/netcdf/VirtualInputDimension.h"
 
 namespace metkit{
 namespace netcdf{
+
 ScalarCoordinateInputVariable::ScalarCoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -47,5 +48,6 @@ Dimension *ScalarCoordinateInputVariable::getVirtualDimension() {
     }
     return dimensions_[0];
 }
+
 }
 }

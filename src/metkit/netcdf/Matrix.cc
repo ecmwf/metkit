@@ -10,18 +10,19 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Matrix.h"
+#include "metkit/netcdf/Matrix.h"
 
-#include "Codec.h"
-#include "Exceptions.h"
-#include "Mapper.h"
-#include "MergeCoordinateMatrix.h"
-#include "MergeDataMatrix.h"
-#include "Reshape.h"
-#include "Type.h"
-#include "Value.h"
+#include "metkit/netcdf/Codec.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Mapper.h"
+#include "metkit/netcdf/MergeCoordinateMatrix.h"
+#include "metkit/netcdf/MergeDataMatrix.h"
+#include "metkit/netcdf/Reshape.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Value.h"
 
 #include <iostream>
+
 namespace metkit{
 namespace netcdf{
 
@@ -245,5 +246,6 @@ void Matrix::decache() const {
     unsigned_char_cache_.clear();
     string_cache_.clear();
 }
+
 }
 }

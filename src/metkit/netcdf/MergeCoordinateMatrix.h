@@ -13,14 +13,13 @@
 #ifndef metkit_netcdf_MergeCoordinateMatrix
 #define metkit_netcdf_MergeCoordinateMatrix
 
-#include "Matrix.h"
+#include "metkit/netcdf/Matrix.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
-class MergeCoordinateMatrix : public Matrix
-{
+class MergeCoordinateMatrix : public Matrix {
 public:
 
     MergeCoordinateMatrix(Matrix *out, Matrix *in, size_t size);

@@ -10,20 +10,21 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "MergeDataStep.h"
+#include "metkit/netcdf/MergeDataStep.h"
 
-#include "Dimension.h"
-#include "Matrix.h"
-#include "Type.h"
-#include "Variable.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Matrix.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <ostream>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
+
 MergeDataStep::MergeDataStep( Variable &out, const Variable &in):
     out_(out),
-    in_(in)
-{
+    in_(in) {
 
 }
 
@@ -65,5 +66,6 @@ void MergeDataStep::execute(MergePlan &plan) {
     Matrix *m = out_.matrix()->mergeData(in_.matrix(), out_.cube().count());
     out_.setMatrix(m);
 }
+
 }
 }

@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_ScalarCoordinateOutputVariable
 #define metkit_netcdf_ScalarCoordinateOutputVariable
 
-#include "OutputVariable.h"
+#include "metkit/netcdf/OutputVariable.h"
 
 
 namespace metkit{

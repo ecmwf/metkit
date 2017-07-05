@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_InputMatrix
 #define metkit_netcdf_InputMatrix
 
-#include "Matrix.h"
+#include "metkit/netcdf/Matrix.h"
 
 namespace metkit{
 namespace netcdf{

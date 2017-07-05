@@ -10,15 +10,15 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "VirtualOutputDimension.h"
+#include "metkit/netcdf/VirtualOutputDimension.h"
 
-#include "Exceptions.h"
-#include "Field.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
 
 #include <netcdf.h>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 VirtualOutputDimension::VirtualOutputDimension(Field &owner, const std::string &name):
     Dimension(owner, name, 1),
@@ -62,5 +62,6 @@ void VirtualOutputDimension::grow(size_t count) {
     len_ = count;
     grown_ = true;
 }
+
 }
 }

@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_InputField
 #define metkit_netcdf_InputField
 
-#include "Field.h"
+#include "metkit/netcdf/Field.h"
 
 namespace metkit{
 namespace netcdf{

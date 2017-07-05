@@ -10,14 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "DummyMatrix.h"
+#include "metkit/netcdf/DummyMatrix.h"
 
-#include "Type.h"
-#include "Variable.h"
+#include "metkit/netcdf/Type.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <ostream>
+
 namespace metkit{
 namespace netcdf{
+
 DummyMatrix::DummyMatrix(const Variable &v):
     Matrix(v.matrix()->type(), v.name(), v.matrix()->size()),
     other_(v.matrix()),
@@ -76,5 +78,6 @@ Matrix *DummyMatrix::merged() {
     merged_ = true;
     return this;
 }
+
 }
 }

@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_InputDimension
 #define metkit_netcdf_InputDimension
 
-#include "Dimension.h"
+#include "metkit/netcdf/Dimension.h"
 
 namespace metkit{
 namespace netcdf{

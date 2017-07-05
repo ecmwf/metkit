@@ -10,11 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Reshape.h"
+#include "metkit/netcdf/Reshape.h"
 
-#include "Exceptions.h"
+#include "metkit/netcdf/Exceptions.h"
+
 namespace metkit{
 namespace netcdf{
+
 Reshape::Reshape(const HyperCube &cube, size_t which, size_t where, size_t count, char tag):
     cube_(cube.dimensions()),
     mul_(cube_.size()),
@@ -95,5 +97,6 @@ size_t Reshape::operator()(size_t idx) const {
 
     return a;
 }
+
 }
 }

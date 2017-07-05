@@ -10,17 +10,22 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "Dimension.h"
+#include "metkit/netcdf/Dimension.h"
 
-#include "Exceptions.h"
-#include "Field.h"
-#include "Remapping.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Remapping.h"
 
 #include <iostream>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
+
 Dimension::Dimension(Field &owner, const std::string &name, size_t len):
-    owner_(owner), name_(name), len_(len), remapping_(new Remapping())
+    owner_(owner),
+    name_(name),
+    len_(len),
+    remapping_(new Remapping())
 {
     remapping_->attach();
 }
@@ -90,5 +95,6 @@ const Remapping &Dimension::remapping() const {
     ASSERT(remapping_ != 0);
     return *remapping_;
 }
+
 }
 }

@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_ReshapeVariableStep
 #define metkit_netcdf_ReshapeVariableStep
 
-#include "Step.h"
+#include "metkit/netcdf/Step.h"
 
 namespace metkit{
 namespace netcdf{

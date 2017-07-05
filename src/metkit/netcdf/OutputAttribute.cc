@@ -10,15 +10,16 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "OutputAttribute.h"
+#include "metkit/netcdf/OutputAttribute.h"
 
-#include "Endowed.h"
-#include "Exceptions.h"
-#include "Value.h"
+#include "metkit/netcdf/Endowed.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Value.h"
 
 #include <iostream>
-namespace metkit{
-namespace netcdf{
+
+namespace metkit {
+namespace netcdf {
 /*
 See http://www.unidata.ucar.edu/software/netcdf/docs/netcdf/Attribute-Conventions.html
 */
@@ -78,5 +79,6 @@ void OutputAttribute::invalidate() {
 void OutputAttribute::print(std::ostream &out) const {
     out << "OutputAttribute[name=" << name_ << "]";
 }
+
 }
 }

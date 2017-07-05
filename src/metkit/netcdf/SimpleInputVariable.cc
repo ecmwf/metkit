@@ -10,16 +10,17 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "SimpleInputVariable.h"
+#include "metkit/netcdf/SimpleInputVariable.h"
 
-#include "CellMethodInputVariable.h"
-#include "CoordinateInputVariable.h"
-#include "DataInputVariable.h"
-#include "Exceptions.h"
-#include "SimpleOutputVariable.h"
+#include "metkit/netcdf/CellMethodInputVariable.h"
+#include "metkit/netcdf/CoordinateInputVariable.h"
+#include "metkit/netcdf/DataInputVariable.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/SimpleOutputVariable.h"
 
 namespace metkit{
 namespace netcdf{
+
 SimpleInputVariable::SimpleInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
@@ -61,5 +62,6 @@ void SimpleInputVariable::print(std::ostream &out) const {
 void SimpleInputVariable::validate() const {
     throw MergeError(std::string("Variable ") + name_ + " is not data, coordinate or cell method.");
 }
+
 }
 }

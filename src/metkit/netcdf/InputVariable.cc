@@ -10,12 +10,13 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "InputVariable.h"
+#include "metkit/netcdf/InputVariable.h"
 
-#include "Attribute.h"
-#include "Dimension.h"
-#include "Exceptions.h"
-#include "Field.h"
+#include "metkit/netcdf/Attribute.h"
+#include "metkit/netcdf/Dimension.h"
+#include "metkit/netcdf/Exceptions.h"
+#include "metkit/netcdf/Field.h"
+
 namespace metkit{
 namespace netcdf{
 
