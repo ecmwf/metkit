@@ -21,7 +21,7 @@ namespace netcdf{
 class OutputVariable : public Variable {
 public:
 
-    OutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
+    OutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
     virtual ~OutputVariable();
 
 private:

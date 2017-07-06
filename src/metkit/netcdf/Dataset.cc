@@ -10,7 +10,7 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/Dimension.h"
@@ -22,13 +22,13 @@
 namespace metkit {
 namespace netcdf {
 
-Field::Field(const std::string &path):
+Dataset::Dataset(const std::string &path):
     path_(path)
 {
 
 }
 
-Field::~Field()
+Dataset::~Dataset()
 {
     for (std::map<std::string, Dimension *>::iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
     {
@@ -41,39 +41,39 @@ Field::~Field()
     }
 }
 
-void Field::add(Dimension *d) {
+void Dataset::add(Dimension *d) {
     dimensions_[d->name()] = d;
 }
 
-void Field::add(Variable *v) {
+void Dataset::add(Variable *v) {
     // Note: this is 'ncname'
     variables_[v->ncname()] = v;
 }
 
 
-const std::map<std::string, Dimension *> &Field::dimensions() const {
+const std::map<std::string, Dimension *> &Dataset::dimensions() const {
     return dimensions_;
 }
 
-const std::map<std::string, Variable *> &Field::variables() const {
+const std::map<std::string, Variable *> &Dataset::variables() const {
     return variables_;
 }
 
-const std::string &Field::path() const {
+const std::string &Dataset::path() const {
     return path_;
 }
 
-const std::string &Field::name() const {
+const std::string &Dataset::name() const {
     static const std::string empty;
     return empty;
 }
 
-int Field::varid() const {
+int Dataset::varid() const {
     return NC_GLOBAL;
 }
 
 
-Dimension *Field::findDimension(int id) const
+Dimension *Dataset::findDimension(int id) const
 {
     for (std::map<std::string, Dimension *>::const_iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
     {
@@ -86,7 +86,7 @@ Dimension *Field::findDimension(int id) const
     return 0;
 }
 
-Dimension *Field::findDimension(const std::string &name) const
+Dimension *Dataset::findDimension(const std::string &name) const
 {
     for (std::map<std::string, Dimension *>::const_iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
     {
@@ -100,7 +100,7 @@ Dimension *Field::findDimension(const std::string &name) const
 }
 
 
-void Field::dump(std::ostream &out) const
+void Dataset::dump(std::ostream &out) const
 {
 
     out << "netcdf " << path_ << "{" << std::endl;
@@ -128,7 +128,7 @@ void Field::dump(std::ostream &out) const
     out << std::endl << "}" << std::endl;
 }
 
-std::vector<Variable *> Field::variablesForDimension(const Dimension &dim) const {
+std::vector<Variable *> Dataset::variablesForDimension(const Dimension &dim) const {
     std::vector<Variable *> result;
     for (std::map<std::string, Variable *>::const_iterator j = variables_.begin(); j != variables_.end(); ++j)
     {

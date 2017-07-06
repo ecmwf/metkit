@@ -23,7 +23,7 @@
 namespace metkit{
 namespace netcdf{
 
-class Field;
+class Dataset;
 class Type;
 class Attribute;
 class Dimension;
@@ -34,7 +34,7 @@ class HyperCube;
 
 class Variable : public Endowed {
 public:
-    Variable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
+    Variable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
     virtual ~Variable();
 
     // -- Methods
@@ -55,7 +55,7 @@ public:
 
     virtual void create(int nc) const;
     virtual void save(int nc) const;
-    virtual Variable *clone(Field &owner) const;
+    virtual Variable *clone(Dataset &owner) const;
     virtual void merge(const Variable &, MergePlan &);
 
     virtual Variable *makeDataVariable();
@@ -93,7 +93,7 @@ protected:
 
     // -- Members
 
-    Field &owner_;
+    Dataset &owner_;
     std::string name_;
     Matrix *matrix_;
     bool scalar_;

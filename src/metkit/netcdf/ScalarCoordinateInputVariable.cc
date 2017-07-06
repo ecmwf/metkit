@@ -12,14 +12,14 @@
 
 #include "metkit/netcdf/ScalarCoordinateInputVariable.h"
 
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 #include "metkit/netcdf/ScalarCoordinateOutputVariable.h"
 #include "metkit/netcdf/VirtualInputDimension.h"
 
 namespace metkit{
 namespace netcdf{
 
-ScalarCoordinateInputVariable::ScalarCoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
+ScalarCoordinateInputVariable::ScalarCoordinateInputVariable(Dataset &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
 }
@@ -27,7 +27,7 @@ ScalarCoordinateInputVariable::ScalarCoordinateInputVariable(Field &owner, const
 ScalarCoordinateInputVariable::~ScalarCoordinateInputVariable() {
 }
 
-Variable *ScalarCoordinateInputVariable::makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
+Variable *ScalarCoordinateInputVariable::makeOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
     return new ScalarCoordinateOutputVariable(owner, name, dimensions);
 }
 

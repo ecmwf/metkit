@@ -13,14 +13,14 @@
 #include "metkit/netcdf/OutputDimension.h"
 
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 
 #include <netcdf.h>
 
 namespace metkit{
 namespace netcdf{
 
-OutputDimension::OutputDimension(Field &owner, const std::string &name, size_t len):
+OutputDimension::OutputDimension(Dataset &owner, const std::string &name, size_t len):
     Dimension(owner, name, len),
     id_(-1),
     created_(false),

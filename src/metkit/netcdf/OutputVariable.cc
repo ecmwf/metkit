@@ -15,7 +15,7 @@
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/Dimension.h"
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 #include "metkit/netcdf/Matrix.h"
 #include "metkit/netcdf/Type.h"
 #include "metkit/netcdf/Codec.h"
@@ -25,7 +25,7 @@
 namespace metkit{
 namespace netcdf{
 
-OutputVariable::OutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
+OutputVariable::OutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     Variable(owner, name, dimensions),
     created_(false),
     id_(-1)

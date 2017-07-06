@@ -12,7 +12,7 @@
 
 #include "metkit/netcdf/VirtualInputDimension.h"
 
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 #include "metkit/netcdf/VirtualOutputDimension.h"
 
 #include <ostream>
@@ -20,7 +20,7 @@
 namespace metkit{
 namespace netcdf{
 
-VirtualInputDimension::VirtualInputDimension(Field &owner, const std::string &name):
+VirtualInputDimension::VirtualInputDimension(Dataset &owner, const std::string &name):
     Dimension(owner, name, 1)
 {
 }
@@ -29,7 +29,7 @@ VirtualInputDimension::~VirtualInputDimension()
 {
 }
 
-void VirtualInputDimension::clone(Field &owner) const {
+void VirtualInputDimension::clone(Dataset &owner) const {
     owner.add(new VirtualOutputDimension(owner, name_));
 }
 

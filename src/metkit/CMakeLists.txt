@@ -128,8 +128,8 @@ netcdf/Endowed.cc
 netcdf/Endowed.h
 netcdf/Exceptions.cc
 netcdf/Exceptions.h
-netcdf/Field.cc
-netcdf/Field.h
+netcdf/Dataset.cc
+netcdf/Dataset.h
 netcdf/GregorianDateCodec.cc
 netcdf/GregorianDateCodec.h
 netcdf/HyperCube.cc
@@ -138,8 +138,8 @@ netcdf/InputAttribute.cc
 netcdf/InputAttribute.h
 netcdf/InputDimension.cc
 netcdf/InputDimension.h
-netcdf/InputField.cc
-netcdf/InputField.h
+netcdf/InputDataset.cc
+netcdf/InputDataset.h
 netcdf/InputMatrix.cc
 netcdf/InputMatrix.h
 netcdf/InputVariable.cc
@@ -165,8 +165,8 @@ netcdf/OutputAttribute.cc
 netcdf/OutputAttribute.h
 netcdf/OutputDimension.cc
 netcdf/OutputDimension.h
-netcdf/OutputField.cc
-netcdf/OutputField.h
+netcdf/OutputDataset.cc
+netcdf/OutputDataset.h
 netcdf/OutputVariable.cc
 netcdf/OutputVariable.h
 netcdf/Remapping.cc

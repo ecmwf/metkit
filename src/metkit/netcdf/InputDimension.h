@@ -20,7 +20,7 @@ namespace netcdf{
 
 class InputDimension : public Dimension {
 public:
-    InputDimension(Field &owner, const std::string &name, int id, size_t len);
+    InputDimension(Dataset &owner, const std::string &name, int id, size_t len);
     virtual ~InputDimension();
 
 private:
@@ -33,7 +33,7 @@ private:
 
     // From Dimension
     virtual void print(std::ostream &s) const;
-    virtual void clone(Field &owner) const;
+    virtual void clone(Dataset &owner) const;
     virtual int id() const;
 };
 

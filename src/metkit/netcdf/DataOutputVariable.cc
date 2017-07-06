@@ -19,7 +19,7 @@
 namespace metkit {
 namespace netcdf {
 
-DataOutputVariable::DataOutputVariable(Field &owner,
+DataOutputVariable::DataOutputVariable(Dataset &owner,
                                        const std::string &name,
                                        const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)

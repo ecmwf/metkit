@@ -22,7 +22,7 @@ namespace netcdf {
 class CellMethodOutputVariable : public OutputVariable {
 public:
 
-    CellMethodOutputVariable(Field &owner, const std::string &name,
+    CellMethodOutputVariable(Dataset &owner, const std::string &name,
                              const std::vector<Dimension *> &dimensions);
     virtual ~CellMethodOutputVariable();
 

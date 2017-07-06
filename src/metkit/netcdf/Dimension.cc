@@ -13,7 +13,7 @@
 #include "metkit/netcdf/Dimension.h"
 
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 #include "metkit/netcdf/Remapping.h"
 
 #include <iostream>
@@ -21,7 +21,7 @@
 namespace metkit {
 namespace netcdf {
 
-Dimension::Dimension(Field &owner, const std::string &name, size_t len):
+Dimension::Dimension(Dataset &owner, const std::string &name, size_t len):
     owner_(owner),
     name_(name),
     len_(len),
@@ -65,7 +65,7 @@ void Dimension::grow(size_t)
     NOTIMP;
 }
 
-void Dimension::clone(Field &) const {
+void Dimension::clone(Dataset &) const {
     std::cout << __FUNCTION__ << " " << *this << std::endl;
     NOTIMP;
 }

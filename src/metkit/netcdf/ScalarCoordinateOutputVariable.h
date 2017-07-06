@@ -22,7 +22,7 @@ namespace netcdf{
 class ScalarCoordinateOutputVariable : public OutputVariable {
 public:
 
-    ScalarCoordinateOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
+    ScalarCoordinateOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions);
     virtual ~ScalarCoordinateOutputVariable();
 
 private:

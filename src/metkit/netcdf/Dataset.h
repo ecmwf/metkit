@@ -25,11 +25,11 @@ class Dimension;
 class Variable;
 
 
-class Field : public Endowed {
+class Dataset : public Endowed {
 public:
 
-    Field(const std::string &);
-    virtual ~Field();
+    Dataset(const std::string &);
+    virtual ~Dataset();
 
     // -- Methods
 
@@ -59,8 +59,8 @@ protected:
 
 private:
 
-    Field(const Field &);
-    Field &operator=(const Field &);
+    Dataset(const Dataset &);
+    Dataset &operator=(const Dataset &);
 
     // From Endowed
 
@@ -72,7 +72,7 @@ private:
     virtual void print(std::ostream &s) const = 0;
 
     // -- Friends
-    friend std::ostream &operator<<(std::ostream &s, const Field &v) {
+    friend std::ostream &operator<<(std::ostream &s, const Dataset &v) {
         v.print(s);
         return s;
     }

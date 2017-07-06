@@ -15,7 +15,7 @@
 namespace metkit{
 namespace netcdf{
 
-SimpleOutputVariable::SimpleOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
+SimpleOutputVariable::SimpleOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)
 {
 }

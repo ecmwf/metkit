@@ -22,14 +22,14 @@ namespace netcdf {
 class CellMethodInputVariable : public InputVariable {
 public:
 
-    CellMethodInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions);
+    CellMethodInputVariable(Dataset &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions);
     virtual ~CellMethodInputVariable();
 
 private:
 
     // From InputVariable
 
-    Variable *makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const ;
+    Variable *makeOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const ;
 
     // From variable
 

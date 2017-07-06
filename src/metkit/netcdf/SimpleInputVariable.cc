@@ -21,7 +21,7 @@
 namespace metkit{
 namespace netcdf{
 
-SimpleInputVariable::SimpleInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
+SimpleInputVariable::SimpleInputVariable(Dataset &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     InputVariable(owner, name, id, dimensions)
 {
 }
@@ -51,7 +51,7 @@ Variable *SimpleInputVariable::makeCellMethodVariable() {
     return v;
 }
 
-Variable *SimpleInputVariable::makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
+Variable *SimpleInputVariable::makeOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
     return new SimpleOutputVariable(owner, name, dimensions);
 }
 

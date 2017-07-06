@@ -21,7 +21,7 @@
 namespace metkit {
 namespace netcdf {
 
-DummyInputVariable::DummyInputVariable(Field &owner, const Variable &parent):
+DummyInputVariable::DummyInputVariable(Dataset &owner, const Variable &parent):
     Variable(owner, parent.name(), parent.dimensions()),
     parent_(parent)
 {
@@ -55,7 +55,7 @@ void DummyInputVariable::print(std::ostream &out) const {
 }
 
 
-Variable *DummyInputVariable::makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
+Variable *DummyInputVariable::makeOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const {
     NOTIMP;
     return 0;
 }

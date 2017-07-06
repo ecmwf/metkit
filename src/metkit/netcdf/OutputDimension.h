@@ -21,7 +21,7 @@ namespace netcdf{
 class OutputDimension : public Dimension {
 public:
 
-    OutputDimension(Field &owner, const std::string &name, size_t len);
+    OutputDimension(Dataset &owner, const std::string &name, size_t len);
     virtual ~OutputDimension();
 
 private:

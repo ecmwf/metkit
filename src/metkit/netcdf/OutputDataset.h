@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_OutputField
 #define metkit_netcdf_OutputField
 
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 
 namespace metkit{
 namespace netcdf{
@@ -21,21 +21,21 @@ namespace netcdf{
 class NCFileCache;
 
 
-class OutputField : public Field {
+class OutputDataset : public Dataset {
 public:
 
-    OutputField(const std::string &, NCFileCache &, int format = 0);
-    virtual ~OutputField();
+    OutputDataset(const std::string &, NCFileCache &, int format = 0);
+    virtual ~OutputDataset();
 
     // -- Methods
 
-    void merge(Field &other);
+    void merge(Dataset &other);
     void save() const;
 
 private:
 
-    OutputField(const OutputField &);
-    OutputField &operator=(const OutputField &);
+    OutputDataset(const OutputDataset &);
+    OutputDataset &operator=(const OutputDataset &);
 
     // -- Members
 

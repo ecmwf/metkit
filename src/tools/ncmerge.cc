@@ -10,9 +10,9 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "metkit/netcdf/InputField.h"
+#include "metkit/netcdf/InputDataset.h"
 #include "metkit/netcdf/NCFileCache.h"
-#include "metkit/netcdf/OutputField.h"
+#include "metkit/netcdf/OutputDataset.h"
 
 #include <iostream>
 
@@ -23,9 +23,9 @@ int main(int argc, char **argv)
     try {
 
         NCFileCache cache;
-        OutputField out("out.nc", cache);
+        OutputDataset out("out.nc", cache);
         for (int i = 1 ; i < argc ; i++) {
-            InputField f(argv[i], cache);
+            InputDataset f(argv[i], cache);
             std::cout << "@@@@@@@@@@@ " << argv[i] << std::endl;
             out.merge(f);
         }

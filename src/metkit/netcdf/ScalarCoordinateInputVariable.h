@@ -22,12 +22,12 @@ namespace netcdf{
 class ScalarCoordinateInputVariable : public InputVariable {
 public:
 
-    ScalarCoordinateInputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions);
+    ScalarCoordinateInputVariable(Dataset &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions);
     virtual ~ScalarCoordinateInputVariable();
 
 private:
 
-    Variable *makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const ;
+    Variable *makeOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const ;
     virtual Dimension *getVirtualDimension();
     virtual Variable *makeCoordinateVariable();
     virtual void print(std::ostream &s) const;

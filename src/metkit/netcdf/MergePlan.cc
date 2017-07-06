@@ -20,7 +20,7 @@
 namespace metkit {
 namespace netcdf {
 
-MergePlan::MergePlan(Field &field):
+MergePlan::MergePlan(Dataset &field):
     field_(field)
 {
 
@@ -64,7 +64,7 @@ const Variable &MergePlan::link(const Variable &out) {
     return *link_[&out];
 }
 
-Field &MergePlan::field() const {
+Dataset &MergePlan::field() const {
     return field_;
 }
 

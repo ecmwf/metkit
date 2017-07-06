@@ -22,7 +22,7 @@ namespace netcdf {
 class CoordinateInputVariable : public InputVariable {
 public:
 
-    CoordinateInputVariable(Field &owner,
+    CoordinateInputVariable(Dataset &owner,
                             const std::string &name,
                             int id,
                             const std::vector<Dimension *> &dimensions);
@@ -30,7 +30,7 @@ public:
 
 private:
 
-    Variable *makeOutputVariable(Field &owner,
+    Variable *makeOutputVariable(Dataset &owner,
                                  const std::string &name,
                                  const std::vector<Dimension *> &dimensions) const ;
 

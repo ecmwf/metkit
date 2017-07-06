@@ -13,7 +13,7 @@
 #ifndef metkit_netcdf_InputField
 #define metkit_netcdf_InputField
 
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 
 namespace metkit{
 namespace netcdf{
@@ -21,16 +21,16 @@ namespace netcdf{
 class NCFileCache;
 
 
-class InputField : public Field {
+class InputDataset : public Dataset {
 public:
 
-    InputField(const std::string &, NCFileCache &);
-    virtual ~InputField();
+    InputDataset(const std::string &, NCFileCache &);
+    virtual ~InputDataset();
 
 private:
 
-    InputField(const InputField &);
-    InputField &operator=(const InputField &);
+    InputDataset(const InputDataset &);
+    InputDataset &operator=(const InputDataset &);
 
     // -- Members
 

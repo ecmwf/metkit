@@ -22,7 +22,7 @@ namespace netcdf{
 class DummyInputVariable : public Variable {
 public:
 
-    DummyInputVariable(Field &owner, const Variable &parent);
+    DummyInputVariable(Dataset &owner, const Variable &parent);
     virtual ~DummyInputVariable();
 
 protected:
@@ -31,7 +31,7 @@ protected:
 
     // -- Methods
 
-    virtual Variable *makeOutputVariable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const;
+    virtual Variable *makeOutputVariable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions) const;
     virtual bool dummy() const;
     virtual bool sameAsDummy(const Variable &) const;
     virtual const std::string &ncname() const;

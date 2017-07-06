@@ -10,7 +10,7 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "metkit/netcdf/OutputField.h"
+#include "metkit/netcdf/OutputDataset.h"
 
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/Dimension.h"
@@ -27,24 +27,24 @@
 namespace metkit{
 namespace netcdf{
 
-OutputField::OutputField(const std::string &path, NCFileCache &cache, int format):
-    Field(path),
+OutputDataset::OutputDataset(const std::string &path, NCFileCache &cache, int format):
+    Dataset(path),
     format_(format ? format : NC_FORMAT_NETCDF4_CLASSIC),
     cache_(cache)
 {
 }
 
-OutputField::~OutputField()
+OutputDataset::~OutputDataset()
 {
 }
 
 
-void OutputField::print(std::ostream &out) const
+void OutputDataset::print(std::ostream &out) const
 {
-    out << "OutputField[path=" << path_ << "]";
+    out << "OutputDataset[path=" << path_ << "]";
 }
 
-void OutputField::merge( Field &other) {
+void OutputDataset::merge( Dataset &other) {
 
     if (dimensions_.size() == 0 && attributes_.size() == 0 && variables_.size() == 0) {
         // First time, just adopt
@@ -134,7 +134,7 @@ void OutputField::merge( Field &other) {
     plan.execute();
 }
 
-void OutputField::save() const
+void OutputDataset::save() const
 {
     int flags = 0;
     switch (format_)

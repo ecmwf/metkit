@@ -18,7 +18,7 @@
 namespace metkit {
 namespace netcdf {
 
-CellMethodOutputVariable::CellMethodOutputVariable(Field &owner,
+CellMethodOutputVariable::CellMethodOutputVariable(Dataset &owner,
         const std::string &name,
         const std::vector<Dimension *> &dimensions):
     OutputVariable(owner, name, dimensions)

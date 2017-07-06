@@ -17,7 +17,7 @@
 namespace metkit {
 namespace netcdf {
 
-CoordinateInputVariable::CoordinateInputVariable(Field &owner,
+CoordinateInputVariable::CoordinateInputVariable(Dataset &owner,
         const std::string &name,
         int id,
         const std::vector<Dimension *> &dimensions):
@@ -28,7 +28,7 @@ CoordinateInputVariable::CoordinateInputVariable(Field &owner,
 CoordinateInputVariable::~CoordinateInputVariable() {
 }
 
-Variable *CoordinateInputVariable::makeOutputVariable(Field &owner,
+Variable *CoordinateInputVariable::makeOutputVariable(Dataset &owner,
         const std::string &name,
         const std::vector<Dimension *> &dimensions) const {
     return new CoordinateOutputVariable(owner, name, dimensions);

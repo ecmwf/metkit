@@ -23,11 +23,11 @@ namespace netcdf {
 
 class Variable;
 class Dimension;
-class Field;
+class Dataset;
 
 class MergePlan {
 public:
-    MergePlan(Field &);
+    MergePlan(Dataset &);
     ~MergePlan();
 
     void add(Step *);
@@ -36,11 +36,11 @@ public:
     void link(const Variable &, const Variable &);
     const Variable &link(const Variable &);
 
-    Field &field() const ;
+    Dataset &field() const ;
 
 private:
 
-    Field &field_;
+    Dataset &field_;
 
     MergePlan(const MergePlan &);
     MergePlan &operator=(const MergePlan &);

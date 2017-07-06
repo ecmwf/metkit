@@ -19,13 +19,13 @@
 namespace metkit{
 namespace netcdf{
 
-class Field;
+class Dataset;
 class Remapping;
 
 
 class Dimension {
 public:
-    Dimension(Field &owner, const std::string &name, size_t len);
+    Dimension(Dataset &owner, const std::string &name, size_t len);
     virtual ~Dimension();
 
     // -- Methods
@@ -37,7 +37,7 @@ public:
     virtual bool sameAs(const Dimension &) const;
     virtual void dump(std::ostream &s) const;
     virtual void create(int nc) const;
-    virtual void clone(Field &owner) const;
+    virtual void clone(Dataset &owner) const;
     virtual void grow(size_t n);
     virtual bool inUse() const;
 
@@ -49,7 +49,7 @@ protected:
 
     // -- Members
 
-    Field &owner_;
+    Dataset &owner_;
     std::string name_;
     size_t len_;
     Remapping *remapping_;

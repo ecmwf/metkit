@@ -15,12 +15,12 @@
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/Dimension.h"
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 
 namespace metkit{
 namespace netcdf{
 
-InputVariable::InputVariable(Field &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
+InputVariable::InputVariable(Dataset &owner, const std::string &name, int id, const std::vector<Dimension *> &dimensions):
     Variable(owner, name, dimensions),
     id_(id)
 {
@@ -35,7 +35,7 @@ int InputVariable::varid() const {
     return id_;
 }
 
-Variable *InputVariable::clone(Field &owner) const {
+Variable *InputVariable::clone(Dataset &owner) const {
 
     std::vector<Dimension *> dimensions;
     for (std::vector<Dimension *>::const_iterator j = dimensions_.begin(); j != dimensions_.end(); ++j) {

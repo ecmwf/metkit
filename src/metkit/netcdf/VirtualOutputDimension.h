@@ -20,7 +20,7 @@ namespace netcdf{
 
 class VirtualOutputDimension : public Dimension {
 public:
-    VirtualOutputDimension(Field &owner, const std::string &name);
+    VirtualOutputDimension(Dataset &owner, const std::string &name);
     virtual ~VirtualOutputDimension();
 
 private:

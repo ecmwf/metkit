@@ -22,7 +22,7 @@ namespace netcdf {
 class CoordinateOutputVariable : public OutputVariable {
 public:
 
-    CoordinateOutputVariable(Field &owner,
+    CoordinateOutputVariable(Dataset &owner,
                              const std::string &name,
                              const std::vector<Dimension *> &dimensions);
 

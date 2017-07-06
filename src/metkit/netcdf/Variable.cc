@@ -15,7 +15,7 @@
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/Dimension.h"
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 #include "metkit/netcdf/Matrix.h"
 #include "metkit/netcdf/MergePlan.h"
 #include "metkit/netcdf/Type.h"
@@ -41,7 +41,7 @@ static HyperCube::Dimensions cubedims(const std::vector<Dimension *> &dimensions
     return cdims;
 }
 
-Variable::Variable(Field &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
+Variable::Variable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
     owner_(owner),
     name_(name),
     matrix_(0),
@@ -268,7 +268,7 @@ void Variable::save(int nc) const {
     NOTIMP;
 }
 
-Variable *Variable::clone(Field &owner) const {
+Variable *Variable::clone(Dataset &owner) const {
     std::cout << __FUNCTION__ << " " << *this << std::endl;
     NOTIMP;
     return 0;

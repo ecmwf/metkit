@@ -10,7 +10,7 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#include "metkit/netcdf/InputField.h"
+#include "metkit/netcdf/InputDataset.h"
 
 #include "metkit/netcdf/Exceptions.h"
 #include "metkit/netcdf/InputDimension.h"
@@ -25,8 +25,8 @@
 namespace metkit{
 namespace netcdf{
 
-InputField::InputField(const std::string &path, NCFileCache &cache):
-    Field(path),
+InputDataset::InputDataset(const std::string &path, NCFileCache &cache):
+    Dataset(path),
     cache_(cache)
 {
     char name[NC_MAX_NAME + 1];
@@ -194,14 +194,14 @@ InputField::InputField(const std::string &path, NCFileCache &cache):
 
 }
 
-InputField::~InputField()
+InputDataset::~InputDataset()
 {
 }
 
 
-void InputField::print(std::ostream &out) const
+void InputDataset::print(std::ostream &out) const
 {
-    out << "InputField[path=" << path_ << "]";
+    out << "InputDataset[path=" << path_ << "]";
 }
 
 }

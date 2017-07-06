@@ -13,14 +13,14 @@
 #include "metkit/netcdf/VirtualOutputDimension.h"
 
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 
 #include <netcdf.h>
 
 namespace metkit {
 namespace netcdf {
 
-VirtualOutputDimension::VirtualOutputDimension(Field &owner, const std::string &name):
+VirtualOutputDimension::VirtualOutputDimension(Dataset &owner, const std::string &name):
     Dimension(owner, name, 1),
     id_(-1),
     created_(false),

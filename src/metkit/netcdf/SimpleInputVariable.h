@@ -22,7 +22,7 @@ namespace netcdf {
 class SimpleInputVariable : public InputVariable {
 public:
 
-    SimpleInputVariable(Field &owner,
+    SimpleInputVariable(Dataset &owner,
                         const std::string &name,
                         int id,
                         const std::vector<Dimension *> &dimensions);
@@ -31,7 +31,7 @@ public:
 
 private:
 
-    Variable *makeOutputVariable(Field &owner,
+    Variable *makeOutputVariable(Dataset &owner,
                                  const std::string &name,
                                  const std::vector<Dimension *> &dimensions) const ;
 

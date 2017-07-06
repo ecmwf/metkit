@@ -13,7 +13,7 @@
 #include "metkit/netcdf/UpdateCoordinateStep.h"
 
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Field.h"
+#include "metkit/netcdf/Dataset.h"
 #include "metkit/netcdf/MergeCoordinateStep.h"
 #include "metkit/netcdf/MergePlan.h"
 #include "metkit/netcdf/ReshapeVariableStep.h"
