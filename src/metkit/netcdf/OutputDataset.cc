@@ -197,10 +197,5 @@ void OutputDataset::save() const
     NC_CALL(nc_close(nc), path_);
 }
 
-std::vector<const Field *> OutputDataset::fields() const {
-    NOTIMP;
-}
-
-
 }
 }

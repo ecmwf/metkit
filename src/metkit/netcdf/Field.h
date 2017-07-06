@@ -13,7 +13,6 @@
 #ifndef metkit_netcdf_Field
 #define metkit_netcdf_Field
 
-#include "metkit/netcdf/Endowed.h"
 
 #include <string>
 #include <vector>
@@ -21,41 +20,22 @@
 namespace metkit{
 namespace netcdf{
 
-class Dimension;
 class Variable;
 
-
-class Field : public Endowed {
+class Field  {
 public:
 
-    Field(const std::string &);
+    Field(const Variable &);
     virtual ~Field();
 
     // -- Methods
 
-    Dimension *findDimension(int id) const;
-    Dimension *findDimension(const std::string &name) const;
-    std::vector<Variable *> variablesForDimension(const Dimension &) const;
-
-    virtual void dump(std::ostream &s) const;
-
-    void add(Dimension *);
-    void add(Variable *);
-
-    const std::map<std::string, Dimension *> &dimensions() const ;
-    const std::map<std::string, Variable *> &variables() const ;
-
     // From Endowed
-
-    virtual const std::string &path() const;
 
 protected:
 
     // -- Members
-    std::string path_;
-    std::map<std::string, Dimension *> dimensions_;
-    std::map<std::string, Variable *> variables_;
-
+    const Variable& owner_;
 
 private:
 
@@ -63,9 +43,6 @@ private:
     Field &operator=(const Field &);
 
     // From Endowed
-
-    virtual int varid() const;
-    virtual const std::string &name() const;
 
     // - Methods
 

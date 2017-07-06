@@ -15,139 +15,25 @@
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/Dimension.h"
 #include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Variable.h"
+#include "metkit/netcdf/DataInputVariable.h"
 
 #include <netcdf.h>
 
 namespace metkit {
 namespace netcdf {
 
-InputField::InputField(const std::string &path):
-    path_(path)
+InputField::InputField(const DataInputVariable &owner):
+    Field(owner),
+    owner_(owner)
 {
-
 }
 
-InputField::~InputField()
-{
-    for (std::map<std::string, Dimension *>::iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
-    {
-        delete (*j).second;
-    }
-
-    for (std::map<std::string, Variable *>::iterator j = variables_.begin(); j != variables_.end(); ++j)
-    {
-        delete (*j).second;
-    }
+InputField::~InputField() {
 }
 
-void InputField::add(Dimension *d) {
-    dimensions_[d->name()] = d;
+void InputField::print(std::ostream &out) const {
+    out << "InputField[owner=" << owner_ << "]";
 }
-
-void InputField::add(Variable *v) {
-    // Note: this is 'ncname'
-    variables_[v->ncname()] = v;
-}
-
-
-const std::map<std::string, Dimension *> &InputField::dimensions() const {
-    return dimensions_;
-}
-
-const std::map<std::string, Variable *> &InputField::variables() const {
-    return variables_;
-}
-
-const std::string &InputField::path() const {
-    return path_;
-}
-
-const std::string &InputField::name() const {
-    static const std::string empty;
-    return empty;
-}
-
-int InputField::varid() const {
-    return NC_GLOBAL;
-}
-
-
-Dimension *InputField::findDimension(int id) const
-{
-    for (std::map<std::string, Dimension *>::const_iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
-    {
-        if ((*j).second->id() == id)
-        {
-            return (*j).second;
-        }
-    }
-    ASSERT(0);
-    return 0;
-}
-
-Dimension *InputField::findDimension(const std::string &name) const
-{
-    for (std::map<std::string, Dimension *>::const_iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
-    {
-        if ((*j).second->name() == name)
-        {
-            return (*j).second;
-        }
-    }
-    ASSERT(0);
-    return 0;
-}
-
-
-void InputField::dump(std::ostream &out) const
-{
-
-    out << "netcdf " << path_ << "{" << std::endl;
-    out << "dimensions:" << std::endl;
-    for (std::map<std::string, Dimension *>::const_iterator j = dimensions_.begin(); j != dimensions_.end(); ++j)
-    {
-        (*j).second->dump(out);
-    }
-    out << "variables:" << std::endl;
-    for (std::map<std::string, Variable *>::const_iterator j = variables_.begin(); j != variables_.end(); ++j)
-    {
-        (*j).second->dump(out);
-    }
-    out << "// global attributes:" << std::endl;
-    for (std::map<std::string, Attribute *>::const_iterator j = attributes_.begin(); j != attributes_.end(); ++j)
-    {
-        (*j).second->dump(out);
-    }
-
-    out << std::endl << "data:" << std::endl;
-    for (std::map<std::string, Variable *>::const_iterator j = variables_.begin(); j != variables_.end(); ++j)
-    {
-        (*j).second->dumpData(out);
-    }
-    out << std::endl << "}" << std::endl;
-}
-
-std::vector<Variable *> InputField::variablesForDimension(const Dimension &dim) const {
-    std::vector<Variable *> result;
-    for (std::map<std::string, Variable *>::const_iterator j = variables_.begin(); j != variables_.end(); ++j)
-    {
-        std::vector<Dimension *> dimensions = (*j).second->dimensions();
-        for (std::vector<Dimension *>::iterator k = dimensions.begin(); k != dimensions.end(); ++k) {
-            if ((*k) == &dim) {
-                result.push_back((*j).second);
-                break;
-            }
-        }
-    }
-    return result;
-}
-
-
-std::vector<const Field *> InputDataset::fields() const {
-    NOTIMP;
-}
-
 
 }
 }

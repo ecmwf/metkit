@@ -10,10 +10,10 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef metkit_netcdf_Field
-#define metkit_netcdf_Field
+#ifndef metkit_netcdf_InputField
+#define metkit_netcdf_InputField
 
-#include "metkit/netcdf/Endowed.h"
+#include "metkit/netcdf/Field.h"
 
 #include <string>
 #include <vector>
@@ -21,41 +21,24 @@
 namespace metkit{
 namespace netcdf{
 
-class Dimension;
-class Variable;
+class DataInputVariable;
 
-
-class InputField : public Endowed {
+class InputField : public Field {
 public:
 
-    InputField(const std::string &);
+    InputField(const DataInputVariable &);
     virtual ~InputField();
 
     // -- Methods
 
-    Dimension *findDimension(int id) const;
-    Dimension *findDimension(const std::string &name) const;
-    std::vector<Variable *> variablesForDimension(const Dimension &) const;
-
-    virtual void dump(std::ostream &s) const;
-
-    void add(Dimension *);
-    void add(Variable *);
-
-    const std::map<std::string, Dimension *> &dimensions() const ;
-    const std::map<std::string, Variable *> &variables() const ;
 
     // From Endowed
 
-    virtual const std::string &path() const;
 
 protected:
 
     // -- Members
-    std::string path_;
-    std::map<std::string, Dimension *> dimensions_;
-    std::map<std::string, Variable *> variables_;
-
+    const DataInputVariable & owner_;
 
 private:
 
@@ -64,21 +47,10 @@ private:
 
     // From Endowed
 
-    virtual int varid() const;
-    virtual const std::string &name() const;
-
-    // From Dataset
-    virtual std::vector<const Field *> fields() const;
-
     // - Methods
 
-    virtual void print(std::ostream &s) const = 0;
+    virtual void print(std::ostream &s) const;
 
-    // -- Friends
-    friend std::ostream &operator<<(std::ostream &s, const InputField &v) {
-        v.print(s);
-        return s;
-    }
 };
 
 }

@@ -173,6 +173,10 @@ netcdf/Remapping.cc
 netcdf/Remapping.h
 netcdf/Reshape.cc
 netcdf/Reshape.h
+netcdf/Field.h
+netcdf/Field.cc
+netcdf/InputField.h
+netcdf/InputField.cc
 netcdf/ReshapeVariableStep.cc
 netcdf/ReshapeVariableStep.h
 netcdf/ScalarCoordinateInputVariable.cc

@@ -10,8 +10,8 @@
 
 // Baudouin Raoult - ECMWF Jan 2015
 
-#ifndef metkit_netcdf_Field
-#define metkit_netcdf_Field
+#ifndef metkit_netcdf_Dataset
+#define metkit_netcdf_Dataset
 
 #include "metkit/netcdf/Endowed.h"
 
@@ -37,8 +37,6 @@ public:
     Dimension *findDimension(int id) const;
     Dimension *findDimension(const std::string &name) const;
     std::vector<Variable *> variablesForDimension(const Dimension &) const;
-
-    virtual std::vector<const Field *> fields() const = 0;
 
     virtual void dump(std::ostream &s) const;
 

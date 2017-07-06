@@ -89,7 +89,7 @@ public:
     bool sharesDimensions(const Variable &other) const;
 
     virtual const std::string &ncname() const;
-    virtual void collectField(std::vector<const Field *>&) const;
+    virtual void collectField(std::vector<Field *>&) const;
 
 
 protected:

@@ -205,9 +205,9 @@ void InputDataset::print(std::ostream &out) const
 }
 
 
-std::vector<const Field *> InputDataset::fields() const {
+std::vector<Field *> InputDataset::fields() const {
 
-    std::vector<const Field *> result;
+    std::vector<Field *> result;
 
     for (std::map<std::string, Variable *>::const_iterator j = variables_.begin(); j != variables_.end(); ++j) {
         Variable *v = (*j).second;

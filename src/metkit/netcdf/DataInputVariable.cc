@@ -13,6 +13,7 @@
 #include "metkit/netcdf/DataInputVariable.h"
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/DataOutputVariable.h"
+#include "metkit/netcdf/InputField.h"
 
 namespace metkit {
 namespace netcdf {
@@ -48,7 +49,7 @@ const std::string &DataInputVariable::ncname() const {
 }
 
 
-void DataInputVariable::collectField(std::vector<const Field *>& fields) const {
+void DataInputVariable::collectField(std::vector<Field *>& fields) const {
     fields.push_back(new InputField(*this));
 }
 

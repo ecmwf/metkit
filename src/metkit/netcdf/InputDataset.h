@@ -27,6 +27,8 @@ public:
     InputDataset(const std::string &, NCFileCache &);
     virtual ~InputDataset();
 
+    virtual std::vector<Field *> fields() const;
+
 private:
 
     InputDataset(const InputDataset &);
@@ -44,7 +46,6 @@ private:
 
     // - Methods
 
-    std::vector<const Field *> fields() const;
 
     void print(std::ostream &s) const;
 
