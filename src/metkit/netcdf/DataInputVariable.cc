@@ -48,7 +48,8 @@ const std::string &DataInputVariable::ncname() const {
 }
 
 
-void DataInputVariable::collectField(std::vector<const Field *>&) const {
+void DataInputVariable::collectField(std::vector<const Field *>& fields) const {
+    fields.push_back(new InputField(*this));
 }
 
 
