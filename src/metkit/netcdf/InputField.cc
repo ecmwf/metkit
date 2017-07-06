@@ -16,6 +16,7 @@
 #include "metkit/netcdf/Dimension.h"
 #include "metkit/netcdf/Exceptions.h"
 #include "metkit/netcdf/DataInputVariable.h"
+#include "metkit/netcdf/Matrix.h"
 
 #include <netcdf.h>
 
@@ -33,6 +34,48 @@ InputField::~InputField() {
 
 void InputField::print(std::ostream &out) const {
     out << "InputField[owner=" << owner_ << "]";
+}
+
+std::string InputField::gridType() const {
+    return "regular_ll";
+}
+
+long InputField::paramId() const {
+    return 1;
+}
+
+double InputField::north() const {
+    return 90;
+}
+
+double InputField::south() const {
+    return -90;
+}
+
+double InputField::west() const {
+    return 0;
+}
+
+double InputField::east() const {
+    return 359;
+}
+
+double InputField::westEastIncrement() const {
+    return 1;
+}
+
+double InputField::southNorthIncrement() const {
+    return 1;
+}
+
+std::vector<size_t> InputField::dimensions() const {
+    return owner_.cube().dimensions();
+}
+
+void InputField::values(std::vector<double>& values) const {
+    Matrix* m = owner_.matrix();
+    std::cout << "MATRIX " << *m << std::endl;
+    values.clear();
 }
 
 }

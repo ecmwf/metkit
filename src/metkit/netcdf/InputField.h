@@ -18,8 +18,8 @@
 #include <string>
 #include <vector>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class DataInputVariable;
 
@@ -46,6 +46,18 @@ private:
     InputField &operator=(const InputField &);
 
     // From Endowed
+
+    virtual std::string gridType() const;
+    virtual long paramId() const;
+    virtual double north() const;
+    virtual double south() const;
+    virtual double west() const;
+    virtual double east() const;
+    virtual double westEastIncrement() const;
+    virtual double southNorthIncrement() const;
+    virtual std::vector<size_t> dimensions() const;
+    virtual void values(std::vector<double>&) const;
+
 
     // - Methods
 

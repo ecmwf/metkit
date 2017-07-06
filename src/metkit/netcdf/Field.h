@@ -17,8 +17,8 @@
 #include <string>
 #include <vector>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class Variable;
 
@@ -30,7 +30,18 @@ public:
 
     // -- Methods
 
-    // From Endowed
+    // Same as GRIB
+
+    virtual std::string gridType() const = 0;
+    virtual long paramId() const = 0;
+    virtual double north() const = 0;
+    virtual double south() const = 0;
+    virtual double west() const = 0;
+    virtual double east() const = 0;
+    virtual double westEastIncrement() const = 0;
+    virtual double southNorthIncrement() const = 0;
+    virtual std::vector<size_t> dimensions() const = 0;
+    virtual void values(std::vector<double>&) const = 0;
 
 protected:
 
