@@ -24,8 +24,8 @@
 
 #include <netcdf.h>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 OutputDataset::OutputDataset(const std::string &path, NCFileCache &cache, int format):
     Dataset(path),
@@ -196,6 +196,11 @@ void OutputDataset::save() const
 
     NC_CALL(nc_close(nc), path_);
 }
+
+std::vector<const Field *> OutputDataset::fields() const {
+    NOTIMP;
+}
+
 
 }
 }

@@ -23,22 +23,19 @@ namespace netcdf{
 
 class Dimension;
 class Variable;
-class Field;
 
 
-class Dataset : public Endowed {
+class Field : public Endowed {
 public:
 
-    Dataset(const std::string &);
-    virtual ~Dataset();
+    Field(const std::string &);
+    virtual ~Field();
 
     // -- Methods
 
     Dimension *findDimension(int id) const;
     Dimension *findDimension(const std::string &name) const;
     std::vector<Variable *> variablesForDimension(const Dimension &) const;
-
-    virtual std::vector<const Field *> fields() const = 0;
 
     virtual void dump(std::ostream &s) const;
 
@@ -62,8 +59,8 @@ protected:
 
 private:
 
-    Dataset(const Dataset &);
-    Dataset &operator=(const Dataset &);
+    Field(const Field &);
+    Field &operator=(const Field &);
 
     // From Endowed
 
@@ -75,7 +72,7 @@ private:
     virtual void print(std::ostream &s) const = 0;
 
     // -- Friends
-    friend std::ostream &operator<<(std::ostream &s, const Dataset &v) {
+    friend std::ostream &operator<<(std::ostream &s, const Field &v) {
         v.print(s);
         return s;
     }

@@ -22,8 +22,8 @@
 
 #include <netcdf.h>
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 InputDataset::InputDataset(const std::string &path, NCFileCache &cache):
     Dataset(path),
@@ -203,6 +203,20 @@ void InputDataset::print(std::ostream &out) const
 {
     out << "InputDataset[path=" << path_ << "]";
 }
+
+
+std::vector<const Field *> InputDataset::fields() const {
+
+    std::vector<const Field *> result;
+
+    for (std::map<std::string, Variable *>::const_iterator j = variables_.begin(); j != variables_.end(); ++j) {
+        Variable *v = (*j).second;
+        v->collectField(result);
+    }
+
+    return result;
+}
+
 
 }
 }

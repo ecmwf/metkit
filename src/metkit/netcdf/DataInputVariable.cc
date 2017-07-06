@@ -47,5 +47,11 @@ const std::string &DataInputVariable::ncname() const {
     return name();
 }
 
+
+void DataInputVariable::collectField(std::vector<const Field *>&) const {
+}
+
+
+
 }
 }

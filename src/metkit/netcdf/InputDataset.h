@@ -15,8 +15,8 @@
 
 #include "metkit/netcdf/Dataset.h"
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class NCFileCache;
 
@@ -43,6 +43,8 @@ private:
     NCFileCache &cache_;
 
     // - Methods
+
+    std::vector<const Field *> fields() const;
 
     void print(std::ostream &s) const;
 

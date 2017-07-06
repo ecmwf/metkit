@@ -33,6 +33,7 @@ private:
     virtual void merge(const Variable &, MergePlan &plan);
     virtual void print(std::ostream &s) const;
     virtual const std::string &ncname() const;
+    virtual void collectField(std::vector<const Field *>&) const;
 
     mutable std::string ncname_;
 };

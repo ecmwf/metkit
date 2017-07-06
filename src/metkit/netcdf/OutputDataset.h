@@ -44,6 +44,9 @@ private:
 
     // - Methods
 
+    // From Dataset
+    virtual std::vector<const Field *> fields() const;
+
     virtual void print(std::ostream &s) const;
 
 };

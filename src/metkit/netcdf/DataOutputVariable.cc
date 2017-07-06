@@ -15,6 +15,7 @@
 #include "metkit/netcdf/Attribute.h"
 #include "metkit/netcdf/MergeDataStep.h"
 #include "metkit/netcdf/MergePlan.h"
+#include "metkit/netcdf/Exceptions.h"
 
 namespace metkit {
 namespace netcdf {
@@ -47,6 +48,11 @@ const std::string &DataOutputVariable::ncname() const {
         return ncname_;
     }
     return name();
+}
+
+
+void DataOutputVariable::collectField(std::vector<const Field *>&) const {
+    NOTIMP;
 }
 
 }

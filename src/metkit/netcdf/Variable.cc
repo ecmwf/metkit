@@ -359,5 +359,10 @@ bool Variable::timeAxis() const {
     return (matrix_->codec() && matrix_->codec()->timeAxis());
 }
 
+void Variable::collectField(std::vector<const Field *>&) const {
+}
+
+
+
 }
 }
