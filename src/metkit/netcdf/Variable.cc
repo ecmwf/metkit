@@ -72,7 +72,8 @@ void Variable::setMatrix(Matrix *matrix) {
         std::map<std::string, Attribute *>::const_iterator j = attributes_.find("_FillValue");
         std::map<std::string, Attribute *>::const_iterator k = attributes_.find("missing_value");
         if (j != attributes_.end() && k !=  attributes_.end()) {
-            throw MergeError(std::string("Variable ") + name() + " has both 'missing_value' and '_FillValue' attributes");
+            eckit::Log::warning() << "Variable '" << name() << "' has both 'missing_value' and '_FillValue' attributes" << std::endl;
+            // throw MergeError(std::string("Variable ") + name() + " has both 'missing_value' and '_FillValue' attributes");
         }
         if (j == attributes_.end()) {
             j = k;

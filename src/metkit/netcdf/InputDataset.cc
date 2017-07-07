@@ -109,6 +109,10 @@ InputDataset::InputDataset(const std::string &path, NCFileCache &cache):
             {
                 // This is a coordinate variable
                 std::map<std::string, Variable *>::iterator m = variables_.find(*k);
+                if (m == variables_.end()) {
+                    eckit::Log::error() << "Coordinate '" << *k << "' has no corresponding variable" << std::endl;
+                    continue;
+                }
                 ASSERT(m != variables_.end());
                 Variable *t = (*m).second;
                 Variable *w = t->makeCoordinateVariable();
