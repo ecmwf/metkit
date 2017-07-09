@@ -115,5 +115,6 @@ const std::map<std::string, Attribute *> &Endowed::attributes() const {
     return attributes_;
 }
 
+
 }
 }

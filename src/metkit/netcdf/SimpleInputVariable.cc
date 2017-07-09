@@ -31,21 +31,21 @@ SimpleInputVariable::~SimpleInputVariable() {
 }
 
 Variable *SimpleInputVariable::makeDataVariable() {
-    Variable *v = new DataInputVariable(owner_, name_, id_, dimensions_);
+    Variable *v = new DataInputVariable(dataset_, name_, id_, dimensions_);
     v->copyAttributes(*this);
     v->setMatrix(matrix_);
     return v;
 }
 
 Variable *SimpleInputVariable::makeCoordinateVariable() {
-    Variable *v = new CoordinateInputVariable(owner_, name_, id_, dimensions_);
+    Variable *v = new CoordinateInputVariable(dataset_, name_, id_, dimensions_);
     v->copyAttributes(*this);
     v->setMatrix(matrix_);
     return v;
 }
 
 Variable *SimpleInputVariable::makeCellMethodVariable() {
-    Variable *v = new CellMethodInputVariable(owner_, name_, id_, dimensions_);
+    Variable *v = new CellMethodInputVariable(dataset_, name_, id_, dimensions_);
     v->copyAttributes(*this);
     v->setMatrix(matrix_);
     return v;

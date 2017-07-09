@@ -41,8 +41,8 @@ void ScalarCoordinateInputVariable::print(std::ostream &out) const {
 
 Dimension *ScalarCoordinateInputVariable::getVirtualDimension() {
     if (dimensions_.size() == 0) {
-        Dimension *dim = new VirtualInputDimension(owner_, name_);
-        owner_.add(dim);
+        Dimension *dim = new VirtualInputDimension(dataset_, name_);
+        dataset_.add(dim);
         dimensions_.push_back(dim);
         resetCube();
     }

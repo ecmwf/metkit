@@ -648,179 +648,179 @@ void ValueT<std::string>::init(std::vector<std::string> &v, size_t size) {
 //=============================
 //=============================
 template<>
-void ValueT<unsigned char>::get(double &v) {
+void ValueT<unsigned char>::get(double &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<unsigned char>::get(short &v) {
+void ValueT<unsigned char>::get(short &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<unsigned char>::get(unsigned char &v) {
+void ValueT<unsigned char>::get(unsigned char &v) const {
     v = value_;
 }
 
 template<>
-void ValueT<unsigned char>::get(long &v) {
+void ValueT<unsigned char>::get(long &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<unsigned char>::get(float &v) {
+void ValueT<unsigned char>::get(float &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<unsigned char>::get(std::string &v) {
+void ValueT<unsigned char>::get(std::string &v) const {
     NOTIMP;
 }
 //=============================
 template<>
-void ValueT<short>::get(double &v) {
+void ValueT<short>::get(double &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<short>::get(short &v) {
+void ValueT<short>::get(short &v) const {
     v = value_;
 }
 
 template<>
-void ValueT<short>::get(unsigned char &v) {
+void ValueT<short>::get(unsigned char &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<short>::get(long &v) {
+void ValueT<short>::get(long &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<short>::get(float &v) {
+void ValueT<short>::get(float &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<short>::get(std::string &v) {
+void ValueT<short>::get(std::string &v) const {
     NOTIMP;
 }
 //=============================
 template<>
-void ValueT<long>::get(double &v) {
+void ValueT<long>::get(double &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<long>::get(short &v) {
+void ValueT<long>::get(short &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<long>::get(long &v) {
+void ValueT<long>::get(long &v) const {
     v = value_;
 }
 
 template<>
-void ValueT<long>::get(unsigned char &v) {
+void ValueT<long>::get(unsigned char &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<long>::get(float &v) {
+void ValueT<long>::get(float &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<long>::get(std::string &v) {
+void ValueT<long>::get(std::string &v) const {
     NOTIMP;
 }
 //=============================
 template<>
-void ValueT<float>::get(double &v) {
+void ValueT<float>::get(double &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<float>::get(short &v) {
+void ValueT<float>::get(short &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<float>::get(unsigned char &v) {
+void ValueT<float>::get(unsigned char &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<float>::get(long &v) {
+void ValueT<float>::get(long &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<float>::get(float &v) {
+void ValueT<float>::get(float &v) const {
     v = value_;
 }
 
 template<>
-void ValueT<float>::get(std::string &v) {
+void ValueT<float>::get(std::string &v) const {
     NOTIMP;
 }
 
 //=============================
 template<>
-void ValueT<double>::get(double &v) {
+void ValueT<double>::get(double &v) const {
     v = value_;
 }
 
 template<>
-void ValueT<double>::get(short &v) {
+void ValueT<double>::get(short &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<double>::get(unsigned char &v) {
+void ValueT<double>::get(unsigned char &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<double>::get(long &v) {
+void ValueT<double>::get(long &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<double>::get(float &v) {
+void ValueT<double>::get(float &v) const {
     NOTIMP;
 }
 
 template<>
-void ValueT<double>::get(std::string &v) {
+void ValueT<double>::get(std::string &v) const {
     NOTIMP;
 }
 //=============================
 template<>
-void ValueT<std::string>::get(double &v) {
+void ValueT<std::string>::get(double &v) const {
     NOTIMP;
 }
 template<>
-void ValueT<std::string>::get(short &v) {
+void ValueT<std::string>::get(short &v) const {
     NOTIMP;
 }
 template<>
-void ValueT<std::string>::get(unsigned char &v) {
+void ValueT<std::string>::get(unsigned char &v) const {
     NOTIMP;
 }
 template<>
-void ValueT<std::string>::get(long &v) {
+void ValueT<std::string>::get(long &v) const {
     NOTIMP;
 }
 template<>
-void ValueT<std::string>::get(float &v) {
+void ValueT<std::string>::get(float &v) const {
     NOTIMP;
 }
 template<>
-void ValueT<std::string>::get(std::string &v) {
-    NOTIMP;
+void ValueT<std::string>::get(std::string &v) const {
+    v = value_;
 }
 
 }

@@ -46,6 +46,10 @@ public:
     const std::map<std::string, Dimension *> &dimensions() const ;
     const std::map<std::string, Variable *> &variables() const ;
 
+
+    //
+    const Variable& variable(const std::string& name) const;
+
     // From Endowed
 
     virtual const std::string &path() const;

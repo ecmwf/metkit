@@ -12,24 +12,27 @@
 
 #include "metkit/netcdf/Field.h"
 
-#include "metkit/netcdf/Attribute.h"
-#include "metkit/netcdf/Dimension.h"
-#include "metkit/netcdf/Exceptions.h"
-#include "metkit/netcdf/Variable.h"
+#include "metkit/netcdf/GridSpec.h"
 
-#include <netcdf.h>
+#include <iostream>
 
 namespace metkit {
 namespace netcdf {
 
-Field::Field(const Variable &owner):
-    owner_(owner)
-{
-
+Field::Field(const Variable &variable):
+    variable_(variable) {
 }
 
 Field::~Field()
 {
+}
+
+const GridSpec &Field::gridSpec() const {
+    if (!gridSpec_) {
+        // TODO: may need a mutex
+        gridSpec_.reset(GridSpec::create(variable_));
+    }
+    return *gridSpec_;
 }
 
 

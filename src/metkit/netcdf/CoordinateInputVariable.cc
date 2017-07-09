@@ -39,7 +39,7 @@ Variable *CoordinateInputVariable::makeCoordinateVariable() {
 }
 
 Variable *CoordinateInputVariable::makeScalarCoordinateVariable() {
-    Variable *v = new ScalarCoordinateInputVariable(owner_, name_, id_, dimensions_);
+    Variable *v = new ScalarCoordinateInputVariable(dataset_, name_, id_, dimensions_);
     v->copyAttributes(*this);
     v->setMatrix(matrix());
     return v;

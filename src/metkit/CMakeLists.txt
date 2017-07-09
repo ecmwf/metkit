@@ -173,6 +173,10 @@ netcdf/Remapping.cc
 netcdf/Remapping.h
 netcdf/Reshape.cc
 netcdf/Reshape.h
+netcdf/GridSpec.h
+netcdf/GridSpec.cc
+netcdf/RegularLL.h
+netcdf/RegularLL.cc
 netcdf/Field.h
 netcdf/Field.cc
 netcdf/InputField.h

@@ -39,6 +39,11 @@ public:
 
     const std::map<std::string, Attribute *> &attributes() const ;
 
+    //=============================================
+
+    const Attribute& getAttribute(const std::string& name) const;
+
+
 protected:
 
     // -- Members

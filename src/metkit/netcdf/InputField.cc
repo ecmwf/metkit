@@ -25,15 +25,16 @@ namespace netcdf {
 
 InputField::InputField(const DataInputVariable &owner):
     Field(owner),
-    owner_(owner)
+    dataInputVariable_(owner)
 {
+
 }
 
 InputField::~InputField() {
 }
 
 void InputField::print(std::ostream &out) const {
-    out << "InputField[owner=" << owner_ << "]";
+    out << "InputField[variable=" << variable_ << "]";
 }
 
 std::string InputField::gridType() const {
@@ -69,11 +70,11 @@ double InputField::southNorthIncrement() const {
 }
 
 std::vector<size_t> InputField::dimensions() const {
-    return owner_.cube().dimensions();
+    return variable_.cube().dimensions();
 }
 
 void InputField::values(std::vector<double>& values) const {
-    Matrix* m = owner_.matrix();
+    Matrix* m = variable_.matrix();
     std::cout << "MATRIX " << *m << std::endl;
     values.clear();
 }

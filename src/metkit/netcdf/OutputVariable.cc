@@ -52,7 +52,7 @@ void OutputVariable::create(int nc) const {
 
     std::string name = ncname();
 
-    NC_CALL(nc_def_var(nc, name.c_str(), matrix_->type().code(), ndims, dims, &id_), owner_.path());
+    NC_CALL(nc_def_var(nc, name.c_str(), matrix_->type().code(), ndims, dims, &id_), dataset_.path());
 
     Codec *codec = matrix_->codec();
     if (codec) {

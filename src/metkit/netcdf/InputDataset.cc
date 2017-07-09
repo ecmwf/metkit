@@ -135,7 +135,12 @@ InputDataset::InputDataset(const std::string &path, NCFileCache &cache):
                     (*j).second->addVirtualDimension(i, (*m).second->getVirtualDimension());
                 }
                 // Check if variable shares dimension with
-                ASSERT((*j).second->sharesDimensions(*(*m).second));
+		
+                if(!(*j).second->sharesDimensions(*(*m).second)) {
+eckit::Log::error() << *(*j).second << " must share dimensions with " << *(*m).second << std::endl;
+
+}
+                //ASSERT((*j).second->sharesDimensions(*(*m).second));
             }
         }
 

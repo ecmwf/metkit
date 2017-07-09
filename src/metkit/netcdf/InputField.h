@@ -38,7 +38,7 @@ public:
 protected:
 
     // -- Members
-    const DataInputVariable & owner_;
+    const DataInputVariable & dataInputVariable_;
 
 private:
 

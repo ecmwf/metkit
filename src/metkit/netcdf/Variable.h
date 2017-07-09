@@ -20,8 +20,8 @@
 #include "metkit/netcdf/HyperCube.h"
 
 
-namespace metkit{
-namespace netcdf{
+namespace metkit {
+namespace netcdf {
 
 class Dataset;
 class Type;
@@ -92,11 +92,18 @@ public:
     virtual void collectField(std::vector<Field *>&) const;
 
 
+    // ====================================================
+    const Variable& coordinateByAttribute(const std::string& attribute,
+                                          const std::string& value) const;
+    std::string attribute(const std::string& attribute) const;
+    size_t numberOfDimensions() const;
+    void values(std::vector<double>&) const;
+
 protected:
 
     // -- Members
 
-    Dataset &owner_;
+    Dataset &dataset_;
     std::string name_;
     Matrix *matrix_;
     bool scalar_;

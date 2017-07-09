@@ -13,14 +13,16 @@
 #ifndef metkit_netcdf_Field
 #define metkit_netcdf_Field
 
+#include <iosfwd>
 
-#include <string>
-#include <vector>
+#include "eckit/memory/ScopedPtr.h"
+
 
 namespace metkit {
 namespace netcdf {
 
 class Variable;
+class GridSpec;
 
 class Field  {
 public:
@@ -32,21 +34,12 @@ public:
 
     // Same as GRIB
 
-    virtual std::string gridType() const = 0;
-    virtual long paramId() const = 0;
-    virtual double north() const = 0;
-    virtual double south() const = 0;
-    virtual double west() const = 0;
-    virtual double east() const = 0;
-    virtual double westEastIncrement() const = 0;
-    virtual double southNorthIncrement() const = 0;
-    virtual std::vector<size_t> dimensions() const = 0;
-    virtual void values(std::vector<double>&) const = 0;
+    const GridSpec &gridSpec() const;
 
 protected:
 
     // -- Members
-    const Variable& owner_;
+    const Variable& variable_;
 
 private:
 
@@ -54,6 +47,8 @@ private:
     Field &operator=(const Field &);
 
     // From Endowed
+
+    mutable eckit::ScopedPtr<GridSpec> gridSpec_;
 
     // - Methods
 

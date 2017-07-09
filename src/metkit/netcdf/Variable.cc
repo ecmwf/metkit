@@ -42,7 +42,7 @@ static HyperCube::Dimensions cubedims(const std::vector<Dimension *> &dimensions
 }
 
 Variable::Variable(Dataset &owner, const std::string &name, const std::vector<Dimension *> &dimensions):
-    owner_(owner),
+    dataset_(owner),
     name_(name),
     matrix_(0),
     scalar_(dimensions.size() == 0),
@@ -117,6 +117,30 @@ std::vector<std::string> Variable::coordinates() const {
     return result;
 }
 
+const Variable& Variable::coordinateByAttribute(const std::string& attribute,
+        const std::string& value) const {
+
+    const std::vector<std::string>& coords = coordinates();
+    for (std::vector<std::string>::const_iterator j = coords.begin(); j != coords.end(); ++j) {
+        const Variable& v = dataset_.variable(*j);
+        if (v.attribute(attribute) == value) {
+            return v;
+        }
+
+    }
+
+    std::ostringstream oss;
+    oss << "Netcdf variable '"
+        << name()
+        << "' has no coordinate with attribute '"
+        << attribute
+        << "'"
+        << " with value'"
+        << value << "'";
+    throw eckit::UserError(oss.str());
+
+}
+
 std::vector<std::string> Variable::cellMethods() const {
     std::vector<std::string> result;
     std::map<std::string, Attribute *>::const_iterator j = attributes_.find("bounds");
@@ -175,7 +199,7 @@ bool Variable::sameAs(const Variable &other) const {
 }
 
 const std::string &Variable::path() const {
-    return owner_.path();
+    return dataset_.path();
 }
 
 const std::string &Variable::name() const {
@@ -362,6 +386,27 @@ bool Variable::timeAxis() const {
 
 void Variable::collectField(std::vector<Field *>&) const {
     // Ignore
+}
+
+// CF part ------------------------
+
+std::string Variable::attribute(const std::string& name) const {
+    std::map<std::string, Attribute *>::const_iterator j = attributes_.find(name);
+    if (j == attributes_.end()) {
+        return "<UNDEFINED>";
+    }
+
+    std::string s;
+    (*j).second->value().get(s);
+    return s;
+}
+
+size_t Variable::numberOfDimensions() const {
+    return cube().size();
+}
+
+void Variable::values(std::vector<double>& v) const {
+    v = matrix_->values<double>();
 }
 
 

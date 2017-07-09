@@ -54,12 +54,12 @@ public:
     virtual void init(std::vector<float> &v, size_t size) = 0;
     virtual void init(std::vector<std::string> &v, size_t size) = 0;
 
-    virtual void get(double &v) = 0;
-    virtual void get(short &v) = 0;
-    virtual void get(unsigned char &v) = 0;
-    virtual void get(long &v) = 0;
-    virtual void get(float &v) = 0;
-    virtual void get(std::string &v) = 0;
+    virtual void get(double &v) const = 0;
+    virtual void get(short &v) const = 0;
+    virtual void get(unsigned char &v) const = 0;
+    virtual void get(long &v) const = 0;
+    virtual void get(float &v) const = 0;
+    virtual void get(std::string &v) const = 0;
 
     static Value *newFromString(const std::string &);
 
@@ -135,12 +135,12 @@ private:
     virtual void init(std::vector<float> &v, size_t size);
     virtual void init(std::vector<std::string> &v, size_t size);
 
-    virtual void get(double &v);
-    virtual void get(short &v);
-    virtual void get(unsigned char &v);
-    virtual void get(long &v);
-    virtual void get(float &v);
-    virtual void get(std::string &v);
+    virtual void get(double &v) const;
+    virtual void get(short &v) const;
+    virtual void get(unsigned char &v) const;
+    virtual void get(long &v) const;
+    virtual void get(float &v) const;
+    virtual void get(std::string &v) const;
 
 };
 

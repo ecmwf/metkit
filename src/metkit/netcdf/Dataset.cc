@@ -143,5 +143,15 @@ std::vector<Variable *> Dataset::variablesForDimension(const Dimension &dim) con
     return result;
 }
 
+//======================================================
+const Variable& Dataset::variable(const std::string& name) const {
+    std::map<std::string, Variable *>::const_iterator j = variables_.find(name);
+    if (j == variables_.end()) {
+        throw eckit::UserError("Cannot find netcdf variable '" + name + "'");
+    }
+    return *(*j).second;
+}
+
+
 }
 }
