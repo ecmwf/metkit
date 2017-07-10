@@ -67,6 +67,10 @@ bool RegularLL::has(const std::string& name) const {
     if (name == "gridded") {
         return true;
     }
+
+    std::cout << "RegularLL::has " << name << " failed" << std::endl;
+
+
     return false;
 }
 
@@ -83,6 +87,8 @@ bool RegularLL::get(const std::string&name, long& value) const {
         return  true;
     }
 
+    std::cout << "RegularLL::get " << name << " failed" << std::endl;
+
     return false;
 }
 
@@ -92,11 +98,14 @@ bool RegularLL::get(const std::string&name, std::string& value) const {
         value = "regular_ll";
         return true;
     }
+
+    std::cout << "RegularLL::get " << name << " failed" << std::endl;
+
+
     return false;
 }
 
 bool RegularLL::get(const std::string &name, double &value) const {
-    std::cout << "get " << name << std::endl;
 
     if (name == "north") {
         value = north_;
@@ -127,6 +136,9 @@ bool RegularLL::get(const std::string &name, double &value) const {
         value = west_east_increment_;
         return true;
     }
+
+    std::cout << "RegularLL::get " << name << " failed" << std::endl;
+
 
     return false;
 }

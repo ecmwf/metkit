@@ -179,8 +179,6 @@ netcdf/RegularLL.h
 netcdf/RegularLL.cc
 netcdf/Field.h
 netcdf/Field.cc
-netcdf/InputField.h
-netcdf/InputField.cc
 netcdf/ReshapeVariableStep.cc
 netcdf/ReshapeVariableStep.h
 netcdf/ScalarCoordinateInputVariable.cc

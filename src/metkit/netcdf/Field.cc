@@ -13,6 +13,7 @@
 #include "metkit/netcdf/Field.h"
 
 #include "metkit/netcdf/GridSpec.h"
+#include "metkit/netcdf/Variable.h"
 
 #include <iostream>
 
@@ -55,6 +56,16 @@ bool Field::get(const std::string&name, std::string& value) const {
 bool Field::get(const std::string &name, double &value) const {
     return gridSpec().get(name, value);
 }
+
+std::vector<size_t> Field::dimensions() const {
+    return variable_.cube().dimensions();
+}
+
+void Field::print(std::ostream &out) const {
+    out << "Field[variable=" << variable_ << "]";
+}
+
+
 
 }
 }

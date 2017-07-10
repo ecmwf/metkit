@@ -28,11 +28,11 @@ class Field  {
 public:
 
     Field(const Variable &);
-    virtual ~Field();
+    ~Field();
 
     // -- Methods
 
-    // Same as GRIB
+     std::vector<size_t> dimensions() const;
 
 
     // For MIR
@@ -60,7 +60,7 @@ private:
     const GridSpec &gridSpec() const;
 
 
-    virtual void print(std::ostream &s) const = 0;
+    void print(std::ostream &s) const;
 
     // -- Friends
     friend std::ostream &operator<<(std::ostream &s, const Field &v) {
