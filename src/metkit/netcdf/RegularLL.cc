@@ -33,7 +33,7 @@ RegularLL::RegularLL(const Variable &variable,
     east_(east),
     west_east_increment_(west_east_increment)
 {
-    if(north_ < south_) {
+    if (north_ < south_) {
         std::swap(north_, south_);
         // south_north_increments_ = -south_north_increments_;
     }
@@ -98,13 +98,35 @@ bool RegularLL::get(const std::string&name, std::string& value) const {
 bool RegularLL::get(const std::string &name, double &value) const {
     std::cout << "get " << name << std::endl;
 
-    if (name == "north") { value = north_; return true;}
-    if (name == "south") { value = south_; return true;}
-    if (name == "west") { value = west_; return true;}
-    if (name == "east") { value = east_; return true;}
-    if (name == "south_north_increments") { value = south_north_increments_; return true;}
-    if (name == "west_east_increment") { value = west_east_increment_; return true;}
+    if (name == "north") {
+        value = north_;
+        return true;
+    }
 
+    if (name == "south") {
+        value = south_;
+        return true;
+    }
+
+    if (name == "west") {
+        value = west_;
+        return true;
+    }
+
+    if (name == "east") {
+        value = east_;
+        return true;
+    }
+
+    if (name == "south_north_increment") {
+        value = south_north_increments_;
+        return true;
+    }
+
+    if (name == "west_east_increment") {
+        value = west_east_increment_;
+        return true;
+    }
 
     return false;
 }
