@@ -14,6 +14,7 @@
 #define metkit_netcdf_RegularLL
 
 #include "metkit/netcdf/GridSpec.h"
+#include "eckit/exception/Exceptions.h"
 
 
 namespace metkit {
@@ -26,7 +27,7 @@ public:
     RegularLL(const Variable &,
               double north,
               double south,
-              double north_south_increment,
+              double south_north_increment,
               double west,
               double east,
               double west_east_increment);
@@ -49,7 +50,7 @@ protected:
 
     double north_;
     double south_;
-    double north_south_increments_;
+    double south_north_increments_;
 
     double west_;
     double east_;
@@ -65,6 +66,12 @@ private:
     // - Methods
 
     virtual void print(std::ostream &s) const;
+
+    // For MIR
+    virtual bool has(const std::string& name) const;
+    virtual bool get(const std::string&, long&) const;
+    virtual bool get(const std::string&, std::string&) const;
+    virtual bool get(const std::string &name, double &value) const;
 
 };
 

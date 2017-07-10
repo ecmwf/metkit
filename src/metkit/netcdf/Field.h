@@ -34,7 +34,12 @@ public:
 
     // Same as GRIB
 
-    const GridSpec &gridSpec() const;
+
+    // For MIR
+    bool has(const std::string& name) const;
+    bool get(const std::string&, long&) const;
+    bool get(const std::string&, std::string&) const;
+    bool get(const std::string &name, double &value) const;
 
 protected:
 
@@ -46,11 +51,14 @@ private:
     Field(const Field &);
     Field &operator=(const Field &);
 
-    // From Endowed
+
 
     mutable eckit::ScopedPtr<GridSpec> gridSpec_;
 
     // - Methods
+
+    const GridSpec &gridSpec() const;
+
 
     virtual void print(std::ostream &s) const = 0;
 

@@ -30,6 +30,12 @@ public:
 
     static GridSpec* create(const Variable &variable);
 
+    // For MIR
+    virtual bool has(const std::string& name) const = 0;
+    virtual bool get(const std::string&, long&) const = 0;
+    virtual bool get(const std::string&, std::string&) const = 0;
+    virtual bool get(const std::string &name, double &value) const = 0;
+
 
 protected:
 

@@ -31,10 +31,30 @@ const GridSpec &Field::gridSpec() const {
     if (!gridSpec_) {
         // TODO: may need a mutex
         gridSpec_.reset(GridSpec::create(variable_));
+        std::cout << *gridSpec_ << std::endl;
     }
     return *gridSpec_;
 }
 
+bool Field::has(const std::string& name) const {
+    return gridSpec().has(name);
+}
+
+bool Field::get(const std::string&name, long& value) const {
+    if (name == "paramId") {
+        value = 1;
+        return true;
+    }
+    return gridSpec().get(name, value);
+}
+
+bool Field::get(const std::string&name, std::string& value) const {
+    return gridSpec().get(name, value);
+}
+
+bool Field::get(const std::string &name, double &value) const {
+    return gridSpec().get(name, value);
+}
 
 }
 }

@@ -21,18 +21,23 @@ namespace netcdf {
 RegularLL::RegularLL(const Variable &variable,
                      double north,
                      double south,
-                     double north_south_increment,
+                     double south_north_increment,
                      double west,
                      double east,
                      double west_east_increment):
     GridSpec(variable),
     north_(north),
     south_(south),
-    north_south_increments_(north_south_increment),
+    south_north_increments_(south_north_increment),
     west_(west),
     east_(east),
     west_east_increment_(west_east_increment)
 {
+    if(north_ < south_) {
+        std::swap(north_, south_);
+        // south_north_increments_ = -south_north_increments_;
+    }
+
 }
 
 RegularLL::~RegularLL()
@@ -53,9 +58,59 @@ void RegularLL::print(std::ostream& s) const
       << ",grid="
       << west_east_increment_
       << ","
-      << north_south_increments_
+      << south_north_increments_
       << "]";
 }
+
+bool RegularLL::has(const std::string& name) const {
+    std::cout << "has " << name << std::endl;
+    if (name == "gridded") {
+        return true;
+    }
+    return false;
+}
+
+bool RegularLL::get(const std::string&name, long& value) const {
+    std::cout << "get " << name << std::endl;
+
+    if (name == "Nj") {
+        value = (north_ - south_) / south_north_increments_ + 1;
+        return  true;
+    }
+
+    if (name == "Ni") {
+        value = (east_ - west_) / west_east_increment_ + 1;
+        return  true;
+    }
+
+    return false;
+}
+
+bool RegularLL::get(const std::string&name, std::string& value) const {
+    std::cout << "get " << name << std::endl;
+    if (name == "gridType") {
+        value = "regular_ll";
+        return true;
+    }
+    return false;
+}
+
+bool RegularLL::get(const std::string &name, double &value) const {
+    std::cout << "get " << name << std::endl;
+
+    if (name == "north") { value = north_; return true;}
+    if (name == "south") { value = south_; return true;}
+    if (name == "west") { value = west_; return true;}
+    if (name == "east") { value = east_; return true;}
+    if (name == "south_north_increments") { value = south_north_increments_; return true;}
+    if (name == "west_east_increment") { value = west_east_increment_; return true;}
+
+
+    return false;
+}
+
+
+//================================================================
 
 static bool check_axis(const Variable & axis,
                        double& first,
@@ -93,8 +148,8 @@ GridSpec* RegularLL::guess(const Variable &variable,
                            const Variable &latitudes,
                            const Variable &longitudes) {
 
-    double north, south, north_south_increment;
-    if (!check_axis(latitudes, north, south, north_south_increment)) {
+    double north, south, south_north_increment;
+    if (!check_axis(latitudes, north, south, south_north_increment)) {
         return 0;
     }
 
@@ -106,7 +161,7 @@ GridSpec* RegularLL::guess(const Variable &variable,
     return new RegularLL(variable,
                          north,
                          south,
-                         north_south_increment,
+                         south_north_increment,
                          west,
                          east,
                          west_east_increment);
