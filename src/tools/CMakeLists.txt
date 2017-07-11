@@ -28,11 +28,11 @@ ecbuild_add_executable(
     LIBS     metkit
 )
 
-ecbuild_add_executable( TARGET     ncmerge
-                        SOURCES    ncmerge.cc
-                        CONDITION  HAVE_NETCDF
-                        INCLUDES   ${NETCDF_INCLUDE_DIRS}
-                        LIBS       metkit ${NETCDF_LIBRARIES} )
+# ecbuild_add_executable( TARGET     ncmerge
+#                         SOURCES    ncmerge.cc
+#                         CONDITION  HAVE_NETCDF
+#                         INCLUDES   ${NETCDF_INCLUDE_DIRS}
+#                         LIBS       metkit ${NETCDF_LIBRARIES} )
 
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/nccompare.py
