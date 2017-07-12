@@ -14,18 +14,17 @@
 #ifndef BaseProtocol_H
 #define BaseProtocol_H
 
-#include "eckit/eckit.h"
-
 #include "eckit/io/Length.h"
 
 namespace metkit {
 
 class MarsRequest;
 
-class BaseProtocol {
+class BaseProtocol : eckit::NonCopyable {
+
 public:
-	BaseProtocol();
-	virtual ~BaseProtocol();
+    BaseProtocol();
+    virtual ~BaseProtocol();
 
     virtual eckit::Length retrieve(const MarsRequest&) = 0;
     virtual void archive(const MarsRequest&, const eckit::Length&) = 0;
@@ -35,17 +34,13 @@ public:
     virtual void cleanup() = 0;
 
 protected:
-	virtual void print(std::ostream&) const = 0;
+    virtual void print(std::ostream&) const = 0;
 
 private:
-// No copy allowed
-	BaseProtocol(const BaseProtocol&);
-	BaseProtocol& operator=(const BaseProtocol&);
 
-// -- Friends
-
-	friend std::ostream& operator<<(std::ostream& s,const BaseProtocol& p)
-		{ p.print(s); return s; }
+    friend std::ostream& operator<<(std::ostream& s,const BaseProtocol& p) {
+        p.print(s); return s;
+    }
 
 };
 
