@@ -23,43 +23,37 @@
 namespace metkit {
 
 class DHSProtocol : public BaseProtocol {
+
 public:
-	DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
-	~DHSProtocol();
+    DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
+    ~DHSProtocol();
 
 private:
-// No copy allowed
-	DHSProtocol(const DHSProtocol&);
-	DHSProtocol& operator=(const DHSProtocol&);
 
-// -- Members
-    eckit::TCPServer   callback_;
-    eckit::TCPSocket   socket_;
-    std::string      name_;
-    std::string      host_;
-    int         port_;
-    std::string      msg_;
-    bool        done_;
-    bool        error_;
-    bool        sending_;
+    // -- Members
+    eckit::TCPServer          callback_;
+    eckit::TCPSocket          socket_;
+    std::string               name_;
+    std::string               host_;
+    int                       port_;
+    std::string               msg_;
+    bool                      done_;
+    bool                      error_;
+    bool                      sending_;
     std::auto_ptr<ClientTask> task_;
-    bool        foreward_;
+    bool                      foreward_;
 
-// -- Methods
+    // -- Methods
     bool wait(eckit::Length&);
 
-// -- Overridden methods
-	// From BaseProtocol
+    // -- Overridden methods
+    // From BaseProtocol
     eckit::Length retrieve(const MarsRequest& request);
     void archive(const MarsRequest& request, const eckit::Length&);
     long read(void* buffer, long len);
     long write(const void* buffer, long len);
     void cleanup();
-	void print(std::ostream&) const;
-
-// -- Friends
-	//friend std::ostream& operator<<(std::ostream& s,const DHSProtocol& p)
-	//	{ p.print(s); return s; }
+    void print(std::ostream&) const;
 };
 
 }
