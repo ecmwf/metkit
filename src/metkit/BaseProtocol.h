@@ -15,13 +15,13 @@
 #define BaseProtocol_H
 
 #include "eckit/io/Length.h"
-#include "eckit/serialisation/Stream.h"
+#include "eckit/serialisation/Streamable.h"
 
 namespace metkit {
 
 class MarsRequest;
 
-class BaseProtocol : eckit::NonCopyable {
+class BaseProtocol : public eckit::Streamable {
 
 public:
     BaseProtocol();
@@ -34,6 +34,9 @@ public:
     virtual long read(void* buffer, long len) = 0;
     virtual long write(const void* buffer, long len) = 0;
     virtual void cleanup() = 0;
+
+    // -- Overridden methods (from Streamable)
+    static  const eckit::ClassSpec& classSpec();
 
 protected:
     virtual void print(std::ostream&) const = 0;

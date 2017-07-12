@@ -18,12 +18,19 @@ namespace metkit {
 
 BaseProtocol::BaseProtocol() {}
 
-BaseProtocol::BaseProtocol(eckit::Stream&) {}
+BaseProtocol::BaseProtocol(eckit::Stream& s) : eckit::Streamable(s) {}
 
 BaseProtocol::~BaseProtocol() {}
 
+const eckit::ClassSpec& BaseProtocol::classSpec() {
+    static eckit::ClassSpec spec = { &Streamable::classSpec(), "BaseProtocol" };
+    return spec;
+}
+
 void BaseProtocol::print(std::ostream&) const {}
 
-void BaseProtocol::encode(eckit::Stream&) const {}
+void BaseProtocol::encode(eckit::Stream& s) const {
+    eckit::Streamable::encode(s);
+}
 
 }
