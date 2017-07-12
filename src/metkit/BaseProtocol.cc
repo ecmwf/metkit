@@ -16,17 +16,13 @@
 
 namespace metkit {
 
-BaseProtocol::BaseProtocol()
-{
-}
+BaseProtocol::BaseProtocol() {}
 
-BaseProtocol::~BaseProtocol()
-{
-}
+BaseProtocol::BaseProtocol(eckit::Stream&) {}
 
-void BaseProtocol::print(std::ostream&) const
-{
-}
+BaseProtocol::~BaseProtocol() {}
+
+void BaseProtocol::print(std::ostream&) const {}
 
 void BaseProtocol::encode(eckit::Stream&) const {}
 

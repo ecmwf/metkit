@@ -25,6 +25,7 @@ class BaseProtocol : eckit::NonCopyable {
 
 public:
     BaseProtocol();
+    BaseProtocol(eckit::Stream&);
     virtual ~BaseProtocol();
 
     virtual eckit::Length retrieve(const MarsRequest&) = 0;
