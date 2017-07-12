@@ -15,6 +15,7 @@
 #define BaseProtocol_H
 
 #include "eckit/io/Length.h"
+#include "eckit/serialisation/Stream.h"
 
 namespace metkit {
 
@@ -35,13 +36,17 @@ public:
 
 protected:
     virtual void print(std::ostream&) const = 0;
+    virtual void encode(eckit::Stream&) const;
 
 private:
 
-    friend std::ostream& operator<<(std::ostream& s,const BaseProtocol& p) {
+    friend std::ostream& operator<<(std::ostream& s, const BaseProtocol& p) {
         p.print(s); return s;
     }
 
+    friend eckit::Stream& operator<<(eckit::Stream& s, const BaseProtocol& p) {
+        p.encode(s); return s;
+    }
 };
 
 }

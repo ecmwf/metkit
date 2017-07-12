@@ -24,9 +24,10 @@ BaseProtocol::~BaseProtocol()
 {
 }
 
-
 void BaseProtocol::print(std::ostream&) const
 {
 }
+
+void BaseProtocol::encode(eckit::Stream&) const {}
 
 }
