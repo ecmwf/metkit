@@ -26,6 +26,7 @@ class DHSProtocol : public BaseProtocol {
 
 public:
     DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
+    DHSProtocol(eckit::Stream&);
     ~DHSProtocol();
 
 private:
@@ -54,6 +55,7 @@ private:
     long write(const void* buffer, long len);
     void cleanup();
     void print(std::ostream&) const;
+    void encode(eckit::Stream&) const;
 };
 
 }

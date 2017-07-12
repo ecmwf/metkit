@@ -30,6 +30,16 @@ DHSProtocol::DHSProtocol(const std::string& name,const std::string& host, int po
   foreward_(forwardMessages)
 {}
 
+DHSProtocol::DHSProtocol(eckit::Stream& s) : BaseProtocol(s) {
+    s >> name_;
+    s >> host_;
+    s >> port_;
+    s >> done_;
+    s >> error_;
+    s >> sending_;
+    s >> foreward_;
+}
+
 DHSProtocol::~DHSProtocol()
 {
     done_ = true;
@@ -127,6 +137,17 @@ void DHSProtocol::cleanup()
 void DHSProtocol::print(std::ostream& s) const
 {
     s << "DHSProtocol[" << name_ << "]";
+}
+
+void DHSProtocol::encode(eckit::Stream& s) const {
+    BaseProtocol::encode(s);
+    s << name_;
+    s << host_;
+    s << port_;
+    s << done_;
+    s << error_;
+    s << sending_;
+    s << foreward_;
 }
 
 long DHSProtocol::read(void* buffer, long len)
