@@ -47,10 +47,6 @@ private:
     friend std::ostream& operator<<(std::ostream& s, const BaseProtocol& p) {
         p.print(s); return s;
     }
-
-    friend eckit::Stream& operator<<(eckit::Stream& s, const BaseProtocol& p) {
-        p.encode(s); return s;
-    }
 };
 
 }
