@@ -23,17 +23,24 @@ namespace metkit {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
-	MarsRequestHandle(const metkit::MarsRequest& request, metkit::BaseProtocol* protocol);
-	~MarsRequestHandle();
+    MarsRequestHandle(eckit::Stream&);
+    MarsRequestHandle(const metkit::MarsRequest& request, metkit::BaseProtocol* protocol);
+    ~MarsRequestHandle();
 
+    // -- Overridden methods (from Streamable)
+    virtual std::string className() const { return "MarsRequestHandle"; }
+    virtual const eckit::ReanimatorBase& reanimator() const;
+    static  const eckit::ClassSpec& classSpec();
 
 private:
+    // -- Members
     metkit::MarsRequest request_;
     std::auto_ptr<BaseProtocol> protocol_;
 
-// -- Overridden methods
-	// From data handle
-	void print(std::ostream&) const;
+    // -- Overridden methods
+    // From data handle
+    void print(std::ostream&) const;
+    void encode(eckit::Stream&) const;
 
     eckit::Length openForRead();
     void openForWrite(const eckit::Length&);
