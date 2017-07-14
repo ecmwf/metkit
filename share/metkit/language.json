@@ -566,5 +566,572 @@
             "type": "any"
         }
     },
+    "retrieve": {
+        "area": {
+            "type": "enum-or-more",
+            "values": [
+                [
+                    "off",
+                    "g"
+                ]
+            ],
+            "flatten": false,
+            "more": [{
+                "type": "float"
+            }],
+            "only": [{}]
+        },
+        "class": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                "od"
+            ],
+            "default": "od"
+        },
+        "domain": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                [
+                    "g",
+                    "global"
+                ],
+                "m",
+                "c",
+                "h"
+            ],
+            "default": "g"
+        },
+        "expver": {
+            "type": "expver",
+            "flatten": false,
+            "default": "0001"
+        },
+        "catn": {
+            "type": "integer",
+            "flatten": false
+        },
+        "hdate": {
+            "type": "integer",
+            "only": [{
+                "stream": [
+                    "enfh",
+                    "enwh"
+                ]
+            }]
+        },
+        "format": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                [
+                    "grib",
+                    "grib1",
+                    "gb"
+                ],
+                [
+                    "grib2"
+                ],
+                [
+                    "bufr",
+                    "bf"
+                ],
+                [
+                    "grid",
+                    "gd"
+                ]
+            ]
+        },
+        "grid": {
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                "auto",
+                "O1280",
+                "F1280",
+                "N640",
+                "O640",
+                "O320",
+                "O160",
+                "N160",
+                "N400",
+                "N320",
+                "N200",
+                "N80"
+            ],
+            "more": [{
+                "type": "float"
+            }]
+        },
+        "rotation": {
+            "type": "any",
+            "flatten": false
+        },
+        "fcperiod": {
+            "type": "integer"
+        },
+        "levelist": {
+            "type": "to-by-list",
+            "by": 1,
+            "never": [{
+                "levtype": "sfc"
+            }],
+            "default": [
+                "1000",
+                "850",
+                "700",
+                "500",
+                "400",
+                "300"
+            ]
+        },
+        "levtype": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                [
+                    "pl",
+                    "pressure levels"
+                ],
+                [
+                    "ml",
+                    "model levels"
+                ],
+                [
+                    "sfc",
+                    "surface"
+                ],
+                [
+                    "pt",
+                    "potential temperature"
+                ],
+                [
+                    "pv",
+                    "potential vorticity"
+                ]
+            ],
+            "default": "pl",
+            "_comment": "CH/SW6/req/curr/N5 has 2 levtype",
+            "multiple": true
+        },
+        "param": {
+            "type": "param",
+            "default": "129",
+            "multiple": true
+        },
+        "priority": {
+            "type": "integer",
+            "flatten": false
+        },
+        "step": {
+            "type": "range",
+            "by": 12,
+            "default": "0"
+        },
+        "stream": {
+            "type": "enum",
+            "default": "oper",
+            "flatten": false,
+            "values": [
+                [
+                    "oper",
+                    "da"
+                ],
+                [
+                    "enfo",
+                    "ef",
+                    "ensemble forecast"
+                ],
+                [
+                    "wave",
+                    "wv"
+                ],
+                [
+                    "scwv"
+                ],
+                [
+                    "enwh"
+                ],
+                [
+                    "waef",
+                    "we"
+                ],
+                "esmm",
+                "ehmm",
+                "mmsm",
+                "scda",
+                "msmm",
+                "efhs",
+                "efov",
+                "enfh",
+                "mmsf",
+                "mmsa",
+                "scef",
+                "mnfc"
+            ]
+        },
+        "projection": {
+            "type": "any"
+        },
+        "number": {
+            "type": "to-by-list",
+            "by": 1,
+            "aliases": [
+                "xxxxensemble"
+            ],
+            "only": [{
+                "type": [
+                    "pf",
+                    "cr",
+                    "cm",
+                    "fcmean",
+                    "fc",
+                    "fcmin",
+                    "fcmax",
+                    "fcstdev"
+                ]
+            }]
+        },
+        "ensemble": {
+            "type": "to-by-list",
+            "by": 1,
+            "aliases": [
+                "xxxxxensemble"
+            ],
+            "only": [{
+                "type": [
+                    "pf"
+                ]
+            }]
+        },
+        "quantile": {
+            "type": "enum",
+            "only": [{
+                "type": [
+                    "pd",
+                    "pb",
+                    "taem",
+                    "sot"
+                ]
+            }],
+            "values": [
+                "1:3",
+                "2:3",
+                "3:3",
+                "1:5",
+                "2:5",
+                "3:5",
+                "4:5",
+                "5:5",
+                "1:10",
+                "2:10",
+                "3:10",
+                "4:10",
+                "5:10",
+                "6:10",
+                "7:10",
+                "8:10",
+                "9:10",
+                "10:10", [
+                    "100",
+                    "10:100"
+                ],
+                [
+                    "900",
+                    "90:100"
+                ]
+            ],
+            "multiple": true
+        },
+        "channel": {
+            "type": "integer",
+            "only": [{
+                "type": "ssd"
+            }]
+        },
+        "ident": {
+            "type": "integer",
+            "only": [{
+                "type": "ssd"
+            }]
+        },
+        "instrument": {
+            "type": "integer",
+            "only": [{
+                "type": "ssd"
+            }]
+        },
+        "target": {
+            "type": "any",
+            "flatten": false
+        },
+        "fcmonth": {
+            "type": "to-by-list",
+            "by": 1
+        },
+        "method": {
+            "type": "integer"
+        },
+        "origin": {
+            "type": "enum",
+            "values": [
+                ["ecmf",
+                "ecmwf"]
+            ]
+        },
+        "system": {
+            "type": "integer"
+        },
+        "time": {
+            "type": "time",
+            "default": "1200",
+            "multiple": true
+        },
+        "date": {
+            "type": "any"
+        },
+        "type": {
+            "type": "enum",
+            "default": "an",
+            "flatten": false,
+            "values": [
+                [
+                    "an",
+                    "analysis"
+                ],
+                [
+                    "fc",
+                    "forecast"
+                ],
+                [
+                    "cf",
+                    "control forecast"
+                ],
+                [
+                    "pf",
+                    "perturbed forecast"
+                ],
+                [
+                    "em",
+                    "ensemble mean"
+                ],
+                [
+                    "es",
+                    "ensemble standard deviation"
+                ],
+                [
+                    "cm",
+                    "cluster mean"
+                ],
+                [
+                    "cs",
+                    "cluster standard deviation"
+                ],
+                [
+                    "efi",
+                    "extreme forecast index"
+                ],
+                [
+                    "efic",
+                    "extreme forecast index control"
+                ],
+                [
+                    "taem",
+                    "time average ensemble mean"
+                ],
+                [
+                    "taes",
+                    "time average ensemble standard deviation"
+                ],
+                [
+                    "cr",
+                    "cluster representative"
+                ],
+                [
+                    "wp",
+                    "weather parameter"
+                ],
+                "pd", [
+                    "tf",
+                    "trajectory forecast"
+                ],
+                "ssd", [
+                    "sot",
+                    "shift of tails index"
+                ],
+                [
+                    "cv",
+                    "calibration validation"
+                ],
+                "pb", [
+                    "ep",
+                    "event probability"
+                ],
+                "fp",
+                "fcmean",
+                "fcmax",
+                "fcmin",
+                "fcstdev", [
+                    "tu",
+                    "tubes"
+                ]
+            ]
+        },
+        "use": {
+            "type": "enum",
+            "multiple": true,
+            "flatten": false,
+            "values": [
+                "bc",
+                "daily", [
+                    "thursday",
+                    "mt",
+                    "monthly run thursday",
+                    "monthly thursday"
+                ],
+                [
+                    "monday",
+                    "mm",
+                    "monthly run monday",
+                    "monthly monday"
+                ]
+            ]
+        },
+        "option": {
+            "type": "enum",
+            "multiple": true,
+            "flatten": false,
+            "values": [
+                "normal",
+                "delay",
+                "wmoe",
+                "gts",
+                "tcpip",
+                "nobackup",
+                "grib1table1"
+            ],
+            "default": "normal"
+        },
+        "padding": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                "none",
+                "auto"
+            ]
+        },
+        "accuracy": {
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                ["av"],
+                ["off", "normal", "auto"]
+            ],
+            "more": [{
+                "type": "integer"
+            }]
+        },
+        "interpolation": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                [
+                    "nearest-lsm",
+                    "nearest lsm"
+                ],
+                [
+                    "off",
+                    "default",
+                    "any"
+                ]
+            ]
+        },
+        "country": {
+            "type": "any"
+        },
+        "file": {
+            "type": "enum",
+            "values": [
+                "bin"
+            ]
+        },
+        "bitmap": {
+        "type": "any",
+            "flatten": false
+        },
+        "direction": {
+            "type": "to-by-list",
+            "by": 1,
+            "only": [{
+                "param": [
+                    "140251"
+                ]
+            }]
+        },
+        "frequency": {
+            "type": "to-by-list",
+            "by": 1,
+            "only": [{
+                "param": [
+                    "140251"
+                ]
+            }]
+        },
+        "frame": {
+            "type": "integer"
+        },
+        "packing": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                [
+                    "so",
+                    "second order"
+                ],
+                "av",
+                "co",
+                "simple"
+            ]
+        },
+        "repres": {
+            "type": "enum",
+            "flatten": false,
+            "values": [
+                "gg",
+                "sh",
+                "ll",
+                "np",
+                "rl", [
+                    "0.25",
+                    "fix me HUE:E1 !"
+                ]
+            ],
+            "multiple": true
+        },
+        "resol": {
+            "type": "enum-or-more",
+            "flatten": false,
+            "values": [
+                ["off", "av", "reduced gaussian 160"]
+            ],
+            "more": [{
+                "type": "integer"
+            }]
+        },
+        "gaussian": {
+            "type": "enum",
+            "values": [
+                "reduced",
+                "regular"
+            ]
+        },
+        "reference": {
+            "type": "integer"
+        },
+        "requirements": {
+            "type": "any"
+        }
+    },
     "end": {}
 }
