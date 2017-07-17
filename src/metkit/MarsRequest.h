@@ -144,6 +144,9 @@ public: // methods
     /// @todo Improve performance -- uses O(N^2) search / merge in std::list's
     void merge(const MarsRequest& other);
 
+    /// Create a new MarsRequest from this one with only the given set of keys
+    MarsRequest subset(const std::set<std::string>&);
+
     void json(eckit::JSON&) const;
 
     void md5(eckit::MD5&) const;

@@ -401,6 +401,15 @@ void MarsRequest::merge(const MarsRequest &other) {
     NOTIMP;
 }
 
+MarsRequest MarsRequest::subset(const std::set<std::string>& keys) {
+    MarsRequest req(verb_);
+    for (std::list<Parameter>::const_iterator it = params_.begin(); it != params_.end(); ++it) {
+        if (keys.find(it->name()) != keys.end()) {
+            req.params_.push_back(*it);
+        }
+    }
+    return req;
+}
 
 void MarsRequest::verb(const std::string &verb) {
     verb_ = verb;
