@@ -585,7 +585,8 @@
             "type": "enum",
             "flatten": false,
             "values": [
-                "od"
+                "od",
+                "rd"
             ],
             "default": "od"
         },
