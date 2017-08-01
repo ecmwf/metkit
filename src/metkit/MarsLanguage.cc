@@ -183,7 +183,7 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
         if (isnumber(name) && isnumber(best[0])) {
             std::ostringstream oss;
-            oss << "Cannot match '" << name << "' and " << best[0];
+            oss << "Cannot match [" << name << "] and [" << best[0] << "]";
             if (ctx) {
                 oss << " ";
                 ctx->print(oss);
@@ -205,7 +205,7 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
 
         std::ostringstream oss;
-        oss << "Cannot match '" << name << "' in " << values;
+        oss << "Cannot match [" << name << "] in " << values;
         if (ctx) {
             oss << " ";
             ctx->print(oss);
