@@ -23,6 +23,8 @@
 #include "metkit/MarsRequest.h"
 #include "metkit/types/TypeAny.h"
 #include "metkit/MarsParser.h"
+#include "metkit/MarsParser.h"
+#include "metkit/MarsExpension.h"
 
 using namespace eckit;
 
@@ -175,10 +177,6 @@ void MarsRequest::encode(eckit::Stream& s) const
             s << *k;
         }
     }
-}
-
-MarsRequest::MarsRequest(const eckit::ValueMap&) {
-    NOTIMP;
 }
 
 bool MarsRequest::empty() const {
@@ -441,5 +439,15 @@ std::list<Parameter>::iterator MarsRequest::find(const std::string & name) {
     return params_.end();
 }
 //----------------------------------------------------------------------------------------------------------------------
+
+MarsRequest MarsRequest::parse(const std::string& s) {
+    std::istringstream in(s);
+    MarsParser parser(in);
+    MarsExpension expand(true);
+
+    std::vector<MarsRequest> v = expand.expand(parser.parse());
+    ASSERT(v.size() == 1);
+    return v[0];
+}
 
 } // namespace metkit

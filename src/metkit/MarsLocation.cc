@@ -29,14 +29,6 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-MarsLocation::MarsLocation(const Configuration& cfg) :
-    request_( static_cast<ValueMap>( cfg.getSubConfiguration("request").get() ) ),
-    hostname_(cfg.getString("server")),
-    port_(cfg.getInt("port"))
-{
-    Log::info() << "MarsLocation: " << *this << std::endl;
-}
-
 MarsLocation::MarsLocation(const MarsRequest& r, const std::string& hostname, int port) :
        request_(r),
        hostname_(hostname),

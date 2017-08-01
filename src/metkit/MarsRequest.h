@@ -69,8 +69,6 @@ public: // methods
     MarsRequest(const std::string&);
     MarsRequest(eckit::Stream&);
 
-    MarsRequest(const eckit::ValueMap&);
-
 // -- Copy
 
     // MarsRequest(const MarsRequest&);
@@ -161,6 +159,9 @@ public: // methods
 
     size_t count() const;
 
+// ---- Static methods
+
+    static MarsRequest parse(const std::string& s);
 
 private: // members
 

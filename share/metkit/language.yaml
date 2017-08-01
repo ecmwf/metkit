@@ -256,7 +256,7 @@ _common: &_common
     - auto
 
   param:
-    default: '129'
+    default: 129
     multiple: true
     type: param
 
@@ -295,8 +295,8 @@ _common: &_common
     - '8:10'
     - '9:10'
     - '10:10'
-    - [100, "10:100"]
-    - [900, "90:100"]
+    - ['100', "10:100"]
+    - ['900', "90:100"]
 
   reference:
     type: integer
