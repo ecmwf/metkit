@@ -22,7 +22,7 @@
 #include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/MarsLanguage.h"
-#include "eckit/parser/JSONParser.h"
+#include "eckit/parser/YAMLParser.h"
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/Type.h"
 #include "metkit/MarsExpension.h"
@@ -37,14 +37,14 @@ static std::vector<std::string> verbs_;
 
 static void init() {
 
-    eckit::PathName language = eckit::Resource<eckit::PathName>("$METKIT_LANGUAGE_PATH", "~metkit/share/metkit/language.json");
+    eckit::PathName language = eckit::Resource<eckit::PathName>("$METKIT_LANGUAGE_PATH", "~metkit/share/metkit/language.yaml");
 
     std::ifstream in(language.asString().c_str());
     if (!in) {
         throw eckit::CantOpenFile(language);
     }
 
-    eckit::JSONParser parser(in);
+    eckit::YAMLParser parser(in);
 
     languages_ =  parser.parse();
     Value verbs = languages_.keys();
@@ -106,7 +106,7 @@ eckit::Value MarsLanguage::jsonFile(const std::string& name) {
         throw eckit::CantOpenFile(path);
     }
 
-    eckit::JSONParser parser(in);
+    eckit::YAMLParser parser(in);
 
     return parser.parse();
 }

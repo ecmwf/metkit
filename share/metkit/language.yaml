@@ -1,0 +1,443 @@
+---
+_common: &_common
+
+  accuracy:
+    flatten: false
+    more:
+    - type: integer
+    type: enum-or-more
+    values:
+    - - av
+    - - 'off'
+      - normal
+      - auto
+
+  area:
+    flatten: false
+    more:
+    - type: float
+    only:
+    - {}
+    type: enum-or-more
+    values:
+    - - 'off'
+      - g
+
+  bitmap:
+    flatten: false
+    type: any
+
+  catn:
+    flatten: false
+    type: integer
+
+  channel:
+    only:
+    - type: ssd
+    type: integer
+
+  class:
+    default: od
+    flatten: false
+    type: enum
+    values:
+    - od
+
+  country:
+    type: any
+
+  date:
+    type: any
+
+  direction:
+    by: 1
+    only:
+    - param:
+      - '140251'
+    type: to-by-list
+
+  domain:
+    default: g
+    flatten: false
+    type: enum
+    values:
+    - - g
+      - global
+    - m
+    - c
+    - h
+
+  ensemble:
+    aliases:
+    - xxxxxensemble
+    by: 1
+    only:
+    - type:
+      - pf
+    type: to-by-list
+
+  expver:
+    default: '0001'
+    flatten: false
+    type: expver
+
+  fcmonth:
+    by: 1
+    type: to-by-list
+
+  fcperiod:
+    type: integer
+
+  file:
+    type: enum
+    values:
+    - bin
+
+  format:
+    flatten: false
+    type: enum
+    values:
+    - - grib
+      - grib1
+      - gb
+    - - grib2
+    - - bufr
+      - bf
+    - - grid
+      - gd
+
+  frame:
+    type: integer
+
+  frequency:
+    by: 1
+    only:
+    - param:
+      - '140251'
+    type: to-by-list
+
+  gaussian:
+    type: enum
+    values:
+    - reduced
+    - regular
+
+  grid:
+    flatten: false
+    more:
+    - type: float
+    type: enum-or-more
+    values:
+    - auto
+    - O1280
+    - F1280
+    - N640
+    - O640
+    - O320
+    - O160
+    - N160
+    - N400
+    - N320
+    - N200
+    - N80
+
+  hdate:
+    only:
+    - stream:
+      - enfh
+      - enwh
+    type: integer
+
+  ident:
+    only:
+    - type: ssd
+    type: integer
+
+  instrument:
+    only:
+    - type: ssd
+    type: integer
+
+  interpolation:
+    flatten: false
+    type: enum
+    values:
+    - - nearest-lsm
+      - nearest lsm
+    - - 'off'
+      - default
+      - any
+
+  levelist:
+    by: 1
+    default:
+    - '1000'
+    - '850'
+    - '700'
+    - '500'
+    - '400'
+    - '300'
+    never:
+    - levtype: sfc
+    type: to-by-list
+
+  levtype:
+    # CH/SW6/req/curr/N5 has 2 levtype
+    default: pl
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - - pl
+      - pressure levels
+    - - ml
+      - model levels
+    - - sfc
+      - surface
+    - - pt
+      - potential temperature
+    - - pv
+      - potential vorticity
+
+  method:
+    type: integer
+
+  number:
+    aliases:
+    - xxxxensemble
+    by: 1
+    only:
+    - type:
+      - pf
+      - cr
+      - cm
+      - fcmean
+      - fc
+      - fcmin
+      - fcmax
+      - fcstdev
+    type: to-by-list
+
+  option:
+    default: normal
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - normal
+    - delay
+    - wmoe
+    - gts
+    - tcpip
+    - nobackup
+    - grib1table1
+
+  origin:
+    type: enum
+    values:
+    - - ecmf
+      - ecmwf
+
+  packing:
+    flatten: false
+    type: enum
+    values:
+    - - so
+      - second order
+    - av
+    - co
+    - simple
+
+  padding:
+    flatten: false
+    type: enum
+    values:
+    - none
+    - auto
+
+  param:
+    default: '129'
+    multiple: true
+    type: param
+
+  priority:
+    flatten: false
+    type: integer
+
+  projection:
+    type: any
+
+  quantile:
+    multiple: true
+    only:
+    - type:
+      - pd
+      - pb
+      - taem
+      - sot
+    type: enum
+    values:
+    - 1:3
+    - 2:3
+    - 3:3
+    - 1:5
+    - 2:5
+    - 3:5
+    - 4:5
+    - 5:5
+    - 1:10
+    - 2:10
+    - 3:10
+    - 4:10
+    - 5:10
+    - 6:10
+    - 7:10
+    - 8:10
+    - 9:10
+    - 10:10
+    - ['100', "10:100"]
+    - ['900', "90:100"]
+
+  reference:
+    type: integer
+
+  repres:
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - gg
+    - sh
+    - ll
+    - np
+    - rl
+    - - '0.25'
+      - fix me HUE:E1 !
+
+
+  resol:
+    flatten: false
+    more:
+    - type: integer
+    type: enum-or-more
+    values:
+    - - 'off'
+      - av
+      - reduced gaussian 160
+
+  rotation:
+    flatten: false
+    type: any
+
+  step:
+    by: 12
+    default: 0
+    type: range
+
+  stream:
+    default: oper
+    flatten: false
+    type: enum
+    values:
+    - [ oper, da]
+    - [ enfo, ef, ensemble forecast]
+    - [ wave, wv]
+    - scwv
+    - enwh
+    - [ waef, we]
+    - esmm
+    - ehmm
+    - mmsm
+    - scda
+    - msmm
+    - efhs
+    - efov
+    - enfh
+    - mmsf
+    - mmsa
+    - scef
+    - mnfc
+
+  system:
+    type: integer
+
+  target:
+    flatten: false
+    type: any
+
+  time:
+    default: '1200'
+    multiple: true
+    type: time
+
+  type:
+    default: an
+    flatten: false
+    type: enum
+    values:
+    - [an, analysis]
+    - [fc, forecast]
+    - [cf, control forecast]
+    - - pf
+      - perturbed forecast
+    - - em
+      - ensemble mean
+    - - es
+      - ensemble standard deviation
+    - - cm
+      - cluster mean
+    - - cs
+      - cluster standard deviation
+    - - efi
+      - extreme forecast index
+    - - efic
+      - extreme forecast index control
+    - - taem
+      - time average ensemble mean
+    - - taes
+      - time average ensemble standard deviation
+    - - cr
+      - cluster representative
+    - - wp
+      - weather parameter
+    - pd
+    - - tf
+      - trajectory forecast
+    - ssd
+    - - sot
+      - shift of tails index
+    - - cv
+      - calibration validation
+    - pb
+    - - ep
+      - event probability
+    - fp
+    - fcmean
+    - fcmax
+    - fcmin
+    - fcstdev
+    - - tu
+      - tubes
+
+
+dissemination:
+  <<: *_common
+
+  requirements:
+    type: any
+
+  use:
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - bc
+    - daily
+    - [thursday, mt, monthly run thursday, monthly thursday]
+    - [monday, mm, monthly run monday, monthly monday]
+
+retrieve:
+    <<: *_common
+
+end: {}
+

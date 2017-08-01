@@ -9,7 +9,7 @@
  */
 
 
-#include "eckit/parser/JSONParser.h"
+#include "eckit/parser/YAMLParser.h"
 #include "eckit/types/Types.h"
 #include "eckit/parser/StringTools.h"
 #include "eckit/thread/AutoLock.h"
@@ -266,14 +266,14 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    eckit::PathName param = eckit::Resource<eckit::PathName>("$METKIT_PARAM_PATH", "~metkit/share/metkit/param.json");
+    eckit::PathName param = eckit::Resource<eckit::PathName>("$METKIT_PARAM_PATH", "~metkit/share/metkit/param.yaml");
 
     std::ifstream in(param.asString().c_str());
     if (!in) {
         throw eckit::CantOpenFile(param);
     }
 
-    eckit::JSONParser parser(in);
+    eckit::YAMLParser parser(in);
 
     const eckit::Value parsed = parser.parse();
 
