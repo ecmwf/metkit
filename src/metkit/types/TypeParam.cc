@@ -266,28 +266,20 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    eckit::PathName param = eckit::Resource<eckit::PathName>("$METKIT_PARAM_PATH", "~metkit/share/metkit/param.yaml");
-
-    std::ifstream in(param.asString().c_str());
-    if (!in) {
-        throw eckit::CantOpenFile(param);
-    }
-
-    eckit::YAMLParser parser(in);
-
-    const eckit::Value parsed = parser.parse();
-
-
-    const eckit::Value ids = parsed["ids"];
+    const eckit::Value ids = eckit::YAMLParser::decodeFile("~metkit/share/metkit/paramids.yaml");
     ASSERT(ids.isMap());
 
-
-    const eckit::Value r = parsed["parameters"];
-
+    const eckit::Value r = eckit::YAMLParser::decodeFile("~metkit/share/metkit/param.yaml");
     ASSERT(r.isList());
+
+    // r.dump(std::cout) << std::endl;
 
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
+
+	if(!rule.isList()) {
+	rule.dump(std::cout) << std::endl;
+	}
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
         (*rules).push_back(Rule(rule[0], rule[1], ids));

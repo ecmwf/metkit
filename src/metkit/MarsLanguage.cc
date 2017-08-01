@@ -37,16 +37,7 @@ static std::vector<std::string> verbs_;
 
 static void init() {
 
-    eckit::PathName language = eckit::Resource<eckit::PathName>("$METKIT_LANGUAGE_PATH", "~metkit/share/metkit/language.yaml");
-
-    std::ifstream in(language.asString().c_str());
-    if (!in) {
-        throw eckit::CantOpenFile(language);
-    }
-
-    eckit::YAMLParser parser(in);
-
-    languages_ =  parser.parse();
+    languages_ =  eckit::YAMLParser::decodeFile("~metkit/share/metkit/language.yaml");
     Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.push_back(verbs[i]);
