@@ -17,17 +17,20 @@
 namespace metkit {
 
 // Call by the clien code
-ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::string &host, int port)
+ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::string &host, int port, unsigned long long id)
     : request_(r),
       environ_(e),
       port_(port),
       host_(host),
-      handle_(0) {
+      handle_(0),
+      metkitID_(id) {
     // Try something unique (per machine)
-    typedef unsigned long long ull;
-    metkitID_ = (ull(::getpid()) << 32 )
-               | (ull(::pthread_self()) << 16)
-               | (ull(::time(0)) & ull(0xffff));
+    if (!metkitID_) {
+        typedef unsigned long long ull;
+        metkitID_ = (ull(::getpid()) << 32 )
+                    | (ull(::pthread_self()) << 16)
+                    | (ull(::time(0)) & ull(0xffff));
+    }
 
     handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, metkitID_));
 }
