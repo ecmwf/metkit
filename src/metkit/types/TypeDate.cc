@@ -47,18 +47,18 @@ std::string TypeDate::tidy(const std::string &value) const {
 
 void TypeDate::expand(std::vector<std::string>& values) const {
 
-     static eckit::Translator<std::string, long> s2l;
+    static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
 
     if (values.size() == 3) {
         if (eckit::StringTools::lower(values[1])[0] == 't') {
-            long from = s2l(tidy(values[0]));
-            long to = s2l(tidy(values[2]));
+            eckit::Date from = values[0];
+            eckit::Date to = values[2];
             long by = by_;
             values.clear();
             values.reserve((to - from) / by + 1);
-            for (long i = from; i <= to; i += by) {
-                values.push_back(tidy(l2s(i)));
+            for (eckit::Date i = from; i <= to; i += by) {
+                values.push_back(l2s(i.yyyymmdd()));
             }
             return;
         }
@@ -66,14 +66,14 @@ void TypeDate::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 5) {
         if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
-            long from = s2l(tidy(values[0]));
-            long to = s2l(tidy(values[2]));
+            eckit::Date from = values[0];
+            eckit::Date to = values[2];
             long by = s2l(tidy(values[4]));
             values.clear();
             values.reserve((to - from) / by + 1);
 
-            for (long i = from; i <= to; i += by) {
-                values.push_back(tidy(l2s(i)));
+            for (eckit::Date i = from; i <= to; i += by) {
+                values.push_back(l2s(i.yyyymmdd()));
             }
             return;
         }
