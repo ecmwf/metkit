@@ -52,8 +52,8 @@ void TypeDate::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 3) {
         if (eckit::StringTools::lower(values[1])[0] == 't') {
-            eckit::Date from = values[0];
-            eckit::Date to = values[2];
+            eckit::Date from = tidy(values[0]);
+            eckit::Date to = tidy(values[2]);
             long by = by_;
             values.clear();
             values.reserve((to - from) / by + 1);
@@ -66,8 +66,8 @@ void TypeDate::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 5) {
         if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
-            eckit::Date from = values[0];
-            eckit::Date to = values[2];
+            eckit::Date from = tidy(values[0]);
+            eckit::Date to = tidy(values[2]);
             long by = s2l(tidy(values[4]));
             values.clear();
             values.reserve((to - from) / by + 1);
