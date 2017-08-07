@@ -62,6 +62,8 @@ types/TypeFloat.cc
 types/TypeFloat.h
 types/TypeTime.cc
 types/TypeTime.h
+types/TypeDate.cc
+types/TypeDate.h
 types/TypeMixed.cc
 types/TypeMixed.h
 types/TypesFactory.cc

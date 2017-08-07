@@ -47,7 +47,8 @@ _common: &_common
     type: any
 
   date:
-    type: any
+    default: 0
+    type: date
 
   direction:
     by: 1
