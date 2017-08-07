@@ -34,9 +34,9 @@ BOOST_GLOBAL_FIXTURE(Setup);
 BOOST_AUTO_TEST_SUITE( metkit_expand )
 
 BOOST_AUTO_TEST_CASE( test_metkit_expand ) {
-   const char* text = "ret,date=-5";
+   const char* text = "ret,date=-5/to/-1";
    MarsRequest r = MarsRequest::parse(text);
-   std::cout << r << std::endl;
+   r.dump(std::cout);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
