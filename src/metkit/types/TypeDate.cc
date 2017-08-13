@@ -24,6 +24,12 @@ namespace metkit {
 TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
     Type(name, settings),
     by_(1) {
+
+    for(size_t i = 0; i < originalDefaults_.size(); i++ ) {
+        originalDefaults_[i] = tidy(originalDefaults_[i]);
+    }
+        
+    defaults_ = originalDefaults_;
 }
 
 TypeDate::~TypeDate() {
