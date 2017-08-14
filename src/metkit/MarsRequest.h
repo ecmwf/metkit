@@ -109,7 +109,7 @@ public: // methods
 
 
     template<class T>
-    void getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const {
+    size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const {
         const std::vector< std::string >& s = values(name, emptyOk);
 
         eckit::Translator<std::string, T> t;
@@ -119,6 +119,8 @@ public: // methods
         for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
             v.push_back(t(*j));
         }
+
+        return v.size();
     }
 
 
