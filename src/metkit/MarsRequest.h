@@ -110,7 +110,7 @@ public: // methods
 
     template<class T>
     void getValues(const std::string& name, std::vector<T>& v) const {
-        const std::vector< std::string >& s = values(name);
+        const std::vector< std::string >& s = values(name, true);
 
         eckit::Translator<std::string, T> t;
 
