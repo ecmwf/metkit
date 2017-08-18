@@ -25,7 +25,7 @@ namespace metkit {
 
 static Reanimator<DHSProtocol> dhsProtocolReanimator;
 
-DHSProtocol::DHSProtocol(const std::string& name,const std::string& host, int port, bool forwardMessages )
+DHSProtocol::DHSProtocol(const std::string& name, const std::string& host, int port, bool forwardMessages )
     : name_(name),
       host_(host),
       port_(port),
@@ -35,7 +35,20 @@ DHSProtocol::DHSProtocol(const std::string& name,const std::string& host, int po
       foreward_(forwardMessages)
 {}
 
-DHSProtocol::DHSProtocol(Stream& s) : BaseProtocol(s) {
+DHSProtocol::DHSProtocol(const eckit::Value& params):
+BaseProtocol(params),
+    name_(params["name"]),
+    host_(params["host"]),
+    port_(params["port"]),
+    done_(false),
+    error_(false),
+    sending_(false),
+    foreward_(false)
+{
+}
+
+DHSProtocol::DHSProtocol(Stream& s) :
+BaseProtocol(s) {
     s >> name_;
     s >> host_;
     s >> port_;
@@ -67,7 +80,7 @@ Length DHSProtocol::retrieve(const MarsRequest& request)
 
     Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
 
-    task_ = std::auto_ptr<ClientTask>(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
+    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
 
     TCPStream s(TCPClient().connect(host_, port_));
 
@@ -76,7 +89,7 @@ Length DHSProtocol::retrieve(const MarsRequest& request)
     ASSERT(task_->receive(s) == 'a'); // Acknoledgement
 
     Length result = 0;
-    while(wait(result)) {
+    while (wait(result)) {
         ;
     }
 
@@ -92,7 +105,7 @@ void DHSProtocol::archive(const MarsRequest& request, const Length& size)
     Log::info() << "DHSProtocol::archive " << size << std::endl;
     Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
 
-    task_ = std::auto_ptr<ClientTask>(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
+    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
 
     TCPStream s(TCPClient().connect(host_, port_));
 
@@ -103,7 +116,7 @@ void DHSProtocol::archive(const MarsRequest& request, const Length& size)
     ASSERT(task_->receive(s) == 'a'); // Acknoledgement
 
     Length result = size;
-    while(wait(result)) {
+    while (wait(result)) {
         ;
     }
     Log::info() << "DHSProtocol: archive completed." << std::endl;
@@ -111,9 +124,9 @@ void DHSProtocol::archive(const MarsRequest& request, const Length& size)
 
 void DHSProtocol::cleanup()
 {
-    if(socket_.isConnected())
+    if (socket_.isConnected())
     {
-        if( sending_ )
+        if ( sending_ )
         {
             unsigned long version = 1;
             unsigned long long crc = 0;
@@ -134,14 +147,14 @@ void DHSProtocol::cleanup()
 
     sending_ = false;
 
-    if(!done_) {
+    if (!done_) {
         Length result = 0;
-        while(wait(result)) {
+        while (wait(result)) {
             ;
         }
     }
 
-    if(error_)
+    if (error_)
     {
         error_ = false;
         throw UserError(std::string("Error from [") + name_ + "]: "  + msg_);
@@ -166,17 +179,17 @@ void DHSProtocol::encode(Stream& s) const {
 
 long DHSProtocol::read(void* buffer, long len)
 {
-    return socket_.read(buffer,len);
+    return socket_.read(buffer, len);
 }
 
 long DHSProtocol::write(const void* buffer, long len)
 {
-    return socket_.write(buffer,len);
+    return socket_.write(buffer, len);
 }
 
 bool DHSProtocol::wait(Length& size)
 {
-    for(;;) {
+    for (;;) {
 
         socket_ = callback_.accept();
 
@@ -189,120 +202,122 @@ bool DHSProtocol::wait(Length& size)
         std::string msg;
         long long bytes;
 
-        switch(code) {
-            /* OK */
-            case 'o':
-                done_ = true;
-                return false;
-                break;
+        switch (code) {
+        /* OK */
+        case 'o':
+            done_ = true;
+            return false;
+            break;
 
-                /* read source */
-            case 'r':
-                bytes = size;
-                Log::debug() << "DHSProtocol:r [" << bytes << "]" << std::endl;
-                s << bytes;
-                sending_ = true;
-                return false;
-                break;
+        /* read source */
+        case 'r':
+            bytes = size;
+            Log::debug() << "DHSProtocol:r [" << bytes << "]" << std::endl;
+            s << bytes;
+            sending_ = true;
+            return false;
+            break;
 
-                /* get */
-            case 'h':
-                NOTIMP;
-                break;
+        /* get */
+        case 'h':
+            NOTIMP;
+            break;
 
-            case 'w':
-                s >> bytes;
-                Log::debug() << "DHSProtocol:w " << bytes << std::endl;
-                size = bytes;
-                return false;
-                break;
+        case 'w':
+            s >> bytes;
+            Log::debug() << "DHSProtocol:w " << bytes << std::endl;
+            size = bytes;
+            return false;
+            break;
 
-            case 'm':
-                NOTIMP;
-                break;
+        case 'm':
+            NOTIMP;
+            break;
 
-            case 'X':
-                NOTIMP;
-                break;
+        case 'X':
+            NOTIMP;
+            break;
 
-            case 'e':
-                s >> msg_;
-                Log::error() << msg_ << " [" << name_ << "]" << std::endl;
-                error_ = true;
-                done_ = true;
-                return false;
-                break;
+        case 'e':
+            s >> msg_;
+            Log::error() << msg_ << " [" << name_ << "]" << std::endl;
+            error_ = true;
+            done_ = true;
+            return false;
+            break;
 
-            case 'y':    /* retry */
-                NOTIMP;
-                break;
+        case 'y':    /* retry */
+            NOTIMP;
+            break;
 
-            case 'I': /* info */
-                s >> msg;
-                Log::info() << msg << " [" << name_ << "]" << std::endl;
-                if(foreward_) {
-                    Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
-                }
-                break;
+        case 'I': /* info */
+            s >> msg;
+            Log::info() << msg << " [" << name_ << "]" << std::endl;
+            if (foreward_) {
+                Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+            }
+            break;
 
-            case 'W': /* warning */
-                s >> msg;
-                Log::warning() << msg << " [" << name_ << "]" << std::endl;
-                if(foreward_) {
-                    Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
-                }
-                break;
+        case 'W': /* warning */
+            s >> msg;
+            Log::warning() << msg << " [" << name_ << "]" << std::endl;
+            if (foreward_) {
+                Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
+            }
+            break;
 
-            case 'D': /* debug */
-                s >> msg;
-                Log::debug() << msg << " [" << name_ << "]" << std::endl;
-                if(foreward_) {
-                    Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
-                }
-                break;
+        case 'D': /* debug */
+            s >> msg;
+            Log::debug() << msg << " [" << name_ << "]" << std::endl;
+            if (foreward_) {
+                Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+            }
+            break;
 
-            case 'E': /* error */
-                s >> msg;
-                Log::error() << msg << " [" << name_ << "]" << std::endl;
-                if(foreward_) {
-                    Log::userError() << msg << " [" << name_ << "]" << std::endl;
-                }
-                break;
+        case 'E': /* error */
+            s >> msg;
+            Log::error() << msg << " [" << name_ << "]" << std::endl;
+            if (foreward_) {
+                Log::userError() << msg << " [" << name_ << "]" << std::endl;
+            }
+            break;
 
-            case 'N': /* notification */
-                NOTIMP;
-                break;
+        case 'N': /* notification */
+            NOTIMP;
+            break;
 
-            case 'p': /* ping */
-                s << 'p';
-                break;
+        case 'p': /* ping */
+            s << 'p';
+            break;
 
-            case 's': /* statistics */
-                {
-                    int n;
-                    s >> n;
-                    std::string key, value;
-                    for(int i = 0; i < n; i++)
-                    {
-                        s >> key >> value;
-                        Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
-                    }
-                }
-                break;
+        case 's': /* statistics */
+        {
+            int n;
+            s >> n;
+            std::string key, value;
+            for (int i = 0; i < n; i++)
+            {
+                s >> key >> value;
+                Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
+            }
+        }
+        break;
 
-            case 'S': /* notification start */
-                NOTIMP;
-                break;
+        case 'S': /* notification start */
+            NOTIMP;
+            break;
 
-            case 't': /* new timeout */
-                NOTIMP;
-                break;
+        case 't': /* new timeout */
+            NOTIMP;
+            break;
 
-            default:
-                throw Exception(std::string("Unknown code [") + code + "]");
-                break;
+        default:
+            throw Exception(std::string("Unknown code [") + code + "]");
+            break;
         }
     }
 }
+
+static ProtocolBuilder<DHSProtocol> builder("dhsbase");
 
 }

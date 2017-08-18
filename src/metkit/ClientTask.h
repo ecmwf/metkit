@@ -11,14 +11,15 @@
 // File ClientTask.h
 // Baudouin Raoult - ECMWF Oct 96
 
-#ifndef ClientTask_H
-#define ClientTask_H
+#ifndef metkit_ClientTask_H
+#define metkit_ClientTask_H
 
 // #include "eckit/bases/Watcher.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 // #include "eckit/log/UserChannel.h"
 #include "eckit/transaction/TxnEvent.h"
+#include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/MarsRequest.h"
 
@@ -163,7 +164,7 @@ private:
 	unsigned long long   metkitID_;
 	int                  port_;
 	std::string               host_;
-	std::auto_ptr<eckit::DataHandle> handle_;
+	eckit::ScopedPtr<eckit::DataHandle> handle_;
 	std::string               checksum_;
 
 	// Not sent over streams

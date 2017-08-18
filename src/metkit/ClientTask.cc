@@ -32,7 +32,7 @@ ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::st
                     | (ull(::time(0)) & ull(0xffff));
     }
 
-    handle_   = std::auto_ptr<eckit::DataHandle>(new MarsHandle(host_, port_, metkitID_));
+    handle_.reset(new MarsHandle(host_, port_, metkitID_));
 }
 
 

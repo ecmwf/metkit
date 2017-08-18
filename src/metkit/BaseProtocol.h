@@ -17,6 +17,8 @@
 #include "eckit/io/Length.h"
 #include "eckit/serialisation/Streamable.h"
 
+namespace eckit { class Value; }
+
 namespace metkit {
 
 class MarsRequest;
@@ -24,8 +26,11 @@ class MarsRequest;
 class BaseProtocol : public eckit::Streamable {
 
 public:
+
     BaseProtocol();
     BaseProtocol(eckit::Stream&);
+    BaseProtocol(const eckit::Value&);
+
     virtual ~BaseProtocol();
 
     virtual eckit::Length retrieve(const MarsRequest&) = 0;
@@ -47,6 +52,37 @@ private:
     friend std::ostream& operator<<(std::ostream& s, const BaseProtocol& p) {
         p.print(s); return s;
     }
+};
+
+
+class ProtocolFactory {
+
+    std::string name_;
+
+    virtual BaseProtocol *make(const eckit::Value &) = 0;
+
+  protected:
+
+    ProtocolFactory(const std::string &);
+
+    virtual ~ProtocolFactory();
+
+  public:
+
+    static BaseProtocol *build(const std::string&, const eckit::Value&);
+
+    static void list(std::ostream&);
+
+};
+
+
+template<class T>
+class ProtocolBuilder : public ProtocolFactory {
+    virtual BaseProtocol *make(const eckit::Value &param) {
+        return new T(param);
+    }
+  public:
+    ProtocolBuilder(const std::string &name) : ProtocolFactory(name) {}
 };
 
 }
