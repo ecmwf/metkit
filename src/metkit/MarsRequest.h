@@ -164,6 +164,7 @@ public: // methods
 // ---- Static methods
 
     static MarsRequest parse(const std::string& s);
+    static std::vector<MarsRequest> parse(std::istream&);
 
 private: // members
 

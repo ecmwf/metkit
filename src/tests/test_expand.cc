@@ -35,25 +35,25 @@ BOOST_GLOBAL_FIXTURE(Setup);
 BOOST_AUTO_TEST_SUITE( metkit_expand )
 
 BOOST_AUTO_TEST_CASE( test_metkit_expand_1 ) {
-   const char* text = "ret,date=-5/to/-1";
-   MarsRequest r = MarsRequest::parse(text);
-   r.dump(std::cout);
+    const char* text = "ret,date=-5/to/-1";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
 }
 
 
 BOOST_AUTO_TEST_CASE( test_metkit_expand_2 ) {
-   const char* text = "ret";
-   MarsRequest r = MarsRequest::parse(text);
-   r.dump(std::cout);
+    const char* text = "ret";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
 
-   const std::vector< std::string >& dates = r.values("date");
-   BOOST_CHECK_EQUAL(dates.size(), 1);
+    const std::vector< std::string >& dates = r.values("date");
+    BOOST_CHECK_EQUAL(dates.size(), 1);
 
-   Date today(0);
-   std::ostringstream oss;
+    Date today(0);
+    std::ostringstream oss;
 
-   oss << today.yyyymmdd();
-   BOOST_CHECK_EQUAL(dates[0], oss.str());
+    oss << today.yyyymmdd();
+    BOOST_CHECK_EQUAL(dates[0], oss.str());
 
 
 }
