@@ -18,6 +18,7 @@
 #include "eckit/thread/Once.h"
 #include "eckit/thread/Mutex.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/value/Value.h"
 
 namespace metkit {
 
@@ -81,9 +82,11 @@ ProtocolFactory::~ProtocolFactory() {
 }
 
 
-BaseProtocol *ProtocolFactory::build(const std::string& name, const eckit::Value& params) {
+BaseProtocol *ProtocolFactory::build( const eckit::Value& params) {
     pthread_once(&once, init);
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
+
+    const std::string& name = params["class"];
 
     std::map<std::string, ProtocolFactory *>::const_iterator j = m->find(name);
     if (j == m->end()) {

@@ -34,21 +34,28 @@ MarsRequestHandle::MarsRequestHandle(Stream& s)
       protocol_(Reanimator<BaseProtocol>::reanimate(s)) {
 }
 
-MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* protocol)
-: request_(request),
-  protocol_(protocol)
+MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
+                                     BaseProtocol* protocol):
+    request_(request),
+    protocol_(protocol)
 {
     Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
     ASSERT(protocol);
 }
 
+MarsRequestHandle::MarsRequestHandle(const metkit::MarsRequest& request,
+                                     const eckit::Value& database):
+    request_(request),
+    protocol_(ProtocolFactory::build(database)) {
+}
+
 MarsRequestHandle::~MarsRequestHandle() {}
 
-const ReanimatorBase& MarsRequestHandle::reanimator() const {
+const ReanimatorBase & MarsRequestHandle::reanimator() const {
     return marsRequestHandleReanimator;
 }
 
-const ClassSpec& MarsRequestHandle::classSpec() {
+const ClassSpec & MarsRequestHandle::classSpec() {
     static ClassSpec spec = { &DataHandle::classSpec(), "MarsRequestHandle" };
     return spec;
 }
@@ -93,7 +100,7 @@ void MarsRequestHandle::close()
 
 void MarsRequestHandle::print(std::ostream& s) const
 {
-    s << "MarsRequestHandle["<< *protocol_ << "," << request_ << "]";
+    s << "MarsRequestHandle[" << *protocol_ << "," << request_ << "]";
 }
 
 void MarsRequestHandle::encode(Stream& s) const {

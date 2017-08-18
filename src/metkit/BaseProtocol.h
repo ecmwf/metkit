@@ -69,7 +69,7 @@ class ProtocolFactory {
 
   public:
 
-    static BaseProtocol *build(const std::string&, const eckit::Value&);
+    static BaseProtocol *build(const eckit::Value&);
 
     static void list(std::ostream&);
 
