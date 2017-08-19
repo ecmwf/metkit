@@ -18,6 +18,7 @@
 
 #include "metkit/ClientTask.h"
 #include "metkit/RequestEnvironment.h"
+#include "eckit/config/Configuration.h"
 
 using namespace eckit;
 
@@ -35,11 +36,11 @@ DHSProtocol::DHSProtocol(const std::string& name, const std::string& host, int p
       foreward_(forwardMessages)
 {}
 
-DHSProtocol::DHSProtocol(const eckit::Value& params):
+DHSProtocol::DHSProtocol(const eckit::Configuration& params):
 BaseProtocol(params),
-    name_(params["name"]),
-    host_(params["host"]),
-    port_(params["port"]),
+    name_(params.getString("name")),
+    host_(params.getString("host")),
+    port_(params.getInt("port", 9000)),
     done_(false),
     error_(false),
     sending_(false),

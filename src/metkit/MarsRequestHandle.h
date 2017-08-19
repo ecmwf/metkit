@@ -27,9 +27,11 @@ public:
 
     MarsRequestHandle(eckit::Stream&);
 
-    MarsRequestHandle(const metkit::MarsRequest& request, const eckit::Value& database);
+    MarsRequestHandle(const metkit::MarsRequest& request,
+                      const eckit::Configuration& database);
 
-    MarsRequestHandle(const metkit::MarsRequest& request, metkit::BaseProtocol* protocol);
+    MarsRequestHandle(const metkit::MarsRequest& request,
+                      metkit::BaseProtocol* protocol);
 
     ~MarsRequestHandle();
 

@@ -27,7 +27,7 @@ class DHSProtocol : public BaseProtocol {
 
 public:
 
-    DHSProtocol(const eckit::Value&);
+    DHSProtocol(const eckit::Configuration&);
 
     DHSProtocol(const std::string& name,
                 const std::string& host,

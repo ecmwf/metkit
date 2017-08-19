@@ -44,7 +44,7 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
 }
 
 MarsRequestHandle::MarsRequestHandle(const metkit::MarsRequest& request,
-                                     const eckit::Value& database):
+                                     const eckit::Configuration& database):
     request_(request),
     protocol_(ProtocolFactory::build(database)) {
 }

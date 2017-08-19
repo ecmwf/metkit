@@ -17,7 +17,7 @@
 #include "eckit/io/Length.h"
 #include "eckit/serialisation/Streamable.h"
 
-namespace eckit { class Value; }
+namespace eckit { class Configuration; }
 
 namespace metkit {
 
@@ -29,7 +29,7 @@ public:
 
     BaseProtocol();
     BaseProtocol(eckit::Stream&);
-    BaseProtocol(const eckit::Value&);
+    BaseProtocol(const eckit::Configuration&);
 
     virtual ~BaseProtocol();
 
@@ -59,7 +59,7 @@ class ProtocolFactory {
 
     std::string name_;
 
-    virtual BaseProtocol *make(const eckit::Value &) = 0;
+    virtual BaseProtocol *make(const eckit::Configuration &) = 0;
 
   protected:
 
@@ -69,7 +69,7 @@ class ProtocolFactory {
 
   public:
 
-    static BaseProtocol *build(const eckit::Value&);
+    static BaseProtocol *build(const eckit::Configuration&);
 
     static void list(std::ostream&);
 
@@ -78,7 +78,7 @@ class ProtocolFactory {
 
 template<class T>
 class ProtocolBuilder : public ProtocolFactory {
-    virtual BaseProtocol *make(const eckit::Value &param) {
+    virtual BaseProtocol *make(const eckit::Configuration &param) {
         return new T(param);
     }
   public:
