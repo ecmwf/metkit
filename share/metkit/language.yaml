@@ -714,5 +714,16 @@ retrieve:
         - none
         - auto
 
+read:
+    source:
+        flatten: false
+        type: any
+
+    <<: *_postproc
+
+    target:
+        flatten: false
+        type: any
+
 end: {}
 
