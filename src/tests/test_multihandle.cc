@@ -8,7 +8,7 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_emosfile.cc
+/// @file   test_MetFile.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
@@ -23,7 +23,7 @@
 
 #include "eckit/testing/Setup.h"
 
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
 #include "grib_api.h"
 

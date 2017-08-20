@@ -518,6 +518,7 @@ _field: &_field
 _postproc: &_postproc
 
   accuracy:
+    postproc: true
     flatten: false
     more:
     - type: integer
@@ -529,10 +530,12 @@ _postproc: &_postproc
       - auto
 
   bitmap:
+    postproc: true
     flatten: false
     type: any
 
   format:
+    postproc: true
     flatten: false
     type: enum
     values:
@@ -546,9 +549,11 @@ _postproc: &_postproc
       - gd
 
   frame:
+    postproc: true
     type: integer
 
   frequency:
+    postproc: true
     by: 1
     only:
     - param:
@@ -556,12 +561,14 @@ _postproc: &_postproc
     type: to-by-list
 
   gaussian:
+    postproc: true
     type: enum
     values:
     - reduced
     - regular
 
   grid:
+    postproc: true
     flatten: false
     more:
     - type: float
@@ -581,6 +588,7 @@ _postproc: &_postproc
     - N80
 
   interpolation:
+    postproc: true
     flatten: false
     type: enum
     values:
@@ -590,8 +598,8 @@ _postproc: &_postproc
       - default
       - any
 
-
   packing:
+    postproc: true
     flatten: false
     type: enum
     values:
@@ -601,46 +609,8 @@ _postproc: &_postproc
     - co
     - simple
 
-  padding:
-    flatten: false
-    type: enum
-    values:
-    - none
-    - auto
-
-
-  quantile:
-    multiple: true
-    only:
-    - type:
-      - pd
-      - pb
-      - taem
-      - sot
-    type: enum
-    values:
-    - '1:3'
-    - '2:3'
-    - '3:3'
-    - '1:5'
-    - '2:5'
-    - '3:5'
-    - '4:5'
-    - '5:5'
-    - '1:10'
-    - '2:10'
-    - '3:10'
-    - '4:10'
-    - '5:10'
-    - '6:10'
-    - '7:10'
-    - '8:10'
-    - '9:10'
-    - '10:10'
-    - ['100', "10:100"]
-    - ['900', "90:100"]
-
   resol:
+    postproc: true
     flatten: false
     more:
     - type: integer
@@ -651,12 +621,10 @@ _postproc: &_postproc
       - reduced gaussian 160
 
   rotation:
+    postproc: true
     flatten: false
     type: any
 
-  target:
-    flatten: false
-    type: any
 
 #######################################################################
 
@@ -682,12 +650,10 @@ dissemination:
     flatten: false
     type: integer
 
-
   file:
     type: enum
     values:
     - bin
-
 
   option:
     default: normal
@@ -713,9 +679,17 @@ dissemination:
   projection:
     type: any
 
+  target:
+    flatten: false
+    type: any
+
 retrieve:
     <<: *_field
     <<: *_postproc
+
+    target:
+        flatten: false
+        type: any
 
     database:
       flatten: false
@@ -726,12 +700,19 @@ retrieve:
       type: any
 
     optimize:
-      type: enum
-      values:
-      - true
-      - false
-      default:
-        "off"
+        type: enum
+        values:
+        - true
+        - false
+        default:
+            "off"
+
+    padding:
+        flatten: false
+        type: enum
+        values:
+        - none
+        - auto
 
 end: {}
 

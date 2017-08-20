@@ -14,8 +14,8 @@
 
 /// @date Dec 2015
 
-#ifndef grib_EmosFile_H
-#define grib_EmosFile_H
+#ifndef grib_MetFile_H
+#define grib_MetFile_H
 
 #include "eckit/io/DataHandle.h"
 #include "eckit/memory/NonCopyable.h"
@@ -25,33 +25,35 @@
 
 namespace eckit { class Buffer; }
 namespace eckit { class PathName; }
+namespace eckit { class CircularBuffer; }
 
 namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Previously existed in mars-server code as metkit/EmosFile
+/// Previously existed in mars-server code as metkit/MetFile
 
-class EmosFile : private eckit::NonCopyable {
+class MetFile : private eckit::NonCopyable {
 
 public: // methods
 
     /// Contructor
 
-    EmosFile(const eckit::PathName&, bool buffered = true);
+    MetFile(const eckit::PathName&, bool buffered = true);
 
     /// Contructor, does not take ownership of eckit::DataHandle
 
-    EmosFile( eckit::DataHandle& dh );
+    MetFile( eckit::DataHandle& dh );
 
     /// Destructor
 
-    ~EmosFile();
+    ~MetFile();
 
 public: // methods
 
     long read(eckit::Buffer&);
+    long read(eckit::CircularBuffer&);
 
     // Don't fail if buffer is too small
     // FIXME: Why are we not failing if the buffer is too small? As is, the

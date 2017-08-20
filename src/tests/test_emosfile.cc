@@ -8,11 +8,11 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_emosfile.cc
+/// @file   test_MetFile.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#define BOOST_TEST_MODULE metkit_grib_EmosFile
+#define BOOST_TEST_MODULE metkit_grib_MetFile
 #include "ecbuild/boost_test_framework.h"
 
 #include "eckit/filesystem/PathName.h"
@@ -20,7 +20,7 @@
 
 #include "eckit/testing/Setup.h"
 
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
 using namespace eckit;
 using namespace eckit::testing;
@@ -37,12 +37,12 @@ static const size_t GRIB_SIZE = 858;
 
 struct F {
     F() : file("latlon.grib") {}
-    EmosFile file;
+    MetFile file;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BOOST_AUTO_TEST_SUITE( metkit_grib_EmosFile )
+BOOST_AUTO_TEST_SUITE( metkit_grib_MetFile )
 
 BOOST_FIXTURE_TEST_CASE( test_read, F ) {
     Buffer buf(1024);

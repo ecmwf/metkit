@@ -13,7 +13,7 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
 #include "metkit/grib/GribToRequest.h"
 #include "metkit/MarsRequest.h"

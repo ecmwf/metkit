@@ -8,11 +8,11 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_emosfile.cc
+/// @file   test_MetFile.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#define BOOST_TEST_MODULE metkit_grib_EmosFile
+#define BOOST_TEST_MODULE metkit_grib_MetFile
 #include "ecbuild/boost_test_framework.h"
 
 
