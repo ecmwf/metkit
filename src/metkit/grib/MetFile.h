@@ -26,6 +26,7 @@
 namespace eckit { class Buffer; }
 namespace eckit { class PathName; }
 namespace eckit { class CircularBuffer; }
+namespace eckit { class ResizableBuffer; }
 
 namespace metkit {
 namespace grib {
@@ -54,6 +55,7 @@ public: // methods
 
     long read(eckit::Buffer&);
     long read(eckit::CircularBuffer&);
+    long read(eckit::ResizableBuffer&);
 
     // Don't fail if buffer is too small
     // FIXME: Why are we not failing if the buffer is too small? As is, the

@@ -23,6 +23,7 @@
 
 #include "metkit/grib/MetFile.h"
 #include "eckit/io/CircularBuffer.h"
+#include "eckit/io/ResizableBuffer.h"
 
 using namespace eckit;
 
@@ -103,6 +104,28 @@ long MetFile::read(CircularBuffer& buffer)
     if (e == GRIB_SUCCESS)  {
         ASSERT(p);
         buffer.write(p, len);
+        return len;
+    }
+
+    if (e == GRIB_END_OF_FILE) {
+        return 0;
+    }
+
+    throw ReadError("in MetFile::read");
+}
+
+
+long MetFile::read(ResizableBuffer& buffer)
+{
+    int e = 0;
+    size_t len;
+    void * p = wmo_read_any_from_stream_malloc(handle_.get(), &readcb, &len, &e);
+    AutoFree free(p);
+
+    if (e == GRIB_SUCCESS)  {
+        ASSERT(p);
+        buffer.resize(std::max(buffer.size(), len));
+        ::memcpy(buffer, p, len);
         return len;
     }
 
