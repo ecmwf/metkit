@@ -64,19 +64,10 @@ public: // methods
 
     operator eckit::Value() const;
 
-    /* DEPRECATED METHODS */
-
-    // These methods are required for ODB_API 0.15.x
-    // to maintain temporary compatibility with metkit 0.3.0
-
-    void name(const std::string& v) { verb(v); }
-    void setValues(const std::string& name, const std::vector<std::string>& v) { values(name, v); }
-
-    /* END DEPRECATED METHODS */
 
 // -- Methods
 
-    const std::string& verb() const { return verb_; }
+    const std::string& verb() const;
 
     size_t countValues(const std::string&) const;
 
@@ -86,20 +77,7 @@ public: // methods
 
 
     template<class T>
-    size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const {
-        const std::vector< std::string >& s = values(name, emptyOk);
-
-        eckit::Translator<std::string, T> t;
-
-        v.clear();
-
-        for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
-            v.push_back(t(*j));
-        }
-
-        return v.size();
-    }
-
+    size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
 
     void getParams(std::vector<std::string>&) const;
     std::vector<std::string> params() const;
@@ -109,11 +87,9 @@ public: // methods
     void values(const std::string&, const std::vector<std::string>&);
 
     template<class T>
-    void setValue(const std::string& name, const T& value)
-    { std::vector<T> v(1, value); values(name, v); }
+    void setValue(const std::string& name, const T& value);
 
-    void setValue(const std::string& name, const char* value)
-    { std::string v(value); setValue(name, v); }
+    void setValue(const std::string& name, const char* value);
 
     void unsetValues(const std::string&);
 
@@ -176,6 +152,28 @@ private: // methods
     }
 
 };
+
+
+template<class T>
+size_t MarsRequest::getValues(const std::string& name, std::vector<T>& v, bool emptyOk) const {
+    const std::vector< std::string >& s = values(name, emptyOk);
+
+    eckit::Translator<std::string, T> t;
+
+    v.clear();
+
+    for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
+        v.push_back(t(*j));
+    }
+
+    return v.size();
+}
+
+
+template<class T>
+void MarsRequest::setValue(const std::string& name, const T& value) {
+    std::vector<T> v(1, value); values(name, v);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

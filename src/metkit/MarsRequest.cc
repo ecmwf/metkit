@@ -348,6 +348,14 @@ bool MarsRequest::operator<(const MarsRequest& other) const {
 }
 
 
+void MarsRequest::setValue(const std::string& name, const char* value)
+{ std::string v(value); setValue(name, v); }
+
+
+const std::string& MarsRequest::verb() const {
+    return verb_;
+}
+
 std::list<Parameter>::const_iterator MarsRequest::find(const std::string& name) const {
     for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
         if ((*i).name() == name) {
