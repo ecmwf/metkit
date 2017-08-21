@@ -15,6 +15,7 @@
 #define MarsRequestHandle_H
 
 #include "eckit/io/DataHandle.h"
+#include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/BaseProtocol.h"
 #include "metkit/MarsRequest.h"
@@ -23,8 +24,15 @@ namespace metkit {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
+
     MarsRequestHandle(eckit::Stream&);
-    MarsRequestHandle(const metkit::MarsRequest& request, metkit::BaseProtocol* protocol);
+
+    MarsRequestHandle(const metkit::MarsRequest& request,
+                      const eckit::Configuration& database);
+
+    MarsRequestHandle(const metkit::MarsRequest& request,
+                      metkit::BaseProtocol* protocol);
+
     ~MarsRequestHandle();
 
     // -- Overridden methods (from Streamable)
@@ -35,7 +43,7 @@ public:
 private:
     // -- Members
     metkit::MarsRequest request_;
-    std::auto_ptr<BaseProtocol> protocol_;
+    eckit::ScopedPtr<BaseProtocol> protocol_;
 
     // -- Overridden methods
     // From data handle

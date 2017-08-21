@@ -8,11 +8,11 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_emosfile.cc
+/// @file   test_MetFile.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#define BOOST_TEST_MODULE metkit_grib_EmosFile
+#define BOOST_TEST_MODULE metkit_grib_MetFile
 #include "ecbuild/boost_test_framework.h"
 
 #include "eckit/filesystem/PathName.h"
@@ -20,9 +20,9 @@
 
 #include "eckit/testing/Setup.h"
 
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
-using namespace eckit;
+
 using namespace eckit::testing;
 
 BOOST_GLOBAL_FIXTURE(Setup);
@@ -37,29 +37,29 @@ static const size_t GRIB_SIZE = 858;
 
 struct F {
     F() : file("latlon.grib") {}
-    EmosFile file;
+    MetFile file;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BOOST_AUTO_TEST_SUITE( metkit_grib_EmosFile )
+BOOST_AUTO_TEST_SUITE( metkit_grib_MetFile )
 
 BOOST_FIXTURE_TEST_CASE( test_read, F ) {
-    Buffer buf(1024);
+    eckit::Buffer buf(1024);
     size_t len = file.read(buf);
     BOOST_CHECK_LT(len, buf.size());
     BOOST_CHECK_EQUAL(len, GRIB_SIZE);
 }
 
 BOOST_FIXTURE_TEST_CASE( test_read_some, F ) {
-    Buffer buf(1024);
+    eckit::Buffer buf(1024);
     size_t len = file.readSome(buf);
     BOOST_CHECK_LT(len, buf.size());
     BOOST_CHECK_EQUAL(len, GRIB_SIZE);
 }
 
 BOOST_FIXTURE_TEST_CASE( test_read_some_smallbuff, F ) {
-    Buffer buf(512);
+    eckit::Buffer buf(512);
     size_t len = file.readSome(buf);
     BOOST_CHECK_GT(len, buf.size());
     BOOST_CHECK_EQUAL(len, GRIB_SIZE);

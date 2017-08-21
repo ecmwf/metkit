@@ -8,7 +8,7 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_emosfile.cc
+/// @file   test_MetFile.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
@@ -23,11 +23,11 @@
 
 #include "eckit/testing/Setup.h"
 
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
 #include "grib_api.h"
 
-using namespace eckit;
+
 using namespace eckit::testing;
 
 BOOST_GLOBAL_FIXTURE(Setup);
@@ -48,10 +48,10 @@ BOOST_AUTO_TEST_SUITE( metkit_grib_multihandle )
 
 BOOST_FIXTURE_TEST_CASE( fopen, F ) {
 
-    MultiHandle mh;
+    eckit::MultiHandle mh;
 
-    mh += new FileHandle("latlon.grib");
-    mh += new FileHandle("latlon.grib");
+    mh += new eckit::FileHandle("latlon.grib");
+    mh += new eckit::FileHandle("latlon.grib");
 
     FILE* f = mh.openf("r");
 

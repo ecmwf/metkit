@@ -19,13 +19,21 @@
 #include "eckit/net/TCPSocket.h"
 #include "metkit/MarsRequest.h"
 #include "metkit/ClientTask.h"
+#include "eckit/memory/ScopedPtr.h"
 
 namespace metkit {
 
 class DHSProtocol : public BaseProtocol {
 
 public:
-    DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
+
+    DHSProtocol(const eckit::Configuration&);
+
+    DHSProtocol(const std::string& name,
+                const std::string& host,
+                int port,
+                bool forewardMessages = false);
+
     DHSProtocol(eckit::Stream&);
     ~DHSProtocol();
 
@@ -47,7 +55,7 @@ private:
     bool                      done_;
     bool                      error_;
     bool                      sending_;
-    std::auto_ptr<ClientTask> task_;
+    eckit::ScopedPtr<ClientTask> task_;
     bool                      foreward_;
 
     // -- Methods
