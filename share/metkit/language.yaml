@@ -2,6 +2,7 @@
 _field: &_field
 
   class:
+    category: data
     default: od
     flatten: false
     type: enum
@@ -59,6 +60,7 @@ _field: &_field
     - [yt, yotc]
 
   type:
+    category: data
     default: an
     flatten: false
     type: enum
@@ -141,6 +143,7 @@ _field: &_field
     - [wp, weather parameters]
 
   stream:
+    category: data
     default: oper
     flatten: false
     type: enum
@@ -250,11 +253,13 @@ _field: &_field
     - [wvhc, wave hindcasts]
 
   expver:
+    category: data
     default: '0001'
     flatten: false
     type: expver
 
   model:
+    category: data
     type: any
 
   repres:
@@ -276,6 +281,7 @@ _field: &_field
   # obstype
 
   levtype:
+    category: data
     # CH/SW6/req/curr/N5 has 2 levtype
     default: pl
     flatten: false
@@ -293,6 +299,7 @@ _field: &_field
     - [wv, ocean wave]
 
   levelist:
+    category: data
     by: 1
     default:
     - 1000
@@ -306,6 +313,7 @@ _field: &_field
     type: to-by-list
 
   param:
+    category: data
     default: 129
     multiple: true
     type: param
@@ -317,6 +325,7 @@ _field: &_field
   # month
 
   date:
+    category: data
     default: 0
     type: date
 
@@ -324,6 +333,7 @@ _field: &_field
   # refdate
 
   hdate:
+    category: data
     only:
     - stream:
       - enfh
@@ -331,13 +341,16 @@ _field: &_field
     type: integer
 
   fcmonth:
+    category: data
     by: 1
     type: to-by-list
 
   fcperiod:
+    category: data
     type: integer
 
   time:
+    category: data
     default: '1200'
     multiple: true
     type: time
@@ -347,6 +360,7 @@ _field: &_field
   # range
 
   step:
+    category: data
     by: 12
     default: 0
     type: range
@@ -354,11 +368,13 @@ _field: &_field
 # anfoffset
 
   reference:
+    category: data
     type: integer
 
 #################################################################
 
   ensemble:
+    category: data
     aliases:
     - xxxxxensemble
     by: 1
@@ -371,6 +387,7 @@ _field: &_field
   # probability
 
   number:
+    category: data
     aliases:
     - xxxxensemble
     by: 1
@@ -387,6 +404,7 @@ _field: &_field
     type: to-by-list
 
   quantile:
+    category: data
     multiple: true
     only:
     - type:
@@ -418,6 +436,7 @@ _field: &_field
     - ['900', "90:100"]
 
   domain:
+    category: data
     default: g
     flatten: false
     type: enum
@@ -450,6 +469,7 @@ _field: &_field
     - [z]
 
   frequency:
+    category: data
     by: 1
     only:
     - param:
@@ -457,6 +477,7 @@ _field: &_field
     type: to-by-list
 
   direction:
+    category: data
     by: 1
     only:
     - param:
@@ -467,25 +488,30 @@ _field: &_field
 # iteration
 
   channel:
+    category: data
     only:
     - type: ssd
     type: integer
 
   ident:
+    category: data
     only:
     - type: ssd
     type: integer
 
   instrument:
+    category: data
     only:
     - type: ssd
     type: integer
 
 
   method:
+    category: data
     type: integer
 
   origin:
+    category: data
     type: enum
     values:
     - [ammc, 1, melbourne]
@@ -511,8 +537,8 @@ _field: &_field
     - [sbsj, 46, cptec]
     - [vuwien, 244, university of vienna]
 
-
   system:
+    category: data
     type: integer
 
 _postproc: &_postproc
@@ -566,6 +592,11 @@ _postproc: &_postproc
     values:
     - reduced
     - regular
+
+  area:
+    category: postproc
+    flatten: false
+    type: float
 
   grid:
     category: postproc
