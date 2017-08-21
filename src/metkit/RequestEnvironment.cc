@@ -20,17 +20,17 @@
 #include <sys/types.h>
 #include <pwd.h>
 
-using namespace eckit;
+
 
 namespace metkit {
 
-static Mutex local_mutex;
+static eckit::Mutex local_mutex;
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
 	char buf[1024];
 	if(gethostname(buf,sizeof(buf)) != 0)
-		throw SeriousBug("Cannot establish current hostname");
+		throw eckit::SeriousBug("Cannot establish current hostname");
 
     request_.setValue("host", std::string(buf));
 
@@ -39,7 +39,7 @@ RequestEnvironment::RequestEnvironment():
 	setpwent();
 
 	if((pw = getpwuid(getuid())) == NULL)
-		throw SeriousBug("Cannot establish current user");
+		throw eckit::SeriousBug("Cannot establish current user");
 
     request_.setValue("user", std::string(pw->pw_name));
 
@@ -60,7 +60,7 @@ void RequestEnvironment::print(std::ostream&) const
 
 RequestEnvironment& RequestEnvironment::instance()
 {
-    AutoLock<Mutex> lock(local_mutex);
+    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
     {
         static RequestEnvironment e;
         return e;

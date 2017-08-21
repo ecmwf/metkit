@@ -19,7 +19,7 @@
 #include "eckit/runtime/Tool.h"
 #include "eckit/value/Value.h"
 
-using namespace eckit;
+
 using namespace metkit;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ using namespace metkit;
 // We use eckit::Tool for the tests as it ensures that the Main environment is set up
 // correctly, avoiding any unexpected segfaults inside eckit.
 
-class TypesFactoryTest : public Tool {
+class TypesFactoryTest : public eckit::Tool {
 
 public: // methods
 
@@ -61,10 +61,10 @@ void TypesFactoryTest::test_list_types() {
 
 void TypesFactoryTest::test_build() {
 
-    ValueMap settings;
+    eckit::ValueMap settings;
     settings["type"] = "date";
 
-    Type* t1(TypesFactory::build("abcd", Value(settings)));
+    Type* t1(TypesFactory::build("abcd", eckit::Value(settings)));
 
     ASSERT(t1 != 0);
     t1->attach();

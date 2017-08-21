@@ -28,17 +28,17 @@
 #include "metkit/MarsExpension.h"
 #include "eckit/log/Timer.h"
 
-using namespace eckit;
+
 
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
-static Value languages_;
+static eckit::Value languages_;
 static std::vector<std::string> verbs_;
 
 static void init() {
 
     languages_ =  eckit::YAMLParser::decodeFile("~metkit/share/metkit/language.yaml");
-    Value verbs = languages_.keys();
+    eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.push_back(verbs[i]);
     }
@@ -51,18 +51,18 @@ namespace metkit {
 MarsLanguage::MarsLanguage(const std::string& verb):
     verb_(verb) {
     pthread_once(&once, init);
-    Value lang = languages_[verb];
-    Value params = lang.keys();
+    eckit::Value lang = languages_[verb];
+    eckit::Value params = lang.keys();
 
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
-        Value settings = lang[keyword];
+        eckit::Value settings = lang[keyword];
         types_[keyword] = TypesFactory::build(keyword, settings);
         types_[keyword]->attach();
         keywords_.push_back(keyword);
 
         if (settings.contains("aliases")) {
-            Value aliases = settings["aliases"];
+            eckit::Value aliases = settings["aliases"];
             for (size_t j = 0; j < aliases.size(); ++j) {
                 aliases_[aliases[j]] = keyword;
                 keywords_.push_back(aliases[j]);
@@ -344,7 +344,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         }
 
     }
-    catch (Exception& e) {
+    catch (std::exception& e) {
         std::ostringstream oss;
         oss << e.what() << " request=" << r << ", expanded=" << result;
         throw eckit::UserError(oss.str());

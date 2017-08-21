@@ -22,7 +22,7 @@
 #include "metkit/grib/GribMetaData.h"
 
 using namespace std;
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {
@@ -35,17 +35,17 @@ void grib_call(int code, const char *msg, const eckit::CodeLocation& where)
 	{
         std::ostringstream os;
         os << msg << " : " << grib_get_error_message(code);
-        throw Exception(os.str(), where);
+        throw eckit::Exception(os.str(), where);
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-GribHandle::GribHandle(const PathName& path) :
+GribHandle::GribHandle(const eckit::PathName& path) :
     handle_(NULL),
     owned_(true)
 {
-	StdFile f(path);
+	eckit::StdFile f(path);
 
 	int err = 0;
 	grib_handle* h = grib_handle_new_from_file(0,f,&err);
@@ -53,7 +53,7 @@ GribHandle::GribHandle(const PathName& path) :
 	{
         std::ostringstream os;
         os << "GribHandle() failed to build from path " << path;
-        throw Exception(os.str(), Here());
+        throw eckit::Exception(os.str(), Here());
 	}
 
 	ASSERT(h);
@@ -74,7 +74,7 @@ GribHandle::GribHandle(grib_handle& h) :
 {
 }
 
-GribHandle::GribHandle(const Buffer& buffer, bool copy)
+GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy)
 	: handle_(NULL)
 {
 	const char *message = buffer;
@@ -158,7 +158,7 @@ void GribHandle::setDataValues(const double *values, size_t count)
 	GRIB_CALL(grib_set_double_array(raw(),"values",values,count));
 }
 
-void GribHandle::write( DataHandle& handle )
+void GribHandle::write( eckit::DataHandle& handle )
 {
 	const void* message = NULL;
 	size_t length = 0;
@@ -171,7 +171,7 @@ void GribHandle::write( DataHandle& handle )
     ASSERT( length = long(length) && handle.write(message, length) == long(length) );
 }
 
-size_t GribHandle::write( Buffer& buff )
+size_t GribHandle::write( eckit::Buffer& buff )
 {
     size_t len = buff.size();
 	GRIB_CALL( grib_get_message_copy( raw(), buff, &len )); // will issue error if buffer too small

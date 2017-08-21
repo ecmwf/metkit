@@ -28,7 +28,7 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
     for(size_t i = 0; i < originalDefaults_.size(); i++ ) {
         originalDefaults_[i] = tidy(originalDefaults_[i]);
     }
-        
+
     defaults_ = originalDefaults_;
 }
 

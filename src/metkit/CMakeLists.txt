@@ -38,6 +38,8 @@ MarsRequestHandle.cc
 MarsRequestHandle.h
 RequestEnvironment.cc
 RequestEnvironment.h
+Parameter.cc
+Parameter.h
 config/LibMetkit.cc
 config/LibMetkit.h
 types/Type.cc

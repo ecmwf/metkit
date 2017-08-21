@@ -22,7 +22,7 @@
 
 #include "metkit/MarsLocation.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 
@@ -42,7 +42,7 @@ MarsLocation::~MarsLocation()
 
 metkit::MarsLocation::operator eckit::Value() const
 {
-    Value dict = Value::makeMap();
+    eckit::Value dict = eckit::Value::makeMap();
 
     dict["request"] = request_;
     dict["server"]  = hostname_;

@@ -25,7 +25,7 @@
 #include "eckit/io/CircularBuffer.h"
 #include "eckit/io/ResizableBuffer.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {
@@ -34,27 +34,27 @@ namespace grib {
 
 static long readcb(void *data, void *buffer, long len)
 {
-    DataHandle *handle = reinterpret_cast<eckit::DataHandle*>(data);
+    eckit::DataHandle *handle = reinterpret_cast<eckit::DataHandle*>(data);
     return handle->read(buffer, len);
 }
 
-MetFile::MetFile(const PathName& path, bool buffered):
+MetFile::MetFile(const eckit::PathName& path, bool buffered):
     handle_(
         buffered
-        ? new BufferedHandle(path.fileHandle(), 64 * 1024 * 1024)
+        ? new eckit::BufferedHandle(path.fileHandle(), 64 * 1024 * 1024)
         : path.fileHandle()
     )
 {
     handle_->openForRead();
 }
 
-MetFile::MetFile( DataHandle& dh ):
-    handle_(new BufferedHandle( dh, 64 * 1024 * 1024))
+MetFile::MetFile( eckit::DataHandle& dh ):
+    handle_(new eckit::BufferedHandle( dh, 64 * 1024 * 1024))
 {
     handle_->openForRead();
 }
 
-Offset MetFile::position()
+eckit::Offset MetFile::position()
 {
     return handle_->position();
 }
@@ -64,7 +64,7 @@ void MetFile::rewind()
     handle_->rewind();
 }
 
-void MetFile::seek(const Offset& where)
+void MetFile::seek(const eckit::Offset& where)
 {
     handle_->seek(where);
 }
@@ -74,7 +74,7 @@ MetFile::~MetFile()
     handle_->close();
 }
 
-long MetFile::read(Buffer& buffer)
+long MetFile::read(eckit::Buffer& buffer)
 {
     size_t len = buffer.size();
     int e    = wmo_read_any_from_stream(handle_.get(), &readcb, buffer, &len);
@@ -82,7 +82,7 @@ long MetFile::read(Buffer& buffer)
     if (e == GRIB_SUCCESS)  return len;
     if (e == GRIB_END_OF_FILE) return 0;
 
-    throw ReadError("in MetFile::read");
+    throw eckit::ReadError("in MetFile::read");
 }
 
 namespace {
@@ -94,7 +94,7 @@ public:
 };
 }
 
-long MetFile::read(CircularBuffer& buffer)
+long MetFile::read(eckit::CircularBuffer& buffer)
 {
     int e = 0;
     size_t len;
@@ -111,11 +111,11 @@ long MetFile::read(CircularBuffer& buffer)
         return 0;
     }
 
-    throw ReadError("in MetFile::read");
+    throw eckit::ReadError("in MetFile::read");
 }
 
 
-long MetFile::read(ResizableBuffer& buffer)
+long MetFile::read(eckit::ResizableBuffer& buffer)
 {
     int e = 0;
     size_t len;
@@ -133,11 +133,11 @@ long MetFile::read(ResizableBuffer& buffer)
         return 0;
     }
 
-    throw ReadError("in MetFile::read");
+    throw eckit::ReadError("in MetFile::read");
 }
 
 
-long MetFile::readSome(Buffer& buffer)
+long MetFile::readSome(eckit::Buffer& buffer)
 {
     size_t len = buffer.size();
     int e    = wmo_read_any_from_stream(handle_.get(), &readcb, buffer, &len);
@@ -145,7 +145,7 @@ long MetFile::readSome(Buffer& buffer)
     if (e == GRIB_SUCCESS || e == GRIB_BUFFER_TOO_SMALL)  return len;
     if (e == GRIB_END_OF_FILE)           return 0;
 
-    throw ReadError("in MetFile::readSome");
+    throw eckit::ReadError("in MetFile::readSome");
 }
 
 //----------------------------------------------------------------------------------------------------------------------

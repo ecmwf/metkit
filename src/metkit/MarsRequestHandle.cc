@@ -15,11 +15,11 @@
 #include "eckit/parser/StringTools.h"
 #include "eckit/types/Types.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 
-static Reanimator<MarsRequestHandle> marsRequestHandleReanimator;
+static eckit::Reanimator<MarsRequestHandle> marsRequestHandleReanimator;
 
 bool shortName(const std::string& prefix, const std::string& s)
 {
@@ -28,10 +28,10 @@ bool shortName(const std::string& prefix, const std::string& s)
     return std::equal(prefix.begin(), prefix.end(), s.begin());
 }
 
-MarsRequestHandle::MarsRequestHandle(Stream& s)
-    : DataHandle(s),
+MarsRequestHandle::MarsRequestHandle(eckit::Stream& s)
+    : eckit::DataHandle(s),
       request_(s),
-      protocol_(Reanimator<BaseProtocol>::reanimate(s)) {
+      protocol_(eckit::Reanimator<BaseProtocol>::reanimate(s)) {
 }
 
 MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
@@ -39,7 +39,7 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
     request_(request),
     protocol_(protocol)
 {
-    Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
+    eckit::Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
     ASSERT(protocol);
 }
 
@@ -51,34 +51,34 @@ MarsRequestHandle::MarsRequestHandle(const metkit::MarsRequest& request,
 
 MarsRequestHandle::~MarsRequestHandle() {}
 
-const ReanimatorBase & MarsRequestHandle::reanimator() const {
+const eckit::ReanimatorBase & MarsRequestHandle::reanimator() const {
     return marsRequestHandleReanimator;
 }
 
-const ClassSpec & MarsRequestHandle::classSpec() {
-    static ClassSpec spec = { &DataHandle::classSpec(), "MarsRequestHandle" };
+const eckit::ClassSpec & MarsRequestHandle::classSpec() {
+    static eckit::ClassSpec spec = { &eckit::DataHandle::classSpec(), "MarsRequestHandle" };
     return spec;
 }
 
-Length MarsRequestHandle::openForRead()
+eckit::Length MarsRequestHandle::openForRead()
 {
-    Log::debug() << "MarsRequestHandle::openForRead: request_: " << request_ << std::endl;
+    eckit::Log::debug() << "MarsRequestHandle::openForRead: request_: " << request_ << std::endl;
 
-    const std::string v (StringTools::lower(request_.verb()));
+    const std::string v (eckit::StringTools::lower(request_.verb()));
     ASSERT(v == "retrieve" || v == "stage" || v == "list");
 
     return protocol_->retrieve(request_);
 }
 
-void MarsRequestHandle::openForWrite(const Length& size)
+void MarsRequestHandle::openForWrite(const eckit::Length& size)
 {
-    Log::debug() << "MarsRequestHandle::openForWrite: request_.name()=" << request_.verb() << std::endl;
+    eckit::Log::debug() << "MarsRequestHandle::openForWrite: request_.name()=" << request_.verb() << std::endl;
 
-    ASSERT(StringTools::lower(request_.verb()) == "archive");
+    ASSERT(eckit::StringTools::lower(request_.verb()) == "archive");
     protocol_->archive(request_, size);
 }
 
-void MarsRequestHandle::openForAppend(const Length&)
+void MarsRequestHandle::openForAppend(const eckit::Length&)
 {
     NOTIMP;
 }
@@ -103,8 +103,8 @@ void MarsRequestHandle::print(std::ostream& s) const
     s << "MarsRequestHandle[" << *protocol_ << "," << request_ << "]";
 }
 
-void MarsRequestHandle::encode(Stream& s) const {
-    DataHandle::encode(s);
+void MarsRequestHandle::encode(eckit::Stream& s) const {
+    eckit::DataHandle::encode(s);
     s << request_;
     s << *protocol_;
 }

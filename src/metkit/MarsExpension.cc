@@ -24,7 +24,7 @@
 #include "metkit/types/Type.h"
 #include "metkit/MarsLanguage.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 

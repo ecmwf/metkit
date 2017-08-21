@@ -55,6 +55,7 @@ public: // methods
     virtual bool matches(const std::vector< std::string >& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
+    const std::string& category() const;
 
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 
@@ -68,6 +69,8 @@ public: // class methods
 protected: // members
 
     std::string name_;
+    std::string category_;
+
     std::vector<std::string> defaults_;
     bool flatten_;
     std::vector<std::string> originalDefaults_;

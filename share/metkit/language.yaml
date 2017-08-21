@@ -518,7 +518,7 @@ _field: &_field
 _postproc: &_postproc
 
   accuracy:
-    postproc: true
+    category: postproc
     flatten: false
     more:
     - type: integer
@@ -530,12 +530,12 @@ _postproc: &_postproc
       - auto
 
   bitmap:
-    postproc: true
+    category: postproc
     flatten: false
     type: any
 
   format:
-    postproc: true
+    category: postproc
     flatten: false
     type: enum
     values:
@@ -549,11 +549,11 @@ _postproc: &_postproc
       - gd
 
   frame:
-    postproc: true
+    category: postproc
     type: integer
 
   frequency:
-    postproc: true
+    category: postproc
     by: 1
     only:
     - param:
@@ -561,14 +561,14 @@ _postproc: &_postproc
     type: to-by-list
 
   gaussian:
-    postproc: true
+    category: postproc
     type: enum
     values:
     - reduced
     - regular
 
   grid:
-    postproc: true
+    category: postproc
     flatten: false
     more:
     - type: float
@@ -588,7 +588,7 @@ _postproc: &_postproc
     - N80
 
   interpolation:
-    postproc: true
+    category: postproc
     flatten: false
     type: enum
     values:
@@ -599,7 +599,7 @@ _postproc: &_postproc
       - any
 
   packing:
-    postproc: true
+    category: postproc
     flatten: false
     type: enum
     values:
@@ -610,7 +610,7 @@ _postproc: &_postproc
     - simple
 
   resol:
-    postproc: true
+    category: postproc
     flatten: false
     more:
     - type: integer
@@ -621,7 +621,7 @@ _postproc: &_postproc
       - reduced gaussian 160
 
   rotation:
-    postproc: true
+    category: postproc
     flatten: false
     type: any
 

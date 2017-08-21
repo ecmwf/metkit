@@ -20,11 +20,11 @@
 #include "metkit/RequestEnvironment.h"
 #include "eckit/config/Configuration.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 
-static Reanimator<DHSProtocol> dhsProtocolReanimator;
+static eckit::Reanimator<DHSProtocol> dhsProtocolReanimator;
 
 DHSProtocol::DHSProtocol(const std::string& name, const std::string& host, int port, bool forwardMessages )
     : name_(name),
@@ -48,7 +48,7 @@ BaseProtocol(params),
 {
 }
 
-DHSProtocol::DHSProtocol(Stream& s) :
+DHSProtocol::DHSProtocol(eckit::Stream& s) :
 BaseProtocol(s) {
     s >> name_;
     s >> host_;
@@ -65,62 +65,62 @@ DHSProtocol::~DHSProtocol()
     cleanup();
 }
 
-const ReanimatorBase& DHSProtocol::reanimator() const {
+const eckit::ReanimatorBase& DHSProtocol::reanimator() const {
     return dhsProtocolReanimator;
 }
 
-const ClassSpec& DHSProtocol::classSpec() {
-    static ClassSpec spec = { &BaseProtocol::classSpec(), "DHSProtocol" };
+const eckit::ClassSpec& DHSProtocol::classSpec() {
+    static eckit::ClassSpec spec = { &BaseProtocol::classSpec(), "DHSProtocol" };
     return spec;
 }
 
-Length DHSProtocol::retrieve(const MarsRequest& request)
+eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 {
     std::string host = callback_.localHost();
     int    port = callback_.localPort();
 
-    Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
+    eckit::Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
 
     task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
 
-    TCPStream s(TCPClient().connect(host_, port_));
+    eckit::TCPStream s(eckit::TCPClient().connect(host_, port_));
 
     task_->send(s);
 
     ASSERT(task_->receive(s) == 'a'); // Acknoledgement
 
-    Length result = 0;
+    eckit::Length result = 0;
     while (wait(result)) {
         ;
     }
 
-    Log::info() << "DHSProtocol::retrieve " << result << std::endl;
+    eckit::Log::info() << "DHSProtocol::retrieve " << result << std::endl;
     return result;
 }
 
-void DHSProtocol::archive(const MarsRequest& request, const Length& size)
+void DHSProtocol::archive(const MarsRequest& request, const eckit::Length& size)
 {
     std::string host = callback_.localHost();
     int    port = callback_.localPort();
 
-    Log::info() << "DHSProtocol::archive " << size << std::endl;
-    Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
+    eckit::Log::info() << "DHSProtocol::archive " << size << std::endl;
+    eckit::Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
 
     task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
 
-    TCPStream s(TCPClient().connect(host_, port_));
+    eckit::TCPStream s(eckit::TCPClient().connect(host_, port_));
 
     task_->send(s);
 
-    Log::info() << "DHSProtocol: task sent." << std::endl;
+    eckit::Log::info() << "DHSProtocol: task sent." << std::endl;
 
     ASSERT(task_->receive(s) == 'a'); // Acknoledgement
 
-    Length result = size;
+    eckit::Length result = size;
     while (wait(result)) {
         ;
     }
-    Log::info() << "DHSProtocol: archive completed." << std::endl;
+    eckit::Log::info() << "DHSProtocol: archive completed." << std::endl;
 }
 
 void DHSProtocol::cleanup()
@@ -133,14 +133,14 @@ void DHSProtocol::cleanup()
             unsigned long long crc = 0;
 
             try {
-                InstantTCPStream s(socket_);
+                eckit::InstantTCPStream s(socket_);
                 s << version;
                 s << crc;
             }
             catch (std::exception& e)
             {
-                Log::error() << "** " << e.what() << " Caught in " << Here() << std::endl;
-                Log::error() << "** Exception is ignored" << std::endl;
+                eckit::Log::error() << "** " << e.what() << " Caught in " << Here() << std::endl;
+                eckit::Log::error() << "** Exception is ignored" << std::endl;
             }
         }
         socket_.close();
@@ -149,7 +149,7 @@ void DHSProtocol::cleanup()
     sending_ = false;
 
     if (!done_) {
-        Length result = 0;
+        eckit::Length result = 0;
         while (wait(result)) {
             ;
         }
@@ -158,7 +158,7 @@ void DHSProtocol::cleanup()
     if (error_)
     {
         error_ = false;
-        throw UserError(std::string("Error from [") + name_ + "]: "  + msg_);
+        throw eckit::UserError(std::string("Error from [") + name_ + "]: "  + msg_);
     }
 }
 
@@ -167,7 +167,7 @@ void DHSProtocol::print(std::ostream& s) const
     s << "DHSProtocol[" << name_ << "]";
 }
 
-void DHSProtocol::encode(Stream& s) const {
+void DHSProtocol::encode(eckit::Stream& s) const {
     BaseProtocol::encode(s);
     s << name_;
     s << host_;
@@ -188,17 +188,17 @@ long DHSProtocol::write(const void* buffer, long len)
     return socket_.write(buffer, len);
 }
 
-bool DHSProtocol::wait(Length& size)
+bool DHSProtocol::wait(eckit::Length& size)
 {
     for (;;) {
 
         socket_ = callback_.accept();
 
-        InstantTCPStream s(socket_);
+        eckit::InstantTCPStream s(socket_);
 
         char code = task_->receive(s);
 
-        Log::debug() << "DHSProtocol: code [" << code << "]" << std::endl;
+        eckit::Log::debug() << "DHSProtocol: code [" << code << "]" << std::endl;
 
         std::string msg;
         long long bytes;
@@ -213,7 +213,7 @@ bool DHSProtocol::wait(Length& size)
         /* read source */
         case 'r':
             bytes = size;
-            Log::debug() << "DHSProtocol:r [" << bytes << "]" << std::endl;
+            eckit::Log::debug() << "DHSProtocol:r [" << bytes << "]" << std::endl;
             s << bytes;
             sending_ = true;
             return false;
@@ -226,7 +226,7 @@ bool DHSProtocol::wait(Length& size)
 
         case 'w':
             s >> bytes;
-            Log::debug() << "DHSProtocol:w " << bytes << std::endl;
+            eckit::Log::debug() << "DHSProtocol:w " << bytes << std::endl;
             size = bytes;
             return false;
             break;
@@ -241,7 +241,7 @@ bool DHSProtocol::wait(Length& size)
 
         case 'e':
             s >> msg_;
-            Log::error() << msg_ << " [" << name_ << "]" << std::endl;
+            eckit::Log::error() << msg_ << " [" << name_ << "]" << std::endl;
             error_ = true;
             done_ = true;
             return false;
@@ -253,33 +253,33 @@ bool DHSProtocol::wait(Length& size)
 
         case 'I': /* info */
             s >> msg;
-            Log::info() << msg << " [" << name_ << "]" << std::endl;
+            eckit::Log::info() << msg << " [" << name_ << "]" << std::endl;
             if (foreward_) {
-                Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+                eckit::Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
 
         case 'W': /* warning */
             s >> msg;
-            Log::warning() << msg << " [" << name_ << "]" << std::endl;
+            eckit::Log::warning() << msg << " [" << name_ << "]" << std::endl;
             if (foreward_) {
-                Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
+                eckit::Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
 
         case 'D': /* debug */
             s >> msg;
-            Log::debug() << msg << " [" << name_ << "]" << std::endl;
+            eckit::Log::debug() << msg << " [" << name_ << "]" << std::endl;
             if (foreward_) {
-                Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+                eckit::Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
 
         case 'E': /* error */
             s >> msg;
-            Log::error() << msg << " [" << name_ << "]" << std::endl;
+            eckit::Log::error() << msg << " [" << name_ << "]" << std::endl;
             if (foreward_) {
-                Log::userError() << msg << " [" << name_ << "]" << std::endl;
+                eckit::Log::userError() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
 
@@ -299,7 +299,7 @@ bool DHSProtocol::wait(Length& size)
             for (int i = 0; i < n; i++)
             {
                 s >> key >> value;
-                Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
+                eckit::Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
             }
         }
         break;
@@ -313,7 +313,7 @@ bool DHSProtocol::wait(Length& size)
             break;
 
         default:
-            throw Exception(std::string("Unknown code [") + code + "]");
+            throw eckit::Exception(std::string("Unknown code [") + code + "]");
             break;
         }
     }

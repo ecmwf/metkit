@@ -22,7 +22,7 @@
 
 #include "metkit/grib/MetFile.h"
 
-using namespace eckit;
+
 using namespace eckit::testing;
 
 BOOST_GLOBAL_FIXTURE(Setup);
@@ -45,21 +45,21 @@ struct F {
 BOOST_AUTO_TEST_SUITE( metkit_grib_MetFile )
 
 BOOST_FIXTURE_TEST_CASE( test_read, F ) {
-    Buffer buf(1024);
+    eckit::Buffer buf(1024);
     size_t len = file.read(buf);
     BOOST_CHECK_LT(len, buf.size());
     BOOST_CHECK_EQUAL(len, GRIB_SIZE);
 }
 
 BOOST_FIXTURE_TEST_CASE( test_read_some, F ) {
-    Buffer buf(1024);
+    eckit::Buffer buf(1024);
     size_t len = file.readSome(buf);
     BOOST_CHECK_LT(len, buf.size());
     BOOST_CHECK_EQUAL(len, GRIB_SIZE);
 }
 
 BOOST_FIXTURE_TEST_CASE( test_read_some_smallbuff, F ) {
-    Buffer buf(512);
+    eckit::Buffer buf(512);
     size_t len = file.readSome(buf);
     BOOST_CHECK_GT(len, buf.size());
     BOOST_CHECK_EQUAL(len, GRIB_SIZE);

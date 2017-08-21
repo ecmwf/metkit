@@ -21,7 +21,7 @@
 
 #include "metkit/MarsRequest.h"
 
-using namespace eckit;
+
 using namespace eckit::testing;
 
 using namespace metkit;
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_metkit_expand_2 ) {
     const std::vector< std::string >& dates = r.values("date");
     BOOST_CHECK_EQUAL(dates.size(), 1);
 
-    Date today(0);
+    eckit::Date today(0);
     std::ostringstream oss;
 
     oss << today.yyyymmdd();

@@ -27,6 +27,10 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
         flatten_ = settings["flatten"];
     }
 
+    if (settings.contains("category")) {
+        category_ = std::string(settings["category"]);
+    }
+
     if (settings.contains("default")) {
         eckit::Value d = settings["default"];
         if (d.isList()) {
@@ -193,6 +197,11 @@ void Type::reset() {
 
 const std::string& Type::name() const {
     return name_;
+}
+
+
+const std::string& Type::category() const {
+    return category_;
 }
 
 void Type::pass2(MarsRequest& request) {

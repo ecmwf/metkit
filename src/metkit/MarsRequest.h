@@ -22,6 +22,7 @@
 #include "eckit/types/Time.h"
 #include "eckit/value/Value.h"
 #include "eckit/utils/Translator.h"
+#include "metkit/Parameter.h"
 
 namespace eckit {
 class JSON;
@@ -32,30 +33,6 @@ namespace metkit {
 
 class Type;
 class MarsRequest;
-
-class Parameter {
-    Type* type_;
-    std::vector<std::string> values_;
-public:
-    Parameter();
-    ~Parameter();
-
-    Parameter(const std::vector<std::string>& values, Type* = 0);
-    Parameter(const Parameter&);
-    Parameter& operator=(const Parameter&);
-    bool operator<(const Parameter&) const;
-
-    const std::vector< std::string >& values() const { return values_; }
-    void values(const std::vector< std::string >& values);
-
-    bool filter(const std::vector< std::string >& filter);
-    bool matches(const std::vector< std::string >& matches) const;
-
-    Type& type() const { return *type_; }
-    const std::string& name() const;
-
-    size_t count() const;
-};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -160,6 +137,8 @@ public: // methods
     bool empty() const;
 
     size_t count() const;
+
+    MarsRequest extract(const std::string& category) const;
 
 // ---- Static methods
 
