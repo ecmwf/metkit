@@ -17,15 +17,10 @@
 #ifndef metkit_MarsRequest_H
 #define metkit_MarsRequest_H
 
-#include "eckit/types/Date.h"
-#include "eckit/types/Double.h"
-#include "eckit/types/Time.h"
 #include "eckit/value/Value.h"
-#include "eckit/utils/Translator.h"
 #include "metkit/Parameter.h"
 
 namespace eckit {
-class JSON;
 class MD5;
 }
 

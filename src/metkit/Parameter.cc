@@ -8,25 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-#include <algorithm>
-#include <set>
-#include <list>
 #include "metkit/Parameter.h"
-
-#include "eckit/types/Types.h"
-#include "eckit/parser/JSON.h"
-#include "eckit/log/Log.h"
-#include "eckit/config/Resource.h"
-#include "eckit/utils/Translator.h"
-#include "eckit/utils/MD5.h"
-#include "eckit/parser/StringTools.h"
-
-#include "metkit/Parameter.h"
-#include "metkit/types/TypeAny.h"
-#include "metkit/MarsParser.h"
-#include "metkit/MarsParser.h"
-#include "metkit/MarsExpension.h"
-
+#include "metkit/types/Type.h"
 
 
 namespace metkit {
