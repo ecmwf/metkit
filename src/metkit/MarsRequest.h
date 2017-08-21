@@ -122,7 +122,7 @@ public: // methods
     void merge(const MarsRequest& other);
 
     /// Create a new MarsRequest from this one with only the given set of keys
-    MarsRequest subset(const std::set<std::string>&);
+    MarsRequest subset(const std::set<std::string>&) const;
 
     void json(eckit::JSON&) const;
 
