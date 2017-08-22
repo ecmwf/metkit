@@ -23,12 +23,19 @@ TypeMixed::TypeMixed(const std::string &name, const eckit::Value& settings) :
 
     eckit::Value cfg = settings;
 
+
     for (size_t i = 0; i < types.size(); ++i) {
         cfg["type"] = types[i];
-        Type *k = TypesFactory::build(name, cfg);
+
+        std::cout << settings << std::endl;
+        std::cout << cfg << std::endl;
+
+        Type *k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
         k->attach();
         types_.push_back(k);
     }
+
+    std::cout << *this << std::endl;
 }
 
 TypeMixed::~TypeMixed() {
@@ -38,14 +45,18 @@ TypeMixed::~TypeMixed() {
 }
 
 void TypeMixed::print(std::ostream &out) const {
-    out << "TypeMixed[name=" << name_ << "]";
+    out << "TypeMixed[name=" << name_;
+    for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
+        out << "," << *(*j);
+    }
+    out  << "]";
 }
 
 
 bool TypeMixed::expand(std::string& value) const {
     for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
         std::string tmp = value;
-        if((*j)->expand(tmp)) {
+        if ((*j)->expand(tmp)) {
             value = tmp;
             return true;
         }

@@ -607,7 +607,8 @@ _postproc: &_postproc
     - N80
     - N640
     regex:
-    - ^[oOfF]\d+$
+    - '^[oOfF][1-9][0-9]+$'
+    uppercase: true
 
   interpolation:
     category: postproc

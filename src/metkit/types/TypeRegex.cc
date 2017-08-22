@@ -13,6 +13,7 @@
 #include "metkit/types/TypeRegex.h"
 #include "metkit/MarsLanguage.h"
 #include "eckit/parser/JSONParser.h"
+#include "eckit/parser/StringTools.h"
 
 
 namespace metkit {
@@ -20,7 +21,12 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeRegex::TypeRegex(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+    Type(name, settings),
+    uppercase_(false) {
+
+    if (settings.contains("uppercase")) {
+        uppercase_ = settings["uppercase"];
+    }
 
     eckit::Value r = settings["regex"];
 
@@ -41,6 +47,11 @@ bool TypeRegex::expand( std::string &value) const {
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
 
         if ((*j).match(value)) {
+
+            if (uppercase_) {
+                value = eckit::StringTools::upper(value);
+            }
+
             return true;
         }
     }

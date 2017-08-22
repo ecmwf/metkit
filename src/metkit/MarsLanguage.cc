@@ -38,7 +38,7 @@ static std::vector<std::string> verbs_;
 static void init() {
 
     languages_ =  eckit::YAMLParser::decodeFile("~metkit/share/metkit/language.yaml");
-    eckit::Value verbs = languages_.keys();
+    const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.push_back(verbs[i]);
     }
@@ -57,9 +57,15 @@ MarsLanguage::MarsLanguage(const std::string& verb):
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
         eckit::Value settings = lang[keyword];
+        
+        ASSERT(types_.find(keyword) == types_.end());
+        
         types_[keyword] = TypesFactory::build(keyword, settings);
         types_[keyword]->attach();
         keywords_.push_back(keyword);
+        
+        
+        std::cout << keyword << " " << *types_[keyword] << std::endl;
 
         if (settings.contains("aliases")) {
             eckit::Value aliases = settings["aliases"];
@@ -310,6 +316,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
                 }
             }
 
+            std::cout << p << " ---> " << *type(p) << std::endl;
             type(p)->expand(values);
             result.setValuesTyped(type(p), values);
             type(p)->check(values);

@@ -65,6 +65,13 @@ BOOST_AUTO_TEST_CASE( test_metkit_expand_3 ) {
 }
 
 
+BOOST_AUTO_TEST_CASE( test_metkit_expand_4 ) {
+    const char* text = "ret,date=-5/to/-1,grid=o640";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 

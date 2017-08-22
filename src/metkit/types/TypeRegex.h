@@ -35,9 +35,10 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-virtual bool expand( std::string &value) const;
+    virtual bool expand( std::string &value) const;
 
     std::vector<eckit::Regex> regex_;
+    bool uppercase_;
 
 };
 
