@@ -28,6 +28,11 @@ void TypeAny::print(std::ostream &out) const {
     out << "TypeAny[name=" << name_ << "]";
 }
 
+bool TypeAny::expand( std::string &value) const {
+    return true;
+}
+
+
 static TypeBuilder<TypeAny> type("any");
 
 //----------------------------------------------------------------------------------------------------------------------

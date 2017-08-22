@@ -592,11 +592,13 @@ _postproc: &_postproc
   area:
     category: postproc
     flatten: false
+    multiple: true
     type: float
 
   grid:
     category: postproc
     flatten: false
+    multiple: true
     type: [enum, float, regex]
     values:
     - auto
@@ -644,7 +646,8 @@ _postproc: &_postproc
   rotation:
     category: postproc
     flatten: false
-    type: any
+    multiple: true
+    type: float
 
 
 #######################################################################
@@ -710,10 +713,12 @@ retrieve:
 
   target:
     flatten: false
+    multiple: true
     type: any
 
   database:
     flatten: false
+    multiple: true
     type: any
 
   dataset:
@@ -738,12 +743,14 @@ retrieve:
 read:
   source:
     flatten: false
+    multiple: true
     type: any
 
   <<: *_postproc
 
   target:
     flatten: false
+    multiple: true
     type: any
 
 end: {}
