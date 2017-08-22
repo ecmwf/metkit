@@ -223,6 +223,10 @@
 					"shell_cmd": "make -j4 metkit_test_multihandle"
 				},
 				{
+					"name": "test_expand",
+					"shell_cmd": "make -j4 test_expand"
+				},
+				{
 					"name": "metkit_test_emosfile",
 					"shell_cmd": "make -j4 metkit_test_emosfile"
 				},

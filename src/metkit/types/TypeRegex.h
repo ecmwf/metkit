@@ -8,32 +8,36 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeRange.h
+/// @file   TypeRegex.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypeRange_H
-#define metkit_TypeRange_H
+#ifndef metkit_TypeRegex_H
+#define metkit_TypeRegex_H
 
-#include "metkit/types/TypeToByList.h"
+#include "metkit/types/Type.h"
+#include "eckit/utils/Regex.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeRange : public TypeToByList {
+class TypeRegex : public Type {
 
 public: // methods
 
-    TypeRange(const std::string &name, const eckit::Value& settings);
+    TypeRegex(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeRange();
+    virtual ~TypeRegex();
+
 
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-    virtual bool expand(std::string& value) const;
+virtual bool expand( std::string &value) const;
+
+    std::vector<eckit::Regex> regex_;
 
 };
 

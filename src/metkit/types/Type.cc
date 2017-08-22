@@ -17,11 +17,12 @@ namespace metkit {
 
 Type::Type(const std::string &name, const eckit::Value& settings) :
     name_(name),
-    flatten_(true) {
+    flatten_(true),
+    multiple_(false) {
 
-    // if (settings.contains("multiple")) {
-    //     flatten_ = settings["multiple"];
-    // }
+    if (settings.contains("multiple")) {
+        multiple_ = settings["multiple"];
+    }
 
     if (settings.contains("flatten")) {
         flatten_ = settings["flatten"];
@@ -150,26 +151,50 @@ bool Type::matches(const std::vector<std::string> &match, const std::vector<std:
     return std::find_if(values.begin(), values.end(), in_set) !=  values.end();
 }
 
-std::string Type::tidy(const std::string &value) const  {
-    return value;
-}
 
 std::ostream &operator<<(std::ostream &s, const Type &x) {
     x.print(s);
     return s;
 }
 
+
+    std::string Type::tidy(const std::string &value) const {
+        std::string result = value;
+        if(!expand(result)) {
+
+        }
+        return result;
+    }
+
+
+bool Type::expand(std::string& value) const {
+    std::ostringstream oss;
+    oss << *this << ":  expand not implemented (" << value << ")";
+    throw eckit::SeriousBug(oss.str());
+}
+
 void Type::expand(std::vector<std::string>& values) const {
     std::vector<std::string> newvals;
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        newvals.push_back(tidy(*j));
+
+        std::string value = *j;
+        if (!expand(value)) {
+            std::ostringstream oss;
+            oss << *this << ": cannot expand '" << *j << "'";
+            throw eckit::UserError(oss.str());
+        }
+
+        newvals.push_back(value);
     }
 
     // std::cout << "expand " << name_ << " " << values << " " << newvals << std::endl;
 
     std::swap(newvals, values);
 
+     if (!multiple_ && values.size() > 1) {
+        throw eckit::UserError("Only one value passible for '" + name_ + "'");
+    }
 }
 
 void Type::setDefaults(MarsRequest& request) {

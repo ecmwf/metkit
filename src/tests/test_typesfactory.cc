@@ -55,7 +55,8 @@ void TypesFactoryTest::test_list_types() {
 
     std::stringstream ss;
     TypesFactory::list(ss);
-    ASSERT(ss.str() == std::string("[any,date,enum,enum-or-more,expver,float,integer,param,range,time,to-by-list]"));
+    std::cout << ss.str() << std::endl;
+    ASSERT(ss.str() == std::string("[any,date,enum,expver,float,integer,mixed,param,range,regex,time,to-by-list]"));
 }
 
 

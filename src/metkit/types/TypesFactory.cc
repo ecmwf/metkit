@@ -31,7 +31,15 @@ TypesFactory::~TypesFactory() {
 
 Type* TypesRegistry::build(const std::string &keyword, const eckit::Value& settings) {
 
-    std::string name = settings["type"];
+    std::string name;
+
+    if (settings["type"].isList()) {
+        name = "mixed";
+    }
+    else {
+
+        name = std::string(settings["type"]);
+    }
 
     eckit::AutoLock<eckit::Mutex> lock(mutex_);
 

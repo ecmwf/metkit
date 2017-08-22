@@ -546,14 +546,10 @@ _postproc: &_postproc
   accuracy:
     category: postproc
     flatten: false
-    more:
-    - type: integer
-    type: enum-or-more
+    type: [enum, integer]
     values:
-    - - av
-    - - 'off'
-      - normal
-      - auto
+    - [av]
+    - ['off', normal, auto]
 
   bitmap:
     category: postproc
@@ -601,22 +597,17 @@ _postproc: &_postproc
   grid:
     category: postproc
     flatten: false
-    more:
-    - type: float
-    type: enum-or-more
+    type: [enum, float, regex]
     values:
     - auto
-    - O1280
-    - F1280
-    - N640
-    - O640
-    - O320
-    - O160
     - N160
     - N400
     - N320
     - N200
     - N80
+    - N640
+    regex:
+    - ^[oOfF]\d+$
 
   interpolation:
     category: postproc
@@ -643,9 +634,7 @@ _postproc: &_postproc
   resol:
     category: postproc
     flatten: false
-    more:
-    - type: integer
-    type: enum-or-more
+    type: [enum, integer]
     values:
     - - 'off'
       - av
@@ -715,46 +704,46 @@ dissemination:
     type: any
 
 retrieve:
-    <<: *_field
-    <<: *_postproc
+  <<: *_field
+  <<: *_postproc
 
-    target:
-        flatten: false
-        type: any
+  target:
+    flatten: false
+    type: any
 
-    database:
-      flatten: false
-      type: any
+  database:
+    flatten: false
+    type: any
 
-    dataset:
-      flatten: false
-      type: any
+  dataset:
+    flatten: false
+    type: any
 
-    optimize:
-        type: enum
-        values:
-        - true
-        - false
-        default:
-            "off"
+  optimize:
+    type: enum
+    values:
+    - true
+    - false
+    default:
+      "off"
 
-    padding:
-        flatten: false
-        type: enum
-        values:
-        - none
-        - auto
+  padding:
+    flatten: false
+    type: enum
+    values:
+    - none
+    - auto
 
 read:
-    source:
-        flatten: false
-        type: any
+  source:
+    flatten: false
+    type: any
 
-    <<: *_postproc
+  <<: *_postproc
 
-    target:
-        flatten: false
-        type: any
+  target:
+    flatten: false
+    type: any
 
 end: {}
 

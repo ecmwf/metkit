@@ -25,7 +25,7 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
     Type(name, settings),
     by_(1) {
 
-    for(size_t i = 0; i < originalDefaults_.size(); i++ ) {
+    for (size_t i = 0; i < originalDefaults_.size(); i++ ) {
         originalDefaults_[i] = tidy(originalDefaults_[i]);
     }
 
@@ -35,18 +35,17 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
 TypeDate::~TypeDate() {
 }
 
-
-std::string TypeDate::tidy(const std::string &value) const {
+bool TypeDate::expand( std::string &value) const {
     if (!value.empty() && (value[0] == '0' || value[0] == '-')) {
         eckit::Translator<std::string, long> t;
         long n = t(value);
         if (n <= 0) {
             eckit::Date now(n);
             eckit::Translator<long, std::string> t;
-            return t(now.yyyymmdd());
+            value = t(now.yyyymmdd());
         }
     }
-    return value;
+    return true;
 
 }
 

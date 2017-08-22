@@ -31,6 +31,7 @@ void TypeToByList::print(std::ostream &out) const {
     out << "TypeToByList[name=" << name_ << "]";
 }
 
+
 void TypeToByList::expand(std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
@@ -65,7 +66,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
         }
     }
 
-    TypeInteger::expand(values);
+    Type::expand(values);
 }
 
 static TypeBuilder<TypeToByList> type("to-by-list");
