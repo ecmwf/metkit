@@ -16,6 +16,7 @@
 #define metkit_MarsLocation_H
 
 
+#include "eckit/config/Configuration.h"
 #include "metkit/MarsRequest.h"
 
 namespace eckit {
@@ -42,6 +43,7 @@ public: // methods
 
     MarsLocation(const MarsRequest& r, const std::string& hostname, int port);
     MarsLocation(eckit::Stream&);
+    MarsLocation(const eckit::Configuration&);
 
 // -- Destructor
 
