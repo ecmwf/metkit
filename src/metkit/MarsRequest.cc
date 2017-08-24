@@ -231,6 +231,11 @@ size_t MarsRequest::countValues(const std::string& name) const {
     return 0;
 }
 
+bool MarsRequest::has(const std::string& name) const {
+    return find(name) != params_.end();
+}
+
+
 bool MarsRequest::is(const std::string& name, const std::string& value) const {
     std::list<Parameter>::const_iterator i = find(name);
     if (i != params_.end()) {

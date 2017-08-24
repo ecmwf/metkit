@@ -34,14 +34,16 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
 
     if (settings.contains("default")) {
         eckit::Value d = settings["default"];
-        if (d.isList()) {
-            size_t len = d.size();
-            for (size_t i = 0; i < len; i++) {
-                defaults_.push_back(d[i]);
+        if (!d.isNil()) {
+            if (d.isList()) {
+                size_t len = d.size();
+                for (size_t i = 0; i < len; i++) {
+                    defaults_.push_back(d[i]);
+                }
             }
-        }
-        else {
-            defaults_.push_back(d);
+            else {
+                defaults_.push_back(d);
+            }
         }
     }
 
@@ -158,13 +160,13 @@ std::ostream &operator<<(std::ostream &s, const Type &x) {
 }
 
 
-    std::string Type::tidy(const std::string &value) const {
-        std::string result = value;
-        if(!expand(result)) {
+std::string Type::tidy(const std::string &value) const {
+    std::string result = value;
+    if (!expand(result)) {
 
-        }
-        return result;
     }
+    return result;
+}
 
 
 bool Type::expand(std::string& value) const {
@@ -192,7 +194,7 @@ void Type::expand(std::vector<std::string>& values) const {
 
     std::swap(newvals, values);
 
-     if (!multiple_ && values.size() > 1) {
+    if (!multiple_ && values.size() > 1) {
         throw eckit::UserError("Only one value passible for '" + name_ + "'");
     }
 }

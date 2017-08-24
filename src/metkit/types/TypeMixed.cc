@@ -27,15 +27,11 @@ TypeMixed::TypeMixed(const std::string &name, const eckit::Value& settings) :
     for (size_t i = 0; i < types.size(); ++i) {
         cfg["type"] = types[i];
 
-        std::cout << settings << std::endl;
-        std::cout << cfg << std::endl;
-
         Type *k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
         k->attach();
         types_.push_back(k);
     }
 
-    std::cout << *this << std::endl;
 }
 
 TypeMixed::~TypeMixed() {

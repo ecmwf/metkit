@@ -54,17 +54,30 @@ MarsLanguage::MarsLanguage(const std::string& verb):
     eckit::Value lang = languages_[verb];
     eckit::Value params = lang.keys();
 
+    eckit::Value defaults = lang["_defaults"];
+    std::cout << "DEFAULTS " << verb << ": " << defaults << std::endl;
+
+
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
         eckit::Value settings = lang[keyword];
-        
+
+        if(keyword[0] == '_') {
+            continue;
+        }
+
         ASSERT(types_.find(keyword) == types_.end());
-        
+
+
+        if(defaults.contains(keyword)) {
+            settings["default"] = defaults[keyword];
+        }
+
+
         types_[keyword] = TypesFactory::build(keyword, settings);
         types_[keyword]->attach();
         keywords_.push_back(keyword);
-        
-        
+
         std::cout << keyword << " " << *types_[keyword] << std::endl;
 
         if (settings.contains("aliases")) {
@@ -76,6 +89,7 @@ MarsLanguage::MarsLanguage(const std::string& verb):
         }
 
     }
+
 }
 
 MarsLanguage::~MarsLanguage() {

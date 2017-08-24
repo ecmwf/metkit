@@ -746,12 +746,28 @@ read:
     multiple: true
     type: any
 
+  <<: *_field
   <<: *_postproc
 
   target:
     flatten: false
     multiple: true
     type: any
+
+  _defaults:
+    class: null
+    date: null
+    domain: null
+    expver: null
+    levelist: null
+    levtype: null
+    param: null
+    step: null
+    stream: null
+    time: null
+    type: null
+
+
 
 end: {}
 

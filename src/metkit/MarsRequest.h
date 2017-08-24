@@ -65,6 +65,8 @@ public: // methods
     const std::string& verb() const;
 
     size_t countValues(const std::string&) const;
+    bool has(const std::string&) const;
+
 
     bool is(const std::string& param, const std::string& value) const;
 
