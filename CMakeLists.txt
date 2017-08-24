@@ -22,7 +22,6 @@ ecbuild_add_option( FEATURE ECCODES
                     DESCRIPTION "Use ecCodes instead of grib_api"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 0.14" )
 
-
 if( HAVE_GRIB )
 
   if( HAVE_ECCODES )
