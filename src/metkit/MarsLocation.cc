@@ -36,6 +36,22 @@ MarsLocation::MarsLocation(const MarsRequest& r, const std::string& hostname, in
 {
 }
 
+MarsLocation::MarsLocation(eckit::Stream& s) :
+    request_(s)
+{
+    NOTIMP; // FIXME: added this constructor just to get develop branches to compile
+
+    s >> hostname_;
+    s >> port_;
+}
+
+MarsLocation::MarsLocation(const eckit::Configuration& c) :
+       request_(c.getString("request")),
+       hostname_(c.getString("server")),
+       port_(c.getInt("port"))
+{
+}
+
 MarsLocation::~MarsLocation()
 {
 }
@@ -49,13 +65,6 @@ metkit::MarsLocation::operator eckit::Value() const
     dict["port"]    = port_;
 
     return dict;
-}
-
-MarsLocation::MarsLocation(eckit::Stream& s) :
-    request_(s)
-{
-    s >> hostname_;
-    s >> port_;
 }
 
 void MarsLocation::encode(eckit::Stream& s) const
