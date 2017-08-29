@@ -19,74 +19,48 @@
 #include "eckit/runtime/Tool.h"
 #include "eckit/value/Value.h"
 
+#include "eckit/testing/Test.h"
 
-using namespace metkit;
+using namespace eckit::testing;
 
-//----------------------------------------------------------------------------------------------------------------------
+namespace metkit {
+namespace test {
 
-// We use eckit::Tool for the tests as it ensures that the Main environment is set up
-// correctly, avoiding any unexpected segfaults inside eckit.
-
-class TypesFactoryTest : public eckit::Tool {
-
-public: // methods
-
-    TypesFactoryTest(int argc, char** argv);
-    virtual ~TypesFactoryTest();
-
-    virtual void run();
-
-private: // methods
-
-    void test_list_types();
-
-    void test_build();
-};
+//-----------------------------------------------------------------------------
 
 
-TypesFactoryTest::TypesFactoryTest(int argc, char** argv) :
-    Tool(argc, argv) {}
-
-
-TypesFactoryTest::~TypesFactoryTest() {}
-
-
-void TypesFactoryTest::test_list_types() {
+CASE ("test_list_types") {
 
     std::stringstream ss;
     TypesFactory::list(ss);
     std::cout << ss.str() << std::endl;
-    ASSERT(ss.str() == std::string("[any,date,enum,expver,float,integer,mixed,param,range,regex,time,to-by-list]"));
+    EXPECT(ss.str() == std::string("[any,date,enum,expver,float,integer,mixed,param,range,regex,time,to-by-list]"));
 }
 
 
-void TypesFactoryTest::test_build() {
+CASE ("test_build") {
 
     eckit::ValueMap settings;
     settings["type"] = "date";
 
     Type* t1(TypesFactory::build("abcd", eckit::Value(settings)));
 
-    ASSERT(t1 != 0);
+    EXPECT(t1 != 0);
     t1->attach();
 
     // Check that we have obtained the correct type
-    ASSERT(dynamic_cast<TypeDate*>(t1) != 0);
+    EXPECT(dynamic_cast<TypeDate*>(t1) != 0);
 
     // Clean up, taking into account that ~Type is protected.
     t1->detach();
 }
 
+}  // namespace test
+}  // namespace metkit
 
-void TypesFactoryTest::run() {
-    test_list_types();
-    test_build();
+//-----------------------------------------------------------------------------
+
+int main(int argc, char **argv)
+{
+    return run_tests ( argc, argv );
 }
-
-
-int main(int argc, char** argv) {
-    TypesFactoryTest tests(argc, argv);
-    return tests.start();
-}
-
-//----------------------------------------------------------------------------------------------------------------------

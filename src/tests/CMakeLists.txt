@@ -12,7 +12,6 @@ ecbuild_get_test_multidata( TARGET grib_get_data
 
 ecbuild_add_test( TARGET        metkit_test_emosfile
                   ARGS          --log_level=message
-                  BOOST
                   CONDITION     HAVE_GRIB
                   INCLUDES      "${ECKIT_INCLUDE_DIRS}"
                   SOURCES       test_emosfile.cc
@@ -25,7 +24,6 @@ if( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/${grib_handling_pkg}/definitions" )
 endif()
 
 ecbuild_add_test( TARGET        metkit_test_multihandle
-                  BOOST
                   CONDITION     HAVE_GRIB
                   INCLUDES      "${GRIB_API_INCLUDE_DIRS}"
                   SOURCES       test_multihandle.cc
@@ -42,7 +40,6 @@ ecbuild_add_test( TARGET    test_typesfactory
 ecbuild_add_test( TARGET    test_expand
                   SOURCES   test_expand.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
-                  BOOST
                   LIBS      metkit)
 
 
