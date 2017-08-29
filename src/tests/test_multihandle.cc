@@ -52,7 +52,7 @@ CASE( "fopen" ) {
 
     fclose(f);
     EXPECT(count == 2);
-    EXPECT(err != GRIB_SUCCESS);
+    EXPECT(err == GRIB_SUCCESS);
 }
 
 //-----------------------------------------------------------------------------
