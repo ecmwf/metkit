@@ -21,14 +21,14 @@
 #include "metkit/grib/GribFile.h"
 #include "metkit/grib/GribHandle.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-GribFile::GribFile(const PathName& path) :
+GribFile::GribFile(const eckit::PathName& path) :
     path_(path),
     file_(path_) {
 }
@@ -50,7 +50,7 @@ GribHandle* GribFile::next() {
     std::ostringstream msg;
     msg << "Error reading GRIB file " << path_
         << " : " << grib_get_error_message(err);
-    throw ReadError(msg.str(), Here());
+    throw eckit::ReadError(msg.str(), Here());
 }
 
 //----------------------------------------------------------------------------------------------------------------------

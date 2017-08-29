@@ -33,7 +33,7 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-    virtual std::string tidy(const std::string &value) const;
+    virtual bool expand(std::string& value) const;
 
 };
 

@@ -20,7 +20,7 @@
 
 #include "metkit/MarsRequest.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {
@@ -64,7 +64,7 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 			throw eckit::Exception(oss.str(),Here());
 		}
 
-		name = StringTools::upper(name);
+		name = eckit::StringTools::upper(name);
 
 		if( name == "EXPVER" ) {
 			upper_case(value);

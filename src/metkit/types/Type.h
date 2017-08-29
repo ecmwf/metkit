@@ -35,10 +35,10 @@ public: // methods
 
     Type(const std::string &name, const eckit::Value& settings);
 
-
-    virtual std::string tidy(const std::string &value) const ;
-
     virtual void expand(std::vector<std::string>& values) const;
+    virtual bool expand(std::string& value) const;
+    virtual std::string tidy(const std::string &value) const;
+
     virtual void setDefaults(MarsRequest& request);
     virtual void setDefaults(const std::vector<std::string>& defaults);
     virtual void check(const std::vector<std::string>& values) const;
@@ -55,6 +55,7 @@ public: // methods
     virtual bool matches(const std::vector< std::string >& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
+    const std::string& category() const;
 
     friend std::ostream &operator<<(std::ostream &s, const Type &x);
 
@@ -68,8 +69,12 @@ public: // class methods
 protected: // members
 
     std::string name_;
+    std::string category_;
+
     std::vector<std::string> defaults_;
     bool flatten_;
+    bool multiple_;
+
     std::vector<std::string> originalDefaults_;
 
     std::map<std::string, std::set<std::string> > only_;

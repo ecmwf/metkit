@@ -30,12 +30,13 @@ public: // methods
 
     virtual ~TypeDate();
 
-    virtual std::string tidy(const std::string &value) const ;
-
-
 private: // methods
 
     virtual void print( std::ostream &out ) const;
+    virtual void expand(std::vector<std::string>& values) const;
+    virtual bool expand(std::string& value) const;
+
+    long by_;
 
 };
 

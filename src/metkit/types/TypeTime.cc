@@ -28,7 +28,7 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
 TypeTime::~TypeTime() {
 }
 
-std::string TypeTime::tidy(const std::string &value) const {
+bool TypeTime::expand( std::string &value) const {
 
     long n = 0;
     int colon = 0;
@@ -55,7 +55,8 @@ std::string TypeTime::tidy(const std::string &value) const {
             break;
 
         default:
-            throw eckit::UserError(name_ + ": invalid time '" + value + "'");
+            // throw eckit::UserError(name_ + ": invalid time '" + value + "'");
+            return false;
             break;
         }
     }
@@ -70,13 +71,14 @@ std::string TypeTime::tidy(const std::string &value) const {
 
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << n;
-    return oss.str();
+    value = oss.str();
+    return true;
 }
 
 
 void TypeTime::expand(std::vector<std::string>& values) const {
 
-     static eckit::Translator<std::string, long> s2l;
+    static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
 
     if (values.size() == 3) {

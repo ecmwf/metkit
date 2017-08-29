@@ -30,7 +30,7 @@ public: // methods
 
     virtual ~TypeExpver();
 
-    virtual std::string tidy(const std::string &value) const ;
+virtual bool expand(std::string& value) const ;
 
 private: // methods
 

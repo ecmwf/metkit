@@ -38,6 +38,8 @@ MarsRequestHandle.cc
 MarsRequestHandle.h
 RequestEnvironment.cc
 RequestEnvironment.h
+Parameter.cc
+Parameter.h
 config/LibMetkit.cc
 config/LibMetkit.h
 types/Type.cc
@@ -52,6 +54,8 @@ types/TypeToByList.cc
 types/TypeToByList.h
 types/TypeEnum.cc
 types/TypeEnum.h
+types/TypeRegex.cc
+types/TypeRegex.h
 types/TypeParam.cc
 types/TypeParam.h
 types/TypeInteger.cc
@@ -62,6 +66,8 @@ types/TypeFloat.cc
 types/TypeFloat.h
 types/TypeTime.cc
 types/TypeTime.h
+types/TypeDate.cc
+types/TypeDate.h
 types/TypeMixed.cc
 types/TypeMixed.h
 types/TypesFactory.cc
@@ -73,8 +79,8 @@ if ( HAVE_GRIB )
     list( APPEND metkit_srcs
         grib/GribToRequest.cc
         grib/GribToRequest.h
-        grib/EmosFile.h
-        grib/EmosFile.cc
+        grib/MetFile.h
+        grib/MetFile.cc
         grib/GribFile.h
         grib/GribFile.cc
         grib/GribAccessor.h
@@ -116,6 +122,10 @@ ecbuild_add_library(
     PRIVATE_INCLUDES
         ${ECKIT_INCLUDE_DIRS}
         ${GRIB_API_INCLUDE_DIRS}
+        ${NETCDF_INCLUDE_DIRS}
 
     LIBS
-        eckit ${grib_handling_pkg} )
+        eckit
+        ${grib_handling_pkg}
+        ${netcdflibs}
+)

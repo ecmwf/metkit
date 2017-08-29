@@ -22,6 +22,7 @@ ecbuild_add_option( FEATURE ECCODES
                     DESCRIPTION "Use ecCodes instead of grib_api"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 0.14" )
 
+
 if( HAVE_GRIB )
 
   if( HAVE_ECCODES )
@@ -40,9 +41,18 @@ if( HAVE_GRIB )
 
 endif()
 
+# netcdf support
+
+ecbuild_add_option( FEATURE NETCDF
+  DESCRIPTION "Support for NetCDF data"
+  DEFAULT ON
+  REQUIRED_PACKAGES NetCDF
+  NO_TPL
+)
+
 # eckit
 
-ecbuild_use_package( PROJECT eckit  VERSION  0.16.5 REQUIRED )
+ecbuild_use_package( PROJECT eckit  VERSION  0.19.0 REQUIRED )
 
 ### start project
 
@@ -60,7 +70,7 @@ get_directory_property( METKIT_DEFINITIONS COMPILE_DEFINITIONS )
 include_directories( ${METKIT_INCLUDE_DIRS} )
 
 add_subdirectory( src )
-add_subdirectory( etc )
+add_subdirectory( share )
 
 ### finalize project
 

@@ -30,12 +30,13 @@ void TypeRange::print(std::ostream &out) const {
     out << "TypeRange[name=" << name_ << "]";
 }
 
-std::string TypeRange::tidy(const std::string &value) const  {
+bool TypeRange::expand(std::string &value) const  {
 
-   long p = 0;
+    long p = 0;
     if (ok(value, p)) {
         static eckit::Translator<long, std::string> l2s;
-        return l2s(p);
+        value = l2s(p);
+        return true;
     }
 
     long a = 0;
@@ -48,13 +49,15 @@ std::string TypeRange::tidy(const std::string &value) const  {
         case '-':
             if (j != value.begin()) {
                 if (n == &b) {
-                    throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (a)");
+                    return false;
+                    // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (a)");
 
                 }
                 n = &b;
             }
             else {
-                throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (b)");
+                return false;
+                // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (b)");
             }
             break;
 
@@ -74,9 +77,9 @@ std::string TypeRange::tidy(const std::string &value) const  {
 
 
         default:
-
-            throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");
-               break;
+            return false;
+            // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");
+            break;
         }
     }
 
@@ -84,13 +87,15 @@ std::string TypeRange::tidy(const std::string &value) const  {
         std::ostringstream oss;
         oss << a;
 
-        return oss.str();
+        value = oss.str();
+        return true;
     }
 
     std::ostringstream oss;
     oss << a << "-" << b;
 
-    return oss.str();
+    value = oss.str();
+    return true;
 }
 
 

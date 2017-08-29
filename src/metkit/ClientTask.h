@@ -11,14 +11,15 @@
 // File ClientTask.h
 // Baudouin Raoult - ECMWF Oct 96
 
-#ifndef ClientTask_H
-#define ClientTask_H
+#ifndef metkit_ClientTask_H
+#define metkit_ClientTask_H
 
 // #include "eckit/bases/Watcher.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 // #include "eckit/log/UserChannel.h"
 #include "eckit/transaction/TxnEvent.h"
+#include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/MarsRequest.h"
 
@@ -30,7 +31,12 @@ public:
 
 // -- Contructors
 
-	ClientTask(const MarsRequest&,const MarsRequest&, const std::string& name, int port);
+	ClientTask(const MarsRequest&,
+	           const MarsRequest&,
+	           const std::string& name,
+	           int port,
+	           unsigned long long id = 0);
+
 	// ClientTask(eckit::Stream&);
 
 // -- Destructor
@@ -56,15 +62,15 @@ public:
 	// eckit::Length transferData(const eckit::PathName&);
 	// eckit::PathName transferData();
 
- //    /// @returns eckit::DataHandle with the data that will be received, but does not give ownership of the eckit::DataHandle
- //    eckit::DataHandle& getDataHandle();
+//    /// @returns eckit::DataHandle with the data that will be received, but does not give ownership of the eckit::DataHandle
+//    eckit::DataHandle& getDataHandle();
 
 	// void sendData(eckit::DataHandle&);
 	// void sendHandle(eckit::DataHandle&);
 
 	// void acknowledge(eckit::Stream& s)     { send(s,'a'); }
 	// void patch();
- //    bool authenticated() const;
+//    bool authenticated() const;
 
 	// eckit::DataHandle& dataHandle() { return *handle_; }
 
@@ -99,10 +105,10 @@ public:
 	// void  costChanged();
 
 
- //    // Called by PipeProcess
+//    // Called by PipeProcess
 
- //    void           send(eckit::Stream&);
- //    void           reply(eckit::Stream&);
+//    void           send(eckit::Stream&);
+//    void           reply(eckit::Stream&);
 	// bool           error(std::exception&,int);
 	// void           done();
 
@@ -118,17 +124,17 @@ public:
 	// const eckit::StringList& treeNames() const { return treeNames_; }
 	// const eckit::StringList& treeValues() const { return treeValues_; }
 
- //    // For the metkit
-    void send(eckit::Stream&) const;
+//    // For the metkit
+	void send(eckit::Stream&) const;
 	char receive(eckit::Stream&) const;
 
 
 // -- Overridden methods
 
-    // From Streamble
+	// From Streamble
 
-    // virtual void encode(eckit::Stream&) const;
-    // virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
+	// virtual void encode(eckit::Stream&) const;
+	// virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
 
 	// From watcher
 
@@ -154,11 +160,11 @@ private:
 
 // -- Members
 
-    unsigned long long   txnID_;
+	unsigned long long   txnID_;
 	unsigned long long   metkitID_;
 	int                  port_;
 	std::string               host_;
-	std::auto_ptr<eckit::DataHandle> handle_;
+	eckit::ScopedPtr<eckit::DataHandle> handle_;
 	std::string               checksum_;
 
 	// Not sent over streams
@@ -171,7 +177,7 @@ private:
 	// eckit::StringList			treeValues_;
 	// eckit::StringList			treeNames_;
 
- //    bool                authenticated_;
+//    bool                authenticated_;
 
 // -- Methods
 
@@ -183,17 +189,17 @@ private:
 
 // -- Class members
 
-    // static eckit::ClassSpec               classSpec_;
-    // static eckit::Reanimator<ClientTask>    reanimator_;
+	// static eckit::ClassSpec               classSpec_;
+	// static eckit::Reanimator<ClientTask>    reanimator_;
 
 // -- Class methods
 	// None
 
-    // friend std::ostream& operator<<(std::ostream& s, const ClientTask& r)
-    //     { r.print(s); return s; }
+	// friend std::ostream& operator<<(std::ostream& s, const ClientTask& r)
+	//     { r.print(s); return s; }
 
-    // friend eckit::JSON& operator<<(eckit::JSON& s, const ClientTask& r)
-    //     { r.json(s); return s; }
+	// friend eckit::JSON& operator<<(eckit::JSON& s, const ClientTask& r)
+	//     { r.json(s); return s; }
 
 };
 

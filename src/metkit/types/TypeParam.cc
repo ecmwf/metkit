@@ -9,15 +9,16 @@
  */
 
 
+#include "eckit/parser/YAMLParser.h"
+#include "eckit/types/Types.h"
+#include "eckit/parser/StringTools.h"
+#include "eckit/thread/AutoLock.h"
+#include "eckit/config/Resource.h"
+
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeParam.h"
 #include "metkit/MarsLanguage.h"
-#include "eckit/parser/JSONParser.h"
-#include "eckit/types/Types.h"
-#include "eckit/parser/StringTools.h"
 #include "metkit/MarsLanguage.h"
-
-#include "eckit/thread/AutoLock.h"
 
 namespace {
 
@@ -240,7 +241,17 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
         // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
-        return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
+        // return  metkit::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
+
+        std::string p = oss.str();
+        for (std::vector<std::string>::const_iterator j = values_.begin(); j != values_.end(); ++j) {
+            if ((*j) == p) {
+                return p;
+            }
+        }
+
+        throw eckit::UserError("Cannot match parameter " + p);
+
     }
 
     return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
@@ -255,28 +266,20 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    eckit::PathName language("~metkit/etc/param.json");
-
-    std::ifstream in(language.asString().c_str());
-    if (!in) {
-        throw eckit::CantOpenFile(language);
-    }
-
-    eckit::JSONParser parser(in);
-
-    const eckit::Value parsed = parser.parse();
-
-
-    const eckit::Value ids = parsed["ids"];
+    const eckit::Value ids = eckit::YAMLParser::decodeFile("~metkit/share/metkit/paramids.yaml");
     ASSERT(ids.isMap());
 
-
-    const eckit::Value r = parsed["parameters"];
-
+    const eckit::Value r = eckit::YAMLParser::decodeFile("~metkit/share/metkit/param.yaml");
     ASSERT(r.isList());
+
+    // r.dump(std::cout) << std::endl;
 
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
+
+	if(!rule.isList()) {
+	rule.dump(std::cout) << std::endl;
+	}
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
         (*rules).push_back(Rule(rule[0], rule[1], ids));

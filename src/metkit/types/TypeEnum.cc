@@ -46,7 +46,7 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
             for (size_t j = 0; j < val.size(); ++j) {
                 std::string v = val[j];
 
-                if(mapping_.find(v) != mapping_.end()) {
+                if (mapping_.find(v) != mapping_.end()) {
                     std::ostringstream oss;
                     oss << "Redefined enum '" << v << "', '" << first << "' and '" << mapping_[v] << "'";
                     throw eckit::SeriousBug(oss.str());
@@ -58,11 +58,11 @@ TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
         }
         else {
             std::string v = val;
-                if(mapping_.find(v) != mapping_.end()) {
-                    std::ostringstream oss;
-                    oss << "Redefined enum '" << v << "' and '" << mapping_[v] << "'";
-                    throw eckit::SeriousBug(oss.str());
-                }
+            if (mapping_.find(v) != mapping_.end()) {
+                std::ostringstream oss;
+                oss << "Redefined enum '" << v << "' and '" << mapping_[v] << "'";
+                throw eckit::SeriousBug(oss.str());
+            }
             mapping_[v] = v;
             values_.push_back(v);
         }
@@ -78,41 +78,28 @@ void TypeEnum::print(std::ostream &out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(std::vector<std::string>& values, bool fail) const {
+bool TypeEnum::expand(std::string& value) const {
 
-    std::vector<std::string> newval;
-    newval.reserve(values.size());
 
-    for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-
-        std::map<std::string, std::string>::iterator c = cache_.find(*j);
-        if (c != cache_.end()) {
-            newval.push_back((*c).second);
-            continue;
-        }
-
-        std::string v = MarsLanguage::bestMatch((*j), values_, fail, false, mapping_);
-        if (v.empty()) {
-            return false;
-        }
-        std::map<std::string, std::string>::const_iterator k = mapping_.find(v);
-        ASSERT(k != mapping_.end());
-        newval.push_back((*k).second);
-        cache_[*j] = (*k).second;
+    std::map<std::string, std::string>::iterator c = cache_.find(value);
+    if (c != cache_.end()) {
+        value = (*c).second;
+        return true;
     }
-    std::swap(values, newval);
 
-    if (!multiple_ && values.size() > 1) {
-        throw eckit::UserError("Only one value passible for '" + name_ + "'");
+    std::string v = MarsLanguage::bestMatch(value, values_, false, false, mapping_);
+    if (v.empty()) {
+        return false;
     }
+
+    std::map<std::string, std::string>::const_iterator k = mapping_.find(v);
+    ASSERT(k != mapping_.end());
+    value = cache_[value] = (*k).second;
 
     return true;
 }
 
 
-void TypeEnum::expand(std::vector<std::string>& values) const {
-    expand(values, true);
-}
 
 void TypeEnum::reset() {
     // cache_.clear();

@@ -15,7 +15,11 @@
 #include "eckit/parser/StringTools.h"
 #include "eckit/types/Types.h"
 
+
+
 namespace metkit {
+
+static eckit::Reanimator<MarsRequestHandle> marsRequestHandleReanimator;
 
 bool shortName(const std::string& prefix, const std::string& s)
 {
@@ -24,15 +28,37 @@ bool shortName(const std::string& prefix, const std::string& s)
     return std::equal(prefix.begin(), prefix.end(), s.begin());
 }
 
-MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* protocol)
-: request_(request),
-  protocol_(protocol)
+MarsRequestHandle::MarsRequestHandle(eckit::Stream& s)
+    : eckit::DataHandle(s),
+      request_(s),
+      protocol_(eckit::Reanimator<BaseProtocol>::reanimate(s)) {
+}
+
+MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
+                                     BaseProtocol* protocol):
+    request_(request),
+    protocol_(protocol)
 {
     eckit::Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
     ASSERT(protocol);
 }
 
+MarsRequestHandle::MarsRequestHandle(const metkit::MarsRequest& request,
+                                     const eckit::Configuration& database):
+    request_(request),
+    protocol_(ProtocolFactory::build(database)) {
+}
+
 MarsRequestHandle::~MarsRequestHandle() {}
+
+const eckit::ReanimatorBase & MarsRequestHandle::reanimator() const {
+    return marsRequestHandleReanimator;
+}
+
+const eckit::ClassSpec & MarsRequestHandle::classSpec() {
+    static eckit::ClassSpec spec = { &eckit::DataHandle::classSpec(), "MarsRequestHandle" };
+    return spec;
+}
 
 eckit::Length MarsRequestHandle::openForRead()
 {
@@ -74,7 +100,13 @@ void MarsRequestHandle::close()
 
 void MarsRequestHandle::print(std::ostream& s) const
 {
-    s << "MarsRequestHandle["<< *protocol_ << "," << request_ << "]";
+    s << "MarsRequestHandle[" << *protocol_ << "," << request_ << "]";
+}
+
+void MarsRequestHandle::encode(eckit::Stream& s) const {
+    eckit::DataHandle::encode(s);
+    s << request_;
+    s << *protocol_;
 }
 
 } // namespace metkit

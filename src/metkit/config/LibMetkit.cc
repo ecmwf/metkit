@@ -18,7 +18,7 @@
 
 #include "metkit/metkit_version.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 

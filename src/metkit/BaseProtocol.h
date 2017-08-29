@@ -14,18 +14,24 @@
 #ifndef BaseProtocol_H
 #define BaseProtocol_H
 
-#include "eckit/eckit.h"
-
 #include "eckit/io/Length.h"
+#include "eckit/serialisation/Streamable.h"
+
+namespace eckit { class Configuration; }
 
 namespace metkit {
 
 class MarsRequest;
 
-class BaseProtocol {
+class BaseProtocol : public eckit::Streamable {
+
 public:
-	BaseProtocol();
-	virtual ~BaseProtocol();
+
+    BaseProtocol();
+    BaseProtocol(eckit::Stream&);
+    BaseProtocol(const eckit::Configuration&);
+
+    virtual ~BaseProtocol();
 
     virtual eckit::Length retrieve(const MarsRequest&) = 0;
     virtual void archive(const MarsRequest&, const eckit::Length&) = 0;
@@ -34,19 +40,49 @@ public:
     virtual long write(const void* buffer, long len) = 0;
     virtual void cleanup() = 0;
 
+    // -- Overridden methods (from Streamable)
+    static  const eckit::ClassSpec& classSpec();
+
 protected:
-	virtual void print(std::ostream&) const = 0;
+    virtual void print(std::ostream&) const = 0;
+    virtual void encode(eckit::Stream&) const;
 
 private:
-// No copy allowed
-	BaseProtocol(const BaseProtocol&);
-	BaseProtocol& operator=(const BaseProtocol&);
 
-// -- Friends
+    friend std::ostream& operator<<(std::ostream& s, const BaseProtocol& p) {
+        p.print(s); return s;
+    }
+};
 
-	friend std::ostream& operator<<(std::ostream& s,const BaseProtocol& p)
-		{ p.print(s); return s; }
 
+class ProtocolFactory {
+
+    std::string name_;
+
+    virtual BaseProtocol *make(const eckit::Configuration &) = 0;
+
+  protected:
+
+    ProtocolFactory(const std::string &);
+
+    virtual ~ProtocolFactory();
+
+  public:
+
+    static BaseProtocol *build(const eckit::Configuration&);
+
+    static void list(std::ostream&);
+
+};
+
+
+template<class T>
+class ProtocolBuilder : public ProtocolFactory {
+    virtual BaseProtocol *make(const eckit::Configuration &param) {
+        return new T(param);
+    }
+  public:
+    ProtocolBuilder(const std::string &name) : ProtocolFactory(name) {}
 };
 
 }

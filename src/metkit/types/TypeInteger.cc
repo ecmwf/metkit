@@ -67,15 +67,15 @@ bool TypeInteger::ok(const std::string &value, long& n) const {
     return true;
 }
 
-std::string TypeInteger::tidy(const std::string &value) const  {
+bool TypeInteger::expand( std::string &value) const  {
     long n = 0;
     if (ok(value, n)) {
         static eckit::Translator<long, std::string> l2s;
-        return l2s(n);
+        value = l2s(n);
+        return true;
     }
-    throw eckit::UserError(name_ + ": invalid integer '" + value + "'");
+    return false;
 }
-
 
 static TypeBuilder<TypeInteger> type("integer");
 
