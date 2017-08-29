@@ -12,20 +12,13 @@
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#define BOOST_TEST_MODULE metkit_grib_MetFile
-#include "ecbuild/boost_test_framework.h"
-
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/Buffer.h"
-
-#include "eckit/testing/Setup.h"
-
 #include "metkit/grib/MetFile.h"
 
+#include "eckit/testing/Test.h"
 
 using namespace eckit::testing;
-
-BOOST_GLOBAL_FIXTURE(Setup);
 
 namespace metkit {
 namespace grib {
@@ -35,39 +28,49 @@ namespace test {
 
 static const size_t GRIB_SIZE = 858;
 
-struct F {
-    F() : file("latlon.grib") {}
+struct Fixture {
+    Fixture() : file("latlon.grib") {}
     MetFile file;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BOOST_AUTO_TEST_SUITE( metkit_grib_MetFile )
+CASE ( "metkit_grib_MetFile" ) {
 
-BOOST_FIXTURE_TEST_CASE( test_read, F ) {
-    eckit::Buffer buf(1024);
-    size_t len = file.read(buf);
-    BOOST_CHECK_LT(len, buf.size());
-    BOOST_CHECK_EQUAL(len, GRIB_SIZE);
+    SETUP() {
+        Fixture F;
+
+        SECTION( "test_read" ) {
+            eckit::Buffer buf(1024);
+            size_t len = F.file.read(buf);
+            EXPECT(len < buf.size());
+            EXPECT(len == GRIB_SIZE);
+        }
+
+        SECTION( "test_read_some" ) {
+            eckit::Buffer buf(1024);
+            size_t len = F.file.readSome(buf);
+            EXPECT(len < buf.size());
+            EXPECT(len == GRIB_SIZE);
+        }
+
+        SECTION( "test_read_some_smallbuff" ) {
+            eckit::Buffer buf(512);
+            size_t len = F.file.readSome(buf);
+            EXPECT(len > buf.size());
+            EXPECT(len == GRIB_SIZE);
+        }
+    }
+
 }
 
-BOOST_FIXTURE_TEST_CASE( test_read_some, F ) {
-    eckit::Buffer buf(1024);
-    size_t len = file.readSome(buf);
-    BOOST_CHECK_LT(len, buf.size());
-    BOOST_CHECK_EQUAL(len, GRIB_SIZE);
+//-----------------------------------------------------------------------------
+
+}  // namespace test
+}  // namespace grib
+}  // namespace metkit
+
+int main(int argc, char **argv)
+{
+    return run_tests ( argc, argv );
 }
-
-BOOST_FIXTURE_TEST_CASE( test_read_some_smallbuff, F ) {
-    eckit::Buffer buf(512);
-    size_t len = file.readSome(buf);
-    BOOST_CHECK_GT(len, buf.size());
-    BOOST_CHECK_EQUAL(len, GRIB_SIZE);
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-} // namespace test
-} // namespace grib
-} // namespace metkit
-

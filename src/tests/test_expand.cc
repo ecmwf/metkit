@@ -12,66 +12,61 @@
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#define BOOST_TEST_MODULE metkit_grib_MetFile
-#include "ecbuild/boost_test_framework.h"
-
-
-#include "eckit/testing/Setup.h"
 #include "eckit/types/Date.h"
-
 #include "metkit/MarsRequest.h"
 
+#include "eckit/testing/Test.h"
 
 using namespace eckit::testing;
 
-using namespace metkit;
+namespace metkit {
+namespace test {
 
-BOOST_GLOBAL_FIXTURE(Setup);
+//-----------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------------------------------------------------
-
-BOOST_AUTO_TEST_SUITE( metkit_expand )
-
-BOOST_AUTO_TEST_CASE( test_metkit_expand_1 ) {
+CASE( "test_metkit_expand_1" ) {
     const char* text = "ret,date=-5/to/-1";
     MarsRequest r = MarsRequest::parse(text);
     r.dump(std::cout);
 }
 
 
-BOOST_AUTO_TEST_CASE( test_metkit_expand_2 ) {
+CASE( "test_metkit_expand_2" ) {
     const char* text = "ret";
     MarsRequest r = MarsRequest::parse(text);
     r.dump(std::cout);
 
     const std::vector< std::string >& dates = r.values("date");
-    BOOST_CHECK_EQUAL(dates.size(), 1);
+    EXPECT(dates.size() == 1);
 
     eckit::Date today(0);
     std::ostringstream oss;
 
     oss << today.yyyymmdd();
-    BOOST_CHECK_EQUAL(dates[0], oss.str());
+    EXPECT(dates[0] == oss.str());
 
 
 }
 
-BOOST_AUTO_TEST_CASE( test_metkit_expand_3 ) {
+CASE( "test_metkit_expand_3" ) {
     const char* text = "ret,date=-5/to/-1,grid=n640";
     MarsRequest r = MarsRequest::parse(text);
     r.dump(std::cout);
 }
 
 
-BOOST_AUTO_TEST_CASE( test_metkit_expand_4 ) {
+CASE( "test_metkit_expand_4" ) {
     const char* text = "ret,date=-5/to/-1,grid=o640";
     MarsRequest r = MarsRequest::parse(text);
     r.dump(std::cout);
 }
 
+//-----------------------------------------------------------------------------
 
-BOOST_AUTO_TEST_SUITE_END()
+}  // namespace test
+}  // namespace metkit
 
-
+int main(int argc, char **argv)
+{
+    return run_tests ( argc, argv );
+}
