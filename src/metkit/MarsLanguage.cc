@@ -55,8 +55,6 @@ MarsLanguage::MarsLanguage(const std::string& verb):
     eckit::Value params = lang.keys();
 
     eckit::Value defaults = lang["_defaults"];
-    std::cout << "DEFAULTS " << verb << ": " << defaults << std::endl;
-
 
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
@@ -73,12 +71,9 @@ MarsLanguage::MarsLanguage(const std::string& verb):
             settings["default"] = defaults[keyword];
         }
 
-
         types_[keyword] = TypesFactory::build(keyword, settings);
         types_[keyword]->attach();
         keywords_.push_back(keyword);
-
-        std::cout << keyword << " " << *types_[keyword] << std::endl;
 
         if (settings.contains("aliases")) {
             eckit::Value aliases = settings["aliases"];
@@ -144,8 +139,6 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
-
-        // std::cout << name << " " << value << " " << dist << std::endl;
 
         size_t len = std::min(name.length(), value.length());
         size_t s = 0;
@@ -293,7 +286,6 @@ Type* MarsLanguage::type(const std::string& name) const {
 
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
-    // std::cout << r << std::endl;
 
     MarsRequest result(verb_);
 
@@ -330,7 +322,6 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
                 }
             }
 
-            std::cout << p << " ---> " << *type(p) << std::endl;
             type(p)->expand(values);
             result.setValuesTyped(type(p), values);
             type(p)->check(values);

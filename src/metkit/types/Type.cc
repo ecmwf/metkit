@@ -190,8 +190,6 @@ void Type::expand(std::vector<std::string>& values) const {
         newvals.push_back(value);
     }
 
-    // std::cout << "expand " << name_ << " " << values << " " << newvals << std::endl;
-
     std::swap(newvals, values);
 
     if (!multiple_ && values.size() > 1) {
