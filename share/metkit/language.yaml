@@ -73,7 +73,7 @@ _field: &_field
     - [ab, analysis bias]
     - [af, analysis feedback]
     - [ai, analysis input]
-    - [an, analysis, ana] # ana is for  NO/NOR/req/curr/NO
+    - [an, analysis, ana, a] # ana, a is for  NO/NOR/req/curr/NO
     - [ar, assimilation run]
     - [as, adjoint singular vector]
     - [bf, bias-corrected forecast]
