@@ -223,7 +223,7 @@ _field: &_field
     - [mswm, multimodel seasonal forecast wave means]
     - [mvbr, monthly stddev boers]
     - [ocea, ocean]
-    - [oper, da, daily archive]
+    - [oper, da, daily archive, od] # IT/ITI/req/curr/I6 has OD
     - [rjtd, tokyo]
     - [scda, short cutoff daily archive]
     - [scwv, short cutoff wave]
