@@ -492,18 +492,21 @@ _field: &_field
     only:
     - type: ssd
     type: integer
+    multiple: true
 
   ident:
     category: data
     only:
     - type: ssd
     type: integer
+    multiple: true
 
   instrument:
     category: data
     only:
     - type: ssd
     type: integer
+    multiple: true
 
 
   method:
