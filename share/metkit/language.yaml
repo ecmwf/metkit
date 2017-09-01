@@ -596,7 +596,10 @@ _postproc: &_postproc
     category: postproc
     flatten: false
     multiple: true
-    type: float
+    type: [float, enum]
+    values:
+    - [g, global, off]
+    - [e, europe]
 
   grid:
     category: postproc
