@@ -707,6 +707,13 @@ dissemination:
     flatten: false
     type: any
 
+  padding:
+    flatten: false
+    type: enum
+    values:
+    - none
+    - auto
+
 retrieve:
   <<: *_field
   <<: *_postproc
