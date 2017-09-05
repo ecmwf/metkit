@@ -117,7 +117,7 @@ eckit::Value MarsLanguage::jsonFile(const std::string& name) {
     return parser.parse();
 }
 
-static bool isnumber(const std::string& s) {
+static bool isnumeric(const std::string& s) {
     for (size_t i = 0; i < s.length(); i++) {
         if (!::isdigit(s[i])) {
             return false;
@@ -194,7 +194,7 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
     if (best.size() == 1) {
 
-        if (isnumber(name) && isnumber(best[0])) {
+        if (isnumeric(name) && isnumeric(best[0])) {
             std::ostringstream oss;
             oss << "Cannot match [" << name << "] and [" << best[0] << "]";
             if (ctx) {
