@@ -9,6 +9,7 @@
  */
 
 #include "eckit/parser/JSON.h"
+#include "eckit/parser/StringTools.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
 
@@ -31,11 +32,13 @@ MarsRequest::MarsRequest(const std::string& s):
     verb_(s) {
 }
 
-MarsRequest::MarsRequest(eckit::Stream& s) {
+MarsRequest::MarsRequest(eckit::Stream& s, bool lowercase) {
     int size;
 
 
     s >> verb_;
+    if (lowercase)
+        verb_ = eckit::StringTools::lower(verb_);
     s >> size;
 
     for (int i = 0; i < size; i++)
@@ -44,6 +47,8 @@ MarsRequest::MarsRequest(eckit::Stream& s) {
         int    count;
 
         s >> param;
+        if (lowercase)
+            param = eckit::StringTools::lower(param);
         s >> count;
 
         std::vector<std::string> v;
