@@ -267,7 +267,7 @@ static void init() {
     rules = new std::vector<Rule>();
 
     const eckit::Value ids = eckit::YAMLParser::decodeFile("~metkit/share/metkit/paramids.yaml");
-    ASSERT(ids.isMap());
+    ASSERT(ids.isOrderedMap());
 
     const eckit::Value r = eckit::YAMLParser::decodeFile("~metkit/share/metkit/param.yaml");
     ASSERT(r.isList());
