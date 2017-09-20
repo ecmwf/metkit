@@ -51,7 +51,7 @@ ecbuild_add_option( FEATURE NETCDF
 
 # eckit
 
-ecbuild_use_package( PROJECT eckit  VERSION  0.19.0 REQUIRED )
+ecbuild_use_package( PROJECT eckit  VERSION  0.18.0 REQUIRED )
 
 ### start project
 
