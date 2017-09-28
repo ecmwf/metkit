@@ -11,7 +11,7 @@
 #include "metkit/grib/GribMetaData.h"
 #include "metkit/grib/GribIndex.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {

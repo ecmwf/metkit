@@ -22,32 +22,23 @@
 #include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/MarsLanguage.h"
-#include "eckit/parser/JSONParser.h"
+#include "eckit/parser/YAMLParser.h"
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/Type.h"
 #include "metkit/MarsExpension.h"
 #include "eckit/log/Timer.h"
 
-using namespace eckit;
+
 
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
-static Value languages_;
+static eckit::Value languages_;
 static std::vector<std::string> verbs_;
 
 static void init() {
 
-    eckit::PathName language("~metkit/etc/language.json");
-
-    std::ifstream in(language.asString().c_str());
-    if (!in) {
-        throw eckit::CantOpenFile(language);
-    }
-
-    eckit::JSONParser parser(in);
-
-    languages_ =  parser.parse();
-    Value verbs = languages_.keys();
+    languages_ =  eckit::YAMLParser::decodeFile("~metkit/share/metkit/language.yaml");
+    const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.push_back(verbs[i]);
     }
@@ -60,18 +51,32 @@ namespace metkit {
 MarsLanguage::MarsLanguage(const std::string& verb):
     verb_(verb) {
     pthread_once(&once, init);
-    Value lang = languages_[verb];
-    Value params = lang.keys();
+    eckit::Value lang = languages_[verb];
+    eckit::Value params = lang.keys();
+
+    eckit::Value defaults = lang["_defaults"];
 
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
-        Value settings = lang[keyword];
+        eckit::Value settings = lang[keyword];
+
+        if(keyword[0] == '_') {
+            continue;
+        }
+
+        ASSERT(types_.find(keyword) == types_.end());
+
+
+        if(defaults.contains(keyword)) {
+            settings["default"] = defaults[keyword];
+        }
+
         types_[keyword] = TypesFactory::build(keyword, settings);
         types_[keyword]->attach();
         keywords_.push_back(keyword);
 
         if (settings.contains("aliases")) {
-            Value aliases = settings["aliases"];
+            eckit::Value aliases = settings["aliases"];
             for (size_t j = 0; j < aliases.size(); ++j) {
                 aliases_[aliases[j]] = keyword;
                 keywords_.push_back(aliases[j]);
@@ -79,6 +84,7 @@ MarsLanguage::MarsLanguage(const std::string& verb):
         }
 
     }
+
 }
 
 MarsLanguage::~MarsLanguage() {
@@ -96,21 +102,22 @@ void MarsLanguage::reset() {
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
+
     // TODO: cache
 
-    eckit::PathName path = std::string("~metkit/etc/" + name);
+    eckit::PathName path = std::string("~metkit/share/metkit/" + name);
 
     std::ifstream in(path.asString().c_str());
     if (!in) {
         throw eckit::CantOpenFile(path);
     }
 
-    eckit::JSONParser parser(in);
+    eckit::YAMLParser parser(in);
 
     return parser.parse();
 }
 
-static bool isnumber(const std::string& s) {
+static bool isnumeric(const std::string& s) {
     for (size_t i = 0; i < s.length(); i++) {
         if (!::isdigit(s[i])) {
             return false;
@@ -132,8 +139,6 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
-
-        // std::cout << name << " " << value << " " << dist << std::endl;
 
         size_t len = std::min(name.length(), value.length());
         size_t s = 0;
@@ -189,9 +194,9 @@ std::string MarsLanguage::bestMatch(const std::string& name,
 
     if (best.size() == 1) {
 
-        if (isnumber(name) && isnumber(best[0])) {
+        if (isnumeric(name) && isnumeric(best[0])) {
             std::ostringstream oss;
-            oss << "Cannot match '" << name << "' and " << best[0];
+            oss << "Cannot match [" << name << "] and [" << best[0] << "]";
             if (ctx) {
                 oss << " ";
                 ctx->print(oss);
@@ -213,7 +218,7 @@ std::string MarsLanguage::bestMatch(const std::string& name,
         }
 
         std::ostringstream oss;
-        oss << "Cannot match '" << name << "' in " << values;
+        oss << "Cannot match [" << name << "] in " << values;
         if (ctx) {
             oss << " ";
             ctx->print(oss);
@@ -281,7 +286,6 @@ Type* MarsLanguage::type(const std::string& name) const {
 
 
 MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
-    // std::cout << r << std::endl;
 
     MarsRequest result(verb_);
 
@@ -352,7 +356,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         }
 
     }
-    catch (Exception& e) {
+    catch (std::exception& e) {
         std::ostringstream oss;
         oss << e.what() << " request=" << r << ", expanded=" << result;
         throw eckit::UserError(oss.str());

@@ -16,13 +16,13 @@
 #ifndef metkit_TypeMixed_H
 #define metkit_TypeMixed_H
 
-#include "metkit/types/TypeEnum.h"
+#include "metkit/types/Type.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeMixed : public TypeEnum {
+class TypeMixed : public Type {
 
 public: // methods
 
@@ -33,8 +33,7 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-    virtual std::string tidy(const std::string &value) const ;
-    virtual void expand(std::vector<std::string>& values) const;
+    virtual bool expand(std::string& value) const ;
 
     std::vector<Type*> types_;
 

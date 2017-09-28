@@ -8,12 +8,9 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_emosfile.cc
+/// @file   test_MetFile.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
-
-#define BOOST_TEST_MODULE metkit_grib_multihandle
-#include "ecbuild/boost_test_framework.h"
 
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/Buffer.h"
@@ -21,16 +18,13 @@
 #include "eckit/io/MultiHandle.h"
 #include "eckit/io/FileHandle.h"
 
-#include "eckit/testing/Setup.h"
-
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
 #include "grib_api.h"
 
-using namespace eckit;
-using namespace eckit::testing;
+#include "eckit/testing/Test.h"
 
-BOOST_GLOBAL_FIXTURE(Setup);
+using namespace eckit::testing;
 
 namespace metkit {
 namespace grib {
@@ -38,21 +32,12 @@ namespace test {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static const size_t GRIB_SIZE = 858;
+CASE( "fopen" ) {
 
-struct F {
-};
+    eckit::MultiHandle mh;
 
-//----------------------------------------------------------------------------------------------------------------------
-
-BOOST_AUTO_TEST_SUITE( metkit_grib_multihandle )
-
-BOOST_FIXTURE_TEST_CASE( fopen, F ) {
-
-    MultiHandle mh;
-
-    mh += new FileHandle("latlon.grib");
-    mh += new FileHandle("latlon.grib");
+    mh += new eckit::FileHandle("latlon.grib");
+    mh += new eckit::FileHandle("latlon.grib");
 
     FILE* f = mh.openf("r");
 
@@ -66,13 +51,17 @@ BOOST_FIXTURE_TEST_CASE( fopen, F ) {
     }
 
     fclose(f);
-    BOOST_CHECK_EQUAL(count, 2);
-    BOOST_CHECK_EQUAL(err, GRIB_SUCCESS);
+    EXPECT(count == 2);
+    EXPECT(err == GRIB_SUCCESS);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+//-----------------------------------------------------------------------------
 
-} // namespace test
-} // namespace grib
-} // namespace metkit
+}  // namespace test
+}  // namespace grib
+}  // namespace metkit
 
+int main(int argc, char **argv)
+{
+    return run_tests ( argc, argv );
+}

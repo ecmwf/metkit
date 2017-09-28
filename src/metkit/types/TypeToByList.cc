@@ -22,6 +22,9 @@ namespace metkit {
 TypeToByList::TypeToByList(const std::string &name, const eckit::Value& settings) :
     TypeInteger(name, settings),
     by_(settings["by"]) {
+
+    multiple_ = true;
+
 }
 
 TypeToByList::~TypeToByList() {
@@ -30,6 +33,7 @@ TypeToByList::~TypeToByList() {
 void TypeToByList::print(std::ostream &out) const {
     out << "TypeToByList[name=" << name_ << "]";
 }
+
 
 void TypeToByList::expand(std::vector<std::string>& values) const {
 
@@ -52,20 +56,20 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 5) {
         if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
-                long from = s2l(tidy(values[0]));
-                long to = s2l(tidy(values[2]));
-                long by = s2l(tidy(values[4]));
-                values.clear();
-                values.reserve((to - from) / by + 1);
+            long from = s2l(tidy(values[0]));
+            long to = s2l(tidy(values[2]));
+            long by = s2l(tidy(values[4]));
+            values.clear();
+            values.reserve((to - from) / by + 1);
 
-                for (long i = from; i <= to; i += by) {
-                    values.push_back(l2s(i));
-                }
-                return;
+            for (long i = from; i <= to; i += by) {
+                values.push_back(l2s(i));
+            }
+            return;
         }
     }
 
-    TypeInteger::expand(values);
+    Type::expand(values);
 }
 
 static TypeBuilder<TypeToByList> type("to-by-list");

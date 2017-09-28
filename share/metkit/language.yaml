@@ -1,0 +1,786 @@
+---
+_field: &_field
+
+  class:
+    category: data
+    default: od
+    flatten: false
+    type: enum
+    values:
+    - [at, austria]
+    - [be, belgium]
+    - [ch, switzerland]
+    - [co, cosmo]
+    - [cs, ecsn]
+    - [de, germany]
+    - [dk, denmark]
+    - [dm, demeter]
+    - [dt, dts]
+    - [e2, e20c]
+    - [e4, reanalyse40]
+    - [ea, era5, esat]
+    - [ei, era interim]
+    - [el, eldas]
+    - [em, e20cm]
+    - [en, ensembles]
+    - [ep, cera-20c, cera20c]
+    - [er, reanalyse]
+    - [es, spain]
+    - [et, cera-sat, cerasat]
+    - [fi, finland]
+    - [fr, france]
+    - [gr, greece]
+    - [hr, croatia]
+    - [hu, hungary]
+    - [ie, ireland]
+    - [is, iceland]
+    - [it, italy]
+    - [j5, jra55]
+    - [la, aladin-laef, laef, lace]
+    - [ma, metaps]
+    - [mc, macc]
+    - [me, mersea]
+    - [nl, netherlands]
+    - ['no', norway]
+    - [nr, ncep 20cr, 20cr]
+    - [od, operations]
+    - [pe, permanent experiment]
+    - [pt, portugal]
+    - [pv, provost]
+    - [rd, research]
+    - [rm, euro4m]
+    - [se, sweden]
+    - [si, slovenia]
+    - [sr, sreps]
+    - [te, test]
+    - [to, tost]
+    - [tr, turkey]
+    - [uk, united kingdom]
+    - [ur, uerra]
+    - [yt, yotc]
+
+  type:
+    category: data
+    default: an
+    flatten: false
+    type: enum
+    values:
+    - [3g, 3d variational gradients]
+    - [3v, 3d variational analysis]
+    - [4g, 4d variational gradients]
+    - [4i, 4d variational increments]
+    - [4v, 4d variational analysis]
+    - [ab, analysis bias]
+    - [af, analysis feedback]
+    - [ai, analysis input]
+    - [an, analysis, ana, a] # ana, a is for  NO/NOR/req/curr/NO
+    - [ar, assimilation run]
+    - [as, adjoint singular vector]
+    - [bf, bias-corrected forecast]
+    - [cd, climate distribution]
+    - [cf, control forecast]
+    - [ci, clustering information]
+    - [cl, climatology]
+    - [cm, cluster means]
+    - [cr, cluster representative]
+    - [cs, cluster std deviations]
+    - [cv, calibration validation forecast]
+    - [ea, errors in analysis]
+    - [ed, empirical distribution]
+    - [ef, errors in first guess]
+    - [efi, extreme forecast index]
+    - [efic, extreme forecast index control]
+    - [em, ensemble mean]
+    - [ep, event probability]
+    - [es, ensemble standard deviation]
+    - [fa, forecast accumulation]
+    - [fb, feedback]
+    - [fc, forecast]
+    - [fcmax]
+    - [fcmean]
+    - [fcmin]
+    - [fcstdev]
+    - [ff, flux forcing realtime]
+    - [fg, first guess]
+    - [fp, forecast probability]
+    - [fx, flux forcing]
+    - [ga, gfas analysis]
+    - [go, gridded observations]
+    - [gsd, gridded satellite data]
+    - [hcmean, hindcast mean]
+    - [ia, init. analysis]
+    - [icp, initial condition perturbation]
+    - [im, images]
+    - [me, model errors]
+    - [mfb, mondb feedback]
+    - [oai, odb analysis input]
+    - [ob, observations]
+    - [of, ocean forward]
+    - [ofb, odb feedback]
+    - [oi, oi analysis]
+    - [oldim, old format images]
+    - [or, ocean reanalysis]
+    - [pa, perturbed analysis]
+    - [pb, probability boundary]
+    - [pd, probability distribution]
+    - [pf, perturbed forecast]
+    - [s3, climate 30 days simulation]
+    - [ses, scaled ensemble standard deviation]
+    - [sf, sensitivity forecast]
+    - [sg, sensitivity gradient]
+    - [si, climate simulation]
+    - [sim, simulated images]
+    - [sot, shift of tails]
+    - [ssd, simulated satellite data]
+    - [sv, singular vector]
+    - [svar, signal variance]
+    - [taem, time average ensemble mean]
+    - [taes, time average ensemble standard deviation]
+    - [tf, trajectory forecast]
+    - [tu, tube]
+    - [wem, weighted ensemble mean]
+    - [wes, weighted ensemble standard deviation]
+    - [wp, weather parameters]
+
+  stream:
+    category: data
+    default: oper
+    flatten: false
+    type: enum
+    values:
+    - [amap, analysis for multianalysis project]
+    - [ammc, melbourne]
+    - [cher, ch, chernobyl]
+    - [cnrm, cnrm climate support]
+    - [cwao, montreal]
+    - [dacl, daily climatology]
+    - [dacw, daily climatology wave]
+    - [dahc, daily archive hindcasts]
+    - [dcda, delayed cutoff daily archive]
+    - [dcwv, delayed cutoff wave]
+    - [e1, ers1]
+    - [edmm, ensemble data assimilation monthly means]
+    - [edmo, ensemble data assimilation monthly means of daily means]
+    - [edzw, offenbach]
+    - [efhc, ensemble forecast hindcasts]
+    - [efho]
+    - [efhs, ensemble forecast hindcast statistics]
+    - [efov, ensemble forecast overlap]
+    - [egrr, exeter, bracknell]
+    - [ehmm, eurosip hindcast monthly means]
+    - [elda, ensemble long window data assimilation]
+    - [enda, ensemble data assimilation]
+    - [enfh]
+    - [enfo, ef, ensemble forecasts]
+    - [enwh]
+    - [esmm, eurosip monthly means]
+    - [espd, ensemble supplementary data]
+    - [ewda, ensemble wave data assimilation]
+    - [ewhc, wave ensemble forecast hindcasts]
+    - [ewho]
+    - [ewla, ensemble wave long window data assimilation]
+    - [ewmm, ensemble wave data assimilation monthly means]
+    - [ewmo, ensemble wave data assimilation monthly means of daily means]
+    - [fgge, fg]
+    - [gfas, global fire assimilation system]
+    - [kwbc, washington]
+    - [lfpw, paris]
+    - [lwda, long window daily archive]
+    - [lwwv, long window wave]
+    - [ma, means archive]
+    - [maed, multianalysis ensemble data]
+    - [mawm, monthly forecast anomalies wave means]
+    - [mawv, multianalysis wave data]
+    - [mdfa, monthly daily forecast accumulation]
+    - [mfam, monthly forecast anomalies means]
+    - [mfaw, monthly forecast anomalies wave]
+    - [mfhm, monthly forecast hindcasts means]
+    - [mfhw, monthly forecast hindcasts wave]
+    - [mfva, monthly variance and co-variance of filtered fields]
+    - [mfvc, synoptic monthly variance and co-variance of filtered fields]
+    - [mfwm, monthly forecast wave means]
+    - [mhwm, monthly forecast hindcasts wave means]
+    - [mmaf, multimodel multiannual forecast]
+    - [mmam, multimodel multiannual forecast means]
+    - [mmaw, multimodel multiannual forecast wave]
+    - [mmsa, multimodel seasonal forecast mean anomalies]
+    - [mmsf, multimodel seasonal forecast]
+    - [mmwm, multimodel multiannual forecast wave means]
+    - [mnfa, monthly forecast anomalies]
+    - [mnfc, monthly forecast]
+    - [mnfh, monthly forecast hindcasts]
+    - [mnfm, monthly forecast means]
+    - [mnfw, monthly forecast wave]
+    - [mnth, mo, synoptic monthly means, monthly]
+    - [mobr, monthly means boers]
+    - [moda, monthly means of daily means, monthly daily means]
+    - [mofc, old monthly forecast]
+    - [mofm, old monthly forecast means]
+    - [mpic, mpi  climate support]
+    - [msda, monthly variance and co-variance, monthly daily stddev]
+    - [msdc, mv, synoptic monthly variance and co-variance, monthly stddev]
+    - [msmm, multimodel seasonal forecast means]
+    - [mswm, multimodel seasonal forecast wave means]
+    - [mvbr, monthly stddev boers]
+    - [ocea, ocean]
+    - [oper, da, daily archive, od] # IT/ITI/req/curr/I6 has OD
+    - [rjtd, tokyo]
+    - [scda, short cutoff daily archive]
+    - [scwv, short cutoff wave]
+    - [seap, sensitive area predictions]
+    - [seas, seasonal forecast]
+    - [sens, sf, sensitivity forecast]
+    - [sfmm, seasonal monthly means]
+    - [smma, seasonal monthly means anomalies]
+    - [ssbt]
+    - [ssmi]
+    - [supd, sd, supplementary data]
+    - [swmm, seasonal wave montlhy means]
+    - [toga, tg]
+    - [ukmo, ukmo climate support]
+    - [waef, we, wave ensemble forecast]
+    - [wamd, wave monthly means of daily means]
+    - [wamf, old wave monthly forecast]
+    - [wamo, wave monthly means]
+    - [wams, multimodel seasonal forecast wave]
+    - [wasf, wave seasonal forecast]
+    - [wave, wv]
+    - [wavm, wave model]
+    - [wehs, wave ensemble hindcast statistics]
+    - [weov, wave ensemble forecast overlap]
+    - [wm, wmo]
+    - [wmfm, old wave monthly forecast  means]
+    - [wvhc, wave hindcasts]
+
+  expver:
+    category: data
+    default: '0001'
+    flatten: false
+    type: expver
+
+  model:
+    category: data
+    type: any
+
+  repres:
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - gg
+    - sh
+    - ll
+    - np
+    - rl
+    - - '0.25'
+      - fix me HUE:E1 !
+
+  # obsgroup
+  # reportype
+  # rdbprefix
+  # obstype
+
+  levtype:
+    category: data
+    # CH/SW6/req/curr/N5 has 2 levtype
+    default: pl
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - [cat, category]
+    - [dp, depth]
+    - [layer]
+    - [ml, model levels]
+    - [pl, pressure levels]
+    - [pt, potential temperature]
+    - [pv, potential vorticity]
+    - [sfc, surface]
+    - [wv, ocean wave]
+
+  levelist:
+    category: data
+    by: 1
+    default:
+    - 1000
+    - 850
+    - 700
+    - 500
+    - 400
+    - 300
+    never:
+    - levtype: sfc
+    type: to-by-list
+
+  param:
+    category: data
+    default: 129
+    multiple: true
+    type: param
+
+#################################################################
+
+  # year
+  # decade
+  # month
+
+  date:
+    category: data
+    default: 0
+    type: date
+
+  # verify
+  # refdate
+
+  hdate:
+    category: data
+    only:
+    - stream:
+      - enfh
+      - enwh
+    type: integer
+
+  fcmonth:
+    category: data
+    by: 1
+    type: to-by-list
+
+  fcperiod:
+    category: data
+    type: integer
+
+  time:
+    category: data
+    default: '1200'
+    multiple: true
+    type: time
+
+  # leadtime
+  # opttime
+  # range
+
+  step:
+    category: data
+    by: 12
+    default: 0
+    type: range
+
+# anfoffset
+
+  reference:
+    category: data
+    type: integer
+
+#################################################################
+
+  ensemble:
+    category: data
+    aliases:
+    - xxxxxensemble
+    by: 1
+    only:
+    - type:
+      - pf
+    type: to-by-list
+
+  # cluster
+  # probability
+
+  number:
+    category: data
+    aliases:
+    - xxxxensemble
+    by: 1
+    only:
+    - type:
+      - pf
+      - cr
+      - cm
+      - fcmean
+      - fc
+      - fcmin
+      - fcmax
+      - fcstdev
+    type: to-by-list
+
+  quantile:
+    category: data
+    multiple: true
+    only:
+    - type:
+      - pd
+      - pb
+      - taem
+      - sot
+    type: enum
+    values:
+    - '1:3'
+    - '2:3'
+    - '3:3'
+    - '1:5'
+    - '2:5'
+    - '3:5'
+    - '4:5'
+    - '5:5'
+    - '1:10'
+    - '2:10'
+    - '3:10'
+    - '4:10'
+    - '5:10'
+    - '6:10'
+    - '7:10'
+    - '8:10'
+    - '9:10'
+    - '10:10'
+    - ['100', "10:100"]
+    - ['900', "90:100"]
+
+  domain:
+    category: data
+    default: g
+    flatten: false
+    type: enum
+    values:
+    - [a, north west europe]
+    - [b, north east europe, baltic and black sea]
+    - [c, south west europe]
+    - [d, south east europe]
+    - [e, europe]
+    - [f, fastex]
+    - [g, globe, general european area]
+    - [h]
+    - [i]
+    - [j]
+    - [k]
+    - [l]
+    - [m, mediterranean]
+    - ['n', northern hemisphere]
+    - [o]
+    - [p]
+    - [q]
+    - [r]
+    - [s, southern hemisphere]
+    - [t, tropics]
+    - [u, tropics 2]
+    - [v]
+    - [w, western atlantic]
+    - [x]
+    - ['y']
+    - [z]
+
+  frequency:
+    category: data
+    by: 1
+    only:
+    - param:
+      - '140251'
+    type: to-by-list
+
+  direction:
+    category: data
+    by: 1
+    only:
+    - param:
+      - '140251'
+    type: to-by-list
+
+# diagnostic
+# iteration
+
+  channel:
+    category: data
+    only:
+    - type: ssd
+    type: integer
+    multiple: true
+
+  ident:
+    category: data
+    only:
+    - type: ssd
+    type: integer
+    multiple: true
+
+  instrument:
+    category: data
+    only:
+    - type: ssd
+    type: integer
+    multiple: true
+
+
+  method:
+    category: data
+    type: integer
+
+  origin:
+    category: data
+    type: enum
+    values:
+    - [ammc, 1, melbourne]
+    - [babj, 38, beijing]
+    - [cnmc, 80]
+    - [consensus, 255]
+    - [crfc, 239, cerfacs]
+    - [cwao, 54, montreal]
+    - [ecmf, 98, ecmwf]
+    - [edzw, dwd, 78, offenbach]
+    - [egrr, 74, exeter, bracknell]
+    - [enmi, 88, oslo]
+    - [fnmo, fnmoc, 58, fleet numerical]
+    - [hadc, 247, hadley centre]
+    - [ifmk, 246]
+    - [ingv, 235]
+    - [knmi, 245]
+    - [kwbc, 7, washington]
+    - [lemm, 214, madrid]
+    - [lfpw, 84, 85, paris, toulouse]
+    - [rjtd, 34, tokyo]
+    - [rksl, 40, seoul]
+    - [sbsj, 46, cptec]
+    - [vuwien, 244, university of vienna]
+
+  system:
+    category: data
+    type: integer
+
+_postproc: &_postproc
+
+  accuracy:
+    category: postproc
+    flatten: false
+    type: [enum, integer]
+    values:
+    - [av]
+    - ['off', normal, auto]
+
+  bitmap:
+    category: postproc
+    flatten: false
+    type: any
+
+  format:
+    category: postproc
+    flatten: false
+    type: enum
+    values:
+    - - grib
+      - grib1
+      - gb
+    - - grib2
+    - - bufr
+      - bf
+    - - grid
+      - gd
+
+  frame:
+    category: postproc
+    type: integer
+
+  frequency:
+    category: postproc
+    by: 1
+    only:
+    - param:
+      - '140251'
+    type: to-by-list
+
+  gaussian:
+    category: postproc
+    type: enum
+    values:
+    - reduced
+    - regular
+
+  area:
+    category: postproc
+    flatten: false
+    multiple: true
+    type: [float, enum]
+    values:
+    - [g, global, off]
+    - [e, europe]
+
+  grid:
+    category: postproc
+    flatten: false
+    multiple: true
+    type: [enum, float, regex]
+    values:
+    - auto
+    - N160
+    - N400
+    - N320
+    - N200
+    - N80
+    - N640
+    regex:
+    - '^[oOfF][1-9][0-9]+$'
+    uppercase: true
+
+  interpolation:
+    category: postproc
+    flatten: false
+    type: enum
+    values:
+    - - nearest-lsm
+      - nearest lsm
+    - - 'off'
+      - default
+      - any
+
+  packing:
+    category: postproc
+    flatten: false
+    type: enum
+    values:
+    - - so
+      - second order
+    - av
+    - co
+    - simple
+
+  resol:
+    category: postproc
+    flatten: false
+    type: [enum, integer]
+    values:
+    - - 'off'
+      - av
+      - reduced gaussian 160
+
+  rotation:
+    category: postproc
+    flatten: false
+    multiple: true
+    type: float
+
+
+#######################################################################
+
+
+dissemination:
+  <<: *_field
+  <<: *_postproc
+
+  requirements:
+    type: any
+
+  use:
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - bc
+    - daily
+    - [thursday, mt, monthly run thursday, monthly thursday]
+    - [monday, mm, monthly run monday, monthly monday]
+
+  catn:
+    flatten: false
+    type: integer
+
+  file:
+    type: enum
+    values:
+    - bin
+
+  option:
+    default: normal
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+    - normal
+    - delay
+    - wmoe
+    - gts
+    - tcpip
+    - nobackup
+    - grib1table1
+
+  country:
+    type: any
+
+  priority:
+    flatten: false
+    type: integer
+
+  projection:
+    type: any
+
+  target:
+    flatten: false
+    type: any
+
+  padding:
+    flatten: false
+    type: enum
+    values:
+    - none
+    - auto
+
+retrieve:
+  <<: *_field
+  <<: *_postproc
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+  database:
+    flatten: false
+    multiple: true
+    type: any
+
+  dataset:
+    flatten: false
+    type: any
+
+  optimize:
+    type: enum
+    values:
+    - true
+    - false
+    default:
+      "off"
+
+  padding:
+    flatten: false
+    type: enum
+    values:
+    - none
+    - auto
+
+read:
+  source:
+    flatten: false
+    multiple: true
+    type: any
+
+  <<: *_field
+  <<: *_postproc
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+  _defaults:
+    class: null
+    date: null
+    domain: null
+    expver: null
+    levelist: null
+    levtype: null
+    param: null
+    step: null
+    stream: null
+    time: null
+    type: null
+
+
+
+end: {}
+

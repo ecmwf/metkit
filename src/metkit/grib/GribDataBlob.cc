@@ -18,7 +18,7 @@
 #include "metkit/grib/GribDataBlob.h"
 #include "metkit/grib/GribHandle.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {
@@ -28,7 +28,7 @@ namespace grib {
 // Construct GribDataBlob builder object, to self-register this type with the
 // DataBlobFactory
 namespace {
-    DataBlobBuilder<GribDataBlob> gribBlobBuilder("grib");
+    eckit::DataBlobBuilder<GribDataBlob> gribBlobBuilder("grib");
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ GribDataBlob::GribDataBlob(const void* data, size_t length) :
     actualLength_ = len;
 }
 
-GribDataBlob::GribDataBlob(DataHandle& dh, size_t length) :
+GribDataBlob::GribDataBlob(eckit::DataHandle& dh, size_t length) :
     eckit::DataBlob(dh, length),
     metadata_(buffer(), length)
 {
@@ -54,12 +54,12 @@ GribDataBlob::GribDataBlob(DataHandle& dh, size_t length) :
 GribDataBlob::~GribDataBlob() {
 }
 
-const Metadata &GribDataBlob::metadata() const {
+const eckit::Metadata &GribDataBlob::metadata() const {
     return metadata_;
 }
 
 void GribDataBlob::print(std::ostream& os) const {
-    os << "GribDataBlob[size=" << Bytes(buffer_.size())
+    os << "GribDataBlob[size=" << eckit::Bytes(buffer_.size())
        << ",metadata=" << metadata_
        << "]";
 }

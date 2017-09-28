@@ -18,39 +18,51 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeMixed::TypeMixed(const std::string &name, const eckit::Value& settings) :
-    TypeEnum(name, settings) {
-    eckit::Value types = settings["more"];
+    Type(name, settings) {
+    eckit::Value types = settings["type"];
+
+    eckit::Value cfg = settings;
+
+
     for (size_t i = 0; i < types.size(); ++i) {
-        Type *k = TypesFactory::build(name, types[i]);
+        cfg["type"] = types[i];
+
+        Type *k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
         k->attach();
         types_.push_back(k);
     }
+
 }
 
 TypeMixed::~TypeMixed() {
     for (std::vector<Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-         (*j)->detach();
+        (*j)->detach();
     }
 }
 
 void TypeMixed::print(std::ostream &out) const {
-    out << "TypeMixed[name=" << name_ << "]";
+    out << "TypeMixed[name=" << name_;
+    for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
+        out << "," << *(*j);
+    }
+    out  << "]";
 }
 
-std::string TypeMixed::tidy(const std::string &value) const {
-    NOTIMP;
-}
 
-void TypeMixed::expand(std::vector<std::string>& values) const {
-    if (!TypeEnum::expand(values, false)) {
-        for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
-            (*j)->expand(values);
+bool TypeMixed::expand(std::string& value) const {
+    for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
+        std::string tmp = value;
+        if ((*j)->expand(tmp)) {
+            value = tmp;
+            return true;
         }
     }
+
+    return false;
 }
 
 
-static TypeBuilder<TypeMixed> type("enum-or-more");
+static TypeBuilder<TypeMixed> type("mixed");
 
 //----------------------------------------------------------------------------------------------------------------------
 

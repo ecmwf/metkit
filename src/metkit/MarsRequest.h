@@ -17,14 +17,10 @@
 #ifndef metkit_MarsRequest_H
 #define metkit_MarsRequest_H
 
-#include "eckit/types/Date.h"
-#include "eckit/types/Double.h"
-#include "eckit/types/Time.h"
 #include "eckit/value/Value.h"
-#include "eckit/utils/Translator.h"
+#include "metkit/Parameter.h"
 
 namespace eckit {
-class JSON;
 class MD5;
 }
 
@@ -32,30 +28,6 @@ namespace metkit {
 
 class Type;
 class MarsRequest;
-
-class Parameter {
-    Type* type_;
-    std::vector<std::string> values_;
-public:
-    Parameter();
-    ~Parameter();
-
-    Parameter(const std::vector<std::string>& values, Type* = 0);
-    Parameter(const Parameter&);
-    Parameter& operator=(const Parameter&);
-    bool operator<(const Parameter&) const;
-
-    const std::vector< std::string >& values() const { return values_; }
-    void values(const std::vector< std::string >& values);
-
-    bool filter(const std::vector< std::string >& filter);
-    bool matches(const std::vector< std::string >& matches) const;
-
-    Type& type() const { return *type_; }
-    const std::string& name() const;
-
-    size_t count() const;
-};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -67,9 +39,7 @@ public: // methods
 
     MarsRequest();
     MarsRequest(const std::string&);
-    MarsRequest(eckit::Stream&);
-
-    MarsRequest(const eckit::ValueMap&);
+    MarsRequest(eckit::Stream&, bool lowercase = false);
 
 // -- Copy
 
@@ -89,21 +59,14 @@ public: // methods
 
     operator eckit::Value() const;
 
-    /* DEPRECATED METHODS */
-
-    // These methods are required for ODB_API 0.15.x
-    // to maintain temporary compatibility with metkit 0.3.0
-
-    void name(const std::string& v) { verb(v); }
-    void setValues(const std::string& name, const std::vector<std::string>& v) { values(name, v); }
-
-    /* END DEPRECATED METHODS */
 
 // -- Methods
 
-    const std::string& verb() const { return verb_; }
+    const std::string& verb() const;
 
     size_t countValues(const std::string&) const;
+    bool has(const std::string&) const;
+
 
     bool is(const std::string& param, const std::string& value) const;
 
@@ -111,18 +74,7 @@ public: // methods
 
 
     template<class T>
-    void getValues(const std::string& name, std::vector<T>& v) const {
-        const std::vector< std::string >& s = values(name);
-
-        eckit::Translator<std::string, T> t;
-
-        v.clear();
-
-        for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
-            v.push_back(t(*j));
-        }
-    }
-
+    size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
 
     void getParams(std::vector<std::string>&) const;
     std::vector<std::string> params() const;
@@ -132,17 +84,18 @@ public: // methods
     void values(const std::string&, const std::vector<std::string>&);
 
     template<class T>
-    void setValue(const std::string& name, const T& value)
-    { std::vector<T> v(1, value); values(name, v); }
+    void setValue(const std::string& name, const T& value);
 
-    void setValue(const std::string& name, const char* value)
-    { std::string v(value); setValue(name, v); }
+    void setValue(const std::string& name, const char* value);
 
     void unsetValues(const std::string&);
 
     /// Merges one MarsRequest into another
     /// @todo Improve performance -- uses O(N^2) search / merge in std::list's
     void merge(const MarsRequest& other);
+
+    /// Create a new MarsRequest from this one with only the given set of keys
+    MarsRequest subset(const std::set<std::string>&) const;
 
     void json(eckit::JSON&) const;
 
@@ -158,6 +111,12 @@ public: // methods
 
     size_t count() const;
 
+    MarsRequest extract(const std::string& category) const;
+
+// ---- Static methods
+
+    static MarsRequest parse(const std::string& s);
+    static std::vector<MarsRequest> parse(std::istream&);
 
 private: // members
 
@@ -190,6 +149,28 @@ private: // methods
     }
 
 };
+
+
+template<class T>
+size_t MarsRequest::getValues(const std::string& name, std::vector<T>& v, bool emptyOk) const {
+    const std::vector< std::string >& s = values(name, emptyOk);
+
+    eckit::Translator<std::string, T> t;
+
+    v.clear();
+
+    for (std::vector<std::string>::const_iterator j = s.begin(); j != s.end(); ++j) {
+        v.push_back(t(*j));
+    }
+
+    return v.size();
+}
+
+
+template<class T>
+void MarsRequest::setValue(const std::string& name, const T& value) {
+    std::vector<T> v(1, value); values(name, v);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

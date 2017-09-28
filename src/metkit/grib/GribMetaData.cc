@@ -17,7 +17,7 @@
 #include "metkit/grib/GribMetaData.h"
 #include "metkit/grib/GribHandle.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 namespace grib {
@@ -163,7 +163,7 @@ void GribMetaData::get(const std::string &name, double &value) const
 
 std::string GribMetaData::substitute(const std::string& pattern) const
 {
-    return StringTools::substitute(pattern,stringValues_);
+    return eckit::StringTools::substitute(pattern,stringValues_);
 }
 
 size_t GribMetaData::length() const

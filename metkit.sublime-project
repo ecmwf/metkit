@@ -1,49 +1,266 @@
 {
-    "folders": [
-        {
-            "file_exclude_patterns": [".tags", ".tags_sorted_by_file", ".gemtags","CMakeLists.txt.user*"],
-            "path": ".",
-            "follow_symlinks": true
-        }
-    ],
-   "build_systems":
-    [
-        {
-            "file_regex": "([/\\w\\-\\.]+):(\\d+):(\\d+:)?",
-            "name": "metkit",
-            "shell_cmd": "make",
-            "syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
-            "working_dir": "${project_path}/../../build/metkit",
-            "variants" : [
-                {
-                    "name":"clean",
-                    "shell_cmd": "make clean",
-                }
-            ]
-        },
-        {
-            "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
-            "name": "Anaconda Python Builder",
-            "selector": "source.python",
-            "shell_cmd": "\"python\" -u \"$file\""
-        },
-
-    ],
-    "cmake":
-    {
-        "build_folder": "${project_path}/../../build/metkit",
-        "command_line_overrides":
-        {
-            "DEVELOPER_MODE": 1
-        }
-    },
-    "SublimeLinter":
-    {
-        "linters":
-        {
-            "cpplint": {
-                "filter": "-whitespace/line_length,-whitespace/blank_line,-runtime/references"
-            },
-        }
-    }
+	"SublimeLinter":
+	{
+		"linters":
+		{
+			"cpplint":
+			{
+				"filter": "-whitespace/line_length,-whitespace/blank_line,-runtime/references"
+			}
+		}
+	},
+	"build_systems":
+	[
+		{
+			"file_regex": "([/\\w\\-\\.]+):(\\d+):(\\d+:)?",
+			"name": "metkit",
+			"shell_cmd": "make",
+			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+			"variants":
+			[
+				{
+					"name": "clean",
+					"shell_cmd": "make clean"
+				}
+			],
+			"working_dir": "${project_path}/../../build/metkit"
+		},
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "\"python\" -u \"$file\""
+		},
+		{
+			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
+			"name": "metkit (OSX)",
+			"shell_cmd": "make -j4",
+			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+			"variants":
+			[
+				{
+					"name": "clean",
+					"shell_cmd": "make -j4 clean"
+				},
+				{
+					"name": "install/strip",
+					"shell_cmd": "make -j4 install/strip"
+				},
+				{
+					"name": "install/local",
+					"shell_cmd": "make -j4 install/local"
+				},
+				{
+					"name": "list_install_components",
+					"shell_cmd": "make -j4 list_install_components"
+				},
+				{
+					"name": "rebuild_cache",
+					"shell_cmd": "make -j4 rebuild_cache"
+				},
+				{
+					"name": "execs",
+					"shell_cmd": "make -j4 execs"
+				},
+				{
+					"name": "package_source",
+					"shell_cmd": "make -j4 package_source"
+				},
+				{
+					"name": "ContinuousCoverage",
+					"shell_cmd": "make -j4 ContinuousCoverage"
+				},
+				{
+					"name": "ContinuousTest",
+					"shell_cmd": "make -j4 ContinuousTest"
+				},
+				{
+					"name": "ContinuousBuild",
+					"shell_cmd": "make -j4 ContinuousBuild"
+				},
+				{
+					"name": "ContinuousStart",
+					"shell_cmd": "make -j4 ContinuousStart"
+				},
+				{
+					"name": "ExperimentalBuild",
+					"shell_cmd": "make -j4 ExperimentalBuild"
+				},
+				{
+					"name": "ExperimentalCoverage",
+					"shell_cmd": "make -j4 ExperimentalCoverage"
+				},
+				{
+					"name": "ExperimentalSubmit",
+					"shell_cmd": "make -j4 ExperimentalSubmit"
+				},
+				{
+					"name": "ContinuousUpdate",
+					"shell_cmd": "make -j4 ContinuousUpdate"
+				},
+				{
+					"name": "ExperimentalUpdate",
+					"shell_cmd": "make -j4 ExperimentalUpdate"
+				},
+				{
+					"name": "install",
+					"shell_cmd": "make -j4 install"
+				},
+				{
+					"name": "ExperimentalStart",
+					"shell_cmd": "make -j4 ExperimentalStart"
+				},
+				{
+					"name": "NightlyMemCheck",
+					"shell_cmd": "make -j4 NightlyMemCheck"
+				},
+				{
+					"name": "test",
+					"shell_cmd": "make -j4 test"
+				},
+				{
+					"name": "package",
+					"shell_cmd": "make -j4 package"
+				},
+				{
+					"name": "ExperimentalConfigure",
+					"shell_cmd": "make -j4 ExperimentalConfigure"
+				},
+				{
+					"name": "NightlyCoverage",
+					"shell_cmd": "make -j4 NightlyCoverage"
+				},
+				{
+					"name": "NightlyTest",
+					"shell_cmd": "make -j4 NightlyTest"
+				},
+				{
+					"name": "ContinuousMemCheck",
+					"shell_cmd": "make -j4 ContinuousMemCheck"
+				},
+				{
+					"name": "uninstall",
+					"shell_cmd": "make -j4 uninstall"
+				},
+				{
+					"name": "NightlyBuild",
+					"shell_cmd": "make -j4 NightlyBuild"
+				},
+				{
+					"name": "NightlyConfigure",
+					"shell_cmd": "make -j4 NightlyConfigure"
+				},
+				{
+					"name": "ExperimentalMemCheck",
+					"shell_cmd": "make -j4 ExperimentalMemCheck"
+				},
+				{
+					"name": "check",
+					"shell_cmd": "make -j4 check"
+				},
+				{
+					"name": "ContinuousConfigure",
+					"shell_cmd": "make -j4 ContinuousConfigure"
+				},
+				{
+					"name": "NightlyMemoryCheck",
+					"shell_cmd": "make -j4 NightlyMemoryCheck"
+				},
+				{
+					"name": "Continuous",
+					"shell_cmd": "make -j4 Continuous"
+				},
+				{
+					"name": "Experimental",
+					"shell_cmd": "make -j4 Experimental"
+				},
+				{
+					"name": "libs",
+					"shell_cmd": "make -j4 libs"
+				},
+				{
+					"name": "NightlyStart",
+					"shell_cmd": "make -j4 NightlyStart"
+				},
+				{
+					"name": "Nightly",
+					"shell_cmd": "make -j4 Nightly"
+				},
+				{
+					"name": "NightlyUpdate",
+					"shell_cmd": "make -j4 NightlyUpdate"
+				},
+				{
+					"name": "ContinuousSubmit",
+					"shell_cmd": "make -j4 ContinuousSubmit"
+				},
+				{
+					"name": "ExperimentalTest",
+					"shell_cmd": "make -j4 ExperimentalTest"
+				},
+				{
+					"name": "NightlySubmit",
+					"shell_cmd": "make -j4 NightlySubmit"
+				},
+				{
+					"name": "metkit",
+					"shell_cmd": "make -j4 metkit"
+				},
+				{
+					"name": "parse-mars-request",
+					"shell_cmd": "make -j4 parse-mars-request"
+				},
+				{
+					"name": "grib-to-mars-request",
+					"shell_cmd": "make -j4 grib-to-mars-request"
+				},
+				{
+					"name": "test_typesfactory",
+					"shell_cmd": "make -j4 test_typesfactory"
+				},
+				{
+					"name": "metkit_test_multihandle",
+					"shell_cmd": "make -j4 metkit_test_multihandle"
+				},
+				{
+					"name": "test_expand",
+					"shell_cmd": "make -j4 test_expand"
+				},
+				{
+					"name": "metkit_test_emosfile",
+					"shell_cmd": "make -j4 metkit_test_emosfile"
+				},
+				{
+					"name": "__get_data_grib_get_data_latlon_grib",
+					"shell_cmd": "make -j4 __get_data_grib_get_data_latlon_grib"
+				}
+			],
+			"working_dir": "${project_path}/../../build/metkit"
+		}
+	],
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				".tags",
+				".tags_sorted_by_file",
+				".gemtags",
+				"CMakeLists.txt.user*"
+			],
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"cmake":
+		{
+			"build_folder": "${project_path}/../../build/metkit",
+			"command_line_overrides":
+			{
+				"DEVELOPER_MODE": 1
+			}
+		}
+	}
 }

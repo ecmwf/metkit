@@ -27,10 +27,11 @@ TypeExpver::TypeExpver(const std::string &name, const eckit::Value& settings) :
 TypeExpver::~TypeExpver() {
 }
 
-std::string TypeExpver::tidy(const std::string &value) const {
+bool TypeExpver::expand(std::string& value) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << value;
-    return oss.str();
+    value = oss.str();
+    return true;
 }
 
 void TypeExpver::print(std::ostream &out) const {

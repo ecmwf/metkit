@@ -13,19 +13,19 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
-#include "metkit/grib/EmosFile.h"
+#include "metkit/grib/MetFile.h"
 
 #include "metkit/grib/GribToRequest.h"
 #include "metkit/MarsRequest.h"
 #include "metkit/MarsParser.h"
 #include "metkit/MarsExpension.h"
 
-using namespace eckit;
+
 using namespace metkit;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class ParseRequest : public Tool {
+class ParseRequest : public eckit::Tool {
 public:
 
     ParseRequest(int argc, char **argv) :
@@ -61,19 +61,19 @@ void ParseRequest::process(const eckit::PathName& path)
 {
 
     if (path.isDir()) {
-        std::vector<PathName> files;
-        std::vector<PathName> directories;
+        std::vector<eckit::PathName> files;
+        std::vector<eckit::PathName> directories;
 
         path.children(files, directories);
 
         std::sort(files.begin(), files.end());
         std::sort(directories.begin(), directories.end());
 
-        for (std::vector<PathName>::const_iterator j = files.begin(); j != files.end(); ++j) {
+        for (std::vector<eckit::PathName>::const_iterator j = files.begin(); j != files.end(); ++j) {
             process(*j);
         }
 
-        for (std::vector<PathName>::const_iterator j = directories.begin(); j != directories.end(); ++j) {
+        for (std::vector<eckit::PathName>::const_iterator j = directories.begin(); j != directories.end(); ++j) {
             process(*j);
         }
         return;

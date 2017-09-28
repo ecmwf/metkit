@@ -22,25 +22,33 @@
 
 #include "metkit/MarsLocation.h"
 
-using namespace eckit;
+
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
-MarsLocation::MarsLocation(const Configuration& cfg) :
-    request_( static_cast<ValueMap>( cfg.getSubConfiguration("request").get() ) ),
-    hostname_(cfg.getString("server")),
-    port_(cfg.getInt("port"))
-{
-    Log::info() << "MarsLocation: " << *this << std::endl;
-}
-
 MarsLocation::MarsLocation(const MarsRequest& r, const std::string& hostname, int port) :
        request_(r),
        hostname_(hostname),
        port_(port)
+{
+}
+
+MarsLocation::MarsLocation(eckit::Stream& s) :
+    request_(s)
+{
+    NOTIMP; // FIXME: added this constructor just to get develop branches to compile
+
+    s >> hostname_;
+    s >> port_;
+}
+
+MarsLocation::MarsLocation(const eckit::Configuration& c) :
+       request_(c.getString("request")),
+       hostname_(c.getString("server")),
+       port_(c.getInt("port"))
 {
 }
 
@@ -50,20 +58,13 @@ MarsLocation::~MarsLocation()
 
 metkit::MarsLocation::operator eckit::Value() const
 {
-    Value dict = Value::makeMap();
+    eckit::Value dict = eckit::Value::makeMap();
 
     dict["request"] = request_;
     dict["server"]  = hostname_;
     dict["port"]    = port_;
 
     return dict;
-}
-
-MarsLocation::MarsLocation(eckit::Stream& s) :
-    request_(s)
-{
-    s >> hostname_;
-    s >> port_;
 }
 
 void MarsLocation::encode(eckit::Stream& s) const
