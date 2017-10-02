@@ -129,7 +129,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
                 MarsParser::quoted(s, *k);
             }
 
-            s << " {" << (*i).type().category() << "}";
+            // s << " {" << (*i).type().category() << "}";
         }
     }
 
