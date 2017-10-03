@@ -598,7 +598,7 @@ _postproc: &_postproc
     multiple: true
     type: [float, enum]
     values:
-    - [g, global, 'off']
+    - ['off', g, global]
     - [e, europe]
 
   grid:
