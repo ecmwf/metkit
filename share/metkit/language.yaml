@@ -610,7 +610,7 @@ _postproc: &_postproc
     multiple: true
     type: [float, enum]
     values:
-    - [g, global, off]
+    - ['off', g, global]
     - [e, europe]
 
   grid:
@@ -655,6 +655,8 @@ _postproc: &_postproc
   resol:
     category: postproc
     flatten: false
+    aliases:
+        - tra
     type: [enum, integer]
     values:
     - - 'off'
