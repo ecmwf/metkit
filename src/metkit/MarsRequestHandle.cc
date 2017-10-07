@@ -97,7 +97,18 @@ void MarsRequestHandle::openForAppend(const eckit::Length&) {
 
 long MarsRequestHandle::read(void* buffer, long len) {
     ASSERT(opened_);
-    return protocol_->read(buffer, len);
+    try {
+        return protocol_->read(buffer, len);
+    }
+    catch (eckit::Exception& e) {
+        std::ostringstream oss;
+        oss << "Exception " << e.what()
+            << " caught in MarsRequestHandle::read("
+            << *protocol_
+            << ")";
+
+        throw RetryTransfer(oss.str());
+    }
 }
 
 long MarsRequestHandle::write(const void* buffer, long len) {
