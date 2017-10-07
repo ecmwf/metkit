@@ -45,6 +45,8 @@ private:
     metkit::MarsRequest request_;
     eckit::ScopedPtr<BaseProtocol> protocol_;
 
+    bool opened_;
+
     // -- Overridden methods
     // From data handle
     void print(std::ostream&) const;
