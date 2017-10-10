@@ -20,7 +20,7 @@ ecbuild_add_option( FEATURE ECCODES
                     CONDITION HAVE_GRIB
                     DEFAULT ON
                     DESCRIPTION "Use ecCodes instead of grib_api"
-                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 0.14" )
+                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.5" )
 
 if( HAVE_GRIB )
 
@@ -31,7 +31,7 @@ if( HAVE_GRIB )
     set( grib_api_BASE_DIR     ${eccodes_BASE_DIR} )
     set( grib_handling_pkg     eccodes )
   else()
-    ecbuild_use_package( PROJECT grib_api VERSION 1.14 )
+    ecbuild_use_package( PROJECT grib_api VERSION 1.24 )
     set( grib_handling_pkg     grib_api )
     if(NOT GRIB_API_FOUND)
       set(HAVE_GRIB 0)
