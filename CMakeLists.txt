@@ -33,7 +33,10 @@ if( HAVE_GRIB )
   else()
     ecbuild_use_package( PROJECT grib_api VERSION 1.24 )
     set( grib_handling_pkg     grib_api )
-    if(NOT GRIB_API_FOUND)
+    if (GRIB_API_FOUND)
+      ecbuild_warn("Note: Although grib_api can be used, we strongly advise you to upgrade to ecCodes. "
+                   "See https://software.ecmwf.int/wiki/display/ECC/ecCodes+Home\n" )
+    else()
       set(HAVE_GRIB 0)
       set( grib_handling_pkg ) # METK
       ecbuild_disable_feature( "GRIB" )
