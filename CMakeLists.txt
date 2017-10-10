@@ -35,6 +35,11 @@ if( HAVE_GRIB )
     set( grib_handling_pkg     grib_api )
     if(NOT GRIB_API_FOUND)
       set(HAVE_GRIB 0)
+      set( grib_handling_pkg ) # METK
+      ecbuild_disable_feature( "GRIB" )
+      if (ENABLE_GRIB MATCHES "REQUIRE" OR GRIB_user_provided_input)
+        ecbuild_critical("Either eccodes or grib_api are required, but not found")
+      endif()
     endif()
   endif()
 

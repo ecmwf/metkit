@@ -97,11 +97,6 @@ if ( HAVE_GRIB )
         grib/GribMetaData.cc
         )
 
-        set( grib_handling_pkg grib_api )
-        if( HAVE_ECCODES )
-          set( grib_handling_pkg eccodes )
-        endif()
-
 endif ()
 
 ecbuild_add_library(
