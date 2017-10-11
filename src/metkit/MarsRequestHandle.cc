@@ -64,15 +64,18 @@ MarsRequestHandle::MarsRequestHandle(const metkit::MarsRequest& request,
 }
 
 MarsRequestHandle::~MarsRequestHandle() {
-
+    if(opened_){
+        close();
+    }
 }
 
 
 eckit::Length MarsRequestHandle::openForRead() {
+        eckit::Log::info() << "MarsRequestHandle::openForRead[" << request_ << "]" << std::endl;
+
     ASSERT(!opened_);
     opened_ = true;
 
-    eckit::Log::debug() << "MarsRequestHandle::openForRead: request_: " << request_ << std::endl;
 
     const std::string v (eckit::StringTools::lower(request_.verb()));
     ASSERT(v == "retrieve" || v == "stage" || v == "list");
@@ -81,15 +84,17 @@ eckit::Length MarsRequestHandle::openForRead() {
 }
 
 void MarsRequestHandle::openForWrite(const eckit::Length& size) {
+    eckit::Log::info() << "MarsRequestHandle::openForWrite[" << request_ << "]" << std::endl;
+
     ASSERT(!opened_);
     opened_ = true;
-    eckit::Log::debug() << "MarsRequestHandle::openForWrite: request_.name()=" << request_.verb() << std::endl;
 
     ASSERT(eckit::StringTools::lower(request_.verb()) == "archive");
     protocol_->archive(request_, size);
 }
 
 void MarsRequestHandle::openForAppend(const eckit::Length&) {
+    eckit::Log::info() << "MarsRequestHandle::openForAppend[" << request_ << "]" << std::endl;
     ASSERT(!opened_);
     opened_ = true;
     NOTIMP;
@@ -106,7 +111,7 @@ long MarsRequestHandle::read(void* buffer, long len) {
             << " caught in MarsRequestHandle::read("
             << *protocol_
             << ")";
-
+        eckit::Log::error() << oss.str() <<  std::endl;
         throw RetryTransfer(oss.str());
     }
 }
@@ -117,6 +122,7 @@ long MarsRequestHandle::write(const void* buffer, long len) {
 }
 
 void MarsRequestHandle::close() {
+    eckit::Log::info() << "MarsRequestHandle::close[" << request_ << "]" << std::endl;
     opened_ = false;
     protocol_->cleanup();
 }
