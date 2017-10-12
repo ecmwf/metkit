@@ -25,6 +25,7 @@
 namespace metkit {
 
 static eckit::Mutex local_mutex;
+
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
@@ -46,7 +47,8 @@ RequestEnvironment::RequestEnvironment():
 	endpwent();
 
 
-//    request_.setValue("pid",long(::getpid()));
+   request_.setValue("pid",long(::getpid()));
+   request_.setValue("client", "cpp");
 }
 
 RequestEnvironment::~RequestEnvironment()
