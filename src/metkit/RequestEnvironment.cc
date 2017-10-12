@@ -49,6 +49,12 @@ RequestEnvironment::RequestEnvironment():
 
    request_.setValue("pid",long(::getpid()));
    request_.setValue("client", "cpp");
+
+
+   // Tell server that we use paramid, e.g. 130 instead of 130.128
+   request_.setValue("use-paramid", true);
+
+
 }
 
 RequestEnvironment::~RequestEnvironment()
