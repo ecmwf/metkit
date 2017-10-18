@@ -74,7 +74,7 @@ types/TypesFactory.cc
 types/TypesFactory.h
 )
 
-if ( HAVE_GRIB )
+if ( HAVE_ECCODES )
 
     list( APPEND metkit_srcs
         grib/GribToRequest.cc
@@ -97,6 +97,10 @@ if ( HAVE_GRIB )
         grib/GribMetaData.cc
         )
 
+    set( grib_handling_pkg     eccodes )
+
+else()
+    set( grib_handling_pkg )
 endif ()
 
 ecbuild_add_library(
@@ -116,7 +120,7 @@ ecbuild_add_library(
 
     PRIVATE_INCLUDES
         ${ECKIT_INCLUDE_DIRS}
-        ${GRIB_API_INCLUDE_DIRS}
+        ${ECCODES_INCLUDE_DIRS}
         ${NETCDF_INCLUDE_DIRS}
 
     LIBS

@@ -12,41 +12,10 @@ ecbuild_requires_macro_version( 2.0 )
 
 # grib support
 
-ecbuild_add_option( FEATURE GRIB
-                    DEFAULT ON
-                    DESCRIPTION "Add support for GRIB format" )
-
 ecbuild_add_option( FEATURE ECCODES
-                    CONDITION HAVE_GRIB
                     DEFAULT ON
-                    DESCRIPTION "Use ecCodes instead of grib_api"
+                    DESCRIPTION "Add support for GRIB format (grib_api not supported)"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.5" )
-
-if( HAVE_GRIB )
-
-  if( HAVE_ECCODES )
-    set( GRIB_API_INCLUDE_DIRS ${ECCODES_INCLUDE_DIRS} )
-    set( GRIB_API_LIBRARIES    ${ECCODES_LIBRARIES} )
-    set( GRIB_API_DEFINITIONS  ${ECCODES_DEFINITIONS} )
-    set( grib_api_BASE_DIR     ${eccodes_BASE_DIR} )
-    set( grib_handling_pkg     eccodes )
-  else()
-    ecbuild_use_package( PROJECT grib_api VERSION 1.24 )
-    set( grib_handling_pkg     grib_api )
-    if (GRIB_API_FOUND)
-      ecbuild_warn("Note: Although grib_api can be used, we strongly advise you to upgrade to ecCodes. "
-                   "See https://software.ecmwf.int/wiki/display/ECC/ecCodes+Home\n" )
-    else()
-      set(HAVE_GRIB 0)
-      set( grib_handling_pkg ) # METK
-      ecbuild_disable_feature( "GRIB" )
-      if (ENABLE_GRIB MATCHES "REQUIRE" OR GRIB_user_provided_input)
-        ecbuild_critical("Either eccodes or grib_api are required, but not found")
-      endif()
-    endif()
-  endif()
-
-endif()
 
 # netcdf support
 
