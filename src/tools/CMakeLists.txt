@@ -4,7 +4,7 @@ ecbuild_add_executable(
 
     TARGET   grib-to-mars-request
 
-    CONDITION HAVE_ECCODES
+    CONDITION HAVE_GRIB
 
     SOURCES  grib-to-mars-request.cc
 

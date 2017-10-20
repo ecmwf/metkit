@@ -12,7 +12,7 @@ ecbuild_requires_macro_version( 2.0 )
 
 # grib support
 
-ecbuild_add_option( FEATURE ECCODES
+ecbuild_add_option( FEATURE GRIB
                     DEFAULT ON
                     DESCRIPTION "Add support for GRIB format (grib_api not supported)"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.5" )

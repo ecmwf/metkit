@@ -74,7 +74,7 @@ types/TypesFactory.cc
 types/TypesFactory.h
 )
 
-if ( HAVE_ECCODES )
+if ( HAVE_GRIB )
 
     list( APPEND metkit_srcs
         grib/GribToRequest.cc
