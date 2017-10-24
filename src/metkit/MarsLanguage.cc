@@ -29,6 +29,7 @@
 #include "eckit/log/Timer.h"
 
 
+//----------------------------------------------------------------------------------------------------------------------
 
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
@@ -48,9 +49,15 @@ static void init() {
 
 namespace metkit {
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 MarsLanguage::MarsLanguage(const std::string& verb):
     verb_(verb) {
+
     pthread_once(&once, init);
+
     eckit::Value lang = languages_[verb];
     eckit::Value params = lang.keys();
 
@@ -411,7 +418,5 @@ void MarsLanguage::flatten(const MarsRequest & request,
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
-//----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit

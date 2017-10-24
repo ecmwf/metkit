@@ -80,15 +80,20 @@ void ParseRequest::process(const eckit::PathName& path)
     }
 
 
-    std::cout << "============= " << path << std::endl;
+    std::cout << "==========> Parsing : " << path << std::endl;
+
     std::ifstream in(path.asString().c_str());
     MarsParser parser(in);
-    MarsExpension expand(true);
+
+    bool inherit = true;
+    MarsExpension expand(inherit);
 
     std::vector<MarsRequest> p = parser.parse();
     for (std::vector<MarsRequest>::const_iterator j = p.begin(); j != p.end(); ++j) {
         (*j).dump(std::cout);
     }
+
+    std::cout << "----------> Expanding ... " << std::endl;
 
     std::vector<MarsRequest> v = expand.expand(p);
 
