@@ -20,12 +20,20 @@
 
 namespace metkit {
 
+
 //----------------------------------------------------------------------------------------------------------------------
+
 
 class MarsParserCallback {
 public:
     virtual void operator()(const MarsRequest&) = 0;
+protected:
+    ~MarsParserCallback();
 };
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 class MarsParser : public eckit::StreamParser {
 
