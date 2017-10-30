@@ -9,16 +9,20 @@
  */
 
 
-#include "eckit/parser/YAMLParser.h"
-#include "eckit/types/Types.h"
-#include "eckit/parser/StringTools.h"
-#include "eckit/thread/AutoLock.h"
 #include "eckit/config/Resource.h"
+#include "eckit/log/Log.h"
+#include "eckit/parser/StringTools.h"
+#include "eckit/parser/YAMLParser.h"
+#include "eckit/thread/AutoLock.h"
+#include "eckit/types/Types.h"
 
-#include "metkit/types/TypesFactory.h"
+#include "metkit/MarsLanguage.h"
+#include "metkit/config/LibMetkit.h"
 #include "metkit/types/TypeParam.h"
-#include "metkit/MarsLanguage.h"
-#include "metkit/MarsLanguage.h"
+#include "metkit/types/TypesFactory.h"
+
+using eckit::Log;
+using metkit::LibMetkit;
 
 namespace {
 
@@ -130,7 +134,9 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         const eckit::Value& aliases = ids[id];
 
         if (aliases.isNil()) {
-            std::cerr << "No aliases for "
+
+            Log::debug<LibMetkit>()
+                      << "No aliases for "
                       << id
                       << " "
                       << *this
@@ -147,28 +153,30 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
 
                 if (precedence[v] <= j) {
 
-                    std::cerr << "Redefinition ignored: param "
-                              << v
-                              << "='"
-                              << first
-                              << "', keeping previous value of '"
-                              << mapping_[v]
-                              << "' "
-                              << *this
-                              << std::endl;
+                    Log::debug<LibMetkit>()
+                            << "Redefinition ignored: param "
+                            << v
+                            << "='"
+                            << first
+                            << "', keeping previous value of '"
+                            << mapping_[v]
+                               << "' "
+                               << *this
+                               << std::endl;
                     continue;
                 }
                 else {
 
-                    std::cerr << "Redefinition of param "
-                              << v
-                              << "='"
-                              << first
-                              << "', overriding previous value of '"
-                              << mapping_[v]
-                              << "' "
-                              << *this
-                              << std::endl;
+                    Log::debug<LibMetkit>()
+                            << "Redefinition of param "
+                            << v
+                            << "='"
+                            << first
+                            << "', overriding previous value of '"
+                            << mapping_[v]
+                               << "' "
+                               << *this
+                               << std::endl;
 
                     precedence[v] = j;
                 }
@@ -279,15 +287,15 @@ static void init() {
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
 
-	if(!rule.isList()) {
-	rule.dump(std::cout) << std::endl;
-	}
+        if(!rule.isList()) {
+            rule.dump(Log::error()) << std::endl;
+        }
+
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
+
         (*rules).push_back(Rule(rule[0], rule[1], ids));
     }
-
-
 }
 
 
@@ -326,7 +334,7 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
 
 
     if (!rule) {
-        std::cerr << "Not rule for " << request << std::endl;
+        Log::error() << "Not rule for " << request << std::endl;
     }
     ASSERT(rule);
 
@@ -336,7 +344,7 @@ bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& val
         try {
             s = rule->lookup(s, fail);
         } catch (...) {
-            std::cerr << *rule << std::endl;
+            Log::error() << *rule << std::endl;
             throw;
         }
     }

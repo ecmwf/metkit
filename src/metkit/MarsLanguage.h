@@ -34,12 +34,17 @@ public:
 };
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
+
 class MarsLanguage : private eckit::NonCopyable {
+
     typedef std::map<std::string, std::string> StringMap;
 
-public:
+public: // methods
 
     MarsLanguage(const std::string& verb);
+
     ~MarsLanguage();
 
     MarsRequest expand(const MarsRequest& r, bool inherit);
@@ -48,13 +53,12 @@ public:
 
     const std::string& verb() const;
 
-    void flatten(const MarsRequest& request,
-                 FlattenCallback& callback);
+    void flatten(const MarsRequest& request, FlattenCallback& callback);
 
-
-// - Class methds
+public: // class methods
 
     static std::string expandVerb(const std::string& verb);
+
     static std::string bestMatch(const std::string& what,
                                  const std::vector<std::string>& values,
                                  bool fail,
@@ -65,17 +69,7 @@ public:
     static eckit::Value jsonFile(const std::string& name);
 
 
-private:
-// -- Contructors
-
-    std::string verb_;
-    std::map<std::string, Type* > types_;
-    std::vector<std::string> keywords_;
-    StringMap aliases_;
-
-    mutable StringMap cache_;
-
-private: // Methods
+private: // methods
 
     void flatten(const MarsRequest& request,
                  const std::vector<std::string>& params,
@@ -84,6 +78,16 @@ private: // Methods
                  FlattenCallback& callback);
 
     Type* type(const std::string& name) const;
+
+private: // members
+
+    std::string verb_;
+    std::map<std::string, Type* > types_;
+    std::vector<std::string> keywords_;
+
+    StringMap aliases_;
+
+    mutable StringMap cache_;
 
 };
 

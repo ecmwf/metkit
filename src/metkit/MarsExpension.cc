@@ -53,7 +53,6 @@ void MarsExpension::reset() {
     }
 }
 
-//----------------------------------------------------------------------------------------------------------------------
 
 MarsLanguage& MarsExpension::language(const std::string& verb) {
 
@@ -67,7 +66,7 @@ MarsLanguage& MarsExpension::language(const std::string& verb) {
     return *(*j).second;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& requests) {
     std::vector<MarsRequest> result;
 
@@ -85,13 +84,10 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
     return result;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
 void MarsExpension::expand(const MarsRequest& request, ExpandCallback& callback) {
     MarsRequest r = language(request.verb()).expand(request, inherit_);
     callback(r);
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 
 void MarsExpension::flatten(const MarsRequest& request,

@@ -34,6 +34,9 @@ public:
 static UndefinedType undefined;
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
+
 Parameter::Parameter():
     type_(&undefined) {
     type_->attach();
