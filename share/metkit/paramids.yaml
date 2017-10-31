@@ -2128,32 +2128,32 @@
 - 114
 - h1012
 - significant wave height of all waves with periods within the inclusive range from
- 10 to 12 seconds
+  10 to 12 seconds
 140115:
 - 115
 - h1214
 - significant wave height of all waves with periods within the inclusive range from
- 12 to 14 seconds
+  12 to 14 seconds
 140116:
 - 116
 - h1417
 - significant wave height of all waves with periods within the inclusive range from
- 14 to 17 seconds
+  14 to 17 seconds
 140117:
 - 117
 - h1721
 - significant wave height of all waves with periods within the inclusive range from
- 17 to 21 seconds
+  17 to 21 seconds
 140118:
 - 118
 - h2125
 - significant wave height of all waves with periods within the inclusive range from
- 21 to 25 seconds
+  21 to 25 seconds
 140119:
 - 119
 - h2530
 - significant wave height of all waves with periods within the inclusive range from
- 25 to 30 seconds
+  25 to 30 seconds
 140120:
 - 120
 - sh10
@@ -6805,7 +6805,7 @@
 215095:
 - aaot532
 - antropogenic (black carbon, organic matter, sulphate) aerosol optical thickness
- at 532 nm
+  at 532 nm
 215096:
 - aodabs340
 - total absorption aerosol optical depth at 340 nm
@@ -8978,7 +8978,7 @@
 260169:
 - ffldg
 - flash flood guidance (encoded as an accumulation over a floating subinterval of
- time between the ref
+  time between the ref
 260170:
 - ffldro
 - flash flood runoff (encoded as an accumulation over a floating subinterval of time)
@@ -9000,11 +9000,11 @@
 260176:
 - cppop
 - conditional percent precipitation amount fractile for an overall period (encoded
- as an accumulation)
+  as an accumulation)
 260177:
 - pposp
 - percent precipitation in a sub-period of an overall period (encoded as per cent
- accumulation over th
+  accumulation over th
 260178:
 - pop
 - probability of 0.01 inch of precipitation (pop)
@@ -11403,11 +11403,11 @@
 500221:
 - ndvi_mrat
 - ratio of monthly mean ndvi (normalized differential vegetation index) to annual
- maximum
+  maximum
 500222:
 - ndviratio
 - ratio of monthly mean ndvi (normalized differential vegetation index) to annual
- maximum
+  maximum
 500223:
 - aer_so4
 - total sulfate aerosol
