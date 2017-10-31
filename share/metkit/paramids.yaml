@@ -2660,18 +2660,18 @@
 151194:
 - salbe
 - salinity background error
-!!python/long '151195':
+ 151195:
 - isot14
-- Depth of 14C isotherm
-!!python/long '151196':
+- depth of 14c isotherm
+ 151196:
 - isot17
-- Depth of 17C isotherm
-!!python/long '151197':
+- depth of 17c isotherm
+ 151197:
 - isot26
-- Depth of 26C isotherm
-!!python/long '151198':
+- depth of 26c isotherm
+ 151198:
 - isot28
-- Depth of 28C isotherm
+- depth of 28c isotherm
 151199:
 - ebta
 - estimated temperature bias from assimilation
@@ -2714,87 +2714,87 @@
 151212:
 - psa
 - bias in salinity (applied)
-!!python/long '151213':
+ 151213:
 - sdhfsw
-- Surface downward heat flux in sea water
-!!python/long '151214':
+- surface downward heat flux in sea water
+ 151214:
 - hc300
-- Ocean heat content 0-300m
-!!python/long '151215':
+- ocean heat content 0-300m
+ 151215:
 - hc700
-- Ocean heat content 0-700m
-!!python/long '151216':
+- ocean heat content 0-700m
+ 151216:
 - hcbtm
-- Ocean heat content 0-bottom
-!!python/long '151217':
+- ocean heat content 0-bottom
+ 151217:
 - wfcorr
-- Water flux correction
-!!python/long '151218':
+- water flux correction
+ 151218:
 - swfup
-- Surface upward water flux
-!!python/long '151219':
+- surface upward water flux
+ 151219:
 - sss
-- Sea surface salinity
-!!python/long '151220':
+- sea surface salinity
+ 151220:
 - sdns
-- Surface downward northward stress
-!!python/long '151221':
+- surface downward northward stress
+ 151221:
 - sdes
-- Surface downward eastward stress
-!!python/long '151222':
+- surface downward eastward stress
+ 151222:
 - sdys
-- Surface downward y stress
-!!python/long '151223':
+- surface downward y stress
+ 151223:
 - sdxs
-- Surface downward x stress
-!!python/long '151224':
+- surface downward x stress
+ 151224:
 - mlthdt
-- Ocean mixed layer thickness defined by vertical tracer diffusivity threshold
-!!python/long '151225':
+- ocean mixed layer thickness defined by vertical tracer diffusivity threshold
+ 151225:
 - mlthst010
-- Ocean mixed layer thickness defined by sigma theta 0.01 kg/m3
-!!python/long '151226':
+- ocean mixed layer thickness defined by sigma theta 0.01 kg/m3
+ 151226:
 - mlthst030
-- Ocean mixed layer thickness defined by sigma theta 0.03 kg/m3
-!!python/long '151227':
+- ocean mixed layer thickness defined by sigma theta 0.03 kg/m3
+ 151227:
 - mlthst125
-- Ocean mixed layer thickness defined by sigma theta 0.125 kg/m3
-!!python/long '151228':
+- ocean mixed layer thickness defined by sigma theta 0.125 kg/m3
+ 151228:
 - mltht02
-- Ocean mixed layer thickness defined by temperature 0.2C
-!!python/long '151229':
+- ocean mixed layer thickness defined by temperature 0.2c
+ 151229:
 - mltht05
-- Ocean mixed layer thickness defined by temperature 0.5C
-!!python/long '151230':
+- ocean mixed layer thickness defined by temperature 0.5c
+ 151230:
 - vsf
-- Virtual salt flux into sea water
-!!python/long '151231':
+- virtual salt flux into sea water
+ 151231:
 - vsfcorr
-- Virtual salt flux correction
-!!python/long '151232':
+- virtual salt flux correction
+ 151232:
 - sa700
-- Salinity 0-700m
-!!python/long '151233':
+- salinity 0-700m
+ 151233:
 - sabtm
-- Salinity 0-bottom
-!!python/long '151234':
+- salinity 0-bottom
+ 151234:
 - swmth
-- Sea water mass per unit area expressed as thickness
-!!python/long '151250':
+- sea water mass per unit area expressed as thickness
+ 151250:
 - swyv
-- Sea water y velocity
-!!python/long '151251':
+- sea water y velocity
+ 151251:
 - swxv
-- Sea water x velocity
-!!python/long '151252':
+- sea water x velocity
+ 151252:
 - swnv
-- Northward sea water velocity
-!!python/long '151253':
+- northward sea water velocity
+ 151253:
 - swev
-- Eastward sea water velocity
-!!python/long '151254':
+- eastward sea water velocity
+ 151254:
 - swzv
-- Upward sea water velocity
+- upward sea water velocity
 160049:
 - 10fgrea
 - 10 metre wind gust during averaging time
@@ -3300,12 +3300,12 @@
 171023:
 - ucdva
 - unbalanced component of divergence anomaly
-!!python/long '171024':
+ 171024:
 - lmlta
-- Lake mix-layer temperature anomaly
-!!python/long '171025':
+- lake mix-layer temperature anomaly
+ 171025:
 - licda
-- Lake ice depth anomaly
+- lake ice depth anomaly
 171026:
 - cla
 - lake cover anomaly
@@ -3842,12 +3842,12 @@
 171254:
 - atmwa
 - adiabatic tendency of meridional wind anomaly
-!!python/long '172008':
+ 172008:
 - msror
-- Mean surface runoff rate
-!!python/long '172009':
+- mean surface runoff rate
+ 172009:
 - mssror
-- Mean sub-surface runoff rate
+- mean sub-surface runoff rate
 172044:
 - esrate
 - snow evaporation
@@ -3956,12 +3956,12 @@
 172240:
 - lsf
 - large-scale snowfall
-!!python/long '173008':
+ 173008:
 - msrora
-- Mean surface runoff rate anomaly
-!!python/long '173009':
+- mean surface runoff rate anomaly
+ 173009:
 - mssrora
-- Mean sub-surface runoff rate anomaly
+- mean sub-surface runoff rate anomaly
 173044:
 - esa
 - snow evaporation anomaly
@@ -4128,9 +4128,9 @@
 - top incoming solar radiation
 174090:
 - top outgoing solar radiation
-!!python/long '174092':
+ 174092:
 - sial
-- Sea ice albedo
+- sea ice albedo
 174094:
 - mean sea surface temperature
 174095:
@@ -4149,12 +4149,12 @@
 - ocean ice concentration
 174111:
 - ocean mean ice depth
-!!python/long '174112':
+ 174112:
 - sivx
-- Sea ice velocity along x
-!!python/long '174113':
+- sea ice velocity along x
+ 174113:
 - sivy
-- Sea ice velocity along y
+- sea ice velocity along y
 174116:
 - swrsurf
 - short wave radiation flux at surface
@@ -7799,7 +7799,7 @@
 228028:
 - 10fg3
 - 10 metre wind gust in the last 3 hours
-- I10FG3
+- i10fg3
 228029:
 - i10fg
 - instantaneous 10 metre wind gust
@@ -7818,13 +7818,13 @@
 228034:
 - fcpc
 - fraction of convective precipitation cover
-!!python/long '228035':
+ 228035:
 - mxcape6
-- maximum CAPE in the last 6 hours
-!!python/long '228036':
+- maximum cape in the last 6 hours
+ 228036:
 - mxcapes6
-- maximum CAPES in the last 6 hours
-!!python/long '228037':
+- maximum capes in the last 6 hours
+ 228037:
 - 2rhw
 - 2 metre relative humidity with respect to water
 228039:
@@ -7932,18 +7932,18 @@
 228096:
 - st100
 - soil temperature top 100 cm
-!!python/long '228100':
+ 228100:
 - evatc
-- Evaporation from the top of canopy
-!!python/long '228101':
+- evaporation from the top of canopy
+ 228101:
 - evabs
-- Evaporation from bare soil
-!!python/long '228102':
+- evaporation from bare soil
+ 228102:
 - evaow
-- Evaporation from open water surfaces excluding oceans
-!!python/long '228103':
+- evaporation from open water surfaces excluding oceans
+ 228103:
 - evavt
-- Evaporation from vegetation transpiration
+- evaporation from vegetation transpiration
 228129:
 - ssrdc
 - surface solar radiation downward clear-sky
@@ -8463,12 +8463,12 @@
 240022:
 - smups
 - upstream accumulated snow melt
-!!python/long '240023':
+ 240023:
 - dis06
-- Mean discharge in the last 6 hours
-!!python/long '240024':
+- mean discharge in the last 6 hours
+ 240024:
 - dis24
-- Mean discharge in the last 24 hours
+- mean discharge in the last 24 hours
 240026:
 - sd_elev
 - snow depth at elevation bands
@@ -9266,18 +9266,18 @@
 260264:
 - tidirswrf
 - time-integrated surface direct short wave radiation flux
-!!python/long '260265':
+ 260265:
 - eva06
-- Evaporation in the last 6 hours
-!!python/long '260266':
+- evaporation in the last 6 hours
+ 260266:
 - eva24
-- Evaporation in the last 24 hours
-!!python/long '260267':
+- evaporation in the last 24 hours
+ 260267:
 - tp06
-- Total precipitation in the last 6 hours
-!!python/long '260268':
+- total precipitation in the last 6 hours
+ 260268:
 - tp24
-- Total precipitation in the last 24 hours
+- total precipitation in the last 24 hours
 260269:
 - tipd
 - total icing potential diagnostic
@@ -10779,9 +10779,9 @@
 500013:
 - t_2m_cl
 - climat. temperature, 2m temperature
-!!python/long '500014':
+ 500014:
 - t
-- Temperature
+- temperature
 500015:
 - tmax_2m
 - max 2m temperature (i)
