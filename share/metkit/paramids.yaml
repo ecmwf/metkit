@@ -2128,32 +2128,32 @@
 - 114
 - h1012
 - significant wave height of all waves with periods within the inclusive range from
-  10 to 12 seconds
+ 10 to 12 seconds
 140115:
 - 115
 - h1214
 - significant wave height of all waves with periods within the inclusive range from
-  12 to 14 seconds
+ 12 to 14 seconds
 140116:
 - 116
 - h1417
 - significant wave height of all waves with periods within the inclusive range from
-  14 to 17 seconds
+ 14 to 17 seconds
 140117:
 - 117
 - h1721
 - significant wave height of all waves with periods within the inclusive range from
-  17 to 21 seconds
+ 17 to 21 seconds
 140118:
 - 118
 - h2125
 - significant wave height of all waves with periods within the inclusive range from
-  21 to 25 seconds
+ 21 to 25 seconds
 140119:
 - 119
 - h2530
 - significant wave height of all waves with periods within the inclusive range from
-  25 to 30 seconds
+ 25 to 30 seconds
 140120:
 - 120
 - sh10
@@ -2660,16 +2660,16 @@
 151194:
 - salbe
 - salinity background error
- 151195:
+151195:
 - isot14
 - depth of 14c isotherm
- 151196:
+151196:
 - isot17
 - depth of 17c isotherm
- 151197:
+151197:
 - isot26
 - depth of 26c isotherm
- 151198:
+151198:
 - isot28
 - depth of 28c isotherm
 151199:
@@ -2714,85 +2714,85 @@
 151212:
 - psa
 - bias in salinity (applied)
- 151213:
+151213:
 - sdhfsw
 - surface downward heat flux in sea water
- 151214:
+151214:
 - hc300
 - ocean heat content 0-300m
- 151215:
+151215:
 - hc700
 - ocean heat content 0-700m
- 151216:
+151216:
 - hcbtm
 - ocean heat content 0-bottom
- 151217:
+151217:
 - wfcorr
 - water flux correction
- 151218:
+151218:
 - swfup
 - surface upward water flux
- 151219:
+151219:
 - sss
 - sea surface salinity
- 151220:
+151220:
 - sdns
 - surface downward northward stress
- 151221:
+151221:
 - sdes
 - surface downward eastward stress
- 151222:
+151222:
 - sdys
 - surface downward y stress
- 151223:
+151223:
 - sdxs
 - surface downward x stress
- 151224:
+151224:
 - mlthdt
 - ocean mixed layer thickness defined by vertical tracer diffusivity threshold
- 151225:
+151225:
 - mlthst010
 - ocean mixed layer thickness defined by sigma theta 0.01 kg/m3
- 151226:
+151226:
 - mlthst030
 - ocean mixed layer thickness defined by sigma theta 0.03 kg/m3
- 151227:
+151227:
 - mlthst125
 - ocean mixed layer thickness defined by sigma theta 0.125 kg/m3
- 151228:
+151228:
 - mltht02
 - ocean mixed layer thickness defined by temperature 0.2c
- 151229:
+151229:
 - mltht05
 - ocean mixed layer thickness defined by temperature 0.5c
- 151230:
+151230:
 - vsf
 - virtual salt flux into sea water
- 151231:
+151231:
 - vsfcorr
 - virtual salt flux correction
- 151232:
+151232:
 - sa700
 - salinity 0-700m
- 151233:
+151233:
 - sabtm
 - salinity 0-bottom
- 151234:
+151234:
 - swmth
 - sea water mass per unit area expressed as thickness
- 151250:
+151250:
 - swyv
 - sea water y velocity
- 151251:
+151251:
 - swxv
 - sea water x velocity
- 151252:
+151252:
 - swnv
 - northward sea water velocity
- 151253:
+151253:
 - swev
 - eastward sea water velocity
- 151254:
+151254:
 - swzv
 - upward sea water velocity
 160049:
@@ -3300,10 +3300,10 @@
 171023:
 - ucdva
 - unbalanced component of divergence anomaly
- 171024:
+171024:
 - lmlta
 - lake mix-layer temperature anomaly
- 171025:
+171025:
 - licda
 - lake ice depth anomaly
 171026:
@@ -3842,10 +3842,10 @@
 171254:
 - atmwa
 - adiabatic tendency of meridional wind anomaly
- 172008:
+172008:
 - msror
 - mean surface runoff rate
- 172009:
+172009:
 - mssror
 - mean sub-surface runoff rate
 172044:
@@ -3956,10 +3956,10 @@
 172240:
 - lsf
 - large-scale snowfall
- 173008:
+173008:
 - msrora
 - mean surface runoff rate anomaly
- 173009:
+173009:
 - mssrora
 - mean sub-surface runoff rate anomaly
 173044:
@@ -4128,7 +4128,7 @@
 - top incoming solar radiation
 174090:
 - top outgoing solar radiation
- 174092:
+174092:
 - sial
 - sea ice albedo
 174094:
@@ -4149,10 +4149,10 @@
 - ocean ice concentration
 174111:
 - ocean mean ice depth
- 174112:
+174112:
 - sivx
 - sea ice velocity along x
- 174113:
+174113:
 - sivy
 - sea ice velocity along y
 174116:
@@ -6805,7 +6805,7 @@
 215095:
 - aaot532
 - antropogenic (black carbon, organic matter, sulphate) aerosol optical thickness
-  at 532 nm
+ at 532 nm
 215096:
 - aodabs340
 - total absorption aerosol optical depth at 340 nm
@@ -7818,13 +7818,13 @@
 228034:
 - fcpc
 - fraction of convective precipitation cover
- 228035:
+228035:
 - mxcape6
 - maximum cape in the last 6 hours
- 228036:
+228036:
 - mxcapes6
 - maximum capes in the last 6 hours
- 228037:
+228037:
 - 2rhw
 - 2 metre relative humidity with respect to water
 228039:
@@ -7932,16 +7932,16 @@
 228096:
 - st100
 - soil temperature top 100 cm
- 228100:
+228100:
 - evatc
 - evaporation from the top of canopy
- 228101:
+228101:
 - evabs
 - evaporation from bare soil
- 228102:
+228102:
 - evaow
 - evaporation from open water surfaces excluding oceans
- 228103:
+228103:
 - evavt
 - evaporation from vegetation transpiration
 228129:
@@ -8463,10 +8463,10 @@
 240022:
 - smups
 - upstream accumulated snow melt
- 240023:
+240023:
 - dis06
 - mean discharge in the last 6 hours
- 240024:
+240024:
 - dis24
 - mean discharge in the last 24 hours
 240026:
@@ -8978,7 +8978,7 @@
 260169:
 - ffldg
 - flash flood guidance (encoded as an accumulation over a floating subinterval of
-  time between the ref
+ time between the ref
 260170:
 - ffldro
 - flash flood runoff (encoded as an accumulation over a floating subinterval of time)
@@ -9000,11 +9000,11 @@
 260176:
 - cppop
 - conditional percent precipitation amount fractile for an overall period (encoded
-  as an accumulation)
+ as an accumulation)
 260177:
 - pposp
 - percent precipitation in a sub-period of an overall period (encoded as per cent
-  accumulation over th
+ accumulation over th
 260178:
 - pop
 - probability of 0.01 inch of precipitation (pop)
@@ -9266,16 +9266,16 @@
 260264:
 - tidirswrf
 - time-integrated surface direct short wave radiation flux
- 260265:
+260265:
 - eva06
 - evaporation in the last 6 hours
- 260266:
+260266:
 - eva24
 - evaporation in the last 24 hours
- 260267:
+260267:
 - tp06
 - total precipitation in the last 6 hours
- 260268:
+260268:
 - tp24
 - total precipitation in the last 24 hours
 260269:
@@ -10779,7 +10779,7 @@
 500013:
 - t_2m_cl
 - climat. temperature, 2m temperature
- 500014:
+500014:
 - t
 - temperature
 500015:
@@ -11403,11 +11403,11 @@
 500221:
 - ndvi_mrat
 - ratio of monthly mean ndvi (normalized differential vegetation index) to annual
-  maximum
+ maximum
 500222:
 - ndviratio
 - ratio of monthly mean ndvi (normalized differential vegetation index) to annual
-  maximum
+ maximum
 500223:
 - aer_so4
 - total sulfate aerosol
