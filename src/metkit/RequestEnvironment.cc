@@ -25,6 +25,7 @@
 namespace metkit {
 
 static eckit::Mutex local_mutex;
+
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
@@ -46,7 +47,14 @@ RequestEnvironment::RequestEnvironment():
 	endpwent();
 
 
-//    request_.setValue("pid",long(::getpid()));
+   request_.setValue("pid",long(::getpid()));
+   request_.setValue("client", "cpp");
+
+
+   // Tell server that we use paramid, e.g. 130 instead of 130.128
+   request_.setValue("use-paramid", true);
+
+
 }
 
 RequestEnvironment::~RequestEnvironment()

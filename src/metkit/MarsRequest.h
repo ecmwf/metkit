@@ -169,7 +169,9 @@ size_t MarsRequest::getValues(const std::string& name, std::vector<T>& v, bool e
 
 template<class T>
 void MarsRequest::setValue(const std::string& name, const T& value) {
-    std::vector<T> v(1, value); values(name, v);
+    eckit::Translator<T, std::string> t;
+    std::vector<std::string> v(1, t(value));
+    values(name, v);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

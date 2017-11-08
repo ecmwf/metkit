@@ -209,6 +209,7 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
     size_t *n = &param;
     bool ok = true;
 
+
     for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
         case '0':
@@ -258,9 +259,15 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
             }
         }
 
-        throw eckit::UserError("Cannot match parameter " + p);
+        // throw eckit::UserError("Cannot match parameter " + p);
+        eckit::Log::warning() << "Cannot match parameter " << p  << std::endl;
+        return p;
 
     }
+
+        // std::cout << "--- [" << s << "]" << std::endl;
+        // std::cout << "--- [" << values_ << "]" << std::endl;
+
 
     return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
 }

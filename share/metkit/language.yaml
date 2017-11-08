@@ -300,6 +300,7 @@ _field: &_field
 
   levelist:
     category: data
+    multiple: true
     by: 1
     default:
     - 1000
@@ -328,12 +329,14 @@ _field: &_field
     category: data
     default: 0
     type: date
+    multiple: true
 
   # verify
   # refdate
 
   hdate:
     category: data
+    multiple: true
     only:
     - stream:
       - enfh
@@ -342,11 +345,13 @@ _field: &_field
 
   fcmonth:
     category: data
+    multiple: true
     by: 1
     type: to-by-list
 
   fcperiod:
     category: data
+    multiple: true
     type: integer
 
   time:
@@ -361,6 +366,7 @@ _field: &_field
 
   step:
     category: data
+    multiple: true
     by: 12
     default: 0
     type: range
@@ -369,12 +375,14 @@ _field: &_field
 
   reference:
     category: data
+    multiple: true
     type: integer
 
 #################################################################
 
   ensemble:
     category: data
+    multiple: true
     aliases:
     - xxxxxensemble
     by: 1
@@ -388,6 +396,7 @@ _field: &_field
 
   number:
     category: data
+    multiple: true
     aliases:
     - xxxxensemble
     by: 1
@@ -470,6 +479,7 @@ _field: &_field
 
   frequency:
     category: data
+    multiple: true
     by: 1
     only:
     - param:
@@ -478,6 +488,7 @@ _field: &_field
 
   direction:
     category: data
+    multiple: true
     by: 1
     only:
     - param:
@@ -515,6 +526,7 @@ _field: &_field
 
   origin:
     category: data
+    multiple: true
     type: enum
     values:
     - [ammc, 1, melbourne]
@@ -598,7 +610,7 @@ _postproc: &_postproc
     multiple: true
     type: [float, enum]
     values:
-    - [g, global, off]
+    - ['off', g, global]
     - [e, europe]
 
   grid:
@@ -643,6 +655,8 @@ _postproc: &_postproc
   resol:
     category: postproc
     flatten: false
+    aliases:
+        - tra
     type: [enum, integer]
     values:
     - - 'off'
@@ -735,7 +749,8 @@ retrieve:
     type: any
 
   dataset:
-    flatten: false
+    # flatten: false
+    multiple: true
     type: any
 
   optimize:

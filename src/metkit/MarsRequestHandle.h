@@ -16,6 +16,7 @@
 
 #include "eckit/io/DataHandle.h"
 #include "eckit/memory/ScopedPtr.h"
+#include "eckit/exception/Exceptions.h"
 
 #include "metkit/BaseProtocol.h"
 #include "metkit/MarsRequest.h"
@@ -23,6 +24,15 @@
 namespace metkit {
 
 class MarsRequestHandle : public eckit::DataHandle {
+public:
+
+    class RetryTransfer : public eckit::Exception {
+        virtual bool retryOnClient() const { return true; }
+    public:
+        RetryTransfer(const std::string& what):
+            eckit::Exception(what) {}
+    };
+
 public:
 
     MarsRequestHandle(eckit::Stream&);
@@ -44,6 +54,8 @@ private:
     // -- Members
     metkit::MarsRequest request_;
     eckit::ScopedPtr<BaseProtocol> protocol_;
+
+    bool opened_;
 
     // -- Overridden methods
     // From data handle

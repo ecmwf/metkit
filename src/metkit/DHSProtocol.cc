@@ -21,12 +21,14 @@
 #include "eckit/config/Configuration.h"
 
 
-
 namespace metkit {
 
 static eckit::Reanimator<DHSProtocol> dhsProtocolReanimator;
 
-DHSProtocol::DHSProtocol(const std::string& name, const std::string& host, int port, bool forwardMessages )
+DHSProtocol::DHSProtocol(const std::string& name,
+                         const std::string& host,
+                         int port,
+                         bool forwardMessages )
     : name_(name),
       host_(host),
       port_(port),
@@ -37,7 +39,7 @@ DHSProtocol::DHSProtocol(const std::string& name, const std::string& host, int p
 {}
 
 DHSProtocol::DHSProtocol(const eckit::Configuration& params):
-BaseProtocol(params),
+    BaseProtocol(params),
     name_(params.getString("name")),
     host_(params.getString("host")),
     port_(params.getInt("port", 9000)),
@@ -48,8 +50,8 @@ BaseProtocol(params),
 {
 }
 
-DHSProtocol::DHSProtocol(eckit::Stream& s) :
-BaseProtocol(s) {
+DHSProtocol::DHSProtocol(eckit::Stream& s):
+    BaseProtocol(s) {
     s >> name_;
     s >> host_;
     s >> port_;

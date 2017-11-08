@@ -1,6 +1,31 @@
 1:
 - strf
 - stream function
+2:
+- vp
+- velocity potential
+- vpot
+3:
+- pt
+- potential temperature
+4:
+- eqpt
+- equivalent potential temperature
+5:
+- sept
+- saturated equivalent potential temperature
+6:
+- ssfr
+- soil sand fraction
+7:
+- scfr
+- soil clay fraction
+8:
+- sro
+- surface runoff
+9:
+- ssro
+- sub-surface runoff
 10:
 - ws
 - wind speed
@@ -10,6 +35,206 @@
 12:
 - vdvw
 - v component of divergent wind
+13:
+- urtw
+- u component of rotational wind
+14:
+- vrtw
+- v component of rotational wind
+15:
+- aluvp
+- uv visible albedo for direct radiation
+16:
+- aluvd
+- uv visible albedo for diffuse radiation
+17:
+- alnip
+- near ir albedo for direct radiation
+18:
+- alnid
+- near ir albedo for diffuse radiation
+19:
+- uvcs
+- clear sky surface uv
+20:
+- parcs
+- clear sky surface photosynthetically active radiation
+21:
+- uctp
+- unbalanced component of temperature
+22:
+- ucln
+- unbalanced component of logarithm of surface pressure
+23:
+- ucdv
+- unbalanced component of divergence
+26:
+- cl
+- lake cover
+27:
+- cvl
+- low vegetation cover
+28:
+- cvh
+- high vegetation cover
+29:
+- tvl
+- type of low vegetation
+30:
+- tvh
+- type of high vegetation
+31:
+- ci
+- sea-ice cover
+32:
+- asn
+- snow albedo
+33:
+- rsn
+- snow density
+34:
+- sst
+- sea surface temperature
+- sstk
+35:
+- istl1
+- ice temperature layer 1
+36:
+- istl2
+- ice temperature layer 2
+37:
+- istl3
+- ice temperature layer 3
+38:
+- istl4
+- ice temperature layer 4
+39:
+- swvl1
+- volumetric soil water layer 1
+- swv1
+40:
+- swvl2
+- volumetric soil water layer 2
+- swv2
+41:
+- swvl3
+- volumetric soil water layer 3
+- swv3
+42:
+- swvl4
+- volumetric soil water layer 4
+- swv4
+43:
+- slt
+- soil type
+44:
+- es
+- snow evaporation
+45:
+- smlt
+- snowmelt
+46:
+- sdur
+- solar duration
+47:
+- dsrp
+- direct solar radiation
+48:
+- magss
+- magnitude of turbulent surface stress
+49:
+- 10fg
+- 10 metre wind gust since previous post-processing
+50:
+- lspf
+- large-scale precipitation fraction
+51:
+- mx2t24
+- maximum temperature at 2 metres in the last 24 hours
+52:
+- mn2t24
+- minimum temperature at 2 metres in the last 24 hours
+53:
+- mont
+- montgomery potential
+54:
+- pres
+- pressure
+55:
+- mean2t24
+- mean temperature at 2 metres in the last 24 hours
+56:
+- mn2d24
+- mean 2 metre dewpoint temperature in the last 24 hours
+57:
+- uvb
+- downward uv radiation at the surface
+58:
+- par
+- photosynthetically active radiation at the surface
+59:
+- cape
+- convective available potential energy
+60:
+- pv
+- potential vorticity
+62:
+- obct
+- observation count
+63:
+- stsktd
+- start time for skin temperature difference
+64:
+- ftsktd
+- finish time for skin temperature difference
+65:
+- sktd
+- skin temperature difference
+66:
+- lai_lv
+- leaf area index, low vegetation
+- lailv
+67:
+- lai_hv
+- leaf area index, high vegetation
+- laihv
+68:
+- msr_lv
+- minimum stomatal resistance, low vegetation
+69:
+- msr_hv
+- minimum stomatal resistance, high vegetation
+70:
+- bc_lv
+- biome cover, low vegetation
+71:
+- bc_hv
+- biome cover, high vegetation
+72:
+- issrd
+- instantaneous surface solar radiation downwards
+73:
+- istrd
+- instantaneous surface thermal radiation downwards
+74:
+- sdfor
+- standard deviation of filtered subgrid orography
+75:
+- crwc
+- specific rain water content
+76:
+- cswc
+- specific snow water content
+77:
+- etadot
+- eta-coordinate vertical velocity
+- etad
+78:
+- tclw
+- total column liquid water
+79:
+- tciw
+- total column ice water
 121:
 - mx2t6
 - maximum temperature at 2 metres in the last 6 hours
@@ -36,6 +261,675 @@
 129:
 - z
 - geopotential
+130:
+- t
+- temperature
+131:
+- u
+- u component of wind
+132:
+- v
+- v component of wind
+133:
+- q
+- specific humidity
+134:
+- sp
+- surface pressure
+135:
+- w
+- vertical velocity
+136:
+- tcw
+- total column water
+137:
+- tcwv
+- total column water vapour
+138:
+- vo
+- vorticity (relative)
+139:
+- stl1
+- soil temperature level 1
+- st
+140:
+- swl1
+- soil wetness level 1
+141:
+- sd
+- snow depth
+142:
+- lsp
+- large-scale precipitation
+143:
+- cp
+- convective precipitation
+144:
+- sf
+- snowfall
+145:
+- bld
+- boundary layer dissipation
+146:
+- sshf
+- surface sensible heat flux
+147:
+- slhf
+- surface latent heat flux
+148:
+- chnk
+- charnock
+- ss
+149:
+- snr
+- surface net radiation
+150:
+- tnr
+- top net radiation
+151:
+- msl
+- mean sea level pressure
+152:
+- lnsp
+- logarithm of surface pressure
+153:
+- swhr
+- short-wave heating rate
+154:
+- lwhr
+- long-wave heating rate
+155:
+- d
+- divergence
+156:
+- gh
+- geopotential height
+157:
+- r
+- relative humidity
+158:
+- tsp
+- tendency of surface pressure
+159:
+- blh
+- boundary layer height
+160:
+- sdor
+- standard deviation of orography
+161:
+- isor
+- anisotropy of sub-gridscale orography
+162:
+- anor
+- angle of sub-gridscale orography
+163:
+- slor
+- slope of sub-gridscale orography
+164:
+- tcc
+- total cloud cover
+165:
+- 10u
+- 10 metre u wind component
+166:
+- 10v
+- 10 metre v wind component
+167:
+- 2t
+- 2 metre temperature
+168:
+- 2d
+- 2 metre dewpoint temperature
+169:
+- ssrd
+- surface solar radiation downwards
+170:
+- stl2
+- soil temperature level 2
+171:
+- swl2
+- soil wetness level 2
+172:
+- lsm
+- land-sea mask
+173:
+- sr
+- surface roughness
+174:
+- al
+- albedo
+175:
+- strd
+- surface thermal radiation downwards
+176:
+- ssr
+- surface net solar radiation
+177:
+- str
+- surface net thermal radiation
+178:
+- tsr
+- top net solar radiation
+179:
+- ttr
+- top net thermal radiation
+180:
+- ewss
+- eastward turbulent surface stress
+181:
+- nsss
+- northward turbulent surface stress
+182:
+- e
+- evaporation
+183:
+- stl3
+- soil temperature level 3
+184:
+- swl3
+- soil wetness level 3
+185:
+- ccc
+- convective cloud cover
+186:
+- lcc
+- low cloud cover
+187:
+- mcc
+- medium cloud cover
+188:
+- hcc
+- high cloud cover
+189:
+- sund
+- sunshine duration
+190:
+- ewov
+- east-west component of sub-gridscale orographic variance
+191:
+- nsov
+- north-south component of sub-gridscale orographic variance
+192:
+- nwov
+- north-west/south-east component of sub-gridscale orographic variance
+193:
+- neov
+- north-east/south-west component of sub-gridscale orographic variance
+194:
+- btmp
+- brightness temperature
+195:
+- lgws
+- eastward gravity wave surface stress
+196:
+- mgws
+- northward gravity wave surface stress
+197:
+- gwd
+- gravity wave dissipation
+198:
+- src
+- skin reservoir content
+199:
+- veg
+- vegetation fraction
+200:
+- vso
+- variance of sub-gridscale orography
+201:
+- mx2t
+- maximum temperature at 2 metres since previous post-processing
+202:
+- mn2t
+- minimum temperature at 2 metres since previous post-processing
+203:
+- o3
+- ozone mass mixing ratio
+204:
+- paw
+- precipitation analysis weights
+205:
+- ro
+- runoff
+206:
+- tco3
+- total column ozone
+207:
+- 10si
+- 10 metre wind speed
+208:
+- tsrc
+- top net solar radiation, clear sky
+209:
+- ttrc
+- top net thermal radiation, clear sky
+- ttru
+210:
+- ssrc
+- surface net solar radiation, clear sky
+211:
+- strc
+- surface net thermal radiation, clear sky
+212:
+- tisr
+- toa incident solar radiation
+213:
+- vimd
+- vertically integrated moisture divergence
+214:
+- dhr
+- diabatic heating by radiation
+215:
+- dhvd
+- diabatic heating by vertical diffusion
+216:
+- dhcc
+- diabatic heating by cumulus convection
+217:
+- dhlc
+- diabatic heating large-scale condensation
+218:
+- vdzw
+- vertical diffusion of zonal wind
+219:
+- vdmw
+- vertical diffusion of meridional wind
+220:
+- ewgd
+- east-west gravity wave drag tendency
+221:
+- nsgd
+- north-south gravity wave drag tendency
+222:
+- ctzw
+- convective tendency of zonal wind
+223:
+- ctmw
+- convective tendency of meridional wind
+224:
+- vdh
+- vertical diffusion of humidity
+225:
+- htcc
+- humidity tendency by cumulus convection
+226:
+- htlc
+- humidity tendency by large-scale condensation
+227:
+- crnh
+- tendency due to removal of negative humidity
+228:
+- tp
+- total precipitation
+229:
+- iews
+- instantaneous eastward turbulent surface stress
+230:
+- inss
+- instantaneous northward turbulent surface stress
+231:
+- ishf
+- instantaneous surface sensible heat flux
+232:
+- ie
+- instantaneous moisture flux
+233:
+- asq
+- apparent surface humidity
+234:
+- lsrh
+- logarithm of surface roughness length for heat
+235:
+- skt
+- skin temperature
+236:
+- stl4
+- soil temperature level 4
+237:
+- swl4
+- soil wetness level 4
+238:
+- tsn
+- temperature of snow layer
+239:
+- csf
+- convective snowfall
+240:
+- lsf
+- large-scale snowfall
+241:
+- acf
+- accumulated cloud fraction tendency
+242:
+- alw
+- accumulated liquid water tendency
+243:
+- fal
+- forecast albedo
+244:
+- fsr
+- forecast surface roughness
+245:
+- flsr
+- forecast logarithm of surface roughness for heat
+246:
+- clwc
+- specific cloud liquid water content
+247:
+- ciwc
+- specific cloud ice water content
+248:
+- cc
+- fraction of cloud cover
+249:
+- aiw
+- accumulated ice water tendency
+250:
+- ice
+- ice age
+251:
+- atte
+- adiabatic tendency of temperature
+252:
+- athe
+- adiabatic tendency of humidity
+253:
+- atze
+- adiabatic tendency of zonal wind
+254:
+- atmw
+- adiabatic tendency of meridional wind
+928:
+- thk
+- thicknes
+956:
+- thka
+- thicknes anomaly
+999:
+- tc
+- tropical cyclone
+3003:
+- ptend
+- pressure tendency
+3005:
+- icaht
+- icao standard atmosphere reference height
+3008:
+- h
+- geometrical height
+3009:
+- hstdv
+- standard deviation of height
+3012:
+- vptmp
+- virtual potential temperature
+3014:
+- papt
+- pseudo-adiabatic potential temperature
+3015:
+- tmax
+- maximum temperature
+3016:
+- tmin
+- minimum temperature
+3017:
+- dpt
+- dew point temperature
+3018:
+- depr
+- dew point depression (or deficit)
+3019:
+- lapr
+- lapse rate
+3020:
+- vis
+- visibility
+3021:
+- rdsp1
+- radar spectra (1)
+3022:
+- rdsp2
+- radar spectra (2)
+3023:
+- rdsp3
+- radar spectra (3)
+3024:
+- pli
+- parcel lifted index (to 500 hpa)
+3025:
+- ta
+- temperature anomaly
+3026:
+- presa
+- pressure anomaly
+3027:
+- gpa
+- geopotential height anomaly
+3028:
+- wvsp1
+- wave spectra (1)
+3029:
+- wvsp2
+- wave spectra (2)
+3030:
+- wvsp3
+- wave spectra (3)
+3031:
+- wdir
+- wind direction
+3037:
+- mntsf
+- montgomery stream function
+3038:
+- sgcvv
+- sigma coordinate vertical velocity
+3041:
+- absv
+- absolute vorticity
+3042:
+- absd
+- absolute divergence
+3045:
+- vucsh
+- vertical u-component shear
+3046:
+- vvcsh
+- vertical v-component shear
+3047:
+- dirc
+- direction of current
+3048:
+- spc
+- speed of current
+3049:
+- ucurr
+- u-component of current
+3050:
+- vcurr
+- v-component of current
+3053:
+- mixr
+- humidity mixing ratio
+3054:
+- pwat
+- precipitable water
+3055:
+- vp
+- vapour pressure
+3056:
+- satd
+- saturation deficit
+3059:
+- prate
+- precipitation rate
+3060:
+- tstm
+- thunderstorm probability
+3062:
+- lsp
+- large scale precipitation
+3063:
+- acpcp
+- convective precipitation (water)
+3064:
+- srweq
+- snow fall rate water equivalent
+3066:
+- sde
+- snow depth
+3067:
+- mld
+- mixed layer depth
+3068:
+- tthdp
+- transient thermocline depth
+3069:
+- mthd
+- main thermocline depth
+3070:
+- mtha
+- main thermocline anomaly
+3072:
+- ccc
+- convective cloud cover
+3073:
+- lcc
+- low cloud cover
+3074:
+- mcc
+- medium cloud cover
+3075:
+- hcc
+- high cloud cover
+3077:
+- bli
+- best lifted index (to 500 hpa)
+3079:
+- lssf
+- large scale snow
+3080:
+- wtmp
+- water temperature
+3082:
+- dslm
+- deviation of sea-level from mean
+3086:
+- ssw
+- soil moisture content
+3088:
+- s
+- salinity
+3089:
+- den
+- density
+3091:
+- icec
+- ice cover (1=ice, 0=no ice)
+3092:
+- icetk
+- ice thickness
+3093:
+- diced
+- direction of ice drift
+3094:
+- siced
+- speed of ice drift
+3095:
+- uice
+- u-component of ice drift
+3096:
+- vice
+- v-component of ice drift
+3097:
+- iceg
+- ice growth rate
+3098:
+- iced
+- ice divergence
+3099:
+- snom
+- snow melt
+3100:
+- swh
+- signific.height,combined wind waves+swell
+3101:
+- mdww
+- mean direction of wind waves
+3102:
+- shww
+- significant height of wind waves
+3103:
+- mpww
+- mean period of wind waves
+3104:
+- swdir
+- direction of swell waves
+3105:
+- swell
+- significant height of swell waves
+3106:
+- swper
+- mean period of swell waves
+3107:
+- mdps
+- primary wave direction
+3108:
+- mpps
+- primary wave mean period
+3109:
+- dirsw
+- secondary wave direction
+3110:
+- swp
+- secondary wave mean period
+3111:
+- nswrs
+- net short-wave radiation flux (surface)
+3112:
+- nlwrs
+- net long-wave radiation flux (surface)
+3113:
+- nswrt
+- net short-wave radiation flux(atmosph.top)
+3114:
+- nlwrt
+- net long-wave radiation flux(atmosph.top)
+3115:
+- lwavr
+- long wave radiation flux
+3116:
+- swavr
+- short wave radiation flux
+3117:
+- grad
+- global radiation flux
+3119:
+- lwrad
+- radiance (with respect to wave number)
+3120:
+- swrad
+- radiance (with respect to wave length)
+3121:
+- lhf
+- latent heat flux
+3122:
+- shf
+- sensible heat flux
+3123:
+- bld
+- boundary layer dissipation
+3124:
+- uflx
+- momentum flux, u-component
+3125:
+- vflx
+- momentum flux, v-component
+3126:
+- wmixe
+- wind mixing energy
+3127:
+- imgd
+- image data
 129001:
 - strfgrd
 - stream function gradient
@@ -599,12 +1493,6 @@
 129254:
 - atmwgrd
 - adiabatic tendency of meridional wind gradient
-13:
-- urtw
-- u component of rotational wind
-130:
-- t
-- temperature
 130208:
 - tsru
 - top solar radiation upward
@@ -671,9 +1559,6 @@
 130232:
 - mvv
 - mean vertical velocity
-131:
-- u
-- u component of wind
 131001:
 - 2tag2
 - 2m temperature anomaly of at least +2k
@@ -908,9 +1793,6 @@
 - 232
 - mwpp
 - mean wave period probability
-132:
-- v
-- v component of wind
 132044:
 - capesi
 - convective available potential energy shear index
@@ -943,9 +1825,6 @@
 132228:
 - tpi
 - total precipitation index
-133:
-- q
-- specific humidity
 133001:
 - 2tplm10
 - 2m temperature probability less than -10 c
@@ -1222,31 +2101,6 @@
 133092:
 - lccpg99
 - low cloud cover probability greater than 99%
-134:
-- sp
-- surface pressure
-135:
-- w
-- vertical velocity
-136:
-- tcw
-- total column water
-137:
-- tcwv
-- total column water vapour
-138:
-- vo
-- vorticity (relative)
-139:
-- stl1
-- soil temperature level 1
-- st
-14:
-- vrtw
-- v component of rotational wind
-140:
-- swl1
-- soil wetness level 1
 140080:
 - wx1
 - wave experimental parameter 1
@@ -1536,40 +2390,6 @@
 - 254
 - wsp
 - wave spectral peakedness
-141:
-- sd
-- snow depth
-142:
-- lsp
-- large-scale precipitation
-143:
-- cp
-- convective precipitation
-144:
-- sf
-- snowfall
-145:
-- bld
-- boundary layer dissipation
-146:
-- sshf
-- surface sensible heat flux
-147:
-- slhf
-- surface latent heat flux
-148:
-- chnk
-- charnock
-- ss
-149:
-- snr
-- surface net radiation
-15:
-- aluvp
-- uv visible albedo for direct radiation
-150:
-- tnr
-- top net radiation
 150129:
 - ocpt
 - ocean potential temperature
@@ -1647,9 +2467,6 @@
 - observed sea surface temperature
 150183:
 - observed heat flux
-151:
-- msl
-- mean sea level pressure
 151128:
 - in situ temperature
 151129:
@@ -1843,6 +2660,18 @@
 151194:
 - salbe
 - salinity background error
+151195:
+- isot14
+- depth of 14c isotherm
+151196:
+- isot17
+- depth of 17c isotherm
+151197:
+- isot26
+- depth of 26c isotherm
+151198:
+- isot28
+- depth of 28c isotherm
 151199:
 - ebta
 - estimated temperature bias from assimilation
@@ -1885,36 +2714,87 @@
 151212:
 - psa
 - bias in salinity (applied)
-152:
-- lnsp
-- logarithm of surface pressure
-153:
-- swhr
-- short-wave heating rate
-154:
-- lwhr
-- long-wave heating rate
-155:
-- d
-- divergence
-156:
-- gh
-- geopotential height
-157:
-- r
-- relative humidity
-158:
-- tsp
-- tendency of surface pressure
-159:
-- blh
-- boundary layer height
-16:
-- aluvd
-- uv visible albedo for diffuse radiation
-160:
-- sdor
-- standard deviation of orography
+151213:
+- sdhfsw
+- surface downward heat flux in sea water
+151214:
+- hc300
+- ocean heat content 0-300m
+151215:
+- hc700
+- ocean heat content 0-700m
+151216:
+- hcbtm
+- ocean heat content 0-bottom
+151217:
+- wfcorr
+- water flux correction
+151218:
+- swfup
+- surface upward water flux
+151219:
+- sss
+- sea surface salinity
+151220:
+- sdns
+- surface downward northward stress
+151221:
+- sdes
+- surface downward eastward stress
+151222:
+- sdys
+- surface downward y stress
+151223:
+- sdxs
+- surface downward x stress
+151224:
+- mlthdt
+- ocean mixed layer thickness defined by vertical tracer diffusivity threshold
+151225:
+- mlthst010
+- ocean mixed layer thickness defined by sigma theta 0.01 kg/m3
+151226:
+- mlthst030
+- ocean mixed layer thickness defined by sigma theta 0.03 kg/m3
+151227:
+- mlthst125
+- ocean mixed layer thickness defined by sigma theta 0.125 kg/m3
+151228:
+- mltht02
+- ocean mixed layer thickness defined by temperature 0.2c
+151229:
+- mltht05
+- ocean mixed layer thickness defined by temperature 0.5c
+151230:
+- vsf
+- virtual salt flux into sea water
+151231:
+- vsfcorr
+- virtual salt flux correction
+151232:
+- sa700
+- salinity 0-700m
+151233:
+- sabtm
+- salinity 0-bottom
+151234:
+- swmth
+- sea water mass per unit area expressed as thickness
+151250:
+- swyv
+- sea water y velocity
+151251:
+- swxv
+- sea water x velocity
+151252:
+- swnv
+- northward sea water velocity
+151253:
+- swev
+- eastward sea water velocity
+151254:
+- swzv
+- upward sea water velocity
 160049:
 - 10fgrea
 - 10 metre wind gust during averaging time
@@ -2067,12 +2947,6 @@
 160254:
 - hsdrea
 - heaviside beta function
-161:
-- isor
-- anisotropy of sub-gridscale orography
-162:
-- anor
-- angle of sub-gridscale orography
 162051:
 - surface geopotential
 162053:
@@ -2375,33 +3249,6 @@
 - covariance of omega/ozone
 162233:
 - variance of ozone
-163:
-- slor
-- slope of sub-gridscale orography
-164:
-- tcc
-- total cloud cover
-165:
-- 10u
-- 10 metre u wind component
-166:
-- 10v
-- 10 metre v wind component
-167:
-- 2t
-- 2 metre temperature
-168:
-- 2d
-- 2 metre dewpoint temperature
-169:
-- ssrd
-- surface solar radiation downwards
-17:
-- alnip
-- near ir albedo for direct radiation
-170:
-- stl2
-- soil temperature level 2
 170149:
 - tsw
 - total soil moisture
@@ -2411,9 +3258,6 @@
 170179:
 - ttr
 - top net thermal radiation
-171:
-- swl2
-- soil wetness level 2
 171001:
 - strfa
 - stream function anomaly
@@ -2456,6 +3300,12 @@
 171023:
 - ucdva
 - unbalanced component of divergence anomaly
+171024:
+- lmlta
+- lake mix-layer temperature anomaly
+171025:
+- licda
+- lake ice depth anomaly
 171026:
 - cla
 - lake cover anomaly
@@ -2992,9 +3842,12 @@
 171254:
 - atmwa
 - adiabatic tendency of meridional wind anomaly
-172:
-- lsm
-- land-sea mask
+172008:
+- msror
+- mean surface runoff rate
+172009:
+- mssror
+- mean sub-surface runoff rate
 172044:
 - esrate
 - snow evaporation
@@ -3103,9 +3956,12 @@
 172240:
 - lsf
 - large-scale snowfall
-173:
-- sr
-- surface roughness
+173008:
+- msrora
+- mean surface runoff rate anomaly
+173009:
+- mssrora
+- mean sub-surface runoff rate anomaly
 173044:
 - esa
 - snow evaporation anomaly
@@ -3216,9 +4072,6 @@
 173240:
 - lsfa
 - large scale snowfall anomaly
-174:
-- al
-- albedo
 174006:
 - total soil moisture
 174008:
@@ -3275,6 +4128,9 @@
 - top incoming solar radiation
 174090:
 - top outgoing solar radiation
+174092:
+- sial
+- sea ice albedo
 174094:
 - mean sea surface temperature
 174095:
@@ -3293,6 +4149,12 @@
 - ocean ice concentration
 174111:
 - ocean mean ice depth
+174112:
+- sivx
+- sea ice velocity along x
+174113:
+- sivy
+- sea ice velocity along y
 174116:
 - swrsurf
 - short wave radiation flux at surface
@@ -3343,9 +4205,6 @@
 174249:
 - tcclwr
 - total cloud amount in lw radiation
-175:
-- strd
-- surface thermal radiation downwards
 175006:
 - total soil moisture
 175031:
@@ -3402,24 +4261,6 @@
 - 1.5m temperature - minimum in the last 24 hours
 175236:
 - soil temperature layer 4
-176:
-- ssr
-- surface net solar radiation
-177:
-- str
-- surface net thermal radiation
-178:
-- tsr
-- top net solar radiation
-179:
-- ttr
-- top net thermal radiation
-18:
-- alnid
-- near ir albedo for diffuse radiation
-180:
-- ewss
-- eastward turbulent surface stress
 180149:
 - tsw
 - total soil wetness
@@ -3435,39 +4276,6 @@
 180179:
 - ttr
 - top net thermal radiation
-181:
-- nsss
-- northward turbulent surface stress
-182:
-- e
-- evaporation
-183:
-- stl3
-- soil temperature level 3
-184:
-- swl3
-- soil wetness level 3
-185:
-- ccc
-- convective cloud cover
-186:
-- lcc
-- low cloud cover
-187:
-- mcc
-- medium cloud cover
-188:
-- hcc
-- high cloud cover
-189:
-- sund
-- sunshine duration
-19:
-- uvcs
-- clear sky surface uv
-190:
-- ewov
-- east-west component of sub-gridscale orographic variance
 190141:
 - sdsien
 - snow depth
@@ -3483,43 +4291,6 @@
 190229:
 - tsm
 - total soil moisture
-191:
-- nsov
-- north-south component of sub-gridscale orographic variance
-192:
-- nwov
-- north-west/south-east component of sub-gridscale orographic variance
-193:
-- neov
-- north-east/south-west component of sub-gridscale orographic variance
-194:
-- btmp
-- brightness temperature
-195:
-- lgws
-- eastward gravity wave surface stress
-196:
-- mgws
-- northward gravity wave surface stress
-197:
-- gwd
-- gravity wave dissipation
-198:
-- src
-- skin reservoir content
-199:
-- veg
-- vegetation fraction
-2:
-- vp
-- velocity potential
-- vpot
-20:
-- parcs
-- clear sky surface photosynthetically active radiation
-200:
-- vso
-- variance of sub-gridscale orography
 200001:
 - strfdiff
 - stream function difference
@@ -4083,9 +4854,6 @@
 200254:
 - atmwdiff
 - adiabatic tendency of meridional wind difference
-201:
-- mx2t
-- maximum temperature at 2 metres since previous post-processing
 201001:
 - downward shortwave radiant flux density
 201002:
@@ -4270,37 +5038,6 @@
 201241:
 - cape_con
 - convective available potential energy
-202:
-- mn2t
-- minimum temperature at 2 metres since previous post-processing
-203:
-- o3
-- ozone mass mixing ratio
-204:
-- paw
-- precipitation analysis weights
-205:
-- ro
-- runoff
-206:
-- tco3
-- total column ozone
-207:
-- 10si
-- 10 metre wind speed
-208:
-- tsrc
-- top net solar radiation, clear sky
-209:
-- ttrc
-- top net thermal radiation, clear sky
-- ttru
-21:
-- uctp
-- unbalanced component of temperature
-210:
-- ssrc
-- surface net solar radiation, clear sky
 210001:
 - aermr01
 - sea salt aerosol (0.03 - 0.5 um) mixing ratio
@@ -4567,7 +5304,7 @@
 - wildfire combustion completeness
 210096:
 - flfire
-- "wildfire fuel load: carbon per unit area"
+- 'wildfire fuel load: carbon per unit area'
 210097:
 - offire
 - wildfire fraction of area observed
@@ -4955,9 +5692,6 @@
 210246:
 - taedab550
 - profile of total aerosol dry absorption coefficient
-211:
-- strc
-- surface net thermal radiation, clear sky
 211001:
 - aermr01diff
 - sea salt aerosol (0.03 - 0.5 um) mixing ratio
@@ -5203,7 +5937,7 @@
 - wildfire combustion completeness
 211096:
 - flfirediff
-- "wildfire fuel load: carbon per unit area"
+- 'wildfire fuel load: carbon per unit area'
 211097:
 - offirediff
 - wildfire fraction of area observed
@@ -5465,12 +6199,6 @@
 211216:
 - aod1240diff
 - total aerosol optical depth at 1240nm
-212:
-- tisr
-- toa incident solar radiation
-213:
-- vimd
-- vertically integrated moisture divergence
 213001:
 - sppt1
 - random pattern 1 for sppt
@@ -5636,9 +6364,6 @@
 213150:
 - spp50
 - random pattern 50 for spp scheme
-214:
-- dhr
-- diabatic heating by radiation
 214001:
 - uvcossza
 - cosine of solar zenith angle
@@ -5795,9 +6520,6 @@
 214052:
 - aot340
 - profile of optical thickness at 340 nm
-215:
-- dhvd
-- diabatic heating by vertical diffusion
 215001:
 - aersrcsss
 - source/gain of sea salt aerosol (0.03 - 0.5 um)
@@ -6363,12 +7085,6 @@
 215188:
 - aerbackscatgnd1064
 - aerosol backscatter coefficient at 1064 nm (from ground)
-216:
-- dhcc
-- diabatic heating by cumulus convection
-217:
-- dhlc
-- diabatic heating large-scale condensation
 217003:
 - h2o2
 - hydrogen peroxide
@@ -6430,7 +7146,7 @@
 - pb
 - lead
 217027:
-- no
+- false
 - nitrogen monoxide
 217028:
 - ho2
@@ -6516,9 +7232,6 @@
 217056:
 - noxa
 - nitrogen oxides transp
-218:
-- vdzw
-- vertical diffusion of zonal wind
 218003:
 - tc_h2o2
 - total column hydrogen peroxide
@@ -6666,9 +7379,6 @@
 218056:
 - tc_noxa
 - total column nitrogen oxides transp
-219:
-- vdmw
-- vertical diffusion of meridional wind
 219001:
 - e_go3
 - ozone emissions
@@ -6837,18 +7547,9 @@
 219056:
 - e_noxa
 - nitrogen oxides transp emissions
-22:
-- ucln
-- unbalanced component of logarithm of surface pressure
-220:
-- ewgd
-- east-west gravity wave drag tendency
 220228:
 - tpoc
 - total precipitation observation count
-221:
-- nsgd
-- north-south gravity wave drag tendency
 221001:
 - dv_go3
 - ozone deposition velocity
@@ -7017,27 +7718,6 @@
 221056:
 - dv_noxa
 - nitrogen oxides transp deposition velocity
-222:
-- ctzw
-- convective tendency of zonal wind
-223:
-- ctmw
-- convective tendency of meridional wind
-224:
-- vdh
-- vertical diffusion of humidity
-225:
-- htcc
-- humidity tendency by cumulus convection
-226:
-- htlc
-- humidity tendency by large-scale condensation
-227:
-- crnh
-- tendency due to removal of negative humidity
-228:
-- tp
-- total precipitation
 228001:
 - cin
 - convective inhibition
@@ -7119,7 +7799,7 @@
 228028:
 - 10fg3
 - 10 metre wind gust in the last 3 hours
-- I10FG3
+- i10fg3
 228029:
 - i10fg
 - instantaneous 10 metre wind gust
@@ -7138,6 +7818,15 @@
 228034:
 - fcpc
 - fraction of convective precipitation cover
+228035:
+- mxcape6
+- maximum cape in the last 6 hours
+228036:
+- mxcapes6
+- maximum capes in the last 6 hours
+228037:
+- 2rhw
+- 2 metre relative humidity with respect to water
 228039:
 - sm
 - soil moisture
@@ -7243,6 +7932,18 @@
 228096:
 - st100
 - soil temperature top 100 cm
+228100:
+- evatc
+- evaporation from the top of canopy
+228101:
+- evabs
+- evaporation from bare soil
+228102:
+- evaow
+- evaporation from open water surfaces excluding oceans
+228103:
+- evavt
+- evaporation from vegetation transpiration
 228129:
 - ssrdc
 - surface solar radiation downward clear-sky
@@ -7372,15 +8073,6 @@
 228255:
 - tcclw
 - surface long wave-effective total cloudiness
-229:
-- iews
-- instantaneous eastward turbulent surface stress
-23:
-- ucdv
-- unbalanced component of divergence
-230:
-- inss
-- instantaneous northward turbulent surface stress
 230008:
 - srovar
 - surface runoff (variable resolution)
@@ -7531,18 +8223,6 @@
 230251:
 - pevvar
 - potential evaporation (variable resolution)
-231:
-- ishf
-- instantaneous surface sensible heat flux
-232:
-- ie
-- instantaneous moisture flux
-233:
-- asq
-- apparent surface humidity
-234:
-- lsrh
-- logarithm of surface roughness length for heat
 234139:
 - sts
 - surface temperature significance
@@ -7555,9 +8235,6 @@
 234228:
 - tps
 - total precipitation significance
-235:
-- skt
-- skin temperature
 235001:
 - mttswr
 - mean temperature tendency due to short-wave radiation
@@ -7753,21 +8430,6 @@
 235070:
 - mper
 - mean potential evaporation rate
-236:
-- stl4
-- soil temperature level 4
-237:
-- swl4
-- soil wetness level 4
-238:
-- tsn
-- temperature of snow layer
-239:
-- csf
-- convective snowfall
-240:
-- lsf
-- large-scale snowfall
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -7801,6 +8463,12 @@
 240022:
 - smups
 - upstream accumulated snow melt
+240023:
+- dis06
+- mean discharge in the last 6 hours
+240024:
+- dis24
+- mean discharge in the last 24 hours
 240026:
 - sd_elev
 - snow depth at elevation bands
@@ -7810,51 +8478,6 @@
 240029:
 - gwls
 - groundwater lower storage
-241:
-- acf
-- accumulated cloud fraction tendency
-242:
-- alw
-- accumulated liquid water tendency
-243:
-- fal
-- forecast albedo
-244:
-- fsr
-- forecast surface roughness
-245:
-- flsr
-- forecast logarithm of surface roughness for heat
-246:
-- clwc
-- specific cloud liquid water content
-247:
-- ciwc
-- specific cloud ice water content
-248:
-- cc
-- fraction of cloud cover
-249:
-- aiw
-- accumulated ice water tendency
-250:
-- ice
-- ice age
-251:
-- atte
-- adiabatic tendency of temperature
-252:
-- athe
-- adiabatic tendency of humidity
-253:
-- atze
-- adiabatic tendency of zonal wind
-254:
-- atmw
-- adiabatic tendency of meridional wind
-26:
-- cl
-- lake cover
 260002:
 - lhtfl
 - latent heat net flux
@@ -8358,8 +8981,7 @@
   time between the ref
 260170:
 - ffldro
-- flash flood runoff (encoded as an accumulation over a floating subinterval of
-  time)
+- flash flood runoff (encoded as an accumulation over a floating subinterval of time)
 260171:
 - rssc
 - remotely sensed snow cover
@@ -8644,6 +9266,18 @@
 260264:
 - tidirswrf
 - time-integrated surface direct short wave radiation flux
+260265:
+- eva06
+- evaporation in the last 6 hours
+260266:
+- eva24
+- evaporation in the last 24 hours
+260267:
+- tp06
+- total precipitation in the last 6 hours
+260268:
+- tp24
+- total precipitation in the last 24 hours
 260269:
 - tipd
 - total icing potential diagnostic
@@ -9422,21 +10056,6 @@
 260643:
 - tovg
 - type of vegetation
-27:
-- cvl
-- low vegetation cover
-28:
-- cvh
-- high vegetation cover
-29:
-- tvl
-- type of low vegetation
-3:
-- pt
-- potential temperature
-30:
-- tvh
-- type of high vegetation
 300001:
 - pres
 - pressure
@@ -10118,359 +10737,6 @@
 300255:
 - uvmt
 - time mean zonal wind (u)
-3003:
-- ptend
-- pressure tendency
-3005:
-- icaht
-- icao standard atmosphere reference height
-3008:
-- h
-- geometrical height
-3009:
-- hstdv
-- standard deviation of height
-3012:
-- vptmp
-- virtual potential temperature
-3014:
-- papt
-- pseudo-adiabatic potential temperature
-3015:
-- tmax
-- maximum temperature
-3016:
-- tmin
-- minimum temperature
-3017:
-- dpt
-- dew point temperature
-3018:
-- depr
-- dew point depression (or deficit)
-3019:
-- lapr
-- lapse rate
-3020:
-- vis
-- visibility
-3021:
-- rdsp1
-- radar spectra (1)
-3022:
-- rdsp2
-- radar spectra (2)
-3023:
-- rdsp3
-- radar spectra (3)
-3024:
-- pli
-- parcel lifted index (to 500 hpa)
-3025:
-- ta
-- temperature anomaly
-3026:
-- presa
-- pressure anomaly
-3027:
-- gpa
-- geopotential height anomaly
-3028:
-- wvsp1
-- wave spectra (1)
-3029:
-- wvsp2
-- wave spectra (2)
-3030:
-- wvsp3
-- wave spectra (3)
-3031:
-- wdir
-- wind direction
-3037:
-- mntsf
-- montgomery stream function
-3038:
-- sgcvv
-- sigma coordinate vertical velocity
-3041:
-- absv
-- absolute vorticity
-3042:
-- absd
-- absolute divergence
-3045:
-- vucsh
-- vertical u-component shear
-3046:
-- vvcsh
-- vertical v-component shear
-3047:
-- dirc
-- direction of current
-3048:
-- spc
-- speed of current
-3049:
-- ucurr
-- u-component of current
-3050:
-- vcurr
-- v-component of current
-3053:
-- mixr
-- humidity mixing ratio
-3054:
-- pwat
-- precipitable water
-3055:
-- vp
-- vapour pressure
-3056:
-- satd
-- saturation deficit
-3059:
-- prate
-- precipitation rate
-3060:
-- tstm
-- thunderstorm probability
-3062:
-- lsp
-- large scale precipitation
-3063:
-- acpcp
-- convective precipitation (water)
-3064:
-- srweq
-- snow fall rate water equivalent
-3066:
-- sde
-- snow depth
-3067:
-- mld
-- mixed layer depth
-3068:
-- tthdp
-- transient thermocline depth
-3069:
-- mthd
-- main thermocline depth
-3070:
-- mtha
-- main thermocline anomaly
-3072:
-- ccc
-- convective cloud cover
-3073:
-- lcc
-- low cloud cover
-3074:
-- mcc
-- medium cloud cover
-3075:
-- hcc
-- high cloud cover
-3077:
-- bli
-- best lifted index (to 500 hpa)
-3079:
-- lssf
-- large scale snow
-3080:
-- wtmp
-- water temperature
-3082:
-- dslm
-- deviation of sea-level from mean
-3086:
-- ssw
-- soil moisture content
-3088:
-- s
-- salinity
-3089:
-- den
-- density
-3091:
-- icec
-- ice cover (1=ice, 0=no ice)
-3092:
-- icetk
-- ice thickness
-3093:
-- diced
-- direction of ice drift
-3094:
-- siced
-- speed of ice drift
-3095:
-- uice
-- u-component of ice drift
-3096:
-- vice
-- v-component of ice drift
-3097:
-- iceg
-- ice growth rate
-3098:
-- iced
-- ice divergence
-3099:
-- snom
-- snow melt
-31:
-- ci
-- sea-ice cover
-3100:
-- swh
-- signific.height,combined wind waves+swell
-3101:
-- mdww
-- mean direction of wind waves
-3102:
-- shww
-- significant height of wind waves
-3103:
-- mpww
-- mean period of wind waves
-3104:
-- swdir
-- direction of swell waves
-3105:
-- swell
-- significant height of swell waves
-3106:
-- swper
-- mean period of swell waves
-3107:
-- mdps
-- primary wave direction
-3108:
-- mpps
-- primary wave mean period
-3109:
-- dirsw
-- secondary wave direction
-3110:
-- swp
-- secondary wave mean period
-3111:
-- nswrs
-- net short-wave radiation flux (surface)
-3112:
-- nlwrs
-- net long-wave radiation flux (surface)
-3113:
-- nswrt
-- net short-wave radiation flux(atmosph.top)
-3114:
-- nlwrt
-- net long-wave radiation flux(atmosph.top)
-3115:
-- lwavr
-- long wave radiation flux
-3116:
-- swavr
-- short wave radiation flux
-3117:
-- grad
-- global radiation flux
-3119:
-- lwrad
-- radiance (with respect to wave number)
-3120:
-- swrad
-- radiance (with respect to wave length)
-3121:
-- lhf
-- latent heat flux
-3122:
-- shf
-- sensible heat flux
-3123:
-- bld
-- boundary layer dissipation
-3124:
-- uflx
-- momentum flux, u-component
-3125:
-- vflx
-- momentum flux, v-component
-3126:
-- wmixe
-- wind mixing energy
-3127:
-- imgd
-- image data
-32:
-- asn
-- snow albedo
-33:
-- rsn
-- snow density
-34:
-- sst
-- sea surface temperature
-- sstk
-35:
-- istl1
-- ice temperature layer 1
-36:
-- istl2
-- ice temperature layer 2
-37:
-- istl3
-- ice temperature layer 3
-38:
-- istl4
-- ice temperature layer 4
-39:
-- swvl1
-- volumetric soil water layer 1
-- swv1
-4:
-- eqpt
-- equivalent potential temperature
-40:
-- swvl2
-- volumetric soil water layer 2
-- swv2
-41:
-- swvl3
-- volumetric soil water layer 3
-- swv3
-42:
-- swvl4
-- volumetric soil water layer 4
-- swv4
-43:
-- slt
-- soil type
-44:
-- es
-- snow evaporation
-45:
-- smlt
-- snowmelt
-46:
-- sdur
-- solar duration
-47:
-- dsrp
-- direct solar radiation
-48:
-- magss
-- magnitude of turbulent surface stress
-49:
-- 10fg
-- 10 metre wind gust since previous post-processing
-5:
-- sept
-- saturated equivalent potential temperature
-50:
-- lspf
-- large-scale precipitation fraction
 500000:
 - ps
 - pressure (s) (not reduced)
@@ -10513,6 +10779,9 @@
 500013:
 - t_2m_cl
 - climat. temperature, 2m temperature
+500014:
+- t
+- temperature
 500015:
 - tmax_2m
 - max 2m temperature (i)
@@ -11673,71 +11942,6 @@
 500400:
 - obsmsg_bt_wv7.3
 - obser. sat. meteosat sec. generation brightness temperature
-51:
-- mx2t24
-- maximum temperature at 2 metres in the last 24 hours
-52:
-- mn2t24
-- minimum temperature at 2 metres in the last 24 hours
-53:
-- mont
-- montgomery potential
-54:
-- pres
-- pressure
-55:
-- mean2t24
-- mean temperature at 2 metres in the last 24 hours
-56:
-- mn2d24
-- mean 2 metre dewpoint temperature in the last 24 hours
-57:
-- uvb
-- downward uv radiation at the surface
-58:
-- par
-- photosynthetically active radiation at the surface
-59:
-- cape
-- convective available potential energy
-6:
-- ssfr
-- soil sand fraction
-60:
-- pv
-- potential vorticity
-62:
-- obct
-- observation count
-63:
-- stsktd
-- start time for skin temperature difference
-64:
-- ftsktd
-- finish time for skin temperature difference
-65:
-- sktd
-- skin temperature difference
-66:
-- lai_lv
-- leaf area index, low vegetation
-- lailv
-67:
-- lai_hv
-- leaf area index, high vegetation
-- laihv
-68:
-- msr_lv
-- minimum stomatal resistance, low vegetation
-69:
-- msr_hv
-- minimum stomatal resistance, high vegetation
-7:
-- scfr
-- soil clay fraction
-70:
-- bc_lv
-- biome cover, low vegetation
 7001292:
 - sunsd
 - sunshine duration
@@ -11747,37 +11951,6 @@
 7001353:
 - vrate
 - ventilation rate
-71:
-- bc_hv
-- biome cover, high vegetation
-72:
-- issrd
-- instantaneous surface solar radiation downwards
-73:
-- istrd
-- instantaneous surface thermal radiation downwards
-74:
-- sdfor
-- standard deviation of filtered subgrid orography
-75:
-- crwc
-- specific rain water content
-76:
-- cswc
-- specific snow water content
-77:
-- etadot
-- eta-coordinate vertical velocity
-- etad
-78:
-- tclw
-- total column liquid water
-79:
-- tciw
-- total column ice water
-8:
-- sro
-- surface runoff
 85001156:
 - prec_convec
 - total convective precipitation
@@ -11787,16 +11960,3 @@
 85001160:
 - cape_ins
 - convective available potential energy instantaneous
-9:
-- ssro
-- sub-surface runoff
-928:
-- thk
-- thicknes
-956:
-- thka
-- thicknes anomaly
-999:
-- tc
-- tropical cyclone
-

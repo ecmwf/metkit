@@ -19,13 +19,13 @@ ecbuild_add_test( TARGET        metkit_test_emosfile
                   TEST_DEPENDS  grib_get_data
 )
 
-if( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/${grib_handling_pkg}/definitions" )
-  set( eccodes_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/${grib_handling_pkg}/definitions" )
+if( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
+  set( eccodes_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
 endif()
 
 ecbuild_add_test( TARGET        metkit_test_multihandle
                   CONDITION     HAVE_GRIB
-                  INCLUDES      "${GRIB_API_INCLUDE_DIRS}"
+                  INCLUDES      "${ECCODES_INCLUDE_DIRS}"
                   SOURCES       test_multihandle.cc
                   LIBS          metkit
                   TEST_DEPENDS  grib_get_data
