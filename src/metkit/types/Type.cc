@@ -278,7 +278,17 @@ void Type::check(const std::vector<std::string>& values) const {
     if (flatten_) {
         std::set<std::string> s(values.begin(), values.end());
         if (values.size() != s.size()) {
-            std::cerr << "Duplicate values in " << values << std::endl;
+            std::cerr << "Duplicate values in " << name_ << " " << values;
+            std::set<std::string> seen;
+            for (std::vector<std::string>::const_iterator k = values.begin(); k != values.end(); ++k) {
+                if (seen.find(*k) != seen.end()) {
+                    std::cout << ' ' << *k;
+                }
+
+                seen.insert(*k);
+            }
+
+            std::cerr << std::endl;
         }
     }
 }

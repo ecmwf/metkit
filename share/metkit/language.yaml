@@ -272,8 +272,8 @@ _field: &_field
     - ll
     - np
     - rl
-    - - '0.25'
-      - fix me HUE:E1 !
+    # - - '0.25'
+    #   - fix me HUE:E1 !
 
   # obsgroup
   # reportype
@@ -406,7 +406,7 @@ _field: &_field
       - cr
       - cm
       - fcmean
-      - fc
+      # - fc
       - fcmin
       - fcmax
       - fcstdev
@@ -518,7 +518,6 @@ _field: &_field
     - type: ssd
     type: integer
     multiple: true
-
 
   method:
     category: data
