@@ -390,7 +390,7 @@ _field: &_field
     - ensemble
     by: 1
     only:
-    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, fc]
+    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev]
     type: to-by-list
 
   quantile:
