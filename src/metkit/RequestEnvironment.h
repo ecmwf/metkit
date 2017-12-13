@@ -8,8 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-// File RequestEnvironment.h
-// Baudouin Raoult - (c) ECMWF Feb 12
+/// @author Baudouin Raoult
+/// @author Tiago Quintino
 
 #ifndef RequestEnvironment_H
 #define RequestEnvironment_H

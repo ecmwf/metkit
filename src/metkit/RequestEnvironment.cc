@@ -8,18 +8,15 @@
  * does it submit to any jurisdiction.
  */
 
-// File RequestEnvironment.cc
-// Baudouin Raoult - (c) ECMWF Feb 12
-
 #include <unistd.h>
-
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
-#include "metkit/RequestEnvironment.h"
-
 #include <sys/types.h>
 #include <pwd.h>
 
+#include "eckit/thread/AutoLock.h"
+#include "eckit/thread/Mutex.h"
+#include "eckit/runtime/Main.h"
+
+#include "metkit/RequestEnvironment.h"
 
 
 namespace metkit {
@@ -29,13 +26,8 @@ static eckit::Mutex local_mutex;
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
-    char buf[1024];
-    if (gethostname(buf, sizeof(buf)) != 0) {
-        throw eckit::SeriousBug("Cannot establish current hostname");
-    }
-
-    request_.setValue("host", std::string(buf));
-
+    std::string host = eckit::Main::hostname();
+    request_.setValue("host", host);
 
     struct passwd *pw;
     setpwent();
