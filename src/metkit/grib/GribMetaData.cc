@@ -193,7 +193,7 @@ void GribMetaData::getValue(const std::string& key,std::string& value) const
 }
 
 void GribMetaData::print(std::ostream& os) const {
-    os << "GribMetaData[]";
+    os << "GribMetaData[" << stringValues_ << "]";
 }
 
 

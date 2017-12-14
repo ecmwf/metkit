@@ -1,8 +1,6 @@
 ### provides MARS requests from GRIB files
 
-ecbuild_add_executable(
-
-    TARGET   grib-to-mars-request
+ecbuild_add_executable( TARGET   grib-to-mars-request
 
     CONDITION HAVE_GRIB
 
@@ -12,6 +10,18 @@ ecbuild_add_executable(
         ${ECKIT_INCLUDE_DIRS}
 
     LIBS     metkit
+)
+
+ecbuild_add_executable( TARGET   grib-blob
+
+    CONDITION HAVE_GRIB
+
+    SOURCES  grib-blob.cc
+
+    INCLUDES
+        ${ECKIT_INCLUDE_DIRS}
+
+    LIBS     metkit eckit_option eckit
 )
 
 ecbuild_add_executable(

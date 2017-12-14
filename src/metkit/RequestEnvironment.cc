@@ -8,18 +8,15 @@
  * does it submit to any jurisdiction.
  */
 
-// File RequestEnvironment.cc
-// Baudouin Raoult - (c) ECMWF Feb 12
-
 #include <unistd.h>
-
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
-#include "metkit/RequestEnvironment.h"
-
 #include <sys/types.h>
 #include <pwd.h>
 
+#include "eckit/thread/AutoLock.h"
+#include "eckit/thread/Mutex.h"
+#include "eckit/runtime/Main.h"
+
+#include "metkit/RequestEnvironment.h"
 
 
 namespace metkit {
@@ -29,31 +26,23 @@ static eckit::Mutex local_mutex;
 RequestEnvironment::RequestEnvironment():
     request_("environ")
 {
-	char buf[1024];
-	if(gethostname(buf,sizeof(buf)) != 0)
-		throw eckit::SeriousBug("Cannot establish current hostname");
+    std::string host = eckit::Main::hostname();
+    request_.setValue("host", host);
 
-    request_.setValue("host", std::string(buf));
+    struct passwd *pw;
+    setpwent();
 
-
-	struct passwd *pw;
-	setpwent();
-
-	if((pw = getpwuid(getuid())) == NULL)
-		throw eckit::SeriousBug("Cannot establish current user");
+    if ((pw = getpwuid(getuid())) == NULL){
+        throw eckit::SeriousBug("Cannot establish current user");
+    }
 
     request_.setValue("user", std::string(pw->pw_name));
 
-	endpwent();
+    endpwent();
 
 
-   request_.setValue("pid",long(::getpid()));
-   request_.setValue("client", "cpp");
-
-
-   // Tell server that we use paramid, e.g. 130 instead of 130.128
-   request_.setValue("use-paramid", true);
-
+    request_.setValue("pid", long(::getpid()));
+    request_.setValue("client", "cpp");
 
 }
 

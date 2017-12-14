@@ -272,8 +272,8 @@ _field: &_field
     - ll
     - np
     - rl
-    - - '0.25'
-      - fix me HUE:E1 !
+    # - - '0.25'
+    #   - fix me HUE:E1 !
 
   # obsgroup
   # reportype
@@ -380,17 +380,6 @@ _field: &_field
 
 #################################################################
 
-  ensemble:
-    category: data
-    multiple: true
-    aliases:
-    - xxxxxensemble
-    by: 1
-    only:
-    - type:
-      - pf
-    type: to-by-list
-
   # cluster
   # probability
 
@@ -398,18 +387,10 @@ _field: &_field
     category: data
     multiple: true
     aliases:
-    - xxxxensemble
+    - ensemble
     by: 1
     only:
-    - type:
-      - pf
-      - cr
-      - cm
-      - fcmean
-      - fc
-      - fcmin
-      - fcmax
-      - fcstdev
+    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev]
     type: to-by-list
 
   quantile:
@@ -518,7 +499,6 @@ _field: &_field
     - type: ssd
     type: integer
     multiple: true
-
 
   method:
     category: data
