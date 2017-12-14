@@ -569,14 +569,6 @@ _postproc: &_postproc
     category: postproc
     type: integer
 
-  frequency:
-    category: postproc
-    by: 1
-    only:
-    - param:
-      - '140251'
-    type: to-by-list
-
   gaussian:
     category: postproc
     type: enum
