@@ -282,7 +282,7 @@ void Type::check(const std::vector<std::string>& values) const {
             std::set<std::string> seen;
             for (std::vector<std::string>::const_iterator k = values.begin(); k != values.end(); ++k) {
                 if (seen.find(*k) != seen.end()) {
-                    std::cout << ' ' << *k;
+                    std::cerr << ' ' << *k;
                 }
 
                 seen.insert(*k);
