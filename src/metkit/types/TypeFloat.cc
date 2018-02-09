@@ -28,6 +28,8 @@ TypeFloat::~TypeFloat() {
 
 bool TypeFloat::expand(std::string &value) const  {
 
+    bool dot = false;
+
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
         case '0':
@@ -41,7 +43,10 @@ bool TypeFloat::expand(std::string &value) const  {
         case '8':
         case '9':
         case '-':
+            break;
+
         case '.':
+            dot = true;
             break;
 
 
@@ -52,9 +57,29 @@ bool TypeFloat::expand(std::string &value) const  {
         }
     }
 
-    static eckit::Translator<std::string, double> s2d;
-    static eckit::Translator<double, std::string> d2s;
-    value = d2s(s2d(value));
+    // Strip leading zeros
+    while (value.size() && value[0] == '0') {
+        value = value.substr(1);
+    }
+
+    // Strip trailing zeros
+    if (dot) {
+        while (value.size() && value[value.size() - 1] == '0') {
+            value = value.substr(0, value.size() - 1);
+        }
+
+        if (value.size() && value[value.size() - 1] == '.') {
+            value = value.substr(0, value.size() - 1);
+        }
+    }
+
+    if(value.empty()) {
+        value = "0";
+    }
+
+    // static eckit::Translator<std::string, double> s2d;
+    // static eckit::Translator<double, std::string> d2s;
+    // value = d2s(s2d(value));
     return true;
 }
 
