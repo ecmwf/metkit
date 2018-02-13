@@ -689,10 +689,7 @@ dissemination:
     flatten: false
     multiple: true
     type: enum
-    values:
-	- 'off'
-	- no-local-extension
-	- prodgen-areas
+    values: ['off', 'no-local-extension', 'prodgen-areas']
 
   country:
     type: any
