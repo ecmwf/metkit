@@ -645,7 +645,7 @@ _postproc: &_postproc
 #######################################################################
 
 
-dissemination:
+disseminate:
   <<: *_field
   <<: *_postproc
 
