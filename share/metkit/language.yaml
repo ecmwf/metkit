@@ -685,6 +685,15 @@ dissemination:
     - nobackup
     - grib1table1
 
+  compatibility:
+    flatten: false
+    multiple: true
+    type: enum
+    values:
+	- 'off'
+	- no-local-extension
+	- prodgen-areas
+
   country:
     type: any
 
@@ -705,6 +714,7 @@ dissemination:
     values:
     - none
     - auto
+
 
 retrieve:
   <<: *_field
