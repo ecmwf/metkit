@@ -686,6 +686,7 @@ dissemination:
     - grib1table1
 
   compatibility:
+    category: postproc
     flatten: false
     multiple: true
     type: enum
