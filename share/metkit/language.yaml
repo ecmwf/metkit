@@ -311,6 +311,7 @@ _field: &_field
     - 300
     never:
     - levtype: sfc
+    - type: ssd
     type: to-by-list
 
   param:
@@ -390,7 +391,7 @@ _field: &_field
     - ensemble
     by: 1
     only:
-    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev]
+    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot]
     type: to-by-list
 
   quantile:
@@ -401,7 +402,7 @@ _field: &_field
       - pd
       - pb
       - taem
-      - sot
+      # - sot
     type: enum
     values:
     - '1:3'
