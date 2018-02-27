@@ -55,6 +55,8 @@ public: // methods
 
     void flatten(const MarsRequest& request, FlattenCallback& callback);
 
+    static eckit::PathName languageYamFile();
+
 public: // class methods
 
     static std::string expandVerb(const std::string& verb);

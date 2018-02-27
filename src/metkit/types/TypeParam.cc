@@ -136,11 +136,11 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         if (aliases.isNil()) {
 
             Log::debug<LibMetkit>()
-                      << "No aliases for "
-                      << id
-                      << " "
-                      << *this
-                      << std::endl;
+                    << "No aliases for "
+                    << id
+                    << " "
+                    << *this
+                    << std::endl;
             continue;
         }
 
@@ -160,9 +160,9 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
                             << first
                             << "', keeping previous value of '"
                             << mapping_[v]
-                               << "' "
-                               << *this
-                               << std::endl;
+                            << "' "
+                            << *this
+                            << std::endl;
                     continue;
                 }
                 else {
@@ -174,9 +174,9 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
                             << first
                             << "', overriding previous value of '"
                             << mapping_[v]
-                               << "' "
-                               << *this
-                               << std::endl;
+                            << "' "
+                            << *this
+                            << std::endl;
 
                     precedence[v] = j;
                 }
@@ -265,8 +265,8 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
 
     }
 
-        // std::cout << "--- [" << s << "]" << std::endl;
-        // std::cout << "--- [" << values_ << "]" << std::endl;
+    // std::cout << "--- [" << s << "]" << std::endl;
+    // std::cout << "--- [" << values_ << "]" << std::endl;
 
 
     return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
@@ -276,15 +276,17 @@ static std::vector<Rule>* rules = 0;
 
 }
 
+
+
 static void init() {
 
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    const eckit::Value ids = eckit::YAMLParser::decodeFile("~metkit/share/metkit/paramids.yaml");
+    const eckit::Value ids = eckit::YAMLParser::decodeFile(metkit::TypeParam::paramIDYamFile());
     ASSERT(ids.isOrderedMap());
 
-    const eckit::Value r = eckit::YAMLParser::decodeFile("~metkit/share/metkit/param.yaml");
+    const eckit::Value r = eckit::YAMLParser::decodeFile(metkit::TypeParam::paramYamlFile());
     ASSERT(r.isList());
 
     // r.dump(std::cout) << std::endl;
@@ -292,7 +294,7 @@ static void init() {
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
 
-        if(!rule.isList()) {
+        if (!rule.isList()) {
             rule.dump(Log::error()) << std::endl;
         }
 
@@ -317,6 +319,14 @@ TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
 }
 
 TypeParam::~TypeParam() {
+}
+
+eckit::PathName TypeParam::paramYamlFile() {
+    return "~metkit/share/metkit/param.yaml";
+}
+
+eckit::PathName TypeParam::paramIDYamFile() {
+    return "~metkit/share/metkit/paramids.yaml";
 }
 
 void TypeParam::print(std::ostream &out) const {
