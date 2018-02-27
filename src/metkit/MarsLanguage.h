@@ -55,7 +55,7 @@ public: // methods
 
     void flatten(const MarsRequest& request, FlattenCallback& callback);
 
-    static eckit::PathName languageYamFile();
+    static eckit::PathName languageYamlFile();
 
 public: // class methods
 

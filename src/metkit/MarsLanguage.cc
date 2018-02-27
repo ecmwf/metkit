@@ -38,7 +38,7 @@ static std::vector<std::string> verbs_;
 
 static void init() {
 
-    languages_ =  eckit::YAMLParser::decodeFile(metkit::MarsLanguage::languageYamFile());
+    languages_ =  eckit::YAMLParser::decodeFile(metkit::MarsLanguage::languageYamlFile());
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.push_back(verbs[i]);
@@ -100,7 +100,7 @@ MarsLanguage::~MarsLanguage() {
     }
 }
 
-eckit::PathName MarsLanguage::languageYamFile() {
+eckit::PathName MarsLanguage::languageYamlFile() {
     return "~metkit/share/metkit/language.yaml";
 }
 

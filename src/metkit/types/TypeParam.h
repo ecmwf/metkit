@@ -31,7 +31,7 @@ public: // methods
     virtual ~TypeParam();
 
     static eckit::PathName paramYamlFile();
-    static eckit::PathName paramIDYamFile();
+    static eckit::PathName paramIDYamlFile();
 
 protected:
     virtual bool expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
