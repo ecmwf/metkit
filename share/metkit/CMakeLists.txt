@@ -1,4 +1,4 @@
-list( APPEND files language.yaml paramids.yaml param.yaml)
+list( APPEND files language.yaml paramids.yaml params.yaml)
 
 foreach( _file ${files} )
 

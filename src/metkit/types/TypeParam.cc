@@ -322,7 +322,7 @@ TypeParam::~TypeParam() {
 }
 
 eckit::PathName TypeParam::paramYamlFile() {
-    return "~metkit/share/metkit/param.yaml";
+    return "~metkit/share/metkit/params.yaml";
 }
 
 eckit::PathName TypeParam::paramIDYamlFile() {
