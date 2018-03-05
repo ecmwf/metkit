@@ -53,7 +53,7 @@ public:
 
 // -- Class methods
 
-	static  const eckit::ClassSpec&  classSpec()         { return classSpec_;}
+	static const eckit::ClassSpec&  classSpec();
 
 private:
 
@@ -73,7 +73,6 @@ private:
 
 // -- Class members
 
-    static  eckit::ClassSpec               classSpec_;
 	static  eckit::Reanimator<MarsHandle>  reanimator_;
 
 	friend class MarsHandleStream;

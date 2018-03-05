@@ -22,7 +22,6 @@
 
 const unsigned long startCRC = 0xffffffffL;
 
-eckit::ClassSpec MarsHandle::classSpec_ = {&TCPHandle::classSpec(),"MarsHandle",};
 eckit::Reanimator<MarsHandle> MarsHandle::reanimator_;
 
 class MarsHandleStream : public eckit::HandleStream {
@@ -257,4 +256,10 @@ eckit::Length MarsHandle::estimate()
 
 void MarsHandle::updateCRC(void* buffer,long length)
 {
+}
+
+const eckit::ClassSpec& MarsHandle::classSpec()
+{
+    static const eckit::ClassSpec _classSpec = {&TCPHandle::classSpec(),"MarsHandle"};
+    return _classSpec;
 }
