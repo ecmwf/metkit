@@ -642,6 +642,29 @@ _postproc: &_postproc
     multiple: true
     type: float
 
+  intgrid:
+    category: postproc
+    flatten: false
+    type: [enum, regex]
+    values:
+    - 'off'
+    - auto
+    - N160
+    - N400
+    - N320
+    - N200
+    - N80
+    - N640
+    regex:
+    - '^[oOfF][1-9][0-9]+$'
+
+  truncation:
+    category: postproc
+    flatten: false
+    type: [enum, integer]
+    values:
+    - auto
+    - 'off'
 
 #######################################################################
 
