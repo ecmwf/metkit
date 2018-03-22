@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996-2017 ECMWF.
+ * (C) Copyright 1996- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -38,7 +38,7 @@ static std::vector<std::string> verbs_;
 
 static void init() {
 
-    languages_ =  eckit::YAMLParser::decodeFile("~metkit/share/metkit/language.yaml");
+    languages_ =  eckit::YAMLParser::decodeFile(metkit::MarsLanguage::languageYamlFile());
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.push_back(verbs[i]);
@@ -67,14 +67,14 @@ MarsLanguage::MarsLanguage(const std::string& verb):
         std::string keyword = params[i];
         eckit::Value settings = lang[keyword];
 
-        if(keyword[0] == '_') {
+        if (keyword[0] == '_') {
             continue;
         }
 
         ASSERT(types_.find(keyword) == types_.end());
 
 
-        if(defaults.contains(keyword)) {
+        if (defaults.contains(keyword)) {
             settings["default"] = defaults[keyword];
         }
 
@@ -98,6 +98,10 @@ MarsLanguage::~MarsLanguage() {
     for (std::map<std::string, Type* >::iterator j = types_.begin(); j != types_.end(); ++j) {
         (*j).second->detach();
     }
+}
+
+eckit::PathName MarsLanguage::languageYamlFile() {
+    return "~metkit/share/metkit/language.yaml";
 }
 
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996-2017 ECMWF.
+ * (C) Copyright 1996- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -58,7 +58,7 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
             eckit::Value keys = a.keys();
 
             for (size_t j = 0; j < keys.size(); j++) {
-                std::string key = keys[i];
+                std::string key = keys[j];
                 eckit::Value v = a[key];
 
                 if (v.isList())
@@ -83,7 +83,7 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
             eckit::Value keys = a.keys();
 
             for (size_t j = 0; j < keys.size(); j++) {
-                std::string key = keys[i];
+                std::string key = keys[j];
                 eckit::Value v = a[key];
 
                 if (v.isList())
