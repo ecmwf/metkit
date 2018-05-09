@@ -10,6 +10,11 @@ ecbuild_requires_macro_version( 2.0 )
 
 ### dependencies
 
+# Experimental features
+
+ecbuild_add_option( FEATURE EXPERIMENTAL
+                    DEFAULT OFF
+                    DESCRIPTION "Experimental features" )
 # grib support
 
 ecbuild_add_option( FEATURE GRIB
