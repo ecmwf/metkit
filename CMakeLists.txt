@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
 
 project( metkit CXX )
 
@@ -6,14 +6,14 @@ set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH} 
 
 include( ecbuild_system NO_POLICY_SCOPE )
 
-ecbuild_requires_macro_version( 2.7 )
+ecbuild_requires_macro_version( 2.9 )
+
+ecbuild_declare_project()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-### dependencies
-
-# Experimental features
+### dependencies and options
 
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
@@ -37,10 +37,6 @@ ecbuild_add_option( FEATURE NETCDF
 # eckit
 
 ecbuild_use_package( PROJECT eckit  VERSION  0.21.0 REQUIRED )
-
-### start project
-
-ecbuild_declare_project()
 
 ### export package info
 
