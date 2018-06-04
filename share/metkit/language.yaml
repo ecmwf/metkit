@@ -391,7 +391,10 @@ _field: &_field
     - ensemble
     by: 1
     only:
-    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot]
+    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc]
+    never:
+    # This is to prevent number with type=fc and stream=oper
+    - stream: [oper, wave]
     type: to-by-list
 
   quantile:
