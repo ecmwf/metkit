@@ -2,6 +2,8 @@ ecbuild_add_executable(
 
     TARGET netcdf4-example
 
+    CONDITION HAVE_NETCDF
+
     SOURCES
         netcdf4-example.cc
 
