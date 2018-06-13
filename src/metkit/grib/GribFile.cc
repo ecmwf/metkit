@@ -26,14 +26,14 @@
 namespace metkit {
 namespace grib {
 
-//----------------------------------------------------------------------------------------------------------------------
 
 GribFile::GribFile(const eckit::PathName& path) :
     path_(path),
     file_(path_) {
 }
 
-GribFile::~GribFile() {
+GribFile::~GribFile() noexcept(false) {
+    file_.close();
 }
 
 GribHandle* GribFile::next() {
@@ -52,8 +52,6 @@ GribHandle* GribFile::next() {
         << " : " << grib_get_error_message(err);
     throw eckit::ReadError(msg.str(), Here());
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 } // namespace grib
 } // namespace metkit

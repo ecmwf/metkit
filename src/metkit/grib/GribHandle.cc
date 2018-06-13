@@ -45,7 +45,7 @@ GribHandle::GribHandle(const eckit::PathName& path) :
     handle_(NULL),
     owned_(true)
 {
-	eckit::StdFile f(path);
+    eckit::AutoStdFile f(path);
 
 	int err = 0;
 	grib_handle* h = grib_handle_new_from_file(0,f,&err);

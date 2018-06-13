@@ -10,11 +10,11 @@
 
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
-
+///
 /// @date Jan 2016
 
-#ifndef grib_GribFile_H
-#define grib_GribFile_H
+#ifndef metkit_grib_GribFile_H
+#define metkit_grib_GribFile_H
 
 #include "eckit/memory/NonCopyable.h"
 #include "eckit/io/StdFile.h"
@@ -33,13 +33,10 @@ class GribFile : private eckit::NonCopyable {
 
 public: // methods
 
-    /// Contructor
-
     GribFile(const eckit::PathName&);
 
-    /// Destructor
-
-    ~GribFile();
+    /// @throws due to StdFile
+    ~GribFile() noexcept(false);
 
     GribHandle* next();
 
