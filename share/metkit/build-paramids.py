@@ -31,5 +31,9 @@ for data in cursor.fetchall():
 
 db.close()
 
+X = {}
+for k, v in PARAMSIDS.items():
+    X[int(k)] = v
+
 with open("paramids.yaml", "w") as f:
-    f.write(yaml.dump(PARAMSIDS, default_flow_style=False))
+    f.write(yaml.dump(X, default_flow_style=False))
