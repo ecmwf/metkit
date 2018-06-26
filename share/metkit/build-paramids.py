@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
-import MySQLdb
 import yaml
+import mysql.connector
 
 with open("paramids.yaml") as f:
     PARAMSIDS = yaml.load(f.read())
 
-
-db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
-                     "ecmwf_ro",
-                     "ecmwf_ro",
-                     "param")
-
+db = mysql.connector.connect(host="grib-param-db-prod.ecmwf.int",
+                     user="ecmwf_ro",
+                     password="ecmwf_ro",
+                     database="param")
 
 cursor = db.cursor()
 
@@ -26,10 +24,15 @@ for data in cursor.fetchall():
     if paramid in PARAMSIDS:
         pass
     else:
-        print "new paramid: %s %s %s" % (int(paramid), abbr, longname.lower())
+        print("new paramid: {} {} {}".format(int(paramid), abbr, longname.lower()))
         PARAMSIDS[paramid] = [abbr, longname]
 
+cursor.close()
 db.close()
 
+X = {}
+for k, v in PARAMSIDS.items():
+    X[int(k)] = v
+
 with open("paramids.yaml", "w") as f:
-    f.write(yaml.dump(PARAMSIDS, default_flow_style=False))
+    f.write(yaml.dump(X, default_flow_style=False))
