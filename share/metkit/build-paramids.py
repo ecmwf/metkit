@@ -24,7 +24,7 @@ for data in cursor.fetchall():
     if paramid in PARAMSIDS:
         pass
     else:
-        print "new paramid: %s %s %s" % (int(paramid), abbr, longname.lower())
+        print("new paramid: {} {} {}".format(int(paramid), abbr, longname.lower()))
         PARAMSIDS[paramid] = [abbr, longname]
 
 cursor.close()
