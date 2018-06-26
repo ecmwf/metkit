@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import psycopg2
+# import psycopg2
 import yaml
 import mysql.connector
 import sys
