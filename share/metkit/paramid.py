@@ -51,4 +51,4 @@ WHERE param.%s IN (%s) AND units.id = units_id
 
 
 for n in gcursor.fetchall():
-    print("{},{},{},{}".format(tuple(n)))
+    print("{},{},{},{}".format(*tuple(n)))
