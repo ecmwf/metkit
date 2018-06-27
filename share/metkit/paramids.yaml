@@ -1796,6 +1796,9 @@
 132044:
 - capesi
 - convective available potential energy shear index
+132045:
+- wvfi
+- Water vapour flux index
 132049:
 - 10fgi
 - 10 metre wind gust index
@@ -2947,6 +2950,9 @@
 160254:
 - hsdrea
 - heaviside beta function
+162045:
+- wvf
+- Water vapour flux
 162051:
 - surface geopotential
 162053:
@@ -3249,6 +3255,15 @@
 - covariance of omega/ozone
 162233:
 - variance of ozone
+170001:
+- spi03
+- Standardised precipitation index valid for 3 months
+170002:
+- spi06
+- Standardised precipitation index valid for 6 months
+170003:
+- spi12
+- Standardised precipitation index valid for 12 months
 170149:
 - tsw
 - total soil moisture
@@ -5209,6 +5224,9 @@
 210059:
 - soapr
 - secondary organic precursor mixing ratio
+210060:
+- injh
+- Injection height (from IS4FIRES)
 210061:
 - co2
 - carbon dioxide
@@ -5515,6 +5533,18 @@
 210166:
 - sfgr10
 - surface flux reactive tracer 10
+210167:
+- frpdayfire
+- Wildfire day-time radiative power
+210169:
+- frpngtfire
+- Wildfire night-time radiative power
+210177:
+- frpdayivar
+- Wildfire day-time inverse variance of radiative power
+210179:
+- frpngtivar
+- Wildfire night-time inverse variance of radiative power
 210181:
 - ra
 - radon
@@ -7232,6 +7262,456 @@
 217056:
 - noxa
 - nitrogen oxides transp
+217057:
+- co2_c
+- Carbon dioxide (chemistry)
+217058:
+- n2o_c
+- Nitrous oxide (chemistry)
+217059:
+- h2o
+- Water vapour (chemistry)
+217060:
+- o2
+- Oxygen
+217061:
+- o2_1s
+- Singlet oxygen
+217062:
+- o2_1d
+- Singlet delta oxygen
+217063:
+- oclo
+- Chlorine dioxide
+217064:
+- clono2
+- Chlorine nitrate
+217065:
+- hocl
+- Hypochlorous acid
+217066:
+- cl2
+- Chlorine
+217067:
+- clno2
+- Nitryl chloride
+217068:
+- hbr
+- Hydrogen bromide
+217069:
+- cl2o2
+- Dichlorine dioxide
+217070:
+- hobr
+- Hypobromous acid
+217071:
+- cfc11
+- Trichlorofluoromethane
+217072:
+- cfc12
+- Dichlorodifluoromethane
+217073:
+- cfc113
+- Trichlorotrifluoroethane
+217074:
+- cfc114
+- Dichlorotetrafluoroethane
+217075:
+- cfc115
+- Chloropentafluoroethane
+217076:
+- ccl4
+- Tetrachloromethane
+217077:
+- ch3ccl3
+- Methyl chloroform
+217078:
+- ch3cl
+- Methyl chloride
+217079:
+- hcfc22
+- Chlorodifluoromethane
+217080:
+- ch3br
+- Methyl bromide
+217081:
+- ha1202
+- Dibromodifluoromethane
+217082:
+- ha1211
+- Bromochlorodifluoromethane
+217083:
+- ha1301
+- Trifluorobromomethane
+217084:
+- ha2402
+- Cbrf2cbrf2
+217085:
+- h2so4
+- Sulfuric acid
+217086:
+- hono
+- Nitrous acid
+217087:
+- hc3
+- Alkanes low oh rate
+217088:
+- hc5
+- Alkanes med oh rate
+217089:
+- hc8
+- Alkanes high oh rate
+217090:
+- olt
+- Terminal alkenes
+217091:
+- oli
+- Internal alkenes
+217092:
+- c2h5o2
+- Ethylperoxy radical
+217093:
+- dien
+- Butadiene
+217094:
+- c2h5ooh
+- Ethyl hydroperoxide
+217095:
+- api
+- A-pinene cyclic terpenes
+217096:
+- ch3cooh
+- Acetic acid
+217097:
+- lim
+- D-limonene cyclic diene
+217098:
+- ch3cho
+- Acetaldehyde
+217099:
+- tol
+- Toluene and less reactive aromatics
+217100:
+- xyl
+- Xylene and more reactive aromatics
+217101:
+- glyald
+- Glycolaldehyde
+217102:
+- cresol
+- Cresol
+217103:
+- ald
+- Acetaldehyde and higher
+217104:
+- ch3coooh
+- Peracetic acid
+217105:
+- ket
+- Ketones
+217106:
+- eo2
+- Hoch2ch2o2
+217107:
+- glyoxal
+- Glyoxal
+217108:
+- eo
+- Hoch2ch2o
+217109:
+- dcb
+- Unsaturated dicarbonyls
+217110:
+- macr
+- Methacrolein
+217111:
+- udd
+- Unsaturated hydroxy dicarbonyl
+217112:
+- c3h7o2
+- Isopropyldioxidanyl
+217113:
+- hket
+- Hydroxy ketone
+217114:
+- c3h7ooh
+- Isopropyl hydroperoxide
+217115:
+- po2
+- C3h6oho2
+217116:
+- pooh
+- C3h6ohooh
+217117:
+- op2
+- Higher organic peroxides
+217118:
+- hyac
+- Hydroxyacetone
+217119:
+- paa
+- Peroxyacetic acid
+217120:
+- ro2
+- Ch3coch2o2
+217121:
+- ethp
+- Peroxy radical from c2h6
+217122:
+- hc3p
+- Peroxy radical from hc3
+217123:
+- hc5p
+- Peroxy radical from hc5
+217124:
+- bigene
+- Lumped alkenes
+217125:
+- hc8p
+- Peroxy radical from hc8
+217126:
+- bigalk
+- Lumped alkanes
+217127:
+- etep
+- Peroxy radical from c2h4
+217128:
+- mek
+- C4h8o
+217129:
+- oltp
+- Peroxy radical from terminal alkenes
+217130:
+- eneo2
+- C4h9o3
+217131:
+- olip
+- Peroxy radical from internal alkenes
+217132:
+- meko2
+- Ch3coch(oo)ch3
+217133:
+- isopo2
+- Peroxy radical from c5h8
+217134:
+- mekooh
+- Ch3coch(ooh)ch3
+217135:
+- apip
+- Peroxy radical from a-pinene cyclic terpenes
+217136:
+- mco3
+- Ch2=c(ch3)co3
+217137:
+- limp
+- Peroxy radical from d-limonene cyclic diene
+217138:
+- mvk
+- Methylvinylketone
+217139:
+- pho
+- Phenoxy radical
+217140:
+- tolp
+- Peroxy radical from toluene and less reactive aromatics
+217141:
+- macro2
+- Ch3c(o)ch(oo)ch2oh
+217142:
+- xylp
+- Peroxy radical from xylene and more reactive aromatics
+217143:
+- macrooh
+- H3c(o)ch(ooh)ch2oh
+217144:
+- cslp
+- Peroxy radical from cresol
+217145:
+- mpan
+- Unsaturated pans
+217146:
+- tco3_c
+- Unsaturated acyl peroxy radical
+217147:
+- ketp
+- Peroxy radical from ketones
+217148:
+- alko2
+- C5h11o2
+217149:
+- olnn
+- No3-alkenes adduct reacting to form carbonitrates
+217150:
+- alkooh
+- C5h11ooh
+217151:
+- olnd
+- No3-alkenes adduct reacting via decomposition
+217152:
+- bigald
+- Hoch2c(ch3)=chcho
+217153:
+- hydrald
+- C5h6o2
+217154:
+- sulf
+- Trop sulfuric acid
+217155:
+- ox
+- Oxides
+217156:
+- isopno3
+- Ch2chc(ch3)(oo)ch2ono2
+217157:
+- onitr
+- C3 organic nitrate
+217158:
+- clox
+- Chlorine oxides
+217159:
+- brox
+- Bromine oxides
+217160:
+- xooh
+- Hoch2c(ooh)(ch3)chchoh
+217161:
+- isopooh
+- Hoch2c(ooh)(ch3)ch=ch2
+217162:
+- toluene
+- Lumped aromatics
+217163:
+- dmso
+- Dimethyl sulfoxyde
+217164:
+- tolo2
+- C7h9o5
+217165:
+- tolooh
+- C7h10o5
+217166:
+- h2s
+- Hydrogensulfide
+217167:
+- xoh
+- C7h10o6
+217168:
+- noy
+- All nitrogen oxides
+217169:
+- cly
+- Chlorine family
+217170:
+- terpo2
+- C10h16(oh)(oo)
+217171:
+- bry
+- Bromine family
+217172:
+- terpooh
+- C10h18o3
+217173:
+- n
+- Nitrogen atom
+217174:
+- clo
+- Chlorine monoxide
+217175:
+- cl_c
+- Chlorine atom
+217176:
+- bro
+- Bromine monoxide
+217177:
+- h_c
+- Hydrogen atom
+217178:
+- ch3
+- Methyl group
+217179:
+- addt
+- Aromatic-ho from toluene and less reactive aromatics
+217180:
+- addx
+- Aromatic-ho from xylene and more reactive aromatics
+217181:
+- nh4no3
+- Ammonium nitrate
+217182:
+- addc
+- Aromatic-ho from csl
+217183:
+- soa1
+- Secondary organic aerosol type 1
+217184:
+- soa2a
+- Secondary organic aerosol type 2a
+217185:
+- soa2b
+- Secondary organic aerosol type 2b
+217186:
+- sog1
+- Condensable gas type 1
+217187:
+- sog2a
+- Condensable gas type 2a
+217188:
+- sog2b
+- Condensable gas type 2b
+217189:
+- so3
+- Sulfur trioxide
+217190:
+- ocs_c
+- Carbonyl sulfide
+217191:
+- br
+- Bromine atom
+217192:
+- br2
+- Bromine
+217193:
+- brcl
+- Bromine monochloride
+217194:
+- brono2
+- Bromine nitrate
+217195:
+- ch2br2
+- Dibromomethane
+217196:
+- ch3o
+- Methoxy radical
+217197:
+- chbr3
+- Tribromomethane
+217198:
+- cloo
+- Asymmetric chlorine dioxide radical
+217199:
+- h2
+- Hydrogen
+217200:
+- hcl
+- Hydrogen chloride
+217201:
+- hco
+- Formyl radical
+217202:
+- hf
+- Hydrogen fluoride
+217203:
+- o
+- Oxygen atom
+217204:
+- o1d
+- Excited oxygen atom
+217205:
+- o3p
+- Ground state oxygen atom
+217206:
+- strataer
+- Stratospheric aerosol
 218003:
 - tc_h2o2
 - total column hydrogen peroxide
@@ -7379,6 +7859,456 @@
 218056:
 - tc_noxa
 - total column nitrogen oxides transp
+218057:
+- tc_co2_c
+- Total column of carbon dioxide (chemistry)
+218058:
+- tc_n2o_c
+- Total column of nitrous oxide (chemistry)
+218059:
+- tc_h2o
+- Total column of water vapour (chemistry)
+218060:
+- tc_o2
+- Total column of oxygen
+218061:
+- tc_o2_1s
+- Total column of singlet oxygen
+218062:
+- tc_o2_1d
+- Total column of singlet delta oxygen
+218063:
+- tc_oclo
+- Total column of chlorine dioxide
+218064:
+- tc_clono2
+- Total column of chlorine nitrate
+218065:
+- tc_hocl
+- Total column of hypochlorous acid
+218066:
+- tc_cl2
+- Total column of chlorine
+218067:
+- tc_clno2
+- Total column of nitryl chloride
+218068:
+- tc_hbr
+- Total column of hydrogen bromide
+218069:
+- tc_cl2o2
+- Total column of dichlorine dioxide
+218070:
+- tc_hobr
+- Total column of hypobromous acid
+218071:
+- tc_cfc11
+- Total column of trichlorofluoromethane
+218072:
+- tc_cfc12
+- Total column of dichlorodifluoromethane
+218073:
+- tc_cfc113
+- Total column of trichlorotrifluoroethane
+218074:
+- tc_cfc114
+- Total column of dichlorotetrafluoroethane
+218075:
+- tc_cfc115
+- Total column of chloropentafluoroethane
+218076:
+- tc_ccl4
+- Total column of tetrachloromethane
+218077:
+- tc_ch3ccl3
+- Total column of methyl chloroform
+218078:
+- tc_ch3cl
+- Total column of methyl chloride
+218079:
+- tc_hcfc22
+- Total column of chlorodifluoromethane
+218080:
+- tc_ch3br
+- Total column of methyl bromide
+218081:
+- tc_ha1202
+- Total column of dibromodifluoromethane
+218082:
+- tc_ha1211
+- Total column of bromochlorodifluoromethane
+218083:
+- tc_ha1301
+- Total column of trifluorobromomethane
+218084:
+- tc_ha2402
+- Total column of cbrf2cbrf2
+218085:
+- tc_h2so4
+- Total column of sulfuric acid
+218086:
+- tc_hono
+- Total column of nitrous acid
+218087:
+- tc_hc3
+- Total column of alkanes low oh rate
+218088:
+- tc_hc5
+- Total column of alkanes med oh rate
+218089:
+- tc_hc8
+- Total column of alkanes high oh rate
+218090:
+- tc_olt
+- Total column of terminal alkenes
+218091:
+- tc_oli
+- Total column of internal alkenes
+218092:
+- tc_c2h5o2
+- Total column of ethylperoxy radical
+218093:
+- tc_dien
+- Total column of butadiene
+218094:
+- tc_c2h5ooh
+- Total column of ethyl hydroperoxide
+218095:
+- tc_api
+- Total column of a-pinene cyclic terpenes
+218096:
+- tc_ch3cooh
+- Total column of acetic acid
+218097:
+- tc_lim
+- Total column of d-limonene cyclic diene
+218098:
+- tc_ch3cho
+- Total column of acetaldehyde
+218099:
+- tc_tol
+- Total column of toluene and less reactive aromatics
+218100:
+- tc_xyl
+- Total column of xylene and more reactive aromatics
+218101:
+- tc_glyald
+- Total column of glycolaldehyde
+218102:
+- tc_cresol
+- Total column of cresol
+218103:
+- tc_ald
+- Total column of acetaldehyde and higher
+218104:
+- tc_ch3coooh
+- Total column of peracetic acid
+218105:
+- tc_ket
+- Total column of ketones
+218106:
+- tc_eo2
+- Total column of hoch2ch2o2
+218107:
+- tc_glyoxal
+- Total column of glyoxal
+218108:
+- tc_eo
+- Total column of hoch2ch2o
+218109:
+- tc_dcb
+- Total column of unsaturated dicarbonyls
+218110:
+- tc_macr
+- Total column of methacrolein
+218111:
+- tc_udd
+- Total column of unsaturated hydroxy dicarbonyl
+218112:
+- tc_c3h7o2
+- Total column of isopropyldioxidanyl
+218113:
+- tc_hket
+- Total column of hydroxy ketone
+218114:
+- tc_c3h7ooh
+- Total column of isopropyl hydroperoxide
+218115:
+- tc_po2
+- Total column of c3h6oho2
+218116:
+- tc_pooh
+- Total column of c3h6ohooh
+218117:
+- tc_op2
+- Total column of higher organic peroxides
+218118:
+- tc_hyac
+- Total column of hydroxyacetone
+218119:
+- tc_paa
+- Total column of peroxyacetic acid
+218120:
+- tc_ro2
+- Total column of ch3coch2o2
+218121:
+- tc_ethp
+- Total column of peroxy radical from c2h6
+218122:
+- tc_hc3p
+- Total column of peroxy radical from hc3
+218123:
+- tc_hc5p
+- Total column of peroxy radical from hc5
+218124:
+- tc_bigene
+- Total column of lumped alkenes
+218125:
+- tc_hc8p
+- Total column of peroxy radical from hc8
+218126:
+- tc_bigalk
+- Total column of lumped alkanes
+218127:
+- tc_etep
+- Total column of peroxy radical from c2h4
+218128:
+- tc_mek
+- Total column of c4h8o
+218129:
+- tc_oltp
+- Total column of peroxy radical from terminal alkenes
+218130:
+- tc_eneo2
+- Total column of c4h9o3
+218131:
+- tc_olip
+- Total column of peroxy radical from internal alkenes
+218132:
+- tc_meko2
+- Total column of ch3coch(oo)ch3
+218133:
+- tc_isopo2
+- Total column of peroxy radical from c5h8
+218134:
+- tc_mekooh
+- Total column of ch3coch(ooh)ch3
+218135:
+- tc_apip
+- Total column of peroxy radical from a-pinene cyclic terpenes
+218136:
+- tc_mco3
+- Total column of ch2=c(ch3)co3
+218137:
+- tc_limp
+- Total column of peroxy radical from d-limonene cyclic diene
+218138:
+- tc_mvk
+- Total column of methylvinylketone
+218139:
+- tc_pho
+- Total column of phenoxy radical
+218140:
+- tc_tolp
+- Total column of peroxy radical from toluene and less reactive aromatics
+218141:
+- tc_macro2
+- Total column of ch3c(o)ch(oo)ch2oh
+218142:
+- tc_xylp
+- Total column of peroxy radical from xylene and more reactive aromatics
+218143:
+- tc_macrooh
+- Total column of h3c(o)ch(ooh)ch2oh
+218144:
+- tc_cslp
+- Total column of peroxy radical from cresol
+218145:
+- tc_mpan
+- Total column of unsaturated pans
+218146:
+- tc_tco3_c
+- Total column of unsaturated acyl peroxy radical
+218147:
+- tc_ketp
+- Total column of peroxy radical from ketones
+218148:
+- tc_alko2
+- Total column of c5h11o2
+218149:
+- tc_olnn
+- Total column of no3-alkenes adduct reacting to form carbonitrates
+218150:
+- tc_alkooh
+- Total column of c5h11ooh
+218151:
+- tc_olnd
+- Total column of no3-alkenes adduct reacting via decomposition
+218152:
+- tc_bigald
+- Total column of hoch2c(ch3)=chcho
+218153:
+- tc_hydrald
+- Total column of c5h6o2
+218154:
+- tc_sulf
+- Total column of trop sulfuric acid
+218155:
+- tc_ox
+- Total column of oxides
+218156:
+- tc_isopno3
+- Total column of ch2chc(ch3)(oo)ch2ono2
+218157:
+- tc_onitr
+- Total column of c3 organic nitrate
+218158:
+- tc_clox
+- Total column of chlorine oxides
+218159:
+- tc_brox
+- Total column of bromine oxides
+218160:
+- tc_xooh
+- Total column of hoch2c(ooh)(ch3)chchoh
+218161:
+- tc_isopooh
+- Total column of hoch2c(ooh)(ch3)ch=ch2
+218162:
+- tc_toluene
+- Total column of lumped aromatics
+218163:
+- tc_dmso
+- Total column of dimethyl sulfoxyde
+218164:
+- tc_tolo2
+- Total column of c7h9o5
+218165:
+- tc_tolooh
+- Total column of c7h10o5
+218166:
+- tc_h2s
+- Total column of hydrogensulfide
+218167:
+- tc_xoh
+- Total column of c7h10o6
+218168:
+- tc_noy
+- Total column of all nitrogen oxides
+218169:
+- tc_cly
+- Total column of chlorine family
+218170:
+- tc_terpo2
+- Total column of c10h16(oh)(oo)
+218171:
+- tc_bry
+- Total column of bromine family
+218172:
+- tc_terpooh
+- Total column of c10h18o3
+218173:
+- tc_n
+- Total column of nitrogen atom
+218174:
+- tc_clo
+- Total column of chlorine monoxide
+218175:
+- tc_cl_c
+- Total column of chlorine atom
+218176:
+- tc_bro
+- Total column of bromine monoxide
+218177:
+- tc_h_c
+- Total column of hydrogen atom
+218178:
+- tc_ch3
+- Total column of methyl group
+218179:
+- tc_addt
+- Total column of aromatic-ho from toluene and less reactive aromatics
+218180:
+- tc_addx
+- Total column of aromatic-ho from xylene and more reactive aromatics
+218181:
+- tc_nh4no3
+- Total column of ammonium nitrate
+218182:
+- tc_addc
+- Total column of aromatic-ho from csl
+218183:
+- tc_soa1
+- Total column of secondary organic aerosol type 1
+218184:
+- tc_soa2a
+- Total column of secondary organic aerosol type 2a
+218185:
+- tc_soa2b
+- Total column of secondary organic aerosol type 2b
+218186:
+- tc_sog1
+- Total column of condensable gas type 1
+218187:
+- tc_sog2a
+- Total column of condensable gas type 2a
+218188:
+- tc_sog2b
+- Total column of condensable gas type 2b
+218189:
+- tc_so3
+- Total column of sulfur trioxide
+218190:
+- tc_ocs_c
+- Total column of carbonyl sulfide
+218191:
+- tc_br
+- Total column of bromine atom
+218192:
+- tc_br2
+- Total column of bromine
+218193:
+- tc_brcl
+- Total column of bromine monochloride
+218194:
+- tc_brono2
+- Total column of bromine nitrate
+218195:
+- tc_ch2br2
+- Total column of dibromomethane
+218196:
+- tc_ch3o
+- Total column of methoxy radical
+218197:
+- tc_chbr3
+- Total column of tribromomethane
+218198:
+- tc_cloo
+- Total column of asymmetric chlorine dioxide radical
+218199:
+- tc_h2
+- Total column of hydrogen
+218200:
+- tc_hcl
+- Total column of hydrogen chloride
+218201:
+- tc_hco
+- Total column of formyl radical
+218202:
+- tc_hf
+- Total column of hydrogen fluoride
+218203:
+- tc_o
+- Total column of oxygen atom
+218204:
+- tc_o1d
+- Total column of excited oxygen atom
+218205:
+- tc_o3p
+- Total column of ground state oxygen atom
+218206:
+- tc_strataer
+- Total column of stratospheric aerosol
 219001:
 - e_go3
 - ozone emissions
@@ -7547,6 +8477,498 @@
 219056:
 - e_noxa
 - nitrogen oxides transp emissions
+219057:
+- e_co2_c
+- Emissions of carbon dioxide (chemistry)
+219058:
+- e_n2o_c
+- Emissions of nitrous oxide (chemistry)
+219059:
+- e_h2o
+- Emissions of water vapour (chemistry)
+219060:
+- e_o2
+- Emissions of oxygen
+219061:
+- e_o2_1s
+- Emissions of singlet oxygen
+219062:
+- e_o2_1d
+- Emissions of singlet delta oxygen
+219063:
+- e_oclo
+- Emissions of chlorine dioxide
+219064:
+- e_clono2
+- Emissions of chlorine nitrate
+219065:
+- e_hocl
+- Emissions of hypochlorous acid
+219066:
+- e_cl2
+- Emissions of chlorine
+219067:
+- e_clno2
+- Emissions of nitryl chloride
+219068:
+- e_hbr
+- Emissions of hydrogen bromide
+219069:
+- e_cl2o2
+- Emissions of dichlorine dioxide
+219070:
+- e_hobr
+- Emissions of hypobromous acid
+219071:
+- e_cfc11
+- Emissions of trichlorofluoromethane
+219072:
+- e_cfc12
+- Emissions of dichlorodifluoromethane
+219073:
+- e_cfc113
+- Emissions of trichlorotrifluoroethane
+219074:
+- e_cfc114
+- Emissions of dichlorotetrafluoroethane
+219075:
+- e_cfc115
+- Emissions of chloropentafluoroethane
+219076:
+- e_ccl4
+- Emissions of tetrachloromethane
+219077:
+- e_ch3ccl3
+- Emissions of methyl chloroform
+219078:
+- e_ch3cl
+- Emissions of methyl chloride
+219079:
+- e_hcfc22
+- Emissions of chlorodifluoromethane
+219080:
+- e_ch3br
+- Emissions of methyl bromide
+219081:
+- e_ha1202
+- Emissions of dibromodifluoromethane
+219082:
+- e_ha1211
+- Emissions of bromochlorodifluoromethane
+219083:
+- e_ha1301
+- Emissions of trifluorobromomethane
+219084:
+- e_ha2402
+- Emissions of cbrf2cbrf2
+219085:
+- e_h2so4
+- Emissions of sulfuric acid
+219086:
+- e_hono
+- Emissions of nitrous acid
+219087:
+- e_hc3
+- Emissions of alkanes low oh rate
+219088:
+- e_hc5
+- Emissions of alkanes med oh rate
+219089:
+- e_hc8
+- Emissions of alkanes high oh rate
+219090:
+- e_olt
+- Emissions of terminal alkenes
+219091:
+- e_oli
+- Emissions of internal alkenes
+219092:
+- e_c2h5o2
+- Emissions of ethylperoxy radical
+219093:
+- e_dien
+- Emissions of butadiene
+219094:
+- e_c2h5ooh
+- Emissions of ethyl hydroperoxide
+219095:
+- e_api
+- Emissions of a-pinene cyclic terpenes
+219096:
+- e_ch3cooh
+- Emissions of acetic acid
+219097:
+- e_lim
+- Emissions of d-limonene cyclic diene
+219098:
+- e_ch3cho
+- Emissions of acetaldehyde
+219099:
+- e_tol
+- Emissions of toluene and less reactive aromatics
+219100:
+- e_xyl
+- Emissions of xylene and more reactive aromatics
+219101:
+- e_glyald
+- Emissions of glycolaldehyde
+219102:
+- e_cresol
+- Emissions of cresol
+219103:
+- e_ald
+- Emissions of acetaldehyde and higher
+219104:
+- e_ch3coooh
+- Emissions of peracetic acid
+219105:
+- e_ket
+- Emissions of ketones
+219106:
+- e_eo2
+- Emissions of hoch2ch2o2
+219107:
+- e_glyoxal
+- Emissions of glyoxal
+219108:
+- e_eo
+- Emissions of hoch2ch2o
+219109:
+- e_dcb
+- Emissions of unsaturated dicarbonyls
+219110:
+- e_macr
+- Emissions of methacrolein
+219111:
+- e_udd
+- Emissions of unsaturated hydroxy dicarbonyl
+219112:
+- e_c3h7o2
+- Emissions of isopropyldioxidanyl
+219113:
+- e_hket
+- Emissions of hydroxy ketone
+219114:
+- e_c3h7ooh
+- Emissions of isopropyl hydroperoxide
+219115:
+- e_po2
+- Emissions of c3h6oho2
+219116:
+- e_pooh
+- Emissions of c3h6ohooh
+219117:
+- e_op2
+- Emissions of higher organic peroxides
+219118:
+- e_hyac
+- Emissions of hydroxyacetone
+219119:
+- e_paa
+- Emissions of peroxyacetic acid
+219120:
+- e_ro2
+- Emissions of ch3coch2o2
+219121:
+- e_ethp
+- Emissions of peroxy radical from c2h6
+219122:
+- e_hc3p
+- Emissions of peroxy radical from hc3
+219123:
+- e_hc5p
+- Emissions of peroxy radical from hc5
+219124:
+- e_bigene
+- Emissions of lumped alkenes
+219125:
+- e_hc8p
+- Emissions of peroxy radical from hc8
+219126:
+- e_bigalk
+- Emissions of lumped alkanes
+219127:
+- e_etep
+- Emissions of peroxy radical from c2h4
+219128:
+- e_mek
+- Emissions of c4h8o
+219129:
+- e_oltp
+- Emissions of peroxy radical from terminal alkenes
+219130:
+- e_eneo2
+- Emissions of c4h9o3
+219131:
+- e_olip
+- Emissions of peroxy radical from internal alkenes
+219132:
+- e_meko2
+- Emissions of ch3coch(oo)ch3
+219133:
+- e_isopo2
+- Emissions of peroxy radical from c5h8
+219134:
+- e_mekooh
+- Emissions of ch3coch(ooh)ch3
+219135:
+- e_apip
+- Emissions of peroxy radical from a-pinene cyclic terpenes
+219136:
+- e_mco3
+- Emissions of ch2=c(ch3)co3
+219137:
+- e_limp
+- Emissions of peroxy radical from d-limonene cyclic diene
+219138:
+- e_mvk
+- Emissions of methylvinylketone
+219139:
+- e_pho
+- Emissions of phenoxy radical
+219140:
+- e_tolp
+- Emissions of peroxy radical from toluene and less reactive aromatics
+219141:
+- e_macro2
+- Emissions of ch3c(o)ch(oo)ch2oh
+219142:
+- e_xylp
+- Emissions of peroxy radical from xylene and more reactive aromatics
+219143:
+- e_macrooh
+- Emissions of h3c(o)ch(ooh)ch2oh
+219144:
+- e_cslp
+- Emissions of peroxy radical from cresol
+219145:
+- e_mpan
+- Emissions of unsaturated pans
+219146:
+- e_tco3_c
+- Emissions of unsaturated acyl peroxy radical
+219147:
+- e_ketp
+- Emissions of peroxy radical from ketones
+219148:
+- e_alko2
+- Emissions of c5h11o2
+219149:
+- e_olnn
+- Emissions of no3-alkenes adduct reacting to form carbonitrates
+219150:
+- e_alkooh
+- Emissions of c5h11ooh
+219151:
+- e_olnd
+- Emissions of no3-alkenes adduct reacting via decomposition
+219152:
+- e_bigald
+- Emissions of hoch2c(ch3)=chcho
+219153:
+- e_hydrald
+- Emissions of c5h6o2
+219154:
+- e_sulf
+- Emissions of trop sulfuric acid
+219155:
+- e_ox
+- Emissions of oxides
+219156:
+- e_isopno3
+- Emissions of ch2chc(ch3)(oo)ch2ono2
+219157:
+- e_onitr
+- Emissions of c3 organic nitrate
+219158:
+- e_clox
+- Emissions of chlorine oxides
+219159:
+- e_brox
+- Emissions of bromine oxides
+219160:
+- e_xooh
+- Emissions of hoch2c(ooh)(ch3)chchoh
+219161:
+- e_isopooh
+- Emissions of hoch2c(ooh)(ch3)ch=ch2
+219162:
+- e_toluene
+- Emissions of lumped aromatics
+219163:
+- e_dmso
+- Emissions of dimethyl sulfoxyde
+219164:
+- e_tolo2
+- Emissions of c7h9o5
+219165:
+- e_tolooh
+- Emissions of c7h10o5
+219166:
+- e_h2s
+- Emissions of hydrogensulfide
+219167:
+- e_xoh
+- Emissions of c7h10o6
+219168:
+- e_noy
+- Emissions of all nitrogen oxides
+219169:
+- e_cly
+- Emissions of chlorine family
+219170:
+- e_terpo2
+- Emissions of c10h16(oh)(oo)
+219171:
+- e_bry
+- Emissions of bromine family
+219172:
+- e_terpooh
+- Emissions of c10h18o3
+219173:
+- e_n
+- Emissions of nitrogen atom
+219174:
+- e_clo
+- Emissions of chlorine monoxide
+219175:
+- e_cl_c
+- Emissions of chlorine atom
+219176:
+- e_bro
+- Emissions of bromine monoxide
+219177:
+- e_h_c
+- Emissions of hydrogen atom
+219178:
+- e_ch3
+- Emissions of methyl group
+219179:
+- e_addt
+- Emissions of aromatic-ho from toluene and less reactive aromatics
+219180:
+- e_addx
+- Emissions of aromatic-ho from xylene and more reactive aromatics
+219181:
+- e_nh4no3
+- Emissions of ammonium nitrate
+219182:
+- e_addc
+- Emissions of aromatic-ho from csl
+219183:
+- e_soa1
+- Emissions of secondary organic aerosol type 1
+219184:
+- e_soa2a
+- Emissions of secondary organic aerosol type 2a
+219185:
+- e_soa2b
+- Emissions of secondary organic aerosol type 2b
+219186:
+- e_sog1
+- Emissions of condensable gas type 1
+219187:
+- e_sog2a
+- Emissions of condensable gas type 2a
+219188:
+- e_sog2b
+- Emissions of condensable gas type 2b
+219189:
+- e_so3
+- Emissions of sulfur trioxide
+219190:
+- e_ocs_c
+- Emissions of carbonyl sulfide
+219191:
+- e_br
+- Emissions of bromine atom
+219192:
+- e_br2
+- Emissions of bromine
+219193:
+- e_brcl
+- Emissions of bromine monochloride
+219194:
+- e_brono2
+- Emissions of bromine nitrate
+219195:
+- e_ch2br2
+- Emissions of dibromomethane
+219196:
+- e_ch3o
+- Emissions of methoxy radical
+219197:
+- e_chbr3
+- Emissions of tribromomethane
+219198:
+- e_cloo
+- Emissions of asymmetric chlorine dioxide radical
+219199:
+- e_h2
+- Emissions of hydrogen
+219200:
+- e_hcl
+- Emissions of hydrogen chloride
+219201:
+- e_hco
+- Emissions of formyl radical
+219202:
+- e_hf
+- Emissions of hydrogen fluoride
+219203:
+- e_o
+- Emissions of oxygen atom
+219204:
+- e_o1d
+- Emissions of excited oxygen atom
+219205:
+- e_o3p
+- Emissions of ground state oxygen atom
+219206:
+- e_strataer
+- Emissions of stratospheric aerosol
+219207:
+- parfire
+- Wildfire flux of paraffins
+219208:
+- olefire
+- Wildfire flux of olefines
+219209:
+- ald2fire
+- Wildfire flux of aldehydes
+219210:
+- ketfire
+- Wildfire flux of ketones
+219211:
+- apifire
+- Wildfire flux of f a-pinene cyclic terpenes
+219212:
+- tolfire
+- Wildfire flux of  toluene less reactive aromatics
+219213:
+- xylfire
+- Wildfire flux of xylene more reactive aromatics
+219214:
+- limfire
+- Wildfire flux of d-limonene cyclic diene
+219215:
+- oltfire
+- Wildfire flux of  terminal alkenes
+219216:
+- hc3fire
+- Wildfire flux of  alkanes low oh rate
+219217:
+- hc5fire
+- Wildfire flux of alkanes med oh rate
+219218:
+- hc8fire
+- Wildfire flux of alkanes high oh rate
+219219:
+- hcnfire
+- Wildfire flux of hydrogen cyanide
+219220:
+- ch3cnfire
+- Wildfire flux of acetonitrile
 220228:
 - tpoc
 - total precipitation observation count
@@ -7718,6 +9140,456 @@
 221056:
 - dv_noxa
 - nitrogen oxides transp deposition velocity
+221057:
+- dv_co2_c
+- Dry deposition velocity of carbon dioxide (chemistry)
+221058:
+- dv_n2o_c
+- Dry deposition velocity of nitrous oxide (chemistry)
+221059:
+- dv_h2o
+- Dry deposition velocity of water vapour (chemistry)
+221060:
+- dv_o2
+- Dry deposition velocity of oxygen
+221061:
+- dv_o2_1s
+- Dry deposition velocity of singlet oxygen
+221062:
+- dv_o2_1d
+- Dry deposition velocity of singlet delta oxygen
+221063:
+- dv_oclo
+- Dry deposition velocity of chlorine dioxide
+221064:
+- dv_clono2
+- Dry deposition velocity of chlorine nitrate
+221065:
+- dv_hocl
+- Dry deposition velocity of hypochlorous acid
+221066:
+- dv_cl2
+- Dry deposition velocity of chlorine
+221067:
+- dv_clno2
+- Dry deposition velocity of nitryl chloride
+221068:
+- dv_hbr
+- Dry deposition velocity of hydrogen bromide
+221069:
+- dv_cl2o2
+- Dry deposition velocity of dichlorine dioxide
+221070:
+- dv_hobr
+- Dry deposition velocity of hypobromous acid
+221071:
+- dv_cfc11
+- Dry deposition velocity of trichlorofluoromethane
+221072:
+- dv_cfc12
+- Dry deposition velocity of dichlorodifluoromethane
+221073:
+- dv_cfc113
+- Dry deposition velocity of trichlorotrifluoroethane
+221074:
+- dv_cfc114
+- Dry deposition velocity of dichlorotetrafluoroethane
+221075:
+- dv_cfc115
+- Dry deposition velocity of chloropentafluoroethane
+221076:
+- dv_ccl4
+- Dry deposition velocity of tetrachloromethane
+221077:
+- dv_ch3ccl3
+- Dry deposition velocity of methyl chloroform
+221078:
+- dv_ch3cl
+- Dry deposition velocity of methyl chloride
+221079:
+- dv_hcfc22
+- Dry deposition velocity of chlorodifluoromethane
+221080:
+- dv_ch3br
+- Dry deposition velocity of methyl bromide
+221081:
+- dv_ha1202
+- Dry deposition velocity of dibromodifluoromethane
+221082:
+- dv_ha1211
+- Dry deposition velocity of bromochlorodifluoromethane
+221083:
+- dv_ha1301
+- Dry deposition velocity of trifluorobromomethane
+221084:
+- dv_ha2402
+- Dry deposition velocity of cbrf2cbrf2
+221085:
+- dv_h2so4
+- Dry deposition velocity of sulfuric acid
+221086:
+- dv_hono
+- Dry deposition velocity of nitrous acid
+221087:
+- dv_hc3
+- Dry deposition velocity of alkanes low oh rate
+221088:
+- dv_hc5
+- Dry deposition velocity of alkanes med oh rate
+221089:
+- dv_hc8
+- Dry deposition velocity of alkanes high oh rate
+221090:
+- dv_olt
+- Dry deposition velocity of terminal alkenes
+221091:
+- dv_oli
+- Dry deposition velocity of internal alkenes
+221092:
+- dv_c2h5o2
+- Dry deposition velocity of ethylperoxy radical
+221093:
+- dv_dien
+- Dry deposition velocity of butadiene
+221094:
+- dv_c2h5ooh
+- Dry deposition velocity of ethyl hydroperoxide
+221095:
+- dv_api
+- Dry deposition velocity of a-pinene cyclic terpenes
+221096:
+- dv_ch3cooh
+- Dry deposition velocity of acetic acid
+221097:
+- dv_lim
+- Dry deposition velocity of d-limonene cyclic diene
+221098:
+- dv_ch3cho
+- Dry deposition velocity of acetaldehyde
+221099:
+- dv_tol
+- Dry deposition velocity of toluene and less reactive aromatics
+221100:
+- dv_xyl
+- Dry deposition velocity of xylene and more reactive aromatics
+221101:
+- dv_glyald
+- Dry deposition velocity of glycolaldehyde
+221102:
+- dv_cresol
+- Dry deposition velocity of cresol
+221103:
+- dv_ald
+- Dry deposition velocity of acetaldehyde and higher
+221104:
+- dv_ch3coooh
+- Dry deposition velocity of peracetic acid
+221105:
+- dv_ket
+- Dry deposition velocity of ketones
+221106:
+- dv_eo2
+- Dry deposition velocity of hoch2ch2o2
+221107:
+- dv_glyoxal
+- Dry deposition velocity of glyoxal
+221108:
+- dv_eo
+- Dry deposition velocity of hoch2ch2o
+221109:
+- dv_dcb
+- Dry deposition velocity of unsaturated dicarbonyls
+221110:
+- dv_macr
+- Dry deposition velocity of methacrolein
+221111:
+- dv_udd
+- Dry deposition velocity of unsaturated hydroxy dicarbonyl
+221112:
+- dv_c3h7o2
+- Dry deposition velocity of isopropyldioxidanyl
+221113:
+- dv_hket
+- Dry deposition velocity of hydroxy ketone
+221114:
+- dv_c3h7ooh
+- Dry deposition velocity of isopropyl hydroperoxide
+221115:
+- dv_po2
+- Dry deposition velocity of c3h6oho2
+221116:
+- dv_pooh
+- Dry deposition velocity of c3h6ohooh
+221117:
+- dv_op2
+- Dry deposition velocity of higher organic peroxides
+221118:
+- dv_hyac
+- Dry deposition velocity of hydroxyacetone
+221119:
+- dv_paa
+- Dry deposition velocity of peroxyacetic acid
+221120:
+- dv_ro2
+- Dry deposition velocity of ch3coch2o2
+221121:
+- dv_ethp
+- Dry deposition velocity of peroxy radical from c2h6
+221122:
+- dv_hc3p
+- Dry deposition velocity of peroxy radical from hc3
+221123:
+- dv_hc5p
+- Dry deposition velocity of peroxy radical from hc5
+221124:
+- dv_bigene
+- Dry deposition velocity of lumped alkenes
+221125:
+- dv_hc8p
+- Dry deposition velocity of peroxy radical from hc8
+221126:
+- dv_bigalk
+- Dry deposition velocity of lumped alkanes
+221127:
+- dv_etep
+- Dry deposition velocity of peroxy radical from c2h4
+221128:
+- dv_mek
+- Dry deposition velocity of c4h8o
+221129:
+- dv_oltp
+- Dry deposition velocity of peroxy radical from terminal alkenes
+221130:
+- dv_eneo2
+- Dry deposition velocity of c4h9o3
+221131:
+- dv_olip
+- Dry deposition velocity of peroxy radical from internal alkenes
+221132:
+- dv_meko2
+- Dry deposition velocity of ch3coch(oo)ch3
+221133:
+- dv_isopo2
+- Dry deposition velocity of peroxy radical from c5h8
+221134:
+- dv_mekooh
+- Dry deposition velocity of ch3coch(ooh)ch3
+221135:
+- dv_apip
+- Dry deposition velocity of peroxy radical from a-pinene cyclic terpenes
+221136:
+- dv_mco3
+- Dry deposition velocity of ch2=c(ch3)co3
+221137:
+- dv_limp
+- Dry deposition velocity of peroxy radical from d-limonene cyclic diene
+221138:
+- dv_mvk
+- Dry deposition velocity of methylvinylketone
+221139:
+- dv_pho
+- Dry deposition velocity of phenoxy radical
+221140:
+- dv_tolp
+- Dry deposition velocity of peroxy radical from toluene and less reactive aromatics
+221141:
+- dv_macro2
+- Dry deposition velocity of ch3c(o)ch(oo)ch2oh
+221142:
+- dv_xylp
+- Dry deposition velocity of peroxy radical from xylene and more reactive aromatics
+221143:
+- dv_macrooh
+- Dry deposition velocity of h3c(o)ch(ooh)ch2oh
+221144:
+- dv_cslp
+- Dry deposition velocity of peroxy radical from cresol
+221145:
+- dv_mpan
+- Dry deposition velocity of unsaturated pans
+221146:
+- dv_tco3_c
+- Dry deposition velocity of unsaturated acyl peroxy radical
+221147:
+- dv_ketp
+- Dry deposition velocity of peroxy radical from ketones
+221148:
+- dv_alko2
+- Dry deposition velocity of c5h11o2
+221149:
+- dv_olnn
+- Dry deposition velocity of no3-alkenes adduct reacting to form carbonitrates
+221150:
+- dv_alkooh
+- Dry deposition velocity of c5h11ooh
+221151:
+- dv_olnd
+- Dry deposition velocity of no3-alkenes adduct reacting via decomposition
+221152:
+- dv_bigald
+- Dry deposition velocity of hoch2c(ch3)=chcho
+221153:
+- dv_hydrald
+- Dry deposition velocity of c5h6o2
+221154:
+- dv_sulf
+- Dry deposition velocity of trop sulfuric acid
+221155:
+- dv_ox
+- Dry deposition velocity of oxides
+221156:
+- dv_isopno3
+- Dry deposition velocity of ch2chc(ch3)(oo)ch2ono2
+221157:
+- dv_onitr
+- Dry deposition velocity of c3 organic nitrate
+221158:
+- dv_clox
+- Dry deposition velocity of chlorine oxides
+221159:
+- dv_brox
+- Dry deposition velocity of bromine oxides
+221160:
+- dv_xooh
+- Dry deposition velocity of hoch2c(ooh)(ch3)chchoh
+221161:
+- dv_isopooh
+- Dry deposition velocity of hoch2c(ooh)(ch3)ch=ch2
+221162:
+- dv_toluene
+- Dry deposition velocity of lumped aromatics
+221163:
+- dv_dmso
+- Dry deposition velocity of dimethyl sulfoxyde
+221164:
+- dv_tolo2
+- Dry deposition velocity of c7h9o5
+221165:
+- dv_tolooh
+- Dry deposition velocity of c7h10o5
+221166:
+- dv_h2s
+- Dry deposition velocity of hydrogensulfide
+221167:
+- dv_xoh
+- Dry deposition velocity of c7h10o6
+221168:
+- dv_noy
+- Dry deposition velocity of all nitrogen oxides
+221169:
+- dv_cly
+- Dry deposition velocity of chlorine family
+221170:
+- dv_terpo2
+- Dry deposition velocity of c10h16(oh)(oo)
+221171:
+- dv_bry
+- Dry deposition velocity of bromine family
+221172:
+- dv_terpooh
+- Dry deposition velocity of c10h18o3
+221173:
+- dv_n
+- Dry deposition velocity of nitrogen atom
+221174:
+- dv_clo
+- Dry deposition velocity of chlorine monoxide
+221175:
+- dv_cl_c
+- Dry deposition velocity of chlorine atom
+221176:
+- dv_bro
+- Dry deposition velocity of bromine monoxide
+221177:
+- dv_h_c
+- Dry deposition velocity of hydrogen atom
+221178:
+- dv_ch3
+- Dry deposition velocity of methyl group
+221179:
+- dv_addt
+- Dry deposition velocity of aromatic-ho from toluene and less reactive aromatics
+221180:
+- dv_addx
+- Dry deposition velocity of aromatic-ho from xylene and more reactive aromatics
+221181:
+- dv_nh4no3
+- Dry deposition velocity of ammonium nitrate
+221182:
+- dv_addc
+- Dry deposition velocity of aromatic-ho from csl
+221183:
+- dv_soa1
+- Dry deposition velocity of secondary organic aerosol type 1
+221184:
+- dv_soa2a
+- Dry deposition velocity of secondary organic aerosol type 2a
+221185:
+- dv_soa2b
+- Dry deposition velocity of secondary organic aerosol type 2b
+221186:
+- dv_sog1
+- Dry deposition velocity of condensable gas type 1
+221187:
+- dv_sog2a
+- Dry deposition velocity of condensable gas type 2a
+221188:
+- dv_sog2b
+- Dry deposition velocity of condensable gas type 2b
+221189:
+- dv_so3
+- Dry deposition velocity of sulfur trioxide
+221190:
+- dv_ocs_c
+- Dry deposition velocity of carbonyl sulfide
+221191:
+- dv_br
+- Dry deposition velocity of bromine atom
+221192:
+- dv_br2
+- Dry deposition velocity of bromine
+221193:
+- dv_brcl
+- Dry deposition velocity of bromine monochloride
+221194:
+- dv_brono2
+- Dry deposition velocity of bromine nitrate
+221195:
+- dv_ch2br2
+- Dry deposition velocity of dibromomethane
+221196:
+- dv_ch3o
+- Dry deposition velocity of methoxy radical
+221197:
+- dv_chbr3
+- Dry deposition velocity of tribromomethane
+221198:
+- dv_cloo
+- Dry deposition velocity of asymmetric chlorine dioxide radical
+221199:
+- dv_h2
+- Dry deposition velocity of hydrogen
+221200:
+- dv_hcl
+- Dry deposition velocity of hydrogen chloride
+221201:
+- dv_hco
+- Dry deposition velocity of formyl radical
+221202:
+- dv_hf
+- Dry deposition velocity of hydrogen fluoride
+221203:
+- dv_o
+- Dry deposition velocity of oxygen atom
+221204:
+- dv_o1d
+- Dry deposition velocity of excited oxygen atom
+221205:
+- dv_o3p
+- Dry deposition velocity of ground state oxygen atom
+221206:
+- dv_strataer
+- Dry deposition velocity of stratospheric aerosol
 228001:
 - cin
 - convective inhibition
@@ -7858,8 +9730,8 @@
 - litoti
 - instantaneous total lightning density
 228051:
-- litota
-- averaged total lightning density
+- litota1
+- Averaged total lightning flash density in the last hour
 228052:
 - licgi
 - instantaneous cloud-to-ground lightning density
@@ -7875,6 +9747,18 @@
 228056:
 - ucciwc
 - unbalanced component of specific cloud ice water content
+228057:
+- litota3
+- Averaged total lightning flash density in the last 3 hours
+228058:
+- litota6
+- Averaged total lightning flash density in the last 6 hours
+228059:
+- licga3
+- Averaged cloud-to-ground lightning flash density in the last 3 hours
+228060:
+- licga6
+- Averaged cloud-to-ground lightning flash density in the last 6 hours
 228078:
 - gppbfas
 - gpp coefficient from biogenic flux adjustment system
@@ -9338,6 +11222,9 @@
 260288:
 - frzr
 - freezing rain
+260289:
+- fscov
+- Fraction of snow cover
 260295:
 - lauv
 - latitude of u wind component of velocity
