@@ -9730,8 +9730,8 @@
 - litoti
 - instantaneous total lightning density
 228051:
-- litota
-- averaged total lightning density
+- litota1
+- Averaged total lightning flash density in the last hour
 228052:
 - licgi
 - instantaneous cloud-to-ground lightning density
