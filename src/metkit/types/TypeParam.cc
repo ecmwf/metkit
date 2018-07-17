@@ -93,6 +93,7 @@ public:
 
     bool match(const metkit::MarsRequest& request) const;
     std::string lookup(const std::string & s, bool fail) const;
+    long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
 
@@ -272,6 +273,48 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
     return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
 }
 
+long Rule::toParamid(const std::string& param) const {
+
+    eckit::Translator<std::string, long> s2l;
+    eckit::Translator<long, std::string> l2s;
+
+    // This expands aliases, etc. If the parameter is an integer, but not in the
+    // accepted values list, it will print a warning but not fail.
+
+    std::string canonicalParam(lookup(param, false));
+
+    if (std::find(values_.begin(), values_.end(), canonicalParam) != values_.end()) {
+        return s2l(canonicalParam);
+    }
+
+    // If the param is not found in the list of acceptable paramids, then
+    // we should attempt to find a special-case mapping
+
+    long p(eckit::Translator<std::string, long>()(canonicalParam));
+    ASSERT(l2s(p) == canonicalParam);
+
+    bool found = false;
+    long paramid;
+
+    for (const auto& v : values_) {
+
+        long vlong(s2l(v));
+        if (l2s(vlong) != v) continue; // Only consider integer params/aliases
+        ASSERT(p != vlong);
+
+        if (vlong % 1000 == p) {
+            ASSERT(!found);
+            found = true;
+            paramid = vlong;
+        }
+    }
+
+    // If we haven't found a mapping , then this is not a permitted param
+
+    if (!found) throw eckit::UserError("Cannot match parameter " + param, Here());
+    return paramid;
+}
+
 static std::vector<Rule>* rules = 0;
 
 }
@@ -331,6 +374,25 @@ eckit::PathName TypeParam::paramIDYamlFile() {
 
 void TypeParam::print(std::ostream &out) const {
     out << "TypeParam[name=" << name_ << "]";
+}
+
+long TypeParam::paramToParamid(const std::string& param, const std::string& stream, const std::string& type) {
+
+    pthread_once(&once, init);
+
+    MarsRequest prototypicalRequest("retrieve");
+    prototypicalRequest.setValue("stream", stream);
+    prototypicalRequest.setValue("type", type);
+
+    for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
+        if (j->match(prototypicalRequest)) {
+            return j->toParamid(param);
+        }
+    }
+
+    std::stringstream ss;
+    ss << "Unmatched param=" << param << ", stream=" << stream << ", type=" << type;
+    throw eckit::SeriousBug(ss.str(), Here());
 }
 
 bool TypeParam::expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const {
