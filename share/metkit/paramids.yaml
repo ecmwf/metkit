@@ -44,15 +44,19 @@
 15:
 - aluvp
 - uv visible albedo for direct radiation
+- auvp
 16:
 - aluvd
 - uv visible albedo for diffuse radiation
+- auvd
 17:
 - alnip
 - near ir albedo for direct radiation
+- anip
 18:
 - alnid
 - near ir albedo for diffuse radiation
+- anid
 19:
 - uvcs
 - clear sky surface uv
@@ -9659,6 +9663,7 @@
 228024:
 - deg0l
 - zero degree level
+- deg0
 228025:
 - hvis
 - horizontal visibility

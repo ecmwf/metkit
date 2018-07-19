@@ -33,6 +33,8 @@ public: // methods
     static eckit::PathName paramYamlFile();
     static eckit::PathName paramIDYamlFile();
 
+    long paramToParamid(const std::string& param, const std::string& stream, const std::string& type);
+
 protected:
     virtual bool expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
 
