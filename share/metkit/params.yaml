@@ -928,10 +928,10 @@
   - - 129
     - 156
     - 928
-- - stream: enfo
-    type: cs
-  - - 129
-    - 130
+#- - stream: enfo
+#    type: cs
+#  - - 129
+#    - 130
 - - stream: enfo
     type: efi
   - - 132044
@@ -1259,9 +1259,9 @@
     - 172228
     - 228246
     - 228247
-- - stream: enfo
-    type: fp
-  - - 131130
+#- - stream: enfo
+#    type: fp
+#  - - 131130
 - - stream: enfo
     type: pb
   - - 171129
@@ -1398,10 +1398,10 @@
     - 172228
     - 228246
     - 228247
-- - stream: enfo
-    type: tf
-  - - 129
-    - 999
+#- - stream: enfo
+#    type: tf
+#  - - 129
+#    - 999
 - - stream: enwh
     type:
     - cf

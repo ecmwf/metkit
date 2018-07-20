@@ -2,8 +2,11 @@
 import yaml
 import re
 import os
+import json
 import itertools
 import subprocess
+
+target = "mars.list"
 
 PARAMS = {}
 if os.path.exists("params.yaml"):
@@ -13,12 +16,18 @@ if os.path.exists("params.yaml"):
 OUT = []
 for entry in PARAMS:
     when, parms = entry
+    orig = dict(**when)
 
     if 'file' in when:
+        OUT.append([orig, parms])
         continue
 
     if not when:
         continue
+
+    done = "%s.done" % (json.dumps(when,sort_keys=True),)
+    if os.path.exists(done):
+       continue
 
     for k, v in list(when.items()):
         if not isinstance(v, list):
@@ -33,44 +42,60 @@ for entry in PARAMS:
 
         for n in itertools.product(*values):
             r = dict((a, b) for a, b in zip(names, n))
-            if r.get('type') == 'wp':
+            if r.get('type') in ('wp', 'cv', 'tf' ):
+                continue
+
+            if r.get('stream') == 'efov':
                 continue
 
             print(r)
 
             for levtype in ('sfc', 'pl', 'ml', 'pt', 'pv'):
                 r['levtype'] = levtype
-                r['param'] = 'all'
-                r['step'] = "0/12/0-168"
                 r['time'] = "0/12"
-                r['levelist'] = "500/1/10/2000/300/850"
                 r['date'] = "20180701/to/20180707"
-                r['expect'] = 'any'
-                r['target'] = 'data'
-                r['number'] = '1'
+                r['hide'] = 'channel/ident/instrument/branch/frequency/direction/method/system/origin/quantile/domain/number/fcmonth/type/class/expver/stream/hdate/levtype/month/year/date/levelist/time/step/files/missing/offset/length/grand-total/cost/file/id'
+                r['target'] = '"%s"' % (target,)
 
-                rr = 'retrieve,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
+                rr = 'list,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
                 print(rr, file=f)
 
     subprocess.call(["mars", "tmp"])
-    if os.path.getsize('data') == 0:
-        exit(1)
-    out = subprocess.check_output(["grib_ls", "-p", "paramId", "data"]).decode().split('\n')
-    out = [x.strip() for x in out]
+
     params = set()
-    for p in out:
-        try:
-            params.add(int(p))
-        except:
-            pass
+    with open(target) as f:
+        lines = [x.strip() for x in f.readlines()]
+        for n in lines:
+            if n == '':
+               continue
+            if n == 'param':
+               continue
+            m = n.split('.')
+            if len(m) == 2:
+                p, t = int(m[0]), int(m[1])
+                if t == 128:
+                    t = 0
+                m = t * 1000 + p
+            elif len(m) == 1:
+                m = int(m[0])
+            else:
+                print(m[0])
+                exit(1)
+            params.add(m)
+
     if 155 in params and 138 in params:
         params.add(131)
         params.add(132)
     params = sorted(params)
     print(params)
 
-    OUT.append([when, params])
+    if not params:
+        params = parms
+
+    OUT.append([orig, params])
+
+    with open(done, "w") as f:
+        f.write(yaml.safe_dump([[orig, params]], default_flow_style=False))
 
     with open("paramids2.yaml", "w") as f:
         f.write(yaml.safe_dump(OUT, default_flow_style=False))
-
