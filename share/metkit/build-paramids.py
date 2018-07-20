@@ -6,9 +6,9 @@ import os
 
 
 db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
-                      "ecmwf_ro",
-                      "ecmwf_ro",
-                      "param")
+                     "ecmwf_ro",
+                     "ecmwf_ro",
+                     "param")
 
 PRODGEN = {}
 if os.path.exists("prodgen.yaml"):
@@ -38,20 +38,20 @@ for data in cursor.fetchall():
     entry = [abbr, longname]
 
     if paramid in PRODGEN:
-       pgen = [str(x).lower() for x in PRODGEN[paramid]]
-       p = []
-       for n in pgen:
-          if n not in entry and (' ' not in n) and ('.' not in n) and ('-' not in n):
-              entry.append(n)
-              p.append(n)
+        pgen = [str(x).lower() for x in PRODGEN[paramid]]
+        p = []
+        for n in pgen:
+            if n not in entry and (' ' not in n) and ('.' not in n) and ('-' not in n):
+                entry.append(n)
+                p.append(n)
 
     entry = tuple(entry)
 
     if paramid in PARAMSIDS:
-       before = tuple(PARAMSIDS[paramid]) 
-       if before != entry:
-           print("WARNING! updated paramid: {},  {} => {}".format(paramid, before, entry))
-           PARAMSIDS[paramid] = list(entry)
+        before = tuple(PARAMSIDS[paramid])
+        if before != entry:
+            print("WARNING! updated paramid: {},  {} => {}".format(paramid, before, entry))
+            PARAMSIDS[paramid] = list(entry)
     else:
         print("new paramid: {} {}".format(paramid, entry))
         PARAMSIDS[paramid] = list(entry)
@@ -67,4 +67,3 @@ for paramid, entry in PRODGEN.items():
 
 with open("paramids.yaml", "w") as f:
     f.write(yaml.safe_dump(PARAMSIDS, default_flow_style=False))
-
