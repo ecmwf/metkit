@@ -95,7 +95,7 @@ for entry in PARAMS:
     OUT.append([orig, params])
 
     with open(done, "w") as f:
-        f.write(yaml.safe_dump([[orig, params]], default_flow_style=False))
+        f.write(yaml.safe_dump([orig, params], default_flow_style=False))
 
-    with open("paramids2.yaml", "w") as f:
-        f.write(yaml.safe_dump(OUT, default_flow_style=False))
+with open("params2.yaml", "w") as f:
+	f.write(yaml.safe_dump(OUT, default_flow_style=False))
