@@ -3258,15 +3258,19 @@
 171129:
 - za
 - geopotential anomaly
+- z
 171130:
 - ta
 - temperature anomaly
+- t
 171131:
 - ua
 - u component of wind anomaly
+- u
 171132:
 - va
 - v component of wind anomaly
+- v
 171133:
 - qa
 - specific humidity anomaly
@@ -3285,12 +3289,16 @@
 171138:
 - voa
 - relative vorticity anomaly
+- vo
 171139:
 - stal1
 - soil temperature anomaly level 1
+- stl1
+- st
 171140:
 - swal1
 - soil wetness anomaly level 1
+- swl1
 171141:
 - sda
 - snow depth anomaly
@@ -3324,6 +3332,7 @@
 171151:
 - msla
 - mean sea level pressure anomaly
+- msl
 171152:
 - lspa
 - logarithm of surface pressure anomaly
@@ -3336,12 +3345,15 @@
 171155:
 - da
 - relative divergence anomaly
+- d
 171156:
 - gha
 - height anomaly
+- gh
 171157:
 - ra
 - relative humidity anomaly
+- r
 171158:
 - tspa
 - tendency of surface pressure anomaly
@@ -3381,9 +3393,12 @@
 171170:
 - stal2
 - soil temperature anomaly level 2
+- slal2
+- stl2
 171171:
 - swal2
 - soil wetness anomaly level 2
+- swl2
 171173:
 - sra
 - surface roughness anomaly
