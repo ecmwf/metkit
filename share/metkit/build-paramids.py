@@ -3,11 +3,8 @@
 import yaml
 import mysql.connector
 
-try:
-    with open("paramids.yaml") as f:
-        PARAMSIDS = yaml.load(f.read()) or {}
-except:
-    PARAMSIDS = {}
+with open("paramids.yaml") as f:
+    PARAMSIDS = yaml.load(f.read())
 
 db = mysql.connector.connect(host="grib-param-db-prod.ecmwf.int",
                      user="ecmwf_ro",
@@ -38,4 +35,4 @@ for k, v in PARAMSIDS.items():
     X[int(k)] = v
 
 with open("paramids.yaml", "w") as f:
-    f.write(yaml.safe_dump(X, default_flow_style=False))
+    f.write(yaml.dump(X, default_flow_style=False))
