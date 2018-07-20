@@ -23,6 +23,12 @@ for entry in PARAMS:
     if not when:
         continue
 
+    if when.get('stream') == 'efov':
+        continue
+
+    if when.get('type') == 'tf':
+        continue
+
 
     for k, v in list(when.items()):
         if not isinstance(v, list):
@@ -66,9 +72,6 @@ for entry in PARAMS:
 
         subprocess.call(["mars", "tmp"])
 
-    if not os.path.exists(target):
-       continue
-
     params = set()
     with open(target) as f:
         lines = [x.strip() for x in f.readlines()]
@@ -93,6 +96,9 @@ for entry in PARAMS:
     if 155 in params and 138 in params:
         params.add(131)
         params.add(132)
+
+    if 171129 in params:
+        params.add(171156)
 
     if 129 in params:
         params.add(156)
