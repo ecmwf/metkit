@@ -1580,27 +1580,21 @@
 131020:
 - talm2
 - temperature anomaly less than -2 k
-- talm2k
 131021:
 - tag2
 - temperature anomaly of at least +2 k
-- tag2k
 131022:
 - talm8
 - temperature anomaly less than -8 k
-- talm8k
 131023:
 - talm4
 - temperature anomaly less than -4 k
-- talm4k
 131024:
 - tag4
 - temperature anomaly greater than +4 k
-- tag4k
 131025:
 - tag8
 - temperature anomaly greater than +8 k
-- tag8k
 131049:
 - 10gp
 - 10 metre wind gust probability
@@ -1622,7 +1616,6 @@
 131064:
 - tpl01
 - total precipitation less than 0.1 mm
-- tplo1
 131065:
 - tprl1
 - total precipitation rate less than 1 mm/day
@@ -1758,11 +1751,9 @@
 131229:
 - swhp
 - significant wave height probability
-- '229'
 131232:
 - mwpp
 - mean wave period probability
-- '232'
 132044:
 - capesi
 - convective available potential energy shear index
@@ -1772,7 +1763,6 @@
 132049:
 - 10fgi
 - 10 metre wind gust index
-- 10gi
 132059:
 - capei
 - convective available potential energy index
@@ -1794,7 +1784,6 @@
 132216:
 - maxswhi
 - maximum of significant wave height index
-- '216'
 132228:
 - tpi
 - total precipitation index
@@ -2092,277 +2081,210 @@
 140112:
 - wefxm
 - wave energy flux magnitude
-- '112'
 140113:
 - wefxd
 - wave energy flux mean direction
-- '113'
 140114:
 - h1012
 - significant wave height of all waves with periods within the inclusive range from
   10 to 12 seconds
-- '114'
 140115:
 - h1214
 - significant wave height of all waves with periods within the inclusive range from
   12 to 14 seconds
-- '115'
 140116:
 - h1417
 - significant wave height of all waves with periods within the inclusive range from
   14 to 17 seconds
-- '116'
 140117:
 - h1721
 - significant wave height of all waves with periods within the inclusive range from
   17 to 21 seconds
-- '117'
 140118:
 - h2125
 - significant wave height of all waves with periods within the inclusive range from
   21 to 25 seconds
-- '118'
 140119:
 - h2530
 - significant wave height of all waves with periods within the inclusive range from
   25 to 30 seconds
-- '119'
 140120:
 - sh10
 - significant wave height of all waves with period larger than 10s
-- '120'
 140121:
 - swh1
 - significant wave height of first swell partition
-- '121'
 140122:
 - mwd1
 - mean wave direction of first swell partition
-- '122'
 140123:
 - mwp1
 - mean wave period of first swell partition
-- '123'
 140124:
 - swh2
 - significant wave height of second swell partition
-- '124'
 140125:
 - mwd2
 - mean wave direction of second swell partition
-- '125'
 140126:
 - mwp2
 - mean wave period of second swell partition
-- '126'
 140127:
 - swh3
 - significant wave height of third swell partition
-- '127'
 140128:
 - mwd3
 - mean wave direction of third swell partition
-- '128'
 140129:
 - mwp3
 - mean wave period of third swell partition
-- '129'
 140200:
 - maxswh
 - maximum of significant wave height
-- '200'
 140207:
 - wss
 - wave spectral skewness
-- '207'
 140208:
 - wstar
 - free convective velocity over the oceans
-- '208'
 140209:
 - rhoao
 - air density over the oceans
-- '209'
 140210:
 - mswsi
 - mean square wave strain in sea ice
-- '210'
 140211:
 - phiaw
 - normalized energy flux into waves
-- '211'
 140212:
 - phioc
 - normalized energy flux into ocean
-- '212'
 140213:
 - tla
 - turbulent langmuir number
-- '213'
 140214:
 - tauoc
 - normalized stress into ocean
-- '214'
 140215:
 - ust
 - u-component stokes drift
-- '215'
 140216:
 - vst
 - v-component stokes drift
-- '216'
 140217:
 - tmax
 - period corresponding to maximum individual wave height
-- '217'
 140218:
 - hmax
 - maximum individual wave height
-- '218'
 140219:
 - wmb
 - model bathymetry
-- '219'
 140220:
 - mp1
 - mean wave period based on first moment
-- '220'
 140221:
 - mp2
 - mean zero-crossing wave period
-- '221'
 140222:
 - wdw
 - wave spectral directional width
-- '222'
 140223:
 - p1ww
 - mean wave period based on first moment for wind waves
-- '223'
 140224:
 - p2ww
 - mean wave period based on second moment for wind waves
-- '224'
 140225:
 - dwww
 - wave spectral directional width for wind waves
-- '225'
 140226:
 - p1ps
 - mean wave period based on first moment for swell
-- '226'
 140227:
 - p2ps
 - mean wave period based on second moment for swell
-- '227'
 140228:
 - dwps
 - wave spectral directional width for swell
-- '228'
 140229:
 - swh
 - significant height of combined wind waves and swell
-- '229'
 140230:
 - mwd
 - mean wave direction
-- '230'
 140231:
 - pp1d
 - peak wave period
-- '231'
 140232:
 - mwp
 - mean wave period
-- '232'
 140233:
 - cdww
 - coefficient of drag with waves
-- '233'
 140234:
 - shww
 - significant height of wind waves
-- '234'
 140235:
 - mdww
 - mean direction of wind waves
-- '235'
 140236:
 - mpww
 - mean period of wind waves
-- '236'
 140237:
 - shts
 - significant height of total swell
-- '237'
 140238:
 - mdts
 - mean direction of total swell
-- '238'
 140239:
 - mpts
 - mean period of total swell
-- '239'
 140240:
 - sdhs
 - standard deviation wave height
-- '240'
 140241:
 - mu10
 - mean of 10 metre wind speed
-- '241'
 140242:
 - mdwi
 - mean wind direction
-- '242'
 140243:
 - sdu
 - standard deviation of 10 metre wind speed
-- '243'
 140244:
 - msqs
 - mean square slope of waves
-- '244'
 140245:
 - wind
 - 10 metre wind speed
-- '245'
 140246:
 - awh
 - altimeter wave height
-- '246'
 140247:
 - acwh
 - altimeter corrected wave height
-- '247'
 140248:
 - arrc
 - altimeter range relative correction
-- '248'
 140249:
 - dwi
 - 10 metre wind direction
-- '249'
 140250:
 - 2dsp
 - 2d wave spectra (multiple)
-- '250'
 140251:
 - 2dfd
 - 2d wave spectra (single)
-- '251'
 140252:
 - wsk
 - wave spectral kurtosis
-- '252'
 140253:
 - bfi
 - benjamin-feir index
-- '253'
 140254:
 - wsp
 - wave spectral peakedness
-- '254'
 150129:
 - ocpt
 - ocean potential temperature
@@ -3233,19 +3155,15 @@
 171039:
 - swval1
 - volumetric soil water anomaly layer 1
-- swv1
 171040:
 - swval2
 - volumetric soil water anomaly layer 2
-- swv2
 171041:
 - swval3
 - volumetric soil water anomaly layer 3
-- swv3
 171042:
 - swval4
 - volumetric soil water anomaly layer 4
-- swv4
 171043:
 - slta
 - soil type anomaly
@@ -3339,19 +3257,15 @@
 171129:
 - za
 - geopotential anomaly
-- z
 171130:
 - ta
 - temperature anomaly
-- t
 171131:
 - ua
 - u component of wind anomaly
-- u
 171132:
 - va
 - v component of wind anomaly
-- v
 171133:
 - qa
 - specific humidity anomaly
@@ -3370,16 +3284,12 @@
 171138:
 - voa
 - relative vorticity anomaly
-- vo
 171139:
 - stal1
 - soil temperature anomaly level 1
-- stl1
-- st
 171140:
 - swal1
 - soil wetness anomaly level 1
-- swl1
 171141:
 - sda
 - snow depth anomaly
@@ -3413,7 +3323,6 @@
 171151:
 - msla
 - mean sea level pressure anomaly
-- msl
 171152:
 - lspa
 - logarithm of surface pressure anomaly
@@ -3426,15 +3335,12 @@
 171155:
 - da
 - relative divergence anomaly
-- d
 171156:
 - gha
 - height anomaly
-- gh
 171157:
 - ra
 - relative humidity anomaly
-- r
 171158:
 - tspa
 - tendency of surface pressure anomaly
@@ -3474,12 +3380,9 @@
 171170:
 - stal2
 - soil temperature anomaly level 2
-- slal2
-- stl2
 171171:
 - swal2
 - soil wetness anomaly level 2
-- swl2
 171173:
 - sra
 - surface roughness anomaly
@@ -3504,7 +3407,6 @@
 171180:
 - eqssa
 - east-west surface stress anomaly
-- ewssa
 171181:
 - nsssa
 - north-south surface stress anomaly
@@ -3514,11 +3416,9 @@
 171183:
 - stal3
 - soil temperature anomaly level 3
-- stl3
 171184:
 - swal3
 - soil wetness anomaly level 3
-- swl3
 171185:
 - ccca
 - convective cloud cover anomaly
@@ -3588,7 +3488,6 @@
 171207:
 - 10ua
 - 10 metre wind speed anomaly
-- 10si
 171208:
 - tsrca
 - top net solar radiation clear sky anomaly
@@ -3676,7 +3575,6 @@
 171237:
 - swal4
 - soil wetness level 4 anomaly
-- swl4
 171238:
 - tsna
 - temperature of snow layer anomaly
