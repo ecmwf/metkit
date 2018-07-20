@@ -86,6 +86,10 @@ for entry in PARAMS:
     if 155 in params and 138 in params:
         params.add(131)
         params.add(132)
+
+    if 129 in params:
+        params.add(156)
+
     params = sorted(params)
     print(params)
 
