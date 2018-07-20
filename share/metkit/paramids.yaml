@@ -3659,6 +3659,7 @@
 172228:
 - tprate
 - total precipitation
+- tp
 173008:
 - msrora
 - mean surface runoff rate anomaly
