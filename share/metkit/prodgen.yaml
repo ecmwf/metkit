@@ -24,8 +24,6 @@
 - laihv
 77:
 - etad
-126:
-- generic parameter for sensitive area prediction
 139:
 - st
 148:
@@ -41,32 +39,6 @@
 999:
 - tc
 - tropical cyclone
-129063:
-- start time for skin temperature difference
-129064:
-- finish time for skin temperature difference
-129065:
-- skin temperature difference
-129066:
-- leaf area index, low vegetation
-129067:
-- leaf area index, high vegetation
-129068:
-- minimum stomatal resistance, low vegetation
-129069:
-- minimum stomatal resistance, high vegetation
-129070:
-- biome cover, low vegetation
-129071:
-- biome cover, high vegetation
-129078:
-- total column liquid water
-129079:
-- total column ice water
-129125:
-- vertically integrated total energy
-129126:
-- generic parameter for sensitive area prediction
 131020:
 - talm2k
 131021:
@@ -82,247 +54,148 @@
 131064:
 - tplo1
 131229:
-- '229'
+- 229
 131232:
-- '232'
+- 232
 132049:
 - 10gi
 132216:
-- '216'
+- 216
 140112:
-- '112'
+- 112
 140113:
-- '113'
+- 113
 140114:
-- '114'
+- 114
 140115:
-- '115'
+- 115
 140116:
-- '116'
+- 116
 140117:
-- '117'
+- 117
 140118:
-- '118'
+- 118
 140119:
-- '119'
+- 119
 140120:
-- '120'
+- 120
 140121:
-- '121'
+- 121
 140122:
-- '122'
+- 122
 140123:
-- '123'
+- 123
 140124:
-- '124'
+- 124
 140125:
-- '125'
+- 125
 140126:
-- '126'
+- 126
 140127:
-- '127'
+- 127
 140128:
-- '128'
+- 128
 140129:
-- '129'
+- 129
 140200:
-- '200'
+- 200
 140207:
-- '207'
+- 207
 140208:
-- '208'
+- 208
 140209:
-- '209'
+- 209
 140210:
-- '210'
+- 210
 140211:
-- '211'
+- 211
 140212:
-- '212'
+- 212
 140213:
-- '213'
+- 213
 140214:
-- '214'
+- 214
 140215:
-- '215'
+- 215
 140216:
-- '216'
+- 216
 140217:
-- '217'
+- 217
 140218:
-- '218'
+- 218
 140219:
-- '219'
+- 219
 140220:
-- '220'
+- 220
 140221:
-- '221'
+- 221
 140222:
-- '222'
+- 222
 140223:
-- '223'
+- 223
 140224:
-- '224'
+- 224
 140225:
-- '225'
+- 225
 140226:
-- '226'
+- 226
 140227:
-- '227'
+- 227
 140228:
-- '228'
+- 228
 140229:
-- '229'
+- 229
 140230:
-- '230'
+- 230
 140231:
-- '231'
+- 231
 140232:
-- '232'
+- 232
 140233:
-- '233'
+- 233
 140234:
-- '234'
+- 234
 140235:
-- '235'
+- 235
 140236:
-- '236'
+- 236
 140237:
-- '237'
+- 237
 140238:
-- '238'
+- 238
 140239:
-- '239'
+- 239
 140240:
-- '240'
+- 240
 140241:
-- '241'
+- 241
 140242:
-- '242'
+- 242
 140243:
-- '243'
+- 243
 140244:
-- '244'
+- 244
 140245:
-- '245'
+- 245
 140246:
-- '246'
+- 246
 140247:
-- '247'
+- 247
 140248:
-- '248'
+- 248
 140249:
-- '249'
+- 249
 140250:
-- '250'
+- 250
 140251:
-- '251'
+- 251
 140252:
-- '252'
+- 252
 140253:
-- '253'
+- 253
 140254:
-- '254'
-150133:
-- ocu
-- ocean u wind component
-150134:
-- ocv
-- ocean v wind component
-150144:
-- uv - u~v~
-150145:
-- ut - u~t~
-150146:
-- vt - v~t~
-150147:
-- uu - u~u~
-150148:
-- vv - v~v~
-150153:
-- barotropic stream function
-150155:
-- depth
-150168:
-- u stress
-150169:
-- v stress
-150170:
-- turbulent kinetic energy input
-150172:
-- surface solar radiation
-150173:
-- p-e
-150180:
-- diagnosed sea surface temperature error
-150181:
-- heat flux correction
-150182:
-- observed sea surface temperature
-150183:
-- observed heat flux
-151128:
-- in situ temperature
-151152:
-- divergence of wind stress
-160249:
-- gravity wave dissipation flux
-162051:
-- surface geopotential
-162206:
-- variance of geopotential
-162207:
-- covariance of geopotential/temperature
-162208:
-- variance of temperature
-162209:
-- covariance of geopotential/specific humidity
-162210:
-- covariance of temperature/specific humidity
-162211:
-- variance of specific humidity
-162212:
-- covariance of u component/geopotential
-162213:
-- covariance of u component/temperature
-162214:
-- covariance of u component/specific humidity
-162215:
-- variance of u component
-162216:
-- covariance of v component/geopotential
-162217:
-- covariance of v component/temperature
-162218:
-- covariance of v component/specific humidity
-162219:
-- covariance of v component/u component
-162220:
-- variance of v component
-162221:
-- covariance of omega/geopotential
-162222:
-- covariance of omega/temperature
-162223:
-- covariance of omega/specific humidity
-162224:
-- covariance of omega/u component
-162225:
-- covariance of omega/v component
-162226:
-- variance of omega
-162227:
-- variance of surface pressure
-162229:
-- variance of relative humidity
-162230:
-- covariance of u component/ozone
-162231:
-- covariance of v component/ozone
-162232:
-- covariance of omega/ozone
-162233:
-- variance of ozone
+- 254
+
 171039:
 - swv1
 171040:
@@ -331,8 +204,7 @@
 - swv3
 171042:
 - swv4
-171126:
-- generic parameter for sensitive area prediction
+
 171129:
 - z
 171130:
@@ -371,519 +243,209 @@
 - 10si
 171237:
 - swl4
-172044:
-- es
-172045:
-- smlt
-- snowmelt
-172048:
-- magss
-- magnitude of turbulent surface stress
-172050:
-- lspf
-- large-scale precipitation fraction
-172142:
-- lsp
-- stratiform precipitation (large-scale precipitation)
-172143:
-- cp
-172144:
-- sf
-- snowfall (convective + stratiform)
-172146:
-- sshf
-- surface sensible heat flux
-- 146
-172147:
-- slhf
-- surface latent heat flux
-- 147
-172149:
-- snr
-- surface net radiation
-172153:
-- swhr
-- short-wave heating rate
-172154:
-- lwhr
-- long-wave heating rate
-172169:
-- ssrd
-- surface solar radiation downwards
-172175:
-- strd
-- surface thermal radiation downwards
-172176:
-- ssr
-- surface solar radiation
-172177:
-- str
-- surface thermal radiation
-172178:
-- tsr
-- top solar radiation
-172179:
-- ttr
-- top thermal radiation
-172180:
-- ewss
-172181:
-- nsss
-172182:
-- e
-172189:
-- sund
-- sunshine duration
-172195:
-- longitudinal component of gravity wave stress
-172196:
-- meridional component of gravity wave stress
-172205:
-- ro
-- runoff
-172208:
-- tsrc
-- top net solar radiation, clear sky
-172209:
-- ttrc
-- top net thermal radiation, clear sky
-172210:
-- ssrc
-- surface net solar radiation, clear sky
-172211:
-- strc
-- surface net thermal radiation, clear sky
-172228:
-- tp
-172239:
-- csf
-- convective snowfall
-172240:
-- lsf
-- large-scale snowfall
-173044:
-- esa
-- snow evaporation anomaly
-173045:
-- smlta
-- snowmelt anomaly
-173048:
-- magssa
-- magnitude of turbulent surface stress anomaly
-173050:
-- lspfa
-- large-scale precipitation fraction anomaly
-173142:
-- lspa
-173143:
-- cpa
-- convective precipitation anomaly
-173145:
-- blda
-- boundary layer dissipation anomaly
-173146:
-- sshfa
-173147:
-- slhfa
-173149:
-- snra
-- surface net radiation anomaly
-173153:
-- swhra
-- short-wave heating rate anomaly
-173154:
-- lwhra
-- long-wave heating rate anomaly
-173169:
-- ssrda
-173175:
-- strda
-173176:
-- ssra
-- ssr
-173177:
-- stra
-- str
-173178:
-- tsra
-- tsr
-173179:
-- ttra
-- ttr
-173180:
-- ewssa
-173181:
-- nsssa
-173182:
-- ea
-- e
-173195:
-- lgwsa
-- longitudinal component of gravity wave stress anomaly
-173196:
-- mgwa
-- meridional component of gravity wave stress anomaly
-173197:
-- gwa
-- gravity wave dissipation anomaly
-173205:
-- roa
-173208:
-- tsrca
-- top net solar radiation, clear sky anomaly
-173209:
-- ttrca
-- top net thermal radiation, clear sky anomaly
-173210:
-- ssrca
-- surface net solar radiation, clear sky anomaly
-173211:
-- strca
-- surface net thermal radiation, clear sky anomaly
-173212:
-- tisra
-173239:
-- csfa
-- convective snowfall anomaly
-173240:
-- lsfa
-- large scale snowfall anomaly
-174006:
-- total soil moisture
-174031:
-- fraction of sea-ice in sea
-174034:
-- open-sea surface temperature
-174039:
-- volumetric soil water layer 1
-174040:
-- volumetric soil water layer 2
-174041:
-- volumetric soil water layer 3
-174042:
-- volumetric soil water layer 4
-174049:
-- 10 metre wind gust in the last 24 hours
-174055:
-- 1.5m temperature - mean in the last 24 hours
-174083:
-- net primary productivity
-174085:
-- 10m u wind over land
-174086:
-- 10m v wind over land
-174087:
-- 1.5m temperature over land
-174088:
-- 1.5m dewpoint temperature over land
-174089:
-- top incoming solar radiation
-174090:
-- top outgoing solar radiation
-174094:
-- mean sea surface temperature
-174095:
-- 1.5m specific humidity
-174099:
-- liquid water potential temperature
-174110:
-- ocean ice concentration
-174111:
-- ocean mean ice depth
-174139:
-- soil temperature layer 1
-174164:
-- average potential temperature in upper 293.4m
-174167:
-- 1.5m temperature
-174168:
-- 1.5m dewpoint temperature
-174170:
-- soil temperature layer 2
-174175:
-- average salinity in upper 293.4m
-174183:
-- soil temperature layer 3
-174201:
-- 1.5m temperature - maximum in the last 24 hours
-174202:
-- 1.5m temperature - minimum in the last 24 hours
-174236:
-- soil temperature layer 4
-175006:
-- total soil moisture
-175031:
-- fraction of sea-ice in sea
-175034:
-- open-sea surface temperature
-175039:
-- volumetric soil water layer 1
-175040:
-- volumetric soil water layer 2
-175041:
-- volumetric soil water layer 3
-175042:
-- volumetric soil water layer 4
-175049:
-- 10m wind gust in the last 24 hours
-175055:
-- 1.5m temperature - mean in the last 24 hours
-175083:
-- net primary productivity
-175085:
-- 10m u wind over land
-175086:
-- 10m v wind over land
-175087:
-- 1.5m temperature over land
-175088:
-- 1.5m dewpoint temperature over land
-175089:
-- top incoming solar radiation
-175090:
-- top outgoing solar radiation
-175110:
-- ocean ice concentration
-175111:
-- ocean mean ice depth
-175139:
-- soil temperature layer 1
-175164:
-- average potential temperature in upper 293.4m
-175167:
-- 1.5m temperature
-175168:
-- 1.5m dewpoint temperature
-175170:
-- soil temperature layer 2
-175175:
-- average salinity in upper 293.4m
-175183:
-- soil temperature layer 3
-175201:
-- 1.5m temperature - maximum in the last 24 hours
-175202:
-- 1.5m temperature - minimum in the last 24 hours
-175236:
-- soil temperature layer 4
-200063:
-- start time for skin temperature difference
-200064:
-- finish time for skin temperature difference
-200065:
-- skin temperature difference
-200066:
-- leaf area index, low vegetation
-200067:
-- leaf area index, high vegetation
-200068:
-- minimum stomatal resistance, low vegetation
-200069:
-- minimum stomatal resistance, high vegetation
-200070:
-- biome cover, low vegetation
-200071:
-- biome cover, high vegetation
-200078:
-- total column liquid water
-200079:
-- total column ice water
-200125:
-- vertically integrated total energy
-200126:
-- generic parameter for sensitive area prediction
-201001:
-- downward shortwave radiant flux density
-201002:
-- upward shortwave radiant flux density
-201003:
-- downward longwave radiant flux density
-201004:
-- upward longwave radiant flux density
-201006:
-- net shortwave flux
-201007:
-- net longwave flux
-201008:
-- total net radiative flux density
-201009:
-- downw shortw radiant flux density, cloudfree part
-201010:
-- upw shortw radiant flux density, cloudy part
-201011:
-- downw longw radiant flux density, cloudfree part
-201012:
-- upw longw radiant flux density, cloudy part
-201015:
-- total radiative heating rate
-201016:
-- soil heat flux, surface
-201017:
-- soil heat flux, bottom of layer
-201030:
-- cloud cover, grid scale
-201032:
-- cloud water content, grid scale, vert integrated
-201034:
-- cloud ice content, grid scale, vert integrated
-201035:
-- specific rainwater content, grid scale
-201036:
-- specific snow content, grid scale
-201037:
-- specific rainwater content, gs, vert. integrated
-201038:
-- specific snow content, gs, vert. integrated
-201042:
-- vert. integral of divergence of tot. water content
-201051:
-- cloud cover ch (0..8)
-201052:
-- cloud cover cm (0..8)
-201053:
-- cloud cover cl (0..8)
-201054:
-- total cloud cover (0..8)
-201055:
-- fog (0..8)
-201056:
-- fog
-201060:
-- cloud cover, convective cirrus
-201061:
-- specific cloud water content, convective clouds
-201062:
-- cloud water content, conv clouds, vert integrated
-201063:
-- specific cloud ice content, convective clouds
-201064:
-- cloud ice content, conv clouds, vert integrated
-201065:
-- convective mass flux
-201066:
-- updraft velocity, convection
-201067:
-- entrainment parameter, convection
-201070:
-- convective layers (00...77)  (bke)
-201071:
-- ko-index
-201076:
-- convective tendency of total heat
-201077:
-- convective tendency of total water
-201080:
-- convective vorticity tendency
-201081:
-- convective divergence tendency
-201083:
-- dry convection top index
-201150:
-- coefficient of horizontal diffusion
-215150:
-- assimetry340
-215151:
-- assimetry355
-215152:
-- assimetry380
-215153:
-- assimetry400
-215154:
-- assimetry440
-215155:
-- assimetry469
-215156:
-- assimetry500
-215157:
-- assimetry532
-215158:
-- assimetry550
-215159:
-- assimetry645
-215160:
-- assimetry670
-215161:
-- assimetry800
-215162:
-- assimetry858
-215163:
-- assimetry865
-215164:
-- assimetry1020
-215165:
-- assimetry1064
-215166:
-- assimetry1240
-215167:
-- assimetry1640
-215179:
-- assimetry2130
-217004:
-- ch4
-- methane
-217027:
-- 'false'
-228024:
-- deg0
-228028:
-- i10fg3
-228053:
-- licga
-260120:
-- horizontal extent of cumulonimbus (cb)
-260163:
-- icing
-260164:
-- in-cloud turbulence
-260166:
-- supercooled large droplet probability (see note 4)
-260530:
-- scaled radiance
-260531:
-- scaled albedo
-260532:
-- scaled brightness temperature
-260533:
-- scaled precipitable water
-260534:
-- scaled lifted index
-260535:
-- scaled cloud top pressure
-260536:
-- scaled skin temperature
-260537:
-- cloud mask
-260538:
-- pixel scene type
-260539:
-- fire detection indicator
-260550:
-- cloudy radiance (with respect to wave number)
-260551:
-- clear-sky radiance (with respect to wave number)
-260552:
-- wind speed
-260553:
-- aerosol optical thickness at 0.635 um
-260554:
-- aerosol optical thickness at 0.810 um
-260555:
-- aerosol optical thickness at 1.640 um
-260556:
-- angstrom coefficient
-260600:
-- evaporation
-260608:
-- vwvclm
-- meridional water vapour flux
-260615:
-- evapotranspiration
-260620:
-- cwclm
-- cloud liquid water
-260630:
-- utheclm
-- zonal thermal energy flux
-260631:
-- vtheclm
-- meridional thermal energy flux
+
+
+#172044:
+#- es
+#172045:
+#- smlt
+#- snowmelt
+#
+#172048:
+#- magss
+#
+#172050:
+#- lspf
+#
+#172142:
+#- lsp
+#
+#172143:
+#- cp
+#
+#172144:
+#- sf
+#
+#172146:
+#- sshf
+#- 146
+#
+#172147:
+#- slhf
+#- 147
+#
+#172149:
+#- snr
+#
+#172153:
+#- swhr
+#
+#172154:
+#- lwhr
+#
+#172169:
+#- ssrd
+#
+#172175:
+#- strd
+#
+#172176:
+#- ssr
+#
+#172177:
+#- str
+#
+#172178:
+#- tsr
+#
+#172179:
+#- ttr
+#
+#172180:
+#- ewss
+#
+#172181:
+#- nsss
+#
+#172182:
+#- e
+#
+#172189:
+#- sund
+#
+#172205:
+#- ro
+#- runoff
+#
+#172208:
+#- tsrc
+#
+#172209:
+#- ttrc
+#
+#172210:
+#- ssrc
+#
+#172211:
+#- strc
+#
+#172228:
+#- tp
+#
+#172239:
+#- csf
+#
+#172240:
+#- lsf
+#
+#173044:
+#- esa
+#
+#173045:
+#- smlta
+#
+#173048:
+#- magssa
+#
+#173050:
+#- lspfa
+#
+#173142:
+#- lspa
+#
+#173143:
+#- cpa
+#
+#173145:
+#- blda
+#
+#173146:
+#- sshfa
+#
+#173147:
+#- slhfa
+#
+#173149:
+#- snra
+#
+#173153:
+#- swhra
+#
+#173154:
+#- lwhra
+#
+#173169:
+#- ssrda
+#
+#173175:
+#- strda
+#
+#173176:
+#- ssra
+#- ssr
+#
+#173177:
+#- stra
+#- str
+#
+#173178:
+#- tsra
+#- tsr
+#
+#173179:
+#- ttra
+#- ttr
+#
+#173180:
+#- ewssa
+#
+#173181:
+#- nsssa
+#
+#173182:
+#- ea
+#- e
+#
+#173195:
+#- lgwsa
+#
+#173196:
+#- mgwa
+#
+#173197:
+#- gwa
+#
+#173205:
+#- roa
+#
+#173208:
+#- tsrca
+#
+#173209:
+#- ttrca
+#
+#173210:
+#- ssrca
+#
+#173211:
+#- strca
+#
+#173212:
+#- tisra
+#
+#173239:
+#- csfa
+#
+#173240:
+#- lsfa
+#
+#217004:
+#- ch4
+#- methane
+#228024:
+#- deg0
+#
+#228028:
+#- i10fg3
+#228053:
+#- licga

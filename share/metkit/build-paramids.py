@@ -2,6 +2,7 @@
 import MySQLdb
 import yaml
 import re
+import os
 
 
 db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
@@ -52,7 +53,7 @@ for data in cursor.fetchall():
            print("WARNING! updated paramid: {},  {} => {}".format(paramid, before, entry))
            PARAMSIDS[paramid] = list(entry)
     else:
-        print("new paramid: {} ".format(paramid, entry))
+        print("new paramid: {} {}".format(paramid, entry))
         PARAMSIDS[paramid] = list(entry)
 
 cursor.close()
