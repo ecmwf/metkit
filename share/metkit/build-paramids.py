@@ -9,13 +9,15 @@ db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
                       "ecmwf_ro",
                       "param")
 
-prodgen = {}
+PRODGEN = {}
+if os.path.exists("prodgen.yaml"):
+    with open("prodgen.yaml") as f:
+        PRODGEN = yaml.load(f.read())
 
-with open("prodgen.yaml") as f:
-    PRODGEN = yaml.load(f.read())
-
-with open("paramids.yaml") as f:
-    PARAMSIDS = yaml.load(f.read())
+PARAMSIDS = {}
+if os.path.exists("paramids.yaml"):
+    with open("paramids.yaml") as f:
+        PARAMSIDS = yaml.load(f.read())
 
 cursor = db.cursor()
 
@@ -34,14 +36,14 @@ for data in cursor.fetchall():
 
     entry = [abbr, longname]
 
-    if False and paramid in PRODGEN:
-       pgen = PRODGEN[paramid]
-       if len(pgen) > 2:
-           prodgen[paramid] = pgen[2:]
-           for n in prodgen[paramid]:
-               entry.append(n)
-          
-  
+    if paramid in PRODGEN:
+       pgen = [str(x).lower() for x in PRODGEN[paramid]]
+       p = []
+       for n in pgen:
+          if n not in entry and (' ' not in n) and ('.' not in n) and ('-' not in n):
+              entry.append(n)
+              p.append(n)
+
     entry = tuple(entry)
 
     if paramid in PARAMSIDS:
@@ -56,8 +58,12 @@ for data in cursor.fetchall():
 cursor.close()
 db.close()
 
-#with open("prodgen.yaml", "w") as f:
-    #f.write(yaml.safe_dump(PRODGEN, default_flow_style=False))
+
+for paramid, entry in PRODGEN.items():
+    if paramid not in PARAMSIDS:
+        print("WARNING! adding pseudo-paramid: {},  {}".format(paramid, tuple(entry)))
+        PARAMSIDS[paramid] = entry
 
 with open("paramids.yaml", "w") as f:
     f.write(yaml.safe_dump(PARAMSIDS, default_flow_style=False))
+
