@@ -6,8 +6,6 @@ import json
 import itertools
 import subprocess
 
-target = "mars.list"
-
 PARAMS = {}
 if os.path.exists("params.yaml"):
     with open("params.yaml") as f:
@@ -25,42 +23,51 @@ for entry in PARAMS:
     if not when:
         continue
 
-    done = "%s.done" % (json.dumps(when,sort_keys=True),)
-    if os.path.exists(done):
-       continue
 
     for k, v in list(when.items()):
         if not isinstance(v, list):
             when[k] = [v]
 
-    with open('tmp', "w") as f:
+    done = json.dumps(when,sort_keys=True)
+    done = re.sub(r'\W', '_', done)
+    done = re.sub(r'_+', '_', done)
+    done = re.sub(r'^_', '', done)
+    done = re.sub(r'_$', '', done)
+    target = done + '.list'
 
-        names = list(when.keys())
-        values = list(when.values())
+    if not os.path.exists(target):
 
-        print(when)
+        with open('tmp', "w") as f:
 
-        for n in itertools.product(*values):
-            r = dict((a, b) for a, b in zip(names, n))
-            if r.get('type') in ('wp', 'cv', 'tf' ):
-                continue
+            names = list(when.keys())
+            values = list(when.values())
 
-            if r.get('stream') == 'efov':
-                continue
+            print(when)
 
-            print(r)
+            for n in itertools.product(*values):
+                r = dict((a, b) for a, b in zip(names, n))
+                if r.get('type') in ('wp', 'cv', 'tf' ):
+                    continue
 
-            for levtype in ('sfc', 'pl', 'ml', 'pt', 'pv'):
-                r['levtype'] = levtype
-                r['time'] = "0/12"
-                r['date'] = "20180701/to/20180707"
-                r['hide'] = 'channel/ident/instrument/branch/frequency/direction/method/system/origin/quantile/domain/number/fcmonth/type/class/expver/stream/hdate/levtype/month/year/date/levelist/time/step/files/missing/offset/length/grand-total/cost/file/id'
-                r['target'] = '"%s"' % (target,)
+                if r.get('stream') == 'efov':
+                    continue
 
-                rr = 'list,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
-                print(rr, file=f)
+                print(r)
 
-    subprocess.call(["mars", "tmp"])
+                for levtype in ('sfc', 'pl', 'ml', 'pt', 'pv'):
+                    r['levtype'] = levtype
+                    r['time'] = "0/12"
+                    r['date'] = "20180701/to/20180707"
+                    r['hide'] = 'channel/ident/instrument/branch/frequency/direction/method/system/origin/quantile/domain/number/fcmonth/type/class/expver/stream/hdate/levtype/month/year/date/levelist/time/step/files/missing/offset/length/grand-total/cost/file/id'
+                    r['target'] = target
+
+                    rr = 'list,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
+                    print(rr, file=f)
+
+        subprocess.call(["mars", "tmp"])
+
+    if not os.path.exists(target):
+       continue
 
     params = set()
     with open(target) as f:
@@ -98,8 +105,5 @@ for entry in PARAMS:
 
     OUT.append([orig, params])
 
-    with open(done, "w") as f:
-        f.write(yaml.safe_dump([orig, params], default_flow_style=False))
-
 with open("params2.yaml", "w") as f:
-	f.write(yaml.safe_dump(OUT, default_flow_style=False))
+    f.write(yaml.safe_dump(OUT, default_flow_style=False))
