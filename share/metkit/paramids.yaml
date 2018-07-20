@@ -3654,6 +3654,8 @@
 172143:
 - cprate
 - convective precipitation
+172144:
+- sf
 172145:
 - bldrate
 - boundary layer dissipation
