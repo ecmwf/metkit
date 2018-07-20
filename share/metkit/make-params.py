@@ -23,9 +23,6 @@ for entry in PARAMS:
     if not when:
         continue
 
-    if when.get('stream') == 'efov':
-        continue
-
     if when.get('type') == 'tf':
         continue
 

@@ -426,7 +426,7 @@
     - 172228
     - 228246
     - 228247
-- - stream: enfo
+- - stream: [enfo, efov]
     type:
     - cf
     - pf
