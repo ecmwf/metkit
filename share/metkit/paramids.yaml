@@ -4,7 +4,6 @@
 2:
 - vp
 - velocity potential
-- vpot
 3:
 - pt
 - potential temperature
@@ -44,19 +43,15 @@
 15:
 - aluvp
 - uv visible albedo for direct radiation
-- auvp
 16:
 - aluvd
 - uv visible albedo for diffuse radiation
-- auvd
 17:
 - alnip
 - near ir albedo for direct radiation
-- anip
 18:
 - alnid
 - near ir albedo for diffuse radiation
-- anid
 19:
 - uvcs
 - clear sky surface uv
@@ -99,7 +94,6 @@
 34:
 - sst
 - sea surface temperature
-- sstk
 35:
 - istl1
 - ice temperature layer 1
@@ -115,19 +109,15 @@
 39:
 - swvl1
 - volumetric soil water layer 1
-- swv1
 40:
 - swvl2
 - volumetric soil water layer 2
-- swv2
 41:
 - swvl3
 - volumetric soil water layer 3
-- swv3
 42:
 - swvl4
 - volumetric soil water layer 4
-- swv4
 43:
 - slt
 - soil type
@@ -197,11 +187,9 @@
 66:
 - lai_lv
 - leaf area index, low vegetation
-- lailv
 67:
 - lai_hv
 - leaf area index, high vegetation
-- laihv
 68:
 - msr_lv
 - minimum stomatal resistance, low vegetation
@@ -232,13 +220,12 @@
 77:
 - etadot
 - eta-coordinate vertical velocity
-- etad
 78:
 - tclw
-- total column liquid water
+- total column cloud liquid water
 79:
 - tciw
-- total column ice water
+- total column cloud ice water
 121:
 - mx2t6
 - maximum temperature at 2 metres in the last 6 hours
@@ -295,7 +282,6 @@
 139:
 - stl1
 - soil temperature level 1
-- st
 140:
 - swl1
 - soil wetness level 1
@@ -323,7 +309,6 @@
 148:
 - chnk
 - charnock
-- ss
 149:
 - snr
 - surface net radiation
@@ -507,7 +492,6 @@
 209:
 - ttrc
 - top net thermal radiation, clear sky
-- ttru
 210:
 - ssrc
 - surface net solar radiation, clear sky
@@ -747,10 +731,10 @@
 - speed of current
 3049:
 - ucurr
-- u-component of current
+- 'u-component of current '
 3050:
 - vcurr
-- v-component of current
+- 'v-component of current '
 3053:
 - mixr
 - humidity mixing ratio
@@ -1608,33 +1592,21 @@
 131020:
 - talm2
 - temperature anomaly less than -2 k
-- temperature anomaly of at most -2 k
-- talm2k
 131021:
 - tag2
 - temperature anomaly of at least +2 k
-- temperature anomaly of at least 2 k
-- tag2k
 131022:
 - talm8
 - temperature anomaly less than -8 k
-- temperature anomaly of at most -8 k
-- talm8k
 131023:
 - talm4
 - temperature anomaly less than -4 k
-- temperature anomaly of at most -4 k
-- talm4k
 131024:
 - tag4
 - temperature anomaly greater than +4 k
-- temperature anomaly of at least 4 k
-- tag4k
 131025:
 - tag8
 - temperature anomaly greater than +8 k
-- temperature anomaly of at least 8 k
-- tag8k
 131049:
 - 10gp
 - 10 metre wind gust probability
@@ -1656,7 +1628,6 @@
 131064:
 - tpl01
 - total precipitation less than 0.1 mm
-- tplo1
 131065:
 - tprl1
 - total precipitation rate less than 1 mm/day
@@ -1790,11 +1761,9 @@
 - tpp
 - total precipitation probability
 131229:
-- 229
 - swhp
 - significant wave height probability
 131232:
-- 232
 - mwpp
 - mean wave period probability
 132044:
@@ -1802,11 +1771,10 @@
 - convective available potential energy shear index
 132045:
 - wvfi
-- Water vapour flux index
+- water vapour flux index
 132049:
 - 10fgi
 - 10 metre wind gust index
-- 10gi
 132059:
 - capei
 - convective available potential energy index
@@ -1826,7 +1794,6 @@
 - mn2ti
 - minimum temperature at 2 metres index
 132216:
-- 216
 - maxswhi
 - maximum of significant wave height index
 132228:
@@ -2124,277 +2091,210 @@
 - wx5
 - wave experimental parameter 5
 140112:
-- 112
 - wefxm
 - wave energy flux magnitude
 140113:
-- 113
 - wefxd
 - wave energy flux mean direction
 140114:
-- 114
 - h1012
 - significant wave height of all waves with periods within the inclusive range from
   10 to 12 seconds
 140115:
-- 115
 - h1214
 - significant wave height of all waves with periods within the inclusive range from
   12 to 14 seconds
 140116:
-- 116
 - h1417
 - significant wave height of all waves with periods within the inclusive range from
   14 to 17 seconds
 140117:
-- 117
 - h1721
 - significant wave height of all waves with periods within the inclusive range from
   17 to 21 seconds
 140118:
-- 118
 - h2125
 - significant wave height of all waves with periods within the inclusive range from
   21 to 25 seconds
 140119:
-- 119
 - h2530
 - significant wave height of all waves with periods within the inclusive range from
   25 to 30 seconds
 140120:
-- 120
 - sh10
 - significant wave height of all waves with period larger than 10s
 140121:
-- 121
 - swh1
 - significant wave height of first swell partition
 140122:
-- 122
 - mwd1
 - mean wave direction of first swell partition
 140123:
-- 123
 - mwp1
 - mean wave period of first swell partition
 140124:
-- 124
 - swh2
 - significant wave height of second swell partition
 140125:
-- 125
 - mwd2
 - mean wave direction of second swell partition
 140126:
-- 126
 - mwp2
 - mean wave period of second swell partition
 140127:
-- 127
 - swh3
 - significant wave height of third swell partition
 140128:
-- 128
 - mwd3
 - mean wave direction of third swell partition
 140129:
-- 129
 - mwp3
 - mean wave period of third swell partition
 140200:
-- 200
 - maxswh
 - maximum of significant wave height
 140207:
-- 207
 - wss
 - wave spectral skewness
 140208:
-- 208
 - wstar
 - free convective velocity over the oceans
 140209:
-- 209
 - rhoao
 - air density over the oceans
 140210:
-- 210
 - mswsi
 - mean square wave strain in sea ice
 140211:
-- 211
 - phiaw
 - normalized energy flux into waves
 140212:
-- 212
 - phioc
 - normalized energy flux into ocean
 140213:
-- 213
 - tla
 - turbulent langmuir number
 140214:
-- 214
 - tauoc
 - normalized stress into ocean
 140215:
-- 215
 - ust
 - u-component stokes drift
 140216:
-- 216
 - vst
 - v-component stokes drift
 140217:
-- 217
 - tmax
 - period corresponding to maximum individual wave height
 140218:
-- 218
 - hmax
 - maximum individual wave height
 140219:
-- 219
 - wmb
 - model bathymetry
 140220:
-- 220
 - mp1
 - mean wave period based on first moment
 140221:
-- 221
 - mp2
-- mean wave period based on second moment
+- mean zero-crossing wave period
 140222:
-- 222
 - wdw
 - wave spectral directional width
 140223:
-- 223
 - p1ww
 - mean wave period based on first moment for wind waves
 140224:
-- 224
 - p2ww
 - mean wave period based on second moment for wind waves
 140225:
-- 225
 - dwww
 - wave spectral directional width for wind waves
 140226:
-- 226
 - p1ps
 - mean wave period based on first moment for swell
 140227:
-- 227
 - p2ps
 - mean wave period based on second moment for swell
 140228:
-- 228
 - dwps
 - wave spectral directional width for swell
 140229:
-- 229
 - swh
 - significant height of combined wind waves and swell
 140230:
-- 230
 - mwd
 - mean wave direction
 140231:
-- 231
 - pp1d
-- peak period of 1d spectra
+- peak wave period
 140232:
-- 232
 - mwp
 - mean wave period
 140233:
-- 233
 - cdww
 - coefficient of drag with waves
 140234:
-- 234
 - shww
 - significant height of wind waves
 140235:
-- 235
 - mdww
 - mean direction of wind waves
 140236:
-- 236
 - mpww
 - mean period of wind waves
 140237:
-- 237
 - shts
 - significant height of total swell
 140238:
-- 238
 - mdts
 - mean direction of total swell
 140239:
-- 239
 - mpts
 - mean period of total swell
 140240:
-- 240
 - sdhs
 - standard deviation wave height
 140241:
-- 241
 - mu10
 - mean of 10 metre wind speed
 140242:
-- 242
 - mdwi
 - mean wind direction
 140243:
-- 243
 - sdu
 - standard deviation of 10 metre wind speed
 140244:
-- 244
 - msqs
 - mean square slope of waves
 140245:
-- 245
 - wind
 - 10 metre wind speed
 140246:
-- 246
 - awh
 - altimeter wave height
 140247:
-- 247
 - acwh
 - altimeter corrected wave height
 140248:
-- 248
 - arrc
 - altimeter range relative correction
 140249:
-- 249
 - dwi
 - 10 metre wind direction
 140250:
-- 250
 - 2dsp
 - 2d wave spectra (multiple)
 140251:
-- 251
 - 2dfd
 - 2d wave spectra (single)
 140252:
-- 252
 - wsk
 - wave spectral kurtosis
 140253:
-- 253
 - bfi
 - benjamin-feir index
 140254:
-- 254
 - wsp
 - wave spectral peakedness
 150129:
@@ -2956,7 +2856,7 @@
 - heaviside beta function
 162045:
 - wvf
-- Water vapour flux
+- water vapour flux
 162051:
 - surface geopotential
 162053:
@@ -3075,7 +2975,7 @@
 - vertical integral of eastward cloud frozen water flux
 162091:
 - viiwn
-- vertical integral of northward cloud frozen water flux
+- 'vertical integral of northward cloud frozen water flux '
 162092:
 - vimat
 - vertical integral of mass tendency
@@ -3261,13 +3161,13 @@
 - variance of ozone
 170001:
 - spi03
-- Standardised precipitation index valid for 3 months
+- standardised precipitation index valid for 3 months
 170002:
 - spi06
-- Standardised precipitation index valid for 6 months
+- standardised precipitation index valid for 6 months
 170003:
 - spi12
-- Standardised precipitation index valid for 12 months
+- standardised precipitation index valid for 12 months
 170149:
 - tsw
 - total soil moisture
@@ -3367,19 +3267,15 @@
 171039:
 - swval1
 - volumetric soil water anomaly layer 1
-- swv1
 171040:
 - swval2
 - volumetric soil water anomaly layer 2
-- swv2
 171041:
 - swval3
 - volumetric soil water anomaly layer 3
-- swv3
 171042:
 - swval4
 - volumetric soil water anomaly layer 4
-- swv4
 171043:
 - slta
 - soil type anomaly
@@ -3475,19 +3371,15 @@
 171129:
 - za
 - geopotential anomaly
-- z
 171130:
 - ta
 - temperature anomaly
-- t
 171131:
 - ua
 - u component of wind anomaly
-- u
 171132:
 - va
 - v component of wind anomaly
-- v
 171133:
 - qa
 - specific humidity anomaly
@@ -3506,16 +3398,12 @@
 171138:
 - voa
 - relative vorticity anomaly
-- vo
 171139:
 - stal1
 - soil temperature anomaly level 1
-- stl1
-- st
 171140:
 - swal1
 - soil wetness anomaly level 1
-- swl1
 171141:
 - sda
 - snow depth anomaly
@@ -3549,7 +3437,6 @@
 171151:
 - msla
 - mean sea level pressure anomaly
-- msl
 171152:
 - lspa
 - logarithm of surface pressure anomaly
@@ -3562,15 +3449,12 @@
 171155:
 - da
 - relative divergence anomaly
-- d
 171156:
 - gha
 - height anomaly
-- gh
 171157:
 - ra
 - relative humidity anomaly
-- r
 171158:
 - tspa
 - tendency of surface pressure anomaly
@@ -3608,13 +3492,11 @@
 - ssrda
 - surface solar radiation downwards anomaly
 171170:
-- slal2
+- stal2
 - soil temperature anomaly level 2
-- stl2
 171171:
 - swal2
 - soil wetness anomaly level 2
-- swl2
 171173:
 - sra
 - surface roughness anomaly
@@ -3637,7 +3519,7 @@
 - ttra
 - top net thermal radiation anomaly
 171180:
-- ewssa
+- eqssa
 - east-west surface stress anomaly
 171181:
 - nsssa
@@ -3648,11 +3530,9 @@
 171183:
 - stal3
 - soil temperature anomaly level 3
-- stl3
 171184:
 - swal3
 - soil wetness anomaly level 3
-- swl3
 171185:
 - ccca
 - convective cloud cover anomaly
@@ -3720,8 +3600,8 @@
 - tco3a
 - total column ozone anomaly
 171207:
+- 10ua
 - 10 metre wind speed anomaly
-- 10si
 171208:
 - tsrca
 - top net solar radiation clear sky anomaly
@@ -3809,7 +3689,6 @@
 171237:
 - swal4
 - soil wetness level 4 anomaly
-- swl4
 171238:
 - tsna
 - temperature of snow layer anomaly
@@ -3870,7 +3749,6 @@
 172044:
 - esrate
 - snow evaporation
-- es
 172045:
 - smlt
 - snowmelt
@@ -3886,7 +3764,6 @@
 172143:
 - cprate
 - convective precipitation
-- cp
 172144:
 - sf
 - snowfall (convective + stratiform)
@@ -3929,15 +3806,14 @@
 - ttr
 - top thermal radiation
 172180:
-- ewss
-- east-west surface stress
+- ewssra
+- east-west surface stress rate of accumulation
 172181:
-- nsss
-- north-south surface stress
+- nsssra
+- north-south surface stress rate of accumulation
 172182:
 - erate
 - evaporation
-- e
 172189:
 - sund
 - sunshine duration
@@ -3964,11 +3840,11 @@
 - strc
 - surface net thermal radiation, clear sky
 172212:
-- solar insolation
+- soira
+- solar insolation rate of accumulation
 172228:
 - tprate
 - total precipitation
-- tp
 172239:
 - csf
 - convective snowfall
@@ -3994,8 +3870,8 @@
 - lspfa
 - large-scale precipitation fraction anomaly
 173142:
-- lspa
-- stratiform precipitation (large-scale precipitation) anomaly
+- lspara
+- stratiform precipitation (large-scale precipitation) anomalous rate of accumulation
 173143:
 - cpa
 - convective precipitation anomaly
@@ -4006,11 +3882,11 @@
 - blda
 - boundary layer dissipation anomaly
 173146:
-- sshfa
-- surface sensible heat flux anomaly
+- sshfara
+- surface sensible heat flux anomalous rate of accumulation
 173147:
-- slhfa
-- surface latent heat flux anomaly
+- slhfara
+- surface latent heat flux anomalous rate of accumulation
 173149:
 - snra
 - surface net radiation anomaly
@@ -4021,37 +3897,32 @@
 - lwhra
 - long-wave heating rate anomaly
 173169:
-- ssrda
-- surface solar radiation downwards anomaly
+- ssrdara
+- surface solar radiation downwards anomalous rate of accumulation
 173175:
-- strda
-- surface thermal radiation downwards anomaly
+- strdara
+- surface thermal radiation downwards anomalous rate of accumulation
 173176:
-- ssra
-- surface solar radiation anomaly
-- ssr
+- ssrara
+- surface solar radiation anomalous rate of accumulation
 173177:
-- stra
-- surface thermal radiation anomaly
-- str
+- strara
+- surface thermal radiation anomalous rate of accumulation
 173178:
-- tsra
-- top solar radiation anomaly
-- tsr
+- tsrara
+- top solar radiation anomalous rate of accumulation
 173179:
-- ttra
-- top thermal radiation anomaly
-- ttr
+- ttrara
+- top thermal radiation anomalous rate of accumulation
 173180:
-- ewssa
-- east-west surface stress anomaly
+- ewssara
+- east-west surface stress anomalous rate of accumulation
 173181:
-- nsssa
-- north-south surface stress anomaly
+- nsssara
+- north-south surface stress anomalous rate of accumulation
 173182:
-- ea
-- evaporation anomaly
-- e
+- evara
+- evaporation anomalous rate of accumulation
 173189:
 - sundara
 - sunshine duration anomalous rate of accumulation
@@ -4065,8 +3936,8 @@
 - gwa
 - gravity wave dissipation anomaly
 173205:
-- roa
-- runoff anomaly
+- roara
+- runoff anomalous rate of accumulation
 173208:
 - tsrca
 - top net solar radiation, clear sky anomaly
@@ -4080,8 +3951,8 @@
 - strca
 - surface net thermal radiation, clear sky anomaly
 173212:
-- tisra
-- solar insolation anomaly
+- soiara
+- solar insolation anomalous rate of accumulation
 173228:
 - tpara
 - total precipitation anomalous rate of accumulation
@@ -4155,7 +4026,8 @@
 174095:
 - 1.5m specific humidity
 174096:
-- 2m specific humidity
+- 2sh
+- 2 metre specific humidity
 174097:
 - sist
 - sea-ice snow thickness
@@ -5077,16 +4949,16 @@
 - dust aerosol (0.9 - 20 um) mixing ratio
 210007:
 - aermr07
-- hydrophobic organic matter aerosol mixing ratio
+- hydrophilic organic matter aerosol mixing ratio
 210008:
 - aermr08
-- hydrophilic organic matter aerosol mixing ratio
+- hydrophobic organic matter aerosol mixing ratio
 210009:
 - aermr09
-- hydrophobic black carbon aerosol mixing ratio
+- hydrophilic black carbon aerosol mixing ratio
 210010:
 - aermr10
-- hydrophilic black carbon aerosol mixing ratio
+- hydrophobic black carbon aerosol mixing ratio
 210011:
 - aermr11
 - sulphate aerosol mixing ratio
@@ -5230,7 +5102,7 @@
 - secondary organic precursor mixing ratio
 210060:
 - injh
-- Injection height (from IS4FIRES)
+- injection height (from is4fires)
 210061:
 - co2
 - carbon dioxide
@@ -5242,10 +5114,10 @@
 - nitrous oxide
 210064:
 - tcco2
-- total column carbon dioxide
+- co2 column-mean molar fraction
 210065:
 - tcch4
-- total column methane
+- ch4 column-mean molar fraction
 210066:
 - tcn2o
 - total column nitrous oxide
@@ -5539,16 +5411,16 @@
 - surface flux reactive tracer 10
 210167:
 - frpdayfire
-- Wildfire day-time radiative power
+- wildfire day-time radiative power
 210169:
 - frpngtfire
-- Wildfire night-time radiative power
+- wildfire night-time radiative power
 210177:
 - frpdayivar
-- Wildfire day-time inverse variance of radiative power
+- wildfire day-time inverse variance of radiative power
 210179:
 - frpngtivar
-- Wildfire night-time inverse variance of radiative power
+- wildfire night-time inverse variance of radiative power
 210181:
 - ra
 - radon
@@ -5566,40 +5438,40 @@
 - anthropogenic emissions of sulphur hexafluoride
 210186:
 - aluvpi
-- uv visible albedo for direct radiation, isotropic component
+- 'uv visible albedo for direct radiation, isotropic component '
 210187:
 - aluvpv
-- uv visible albedo for direct radiation, volumetric component
+- 'uv visible albedo for direct radiation, volumetric component '
 210188:
 - aluvpg
-- uv visible albedo for direct radiation, geometric component
+- 'uv visible albedo for direct radiation, geometric component '
 210189:
 - alnipi
-- near ir albedo for direct radiation, isotropic component
+- 'near ir albedo for direct radiation, isotropic component '
 210190:
 - alnipv
 - near ir albedo for direct radiation, volumetric component
 210191:
 - alnipg
-- near ir albedo for direct radiation, geometric component
+- 'near ir albedo for direct radiation, geometric component '
 210192:
 - aluvdi
-- uv visible albedo for diffuse radiation, isotropic component
+- 'uv visible albedo for diffuse radiation, isotropic component '
 210193:
 - aluvdv
-- uv visible albedo for diffuse radiation, volumetric component
+- 'uv visible albedo for diffuse radiation, volumetric component '
 210194:
 - aluvdg
-- uv visible albedo for diffuse radiation, geometric component
+- 'uv visible albedo for diffuse radiation, geometric component '
 210195:
 - alnidi
-- near ir albedo for diffuse radiation, isotropic component
+- 'near ir albedo for diffuse radiation, isotropic component '
 210196:
 - alnidv
-- near ir albedo for diffuse radiation, volumetric component
+- 'near ir albedo for diffuse radiation, volumetric component '
 210197:
 - alnidg
-- near ir albedo for diffuse radiation, geometric component
+- 'near ir albedo for diffuse radiation, geometric component '
 210203:
 - go3
 - gems ozone
@@ -5746,16 +5618,16 @@
 - dust aerosol (0.9 - 20 um) mixing ratio
 211007:
 - aermr07diff
-- hydrophobic organic matter aerosol mixing ratio
+- hydrophilic organic matter aerosol mixing ratio
 211008:
 - aermr08diff
-- hydrophilic organic matter aerosol mixing ratio
+- hydrophobic organic matter aerosol mixing ratio
 211009:
 - aermr09diff
-- hydrophobic black carbon aerosol mixing ratio
+- hydrophilic black carbon aerosol mixing ratio
 211010:
 - aermr10diff
-- hydrophilic black carbon aerosol mixing ratio
+- hydrophobic black carbon aerosol mixing ratio
 211011:
 - aermr11diff
 - sulphate aerosol mixing ratio
@@ -6400,424 +6272,424 @@
 - random pattern 50 for spp scheme
 214001:
 - uvcossza
-- cosine of solar zenith angle
+- ' cosine of solar zenith angle'
 214002:
 - uvbed
-- uv biologically effective dose
+- ' uv biologically effective dose'
 214003:
 - uvbedcs
-- uv biologically effective dose clear-sky
+- ' uv biologically effective dose clear-sky'
 214004:
 - uvsflxt280285
-- total surface uv spectral flux (280-285 nm)
+- ' total surface uv spectral flux (280-285 nm)'
 214005:
 - uvsflxt285290
-- total surface uv spectral flux (285-290 nm)
+- ' total surface uv spectral flux (285-290 nm)'
 214006:
 - uvsflxt290295
-- total surface uv spectral flux (290-295 nm)
+- ' total surface uv spectral flux (290-295 nm)'
 214007:
 - uvsflxt295300
-- total surface uv spectral flux (295-300 nm)
+- ' total surface uv spectral flux (295-300 nm)'
 214008:
 - uvsflxt300305
-- total surface uv spectral flux (300-305 nm)
+- ' total surface uv spectral flux (300-305 nm)'
 214009:
 - uvsflxt305310
-- total surface uv spectral flux (305-310 nm)
+- ' total surface uv spectral flux (305-310 nm)'
 214010:
 - uvsflxt310315
-- total surface uv spectral flux (310-315 nm)
+- ' total surface uv spectral flux (310-315 nm)'
 214011:
 - uvsflxt315320
-- total surface uv spectral flux (315-320 nm)
+- ' total surface uv spectral flux (315-320 nm)'
 214012:
 - uvsflxt320325
-- total surface uv spectral flux (320-325 nm)
+- ' total surface uv spectral flux (320-325 nm)'
 214013:
 - uvsflxt325330
-- total surface uv spectral flux (325-330 nm)
+- ' total surface uv spectral flux (325-330 nm)'
 214014:
 - uvsflxt330335
-- total surface uv spectral flux (330-335 nm)
+- ' total surface uv spectral flux (330-335 nm)'
 214015:
 - uvsflxt335340
-- total surface uv spectral flux (335-340 nm)
+- ' total surface uv spectral flux (335-340 nm)'
 214016:
 - uvsflxt340345
-- total surface uv spectral flux (340-345 nm)
+- ' total surface uv spectral flux (340-345 nm)'
 214017:
 - uvsflxt345350
-- total surface uv spectral flux (345-350 nm)
+- ' total surface uv spectral flux (345-350 nm)'
 214018:
 - uvsflxt350355
-- total surface uv spectral flux (350-355 nm)
+- ' total surface uv spectral flux (350-355 nm)'
 214019:
 - uvsflxt355360
-- total surface uv spectral flux (355-360 nm)
+- ' total surface uv spectral flux (355-360 nm)'
 214020:
 - uvsflxt360365
-- total surface uv spectral flux (360-365 nm)
+- ' total surface uv spectral flux (360-365 nm)'
 214021:
 - uvsflxt365370
-- total surface uv spectral flux (365-370 nm)
+- ' total surface uv spectral flux (365-370 nm)'
 214022:
 - uvsflxt370375
-- total surface uv spectral flux (370-375 nm)
+- ' total surface uv spectral flux (370-375 nm)'
 214023:
 - uvsflxt375380
-- total surface uv spectral flux (375-380 nm)
+- ' total surface uv spectral flux (375-380 nm)'
 214024:
 - uvsflxt380385
-- total surface uv spectral flux (380-385 nm)
+- ' total surface uv spectral flux (380-385 nm)'
 214025:
 - uvsflxt385390
-- total surface uv spectral flux (385-390 nm)
+- ' total surface uv spectral flux (385-390 nm)'
 214026:
 - uvsflxt390395
-- total surface uv spectral flux (390-395 nm)
+- ' total surface uv spectral flux (390-395 nm)'
 214027:
 - uvsflxt395400
-- total surface uv spectral flux (395-400 nm)
+- ' total surface uv spectral flux (395-400 nm)'
 214028:
 - uvsflxcs280285
-- clear-sky surface uv spectral flux (280-285 nm)
+- ' clear-sky surface uv spectral flux (280-285 nm)'
 214029:
 - uvsflxcs285290
-- clear-sky surface uv spectral flux (285-290 nm)
+- ' clear-sky surface uv spectral flux (285-290 nm)'
 214030:
 - uvsflxcs290295
-- clear-sky surface uv spectral flux (290-295 nm)
+- ' clear-sky surface uv spectral flux (290-295 nm)'
 214031:
 - uvsflxcs295300
-- clear-sky surface uv spectral flux (295-300 nm)
+- ' clear-sky surface uv spectral flux (295-300 nm)'
 214032:
 - uvsflxcs300305
-- clear-sky surface uv spectral flux (300-305 nm)
+- ' clear-sky surface uv spectral flux (300-305 nm)'
 214033:
 - uvsflxcs305310
-- clear-sky surface uv spectral flux (305-310 nm)
+- ' clear-sky surface uv spectral flux (305-310 nm)'
 214034:
 - uvsflxcs310315
-- clear-sky surface uv spectral flux (310-315 nm)
+- ' clear-sky surface uv spectral flux (310-315 nm)'
 214035:
 - uvsflxcs315320
-- clear-sky surface uv spectral flux (315-320 nm)
+- ' clear-sky surface uv spectral flux (315-320 nm)'
 214036:
 - uvsflxcs320325
-- clear-sky surface uv spectral flux (320-325 nm)
+- ' clear-sky surface uv spectral flux (320-325 nm)'
 214037:
 - uvsflxcs325330
-- clear-sky surface uv spectral flux (325-330 nm)
+- ' clear-sky surface uv spectral flux (325-330 nm)'
 214038:
 - uvsflxcs330335
-- clear-sky surface uv spectral flux (330-335 nm)
+- ' clear-sky surface uv spectral flux (330-335 nm)'
 214039:
 - uvsflxcs335340
-- clear-sky surface uv spectral flux (335-340 nm)
+- ' clear-sky surface uv spectral flux (335-340 nm)'
 214040:
 - uvsflxcs340345
-- clear-sky surface uv spectral flux (340-345 nm)
+- ' clear-sky surface uv spectral flux (340-345 nm)'
 214041:
 - uvsflxcs345350
-- clear-sky surface uv spectral flux (345-350 nm)
+- ' clear-sky surface uv spectral flux (345-350 nm)'
 214042:
 - uvsflxcs350355
-- clear-sky surface uv spectral flux (350-355 nm)
+- ' clear-sky surface uv spectral flux (350-355 nm)'
 214043:
 - uvsflxcs355360
-- clear-sky surface uv spectral flux (355-360 nm)
+- ' clear-sky surface uv spectral flux (355-360 nm)'
 214044:
 - uvsflxcs360365
-- clear-sky surface uv spectral flux (360-365 nm)
+- ' clear-sky surface uv spectral flux (360-365 nm)'
 214045:
 - uvsflxcs365370
-- clear-sky surface uv spectral flux (365-370 nm)
+- ' clear-sky surface uv spectral flux (365-370 nm)'
 214046:
 - uvsflxcs370375
-- clear-sky surface uv spectral flux (370-375 nm)
+- ' clear-sky surface uv spectral flux (370-375 nm)'
 214047:
 - uvsflxcs375380
-- clear-sky surface uv spectral flux (375-380 nm)
+- ' clear-sky surface uv spectral flux (375-380 nm)'
 214048:
 - uvsflxcs380385
-- clear-sky surface uv spectral flux (380-385 nm)
+- ' clear-sky surface uv spectral flux (380-385 nm)'
 214049:
 - uvsflxcs385390
-- clear-sky surface uv spectral flux (385-390 nm)
+- ' clear-sky surface uv spectral flux (385-390 nm)'
 214050:
 - uvsflxcs390395
-- clear-sky surface uv spectral flux (390-395 nm)
+- ' clear-sky surface uv spectral flux (390-395 nm)'
 214051:
 - uvsflxcs395400
-- clear-sky surface uv spectral flux (395-400 nm)
+- ' clear-sky surface uv spectral flux (395-400 nm)'
 214052:
 - aot340
-- profile of optical thickness at 340 nm
+- ' profile of optical thickness at 340 nm'
 215001:
 - aersrcsss
-- source/gain of sea salt aerosol (0.03 - 0.5 um)
+- ' source/gain of sea salt aerosol (0.03 - 0.5 um)'
 215002:
 - aersrcssm
-- source/gain of sea salt aerosol (0.5 - 5 um)
+- ' source/gain of sea salt aerosol (0.5 - 5 um)'
 215003:
 - aersrcssl
-- source/gain of sea salt aerosol (5 - 20 um)
+- ' source/gain of sea salt aerosol (5 - 20 um)'
 215004:
 - aerddpsss
-- dry deposition of sea salt aerosol (0.03 - 0.5 um)
+- ' dry deposition of sea salt aerosol (0.03 - 0.5 um)'
 215005:
 - aerddpssm
-- dry deposition of sea salt aerosol (0.5 - 5 um)
+- ' dry deposition of sea salt aerosol (0.5 - 5 um)'
 215006:
 - aerddpssl
-- dry deposition of sea salt aerosol (5 - 20 um)
+- ' dry deposition of sea salt aerosol (5 - 20 um)'
 215007:
 - aersdmsss
-- sedimentation of sea salt aerosol (0.03 - 0.5 um)
+- ' sedimentation of sea salt aerosol (0.03 - 0.5 um)'
 215008:
 - aersdmssm
-- sedimentation of sea salt aerosol (0.5 - 5 um)
+- ' sedimentation of sea salt aerosol (0.5 - 5 um)'
 215009:
 - aersdmssl
-- sedimentation of sea salt aerosol (5 - 20 um)
+- ' sedimentation of sea salt aerosol (5 - 20 um)'
 215010:
 - aerwdlssss
-- wet deposition of sea salt aerosol (0.03 - 0.5 um) by large-scale precipitation
+- ' wet deposition of sea salt aerosol (0.03 - 0.5 um) by large-scale precipitation'
 215011:
 - aerwdlsssm
-- wet deposition of sea salt aerosol (0.5 - 5 um) by large-scale precipitation
+- ' wet deposition of sea salt aerosol (0.5 - 5 um) by large-scale precipitation'
 215012:
 - aerwdlsssl
-- wet deposition of sea salt aerosol (5 - 20 um) by large-scale precipitation
+- ' wet deposition of sea salt aerosol (5 - 20 um) by large-scale precipitation'
 215013:
 - aerwdccsss
-- wet deposition of sea salt aerosol (0.03 - 0.5 um) by convective precipitation
+- ' wet deposition of sea salt aerosol (0.03 - 0.5 um) by convective precipitation'
 215014:
 - aerwdccssm
-- wet deposition of sea salt aerosol (0.5 - 5 um) by convective precipitation
+- ' wet deposition of sea salt aerosol (0.5 - 5 um) by convective precipitation'
 215015:
 - aerwdccssl
-- wet deposition of sea salt aerosol (5 - 20 um) by convective precipitation
+- ' wet deposition of sea salt aerosol (5 - 20 um) by convective precipitation'
 215016:
 - aerngtsss
-- negative fixer of sea salt aerosol (0.03 - 0.5 um)
+- ' negative fixer of sea salt aerosol (0.03 - 0.5 um)'
 215017:
 - aerngtssm
-- negative fixer of sea salt aerosol (0.5 - 5 um)
+- ' negative fixer of sea salt aerosol (0.5 - 5 um)'
 215018:
 - aerngtssl
-- negative fixer of sea salt aerosol (5 - 20 um)
+- ' negative fixer of sea salt aerosol (5 - 20 um)'
 215019:
 - aermsssss
-- vertically integrated mass of sea salt aerosol (0.03 - 0.5 um)
+- ' vertically integrated mass of sea salt aerosol (0.03 - 0.5 um)'
 215020:
 - aermssssm
-- vertically integrated mass of sea salt aerosol (0.5 - 5 um)
+- ' vertically integrated mass of sea salt aerosol (0.5 - 5 um)'
 215021:
 - aermssssl
-- vertically integrated mass of sea salt aerosol (5 - 20 um)
+- ' vertically integrated mass of sea salt aerosol (5 - 20 um)'
 215022:
 - aerodsss
-- sea salt aerosol (0.03 - 0.5 um) optical depth
+- ' sea salt aerosol (0.03 - 0.5 um) optical depth'
 215023:
 - aerodssm
-- sea salt aerosol (0.5 - 5 um) optical depth
+- ' sea salt aerosol (0.5 - 5 um) optical depth'
 215024:
 - aerodssl
-- sea salt aerosol (5 - 20 um) optical depth
+- ' sea salt aerosol (5 - 20 um) optical depth'
 215025:
 - aersrcdus
-- source/gain of dust aerosol (0.03 - 0.55 um)
+- ' source/gain of dust aerosol (0.03 - 0.55 um)'
 215026:
 - aersrcdum
-- source/gain of dust aerosol (0.55 - 9 um)
+- ' source/gain of dust aerosol (0.55 - 9 um)'
 215027:
 - aersrcdul
-- source/gain of dust aerosol (9 - 20 um)
+- ' source/gain of dust aerosol (9 - 20 um)'
 215028:
 - aerddpdus
-- dry deposition of dust aerosol (0.03 - 0.55 um)
+- ' dry deposition of dust aerosol (0.03 - 0.55 um)'
 215029:
 - aerddpdum
-- dry deposition of dust aerosol (0.55 - 9 um)
+- ' dry deposition of dust aerosol (0.55 - 9 um)'
 215030:
 - aerddpdul
-- dry deposition of dust aerosol (9 - 20 um)
+- ' dry deposition of dust aerosol (9 - 20 um)'
 215031:
 - aersdmdus
-- sedimentation of dust aerosol (0.03 - 0.55 um)
+- ' sedimentation of dust aerosol (0.03 - 0.55 um)'
 215032:
 - aersdmdum
-- sedimentation of dust aerosol (0.55 - 9 um)
+- ' sedimentation of dust aerosol (0.55 - 9 um)'
 215033:
 - aersdmdul
-- sedimentation of dust aerosol (9 - 20 um)
+- ' sedimentation of dust aerosol (9 - 20 um)'
 215034:
 - aerwdlsdus
-- wet deposition of dust aerosol (0.03 - 0.55 um) by large-scale precipitation
+- ' wet deposition of dust aerosol (0.03 - 0.55 um) by large-scale precipitation'
 215035:
 - aerwdlsdum
-- wet deposition of dust aerosol (0.55 - 9 um) by large-scale precipitation
+- ' wet deposition of dust aerosol (0.55 - 9 um) by large-scale precipitation'
 215036:
 - aerwdlsdul
-- wet deposition of dust aerosol (9 - 20 um) by large-scale precipitation
+- ' wet deposition of dust aerosol (9 - 20 um) by large-scale precipitation'
 215037:
 - aerwdccdus
-- wet deposition of dust aerosol (0.03 - 0.55 um) by convective precipitation
+- ' wet deposition of dust aerosol (0.03 - 0.55 um) by convective precipitation'
 215038:
 - aerwdccdum
-- wet deposition of dust aerosol (0.55 - 9 um) by convective precipitation
+- ' wet deposition of dust aerosol (0.55 - 9 um) by convective precipitation'
 215039:
 - aerwdccdul
-- wet deposition of dust aerosol (9 - 20 um) by convective precipitation
+- ' wet deposition of dust aerosol (9 - 20 um) by convective precipitation'
 215040:
 - aerngtdus
-- negative fixer of dust aerosol (0.03 - 0.55 um)
+- ' negative fixer of dust aerosol (0.03 - 0.55 um)'
 215041:
 - aerngtdum
-- negative fixer of dust aerosol (0.55 - 9 um)
+- ' negative fixer of dust aerosol (0.55 - 9 um)'
 215042:
 - aerngtdul
-- negative fixer of dust aerosol (9 - 20 um)
+- ' negative fixer of dust aerosol (9 - 20 um)'
 215043:
 - aermssdus
-- vertically integrated mass of dust aerosol (0.03 - 0.55 um)
+- ' vertically integrated mass of dust aerosol (0.03 - 0.55 um)'
 215044:
 - aermssdum
-- vertically integrated mass of dust aerosol (0.55 - 9 um)
+- ' vertically integrated mass of dust aerosol (0.55 - 9 um)'
 215045:
 - aermssdul
-- vertically integrated mass of dust aerosol (9 - 20 um)
+- ' vertically integrated mass of dust aerosol (9 - 20 um)'
 215046:
 - aeroddus
-- dust aerosol (0.03 - 0.55 um) optical depth
+- ' dust aerosol (0.03 - 0.55 um) optical depth'
 215047:
 - aeroddum
-- dust aerosol (0.55 - 9 um) optical depth
+- ' dust aerosol (0.55 - 9 um) optical depth'
 215048:
 - aeroddul
-- dust aerosol (9 - 20 um) optical depth
+- ' dust aerosol (9 - 20 um) optical depth'
 215049:
 - aersrcomhphob
-- source/gain of hydrophobic organic matter aerosol
+- ' source/gain of hydrophobic organic matter aerosol'
 215050:
 - aersrcomhphil
-- source/gain of hydrophilic organic matter aerosol
+- ' source/gain of hydrophilic organic matter aerosol'
 215051:
 - aerddpomhphob
-- dry deposition of hydrophobic organic matter aerosol
+- ' dry deposition of hydrophobic organic matter aerosol'
 215052:
 - aerddpomhphil
-- dry deposition of hydrophilic organic matter aerosol
+- ' dry deposition of hydrophilic organic matter aerosol'
 215053:
 - aersdmomhphob
-- sedimentation of hydrophobic organic matter aerosol
+- ' sedimentation of hydrophobic organic matter aerosol'
 215054:
 - aersdmomhphil
-- sedimentation of hydrophilic organic matter aerosol
+- ' sedimentation of hydrophilic organic matter aerosol'
 215055:
 - aerwdlsomhphob
-- wet deposition of hydrophobic organic matter aerosol by large-scale precipitation
+- ' wet deposition of hydrophobic organic matter aerosol by large-scale precipitation'
 215056:
 - aerwdlsomhphil
-- wet deposition of hydrophilic organic matter aerosol by large-scale precipitation
+- ' wet deposition of hydrophilic organic matter aerosol by large-scale precipitation'
 215057:
 - aerwdccomhphob
-- wet deposition of hydrophobic organic matter aerosol by convective precipitation
+- ' wet deposition of hydrophobic organic matter aerosol by convective precipitation'
 215058:
 - aerwdccomhphil
-- wet deposition of hydrophilic organic matter aerosol by convective precipitation
+- ' wet deposition of hydrophilic organic matter aerosol by convective precipitation'
 215059:
 - aerngtomhphob
-- negative fixer of hydrophobic organic matter aerosol
+- ' negative fixer of hydrophobic organic matter aerosol'
 215060:
 - aerngtomhphil
-- negative fixer of hydrophilic organic matter aerosol
+- ' negative fixer of hydrophilic organic matter aerosol'
 215061:
 - aermssomhphob
-- vertically integrated mass of hydrophobic organic matter aerosol
+- ' vertically integrated mass of hydrophobic organic matter aerosol'
 215062:
 - aermssomhphil
-- vertically integrated mass of hydrophilic organic matter aerosol
+- ' vertically integrated mass of hydrophilic organic matter aerosol'
 215063:
 - aerodomhphob
-- hydrophobic organic matter aerosol optical depth
+- ' hydrophobic organic matter aerosol optical depth'
 215064:
 - aerodomhphil
-- hydrophilic organic matter aerosol optical depth
+- ' hydrophilic organic matter aerosol optical depth'
 215065:
 - aersrcbchphob
-- source/gain of hydrophobic black carbon aerosol
+- ' source/gain of hydrophobic black carbon aerosol'
 215066:
 - aersrcbchphil
-- source/gain of hydrophilic black carbon aerosol
+- ' source/gain of hydrophilic black carbon aerosol'
 215067:
 - aerddpbchphob
-- dry deposition of hydrophobic black carbon aerosol
+- ' dry deposition of hydrophobic black carbon aerosol'
 215068:
 - aerddpbchphil
-- dry deposition of hydrophilic black carbon aerosol
+- ' dry deposition of hydrophilic black carbon aerosol'
 215069:
 - aersdmbchphob
-- sedimentation of hydrophobic black carbon aerosol
+- ' sedimentation of hydrophobic black carbon aerosol'
 215070:
 - aersdmbchphil
-- sedimentation of hydrophilic black carbon aerosol
+- ' sedimentation of hydrophilic black carbon aerosol'
 215071:
 - aerwdlsbchphob
-- wet deposition of hydrophobic black carbon aerosol by large-scale precipitation
+- ' wet deposition of hydrophobic black carbon aerosol by large-scale precipitation'
 215072:
 - aerwdlsbchphil
-- wet deposition of hydrophilic black carbon aerosol by large-scale precipitation
+- ' wet deposition of hydrophilic black carbon aerosol by large-scale precipitation'
 215073:
 - aerwdccbchphob
-- wet deposition of hydrophobic black carbon aerosol by convective precipitation
+- ' wet deposition of hydrophobic black carbon aerosol by convective precipitation'
 215074:
 - aerwdccbchphil
-- wet deposition of hydrophilic black carbon aerosol by convective precipitation
+- ' wet deposition of hydrophilic black carbon aerosol by convective precipitation'
 215075:
 - aerngtbchphob
-- negative fixer of hydrophobic black carbon aerosol
+- ' negative fixer of hydrophobic black carbon aerosol'
 215076:
 - aerngtbchphil
-- negative fixer of hydrophilic black carbon aerosol
+- ' negative fixer of hydrophilic black carbon aerosol'
 215077:
 - aermssbchphob
-- vertically integrated mass of hydrophobic black carbon aerosol
+- ' vertically integrated mass of hydrophobic black carbon aerosol'
 215078:
 - aermssbchphil
-- vertically integrated mass of hydrophilic black carbon aerosol
+- ' vertically integrated mass of hydrophilic black carbon aerosol'
 215079:
 - aerodbchphob
-- hydrophobic black carbon aerosol optical depth
+- ' hydrophobic black carbon aerosol optical depth'
 215080:
 - aerodbchphil
-- hydrophilic black carbon aerosol optical depth
+- ' hydrophilic black carbon aerosol optical depth'
 215081:
 - aersrcsu
-- source/gain of sulphate aerosol
+- ' source/gain of sulphate aerosol'
 215082:
 - aerddpsu
-- dry deposition of sulphate aerosol
+- ' dry deposition of sulphate aerosol'
 215083:
 - aersdmsu
-- sedimentation of sulphate aerosol
+- ' sedimentation of sulphate aerosol'
 215084:
 - aerwdlssu
-- wet deposition of sulphate aerosol by large-scale precipitation
+- ' wet deposition of sulphate aerosol by large-scale precipitation'
 215085:
 - aerwdccsu
-- wet deposition of sulphate aerosol by convective precipitation
+- ' wet deposition of sulphate aerosol by convective precipitation'
 215086:
 - aerngtsu
-- negative fixer of sulphate aerosol
+- ' negative fixer of sulphate aerosol'
 215087:
 - aermsssu
-- vertically integrated mass of sulphate aerosol
+- ' vertically integrated mass of sulphate aerosol'
 215088:
 - aerodsu
-- sulphate aerosol optical depth
+- ' sulphate aerosol optical depth'
 215089:
 - accaod550
 - accumulated total aerosol optical depth at 550 nm
@@ -7003,59 +6875,59 @@
 - ssa1640
 - single scattering albedo at 1640 nm
 215150:
-- assimetry340
-- assimetry factor at 340 nm
+- asymmetry340
+- asymmetry factor at 340 nm
 215151:
-- assimetry355
-- assimetry factor at 355 nm
+- asymmetry355
+- asymmetry factor at 355 nm
 215152:
-- assimetry380
-- assimetry factor at 380 nm
+- asymmetry380
+- asymmetry factor at 380 nm
 215153:
-- assimetry400
-- assimetry factor at 400 nm
+- asymmetry400
+- asymmetry factor at 400 nm
 215154:
-- assimetry440
-- assimetry factor at 440 nm
+- asymmetry440
+- asymmetry factor at 440 nm
 215155:
-- assimetry469
-- assimetry factor at 469 nm
+- asymmetry469
+- asymmetry factor at 469 nm
 215156:
-- assimetry500
-- assimetry factor at 500 nm
+- asymmetry500
+- asymmetry factor at 500 nm
 215157:
-- assimetry532
-- assimetry factor at 532 nm
+- asymmetry532
+- asymmetry factor at 532 nm
 215158:
-- assimetry550
-- assimetry factor at 550 nm
+- asymmetry550
+- asymmetry factor at 550 nm
 215159:
-- assimetry645
-- assimetry factor at 645 nm
+- asymmetry645
+- asymmetry factor at 645 nm
 215160:
-- assimetry670
-- assimetry factor at 670 nm
+- asymmetry670
+- asymmetry factor at 670 nm
 215161:
-- assimetry800
-- assimetry factor at 800 nm
+- asymmetry800
+- asymmetry factor at 800 nm
 215162:
-- assimetry858
-- assimetry factor at 858 nm
+- asymmetry858
+- asymmetry factor at 858 nm
 215163:
-- assimetry865
-- assimetry factor at 865 nm
+- asymmetry865
+- asymmetry factor at 865 nm
 215164:
-- assimetry1020
-- assimetry factor at 1020 nm
+- asymmetry1020
+- asymmetry factor at 1020 nm
 215165:
-- assimetry1064
-- assimetry factor at 1064 nm
+- asymmetry1064
+- asymmetry factor at 1064 nm
 215166:
-- assimetry1240
-- assimetry factor at 1240 nm
+- asymmetry1240
+- asymmetry factor at 1240 nm
 215167:
-- assimetry1640
-- assimetry factor at 1640 nm
+- asymmetry1640
+- asymmetry factor at 1640 nm
 215168:
 - aersrcso2
 - source/gain of sulphur dioxide
@@ -7090,8 +6962,8 @@
 - ssa2130
 - single scattering albedo at 2130 nm
 215179:
-- assimetry2130
-- assimetry factor at 2130 nm
+- asymmetry2130
+- asymmetry factor at 2130 nm
 215180:
 - aerext355
 - aerosol extinction coefficient at 355 nm
@@ -7123,8 +6995,8 @@
 - h2o2
 - hydrogen peroxide
 217004:
-- ch4
-- methane
+- ch4_c
+- methane (chemistry)
 217006:
 - hno3
 - nitric acid
@@ -7180,7 +7052,7 @@
 - pb
 - lead
 217027:
-- false
+- 'no'
 - nitrogen monoxide
 217028:
 - ho2
@@ -7268,454 +7140,454 @@
 - nitrogen oxides transp
 217057:
 - co2_c
-- Carbon dioxide (chemistry)
+- carbon dioxide (chemistry)
 217058:
 - n2o_c
-- Nitrous oxide (chemistry)
+- nitrous oxide (chemistry)
 217059:
 - h2o
-- Water vapour (chemistry)
+- water vapour (chemistry)
 217060:
 - o2
-- Oxygen
+- oxygen
 217061:
 - o2_1s
-- Singlet oxygen
+- singlet oxygen
 217062:
 - o2_1d
-- Singlet delta oxygen
+- singlet delta oxygen
 217063:
 - oclo
-- Chlorine dioxide
+- chlorine dioxide
 217064:
 - clono2
-- Chlorine nitrate
+- chlorine nitrate
 217065:
 - hocl
-- Hypochlorous acid
+- hypochlorous acid
 217066:
 - cl2
-- Chlorine
+- chlorine
 217067:
 - clno2
-- Nitryl chloride
+- nitryl chloride
 217068:
 - hbr
-- Hydrogen bromide
+- hydrogen bromide
 217069:
 - cl2o2
-- Dichlorine dioxide
+- dichlorine dioxide
 217070:
 - hobr
-- Hypobromous acid
+- hypobromous acid
 217071:
 - cfc11
-- Trichlorofluoromethane
+- trichlorofluoromethane
 217072:
 - cfc12
-- Dichlorodifluoromethane
+- dichlorodifluoromethane
 217073:
 - cfc113
-- Trichlorotrifluoroethane
+- trichlorotrifluoroethane
 217074:
 - cfc114
-- Dichlorotetrafluoroethane
+- dichlorotetrafluoroethane
 217075:
 - cfc115
-- Chloropentafluoroethane
+- chloropentafluoroethane
 217076:
 - ccl4
-- Tetrachloromethane
+- tetrachloromethane
 217077:
 - ch3ccl3
-- Methyl chloroform
+- methyl chloroform
 217078:
 - ch3cl
-- Methyl chloride
+- methyl chloride
 217079:
 - hcfc22
-- Chlorodifluoromethane
+- chlorodifluoromethane
 217080:
 - ch3br
-- Methyl bromide
+- methyl bromide
 217081:
 - ha1202
-- Dibromodifluoromethane
+- dibromodifluoromethane
 217082:
 - ha1211
-- Bromochlorodifluoromethane
+- bromochlorodifluoromethane
 217083:
 - ha1301
-- Trifluorobromomethane
+- trifluorobromomethane
 217084:
 - ha2402
-- Cbrf2cbrf2
+- cbrf2cbrf2
 217085:
 - h2so4
-- Sulfuric acid
+- sulfuric acid
 217086:
 - hono
-- Nitrous acid
+- nitrous acid
 217087:
 - hc3
-- Alkanes low oh rate
+- alkanes low oh rate
 217088:
 - hc5
-- Alkanes med oh rate
+- alkanes med oh rate
 217089:
 - hc8
-- Alkanes high oh rate
+- alkanes high oh rate
 217090:
 - olt
-- Terminal alkenes
+- terminal alkenes
 217091:
 - oli
-- Internal alkenes
+- internal alkenes
 217092:
 - c2h5o2
-- Ethylperoxy radical
+- ethylperoxy radical
 217093:
 - dien
-- Butadiene
+- butadiene
 217094:
 - c2h5ooh
-- Ethyl hydroperoxide
+- ethyl hydroperoxide
 217095:
 - api
-- A-pinene cyclic terpenes
+- a-pinene cyclic terpenes
 217096:
 - ch3cooh
-- Acetic acid
+- acetic acid
 217097:
 - lim
-- D-limonene cyclic diene
+- d-limonene cyclic diene
 217098:
 - ch3cho
-- Acetaldehyde
+- acetaldehyde
 217099:
 - tol
-- Toluene and less reactive aromatics
+- toluene and less reactive aromatics
 217100:
 - xyl
-- Xylene and more reactive aromatics
+- xylene and more reactive aromatics
 217101:
 - glyald
-- Glycolaldehyde
+- glycolaldehyde
 217102:
 - cresol
-- Cresol
+- cresol
 217103:
 - ald
-- Acetaldehyde and higher
+- acetaldehyde and higher
 217104:
 - ch3coooh
-- Peracetic acid
+- peracetic acid
 217105:
 - ket
-- Ketones
+- ketones
 217106:
 - eo2
-- Hoch2ch2o2
+- hoch2ch2o2
 217107:
 - glyoxal
-- Glyoxal
+- glyoxal
 217108:
 - eo
-- Hoch2ch2o
+- hoch2ch2o
 217109:
 - dcb
-- Unsaturated dicarbonyls
+- unsaturated dicarbonyls
 217110:
 - macr
-- Methacrolein
+- methacrolein
 217111:
 - udd
-- Unsaturated hydroxy dicarbonyl
+- unsaturated hydroxy dicarbonyl
 217112:
 - c3h7o2
-- Isopropyldioxidanyl
+- isopropyldioxidanyl
 217113:
 - hket
-- Hydroxy ketone
+- hydroxy ketone
 217114:
 - c3h7ooh
-- Isopropyl hydroperoxide
+- isopropyl hydroperoxide
 217115:
 - po2
-- C3h6oho2
+- c3h6oho2
 217116:
 - pooh
-- C3h6ohooh
+- c3h6ohooh
 217117:
 - op2
-- Higher organic peroxides
+- higher organic peroxides
 217118:
 - hyac
-- Hydroxyacetone
+- hydroxyacetone
 217119:
 - paa
-- Peroxyacetic acid
+- peroxyacetic acid
 217120:
 - ro2
-- Ch3coch2o2
+- ch3coch2o2
 217121:
 - ethp
-- Peroxy radical from c2h6
+- peroxy radical from c2h6
 217122:
 - hc3p
-- Peroxy radical from hc3
+- peroxy radical from hc3
 217123:
 - hc5p
-- Peroxy radical from hc5
+- peroxy radical from hc5
 217124:
 - bigene
-- Lumped alkenes
+- lumped alkenes
 217125:
 - hc8p
-- Peroxy radical from hc8
+- peroxy radical from hc8
 217126:
 - bigalk
-- Lumped alkanes
+- lumped alkanes
 217127:
 - etep
-- Peroxy radical from c2h4
+- peroxy radical from c2h4
 217128:
 - mek
-- C4h8o
+- c4h8o
 217129:
 - oltp
-- Peroxy radical from terminal alkenes
+- peroxy radical from terminal alkenes
 217130:
 - eneo2
-- C4h9o3
+- c4h9o3
 217131:
 - olip
-- Peroxy radical from internal alkenes
+- peroxy radical from internal alkenes
 217132:
 - meko2
-- Ch3coch(oo)ch3
+- ch3coch(oo)ch3
 217133:
 - isopo2
-- Peroxy radical from c5h8
+- peroxy radical from c5h8
 217134:
 - mekooh
-- Ch3coch(ooh)ch3
+- ch3coch(ooh)ch3
 217135:
 - apip
-- Peroxy radical from a-pinene cyclic terpenes
+- peroxy radical from a-pinene cyclic terpenes
 217136:
 - mco3
-- Ch2=c(ch3)co3
+- ch2=c(ch3)co3
 217137:
 - limp
-- Peroxy radical from d-limonene cyclic diene
+- peroxy radical from d-limonene cyclic diene
 217138:
 - mvk
-- Methylvinylketone
+- methylvinylketone
 217139:
 - pho
-- Phenoxy radical
+- phenoxy radical
 217140:
 - tolp
-- Peroxy radical from toluene and less reactive aromatics
+- peroxy radical from toluene and less reactive aromatics
 217141:
 - macro2
-- Ch3c(o)ch(oo)ch2oh
+- ch3c(o)ch(oo)ch2oh
 217142:
 - xylp
-- Peroxy radical from xylene and more reactive aromatics
+- peroxy radical from xylene and more reactive aromatics
 217143:
 - macrooh
-- H3c(o)ch(ooh)ch2oh
+- h3c(o)ch(ooh)ch2oh
 217144:
 - cslp
-- Peroxy radical from cresol
+- peroxy radical from cresol
 217145:
 - mpan
-- Unsaturated pans
+- unsaturated pans
 217146:
 - tco3_c
-- Unsaturated acyl peroxy radical
+- unsaturated acyl peroxy radical
 217147:
 - ketp
-- Peroxy radical from ketones
+- peroxy radical from ketones
 217148:
 - alko2
-- C5h11o2
+- c5h11o2
 217149:
 - olnn
-- No3-alkenes adduct reacting to form carbonitrates
+- no3-alkenes adduct reacting to form carbonitrates
 217150:
 - alkooh
-- C5h11ooh
+- c5h11ooh
 217151:
 - olnd
-- No3-alkenes adduct reacting via decomposition
+- no3-alkenes adduct reacting via decomposition
 217152:
 - bigald
-- Hoch2c(ch3)=chcho
+- hoch2c(ch3)=chcho
 217153:
 - hydrald
-- C5h6o2
+- c5h6o2
 217154:
 - sulf
-- Trop sulfuric acid
+- trop sulfuric acid
 217155:
 - ox
-- Oxides
+- oxides
 217156:
 - isopno3
-- Ch2chc(ch3)(oo)ch2ono2
+- ch2chc(ch3)(oo)ch2ono2
 217157:
 - onitr
-- C3 organic nitrate
+- c3 organic nitrate
 217158:
 - clox
-- Chlorine oxides
+- chlorine oxides
 217159:
 - brox
-- Bromine oxides
+- bromine oxides
 217160:
 - xooh
-- Hoch2c(ooh)(ch3)chchoh
+- hoch2c(ooh)(ch3)chchoh
 217161:
 - isopooh
-- Hoch2c(ooh)(ch3)ch=ch2
+- hoch2c(ooh)(ch3)ch=ch2
 217162:
 - toluene
-- Lumped aromatics
+- lumped aromatics
 217163:
 - dmso
-- Dimethyl sulfoxyde
+- dimethyl sulfoxyde
 217164:
 - tolo2
-- C7h9o5
+- c7h9o5
 217165:
 - tolooh
-- C7h10o5
+- c7h10o5
 217166:
 - h2s
-- Hydrogensulfide
+- hydrogensulfide
 217167:
 - xoh
-- C7h10o6
+- c7h10o6
 217168:
 - noy
-- All nitrogen oxides
+- all nitrogen oxides
 217169:
 - cly
-- Chlorine family
+- chlorine family
 217170:
 - terpo2
-- C10h16(oh)(oo)
+- c10h16(oh)(oo)
 217171:
 - bry
-- Bromine family
+- bromine family
 217172:
 - terpooh
-- C10h18o3
+- c10h18o3
 217173:
 - n
-- Nitrogen atom
+- nitrogen atom
 217174:
 - clo
-- Chlorine monoxide
+- chlorine monoxide
 217175:
 - cl_c
-- Chlorine atom
+- chlorine atom
 217176:
 - bro
-- Bromine monoxide
+- bromine monoxide
 217177:
 - h_c
-- Hydrogen atom
+- hydrogen atom
 217178:
 - ch3
-- Methyl group
+- methyl group
 217179:
 - addt
-- Aromatic-ho from toluene and less reactive aromatics
+- aromatic-ho from toluene and less reactive aromatics
 217180:
 - addx
-- Aromatic-ho from xylene and more reactive aromatics
+- aromatic-ho from xylene and more reactive aromatics
 217181:
 - nh4no3
-- Ammonium nitrate
+- ammonium nitrate
 217182:
 - addc
-- Aromatic-ho from csl
+- aromatic-ho from csl
 217183:
 - soa1
-- Secondary organic aerosol type 1
+- secondary organic aerosol type 1
 217184:
 - soa2a
-- Secondary organic aerosol type 2a
+- secondary organic aerosol type 2a
 217185:
 - soa2b
-- Secondary organic aerosol type 2b
+- secondary organic aerosol type 2b
 217186:
 - sog1
-- Condensable gas type 1
+- condensable gas type 1
 217187:
 - sog2a
-- Condensable gas type 2a
+- condensable gas type 2a
 217188:
 - sog2b
-- Condensable gas type 2b
+- condensable gas type 2b
 217189:
 - so3
-- Sulfur trioxide
+- sulfur trioxide
 217190:
 - ocs_c
-- Carbonyl sulfide
+- carbonyl sulfide
 217191:
 - br
-- Bromine atom
+- bromine atom
 217192:
 - br2
-- Bromine
+- bromine
 217193:
 - brcl
-- Bromine monochloride
+- bromine monochloride
 217194:
 - brono2
-- Bromine nitrate
+- bromine nitrate
 217195:
 - ch2br2
-- Dibromomethane
+- dibromomethane
 217196:
 - ch3o
-- Methoxy radical
+- methoxy radical
 217197:
 - chbr3
-- Tribromomethane
+- tribromomethane
 217198:
 - cloo
-- Asymmetric chlorine dioxide radical
+- asymmetric chlorine dioxide radical
 217199:
 - h2
-- Hydrogen
+- hydrogen
 217200:
 - hcl
-- Hydrogen chloride
+- hydrogen chloride
 217201:
 - hco
-- Formyl radical
+- formyl radical
 217202:
 - hf
-- Hydrogen fluoride
+- hydrogen fluoride
 217203:
 - o
-- Oxygen atom
+- oxygen atom
 217204:
 - o1d
-- Excited oxygen atom
+- excited oxygen atom
 217205:
 - o3p
-- Ground state oxygen atom
+- ground state oxygen atom
 217206:
 - strataer
-- Stratospheric aerosol
+- stratospheric aerosol
 218003:
 - tc_h2o2
 - total column hydrogen peroxide
@@ -7865,454 +7737,454 @@
 - total column nitrogen oxides transp
 218057:
 - tc_co2_c
-- Total column of carbon dioxide (chemistry)
+- total column of carbon dioxide (chemistry)
 218058:
 - tc_n2o_c
-- Total column of nitrous oxide (chemistry)
+- total column of nitrous oxide (chemistry)
 218059:
 - tc_h2o
-- Total column of water vapour (chemistry)
+- total column of water vapour (chemistry)
 218060:
 - tc_o2
-- Total column of oxygen
+- total column of oxygen
 218061:
 - tc_o2_1s
-- Total column of singlet oxygen
+- total column of singlet oxygen
 218062:
 - tc_o2_1d
-- Total column of singlet delta oxygen
+- total column of singlet delta oxygen
 218063:
 - tc_oclo
-- Total column of chlorine dioxide
+- total column of chlorine dioxide
 218064:
 - tc_clono2
-- Total column of chlorine nitrate
+- total column of chlorine nitrate
 218065:
 - tc_hocl
-- Total column of hypochlorous acid
+- total column of hypochlorous acid
 218066:
 - tc_cl2
-- Total column of chlorine
+- total column of chlorine
 218067:
 - tc_clno2
-- Total column of nitryl chloride
+- total column of nitryl chloride
 218068:
 - tc_hbr
-- Total column of hydrogen bromide
+- total column of hydrogen bromide
 218069:
 - tc_cl2o2
-- Total column of dichlorine dioxide
+- total column of dichlorine dioxide
 218070:
 - tc_hobr
-- Total column of hypobromous acid
+- total column of hypobromous acid
 218071:
 - tc_cfc11
-- Total column of trichlorofluoromethane
+- total column of trichlorofluoromethane
 218072:
 - tc_cfc12
-- Total column of dichlorodifluoromethane
+- total column of dichlorodifluoromethane
 218073:
 - tc_cfc113
-- Total column of trichlorotrifluoroethane
+- total column of trichlorotrifluoroethane
 218074:
 - tc_cfc114
-- Total column of dichlorotetrafluoroethane
+- total column of dichlorotetrafluoroethane
 218075:
 - tc_cfc115
-- Total column of chloropentafluoroethane
+- total column of chloropentafluoroethane
 218076:
 - tc_ccl4
-- Total column of tetrachloromethane
+- total column of tetrachloromethane
 218077:
 - tc_ch3ccl3
-- Total column of methyl chloroform
+- total column of methyl chloroform
 218078:
 - tc_ch3cl
-- Total column of methyl chloride
+- total column of methyl chloride
 218079:
 - tc_hcfc22
-- Total column of chlorodifluoromethane
+- total column of chlorodifluoromethane
 218080:
 - tc_ch3br
-- Total column of methyl bromide
+- total column of methyl bromide
 218081:
 - tc_ha1202
-- Total column of dibromodifluoromethane
+- total column of dibromodifluoromethane
 218082:
 - tc_ha1211
-- Total column of bromochlorodifluoromethane
+- total column of bromochlorodifluoromethane
 218083:
 - tc_ha1301
-- Total column of trifluorobromomethane
+- total column of trifluorobromomethane
 218084:
 - tc_ha2402
-- Total column of cbrf2cbrf2
+- total column of cbrf2cbrf2
 218085:
 - tc_h2so4
-- Total column of sulfuric acid
+- total column of sulfuric acid
 218086:
 - tc_hono
-- Total column of nitrous acid
+- total column of nitrous acid
 218087:
 - tc_hc3
-- Total column of alkanes low oh rate
+- total column of alkanes low oh rate
 218088:
 - tc_hc5
-- Total column of alkanes med oh rate
+- total column of alkanes med oh rate
 218089:
 - tc_hc8
-- Total column of alkanes high oh rate
+- total column of alkanes high oh rate
 218090:
 - tc_olt
-- Total column of terminal alkenes
+- total column of terminal alkenes
 218091:
 - tc_oli
-- Total column of internal alkenes
+- total column of internal alkenes
 218092:
 - tc_c2h5o2
-- Total column of ethylperoxy radical
+- total column of ethylperoxy radical
 218093:
 - tc_dien
-- Total column of butadiene
+- total column of butadiene
 218094:
 - tc_c2h5ooh
-- Total column of ethyl hydroperoxide
+- total column of ethyl hydroperoxide
 218095:
 - tc_api
-- Total column of a-pinene cyclic terpenes
+- total column of a-pinene cyclic terpenes
 218096:
 - tc_ch3cooh
-- Total column of acetic acid
+- total column of acetic acid
 218097:
 - tc_lim
-- Total column of d-limonene cyclic diene
+- total column of d-limonene cyclic diene
 218098:
 - tc_ch3cho
-- Total column of acetaldehyde
+- total column of acetaldehyde
 218099:
 - tc_tol
-- Total column of toluene and less reactive aromatics
+- total column of toluene and less reactive aromatics
 218100:
 - tc_xyl
-- Total column of xylene and more reactive aromatics
+- total column of xylene and more reactive aromatics
 218101:
 - tc_glyald
-- Total column of glycolaldehyde
+- total column of glycolaldehyde
 218102:
 - tc_cresol
-- Total column of cresol
+- total column of cresol
 218103:
 - tc_ald
-- Total column of acetaldehyde and higher
+- total column of acetaldehyde and higher
 218104:
 - tc_ch3coooh
-- Total column of peracetic acid
+- total column of peracetic acid
 218105:
 - tc_ket
-- Total column of ketones
+- total column of ketones
 218106:
 - tc_eo2
-- Total column of hoch2ch2o2
+- total column of hoch2ch2o2
 218107:
 - tc_glyoxal
-- Total column of glyoxal
+- total column of glyoxal
 218108:
 - tc_eo
-- Total column of hoch2ch2o
+- total column of hoch2ch2o
 218109:
 - tc_dcb
-- Total column of unsaturated dicarbonyls
+- total column of unsaturated dicarbonyls
 218110:
 - tc_macr
-- Total column of methacrolein
+- total column of methacrolein
 218111:
 - tc_udd
-- Total column of unsaturated hydroxy dicarbonyl
+- total column of unsaturated hydroxy dicarbonyl
 218112:
 - tc_c3h7o2
-- Total column of isopropyldioxidanyl
+- total column of isopropyldioxidanyl
 218113:
 - tc_hket
-- Total column of hydroxy ketone
+- total column of hydroxy ketone
 218114:
 - tc_c3h7ooh
-- Total column of isopropyl hydroperoxide
+- total column of isopropyl hydroperoxide
 218115:
 - tc_po2
-- Total column of c3h6oho2
+- total column of c3h6oho2
 218116:
 - tc_pooh
-- Total column of c3h6ohooh
+- total column of c3h6ohooh
 218117:
 - tc_op2
-- Total column of higher organic peroxides
+- total column of higher organic peroxides
 218118:
 - tc_hyac
-- Total column of hydroxyacetone
+- total column of hydroxyacetone
 218119:
 - tc_paa
-- Total column of peroxyacetic acid
+- total column of peroxyacetic acid
 218120:
 - tc_ro2
-- Total column of ch3coch2o2
+- total column of ch3coch2o2
 218121:
 - tc_ethp
-- Total column of peroxy radical from c2h6
+- total column of peroxy radical from c2h6
 218122:
 - tc_hc3p
-- Total column of peroxy radical from hc3
+- total column of peroxy radical from hc3
 218123:
 - tc_hc5p
-- Total column of peroxy radical from hc5
+- total column of peroxy radical from hc5
 218124:
 - tc_bigene
-- Total column of lumped alkenes
+- total column of lumped alkenes
 218125:
 - tc_hc8p
-- Total column of peroxy radical from hc8
+- total column of peroxy radical from hc8
 218126:
 - tc_bigalk
-- Total column of lumped alkanes
+- total column of lumped alkanes
 218127:
 - tc_etep
-- Total column of peroxy radical from c2h4
+- total column of peroxy radical from c2h4
 218128:
 - tc_mek
-- Total column of c4h8o
+- total column of c4h8o
 218129:
 - tc_oltp
-- Total column of peroxy radical from terminal alkenes
+- total column of peroxy radical from terminal alkenes
 218130:
 - tc_eneo2
-- Total column of c4h9o3
+- total column of c4h9o3
 218131:
 - tc_olip
-- Total column of peroxy radical from internal alkenes
+- total column of peroxy radical from internal alkenes
 218132:
 - tc_meko2
-- Total column of ch3coch(oo)ch3
+- total column of ch3coch(oo)ch3
 218133:
 - tc_isopo2
-- Total column of peroxy radical from c5h8
+- total column of peroxy radical from c5h8
 218134:
 - tc_mekooh
-- Total column of ch3coch(ooh)ch3
+- total column of ch3coch(ooh)ch3
 218135:
 - tc_apip
-- Total column of peroxy radical from a-pinene cyclic terpenes
+- total column of peroxy radical from a-pinene cyclic terpenes
 218136:
 - tc_mco3
-- Total column of ch2=c(ch3)co3
+- total column of ch2=c(ch3)co3
 218137:
 - tc_limp
-- Total column of peroxy radical from d-limonene cyclic diene
+- total column of peroxy radical from d-limonene cyclic diene
 218138:
 - tc_mvk
-- Total column of methylvinylketone
+- total column of methylvinylketone
 218139:
 - tc_pho
-- Total column of phenoxy radical
+- total column of phenoxy radical
 218140:
 - tc_tolp
-- Total column of peroxy radical from toluene and less reactive aromatics
+- total column of peroxy radical from toluene and less reactive aromatics
 218141:
 - tc_macro2
-- Total column of ch3c(o)ch(oo)ch2oh
+- total column of ch3c(o)ch(oo)ch2oh
 218142:
 - tc_xylp
-- Total column of peroxy radical from xylene and more reactive aromatics
+- total column of peroxy radical from xylene and more reactive aromatics
 218143:
 - tc_macrooh
-- Total column of h3c(o)ch(ooh)ch2oh
+- total column of h3c(o)ch(ooh)ch2oh
 218144:
 - tc_cslp
-- Total column of peroxy radical from cresol
+- total column of peroxy radical from cresol
 218145:
 - tc_mpan
-- Total column of unsaturated pans
+- total column of unsaturated pans
 218146:
 - tc_tco3_c
-- Total column of unsaturated acyl peroxy radical
+- total column of unsaturated acyl peroxy radical
 218147:
 - tc_ketp
-- Total column of peroxy radical from ketones
+- total column of peroxy radical from ketones
 218148:
 - tc_alko2
-- Total column of c5h11o2
+- total column of c5h11o2
 218149:
 - tc_olnn
-- Total column of no3-alkenes adduct reacting to form carbonitrates
+- total column of no3-alkenes adduct reacting to form carbonitrates
 218150:
 - tc_alkooh
-- Total column of c5h11ooh
+- total column of c5h11ooh
 218151:
 - tc_olnd
-- Total column of no3-alkenes adduct reacting via decomposition
+- total column of no3-alkenes adduct reacting via decomposition
 218152:
 - tc_bigald
-- Total column of hoch2c(ch3)=chcho
+- total column of hoch2c(ch3)=chcho
 218153:
 - tc_hydrald
-- Total column of c5h6o2
+- total column of c5h6o2
 218154:
 - tc_sulf
-- Total column of trop sulfuric acid
+- total column of trop sulfuric acid
 218155:
 - tc_ox
-- Total column of oxides
+- total column of oxides
 218156:
 - tc_isopno3
-- Total column of ch2chc(ch3)(oo)ch2ono2
+- total column of ch2chc(ch3)(oo)ch2ono2
 218157:
 - tc_onitr
-- Total column of c3 organic nitrate
+- total column of c3 organic nitrate
 218158:
 - tc_clox
-- Total column of chlorine oxides
+- total column of chlorine oxides
 218159:
 - tc_brox
-- Total column of bromine oxides
+- total column of bromine oxides
 218160:
 - tc_xooh
-- Total column of hoch2c(ooh)(ch3)chchoh
+- total column of hoch2c(ooh)(ch3)chchoh
 218161:
 - tc_isopooh
-- Total column of hoch2c(ooh)(ch3)ch=ch2
+- total column of hoch2c(ooh)(ch3)ch=ch2
 218162:
 - tc_toluene
-- Total column of lumped aromatics
+- total column of lumped aromatics
 218163:
 - tc_dmso
-- Total column of dimethyl sulfoxyde
+- total column of dimethyl sulfoxyde
 218164:
 - tc_tolo2
-- Total column of c7h9o5
+- total column of c7h9o5
 218165:
 - tc_tolooh
-- Total column of c7h10o5
+- total column of c7h10o5
 218166:
 - tc_h2s
-- Total column of hydrogensulfide
+- total column of hydrogensulfide
 218167:
 - tc_xoh
-- Total column of c7h10o6
+- total column of c7h10o6
 218168:
 - tc_noy
-- Total column of all nitrogen oxides
+- total column of all nitrogen oxides
 218169:
 - tc_cly
-- Total column of chlorine family
+- total column of chlorine family
 218170:
 - tc_terpo2
-- Total column of c10h16(oh)(oo)
+- total column of c10h16(oh)(oo)
 218171:
 - tc_bry
-- Total column of bromine family
+- total column of bromine family
 218172:
 - tc_terpooh
-- Total column of c10h18o3
+- total column of c10h18o3
 218173:
 - tc_n
-- Total column of nitrogen atom
+- total column of nitrogen atom
 218174:
 - tc_clo
-- Total column of chlorine monoxide
+- total column of chlorine monoxide
 218175:
 - tc_cl_c
-- Total column of chlorine atom
+- total column of chlorine atom
 218176:
 - tc_bro
-- Total column of bromine monoxide
+- total column of bromine monoxide
 218177:
 - tc_h_c
-- Total column of hydrogen atom
+- total column of hydrogen atom
 218178:
 - tc_ch3
-- Total column of methyl group
+- total column of methyl group
 218179:
 - tc_addt
-- Total column of aromatic-ho from toluene and less reactive aromatics
+- total column of aromatic-ho from toluene and less reactive aromatics
 218180:
 - tc_addx
-- Total column of aromatic-ho from xylene and more reactive aromatics
+- total column of aromatic-ho from xylene and more reactive aromatics
 218181:
 - tc_nh4no3
-- Total column of ammonium nitrate
+- total column of ammonium nitrate
 218182:
 - tc_addc
-- Total column of aromatic-ho from csl
+- total column of aromatic-ho from csl
 218183:
 - tc_soa1
-- Total column of secondary organic aerosol type 1
+- total column of secondary organic aerosol type 1
 218184:
 - tc_soa2a
-- Total column of secondary organic aerosol type 2a
+- total column of secondary organic aerosol type 2a
 218185:
 - tc_soa2b
-- Total column of secondary organic aerosol type 2b
+- total column of secondary organic aerosol type 2b
 218186:
 - tc_sog1
-- Total column of condensable gas type 1
+- total column of condensable gas type 1
 218187:
 - tc_sog2a
-- Total column of condensable gas type 2a
+- total column of condensable gas type 2a
 218188:
 - tc_sog2b
-- Total column of condensable gas type 2b
+- total column of condensable gas type 2b
 218189:
 - tc_so3
-- Total column of sulfur trioxide
+- total column of sulfur trioxide
 218190:
 - tc_ocs_c
-- Total column of carbonyl sulfide
+- total column of carbonyl sulfide
 218191:
 - tc_br
-- Total column of bromine atom
+- total column of bromine atom
 218192:
 - tc_br2
-- Total column of bromine
+- total column of bromine
 218193:
 - tc_brcl
-- Total column of bromine monochloride
+- total column of bromine monochloride
 218194:
 - tc_brono2
-- Total column of bromine nitrate
+- total column of bromine nitrate
 218195:
 - tc_ch2br2
-- Total column of dibromomethane
+- total column of dibromomethane
 218196:
 - tc_ch3o
-- Total column of methoxy radical
+- total column of methoxy radical
 218197:
 - tc_chbr3
-- Total column of tribromomethane
+- total column of tribromomethane
 218198:
 - tc_cloo
-- Total column of asymmetric chlorine dioxide radical
+- total column of asymmetric chlorine dioxide radical
 218199:
 - tc_h2
-- Total column of hydrogen
+- total column of hydrogen
 218200:
 - tc_hcl
-- Total column of hydrogen chloride
+- total column of hydrogen chloride
 218201:
 - tc_hco
-- Total column of formyl radical
+- total column of formyl radical
 218202:
 - tc_hf
-- Total column of hydrogen fluoride
+- total column of hydrogen fluoride
 218203:
 - tc_o
-- Total column of oxygen atom
+- total column of oxygen atom
 218204:
 - tc_o1d
-- Total column of excited oxygen atom
+- total column of excited oxygen atom
 218205:
 - tc_o3p
-- Total column of ground state oxygen atom
+- total column of ground state oxygen atom
 218206:
 - tc_strataer
-- Total column of stratospheric aerosol
+- total column of stratospheric aerosol
 219001:
 - e_go3
 - ozone emissions
@@ -8483,496 +8355,496 @@
 - nitrogen oxides transp emissions
 219057:
 - e_co2_c
-- Emissions of carbon dioxide (chemistry)
+- emissions of carbon dioxide (chemistry)
 219058:
 - e_n2o_c
-- Emissions of nitrous oxide (chemistry)
+- emissions of nitrous oxide (chemistry)
 219059:
 - e_h2o
-- Emissions of water vapour (chemistry)
+- emissions of water vapour (chemistry)
 219060:
 - e_o2
-- Emissions of oxygen
+- emissions of oxygen
 219061:
 - e_o2_1s
-- Emissions of singlet oxygen
+- emissions of singlet oxygen
 219062:
 - e_o2_1d
-- Emissions of singlet delta oxygen
+- emissions of singlet delta oxygen
 219063:
 - e_oclo
-- Emissions of chlorine dioxide
+- emissions of chlorine dioxide
 219064:
 - e_clono2
-- Emissions of chlorine nitrate
+- emissions of chlorine nitrate
 219065:
 - e_hocl
-- Emissions of hypochlorous acid
+- emissions of hypochlorous acid
 219066:
 - e_cl2
-- Emissions of chlorine
+- emissions of chlorine
 219067:
 - e_clno2
-- Emissions of nitryl chloride
+- emissions of nitryl chloride
 219068:
 - e_hbr
-- Emissions of hydrogen bromide
+- emissions of hydrogen bromide
 219069:
 - e_cl2o2
-- Emissions of dichlorine dioxide
+- emissions of dichlorine dioxide
 219070:
 - e_hobr
-- Emissions of hypobromous acid
+- emissions of hypobromous acid
 219071:
 - e_cfc11
-- Emissions of trichlorofluoromethane
+- emissions of trichlorofluoromethane
 219072:
 - e_cfc12
-- Emissions of dichlorodifluoromethane
+- emissions of dichlorodifluoromethane
 219073:
 - e_cfc113
-- Emissions of trichlorotrifluoroethane
+- emissions of trichlorotrifluoroethane
 219074:
 - e_cfc114
-- Emissions of dichlorotetrafluoroethane
+- emissions of dichlorotetrafluoroethane
 219075:
 - e_cfc115
-- Emissions of chloropentafluoroethane
+- emissions of chloropentafluoroethane
 219076:
 - e_ccl4
-- Emissions of tetrachloromethane
+- emissions of tetrachloromethane
 219077:
 - e_ch3ccl3
-- Emissions of methyl chloroform
+- emissions of methyl chloroform
 219078:
 - e_ch3cl
-- Emissions of methyl chloride
+- emissions of methyl chloride
 219079:
 - e_hcfc22
-- Emissions of chlorodifluoromethane
+- emissions of chlorodifluoromethane
 219080:
 - e_ch3br
-- Emissions of methyl bromide
+- emissions of methyl bromide
 219081:
 - e_ha1202
-- Emissions of dibromodifluoromethane
+- emissions of dibromodifluoromethane
 219082:
 - e_ha1211
-- Emissions of bromochlorodifluoromethane
+- emissions of bromochlorodifluoromethane
 219083:
 - e_ha1301
-- Emissions of trifluorobromomethane
+- emissions of trifluorobromomethane
 219084:
 - e_ha2402
-- Emissions of cbrf2cbrf2
+- emissions of cbrf2cbrf2
 219085:
 - e_h2so4
-- Emissions of sulfuric acid
+- emissions of sulfuric acid
 219086:
 - e_hono
-- Emissions of nitrous acid
+- emissions of nitrous acid
 219087:
 - e_hc3
-- Emissions of alkanes low oh rate
+- emissions of alkanes low oh rate
 219088:
 - e_hc5
-- Emissions of alkanes med oh rate
+- emissions of alkanes med oh rate
 219089:
 - e_hc8
-- Emissions of alkanes high oh rate
+- emissions of alkanes high oh rate
 219090:
 - e_olt
-- Emissions of terminal alkenes
+- emissions of terminal alkenes
 219091:
 - e_oli
-- Emissions of internal alkenes
+- emissions of internal alkenes
 219092:
 - e_c2h5o2
-- Emissions of ethylperoxy radical
+- emissions of ethylperoxy radical
 219093:
 - e_dien
-- Emissions of butadiene
+- emissions of butadiene
 219094:
 - e_c2h5ooh
-- Emissions of ethyl hydroperoxide
+- emissions of ethyl hydroperoxide
 219095:
 - e_api
-- Emissions of a-pinene cyclic terpenes
+- emissions of a-pinene cyclic terpenes
 219096:
 - e_ch3cooh
-- Emissions of acetic acid
+- emissions of acetic acid
 219097:
 - e_lim
-- Emissions of d-limonene cyclic diene
+- emissions of d-limonene cyclic diene
 219098:
 - e_ch3cho
-- Emissions of acetaldehyde
+- emissions of acetaldehyde
 219099:
 - e_tol
-- Emissions of toluene and less reactive aromatics
+- emissions of toluene and less reactive aromatics
 219100:
 - e_xyl
-- Emissions of xylene and more reactive aromatics
+- emissions of xylene and more reactive aromatics
 219101:
 - e_glyald
-- Emissions of glycolaldehyde
+- emissions of glycolaldehyde
 219102:
 - e_cresol
-- Emissions of cresol
+- emissions of cresol
 219103:
 - e_ald
-- Emissions of acetaldehyde and higher
+- emissions of acetaldehyde and higher
 219104:
 - e_ch3coooh
-- Emissions of peracetic acid
+- emissions of peracetic acid
 219105:
 - e_ket
-- Emissions of ketones
+- emissions of ketones
 219106:
 - e_eo2
-- Emissions of hoch2ch2o2
+- emissions of hoch2ch2o2
 219107:
 - e_glyoxal
-- Emissions of glyoxal
+- emissions of glyoxal
 219108:
 - e_eo
-- Emissions of hoch2ch2o
+- emissions of hoch2ch2o
 219109:
 - e_dcb
-- Emissions of unsaturated dicarbonyls
+- emissions of unsaturated dicarbonyls
 219110:
 - e_macr
-- Emissions of methacrolein
+- emissions of methacrolein
 219111:
 - e_udd
-- Emissions of unsaturated hydroxy dicarbonyl
+- emissions of unsaturated hydroxy dicarbonyl
 219112:
 - e_c3h7o2
-- Emissions of isopropyldioxidanyl
+- emissions of isopropyldioxidanyl
 219113:
 - e_hket
-- Emissions of hydroxy ketone
+- emissions of hydroxy ketone
 219114:
 - e_c3h7ooh
-- Emissions of isopropyl hydroperoxide
+- emissions of isopropyl hydroperoxide
 219115:
 - e_po2
-- Emissions of c3h6oho2
+- emissions of c3h6oho2
 219116:
 - e_pooh
-- Emissions of c3h6ohooh
+- emissions of c3h6ohooh
 219117:
 - e_op2
-- Emissions of higher organic peroxides
+- emissions of higher organic peroxides
 219118:
 - e_hyac
-- Emissions of hydroxyacetone
+- emissions of hydroxyacetone
 219119:
 - e_paa
-- Emissions of peroxyacetic acid
+- emissions of peroxyacetic acid
 219120:
 - e_ro2
-- Emissions of ch3coch2o2
+- emissions of ch3coch2o2
 219121:
 - e_ethp
-- Emissions of peroxy radical from c2h6
+- emissions of peroxy radical from c2h6
 219122:
 - e_hc3p
-- Emissions of peroxy radical from hc3
+- emissions of peroxy radical from hc3
 219123:
 - e_hc5p
-- Emissions of peroxy radical from hc5
+- emissions of peroxy radical from hc5
 219124:
 - e_bigene
-- Emissions of lumped alkenes
+- emissions of lumped alkenes
 219125:
 - e_hc8p
-- Emissions of peroxy radical from hc8
+- emissions of peroxy radical from hc8
 219126:
 - e_bigalk
-- Emissions of lumped alkanes
+- emissions of lumped alkanes
 219127:
 - e_etep
-- Emissions of peroxy radical from c2h4
+- emissions of peroxy radical from c2h4
 219128:
 - e_mek
-- Emissions of c4h8o
+- emissions of c4h8o
 219129:
 - e_oltp
-- Emissions of peroxy radical from terminal alkenes
+- emissions of peroxy radical from terminal alkenes
 219130:
 - e_eneo2
-- Emissions of c4h9o3
+- emissions of c4h9o3
 219131:
 - e_olip
-- Emissions of peroxy radical from internal alkenes
+- emissions of peroxy radical from internal alkenes
 219132:
 - e_meko2
-- Emissions of ch3coch(oo)ch3
+- emissions of ch3coch(oo)ch3
 219133:
 - e_isopo2
-- Emissions of peroxy radical from c5h8
+- emissions of peroxy radical from c5h8
 219134:
 - e_mekooh
-- Emissions of ch3coch(ooh)ch3
+- emissions of ch3coch(ooh)ch3
 219135:
 - e_apip
-- Emissions of peroxy radical from a-pinene cyclic terpenes
+- emissions of peroxy radical from a-pinene cyclic terpenes
 219136:
 - e_mco3
-- Emissions of ch2=c(ch3)co3
+- emissions of ch2=c(ch3)co3
 219137:
 - e_limp
-- Emissions of peroxy radical from d-limonene cyclic diene
+- emissions of peroxy radical from d-limonene cyclic diene
 219138:
 - e_mvk
-- Emissions of methylvinylketone
+- emissions of methylvinylketone
 219139:
 - e_pho
-- Emissions of phenoxy radical
+- emissions of phenoxy radical
 219140:
 - e_tolp
-- Emissions of peroxy radical from toluene and less reactive aromatics
+- emissions of peroxy radical from toluene and less reactive aromatics
 219141:
 - e_macro2
-- Emissions of ch3c(o)ch(oo)ch2oh
+- emissions of ch3c(o)ch(oo)ch2oh
 219142:
 - e_xylp
-- Emissions of peroxy radical from xylene and more reactive aromatics
+- emissions of peroxy radical from xylene and more reactive aromatics
 219143:
 - e_macrooh
-- Emissions of h3c(o)ch(ooh)ch2oh
+- emissions of h3c(o)ch(ooh)ch2oh
 219144:
 - e_cslp
-- Emissions of peroxy radical from cresol
+- emissions of peroxy radical from cresol
 219145:
 - e_mpan
-- Emissions of unsaturated pans
+- emissions of unsaturated pans
 219146:
 - e_tco3_c
-- Emissions of unsaturated acyl peroxy radical
+- emissions of unsaturated acyl peroxy radical
 219147:
 - e_ketp
-- Emissions of peroxy radical from ketones
+- emissions of peroxy radical from ketones
 219148:
 - e_alko2
-- Emissions of c5h11o2
+- emissions of c5h11o2
 219149:
 - e_olnn
-- Emissions of no3-alkenes adduct reacting to form carbonitrates
+- emissions of no3-alkenes adduct reacting to form carbonitrates
 219150:
 - e_alkooh
-- Emissions of c5h11ooh
+- emissions of c5h11ooh
 219151:
 - e_olnd
-- Emissions of no3-alkenes adduct reacting via decomposition
+- emissions of no3-alkenes adduct reacting via decomposition
 219152:
 - e_bigald
-- Emissions of hoch2c(ch3)=chcho
+- emissions of hoch2c(ch3)=chcho
 219153:
 - e_hydrald
-- Emissions of c5h6o2
+- emissions of c5h6o2
 219154:
 - e_sulf
-- Emissions of trop sulfuric acid
+- emissions of trop sulfuric acid
 219155:
 - e_ox
-- Emissions of oxides
+- emissions of oxides
 219156:
 - e_isopno3
-- Emissions of ch2chc(ch3)(oo)ch2ono2
+- emissions of ch2chc(ch3)(oo)ch2ono2
 219157:
 - e_onitr
-- Emissions of c3 organic nitrate
+- emissions of c3 organic nitrate
 219158:
 - e_clox
-- Emissions of chlorine oxides
+- emissions of chlorine oxides
 219159:
 - e_brox
-- Emissions of bromine oxides
+- emissions of bromine oxides
 219160:
 - e_xooh
-- Emissions of hoch2c(ooh)(ch3)chchoh
+- emissions of hoch2c(ooh)(ch3)chchoh
 219161:
 - e_isopooh
-- Emissions of hoch2c(ooh)(ch3)ch=ch2
+- emissions of hoch2c(ooh)(ch3)ch=ch2
 219162:
 - e_toluene
-- Emissions of lumped aromatics
+- emissions of lumped aromatics
 219163:
 - e_dmso
-- Emissions of dimethyl sulfoxyde
+- emissions of dimethyl sulfoxyde
 219164:
 - e_tolo2
-- Emissions of c7h9o5
+- emissions of c7h9o5
 219165:
 - e_tolooh
-- Emissions of c7h10o5
+- emissions of c7h10o5
 219166:
 - e_h2s
-- Emissions of hydrogensulfide
+- emissions of hydrogensulfide
 219167:
 - e_xoh
-- Emissions of c7h10o6
+- emissions of c7h10o6
 219168:
 - e_noy
-- Emissions of all nitrogen oxides
+- emissions of all nitrogen oxides
 219169:
 - e_cly
-- Emissions of chlorine family
+- emissions of chlorine family
 219170:
 - e_terpo2
-- Emissions of c10h16(oh)(oo)
+- emissions of c10h16(oh)(oo)
 219171:
 - e_bry
-- Emissions of bromine family
+- emissions of bromine family
 219172:
 - e_terpooh
-- Emissions of c10h18o3
+- emissions of c10h18o3
 219173:
 - e_n
-- Emissions of nitrogen atom
+- emissions of nitrogen atom
 219174:
 - e_clo
-- Emissions of chlorine monoxide
+- emissions of chlorine monoxide
 219175:
 - e_cl_c
-- Emissions of chlorine atom
+- emissions of chlorine atom
 219176:
 - e_bro
-- Emissions of bromine monoxide
+- emissions of bromine monoxide
 219177:
 - e_h_c
-- Emissions of hydrogen atom
+- emissions of hydrogen atom
 219178:
 - e_ch3
-- Emissions of methyl group
+- emissions of methyl group
 219179:
 - e_addt
-- Emissions of aromatic-ho from toluene and less reactive aromatics
+- emissions of aromatic-ho from toluene and less reactive aromatics
 219180:
 - e_addx
-- Emissions of aromatic-ho from xylene and more reactive aromatics
+- emissions of aromatic-ho from xylene and more reactive aromatics
 219181:
 - e_nh4no3
-- Emissions of ammonium nitrate
+- emissions of ammonium nitrate
 219182:
 - e_addc
-- Emissions of aromatic-ho from csl
+- emissions of aromatic-ho from csl
 219183:
 - e_soa1
-- Emissions of secondary organic aerosol type 1
+- emissions of secondary organic aerosol type 1
 219184:
 - e_soa2a
-- Emissions of secondary organic aerosol type 2a
+- emissions of secondary organic aerosol type 2a
 219185:
 - e_soa2b
-- Emissions of secondary organic aerosol type 2b
+- emissions of secondary organic aerosol type 2b
 219186:
 - e_sog1
-- Emissions of condensable gas type 1
+- emissions of condensable gas type 1
 219187:
 - e_sog2a
-- Emissions of condensable gas type 2a
+- emissions of condensable gas type 2a
 219188:
 - e_sog2b
-- Emissions of condensable gas type 2b
+- emissions of condensable gas type 2b
 219189:
 - e_so3
-- Emissions of sulfur trioxide
+- emissions of sulfur trioxide
 219190:
 - e_ocs_c
-- Emissions of carbonyl sulfide
+- emissions of carbonyl sulfide
 219191:
 - e_br
-- Emissions of bromine atom
+- emissions of bromine atom
 219192:
 - e_br2
-- Emissions of bromine
+- emissions of bromine
 219193:
 - e_brcl
-- Emissions of bromine monochloride
+- emissions of bromine monochloride
 219194:
 - e_brono2
-- Emissions of bromine nitrate
+- emissions of bromine nitrate
 219195:
 - e_ch2br2
-- Emissions of dibromomethane
+- emissions of dibromomethane
 219196:
 - e_ch3o
-- Emissions of methoxy radical
+- emissions of methoxy radical
 219197:
 - e_chbr3
-- Emissions of tribromomethane
+- emissions of tribromomethane
 219198:
 - e_cloo
-- Emissions of asymmetric chlorine dioxide radical
+- emissions of asymmetric chlorine dioxide radical
 219199:
 - e_h2
-- Emissions of hydrogen
+- emissions of hydrogen
 219200:
 - e_hcl
-- Emissions of hydrogen chloride
+- emissions of hydrogen chloride
 219201:
 - e_hco
-- Emissions of formyl radical
+- emissions of formyl radical
 219202:
 - e_hf
-- Emissions of hydrogen fluoride
+- emissions of hydrogen fluoride
 219203:
 - e_o
-- Emissions of oxygen atom
+- emissions of oxygen atom
 219204:
 - e_o1d
-- Emissions of excited oxygen atom
+- emissions of excited oxygen atom
 219205:
 - e_o3p
-- Emissions of ground state oxygen atom
+- emissions of ground state oxygen atom
 219206:
 - e_strataer
-- Emissions of stratospheric aerosol
+- emissions of stratospheric aerosol
 219207:
 - parfire
-- Wildfire flux of paraffins
+- wildfire flux of paraffins
 219208:
 - olefire
-- Wildfire flux of olefines
+- wildfire flux of olefines
 219209:
 - ald2fire
-- Wildfire flux of aldehydes
+- wildfire flux of aldehydes
 219210:
 - ketfire
-- Wildfire flux of ketones
+- wildfire flux of ketones
 219211:
 - apifire
-- Wildfire flux of f a-pinene cyclic terpenes
+- wildfire flux of f a-pinene cyclic terpenes
 219212:
 - tolfire
-- Wildfire flux of  toluene less reactive aromatics
+- wildfire flux of  toluene less reactive aromatics
 219213:
 - xylfire
-- Wildfire flux of xylene more reactive aromatics
+- wildfire flux of xylene more reactive aromatics
 219214:
 - limfire
-- Wildfire flux of d-limonene cyclic diene
+- wildfire flux of d-limonene cyclic diene
 219215:
 - oltfire
-- Wildfire flux of  terminal alkenes
+- wildfire flux of  terminal alkenes
 219216:
 - hc3fire
-- Wildfire flux of  alkanes low oh rate
+- wildfire flux of  alkanes low oh rate
 219217:
 - hc5fire
-- Wildfire flux of alkanes med oh rate
+- wildfire flux of alkanes med oh rate
 219218:
 - hc8fire
-- Wildfire flux of alkanes high oh rate
+- wildfire flux of alkanes high oh rate
 219219:
 - hcnfire
-- Wildfire flux of hydrogen cyanide
+- wildfire flux of hydrogen cyanide
 219220:
 - ch3cnfire
-- Wildfire flux of acetonitrile
+- wildfire flux of acetonitrile
 220228:
 - tpoc
 - total precipitation observation count
@@ -9146,454 +9018,454 @@
 - nitrogen oxides transp deposition velocity
 221057:
 - dv_co2_c
-- Dry deposition velocity of carbon dioxide (chemistry)
+- dry deposition velocity of carbon dioxide (chemistry)
 221058:
 - dv_n2o_c
-- Dry deposition velocity of nitrous oxide (chemistry)
+- dry deposition velocity of nitrous oxide (chemistry)
 221059:
 - dv_h2o
-- Dry deposition velocity of water vapour (chemistry)
+- dry deposition velocity of water vapour (chemistry)
 221060:
 - dv_o2
-- Dry deposition velocity of oxygen
+- dry deposition velocity of oxygen
 221061:
 - dv_o2_1s
-- Dry deposition velocity of singlet oxygen
+- dry deposition velocity of singlet oxygen
 221062:
 - dv_o2_1d
-- Dry deposition velocity of singlet delta oxygen
+- dry deposition velocity of singlet delta oxygen
 221063:
 - dv_oclo
-- Dry deposition velocity of chlorine dioxide
+- dry deposition velocity of chlorine dioxide
 221064:
 - dv_clono2
-- Dry deposition velocity of chlorine nitrate
+- dry deposition velocity of chlorine nitrate
 221065:
 - dv_hocl
-- Dry deposition velocity of hypochlorous acid
+- dry deposition velocity of hypochlorous acid
 221066:
 - dv_cl2
-- Dry deposition velocity of chlorine
+- dry deposition velocity of chlorine
 221067:
 - dv_clno2
-- Dry deposition velocity of nitryl chloride
+- dry deposition velocity of nitryl chloride
 221068:
 - dv_hbr
-- Dry deposition velocity of hydrogen bromide
+- dry deposition velocity of hydrogen bromide
 221069:
 - dv_cl2o2
-- Dry deposition velocity of dichlorine dioxide
+- dry deposition velocity of dichlorine dioxide
 221070:
 - dv_hobr
-- Dry deposition velocity of hypobromous acid
+- dry deposition velocity of hypobromous acid
 221071:
 - dv_cfc11
-- Dry deposition velocity of trichlorofluoromethane
+- dry deposition velocity of trichlorofluoromethane
 221072:
 - dv_cfc12
-- Dry deposition velocity of dichlorodifluoromethane
+- dry deposition velocity of dichlorodifluoromethane
 221073:
 - dv_cfc113
-- Dry deposition velocity of trichlorotrifluoroethane
+- dry deposition velocity of trichlorotrifluoroethane
 221074:
 - dv_cfc114
-- Dry deposition velocity of dichlorotetrafluoroethane
+- dry deposition velocity of dichlorotetrafluoroethane
 221075:
 - dv_cfc115
-- Dry deposition velocity of chloropentafluoroethane
+- dry deposition velocity of chloropentafluoroethane
 221076:
 - dv_ccl4
-- Dry deposition velocity of tetrachloromethane
+- dry deposition velocity of tetrachloromethane
 221077:
 - dv_ch3ccl3
-- Dry deposition velocity of methyl chloroform
+- dry deposition velocity of methyl chloroform
 221078:
 - dv_ch3cl
-- Dry deposition velocity of methyl chloride
+- dry deposition velocity of methyl chloride
 221079:
 - dv_hcfc22
-- Dry deposition velocity of chlorodifluoromethane
+- dry deposition velocity of chlorodifluoromethane
 221080:
 - dv_ch3br
-- Dry deposition velocity of methyl bromide
+- dry deposition velocity of methyl bromide
 221081:
 - dv_ha1202
-- Dry deposition velocity of dibromodifluoromethane
+- dry deposition velocity of dibromodifluoromethane
 221082:
 - dv_ha1211
-- Dry deposition velocity of bromochlorodifluoromethane
+- dry deposition velocity of bromochlorodifluoromethane
 221083:
 - dv_ha1301
-- Dry deposition velocity of trifluorobromomethane
+- dry deposition velocity of trifluorobromomethane
 221084:
 - dv_ha2402
-- Dry deposition velocity of cbrf2cbrf2
+- dry deposition velocity of cbrf2cbrf2
 221085:
 - dv_h2so4
-- Dry deposition velocity of sulfuric acid
+- dry deposition velocity of sulfuric acid
 221086:
 - dv_hono
-- Dry deposition velocity of nitrous acid
+- dry deposition velocity of nitrous acid
 221087:
 - dv_hc3
-- Dry deposition velocity of alkanes low oh rate
+- dry deposition velocity of alkanes low oh rate
 221088:
 - dv_hc5
-- Dry deposition velocity of alkanes med oh rate
+- dry deposition velocity of alkanes med oh rate
 221089:
 - dv_hc8
-- Dry deposition velocity of alkanes high oh rate
+- dry deposition velocity of alkanes high oh rate
 221090:
 - dv_olt
-- Dry deposition velocity of terminal alkenes
+- dry deposition velocity of terminal alkenes
 221091:
 - dv_oli
-- Dry deposition velocity of internal alkenes
+- dry deposition velocity of internal alkenes
 221092:
 - dv_c2h5o2
-- Dry deposition velocity of ethylperoxy radical
+- dry deposition velocity of ethylperoxy radical
 221093:
 - dv_dien
-- Dry deposition velocity of butadiene
+- dry deposition velocity of butadiene
 221094:
 - dv_c2h5ooh
-- Dry deposition velocity of ethyl hydroperoxide
+- dry deposition velocity of ethyl hydroperoxide
 221095:
 - dv_api
-- Dry deposition velocity of a-pinene cyclic terpenes
+- dry deposition velocity of a-pinene cyclic terpenes
 221096:
 - dv_ch3cooh
-- Dry deposition velocity of acetic acid
+- dry deposition velocity of acetic acid
 221097:
 - dv_lim
-- Dry deposition velocity of d-limonene cyclic diene
+- dry deposition velocity of d-limonene cyclic diene
 221098:
 - dv_ch3cho
-- Dry deposition velocity of acetaldehyde
+- dry deposition velocity of acetaldehyde
 221099:
 - dv_tol
-- Dry deposition velocity of toluene and less reactive aromatics
+- dry deposition velocity of toluene and less reactive aromatics
 221100:
 - dv_xyl
-- Dry deposition velocity of xylene and more reactive aromatics
+- dry deposition velocity of xylene and more reactive aromatics
 221101:
 - dv_glyald
-- Dry deposition velocity of glycolaldehyde
+- dry deposition velocity of glycolaldehyde
 221102:
 - dv_cresol
-- Dry deposition velocity of cresol
+- dry deposition velocity of cresol
 221103:
 - dv_ald
-- Dry deposition velocity of acetaldehyde and higher
+- dry deposition velocity of acetaldehyde and higher
 221104:
 - dv_ch3coooh
-- Dry deposition velocity of peracetic acid
+- dry deposition velocity of peracetic acid
 221105:
 - dv_ket
-- Dry deposition velocity of ketones
+- dry deposition velocity of ketones
 221106:
 - dv_eo2
-- Dry deposition velocity of hoch2ch2o2
+- dry deposition velocity of hoch2ch2o2
 221107:
 - dv_glyoxal
-- Dry deposition velocity of glyoxal
+- dry deposition velocity of glyoxal
 221108:
 - dv_eo
-- Dry deposition velocity of hoch2ch2o
+- dry deposition velocity of hoch2ch2o
 221109:
 - dv_dcb
-- Dry deposition velocity of unsaturated dicarbonyls
+- dry deposition velocity of unsaturated dicarbonyls
 221110:
 - dv_macr
-- Dry deposition velocity of methacrolein
+- dry deposition velocity of methacrolein
 221111:
 - dv_udd
-- Dry deposition velocity of unsaturated hydroxy dicarbonyl
+- dry deposition velocity of unsaturated hydroxy dicarbonyl
 221112:
 - dv_c3h7o2
-- Dry deposition velocity of isopropyldioxidanyl
+- dry deposition velocity of isopropyldioxidanyl
 221113:
 - dv_hket
-- Dry deposition velocity of hydroxy ketone
+- dry deposition velocity of hydroxy ketone
 221114:
 - dv_c3h7ooh
-- Dry deposition velocity of isopropyl hydroperoxide
+- dry deposition velocity of isopropyl hydroperoxide
 221115:
 - dv_po2
-- Dry deposition velocity of c3h6oho2
+- dry deposition velocity of c3h6oho2
 221116:
 - dv_pooh
-- Dry deposition velocity of c3h6ohooh
+- dry deposition velocity of c3h6ohooh
 221117:
 - dv_op2
-- Dry deposition velocity of higher organic peroxides
+- dry deposition velocity of higher organic peroxides
 221118:
 - dv_hyac
-- Dry deposition velocity of hydroxyacetone
+- dry deposition velocity of hydroxyacetone
 221119:
 - dv_paa
-- Dry deposition velocity of peroxyacetic acid
+- dry deposition velocity of peroxyacetic acid
 221120:
 - dv_ro2
-- Dry deposition velocity of ch3coch2o2
+- dry deposition velocity of ch3coch2o2
 221121:
 - dv_ethp
-- Dry deposition velocity of peroxy radical from c2h6
+- dry deposition velocity of peroxy radical from c2h6
 221122:
 - dv_hc3p
-- Dry deposition velocity of peroxy radical from hc3
+- dry deposition velocity of peroxy radical from hc3
 221123:
 - dv_hc5p
-- Dry deposition velocity of peroxy radical from hc5
+- dry deposition velocity of peroxy radical from hc5
 221124:
 - dv_bigene
-- Dry deposition velocity of lumped alkenes
+- dry deposition velocity of lumped alkenes
 221125:
 - dv_hc8p
-- Dry deposition velocity of peroxy radical from hc8
+- dry deposition velocity of peroxy radical from hc8
 221126:
 - dv_bigalk
-- Dry deposition velocity of lumped alkanes
+- dry deposition velocity of lumped alkanes
 221127:
 - dv_etep
-- Dry deposition velocity of peroxy radical from c2h4
+- dry deposition velocity of peroxy radical from c2h4
 221128:
 - dv_mek
-- Dry deposition velocity of c4h8o
+- dry deposition velocity of c4h8o
 221129:
 - dv_oltp
-- Dry deposition velocity of peroxy radical from terminal alkenes
+- dry deposition velocity of peroxy radical from terminal alkenes
 221130:
 - dv_eneo2
-- Dry deposition velocity of c4h9o3
+- dry deposition velocity of c4h9o3
 221131:
 - dv_olip
-- Dry deposition velocity of peroxy radical from internal alkenes
+- dry deposition velocity of peroxy radical from internal alkenes
 221132:
 - dv_meko2
-- Dry deposition velocity of ch3coch(oo)ch3
+- dry deposition velocity of ch3coch(oo)ch3
 221133:
 - dv_isopo2
-- Dry deposition velocity of peroxy radical from c5h8
+- dry deposition velocity of peroxy radical from c5h8
 221134:
 - dv_mekooh
-- Dry deposition velocity of ch3coch(ooh)ch3
+- dry deposition velocity of ch3coch(ooh)ch3
 221135:
 - dv_apip
-- Dry deposition velocity of peroxy radical from a-pinene cyclic terpenes
+- dry deposition velocity of peroxy radical from a-pinene cyclic terpenes
 221136:
 - dv_mco3
-- Dry deposition velocity of ch2=c(ch3)co3
+- dry deposition velocity of ch2=c(ch3)co3
 221137:
 - dv_limp
-- Dry deposition velocity of peroxy radical from d-limonene cyclic diene
+- dry deposition velocity of peroxy radical from d-limonene cyclic diene
 221138:
 - dv_mvk
-- Dry deposition velocity of methylvinylketone
+- dry deposition velocity of methylvinylketone
 221139:
 - dv_pho
-- Dry deposition velocity of phenoxy radical
+- dry deposition velocity of phenoxy radical
 221140:
 - dv_tolp
-- Dry deposition velocity of peroxy radical from toluene and less reactive aromatics
+- dry deposition velocity of peroxy radical from toluene and less reactive aromatics
 221141:
 - dv_macro2
-- Dry deposition velocity of ch3c(o)ch(oo)ch2oh
+- dry deposition velocity of ch3c(o)ch(oo)ch2oh
 221142:
 - dv_xylp
-- Dry deposition velocity of peroxy radical from xylene and more reactive aromatics
+- dry deposition velocity of peroxy radical from xylene and more reactive aromatics
 221143:
 - dv_macrooh
-- Dry deposition velocity of h3c(o)ch(ooh)ch2oh
+- dry deposition velocity of h3c(o)ch(ooh)ch2oh
 221144:
 - dv_cslp
-- Dry deposition velocity of peroxy radical from cresol
+- dry deposition velocity of peroxy radical from cresol
 221145:
 - dv_mpan
-- Dry deposition velocity of unsaturated pans
+- dry deposition velocity of unsaturated pans
 221146:
 - dv_tco3_c
-- Dry deposition velocity of unsaturated acyl peroxy radical
+- dry deposition velocity of unsaturated acyl peroxy radical
 221147:
 - dv_ketp
-- Dry deposition velocity of peroxy radical from ketones
+- dry deposition velocity of peroxy radical from ketones
 221148:
 - dv_alko2
-- Dry deposition velocity of c5h11o2
+- dry deposition velocity of c5h11o2
 221149:
 - dv_olnn
-- Dry deposition velocity of no3-alkenes adduct reacting to form carbonitrates
+- dry deposition velocity of no3-alkenes adduct reacting to form carbonitrates
 221150:
 - dv_alkooh
-- Dry deposition velocity of c5h11ooh
+- dry deposition velocity of c5h11ooh
 221151:
 - dv_olnd
-- Dry deposition velocity of no3-alkenes adduct reacting via decomposition
+- dry deposition velocity of no3-alkenes adduct reacting via decomposition
 221152:
 - dv_bigald
-- Dry deposition velocity of hoch2c(ch3)=chcho
+- dry deposition velocity of hoch2c(ch3)=chcho
 221153:
 - dv_hydrald
-- Dry deposition velocity of c5h6o2
+- dry deposition velocity of c5h6o2
 221154:
 - dv_sulf
-- Dry deposition velocity of trop sulfuric acid
+- dry deposition velocity of trop sulfuric acid
 221155:
 - dv_ox
-- Dry deposition velocity of oxides
+- dry deposition velocity of oxides
 221156:
 - dv_isopno3
-- Dry deposition velocity of ch2chc(ch3)(oo)ch2ono2
+- dry deposition velocity of ch2chc(ch3)(oo)ch2ono2
 221157:
 - dv_onitr
-- Dry deposition velocity of c3 organic nitrate
+- dry deposition velocity of c3 organic nitrate
 221158:
 - dv_clox
-- Dry deposition velocity of chlorine oxides
+- dry deposition velocity of chlorine oxides
 221159:
 - dv_brox
-- Dry deposition velocity of bromine oxides
+- dry deposition velocity of bromine oxides
 221160:
 - dv_xooh
-- Dry deposition velocity of hoch2c(ooh)(ch3)chchoh
+- dry deposition velocity of hoch2c(ooh)(ch3)chchoh
 221161:
 - dv_isopooh
-- Dry deposition velocity of hoch2c(ooh)(ch3)ch=ch2
+- dry deposition velocity of hoch2c(ooh)(ch3)ch=ch2
 221162:
 - dv_toluene
-- Dry deposition velocity of lumped aromatics
+- dry deposition velocity of lumped aromatics
 221163:
 - dv_dmso
-- Dry deposition velocity of dimethyl sulfoxyde
+- dry deposition velocity of dimethyl sulfoxyde
 221164:
 - dv_tolo2
-- Dry deposition velocity of c7h9o5
+- dry deposition velocity of c7h9o5
 221165:
 - dv_tolooh
-- Dry deposition velocity of c7h10o5
+- dry deposition velocity of c7h10o5
 221166:
 - dv_h2s
-- Dry deposition velocity of hydrogensulfide
+- dry deposition velocity of hydrogensulfide
 221167:
 - dv_xoh
-- Dry deposition velocity of c7h10o6
+- dry deposition velocity of c7h10o6
 221168:
 - dv_noy
-- Dry deposition velocity of all nitrogen oxides
+- dry deposition velocity of all nitrogen oxides
 221169:
 - dv_cly
-- Dry deposition velocity of chlorine family
+- dry deposition velocity of chlorine family
 221170:
 - dv_terpo2
-- Dry deposition velocity of c10h16(oh)(oo)
+- dry deposition velocity of c10h16(oh)(oo)
 221171:
 - dv_bry
-- Dry deposition velocity of bromine family
+- dry deposition velocity of bromine family
 221172:
 - dv_terpooh
-- Dry deposition velocity of c10h18o3
+- dry deposition velocity of c10h18o3
 221173:
 - dv_n
-- Dry deposition velocity of nitrogen atom
+- dry deposition velocity of nitrogen atom
 221174:
 - dv_clo
-- Dry deposition velocity of chlorine monoxide
+- dry deposition velocity of chlorine monoxide
 221175:
 - dv_cl_c
-- Dry deposition velocity of chlorine atom
+- dry deposition velocity of chlorine atom
 221176:
 - dv_bro
-- Dry deposition velocity of bromine monoxide
+- dry deposition velocity of bromine monoxide
 221177:
 - dv_h_c
-- Dry deposition velocity of hydrogen atom
+- dry deposition velocity of hydrogen atom
 221178:
 - dv_ch3
-- Dry deposition velocity of methyl group
+- dry deposition velocity of methyl group
 221179:
 - dv_addt
-- Dry deposition velocity of aromatic-ho from toluene and less reactive aromatics
+- dry deposition velocity of aromatic-ho from toluene and less reactive aromatics
 221180:
 - dv_addx
-- Dry deposition velocity of aromatic-ho from xylene and more reactive aromatics
+- dry deposition velocity of aromatic-ho from xylene and more reactive aromatics
 221181:
 - dv_nh4no3
-- Dry deposition velocity of ammonium nitrate
+- dry deposition velocity of ammonium nitrate
 221182:
 - dv_addc
-- Dry deposition velocity of aromatic-ho from csl
+- dry deposition velocity of aromatic-ho from csl
 221183:
 - dv_soa1
-- Dry deposition velocity of secondary organic aerosol type 1
+- dry deposition velocity of secondary organic aerosol type 1
 221184:
 - dv_soa2a
-- Dry deposition velocity of secondary organic aerosol type 2a
+- dry deposition velocity of secondary organic aerosol type 2a
 221185:
 - dv_soa2b
-- Dry deposition velocity of secondary organic aerosol type 2b
+- dry deposition velocity of secondary organic aerosol type 2b
 221186:
 - dv_sog1
-- Dry deposition velocity of condensable gas type 1
+- dry deposition velocity of condensable gas type 1
 221187:
 - dv_sog2a
-- Dry deposition velocity of condensable gas type 2a
+- dry deposition velocity of condensable gas type 2a
 221188:
 - dv_sog2b
-- Dry deposition velocity of condensable gas type 2b
+- dry deposition velocity of condensable gas type 2b
 221189:
 - dv_so3
-- Dry deposition velocity of sulfur trioxide
+- dry deposition velocity of sulfur trioxide
 221190:
 - dv_ocs_c
-- Dry deposition velocity of carbonyl sulfide
+- dry deposition velocity of carbonyl sulfide
 221191:
 - dv_br
-- Dry deposition velocity of bromine atom
+- dry deposition velocity of bromine atom
 221192:
 - dv_br2
-- Dry deposition velocity of bromine
+- dry deposition velocity of bromine
 221193:
 - dv_brcl
-- Dry deposition velocity of bromine monochloride
+- dry deposition velocity of bromine monochloride
 221194:
 - dv_brono2
-- Dry deposition velocity of bromine nitrate
+- dry deposition velocity of bromine nitrate
 221195:
 - dv_ch2br2
-- Dry deposition velocity of dibromomethane
+- dry deposition velocity of dibromomethane
 221196:
 - dv_ch3o
-- Dry deposition velocity of methoxy radical
+- dry deposition velocity of methoxy radical
 221197:
 - dv_chbr3
-- Dry deposition velocity of tribromomethane
+- dry deposition velocity of tribromomethane
 221198:
 - dv_cloo
-- Dry deposition velocity of asymmetric chlorine dioxide radical
+- dry deposition velocity of asymmetric chlorine dioxide radical
 221199:
 - dv_h2
-- Dry deposition velocity of hydrogen
+- dry deposition velocity of hydrogen
 221200:
 - dv_hcl
-- Dry deposition velocity of hydrogen chloride
+- dry deposition velocity of hydrogen chloride
 221201:
 - dv_hco
-- Dry deposition velocity of formyl radical
+- dry deposition velocity of formyl radical
 221202:
 - dv_hf
-- Dry deposition velocity of hydrogen fluoride
+- dry deposition velocity of hydrogen fluoride
 221203:
 - dv_o
-- Dry deposition velocity of oxygen atom
+- dry deposition velocity of oxygen atom
 221204:
 - dv_o1d
-- Dry deposition velocity of excited oxygen atom
+- dry deposition velocity of excited oxygen atom
 221205:
 - dv_o3p
-- Dry deposition velocity of ground state oxygen atom
+- dry deposition velocity of ground state oxygen atom
 221206:
 - dv_strataer
-- Dry deposition velocity of stratospheric aerosol
+- dry deposition velocity of stratospheric aerosol
 228001:
 - cin
 - convective inhibition
@@ -9663,7 +9535,6 @@
 228024:
 - deg0l
 - zero degree level
-- deg0
 228025:
 - hvis
 - horizontal visibility
@@ -9676,7 +9547,6 @@
 228028:
 - 10fg3
 - 10 metre wind gust in the last 3 hours
-- i10fg3
 228029:
 - i10fg
 - instantaneous 10 metre wind gust
@@ -9727,22 +9597,22 @@
 - height of convective cloud top
 228047:
 - hwbt0
-- height of zero deg wet bulb temperature
+- height of zero-degree wet-bulb temperature
 228048:
 - hwbt1
-- height of one deg wet bulb temperature
+- height of one-degree wet-bulb temperature
 228050:
 - litoti
-- instantaneous total lightning density
+- instantaneous total lightning flash density
 228051:
 - litota1
-- Averaged total lightning flash density in the last hour
+- averaged total lightning flash density in the last hour
 228052:
 - licgi
-- instantaneous cloud-to-ground lightning density
+- instantaneous cloud-to-ground lightning flash density
 228053:
-- licga
-- averaged cloud-to-ground lightning density
+- licga1
+- averaged cloud-to-ground lightning flash density in the last hour
 228054:
 - ucq
 - unbalanced component of specific humidity
@@ -9754,16 +9624,16 @@
 - unbalanced component of specific cloud ice water content
 228057:
 - litota3
-- Averaged total lightning flash density in the last 3 hours
+- averaged total lightning flash density in the last 3 hours
 228058:
 - litota6
-- Averaged total lightning flash density in the last 6 hours
+- averaged total lightning flash density in the last 6 hours
 228059:
 - licga3
-- Averaged cloud-to-ground lightning flash density in the last 3 hours
+- averaged cloud-to-ground lightning flash density in the last 3 hours
 228060:
 - licga6
-- Averaged cloud-to-ground lightning flash density in the last 6 hours
+- averaged cloud-to-ground lightning flash density in the last 6 hours
 228078:
 - gppbfas
 - gpp coefficient from biogenic flux adjustment system
@@ -10605,10 +10475,10 @@
 - 5wavh
 - 5-wave geopotential height
 260081:
-- u-gwd
+- u_gwd
 - zonal flux of gravity wave stress
 260082:
-- v-gwd
+- v_gwd
 - meridional flux of gravity wave stress
 260083:
 - hpbl
@@ -10645,7 +10515,7 @@
 - uv index (under clear sky)
 260094:
 - uvi
-- uv index
+- 'uv index '
 260095:
 - nlwrs
 - net long wave radiation flux (surface)
@@ -11028,7 +10898,7 @@
 - cloud top height quality indicator
 260222:
 - estu
-- estimated u component of wind
+- 'estimated u component of wind '
 260223:
 - estv
 - estimated v component of wind
@@ -11088,7 +10958,7 @@
 - seconds prior to initial reference time (defined in section 1)
 260242:
 - 2r
-- surface air relative humidity
+- 2 metre relative humidity
 260243:
 - ttrad
 - temperature tendency by all radiation
@@ -11229,7 +11099,7 @@
 - freezing rain
 260289:
 - fscov
-- Fraction of snow cover
+- fraction of snow cover
 260295:
 - lauv
 - latitude of u wind component of velocity
@@ -11818,22 +11688,22 @@
 - angstrom coefficient
 260600:
 - evpsfc
-- evaporation
+- mean evaporation
 260601:
 - tpratsfc
-- total precipitation
+- mean total precipitation
 260602:
 - lpratsfc
-- large scale precipitation
+- mean large scale precipitation
 260603:
 - cpratsfc
-- convective precipitation
+- mean convective precipitation
 260604:
 - srweqsfc
-- snowfall rate water equivalent
+- mean snowfall rate water equivalent
 260605:
 - rofsfc
-- water run-off
+- mean surface water runoff
 260606:
 - bvf2tht
 - square of brunt-vaisala frequency
@@ -11848,13 +11718,13 @@
 - adiabatic meridional acceleration
 260610:
 - frcvsfc
-- frequency of deep convection
+- mean frequency of deep convection
 260611:
 - frcvssfc
-- frequency of shallow convection
+- mean frequency of shallow convection
 260612:
 - frscsfc
-- frequency of stratocumulus parameterisation
+- mean frequency of stratocumulus parameterisation
 260613:
 - gwduahbl
 - gravity wave zonal acceleration
@@ -11863,7 +11733,7 @@
 - gravity wave meridional acceleration
 260615:
 - ltrssfc
-- evapotranspiration
+- mean evapotranspiration
 260616:
 - adhrhbl
 - adiabatic heating rate
@@ -11896,16 +11766,16 @@
 - convective zonal acceleration
 260626:
 - fglusfc
-- zonal momentum flux by long gravity wave
+- mean zonal momentum flux by long gravity wave
 260627:
 - fglvsfc
-- meridional momentum flux by long gravity wave
+- mean meridional momentum flux by long gravity wave
 260628:
 - fgsvsfc
-- meridional momentum flux by short gravity wave
+- mean meridional momentum flux by short gravity wave
 260629:
 - fgsusfc
-- zonal momentum flux by short gravity wave
+- mean zonal momentum flux by short gravity wave
 260630:
 - utheclm
 - zonal thermal energy flux
@@ -13125,7 +12995,7 @@
 - vmax_10m
 - maximum wind 10m
 500165:
-- ru-103
+- ru_103
 - air concentration of ruthenium 103
 500166:
 - t_so
@@ -13361,112 +13231,112 @@
 - o3
 - ozone mixing ratio
 500243:
-- ru-103
+- ru_103
 - air concentration of ruthenium 103 (ru103- concentration)
 500244:
-- ru-103d
+- ru_103d
 - ru103-dry deposition
 500245:
-- ru-103w
+- ru_103w
 - ru103-wet deposition
 500246:
-- sr-90
+- sr_90
 - air concentration of strontium 90
 500247:
-- sr-90d
+- sr_90d
 - sr90-dry deposition
 500248:
-- sr-90w
+- sr_90w
 - sr90-wet deposition
 500249:
-- i-131a
+- i_131a
 - i131-concentration
 500250:
-- i-131ad
+- i_131ad
 - i131-dry deposition
 500251:
-- i-131aw
+- i_131aw
 - i131-wet deposition
 500252:
-- cs-137
+- cs_137
 - cs137-concentration
 500253:
-- cs-137d
+- cs_137d
 - cs137-dry deposition
 500254:
-- cs-137w
+- cs_137w
 - cs137-wet deposition
 500255:
-- te-132
+- te_132
 - air concentration of tellurium 132 (te132-concentration)
 500256:
-- te-132d
+- te_132d
 - te132-dry deposition
 500257:
-- te-132w
+- te_132w
 - te132-wet deposition
 500258:
-- zr-95
+- zr_95
 - air concentration of zirconium 95 (zr95-concentration)
 500259:
-- zr-95d
+- zr_95d
 - zr95-dry deposition
 500260:
-- zr-95w
+- zr_95w
 - zr95-wet deposition
 500261:
-- kr-85
+- kr_85
 - air concentration of krypton 85  (kr85-concentration)
 500262:
-- kr-85d
+- kr_85d
 - kr85-dry deposition
 500263:
-- kr-85w
+- kr_85w
 - kr85-wet deposition
 500264:
-- tr-2
+- tr_2
 - tracer - concentration
 500265:
-- tr-2d
+- tr_2d
 - tracer - dry deposition
 500266:
-- tr-2w
+- tr_2w
 - tracer - wet deposition
 500267:
-- xe-133
+- xe_133
 - air concentration of xenon 133 (xe133  - concentration)
 500268:
-- xe-133d
+- xe_133d
 - xe133  - dry deposition
 500269:
-- xe-133w
+- xe_133w
 - xe133  - wet deposition
 500270:
-- i-131g
+- i_131g
 - i131g - concentration
 500271:
-- i-131gd
+- i_131gd
 - xe133  - wet deposition
 500272:
-- i-131gw
+- i_131gw
 - i131g  - wet deposition
 500273:
-- i-131o
+- i_131o
 - i131o  - concentration
 500274:
-- i-131od
+- i_131od
 - i131o  - dry deposition
 500275:
-- i-131ow
+- i_131ow
 - i131o  - wet deposition
 500276:
-- ba-140
+- ba_140
 - air concentration of barium 40
 500277:
-- ba-140d
+- ba_140d
 - ba140 - dry deposition
 500278:
-- ba-140w
+- ba_140w
 - ba140  - wet deposition
 500279:
 - austr_sso
@@ -13556,52 +13426,52 @@
 - clct_mod
 - modified cloud cover for media
 500308:
-- efa-ps
+- efa_ps
 - monthly mean of rms of difference fg-an of pressure reduced to msl
 500309:
-- eia-ps
+- eia_ps
 - monthly mean of rms of difference ia-an of pressure reduced to msl
 500310:
-- efa-u
+- efa_u
 - monthly mean of rms of difference fg-an of u-component of wind
 500311:
-- eia-u
+- eia_u
 - monthly mean of rms of difference ia-an of u-component of wind
 500312:
-- efa-v
+- efa_v
 - monthly mean of rms of difference fg-an of v-component of wind
 500313:
-- eia-v
+- eia_v
 - monthly mean of rms of difference ia-an of v-component of wind
 500314:
-- efa-fi
+- efa_fi
 - monthly mean of rms of difference fg-an of geopotential
 500315:
-- eia-fi
+- eia_fi
 - monthly mean of rms of difference ia-an of geopotential
 500316:
-- efa-rh
+- efa_rh
 - monthly mean of rms of difference fg-an of relative humidity
 500317:
-- eia-rh
+- eia_rh
 - monthly mean of rms of difference ia-an of relative humidity
 500318:
-- efa-t
+- efa_t
 - monthly mean of rms of difference fg-an of temperature
 500319:
-- eia-t
+- eia_t
 - monthly mean of rms of difference ia-an of temperature
 500320:
-- efa-om
+- efa_om
 - monthly mean of rms of difference fg-an of vert.velocity (pressure)
 500321:
-- eia-om
+- eia_om
 - monthly mean of rms of difference ia-an of vert.velocity (pressure)
 500322:
-- efa-ke
+- efa_ke
 - monthly mean of rms of difference fg-an of kinetic energy
 500323:
-- eia-ke
+- eia_ke
 - monthly mean of rms of difference ia-an of kinetic energy
 500324:
 - synme5_bt_cl
@@ -13628,124 +13498,124 @@
 - synme6_rad_cs
 - synth. sat. radiance cloudy
 500332:
-- synme7_bt_cl_ir11.5
+- synme7_bt_cl_ir11_5
 - synth. sat. brightness temperature clear sky
 500333:
-- synme7_bt_cl_wv6.4
+- synme7_bt_cl_wv6_4
 - synth. sat. brightness temperature cloudy
 500334:
-- synme7_bt_cs_ir11.5
+- synme7_bt_cs_ir11_5
 - synth. sat. brightness temperature clear sky
 500335:
-- synme7_bt_cs_wv6.4
+- synme7_bt_cs_wv6_4
 - synth. sat. brightness temperature cloudy
 500336:
-- synme7_rad_cl_ir11.5
+- synme7_rad_cl_ir11_5
 - synth. sat. radiance clear sky
 500337:
-- synme7_rad_cl_wv6.4
+- synme7_rad_cl_wv6_4
 - synth. sat. radiance cloudy
 500338:
-- synme7_rad_cs_ir11.5
+- synme7_rad_cs_ir11_5
 - synth. sat. radiance clear sky
 500339:
-- synme7_rad_cs_wv6.4
+- synme7_rad_cs_wv6_4
 - synth. sat. radiance cloudy
 500340:
-- synmsg_bt_cl_ir10.8
+- synmsg_bt_cl_ir10_8
 - synth. sat. brightness temperature cloudy
 500341:
-- synmsg_bt_cl_ir12.1
+- synmsg_bt_cl_ir12_1
 - synth. sat. brightness temperature cloudy
 500342:
-- synmsg_bt_cl_ir13.4
+- synmsg_bt_cl_ir13_4
 - synth. sat. brightness temperature cloudy
 500343:
-- synmsg_bt_cl_ir3.9
+- synmsg_bt_cl_ir3_9
 - synth. sat. brightness temperature cloudy
 500344:
-- synmsg_bt_cl_ir8.7
+- synmsg_bt_cl_ir8_7
 - synth. sat. brightness temperature cloudy
 500345:
-- synmsg_bt_cl_ir9.7
+- synmsg_bt_cl_ir9_7
 - synth. sat. brightness temperature cloudy
 500346:
-- synmsg_bt_cl_wv6.2
+- synmsg_bt_cl_wv6_2
 - synth. sat. brightness temperature cloudy
 500347:
-- synmsg_bt_cl_wv7.3
+- synmsg_bt_cl_wv7_3
 - synth. sat. brightness temperature cloudy
 500348:
-- synmsg_bt_cs_ir8.7
+- synmsg_bt_cs_ir8_7
 - synth. sat. brightness temperature clear sky
 500349:
-- synmsg_bt_cs_ir10.8
+- synmsg_bt_cs_ir10_8
 - synth. sat. brightness temperature clear sky
 500350:
-- synmsg_bt_cs_ir12.1
+- synmsg_bt_cs_ir12_1
 - synth. sat. brightness temperature clear sky
 500351:
-- synmsg_bt_cs_ir13.4
+- synmsg_bt_cs_ir13_4
 - synth. sat. brightness temperature clear sky
 500352:
-- synmsg_bt_cs_ir3.9
+- synmsg_bt_cs_ir3_9
 - synth. sat. brightness temperature clear sky
 500353:
-- synmsg_bt_cs_ir9.7
+- synmsg_bt_cs_ir9_7
 - synth. sat. brightness temperature clear sky
 500354:
-- synmsg_bt_cs_wv6.2
+- synmsg_bt_cs_wv6_2
 - synth. sat. brightness temperature clear sky
 500355:
-- synmsg_bt_cs_wv7.3
+- synmsg_bt_cs_wv7_3
 - synth. sat. brightness temperature clear sky
 500356:
-- synmsg_rad_cl_ir10.8
+- synmsg_rad_cl_ir10_8
 - synth. sat. radiance cloudy
 500357:
-- synmsg_rad_cl_ir12.1
+- synmsg_rad_cl_ir12_1
 - synth. sat. radiance cloudy
 500358:
-- synmsg_rad_cl_ir13.4
+- synmsg_rad_cl_ir13_4
 - synth. sat. radiance cloudy
 500359:
-- synmsg_rad_cl_ir3.9
+- synmsg_rad_cl_ir3_9
 - synth. sat. radiance cloudy
 500360:
-- synmsg_rad_cl_ir8.7
+- synmsg_rad_cl_ir8_7
 - synth. sat. radiance cloudy
 500361:
-- synmsg_rad_cl_ir9.7
+- synmsg_rad_cl_ir9_7
 - synth. sat. radiance cloudy
 500362:
-- synmsg_rad_cl_wv6.2
+- synmsg_rad_cl_wv6_2
 - synth. sat. radiance cloudy
 500363:
-- synmsg_rad_cl_wv7.3
+- synmsg_rad_cl_wv7_3
 - synth. sat. radiance cloudy
 500364:
-- synmsg_rad_cs_ir10.8
+- synmsg_rad_cs_ir10_8
 - synth. sat. radiance clear sky
 500365:
-- synmsg_rad_cs_ir12.1
+- synmsg_rad_cs_ir12_1
 - synth. sat. radiance clear sky
 500366:
-- synmsg_rad_cs_ir13.4
+- synmsg_rad_cs_ir13_4
 - synth. sat. radiance clear sky
 500367:
-- synmsg_rad_cs_ir3.9
+- synmsg_rad_cs_ir3_9
 - synth. sat. radiance clear sky
 500368:
-- synmsg_rad_cs_ir8.7
+- synmsg_rad_cs_ir8_7
 - synth. sat. radiance clear sky
 500369:
-- synmsg_rad_cs_ir9.7
+- synmsg_rad_cs_ir9_7
 - synth. sat. radiance clear sky
 500370:
-- synmsg_rad_cs_wv6.2
+- synmsg_rad_cs_wv6_2
 - synth. sat. radiance clear sky
 500371:
-- synmsg_rad_cs_wv7.3
+- synmsg_rad_cs_wv7_3
 - synth. sat. radiance clear sky
 500372:
 - t_2m_s
@@ -13802,37 +13672,37 @@
 - obsmsg_alb_hrv
 - obser. sat. meteosat sec. generation albedo (scaled)
 500390:
-- obsmsg_alb_nir1.6
+- obsmsg_alb_nir1_6
 - obser. sat. meteosat sec. generation albedo (scaled)
 500391:
-- obsmsg_alb_vis0.6
+- obsmsg_alb_vis0_6
 - obser. sat. meteosat sec. generation albedo (scaled)
 500392:
-- obsmsg_alb_vis0.8
+- obsmsg_alb_vis0_8
 - obser. sat. meteosat sec. generation albedo (scaled)
 500393:
-- obsmsg_bt_ir10.8
+- obsmsg_bt_ir10_8
 - obser. sat. meteosat sec. generation brightness temperature
 500394:
-- obsmsg_bt_ir12.0
+- obsmsg_bt_ir12_0
 - obser. sat. meteosat sec. generation brightness temperature
 500395:
-- obsmsg_bt_ir13.4
+- obsmsg_bt_ir13_4
 - obser. sat. meteosat sec. generation brightness temperature
 500396:
-- obsmsg_bt_ir3.9
+- obsmsg_bt_ir3_9
 - obser. sat. meteosat sec. generation brightness temperature
 500397:
-- obsmsg_bt_ir8.7
+- obsmsg_bt_ir8_7
 - obser. sat. meteosat sec. generation brightness temperature
 500398:
-- obsmsg_bt_ir9.7
+- obsmsg_bt_ir9_7
 - obser. sat. meteosat sec. generation brightness temperature
 500399:
-- obsmsg_bt_wv6.2
+- obsmsg_bt_wv6_2
 - obser. sat. meteosat sec. generation brightness temperature
 500400:
-- obsmsg_bt_wv7.3
+- obsmsg_bt_wv7_3
 - obser. sat. meteosat sec. generation brightness temperature
 7001292:
 - sunsd

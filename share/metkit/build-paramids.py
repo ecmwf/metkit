@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import MySQLdb
 import yaml
+import re
 
 
 db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
@@ -26,10 +27,20 @@ for data in cursor.fetchall():
     if abbr == '~':
         continue
 
+    abbr = re.sub(r'\W', '_', abbr)
+    abbr = re.sub(r'_+', '_', abbr)
+    abbr = re.sub(r'^_', '', abbr)
+    abbr = re.sub(r'_$', '', abbr)
+
     entry = [abbr, longname]
 
-    if paramid in PRODGEN:
-      pass
+    if False and paramid in PRODGEN:
+       pgen = PRODGEN[paramid]
+       if len(pgen) > 2:
+           prodgen[paramid] = pgen[2:]
+           for n in prodgen[paramid]:
+               entry.append(n)
+          
   
     entry = tuple(entry)
 
@@ -45,8 +56,8 @@ for data in cursor.fetchall():
 cursor.close()
 db.close()
 
-with open("prodgen.yaml", "w") as f:
-    f.write(yaml.safe_dump(PRODGEN, default_flow_style=False))
+#with open("prodgen.yaml", "w") as f:
+    #f.write(yaml.safe_dump(PRODGEN, default_flow_style=False))
 
 with open("paramids.yaml", "w") as f:
     f.write(yaml.safe_dump(PARAMSIDS, default_flow_style=False))
