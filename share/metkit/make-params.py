@@ -24,7 +24,14 @@ for entry in PARAMS:
         continue
 
     if when.get('type') == 'tf':
+        OUT.append([orig, parms])
         continue
+
+    if when.get('stream') == 'efov':
+	    # cpvar/ssrdvar/evar/sundvar/tpvar
+        OUT.append([orig, parms])
+        continue
+
 
 
     for k, v in list(when.items()):
@@ -71,7 +78,7 @@ for entry in PARAMS:
 
     params = set()
     with open(target) as f:
-        lines = [x.strip() for x in f.readlines()]
+        lines = set(x.strip() for x in f.readlines())
         for n in lines:
             if n == '':
                continue
@@ -108,5 +115,5 @@ for entry in PARAMS:
 
     OUT.append([orig, params])
 
-with open("params2.yaml", "w") as f:
+with open("params.yaml", "w") as f:
     f.write(yaml.safe_dump(OUT, default_flow_style=False))
