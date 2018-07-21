@@ -3159,15 +3159,19 @@
 171039:
 - swval1
 - volumetric soil water anomaly layer 1
+- swv1
 171040:
 - swval2
 - volumetric soil water anomaly layer 2
+- swv2
 171041:
 - swval3
 - volumetric soil water anomaly layer 3
+- swv3
 171042:
 - swval4
 - volumetric soil water anomaly layer 4
+- swv4
 171043:
 - slta
 - soil type anomaly
@@ -3435,9 +3439,11 @@
 171183:
 - stal3
 - soil temperature anomaly level 3
+- stl3
 171184:
 - swal3
 - soil wetness anomaly level 3
+- swl3
 171185:
 - ccca
 - convective cloud cover anomaly
@@ -3507,6 +3513,7 @@
 171207:
 - 10ua
 - 10 metre wind speed anomaly
+- 10si
 171208:
 - tsrca
 - top net solar radiation clear sky anomaly
@@ -3594,6 +3601,7 @@
 171237:
 - swal4
 - soil wetness level 4 anomaly
+- swl4
 171238:
 - tsna
 - temperature of snow layer anomaly
@@ -3654,23 +3662,54 @@
 172044:
 - esrate
 - snow evaporation
+- es
+172050:
+- lspf
+172142:
+- lsp
 172143:
 - cprate
 - convective precipitation
+- cp
 172144:
 - sf
 172145:
 - bldrate
 - boundary layer dissipation
+172146:
+- sshf
+172147:
+- slhf
+172149:
+- snr
+172153:
+- swhr
+172154:
+- lwhr
+172169:
+- ssrd
+172175:
+- strd
+172176:
+- ssr
+172177:
+- str
+172178:
+- tsr
+172179:
+- ttr
 172180:
 - ewssra
 - east-west surface stress rate of accumulation
+- ewss
 172181:
 - nsssra
 - north-south surface stress rate of accumulation
+- nsss
 172182:
 - erate
 - evaporation
+- e
 172189:
 - sund
 172197:
@@ -3692,6 +3731,9 @@
 173142:
 - lspara
 - stratiform precipitation (large-scale precipitation) anomalous rate of accumulation
+- lspa
+173143:
+- cpa
 173144:
 - sfara
 - snowfall (convective + stratiform) anomalous rate of accumulation
@@ -9081,6 +9123,7 @@
 228024:
 - deg0l
 - zero degree level
+- deg0
 228025:
 - hvis
 - horizontal visibility
