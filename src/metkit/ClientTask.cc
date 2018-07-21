@@ -25,11 +25,13 @@ ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::st
       handle_(0),
       metkitID_(id) {
     // Try something unique (per machine)
+    // Warning: Servers recovers time(0) from ID
+    // to compute request age. Not good
     if (!metkitID_) {
         typedef unsigned long long ull;
-        metkitID_ = (ull(::getpid()) << 32 )
-                    | (ull(::pthread_self()) << 16)
-                    | (ull(::time(0)) & ull(0xffff));
+        metkitID_ = (ull(::getpid()) << ull(32+16) )
+                    | (ull(::pthread_self()) << ull(32))
+                    | (ull(::time(0)) & ull(0xffffffff));
     }
 
     handle_.reset(new MarsHandle(host_, port_, metkitID_));
