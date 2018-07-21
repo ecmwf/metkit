@@ -3658,9 +3658,15 @@
 172044:
 - esrate
 - snow evaporation
+- es
+172050:
+- lspf
+172142:
+- lsp
 172143:
 - cprate
 - convective precipitation
+- cp
 172144:
 - sf
 172145:
@@ -3668,15 +3674,38 @@
 - boundary layer dissipation
 172146:
 - sshf
+172147:
+- slhf
+172149:
+- snr
+172153:
+- swhr
+172154:
+- lwhr
+172169:
+- ssrd
+172175:
+- strd
+172176:
+- ssr
+172177:
+- str
+172178:
+- tsr
+172179:
+- ttr
 172180:
 - ewssra
 - east-west surface stress rate of accumulation
+- ewss
 172181:
 - nsssra
 - north-south surface stress rate of accumulation
+- nsss
 172182:
 - erate
 - evaporation
+- e
 172189:
 - sund
 172197:
