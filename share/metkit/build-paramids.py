@@ -11,8 +11,8 @@ db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
                      "param")
 
 PRODGEN = {}
-if os.path.exists("prodgen.yaml"):
-    with open("prodgen.yaml") as f:
+if os.path.exists("prodgen-paramids.yaml"):
+    with open("prodgen-paramids.yaml") as f:
         PRODGEN = yaml.load(f.read())
 
 PARAMSIDS = {}

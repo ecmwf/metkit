@@ -12,24 +12,25 @@ if os.path.exists("params.yaml"):
         PARAMS = yaml.load(f.read())
 
 OUT = []
+if os.path.exists("prodgen-params.yaml"):
+    with open("prodgen-params.yaml") as f:
+        OUT = yaml.load(f.read())
+
 for entry in PARAMS:
     when, parms = entry
     orig = dict(**when)
 
     if 'file' in when:
-        OUT.append([orig, parms])
         continue
 
     if not when:
         continue
 
     if when.get('type') == 'tf':
-        OUT.append([orig, parms])
         continue
 
     if when.get('stream') == 'efov':
 	    # cpvar/ssrdvar/evar/sundvar/tpvar
-        OUT.append([orig, parms])
         continue
 
 
