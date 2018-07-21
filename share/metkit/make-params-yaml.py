@@ -6,6 +6,14 @@ import json
 import itertools
 import subprocess
 
+def key(when):
+    k = json.dumps(when,sort_keys=True)
+    k = re.sub(r'\W', '_', k)
+    k = re.sub(r'_+', '_', k)
+    k = re.sub(r'^_', '', k)
+    k = re.sub(r'_$', '', k)
+    return k
+
 PARAMS = {}
 if os.path.exists("params.yaml"):
     with open("params.yaml") as f:
@@ -17,15 +25,16 @@ if os.path.exists("prodgen-params.yaml"):
         OUT = yaml.load(f.read())
 
 skip = set()
-for o in OUT:
+for entry in OUT:
     when, parms = entry
-    skip.add(tuple(when.items()))
+    skip.add(key(when))
 
 for entry in PARAMS:
     when, parms = entry
     orig = dict(**when)
 
-    if tuple(when.items()) in skip:
+
+    if key(when) in skip:
         continue
 
     if not when:
@@ -36,12 +45,7 @@ for entry in PARAMS:
         if not isinstance(v, list):
             when[k] = [v]
 
-    done = json.dumps(when,sort_keys=True)
-    done = re.sub(r'\W', '_', done)
-    done = re.sub(r'_+', '_', done)
-    done = re.sub(r'^_', '', done)
-    done = re.sub(r'_$', '', done)
-    target = done + '.list'
+    target = key(when)  + '.list'
 
     if not os.path.exists(target):
 
