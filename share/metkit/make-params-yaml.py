@@ -24,6 +24,13 @@ if os.path.exists("prodgen-params.yaml"):
     with open("prodgen-params.yaml") as f:
         OUT = yaml.load(f.read())
 
+EXTRA = {}
+if os.path.exists("prodgen-params-extra.yaml"):
+    with open("prodgen-params-extra.yaml") as f:
+        extra = yaml.load(f.read())
+    for w, e in extra:
+       EXTRA[key(w)] = e
+
 skip = set()
 for entry in OUT:
     when, parms = entry
@@ -108,6 +115,9 @@ for entry in PARAMS:
 
     if 129 in params:
         params.add(156)
+
+    for p in EXTRA.get(key(when), []):
+        params.add(p)
 
     params = sorted(params)
     print(params)
