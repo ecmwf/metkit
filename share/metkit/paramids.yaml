@@ -3435,9 +3435,11 @@
 171183:
 - stal3
 - soil temperature anomaly level 3
+- stl3
 171184:
 - swal3
 - soil wetness anomaly level 3
+- swl3
 171185:
 - ccca
 - convective cloud cover anomaly
@@ -3507,6 +3509,7 @@
 171207:
 - 10ua
 - 10 metre wind speed anomaly
+- 10si
 171208:
 - tsrca
 - top net solar radiation clear sky anomaly
@@ -3594,6 +3597,7 @@
 171237:
 - swal4
 - soil wetness level 4 anomaly
+- swl4
 171238:
 - tsna
 - temperature of snow layer anomaly
@@ -3662,6 +3666,8 @@
 172145:
 - bldrate
 - boundary layer dissipation
+172146:
+- sshf
 172180:
 - ewssra
 - east-west surface stress rate of accumulation
@@ -9081,6 +9087,7 @@
 228024:
 - deg0l
 - zero degree level
+- deg0
 228025:
 - hvis
 - horizontal visibility
