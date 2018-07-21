@@ -27,13 +27,13 @@ cursor.execute("select * from param")
 for data in cursor.fetchall():
     paramid, abbr, longname = int(data[0]), data[1].lower(), data[2].lower()
 
-    if abbr == '~':
-        continue
-
     abbr = re.sub(r'\W', '_', abbr)
     abbr = re.sub(r'_+', '_', abbr)
     abbr = re.sub(r'^_', '', abbr)
     abbr = re.sub(r'_$', '', abbr)
+
+    if not abbr:
+	   continue
 
     entry = [abbr, longname]
 
