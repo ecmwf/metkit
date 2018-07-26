@@ -3,6 +3,7 @@ import MySQLdb
 import yaml
 import re
 import os
+#import json
 
 
 db = MySQLdb.connect("grib-param-db-prod.ecmwf.int",
@@ -14,6 +15,8 @@ PRODGEN = {}
 if os.path.exists("prodgen-paramids.yaml"):
     with open("prodgen-paramids.yaml") as f:
         PRODGEN = yaml.load(f.read())
+
+#print(json.dumps(PRODGEN))
 
 PARAMSIDS = {}
 if os.path.exists("paramids.yaml"):
@@ -41,7 +44,7 @@ for data in cursor.fetchall():
         pgen = [str(x).lower() for x in PRODGEN[paramid]]
         p = []
         for n in pgen:
-            if n not in entry and (' ' not in n) and ('.' not in n) and ('-' not in n):
+            if n not in entry: #  and (' ' not in n) and ('.' not in n): #  and ('-' not in n):
                 entry.append(n)
                 p.append(n)
 

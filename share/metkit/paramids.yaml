@@ -1586,6 +1586,7 @@
 131021:
 - tag2
 - temperature anomaly of at least +2 k
+- temperature anomaly of at least 2 k
 131022:
 - talm8
 - temperature anomaly less than -8 k
@@ -1595,9 +1596,11 @@
 131024:
 - tag4
 - temperature anomaly greater than +4 k
+- temperature anomaly greater than 4 k
 131025:
 - tag8
 - temperature anomaly greater than +8 k
+- temperature anomaly greater than 8 k
 131049:
 - 10gp
 - 10 metre wind gust probability
