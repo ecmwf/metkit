@@ -1597,10 +1597,12 @@
 - tag4
 - temperature anomaly greater than +4 k
 - temperature anomaly greater than 4 k
+- temperature anomaly of at least 4 k
 131025:
 - tag8
 - temperature anomaly greater than +8 k
 - temperature anomaly greater than 8 k
+- temperature anomaly of at least 8 k
 131049:
 - 10gp
 - 10 metre wind gust probability

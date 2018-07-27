@@ -461,5 +461,7 @@
 - temperature anomaly of at least 2 k
 131024:
 - temperature anomaly greater than 4 k
+- temperature anomaly of at least 4 k
 131025:
 - temperature anomaly greater than 8 k
+- temperature anomaly of at least 8 k
