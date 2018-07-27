@@ -457,8 +457,14 @@
 ##- licga
 
 # In the param database, its sysa +2 k
+131020:
+- temperature anomaly of at most -2 k
 131021:
 - temperature anomaly of at least 2 k
+131022:
+- temperature anomaly of at most -8 k
+131023:
+- temperature anomaly of at most -4 k
 131024:
 - temperature anomaly greater than 4 k
 - temperature anomaly of at least 4 k

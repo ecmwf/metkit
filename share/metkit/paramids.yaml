@@ -1583,6 +1583,7 @@
 131020:
 - talm2
 - temperature anomaly less than -2 k
+- temperature anomaly of at most -2 k
 131021:
 - tag2
 - temperature anomaly of at least +2 k
@@ -1590,9 +1591,11 @@
 131022:
 - talm8
 - temperature anomaly less than -8 k
+- temperature anomaly of at most -8 k
 131023:
 - talm4
 - temperature anomaly less than -4 k
+- temperature anomaly of at most -4 k
 131024:
 - tag4
 - temperature anomaly greater than +4 k
