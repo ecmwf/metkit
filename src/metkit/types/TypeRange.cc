@@ -14,6 +14,7 @@
 
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeRange.h"
+#include "eckit/parser/StringTools.h"
 
 namespace metkit {
 
@@ -29,6 +30,7 @@ TypeRange::~TypeRange() {
 void TypeRange::print(std::ostream &out) const {
     out << "TypeRange[name=" << name_ << "]";
 }
+
 
 bool TypeRange::expand(std::string &value) const  {
 
@@ -77,9 +79,15 @@ bool TypeRange::expand(std::string &value) const  {
 
 
         default:
-            return false;
+        {
+            std::string lower = eckit::StringTools::lower(value);
+            if (lower == "to" || lower == "by") {
+                return true;
+            }
+        }
+        return false;
             // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");
-            break;
+        break;
         }
     }
 
