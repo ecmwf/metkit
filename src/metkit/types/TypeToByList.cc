@@ -46,7 +46,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
 
         const std::string& s = values[i];
 
-        if (eckit::StringTools::lower(s) == "to") {
+        if (eckit::StringTools::lower(s) == "to" || eckit::StringTools::lower(s) == "t0") {
             ASSERT(newval.size() > 0);
             ASSERT(i + 1 < values.size());
 

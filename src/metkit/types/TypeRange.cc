@@ -81,7 +81,7 @@ bool TypeRange::expand(std::string &value) const  {
         default:
         {
             std::string lower = eckit::StringTools::lower(value);
-            if (lower == "to" || lower == "by") {
+            if (lower == "to" || lower == "t0" || lower == "by") {
                 return true;
             }
         }
