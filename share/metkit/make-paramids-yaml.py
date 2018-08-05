@@ -36,9 +36,9 @@ for data in cursor.fetchall():
     abbr = re.sub(r'_$', '', abbr)
 
     if not abbr:
-	   continue
+       abbr = '_param_%06d' % (paramid,)
 
-    entry = [abbr, longname]
+    entry = [abbr.strip(), longname.strip()]
 
     if paramid in PRODGEN:
         pgen = [str(x).lower() for x in PRODGEN[paramid]]
