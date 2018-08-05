@@ -92,7 +92,7 @@
 - type of high vegetation
 31:
 - ci
-- sea-ice cover
+- sea ice area fraction
 32:
 - asn
 - snow albedo
@@ -2337,20 +2337,20 @@
 - nsf
 - net surface heat flux
 151129:
-- ocpt
-- ocean potential temperature
+- thetao
+- sea water potential temperature
 151130:
-- s
-- salinity
+- so
+- sea water practical salinity
 151131:
 - ocu
-- ocean current zonal component
+- eastward sea water velocity
 151132:
 - ocv
-- ocean current meridional component
+- northward sea water velocity
 151133:
-- ocw
-- ocean current vertical component
+- wo
+- upward sea water velocity
 151134:
 - mst
 - modulus of strain rate tensor
@@ -2364,8 +2364,8 @@
 - dep
 - bottom level depth
 151138:
-- sth
-- sigma-theta
+- sigmat
+- sea water sigma theta
 151139:
 - rn
 - richardson number
@@ -2385,14 +2385,14 @@
 - vv
 - vv product
 151145:
-- sl
-- sea level
+- zos
+- sea surface height
 151146:
 - sl_1
 - sea level previous timestep
 151147:
-- bsf
-- barotropic stream function
+- stfbarot
+- ocean barotropic stream function
 151148:
 - mld
 - mixed layer depth
@@ -2406,11 +2406,11 @@
 - crl
 - curl of wind stress
 151153:
-- tax
-- u stress
+- taueo
+- surface downward eastward stress
 151154:
-- tay
-- v stress
+- tauno
+- surface downward northward stress
 151155:
 - tki
 - turbulent kinetic energy input
@@ -2436,8 +2436,8 @@
 - hfc
 - heat flux correction
 151163:
-- 20d
-- 20 degrees isotherm depth
+- t20d
+- depth of 20c isotherm
 151164:
 - tav300
 - average potential temperature in the upper 300m
@@ -2513,6 +2513,9 @@
 151188:
 - vvi
 - meridional velocity increment (from balance operator)
+151189:
+- tos
+- sea surface temperature in degc
 151190:
 - subi
 - salinity increment (from salinity data)
@@ -2526,16 +2529,16 @@
 - salbe
 - salinity background error
 151195:
-- isot14
+- t14d
 - depth of 14c isotherm
 151196:
-- isot17
+- t17d
 - depth of 17c isotherm
 151197:
-- isot26
+- t26d
 - depth of 26c isotherm
 151198:
-- isot28
+- t28d
 - depth of 28c isotherm
 151199:
 - ebta
@@ -2580,13 +2583,13 @@
 - psa
 - bias in salinity (applied)
 151213:
-- sdhfsw
+- hfds
 - surface downward heat flux in sea water
 151214:
-- hc300
+- hc300m
 - ocean heat content 0-300m
 151215:
-- hc700
+- hc700m
 - ocean heat content 0-700m
 151216:
 - hcbtm
@@ -2598,7 +2601,7 @@
 - swfup
 - surface upward water flux
 151219:
-- sss
+- sos
 - sea surface salinity
 151220:
 - sdns
@@ -2607,28 +2610,28 @@
 - sdes
 - surface downward eastward stress
 151222:
-- sdys
+- tauvo
 - surface downward y stress
 151223:
-- sdxs
+- tauuo
 - surface downward x stress
 151224:
-- mlthdt
+- mlotdev
 - ocean mixed layer thickness defined by vertical tracer diffusivity threshold
 151225:
-- mlthst010
+- mlotst010
 - ocean mixed layer thickness defined by sigma theta 0.01 kg/m3
 151226:
-- mlthst030
+- mlotst030
 - ocean mixed layer thickness defined by sigma theta 0.03 kg/m3
 151227:
-- mlthst125
+- mlotst125
 - ocean mixed layer thickness defined by sigma theta 0.125 kg/m3
 151228:
-- mltht02
+- mlott02
 - ocean mixed layer thickness defined by temperature 0.2c
 151229:
-- mltht05
+- mlott05
 - ocean mixed layer thickness defined by temperature 0.5c
 151230:
 - vsf
@@ -2637,19 +2640,28 @@
 - vsfcorr
 - virtual salt flux correction
 151232:
-- sa700
-- salinity 0-700m
+- sc700m
+- integrated salinity 0-700m
 151233:
 - sabtm
-- salinity 0-bottom
+- integrated salinity 0-bottom
 151234:
 - swmth
 - sea water mass per unit area expressed as thickness
+151235:
+- sc300m
+- integrated salinity 0-300m
+151236:
+- rss
+- surface net downward shortwave flux into ocean
+151240:
+- hfcorr
+- heat flux correction
 151250:
-- swyv
+- voy
 - sea water y velocity
 151251:
-- swxv
+- uox
 - sea water x velocity
 151252:
 - swnv
@@ -3828,22 +3840,25 @@
 - rhum
 - relative humidity at 1.5m
 174092:
-- sial
+- sialb
 - sea ice albedo
+174093:
+- sitemptop
+- sea ice surface temperature
 174096:
 - 2sh
 - 2 metre specific humidity
 174097:
-- sist
-- sea-ice snow thickness
+- sisnthick
+- sea ice snow thickness
 174098:
-- sit
+- sithick
 - sea-ice thickness
 174112:
-- sivx
+- siue
 - sea ice velocity along x
 174113:
-- sivy
+- sivn
 - sea ice velocity along y
 174116:
 - swrsurf
