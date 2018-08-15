@@ -7,14 +7,14 @@ import sys
 import re
 
 gdb = mysql.connector.connect(host="grib-param-db-prod.ecmwf.int",
-                     user="ecmwf_ro",
-                     password="ecmwf_ro",
-                     database="param")
+                              user="ecmwf_ro",
+                              password="ecmwf_ro",
+                              database="param")
 
 
 params = sys.argv[1:]
 if not params:
-   params = ["130"]
+    params = ["130"]
 
 
 what = "id"
@@ -22,24 +22,21 @@ values = []
 
 for p in params:
     try:
-      a, b = p.split(".")
-      a, b = int(a), int(b)
-      if b == 128:
-        b = 0
-      p = str(b*1000 + a)
+        a, b = p.split(".")
+        a, b = int(a), int(b)
+        if b == 128:
+            b = 0
+        p = str(b * 1000 + a)
     except:
-      pass
+        pass
 
     try:
-      int(p)
+        int(p)
     except:
-      what="shortName"
-      p="'%s'" % (p,)
-
+        what = "shortName"
+        p = "'%s'" % (p,)
 
     values.append(p)
-
-
 
 
 gcursor = gdb.cursor()

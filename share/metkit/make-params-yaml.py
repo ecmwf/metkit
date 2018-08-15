@@ -6,13 +6,15 @@ import json
 import itertools
 import subprocess
 
+
 def key(when):
-    k = json.dumps(when,sort_keys=True)
+    k = json.dumps(when, sort_keys=True)
     k = re.sub(r'\W', '_', k)
     k = re.sub(r'_+', '_', k)
     k = re.sub(r'^_', '', k)
     k = re.sub(r'_$', '', k)
     return k
+
 
 PARAMS = {}
 if os.path.exists("params.yaml"):
@@ -29,7 +31,7 @@ if os.path.exists("prodgen-params-extra.yaml"):
     with open("prodgen-params-extra.yaml") as f:
         extra = yaml.load(f.read())
     for w, e in extra:
-       EXTRA[key(w)] = e
+        EXTRA[key(w)] = e
 
 skip = set()
 for entry in OUT:
@@ -40,19 +42,17 @@ for entry in PARAMS:
     when, parms = entry
     orig = dict(**when)
 
-
     if key(when) in skip:
         continue
 
     if not when:
         continue
 
-
     for k, v in list(when.items()):
         if not isinstance(v, list):
             when[k] = [v]
 
-    target = key(when)  + '.list'
+    target = key(when) + '.list'
 
     if not os.path.exists(target):
 
@@ -65,7 +65,7 @@ for entry in PARAMS:
 
             for n in itertools.product(*values):
                 r = dict((a, b) for a, b in zip(names, n))
-                if r.get('type') in ('wp', 'cv', 'tf' ):
+                if r.get('type') in ('wp', 'cv', 'tf'):
                     continue
 
                 if r.get('stream') == 'efov':
@@ -90,9 +90,9 @@ for entry in PARAMS:
         lines = set(x.strip() for x in f.readlines())
         for n in lines:
             if n == '':
-               continue
+                continue
             if n == 'param':
-               continue
+                continue
             m = n.split('.')
             if len(m) == 2:
                 p, t = int(m[0]), int(m[1])
