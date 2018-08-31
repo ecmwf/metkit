@@ -8,7 +8,6 @@
  * does it submit to any jurisdiction.
  */
 
-#include "eckit/config/Resource.h"
 #include "eckit/runtime/Tool.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
@@ -30,13 +29,6 @@ public:
 
     ParseRequest(int argc, char **argv) :
         Tool(argc, argv) {
-
-        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/EC/EC1/req/curr/C1"); ///< @todo Move to use Option
-        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/XS/NA4/req/curr/N2");
-        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/CZ/CZM/req/curr/CJ");
-        // path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss/FR/FRA/req/curr/FR");
-        path_ = eckit::Resource<std::string>("-in", "/Users/baudouin/Dropbox/diss");
-
     }
 
     virtual ~ParseRequest() {}
@@ -46,6 +38,7 @@ private: // methods
     virtual void run();
     void process(const eckit::PathName& path);
 
+
 private: // members
 
     eckit::PathName path_;
@@ -54,7 +47,9 @@ private: // members
 };
 
 void ParseRequest::run() {
-    process(path_);
+    for (size_t i = 1; i < argc(); ++i) {
+        process(argv(i));
+    }
 }
 
 void ParseRequest::process(const eckit::PathName& path)

@@ -260,8 +260,8 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
             }
         }
 
-        // throw eckit::UserError("Cannot match parameter " + p);
-        eckit::Log::warning() << "Cannot match parameter " << p  << std::endl;
+        throw eckit::UserError("Cannot match parameter " + p);
+        // eckit::Log::warning() << "Cannot match parameter " << p  << std::endl;
         return p;
 
     }

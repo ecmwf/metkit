@@ -319,6 +319,8 @@ _field: &_field
     default: 129
     multiple: true
     type: param
+    never:
+    - type: tf
 
 #################################################################
 
@@ -391,7 +393,7 @@ _field: &_field
     - ensemble
     by: 1
     only:
-    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc]
+    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp]
     never:
     # This is to prevent number with type=fc and stream=oper
     - stream: [oper, wave]
