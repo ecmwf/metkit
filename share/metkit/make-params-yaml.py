@@ -32,6 +32,7 @@ if os.path.exists("prodgen-params-extra.yaml"):
         extra = yaml.load(f.read())
     for w, e in extra:
         EXTRA[key(w)] = e
+        print("extra", w, e)
 
 skip = set()
 for entry in OUT:
