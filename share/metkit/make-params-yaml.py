@@ -54,7 +54,10 @@ for entry in PARAMS:
 
     target = key(when) + '.list'
 
-    if not os.path.exists(target):
+    ok = False
+    if os.path.exists(target):
+       ok = True
+    else:
 
         with open('tmp', "w") as f:
 
@@ -82,8 +85,13 @@ for entry in PARAMS:
 
                     rr = 'list,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
                     print(rr, file=f)
+                    ok = True
 
-        subprocess.call(["mars", "tmp"])
+        if ok:
+           subprocess.call(["mars", "tmp"])
+
+    if not ok:
+       continue
 
     params = set()
     with open(target) as f:
