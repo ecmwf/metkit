@@ -700,6 +700,13 @@ disseminate:
     values:
     - bin
 
+  application:
+    default: "off"
+    values:
+    - "off"
+    - prodgen
+    - pgen
+
   option:
     default: normal
     flatten: false
