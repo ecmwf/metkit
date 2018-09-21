@@ -10,3 +10,7 @@
 - - stream: enfo
     type: cm
   - - 130
+
+- - stream: msmm
+    type: em
+  - - 9 # ssro
