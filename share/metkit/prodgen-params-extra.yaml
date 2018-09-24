@@ -25,6 +25,7 @@
     - 40 # swvl2
     - 41 # swvl3
     - 42 # swvl4
+    - 172212 #soira
 
 - - stream: msmm
     type: fcmean
