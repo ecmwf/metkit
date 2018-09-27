@@ -29,7 +29,8 @@
 
 - - stream: msmm
     type: fcmean
-  - - 205 # ro
+  - - 8
+    - 205 # ro
     - 212 # tisr
 
 - - stream: mmsa
