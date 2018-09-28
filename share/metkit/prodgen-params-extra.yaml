@@ -25,10 +25,12 @@
     - 40 # swvl2
     - 41 # swvl3
     - 42 # swvl4
+    - 172212 #soira
 
 - - stream: msmm
     type: fcmean
-  - - 205 # ro
+  - - 8
+    - 205 # ro
     - 212 # tisr
 
 - - stream: mmsa
