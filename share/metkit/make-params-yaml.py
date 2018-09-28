@@ -32,6 +32,7 @@ if os.path.exists("prodgen-params-extra.yaml"):
         extra = yaml.load(f.read())
     for w, e in extra:
         EXTRA[key(w)] = e
+        print("extra", w, e)
 
 skip = set()
 for entry in OUT:
@@ -54,7 +55,10 @@ for entry in PARAMS:
 
     target = key(when) + '.list'
 
-    if not os.path.exists(target):
+    ok = False
+    if os.path.exists(target):
+       ok = True
+    else:
 
         with open('tmp', "w") as f:
 
@@ -76,14 +80,19 @@ for entry in PARAMS:
                 for levtype in ('sfc', 'pl', 'ml', 'pt', 'pv'):
                     r['levtype'] = levtype
                     r['time'] = "0/12"
-                    r['date'] = "20180701/to/20180707"
+                    r['date'] = "20180901/to/20180930"
                     r['hide'] = 'channel/ident/instrument/branch/frequency/direction/method/system/origin/quantile/domain/number/fcmonth/type/class/expver/stream/hdate/levtype/month/year/date/levelist/time/step/files/missing/offset/length/grand-total/cost/file/id'
                     r['target'] = target
 
                     rr = 'list,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
                     print(rr, file=f)
+                    ok = True
 
-        subprocess.call(["mars", "tmp"])
+        if ok:
+           subprocess.call(["mars", "tmp"])
+
+    if not ok:
+       continue
 
     params = set()
     with open(target) as f:

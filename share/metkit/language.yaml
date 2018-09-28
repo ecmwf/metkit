@@ -700,6 +700,14 @@ disseminate:
     values:
     - bin
 
+  application:
+    type: enum
+    default: "off"
+    values:
+      - "off"
+      - prodgen
+      - pgen
+
   option:
     default: normal
     flatten: false
