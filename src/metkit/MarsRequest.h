@@ -40,7 +40,7 @@ public: // methods
     MarsRequest();
     MarsRequest(const std::string&);
     MarsRequest(eckit::Stream&, bool lowercase = false);
-
+    MarsRequest(const std::string&, const std::map<std::string, std::string>&);
 // -- Copy
 
     // MarsRequest(const MarsRequest&);
