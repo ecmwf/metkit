@@ -32,6 +32,19 @@ MarsRequest::MarsRequest(const std::string& s):
     verb_(s) {
 }
 
+MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::string>& values):
+    verb_(s) {
+
+    for (auto j = values.begin(); j != values.end(); ++j)
+    {
+        const std::string& param = (*j).first;
+        const std::string& value = (*j).second;
+
+
+        params_.push_back(Parameter(std::vector<std::string>(1, value), new TypeAny(param)));
+    }
+}
+
 MarsRequest::MarsRequest(eckit::Stream& s, bool lowercase) {
     int size;
 
