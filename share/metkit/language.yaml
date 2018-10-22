@@ -705,8 +705,8 @@ disseminate:
     default: "off"
     values:
       - "off"
-      - prodgen
-      - pgen
+      - [prodgen, pg1, prodgen1, pgen1, product generation 1]
+      - [pgen, pg2, prodgen2, pgen2, product generation 2]
 
   option:
     default: normal
