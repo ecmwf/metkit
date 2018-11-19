@@ -6,5 +6,9 @@ PARAMS = text("select distinct param from fields where stream=:stream and type=:
 
 
 for stream, type, levtype in db.execute(TYPES):
-    print(stream, type, levtype)
-    print('    ', sorted([int(x[0]) for x in db.execute(PARAMS, dict(stream=stream, type=type, levtype=levtype))]))
+    print('-'.join([stream, type, levtype]))
+    params = list(db.execute(PARAMS, dict(stream=stream, type=type, levtype=levtype)))
+    try:
+        print("  %s" % sorted([int(x[0]) for x in params]))
+    except:
+        print("  %s" % params,)
