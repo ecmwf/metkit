@@ -6,4 +6,4 @@ PARAMS = text("select distinct param from fields where stream=? and type=? and l
 
 
 for stream, type, levtype in db.execute(TYPES):
-    print(list(db.execute(PARAMS, stream, type, levtype)))
+    print(list(db.execute(PARAMS, dict(stream=stream, type=type, levtype=levtype))))
