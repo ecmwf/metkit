@@ -20,7 +20,7 @@ for stream, type, levtype in db.execute(TYPES):
 
 Y = []
 
-for k, v in P.items():
+for k, v in sorted(P.items()):
     if k[2]:
         d = dict(stream=k[0], type=k[1])
     else:
