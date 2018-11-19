@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text
+import yaml
 
 db = create_engine("postgres://ecmwf_ro:ecmwf_ro@db-products-dev-00.ecmwf.int/products")
 TYPES = text("select distinct stream, type, levtype from fields")
@@ -13,12 +14,17 @@ for stream, type, levtype in db.execute(TYPES):
     params = list(db.execute(PARAMS, kind))
 
     try:
-        print("  %s" % sorted([int(x[0]) for x in params]))
         P[key] = tuple(sorted([int(x[0]) for x in params]))
     except:
         print("  %s" % params,)
 
+Y = []
 
 for k, v in P.items():
-    print(k)
-    print(v)
+    if k[2]:
+        d = dict(stream=k[0], type=k[1])
+    else:
+        d = dict(stream=k[0], type=k[1], levtype=k[2])
+    Y.append(d, v)
+
+print(yaml.safe_dump(Y, default_flow_style=False))
