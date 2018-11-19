@@ -34,6 +34,8 @@ def merge(kinds):
     types = set()
     levtypes = set()
 
+    print(kinds)
+
     for k in kinds:
         streams.add(k[0])
         types.add(k[1])
