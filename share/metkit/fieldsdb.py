@@ -58,6 +58,9 @@ def merge(kinds):
     else:
         d['levtype'] = levtypes
 
+    if d['levtype'] == '':
+        del d['levtype']
+
     return d
 
 
