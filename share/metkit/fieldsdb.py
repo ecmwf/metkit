@@ -10,7 +10,7 @@ P = {}
 for stream, type, levtype in db.execute(TYPES):
     kind = dict(stream=stream, type=type, levtype=levtype)
     key = (stream, type, levtype)
-    print('-'.join([stream, type, levtype]))
+    # print('-'.join([stream, type, levtype]))
     params = list(db.execute(PARAMS, kind))
 
     try:
