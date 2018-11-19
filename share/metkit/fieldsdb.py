@@ -25,6 +25,6 @@ for k, v in P.items():
         d = dict(stream=k[0], type=k[1])
     else:
         d = dict(stream=k[0], type=k[1], levtype=k[2])
-    Y.append(d, v)
+    Y.append([d, v])
 
 print(yaml.safe_dump(Y, default_flow_style=False))
