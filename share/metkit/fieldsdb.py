@@ -28,7 +28,7 @@ for k, v in sorted(P.items()):
 
     v = tuple(v)
     Q.setdefault(v, [])
-    Q[v].push_back(d)
+    Q[v].append(d)
 
 Y = []
 
