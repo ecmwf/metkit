@@ -18,13 +18,21 @@ for stream, type, levtype in db.execute(TYPES):
     except:
         print("  %s" % params,)
 
-Y = []
 
+Q = {}
 for k, v in sorted(P.items()):
     if k[2] == '':
         d = dict(stream=k[0], type=k[1])
     else:
         d = dict(stream=k[0], type=k[1], levtype=k[2])
-    Y.append([d, v])
+
+    v = tuple(v)
+    Q.setdefault(v, [])
+    Q[v].push_back(d)
+
+Y = []
+
+for v, k in Q.items():
+    Y.append([k, v])
 
 print(yaml.safe_dump(Y, default_flow_style=False))
