@@ -21,10 +21,9 @@ for stream, type, levtype in db.execute(TYPES):
 
 Q = {}
 for k, v in sorted(P.items()):
-    d = dict(stream=k[0], type=k[1], levtype=k[2])
     v = tuple(v)
     Q.setdefault(v, [])
-    Q[v].append(d)
+    Q[v].append(k)
 
 Y = []
 
