@@ -16,7 +16,8 @@ for stream, type, levtype in db.execute(TYPES):
     try:
         P[key] = tuple(sorted([int(x[0]) for x in params]))
     except:
-        print("  %s" % params,)
+        # print("  %s" % params,)
+        P[key] = (129, 999)
 
 
 Q = {}
