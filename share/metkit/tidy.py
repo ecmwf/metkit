@@ -1,25 +1,25 @@
-from sqlalchemy import create_engine, text
 import yaml
+import sys
 
-db = create_engine("postgres://ecmwf_ro:ecmwf_ro@db-products-dev-00.ecmwf.int/products")
-TYPES = text("select distinct stream, type, levtype from fields")
-PARAMS = text("select distinct param from fields where stream=:stream and type=:type and levtype=:levtype")
 
 P = {}
-
-for stream, type, levtype in db.execute(TYPES):
-    kind = dict(stream=stream, type=type, levtype=levtype)
-    key = (stream, type, levtype)
-    # print('-'.join([stream, type, levtype]))
-    params = list(db.execute(PARAMS, kind))
-
-    try:
-        P[key] = tuple(sorted([int(x[0]) for x in params]))
-    except:
-        pass
-        # print("  %s" % params,)
-        #P[key] = (129, 999)
-
+with open(sys.argv[1]) as f:
+   for e in yaml.safe_load(f):
+       rule, params = tuple(e)
+       streams = rule['stream'] 
+       types = rule['type'] 
+       levtypes = rule.get('levtype', '')
+       if not isinstance(streams, list):
+           streams = [streams]
+       if not isinstance(types, list):
+           types = [types]
+       if not isinstance(levtypes, list):
+           levtypes = [levtypes]
+       for s in streams:
+           for t in types:
+               for l in levtypes:
+                   key = (s, t, l)
+                   P[key] = tuple(sorted(params))
 
 Q = {}
 for k, v in sorted(P.items()):

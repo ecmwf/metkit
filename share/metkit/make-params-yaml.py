@@ -80,7 +80,7 @@ for entry in PARAMS:
                 for levtype in ('sfc', 'pl', 'ml', 'pt', 'pv'):
                     r['levtype'] = levtype
                     r['time'] = "0/12"
-                    r['date'] = "20180901/to/20180930"
+                    r['date'] = "20181101/to/20181130"
                     r['hide'] = 'channel/ident/instrument/branch/frequency/direction/method/system/origin/quantile/domain/number/fcmonth/type/class/expver/stream/hdate/levtype/month/year/date/levelist/time/step/files/missing/offset/length/grand-total/cost/file/id'
                     r['target'] = target
 
