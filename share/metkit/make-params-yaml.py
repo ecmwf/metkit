@@ -1,107 +1,76 @@
 #!/usr/bin/env python3
-import yaml
-import re
-import os
-import json
-import itertools
+
 import subprocess
+import os
+import yaml
 
+dates = "20181101/to/20181130"
+dates = "20181101"
 
-def key(when):
-    k = json.dumps(when, sort_keys=True)
-    k = re.sub(r'\W', '_', k)
-    k = re.sub(r'_+', '_', k)
-    k = re.sub(r'^_', '', k)
-    k = re.sub(r'_$', '', k)
-    return k
+target="streams.list"
+if not os.path.exists(target):
+   with open('tmp', "w") as f:
+       print(""" list, 
+       stream=all, 
+       type=all, 
+       output=tree, 
+       date=%s,
+       target=%s, 
+       hide=cubes/count/year/month/time/date/refdate/refdatemonth/refdateyear/branch/origin/system/method/expver/class/product/section/number/obsgroup""" % (dates, target,),
+       file=f)
 
+   subprocess.call(["mars", "tmp"])
 
-PARAMS = {}
-if os.path.exists("params.yaml"):
-    with open("params.yaml") as f:
-        PARAMS = yaml.load(f.read())
+reqs = []
+with open(target) as f:
+    for n in set(n.strip() for n in f):
+        r = dict(x.split('=') for x in n.split(','))
+        reqs.append(r)
 
-OUT = []
-if os.path.exists("prodgen-params.yaml"):
-    with open("prodgen-params.yaml") as f:
-        OUT = yaml.load(f.read())
+P = {}
 
-EXTRA = {}
-if os.path.exists("prodgen-params-extra.yaml"):
-    with open("prodgen-params-extra.yaml") as f:
-        extra = yaml.load(f.read())
-    for w, e in extra:
-        EXTRA[key(w)] = e
-        print("extra", w, e)
-
-skip = set()
-for entry in OUT:
-    when, parms = entry
-    skip.add(key(when))
-
-for entry in PARAMS:
-    when, parms = entry
-    orig = dict(**when)
-
-    if key(when) in skip:
-        continue
-
-    if not when:
-        continue
-
-    for k, v in list(when.items()):
-        if not isinstance(v, list):
-            when[k] = [v]
-
-    target = key(when) + '.list'
-
-    ok = False
-    if os.path.exists(target):
-       ok = True
-    else:
-
+for req in reqs:
+    type = req['type']
+    levtype = req.get('levtype', 'sfc')
+    stream = req['stream']
+    target = "%s-%s-%s.list" % (type, levtype, stream)
+    if not os.path.exists(target):
         with open('tmp', "w") as f:
+            r = {}
+            r['stream'] = stream
+            r['type'] = type
+            r['levtype'] = levtype
+            r['time'] = "all"
+            r['date'] = dates
+            r['hide'] = """channel/ident/instrument/branch/
+                           frequency/direction/method/system/interval/
+                           origin/quantile/domain/number/
+                           fcmonth/type/class/expver/stream/
+                           hdate/levtype/month/year/obsgroup/
+                           date/levelist/time/step/anoffset/reportype/subtype/
+                           files/missing/offset/length/fcperiod/product/
+                           stattotalcount/stattotallength/stattotallines/
+                           statcount/statdate/statlength/statsubtype/stattime/
+                           iteration/grid/section/
+                           grand-total/cost/file/id/refdate/
+                           refdatemonth/refdateyear"""
+            r['target'] = target
+            rr = 'list,' + ",".join("\n%s=%s" % (a, b) for a, b in r.items())
+            print(rr, file=f)
 
-            names = list(when.keys())
-            values = list(when.values())
-
-            print(when)
-
-            for n in itertools.product(*values):
-                r = dict((a, b) for a, b in zip(names, n))
-                if r.get('type') in ('wp', 'cv', 'tf'):
-                    continue
-
-                if r.get('stream') == 'efov':
-                    continue
-
-                print(r)
-
-                for levtype in ('sfc', 'pl', 'ml', 'pt', 'pv'):
-                    r['levtype'] = levtype
-                    r['time'] = "0/12"
-                    r['date'] = "20181101/to/20181130"
-                    r['hide'] = 'channel/ident/instrument/branch/frequency/direction/method/system/origin/quantile/domain/number/fcmonth/type/class/expver/stream/hdate/levtype/month/year/date/levelist/time/step/files/missing/offset/length/grand-total/cost/file/id'
-                    r['target'] = target
-
-                    rr = 'list,' + ",".join("%s=%s" % (a, b) for a, b in r.items())
-                    print(rr, file=f)
-                    ok = True
-
-        if ok:
-           subprocess.call(["mars", "tmp"])
-
-    if not ok:
-       continue
+        subprocess.call(["mars", "tmp"])
 
     params = set()
+    print(target)
     with open(target) as f:
-        lines = set(x.strip() for x in f.readlines())
-        for n in lines:
+        for n in f:
+            n = n.strip()
             if n == '':
                 continue
             if n == 'param':
                 continue
+            if n.startswith('param = '):
+               n = n.split(' ')[-1]
             m = n.split('.')
             if len(m) == 2:
                 p, t = int(m[0]), int(m[1])
@@ -115,27 +84,70 @@ for entry in PARAMS:
                 exit(1)
             params.add(m)
 
-    if 155 in params and 138 in params:
-        params.add(131)
-        params.add(132)
+    for table in (0, 129000, 171000, 200000):
+        if table + 129 in params:
+            params.add(table + 156)
 
-    if 171129 in params:
-        params.add(171156)
-
-    if 129 in params:
-        params.add(156)
-
-    for p in EXTRA.get(key(when), []):
-        params.add(p)
+        if table + 138 in params and table + 155 in params:
+            params.add(table + 131)
+            params.add(table + 132)
 
     params = sorted(params)
-    print(params)
+    if params:
+        levtype = req.get('levtype', '')
+        P[(stream,type,levtype)] = params
+    else:
+        print("No params for stream=%s, type=%s, levtype=%s" % (stream, type, levtype))
 
-    if not params:
-        params = parms
+Q = {}
+for k, v in sorted(P.items()):
+    v = tuple(v)
+    Q.setdefault(v, [])
+    Q[v].append(k)
 
-    OUT.append([orig, params])
+Y = []
+
+
+def merge(kinds):
+    streams = set()
+    types = set()
+    levtypes = set()
+
+    for k in sorted(kinds):
+        streams.add(k[0])
+        types.add(k[1])
+        levtypes.add(k[2])
+
+    streams = sorted(streams)
+    types = sorted(types)
+    levtypes = sorted(levtypes)
+
+    d = {}
+    if len(streams) == 1:
+        d['stream'] = streams[0]
+    else:
+        d['stream'] = streams
+
+    if len(types) == 1:
+        d['type'] = types[0]
+    else:
+        d['type'] = types
+
+    if len(levtypes) == 1:
+        d['levtype'] = levtypes[0]
+    else:
+        d['levtype'] = levtypes
+
+    if d['levtype'] == '':
+        del d['levtype']
+
+    return d
+
+
+for v, k in sorted(Q.items()):
+    k = merge(k)
+    Y.append([k, v])
 
 with open("params.yaml", "w") as f:
     f.write('# File automatically generated by %s\n# Do not edit\n\n' % (os.path.basename(__file__)))
-    f.write(yaml.safe_dump(OUT, default_flow_style=False))
+    f.write(yaml.safe_dump(Y, default_flow_style=False))
