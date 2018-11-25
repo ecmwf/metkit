@@ -10,12 +10,12 @@ dates = "20181101"
 target="streams.list"
 if not os.path.exists(target):
    with open('tmp', "w") as f:
-       print(""" list, 
-       stream=all, 
-       type=all, 
-       output=tree, 
+       print(""" list,
+       stream=all,
+       type=all,
+       output=tree,
        date=%s,
-       target=%s, 
+       target=%s,
        hide=cubes/count/year/month/time/date/refdate/refdatemonth/refdateyear/branch/origin/system/method/expver/class/product/section/number/obsgroup""" % (dates, target,),
        file=f)
 
@@ -108,8 +108,8 @@ P[('oper', 'wp', 'pl')] = P[('oper', 'fc', 'pl')]
 P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
 P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
 
-P[('enfo', 'tf', '')] = (129,)
-P[('oper', 'tf', '')] = (129,)
+P[('enfo', 'tf', '')] = (129, 999)
+P[('oper', 'tf', '')] = (129, 999)
 
 
 Q = {}
