@@ -3,7 +3,9 @@
 
 - - levtype: pl
     stream: enfo
-    type: cf
+    type:
+    - cf
+    - wp
   - - 1
     - 2
     - 60
@@ -239,7 +241,9 @@
     stream:
     - oper
     - scda
-    type: fc
+    type:
+    - fc
+    - wp
   - - 8
     - 9
     - 20
@@ -775,7 +779,9 @@
     - 228014
 - - levtype: sfc
     stream: enfo
-    type: cf
+    type:
+    - cf
+    - wp
   - - 8
     - 9
     - 27
@@ -2119,6 +2125,7 @@
     type:
     - an
     - fc
+    - wp
   - - 60
     - 129
     - 130

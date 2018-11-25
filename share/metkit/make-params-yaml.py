@@ -99,6 +99,16 @@ for req in reqs:
     else:
         print("No params for stream=%s, type=%s, levtype=%s" % (stream, type, levtype))
 
+"""
+Add WP
+"""
+P[('oper', 'wp', 'sfc')] = P[('oper', 'fc', 'sfc')]
+P[('oper', 'wp', 'pl')] = P[('oper', 'fc', 'pl')]
+
+P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
+P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
+
+
 Q = {}
 for k, v in sorted(P.items()):
     v = tuple(v)
