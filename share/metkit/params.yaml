@@ -2290,12 +2290,6 @@
     - 172144
     - 172189
     - 172228
-- - stream:
-    - enfo
-    - oper
-    type: tf
-  - - 129
-    - 999
 - - levtype: pl
     stream:
     - efho
@@ -2428,6 +2422,12 @@
     - fc
   - - 129
     - 156
+- - stream:
+    - enfo
+    - oper
+    type: tf
+  - - 129
+    - 999
 - - levtype: pl
     stream:
     - efhs
