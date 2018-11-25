@@ -109,6 +109,7 @@ P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
 P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
 
 P[('enfo', 'tf', '')] = (129,)
+P[('oper', 'tf', '')] = (129,)
 
 
 Q = {}

@@ -2290,7 +2290,9 @@
     - 172144
     - 172189
     - 172228
-- - stream: enfo
+- - stream:
+    - enfo
+    - oper
     type: tf
   - - 129
 - - levtype: pl
