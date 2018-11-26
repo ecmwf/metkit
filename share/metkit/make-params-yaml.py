@@ -153,16 +153,18 @@ P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
 P[('enfo', 'fp', 'pl')] = sorted([131130])
 P[('waef', 'fp', '')] = sorted([131229, 131232])
 
+P[('enfo', 'cs', 'pl')] = sorted([129])
+
 # UA = 171131, VA = 171131, TA=171130
-add(('enfo', 'taem', 'pl'), 171130, 171131, 171132)
-add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
+# add(('enfo', 'taem', 'pl'), 171130, 171131, 171132)
+# add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 
 # PRES = 54
-add(('enfo', 'pf', 'pv'), 54)
+# add(('enfo', 'pf', 'pv'), 54)
 
 # U, V
-add(('enfo', 'cf', 'pv'), 131, 132)
-add(('enfo', 'pf', 'pv'), 131, 132)
+# add(('enfo', 'cf', 'pv'), 131, 132)
+# add(('enfo', 'pf', 'pv'), 131, 132)
 
 Y = []
 for k, v in sorted(P.items()):

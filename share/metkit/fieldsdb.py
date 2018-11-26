@@ -21,53 +21,11 @@ for stream, type, levtype in db.execute(TYPES):
         #P[key] = (129, 999)
 
 
-Q = {}
-for k, v in sorted(P.items()):
-    v = tuple(v)
-    Q.setdefault(v, [])
-    Q[v].append(k)
-
 Y = []
-
-
-def merge(kinds):
-    streams = set()
-    types = set()
-    levtypes = set()
-
-    for k in sorted(kinds):
-        streams.add(k[0])
-        types.add(k[1])
-        levtypes.add(k[2])
-
-    streams = sorted(streams)
-    types = sorted(types)
-    levtypes = sorted(levtypes)
-
-    d = {}
-    if len(streams) == 1:
-        d['stream'] = streams[0]
+for k, v in sorted(P.items()):
+    if k[2]:
+        Y.append([dict(stream=k[0], type=k[1], levtype=k[2]), v])
     else:
-        d['stream'] = streams
-
-    if len(types) == 1:
-        d['type'] = types[0]
-    else:
-        d['type'] = types
-
-    if len(levtypes) == 1:
-        d['levtype'] = levtypes[0]
-    else:
-        d['levtype'] = levtypes
-
-    if d['levtype'] == '':
-        del d['levtype']
-
-    return d
-
-
-for v, k in sorted(Q.items()):
-    k = merge(k)
-    Y.append([k, v])
+        Y.append([dict(stream=k[0], type=k[1]), v])
 
 print(yaml.safe_dump(Y, default_flow_style=False))
