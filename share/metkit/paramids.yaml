@@ -3660,18 +3660,22 @@
 - swval1
 - volumetric soil water anomaly layer 1
 - swv1
+- swvl1a
 171040:
 - swval2
 - volumetric soil water anomaly layer 2
 - swv2
+- swvl2a
 171041:
 - swval3
 - volumetric soil water anomaly layer 3
 - swv3
+- swvl3a
 171042:
 - swval4
 - volumetric soil water anomaly layer 4
 - swv4
+- swvl4a
 171043:
 - slta
 - soil type anomaly
