@@ -156,6 +156,9 @@ P[('waef', 'fp', '')] = sorted([131229, 131232])
 add(('enfo', 'taem', 'pl'), 171130, 171131, 171132)
 add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 
+# PRES = 54
+add(('enfo', 'pf', 'pv'), 54)
+
 Q = {}
 for k, v in sorted(P.items()):
     v = tuple(v)
