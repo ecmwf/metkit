@@ -96,6 +96,7 @@ for req in reqs:
     if params:
         levtype = req.get('levtype', '')
         P[(stream, type, levtype)] = params
+        print(params)
     else:
         print("No params for stream=%s, type=%s, levtype=%s" % (stream, type, levtype))
 
@@ -160,8 +161,8 @@ add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 add(('enfo', 'pf', 'pv'), 54)
 
 # U, V
-add(('enfo', 'cf', 'pt'), 131, 132)
-add(('enfo', 'pf', 'pt'), 131, 132)
+add(('enfo', 'cf', 'pv'), 131, 132)
+add(('enfo', 'pf', 'pv'), 131, 132)
 
 Q = {}
 for k, v in sorted(P.items()):
