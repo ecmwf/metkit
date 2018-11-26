@@ -147,6 +147,7 @@ P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 
 # ssro=9, sro=8, ro=205, tisr=212
 add(('msmm', 'em', 'sfc'), 8, 9, 205, 212)
+add(('msmm', 'fcmean', 'sfc'), 8, 9, 205, 212)
 
 # Still in FR/FRA/req/curr/FX
 P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
