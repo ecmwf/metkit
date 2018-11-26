@@ -114,7 +114,7 @@ P[('enfo', 'tf', '')] = (129, 999)
 P[('oper', 'tf', '')] = (129, 999)
 
 # ML for enfo is not in mars
-P[('enfo', 'cf', 'ml')] = sorted(set(P[('oper', 'fc', 'ml')]) + set(P[('oper', 'an', 'ml')]))
+P[('enfo', 'cf', 'ml')] = sorted(set(P[('oper', 'fc', 'ml')]) | set(P[('oper', 'an', 'ml')]))
 P[('enfo', 'pf', 'ml')] = P[('enfo', 'cf', 'ml')]
 
 # SCDA pv, pt not in MARS

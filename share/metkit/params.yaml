@@ -2141,10 +2141,14 @@
     - 203
 - - levtype: ml
     stream:
+    - enfo
     - lwda
     - oper
     - scda
-    type: an
+    type:
+    - an
+    - cf
+    - pf
   - - 75
     - 76
     - 77
@@ -2187,14 +2191,10 @@
     - 213003
 - - levtype: ml
     stream:
-    - enfo
     - lwda
     - oper
     - scda
-    type:
-    - cf
-    - fc
-    - pf
+    type: fc
   - - 75
     - 76
     - 77
