@@ -135,6 +135,10 @@ P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 # ssro=9, sro=8, ro=205, tisr=212
 P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205, 212]))
 
+# Still in FR/FRA/req/curr/FX
+P[('enfo', 'fp', 'sfc')] = sorted([131130])
+
+
 Q = {}
 for k, v in sorted(P.items()):
     v = tuple(v)
