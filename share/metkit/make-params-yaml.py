@@ -128,6 +128,12 @@ P[('oper', 'tf', '')] = (129, 999)
 P[('enfo', 'cf', 'ml')] = sorted(set(P[('oper', 'fc', 'ml')]) | set(P[('oper', 'an', 'ml')]))
 P[('enfo', 'pf', 'ml')] = P[('enfo', 'cf', 'ml')]
 
+
+# fsr = 244
+
+add(('enfo', 'cf', 'sfc'), 244)
+add(('enfo', 'pf', 'sfc'), 244)
+
 # SCDA pv, pt not in MARS
 P[('scda', 'an', 'pt')] = P[('oper', 'an', 'pt')]
 P[('scda', 'an', 'pv')] = P[('oper', 'an', 'pv')]
