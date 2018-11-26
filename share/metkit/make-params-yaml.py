@@ -144,6 +144,7 @@ P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205
 # Still in FR/FRA/req/curr/FX
 P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
 P[('enfo', 'fp', 'pl')] = sorted([131130])
+P[('waef', 'fp', '')] = sorted([131229, 131232])
 
 
 Q = {}
