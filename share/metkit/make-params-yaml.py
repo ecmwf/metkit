@@ -115,9 +115,9 @@ P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
 P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
 
 # Z (orog) on ML is not archived in MARS
-P[('oper', 'fc', 'ml')] = sorted(set(P[('oper', 'fc', 'ml')]) | set([129]))
-P[('scda', 'fc', 'ml')] = sorted(set(P[('scda', 'fc', 'ml')]) | set([129]))
-P[('lwda', 'fc', 'ml')] = sorted(set(P[('lwda', 'fc', 'ml')]) | set([129]))
+add(('oper', 'fc', 'ml'), 129)
+add(('scda', 'fc', 'ml'), 129)
+add(('lwda', 'fc', 'ml'), 129)
 
 # Tropfical cyclones
 
@@ -135,17 +135,19 @@ P[('scda', 'fc', 'pt')] = P[('oper', 'fc', 'pt')]
 P[('scda', 'fc', 'pv')] = P[('oper', 'fc', 'pv')]
 
 # VPOT=2 and STRF=1 not in mars
-P[('enfh', 'cf', 'pl')] = sorted(set(P[('enfh', 'cf', 'pl')]) | set([1, 2]))
+add(('enfh', 'cf', 'pl'), 1, 2)
 P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 
 # ssro=9, sro=8, ro=205, tisr=212
-P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205, 212]))
+add(('msmm', 'em', 'sfc'), 8, 9, 205, 212)
 
 # Still in FR/FRA/req/curr/FX
 P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
 P[('enfo', 'fp', 'pl')] = sorted([131130])
 P[('waef', 'fp', '')] = sorted([131229, 131232])
 
+# UA = 171131, VA = 171131
+add(('enfo', 'taem', 'pl'), 171131, 171131)
 
 Q = {}
 for k, v in sorted(P.items()):
