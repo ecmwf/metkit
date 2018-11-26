@@ -146,8 +146,9 @@ P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
 P[('enfo', 'fp', 'pl')] = sorted([131130])
 P[('waef', 'fp', '')] = sorted([131229, 131232])
 
-# UA = 171131, VA = 171131
-add(('enfo', 'taem', 'pl'), 171131, 171131)
+# UA = 171131, VA = 171131, TA=171130
+add(('enfo', 'taem', 'pl'), 171130, 171131, 171132)
+add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 
 Q = {}
 for k, v in sorted(P.items()):
