@@ -167,6 +167,7 @@ add(('enfo', 'pf', 'pv'), 131, 132)
 Q = {}
 for k, v in sorted(P.items()):
     v = tuple(v)
+    print(v, k)
     Q.setdefault(v, [])
     Q[v].append(k)
 
