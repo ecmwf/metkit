@@ -166,9 +166,9 @@ P[('enfo', 'cs', 'pl')] = sorted([129])
 # add(('enfo', 'cf', 'pv'), 131, 132)
 # add(('enfo', 'pf', 'pv'), 131, 132)
 
-add(('enfo', 'pf', 'pv'), 129) # Z
-add(('enfo', 'cm', 'pl'), 130) # T
-
+add(('enfo', 'pf', 'pv'), 129)  # Z
+add(('enfo', 'cm', 'pl'), 130)  # T
+add(('enfo', 'cs', 'pl'), 130)  # T
 
 
 Y = []
