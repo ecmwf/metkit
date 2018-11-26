@@ -2074,6 +2074,7 @@
     - elda
     - lwda
     - oper
+    - scda
     type: an
   - - 53
     - 54
@@ -2186,10 +2187,14 @@
     - 213003
 - - levtype: ml
     stream:
+    - enfo
     - lwda
     - oper
     - scda
-    type: fc
+    type:
+    - cf
+    - fc
+    - pf
   - - 75
     - 76
     - 77
@@ -2250,9 +2255,7 @@
     - 247
     - 248
 - - levtype: ml
-    stream:
-    - enfh
-    - enfo
+    stream: enfh
     type: cf
   - - 75
     - 76
@@ -2435,20 +2438,6 @@
     - mnfh
     type: ed
   - - 130
-- - levtype: ml
-    stream: enfo
-    type: pf
-  - - 130
-    - 131
-    - 132
-    - 133
-    - 135
-    - 138
-    - 152
-    - 155
-    - 213001
-    - 213002
-    - 213003
 - - levtype: ml
     stream:
     - enfo
