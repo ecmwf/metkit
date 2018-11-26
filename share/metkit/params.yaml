@@ -2651,6 +2651,11 @@
     - 131228
 - - levtype: sfc
     stream: enfo
+    type: fp
+  - - 131165
+    - 131228
+- - levtype: sfc
+    stream: enfo
     type:
     - efi
     - efic
