@@ -99,6 +99,9 @@ for req in reqs:
     else:
         print("No params for stream=%s, type=%s, levtype=%s" % (stream, type, levtype))
 
+def add(where, *params):
+    P(where) = sorted(set(P(where)) | set(params))
+    
 """
 Add WP
 """
