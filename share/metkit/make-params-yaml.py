@@ -165,7 +165,7 @@ add(('enfo', 'cf', 'pv'), 131, 132)
 add(('enfo', 'pf', 'pv'), 131, 132)
 
 Y = []
-for k, v in P.items():
+for k, v in sorted(P.items()):
     if k[2]:
         Y.append([dict(stream=k[0], type=k[1], levtype=k[2]), v])
     else:
