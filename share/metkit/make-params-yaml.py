@@ -108,6 +108,9 @@ P[('oper', 'wp', 'pl')] = P[('oper', 'fc', 'pl')]
 P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
 P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
 
+# Z (orog) on ML is not archived in MARS
+P[('oper', 'fc', 'ml')] = sorted(set(P[('oper', 'fc', 'ml')]) | set([129]))
+
 # Tropfical cyclones
 
 P[('enfo', 'tf', '')] = (129, 999)
