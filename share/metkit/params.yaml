@@ -1935,6 +1935,10 @@
     - 156
 - - levtype: pl
     stream: enfo
+    type: cs
+  - - 129
+- - levtype: pl
+    stream: enfo
     type: ed
   - - 130
 - - levtype: sfc
@@ -2346,7 +2350,6 @@
     stream: enfo
     type: pf
   - - 3
-    - 54
     - 131
     - 132
 - - levtype: sfc
@@ -2588,9 +2591,6 @@
     - 132
     - 133
     - 156
-    - 171130
-    - 171131
-    - 171132
 - - levtype: sfc
     stream: enfo
     type: taes
