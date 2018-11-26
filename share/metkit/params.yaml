@@ -87,9 +87,7 @@
     - 171133
     - 171156
 - - levtype: pl
-    stream:
-    - efhs
-    - enfo
+    stream: efhs
     type:
     - taem
     - taes
@@ -120,6 +118,20 @@
     - 171132
     - 171133
     - 171156
+- - levtype: pl
+    stream: enfo
+    type: taes
+  - - 1
+    - 2
+    - 129
+    - 130
+    - 131
+    - 132
+    - 133
+    - 156
+    - 171130
+    - 171131
+    - 171132
 - - levtype: pl
     stream: mfhm
     type:
