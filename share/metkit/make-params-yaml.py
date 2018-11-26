@@ -160,6 +160,7 @@ add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 add(('enfo', 'pf', 'pv'), 54)
 
 # U, V
+add(('enfo', 'cf', 'pt'), 131, 132)
 add(('enfo', 'pf', 'pt'), 131, 132)
 
 Q = {}
