@@ -142,7 +142,7 @@ P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205, 212]))
 
 # Still in FR/FRA/req/curr/FX
-# P[('enfo', 'fp', 'sfc')] = sorted([131130])
+P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
 P[('enfo', 'fp', 'pl')] = sorted([131130])
 
 
