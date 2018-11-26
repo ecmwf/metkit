@@ -2640,6 +2640,10 @@
   - - 131129
 - - levtype: sfc
     stream: enfo
+    type: fp
+  - - 131130
+- - levtype: sfc
+    stream: enfo
     type: pd
   - - 131139
     - 131151
