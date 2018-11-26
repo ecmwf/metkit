@@ -132,8 +132,8 @@ P[('scda', 'fc', 'pv')] = P[('oper', 'fc', 'pv')]
 P[('enfh', 'cf', 'pl')] = sorted(set(P[('enfh', 'cf', 'pl')]) | set([1, 2]))
 P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 
-# ssro=9, sro=8, ro=205
-P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205]))
+# ssro=9, sro=8, ro=205, tisr=212
+P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205, 212]))
 
 Q = {}
 for k, v in sorted(P.items()):
