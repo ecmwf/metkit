@@ -108,8 +108,20 @@ P[('oper', 'wp', 'pl')] = P[('oper', 'fc', 'pl')]
 P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
 P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
 
+# Tropfical cyclones
+
 P[('enfo', 'tf', '')] = (129, 999)
 P[('oper', 'tf', '')] = (129, 999)
+
+# ML for enfo is not in mars
+P[('enfo', 'cf', 'ml')] = P[('oper', 'fc', 'ml')]
+P[('enfo', 'pf', 'ml')] = P[('oper', 'fc', 'ml')]
+
+# SCDA pv, pt not in MARS
+P[('scda', 'an', 'pt')] = P[('oper', 'an', 'pt')]
+P[('scda', 'an', 'pv')] = P[('oper', 'an', 'pv')]
+P[('scda', 'fc', 'pt')] = P[('oper', 'fc', 'pt')]
+P[('scda', 'fc', 'pv')] = P[('oper', 'fc', 'pv')]
 
 
 Q = {}
