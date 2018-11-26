@@ -99,9 +99,12 @@ for req in reqs:
     else:
         print("No params for stream=%s, type=%s, levtype=%s" % (stream, type, levtype))
 
+
 def add(where, *params):
-    P(where) = sorted(set(P(where)) | set(params))
-    
+    global P
+    P[where] = sorted(set(P[where]) | set(params))
+
+
 """
 Add WP
 """
@@ -139,7 +142,8 @@ P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 P[('msmm', 'em', 'sfc')] = sorted(set(P[('msmm', 'em', 'sfc')]) | set([8, 9, 205, 212]))
 
 # Still in FR/FRA/req/curr/FX
-P[('enfo', 'fp', 'sfc')] = sorted([131130])
+# P[('enfo', 'fp', 'sfc')] = sorted([131130])
+P[('enfo', 'fp', 'pl')] = sorted([131130])
 
 
 Q = {}
