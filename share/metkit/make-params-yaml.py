@@ -159,6 +159,9 @@ add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 # PRES = 54
 add(('enfo', 'pf', 'pv'), 54)
 
+# U, V
+add(('enfo', 'pf', 'pt'), 131, 132)
+
 Q = {}
 for k, v in sorted(P.items()):
     v = tuple(v)
