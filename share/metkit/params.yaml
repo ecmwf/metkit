@@ -2638,7 +2638,7 @@
     stream: enfo
     type: pd
   - - 131129
-- - levtype: sfc
+- - levtype: pl
     stream: enfo
     type: fp
   - - 131130
