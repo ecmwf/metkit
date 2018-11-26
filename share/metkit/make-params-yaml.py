@@ -128,6 +128,9 @@ P[('scda', 'an', 'pv')] = P[('oper', 'an', 'pv')]
 P[('scda', 'fc', 'pt')] = P[('oper', 'fc', 'pt')]
 P[('scda', 'fc', 'pv')] = P[('oper', 'fc', 'pv')]
 
+# VPOT and STRF not in mars
+P[('enfh', 'cf', 'pl')] = sorted(set(P[('enfh', 'cf', 'pl')]) | set([1, 2]))
+P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
 
 Q = {}
 for k, v in sorted(P.items()):
