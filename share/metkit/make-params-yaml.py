@@ -163,6 +163,9 @@ P[('enfo', 'cs', 'pl')] = sorted([129])
 # PRES = 54
 add(('enfo', 'pf', 'pv'), 54)
 
+# FAL = 243
+add(('enfo', 'pf', 'sfc'), 243)
+
 # U, V
 # add(('enfo', 'cf', 'pv'), 131, 132)
 # add(('enfo', 'pf', 'pv'), 131, 132)
