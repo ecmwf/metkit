@@ -269,6 +269,10 @@ std::string Rule::lookup(const std::string & s, bool fail) const {
     // std::cout << "--- [" << s << "]" << std::endl;
     // std::cout << "--- [" << values_ << "]" << std::endl;
 
+    // for (auto j = mapping_.begin(); j != mapping_.end(); ++j) {
+    //     std::cout << "--- [" << (*j).first << " ===> " << (*j).second << std::endl;
+    // }
+
 
     return metkit::MarsLanguage::bestMatch(s, values_, fail, false, mapping_, this);
 }
