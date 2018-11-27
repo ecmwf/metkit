@@ -249,6 +249,9 @@ std::string MarsLanguage::bestMatch(const std::string& name,
     }
 
     if (names.size() == 1) {
+        if (aliases.find(best[0]) != aliases.end()) {
+            return aliases.find(best[0])->second;
+        }
         return best[0];
     }
 
