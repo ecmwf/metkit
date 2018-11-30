@@ -16,6 +16,8 @@
 #include "metkit/MarsParser.h"
 #include "eckit/utils/Translator.h"
 
+#include "eckit/memory/ScopedPtr.h"
+
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -23,6 +25,23 @@ namespace metkit {
 MarsParserCallback::~MarsParserCallback() {}
 
 //----------------------------------------------------------------------------------------------------------------------
+
+class MarsParserContext : public MarsRequestContext {
+    size_t line_;
+    size_t column_;
+
+    void info(std::ostream& out) const {
+        out << " Request starting line " << line_;
+    }
+
+public:
+
+    MarsParserContext(size_t line, size_t column):
+        line_(line), column_(column) {}
+
+};
+//----------------------------------------------------------------------------------------------------------------------
+
 
 std::string MarsParser::parseString(char quote)
 {
@@ -100,14 +119,14 @@ static bool inindent(char c) {
 
 void MarsParser::quoted(std::ostream& out, const std::string& value) {
     char quote = 0;
-    for(std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
-        if(!inindent(*j)) {
+    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
+        if (!inindent(*j)) {
             quote = '"';
             break;
         }
     }
 
-    if(quote) {
+    if (quote) {
         out << quote << value << quote;
     }
     else {
@@ -180,6 +199,10 @@ std::string MarsParser::parseVerb() {
 
 MarsRequest MarsParser::parseRequest() {
     MarsRequest r(parseVerb());
+
+    eckit::ScopedPtr<MarsRequestContext> context(new MarsParserContext(line_ + 1, pos_ + 1));
+
+
     char c = peek();
     while (c == ',') {
         consume(',');
@@ -188,6 +211,8 @@ MarsRequest MarsParser::parseRequest() {
         r.values(key, parseValues());
         c = peek();
     }
+
+    r.context(context.release());
     return r;
 }
 

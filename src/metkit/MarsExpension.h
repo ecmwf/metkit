@@ -52,7 +52,7 @@ public:
 
     std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
 
-    void expand(const MarsRequest& request,
+    void expand(const MarsRequestContext& ctx, const MarsRequest& request,
                 ExpandCallback& cb);
 
 
@@ -62,7 +62,7 @@ public:
 
 private: // members
 
-    MarsLanguage& language(const std::string& verb);
+    MarsLanguage& language(const std::string& verb, const MarsRequestContext&);
 
     std::map<std::string, MarsLanguage*> languages_;
     bool inherit_;

@@ -26,13 +26,6 @@ namespace metkit {
 class Type;
 class FlattenCallback;
 
-//----------------------------------------------------------------------------------------------------------------------
-
-class ExpandContext {
-public:
-    virtual void print(std::ostream&) const = 0;
-};
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -59,14 +52,14 @@ public: // methods
 
 public: // class methods
 
-    static std::string expandVerb(const std::string& verb);
+    static std::string expandVerb(const std::string& verb, const MarsRequestContext&);
 
-    static std::string bestMatch(const std::string& what,
+    static std::string bestMatch(const MarsRequestContext& ctx,
+                                 const std::string& what,
                                  const std::vector<std::string>& values,
                                  bool fail,
                                  bool quiet,
-                                 const StringMap& aliases = StringMap(),
-                                 const ExpandContext* = 0);
+                                 const StringMap& aliases = StringMap());
 
     static eckit::Value jsonFile(const std::string& name);
 

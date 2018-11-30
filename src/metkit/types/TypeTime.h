@@ -34,8 +34,8 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-    virtual void expand(std::vector<std::string>& values) const;
-    virtual bool expand(std::string& value) const ;
+    virtual void expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const;
+    virtual bool expand(const MarsRequestContext& ctx, std::string& value) const ;
 
     long by_;
 

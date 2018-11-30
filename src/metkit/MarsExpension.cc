@@ -54,9 +54,9 @@ void MarsExpension::reset() {
 }
 
 
-MarsLanguage& MarsExpension::language(const std::string& verb) {
+MarsLanguage& MarsExpension::language(const std::string& verb, const MarsRequestContext& ctx) {
 
-    std::string v = MarsLanguage::expandVerb(verb);
+    std::string v = MarsLanguage::expandVerb(verb, ctx);
 
     std::map<std::string, MarsLanguage*>::iterator j = languages_.find(v);
     if (j == languages_.end()) {
@@ -73,7 +73,7 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
     // Implement inheritence
     for (std::vector<MarsRequest>::const_iterator j = requests.begin(); j != requests.end(); ++j) {
 
-        MarsLanguage& lang = language((*j).verb());
+        MarsLanguage& lang = language((*j).verb(), (*j).context());
         MarsRequest r = lang.expand(*j, inherit_);
 
 
@@ -84,15 +84,15 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
     return result;
 }
 
-void MarsExpension::expand(const MarsRequest& request, ExpandCallback& callback) {
-    MarsRequest r = language(request.verb()).expand(request, inherit_);
+void MarsExpension::expand(const MarsRequestContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
+    MarsRequest r = language(request.verb(), request.context()).expand(request, inherit_);
     callback(r);
 }
 
 
 void MarsExpension::flatten(const MarsRequest& request,
                             FlattenCallback& callback) {
-    language(request.verb()).flatten(request, callback);
+    language(request.verb(), request.context()).flatten(request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -19,14 +19,20 @@
 
 namespace metkit {
 
+class DummyContext: public MarsRequestContext {
+    virtual void info(std::ostream&) const {}
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
     Type(name, settings),
     by_(1) {
 
+    DummyContext ctx;
+
     for (size_t i = 0; i < originalDefaults_.size(); i++ ) {
-        originalDefaults_[i] = tidy(originalDefaults_[i]);
+        originalDefaults_[i] = tidy(ctx, originalDefaults_[i]);
     }
 
     defaults_ = originalDefaults_;
@@ -35,7 +41,7 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
 TypeDate::~TypeDate() {
 }
 
-bool TypeDate::expand( std::string &value) const {
+bool TypeDate::expand(const MarsRequestContext& ctx, std::string &value) const {
     if (!value.empty() && (value[0] == '0' || value[0] == '-')) {
         eckit::Translator<std::string, long> t;
         long n = t(value);
@@ -50,15 +56,15 @@ bool TypeDate::expand( std::string &value) const {
 }
 
 
-void TypeDate::expand(std::vector<std::string>& values) const {
+void TypeDate::expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
 
     if (values.size() == 3) {
         if (eckit::StringTools::lower(values[1])[0] == 't') {
-            eckit::Date from = tidy(values[0]);
-            eckit::Date to = tidy(values[2]);
+            eckit::Date from = tidy(ctx, values[0]);
+            eckit::Date to = tidy(ctx, values[2]);
             long by = by_;
             values.clear();
             values.reserve((to - from) / by + 1);
@@ -71,9 +77,9 @@ void TypeDate::expand(std::vector<std::string>& values) const {
 
     if (values.size() == 5) {
         if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
-            eckit::Date from = tidy(values[0]);
-            eckit::Date to = tidy(values[2]);
-            long by = s2l(tidy(values[4]));
+            eckit::Date from = tidy(ctx, values[0]);
+            eckit::Date to = tidy(ctx, values[2]);
+            long by = s2l(tidy(ctx, values[4]));
             values.clear();
             values.reserve((to - from) / by + 1);
 
@@ -84,7 +90,7 @@ void TypeDate::expand(std::vector<std::string>& values) const {
         }
     }
 
-    Type::expand(values);
+    Type::expand(ctx, values);
 }
 
 void TypeDate::print(std::ostream & out) const {

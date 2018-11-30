@@ -32,7 +32,7 @@ void TypeRange::print(std::ostream &out) const {
 }
 
 
-bool TypeRange::expand(std::string &value) const  {
+bool TypeRange::expand(const MarsRequestContext& ctx, std::string &value) const  {
 
     long p = 0;
     if (ok(value, p)) {

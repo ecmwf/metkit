@@ -28,7 +28,7 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
 TypeTime::~TypeTime() {
 }
 
-bool TypeTime::expand( std::string &value) const {
+bool TypeTime::expand(const MarsRequestContext& ctx, std::string &value) const {
 
     long n = 0;
     int colon = 0;
@@ -76,7 +76,7 @@ bool TypeTime::expand( std::string &value) const {
 }
 
 
-void TypeTime::expand(std::vector<std::string>& values) const {
+void TypeTime::expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
@@ -91,12 +91,12 @@ void TypeTime::expand(std::vector<std::string>& values) const {
             ASSERT(newval.size() > 0);
             ASSERT(i + 1 < values.size());
 
-            long from = s2l(tidy(newval.back()));
-            long to = s2l(tidy(values[i + 1]));
+            long from = s2l(tidy(ctx, newval.back()));
+            long to = s2l(tidy(ctx, values[i + 1]));
             long by = by_;
 
             if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                by = s2l(tidy(values[i + 3]));
+                by = s2l(tidy(ctx, values[i + 3]));
                 i += 2;
             }
 
@@ -113,7 +113,7 @@ void TypeTime::expand(std::vector<std::string>& values) const {
     }
 
     std::swap(values, newval);
-    Type::expand(values);
+    Type::expand(ctx, values);
 }
 
 void TypeTime::print(std::ostream &out) const {
