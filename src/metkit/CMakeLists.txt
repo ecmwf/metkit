@@ -34,6 +34,12 @@ MarsLanguage.cc
 MarsLanguage.h
 MarsParser.cc
 MarsParser.h
+MarsExpandContext.h
+MarsExpandContext.cc
+MarsParserContext.h
+MarsParserContext.cc
+MarsParsedRequest.h
+MarsParsedRequest.cc
 MarsRequestHandle.cc
 MarsRequestHandle.h
 RequestEnvironment.cc

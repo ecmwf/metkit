@@ -14,9 +14,8 @@
 /// @date   Jun 2012
 
 #include "metkit/MarsParser.h"
-#include "eckit/utils/Translator.h"
+#include "metkit/MarsParserContext.h"
 
-#include "eckit/memory/ScopedPtr.h"
 
 namespace metkit {
 
@@ -26,20 +25,6 @@ MarsParserCallback::~MarsParserCallback() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsParserContext : public MarsRequestContext {
-    size_t line_;
-    size_t column_;
-
-    void info(std::ostream& out) const {
-        out << " Request starting line " << line_;
-    }
-
-public:
-
-    MarsParserContext(size_t line, size_t column):
-        line_(line), column_(column) {}
-
-};
 //----------------------------------------------------------------------------------------------------------------------
 
 
@@ -197,11 +182,9 @@ std::string MarsParser::parseVerb() {
     return parseIndent();
 }
 
-MarsRequest MarsParser::parseRequest() {
-    MarsRequest r(parseVerb());
+MarsParsedRequest MarsParser::parseRequest() {
 
-    eckit::ScopedPtr<MarsRequestContext> context(new MarsParserContext(line_ + 1, pos_ + 1));
-
+    MarsParsedRequest r(parseVerb(), line_ + 1, pos_ + 1);
 
     char c = peek();
     while (c == ',') {
@@ -212,7 +195,6 @@ MarsRequest MarsParser::parseRequest() {
         c = peek();
     }
 
-    r.context(context.release());
     return r;
 }
 
@@ -221,9 +203,9 @@ MarsParser::MarsParser(std::istream &in):
 {
 }
 
-std::vector<MarsRequest> MarsParser::parse()
+std::vector<MarsParsedRequest> MarsParser::parse()
 {
-    std::vector<MarsRequest> result;
+    std::vector<MarsParsedRequest> result;
 
     char c;
     while ((c = peek()) != 0) {
@@ -236,7 +218,8 @@ std::vector<MarsRequest> MarsParser::parse()
 void MarsParser::parse(MarsParserCallback& cb) {
     char c;
     while ((c = peek()) != 0) {
-        cb(parseRequest());
+        auto r = parseRequest();
+        cb(r, r);
     }
 }
 

@@ -28,7 +28,7 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
 TypeTime::~TypeTime() {
 }
 
-bool TypeTime::expand(const MarsRequestContext& ctx, std::string &value) const {
+bool TypeTime::expand(const MarsExpandContext& ctx, std::string &value) const {
 
     long n = 0;
     int colon = 0;
@@ -76,7 +76,7 @@ bool TypeTime::expand(const MarsRequestContext& ctx, std::string &value) const {
 }
 
 
-void TypeTime::expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const {
+void TypeTime::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;

@@ -49,7 +49,7 @@ void TypeMixed::print(std::ostream &out) const {
 }
 
 
-bool TypeMixed::expand(const MarsRequestContext& ctx, std::string& value) const {
+bool TypeMixed::expand(const MarsExpandContext& ctx, std::string& value) const {
     for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
         std::string tmp = value;
         if ((*j)->expand(ctx, tmp)) {

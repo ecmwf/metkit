@@ -17,9 +17,12 @@
 #include "metkit/types/TypeDate.h"
 #include "eckit/parser/StringTools.h"
 
+#include "metkit/MarsExpandContext.h"
+
+
 namespace metkit {
 
-class DummyContext: public MarsRequestContext {
+class DummyContext: public MarsExpandContext {
     virtual void info(std::ostream&) const {}
 };
 
@@ -41,7 +44,7 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
 TypeDate::~TypeDate() {
 }
 
-bool TypeDate::expand(const MarsRequestContext& ctx, std::string &value) const {
+bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
     if (!value.empty() && (value[0] == '0' || value[0] == '-')) {
         eckit::Translator<std::string, long> t;
         long n = t(value);
@@ -56,7 +59,7 @@ bool TypeDate::expand(const MarsRequestContext& ctx, std::string &value) const {
 }
 
 
-void TypeDate::expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const {
+void TypeDate::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;

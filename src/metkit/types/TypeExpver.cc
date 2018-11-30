@@ -27,7 +27,7 @@ TypeExpver::TypeExpver(const std::string &name, const eckit::Value& settings) :
 TypeExpver::~TypeExpver() {
 }
 
-bool TypeExpver::expand(const MarsRequestContext& ctx, std::string& value) const {
+bool TypeExpver::expand(const MarsExpandContext& ctx, std::string& value) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << value;
     value = oss.str();

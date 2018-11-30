@@ -35,7 +35,7 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const;
-    virtual bool expand(const MarsRequestContext& ctx, std::string &value) const;
+    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const;
 
     std::vector<eckit::Regex> regex_;
     bool uppercase_;

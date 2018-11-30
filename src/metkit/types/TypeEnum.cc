@@ -78,7 +78,7 @@ void TypeEnum::print(std::ostream &out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(const MarsRequestContext& ctx, std::string& value) const {
+bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value) const {
 
 
     std::map<std::string, std::string>::iterator c = cache_.find(value);

@@ -8,37 +8,42 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeExpver.h
+/// @author Manuel Fuentes
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
-/// @date   April 2016
 
-#ifndef metkit_TypeExpver_H
-#define metkit_TypeExpver_H
+/// @date Sep 96
 
-#include "metkit/types/Type.h"
+#ifndef metkit_MarsExpandContext_H
+#define metkit_MarsExpandContext_H
+
+#include "eckit/memory/NonCopyable.h"
+
+#include <iosfwd>
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeExpver : public Type {
+class MarsExpandContext {
 
-public: // methods
+    virtual void info(std::ostream&) const = 0;
 
-    TypeExpver(const std::string &name, const eckit::Value& settings);
+public:
 
-    virtual ~TypeExpver();
+    virtual ~MarsExpandContext();
 
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const ;
-
-private: // methods
-
-    virtual void print( std::ostream &out ) const;
-
+    friend std::ostream& operator<<(std::ostream& s, const MarsExpandContext& r) {
+        r.info(s);
+        return s;
+    }
 };
 
+
+
+
 //----------------------------------------------------------------------------------------------------------------------
+
 
 } // namespace metkit
 

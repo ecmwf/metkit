@@ -25,7 +25,7 @@ namespace metkit {
 
 class Type;
 class FlattenCallback;
-
+class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -40,21 +40,21 @@ public: // methods
 
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsRequest& r, bool inherit);
+    MarsRequest expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit);
 
     void reset();
 
     const std::string& verb() const;
 
-    void flatten(const MarsRequest& request, FlattenCallback& callback);
+    void flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback);
 
     static eckit::PathName languageYamlFile();
 
 public: // class methods
 
-    static std::string expandVerb(const std::string& verb, const MarsRequestContext&);
+    static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
 
-    static std::string bestMatch(const MarsRequestContext& ctx,
+    static std::string bestMatch(const MarsExpandContext& ctx,
                                  const std::string& what,
                                  const std::vector<std::string>& values,
                                  bool fail,

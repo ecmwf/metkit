@@ -35,7 +35,7 @@ private: // methods
 
     virtual void print( std::ostream &out ) const;
     virtual void reset();
-    virtual bool expand(const MarsRequestContext& ctx, std::string& value) const;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 
     std::map<std::string, std::string> mapping_;
     std::vector<std::string> values_;

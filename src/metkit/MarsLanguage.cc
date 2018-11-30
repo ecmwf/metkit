@@ -27,6 +27,7 @@
 #include "metkit/types/Type.h"
 #include "metkit/MarsExpension.h"
 #include "eckit/log/Timer.h"
+#include "metkit/MarsExpandContext.h"
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -138,7 +139,7 @@ static bool isnumeric(const std::string& s) {
     return s.length() > 0;
 }
 
-std::string MarsLanguage::bestMatch(const MarsRequestContext& ctx,
+std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
                                     const std::string& name,
                                     const std::vector<std::string>& values,
                                     bool fail,
@@ -264,7 +265,7 @@ std::string MarsLanguage::bestMatch(const MarsRequestContext& ctx,
     throw eckit::UserError(oss.str());
 }
 
-std::string MarsLanguage::expandVerb(const std::string& verb, const MarsRequestContext& ctx) {
+std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
     pthread_once(&once, init);
     // std::map<std::string, std::string>::iterator c = cache_.find(verb);
     // if(c != cache_.end()) {
@@ -284,7 +285,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
+MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit)  {
 
     MarsRequest result(verb_);
 
@@ -301,7 +302,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
             if (c != cache_.end()) {
                 p = (*c).second;
             } else {
-                p =  cache_[*j] = bestMatch(r.context(), *j, keywords_, true, false, aliases_);
+                p =  cache_[*j] = bestMatch(ctx, *j, keywords_, true, false, aliases_);
             }
 
             // if (seen.find(p) != seen.end()) {
@@ -321,9 +322,9 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
                 }
             }
 
-            type(p)->expand(r.context(), values);
+            type(p)->expand(ctx, values);
             result.setValuesTyped(type(p), values);
-            type(p)->check(r.context(), values);
+            type(p)->check(ctx, values);
             // result.setValues(p, values);
 
         }
@@ -347,11 +348,11 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit)  {
         result.getParams(params);
 
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->pass2(r.context(), result);
+            type(*k)->pass2(ctx, result);
         }
 
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->finalise(r.context(), result);
+            type(*k)->finalise(ctx, result);
         }
 
     }
@@ -370,7 +371,8 @@ const std::string& MarsLanguage::verb() const {
 }
 
 
-void MarsLanguage::flatten(const MarsRequest& request,
+void MarsLanguage::flatten(
+                           const MarsRequest& request,
                            const std::vector<std::string>& params,
                            size_t i,
                            MarsRequest& result,
@@ -398,7 +400,8 @@ void MarsLanguage::flatten(const MarsRequest& request,
 
 }
 
-void MarsLanguage::flatten(const MarsRequest & request,
+void MarsLanguage::flatten(const MarsExpandContext& ctx,
+                           const MarsRequest & request,
                            FlattenCallback & callback) {
     std::vector<std::string> params;
     request.getParams(params);
