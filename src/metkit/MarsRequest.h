@@ -30,17 +30,6 @@ class Type;
 class MarsRequest;
 
 
-class MarsRequestContext {
-    virtual void info(std::ostream&) const = 0;
-
-public:
-    virtual ~MarsRequestContext();
-
-    friend std::ostream& operator<<(std::ostream& s, const MarsRequestContext& r) {
-        r.info(s);
-        return s;
-    }
-};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -126,9 +115,6 @@ public: // methods
 
     MarsRequest extract(const std::string& category) const;
 
-    void context(const MarsRequestContext*);
-    const MarsRequestContext& context() const;
-
 // ---- Static methods
 
     static MarsRequest parse(const std::string& s);
@@ -138,7 +124,6 @@ private: // members
 
     std::string         verb_;
     std::list<Parameter> params_;
-    const MarsRequestContext* context_;
 
 private: // methods
 

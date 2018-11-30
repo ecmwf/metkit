@@ -21,6 +21,8 @@
 #include "metkit/types/TypeParam.h"
 #include "metkit/types/TypesFactory.h"
 
+#include "metkit/MarsExpandContext.h"
+
 using eckit::Log;
 using metkit::LibMetkit;
 
@@ -82,7 +84,7 @@ bool Matcher::match(const metkit::MarsRequest& request) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Rule : private metkit::MarsRequestContext {
+class Rule : public metkit::MarsExpandContext {
 
     std::vector<Matcher> matchers_;
     std::vector<std::string> values_;
@@ -92,7 +94,7 @@ class Rule : private metkit::MarsRequestContext {
 public:
 
     bool match(const metkit::MarsRequest& request) const;
-    std::string lookup(const MarsRequestContext& ctx, const std::string & s, bool fail) const;
+    std::string lookup(const MarsExpandContext& ctx, const std::string & s, bool fail) const;
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
@@ -207,9 +209,9 @@ bool Rule::match(const metkit::MarsRequest& request) const {
     return true;
 }
 
-class ChainedContext : public metkit::MarsRequestContext {
-    const MarsRequestContext& ctx1_;
-    const MarsRequestContext& ctx2_;
+class ChainedContext : public metkit::MarsExpandContext {
+    const MarsExpandContext& ctx1_;
+    const MarsExpandContext& ctx2_;
 
     void info(std::ostream& out) const {
         out << ctx1_;
@@ -219,12 +221,12 @@ class ChainedContext : public metkit::MarsRequestContext {
 
 
 public:
-    ChainedContext(const MarsRequestContext& ctx1, const MarsRequestContext& ctx2):
+    ChainedContext(const MarsExpandContext& ctx1, const MarsExpandContext& ctx2):
         ctx1_(ctx1), ctx2_(ctx2) {}
 };
 
 
-std::string Rule::lookup(const MarsRequestContext& ctx, const std::string & s, bool fail) const {
+std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bool fail) const {
 
     size_t table = 0;
     size_t param = 0;
@@ -351,7 +353,7 @@ void TypeParam::print(std::ostream &out) const {
 }
 
 
-bool TypeParam::expand(const MarsRequestContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const {
+bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const {
 
     pthread_once(&once, init);
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
@@ -386,7 +388,7 @@ bool TypeParam::expand(const MarsRequestContext& ctx, const MarsRequest& request
 }
 
 
-void TypeParam::pass2(const MarsRequestContext& ctx, MarsRequest& request) {
+void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     // std::cout << request << std::endl;
     std::vector<std::string> values = request.values(name_, true);
     expand(ctx, request, values, true);
@@ -394,7 +396,7 @@ void TypeParam::pass2(const MarsRequestContext& ctx, MarsRequest& request) {
 }
 
 
-void TypeParam::expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const {
+void TypeParam::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 // Work done on pass2()
 }
 

@@ -8,37 +8,33 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeExpver.h
+/// @author Manuel Fuentes
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
-/// @date   April 2016
 
-#ifndef metkit_TypeExpver_H
-#define metkit_TypeExpver_H
+/// @date Sep 96
 
-#include "metkit/types/Type.h"
+#ifndef metkit_MarsParsedRequest_H
+#define metkit_MarsParsedRequest_H
+
+
+#include "metkit/MarsRequest.h"
+#include "metkit/MarsParserContext.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeExpver : public Type {
-
-public: // methods
-
-    TypeExpver(const std::string &name, const eckit::Value& settings);
-
-    virtual ~TypeExpver();
-
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const ;
-
-private: // methods
-
-    virtual void print( std::ostream &out ) const;
+class MarsParsedRequest : public MarsRequest, public  MarsParserContext {
+public:
+    MarsParsedRequest(const std::string& verb, size_t line, size_t column);
 
 };
 
+
+
 //----------------------------------------------------------------------------------------------------------------------
+
 
 } // namespace metkit
 

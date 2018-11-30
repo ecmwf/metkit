@@ -372,14 +372,6 @@ std::list<Parameter>::iterator MarsRequest::find(const std::string & name) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void MarsRequest::context(const MarsRequestContext* context) {
-    context_ = context;
-}
-
-const MarsRequestContext& MarsRequest::context() const {
-    ASSERT(context_);
-    return *context_;
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -396,8 +388,5 @@ MarsRequest MarsRequest::parse(const std::string& s) {
     return v[0];
 }
 
-MarsRequestContext::~MarsRequestContext(){
-
-}
 
 } // namespace metkit

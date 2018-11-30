@@ -35,7 +35,7 @@ void TypeToByList::print(std::ostream &out) const {
 }
 
 
-void TypeToByList::expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const {
+void TypeToByList::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;

@@ -8,33 +8,20 @@
  * does it submit to any jurisdiction.
  */
 
-
-#include "metkit/types/TypesFactory.h"
-#include "metkit/types/TypeAny.h"
+#include "metkit/MarsParsedRequest.h"
 
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeAny::TypeAny(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+
+MarsParsedRequest::MarsParsedRequest(const std::string& verb,
+                                     size_t line,
+                                     size_t column):
+    MarsRequest(verb),
+    MarsParserContext(line, column) {
+
 }
-
-TypeAny::~TypeAny() {
-}
-
-void TypeAny::print(std::ostream &out) const {
-    out << "TypeAny[name=" << name_ << "]";
-}
-
-bool TypeAny::expand(const MarsExpandContext& ctx, std::string &value) const {
-    return true;
-}
-
-
-static TypeBuilder<TypeAny> type("any");
-
-//----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit
