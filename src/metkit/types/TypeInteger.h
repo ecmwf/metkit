@@ -33,7 +33,7 @@ public: // methods
 protected:
 
     bool ok(const std::string &value, long& n) const;
-    virtual bool expand(std::string& value) const;
+    virtual bool expand(const MarsRequestContext& ctx, std::string& value) const;
 
 private: // methods
 

@@ -370,6 +370,17 @@ std::list<Parameter>::iterator MarsRequest::find(const std::string & name) {
     }
     return params_.end();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+void MarsRequest::context(const MarsRequestContext* context) {
+    context_ = context;
+}
+
+const MarsRequestContext& MarsRequest::context() const {
+    ASSERT(context_);
+    return *context_;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 std::vector<MarsRequest>  MarsRequest::parse(std::istream& in) {
@@ -383,6 +394,10 @@ MarsRequest MarsRequest::parse(const std::string& s) {
     std::vector<MarsRequest> v = parse(in);
     ASSERT(v.size() == 1);
     return v[0];
+}
+
+MarsRequestContext::~MarsRequestContext(){
+
 }
 
 } // namespace metkit

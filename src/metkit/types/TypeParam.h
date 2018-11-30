@@ -30,21 +30,16 @@ public: // methods
 
     virtual ~TypeParam();
 
-    static eckit::PathName paramYamlFile();
-    static eckit::PathName paramIDYamlFile();
-
-    long paramToParamid(const std::string& param, const std::string& stream, const std::string& type);
 
 protected:
-    virtual bool expand(const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
+    virtual bool expand(const MarsRequestContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
 
 private: // methods
 
-    virtual void print( std::ostream &out ) const;
+    virtual void print(std::ostream &out) const;
     virtual void reset();
-    virtual void pass2(MarsRequest& request);
-    virtual void expand(std::vector<std::string>& values) const;
-
+    virtual void pass2(const MarsRequestContext& ctx, MarsRequest& request);
+    virtual void expand(const MarsRequestContext& ctx, std::vector<std::string>& values) const;
 
 };
 

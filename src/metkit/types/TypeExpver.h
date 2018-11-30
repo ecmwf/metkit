@@ -30,7 +30,7 @@ public: // methods
 
     virtual ~TypeExpver();
 
-virtual bool expand(std::string& value) const ;
+    virtual bool expand(const MarsRequestContext& ctx, std::string& value) const ;
 
 private: // methods
 
