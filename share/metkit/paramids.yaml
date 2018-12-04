@@ -2032,6 +2032,15 @@
 131097:
 - patd
 - probability anomaly of a tropical depression
+131098:
+- tpg25
+- total precipitation of at least 25 mm
+131099:
+- tpg50
+- total precipitation of at least 50 mm
+131100:
+- 10fgg10
+- 10 metre wind gust of at least 10 m/s
 131129:
 - zp
 - geopotential probability
@@ -3544,13 +3553,13 @@
 - indicates a missing value
 170001:
 - spi03
-- standardised precipitation index valid for 3 months
+- standardised precipitation index valid in the last 3 months
 170002:
 - spi06
-- standardised precipitation index valid for 6 months
+- standardised precipitation index valid in the last 6 months
 170003:
 - spi12
-- standardised precipitation index valid for 12 months
+- standardised precipitation index valid in the last 12 months
 170149:
 - tsw
 - total soil moisture
@@ -3651,18 +3660,22 @@
 - swval1
 - volumetric soil water anomaly layer 1
 - swv1
+- swvl1a
 171040:
 - swval2
 - volumetric soil water anomaly layer 2
 - swv2
+- swvl2a
 171041:
 - swval3
 - volumetric soil water anomaly layer 3
 - swv3
+- swvl3a
 171042:
 - swval4
 - volumetric soil water anomaly layer 4
 - swv4
+- swvl4a
 171043:
 - slta
 - soil type anomaly
@@ -4259,6 +4272,7 @@
 172205:
 - _param_172205
 - runoff
+- ro
 172208:
 - _param_172208
 - top net solar radiation, clear sky
