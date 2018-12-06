@@ -109,11 +109,14 @@ def add(where, *params):
 """
 Add WP
 """
-P[('oper', 'wp', 'sfc')] = P[('oper', 'fc', 'sfc')]
-P[('oper', 'wp', 'pl')] = P[('oper', 'fc', 'pl')]
+P[('oper', 'wp', 'sfc')] = sorted(set([123, 228, 129, 164, 167, 165, 166,
+                                      168, 144, 121, 122, 172, 142, 143, 151, 189,
+                                      59, 134, 141, 169, 139, 170, 183, 236,
+                                      39, 40, 41, 42, 121, 122, 186, 187, 188]))
+P[('oper', 'wp', 'pl')] = sorted(set([130, 129, 157, 131, 132]))
 
-P[('enfo', 'wp', 'sfc')] = P[('enfo', 'cf', 'sfc')]
-P[('enfo', 'wp', 'pl')] = P[('enfo', 'cf', 'pl')]
+P[('enfo', 'wp', 'sfc')] = P[('oper', 'wp', 'sfc')]
+P[('enfo', 'wp', 'pl')] = P[('oper', 'wp', 'pl')]
 
 # Z (orog) on ML is not archived in MARS
 add(('oper', 'fc', 'ml'), 129)
