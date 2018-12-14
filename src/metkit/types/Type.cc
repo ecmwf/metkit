@@ -8,6 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
+#include <algorithm>
+
 #include "metkit/types/Type.h"
 #include "metkit/MarsRequest.h"
 #include "metkit/MarsExpandContext.h"
