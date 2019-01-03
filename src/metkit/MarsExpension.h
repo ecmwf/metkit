@@ -19,11 +19,13 @@
 
 #include "metkit/MarsRequest.h"
 #include "eckit/memory/NonCopyable.h"
+#include "metkit/MarsParsedRequest.h"
 
 
 namespace metkit {
 
 class MarsLanguage;
+class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -36,7 +38,7 @@ public:
 class ExpandCallback {
 public:
     virtual ~ExpandCallback();
-    virtual void operator()(const MarsRequest&) = 0;
+    virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -50,19 +52,21 @@ public:
 
     void reset();
 
-    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
+    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
-    void expand(const MarsRequest& request,
+    void expand(const MarsExpandContext& ctx,
+                const MarsRequest& request,
                 ExpandCallback& cb);
 
 
-    void flatten(const MarsRequest& request,
+    void flatten(const MarsExpandContext& ctx,
+        const MarsRequest& request,
                  FlattenCallback& callback);
 
 
 private: // members
 
-    MarsLanguage& language(const std::string& verb);
+    MarsLanguage& language(const MarsExpandContext&, const std::string& verb);
 
     std::map<std::string, MarsLanguage*> languages_;
     bool inherit_;

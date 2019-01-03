@@ -54,9 +54,9 @@ void MarsExpension::reset() {
 }
 
 
-MarsLanguage& MarsExpension::language(const std::string& verb) {
+MarsLanguage& MarsExpension::language(const MarsExpandContext& ctx, const std::string& verb) {
 
-    std::string v = MarsLanguage::expandVerb(verb);
+    std::string v = MarsLanguage::expandVerb(ctx, verb);
 
     std::map<std::string, MarsLanguage*>::iterator j = languages_.find(v);
     if (j == languages_.end()) {
@@ -67,14 +67,14 @@ MarsLanguage& MarsExpension::language(const std::string& verb) {
 }
 
 
-std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& requests) {
+std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedRequest>& requests) {
     std::vector<MarsRequest> result;
 
     // Implement inheritence
-    for (std::vector<MarsRequest>::const_iterator j = requests.begin(); j != requests.end(); ++j) {
+    for (auto j = requests.begin(); j != requests.end(); ++j) {
 
-        MarsLanguage& lang = language((*j).verb());
-        MarsRequest r = lang.expand(*j, inherit_);
+        MarsLanguage& lang = language((*j), (*j).verb());
+        MarsRequest r = lang.expand(*j, *j, inherit_);
 
 
         result.push_back(r);
@@ -84,15 +84,16 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsRequest>& r
     return result;
 }
 
-void MarsExpension::expand(const MarsRequest& request, ExpandCallback& callback) {
-    MarsRequest r = language(request.verb()).expand(request, inherit_);
-    callback(r);
+void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
+    MarsRequest r = language(ctx, request.verb()).expand(ctx, request, inherit_);
+    callback(ctx, r);
 }
 
 
-void MarsExpension::flatten(const MarsRequest& request,
+void MarsExpension::flatten(const MarsExpandContext& ctx,
+    const MarsRequest& request,
                             FlattenCallback& callback) {
-    language(request.verb()).flatten(request, callback);
+    language(ctx, request.verb()).flatten(ctx, request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

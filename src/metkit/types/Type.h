@@ -26,6 +26,7 @@
 namespace metkit {
 
 class MarsRequest;
+class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -35,18 +36,18 @@ public: // methods
 
     Type(const std::string &name, const eckit::Value& settings);
 
-    virtual void expand(std::vector<std::string>& values) const;
-    virtual bool expand(std::string& value) const;
-    virtual std::string tidy(const std::string &value) const;
+    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+    virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setDefaults(const std::vector<std::string>& defaults);
-    virtual void check(const std::vector<std::string>& values) const;
+    virtual void check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const;
     virtual void clearDefaults();
     virtual void reset();
 
-    virtual void pass2(MarsRequest& request);
-    virtual void finalise(MarsRequest& request);
+    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
+    virtual void finalise(const MarsExpandContext& ctx, MarsRequest& request);
 
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;

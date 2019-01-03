@@ -67,7 +67,7 @@ bool TypeInteger::ok(const std::string &value, long& n) const {
     return true;
 }
 
-bool TypeInteger::expand( std::string &value) const  {
+bool TypeInteger::expand(const MarsExpandContext& ctx, std::string &value) const  {
     long n = 0;
     if (ok(value, n)) {
         static eckit::Translator<long, std::string> l2s;

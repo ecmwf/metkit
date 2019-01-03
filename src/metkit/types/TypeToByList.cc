@@ -35,7 +35,7 @@ void TypeToByList::print(std::ostream &out) const {
 }
 
 
-void TypeToByList::expand(std::vector<std::string>& values) const {
+void TypeToByList::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
     static eckit::Translator<std::string, long> s2l;
     static eckit::Translator<long, std::string> l2s;
@@ -50,12 +50,12 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
             ASSERT(newval.size() > 0);
             ASSERT(i + 1 < values.size());
 
-            long from = s2l(tidy(newval.back()));
-            long to = s2l(tidy(values[i + 1]));
+            long from = s2l(tidy(ctx, newval.back()));
+            long to = s2l(tidy(ctx, values[i + 1]));
             long by = by_;
 
             if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                by = s2l(tidy(values[i + 3]));
+                by = s2l(tidy(ctx, values[i + 3]));
                 i += 2;
             }
 
@@ -72,7 +72,7 @@ void TypeToByList::expand(std::vector<std::string>& values) const {
     }
 
     std::swap(values, newval);
-    Type::expand(values);
+    Type::expand(ctx, values);
 }
 
 static TypeBuilder<TypeToByList> type("to-by-list");

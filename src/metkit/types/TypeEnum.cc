@@ -78,7 +78,7 @@ void TypeEnum::print(std::ostream &out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(std::string& value) const {
+bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value) const {
 
 
     std::map<std::string, std::string>::iterator c = cache_.find(value);
@@ -87,7 +87,7 @@ bool TypeEnum::expand(std::string& value) const {
         return true;
     }
 
-    std::string v = MarsLanguage::bestMatch(value, values_, false, false, mapping_);
+    std::string v = MarsLanguage::bestMatch(ctx, value, values_, false, false, mapping_);
     if (v.empty()) {
         return false;
     }

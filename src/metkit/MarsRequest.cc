@@ -370,6 +370,9 @@ std::list<Parameter>::iterator MarsRequest::find(const std::string & name) {
     }
     return params_.end();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
 //----------------------------------------------------------------------------------------------------------------------
 
 std::vector<MarsRequest>  MarsRequest::parse(std::istream& in) {
@@ -384,5 +387,6 @@ MarsRequest MarsRequest::parse(const std::string& s) {
     ASSERT(v.size() == 1);
     return v[0];
 }
+
 
 } // namespace metkit

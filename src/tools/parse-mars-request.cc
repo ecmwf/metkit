@@ -83,8 +83,8 @@ void ParseRequest::process(const eckit::PathName& path)
     bool inherit = true;
     MarsExpension expand(inherit);
 
-    std::vector<MarsRequest> p = parser.parse();
-    for (std::vector<MarsRequest>::const_iterator j = p.begin(); j != p.end(); ++j) {
+    auto p = parser.parse();
+    for (auto j = p.begin(); j != p.end(); ++j) {
         (*j).dump(std::cout);
     }
 

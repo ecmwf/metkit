@@ -26,7 +26,7 @@ TypeFloat::TypeFloat(const std::string &name, const eckit::Value& settings) :
 TypeFloat::~TypeFloat() {
 }
 
-bool TypeFloat::expand(std::string &value) const  {
+bool TypeFloat::expand(const MarsExpandContext& ctx, std::string &value) const  {
 
     bool dot = false;
 

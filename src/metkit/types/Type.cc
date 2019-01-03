@@ -10,6 +10,7 @@
 
 #include "metkit/types/Type.h"
 #include "metkit/MarsRequest.h"
+#include "metkit/MarsExpandContext.h"
 
 namespace metkit {
 
@@ -160,30 +161,30 @@ std::ostream &operator<<(std::ostream &s, const Type &x) {
 }
 
 
-std::string Type::tidy(const std::string &value) const {
+std::string Type::tidy(const MarsExpandContext& ctx, const std::string &value) const {
     std::string result = value;
-    if (!expand(result)) {
+    if (!expand(ctx, result)) {
 
     }
     return result;
 }
 
 
-bool Type::expand(std::string& value) const {
+bool Type::expand(const MarsExpandContext& ctx, std::string& value) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
 }
 
-void Type::expand(std::vector<std::string>& values) const {
+void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
     std::vector<std::string> newvals;
 
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
 
         std::string value = *j;
-        if (!expand(value)) {
+        if (!expand(ctx, value)) {
             std::ostringstream oss;
-            oss << *this << ": cannot expand '" << *j << "'";
+            oss << *this << ": cannot expand '" << *j << "'" << ctx;
             throw eckit::UserError(oss.str());
         }
 
@@ -229,10 +230,10 @@ const std::string& Type::category() const {
     return category_;
 }
 
-void Type::pass2(MarsRequest& request) {
+void Type::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 }
 
-void Type::finalise(MarsRequest& request) {
+void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request) {
     bool ok = true;
 
     const std::vector<std::string>& values = request.values(name_, true);
@@ -274,7 +275,7 @@ void Type::finalise(MarsRequest& request) {
 
 }
 
-void Type::check(const std::vector<std::string>& values) const {
+void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const {
     if (flatten_) {
         std::set<std::string> s(values.begin(), values.end());
         if (values.size() != s.size()) {
