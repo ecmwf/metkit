@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <set>
 #include <list>
+#include <fstream>
 
 #include "eckit/types/Types.h"
 #include "eckit/parser/JSON.h"
@@ -400,7 +401,7 @@ void MarsLanguage::flatten(
 
 }
 
-void MarsLanguage::flatten(const MarsExpandContext& ctx,
+void MarsLanguage::flatten(const MarsExpandContext&,
                            const MarsRequest & request,
                            FlattenCallback & callback) {
     std::vector<std::string> params;
@@ -408,7 +409,6 @@ void MarsLanguage::flatten(const MarsExpandContext& ctx,
 
     MarsRequest result(request);
     flatten(request, params, 0, result, callback);
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------

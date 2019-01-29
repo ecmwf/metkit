@@ -8,6 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
+#include <iomanip>
+
 #include "eckit/utils/Translator.h"
 
 #include "eckit/types/Date.h"
@@ -28,7 +30,7 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
 TypeTime::~TypeTime() {
 }
 
-bool TypeTime::expand(const MarsExpandContext& ctx, std::string &value) const {
+bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
 
     long n = 0;
     int colon = 0;
@@ -57,7 +59,6 @@ bool TypeTime::expand(const MarsExpandContext& ctx, std::string &value) const {
         default:
             // throw eckit::UserError(name_ + ": invalid time '" + value + "'");
             return false;
-            break;
         }
     }
 

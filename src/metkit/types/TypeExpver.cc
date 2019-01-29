@@ -8,11 +8,12 @@
  * does it submit to any jurisdiction.
  */
 
+#include <iomanip>
+
 #include "eckit/utils/Translator.h"
-
 #include "eckit/types/Date.h"
-#include "metkit/MarsRequest.h"
 
+#include "metkit/MarsRequest.h"
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeExpver.h"
 
@@ -27,7 +28,7 @@ TypeExpver::TypeExpver(const std::string &name, const eckit::Value& settings) :
 TypeExpver::~TypeExpver() {
 }
 
-bool TypeExpver::expand(const MarsExpandContext& ctx, std::string& value) const {
+bool TypeExpver::expand(const MarsExpandContext&, std::string& value) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << value;
     value = oss.str();

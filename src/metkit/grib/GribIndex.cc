@@ -8,10 +8,10 @@
  * does it submit to any jurisdiction.
  */
 
+#include "eckit/exception/Exceptions.h"
+
 #include "metkit/grib/GribMetaData.h"
 #include "metkit/grib/GribIndex.h"
-
-
 
 namespace metkit {
 namespace grib {

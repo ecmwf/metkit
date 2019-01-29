@@ -8,12 +8,14 @@
  * does it submit to any jurisdiction.
  */
 
+#include <algorithm>
+#include <fstream>
+
 #include "eckit/runtime/Tool.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
 #include "metkit/grib/MetFile.h"
-
 #include "metkit/grib/GribToRequest.h"
 #include "metkit/MarsRequest.h"
 #include "metkit/MarsParser.h"
