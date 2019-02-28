@@ -80,6 +80,17 @@ types/TypesFactory.cc
 types/TypesFactory.h
 )
 
+list( APPEND metkit_persistent_srcs
+    Param.cc
+    Param.h
+    Param
+    StepRange.cc
+    StepRange.h
+    StepRange
+)
+list( APPEND metkit_srcs ${metkit_persistent_srcs} )
+
+
 if ( HAVE_GRIB )
 
     list( APPEND metkit_srcs
@@ -117,6 +128,9 @@ ecbuild_add_library(
 
     HEADER_DESTINATION
         ${INSTALL_INCLUDE_DIR}/metkit
+
+    PERSISTENT
+        ${metkit_persistent_srcs}
 
     GENERATED
         metkit_version.cc
