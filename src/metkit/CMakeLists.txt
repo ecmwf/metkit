@@ -46,6 +46,8 @@ RequestEnvironment.cc
 RequestEnvironment.h
 Parameter.cc
 Parameter.h
+ParamID.cc
+ParamID.h
 config/LibMetkit.cc
 config/LibMetkit.h
 types/Type.cc
