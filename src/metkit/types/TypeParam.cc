@@ -265,6 +265,8 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
         }
     }
 
+    // std::cout << "OK " << ok << " " << param << std::endl;
+
     if (ok && param > 0) {
         std::ostringstream oss;
         if (table == 128) {
