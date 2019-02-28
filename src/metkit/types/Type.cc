@@ -165,14 +165,12 @@ std::ostream &operator<<(std::ostream &s, const Type &x) {
 
 std::string Type::tidy(const MarsExpandContext& ctx, const std::string &value) const {
     std::string result = value;
-    if (!expand(ctx, result)) {
-
-    }
+    expand(ctx, result);
     return result;
 }
 
 
-bool Type::expand(const MarsExpandContext& ctx, std::string& value) const {
+bool Type::expand(const MarsExpandContext&, std::string& value) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
