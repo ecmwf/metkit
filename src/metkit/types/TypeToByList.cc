@@ -8,12 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
+#include "TypeToByList.h"
 
-#include "metkit/types/TypesFactory.h"
-#include "metkit/types/TypeToByList.h"
-
+#include "eckit/exception/Exceptions.h"
 #include "eckit/utils/Translator.h"
 #include "eckit/parser/StringTools.h"
+
+#include "metkit/types/TypesFactory.h"
 
 namespace metkit {
 
@@ -59,7 +60,8 @@ void TypeToByList::expand(const MarsExpandContext& ctx, std::vector<std::string>
                 i += 2;
             }
 
-             for (long j = from + by; j <= to; j += by) {
+            ASSERT_MSG(by > 0, "by value must be a positive number > 0");
+            for (long j = from + by; j <= to; j += by) {
                 newval.push_back(l2s(j));
             }
 
