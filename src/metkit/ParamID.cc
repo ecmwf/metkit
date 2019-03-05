@@ -15,6 +15,7 @@
 
 #include "eckit/parser/Tokenizer.h"
 #include "eckit/config/Resource.h"
+#include "eckit/system/Library.h"
 
 #include "metkit/config/LibMetkit.h"
 
@@ -30,9 +31,17 @@ static std::vector<ParamID::WindFamily> windFamilies_;
 
 static eckit::PathName mars_wind_path() {
 
-    eckit::PathName marsWindPath = eckit::Resource<eckit::PathName>("$MARS_WIND_PATH", "~mars/etc/mars/wind");
+    eckit::PathName marsWindPath = eckit::Resource<eckit::PathName>("$MARS_WIND_PATH", "~metkit/etc/metkit/wind");
 
     if (marsWindPath.exists()) return marsWindPath;
+
+    marsWindPath = "~metkit/etc/mars/wind";
+    if (marsWindPath.exists()) return marsWindPath;
+
+    if (eckit::system::Library::exists("mars")) {
+        marsWindPath = "~mars/etc/mars/wind";
+        if (marsWindPath.exists()) return marsWindPath;
+    }
 
     // try legacy location for the path (error will be issued by caller)
 
