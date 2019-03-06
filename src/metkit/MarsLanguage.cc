@@ -203,16 +203,19 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
 
     if (best.size() == 1) {
 
-        if (isnumeric(name) && isnumeric(best[0])) {
-            std::ostringstream oss;
-            oss << "Cannot match [" << name << "] and [" << best[0] << "]" << ctx;
-            throw eckit::UserError(oss.str());
+        if (isnumeric(best[0]) && (best[0] != name)) {
+            // std::ostringstream oss;
+            // oss << "Invalid match [" << name << "] and [" << best[0] << "] (ignored)" << ctx;
+            // throw eckit::UserError(oss.str());
+            best.clear();
         }
+        else {
 
-        if (aliases.find(best[0]) != aliases.end()) {
-            return aliases.find(best[0])->second;
+            if (aliases.find(best[0]) != aliases.end()) {
+                return aliases.find(best[0])->second;
+            }
+            return best[0];
         }
-        return best[0];
     }
 
     if (best.empty()) {
@@ -373,11 +376,11 @@ const std::string& MarsLanguage::verb() const {
 
 
 void MarsLanguage::flatten(
-                           const MarsRequest& request,
-                           const std::vector<std::string>& params,
-                           size_t i,
-                           MarsRequest& result,
-                           FlattenCallback& callback) {
+    const MarsRequest& request,
+    const std::vector<std::string>& params,
+    size_t i,
+    MarsRequest& result,
+    FlattenCallback& callback) {
 
     if (i == params.size()) {
         callback(result);
