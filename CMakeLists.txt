@@ -38,7 +38,7 @@ ecbuild_add_option( FEATURE NETCDF
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
 
-ecbuild_use_package( PROJECT eckit  VERSION  0.21.0 REQUIRED )
+ecbuild_use_package( PROJECT eckit  VERSION  1.0 REQUIRED )
 
 ### export package info
 
