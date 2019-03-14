@@ -15,7 +15,7 @@
 
 #include "metkit/types/TypesFactory.h"
 #include "metkit/types/TypeDate.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/MarsExpandContext.h"
 

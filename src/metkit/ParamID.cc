@@ -13,7 +13,7 @@
 #include <pthread.h>
 #include <fstream>
 
-#include "eckit/parser/Tokenizer.h"
+#include "eckit/utils/Tokenizer.h"
 #include "eckit/config/Resource.h"
 #include "eckit/system/Library.h"
 

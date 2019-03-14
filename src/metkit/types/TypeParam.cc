@@ -11,7 +11,7 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"

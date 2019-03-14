@@ -12,7 +12,7 @@
 // Baudouin Raoult - (c) ECMWF Feb 12
 
 #include "metkit/MarsRequestHandle.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 #include "eckit/types/Types.h"
 
 

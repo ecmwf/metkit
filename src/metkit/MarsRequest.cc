@@ -9,7 +9,7 @@
  */
 
 #include "eckit/parser/JSON.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
 

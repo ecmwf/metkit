@@ -11,7 +11,7 @@
 #include "grib_api.h"
 
 #include "eckit/exception/Exceptions.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 #include "eckit/config/Resource.h"
 
 #include "metkit/grib/GribMetaData.h"

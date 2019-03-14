@@ -16,7 +16,7 @@
 #include "eckit/config/Resource.h"
 #include "eckit/utils/Translator.h"
 #include "eckit/utils/MD5.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 #include "eckit/config/Configuration.h"
 #include "eckit/config/LocalConfiguration.h"
 

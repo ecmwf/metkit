@@ -16,7 +16,7 @@
 #include "eckit/config/ResourceMgr.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/MarsRequest.h"
 
