@@ -17,9 +17,10 @@
 #ifndef grib_MetFile_H
 #define grib_MetFile_H
 
+#include <memory>
+
 #include "eckit/io/DataHandle.h"
 #include "eckit/memory/NonCopyable.h"
-#include "eckit/memory/ScopedPtr.h"
 
 // Forward declarations
 
@@ -69,7 +70,7 @@ public: // methods
 
 private: // members
 
-    eckit::ScopedPtr<eckit::DataHandle> handle_;
+    std::unique_ptr<eckit::DataHandle> handle_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

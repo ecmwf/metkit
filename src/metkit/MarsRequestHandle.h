@@ -14,8 +14,9 @@
 #ifndef MarsRequestHandle_H
 #define MarsRequestHandle_H
 
+#include <memory>
+
 #include "eckit/io/DataHandle.h"
-#include "eckit/memory/ScopedPtr.h"
 #include "eckit/exception/Exceptions.h"
 
 #include "metkit/BaseProtocol.h"
@@ -50,15 +51,16 @@ public:
     virtual const eckit::ReanimatorBase& reanimator() const;
     static  const eckit::ClassSpec& classSpec();
 
-private:
-    // -- Members
+private: // members
+
     metkit::MarsRequest request_;
-    eckit::ScopedPtr<BaseProtocol> protocol_;
+
+    std::unique_ptr<BaseProtocol> protocol_;
 
     bool opened_;
 
-    // -- Overridden methods
-    // From data handle
+private: // members
+
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
 
