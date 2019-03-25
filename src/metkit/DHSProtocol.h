@@ -14,9 +14,10 @@
 #ifndef DHSProtocol_H
 #define DHSProtocol_H
 
+#include <memory>
+
 #include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
-
 
 #include "metkit/BaseProtocol.h"
 #include "metkit/MarsRequest.h"
