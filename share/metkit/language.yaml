@@ -613,6 +613,7 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
+    - - linear
     - - nearest-lsm
       - nearest lsm
     - - 'off'
