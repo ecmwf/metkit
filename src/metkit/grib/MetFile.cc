@@ -12,7 +12,7 @@
 /// @author Tiago Quintino
 /// @date Dec 2015
 
-#include "grib_api.h"
+#include "eccodes.h"
 
 #include "eckit/io/Buffer.h"
 #include "eckit/io/BufferedHandle.h"

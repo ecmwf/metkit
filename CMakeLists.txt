@@ -18,12 +18,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
                     DESCRIPTION "Experimental features" )
-# grib support
+# GRIB support
 
 ecbuild_add_option( FEATURE GRIB
                     DEFAULT ON
                     DESCRIPTION "Add support for GRIB format (grib_api not supported)"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.5" )
+
+# BUFR support
+
+ecbuild_add_option( FEATURE BUFR
+                    DEFAULT ON
+                    DESCRIPTION "Add support for BUFR4 format"
+                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.8" )
 
 # netcdf support
 

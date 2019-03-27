@@ -24,6 +24,13 @@ ecbuild_add_executable( TARGET   grib-blob
     LIBS     metkit eckit_option eckit
 )
 
+ecbuild_add_executable( TARGET read-bufr
+  CONDITION HAVE_BUFR
+  SOURCES  read-bufr.cc
+  INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
+  LIBS     metkit eckit_option eckit eccodes
+)
+
 ecbuild_add_executable(
 
     TARGET   parse-mars-request
