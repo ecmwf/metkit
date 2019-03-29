@@ -123,7 +123,7 @@ void ReadBufr::run() {
 
     eckit::option::CmdArgs args(&::usage, options_, numberOfPositionalArguments(), minimumPositionalArguments());
 
-    static long bufferSize = eckit::Resource<long>("BufferSize", 64*1024*1024);
+    static size_t bufferSize = eckit::Resource<size_t>("BufferSize", 64*1024*1024);
     eckit::Buffer buffer(bufferSize);
     long len = 0;
 
@@ -136,7 +136,6 @@ void ReadBufr::run() {
 
         while( (len = file.readSome(buffer)) != 0 )
         {
-            codes_bufr_keys_iterator* kiter = nullptr;
             codes_handle* h = codes_handle_new_from_message(nullptr, buffer, buffer.size());
 
             nMsg_++;
