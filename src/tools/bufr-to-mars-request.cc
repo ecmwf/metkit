@@ -16,10 +16,13 @@
 #include "eckit/option/Option.h"
 #include "eckit/runtime/Tool.h"
 
-#include "metkit/grib/GribMetaData.h"
 #include "metkit/grib/MetFile.h"
 
 using namespace metkit;
+
+
+
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -128,6 +131,9 @@ void Bufr2Request::run() {
         grib::MetFile file(path);
 
         while ((len = file.readSome(buffer)) != 0) {
+
+            // BufrHandle h (buffer);
+
             codes_handle* h = codes_handle_new_from_message(nullptr, buffer, buffer.size());
 
             nMsg_++;
@@ -137,14 +143,6 @@ void Bufr2Request::run() {
                 oss << "Error: unable to create handle for message " << nMsg_;
                 throw eckit::BadValue(oss.str(), Here());
             }
-
-            eckit::Log::info() << "================================================================"
-                                  "===================="
-                               << std::endl;
-            eckit::Log::info() << "MESSAGE " << nMsg_ << std::endl;
-            eckit::Log::info() << "================================================================"
-                                  "===================="
-                               << std::endl;
 
             //            list_all_kvs(h);
             list_namespace_kvs(h);
