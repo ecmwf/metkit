@@ -10,13 +10,12 @@
 
 #include "grib_api.h"
 
+#include "eckit/config/Resource.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/StringTools.h"
-#include "eckit/config/Resource.h"
 
-#include "metkit/grib/GribMetaData.h"
 #include "metkit/grib/GribHandle.h"
-
+#include "metkit/grib/GribMetaData.h"
 
 
 namespace metkit {
@@ -24,8 +23,7 @@ namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-GribMetaData::GribMetaData( eckit::Stream& s )
-{
+GribMetaData::GribMetaData(eckit::Stream& s) {
     bool b, more;
     std::string key;
     std::string str;
@@ -33,24 +31,23 @@ GribMetaData::GribMetaData( eckit::Stream& s )
     double dval;
 
     s >> more;
-    while(more)
-    {
+    while (more) {
         s >> key;
 
         s >> b;
-        if(b) {
+        if (b) {
             s >> str;
             stringValues_[key] = str;
         }
 
         s >> b;
-        if(b) {
+        if (b) {
             s >> ival;
             longValues_[key] = ival;
         }
 
         s >> b;
-        if(b) {
+        if (b) {
             s >> dval;
             doubleValues_[key] = dval;
         }
@@ -58,10 +55,11 @@ GribMetaData::GribMetaData( eckit::Stream& s )
     }
 }
 
-GribMetaData::GribMetaData(const void *buffer, size_t length)
-{
+GribMetaData::GribMetaData(const void* buffer, size_t length) {
     size_t len;
-    char val[80] = {0,};
+    char val[80] = {
+        0,
+    };
     double d;
     long l;
 
@@ -69,40 +67,40 @@ GribMetaData::GribMetaData(const void *buffer, size_t length)
     grib_handle* h = grib_handle_new_from_message(NULL, const_cast<void*>(buffer), length);
     ASSERT(h);
 
-    static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
+    static std::string gribToRequestNamespace =
+        eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
-    grib_keys_iterator* ks = grib_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
+    grib_keys_iterator* ks =
+        grib_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
     ASSERT(ks);
 
-    while(grib_keys_iterator_next(ks))
-    {
+    while (grib_keys_iterator_next(ks)) {
         const char* name = grib_keys_iterator_get_name(ks);
 
-        if(name[0] == '_') {
+        if (name[0] == '_') {
             continue;
         }
 
         // in method parameters() we assume that all keys have a string representation
 
         len = sizeof(val);
-        ASSERT( grib_keys_iterator_get_string(ks,val,&len) == 0 );
+        ASSERT(grib_keys_iterator_get_string(ks, val, &len) == 0);
         stringValues_[name] = val;
 
         len = 1;
-        if(grib_keys_iterator_get_double(ks,&d,&len) == 0)
+        if (grib_keys_iterator_get_double(ks, &d, &len) == 0)
             doubleValues_[name] = d;
 
         len = 1;
-        if(grib_keys_iterator_get_long(ks,&l,&len) == 0)
+        if (grib_keys_iterator_get_long(ks, &l, &len) == 0)
             longValues_[name] = l;
-
     }
 
     {
         char value[1024];
         size_t len = sizeof(value);
 
-        if(grib_get_string(h, "paramId", value, &len) == 0) {
+        if (grib_get_string(h, "paramId", value, &len) == 0) {
             stringValues_["param"] = value;
         }
     }
@@ -126,69 +124,62 @@ GribMetaData::GribMetaData(const void *buffer, size_t length)
     grib_handle_delete(h);
 }
 
-GribMetaData::~GribMetaData() {
-}
+GribMetaData::~GribMetaData() {}
 
 std::vector<std::string> GribMetaData::keywords() const {
     std::vector<std::string> res;
     res.reserve(stringValues_.size());
-    for(string_store::const_iterator itr = stringValues_.begin(); itr != stringValues_.end(); ++itr) {
+    for (string_store::const_iterator itr = stringValues_.begin(); itr != stringValues_.end();
+         ++itr) {
         res.push_back(itr->first);
     }
     return res;
 }
 
-bool GribMetaData::has(const std::string& key) const
-{
-    return
-        stringValues_.find(key) != stringValues_.find(key) ||
-        doubleValues_.find(key) != doubleValues_.end() ||
-                                   longValues_.find(key)   != longValues_.end();
+bool GribMetaData::has(const std::string& key) const {
+    return stringValues_.find(key) != stringValues_.find(key) ||
+           doubleValues_.find(key) != doubleValues_.end() ||
+           longValues_.find(key) != longValues_.end();
 }
 
-void GribMetaData::get(const std::string &name, std::string &value) const
-{
+void GribMetaData::get(const std::string& name, std::string& value) const {
     getValue(name, value);
 }
 
-void GribMetaData::get(const std::string &name, long &value) const
-{
+void GribMetaData::get(const std::string& name, long& value) const {
     getValue(name, value);
 }
 
-void GribMetaData::get(const std::string &name, double &value) const
-{
+void GribMetaData::get(const std::string& name, double& value) const {
     getValue(name, value);
 }
 
-std::string GribMetaData::substitute(const std::string& pattern) const
-{
-    return eckit::StringTools::substitute(pattern,stringValues_);
+std::string GribMetaData::substitute(const std::string& pattern) const {
+    return eckit::StringTools::substitute(pattern, stringValues_);
 }
 
-size_t GribMetaData::length() const
-{
+size_t GribMetaData::length() const {
     return length_;
 }
 
-void GribMetaData::getValue(const std::string& key,double& value) const
-{
-    std::map<std::string,double>::const_iterator j = doubleValues_.find(key);
-    if(j == doubleValues_.end()) throw eckit::UserError(std::string("GribMetaData::getDouble failed for [") + key + "]");
+void GribMetaData::getValue(const std::string& key, double& value) const {
+    std::map<std::string, double>::const_iterator j = doubleValues_.find(key);
+    if (j == doubleValues_.end())
+        throw eckit::UserError(std::string("GribMetaData::getDouble failed for [") + key + "]");
     value = (*j).second;
 }
 
-void GribMetaData::getValue(const std::string& key,long& value) const
-{
-    std::map<std::string,long>::const_iterator j = longValues_.find(key);
-    if(j == longValues_.end()) throw eckit::UserError(std::string("GribMetaData::getLong failed for [") + key + "]");
+void GribMetaData::getValue(const std::string& key, long& value) const {
+    std::map<std::string, long>::const_iterator j = longValues_.find(key);
+    if (j == longValues_.end())
+        throw eckit::UserError(std::string("GribMetaData::getLong failed for [") + key + "]");
     value = (*j).second;
 }
 
-void GribMetaData::getValue(const std::string& key,std::string& value) const
-{
-    std::map<std::string,std::string>::const_iterator j = stringValues_.find(key);
-    if(j == stringValues_.end()) throw eckit::UserError(std::string("GribMetaData::getString failed for [") + key + "]");
+void GribMetaData::getValue(const std::string& key, std::string& value) const {
+    std::map<std::string, std::string>::const_iterator j = stringValues_.find(key);
+    if (j == stringValues_.end())
+        throw eckit::UserError(std::string("GribMetaData::getString failed for [") + key + "]");
     value = (*j).second;
 }
 
@@ -199,5 +190,5 @@ void GribMetaData::print(std::ostream& os) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace grib
-} // namespace metkit
+}  // namespace grib
+}  // namespace metkit
