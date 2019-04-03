@@ -1,4 +1,4 @@
-list( APPEND files language.yaml paramids.yaml params.yaml)
+list( APPEND files language.yaml paramids.yaml params.yaml )
 
 foreach( _file ${files} )
 
@@ -10,3 +10,4 @@ foreach( _file ${files} )
 
 endforeach()
 
+add_subdirectory( odb )

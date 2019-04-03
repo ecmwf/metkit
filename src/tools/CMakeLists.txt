@@ -45,6 +45,14 @@ ecbuild_add_executable(
     LIBS     metkit
 )
 
+ecbuild_add_executable(
+
+    TARGET    odb-to-request
+    SOURCES   odb-to-request.cc
+    CONDITION HAVE_ODB
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    LIBS      metkit eckit_option )
+
 # ecbuild_add_executable( TARGET     ncmerge
 #                         SOURCES    ncmerge.cc
 #                         CONDITION  HAVE_NETCDF

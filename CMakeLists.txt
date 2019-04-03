@@ -41,6 +41,13 @@ ecbuild_add_option( FEATURE NETCDF
   NO_TPL
 )
 
+# ODB2 support
+
+ecbuild_add_option( FEATURE ODB
+                    DEFAULT ON
+                    DESCRIPTION "Add support for ODB2 format"
+                    REQUIRED_PACKAGES "PROJECT odc VERSION 0.99.0" )
+
 # eckit
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support

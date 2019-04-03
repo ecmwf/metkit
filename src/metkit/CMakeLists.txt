@@ -122,6 +122,17 @@ else()
     set( grib_handling_pkg )
 endif ()
 
+if( HAVE_ODB )
+    list( APPEND metkit_srcs
+        odb/IdMapper.cc
+        odb/IdMapper.h
+        odb/OdbToRequest.cc
+        odb/OdbToRequest.h )
+    set( odc_libs odccore )
+else()
+    set( odc_libs )
+endif()
+
 ecbuild_add_library(
 
     TARGET metkit
@@ -144,9 +155,11 @@ ecbuild_add_library(
         ${ECKIT_INCLUDE_DIRS}
         ${ECCODES_INCLUDE_DIRS}
         ${NETCDF_INCLUDE_DIRS}
+        ${ODC_INCLUDE_DIRS}
 
     LIBS
         eckit
         ${grib_handling_pkg}
+        ${odc_libs}
         ${netcdflibs}
 )
