@@ -42,7 +42,7 @@ GribHandle::GribHandle(const eckit::PathName& path) : handle_(NULL), owned_(true
     eckit::AutoStdFile f(path);
 
     int err        = 0;
-    grib_handle* h = grib_handle_new_from_file(0, f, &err);
+    grib_handle* h = grib_handle_new_from_file(nullptr, f, &err);
     if (err != 0) {
         std::ostringstream os;
         os << "GribHandle() failed to build from path " << path;
@@ -64,7 +64,7 @@ GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy) : handle_(NULL) {
     const char* message = buffer;
     ASSERT(strncmp(message, "GRIB", 4) == 0);
 
-    grib_handle* h = 0;
+    grib_handle* h = nullptr;
 
     if (copy) {
         h = grib_handle_new_from_message_copy(0, const_cast<char*>(message), buffer.size());
@@ -77,7 +77,7 @@ GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy) : handle_(NULL) {
     handle_ = h;
 }
 
-GribHandle::~GribHandle() {
+GribHandle::~GribHandle() noexcept(false) {
     if (handle_ && owned_) {
         GRIB_CALL(grib_handle_delete(handle_));
         handle_ = 0;

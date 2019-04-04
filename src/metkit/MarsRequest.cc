@@ -309,6 +309,9 @@ MarsRequest::operator eckit::Value() const {
 
 void MarsRequest::merge(const MarsRequest &other) {
     NOTIMP;
+//    for (const auto& param: other.params_) {
+//        param.name()
+//    }
 }
 
 MarsRequest MarsRequest::subset(const std::set<std::string>& keys) const {

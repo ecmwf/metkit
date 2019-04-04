@@ -116,10 +116,21 @@ if ( HAVE_GRIB )
         grib/GribMetaData.cc
         )
 
-    set( grib_handling_pkg     eccodes )
+    set( grib_libs eccodes )
 
-else()
-    set( grib_handling_pkg )
+endif ()
+
+if ( HAVE_BUFR )
+
+    list( APPEND metkit_srcs
+        bufr/BufrToRequest.cc
+        bufr/BufrToRequest.h
+        bufr/BufrHandle.h
+        bufr/BufrHandle.cc
+        )
+
+    set( bufr_libs eccodes )
+
 endif ()
 
 if( HAVE_ODB )
@@ -159,7 +170,9 @@ ecbuild_add_library(
 
     LIBS
         eckit
-        ${grib_handling_pkg}
         ${odc_libs}
+        ${grib_libs}
+        ${bufr_libs}
         ${netcdflibs}
 )
+
