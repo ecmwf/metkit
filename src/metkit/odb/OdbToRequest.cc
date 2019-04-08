@@ -53,7 +53,7 @@ private: // methods
         request_.setValuesTyped(new TypeAny(mappingIt->second), stringvals);
     }
 
-    void operator()(const std::string& columnName, const std::set<int64_t>& vals) override {
+    void operator()(const std::string& columnName, const std::set<long>& vals) override {
         auto mappingIt = mapping_.find(columnName);
         ASSERT(mappingIt != mapping_.end());
 
