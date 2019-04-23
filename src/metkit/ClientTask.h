@@ -14,6 +14,8 @@
 #ifndef metkit_ClientTask_H
 #define metkit_ClientTask_H
 
+#include <memory>
+
 // #include "eckit/bases/Watcher.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
@@ -163,8 +165,8 @@ private:
 	unsigned long long   txnID_;
 	unsigned long long   metkitID_;
 	int                  port_;
-	std::string               host_;
-	eckit::ScopedPtr<eckit::DataHandle> handle_;
+    std::string               host_;
+    std::unique_ptr<eckit::DataHandle> handle_;
 	std::string               checksum_;
 
 	// Not sent over streams

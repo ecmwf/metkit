@@ -20,10 +20,10 @@ namespace metkit {
 ClientTask::ClientTask(const MarsRequest &r, const MarsRequest &e, const std::string &host, int port, unsigned long long id)
     : request_(r),
       environ_(e),
+      metkitID_(id),
       port_(port),
       host_(host),
-      handle_(0),
-      metkitID_(id) {
+      handle_() {
     // Try something unique (per machine)
     // Warning: Servers recovers time(0) from ID
     // to compute request age. Not good
