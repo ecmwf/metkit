@@ -21,7 +21,6 @@
 #include "eckit/io/DataHandle.h"
 // #include "eckit/log/UserChannel.h"
 #include "eckit/transaction/TxnEvent.h"
-#include "eckit/memory/ScopedPtr.h"
 
 #include "metkit/MarsRequest.h"
 
