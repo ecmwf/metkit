@@ -171,7 +171,7 @@ ecbuild_add_library(
 
         INSTALL_HEADERS LISTED
 
-        CONDITION HAVE_ODB
+        CONDITION HAVE_ODB2
 
         HEADER_DESTINATION
             ${INSTALL_INCLUDE_DIR}/metkit

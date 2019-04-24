@@ -43,7 +43,7 @@ ecbuild_add_option( FEATURE NETCDF
 
 # ODB2 support
 
-ecbuild_add_option( FEATURE ODB
+ecbuild_add_option( FEATURE ODB2
                     DEFAULT ON
                     DESCRIPTION "Add support for ODB2 format"
                     REQUIRED_PACKAGES "PROJECT odc VERSION 0.99.0" )

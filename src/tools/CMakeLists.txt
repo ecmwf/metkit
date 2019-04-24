@@ -53,7 +53,7 @@ ecbuild_add_executable(
 
     TARGET    odb-to-request
     SOURCES   odb-to-request.cc
-    CONDITION HAVE_ODB
+    CONDITION HAVE_ODB2
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     LIBS      metkit_odb eckit_option )
 
