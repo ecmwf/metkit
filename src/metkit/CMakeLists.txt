@@ -133,17 +133,6 @@ if ( HAVE_BUFR )
 
 endif ()
 
-if( HAVE_ODB )
-    list( APPEND metkit_srcs
-        odb/IdMapper.cc
-        odb/IdMapper.h
-        odb/OdbToRequest.cc
-        odb/OdbToRequest.h )
-    set( odc_libs odccore )
-else()
-    set( odc_libs )
-endif()
-
 ecbuild_add_library(
 
     TARGET metkit
@@ -176,3 +165,28 @@ ecbuild_add_library(
         ${netcdflibs}
 )
 
+ecbuild_add_library(
+
+        TARGET metkit_odb
+
+        INSTALL_HEADERS LISTED
+
+        CONDITION HAVE_ODB
+
+        HEADER_DESTINATION
+            ${INSTALL_INCLUDE_DIR}/metkit
+
+        SOURCES
+          odb/IdMapper.cc
+          odb/IdMapper.h
+          odb/OdbToRequest.cc
+          odb/OdbToRequest.h
+
+        PRIVATE_INCLUDES
+            ${ECKIT_INCLUDE_DIRS}
+            ${ODC_INCLUDE_DIRS}
+
+        LIBS
+            metkit
+            odccore
+)
