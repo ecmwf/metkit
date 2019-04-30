@@ -13,7 +13,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/log/Bytes.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/grib/GribDataBlob.h"
 #include "metkit/grib/GribHandle.h"

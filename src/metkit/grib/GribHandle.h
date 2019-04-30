@@ -14,7 +14,7 @@
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/log/CodeLocation.h"
-#include "eckit/memory/Owned.h"
+#include "eckit/memory/NonCopyable.h"
 
 struct grib_handle;
 
@@ -34,11 +34,11 @@ namespace grib {
 
 void grib_call( int code, const char* msg, const eckit::CodeLocation& where );
 
-#define GRIB_CALL(a) grib::grib_call(a, #a, Here())
+#define GRIB_CALL(a) metkit::grib::grib_call(a, #a, Here())
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class GribHandle : public eckit::Owned {
+class GribHandle : private eckit::NonCopyable {
 
 public: // types
 
@@ -56,7 +56,7 @@ public: // types
    explicit GribHandle(const eckit::Buffer&, bool copy = true);
 
    /// destructor will delete the grib_handle if we own it
-   ~GribHandle();
+   ~GribHandle() noexcept(false);
 
 public: // methods
 

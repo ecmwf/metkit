@@ -14,43 +14,38 @@
 
 /// @date Dec 2015
 
-#ifndef metkit_GribToRequest_H
-#define metkit_GribToRequest_H
+#ifndef metkit_BufrToRequest_H
+#define metkit_BufrToRequest_H
 
-struct grib_handle;
-
-#include "metkit/grib/GribHandle.h"
+#include "metkit/bufr/BufrHandle.h"
 
 namespace metkit {
 
 class MarsRequest;
 
-namespace grib {
+namespace bufr {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Utility class to build MarsRequest from GribHandle
+/// Utility class to build MarsRequest from BufrHandle
 
-/// Part of this code is taken from mars-metkit grib.c
+/// Part of this code is taken from mars-client bufr.c
 
-class GribToRequest {
+class BufrToRequest {
 public:  // methods
-    static void handleToRequest(grib_handle* const grib, MarsRequest& req);
 
-    static void handleToRequest(const grib::GribHandle& grib, MarsRequest& req);
-
-    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
+    static void handleToRequest(const bufr::BufrHandle& handle, MarsRequest& req);
 
     static void messageToRequest(const void* buffer, size_t length, MarsRequest& req);
 
 private:
-    GribToRequest() = delete;
-    ~GribToRequest() = delete;
+    BufrToRequest() = delete;
+    ~BufrToRequest() = delete;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace grib
+}  // namespace bufr
 }  // namespace metkit
 
 #endif

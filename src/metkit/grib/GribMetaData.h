@@ -25,22 +25,18 @@
 namespace metkit {
 namespace grib {
 
-    class GribHandle;
-
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Previously existed in mars-server code as metkit/GribHandle
+/// Previously existed in mars-server code as GribHandle
 
 class GribMetaData : public eckit::Metadata {
-
-public: // methods
-
+public:  // methods
     GribMetaData(eckit::Stream&);
     GribMetaData(const void* buffer, size_t length);
 
-	virtual ~GribMetaData();
+    virtual ~GribMetaData();
 
-// -- from Metadata
+    // -- from Metadata
 
     virtual std::vector<std::string> keywords() const;
 
@@ -54,29 +50,27 @@ public: // methods
     void getValue(const std::string& name, long& value) const;
     void getValue(const std::string& name, double& value) const;
 
-	std::string substitute(const std::string& pattern) const;
+    std::string substitute(const std::string& pattern) const;
 
     size_t length() const;
 
-protected: // members
-
+protected:  // members
     virtual void print(std::ostream&) const;
 
-private: // members
+private:  // members
+    typedef std::map<std::string, std::string> string_store;
 
-	typedef std::map<std::string, std::string> string_store;
+    string_store stringValues_;
 
-	string_store stringValues_;
-
-	std::map<std::string, long>        longValues_;
-	std::map<std::string, double>      doubleValues_;
+    std::map<std::string, long> longValues_;
+    std::map<std::string, double> doubleValues_;
 
     long length_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace grib
-} // namespace metkit
+}  // namespace grib
+}  // namespace metkit
 
 #endif

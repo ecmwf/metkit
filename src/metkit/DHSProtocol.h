@@ -14,12 +14,14 @@
 #ifndef DHSProtocol_H
 #define DHSProtocol_H
 
-#include "metkit/BaseProtocol.h"
+#include <memory>
+
 #include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
+
+#include "metkit/BaseProtocol.h"
 #include "metkit/MarsRequest.h"
 #include "metkit/ClientTask.h"
-#include "eckit/memory/ScopedPtr.h"
 
 namespace metkit {
 
@@ -52,11 +54,11 @@ private:
     std::string               host_;
     int                       port_;
     std::string               msg_;
+    std::unique_ptr<ClientTask> task_;
     bool                      done_;
     bool                      error_;
     bool                      sending_;
-    eckit::ScopedPtr<ClientTask> task_;
-    bool                      foreward_;
+    bool                      forward_;
 
     // -- Methods
     bool wait(eckit::Length&);

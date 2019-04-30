@@ -10,84 +10,80 @@
 
 #include "metkit/grib/GribToRequest.h"
 
-#include "grib_api.h"
+#include "eccodes.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/config/ResourceMgr.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/MarsRequest.h"
-
-
 
 namespace metkit {
 namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static void upper_case(char *p)
-{
-	while(*p)
-	{
-		if(islower(*p)) *p = toupper(*p);
-		p++;
-	}
-
+static void upper_case(char* p) {
+    while (*p) {
+        if (islower(*p))
+            *p = toupper(*p);
+        p++;
+    }
 }
 
-void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
+void GribToRequest::handleToRequest(grib_handle* const g, MarsRequest& req) {
+    grib_keys_iterator* ks;
 
-	grib_keys_iterator* ks;
+    std::string name;
 
-	std::string name;
+    char value[80];
+    size_t len = sizeof(value);
+    int e;
 
-	char value[80];
-	size_t len = sizeof(value);
-	int e;
+    ASSERT(g);
 
-	ASSERT(g);
+    static std::string gribToRequestNamespace =
+        eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
-    static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
+    ks = grib_keys_iterator_new(g, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
 
-    ks  = grib_keys_iterator_new(g, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
+    while (grib_keys_iterator_next(ks)) {
+        name = grib_keys_iterator_get_name(ks);
 
-	while(grib_keys_iterator_next(ks))
-	{
+        if ((e = grib_keys_iterator_get_string(ks, value, &len))) {
+            std::ostringstream oss;
+            oss << "Cannot get " << name << " as string " << e << " (" << grib_get_error_message(e)
+                << ")";
+            throw eckit::Exception(oss.str(), Here());
+        }
 
-		name = grib_keys_iterator_get_name(ks);
+        name = eckit::StringTools::upper(name);
 
-		if((e = grib_keys_iterator_get_string(ks,value,&len))) {
-			std::ostringstream oss;
-			oss << "Cannot get "<<name<<" as string "<<e<<" ("<<grib_get_error_message(e)<<")";
-			throw eckit::Exception(oss.str(),Here());
-		}
+        if (name == "EXPVER") {
+            upper_case(value);
+        }
 
-		name = eckit::StringTools::upper(name);
-
-		if( name == "EXPVER" ) {
-			upper_case(value);
-		}
-
-		req.setValue(name, std::string(value));
-		len = sizeof(value);
-	}
+        req.setValue(name, std::string(value));
+        len = sizeof(value);
+    }
 
 
-	name = "identifier";
-	len = sizeof(value);
-	if((e = grib_get_string(g,name.c_str(),value,&len))) {
-		std::ostringstream oss;
-		oss << "Cannot get "<<name<<" as string "<<e<<" ("<<grib_get_error_message(e)<<")";
-		throw eckit::Exception(oss.str(),Here());
-	}
+    name = "identifier";
+    len  = sizeof(value);
+    if ((e = grib_get_string(g, name.c_str(), value, &len))) {
+        std::ostringstream oss;
+        oss << "Cannot get " << name << " as string " << e << " (" << grib_get_error_message(e)
+            << ")";
+        throw eckit::Exception(oss.str(), Here());
+    }
 
-	if(strcmp(value,"GRIB") != 0) {
-		std::ostringstream oss;
-		oss << "Unexpected message type ("<< value<<")";
-		throw eckit::Exception(oss.str(),Here());
-	}
+    if (strcmp(value, "GRIB") != 0) {
+        std::ostringstream oss;
+        oss << "Unexpected message type (" << value << ")";
+        throw eckit::Exception(oss.str(), Here());
+    }
 
 #if 0
 
@@ -170,23 +166,26 @@ void GribToRequest::handleToRequest(grib_handle * const g, MarsRequest& req) {
 	}
 #endif
 
-	grib_keys_iterator_delete(ks);
+    grib_keys_iterator_delete(ks);
 }
 
 void GribToRequest::handleToRequest(const grib::GribHandle& grib, MarsRequest& req) {
-	NOTIMP;
+    NOTIMP;
 }
 
 void GribToRequest::gribToRequest(const void* buffer, size_t length, MarsRequest& req) {
+    messageToRequest(buffer, length, req);
+}
 
+void GribToRequest::messageToRequest(const void* buffer, size_t length, MarsRequest& req) {
     grib_handle* grib = grib_handle_new_from_message(0, const_cast<void*>(buffer), length);
 
-	GribToRequest::handleToRequest(grib, req);
+    GribToRequest::handleToRequest(grib, req);
 
-	grib_handle_delete(grib);
+    grib_handle_delete(grib);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace grib
-} // namespace metkit
+}  // namespace grib
+}  // namespace metkit

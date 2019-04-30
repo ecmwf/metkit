@@ -35,7 +35,7 @@ DHSProtocol::DHSProtocol(const std::string& name,
       done_(false),
       error_(false),
       sending_(false),
-      foreward_(forwardMessages)
+      forward_(forwardMessages)
 {}
 
 DHSProtocol::DHSProtocol(const eckit::Configuration& params):
@@ -46,7 +46,7 @@ DHSProtocol::DHSProtocol(const eckit::Configuration& params):
     done_(false),
     error_(false),
     sending_(false),
-    foreward_(false)
+    forward_(false)
 {
 }
 
@@ -58,7 +58,7 @@ DHSProtocol::DHSProtocol(eckit::Stream& s):
     s >> done_;
     s >> error_;
     s >> sending_;
-    s >> foreward_;
+    s >> forward_;
 }
 
 DHSProtocol::~DHSProtocol()
@@ -177,7 +177,7 @@ void DHSProtocol::encode(eckit::Stream& s) const {
     s << done_;
     s << error_;
     s << sending_;
-    s << foreward_;
+    s << forward_;
 }
 
 long DHSProtocol::read(void* buffer, long len)
@@ -256,7 +256,7 @@ bool DHSProtocol::wait(eckit::Length& size)
         case 'I': /* info */
             s >> msg;
             eckit::Log::info() << msg << " [" << name_ << "]" << std::endl;
-            if (foreward_) {
+            if (forward_) {
                 eckit::Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
@@ -264,7 +264,7 @@ bool DHSProtocol::wait(eckit::Length& size)
         case 'W': /* warning */
             s >> msg;
             eckit::Log::warning() << msg << " [" << name_ << "]" << std::endl;
-            if (foreward_) {
+            if (forward_) {
                 eckit::Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
@@ -272,7 +272,7 @@ bool DHSProtocol::wait(eckit::Length& size)
         case 'D': /* debug */
             s >> msg;
             eckit::Log::debug() << msg << " [" << name_ << "]" << std::endl;
-            if (foreward_) {
+            if (forward_) {
                 eckit::Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
             }
             break;
@@ -280,7 +280,7 @@ bool DHSProtocol::wait(eckit::Length& size)
         case 'E': /* error */
             s >> msg;
             eckit::Log::error() << msg << " [" << name_ << "]" << std::endl;
-            if (foreward_) {
+            if (forward_) {
                 eckit::Log::userError() << msg << " [" << name_ << "]" << std::endl;
             }
             break;

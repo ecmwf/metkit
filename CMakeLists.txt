@@ -18,12 +18,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
                     DESCRIPTION "Experimental features" )
-# grib support
+# GRIB support
 
 ecbuild_add_option( FEATURE GRIB
                     DEFAULT ON
                     DESCRIPTION "Add support for GRIB format (grib_api not supported)"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.5" )
+
+# BUFR support
+
+ecbuild_add_option( FEATURE BUFR
+                    DEFAULT ON
+                    DESCRIPTION "Add support for BUFR4 format"
+                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.8" )
 
 # netcdf support
 
@@ -34,9 +41,18 @@ ecbuild_add_option( FEATURE NETCDF
   NO_TPL
 )
 
+# ODB2 support
+
+ecbuild_add_option( FEATURE ODB2
+                    DEFAULT ON
+                    DESCRIPTION "Add support for ODB2 format"
+                    REQUIRED_PACKAGES "PROJECT odc VERSION 0.99.0" )
+
 # eckit
 
-ecbuild_use_package( PROJECT eckit  VERSION  0.21.0 REQUIRED )
+set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
+
+ecbuild_use_package( PROJECT eckit  VERSION  1.0 REQUIRED )
 
 ### export package info
 

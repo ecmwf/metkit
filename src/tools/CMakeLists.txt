@@ -24,6 +24,17 @@ ecbuild_add_executable( TARGET   grib-blob
     LIBS     metkit eckit_option eckit
 )
 
+ecbuild_add_executable( TARGET   bufr-to-mars-request
+
+    CONDITION HAVE_BUFR
+
+    SOURCES  bufr-to-mars-request.cc
+
+    INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
+
+    LIBS     metkit eckit_option eckit eccodes
+)
+
 ecbuild_add_executable(
 
     TARGET   parse-mars-request
@@ -37,6 +48,14 @@ ecbuild_add_executable(
 
     LIBS     metkit
 )
+
+ecbuild_add_executable(
+
+    TARGET    odb-to-request
+    SOURCES   odb-to-request.cc
+    CONDITION HAVE_ODB2
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    LIBS      metkit_odb eckit_option )
 
 # ecbuild_add_executable( TARGET     ncmerge
 #                         SOURCES    ncmerge.cc

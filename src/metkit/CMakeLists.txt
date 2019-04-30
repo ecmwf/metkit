@@ -46,6 +46,8 @@ RequestEnvironment.cc
 RequestEnvironment.h
 Parameter.cc
 Parameter.h
+ParamID.cc
+ParamID.h
 config/LibMetkit.cc
 config/LibMetkit.h
 types/Type.cc
@@ -80,6 +82,17 @@ types/TypesFactory.cc
 types/TypesFactory.h
 )
 
+list( APPEND metkit_persistent_srcs
+    Param.cc
+    Param.h
+    Param
+    StepRange.cc
+    StepRange.h
+    StepRange
+)
+list( APPEND metkit_srcs ${metkit_persistent_srcs} )
+
+
 if ( HAVE_GRIB )
 
     list( APPEND metkit_srcs
@@ -103,10 +116,21 @@ if ( HAVE_GRIB )
         grib/GribMetaData.cc
         )
 
-    set( grib_handling_pkg     eccodes )
+    set( grib_libs eccodes )
 
-else()
-    set( grib_handling_pkg )
+endif ()
+
+if ( HAVE_BUFR )
+
+    list( APPEND metkit_srcs
+        bufr/BufrToRequest.cc
+        bufr/BufrToRequest.h
+        bufr/BufrHandle.h
+        bufr/BufrHandle.cc
+        )
+
+    set( bufr_libs eccodes )
+
 endif ()
 
 ecbuild_add_library(
@@ -118,6 +142,9 @@ ecbuild_add_library(
     HEADER_DESTINATION
         ${INSTALL_INCLUDE_DIR}/metkit
 
+    PERSISTENT
+        ${metkit_persistent_srcs}
+
     GENERATED
         metkit_version.cc
 
@@ -128,9 +155,38 @@ ecbuild_add_library(
         ${ECKIT_INCLUDE_DIRS}
         ${ECCODES_INCLUDE_DIRS}
         ${NETCDF_INCLUDE_DIRS}
+        ${ODC_INCLUDE_DIRS}
 
     LIBS
         eckit
-        ${grib_handling_pkg}
+        ${odc_libs}
+        ${grib_libs}
+        ${bufr_libs}
         ${netcdflibs}
+)
+
+ecbuild_add_library(
+
+        TARGET metkit_odb
+
+        INSTALL_HEADERS LISTED
+
+        CONDITION HAVE_ODB2
+
+        HEADER_DESTINATION
+            ${INSTALL_INCLUDE_DIR}/metkit
+
+        SOURCES
+          odb/IdMapper.cc
+          odb/IdMapper.h
+          odb/OdbToRequest.cc
+          odb/OdbToRequest.h
+
+        PRIVATE_INCLUDES
+            ${ECKIT_INCLUDE_DIRS}
+            ${ODC_INCLUDE_DIRS}
+
+        LIBS
+            metkit
+            odccore
 )

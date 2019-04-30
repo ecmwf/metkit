@@ -13,7 +13,7 @@
 #include "metkit/types/TypeRegex.h"
 #include "metkit/MarsLanguage.h"
 #include "eckit/parser/JSONParser.h"
-#include "eckit/parser/StringTools.h"
+#include "eckit/utils/StringTools.h"
 
 
 namespace metkit {
