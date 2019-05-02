@@ -94,8 +94,12 @@ OdbToRequest::~OdbToRequest() {}
 
 std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
-    Odb o(dh);
     std::vector<MarsRequest> requests;
+
+    NOTIMP;
+
+#if 0 // NOT COMPILING
+    Odb o(dh);
 
     std::vector<std::string> columnNames;
     columnNames.reserve(mapping_.size());
@@ -110,8 +114,8 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
         requests.push_back(r);
     }
-
     return requests;
+#endif
 }
 
 //void OdbToRequest::parseConfig(const std::string& s) {
