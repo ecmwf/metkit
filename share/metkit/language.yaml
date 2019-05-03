@@ -772,7 +772,7 @@ retrieve:
     multiple: true
     type: any
 
-  optimize:
+  optimise:
     type: enum
     values:
     - true
