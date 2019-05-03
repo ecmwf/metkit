@@ -28,7 +28,7 @@ ecbuild_add_option( FEATURE GRIB
 # BUFR support
 
 ecbuild_add_option( FEATURE BUFR
-                    DEFAULT ON
+                    DEFAULT OFF
                     DESCRIPTION "Add support for BUFR4 format"
                     REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.8" )
 
@@ -44,7 +44,7 @@ ecbuild_add_option( FEATURE NETCDF
 # ODB2 support
 
 ecbuild_add_option( FEATURE ODB2
-                    DEFAULT ON
+                    DEFAULT OFF
                     DESCRIPTION "Add support for ODB2 format"
                     REQUIRED_PACKAGES "PROJECT odc VERSION 0.99.0" )
 
