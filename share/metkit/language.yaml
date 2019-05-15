@@ -10,6 +10,7 @@ _field: &_field
     - [at, austria]
     - [be, belgium]
     - [ch, switzerland]
+    - [c3, c3s]
     - [co, cosmo]
     - [cs, ecsn]
     - [de, germany]
