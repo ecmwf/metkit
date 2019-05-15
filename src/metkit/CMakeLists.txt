@@ -48,6 +48,7 @@ Parameter.cc
 Parameter.h
 ParamID.cc
 ParamID.h
+StepRangeNormalise.h
 config/LibMetkit.cc
 config/LibMetkit.h
 types/Type.cc
