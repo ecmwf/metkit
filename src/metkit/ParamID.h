@@ -435,8 +435,8 @@ void ParamID::normalise(const REQUEST_T& r,
 
         //Log::userWarning() <<  "wantU " << wantU << " wantV " << wantV << " wantVO " << wantVO << " wantD " << wantD << std::endl;
 
-        if (wantVO && wantD)  continue;
-        if (!wantU && !wantV) continue;
+        // if (wantVO && wantD)  continue;
+        // if (!wantU && !wantV) continue;
 
         // Check if we have got it, axis should be sorted
 

@@ -111,7 +111,7 @@ CASE ("wind3") {
     std::vector<std::string> axis = {"138", "155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, true);
 
 
 }
@@ -123,7 +123,7 @@ CASE ("wind4") {
     std::vector<std::string> axis = {"138.128", "155.128"};
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, true);
 
 
 }
@@ -147,7 +147,7 @@ CASE ("wind6") {
     std::vector<std::string> axis = {"138", "155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, true);
 
 
 }
@@ -160,7 +160,7 @@ CASE ("wind7") {
     std::vector<std::string> axis = {"138.128", "155.128"};
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, true);
 
 
 }
