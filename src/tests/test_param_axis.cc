@@ -105,6 +105,18 @@ CASE ("wind2") {
 }
 
 
+CASE ("wind3") {
+
+    std::vector<std::string> user = {"131", "132", "138", "155"};
+    std::vector<std::string> axis = {"138", "155"};
+    std::vector<std::string> expect = {"138", "155"};
+
+    test_param_axis(user, axis, expect, false);
+
+
+}
+
+
 CASE ("table1") {
 
     std::vector<std::string> user = {"129", "130.128"};
