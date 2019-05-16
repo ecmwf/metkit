@@ -1,3 +1,4 @@
+.atom-build.yaml
 .tags*
 CMakeLists.txt.user*
 *.autosave
