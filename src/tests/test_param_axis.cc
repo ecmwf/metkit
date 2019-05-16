@@ -117,6 +117,21 @@ CASE ("wind3") {
 }
 
 
+
+
+CASE ("mixed") {
+
+    std::vector<std::string> user = {"129", };
+    std::vector<std::string> axis = {"129.128", "129"};
+    std::vector<std::string> expect = {"129.128", "129"};
+
+    test_param_axis(user, axis, expect, false);
+
+
+}
+
+
+
 CASE ("table1") {
 
     std::vector<std::string> user = {"129", "130.128"};
@@ -165,6 +180,32 @@ CASE ("table4") {
 
 
 }
+
+
+
+CASE ("table5") {
+
+    std::vector<std::string> user = {"129", };
+    std::vector<std::string> axis = {"129.128", "129.140" };
+    std::vector<std::string> expect = {"129.128"};
+
+    test_param_axis(user, axis, expect, false);
+
+
+}
+
+
+CASE ("table6") {
+
+    std::vector<std::string> user = {"129", };
+    std::vector<std::string> axis = {"129", "140129" };
+    std::vector<std::string> expect = {"129"};
+
+    test_param_axis(user, axis, expect, false);
+
+
+}
+
 
 
 
