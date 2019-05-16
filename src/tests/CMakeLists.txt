@@ -42,6 +42,10 @@ ecbuild_add_test( TARGET    test_expand
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                   LIBS      metkit)
 
+ecbuild_add_test( TARGET    test_param_axis
+                  SOURCES   test_param_axis.cc
+                  INCLUDES  "${ECKIT_INCLUDE_DIRS}"
+                  LIBS      metkit)
 
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)
