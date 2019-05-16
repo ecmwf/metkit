@@ -81,11 +81,23 @@ CASE ("trivial") {
 
 }
 
-CASE ("wind") {
+CASE ("wind1") {
 
     std::vector<std::string> user = {"131", "132"};
     std::vector<std::string> axis = {"138", "155"};
-    std::vector<std::string> expect = {"1", "2", "3"};
+    std::vector<std::string> expect = {"138", "155"};
+
+    test_param_axis(user, axis, expect, false);
+
+
+}
+
+
+CASE ("wind2") {
+
+    std::vector<std::string> user = {"131", "132"};
+    std::vector<std::string> axis = {"131", "132", "138", "155"};
+    std::vector<std::string> expect = {"131", "132"};
 
     test_param_axis(user, axis, expect, false);
 
