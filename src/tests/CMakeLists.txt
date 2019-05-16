@@ -8,7 +8,9 @@
 
 list(APPEND metkit_env "METKIT_HOME=${CMAKE_BINARY_DIR}")
 
-if( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
+if( DEFINED ECCODES_DEFINITION_PATH )
+  list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${ECCODES_DEFINITION_PATH}")
+elseif( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
   list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/eccodes/definitions")
 endif()
 
