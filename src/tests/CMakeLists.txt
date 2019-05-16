@@ -56,6 +56,11 @@ ecbuild_add_test( TARGET    test_param_axis
                   ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit)
 
+ecbuild_add_test( TARGET      test_steprange_axis
+                  SOURCES     test_steprange_axis.cc
+                  ENVIRONMENT "${metkit_env}"
+                  LIBS        metkit )
+
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)
 # endif()
