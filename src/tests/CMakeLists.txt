@@ -6,6 +6,15 @@
 # granted to it by virtue of its status as an intergovernmental organisation
 # nor does it submit to any jurisdiction.
 
+list(APPEND metkit_env "METKIT_HOME=${CMAKE_BINARY_DIR}")
+
+if( DEFINED ECCODES_DEFINITION_PATH )
+  list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${ECCODES_DEFINITION_PATH}")
+elseif( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
+  list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/eccodes/definitions")
+endif()
+
+
 ecbuild_get_test_multidata( TARGET grib_get_data
                             DIRNAME grib_api/data
                             NAMES latlon.grib )
@@ -15,13 +24,10 @@ ecbuild_add_test( TARGET        metkit_test_emosfile
                   CONDITION     HAVE_GRIB
                   INCLUDES      "${ECKIT_INCLUDE_DIRS}"
                   SOURCES       test_emosfile.cc
+                  ENVIRONMENT   "${metkit_env}"
                   LIBS          metkit
                   TEST_DEPENDS  grib_get_data
 )
-
-if( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
-  set( eccodes_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
-endif()
 
 ecbuild_add_test( TARGET        metkit_test_multihandle
                   CONDITION     HAVE_GRIB
@@ -29,19 +35,27 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   SOURCES       test_multihandle.cc
                   LIBS          metkit
                   TEST_DEPENDS  grib_get_data
-                  ENVIRONMENT   "${eccodes_env}"
+                  ENVIRONMENT   "${metkit_env}"
 )
 
 ecbuild_add_test( TARGET    test_typesfactory
                   SOURCES   test_typesfactory.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
+                  ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit )
 
 ecbuild_add_test( TARGET    test_expand
                   SOURCES   test_expand.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
+                  ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit)
 
+ecbuild_add_test( TARGET    test_param_axis
+                  SOURCES   test_param_axis.cc
+                  INCLUDES  "${ECKIT_INCLUDE_DIRS}"
+                  CONDITION OFF # until we implement the fix in 1.2.0
+                  ENVIRONMENT   "${metkit_env}"
+                  LIBS      metkit)
 
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)

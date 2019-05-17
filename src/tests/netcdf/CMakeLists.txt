@@ -37,7 +37,7 @@ foreach(_TEST
     bounds_merge_2
     # ${merge_tests_ok}
     )
-    ecbuild_add_test(TARGET "nccombine_${_TEST}"
-                     COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/${_TEST}.sh")
+    ecbuild_add_test( TARGET "nccombine_${_TEST}"
+                      ENVIRONMENT   "${metkit_env}"
+                      COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/${_TEST}.sh")
 endforeach()
-
