@@ -53,9 +53,13 @@ ecbuild_add_test( TARGET    test_expand
 ecbuild_add_test( TARGET    test_param_axis
                   SOURCES   test_param_axis.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
-                  CONDITION OFF # until we implement the fix in 1.2.0
                   ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit)
+
+ecbuild_add_test( TARGET      test_steprange_axis
+                  SOURCES     test_steprange_axis.cc
+                  ENVIRONMENT "${metkit_env}"
+                  LIBS        metkit )
 
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)

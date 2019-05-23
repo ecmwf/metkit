@@ -333,17 +333,28 @@ void ParamID::normalise(const REQUEST_T& r,
                     else
                     {
                         // Asking for param=130, old style (not a paramId)
-
                         bool ok = false;
-                        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-                        {
-                            Param p(*j);
-                            if ((p.value() % 1000) == v) {
-                                if (inRequest.find(p) == inRequest.end()) {
-                                    //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
-                                    newreq.push_back(p);
-                                    inRequest.insert(p);
-                                    ok = true;
+
+                        // Try 130.128
+
+                        Param p(128, v);
+                        if(std::find(axis.begin(), axis.end(), p) != axis.end()) {
+                            // This is a match
+                            ok = true;
+                            newreq.push_back(p);
+                        }
+                        else {
+
+                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
+                            {
+                                Param p(*j);
+                                if ((p.value() % 1000) == v) {
+                                    if (inRequest.find(p) == inRequest.end()) {
+                                        //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
+                                        newreq.push_back(p);
+                                        inRequest.insert(p);
+                                        ok = true;
+                                    }
                                 }
                             }
                         }
@@ -424,8 +435,8 @@ void ParamID::normalise(const REQUEST_T& r,
 
         //Log::userWarning() <<  "wantU " << wantU << " wantV " << wantV << " wantVO " << wantVO << " wantD " << wantD << std::endl;
 
-        if (wantVO && wantD)  continue;
-        if (!wantU && !wantV) continue;
+        // if (wantVO && wantD)  continue;
+        // if (!wantU && !wantV) continue;
 
         // Check if we have got it, axis should be sorted
 
