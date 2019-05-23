@@ -78,7 +78,6 @@ CASE ("trivial") {
     std::vector<std::string> expect = {"1", "2", "3"};
 
     test_param_axis(user, axis, expect, false);
-
 }
 
 CASE ("wind1") {
@@ -88,8 +87,6 @@ CASE ("wind1") {
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 
@@ -100,8 +97,6 @@ CASE ("wind2") {
     std::vector<std::string> expect = {"131", "132"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -112,8 +107,6 @@ CASE ("wind3") {
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 
@@ -124,8 +117,6 @@ CASE ("wind4") {
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 
@@ -136,8 +127,6 @@ CASE ("wind5") {
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 
@@ -148,8 +137,6 @@ CASE ("wind6") {
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 
@@ -161,8 +148,6 @@ CASE ("wind7") {
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 
@@ -174,8 +159,6 @@ CASE ("wind8") {
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
     test_param_axis(user, axis, expect, true);
-
-
 }
 
 CASE ("mixed") {
@@ -185,10 +168,43 @@ CASE ("mixed") {
     std::vector<std::string> expect = {"129", "129.128"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
+CASE ("ocean1") {
+
+    std::vector<std::string> user = { "145" };
+    std::vector<std::string> axis = {"145.128", "164.128", "175.128", "148.128", "145.151", "164.151", "175.151", "148.151"};
+    std::vector<std::string> expect = {"145.128"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("ocean2") {
+
+    std::vector<std::string> user = { "145", "151145" };
+    std::vector<std::string> axis = {"145.128", "164.128", "175.128", "148.128", "145.151", "164.151", "175.151", "148.151"};
+    std::vector<std::string> expect = {"145.128", "145.151"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("ocean3") {
+
+    std::vector<std::string> user = { "145", "164", "175", "148", "151145" };
+    std::vector<std::string> axis = {"145.128", "164.128", "175.128", "148.128", "145.151", "164.151", "175.151", "148.151"};
+    std::vector<std::string> expect = {"145.128", "164.128", "175.128", "148.128", "145.151"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("ocean4") {
+
+    std::vector<std::string> user = { "145", "164", "175", "148" };
+    std::vector<std::string> axis = { "145.151", "164.151", "175.151", "148.151" };
+    std::vector<std::string> expect = {"145.151", "164.151", "175.151", "148.151"};
+
+    test_param_axis(user, axis, expect, false);
+}
 
 
 CASE ("table1") {
@@ -198,8 +214,6 @@ CASE ("table1") {
     std::vector<std::string> expect = {"129.128", "130"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -211,8 +225,6 @@ CASE ("table2") {
     std::vector<std::string> expect = {"129.128", "130"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -224,8 +236,6 @@ CASE ("table3") {
     std::vector<std::string> expect = {"140129"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -236,8 +246,6 @@ CASE ("table4") {
     std::vector<std::string> expect = {"129.140"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -249,8 +257,6 @@ CASE ("table5") {
     std::vector<std::string> expect = {"129.128"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -261,8 +267,6 @@ CASE ("table6") {
     std::vector<std::string> expect = {"129.128"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -273,8 +277,6 @@ CASE ("table7") {
     std::vector<std::string> expect = {"129"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 CASE ("table8") {
@@ -284,8 +286,6 @@ CASE ("table8") {
     std::vector<std::string> expect = {"129"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
@@ -296,8 +296,6 @@ CASE ("table9") {
     std::vector<std::string> expect = {"129"};
 
     test_param_axis(user, axis, expect, false);
-
-
 }
 
 
