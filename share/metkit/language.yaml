@@ -411,6 +411,7 @@ _field: &_field
       - pd
       - pb
       - taem
+      - cd
       # - sot
     type: enum
     values:
