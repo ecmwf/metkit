@@ -273,7 +273,6 @@ void ParamID::normalise(const REQUEST_T& r,
                                     eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
                                     newreq.push_back(p);
                                     inRequest.insert(p);
-                                    eckit::Log::debug<LibMetkit>() << "inRequest: " << inRequest << std::endl;
                                     ok = true;
                                 }
                             }
@@ -288,7 +287,6 @@ void ParamID::normalise(const REQUEST_T& r,
                                         eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
                                         newreq.push_back(p);
                                         inRequest.insert(p);
-                                        eckit::Log::debug<LibMetkit>() << "inRequest: " << inRequest << std::endl;
                                         ok = true;
                                     }
                                 }
