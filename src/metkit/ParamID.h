@@ -27,6 +27,7 @@
 #include "eckit/log/Log.h"
 #include "eckit/types/Types.h"
 
+#include "metkit/config/LibMetkit.h"
 #include "metkit/Param.h"
 
 namespace metkit {
@@ -130,12 +131,9 @@ void ParamID::normalise(const REQUEST_T& r,
         // We have GRIB2 in the cube
         if (tables.find(0) != tables.end()) {
 
-            if (tables.size() == 1) {
+            if (tables.size() == 1) { // GRIB2 only
 
-
-                //Log::userWarning() << "Layout contains GRIB2 fields" << std::endl;
-
-                // GRIB2 only
+                eckit::Log::debug<LibMetkit>() << "Layout contains only GRIB2 fields" << std::endl;
 
                 for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
                 {
@@ -214,15 +212,17 @@ void ParamID::normalise(const REQUEST_T& r,
                 }
 
             }
-            else
+            else // GRIB1 and GRIB2 mixed
             {
-                // GRIB1 and GRIB2 mixed
-                //Log::userWarning() << "Layout contains a mixture of GRIB1 and GRIB2 fields" << std::endl;
+                eckit::Log::debug<LibMetkit>() << "Layout contains a mixture of GRIB1 and GRIB2 fields" << std::endl;
 
                 for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
                 {
                     eckit::Ordinal t = (*k).table();
                     eckit::Ordinal v = (*k).value();
+
+                    eckit::Log::debug<LibMetkit>() << "Trying to match " << (*k) << " t:" << t << " v:" << v << std::endl;
+
                     bool ok = false;
 
                     // Push perfect match
@@ -230,7 +230,7 @@ void ParamID::normalise(const REQUEST_T& r,
                         // Block for (p)
                         Param p(*k);
                         if (inAxis.find(p) != inAxis.end() && inRequest.find(p) == inRequest.end()) {
-                            //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
+                            eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
                             newreq.push_back(p);
                             inRequest.insert(p);
                             ok = true;
@@ -242,7 +242,7 @@ void ParamID::normalise(const REQUEST_T& r,
                         Param p(0, (t == 128 ? 0 : t) * 1000 + v);
                         // User specifies xxx.yyy
                         if (inAxis.find(p) != inAxis.end() && inRequest.find(p) == inRequest.end()) {
-                            //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
+                            eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
                             newreq.push_back(p);
                             inRequest.insert(p);
                             ok = true;
@@ -253,7 +253,7 @@ void ParamID::normalise(const REQUEST_T& r,
                         // User specifies yyyxxx
                         Param p(v / 1000, v % 1000);
                         if (inAxis.find(p) != inAxis.end() && inRequest.find(p) == inRequest.end()) {
-                            //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
+                            eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
                             newreq.push_back(p);
                             inRequest.insert(p);
                             ok = true;
@@ -261,15 +261,34 @@ void ParamID::normalise(const REQUEST_T& r,
                     }
 
                     if (t == 0 && v < 1000) {
+                        // User specifies xxx
+
+                        // prioritise 128
                         for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
                         {
                             Param p(*j);
+                            if(p.table() != 128) continue;
                             if ((p.value() % 1000) == v) {
                                 if (inRequest.find(p) == inRequest.end()) {
-                                    //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
+                                    eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
                                     newreq.push_back(p);
                                     inRequest.insert(p);
                                     ok = true;
+                                }
+                            }
+                        }
+
+                        if (!ok) {
+                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
+                            {
+                                Param p(*j);
+                                if ((p.value() % 1000) == v) {
+                                    if (inRequest.find(p) == inRequest.end()) {
+                                        eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
+                                        newreq.push_back(p);
+                                        inRequest.insert(p);
+                                        ok = true;
+                                    }
                                 }
                             }
                         }
@@ -294,7 +313,7 @@ void ParamID::normalise(const REQUEST_T& r,
                                 if (inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
                                     Param p(v == windFamilies[w].u_.value() ? windFamilies[w].u_ : windFamilies[w].v_);
                                     if (inRequest.find(p) == inRequest.end()) {
-                                        //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << " (wind field)" << std::endl;
+                                        eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " (wind field)" << std::endl;
                                         newreq.push_back(p);
                                         inRequest.insert(p);
                                     }
@@ -310,7 +329,7 @@ void ParamID::normalise(const REQUEST_T& r,
         {
             // GRIB1 only
 
-            //Log::userWarning() << "Layout contains GRIB1 fields" << std::endl;
+            eckit::Log::debug<LibMetkit>() << "Layout contains GRIB1 fields" << std::endl;
 
             for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
             {
@@ -456,7 +475,7 @@ void ParamID::normalise(const REQUEST_T& r,
             if (!wantVO) req.push_back(windVO);
             if (!wantD)  req.push_back(windD);
 
-            //Log::userWarning() << "U/V conversion requested U=" << windU << ", V=" << windV << ", VO=" << windVO << ", D=" << windD << std::endl;
+            eckit::Log::debug<LibMetkit>() << "U/V conversion requested U=" << windU << ", V=" << windV << ", VO=" << windVO << ", D=" << windD << std::endl;
             windConversion = true;
         }
     }
