@@ -262,9 +262,12 @@ void ParamID::normalise(const REQUEST_T& r,
 
                     if (t == 0 && v < 1000) {
                         // User specifies xxx
+
+                        // prioritise 128
                         for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
                         {
                             Param p(*j);
+                            if(p.table() != 128) continue;
                             if ((p.value() % 1000) == v) {
                                 if (inRequest.find(p) == inRequest.end()) {
                                     eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
@@ -272,6 +275,22 @@ void ParamID::normalise(const REQUEST_T& r,
                                     inRequest.insert(p);
                                     eckit::Log::debug<LibMetkit>() << "inRequest: " << inRequest << std::endl;
                                     ok = true;
+                                }
+                            }
+                        }
+
+                        if (!ok) {
+                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
+                            {
+                                Param p(*j);
+                                if ((p.value() % 1000) == v) {
+                                    if (inRequest.find(p) == inRequest.end()) {
+                                        eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
+                                        newreq.push_back(p);
+                                        inRequest.insert(p);
+                                        eckit::Log::debug<LibMetkit>() << "inRequest: " << inRequest << std::endl;
+                                        ok = true;
+                                    }
                                 }
                             }
                         }
