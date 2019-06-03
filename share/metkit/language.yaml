@@ -623,6 +623,7 @@ _field: &_field
     values:
     - [ammc, 1, melbourne]
     - [babj, 38, beijing]
+    - [cmcc]
     - [cnmc, 80]
     - [consensus, 255]
     - [crfc, 239, cerfacs]
