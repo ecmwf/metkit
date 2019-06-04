@@ -27,7 +27,7 @@ index[('oper', 'wp', 'pl')] = sorted(set([130, 129, 157, 131, 132]))
 index[('enfo', 'wp', 'sfc')] = index[('oper', 'wp', 'sfc')]
 index[('enfo', 'wp', 'pl')] = index[('oper', 'wp', 'pl')]
     
-# Manually add type=tf parameters for PGEN.
+# Manually add type=tf parameters for PGEN
 index[('oper', 'tf', '')] = [129, 999]
 index[('enfo', 'tf', '')] = [129, 999]
 
