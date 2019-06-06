@@ -348,6 +348,9 @@ _field: &_field
     - stream:
       - enfh
       - enwh
+      - efho
+      - ehmm
+      - ewho
     type: integer
 
   fcmonth:
