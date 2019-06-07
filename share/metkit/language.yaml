@@ -833,6 +833,7 @@ disseminate:
     - nobackup
     - grib1table1
     - xmaster
+    - [asap, early delivery]
 
   compatibility:
     category: postproc
