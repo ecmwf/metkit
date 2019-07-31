@@ -20,12 +20,9 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeEnum::TypeEnum(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings),
-    multiple_(false) {
+    Type(name, settings) {
 
-    if (settings.contains("multiple")) {
-        multiple_ = settings["multiple"];
-    }
+
 
     eckit::Value values = settings["values"];
 

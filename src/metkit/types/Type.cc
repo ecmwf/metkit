@@ -21,7 +21,8 @@ namespace metkit {
 Type::Type(const std::string &name, const eckit::Value& settings) :
     name_(name),
     flatten_(true),
-    multiple_(false) {
+    multiple_(false),
+    duplicates_(true) {
 
     if (settings.contains("multiple")) {
         multiple_ = settings["multiple"];
@@ -29,6 +30,10 @@ Type::Type(const std::string &name, const eckit::Value& settings) :
 
     if (settings.contains("flatten")) {
         flatten_ = settings["flatten"];
+    }
+
+    if (settings.contains("duplicates")) {
+        duplicates_ = settings["duplicates"];
     }
 
     if (settings.contains("category")) {
@@ -179,6 +184,8 @@ bool Type::expand(const MarsExpandContext&, std::string& value) const {
 void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
     std::vector<std::string> newvals;
 
+    std::set<std::string> seen;
+
     for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
 
         std::string value = *j;
@@ -186,6 +193,15 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
             std::ostringstream oss;
             oss << *this << ": cannot expand '" << *j << "'" << ctx;
             throw eckit::UserError(oss.str());
+        }
+
+        if(!duplicates_) {
+            if(seen.find(value) != seen.end()) {
+                std::ostringstream oss;
+                oss << *this << ": duplicated value '" << *j << "'" << ctx;
+                throw eckit::UserError(oss.str());
+            }
+            seen.insert(value);
         }
 
         newvals.push_back(value);
@@ -196,6 +212,8 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
     if (!multiple_ && values.size() > 1) {
         throw eckit::UserError("Only one value passible for '" + name_ + "'");
     }
+
+
 }
 
 void Type::setDefaults(MarsRequest& request) {

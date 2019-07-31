@@ -2393,6 +2393,24 @@
 133092:
 - lccpg99
 - low cloud cover probability greater than 99%
+133093:
+- ptsa_gt_1stdev
+- probability of temperature standardized anomaly greater than 1 standard deviation
+133094:
+- ptsa_gt_1p5stdev
+- probability of temperature standardized anomaly greater than 1.5 standard deviation
+133095:
+- ptsa_gt_2stdev
+- probability of temperature standardized anomaly greater than 2 standard deviation
+133096:
+- ptsa_lt_1stdev
+- probability of temperature standardized anomaly less than -1 standard deviation
+133097:
+- ptsa_lt_1p5stdev
+- probability of temperature standardized anomaly less than -1.5 standard deviation
+133098:
+- ptsa_lt_2stdev
+- probability of temperature standardized anomaly less than -2 standard deviation
 140080:
 - wx1
 - wave experimental parameter 1
@@ -2408,6 +2426,48 @@
 140084:
 - wx5
 - wave experimental parameter 5
+140098:
+- weta
+- wave induced mean sea level correction
+140099:
+- wraf
+- ratio of wave angular and frequency width
+140100:
+- wnslc
+- number of events in freak waves statistics
+140101:
+- utaua
+- u-component of atmospheric surface momentum flux
+140102:
+- vtaua
+- v-component of atmospheric surface momentum flux
+140103:
+- utauo
+- u-component of surface momentum flux into ocean
+140104:
+- vtauo
+- v-component of surface momentum flux into ocean
+140105:
+- wphio
+- wave turbulent energy flux into ocean
+140106:
+- wdw1
+- wave directional width of first swell partition
+140107:
+- wfw1
+- wave frequency width of first swell partition
+140108:
+- wdw2
+- wave directional width of second swell partition
+140109:
+- wfw2
+- wave frequency width of second swell partition
+140110:
+- wdw3
+- wave directional width of third swell partition
+140111:
+- wfw3
+- wave frequency width of third swell partition
 140112:
 - wefxm
 - wave energy flux magnitude
@@ -2714,6 +2774,9 @@
 150255:
 - _param_150255
 - indicates a missing value
+151127:
+- mswt300m
+- mean sea water temperature in the upper 300 m
 151128:
 - _param_151128
 - in situ temperature
@@ -3635,6 +3698,7 @@
 171031:
 - sica
 - sea-ice cover anomaly
+- ci
 171032:
 - asna
 - snow albedo anomaly
@@ -4184,16 +4248,16 @@
 - large-scale precipitation fraction
 - lspf
 172142:
-- _param_172142
-- stratiform precipitation (large-scale precipitation)
+- mlsprt
+- mean large-scale precipitation rate
 - lsp
 172143:
 - cprate
-- convective precipitation
+- mean convective precipitation rate
 - cp
 172144:
-- _param_172144
-- snowfall (convective + stratiform)
+- mtsfr
+- mean total snowfall rate
 - sf
 172145:
 - bldrate
@@ -4257,8 +4321,8 @@
 - evaporation
 - e
 172189:
-- _param_172189
-- sunshine duration
+- msdr
+- mean sunshine duration rate
 - sund
 172195:
 - _param_172195
@@ -4290,7 +4354,7 @@
 - solar insolation rate of accumulation
 172228:
 - tprate
-- total precipitation
+- mean total precipitation rate
 - tp
 172239:
 - _param_172239
@@ -6332,6 +6396,21 @@
 210246:
 - taedab550
 - profile of total aerosol dry absorption coefficient
+210247:
+- aermr16
+- nitrate fine mode aerosol mass mixing ratio
+210248:
+- aermr17
+- nitrate coarse mode aerosol mass mixing ratio
+210249:
+- aermr18
+- ammonium aerosol mass mixing ratio
+210250:
+- niaod550
+- nitrate aerosol optical depth at 550 nm
+210251:
+- amaod550
+- ammonium aerosol optical depth at 550 nm
 211001:
 - aermr01diff
 - sea salt aerosol (0.03 - 0.5 um) mixing ratio
@@ -8496,6 +8575,75 @@
 215188:
 - aerbackscatgnd1064
 - aerosol backscatter coefficient at 1064 nm (from ground)
+215189:
+- aersrcnif
+- source/gain of fine-mode nitrate aerosol
+215190:
+- aersrcnic
+- source/gain of coarse-mode nitrate aerosol
+215191:
+- aerddpnif
+- dry deposition of fine-mode nitrate aerosol
+215192:
+- aerddpnic
+- dry deposition of coarse-mode nitrate aerosol
+215193:
+- aersdmnif
+- sedimentation of fine-mode nitrate aerosol
+215194:
+- aersdmnic
+- sedimentation of coarse-mode nitrate aerosol
+215195:
+- aerwdlnif
+- wet deposition of fine-mode nitrate aerosol by large-scale precipitation
+215196:
+- aerwdlnic
+- wet deposition of coarse-mode nitrate aerosol by large-scale precipitation
+215197:
+- aerwdcnif
+- wet deposition of fine-mode nitrate aerosol by convective precipitation
+215198:
+- aerwdcnic
+- wet deposition of coarse-mode nitrate aerosol by convective precipitation
+215199:
+- aerngtnif
+- negative fixer of fine-mode nitrate aerosol
+215200:
+- aerngtnic
+- negative fixer of coarse-mode nitrate aerosol
+215201:
+- aermssnif
+- vertically integrated mass of fine-mode nitrate aerosol
+215202:
+- aermssnic
+- vertically integrated mass of coarse-mode nitrate aerosol
+215203:
+- aerodnif
+- fine-mode nitrate aerosol optical depth at 550 nm
+215204:
+- aerodnic
+- coarse-mode nitrate aerosol optical depth at 550 nm
+215205:
+- aersrcam
+- source/gain of ammonium aerosol
+215206:
+- aerddpam
+- dry deposition of ammonium aerosol
+215207:
+- aersdmam
+- sedimentation of ammonium aerosol
+215208:
+- aerwdlam
+- wet deposition of ammonium aerosol by large-scale precipitation
+215209:
+- aerwdcam
+- wet deposition of ammonium aerosol by convective precipitation
+215210:
+- aerngtam
+- negative fixer of ammonium aerosol
+215211:
+- aermssam
+- vertically integrated mass of ammonium aerosol
 216001:
 - _param_216001
 - experimental product
@@ -11905,6 +12053,21 @@
 228060:
 - licga6
 - averaged cloud-to-ground lightning flash density in the last 6 hours
+228070:
+- smnnob
+- smos observed soil moisture retrieved using neural network
+228071:
+- smnner
+- smos observed soil moisture uncertainty retrieved using neural network
+228072:
+- smnnrfi
+- smos radio frequency interference probability
+228073:
+- smnnnb
+- smos number of observations per grid point
+228074:
+- smnntim
+- smos observation time for the satellite soil moisture data
 228078:
 - gppbfas
 - gpp coefficient from biogenic flux adjustment system
@@ -12061,6 +12224,15 @@
 228230:
 - smos_tb_cdfb
 - smos second brightness temperature bias correction parameter
+228239:
+- 200u
+- 200 metre u wind component
+228240:
+- 200v
+- 200 metre v wind component
+228241:
+- 200si
+- 200 metre wind speed
 228242:
 - fdif
 - surface solar radiation diffuse total sky
@@ -12672,7 +12844,7 @@
 - large scale snowfall rate
 260056:
 - sdwe
-- water equivalent of accumulated snow depth
+- water equivalent of accumulated snow depth (deprecated)
 260057:
 - tciwv
 - total column integrated water vapour
@@ -12998,8 +13170,8 @@
 - _param_260164
 - in-cloud turbulence
 260165:
-- cat
-- clear air turbulence (cat)
+- rcat
+- relative clear air turbulence (rcat)
 260166:
 - _param_260166
 - supercooled large droplet probability (see note 4)
@@ -13375,6 +13547,12 @@
 260289:
 - fscov
 - fraction of snow cover
+260290:
+- cat
+- clear air turbulence (cat)
+260291:
+- mwt
+- mountain wave turbulence (eddy dissipation rate)
 260295:
 - lauv
 - latitude of u wind component of velocity

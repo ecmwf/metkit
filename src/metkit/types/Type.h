@@ -75,6 +75,7 @@ protected: // members
     std::vector<std::string> defaults_;
     bool flatten_;
     bool multiple_;
+    bool duplicates_;
 
     std::vector<std::string> originalDefaults_;
 
