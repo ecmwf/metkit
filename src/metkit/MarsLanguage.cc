@@ -149,6 +149,9 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
     size_t score = 1;
     std::vector<std::string> best;
 
+    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", false);
+
+
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
 
@@ -209,6 +212,14 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
             best.clear();
         }
         else {
+
+            if(strict) {
+                if(best[0] != name) {
+                    std::ostringstream oss;
+                    oss << "Cannot match [" << name << "] in " << values << ctx;
+                    throw eckit::UserError(oss.str());
+                }
+            }
 
             if (aliases.find(best[0]) != aliases.end()) {
                 return aliases.find(best[0])->second;
