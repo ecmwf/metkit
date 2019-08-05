@@ -3,7 +3,7 @@ from collections import OrderedDict
 import psycopg2
 import yaml
 
-DSN = 'host=db-products-preprod-00 user=ecmwf_ro password=ecmwf_ro dbname=products'
+DSN = 'host=db-products-prod-00 user=ecmwf_ro password=ecmwf_ro dbname=products'
 with psycopg2.connect(DSN) as conn:
     with conn.cursor() as cur:
         cur.execute("SELECT DISTINCT stream, type, levtype, param::INTEGER FROM fields WHERE param != '' ORDER BY stream, type, levtype, param::INTEGER")
