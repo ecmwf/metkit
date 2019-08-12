@@ -17,17 +17,6 @@ for row in rows:
         index[key] = []
     index[key].append(param)
 
-# Add the same Weather Parameters that were there before, until they are
-# fixed in the Fields Catalogue.
-index[('oper', 'wp', 'sfc')] = sorted(set([123, 228, 129, 164, 167, 165, 166,
-                                      168, 144, 121, 122, 172, 142, 143, 151, 189,
-                                      59, 134, 141, 169, 139, 170, 183, 236,
-                                      39, 40, 41, 42, 121, 122, 186, 187, 188]))
-index[('oper', 'wp', 'pl')] = sorted(set([130, 129, 157, 131, 132]))
-
-index[('enfo', 'wp', 'sfc')] = index[('oper', 'wp', 'sfc')]
-index[('enfo', 'wp', 'pl')] = index[('oper', 'wp', 'pl')]
-    
 # Manually add type=tf parameters for PGEN
 index[('oper', 'tf', '')] = [129, 999]
 index[('enfo', 'tf', '')] = [129, 999]
