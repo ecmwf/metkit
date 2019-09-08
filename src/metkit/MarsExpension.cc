@@ -91,7 +91,7 @@ void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& requ
 
 
 void MarsExpension::flatten(const MarsExpandContext& ctx,
-    const MarsRequest& request,
+                            const MarsRequest& request,
                             FlattenCallback& callback) {
     language(ctx, request.verb()).flatten(ctx, request, callback);
 }

@@ -737,8 +737,8 @@ _postproc: &_postproc
     values:
     - - so
       - second order
-    - av
-    - co
+    - ['off', av]
+    - [co, complex]
     - simple
 
   resol:

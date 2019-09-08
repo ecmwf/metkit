@@ -213,8 +213,8 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
         }
         else {
 
-            if(strict) {
-                if(best[0] != name) {
+            if (strict) {
+                if (best[0] != name) {
                     std::ostringstream oss;
                     oss << "Cannot match [" << name << "] in " << values << ctx;
                     throw eckit::UserError(oss.str());
@@ -290,9 +290,27 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
     return bestMatch(ctx, verb, verbs_, true, true);
 }
 
+class TypeHidden : public Type {
+    virtual bool flatten() const { return false; }
+    virtual void print(std::ostream &out) const { out <<  "TypeHidden"; }
+    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const {
+        return true;
+    }
+public:
+    TypeHidden(): Type("hidden", eckit::Value()) { attach(); }
+};
+
+
 Type* MarsLanguage::type(const std::string& name) const {
     std::map<std::string, Type* >::const_iterator k = types_.find(name);
     if (k == types_.end()) {
+
+
+        if (name[0] == '_') {
+            static TypeHidden hidden;
+            return &hidden;
+        }
+
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
     return (*k).second;
