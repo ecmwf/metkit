@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "eckit/parser/JSON.h"
+#include "eckit/log/JSON.h"
 #include "eckit/utils/StringTools.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
