@@ -79,8 +79,10 @@ public: // methods
 
    void setDataValues(const double*, size_t);
 
-   void   write( eckit::DataHandle& );
+   size_t write( eckit::DataHandle& );
    size_t write( eckit::Buffer& );
+   void   write( const eckit::PathName&, const char* mode = "w" );
+   void   dump( const eckit::PathName&, const char* mode = "debug");
 
    double latitudeOfFirstGridPointInDegrees()  const;
    double longitudeOfFirstGridPointInDegrees() const;
@@ -88,6 +90,8 @@ public: // methods
    double longitudeOfLastGridPointInDegrees()  const;
 
    bool hasKey(const char*) const;
+
+   operator const grib_handle*() const { return handle_; }
 
 protected: // methods
 
@@ -99,6 +103,7 @@ protected: // methods
    /// To be used by friends since this is rather dangerous
    /// Don't delete this pointer, use with care :)
    /// @returns the raw grib_handle so client code can call grib directly
+
    grib_handle* raw() const { return handle_; }
 
    /// Client code shouldn't care if GRIB edition
