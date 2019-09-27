@@ -79,10 +79,10 @@ public: // methods
 
    void setDataValues(const double*, size_t);
 
-   size_t write( eckit::DataHandle& );
-   size_t write( eckit::Buffer& );
-   void   write( const eckit::PathName&, const char* mode = "w" );
-   void   dump( const eckit::PathName&, const char* mode = "debug");
+   size_t write( eckit::DataHandle& )  const;
+   size_t write( eckit::Buffer& ) const;
+   void   write( const eckit::PathName&, const char* mode = "w" ) const;
+   void   dump( const eckit::PathName&, const char* mode = "debug") const;
 
    double latitudeOfFirstGridPointInDegrees()  const;
    double longitudeOfFirstGridPointInDegrees() const;

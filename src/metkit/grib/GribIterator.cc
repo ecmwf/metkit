@@ -21,7 +21,7 @@ using namespace std;
 namespace metkit {
 namespace grib {
 
-GribIterator::GribIterator(GribHandle& handle):
+GribIterator::GribIterator(const GribHandle& handle):
     iterator_(0) {
 
     int ret = 0;

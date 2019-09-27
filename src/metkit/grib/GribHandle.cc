@@ -130,17 +130,17 @@ void GribHandle::setDataValues(const double* values, size_t count) {
     GRIB_CALL(grib_set_double_array(raw(), "values", values, count));
 }
 
-void GribHandle::dump( const eckit::PathName& path, const char* mode) {
+void GribHandle::dump( const eckit::PathName& path, const char* mode) const {
     eckit::StdFile f(path.localPath(), "w");
     grib_dump_content(handle_, f, "mode", 0, 0);
     f.close();
 }
 
-void GribHandle::write(const eckit::PathName& path, const char* mode) {
+void GribHandle::write(const eckit::PathName& path, const char* mode) const {
     ASSERT(grib_write_message(handle_, path.localPath(), mode) == 0);
 }
 
-size_t GribHandle::write(eckit::DataHandle& handle) {
+size_t GribHandle::write(eckit::DataHandle& handle) const {
     const void* message = NULL;
     size_t length       = 0;
 
@@ -154,7 +154,7 @@ size_t GribHandle::write(eckit::DataHandle& handle) {
     return length;
 }
 
-size_t GribHandle::write(eckit::Buffer& buff) {
+size_t GribHandle::write(eckit::Buffer& buff) const {
     size_t len = buff.size();
     GRIB_CALL(grib_get_message_copy(raw(), buff, &len));  // will issue error if buffer too small
     return len;

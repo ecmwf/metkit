@@ -32,7 +32,7 @@ class GribHandle;
 class GribIterator : private eckit::NonCopyable {
 public:
 
-  GribIterator(GribHandle&);
+  GribIterator(const GribHandle&);
    ~GribIterator() noexcept(false);
 
 
