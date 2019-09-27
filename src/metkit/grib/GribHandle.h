@@ -99,6 +99,7 @@ protected: // methods
    friend class GribMetaData;
    friend class GribAccessorBase;
    friend class GribMutatorBase;
+   friend class GribIterator;
 
    /// To be used by friends since this is rather dangerous
    /// Don't delete this pointer, use with care :)

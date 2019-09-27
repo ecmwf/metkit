@@ -111,6 +111,8 @@ if ( HAVE_GRIB )
         grib/GribIndex.cc
         grib/GribHandle.h
         grib/GribHandle.cc
+        grib/GribIterator.h
+        grib/GribIterator.cc
         grib/GribDataBlob.h
         grib/GribDataBlob.cc
         grib/GribMetaData.h
