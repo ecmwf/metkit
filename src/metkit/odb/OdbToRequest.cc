@@ -94,19 +94,17 @@ OdbToRequest::~OdbToRequest() {}
 
 std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
+    Reader o(dh);
+    Frame f(o);
+
     std::vector<MarsRequest> requests;
-
-    NOTIMP;
-
-#if 0 // NOT COMPILING
-    Odb o(dh);
 
     std::vector<std::string> columnNames;
     columnNames.reserve(mapping_.size());
     for (const auto& kv : mapping_) columnNames.push_back(kv.first);
 
-    while (auto tbl = o.next(false)) {
-        Span span = tbl.get().span(columnNames, onlyConstantColumns_);
+    while (f.next(false)) {
+        Span span = f.span(columnNames, onlyConstantColumns_);
 
         MarsRequest r;
         MarsRequestSetter setter(r, mapping_);
@@ -115,7 +113,6 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
         requests.push_back(r);
     }
     return requests;
-#endif
 }
 
 //void OdbToRequest::parseConfig(const std::string& s) {

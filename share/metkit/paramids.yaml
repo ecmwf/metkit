@@ -2775,8 +2775,8 @@
 - _param_150255
 - indicates a missing value
 151127:
-- mswt300m
-- mean sea water temperature in the upper 300 m
+- mswpt300m
+- mean sea water potential temperature in the upper 300 m
 151128:
 - _param_151128
 - in situ temperature
@@ -3052,7 +3052,7 @@
 - surface upward water flux
 151219:
 - sos
-- sea surface salinity
+- sea surface practical salinity
 151220:
 - sdns
 - surface downward northward stress
@@ -4082,7 +4082,7 @@
 - tco3a
 - total column ozone anomaly
 171207:
-- 10ua
+- 10sia
 - 10 metre wind speed anomaly
 - 10si
 171208:
@@ -4244,8 +4244,8 @@
 - _param_172048
 - magnitude of turbulent surface stress
 172050:
-- _param_172050
-- large-scale precipitation fraction
+- mlspfr
+- mean large-scale precipitation fraction
 - lspf
 172142:
 - mlsprt
@@ -4263,50 +4263,50 @@
 - bldrate
 - boundary layer dissipation
 172146:
-- _param_172146
-- surface sensible heat flux
+- msshfl
+- mean surface sensible heat flux
 - sshf
 - '146'
 172147:
-- _param_172147
-- surface latent heat flux
+- mslhfl
+- mean surface latent heat flux
 - slhf
 - '147'
 172149:
-- _param_172149
-- surface net radiation
+- msnrf
+- mean surface net radiation flux
 - snr
 172153:
-- _param_172153
-- short-wave heating rate
+- mswhr
+- mean short-wave heating rate
 - swhr
 172154:
-- _param_172154
-- long-wave heating rate
+- mlwhr
+- mean long-wave heating rate
 - lwhr
 172169:
-- _param_172169
-- surface solar radiation downwards
+- msdsrf
+- mean surface downward solar radiation flux
 - ssrd
 172175:
-- _param_172175
-- surface thermal radiation downwards
+- msdtrf
+- mean surface downward thermal radiation flux
 - strd
 172176:
-- _param_172176
-- surface solar radiation
+- msnsrf
+- mean surface net solar radiation flux
 - ssr
 172177:
-- _param_172177
-- surface thermal radiation
+- msntrf
+- mean surface net thermal radiation flux
 - str
 172178:
-- _param_172178
-- top solar radiation
+- mtnsrf
+- mean top net solar radiation flux
 - tsr
 172179:
-- _param_172179
-- top thermal radiation
+- mtntrf
+- mean top net thermal radiation flux
 - ttr
 172180:
 - ewssra
@@ -4334,8 +4334,8 @@
 - gwdrate
 - gravity wave dissipation
 172205:
-- _param_172205
-- runoff
+- mrort
+- mean runoff rate
 - ro
 172208:
 - _param_172208
@@ -4388,8 +4388,8 @@
 - stratiform precipitation (large-scale precipitation) anomalous rate of accumulation
 - lspa
 173143:
-- _param_173143
-- convective precipitation anomaly
+- mcpra
+- mean convective precipitation rate anomaly
 - cpa
 173144:
 - sfara
@@ -14135,6 +14135,27 @@
 260539:
 - _param_260539
 - fire detection indicator
+260540:
+- fwinx
+- forest fire weather index
+260541:
+- ffmcode
+- fine fuel moisture code
+260542:
+- dufmcode
+- duff moisture code
+260543:
+- drtcode
+- drought code
+260544:
+- infsinx
+- initial fire spread index
+260545:
+- fbupinx
+- fire buildup index
+260546:
+- fdsrte
+- fire daily severity rating
 260550:
 - _param_260550
 - cloudy radiance (with respect to wave number)

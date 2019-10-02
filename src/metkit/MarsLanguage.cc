@@ -14,7 +14,7 @@
 #include <fstream>
 
 #include "eckit/types/Types.h"
-#include "eckit/parser/JSON.h"
+#include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/config/Resource.h"
 #include "eckit/utils/Translator.h"
@@ -149,6 +149,9 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
     size_t score = 1;
     std::vector<std::string> best;
 
+    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", false);
+
+
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
 
@@ -209,6 +212,14 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx,
             best.clear();
         }
         else {
+
+            if (strict) {
+                if (best[0] != name) {
+                    std::ostringstream oss;
+                    oss << "Cannot match [" << name << "] in " << values << ctx;
+                    throw eckit::UserError(oss.str());
+                }
+            }
 
             if (aliases.find(best[0]) != aliases.end()) {
                 return aliases.find(best[0])->second;
@@ -279,9 +290,27 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
     return bestMatch(ctx, verb, verbs_, true, true);
 }
 
+class TypeHidden : public Type {
+    virtual bool flatten() const { return false; }
+    virtual void print(std::ostream &out) const { out <<  "TypeHidden"; }
+    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const {
+        return true;
+    }
+public:
+    TypeHidden(): Type("hidden", eckit::Value()) { attach(); }
+};
+
+
 Type* MarsLanguage::type(const std::string& name) const {
     std::map<std::string, Type* >::const_iterator k = types_.find(name);
     if (k == types_.end()) {
+
+
+        if (name[0] == '_') {
+            static TypeHidden hidden;
+            return &hidden;
+        }
+
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
     return (*k).second;

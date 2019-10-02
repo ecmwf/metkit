@@ -13,7 +13,7 @@
 #include <list>
 
 #include "eckit/types/Types.h"
-#include "eckit/parser/JSON.h"
+#include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/config/Resource.h"
 #include "eckit/utils/Translator.h"
@@ -91,7 +91,7 @@ void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& requ
 
 
 void MarsExpension::flatten(const MarsExpandContext& ctx,
-    const MarsRequest& request,
+                            const MarsRequest& request,
                             FlattenCallback& callback) {
     language(ctx, request.verb()).flatten(ctx, request, callback);
 }

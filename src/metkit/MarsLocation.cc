@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <set>
 
-#include "eckit/parser/JSON.h"
+#include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/config/Resource.h"
 #include "eckit/utils/Translator.h"

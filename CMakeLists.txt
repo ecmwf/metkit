@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.5 FATAL_ERROR )
 
 project( metkit CXX )
 
@@ -52,7 +52,7 @@ ecbuild_add_option( FEATURE ODB2
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
 
-ecbuild_use_package( PROJECT eckit  VERSION  1.0 REQUIRED )
+ecbuild_use_package( PROJECT eckit  VERSION  1.4 REQUIRED )
 
 ### export package info
 
