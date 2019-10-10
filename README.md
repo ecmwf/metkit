@@ -35,7 +35,7 @@ mkdir $builddir
 cd $builddir
 
 # 2. Run CMake
-ecbuild --prefix=$installdir -- $srcdir
+ecbuild --prefix=$installdir -- -DECKIT_PATH=<path/to/eckit> $srcdir
 
 # 3. Compile / Install
 make -j10
