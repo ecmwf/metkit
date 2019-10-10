@@ -28,14 +28,14 @@ Now proceed with installation as follows:
 # Environment --- Edit as needed
 srcdir=$(pwd)
 builddir=build
-installdir=$HOME/local
+installdir=$HOME/local  
 
 # 1. Create the build directory:
 mkdir $builddir
 cd $builddir
 
 # 2. Run CMake
-ecbuild --prefix=$installdir -- -DECKIT_PATH=<path/to/eckit> $srcdir
+ecbuild --prefix=$installdir -- -DECKIT_PATH=<path/to/eckit/install> $srcdir
 
 # 3. Compile / Install
 make -j10
