@@ -1,7 +1,7 @@
 metkit
 ======
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ecmwf/eckit/blob/develop/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ecmwf/metkit/blob/develop/LICENSE)
 
 Requirements
 ------------
