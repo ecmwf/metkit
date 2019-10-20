@@ -43,15 +43,19 @@ MetFile::MetFile(const eckit::PathName& path, bool buffered):
         buffered
         ? new eckit::BufferedHandle(path.fileHandle(), 64 * 1024 * 1024)
         : path.fileHandle()
-    )
+    ),
+    opened_(false)
 {
     handle_->openForRead();
 }
 
-MetFile::MetFile( eckit::DataHandle& dh ):
-    handle_(new eckit::BufferedHandle( dh, 64 * 1024 * 1024))
+MetFile::MetFile( eckit::DataHandle& dh, bool opened ):
+    handle_(new eckit::BufferedHandle( dh, 64 * 1024 * 1024)),
+    opened_(opened)
 {
-    handle_->openForRead();
+    if (!opened_) {
+        handle_->openForRead();
+    }
 }
 
 eckit::Offset MetFile::position()
@@ -71,7 +75,9 @@ void MetFile::seek(const eckit::Offset& where)
 
 MetFile::~MetFile()
 {
-    handle_->close();
+    if (!opened_) {
+        handle_->close();
+    }
 }
 
 long MetFile::read(eckit::Buffer& buffer)
