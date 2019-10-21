@@ -40,11 +40,11 @@ static Mutex mutex;
 #define MISSING 9999
 
 static int bits[65536] = {
-#include <pointdb/bits.h>
+#include "metkit/pointdb/bits.h"
 };
 
 static uint64_t masks[64] = {
-#include <pointdb/masks.h>
+#include "metkit/pointdb/masks.h"
 };
 
 static inline int count_bits(unsigned long long n) {

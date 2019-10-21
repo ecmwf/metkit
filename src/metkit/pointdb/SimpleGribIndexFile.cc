@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "pointdb/SimpleGribIndexFile.h"
+#include "metkit/pointdb/SimpleGribIndexFile.h"
 
 using namespace eckit;
 
