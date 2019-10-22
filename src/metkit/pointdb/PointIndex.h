@@ -12,6 +12,7 @@
 #define PointIndex_H
 
 // #include <cmath>
+#include <memory>
 
 // #include "eckit/eckit.h"
 // #include "eckit/filesystem/PathName.h"
