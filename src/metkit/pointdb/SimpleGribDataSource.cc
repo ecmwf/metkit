@@ -17,6 +17,8 @@
 #include "eckit/io/Buffer.h"
 #include "metkit/grib/GribHandle.h"
 #include "metkit/pointdb/PointIndex.h"
+#include "eckit/utils/MD5.h"
+#include "eckit/io/StdFile.h"
 
 
 namespace metkit {
@@ -60,6 +62,7 @@ SimpleGribDataSource::~SimpleGribDataSource() {
 void SimpleGribDataSource::open() const {
     if (!opened_) {
         handle_->openForRead();
+        opened_ = true;
     }
 }
 
@@ -77,23 +80,39 @@ long SimpleGribDataSource::read(void* buffer, long len) const {
 const GribFieldInfo& SimpleGribDataSource::info() const {
     if (!info_.ready()) {
 
+        eckit::MD5 md5;
+        md5 << *handle_;
+        md5 << static_cast<long long>(offset_);
 
-        grib::MetFile in(*handle_, opened_);
-        in.seek(offset_);
+        eckit::PathName cache("/tmp/grib-info-" + md5.digest());
+        if (cache.exists()) {
+            eckit::StdFile f(cache);
+            ASSERT(::fread(&info_, sizeof(info_), 1, f) == 1);
+            f.close();
+        }
+        else {
+            open();
+            eckit::Buffer buffer(64 * 1024 * 1024); // TODO: Parametrise
 
-        eckit::Buffer buffer(64 * 1024 * 1024); // TODO: Parametrise
-        in.readSome(buffer);
+            handle_->seek(offset_);
+            handle_->read(buffer, buffer.size());
 
-        grib::GribHandle h(buffer, false);
-        info_.update(h);
+            grib::GribHandle h(buffer, false, false);
+            info_.update(h);
 
-        PointIndex::cache(h);
+            eckit::StdFile f(cache, "w");
+            ASSERT(::fwrite(&info_, sizeof(info_), 1, f) == 1);
+            f.close();
+
+
+            PointIndex::cache(h);
+        }
     }
     return info_;
 }
 
 void SimpleGribDataSource::print(std::ostream& s) const {
-    s << info() << std::endl;
+    s << "SimpleGribDataSource[" << *handle_ << "]" << std::endl;
 }
 
 

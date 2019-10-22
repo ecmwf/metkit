@@ -60,17 +60,27 @@ GribHandle::GribHandle(grib_handle* h) : handle_(NULL), owned_(true) {
 
 GribHandle::GribHandle(grib_handle& h) : handle_(&h), owned_(false) {}
 
-GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy, bool partial) : handle_(NULL), owned_(true) {
     const char* message = buffer;
     ASSERT(strncmp(message, "GRIB", 4) == 0);
 
     grib_handle* h = nullptr;
 
     if (copy) {
-        h = grib_handle_new_from_message_copy(0, const_cast<char*>(message), buffer.size());
+        if (partial) {
+            h = grib_handle_new_from_partial_message_copy(0, const_cast<char*>(message), buffer.size());
+        }
+        else {
+            h = grib_handle_new_from_message_copy(0, const_cast<char*>(message), buffer.size());
+        }
     }
     else {
-        h = grib_handle_new_from_message(0, const_cast<char*>(message), buffer.size());
+        if (partial) {
+            h = grib_handle_new_from_partial_message(0, const_cast<char*>(message), buffer.size());
+        }
+        else {
+            h = grib_handle_new_from_message(0, const_cast<char*>(message), buffer.size());
+        }
     }
 
     ASSERT(h);

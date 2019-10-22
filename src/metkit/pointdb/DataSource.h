@@ -93,8 +93,16 @@ public:
         source_->detach();
     }
 
+    const DataSource& operator*() const { return *source_; }
+
 
     const DataSource* operator->() const { return source_; }
+
+
+    friend std::ostream& operator<<(std::ostream& s, const DataSourceHandle& f) {
+        s << *f.source_;
+        return s;
+    }
 
 };
 
