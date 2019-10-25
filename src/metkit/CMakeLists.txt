@@ -117,6 +117,8 @@ if ( HAVE_GRIB )
         grib/GribDataBlob.cc
         grib/GribMetaData.h
         grib/GribMetaData.cc
+        grib/LibEccodes.h
+        grib/LibEccodes.cc
         )
 
     set( grib_libs eccodes )
