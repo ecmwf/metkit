@@ -382,6 +382,10 @@ _field: &_field
     by: 12
     default: 0
     type: range
+    never:
+    - stream:
+      - msmm
+      - mmsa
 
 # anfoffset
 
