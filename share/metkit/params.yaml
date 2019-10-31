@@ -1112,21 +1112,6 @@
     - 260109
     - 260121
     - 260123
-- - levtype: pl
-    stream: ehmm
-    type: em
-  - - 171129
-    - 171130
-    - 171131
-    - 171132
-    - 171156
-- - levtype: sfc
-    stream: ehmm
-    type: em
-  - - 171034
-    - 171151
-    - 171167
-    - 171228
 - - levtype: ml
     stream: elda
     type: 4i
@@ -3641,21 +3626,6 @@
     - 140252
     - 140253
     - 140254
-- - levtype: pl
-    stream: esmm
-    type: em
-  - - 171129
-    - 171130
-    - 171131
-    - 171132
-    - 171156
-- - levtype: sfc
-    stream: esmm
-    type: em
-  - - 171034
-    - 171151
-    - 171167
-    - 171228
 - - levtype: sfc
     stream: ewho
     type: cf
