@@ -9,33 +9,17 @@ import yaml
 LOG = logging.getLogger(__name__)
 
 
-# Some default values for database connection information, if not specified in
-# the *NIX environment.
-DEFAULT_HOST = 'db-products-prod-00'
-DEFAULT_DBNAME = 'products'
-DEFAULT_USER = 'ecmwf_ro'
-
-
-def get_connection_details():
-    """Get database connection details from the *NIX environment."""
-    host = os.environ.get('PRODUCT_CATALOGUE_HOST', DEFAULT_HOST)
-    dbname = os.environ.get('PRODUCT_CATALOGUE_DB', DEFAULT_DBNAME)
-    user = os.environ.get('PRODUCT_CATALOGUE_USER', DEFAULT_USER)
-    try:
-        password = os.environ['PRODUCT_CATALOGUE_PASSWORD']
-    except KeyError:
-        LOG.error('PRODUCT_CATALOGUE_PASSWORD must be provided')
-        sys.exit(1)
-    return {
-        'host': host,
-        'dbname': dbname,
-        'user': user,
-        'password': password,
-    }
-
-
 def main():
-    with psycopg2.connect(**get_connection_details()) as conn:
+    try:
+        HOST = os.environ['PRODUCT_CATALOGUE_HOST']
+        DB = os.environ['PRODUCT_CATALOGUE_DB']
+        USER = os.environ['PRODUCT_CATALOGUE_USER']
+        PASSWORD = os.environ['PRODUCT_CATALOGUE_PASSWORD']
+    except KeyError as e:
+        print('ERROR: Environment variable not found: {}'.format(e))
+        sys.exit(1)
+
+    with psycopg2.connect(host=HOST, dbname=DB, user=USER, password=PASSWORD) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT DISTINCT stream, type, levtype, param::INTEGER FROM fields WHERE param != '' ORDER BY stream, type, levtype, param::INTEGER")
             rows = cur.fetchall()
