@@ -301,6 +301,8 @@ _field: &_field
     - [pv, potential vorticity]
     - [sfc, surface]
     - [wv, ocean wave]
+    never:
+    - type: ssd
 
   levelist:
     category: data
@@ -380,6 +382,10 @@ _field: &_field
     by: 12
     default: 0
     type: range
+    never:
+    - stream:
+      - msmm
+      - mmsa
 
 # anfoffset
 
