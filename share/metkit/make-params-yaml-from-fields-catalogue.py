@@ -1,12 +1,8 @@
 import os
 import sys
-import logging
 from collections import OrderedDict
 import psycopg2
 import yaml
-
-
-LOG = logging.getLogger(__name__)
 
 
 def main():
