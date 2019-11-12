@@ -27,7 +27,8 @@ public:
 
     LibMetkit();
 
-    static eckit::PathName cacheDir();
+    static eckit::PathName paramYamlFile();
+    static eckit::PathName paramIDYamlFile();
 
     static const LibMetkit& instance();
 

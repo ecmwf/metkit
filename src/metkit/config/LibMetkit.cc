@@ -48,6 +48,14 @@ std::string LibMetkit::gitsha1(unsigned int count) const {
     return sha1.substr(0, std::min(count, 40u));
 }
 
+eckit::PathName LibMetkit::paramYamlFile() {
+    return "~metkit/share/metkit/params.yaml";
+}
+
+eckit::PathName LibMetkit::paramIDYamlFile() {
+    return "~metkit/share/metkit/paramids.yaml";
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace mir

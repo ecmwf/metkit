@@ -312,10 +312,10 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    const eckit::Value ids = eckit::YAMLParser::decodeFile(metkit::TypeParam::paramIDYamlFile());
+    const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
 
-    const eckit::Value r = eckit::YAMLParser::decodeFile(metkit::TypeParam::paramYamlFile());
+    const eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
     ASSERT(r.isList());
 
     // r.dump(std::cout) << std::endl;
@@ -348,14 +348,6 @@ TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
 }
 
 TypeParam::~TypeParam() {
-}
-
-eckit::PathName TypeParam::paramYamlFile() {
-    return "~metkit/share/metkit/params.yaml";
-}
-
-eckit::PathName TypeParam::paramIDYamlFile() {
-    return "~metkit/share/metkit/paramids.yaml";
 }
 
 void TypeParam::print(std::ostream &out) const {
