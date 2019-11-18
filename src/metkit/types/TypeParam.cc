@@ -312,10 +312,10 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules = new std::vector<Rule>();
 
-    const eckit::Value ids = eckit::YAMLParser::decodeFile("~metkit/share/metkit/paramids.yaml");
+    const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
 
-    const eckit::Value r = eckit::YAMLParser::decodeFile("~metkit/share/metkit/params.yaml");
+    const eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
     ASSERT(r.isList());
 
     // r.dump(std::cout) << std::endl;
