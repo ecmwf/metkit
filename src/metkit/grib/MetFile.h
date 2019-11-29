@@ -45,8 +45,9 @@ public: // methods
     MetFile(const eckit::PathName&, bool buffered = true);
 
     /// Contructor, does not take ownership of eckit::DataHandle
+    /// Will open/close handle unless opened=true
 
-    MetFile( eckit::DataHandle& dh );
+    MetFile( eckit::DataHandle& dh, bool opened = false);
 
     /// Destructor
 
@@ -64,6 +65,7 @@ public: // methods
     long readSome(eckit::Buffer&);
 
     eckit::Offset position();
+    bool opened_;
 
     void rewind();
     void seek(const eckit::Offset&);

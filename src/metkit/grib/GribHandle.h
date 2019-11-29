@@ -53,7 +53,7 @@ public: // types
     GribHandle(grib_handle&);
 
    /// constructor creating a grib_handle from a buffer
-   explicit GribHandle(const eckit::Buffer&, bool copy = true);
+   explicit GribHandle(const eckit::Buffer&, bool copy = true, bool partial = false);
 
    /// destructor will delete the grib_handle if we own it
    ~GribHandle() noexcept(false);
@@ -79,8 +79,10 @@ public: // methods
 
    void setDataValues(const double*, size_t);
 
-   void   write( eckit::DataHandle& );
-   size_t write( eckit::Buffer& );
+   size_t write( eckit::DataHandle& )  const;
+   size_t write( eckit::Buffer& ) const;
+   void   write( const eckit::PathName&, const char* mode = "w" ) const;
+   void   dump( const eckit::PathName&, const char* mode = "debug") const;
 
    double latitudeOfFirstGridPointInDegrees()  const;
    double longitudeOfFirstGridPointInDegrees() const;
@@ -89,16 +91,20 @@ public: // methods
 
    bool hasKey(const char*) const;
 
+   operator const grib_handle*() const { return handle_; }
+
 protected: // methods
 
    friend class GribDataBlob;
    friend class GribMetaData;
    friend class GribAccessorBase;
    friend class GribMutatorBase;
+   friend class GribIterator;
 
    /// To be used by friends since this is rather dangerous
    /// Don't delete this pointer, use with care :)
    /// @returns the raw grib_handle so client code can call grib directly
+
    grib_handle* raw() const { return handle_; }
 
    /// Client code shouldn't care if GRIB edition

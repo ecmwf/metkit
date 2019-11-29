@@ -8,52 +8,39 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @author Tiago Quintino
-/// @date   August 2016
+/// @author Olivier Iffrig
+/// @date   October 2019
 
-#include "metkit/config/LibMetkit.h"
+#include "eccodes.h"
 
-#include "eckit/config/Resource.h"
-
-#include "metkit/metkit_version.h"
-
-
+#include "metkit/grib/LibEccodes.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-REGISTER_LIBRARY(LibMetkit);
+REGISTER_LIBRARY(LibEccodes);
 
-LibMetkit::LibMetkit() : Library("metkit") {}
+LibEccodes::LibEccodes() : Library("eccodes") {}
 
-const LibMetkit& LibMetkit::instance() {
-    static LibMetkit libmetkit;
-    return libmetkit;
+const LibEccodes& LibEccodes::instance() {
+    static LibEccodes libeccodes;
+    return libeccodes;
 }
 
-const void* LibMetkit::addr() const { return this; }
+const void* LibEccodes::addr() const { return (const void*)&grib_get_api_version; }
 
-std::string LibMetkit::version() const {
-    return metkit_version_str();
+std::string LibEccodes::version() const {
+    return ECCODES_VERSION_STR;
 }
 
-std::string LibMetkit::gitsha1(unsigned int count) const {
-    std::string sha1(metkit_git_sha1());
+std::string LibEccodes::gitsha1(unsigned int count) const {
+    std::string sha1(grib_get_git_sha1());
     if (sha1.empty()) {
         return "not available";
     }
 
     return sha1.substr(0, std::min(count, 40u));
-}
-
-eckit::PathName LibMetkit::paramYamlFile() {
-    return "~metkit/share/metkit/params.yaml";
-}
-
-eckit::PathName LibMetkit::paramIDYamlFile() {
-    return "~metkit/share/metkit/paramids.yaml";
 }
 
 //----------------------------------------------------------------------------------------------------------------------

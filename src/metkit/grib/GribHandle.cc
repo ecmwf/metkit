@@ -60,17 +60,27 @@ GribHandle::GribHandle(grib_handle* h) : handle_(NULL), owned_(true) {
 
 GribHandle::GribHandle(grib_handle& h) : handle_(&h), owned_(false) {}
 
-GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy) : handle_(NULL) {
+GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy, bool partial) : handle_(NULL), owned_(true) {
     const char* message = buffer;
     ASSERT(strncmp(message, "GRIB", 4) == 0);
 
     grib_handle* h = nullptr;
 
     if (copy) {
-        h = grib_handle_new_from_message_copy(0, const_cast<char*>(message), buffer.size());
+        if (partial) {
+            h = grib_handle_new_from_partial_message_copy(0, const_cast<char*>(message), buffer.size());
+        }
+        else {
+            h = grib_handle_new_from_message_copy(0, const_cast<char*>(message), buffer.size());
+        }
     }
     else {
-        h = grib_handle_new_from_message(0, const_cast<char*>(message), buffer.size());
+        if (partial) {
+            h = grib_handle_new_from_partial_message(0, const_cast<char*>(message), buffer.size());
+        }
+        else {
+            h = grib_handle_new_from_message(0, const_cast<char*>(message), buffer.size());
+        }
     }
 
     ASSERT(h);
@@ -130,7 +140,17 @@ void GribHandle::setDataValues(const double* values, size_t count) {
     GRIB_CALL(grib_set_double_array(raw(), "values", values, count));
 }
 
-void GribHandle::write(eckit::DataHandle& handle) {
+void GribHandle::dump( const eckit::PathName& path, const char* mode) const {
+    eckit::StdFile f(path.localPath(), "w");
+    grib_dump_content(handle_, f, "mode", 0, 0);
+    f.close();
+}
+
+void GribHandle::write(const eckit::PathName& path, const char* mode) const {
+    ASSERT(grib_write_message(handle_, path.localPath(), mode) == 0);
+}
+
+size_t GribHandle::write(eckit::DataHandle& handle) const {
     const void* message = NULL;
     size_t length       = 0;
 
@@ -140,9 +160,11 @@ void GribHandle::write(eckit::DataHandle& handle) {
     ASSERT(length);
 
     ASSERT(length = long(length) && handle.write(message, length) == long(length));
+
+    return length;
 }
 
-size_t GribHandle::write(eckit::Buffer& buff) {
+size_t GribHandle::write(eckit::Buffer& buff) const {
     size_t len = buff.size();
     GRIB_CALL(grib_get_message_copy(raw(), buff, &len));  // will issue error if buffer too small
     return len;

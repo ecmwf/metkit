@@ -111,10 +111,14 @@ if ( HAVE_GRIB )
         grib/GribIndex.cc
         grib/GribHandle.h
         grib/GribHandle.cc
+        grib/GribIterator.h
+        grib/GribIterator.cc
         grib/GribDataBlob.h
         grib/GribDataBlob.cc
         grib/GribMetaData.h
         grib/GribMetaData.cc
+        grib/LibEccodes.h
+        grib/LibEccodes.cc
         )
 
     set( grib_libs eccodes )
@@ -133,6 +137,27 @@ if ( HAVE_BUFR )
     set( bufr_libs eccodes )
 
 endif ()
+
+list( APPEND metkit_srcs
+    pointdb/FieldIndexer.cc
+    pointdb/FieldIndexer.h
+    pointdb/PointIndex.cc
+    pointdb/PointIndex.h
+    pointdb/GribFieldInfo.h
+    pointdb/GribFieldInfo.cc
+    pointdb/bits.h
+    pointdb/masks.h
+    pointdb/DataSource.h
+    pointdb/DataSource.cc
+    pointdb/GribDataSource.h
+    pointdb/GribDataSource.cc
+    pointdb/SimpleGribIndexer.h
+    pointdb/SimpleGribIndexer.cc
+    pointdb/SimpleGribIndexFile.h
+    pointdb/SimpleGribIndexFile.cc
+    pointdb/SimpleGribDataSource.h
+    pointdb/SimpleGribDataSource.cc    )
+
 
 ecbuild_add_library(
 

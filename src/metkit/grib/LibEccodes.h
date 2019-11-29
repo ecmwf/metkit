@@ -8,37 +8,32 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @author Tiago Quintino
-/// @date   August 2016
+/// @author Olivier Iffrig
+/// @date   October 2019
 
-#ifndef mir_LibMetkit_H
-#define mir_LibMetkit_H
+#ifndef metkit_LibEccodes_H
+#define metkit_LibEccodes_H
 
 #include "eckit/system/Library.h"
-#include "eckit/filesystem/PathName.h"
 
 namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class LibMetkit : public eckit::system::Library {
+class LibEccodes : public eckit::system::Library {
 public:
 
-    LibMetkit();
+    LibEccodes();
 
-    static eckit::PathName paramYamlFile();
-    static eckit::PathName paramIDYamlFile();
-
-    static const LibMetkit& instance();
+    static const LibEccodes& instance();
 
 protected:
 
-    const void* addr() const;
+    const void* addr() const override;
 
-    virtual std::string version() const;
+    virtual std::string version() const override;
 
-    virtual std::string gitsha1(unsigned int count) const;
+    virtual std::string gitsha1(unsigned int count) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
