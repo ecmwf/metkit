@@ -714,14 +714,17 @@ _postproc: &_postproc
     type: [enum, float, regex]
     values:
     - auto
+    - N32
+    - N48
     - N80
     - N128
     - N160
     - N200
     - N256
-    - N400
     - N320
+    - N400
     - N640
+    - N1280
     regex:
     - '^[oOfF][1-9][0-9]+$'
     uppercase: true
