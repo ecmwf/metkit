@@ -722,6 +722,7 @@ _postproc: &_postproc
     - N400
     - N320
     - N640
+    - N1280
     regex:
     - '^[oOfF][1-9][0-9]+$'
     uppercase: true
