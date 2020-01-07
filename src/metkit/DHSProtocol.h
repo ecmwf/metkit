@@ -48,7 +48,7 @@ public:
 private:
 
     // -- Members
-    eckit::TCPServer          callback_;
+    eckit::EphemeralTCPServer callback_;
     eckit::TCPSocket          socket_;
     std::string               name_;
     std::string               host_;
