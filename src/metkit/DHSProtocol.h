@@ -48,8 +48,8 @@ public:
 private:
 
     // -- Members
-    eckit::EphemeralTCPServer callback_;
-    eckit::TCPSocket          socket_;
+    eckit::net::EphemeralTCPServer callback_;
+    eckit::net::TCPSocket          socket_;
     std::string               name_;
     std::string               host_;
     int                       port_;

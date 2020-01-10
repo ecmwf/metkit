@@ -85,7 +85,7 @@ std::string MarsHandle::title() const
 
     os << "Client[" ;
 
-    os << eckit::TCPSocket::hostName(host_);
+    os << eckit::net::TCPSocket::hostName(host_);
 
     os << ":" << port_ << "]";
     return os.str();
