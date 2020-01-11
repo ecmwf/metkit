@@ -85,7 +85,7 @@ eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 
     task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
 
-    eckit::TCPStream s(eckit::TCPClient().connect(host_, port_));
+    eckit::net::TCPStream s(eckit::net::TCPClient().connect(host_, port_));
 
     task_->send(s);
 
@@ -93,7 +93,6 @@ eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 
     eckit::Length result = 0;
     while (wait(result)) {
-        ;
     }
 
     eckit::Log::info() << "DHSProtocol::retrieve " << result << std::endl;
@@ -110,7 +109,7 @@ void DHSProtocol::archive(const MarsRequest& request, const eckit::Length& size)
 
     task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
 
-    eckit::TCPStream s(eckit::TCPClient().connect(host_, port_));
+    eckit::net::TCPStream s(eckit::net::TCPClient().connect(host_, port_));
 
     task_->send(s);
 
@@ -120,7 +119,6 @@ void DHSProtocol::archive(const MarsRequest& request, const eckit::Length& size)
 
     eckit::Length result = size;
     while (wait(result)) {
-        ;
     }
     eckit::Log::info() << "DHSProtocol: archive completed." << std::endl;
 }
@@ -135,7 +133,7 @@ void DHSProtocol::cleanup()
             unsigned long long crc = 0;
 
             try {
-                eckit::InstantTCPStream s(socket_);
+                eckit::net::InstantTCPStream s(socket_);
                 s << version;
                 s << crc;
             }
@@ -196,7 +194,7 @@ bool DHSProtocol::wait(eckit::Length& size)
 
         socket_ = callback_.accept();
 
-        eckit::InstantTCPStream s(socket_);
+        eckit::net::InstantTCPStream s(socket_);
 
         char code = task_->receive(s);
 
