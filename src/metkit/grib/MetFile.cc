@@ -16,7 +16,6 @@
 
 #include "eckit/io/Buffer.h"
 #include "eckit/io/BufferedHandle.h"
-#include "eckit/io/MoverHandle.h"
 #include "eckit/filesystem/PathName.h"
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
