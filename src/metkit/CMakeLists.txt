@@ -138,25 +138,29 @@ if ( HAVE_BUFR )
 
 endif ()
 
-list( APPEND metkit_srcs
-    pointdb/FieldIndexer.cc
-    pointdb/FieldIndexer.h
-    pointdb/PointIndex.cc
-    pointdb/PointIndex.h
-    pointdb/GribFieldInfo.h
-    pointdb/GribFieldInfo.cc
-    pointdb/bits.h
-    pointdb/masks.h
-    pointdb/DataSource.h
-    pointdb/DataSource.cc
-    pointdb/GribDataSource.h
-    pointdb/GribDataSource.cc
-    pointdb/SimpleGribIndexer.h
-    pointdb/SimpleGribIndexer.cc
-    pointdb/SimpleGribIndexFile.h
-    pointdb/SimpleGribIndexFile.cc
-    pointdb/SimpleGribDataSource.h
-    pointdb/SimpleGribDataSource.cc    )
+if ( HAVE_GRIB )
+
+    list( APPEND metkit_srcs
+        pointdb/FieldIndexer.cc
+        pointdb/FieldIndexer.h
+        pointdb/PointIndex.cc
+        pointdb/PointIndex.h
+        pointdb/GribFieldInfo.h
+        pointdb/GribFieldInfo.cc
+        pointdb/bits.h
+        pointdb/masks.h
+        pointdb/DataSource.h
+        pointdb/DataSource.cc
+        pointdb/GribDataSource.h
+        pointdb/GribDataSource.cc
+        pointdb/SimpleGribIndexer.h
+        pointdb/SimpleGribIndexer.cc
+        pointdb/SimpleGribIndexFile.h
+        pointdb/SimpleGribIndexFile.cc
+        pointdb/SimpleGribDataSource.h
+        pointdb/SimpleGribDataSource.cc    )
+
+endif ()
 
 
 ecbuild_add_library(
