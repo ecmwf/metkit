@@ -52,14 +52,14 @@ ecbuild_add_executable(
 
     TARGET   parse-mars-request
 
-    # CONDITION HAVE_GRIB
+    CONDITION HAVE_GRIB
 
     SOURCES  parse-mars-request.cc
 
     INCLUDES
         ${ECKIT_INCLUDE_DIRS}
 
-    LIBS     metkit
+    LIBS     metkit eckit_option eckit eccodes
 )
 
 ecbuild_add_executable(
