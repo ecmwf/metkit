@@ -8,6 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -36,9 +37,9 @@ public:
         options_.push_back(
             new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
         options_.push_back(new SimpleOption<std::string>(
-            "database", "for 'archive' verb which database to archive, default = local"));
+            "database", "add database keyword to requests, default = none"));
         options_.push_back(new SimpleOption<std::string>(
-            "target", "for 'retrieve' verb to which target to retrieve, default = data"));
+            "target", "add target keyword to requests, default = none"));
         options_.push_back(
             new SimpleOption<bool>("one", "Merge into only one request, default = false"));
         options_.push_back(
@@ -61,8 +62,8 @@ private:  // methods
 private:  // members
     std::vector<PathName> paths_;
     std::string verb_     = "retrieve";
-    std::string database_ = "local";
-    std::string target_   = "data";
+    std::string database_ = "";
+    std::string target_   = "";
     bool one_             = false;
     bool constant_        = true;
     bool json_            = false;
@@ -116,6 +117,22 @@ void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
     dh.openForRead();
 
     std::vector<MarsRequest> requests = odb::OdbToRequest(verb_, one_, constant_).odbToRequest(dh);
+
+    if (not database_.empty()) {
+        std::transform(requests.begin(), requests.end(), requests.begin(),
+                       [this](MarsRequest& r) -> MarsRequest {
+                           r.setValue("database", database_);
+                           return r;
+                       });
+    }
+
+    if (not target_.empty()) {
+        std::transform(requests.begin(), requests.end(), requests.begin(),
+                       [this](MarsRequest& r) -> MarsRequest {
+                           r.setValue("target", target_);
+                           return r;
+                       });
+    }
 
     if (json_) {
         toJSON(requests);
