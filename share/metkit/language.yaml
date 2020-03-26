@@ -952,6 +952,14 @@ disseminate:
     - none
     - auto
 
+archive:
+  <<: *_field
+
+  database:
+    flatten: false
+    multiple: true
+    type: any
+
 
 retrieve:
   <<: *_field

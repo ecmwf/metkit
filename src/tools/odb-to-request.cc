@@ -13,6 +13,7 @@
 
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/FileHandle.h"
+#include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/Option.h"
@@ -33,16 +34,17 @@ class OdbToRequestTool : public MetkitTool {
 public:
     OdbToRequestTool(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(
-            new SimpleOption<std::string>("verb", "Verb in the request [default:retrieve]"));
+            new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
         options_.push_back(new SimpleOption<std::string>(
-            "database", "for 'archive' verb which database to archive [default:local]"));
+            "database", "for 'archive' verb which database to archive, default = local"));
         options_.push_back(new SimpleOption<std::string>(
-            "target", "for 'retrieve' verb to which target to retrieve  [default:data]"));
+            "target", "for 'retrieve' verb to which target to retrieve, default = data"));
         options_.push_back(
-            new SimpleOption<bool>("one", "Merge into only one request [default:false]"));
+            new SimpleOption<bool>("one", "Merge into only one request, default = false"));
         options_.push_back(
-            new SimpleOption<bool>("constant", "Only constant columns [default:true]"));
-        options_.push_back(new SimpleOption<bool>("json", "Format request in json  [default:false]"));
+            new SimpleOption<bool>("constant", "Only constant columns, default = true"));
+        options_.push_back(
+            new SimpleOption<bool>("json", "Format request in json, default = false"));
     }
 
     virtual ~OdbToRequestTool() {}
@@ -89,8 +91,22 @@ void OdbToRequestTool::usage(const std::string& tool) const {
     Log::info() << "Examples:" << std::endl
                 << "=========" << std::endl
                 << std::endl
-                << tool << " --one --verb=archive data.odb" << std::endl
+                << tool << " --one --verb=retrieve data.odb" << std::endl
                 << std::endl;
+}
+
+static void toJSON(const std::vector<MarsRequest>& requests) {
+    JSON j(Log::info());
+    for (auto& r : requests) {
+        r.json(j);
+    }
+    Log::info() << std::endl;
+}
+
+static void toStdOut(const std::vector<MarsRequest>& requests) {
+    for (auto& r : requests) {
+        eckit::Log::info() << r << std::endl;
+    }
 }
 
 void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
@@ -99,8 +115,13 @@ void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
     FileHandle dh(inFile);
     dh.openForRead();
 
-    for (const MarsRequest& request : odb::OdbToRequest(verb_, one_, constant_).odbToRequest(dh)) {
-        eckit::Log::info() << request << std::endl;
+    std::vector<MarsRequest> requests = odb::OdbToRequest(verb_, one_, constant_).odbToRequest(dh);
+
+    if (json_) {
+        toJSON(requests);
+    }
+    else {
+        toStdOut(requests);
     }
 }
 
