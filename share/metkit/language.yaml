@@ -279,8 +279,86 @@ _field: &_field
     # - - '0.25'
     #   - fix me HUE:E1 !
 
-  # obsgroup
-  # reportype
+  obsgroup:
+    category: data
+    multiple: true
+    type: enum
+    values:
+    # - [conventional]
+    - [sat, satellite]
+    - [ers1]
+    - [trmm]
+    - [qscat]
+    - [reo3] # reo3 needs to stay for compatibility
+    # previously in "obsgroups.def"
+    - [hirs, 1,  HIRS ]
+    - [amsua, 2,  AMSUA ]
+    - [amsub, 3,  AMSUB ]
+    - [mhs, 4,  MHS ]
+    - [geos, 5,  GEOS ]
+    - [resat, 6,  RESAT ]
+    - [meris, 7,  MERIS ]
+    - [gpsro, 8,  GPSRO ]
+    - [satob, 9,  SATOB ]
+    - [scatt, 10,  SCATT ]
+    - [ssmi_as, 11,  SSMI ALL-SKY ]
+    - [iasi, 12,  IASI ]
+    - [airs, 13,  AIRS ]
+    - [ssmis_as, 14,  SSMIS ALL-SKY ]
+    - [tmi_as, 15,  TMI ALL-SKY ]
+    - [amsre_as, 16,  AMSRE ALL-SKY ]
+    - [conv, 17,  CONV ]
+    - [smos, 19,  SMOS ]
+    - [windsat_as, 20,  WINDSAT ALL-SKY ]
+    - [ssmi, 21,  SSMI ]
+    - [amsua_as, 22,  AMSUA ALL-SKY ]
+    - [amsre, 23,  AMSRE ]
+    - [tmi, 24,  TMI ]
+    - [ssmis, 25,  SSMIS ]
+    - [gbrad, 26,  GBRAD ]
+    - [mwhs, 27,  MWHS ]
+    - [mwts, 28,  MWTS ]
+    - [mwri_as, 29,  MWRI ALL-SKY ]
+    - [iras, 30,  IRAS ]
+    - [msu, 31,  MSU ]
+    - [ssu, 32,  SSU ]
+    - [vtpr1, 33,  VTPR1 ]
+    - [vtpr2, 34,  VTPR2 ]
+    - [atms, 35,  ATMS ]
+    - [resat_ak, 36,  RESAT AVERAGING KERNELS ]
+    - [cris, 37,  CRIS ]
+    - [wave_ip, 38,  WAVE INTEGRATED PARAMETERS ]
+    - [wave_sp, 39,  WAVE SPECTRA ]
+    - [raingg, 40,  RAINGG ]
+    - [sfc_ms, 41,  SURFACE MULTISENSOR ]
+    - [amsr2_as, 42,  AMSR-2 ALL-SKY ]
+    - [saphir_as, 43,  SAPHIR ALL-SKY ]
+    - [amsub_as, 44,  AMSUB ALL-SKY ]
+    - [mhs_as, 45,  MHS ALL-SKY ]
+    - [dwl, 46,  DOPPLER WIND LIDAR ]
+    - [iris, 47,  IRIS ]
+    - [aatsr, 49,  AATSR ]
+    - [atms_as, 50,  ATMS ALL-SKY ]
+    - [gmi_as, 51,  GMI ALL-SKY ]
+    - [godae_sst, 52,  GODAE SEA SURFACE TEMPERATURES ]
+    - [atovs_ms, 53,  ATOVS MULTISENSOR ]
+    - [atmospheric_composition, 54,  ATMOSPHERIC COMPOSITION ]
+    - [non_sfc_ms, 55,  NON-SURFACE MULTISENSOR ]
+    - [mwts2, 56,  MWTS2 ]
+    - [ssmi_1d, 57,  SSMI 1DVAR TCWV CLOUDY-SKY ]
+    - [mwhs2_as, 58,  MWHS2 ALL-SKY ]
+    - [ssmt2, 59,  SSMT2 ]
+    - [smap, 60,  SMAP ]
+    - [tovs_ms, 61,  TOVS MULTISENSOR ]
+    - [cloud_r, 62,  CLOUD REFLECTIVITY ]
+    - [cloud_l, 63,  CLOUD LIDAR ]
+    - [test, 99,  TEST ]
+
+  reportype:
+    category: data
+    type: any
+    multiple: true
+
   # rdbprefix
   # obstype
 
@@ -938,4 +1016,3 @@ read:
 
 
 end: {}
-

@@ -22,10 +22,6 @@
 
 namespace metkit {
 
-class DummyContext: public MarsExpandContext {
-    virtual void info(std::ostream&) const {}
-};
-
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :

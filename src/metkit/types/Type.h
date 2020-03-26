@@ -31,14 +31,15 @@ class MarsExpandContext;
 //----------------------------------------------------------------------------------------------------------------------
 
 class Type : public eckit::Counted {
-
-public: // methods
-
-    Type(const std::string &name, const eckit::Value& settings);
+public:  // methods
+    Type(const std::string& name, const eckit::Value& settings);
 
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+
     virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
+    virtual std::string tidy(const std::string& value) const;
+    virtual std::vector<std::string> tidy(const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setDefaults(const std::vector<std::string>& defaults);
@@ -52,23 +53,19 @@ public: // methods
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;
 
-    virtual bool filter(const std::vector< std::string >& filter, std::vector<std::string>& values) const;
-    virtual bool matches(const std::vector< std::string >& filter, const std::vector<std::string>& values) const;
+    virtual bool filter(const std::vector<std::string>& filter,
+                        std::vector<std::string>& values) const;
+    virtual bool matches(const std::vector<std::string>& filter,
+                         const std::vector<std::string>& values) const;
 
     const std::string& name() const;
     const std::string& category() const;
 
-    friend std::ostream &operator<<(std::ostream &s, const Type &x);
+    friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
     virtual size_t count(const std::vector<std::string>& values) const;
 
-
-public: // class methods
-
-    static const Type &lookup(const std::string &keyword);
-
-protected: // members
-
+protected:  // members
     std::string name_;
     std::string category_;
 
@@ -82,17 +79,15 @@ protected: // members
     std::map<std::string, std::set<std::string> > only_;
     std::map<std::string, std::set<std::string> > never_;
 
-protected: // methods
-
+protected:  // methods
     virtual ~Type();
 
-private: // methods
-
-    virtual void print( std::ostream &out ) const = 0;
+private:  // methods
+    virtual void print(std::ostream& out) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+}  // namespace metkit
 
 #endif

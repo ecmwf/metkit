@@ -35,8 +35,8 @@ ecbuild_add_option( FEATURE BUFR
 # netcdf support
 
 ecbuild_add_option( FEATURE NETCDF
-  DESCRIPTION "Support for NetCDF data"
   DEFAULT ON
+  DESCRIPTION "Support for NetCDF data"
   REQUIRED_PACKAGES NetCDF
   NO_TPL
 )

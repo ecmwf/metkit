@@ -30,29 +30,16 @@ class Type;
 class MarsRequest;
 
 
-
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsRequest {
-
-public: // methods
-
-// -- Contructors
-
+public:  // methods
     MarsRequest();
     MarsRequest(const std::string&);
     MarsRequest(eckit::Stream&, bool lowercase = false);
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
-// -- Copy
 
-    // MarsRequest(const MarsRequest&);
-    // MarsRequest& operator=(const MarsRequest&);
-
-// -- Destructor
-
-    ~MarsRequest();
-
-// -- Operators
+    ~MarsRequest() = default;
 
     bool operator<(const MarsRequest& other) const;
 
@@ -60,9 +47,6 @@ public: // methods
     // const eckit::Value&  operator[](const std::string&) const;
 
     operator eckit::Value() const;
-
-
-// -- Methods
 
     const std::string& verb() const;
 
@@ -75,7 +59,7 @@ public: // methods
     const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const;
 
 
-    template<class T>
+    template <class T>
     size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
 
     void getParams(std::vector<std::string>&) const;
@@ -85,7 +69,7 @@ public: // methods
 
     void values(const std::string&, const std::vector<std::string>&);
 
-    template<class T>
+    template <class T>
     void setValue(const std::string& name, const T& value);
 
     void setValue(const std::string& name, const char* value);
@@ -115,47 +99,46 @@ public: // methods
 
     MarsRequest extract(const std::string& category) const;
 
-// ---- Static methods
-
+public:  // static methods
     static MarsRequest parse(const std::string& s);
     static std::vector<MarsRequest> parse(std::istream&);
 
-private: // members
-
-    std::string         verb_;
+private:  // members
+    std::string verb_;
     std::list<Parameter> params_;
 
-private: // methods
-
+private:  // methods
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
 
     std::list<Parameter>::const_iterator find(const std::string&) const;
     std::list<Parameter>::iterator find(const std::string&);
 
-// -- Class members
+    // -- Class members
 
-    static eckit::ClassSpec                 classSpec_;
-    static eckit::Reanimator<MarsRequest>   reanimator_;
+    static eckit::ClassSpec classSpec_;
+    static eckit::Reanimator<MarsRequest> reanimator_;
 
     friend std::ostream& operator<<(std::ostream& s, const MarsRequest& r) {
-        r.print(s); return s;
+        r.print(s);
+        return s;
     }
 
     friend eckit::JSON& operator<<(eckit::JSON& s, const MarsRequest& r) {
-        r.json(s); return s;
+        r.json(s);
+        return s;
     }
 
     friend eckit::Stream& operator<<(eckit::Stream& s, const MarsRequest& r) {
-        r.encode(s); return s;
+        r.encode(s);
+        return s;
     }
-
 };
 
 
-template<class T>
+template <class T>
 size_t MarsRequest::getValues(const std::string& name, std::vector<T>& v, bool emptyOk) const {
-    const std::vector< std::string >& s = values(name, emptyOk);
+    const std::vector<std::string>& s = values(name, emptyOk);
 
     eckit::Translator<std::string, T> t;
 
@@ -169,7 +152,7 @@ size_t MarsRequest::getValues(const std::string& name, std::vector<T>& v, bool e
 }
 
 
-template<class T>
+template <class T>
 void MarsRequest::setValue(const std::string& name, const T& value) {
     eckit::Translator<T, std::string> t;
     std::vector<std::string> v(1, t(value));
@@ -178,6 +161,6 @@ void MarsRequest::setValue(const std::string& name, const T& value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+}  // namespace metkit
 
 #endif
