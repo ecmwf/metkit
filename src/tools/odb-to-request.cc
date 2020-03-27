@@ -110,6 +110,14 @@ static void toStdOut(const std::vector<MarsRequest>& requests) {
     }
 }
 
+static void addKeyValue(std::vector<MarsRequest>& requests, const std::string& key, const std::string& value) {
+    std::transform(requests.begin(), requests.end(), requests.begin(),
+                   [key, value](MarsRequest& r) -> MarsRequest {
+                       r.setValue(key, value);
+                       return r;
+                   });
+}
+
 void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
     PathName inFile(args(0));
 
@@ -118,21 +126,11 @@ void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
 
     std::vector<MarsRequest> requests = odb::OdbToRequest(verb_, one_, constant_).odbToRequest(dh);
 
-    if (not database_.empty()) {
-        std::transform(requests.begin(), requests.end(), requests.begin(),
-                       [this](MarsRequest& r) -> MarsRequest {
-                           r.setValue("database", database_);
-                           return r;
-                       });
-    }
+    if (not database_.empty())
+        addKeyValue(requests, "database", database_);
 
-    if (not target_.empty()) {
-        std::transform(requests.begin(), requests.end(), requests.begin(),
-                       [this](MarsRequest& r) -> MarsRequest {
-                           r.setValue("target", target_);
-                           return r;
-                       });
-    }
+    if (not database_.empty())
+        addKeyValue(requests, "target", target_);
 
     if (json_) {
         toJSON(requests);
