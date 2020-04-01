@@ -62,7 +62,7 @@ bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
         }
     }
 
-    if (colon == 2) {
+    if (colon == 2 || (value.size() == 6 && colon == 0)) {
         n /= 100;
     }
 
