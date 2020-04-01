@@ -66,7 +66,7 @@ bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
         n /= 100;
     }
 
-    if (n < 100) {
+    if (n < 100 && value.size() == 2) {
         n *= 100;
     }
 
