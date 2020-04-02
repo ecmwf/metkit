@@ -62,11 +62,16 @@ bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
         }
     }
 
-    if (colon == 2) {
+    if (colon == 2 || (value.size() > 4 && colon == 0)) {
+        if (n % 100 != 0) {
+            std::ostringstream ss;
+            ss << "Cannot normalise time '" << value << "' - seconds not supported";
+            throw eckit::SeriousBug(ss.str(), Here());
+        }
         n /= 100;
     }
 
-    if (n < 100) {
+    if (n < 100 && value.size() < 3) {
         n *= 100;
     }
 

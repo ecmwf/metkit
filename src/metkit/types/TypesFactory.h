@@ -34,18 +34,16 @@ class TypesFactory;
 
 
 class TypesRegistry : private eckit::NonCopyable {
-
     eckit::Mutex mutex_;
     std::map<std::string, TypesFactory*> m_;
 
 public:
-
     static TypesRegistry& instance();
 
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
 
-    Type* build(const std::string &keyword, const eckit::Value&);
+    Type* build(const std::string& keyword, const eckit::Value&);
 
     void list(std::ostream& s);
 };
@@ -54,38 +52,34 @@ public:
 
 class TypesFactory {
 public:
+    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const = 0;
 
-    virtual Type *make(const std::string &keyword, const eckit::Value& settings) const = 0 ;
-
-    static Type* build(const std::string &keyword, const eckit::Value& settings);
+    static Type* build(const std::string& keyword, const eckit::Value& settings);
 
     static void list(std::ostream& s);
 
 protected:
-
-    TypesFactory(const std::string &);
+    TypesFactory(const std::string&);
     virtual ~TypesFactory();
 
     std::string name_;
-
 };
 
 /// Templated specialisation of the self-registering factory,
 /// that does the self-registration, and the construction of each object.
 
-template< class T>
+template <class T>
 class TypeBuilder : public TypesFactory {
-
-    virtual Type *make(const std::string &keyword, const eckit::Value& settings) const {
+    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const {
         return new T(keyword, settings);
     }
 
 public:
-    TypeBuilder(const std::string &name) : TypesFactory(name) {}
+    TypeBuilder(const std::string& name) : TypesFactory(name) {}
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+}  // namespace metkit
 
 #endif
