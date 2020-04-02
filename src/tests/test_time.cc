@@ -44,6 +44,16 @@ CASE("Test TypeType expansions") {
         tt.expand(ctx, value);
         EXPECT(value == "1200");
     }
+    {
+        std::string value = "06";
+        tt.expand(ctx, value);
+        EXPECT(value == "0600");
+    }
+    {
+        std::string value = "6";
+        tt.expand(ctx, value);
+        EXPECT(value == "0600");
+    }
 
     // 4-digit times
 
@@ -61,6 +71,16 @@ CASE("Test TypeType expansions") {
         std::string value = "1234";
         tt.expand(ctx, value);
         EXPECT(value == "1234");
+    }
+    {
+        std::string value = "0623";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        std::string value = "623";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
     }
 
     // 4-digit times with colons
@@ -80,6 +100,16 @@ CASE("Test TypeType expansions") {
         tt.expand(ctx, value);
         EXPECT(value == "1234");
     }
+    {
+        std::string value = "06:23";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        std::string value = "6:23";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
 
     // 6-digit times
 
@@ -89,9 +119,9 @@ CASE("Test TypeType expansions") {
         EXPECT(value == "0000");
     }
     {
+        // We don't support seconds yet.
         std::string value = "000012";
-        tt.expand(ctx, value);
-        EXPECT(value == "0000");
+        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
     }
     {
         std::string value = "001200";
@@ -99,9 +129,24 @@ CASE("Test TypeType expansions") {
         EXPECT(value == "0012");
     }
     {
-        std::string value = "123456";
+        std::string value = "123400";
         tt.expand(ctx, value);
         EXPECT(value == "1234");
+    }
+    {
+        std::string value = "062300";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        std::string value = "62300";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        // We don't support seconds yet.
+        std::string value = "123456";
+        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
     }
 
     // 6-digit times with colons
@@ -112,9 +157,9 @@ CASE("Test TypeType expansions") {
         EXPECT(value == "0000");
     }
     {
+        // We don't support seconds yet.
         std::string value = "00:00:12";
-        tt.expand(ctx, value);
-        EXPECT(value == "0000");
+        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
     }
     {
         std::string value = "00:12:00";
@@ -122,9 +167,24 @@ CASE("Test TypeType expansions") {
         EXPECT(value == "0012");
     }
     {
-        std::string value = "12:34:56";
+        std::string value = "12:34:00";
         tt.expand(ctx, value);
         EXPECT(value == "1234");
+    }
+    {
+        std::string value = "06:23:00";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        std::string value = "6:23:00";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        // We don't support seconds yet.
+        std::string value = "12:34:56";
+        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
     }
 }
 
