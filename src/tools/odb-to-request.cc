@@ -20,6 +20,7 @@
 #include "eckit/option/Option.h"
 #include "eckit/option/SimpleOption.h"
 #include "eckit/runtime/Tool.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/MetkitTool.h"
 #include "metkit/odb/OdbToRequest.h"
@@ -130,8 +131,13 @@ void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
 
     std::vector<MarsRequest> requests = odb::OdbToRequest(verb_, one_, constant_).odbToRequest(dh);
 
+
     if (not database_.empty())
         addKeyValue(requests, "database", database_);
+
+    if (StringTools::lower(verb_) == "archive") {
+        addKeyValue(requests, "source", inFile);
+    }
 
     if (not source_.empty())
         addKeyValue(requests, "source", source_);
