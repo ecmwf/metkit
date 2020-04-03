@@ -39,6 +39,8 @@ public:
         options_.push_back(new SimpleOption<std::string>(
             "database", "add database keyword to requests, default = none"));
         options_.push_back(new SimpleOption<std::string>(
+            "source", "add source keyword to requests, default = none"));
+        options_.push_back(new SimpleOption<std::string>(
             "target", "add target keyword to requests, default = none"));
         options_.push_back(
             new SimpleOption<bool>("one", "Merge into only one request, default = false"));
@@ -63,6 +65,7 @@ private:  // members
     std::vector<PathName> paths_;
     std::string verb_     = "retrieve";
     std::string database_ = "";
+    std::string source_   = "";
     std::string target_   = "";
     bool one_             = false;
     bool constant_        = true;
@@ -76,6 +79,7 @@ void OdbToRequestTool::init(const CmdArgs& args) {
     args.get("constant", constant_);
     args.get("verb", verb_);
     args.get("database", database_);
+    args.get("source", source_);
     args.get("target", target_);
     args.get("json", json_);
 
@@ -129,7 +133,10 @@ void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
     if (not database_.empty())
         addKeyValue(requests, "database", database_);
 
-    if (not database_.empty())
+    if (not source_.empty())
+        addKeyValue(requests, "source", source_);
+
+    if (not target_.empty())
         addKeyValue(requests, "target", target_);
 
     if (json_) {
