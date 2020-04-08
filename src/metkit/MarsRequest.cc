@@ -42,6 +42,28 @@ MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::
     }
 }
 
+
+MarsRequest::MarsRequest(const std::string& s, const eckit::Value& values) :
+    verb_(s) {
+
+    eckit::ValueMap m = values;
+    for (auto j = m.begin(); j != m.end(); ++j) {
+        const std::string& param = (*j).first;
+        const eckit::Value& value = (*j).second;
+
+        if(value.isList()) {
+            std::vector<std::string> vals;
+            eckit::fromValue(vals, value);
+            params_.push_back(Parameter(vals, new TypeAny(param)));
+
+        }
+        else {
+            params_.push_back(Parameter(std::vector<std::string>(1, value), new TypeAny(param)));
+        }
+
+    }
+}
+
 MarsRequest::MarsRequest(eckit::Stream& s, bool lowercase) {
     int size;
 
