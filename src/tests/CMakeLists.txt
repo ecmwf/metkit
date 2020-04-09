@@ -39,27 +39,31 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   ENVIRONMENT   "${metkit_env}"
 )
 
-ecbuild_add_test( TARGET    test_typesfactory
+ecbuild_add_test( TARGET    metkit_test_typesfactory
                   SOURCES   test_typesfactory.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                   ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit )
 
-ecbuild_add_test( TARGET    test_expand
+ecbuild_add_test( TARGET    metkit_test_expand
                   SOURCES   test_expand.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                   ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit)
 
-ecbuild_add_test( TARGET    test_param_axis
+ecbuild_add_test( TARGET    metkit_test_param_axis
                   SOURCES   test_param_axis.cc
                   INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                   ENVIRONMENT   "${metkit_env}"
                   LIBS      metkit)
 
-ecbuild_add_test( TARGET      test_steprange_axis
+ecbuild_add_test( TARGET      metkit_test_steprange_axis
                   SOURCES     test_steprange_axis.cc
                   ENVIRONMENT "${metkit_env}"
+                  LIBS        metkit )
+
+ecbuild_add_test( TARGET      metkit_test_time
+                  SOURCES     test_time.cc
                   LIBS        metkit )
 
 # if ( HAVE_NETCDF )

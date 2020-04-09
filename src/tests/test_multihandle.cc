@@ -20,7 +20,7 @@
 
 #include "metkit/grib/MetFile.h"
 
-#include "grib_api.h"
+#include "eccodes.h"
 
 #include "eckit/testing/Test.h"
 
@@ -32,20 +32,41 @@ namespace test {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CASE( "fopen" ) {
+CASE( "openf filehandle" ) {
 
-    eckit::MultiHandle mh;
+    eckit::FileHandle dh("latlon.grib");
 
-    mh += new eckit::FileHandle("latlon.grib");
-    mh += new eckit::FileHandle("latlon.grib");
-
-    FILE* f = mh.openf("r");
+    FILE* f = dh.openf("r");
 
     grib_handle* h;
 
     int err = 0;
     size_t count = 0;
-    while( (h =  grib_handle_new_from_file(0, f, &err))) {
+    while( (h =  grib_handle_new_from_file(nullptr, f, &err))) {
+        count++;
+        grib_handle_delete(h);
+    }
+
+    fclose(f);
+    EXPECT(count == 1);
+    EXPECT(err == GRIB_SUCCESS);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+CASE( "openf multihandle" ) {
+
+    eckit::MultiHandle dh;
+    dh += new eckit::FileHandle("latlon.grib");
+    dh += new eckit::FileHandle("latlon.grib");
+
+    FILE* f = dh.openf("r");
+
+    grib_handle* h;
+
+    int err = 0;
+    size_t count = 0;
+    while( (h =  grib_handle_new_from_file(nullptr, f, &err))) {
         count++;
         grib_handle_delete(h);
     }

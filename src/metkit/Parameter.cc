@@ -8,6 +8,9 @@
  * does it submit to any jurisdiction.
  */
 
+#include <algorithm>
+#include <iterator>
+
 #include "metkit/Parameter.h"
 #include "metkit/types/Type.h"
 
@@ -17,12 +20,10 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 class UndefinedType : public Type {
-    virtual void print( std::ostream &out ) const  {
-        out << "<undefined type>";
-    }
+    virtual void print(std::ostream& out) const { out << "<undefined type>"; }
 
-    virtual bool filter(const std::vector< std::string >& filter,
-                        std::vector<std::string>& values) const {
+    virtual bool filter(const std::vector<std::string>&,
+                        std::vector<std::string>&) const {
         NOTIMP;
     }
 
@@ -37,8 +38,7 @@ static UndefinedType undefined;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-Parameter::Parameter():
-    type_(&undefined) {
+Parameter::Parameter() : type_(&undefined) {
     type_->attach();
 }
 
@@ -46,9 +46,8 @@ Parameter::~Parameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, Type* type):
-    type_(type),
-    values_(values) {
+Parameter::Parameter(const std::vector<std::string>& values, Type* type) :
+    type_(type), values_(values) {
     if (!type) {
         type_ = &undefined;
     }
@@ -56,15 +55,13 @@ Parameter::Parameter(const std::vector<std::string>& values, Type* type):
 }
 
 
-Parameter::Parameter(const Parameter& other):
-    type_(other.type_),
-    values_(other.values_) {
+Parameter::Parameter(const Parameter& other) : type_(other.type_), values_(other.values_) {
     type_->attach();
 }
 
 Parameter& Parameter::operator=(const Parameter& other) {
-    Type *old = type_;
-    type_ = other.type_;
+    Type* old = type_;
+    type_     = other.type_;
     type_->attach();
     old->detach();
 
@@ -76,13 +73,35 @@ void Parameter::values(const std::vector<std::string>& values) {
     values_ = values;
 }
 
-bool Parameter::filter(const std::vector<std::string> &filter)  {
+bool Parameter::filter(const std::vector<std::string>& filter) {
     return type_->filter(filter, values_);
 }
 
 
-bool Parameter::matches(const std::vector<std::string> &match) const {
+bool Parameter::matches(const std::vector<std::string>& match) const {
     return type_->matches(match, values_);
+}
+
+void Parameter::merge(const Parameter& p) {
+    ASSERT(name() == p.name());
+
+    /// @note this isn't optimal O(N^2) but it respects the order
+
+    std::vector<std::string> diff;
+    for (auto& o : p.values_) {
+        bool found = false;
+        for (auto& v : values_) {
+            if (v == o) {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            diff.push_back(o);
+    }
+
+    values_.insert(values_.end(), std::make_move_iterator(diff.begin()),
+                   std::make_move_iterator(diff.end()));
 }
 
 
@@ -92,6 +111,10 @@ const std::string& Parameter::name() const {
 
 size_t Parameter::count() const {
     return type_->count(values_);
+}
+
+void Parameter::print(std::ostream& s) const {
+    s << "Parameter[type=" << *type_ << ",values=" << values_ << "]";
 }
 
 bool Parameter::operator<(const Parameter& other) const {
@@ -104,4 +127,4 @@ bool Parameter::operator<(const Parameter& other) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-} // namespace metkit
+}  // namespace metkit

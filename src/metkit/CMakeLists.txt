@@ -42,6 +42,8 @@ MarsParsedRequest.h
 MarsParsedRequest.cc
 MarsRequestHandle.cc
 MarsRequestHandle.h
+MetkitTool.h
+MetkitTool.cc
 RequestEnvironment.cc
 RequestEnvironment.h
 Parameter.cc
@@ -188,7 +190,7 @@ ecbuild_add_library(
         ${ODC_INCLUDE_DIRS}
 
     LIBS
-        eckit
+        eckit eckit_option
         ${odc_libs}
         ${grib_libs}
         ${bufr_libs}

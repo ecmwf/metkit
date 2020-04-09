@@ -50,6 +50,8 @@ public: // methods
 
     static eckit::PathName languageYamlFile();
 
+    Type* type(const std::string& name) const;
+
 public: // class methods
 
     static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
@@ -71,8 +73,6 @@ private: // methods
                  size_t i,
                  MarsRequest& result,
                  FlattenCallback& callback);
-
-    Type* type(const std::string& name) const;
 
 private: // members
 
