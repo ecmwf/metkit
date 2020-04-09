@@ -20,6 +20,7 @@
 #include "eckit/option/Option.h"
 #include "eckit/option/SimpleOption.h"
 #include "eckit/runtime/Tool.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/MetkitTool.h"
 #include "metkit/odb/OdbToRequest.h"
@@ -38,6 +39,8 @@ public:
             new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
         options_.push_back(new SimpleOption<std::string>(
             "database", "add database keyword to requests, default = none"));
+        options_.push_back(new SimpleOption<std::string>(
+            "source", "add source keyword to requests, default = none"));
         options_.push_back(new SimpleOption<std::string>(
             "target", "add target keyword to requests, default = none"));
         options_.push_back(
@@ -63,6 +66,7 @@ private:  // members
     std::vector<PathName> paths_;
     std::string verb_     = "retrieve";
     std::string database_ = "";
+    std::string source_   = "";
     std::string target_   = "";
     bool one_             = false;
     bool constant_        = true;
@@ -76,6 +80,7 @@ void OdbToRequestTool::init(const CmdArgs& args) {
     args.get("constant", constant_);
     args.get("verb", verb_);
     args.get("database", database_);
+    args.get("source", source_);
     args.get("target", target_);
     args.get("json", json_);
 
@@ -126,10 +131,18 @@ void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {
 
     std::vector<MarsRequest> requests = odb::OdbToRequest(verb_, one_, constant_).odbToRequest(dh);
 
+
     if (not database_.empty())
         addKeyValue(requests, "database", database_);
 
-    if (not database_.empty())
+    if (StringTools::lower(verb_) == "archive") {
+        addKeyValue(requests, "source", inFile);
+    }
+
+    if (not source_.empty())
+        addKeyValue(requests, "source", source_);
+
+    if (not target_.empty())
         addKeyValue(requests, "target", target_);
 
     if (json_) {
