@@ -18,8 +18,8 @@
 #include "metkit/grib/GribToRequest.h"
 #include "metkit/MarsRequest.h"
 
-
 using namespace metkit;
+using metkit::grib::MetFile;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -46,9 +46,7 @@ void Grib2Request::run()
 {
     eckit::Log::debug() << "Opening GRIB file : " << path_ << std::endl;
 
-    static long gribBufferSize = eckit::Resource<long>("gribBufferSize", 64*1024*1024);
-
-    eckit::Buffer buffer(gribBufferSize);
+    eckit::Buffer buffer(MetFile::gribBufferSize());
 
     long len = 0;
 
