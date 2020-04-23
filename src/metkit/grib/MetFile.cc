@@ -79,6 +79,12 @@ MetFile::~MetFile()
     }
 }
 
+size_t MetFile::gribBufferSize() {
+    static size_t gribBufferSize =
+        eckit::Resource<long>("gribBufferSize;$GRIB_BUFFER_SIZE", 80 * 1024 * 1024);
+    return gribBufferSize;
+}
+
 long MetFile::read(eckit::Buffer& buffer)
 {
     size_t len = buffer.size();

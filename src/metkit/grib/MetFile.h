@@ -53,6 +53,9 @@ public: // methods
 
     ~MetFile();
 
+    /// This is to be removed so we dont rely on the GRIB_BUFFER_SIZE being set
+    static size_t gribBufferSize();
+
 public: // methods
 
     long read(eckit::Buffer&);
