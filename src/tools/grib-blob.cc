@@ -60,8 +60,8 @@ void GribBlob::run() {
 
     eckit::option::CmdArgs args(&::usage, options_, numberOfPositionalArguments(), minimumPositionalArguments());
 
-    static long gribBufferSize = eckit::Resource<long>("gribBufferSize", 64*1024*1024);
-    eckit::Buffer buffer(gribBufferSize);
+
+    eckit::Buffer buffer(grib::MetFile::gribBufferSize());
     long len = 0;
 
     for (size_t i = 0; i < args.count(); i++) {
