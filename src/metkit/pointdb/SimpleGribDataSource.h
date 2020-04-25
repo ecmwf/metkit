@@ -45,7 +45,7 @@ private:
     virtual long read(void*, long) const;
     virtual const GribFieldInfo& info() const;
     virtual void print(std::ostream& s) const;
-    virtual void request(eckit::JSON&) const;
+    virtual const std::map<std::string, eckit::Value>& request() const;
 
     void open() const;
 

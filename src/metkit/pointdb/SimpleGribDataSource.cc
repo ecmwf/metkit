@@ -115,7 +115,7 @@ void SimpleGribDataSource::print(std::ostream& s) const {
     s << "SimpleGribDataSource[" << *handle_ << "]" << std::endl;
 }
 
-void SimpleGribDataSource::request(eckit::JSON&) const {
+const std::map<std::string, eckit::Value>& SimpleGribDataSource::request() const {
     NOTIMP; // Implement a grib2request like function
 }
 

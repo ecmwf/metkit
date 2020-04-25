@@ -12,14 +12,19 @@
 #define metkit_DataSource_H
 
 #include <iosfwd>
+#include <map>
 
 #include "eckit/memory/Counted.h"
 
 namespace eckit {
 class JSON;
+class Value;
 }
 
 namespace metkit {
+
+class MarsRequest;
+
 namespace pointdb {
 
 class DataSource;
@@ -54,7 +59,7 @@ public:
 
     PointResult extract(double lat, double lon) const;
     // Encode a MARS-like request representing the field
-    virtual void request(eckit::JSON&) const = 0;
+    virtual const std::map<std::string, eckit::Value>& request() const = 0;
 
 private:
 
