@@ -84,7 +84,7 @@ const GribFieldInfo& SimpleGribDataSource::info() const {
         md5 << *handle_;
         md5 << static_cast<long long>(offset_);
 
-        eckit::PathName cache("/tmp/grib-info-" + md5.digest());
+        eckit::PathName cache = PointIndex::cachePath("grib-info", md5);
         if (cache.exists()) {
             eckit::StdFile f(cache);
             ASSERT(::fread(&info_, sizeof(info_), 1, f) == 1);
@@ -99,6 +99,8 @@ const GribFieldInfo& SimpleGribDataSource::info() const {
 
             grib::GribHandle h(buffer, false, false);
             info_.update(h);
+
+            cache.dirName().mkdir();
 
             eckit::StdFile f(cache, "w");
             ASSERT(::fwrite(&info_, sizeof(info_), 1, f) == 1);
