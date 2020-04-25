@@ -115,6 +115,10 @@ void SimpleGribDataSource::print(std::ostream& s) const {
     s << "SimpleGribDataSource[" << *handle_ << "]" << std::endl;
 }
 
+void SimpleGribDataSource::request(eckit::JSON&) const {
+    NOTIMP; // Implement a grib2request like function
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 } // namespace pointdb

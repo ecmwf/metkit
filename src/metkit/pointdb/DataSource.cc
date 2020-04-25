@@ -35,9 +35,10 @@ PointResult DataSource::extract(double lat,
     PointIndex& pi = PointIndex::lookUp(geographyHash());
     PointIndex::NodeInfo n = pi.nearestNeighbour(lat, lon);
 
-    result.lat_   = n.point().lat();
-    result.lon_   = n.point().lon();
-    result.value_ = value(n.point().payload_);
+    result.lat_      = n.point().lat();
+    result.lon_      = n.point().lon();
+    result.value_    = value(n.point().payload_);
+    result.source_   = this;
 
     return result;
 
