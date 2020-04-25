@@ -92,7 +92,7 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
     // grib_dump_content(h, f, "debug", 0, 0);
     // f.close();
 
-    PathName grib = cachePath("grids", md5 + ".tmp");
+    PathName grib = cachePath("grids", md5 + ".grib");
     h.write(grib);
 
     PathName::rename(tmp, path);
