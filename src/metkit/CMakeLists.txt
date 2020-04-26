@@ -155,12 +155,9 @@ if ( HAVE_GRIB )
         pointdb/DataSource.cc
         pointdb/GribDataSource.h
         pointdb/GribDataSource.cc
-        pointdb/SimpleGribIndexer.h
-        pointdb/SimpleGribIndexer.cc
-        pointdb/SimpleGribIndexFile.h
-        pointdb/SimpleGribIndexFile.cc
-        pointdb/SimpleGribDataSource.h
-        pointdb/SimpleGribDataSource.cc    )
+        pointdb/GribHandleDataSource.h
+        pointdb/GribHandleDataSource.cc
+        )
 
 endif ()
 
