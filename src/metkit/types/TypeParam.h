@@ -35,7 +35,8 @@ protected:
 
 private: // methods
 
-    eckit::ValueMap expand_with_;
+    eckit::ValueMap expandWith_;
+    bool firstRule_;
 
     virtual void print(std::ostream &out) const;
     virtual void reset();

@@ -1048,9 +1048,10 @@ pointdb:
 
   _options:
     param:
-      expand_with:  # In case not type/stream/levtype is provided
-        type: an
-        stream: oper
-        levtype: pl
+      # expand_with:  # In case not type/stream/levtype is provided
+      #   type: an
+      #   stream: oper
+      #   levtype: pl
+      first_rule: true
 
 end: {}

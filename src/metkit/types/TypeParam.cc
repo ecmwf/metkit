@@ -42,7 +42,7 @@ public:
     Matcher(const std::string& name,
             const eckit::Value values);
 
-    bool match(const metkit::MarsRequest& request) const ;
+    bool match(const metkit::MarsRequest& request, bool partial=false) const ;
 
     friend std::ostream& operator<<(std::ostream& out, const Matcher& matcher) {
         out << matcher.name_ << "=" << matcher.values_;
@@ -61,11 +61,11 @@ Matcher::Matcher(const std::string& name,
 
 }
 
-bool Matcher::match(const metkit::MarsRequest& request) const {
+bool Matcher::match(const metkit::MarsRequest& request, bool partial) const {
 
     std::vector<std::string> vals = request.values(name_, true);
     if (vals.size() == 0) {
-        return false;
+        return partial;
     }
 
     // std::cout << vals << std::endl;
@@ -93,7 +93,7 @@ class Rule : public metkit::MarsExpandContext {
 
 public:
 
-    bool match(const metkit::MarsRequest& request) const;
+    bool match(const metkit::MarsRequest& request, bool partial=false) const;
     std::string lookup(const MarsExpandContext& ctx, const std::string & s, bool fail) const;
     long toParamid(const std::string& param) const;
 
@@ -200,9 +200,9 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
 
 
 
-bool Rule::match(const metkit::MarsRequest& request) const {
+bool Rule::match(const metkit::MarsRequest& request, bool partial) const {
     for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
-        if (!(*j).match(request)) {
+        if (!(*j).match(request, partial)) {
             return false;
         }
     }
@@ -341,10 +341,15 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+    Type(name, settings),
+    firstRule_(false) {
 
     if (settings.contains("expand_with")) {
-        expand_with_ = settings["expand_with"];
+        expandWith_ = settings["expand_with"];
+    }
+
+    if (settings.contains("first_rule")) {
+        firstRule_ = settings["first_rule"];
     }
 
 }
@@ -373,9 +378,27 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
 
     if (!rule) {
-        if (expand_with_.size()) {
+
+        if (firstRule_) {
+            bool found = false;
+            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule ; ++j) {
+                const Rule* r = &(*j);
+                if ((*j).match(request, true)) {
+                    for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
+                        std::string& s = (*j);
+                        try {
+                            s = r->lookup(ctx, s, fail);
+                            rule = r;
+                        } catch (...) {
+
+                        }
+                    }
+                }
+            }
+        }
+        else if (expandWith_.size()) {
             MarsRequest tmp(request);
-            for (auto j = expand_with_.begin(); j != expand_with_.end(); ++j) {
+            for (auto j = expandWith_.begin(); j != expandWith_.end(); ++j) {
                 if (!tmp.has((*j).first)) {
                     tmp.setValue((*j).first, (*j).second);
                 }
