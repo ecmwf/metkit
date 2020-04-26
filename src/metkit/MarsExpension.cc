@@ -84,6 +84,13 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedReque
     return result;
 }
 
+MarsRequest MarsExpension::expand(const MarsRequest& request) {
+    DummyContext ctx;
+    MarsLanguage& lang = language(ctx, request.verb());
+    return lang.expand(ctx, request, inherit_);
+}
+
+
 void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
     MarsRequest r = language(ctx, request.verb()).expand(ctx, request, inherit_);
     callback(ctx, r);
