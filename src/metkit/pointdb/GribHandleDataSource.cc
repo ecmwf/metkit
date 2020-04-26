@@ -15,18 +15,19 @@
 #include "eckit/io/DataHandle.h"
 #include "metkit/grib/MetFile.h"
 #include "eckit/io/Buffer.h"
-#include "metkit/grib/GribHandle.h"
+#include "eckit/io/PooledHandle.h"
 #include "metkit/pointdb/PointIndex.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/io/StdFile.h"
-
+#include "eckit/io/PooledHandle.h"
+#include "metkit/grib/GribHandle.h"
 
 namespace metkit {
 namespace pointdb {
 
 GribHandleDataSource::GribHandleDataSource(const eckit::PathName& path,
         const eckit::Offset& offset):
-    handle_(path.fileHandle()),
+    handle_(new eckit::PooledHandle(path)),
     ownsHandle_(true),
     opened_(false),
     offset_(offset) {
