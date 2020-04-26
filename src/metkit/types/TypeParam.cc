@@ -379,6 +379,9 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
     if (!rule) {
 
+                    Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;;
+
+
         if (firstRule_) {
             bool found = false;
             for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule ; ++j) {
@@ -389,6 +392,7 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
                         try {
                             s = r->lookup(ctx, s, fail);
                             rule = r;
+                            Log::warning() << "TypeParam: using 'first matching rule' option " << *rule << std::endl;
                         } catch (...) {
 
                         }
@@ -406,6 +410,7 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
             for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
                 if ((*j).match(tmp)) {
                     rule = &(*j);
+                    Log::warning() << "TypeParam using 'expand with' option " << *rule << std::endl;
                     break;
                 }
             }
