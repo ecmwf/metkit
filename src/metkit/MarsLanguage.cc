@@ -63,6 +63,7 @@ MarsLanguage::MarsLanguage(const std::string& verb):
     eckit::Value params = lang.keys();
 
     eckit::Value defaults = lang["_defaults"];
+    eckit::Value options = lang["_options"];
 
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword = params[i];
@@ -77,6 +78,13 @@ MarsLanguage::MarsLanguage(const std::string& verb):
 
         if (defaults.contains(keyword)) {
             settings["default"] = defaults[keyword];
+        }
+
+        if (options.contains(keyword)) {
+            eckit::ValueMap m = options[keyword];
+            for(auto j = m.begin(); j != m.end(); ++j) {
+                settings[(*j).first] = (*j).second;
+            }
         }
 
         types_[keyword] = TypesFactory::build(keyword, settings);

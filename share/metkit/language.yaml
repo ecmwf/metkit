@@ -1022,5 +1022,35 @@ read:
     time: null
     type: null
 
+pointdb:
+  lat:
+    multiple: false
+    type: float
+
+  lon:
+    multiple: false
+    type: float
+
+  <<: *_field
+
+  _defaults:
+    class: null
+    date: null
+    domain: null
+    expver: null
+    levelist: null
+    levtype: null
+    param: null
+    step: null
+    stream: null
+    time: null
+    type: null
+
+  _options:
+    param:
+      expand_with:  # In case not type/stream/levtype is provided
+        type: an
+        stream: oper
+        levtype: pl
 
 end: {}

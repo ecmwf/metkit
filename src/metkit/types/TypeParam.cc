@@ -343,7 +343,9 @@ namespace metkit {
 TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
     Type(name, settings) {
 
-
+    if (settings.contains("expand_with")) {
+        expand_with_ = settings["expand_with"];
+    }
 
 }
 
@@ -371,9 +373,28 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
 
     if (!rule) {
-        Log::error() << "Not rule for " << request << std::endl;
+        if (expand_with_.size()) {
+            MarsRequest tmp(request);
+            for (auto j = expand_with_.begin(); j != expand_with_.end(); ++j) {
+                if (!tmp.has((*j).first)) {
+                    tmp.setValue((*j).first, (*j).second);
+                }
+            }
+            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
+                if ((*j).match(tmp)) {
+                    rule = &(*j);
+                    break;
+                }
+            }
+
+        }
+        if (!rule) {
+            std::ostringstream oss;
+            oss << "TypeParam: cannot find a context to expand 'param' in " << request;
+            throw eckit::SeriousBug(oss.str());
+        }
+
     }
-    ASSERT(rule);
 
 
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {

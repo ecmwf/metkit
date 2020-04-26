@@ -35,6 +35,8 @@ protected:
 
 private: // methods
 
+    eckit::ValueMap expand_with_;
+
     virtual void print(std::ostream &out) const;
     virtual void reset();
     virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
