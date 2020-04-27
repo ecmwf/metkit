@@ -18,6 +18,7 @@
 #include "metkit/grib/GribIterator.h"
 #include "eckit/thread/AutoLock.h"
 // #include "eckit/io/StdFile.h"
+#include "eckit/config/Resource.h"
 
 // #include <eccodes.h>
 
@@ -29,6 +30,11 @@ namespace pointdb {
 static Mutex  mutex;
 static std::set<std::string> done_;
 static std::map<PathName, PointIndex*> cache_;
+
+eckit::PathName PointIndex::cachePath(const std::string& dir, const std::string& name) {
+    static eckit::PathName pointdbCachePath = eckit::Resource<eckit::PathName>("pointdbCachePath", "~/pointdb");
+    return pointdbCachePath / dir / name;
+}
 
 std::string PointIndex::cache(const metkit::grib::GribHandle& h)
 {
@@ -43,12 +49,12 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
         return md5;
     }
 
-    eckit::PathName path(std::string("/tmp/cache/pointdb/") + md5 + ".kdtree");
+    eckit::PathName path = cachePath("grids", md5 + ".kdtree");
     if (path.exists()) {
         done_.insert(md5);
         return md5;
     }
-    PathName("/tmp/cache/pointdb/").mkdir();
+    path.dirName().mkdir();
 
     size_t v = h.getDataValuesSize();
 
@@ -75,7 +81,7 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
     }
 
 
-    PathName tmp(std::string("/tmp/cache/pointdb/") + md5 + ".tmp");
+    PathName tmp = cachePath("grids", md5 + ".tmp");
     tmp.unlink();
 
     Tree* tree = new Tree(tmp, p.size(), 0);
@@ -86,7 +92,7 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
     // grib_dump_content(h, f, "debug", 0, 0);
     // f.close();
 
-    PathName grib(std::string("/tmp/cache/pointdb/") + md5 + ".grib");
+    PathName grib = cachePath("grids", md5 + ".grib");
     h.write(grib);
 
     PathName::rename(tmp, path);
@@ -101,12 +107,12 @@ PointIndex& PointIndex::lookUp(const std::string& md5)
     AutoLock<Mutex> lock(mutex);
     std::map<PathName, PointIndex*>::iterator k = cache_.find(md5);
     if (k == cache_.end()) {
-        eckit::PathName path(std::string("/tmp/cache/pointdb/") + md5 + ".kdtree");
+        eckit::PathName path = cachePath("grids", md5 + ".kdtree");
 
         if (!path.exists())
         {
             Log::warning() << path << " does not exists" << std::endl;
-            PathName grib(std::string("/tmp/cache/pointdb/") + md5 + ".grib");
+            PathName grib = cachePath("grids", md5 + ".grib");
             if (grib.exists()) {
                 Log::warning() << "Rebuilding index from " << grib << std::endl;
                 metkit::grib::GribHandle h(grib);

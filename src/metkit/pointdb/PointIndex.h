@@ -110,6 +110,8 @@ public:
     static PointIndex& lookUp(const std::string& md5);
     static std::string cache(const metkit::grib::GribHandle& h);
 
+    static eckit::PathName cachePath(const std::string& dir, const std::string& name);
+
 private:
 
     PointIndex(const eckit::PathName&, Tree* tree = 0);

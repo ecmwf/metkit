@@ -8,31 +8,32 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/pointdb/SimpleGribDataSource.h"
+#include "metkit/pointdb/GribHandleDataSource.h"
 #include "metkit/pointdb/GribFieldInfo.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/DataHandle.h"
 #include "metkit/grib/MetFile.h"
 #include "eckit/io/Buffer.h"
-#include "metkit/grib/GribHandle.h"
+#include "eckit/io/PooledHandle.h"
 #include "metkit/pointdb/PointIndex.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/io/StdFile.h"
-
+#include "eckit/io/PooledHandle.h"
+#include "metkit/grib/GribHandle.h"
 
 namespace metkit {
 namespace pointdb {
 
-SimpleGribDataSource::SimpleGribDataSource(const eckit::PathName& path,
+GribHandleDataSource::GribHandleDataSource(const eckit::PathName& path,
         const eckit::Offset& offset):
-    handle_(path.fileHandle()),
+    handle_(new eckit::PooledHandle(path)),
     ownsHandle_(true),
     opened_(false),
     offset_(offset) {
 }
 
-SimpleGribDataSource::SimpleGribDataSource(eckit::DataHandle& handle,
+GribHandleDataSource::GribHandleDataSource(eckit::DataHandle& handle,
         const eckit::Offset& offset):
     handle_(&handle),
     ownsHandle_(false),
@@ -40,7 +41,7 @@ SimpleGribDataSource::SimpleGribDataSource(eckit::DataHandle& handle,
     offset_(offset) {
 }
 
-SimpleGribDataSource::SimpleGribDataSource(eckit::DataHandle* handle,
+GribHandleDataSource::GribHandleDataSource(eckit::DataHandle* handle,
         const eckit::Offset& offset):
     handle_(handle),
     ownsHandle_(true),
@@ -50,7 +51,7 @@ SimpleGribDataSource::SimpleGribDataSource(eckit::DataHandle* handle,
 }
 
 
-SimpleGribDataSource::~SimpleGribDataSource() {
+GribHandleDataSource::~GribHandleDataSource() {
     if (opened_) {
         handle_->close();
     }
@@ -59,32 +60,32 @@ SimpleGribDataSource::~SimpleGribDataSource() {
     }
 }
 
-void SimpleGribDataSource::open() const {
+void GribHandleDataSource::open() const {
     if (!opened_) {
         handle_->openForRead();
         opened_ = true;
     }
 }
 
-eckit::Offset SimpleGribDataSource::seek(const eckit::Offset& offset) const {
+eckit::Offset GribHandleDataSource::seek(const eckit::Offset& offset) const {
     open();
     eckit::Offset pos = handle_->seek(offset_ + offset);
     return (long long)pos - (long long)offset_;
 }
 
-long SimpleGribDataSource::read(void* buffer, long len) const {
+long GribHandleDataSource::read(void* buffer, long len) const {
     open();
     return handle_->read(buffer, len);
 }
 
-const GribFieldInfo& SimpleGribDataSource::info() const {
+const GribFieldInfo& GribHandleDataSource::info() const {
     if (!info_.ready()) {
 
         eckit::MD5 md5;
         md5 << *handle_;
         md5 << static_cast<long long>(offset_);
 
-        eckit::PathName cache("/tmp/grib-info-" + md5.digest());
+        eckit::PathName cache = PointIndex::cachePath("grib-info", md5);
         if (cache.exists()) {
             eckit::StdFile f(cache);
             ASSERT(::fread(&info_, sizeof(info_), 1, f) == 1);
@@ -100,6 +101,8 @@ const GribFieldInfo& SimpleGribDataSource::info() const {
             grib::GribHandle h(buffer, false, false);
             info_.update(h);
 
+            cache.dirName().mkdir();
+
             eckit::StdFile f(cache, "w");
             ASSERT(::fwrite(&info_, sizeof(info_), 1, f) == 1);
             f.close();
@@ -111,8 +114,12 @@ const GribFieldInfo& SimpleGribDataSource::info() const {
     return info_;
 }
 
-void SimpleGribDataSource::print(std::ostream& s) const {
-    s << "SimpleGribDataSource[" << *handle_ << "]" << std::endl;
+void GribHandleDataSource::print(std::ostream& s) const {
+    s << "GribHandleDataSource[" << *handle_ << "]" << std::endl;
+}
+
+const std::map<std::string, eckit::Value>& GribHandleDataSource::request() const {
+    NOTIMP; // Implement a grib2request like function
 }
 
 

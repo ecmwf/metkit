@@ -52,6 +52,7 @@ public:
 
     void reset();
 
+    MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
     void expand(const MarsExpandContext& ctx,

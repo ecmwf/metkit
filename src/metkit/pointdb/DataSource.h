@@ -12,16 +12,33 @@
 #define metkit_DataSource_H
 
 #include <iosfwd>
+#include <map>
 
 #include "eckit/memory/Counted.h"
 
+namespace eckit {
+class JSON;
+class Value;
+}
+
 namespace metkit {
+
+class MarsRequest;
+
 namespace pointdb {
 
+class DataSource;
+
 struct PointResult {
+
     double value_;
     double lat_;
     double lon_;
+    const DataSource* source_; // Warning, the source must have a longer life time as the result
+
+
+
+
 
     void print(std::ostream& s) const;
 
@@ -41,7 +58,8 @@ public:
 // -
 
     PointResult extract(double lat, double lon) const;
-
+    // Encode a MARS-like request representing the field
+    virtual const std::map<std::string, eckit::Value>& request() const = 0;
 
 private:
 
@@ -49,7 +67,6 @@ private:
     virtual std::string geographyHash() const = 0;
 
     virtual double value(size_t index) const = 0;
-
 
 
     virtual void print(std::ostream& s) const = 0;

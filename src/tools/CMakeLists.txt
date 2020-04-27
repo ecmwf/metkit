@@ -24,18 +24,6 @@ ecbuild_add_executable( TARGET   grib-blob
     LIBS     metkit eckit_option eckit
 )
 
-ecbuild_add_executable( TARGET   pointdb-nearest-point
-
-    CONDITION HAVE_GRIB
-
-    SOURCES  pointdb-nearest-point.cc
-
-    INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
-
-    LIBS     metkit eckit_option eckit
-)
-
 
 ecbuild_add_executable( TARGET   bufr-to-mars-request
 

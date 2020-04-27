@@ -8,8 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_SimpleGribDataSource_H
-#define metkit_SimpleGribDataSource_H
+#ifndef metkit_GribHandleDataSource_H
+#define metkit_GribHandleDataSource_H
 
 #include "metkit/pointdb/GribDataSource.h"
 #include "metkit/pointdb/GribFieldInfo.h"
@@ -22,15 +22,15 @@ namespace metkit {
 namespace pointdb {
 
 
-class SimpleGribDataSource : public GribDataSource {
+class GribHandleDataSource : public GribDataSource {
 public:
 
-    SimpleGribDataSource(const eckit::PathName&, const eckit::Offset& = 0);
-    SimpleGribDataSource( eckit::DataHandle&, const eckit::Offset& = 0);
-    SimpleGribDataSource( eckit::DataHandle*, const eckit::Offset& = 0);
+    GribHandleDataSource(const eckit::PathName&, const eckit::Offset& = 0);
+    GribHandleDataSource( eckit::DataHandle&, const eckit::Offset& = 0);
+    GribHandleDataSource( eckit::DataHandle*, const eckit::Offset& = 0);
 
 
-    ~SimpleGribDataSource();
+    ~GribHandleDataSource();
 
 private:
 
@@ -45,6 +45,7 @@ private:
     virtual long read(void*, long) const;
     virtual const GribFieldInfo& info() const;
     virtual void print(std::ostream& s) const;
+    virtual const std::map<std::string, eckit::Value>& request() const;
 
     void open() const;
 

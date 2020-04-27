@@ -29,6 +29,8 @@ private:
     virtual long read(void*, long) const = 0;
     virtual const GribFieldInfo& info() const = 0;
 
+
+
     // -- Overriden methods
 
     virtual double value(size_t index) const;
