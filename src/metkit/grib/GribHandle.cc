@@ -92,7 +92,7 @@ GribHandle::GribHandle(eckit::DataHandle& handle, bool partial) : handle_(NULL),
     grib_handle* h = nullptr;
     int err = 0;
 
-    FILE* f = handle.openf("r");
+    FILE* f = handle.openf();
     ASSERT(f);
 
     if (partial) {
