@@ -93,12 +93,10 @@ const GribFieldInfo& GribHandleDataSource::info() const {
         }
         else {
             open();
-            eckit::Buffer buffer(64 * 1024 * 1024); // TODO: Parametrise
 
             handle_->seek(offset_);
-            handle_->read(buffer, buffer.size());
 
-            grib::GribHandle h(buffer, false, false);
+            grib::GribHandle h(*handle_, false); // Partial does not work
             info_.update(h);
 
             cache.dirName().mkdir();

@@ -87,6 +87,26 @@ GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy, bool partial) : h
     handle_ = h;
 }
 
+GribHandle::GribHandle(eckit::DataHandle& handle, bool partial) : handle_(NULL), owned_(true) {
+
+    grib_handle* h = nullptr;
+    int err = 0;
+
+    FILE* f = handle.openf();
+    ASSERT(f);
+
+    if (partial) {
+        h = grib_new_from_file(0, f, true, &err);
+    }
+    else {
+        h = grib_handle_new_from_file(0, f, &err);
+    }
+
+    GRIB_CALL(err);
+    ASSERT(h);
+    handle_ = h;
+}
+
 GribHandle::~GribHandle() noexcept(false) {
     if (handle_ && owned_) {
         GRIB_CALL(grib_handle_delete(handle_));
