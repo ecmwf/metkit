@@ -262,6 +262,9 @@ _field: &_field
     flatten: false
     type: expver
 
+  dataset:
+    type: any
+
   model:
     category: data
     type: any
