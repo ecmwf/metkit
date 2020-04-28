@@ -55,6 +55,9 @@ public: // types
    /// constructor creating a grib_handle from a buffer
    explicit GribHandle(const eckit::Buffer&, bool copy = true, bool partial = false);
 
+   /// constructor creating a grib_handle from a DataHandle
+   explicit GribHandle(eckit::DataHandle&, bool partial = false);
+
    /// destructor will delete the grib_handle if we own it
    ~GribHandle() noexcept(false);
 
