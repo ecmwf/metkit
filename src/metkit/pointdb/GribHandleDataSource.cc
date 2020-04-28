@@ -96,7 +96,7 @@ const GribFieldInfo& GribHandleDataSource::info() const {
 
             handle_->seek(offset_);
 
-            grib::GribHandle h(*handle_, true);
+            grib::GribHandle h(*handle_, false); // Partial does not work
             info_.update(h);
 
             cache.dirName().mkdir();
