@@ -263,6 +263,8 @@ _field: &_field
     type: expver
 
   dataset:
+    # flatten: false
+    multiple: true
     type: any
 
   model:
@@ -975,11 +977,6 @@ retrieve:
 
   database:
     flatten: false
-    multiple: true
-    type: any
-
-  dataset:
-    # flatten: false
     multiple: true
     type: any
 

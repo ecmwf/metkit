@@ -248,7 +248,6 @@
 				".gemtags",
 				"CMakeLists.txt.user*"
 			],
-			"follow_symlinks": true,
 			"path": "."
 		}
 	],
