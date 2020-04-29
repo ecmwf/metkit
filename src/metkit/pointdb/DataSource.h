@@ -55,22 +55,15 @@ public:
 
     virtual ~DataSource();
 
-// -
 
-    PointResult extract(double lat, double lon) const;
+    virtual PointResult extract(double lat, double lon) const = 0;
+
     // Encode a MARS-like request representing the field
     virtual const std::map<std::string, eckit::Value>& request() const = 0;
 
 private:
 
-
-    virtual std::string geographyHash() const = 0;
-
-    virtual double value(size_t index) const = 0;
-
-
     virtual void print(std::ostream& s) const = 0;
-
 
     friend std::ostream& operator<<(std::ostream& s, const DataSource& f) {
         f.print(s);
