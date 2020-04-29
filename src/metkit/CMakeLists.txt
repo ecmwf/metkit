@@ -125,8 +125,6 @@ if ( HAVE_GRIB )
 	pointdb/DataSource.h
 	pointdb/FieldIndexer.cc
 	pointdb/FieldIndexer.h
-	pointdb/FieldInfoKey.cc
-	pointdb/FieldInfoKey.h
 	pointdb/GribDataSource.cc
 	pointdb/GribDataSource.h
 	pointdb/GribFieldInfo.cc
