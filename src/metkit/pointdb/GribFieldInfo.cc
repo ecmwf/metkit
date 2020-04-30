@@ -11,6 +11,7 @@
 #include "metkit/pointdb/GribFieldInfo.h"
 #include "metkit/grib/GribAccessor.h"
 #include "metkit/pointdb/GribDataSource.h"
+#include <bitset>
 
 using namespace eckit;
 using namespace metkit::grib;
@@ -118,40 +119,57 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
     if (offsetBeforeBitmap_) {
         ASSERT(index < numberOfDataPoints_);
 
-        //cout << "offsetBeforeBitmap_ " << offsetBeforeBitmap_ << endl;
-        //cout << "offset_ " << offset_ << endl;
+        Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
+                    << ",index " << index
+                    << std::endl;
+
+
         Offset offset(offsetBeforeBitmap_);
         ASSERT(f.seek(offset) == offset);
-        uint64_t n;
-        ASSERT(sizeof(n) == 8);
-        size_t pos = index + 1;
         size_t count = 0;
 
-        while (pos > 0)
-        {
+        uint64_t n;
+        ASSERT(sizeof(n) == 8);
+
+        size_t skip = index / (sizeof(n) * 8);
+
+        Log::info() << "Read " << skip  << " words" << std::endl;
+        for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
-            if (pos < sizeof(n) * 8)
-            {
-                n &= masks[pos];
-                count += count_bits(n);
-
-                n = (n >> (64 - pos)) & 1;
-
-                if (!n) {
-                    return MISSING;
-                }
-            }
-            else {
-                count += count_bits(n);
-            }
-
-            pos -= sizeof(n) * 8;
+            count += count_bits(n);
         }
+        Log::info() << "Count " << count << std::endl;
+
+        size_t pos = index % (sizeof(n) * 8);
+
+        Log::info() << "Read last bits, " << pos << std::endl;
+        ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
+
+        Log::info() << "Read last bits, " << pos << ", before mask " << std::bitset<64>(n) << std::endl;
+
+
+        n &= masks[pos];
+
+        Log::info() << "Read last bits, " << pos << ", after mask " << std::bitset<64>(n) << ", bits="
+                    << count_bits(n) <<
+                    std::endl;
+
+
+
+        count += count_bits(n);
+        Log::info() << "Count " << count << std::endl;
+
+        n = (n >> (64 - pos)) & 1;
+
+        if (!n) {
+            return MISSING;
+        }
+
         ASSERT(count);
         index = count - 1;
     }
 
-    // cout << "index " << index << ", numberOfValues " << numberOfValues_ << endl;
+    Log::info() << "index " << index << ", numberOfValues " << numberOfValues_ << std::endl;
     ASSERT(index < numberOfValues_);
 
     {
