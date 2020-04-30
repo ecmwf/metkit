@@ -169,7 +169,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
         index = count - 1;
     }
 
-    cout << "index " << index << ", numberOfValues " << numberOfValues_ << endl;
+    Log::info() << "index " << index << ", numberOfValues " << numberOfValues_ << endl;
     ASSERT(index < numberOfValues_);
 
     {
