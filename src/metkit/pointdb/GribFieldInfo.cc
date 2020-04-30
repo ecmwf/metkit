@@ -140,7 +140,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
         }
         Log::info() << "Count " << count << std::endl;
 
-        size_t pos = index % 8;
+        size_t pos = index % (sizeof(n) * 8);
 
         Log::info() << "Read last bits, " << pos << std::endl;
         ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
