@@ -118,35 +118,41 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
     if (offsetBeforeBitmap_) {
         ASSERT(index < numberOfDataPoints_);
 
-        //cout << "offsetBeforeBitmap_ " << offsetBeforeBitmap_ << endl;
-        //cout << "offset_ " << offset_ << endl;
+        Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
+                    << ",index " << index
+                    << std::endl;
+
+
         Offset offset(offsetBeforeBitmap_);
         ASSERT(f.seek(offset) == offset);
-        uint64_t n;
-        ASSERT(sizeof(n) == 8);
-        size_t pos = index + 1;
         size_t count = 0;
 
-        while (pos > 0)
-        {
+        uint64_t n;
+        ASSERT(sizeof(n) == 8);
+
+        size_t skip = index / 8;
+
+        Log::info() << "Read " << (skip * 8) << " bits" << std::endl;
+        for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
-            if (pos < sizeof(n) * 8)
-            {
-                n &= masks[pos];
-                count += count_bits(n);
-
-                n = (n >> (64 - pos)) & 1;
-
-                if (!n) {
-                    return MISSING;
-                }
-            }
-            else {
-                count += count_bits(n);
-            }
-
-            pos -= sizeof(n) * 8;
+            count += count_bits(n);
         }
+        Log::info() << "Count " << count << std::endl;
+
+        size_t pos = index % 8;
+
+        Log::info() << "Read last bits, " << pos << std::endl;
+        ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
+        n &= masks[pos];
+        count += count_bits(n);
+        Log::info() << "Count " << count << std::endl;
+
+        n = (n >> (64 - pos)) & 1;
+
+        if (!n) {
+            return MISSING;
+        }
+
         ASSERT(count);
         index = count - 1;
     }
