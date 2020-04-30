@@ -8,6 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
+#include <iomanip>
+
 #include "metkit/pointdb/GribHandleDataSource.h"
 #include "metkit/pointdb/GribFieldInfo.h"
 #include "eckit/exception/Exceptions.h"
@@ -117,6 +119,19 @@ void GribHandleDataSource::print(std::ostream& s) const {
 
 const std::map<std::string, eckit::Value>& GribHandleDataSource::request() const {
     NOTIMP; // Implement a grib2request like function
+}
+
+std::string GribHandleDataSource::groupKey() const {
+    eckit::MD5 md5;
+    md5 << *handle_;
+    return md5;
+}
+
+
+std::string GribHandleDataSource::sortKey() const {
+    std::ostringstream oss;
+    oss << std::setfill ('0') << std::setw (20) << offset_;
+    return oss.str();
 }
 
 
