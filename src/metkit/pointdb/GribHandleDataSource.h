@@ -46,6 +46,8 @@ private:
     virtual const GribFieldInfo& info() const;
     virtual void print(std::ostream& s) const;
     virtual const std::map<std::string, eckit::Value>& request() const;
+    virtual std::string groupKey() const;
+    virtual std::string sortKey() const;
 
     void open() const;
 

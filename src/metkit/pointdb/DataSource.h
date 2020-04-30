@@ -61,6 +61,12 @@ public:
     // Encode a MARS-like request representing the field
     virtual const std::map<std::string, eckit::Value>& request() const = 0;
 
+    // A key to group source togther, e.g. sources poiting to the same file
+    virtual std::string groupKey() const = 0;
+
+    // A key to sort sources of the same group, e.g. offset in the file
+    virtual std::string sortKey() const = 0;
+
 private:
 
     virtual void print(std::ostream& s) const = 0;
