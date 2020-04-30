@@ -131,9 +131,9 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
         uint64_t n;
         ASSERT(sizeof(n) == 8);
 
-        size_t skip = index / 8;
+        size_t skip = index / (sizeof(n) * 8);
 
-        Log::info() << "Read " << (skip * 8) << " bits" << std::endl;
+        Log::info() << "Read " << skip  << " words" << std::endl;
         for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
             count += count_bits(n);
