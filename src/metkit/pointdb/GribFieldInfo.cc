@@ -11,6 +11,7 @@
 #include "metkit/pointdb/GribFieldInfo.h"
 #include "metkit/grib/GribAccessor.h"
 #include "metkit/pointdb/GribDataSource.h"
+#include <bitset>
 
 using namespace eckit;
 using namespace metkit::grib;
@@ -143,7 +144,18 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
 
         Log::info() << "Read last bits, " << pos << std::endl;
         ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
+
+        Log::info() << "Read last bits, " << pos << ", before mask " << std::bitset<64>(n) << std::endl;
+
+
         n &= masks[pos];
+
+        Log::info() << "Read last bits, " << pos << ", after mask " << std::bitset<64>(n) << ", bits="
+                    << count_bits(n) <<
+                    std::endl;
+
+
+
         count += count_bits(n);
         Log::info() << "Count " << count << std::endl;
 
@@ -157,7 +169,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
         index = count - 1;
     }
 
-    // cout << "index " << index << ", numberOfValues " << numberOfValues_ << endl;
+    cout << "index " << index << ", numberOfValues " << numberOfValues_ << endl;
     ASSERT(index < numberOfValues_);
 
     {
