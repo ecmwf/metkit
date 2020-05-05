@@ -14,7 +14,7 @@
 #include <iosfwd>
 #include <map>
 
-#include "eckit/memory/Counted.h"
+#include "eckit/memory/NonCopyable.h"
 
 namespace eckit {
 class JSON;
@@ -50,7 +50,12 @@ struct PointResult {
 };
 
 
-class DataSource : public eckit::Counted {
+class DataSourceHandler {
+public:
+    virtual void handle(DataSource*) = 0;
+};
+
+class DataSource : public eckit::NonCopyable {
 public:
 
     virtual ~DataSource();
@@ -67,56 +72,15 @@ public:
     // A key to sort sources of the same group, e.g. offset in the file
     virtual std::string sortKey() const = 0;
 
+    // Used to throw away requests in case of restarted transactions
+    virtual size_t batch() const;
+
 private:
 
     virtual void print(std::ostream& s) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const DataSource& f) {
         f.print(s);
-        return s;
-    }
-
-};
-
-
-class DataSourceHandle {
-
-    DataSource* source_;
-
-public:
-
-    DataSourceHandle(DataSource* source):
-        source_(source) {
-        source_->attach();
-    }
-
-
-    DataSourceHandle(const DataSourceHandle& other):
-        source_(other.source_) {
-        source_->attach();
-    }
-
-    DataSourceHandle& operator=(const DataSourceHandle& other) {
-        if (source_ != other.source_) {
-            source_->detach();
-            source_ = other.source_;
-            source_->attach();
-        }
-        return *this;
-    }
-
-    ~DataSourceHandle() {
-        source_->detach();
-    }
-
-    const DataSource& operator*() const { return *source_; }
-
-
-    const DataSource* operator->() const { return source_; }
-
-
-    friend std::ostream& operator<<(std::ostream& s, const DataSourceHandle& f) {
-        s << *f.source_;
         return s;
     }
 

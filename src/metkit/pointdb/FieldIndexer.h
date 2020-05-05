@@ -29,9 +29,17 @@ class MarsRequest;
 
 namespace pointdb {
 
-class DataSourceHandle;
-
+class DataSource;
+class DataSourceHandler;
 //----------------------------------------------------------------------------------------------------------------------
+
+struct FieldIndexerStatus {
+	size_t count_;
+	size_t batch_;
+	FieldIndexerStatus(size_t count, size_t batch):
+		count_(count), batch_(batch) {}
+};
+
 
 class FieldIndexer {
 public:
@@ -55,9 +63,7 @@ public:
 
 // -- Methods
 
-	virtual std::vector<DataSourceHandle> lookup(const eckit::Value& ) const = 0;
-
-	virtual void summary(eckit::JSON& json) const = 0;
+	virtual FieldIndexerStatus lookup(const eckit::Value&, DataSourceHandler&) const = 0;
 
 // -- Overridden methods
 	// None

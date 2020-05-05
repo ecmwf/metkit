@@ -19,6 +19,12 @@ DataSource::~DataSource() {
 
 }
 
+
+size_t DataSource::batch() const {
+    return 0;
+}
+
+
 void PointResult::print(std::ostream& s) const {
     s << "PointResult[lat=" << lat_ << ",lon=" << lon_ << ",value=" << value_ << "]";
 }
