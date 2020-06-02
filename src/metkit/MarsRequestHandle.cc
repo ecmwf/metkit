@@ -78,7 +78,7 @@ eckit::Length MarsRequestHandle::openForRead() {
 
 
     const std::string v (eckit::StringTools::lower(request_.verb()));
-    ASSERT(v == "retrieve" || v == "stage" || v == "list");
+    ASSERT(v == "retrieve" || v == "stage" || v == "list" || v == "get");
 
     return protocol_->retrieve(request_);
 }

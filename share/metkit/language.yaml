@@ -965,6 +965,16 @@ archive:
     multiple: true
     type: any
 
+  source:
+    flatten: false
+    multiple: true
+    type: any
+
+  expect:
+    flatten: false
+    multiple: false
+    type: integer
+
 
 retrieve:
   <<: *_field
@@ -1021,6 +1031,62 @@ read:
     stream: null
     time: null
     type: null
+
+get:
+
+  tape:
+    flatten: false
+    multiple: false
+    type: any
+
+  database:
+    flatten: false
+    multiple: true
+    type: any
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+
+list:
+
+  <<: *_field
+
+  database:
+    flatten: false
+    multiple: true
+    type: any
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+  _defaults:
+    # class: null
+    date: null
+    domain: null
+    expver: null
+    levelist: null
+    levtype: null
+    param: null
+    step: null
+    stream: null
+    time: null
+    type: null
+
+compute:
+  formula:
+    flatten: false
+    multiple: false
+    type: any
+
+  fieldset:
+    flatten: false
+    multiple: false
+    type: any
 
 pointdb:
   lat:

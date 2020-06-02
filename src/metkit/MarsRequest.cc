@@ -288,6 +288,24 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
     return (*i).values();
 }
 
+const std::string&  MarsRequest::operator[](const std::string& name) const {
+    std::list<Parameter>::const_iterator i = find(name);
+    if (i == params_.end()) {
+        std::ostringstream oss;
+        oss << "Parameter '" << name << "' is undefined";
+        throw eckit::UserError(oss.str());
+    }
+    auto c = (*i).values();
+    if(c.size() > 1) {
+        std::ostringstream oss;
+        oss << "Parameter '" << name << "' has more than one value";
+        throw eckit::UserError(oss.str());
+    }
+
+    return c[0];
+}
+
+
 void MarsRequest::getParams(std::vector<std::string>& p) const {
     p.clear();
     for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {

@@ -45,7 +45,7 @@ public:  // methods
     bool operator<(const MarsRequest& other) const;
 
     // eckit::Value&        operator[](const std::string&);
-    // const eckit::Value&  operator[](const std::string&) const;
+    const std::string&  operator[](const std::string&) const;
 
     operator eckit::Value() const;
 
