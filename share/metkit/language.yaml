@@ -878,7 +878,6 @@ _postproc: &_postproc
 
 #######################################################################
 
-
 disseminate:
   <<: *_field
   <<: *_postproc
@@ -957,6 +956,8 @@ disseminate:
     - none
     - auto
 
+##############################################################
+
 archive:
   <<: *_field
 
@@ -975,6 +976,7 @@ archive:
     multiple: false
     type: integer
 
+##############################################################
 
 retrieve:
   <<: *_field
@@ -983,6 +985,11 @@ retrieve:
   target:
     flatten: false
     multiple: true
+    type: any
+
+  fieldset:
+    flatten: false
+    multiple: false
     type: any
 
   database:
@@ -1005,6 +1012,8 @@ retrieve:
     - none
     - auto
 
+##############################################################
+
 read:
   source:
     flatten: false
@@ -1019,6 +1028,11 @@ read:
     multiple: true
     type: any
 
+  fieldset:
+    flatten: false
+    multiple: false
+    type: any
+
   _defaults:
     class: null
     date: null
@@ -1031,6 +1045,8 @@ read:
     stream: null
     time: null
     type: null
+
+##############################################################
 
 get:
 
@@ -1049,6 +1065,7 @@ get:
     multiple: true
     type: any
 
+##############################################################
 
 list:
 
@@ -1077,6 +1094,8 @@ list:
     time: null
     type: null
 
+##############################################################
+
 compute:
   formula:
     flatten: false
@@ -1087,6 +1106,22 @@ compute:
     flatten: false
     multiple: false
     type: any
+
+##############################################################
+
+write:
+
+  fieldset:
+    flatten: false
+    multiple: false
+    type: any
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+##############################################################
 
 pointdb:
   lat:

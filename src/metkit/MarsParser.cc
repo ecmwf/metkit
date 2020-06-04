@@ -199,7 +199,7 @@ MarsParsedRequest MarsParser::parseRequest() {
 }
 
 MarsParser::MarsParser(std::istream &in):
-    StreamParser(in, true, "*#")
+    StreamParser(in, true, "#")
 {
 }
 

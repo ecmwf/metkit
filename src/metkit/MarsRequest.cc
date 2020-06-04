@@ -163,7 +163,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
 
 void MarsRequest::json(eckit::JSON& s) const {
     s.startObject();
-    s << "verb" << verb_;
+    // s << "_verb" << verb_;
     std::list<Parameter>::const_iterator begin = params_.begin();
     std::list<Parameter>::const_iterator end   = params_.end();
 
