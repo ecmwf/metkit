@@ -45,5 +45,5 @@ std::string LibEccodes::gitsha1(unsigned int count) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mir
+} // namespace metkit
 

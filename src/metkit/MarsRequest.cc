@@ -295,7 +295,7 @@ const std::string&  MarsRequest::operator[](const std::string& name) const {
         oss << "Parameter '" << name << "' is undefined";
         throw eckit::UserError(oss.str());
     }
-    auto c = (*i).values();
+    const std::vector<std::string>& c = (*i).values();
     if(c.size() > 1) {
         std::ostringstream oss;
         oss << "Parameter '" << name << "' has more than one value";
