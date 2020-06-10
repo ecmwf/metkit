@@ -66,15 +66,15 @@ public: // methods
    /// @returns a new GribDataBlob
    GribDataBlob* message() const;
 
-   std::string gridType() const;
+   // std::string gridType() const;
 
    std::string geographyHash() const;
 
    GribHandle* clone() const;
 
-   std::string shortName() const;
+   // std::string shortName() const;
 
-   size_t numberOfPoints() const;
+   // size_t numberOfPoints() const;
 
    size_t  getDataValuesSize() const;
    double* getDataValues(size_t&) const;
@@ -87,10 +87,10 @@ public: // methods
    void   write( const eckit::PathName&, const char* mode = "w" ) const;
    void   dump( const eckit::PathName&, const char* mode = "debug") const;
 
-   double latitudeOfFirstGridPointInDegrees()  const;
-   double longitudeOfFirstGridPointInDegrees() const;
-   double latitudeOfLastGridPointInDegrees()   const;
-   double longitudeOfLastGridPointInDegrees()  const;
+   // double latitudeOfFirstGridPointInDegrees()  const;
+   // double longitudeOfFirstGridPointInDegrees() const;
+   // double latitudeOfLastGridPointInDegrees()   const;
+   // double longitudeOfLastGridPointInDegrees()  const;
 
    bool hasKey(const char*) const;
 

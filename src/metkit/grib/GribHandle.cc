@@ -121,18 +121,18 @@ GribDataBlob* GribHandle::message() const {
     return new GribDataBlob(message, length);
 }
 
-std::string GribHandle::gridType() const {
-    return GribAccessor<std::string>("gridType")(*this);
-}
+// std::string GribHandle::gridType() const {
+//     return GribAccessor<std::string>("gridType")(*this);
+// }
 
 std::string GribHandle::geographyHash() const {
     // The following key is edition independent
     return GribAccessor<std::string>("md5GridSection")(*this);
 }
 
-long GribHandle::edition() const {
-    return GribAccessor<long>("edition")(*this);
-}
+// long GribHandle::edition() const {
+//     return GribAccessor<long>("edition")(*this);
+// }
 
 size_t GribHandle::getDataValuesSize() const {
     size_t count = 0;
@@ -190,21 +190,21 @@ size_t GribHandle::write(eckit::Buffer& buff) const {
     return len;
 }
 
-double GribHandle::latitudeOfFirstGridPointInDegrees() const {
-    return GribAccessor<double>("latitudeOfFirstGridPointInDegrees")(*this);
-}
+// double GribHandle::latitudeOfFirstGridPointInDegrees() const {
+//     return GribAccessor<double>("latitudeOfFirstGridPointInDegrees")(*this);
+// }
 
-double GribHandle::longitudeOfFirstGridPointInDegrees() const {
-    return GribAccessor<double>("longitudeOfFirstGridPointInDegrees")(*this);
-}
+// double GribHandle::longitudeOfFirstGridPointInDegrees() const {
+//     return GribAccessor<double>("longitudeOfFirstGridPointInDegrees")(*this);
+// }
 
-double GribHandle::latitudeOfLastGridPointInDegrees() const {
-    return GribAccessor<double>("latitudeOfLastGridPointInDegrees")(*this);
-}
+// double GribHandle::latitudeOfLastGridPointInDegrees() const {
+//     return GribAccessor<double>("latitudeOfLastGridPointInDegrees")(*this);
+// }
 
-double GribHandle::longitudeOfLastGridPointInDegrees() const {
-    return GribAccessor<double>("longitudeOfLastGridPointInDegrees")(*this);
-}
+// double GribHandle::longitudeOfLastGridPointInDegrees() const {
+//     return GribAccessor<double>("longitudeOfLastGridPointInDegrees")(*this);
+// }
 
 GribHandle* GribHandle::clone() const {
     grib_handle* h = grib_handle_clone(raw());
@@ -214,13 +214,13 @@ GribHandle* GribHandle::clone() const {
     return new GribHandle(h);
 }
 
-string GribHandle::shortName() const {
-    return GribAccessor<std::string>("shortName")(*this);
-}
+// string GribHandle::shortName() const {
+//     return GribAccessor<std::string>("shortName")(*this);
+// }
 
-size_t GribHandle::numberOfPoints() const {
-    return GribAccessor<long>("numberOfDataPoints")(*this);
-}
+// size_t GribHandle::numberOfPoints() const {
+//     return GribAccessor<long>("numberOfDataPoints")(*this);
+// }
 
 bool GribHandle::hasKey(const char* key) const {
     return (grib_is_defined(handle_, key) != 0);
