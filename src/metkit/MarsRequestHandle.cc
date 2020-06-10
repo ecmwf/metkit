@@ -137,4 +137,8 @@ void MarsRequestHandle::encode(eckit::Stream& s) const {
     s << *protocol_;
 }
 
+bool MarsRequestHandle::canSeek() const {
+    return false;
+}
+
 } // namespace metkit

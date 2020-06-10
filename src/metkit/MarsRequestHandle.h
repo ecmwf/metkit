@@ -70,6 +70,7 @@ private: // members
     long read(void*, long );
     long write(const void*, long);
     void close();
+    bool canSeek() const;
 };
 
 }
