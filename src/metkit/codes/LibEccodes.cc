@@ -13,7 +13,7 @@
 
 #include "eccodes.h"
 
-#include "metkit/grib/LibEccodes.h"
+#include "metkit/codes/LibEccodes.h"
 
 namespace metkit {
 

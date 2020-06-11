@@ -19,15 +19,15 @@ ecbuild_get_test_multidata( TARGET grib_get_data
                             DIRNAME grib_api/data
                             NAMES latlon.grib )
 
-ecbuild_add_test( TARGET        metkit_test_emosfile
-                  ARGS          --log_level=message
-                  CONDITION     HAVE_GRIB
-                  INCLUDES      "${ECKIT_INCLUDE_DIRS}"
-                  SOURCES       test_emosfile.cc
-                  ENVIRONMENT   "${metkit_env}"
-                  LIBS          metkit
-                  TEST_DEPENDS  grib_get_data
-)
+# ecbuild_add_test( TARGET        metkit_test_emosfile
+#                   ARGS          --log_level=message
+#                   CONDITION     HAVE_GRIB
+#                   INCLUDES      "${ECKIT_INCLUDE_DIRS}"
+#                   SOURCES       test_emosfile.cc
+#                   ENVIRONMENT   "${metkit_env}"
+#                   LIBS          metkit
+#                   TEST_DEPENDS  grib_get_data
+# )
 
 
 ecbuild_add_test( TARGET        metkit_test_multihandle

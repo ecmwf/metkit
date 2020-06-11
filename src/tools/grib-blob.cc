@@ -14,7 +14,6 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/config/Resource.h"
 
-#include "metkit/grib/MetFile.h"
 #include "metkit/grib/GribMetaData.h"
 
 using namespace metkit;

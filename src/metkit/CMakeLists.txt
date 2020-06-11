@@ -101,8 +101,6 @@ if ( HAVE_GRIB )
     list( APPEND metkit_srcs
         grib/GribToRequest.cc
         grib/GribToRequest.h
-        grib/MetFile.h
-        grib/MetFile.cc
         grib/GribFile.h
         grib/GribFile.cc
         grib/GribAccessor.h
@@ -119,9 +117,12 @@ if ( HAVE_GRIB )
         grib/GribDataBlob.cc
         grib/GribMetaData.h
         grib/GribMetaData.cc
-        grib/LibEccodes.h
-
-        grib/LibEccodes.cc
+        codes/Message.h
+        codes/Message.cc
+        codes/Reader.h
+        codes/Reader.cc
+        codes/LibEccodes.h
+        codes/LibEccodes.cc
 	pointdb/DataSource.cc
 	pointdb/DataSource.h
 	pointdb/FieldIndexer.cc

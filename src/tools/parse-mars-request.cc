@@ -15,7 +15,6 @@
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
 
-#include "metkit/grib/MetFile.h"
 #include "metkit/grib/GribToRequest.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsParser.h"

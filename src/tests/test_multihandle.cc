@@ -18,7 +18,6 @@
 #include "eckit/io/MultiHandle.h"
 #include "eckit/io/FileHandle.h"
 
-#include "metkit/grib/MetFile.h"
 
 #include "eccodes.h"
 

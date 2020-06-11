@@ -1,40 +1,40 @@
 ### provides MARS requests from GRIB files
 
-ecbuild_add_executable( TARGET   grib-to-mars-request
+# ecbuild_add_executable( TARGET   grib-to-mars-request
 
-    CONDITION HAVE_GRIB
+#     CONDITION HAVE_GRIB
 
-    SOURCES  grib-to-mars-request.cc
+#     SOURCES  grib-to-mars-request.cc
 
-    INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
+#     INCLUDES
+#         ${ECKIT_INCLUDE_DIRS}
 
-    LIBS     metkit
-)
+#     LIBS     metkit
+# )
 
-ecbuild_add_executable( TARGET   grib-blob
+# ecbuild_add_executable( TARGET   grib-blob
 
-    CONDITION HAVE_GRIB
+#     CONDITION HAVE_GRIB
 
-    SOURCES  grib-blob.cc
+#     SOURCES  grib-blob.cc
 
-    INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
+#     INCLUDES
+#         ${ECKIT_INCLUDE_DIRS}
 
-    LIBS     metkit eckit_option eckit
-)
+#     LIBS     metkit eckit_option eckit
+# )
 
 
-ecbuild_add_executable( TARGET   bufr-to-mars-request
+# ecbuild_add_executable( TARGET   bufr-to-mars-request
 
-    CONDITION HAVE_BUFR
+#     CONDITION HAVE_BUFR
 
-    SOURCES  bufr-to-mars-request.cc
+#     SOURCES  bufr-to-mars-request.cc
 
-    INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
+#     INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
 
-    LIBS     metkit eckit_option eckit eccodes
-)
+#     LIBS     metkit eckit_option eckit eccodes
+# )
 
 ecbuild_add_executable(
 
