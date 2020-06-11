@@ -216,21 +216,6 @@ private:
 
 };
 
-class BufferContent : public MessageContent {
-
-    void print(std::ostream & s) const {
-        s << "BufferContent[]";
-    }
-
-public:
-    BufferContent(size_t size):
-        size_(size) {
-    }
-
-private:
-    size_t size_;
-};
-
 class UserDataContent : public MessageContent {
 
     const void* data_;
@@ -266,11 +251,6 @@ public:
 
 Message::Message():
     content_(new NoContent()) {
-    content_->attach();
-}
-
-Message::Message(size_t size):
-    content_(new BufferContent(size)) {
     content_->attach();
 }
 

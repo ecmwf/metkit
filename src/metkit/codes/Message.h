@@ -38,8 +38,7 @@ class Message {
 public:
 
     Message();
-    Message(size_t);
-    Message(const eckit::PathName&);
+
     Message(codes_handle* handle, bool del=true);
 
     Message(const Message&);
