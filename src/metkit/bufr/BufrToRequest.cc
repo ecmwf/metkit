@@ -18,9 +18,11 @@
 #include "eckit/log/Log.h"
 #include "eckit/utils/StringTools.h"
 
-#include "metkit/MarsRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
+using namespace mars;
+
 namespace bufr {
 
 //----------------------------------------------------------------------------------------------------------------------

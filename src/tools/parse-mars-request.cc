@@ -17,12 +17,13 @@
 
 #include "metkit/grib/MetFile.h"
 #include "metkit/grib/GribToRequest.h"
-#include "metkit/MarsRequest.h"
-#include "metkit/MarsParser.h"
-#include "metkit/MarsExpension.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsParser.h"
+#include "metkit/mars/MarsExpension.h"
 
 
 using namespace metkit;
+using namespace metkit::mars;
 
 //----------------------------------------------------------------------------------------------------------------------
 

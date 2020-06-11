@@ -16,82 +16,82 @@ install(FILES
 
 list( APPEND metkit_srcs
 metkit_version.cc
-BaseProtocol.cc
-BaseProtocol.h
-ClientTask.cc
-ClientTask.h
-DHSProtocol.cc
-DHSProtocol.h
-MarsHandle.cc
-MarsHandle.h
-MarsLocation.cc
-MarsLocation.h
-MarsRequest.cc
-MarsRequest.h
-MarsExpension.cc
-MarsExpension.h
-MarsLanguage.cc
-MarsLanguage.h
-MarsParser.cc
-MarsParser.h
-MarsExpandContext.h
-MarsExpandContext.cc
-MarsParserContext.h
-MarsParserContext.cc
-MarsParsedRequest.h
-MarsParsedRequest.cc
-MarsRequestHandle.cc
-MarsRequestHandle.h
-MetkitTool.h
-MetkitTool.cc
-RequestEnvironment.cc
-RequestEnvironment.h
-Parameter.cc
-Parameter.h
-ParamID.cc
-ParamID.h
-StepRangeNormalise.h
+mars/BaseProtocol.cc
+mars/BaseProtocol.h
+mars/ClientTask.cc
+mars/ClientTask.h
+mars/DHSProtocol.cc
+mars/DHSProtocol.h
+mars/MarsHandle.cc
+mars/MarsHandle.h
+mars/MarsLocation.cc
+mars/MarsLocation.h
+mars/MarsRequest.cc
+mars/MarsRequest.h
+mars/MarsExpension.cc
+mars/MarsExpension.h
+mars/MarsLanguage.cc
+mars/MarsLanguage.h
+mars/MarsParser.cc
+mars/MarsParser.h
+mars/MarsExpandContext.h
+mars/MarsExpandContext.cc
+mars/MarsParserContext.h
+mars/MarsParserContext.cc
+mars/MarsParsedRequest.h
+mars/MarsParsedRequest.cc
+mars/MarsRequestHandle.cc
+mars/MarsRequestHandle.h
+tool/MetkitTool.h
+tool/MetkitTool.cc
+mars/RequestEnvironment.cc
+mars/RequestEnvironment.h
+mars/Parameter.cc
+mars/Parameter.h
+mars/ParamID.cc
+mars/ParamID.h
+mars/StepRangeNormalise.h
 config/LibMetkit.cc
 config/LibMetkit.h
-types/Type.cc
-types/Type.h
-types/TypeDate.cc
-types/TypeDate.h
-types/TypeAny.cc
-types/TypeAny.h
-types/TypeExpver.cc
-types/TypeExpver.h
-types/TypeToByList.cc
-types/TypeToByList.h
-types/TypeEnum.cc
-types/TypeEnum.h
-types/TypeRegex.cc
-types/TypeRegex.h
-types/TypeParam.cc
-types/TypeParam.h
-types/TypeInteger.cc
-types/TypeInteger.h
-types/TypeRange.cc
-types/TypeRange.h
-types/TypeFloat.cc
-types/TypeFloat.h
-types/TypeTime.cc
-types/TypeTime.h
-types/TypeDate.cc
-types/TypeDate.h
-types/TypeMixed.cc
-types/TypeMixed.h
-types/TypesFactory.cc
-types/TypesFactory.h
+mars/Type.cc
+mars/Type.h
+mars/TypeDate.cc
+mars/TypeDate.h
+mars/TypeAny.cc
+mars/TypeAny.h
+mars/TypeExpver.cc
+mars/TypeExpver.h
+mars/TypeToByList.cc
+mars/TypeToByList.h
+mars/TypeEnum.cc
+mars/TypeEnum.h
+mars/TypeRegex.cc
+mars/TypeRegex.h
+mars/TypeParam.cc
+mars/TypeParam.h
+mars/TypeInteger.cc
+mars/TypeInteger.h
+mars/TypeRange.cc
+mars/TypeRange.h
+mars/TypeFloat.cc
+mars/TypeFloat.h
+mars/TypeTime.cc
+mars/TypeTime.h
+mars/TypeDate.cc
+mars/TypeDate.h
+mars/TypeMixed.cc
+mars/TypeMixed.h
+mars/TypesFactory.cc
+mars/TypesFactory.h
 )
 
 list( APPEND metkit_persistent_srcs
-    Param.cc
-    Param.h
-    Param
-    StepRange.cc
-    StepRange.h
-    StepRange
+    mars/Param.cc
+    mars/Param.h
+    mars/Param
+    mars/StepRange.cc
+    mars/StepRange.h
+    mars/StepRange
 )
 list( APPEND metkit_srcs ${metkit_persistent_srcs} )
 
@@ -120,6 +120,7 @@ if ( HAVE_GRIB )
         grib/GribMetaData.h
         grib/GribMetaData.cc
         grib/LibEccodes.h
+
         grib/LibEccodes.cc
 	pointdb/DataSource.cc
 	pointdb/DataSource.h

@@ -21,7 +21,9 @@
 
 namespace metkit {
 
+namespace mars {
 class MarsRequest;
+}
 
 namespace bufr {
 
@@ -34,9 +36,9 @@ namespace bufr {
 class BufrToRequest {
 public:  // methods
 
-    static void handleToRequest(const bufr::BufrHandle& handle, MarsRequest& req);
+    static void handleToRequest(const bufr::BufrHandle& handle, mars::MarsRequest& req);
 
-    static void messageToRequest(const void* buffer, size_t length, MarsRequest& req);
+    static void messageToRequest(const void* buffer, size_t length, mars::MarsRequest& req);
 
 private:
     BufrToRequest() = delete;

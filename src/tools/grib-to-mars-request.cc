@@ -16,7 +16,7 @@
 #include "metkit/grib/MetFile.h"
 
 #include "metkit/grib/GribToRequest.h"
-#include "metkit/MarsRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 using namespace metkit;
 using metkit::grib::MetFile;
@@ -52,12 +52,12 @@ void Grib2Request::run()
 
     grib::MetFile file( path_ );
 
-    metkit::MarsRequest onereq("GRIB");
+    metkit::mars::MarsRequest onereq("GRIB");
 
     size_t nMsg = 0;
     while( (len = file.readSome(buffer)) != 0 )
     {
-        metkit::MarsRequest req("GRIB");
+        metkit::mars::MarsRequest req("GRIB");
 
         grib::GribToRequest::gribToRequest(buffer, len, req);
 

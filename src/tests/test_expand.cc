@@ -13,13 +13,14 @@
 /// @author Florian Rathgeber
 
 #include "eckit/types/Date.h"
-#include "metkit/MarsRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 #include "eckit/testing/Test.h"
 
 using namespace eckit::testing;
 
 namespace metkit {
+namespace mars {
 namespace test {
 
 //-----------------------------------------------------------------------------
@@ -64,6 +65,7 @@ CASE( "test_metkit_expand_4" ) {
 //-----------------------------------------------------------------------------
 
 }  // namespace test
+}  // namespace mars
 }  // namespace metkit
 
 int main(int argc, char **argv)

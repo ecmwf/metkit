@@ -17,8 +17,8 @@
 #include "eckit/io/StdFile.h"
 
 #include "metkit/grib/GribAccessor.h"
-#include "metkit/grib/GribDataBlob.h"
-#include "metkit/grib/GribMetaData.h"
+// #include "metkit/grib/GribDataBlob.h"
+// #include "metkit/grib/GribMetaData.h"
 
 using namespace std;
 
@@ -114,12 +114,12 @@ GribHandle::~GribHandle() noexcept(false) {
     }
 }
 
-GribDataBlob* GribHandle::message() const {
-    size_t length;
-    const void* message;
-    GRIB_CALL(grib_get_message(handle_, &message, &length));
-    return new GribDataBlob(message, length);
-}
+// GribDataBlob* GribHandle::message() const {
+//     size_t length;
+//     const void* message;
+//     GRIB_CALL(grib_get_message(handle_, &message, &length));
+//     return new GribDataBlob(message, length);
+// }
 
 // std::string GribHandle::gridType() const {
 //     return GribAccessor<std::string>("gridType")(*this);

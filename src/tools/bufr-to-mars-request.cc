@@ -15,12 +15,13 @@
 #include "eckit/runtime/Tool.h"
 #include "eckit/log/Log.h"
 
-#include "metkit/MarsRequest.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/grib/MetFile.h"
 #include "metkit/bufr/BufrToRequest.h"
 #include "metkit/bufr/BufrHandle.h"
 
 using namespace metkit;
+using namespace metkit::mars;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -60,7 +61,7 @@ void BufrToMarsRequest::run() {
                                 numberOfPositionalArguments(),
                                 minimumPositionalArguments());
 
-//    metkit::MarsRequest onereq("BUFR");
+//    metkit::mars::MarsRequest onereq("BUFR");
 
     static size_t bufferSize = eckit::Resource<size_t>("BufferSize", 64 * 1024 * 1024);
     eckit::Buffer buffer(bufferSize);
@@ -76,7 +77,7 @@ void BufrToMarsRequest::run() {
         grib::MetFile file(path);
         while ((len = file.readSome(buffer)) != 0) {
 
-            metkit::MarsRequest req("BUFR");
+            metkit::mars::MarsRequest req("BUFR");
 
             metkit::bufr::BufrToRequest::messageToRequest(buffer, size_t(len), req);
 

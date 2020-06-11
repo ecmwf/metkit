@@ -20,17 +20,19 @@
 
 #include "odc/api/Odb.h"
 
-#include "metkit/MarsLanguage.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/odb/IdMapper.h"
-#include "metkit/types/Type.h"
-#include "metkit/types/TypesFactory.h"
+#include "metkit/mars/Type.h"
+#include "metkit/mars/TypesFactory.h"
 
 
 using namespace eckit;
 using namespace odc::api;
 
 namespace metkit {
+using namespace mars;
+
 namespace odb {
 
 //----------------------------------------------------------------------------------------------------------------------

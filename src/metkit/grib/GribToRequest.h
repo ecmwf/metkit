@@ -23,7 +23,9 @@ struct grib_handle;
 
 namespace metkit {
 
+namespace mars {
 class MarsRequest;
+}
 
 namespace grib {
 
@@ -35,13 +37,13 @@ namespace grib {
 
 class GribToRequest {
 public:  // methods
-    static void handleToRequest(grib_handle* const grib, MarsRequest& req);
+    static void handleToRequest(grib_handle* const grib, mars::MarsRequest& req);
 
-    static void handleToRequest(const grib::GribHandle& grib, MarsRequest& req);
+    static void handleToRequest(const grib::GribHandle& grib, mars::MarsRequest& req);
 
-    static void gribToRequest(const void* buffer, size_t length, MarsRequest& req);
+    static void gribToRequest(const void* buffer, size_t length, mars::MarsRequest& req);
 
-    static void messageToRequest(const void* buffer, size_t length, MarsRequest& req);
+    static void messageToRequest(const void* buffer, size_t length, mars::MarsRequest& req);
 
 private:
     GribToRequest() = delete;
