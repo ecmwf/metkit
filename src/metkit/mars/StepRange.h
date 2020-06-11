@@ -37,7 +37,7 @@ public:
 	StepRange(double from = 0,double to = 0):
 		from_(from),to_(to) {}
 
-#include "metkit/StepRange.b"
+#include "metkit/mars/StepRange.b"
 
 // -- Destructor
 
