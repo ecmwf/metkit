@@ -62,7 +62,9 @@ public:
     double getDouble(const std::string& key) const;
     void getDoubleArray(const std::string& key, std::vector<double>&) const;
 
+    /// This method is temporary -- do not use in new code
     const codes_handle* codesHandle() const;
+
     eckit::DataHandle* readHandle() const;
     eckit::DataHandle* writeHandle() const;
 
