@@ -17,6 +17,8 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/codes/Decoder.h"
 
 #include <eccodes.h>
 
@@ -73,19 +75,13 @@ public:
         throw eckit::SeriousBug(oss.str());
     }
 
-    virtual eckit::DataHandle* writeHandle() const {
-        std::ostringstream oss;
-        oss << "Not implemented " << *this << " writeHandle()";
-        throw eckit::SeriousBug(oss.str());
-    }
-
     virtual eckit::Offset offset() const {
         std::ostringstream oss;
         oss << "Not implemented " << *this << " offset()";
         throw eckit::SeriousBug(oss.str());
     }
 
-    virtual const void* data() const{
+    virtual const void* data() const {
         std::ostringstream oss;
         oss << "Not implemented " << *this << " data()";
         throw eckit::SeriousBug(oss.str());
@@ -220,6 +216,7 @@ class UserDataContent : public MessageContent {
 
     const void* data_;
     size_t size_;
+    mutable codes_handle* handle_;
 
     void print(std::ostream & s) const {
         s << "UserDataContent[]";
@@ -241,10 +238,26 @@ class UserDataContent : public MessageContent {
         ASSERT(handle.write(data_, size_) == size_);
     }
 
+    virtual const codes_handle* codesHandle() const {
+        if(!handle_) {
+            handle_ = codes_handle_new_from_message(0, data_, size_);
+            ASSERT(handle_);
+        }
+        return handle_;
+    }
+
+
 public:
     UserDataContent(const void* data, size_t size):
         data_(data),
-        size_(size) {
+        size_(size),
+        handle_(0) {
+    }
+
+    ~UserDataContent() {
+        if(handle_) {
+            codes_handle_delete(handle_);
+        }
     }
 
 };
@@ -315,10 +328,6 @@ eckit::DataHandle* Message::readHandle() const {
     return content_->readHandle();
 }
 
-eckit::DataHandle* Message::writeHandle() const {
-    return content_->writeHandle();
-}
-
 eckit::Offset Message::offset() const {
     return content_->offset();
 }
@@ -330,6 +339,11 @@ const codes_handle* Message::codesHandle() const {
 const void* Message::data() const {
     return content_->data();
 }
+
+mars::MarsRequest Message::request() const {
+    return Decoder::lookup(*this).messageToRequest(*this);
+}
+
 
 }  // namespace close
 }  // namespace metkit

@@ -29,6 +29,11 @@ class PathName;
 };
 
 namespace metkit {
+
+namespace mars {
+class MarsRequest;
+}
+
 namespace codes {
 
 class MessageContent;
@@ -65,7 +70,8 @@ public:
     const codes_handle* codesHandle() const;
 
     eckit::DataHandle* readHandle() const;
-    eckit::DataHandle* writeHandle() const;
+
+    mars::MarsRequest request() const;
 
 private:
 

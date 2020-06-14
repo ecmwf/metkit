@@ -121,6 +121,16 @@ if ( HAVE_GRIB )
         codes/Message.cc
         codes/Reader.h
         codes/Reader.cc
+        codes/Decoder.h
+        codes/Decoder.cc
+        codes/GRIBDecoder.h
+        codes/GRIBDecoder.cc
+        codes/BUFRDecoder.h
+        codes/BUFRDecoder.cc
+        codes/BUDGDecoder.h
+        codes/BUDGDecoder.cc
+        codes/TIDEDecoder.h
+        codes/TIDEDecoder.cc
         codes/LibEccodes.h
         codes/LibEccodes.cc
 	pointdb/DataSource.cc
