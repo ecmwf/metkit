@@ -133,20 +133,20 @@ if ( HAVE_GRIB )
         grib/GribAccessor.h
         grib/GribDataBlob.cc
         grib/GribDataBlob.h
-        grib/GribFile.cc
-        grib/GribFile.h
+        # grib/GribFile.cc
+        # grib/GribFile.h
         grib/GribHandle.cc
         grib/GribHandle.h
-        grib/GribIndex.cc
-        grib/GribIndex.h
+        # grib/GribIndex.cc
+        # grib/GribIndex.h
         grib/GribIterator.cc
         grib/GribIterator.h
         grib/GribMetaData.cc
         grib/GribMetaData.h
-        grib/GribMutator.cc
-        grib/GribMutator.h
-        grib/GribToRequest.cc
-        grib/GribToRequest.h
+        # grib/GribMutator.cc
+        # grib/GribMutator.h
+        # grib/GribToRequest.cc
+        # grib/GribToRequest.h
         )
 
     set( grib_libs eccodes )
