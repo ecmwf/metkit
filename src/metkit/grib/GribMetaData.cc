@@ -142,41 +142,25 @@ bool GribMetaData::has(const std::string& key) const {
            longValues_.find(key) != longValues_.end();
 }
 
-void GribMetaData::get(const std::string& name, std::string& value) const {
-    getValue(name, value);
-}
-
-void GribMetaData::get(const std::string& name, long& value) const {
-    getValue(name, value);
-}
-
-void GribMetaData::get(const std::string& name, double& value) const {
-    getValue(name, value);
-}
-
-std::string GribMetaData::substitute(const std::string& pattern) const {
-    return eckit::StringTools::substitute(pattern, stringValues_);
-}
-
 size_t GribMetaData::length() const {
     return length_;
 }
 
-void GribMetaData::getValue(const std::string& key, double& value) const {
+void GribMetaData::get(const std::string& key, double& value) const {
     std::map<std::string, double>::const_iterator j = doubleValues_.find(key);
     if (j == doubleValues_.end())
         throw eckit::UserError(std::string("GribMetaData::getDouble failed for [") + key + "]");
     value = (*j).second;
 }
 
-void GribMetaData::getValue(const std::string& key, long& value) const {
+void GribMetaData::get(const std::string& key, long& value) const {
     std::map<std::string, long>::const_iterator j = longValues_.find(key);
     if (j == longValues_.end())
         throw eckit::UserError(std::string("GribMetaData::getLong failed for [") + key + "]");
     value = (*j).second;
 }
 
-void GribMetaData::getValue(const std::string& key, std::string& value) const {
+void GribMetaData::get(const std::string& key, std::string& value) const {
     std::map<std::string, std::string>::const_iterator j = stringValues_.find(key);
     if (j == stringValues_.end())
         throw eckit::UserError(std::string("GribMetaData::getString failed for [") + key + "]");

@@ -46,12 +46,6 @@ public:  // methods
     virtual void get(const std::string& name, long& value) const;
     virtual void get(const std::string& name, double& value) const;
 
-    void getValue(const std::string& name, std::string& value) const;
-    void getValue(const std::string& name, long& value) const;
-    void getValue(const std::string& name, double& value) const;
-
-    std::string substitute(const std::string& pattern) const;
-
     size_t length() const;
 
 protected:  // members
