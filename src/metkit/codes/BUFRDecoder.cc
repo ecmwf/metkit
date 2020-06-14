@@ -13,8 +13,27 @@
 #include "metkit/codes/Message.h"
 #include "metkit/mars/MarsRequest.h"
 
+
 #include <vector>
 #include <string>
+#include <eccodes.h>
+
+#include "metkit/codes/TIDEDecoder.h"
+#include "eckit/exception/Exceptions.h"
+#include "metkit/codes/Message.h"
+#include "metkit/mars/MarsRequest.h"
+
+#include "metkit/codes/GRIBDecoder.h"
+
+#include "eckit/config/Resource.h"
+#include "eckit/exception/Exceptions.h"
+#include "eckit/serialisation/MemoryStream.h"
+#include "eckit/thread/AutoLock.h"
+#include "eckit/thread/Mutex.h"
+#include "metkit/codes/Message.h"
+#include "metkit/codes/Reader.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/TypeAny.h"
 
 namespace metkit {
 namespace codes {
@@ -26,8 +45,48 @@ bool BUFRDecoder::match(const Message& msg) const {
     return len >= 4 and p[0] == 'B' and p[1] == 'U' and p[2] == 'F' and p[3] == 'R';
 }
 
-mars::MarsRequest BUFRDecoder::messageToRequest(const Message&) const {
-    NOTIMP;
+mars::MarsRequest BUFRDecoder::messageToRequest(const Message& msg) const {
+    static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
+
+    const codes_handle* h = msg.codesHandle();
+
+    mars::MarsRequest r("bufr");
+
+    grib_keys_iterator *ks = grib_keys_iterator_new(
+                                 const_cast<codes_handle*>(h),
+                                 GRIB_KEYS_ITERATOR_ALL_KEYS,
+                                 gribToRequestNamespace.c_str());
+
+    ASSERT(ks);
+
+    while (grib_keys_iterator_next(ks)) {
+        const char *name = grib_keys_iterator_get_name(ks);
+
+        if (name[0] == '_') {
+            continue;
+        }
+
+        char value[1024];
+        size_t len = sizeof(value);
+
+        ASSERT( grib_keys_iterator_get_string(ks, value, &len) == 0);
+        if (*value) {
+            r.setValue(name, value);
+        }
+
+    }
+
+    grib_keys_iterator_delete(ks);
+
+    {
+        char value[1024];
+        size_t len = sizeof(value);
+        if (grib_get_string(h, "paramId", value, &len) == 0) {
+            r.setValue("param", value);
+        }
+    }
+
+    return r;
 
 }
 

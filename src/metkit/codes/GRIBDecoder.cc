@@ -63,7 +63,9 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
 
         ASSERT( grib_keys_iterator_get_string(ks, value, &len) == 0);
 
-        r.setValue(name, value);
+        if (*value) {
+            r.setValue(name, value);
+        }
 
     }
 

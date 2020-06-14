@@ -153,18 +153,6 @@ if ( HAVE_GRIB )
 
 endif ()
 
-if ( HAVE_BUFR )
-
-    list( APPEND metkit_srcs
-        bufr/BufrToRequest.cc
-        bufr/BufrToRequest.h
-        bufr/BufrHandle.h
-        bufr/BufrHandle.cc
-        )
-
-    set( bufr_libs eccodes )
-
-endif ()
 
 
 ecbuild_add_library(
@@ -195,7 +183,6 @@ ecbuild_add_library(
         eckit eckit_option
         ${odc_libs}
         ${grib_libs}
-        ${bufr_libs}
         ${netcdflibs}
 )
 
