@@ -75,7 +75,7 @@ Reader::~Reader() {
 Message Reader::next() {
     for (;;) {
         int err = 0;
-        codes_handle* h = codes_handle_new_from_file(nullptr, file_, PRODUCT_GRIB, &err);
+        codes_handle* h = codes_handle_new_from_file(nullptr, file_, PRODUCT_ANY, &err);
         ASSERT(err == 0);
         Message msg{h};
         if(!msg or filter_(msg)) {
