@@ -22,7 +22,7 @@ namespace metkit {
 namespace grib {
 
 GribIterator::GribIterator(const GribHandle& handle):
-    iterator_(0) {
+    iterator_(nullptr) {
 
     int ret = 0;
     iterator_ = grib_iterator_new(handle.raw(), 0, &ret);

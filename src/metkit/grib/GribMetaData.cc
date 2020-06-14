@@ -137,8 +137,8 @@ std::vector<std::string> GribMetaData::keywords() const {
 }
 
 bool GribMetaData::has(const std::string& key) const {
-    return stringValues_.find(key) != stringValues_.find(key) ||
-           doubleValues_.find(key) != doubleValues_.end() ||
+    return stringValues_.find(key) != stringValues_.end() or
+           doubleValues_.find(key) != doubleValues_.end() or
            longValues_.find(key) != longValues_.end();
 }
 

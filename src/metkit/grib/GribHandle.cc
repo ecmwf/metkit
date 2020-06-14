@@ -38,7 +38,10 @@ void grib_call(int code, const char* msg, const eckit::CodeLocation& where) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-GribHandle::GribHandle(const eckit::PathName& path) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(const eckit::PathName& path):
+    handle_(nullptr),
+    owned_(true) {
+
     eckit::AutoStdFile f(path);
 
     int err        = 0;
@@ -53,20 +56,19 @@ GribHandle::GribHandle(const eckit::PathName& path) : handle_(NULL), owned_(true
     handle_ = h;
 }
 
-GribHandle::GribHandle(grib_handle* h) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(grib_handle* h):
+    handle_(h),
+    owned_(true) {
     ASSERT(h);
-    handle_ = h;
 }
 
 GribHandle::GribHandle(grib_handle& h):
     handle_(&h),
     owned_(false) {
-
-    }
-
+}
 
 GribHandle::GribHandle(eckit::DataHandle& handle, bool partial):
-    handle_(NULL),
+    handle_(nullptr),
     owned_(true) {
 
     grib_handle* h = nullptr;
@@ -90,7 +92,7 @@ GribHandle::GribHandle(eckit::DataHandle& handle, bool partial):
 GribHandle::~GribHandle() noexcept(false) {
     if (handle_ && owned_) {
         GRIB_CALL(grib_handle_delete(handle_));
-        handle_ = 0;
+        handle_ = nullptr;
     }
 }
 
@@ -143,7 +145,7 @@ void GribHandle::write(const eckit::PathName& path, const char* mode) const {
 }
 
 size_t GribHandle::write(eckit::DataHandle& handle) const {
-    const void* message = NULL;
+    const void* message = nullptr;
     size_t length       = 0;
 
     GRIB_CALL(grib_get_message(raw(), &message, &length));
@@ -151,7 +153,8 @@ size_t GribHandle::write(eckit::DataHandle& handle) const {
     ASSERT(message);
     ASSERT(length);
 
-    ASSERT(length = long(length) && handle.write(message, length) == long(length));
+    ASSERT(length = long(length));
+    ASSERT(handle.write(message, length) == long(length));
 
     return length;
 }
@@ -164,8 +167,9 @@ size_t GribHandle::write(eckit::Buffer& buff) const {
 
 GribHandle* GribHandle::clone() const {
     grib_handle* h = grib_handle_clone(raw());
-    if (!h)
+    if (!h) {
         throw eckit::WriteError(std::string("failed to clone output grib"));
+    }
 
     return new GribHandle(h);
 }
