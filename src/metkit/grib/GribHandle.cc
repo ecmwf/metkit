@@ -58,10 +58,16 @@ GribHandle::GribHandle(grib_handle* h) : handle_(NULL), owned_(true) {
     handle_ = h;
 }
 
-GribHandle::GribHandle(grib_handle& h) : handle_(&h), owned_(false) {}
+GribHandle::GribHandle(grib_handle& h):
+    handle_(&h),
+    owned_(false) {
+
+    }
 
 
-GribHandle::GribHandle(eckit::DataHandle& handle, bool partial) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(eckit::DataHandle& handle, bool partial):
+    handle_(NULL),
+    owned_(true) {
 
     grib_handle* h = nullptr;
     int err = 0;
