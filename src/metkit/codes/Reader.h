@@ -32,13 +32,19 @@ namespace codes {
 
 class Message;
 
+class ReaderFilter {
+public:
+    virtual bool operator()(const Message&) const = 0;
+    static ReaderFilter& none();
+};
+
 class Reader : public eckit::NonCopyable, public eckit::HandleHolder {
 public:
 
-    Reader(eckit::DataHandle*, bool opened=false);
-    Reader(eckit::DataHandle&, bool opened=false);
+    Reader(eckit::DataHandle*, bool opened=false, const ReaderFilter& = ReaderFilter::none());
+    Reader(eckit::DataHandle&, bool opened=false, const ReaderFilter& = ReaderFilter::none());
 
-    Reader(const eckit::PathName&);
+    Reader(const eckit::PathName&, const ReaderFilter& = ReaderFilter::none());
 
     ~Reader();
 
@@ -50,6 +56,7 @@ private:
     bool opened_;
 
     FILE* file_;
+    const ReaderFilter& filter_;
 
     void init();
     void print(std::ostream &) const; // Change to virtual if base class

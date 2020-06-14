@@ -17,24 +17,39 @@
 namespace metkit {
 namespace codes {
 
-Reader::Reader(eckit::DataHandle* h, bool opened):
+class NoFilter : public ReaderFilter {
+    virtual bool operator()(const Message&) const {
+        return true;
+    }
+};
+
+
+ReaderFilter& ReaderFilter::none() {
+    static NoFilter nofilter;
+    return nofilter;
+}
+
+Reader::Reader(eckit::DataHandle* h, bool opened, const ReaderFilter& filter):
     HandleHolder(h),
-    opened_(opened) {
+    opened_(opened),
+    filter_(filter) {
 
     init();
 }
 
-Reader::Reader(eckit::DataHandle& h, bool opened):
+Reader::Reader(eckit::DataHandle& h, bool opened, const ReaderFilter& filter):
     HandleHolder(&h),
-    opened_(opened) {
+    opened_(opened),
+    filter_(filter) {
 
     init();
 
 }
 
-Reader::Reader(const eckit::PathName& path):
+Reader::Reader(const eckit::PathName& path, const ReaderFilter& filter):
     HandleHolder(path.fileHandle()),
-    opened_(false) {
+    opened_(false),
+    filter_(filter) {
 
     init();
 
@@ -58,10 +73,15 @@ Reader::~Reader() {
 }
 
 Message Reader::next() {
-    int err = 0;
-    codes_handle* h = codes_handle_new_from_file(nullptr, file_, PRODUCT_GRIB, &err);
-    ASSERT(err == 0);
-    return Message(h);
+    for (;;) {
+        int err = 0;
+        codes_handle* h = codes_handle_new_from_file(nullptr, file_, PRODUCT_GRIB, &err);
+        ASSERT(err == 0);
+        Message msg{h};
+        if(!msg or filter_(msg)) {
+            return msg;
+        }
+    }
 }
 
 void Reader::print(std::ostream &s) const {
