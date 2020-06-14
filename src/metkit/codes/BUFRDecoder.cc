@@ -8,32 +8,15 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/codes/BUFRDecoder.h"
-#include "eckit/exception/Exceptions.h"
-#include "metkit/codes/Message.h"
-#include "metkit/mars/MarsRequest.h"
 
 
-#include <vector>
-#include <string>
 #include <eccodes.h>
 
-#include "metkit/codes/TIDEDecoder.h"
-#include "eckit/exception/Exceptions.h"
-#include "metkit/codes/Message.h"
-#include "metkit/mars/MarsRequest.h"
-
-#include "metkit/codes/GRIBDecoder.h"
+#include "metkit/codes/BUFRDecoder.h"
 
 #include "eckit/config/Resource.h"
-#include "eckit/exception/Exceptions.h"
-#include "eckit/serialisation/MemoryStream.h"
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
 #include "metkit/codes/Message.h"
-#include "metkit/codes/Reader.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/TypeAny.h"
 
 namespace metkit {
 namespace codes {

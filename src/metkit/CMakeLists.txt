@@ -113,8 +113,6 @@ if ( HAVE_GRIB )
         pointdb/masks.h
         pointdb/PointIndex.cc
         pointdb/PointIndex.h
-        codes/BUDGDecoder.cc
-        codes/BUDGDecoder.h
         codes/BUFRDecoder.cc
         codes/BUFRDecoder.h
         codes/Decoder.cc
@@ -127,8 +125,6 @@ if ( HAVE_GRIB )
         codes/Message.h
         codes/Reader.cc
         codes/Reader.h
-        codes/TIDEDecoder.cc
-        codes/TIDEDecoder.h
         grib/GribAccessor.cc
         grib/GribAccessor.h
         grib/GribDataBlob.cc

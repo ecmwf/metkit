@@ -58,7 +58,6 @@ Decoder& Decoder::lookup(const Message& msg) {
         if(d->match(msg)) {
             index = i; // Start with this index for next message
             return *d;
-
         }
     }
 

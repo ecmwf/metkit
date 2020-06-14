@@ -9,22 +9,14 @@
  */
 
 
-#include <vector>
-#include <string>
 #include <eccodes.h>
-
 
 #include "metkit/codes/GRIBDecoder.h"
 
 #include "eckit/config/Resource.h"
-#include "eckit/exception/Exceptions.h"
 #include "eckit/serialisation/MemoryStream.h"
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
 #include "metkit/codes/Message.h"
-#include "metkit/codes/Reader.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/TypeAny.h"
 
 
 namespace metkit {
@@ -34,7 +26,11 @@ namespace codes {
 bool GRIBDecoder::match(const Message& msg) const {
     size_t len = msg.length();
     const char* p = static_cast<const char*>(msg.data());
-    return len >= 4 and p[0] == 'G' and p[1] == 'R' and p[2] == 'I' and p[3] == 'B';
+    return len >= 4 and (
+               (p[0] == 'G' and p[1] == 'R' and p[2] == 'I' and p[3] == 'B') or
+               (p[0] == 'T' and p[1] == 'I' and p[2] == 'D' and p[3] == 'E') or
+               (p[0] == 'B' and p[1] == 'U' and p[2] == 'D' and p[3] == 'G')
+           );
 }
 
 mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
@@ -42,7 +38,9 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
 
     const codes_handle* h = msg.codesHandle();
 
-    mars::MarsRequest r("grib");
+    const char* p = static_cast<const char*>(msg.data());
+
+    mars::MarsRequest r(p[0] == 'G' ? "grib" : (p[0] == 'T' ? "tide" : "budg"));
 
     grib_keys_iterator *ks = grib_keys_iterator_new(
                                  const_cast<codes_handle*>(h),
