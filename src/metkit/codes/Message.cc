@@ -267,6 +267,11 @@ Message::Message():
     content_->attach();
 }
 
+Message::Message(const Message& other):
+    content_(other.content_) {
+    content_->attach();
+}
+
 Message::Message(const void* data, size_t size):
     content_(new UserDataContent(data, size)) {
     content_->attach();
