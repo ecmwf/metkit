@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace metkit {
 namespace codes {
