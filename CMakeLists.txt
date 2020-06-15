@@ -41,11 +41,11 @@ ecbuild_add_option( FEATURE NETCDF
   NO_TPL
 )
 
-# ODB2 support
+# ODB support
 
-ecbuild_add_option( FEATURE ODB2
+ecbuild_add_option( FEATURE ODB
                     DEFAULT ON
-                    DESCRIPTION "Add support for ODB2 format"
+                    DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "PROJECT odc VERSION 1.0" )
 
 # eckit
