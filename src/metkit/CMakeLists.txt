@@ -125,6 +125,12 @@ if ( HAVE_GRIB )
         codes/Message.h
         codes/Reader.cc
         codes/Reader.h
+        codes/Splitter.cc
+        codes/Splitter.h
+        codes/CodesSplitter.cc
+        codes/CodesSplitter.h
+        codes/OdbSplitter.cc
+        codes/OdbSplitter.h
         grib/GribAccessor.cc
         grib/GribAccessor.h
         grib/GribDataBlob.cc

@@ -16,6 +16,7 @@
 #define mars_client_Reader_H
 
 #include <iosfwd>
+#include <memory>
 
 #include "eckit/memory/NonCopyable.h"
 #include "eckit/io/PeekHandle.h"
@@ -31,6 +32,7 @@ namespace metkit {
 namespace codes {
 
 class Message;
+class Splitter;
 
 class ReaderFilter {
 public:
@@ -54,8 +56,8 @@ public:
 private:
 
     bool opened_;
+    std::unique_ptr<Splitter> splitter_;
 
-    FILE* file_;
     const ReaderFilter& filter_;
     eckit::PeekHandle handle_;
 

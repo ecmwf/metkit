@@ -11,6 +11,7 @@
 #include "metkit/codes/Reader.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/codes/Message.h"
+#include "metkit/codes/Splitter.h"
 
 #include <eccodes.h>
 
@@ -60,21 +61,12 @@ void Reader::init() {
         handle_.openForRead();
     }
 
-    std::cout << "PEEK "
-              << handle_.peek(0)
-              << handle_.peek(1)
-              << handle_.peek(2)
-              << handle_.peek(3)
-              << std::endl;
+    splitter_.reset(SplitterFactory::lookup(handle_));
+    std::cout << "----- " << *splitter_ << std::endl;
 
-
-    file_ = handle_.openf();
 }
 
 Reader::~Reader() {
-    if (file_) {
-        fclose(file_);
-    }
 
     if (!opened_) {
         handle_.close();
@@ -83,10 +75,7 @@ Reader::~Reader() {
 
 Message Reader::next() {
     for (;;) {
-        int err = 0;
-        codes_handle* h = codes_handle_new_from_file(nullptr, file_, PRODUCT_ANY, &err);
-        ASSERT(err == 0);
-        Message msg{h};
+        Message msg = splitter_->next();
         if (!msg or filter_(msg)) {
             return msg;
         }
@@ -94,7 +83,7 @@ Message Reader::next() {
 }
 
 void Reader::print(std::ostream &s) const {
-    s << "Reader[" << handle_ << "]";
+    s << "Reader[" << handle_ << "," << *splitter_ << "]";
 }
 
 eckit::Offset Reader::position() {
