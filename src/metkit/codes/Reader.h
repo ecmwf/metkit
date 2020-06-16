@@ -18,7 +18,7 @@
 #include <iosfwd>
 
 #include "eckit/memory/NonCopyable.h"
-#include "eckit/io/HandleHolder.h"
+#include "eckit/io/PeekHandle.h"
 
 
 namespace eckit {
@@ -38,7 +38,7 @@ public:
     static ReaderFilter& none();
 };
 
-class Reader : public eckit::NonCopyable, public eckit::HandleHolder {
+class Reader : public eckit::NonCopyable {
 public:
 
     Reader(eckit::DataHandle*, bool opened=false, const ReaderFilter& = ReaderFilter::none());
@@ -57,6 +57,7 @@ private:
 
     FILE* file_;
     const ReaderFilter& filter_;
+    eckit::PeekHandle handle_;
 
     void init();
     void print(std::ostream &) const; // Change to virtual if base class

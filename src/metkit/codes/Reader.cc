@@ -30,7 +30,7 @@ ReaderFilter& ReaderFilter::none() {
 }
 
 Reader::Reader(eckit::DataHandle* h, bool opened, const ReaderFilter& filter):
-    HandleHolder(h),
+    handle_(h),
     opened_(opened),
     filter_(filter) {
 
@@ -38,7 +38,7 @@ Reader::Reader(eckit::DataHandle* h, bool opened, const ReaderFilter& filter):
 }
 
 Reader::Reader(eckit::DataHandle& h, bool opened, const ReaderFilter& filter):
-    HandleHolder(&h),
+    handle_(&h),
     opened_(opened),
     filter_(filter) {
 
@@ -47,7 +47,7 @@ Reader::Reader(eckit::DataHandle& h, bool opened, const ReaderFilter& filter):
 }
 
 Reader::Reader(const eckit::PathName& path, const ReaderFilter& filter):
-    HandleHolder(path.fileHandle()),
+    handle_(path.fileHandle()),
     opened_(false),
     filter_(filter) {
 
@@ -57,9 +57,18 @@ Reader::Reader(const eckit::PathName& path, const ReaderFilter& filter):
 
 void Reader::init() {
     if (!opened_) {
-        handle().openForRead();
+        handle_.openForRead();
     }
-    file_ = handle().openf();
+
+    std::cout << "PEEK "
+              << handle_.peek(0)
+              << handle_.peek(1)
+              << handle_.peek(2)
+              << handle_.peek(3)
+              << std::endl;
+
+
+    file_ = handle_.openf();
 }
 
 Reader::~Reader() {
@@ -68,7 +77,7 @@ Reader::~Reader() {
     }
 
     if (!opened_) {
-        handle().close();
+        handle_.close();
     }
 }
 
@@ -78,18 +87,18 @@ Message Reader::next() {
         codes_handle* h = codes_handle_new_from_file(nullptr, file_, PRODUCT_ANY, &err);
         ASSERT(err == 0);
         Message msg{h};
-        if(!msg or filter_(msg)) {
+        if (!msg or filter_(msg)) {
             return msg;
         }
     }
 }
 
 void Reader::print(std::ostream &s) const {
-    s << "Reader[" << handle() << "]";
+    s << "Reader[" << handle_ << "]";
 }
 
 eckit::Offset Reader::position() {
-    return handle().position();
+    return handle_.position();
 }
 
 
