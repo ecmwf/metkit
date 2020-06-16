@@ -409,7 +409,7 @@ _field: &_field
     multiple: true
     type: param
     never:
-    - type: tf
+    - type: [tf, ob]
 
 #################################################################
 
@@ -769,6 +769,8 @@ _postproc: &_postproc
       - bf
     - - grid
       - gd
+    - odb
+    - ascii
 
   frame:
     category: postproc
