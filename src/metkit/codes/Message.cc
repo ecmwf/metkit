@@ -284,6 +284,13 @@ Message::Message(codes_handle* handle, bool del):
     content_->attach();
 }
 
+Message::Message(const codes_handle* handle):
+    content_(handle ?
+             static_cast<MessageContent*>(new CodesContent(const_cast<codes_handle*>(handle), false)) :
+             static_cast<MessageContent*>(new NoContent())) {
+    content_->attach();
+}
+
 Message& Message::operator=(const Message& other) {
     if (content_ != other.content_) {
         content_->detach();

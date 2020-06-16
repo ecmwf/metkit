@@ -269,6 +269,7 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request) {
         }
     }
 
+
     for (std::map<std::string, std::set<std::string> >::const_iterator j = never_.begin();
          ok && j != never_.end(); ++j) {
         const std::string& name            = (*j).first;
