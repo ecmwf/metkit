@@ -39,7 +39,7 @@ Reader::Reader(eckit::DataHandle* h, bool opened, const ReaderFilter& filter):
 }
 
 Reader::Reader(eckit::DataHandle& h, bool opened, const ReaderFilter& filter):
-    handle_(&h),
+    handle_(h),
     opened_(opened),
     filter_(filter) {
 
