@@ -62,7 +62,7 @@ void Reader::init() {
     }
 
     splitter_.reset(SplitterFactory::lookup(handle_));
-    std::cout << "----- " << *splitter_ << std::endl;
+    // std::cout << "----- " << *splitter_ << std::endl;
 
 }
 
