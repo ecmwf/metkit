@@ -119,6 +119,8 @@ if ( HAVE_GRIB )
         codes/Decoder.h
         codes/GRIBDecoder.cc
         codes/GRIBDecoder.h
+        codes/OdbDecoder.cc
+        codes/OdbDecoder.h
         codes/LibEccodes.cc
         codes/LibEccodes.h
         codes/Message.cc
