@@ -123,6 +123,12 @@ if ( HAVE_GRIB )
         codes/LibEccodes.h
         codes/Message.cc
         codes/Message.h
+        codes/MessageContent.cc
+        codes/MessageContent.h
+        codes/CodesContent.cc
+        codes/CodesContent.h
+        codes/UserDataContent.cc
+        codes/UserDataContent.h
         codes/Reader.cc
         codes/Reader.h
         codes/Splitter.cc
