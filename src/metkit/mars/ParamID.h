@@ -56,8 +56,6 @@ public: // methods
                           const AXIS_T& axis,
                           bool& windConversion);
 
-private: // methods
-
     static const std::vector<WindFamily>& getWindFamilies();
 };
 
