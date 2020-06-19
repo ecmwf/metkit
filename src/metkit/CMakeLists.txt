@@ -205,10 +205,6 @@ ecbuild_add_library(
           odb/OdbToRequest.cc
           odb/OdbToRequest.h
 
-        PRIVATE_INCLUDES
-            ${ECKIT_INCLUDE_DIRS}
-            ${ODC_INCLUDE_DIRS}
-
         LIBS
             metkit
             odccore
