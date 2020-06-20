@@ -20,6 +20,7 @@
 
 #include "eckit/memory/NonCopyable.h"
 #include "eckit/io/PeekHandle.h"
+#include "metkit/codes/Message.h"
 
 
 namespace eckit {
