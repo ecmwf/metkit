@@ -741,6 +741,22 @@ _field: &_field
     category: data
     type: integer
 
+#######################################################################
+
+_observation: &_observation
+
+  obstype:
+    category: data
+    type: any
+    multiple: true
+
+  obsgroup:
+    category: data
+    type: any
+    multiple: true
+
+#######################################################################
+
 _postproc: &_postproc
 
   accuracy:
@@ -877,6 +893,18 @@ _postproc: &_postproc
     values:
     - auto
     - 'off'
+#######################################################################
+
+_obspproc: &_obspproc
+
+  filter:
+    type: any
+    category: postproc
+
+  ident:
+    type: any
+    category: postproc
+
 
 #######################################################################
 
@@ -962,6 +990,8 @@ disseminate:
 
 archive:
   <<: *_field
+  <<: *_observation
+
 
   database:
     flatten: false
@@ -981,8 +1011,11 @@ archive:
 ##############################################################
 
 retrieve:
+
   <<: *_field
+  <<: *_observation
   <<: *_postproc
+  <<: *_obspproc
 
   target:
     flatten: false
@@ -1028,7 +1061,9 @@ read:
     type: any
 
   <<: *_field
+  <<: *_observation
   <<: *_postproc
+  <<: *_obspproc
 
   target:
     flatten: false
@@ -1084,6 +1119,7 @@ get:
 list:
 
   <<: *_field
+  <<: *_observation
 
   database:
     flatten: false

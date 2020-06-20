@@ -38,6 +38,10 @@ size_t OdbContent::length() const {
     return frame_.size();
 }
 
+eckit::DataHandle* OdbContent::readHandle() const {
+    return new eckit::MemoryHandle(frame_, frame_.size());
+}
+
 void OdbContent::write(eckit::DataHandle& handle) const {
     ASSERT(handle.write(frame_, frame_.size()) == frame_.size());
 }

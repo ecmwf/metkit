@@ -33,6 +33,7 @@ private:
 
     virtual size_t length() const;
     const void* data() const;
+    virtual eckit::DataHandle* readHandle() const;
 
     virtual void write(eckit::DataHandle& handle) const;
 
