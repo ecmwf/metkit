@@ -33,7 +33,8 @@ bool OdbDecoder::match(const Message& msg) const {
 }
 
 mars::MarsRequest OdbDecoder::messageToRequest(const Message& msg) const {
-    NOTIMP;
+    mars::MarsRequest result("odb");
+    return result;
 }
 
 void OdbDecoder::print(std::ostream& s) const {

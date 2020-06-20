@@ -12,6 +12,7 @@
 
 
 #include "metkit/codes/OdbSplitter.h"
+#include "metkit/codes/OdbContent.h"
 
 #include "eckit/config/Resource.h"
 #include "metkit/codes/Message.h"
@@ -23,7 +24,8 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 OdbSplitter::OdbSplitter(eckit::DataHandle& handle):
-    Splitter(handle) {
+    Splitter(handle),
+    first_(true) {
 }
 
 OdbSplitter::~OdbSplitter() {
@@ -31,6 +33,10 @@ OdbSplitter::~OdbSplitter() {
 
 
 Message OdbSplitter::next() {
+    if(first_) {
+        first_ = false;
+        return Message{new OdbContent(handle_)};
+    }
     return Message();
 }
 

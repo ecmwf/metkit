@@ -43,6 +43,7 @@ class Message {
 public:
 
     Message();
+    Message(MessageContent*);
 
     Message(codes_handle* handle, bool del=true);
     Message(const codes_handle* handle);

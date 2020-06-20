@@ -18,6 +18,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <iomanip>
 
 namespace metkit {
 namespace codes {
@@ -75,7 +76,20 @@ Splitter* SplitterFactory::lookup(eckit::PeekHandle& handle) {
     }
 
     std::ostringstream oss;
-    oss << "Cannot find a metkit SplitterFactory for " << handle << std::endl;
+    oss << "Cannot find a metkit SplitterFactory for " << handle << " ";
+
+    for(size_t i = 0; i < handle.peeked(); ++i) {
+        unsigned char c = handle.peek(i);
+        oss << (isprint(c) ? char(c) : '.');
+    }
+
+    oss << " - ";
+    for(size_t i = 0; i < handle.peeked(); ++i) {
+        unsigned char c = handle.peek(i);
+        oss << std::setfill ('0') << std::setw (2) << std::hex << int(c);
+    }
+
+    oss << std::endl;
     throw eckit::SeriousBug(oss.str());
 }
 

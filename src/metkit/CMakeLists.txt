@@ -129,6 +129,8 @@ if ( HAVE_GRIB )
         codes/MessageContent.h
         codes/CodesContent.cc
         codes/CodesContent.h
+        codes/OdbContent.cc
+        codes/OdbContent.h
         codes/UserDataContent.cc
         codes/UserDataContent.h
         codes/Reader.cc

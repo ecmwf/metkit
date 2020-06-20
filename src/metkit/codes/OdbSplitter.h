@@ -30,6 +30,7 @@ public:
 
 private: // members
 
+    bool first_;
 
 private: // methods
 

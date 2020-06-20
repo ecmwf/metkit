@@ -39,11 +39,24 @@ class NoContent : public MessageContent {
     void print(std::ostream & s) const {
         s << "NoContent[]";
     }
+
+    void* operator new(size_t);
+
+public:
+    NoContent() { attach(); }
 };
+
+static NoContent noContent;
+
 
 
 Message::Message():
-    content_(new NoContent()) {
+    content_(&noContent) {
+    content_->attach();
+}
+
+Message::Message(MessageContent* content):
+    content_(content ? content : &noContent) {
     content_->attach();
 }
 
@@ -60,14 +73,14 @@ Message::Message(const void* data, size_t size):
 Message::Message(codes_handle* handle, bool del):
     content_(handle ?
              static_cast<MessageContent*>(new CodesContent(handle, del)) :
-             static_cast<MessageContent*>(new NoContent())) {
+             static_cast<MessageContent*>(&noContent)) {
     content_->attach();
 }
 
 Message::Message(const codes_handle* handle):
     content_(handle ?
              static_cast<MessageContent*>(new CodesContent(const_cast<codes_handle*>(handle), false)) :
-             static_cast<MessageContent*>(new NoContent())) {
+             static_cast<MessageContent*>(&noContent)) {
     content_->attach();
 }
 
