@@ -98,7 +98,7 @@ Message::~Message() {
 }
 
 void Message::print(std::ostream &s) const {
-    s << "Message[]";
+    s << "Message[" << *content_ << "]";
 }
 
 Message::operator bool() const {

@@ -95,6 +95,18 @@ list( APPEND metkit_persistent_srcs
 )
 list( APPEND metkit_srcs ${metkit_persistent_srcs} )
 
+list( APPEND metkit_srcs
+    codes/Decoder.cc
+    codes/Decoder.h
+    codes/Message.cc
+    codes/Message.h
+    codes/Reader.cc
+    codes/Reader.h
+    codes/Splitter.cc
+    codes/Splitter.h
+    codes/MessageContent.cc
+    codes/MessageContent.h
+)
 
 if ( HAVE_GRIB )
 
@@ -115,32 +127,16 @@ if ( HAVE_GRIB )
         pointdb/PointIndex.h
         codes/BUFRDecoder.cc
         codes/BUFRDecoder.h
-        codes/Decoder.cc
-        codes/Decoder.h
         codes/GRIBDecoder.cc
         codes/GRIBDecoder.h
-        codes/OdbDecoder.cc
-        codes/OdbDecoder.h
         codes/LibEccodes.cc
         codes/LibEccodes.h
-        codes/Message.cc
-        codes/Message.h
-        codes/MessageContent.cc
-        codes/MessageContent.h
         codes/CodesContent.cc
         codes/CodesContent.h
-        codes/OdbContent.cc
-        codes/OdbContent.h
         codes/UserDataContent.cc
         codes/UserDataContent.h
-        codes/Reader.cc
-        codes/Reader.h
-        codes/Splitter.cc
-        codes/Splitter.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
-        codes/OdbSplitter.cc
-        codes/OdbSplitter.h
         grib/GribAccessor.cc
         grib/GribAccessor.h
         grib/GribDataBlob.cc
@@ -157,7 +153,22 @@ if ( HAVE_GRIB )
 
 endif ()
 
+if ( HAVE_ODB )
 
+    list( APPEND metkit_srcs
+            odb/IdMapper.cc
+            odb/IdMapper.h
+            odb/OdbToRequest.cc
+            odb/OdbToRequest.h
+            codes/OdbDecoder.cc
+            codes/OdbContent.cc
+            codes/OdbContent.h
+            codes/OdbDecoder.h
+            codes/OdbSplitter.cc
+            codes/OdbSplitter.h
+        )
+    set( odc_libs odccore )
+endif()
 
 ecbuild_add_library(
 
@@ -190,24 +201,3 @@ ecbuild_add_library(
         ${netcdflibs}
 )
 
-ecbuild_add_library(
-
-        TARGET metkit_odb
-
-        INSTALL_HEADERS LISTED
-
-        CONDITION HAVE_ODB
-
-        HEADER_DESTINATION
-            ${INSTALL_INCLUDE_DIR}/metkit
-
-        SOURCES
-          odb/IdMapper.cc
-          odb/IdMapper.h
-          odb/OdbToRequest.cc
-          odb/OdbToRequest.h
-
-        LIBS
-            metkit
-            odccore
-)
