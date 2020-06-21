@@ -56,7 +56,7 @@ ecbuild_add_executable(
     SOURCES   odb-to-request.cc
     CONDITION HAVE_ODB2
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
-    LIBS      metkit_odb eckit_option )
+    LIBS      metkit eckit_option )
 
 # ecbuild_add_executable( TARGET     ncmerge
 #                         SOURCES    ncmerge.cc
