@@ -36,7 +36,7 @@ class Message;
 class Splitter {
 public: // methods
 
-    Splitter(eckit::DataHandle&);
+    Splitter(eckit::PeekHandle&);
 
     virtual ~Splitter();
 
@@ -44,7 +44,7 @@ public: // methods
 
 protected:
 
-    eckit::DataHandle& handle_;
+    eckit::PeekHandle& handle_;
 
 private: // methods
 
@@ -64,7 +64,7 @@ public:
 
     virtual ~SplitterFactory();
 
-    virtual Splitter* make(eckit::DataHandle&) const = 0;
+    virtual Splitter* make(eckit::PeekHandle&) const = 0;
 
 
     static Splitter* lookup(eckit::PeekHandle&);
@@ -77,7 +77,7 @@ protected:
 
 template <class T>
 class SplitterBuilder : public SplitterFactory {
-    virtual Splitter* make(eckit::DataHandle& handle) const {
+    virtual Splitter* make(eckit::PeekHandle& handle) const {
         return new T(handle);
     }
 

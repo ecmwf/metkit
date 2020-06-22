@@ -25,7 +25,7 @@ namespace codes {
 class CodesSplitter : public Splitter {
 public:
 
-    CodesSplitter(eckit::DataHandle&);
+    CodesSplitter(eckit::PeekHandle&);
     ~CodesSplitter();
 
 private: // members

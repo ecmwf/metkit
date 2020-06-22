@@ -21,13 +21,17 @@
 namespace metkit {
 namespace codes {
 
-OdbContent::OdbContent(eckit::DataHandle& handle):
-    frame_(handle.size()) {
+OdbContent::OdbContent(eckit::DataHandle& handle, size_t size):
+    frame_(size) {
     ASSERT(handle.read(frame_, frame_.size()) == frame_.size());
 }
 
 OdbContent::~OdbContent() {
 
+}
+
+OdbContent::operator bool() const {
+    return frame_.size() > 0;
 }
 
 const void* OdbContent::data() const {

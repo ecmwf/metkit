@@ -23,7 +23,7 @@ namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
-CodesSplitter::CodesSplitter(eckit::DataHandle& handle):
+CodesSplitter::CodesSplitter(eckit::PeekHandle& handle):
     Splitter(handle) {
     file_ = handle.openf();
 }

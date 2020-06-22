@@ -75,8 +75,12 @@ mars::MarsRequest OdbDecoder::messageToRequest(const Message& message) const {
 
     pthread_once(&once, init);
 
+    std::cout << "messageToRequest ===> " << message.length() << std::endl;
+
 
     mars::MarsRequest result("odb");
+    return result;
+
     std::unique_ptr<eckit::DataHandle> handle(message.readHandle());
     handle->openForRead();
     eckit::AutoClose close(*handle);
@@ -112,8 +116,10 @@ mars::MarsRequest OdbDecoder::messageToRequest(const Message& message) const {
         // else {
         //     requests.push_back(r);
         // }
+        // break;
     }
 
+    std::cout << "messageToRequest <=== " << std::endl;
 
     return result;
 }

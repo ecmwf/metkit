@@ -25,7 +25,7 @@ namespace codes {
 class OdbSplitter : public Splitter {
 public:
 
-    OdbSplitter(eckit::DataHandle&);
+    OdbSplitter(eckit::PeekHandle&);
     ~OdbSplitter();
 
 private: // members

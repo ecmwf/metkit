@@ -24,12 +24,14 @@ namespace codes {
 
 class OdbContent : public MessageContent {
 public:
-    OdbContent(eckit::DataHandle&);
+    OdbContent(eckit::DataHandle&, size_t size);
     ~OdbContent();
 
 private:
 
     eckit::ResizableBuffer frame_;
+
+    virtual operator bool() const;
 
     virtual size_t length() const;
     const void* data() const;

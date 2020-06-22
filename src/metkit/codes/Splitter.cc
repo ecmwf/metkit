@@ -24,7 +24,7 @@ namespace metkit {
 namespace codes {
 
 
-Splitter::Splitter(eckit::DataHandle& handle):
+Splitter::Splitter(eckit::PeekHandle& handle):
 handle_(handle) {
 
 }
