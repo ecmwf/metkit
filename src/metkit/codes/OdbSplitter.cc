@@ -21,8 +21,8 @@
 #include "eckit/io/SeekableHandle.h"
 #include "eckit/io/Buffer.h"
 
-#include "odc/core/Header.h"
-#include "odc/core/MetaData.h"
+#include "odc/api/Odb.h"
+
 
 
 namespace metkit {
@@ -37,116 +37,19 @@ OdbSplitter::OdbSplitter(eckit::PeekHandle& handle):
 OdbSplitter::~OdbSplitter() {
 }
 
-const int32_t BYTE_ORDER_INDICATOR = 1;
-
-template<typename T>
-static void swap(T& o, int32_t byteOrder) {
-    if (byteOrder != BYTE_ORDER_INDICATOR) {
-        std::reverse(reinterpret_cast<char*>(&o),
-                     reinterpret_cast<char*>(&o) + sizeof(T));
-    }
-}
-
-static int64_t frame_size(eckit::PeekHandle& handle) {
-    eckit::SeekableHandle f(handle);
-
-    if (false) {
-        odc::core::MetaData md;
-        odc::core::Properties props;
-        odc::core::Header header(md, props);
-        if (odc::core::Header::readMagic(f)) {
-            header.loadAfterMagic(f);
-            eckit::Log::info() << "nextFrameOffset " << header.dataSize()  << std::endl;
-            eckit::Log::info() << "numberOfRows " << header.rowsNumber()  << std::endl;
-
-        }
-        return handle.size();
-
-    }
-    else {
-
-        auto here = f.position();
-
-        uint16_t magic;
-        if(f.read(&magic, sizeof(magic)) == 0) {
-            eckit::Log::info() << "EOF" << std::endl;
-            return 0;
-        }
-        ASSERT(magic == 0xffff);
-
-        eckit::Log::info() << "magic " << magic  << std::endl;
-
-        unsigned char c;
-        f.read(&c, sizeof(c)); ASSERT(c == 'O');
-        f.read(&c, sizeof(c)); ASSERT(c == 'D');
-        f.read(&c, sizeof(c)); ASSERT(c == 'A');
-
-        int32_t byteOrder;
-        f.read(&byteOrder, sizeof(byteOrder));
-        ASSERT(byteOrder == BYTE_ORDER_INDICATOR);
-        eckit::Log::info() << "byteOrder " << byteOrder  << std::endl;
-
-        int32_t formatVersionMajor;
-        f.read(&formatVersionMajor, sizeof(formatVersionMajor));
-        swap(formatVersionMajor, byteOrder);
-        eckit::Log::info() << "formatVersionMajor " << formatVersionMajor  << std::endl;
-
-        int32_t formatVersionMinor;
-        f.read(&formatVersionMinor, sizeof(formatVersionMinor));
-        swap(formatVersionMinor, byteOrder);
-        eckit::Log::info() << "formatVersionMinor " << formatVersionMinor  << std::endl;
-
-        int32_t len;
-        f.read(&len, sizeof(len));
-        swap(len, byteOrder);
-        eckit::Buffer buf1(len);
-        f.read(buf1, len);
-
-        eckit::Log::info() << "headerDigest " << len << " " << std::string((char*)buf1, ((char*)buf1) + len)  << std::endl;
-
-        // Buffer?
-        int32_t headerSize;
-        f.read(&headerSize, sizeof(headerSize));
-        swap(headerSize, byteOrder);
-        eckit::Log::info() << "headerSize " << headerSize  << std::endl;
-
-        size_t fixedHeaderSize = f.position() - here;
-
-        int64_t nextFrameOffset;
-        f.read(&nextFrameOffset, sizeof(nextFrameOffset));
-        swap(nextFrameOffset, byteOrder);
-        eckit::Log::info() << "nextFrameOffset " << nextFrameOffset  << std::endl;
-
-        // int64_t prevFrameOffset;
-        // f.read(&prevFrameOffset, sizeof(prevFrameOffset));
-        // swap(prevFrameOffset, byteOrder);
-        // eckit::Log::info() << "prevFrameOffset " << prevFrameOffset  << std::endl;
-
-        // int64_t numberOfRows;
-        // f.read(&numberOfRows, sizeof(numberOfRows));
-        // swap(numberOfRows, byteOrder);
-        // eckit::Log::info() << "numberOfRows " << numberOfRows  << std::endl;
-
-
-        eckit::Log::info() << "fixedHeaderSize " << fixedHeaderSize  << std::endl;
-
-        eckit::Log::info() << "size " << (nextFrameOffset + headerSize + fixedHeaderSize)  << std::endl;
-
-        return nextFrameOffset + headerSize + fixedHeaderSize;
-    }
-
-}
-
 Message OdbSplitter::next() {
 
-    return Message{new OdbContent(handle_, frame_size(handle_))};
+    eckit::SeekableHandle f(handle_);
 
-    // if (first_) {
-    //     first_ = false;
-    //     // return Message{new OdbContent(handle_, frame_size(handle_))};
-    //     return Message{new OdbContent(handle_, handle_.size())};
-    // }
-    // return Message();
+    odc::api::Reader reader(f);
+    odc::api::Frame frame(reader);
+
+    if (!frame.next(false)) {
+        return Message();
+    }
+
+    return Message{new OdbContent(handle_, frame.length())};
+
 }
 
 void OdbSplitter::print(std::ostream& s) const {

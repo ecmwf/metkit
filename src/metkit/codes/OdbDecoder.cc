@@ -35,11 +35,12 @@ static std::map<std::string, std::string> mapping;
 
 static void init() {
     static eckit::PathName configPath(eckit::Resource<eckit::PathName>(
-                                          "odbMarsRequestMapping", "~metkit/share/metkit/odb/marsrequest.yaml"));
+                                          "odbMarsRequestMapping",
+                                          "~metkit/share/metkit/odb/marsrequest.yaml"));
     eckit::YAMLConfiguration config(configPath);
     for (const auto& key : config.keys()) {
-        eckit::Log::info() << "mapping " << config.getString(key) << " - " << key << std::endl;
-        mapping[config.getString(key)] = key;
+        // eckit::Log::info() << "mapping " << config.getString(key) << " - " << key << std::endl;
+        mapping[config.getString(key)] = eckit::StringTools::lower(key);
     }
 }
 
@@ -56,16 +57,24 @@ bool OdbDecoder::match(const Message& msg) const {
 
 class MarsRequestSetter : public odc::api::SpanVisitor {
 
+    mars::MarsRequest& request_;
+
+public:
+    MarsRequestSetter(mars::MarsRequest& request): request_(request) {}
+
     virtual void operator()(const std::string& columnName, const std::set<long>& vals) {
-        std::cout << "SETTER (long) " << columnName << " - " << vals << std::endl;
+        ASSERT(vals.size() == 1);
+        request_.setValue(mapping[columnName], *vals.begin());
     }
 
     virtual void operator()(const std::string& columnName, const std::set<double>& vals) {
-        std::cout << "SETTER (double) " << columnName << " - " << vals << std::endl;
+        ASSERT(vals.size() == 1);
+        request_.setValue(mapping[columnName], *vals.begin());
     }
 
     virtual void operator()(const std::string& columnName, const std::set<std::string>& vals) {
-        std::cout << "SETTER (string) " << columnName << " - " << vals << std::endl;
+        ASSERT(vals.size() == 1);
+        request_.setValue(mapping[columnName], eckit::StringTools::trim(*vals.begin()));
     }
 
 };
@@ -75,23 +84,14 @@ mars::MarsRequest OdbDecoder::messageToRequest(const Message& message) const {
 
     pthread_once(&once, init);
 
-    std::cout << "messageToRequest ===> " << message.length() << std::endl;
-
-
     mars::MarsRequest result("odb");
-    return result;
 
     std::unique_ptr<eckit::DataHandle> handle(message.readHandle());
     handle->openForRead();
     eckit::AutoClose close(*handle);
 
-
     odc::api::Reader reader(*handle);
     odc::api::Frame frame(reader);
-
-    bool onlyConstantColumns = false;
-
-    // std::vector<MarsRequest> requests;
 
     std::vector<std::string> columnNames;
     columnNames.reserve(mapping.size());
@@ -99,27 +99,12 @@ mars::MarsRequest OdbDecoder::messageToRequest(const Message& message) const {
         columnNames.push_back(kv.first);
     }
 
-    // MarsLanguage language(verb_);
-
-    MarsRequestSetter setter;
+    MarsRequestSetter setter(result);
 
     while (frame.next(false)) {
-        odc::api::Span span = frame.span(columnNames, onlyConstantColumns);
-
-        // MarsRequest r(verb_);
-        // MarsRequestSetter setter(r, language, mapping_);
+        odc::api::Span span = frame.span(columnNames, true);
         span.visit(setter);
-
-        // if (one_ and requests.size()) {
-        //     requests.back().merge(r);
-        // }
-        // else {
-        //     requests.push_back(r);
-        // }
-        // break;
     }
-
-    std::cout << "messageToRequest <=== " << std::endl;
 
     return result;
 }
