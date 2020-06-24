@@ -24,6 +24,8 @@ namespace codes {
 class CodesContent : public MessageContent {
 public:
     CodesContent(codes_handle* handle, bool delete_handle);
+    CodesContent(const codes_handle* handle);
+
     ~CodesContent();
 
 private:

@@ -43,6 +43,9 @@ Message CodesSplitter::next() {
                       PRODUCT_ANY,
                       &err);
     ASSERT(err == 0);
+    if(!h) {
+        return Message();
+    }
     return Message(new CodesContent(h, true));
 }
 

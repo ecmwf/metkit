@@ -29,14 +29,20 @@ namespace codes {
 CodesContent::CodesContent(codes_handle* handle, bool delete_handle):
     handle_(handle),
     delete_handle_(delete_handle) {
+    ASSERT(handle_);
+}
+
+CodesContent::CodesContent(const codes_handle* handle):
+    CodesContent(const_cast<codes_handle*>(handle), false) {
 
 }
+
+
 CodesContent::~CodesContent() {
     if (delete_handle_) {
         codes_handle_delete(handle_);
     }
 }
-
 
 size_t CodesContent::length() const {
     size_t size;
