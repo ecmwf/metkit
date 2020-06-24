@@ -16,14 +16,9 @@
 #include "metkit/codes/Message.h"
 #include "metkit/codes/MessageContent.h"
 #include "eckit/io/Offset.h"
-
-// #include "eckit/exception/Exceptions.h"
-// #include "eckit/io/DataHandle.h"
-// #include "eckit/io/MemoryHandle.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/codes/Decoder.h"
-#include "metkit/codes/UserDataContent.h"
-#include "metkit/codes/CodesContent.h"
+
 
 
 
@@ -62,25 +57,6 @@ Message::Message(MessageContent* content):
 
 Message::Message(const Message& other):
     content_(other.content_) {
-    content_->attach();
-}
-
-Message::Message(const void* data, size_t size):
-    content_(new UserDataContent(data, size)) {
-    content_->attach();
-}
-
-Message::Message(codes_handle* handle, bool del):
-    content_(handle ?
-             static_cast<MessageContent*>(new CodesContent(handle, del)) :
-             static_cast<MessageContent*>(&noContent)) {
-    content_->attach();
-}
-
-Message::Message(const codes_handle* handle):
-    content_(handle ?
-             static_cast<MessageContent*>(new CodesContent(const_cast<codes_handle*>(handle), false)) :
-             static_cast<MessageContent*>(&noContent)) {
     content_->attach();
 }
 

@@ -45,11 +45,8 @@ public:
     Message();
     Message(MessageContent*);
 
-    Message(codes_handle* handle, bool del=true);
-    Message(const codes_handle* handle);
-
     Message(const Message&);
-    Message(const void* data, size_t len);
+    // Message(const void* data, size_t len);
 
 
     ~Message();

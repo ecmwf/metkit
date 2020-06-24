@@ -13,6 +13,7 @@
 #include <eccodes.h>
 
 #include "metkit/codes/CodesSplitter.h"
+#include "metkit/codes/CodesContent.h"
 
 #include "eckit/config/Resource.h"
 #include "metkit/codes/Message.h"
@@ -42,7 +43,7 @@ Message CodesSplitter::next() {
                       PRODUCT_ANY,
                       &err);
     ASSERT(err == 0);
-    return Message(h);
+    return Message(new CodesContent(h, true));
 }
 
 void CodesSplitter::print(std::ostream& s) const {
