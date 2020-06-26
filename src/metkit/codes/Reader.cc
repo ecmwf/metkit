@@ -13,8 +13,6 @@
 #include "metkit/codes/Message.h"
 #include "metkit/codes/Splitter.h"
 
-#include <eccodes.h>
-
 namespace metkit {
 namespace codes {
 
