@@ -32,9 +32,9 @@ class GribMutatorBase;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void grib_call( int code, const char* msg, const eckit::CodeLocation& where );
+void codes_call( int code, const char* msg, const eckit::CodeLocation& where );
 
-#define GRIB_CALL(a) metkit::grib::grib_call(a, #a, Here())
+#define CODES_CALL(a) metkit::grib::codes_call(a, #a, Here())
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ public: // types
     GribHandle(grib_handle&);
 
     /// constructor creating a grib_handle from a DataHandle
-    explicit GribHandle(eckit::DataHandle&, bool partial = false);
+    explicit GribHandle(eckit::DataHandle&);
 
     /// destructor will delete the grib_handle if we own it
     ~GribHandle() noexcept(false);

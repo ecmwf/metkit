@@ -50,14 +50,14 @@ CodesContent::~CodesContent() {
 size_t CodesContent::length() const {
     size_t size;
     const void* data;
-    GRIB_CALL(codes_get_message(handle_, &data, &size));
+    CODES_CALL(codes_get_message(handle_, &data, &size));
     return size;
 }
 
 void CodesContent::write(eckit::DataHandle& handle) const {
     size_t size;
     const void* data;
-    GRIB_CALL(codes_get_message(handle_, &data, &size));
+    CODES_CALL(codes_get_message(handle_, &data, &size));
     ASSERT(handle.write(data, size) == size);
 
 }
@@ -65,7 +65,7 @@ void CodesContent::write(eckit::DataHandle& handle) const {
 eckit::DataHandle* CodesContent::readHandle() const {
     size_t size;
     const void* data;
-    GRIB_CALL(codes_get_message(handle_, &data, &size));
+    CODES_CALL(codes_get_message(handle_, &data, &size));
     return new eckit::MemoryHandle(data, size);
 }
 
@@ -79,7 +79,7 @@ std::string CodesContent::getString(const std::string& key) const {
 
     values[0] = 0;
 
-    GRIB_CALL(codes_get_string(handle_, key.c_str(), values, &len));
+    CODES_CALL(codes_get_string(handle_, key.c_str(), values, &len));
     // ASSERT(err)
 
     return values;
@@ -87,29 +87,29 @@ std::string CodesContent::getString(const std::string& key) const {
 
 long CodesContent::getLong(const std::string& key) const {
     long v = 0;
-    GRIB_CALL(codes_get_long(handle_, key.c_str(), &v));
+    CODES_CALL(codes_get_long(handle_, key.c_str(), &v));
     return v;
 }
 
 double CodesContent::getDouble(const std::string& key) const {
     double v = 0;
-    GRIB_CALL(codes_get_double(handle_, key.c_str(), &v));
+    CODES_CALL(codes_get_double(handle_, key.c_str(), &v));
     return v;
 }
 
 void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& values) const {
     size_t size = 0;
-    GRIB_CALL(codes_get_size(handle_, key.c_str(), &size));
+    CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
 
     size_t count = size;
     values.resize(count);
-    GRIB_CALL(codes_get_double_array(handle_, key.c_str(), &values[0], &count));
+    CODES_CALL(codes_get_double_array(handle_, key.c_str(), &values[0], &count));
     ASSERT(count == size);
 }
 
 eckit::Offset CodesContent::offset() const {
     long pos;
-    GRIB_CALL(codes_get_long(handle_, "offset", &pos));
+    CODES_CALL(codes_get_long(handle_, "offset", &pos));
     return pos;
 }
 
@@ -120,7 +120,7 @@ const codes_handle* CodesContent::codesHandle() const {
 const void* CodesContent::data() const {
     size_t size;
     const void* data;
-    GRIB_CALL(codes_get_message(handle_, &data, &size));
+    CODES_CALL(codes_get_message(handle_, &data, &size));
     return data;
 }
 

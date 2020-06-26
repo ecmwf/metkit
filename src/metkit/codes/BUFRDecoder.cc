@@ -35,15 +35,15 @@ mars::MarsRequest BUFRDecoder::messageToRequest(const Message& msg) const {
 
     mars::MarsRequest r("bufr");
 
-    grib_keys_iterator *ks = grib_keys_iterator_new(
+    codes_keys_iterator *ks = codes_keys_iterator_new(
                                  const_cast<codes_handle*>(h),
                                  GRIB_KEYS_ITERATOR_ALL_KEYS,
                                  gribToRequestNamespace.c_str());
 
     ASSERT(ks);
 
-    while (grib_keys_iterator_next(ks)) {
-        const char *name = grib_keys_iterator_get_name(ks);
+    while (codes_keys_iterator_next(ks)) {
+        const char *name = codes_keys_iterator_get_name(ks);
 
         if (name[0] == '_') {
             continue;
@@ -52,14 +52,14 @@ mars::MarsRequest BUFRDecoder::messageToRequest(const Message& msg) const {
         char value[1024];
         size_t len = sizeof(value);
 
-        ASSERT( grib_keys_iterator_get_string(ks, value, &len) == 0);
+        ASSERT( codes_keys_iterator_get_string(ks, value, &len) == 0);
         if (*value) {
             r.setValue(name, value);
         }
 
     }
 
-    grib_keys_iterator_delete(ks);
+    codes_keys_iterator_delete(ks);
 
     return r;
 

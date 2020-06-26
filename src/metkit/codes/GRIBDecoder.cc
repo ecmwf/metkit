@@ -43,15 +43,15 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
 
     mars::MarsRequest r(p[0] == 'G' ? "grib" : (p[0] == 'T' ? "tide" : "budg"));
 
-    grib_keys_iterator *ks = grib_keys_iterator_new(
+    codes_keys_iterator *ks = codes_keys_iterator_new(
                                  const_cast<codes_handle*>(h),
                                  GRIB_KEYS_ITERATOR_ALL_KEYS,
                                  gribToRequestNamespace.c_str());
 
     ASSERT(ks);
 
-    while (grib_keys_iterator_next(ks)) {
-        const char *name = grib_keys_iterator_get_name(ks);
+    while (codes_keys_iterator_next(ks)) {
+        const char *name = codes_keys_iterator_get_name(ks);
 
         if (name[0] == '_') {
             continue;
@@ -60,7 +60,7 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
         char value[1024];
         size_t len = sizeof(value);
 
-        ASSERT( grib_keys_iterator_get_string(ks, value, &len) == 0);
+        ASSERT( codes_keys_iterator_get_string(ks, value, &len) == 0);
 
         if (*value) {
             r.setValue(name, value);
@@ -68,12 +68,12 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
 
     }
 
-    grib_keys_iterator_delete(ks);
+    codes_keys_iterator_delete(ks);
 
     {
         char value[1024];
         size_t len = sizeof(value);
-        if (grib_get_string(h, "paramId", value, &len) == 0) {
+        if (codes_get_string(h, "paramId", value, &len) == 0) {
             r.setValue("param", value);
         }
     }
@@ -81,11 +81,11 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
     // Look for request embbeded in GRIB message
     long local;
     size_t size;
-    if (grib_get_long(h, "localDefinitionNumber", &local) ==  0 && local == 191) {
+    if (codes_get_long(h, "localDefinitionNumber", &local) ==  0 && local == 191) {
         /* TODO: Not grib2 compatible, but speed-up process */
-        if (grib_get_size(h, "freeFormData", &size) ==  0 && size != 0) {
+        if (codes_get_size(h, "freeFormData", &size) ==  0 && size != 0) {
             unsigned char buffer[size];
-            ASSERT(grib_get_bytes(h, "freeFormData", buffer, &size) == 0);
+            ASSERT(codes_get_bytes(h, "freeFormData", buffer, &size) == 0);
 
             eckit::MemoryStream s(buffer, size);
 

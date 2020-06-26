@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "grib_api.h"
+#include "eccodes.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/exception/Exceptions.h"
@@ -64,18 +64,18 @@ GribMetaData::GribMetaData(const void* buffer, size_t length) {
     long l;
 
     /// JIRA TICKET >> const void*
-    grib_handle* h = grib_handle_new_from_message(NULL, const_cast<void*>(buffer), length);
+    codes_handle* h = codes_handle_new_from_message(NULL, const_cast<void*>(buffer), length);
     ASSERT(h);
 
     static std::string gribToRequestNamespace =
         eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
-    grib_keys_iterator* ks =
-        grib_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
+    codes_keys_iterator* ks =
+        codes_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
     ASSERT(ks);
 
-    while (grib_keys_iterator_next(ks)) {
-        const char* name = grib_keys_iterator_get_name(ks);
+    while (codes_keys_iterator_next(ks)) {
+        const char* name = codes_keys_iterator_get_name(ks);
 
         if (name[0] == '_') {
             continue;
@@ -84,15 +84,15 @@ GribMetaData::GribMetaData(const void* buffer, size_t length) {
         // in method parameters() we assume that all keys have a string representation
 
         len = sizeof(val);
-        ASSERT(grib_keys_iterator_get_string(ks, val, &len) == 0);
+        ASSERT(codes_keys_iterator_get_string(ks, val, &len) == 0);
         stringValues_[name] = val;
 
         len = 1;
-        if (grib_keys_iterator_get_double(ks, &d, &len) == 0)
+        if (codes_keys_iterator_get_double(ks, &d, &len) == 0)
             doubleValues_[name] = d;
 
         len = 1;
-        if (grib_keys_iterator_get_long(ks, &l, &len) == 0)
+        if (codes_keys_iterator_get_long(ks, &l, &len) == 0)
             longValues_[name] = l;
     }
 
@@ -100,12 +100,12 @@ GribMetaData::GribMetaData(const void* buffer, size_t length) {
         char value[1024];
         size_t len = sizeof(value);
 
-        if (grib_get_string(h, "paramId", value, &len) == 0) {
+        if (codes_get_string(h, "paramId", value, &len) == 0) {
             stringValues_["param"] = value;
         }
     }
 
-    ASSERT(grib_get_long(h, "totalLength", &length_) == 0);
+    ASSERT(codes_get_long(h, "totalLength", &length_) == 0);
 
 #if 0
     const char *extra[] = {"editionNumber", "table2Version", "indicatorOfParameter", 0};
@@ -113,15 +113,15 @@ GribMetaData::GribMetaData(const void* buffer, size_t length) {
 
     while(extra[i]) {
         long value;
-        if(grib_get_long(h,extra[i],&value) == 0)
+        if(codes_get_long(h,extra[i],&value) == 0)
             longValues_[std::string(extra[i])] = value;
         i++;
     }
 #endif
 
-    grib_keys_iterator_delete(ks);
+    codes_keys_iterator_delete(ks);
 
-    grib_handle_delete(h);
+    codes_handle_delete(h);
 }
 
 GribMetaData::~GribMetaData() {}

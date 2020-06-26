@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "grib_api.h"
+#include "eccodes.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"

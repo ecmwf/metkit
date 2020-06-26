@@ -28,14 +28,14 @@ const LibEccodes& LibEccodes::instance() {
     return libeccodes;
 }
 
-const void* LibEccodes::addr() const { return (const void*)&grib_get_api_version; }
+const void* LibEccodes::addr() const { return (const void*)&codes_get_api_version; }
 
 std::string LibEccodes::version() const {
     return ECCODES_VERSION_STR;
 }
 
 std::string LibEccodes::gitsha1(unsigned int count) const {
-    std::string sha1(grib_get_git_sha1());
+    std::string sha1(codes_get_git_sha1());
     if (sha1.empty()) {
         return "not available";
     }
