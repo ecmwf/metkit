@@ -61,14 +61,6 @@ mars::MarsRequest BUFRDecoder::messageToRequest(const Message& msg) const {
 
     grib_keys_iterator_delete(ks);
 
-    {
-        char value[1024];
-        size_t len = sizeof(value);
-        if (grib_get_string(h, "paramId", value, &len) == 0) {
-            r.setValue("param", value);
-        }
-    }
-
     return r;
 
 }
