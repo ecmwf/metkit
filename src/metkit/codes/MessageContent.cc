@@ -20,8 +20,6 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/codes/Decoder.h"
 
-#include <eccodes.h>
-
 namespace metkit {
 namespace codes {
 
