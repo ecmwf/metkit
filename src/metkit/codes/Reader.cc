@@ -16,39 +16,24 @@
 namespace metkit {
 namespace codes {
 
-class NoFilter : public ReaderFilter {
-    virtual bool operator()(const Message&) const {
-        return true;
-    }
-};
-
-
-ReaderFilter& ReaderFilter::none() {
-    static NoFilter nofilter;
-    return nofilter;
-}
-
-Reader::Reader(eckit::DataHandle* h, bool opened, const ReaderFilter& filter):
+Reader::Reader(eckit::DataHandle* h, bool opened):
     handle_(h),
-    opened_(opened),
-    filter_(filter) {
+    opened_(opened) {
 
     init();
 }
 
-Reader::Reader(eckit::DataHandle& h, bool opened, const ReaderFilter& filter):
+Reader::Reader(eckit::DataHandle& h, bool opened):
     handle_(h),
-    opened_(opened),
-    filter_(filter) {
+    opened_(opened) {
 
     init();
 
 }
 
-Reader::Reader(const eckit::PathName& path, const ReaderFilter& filter):
+Reader::Reader(const eckit::PathName& path):
     handle_(path.fileHandle()),
-    opened_(false),
-    filter_(filter) {
+    opened_(false) {
 
     init();
 
@@ -72,12 +57,7 @@ Reader::~Reader() {
 }
 
 Message Reader::next() {
-    for (;;) {
-        Message msg = splitter_->next();
-        if (!msg or filter_(msg)) {
-            return msg;
-        }
-    }
+    return splitter_->next();
 }
 
 void Reader::print(std::ostream &s) const {

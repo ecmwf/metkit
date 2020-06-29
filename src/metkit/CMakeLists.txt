@@ -135,6 +135,10 @@ if ( HAVE_GRIB )
         codes/CodesContent.h
         codes/UserDataContent.cc
         codes/UserDataContent.h
+        codes/DataContent.cc
+        codes/DataContent.h
+        codes/MallocDataContent.cc
+        codes/MallocDataContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
         grib/GribAccessor.cc

@@ -13,22 +13,25 @@
 
 #include <iostream>
 
-#include "metkit/codes/UserDataContent.h"
+#include "metkit/codes/MallocDataContent.h"
 
 
 namespace metkit {
 namespace codes {
 
-UserDataContent::UserDataContent(const void* data, size_t size):
-    DataContent(data, size) {
+MallocDataContent::MallocDataContent(void* data, size_t size):
+    DataContent(data, size),
+    buffer_(data) {
 }
 
-UserDataContent::~UserDataContent() {
+MallocDataContent::~MallocDataContent() {
+    ::free(buffer_);
 }
 
-void UserDataContent::print(std::ostream & s) const {
-    s << "UserDataContent[]";
+void MallocDataContent::print(std::ostream & s) const {
+    s << "MallocDataContent[]";
 }
+
 
 }  // namespace close
 }  // namespace metkit

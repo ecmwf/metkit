@@ -35,19 +35,13 @@ namespace codes {
 class Message;
 class Splitter;
 
-class ReaderFilter {
-public:
-    virtual bool operator()(const Message&) const = 0;
-    static ReaderFilter& none();
-};
-
 class Reader : public eckit::NonCopyable {
 public:
 
-    Reader(eckit::DataHandle*, bool opened=false, const ReaderFilter& = ReaderFilter::none());
-    Reader(eckit::DataHandle&, bool opened=false, const ReaderFilter& = ReaderFilter::none());
+    Reader(eckit::DataHandle*, bool opened=false);
+    Reader(eckit::DataHandle&, bool opened=false);
 
-    Reader(const eckit::PathName&, const ReaderFilter& = ReaderFilter::none());
+    Reader(const eckit::PathName&);
 
     ~Reader();
 
@@ -59,7 +53,6 @@ private:
     bool opened_;
     std::unique_ptr<Splitter> splitter_;
 
-    const ReaderFilter& filter_;
     eckit::PeekHandle handle_;
 
     void init();

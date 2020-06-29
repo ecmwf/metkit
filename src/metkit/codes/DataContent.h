@@ -13,24 +13,32 @@
 
 
 
-#ifndef mars_client_UserDataContent_H
-#define mars_client_UserDataContent_H
+#ifndef mars_client_DataContent_H
+#define mars_client_DataContent_H
 
-#include "metkit/codes/DataContent.h"
+#include "metkit/codes/MessageContent.h"
 
 
 namespace metkit {
 namespace codes {
 
-class UserDataContent : public DataContent {
+class DataContent : public MessageContent {
 public:
 
-    UserDataContent(const void* data, size_t size);
-    ~UserDataContent();
+    DataContent(const void* data, size_t size);
+    ~DataContent();
 
 private:
 
-    virtual void print(std::ostream & s) const;
+    const void* data_;
+    size_t size_;
+    mutable codes_handle* handle_;
+
+    virtual eckit::DataHandle* readHandle() const;
+    virtual size_t length() const;
+    virtual const void* data() const;
+    virtual void write(eckit::DataHandle& handle) const;
+    virtual const codes_handle* codesHandle() const;
 
 
 };

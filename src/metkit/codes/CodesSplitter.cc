@@ -14,6 +14,7 @@
 
 #include "metkit/codes/CodesSplitter.h"
 #include "metkit/codes/CodesContent.h"
+#include "metkit/codes/MallocDataContent.h"
 
 #include "eckit/config/Resource.h"
 #include "metkit/codes/Message.h"
@@ -37,6 +38,19 @@ CodesSplitter::~CodesSplitter() {
 
 
 Message CodesSplitter::next() {
+#if 1
+    size_t size;
+    off_t offset;
+    int err = 0;
+    void *data = wmo_read_any_from_file_malloc(file_, 0, &size, &offset, &err);
+
+    // ASSERT(err == 0);
+    if(!data) {
+        return Message();
+    }
+    return Message(new MallocDataContent(data, size));
+
+#else
     int err = 0;
     codes_handle* h = codes_handle_new_from_file(nullptr,
                       file_,
@@ -47,6 +61,7 @@ Message CodesSplitter::next() {
         return Message();
     }
     return Message(new CodesContent(h, true));
+#endif
 }
 
 void CodesSplitter::print(std::ostream& s) const {

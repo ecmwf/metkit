@@ -11,25 +11,35 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#include <iostream>
 
-#include "metkit/codes/UserDataContent.h"
+
+#ifndef mars_client_MallocDataContent_H
+#define mars_client_MallocDataContent_H
+
+#include "metkit/codes/DataContent.h"
 
 
 namespace metkit {
 namespace codes {
 
-UserDataContent::UserDataContent(const void* data, size_t size):
-    DataContent(data, size) {
-}
+class MallocDataContent : public DataContent {
+public:
 
-UserDataContent::~UserDataContent() {
-}
+    MallocDataContent(void* data, size_t size);
+    ~MallocDataContent();
 
-void UserDataContent::print(std::ostream & s) const {
-    s << "UserDataContent[]";
-}
+private:
 
-}  // namespace close
+    void* buffer_;
+
+    virtual void print(std::ostream & s) const;
+
+
+};
+
+
+}  // namespace codes
 }  // namespace metkit
 
+
+#endif
