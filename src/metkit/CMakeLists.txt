@@ -83,6 +83,12 @@ list( APPEND metkit_srcs
     metkit_version.cc
     tool/MetkitTool.cc
     tool/MetkitTool.h
+    fields/FieldIndex.cc
+    fields/FieldIndex.h
+    fields/FieldIndexList.cc
+    fields/FieldIndexList.h
+    fields/SimpleFieldIndex.cc
+    fields/SimpleFieldIndex.h
 )
 
 list( APPEND metkit_persistent_srcs
