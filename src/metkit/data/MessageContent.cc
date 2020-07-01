@@ -87,7 +87,11 @@ const codes_handle* MessageContent::codesHandle() const {
     throw eckit::SeriousBug(oss.str());
 }
 
-
+void MessageContent::getMetadata(MetadataGatherer&) const {
+    std::ostringstream oss;
+    oss << "Not implemented " << *this << " getMetadata()";
+    throw eckit::SeriousBug(oss.str());
+}
 
 }  // namespace data
 }  // namespace metkit

@@ -36,6 +36,8 @@ class MarsRequest;
 
 namespace data {
 
+class MetadataGatherer;
+
 class MessageContent : public eckit::Counted {
 
 public:
@@ -61,6 +63,8 @@ public:
     virtual const void* data() const;
 
     virtual const codes_handle* codesHandle() const;
+
+    virtual void getMetadata(MetadataGatherer&) const;
 
 private:
 

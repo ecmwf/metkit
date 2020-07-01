@@ -12,6 +12,7 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/StringTools.h"
+#include "metkit/data/Message.h"
 
 #include "metkit/fields/FieldIndex.h"
 
@@ -52,6 +53,11 @@ FieldIndex::FieldIndex(eckit::Stream& s) {
         }
         s >> more;
     }
+}
+
+FieldIndex::FieldIndex(const data::Message& message) {
+    data::TypedSetter<FieldIndex> gather(*this);
+    message.getMetadata(gather);
 }
 
 void FieldIndex::encode(eckit::Stream& s) const {
@@ -130,6 +136,19 @@ void FieldIndex::getValue(const std::string& key, std::string& value)
     if (j == stringValues_.end()) throw eckit::UserError(std::string("FieldIndex::getString failed for [") + key + "]");
     value = (*j).second;
 }
+
+void FieldIndex::set(const std::string& name, double value) {
+    NOTIMP;
+}
+
+void FieldIndex::set(const std::string& name, long value) {
+    NOTIMP;
+}
+
+void FieldIndex::set(const std::string& name, const std::string value) {
+    NOTIMP;
+}
+
 
 } // namespace fields
 } // namespace metkit

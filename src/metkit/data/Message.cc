@@ -123,6 +123,10 @@ const void* Message::data() const {
     return content_->data();
 }
 
+void Message::getMetadata(MetadataGatherer& gather) const {
+    return content_->getMetadata(gather);
+}
+
 mars::MarsRequest Message::request() const {
     return Decoder::lookup(*this).messageToRequest(*this);
 }

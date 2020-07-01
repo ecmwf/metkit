@@ -15,7 +15,7 @@
 #include "eckit/serialisation/Stream.h"
 
 namespace metkit {
-namespace codes {
+namespace data {
 class Message;
 }
 namespace fields {
@@ -24,7 +24,7 @@ class FieldIndex : private eckit::NonCopyable {
 public:
 
     FieldIndex();
-    FieldIndex(const codes::Message&);
+    FieldIndex(const data::Message&);
 
     FieldIndex(eckit::Stream&);
 
@@ -37,6 +37,11 @@ public:
 	std::string substitute(const std::string& pattern) const;
 
     void encode(eckit::Stream&) const;
+
+    // -----
+    void set(const std::string& name, double value);
+    void set(const std::string& name, long value);
+    void set(const std::string& name, const std::string value);
 
 protected: // members
 

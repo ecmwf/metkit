@@ -35,6 +35,12 @@ namespace data {
 
 class MessageContent;
 
+class MetadataGatherer {
+public:
+    virtual void set(const std::string& key, const std::string& value) = 0;
+    virtual void set(const std::string& key, long value) = 0;
+    virtual void set(const std::string& key, double value) = 0;
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -63,6 +69,9 @@ public:
     double getDouble(const std::string& key) const;
     void getDoubleArray(const std::string& key, std::vector<double>&) const;
 
+
+    void getMetadata(MetadataGatherer&) const;
+
     /// This method is temporary -- do not use in new code
     const codes_handle* codesHandle() const;
 
@@ -82,6 +91,32 @@ private:
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+
+template<class T>
+class StringSetter : public MetadataGatherer {
+    T& object_;
+
+    virtual void set(const std::string& key, const std::string& value) override { object_.set(key, value); }
+    virtual void set(const std::string& key, long value)   override {}
+    virtual void set(const std::string& key, double value)  override  {}
+
+public:
+    StringSetter(T& object): object_(object) {}
+};
+
+template<class T>
+class TypedSetter : public MetadataGatherer {
+    T& object_;
+
+    virtual void set(const std::string& key, const std::string& value) override { object_.set(key, value); }
+    virtual void set(const std::string& key, long value)   override  { object_.set(key, value);}
+    virtual void set(const std::string& key, double value)  override  { object_.set(key, value);}
+
+public:
+    TypedSetter(T& object): object_(object) {}
+};
+//----------------------------------------------------------------------------------------------------------------------
+
 
 }  // namespace data
 }  // namespace metkit
