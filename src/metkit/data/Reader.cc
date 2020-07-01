@@ -8,13 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/codes/Reader.h"
+#include "metkit/data/Reader.h"
 #include "eckit/exception/Exceptions.h"
-#include "metkit/codes/Message.h"
-#include "metkit/codes/Splitter.h"
+#include "metkit/data/Message.h"
+#include "metkit/data/Splitter.h"
 
 namespace metkit {
-namespace codes {
+namespace data {
 
 Reader::Reader(eckit::DataHandle* h, bool opened):
     handle_(h),
@@ -69,6 +69,6 @@ eckit::Offset Reader::position() {
 }
 
 
-}  // namespace codes
+}  // namespace data
 }  // namespace metkit
 

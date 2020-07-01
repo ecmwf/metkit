@@ -13,15 +13,15 @@
 
 #include "eckit/memory/Counted.h"
 
-#include "metkit/codes/MessageContent.h"
+#include "metkit/data/MessageContent.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/codes/Decoder.h"
+#include "metkit/data/Decoder.h"
 
 namespace metkit {
-namespace codes {
+namespace data {
 
  MessageContent::operator bool() const {
     return true;
@@ -89,6 +89,6 @@ const codes_handle* MessageContent::codesHandle() const {
 
 
 
-}  // namespace close
+}  // namespace data
 }  // namespace metkit
 

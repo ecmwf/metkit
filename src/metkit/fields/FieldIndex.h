@@ -15,12 +15,17 @@
 #include "eckit/serialisation/Stream.h"
 
 namespace metkit {
+namespace codes {
+class Message;
+}
 namespace fields {
 
 class FieldIndex : private eckit::NonCopyable {
 public:
 
     FieldIndex();
+    FieldIndex(const codes::Message&);
+
     FieldIndex(eckit::Stream&);
 
 	virtual ~FieldIndex();

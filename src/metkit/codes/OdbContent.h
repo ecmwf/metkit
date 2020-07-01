@@ -16,13 +16,13 @@
 #ifndef mars_client_OdbContent_H
 #define mars_client_OdbContent_H
 
-#include "metkit/codes/MessageContent.h"
+#include "metkit/data/MessageContent.h"
 #include "eckit/io/ResizableBuffer.h"
 
 namespace metkit {
 namespace codes {
 
-class OdbContent : public MessageContent {
+class OdbContent : public data::MessageContent {
 public:
     OdbContent(eckit::DataHandle&, size_t size);
     ~OdbContent();
@@ -31,15 +31,13 @@ private:
 
     eckit::ResizableBuffer frame_;
 
-    virtual operator bool() const;
+    virtual size_t length() const override;
+    const void* data() const override;
+    virtual eckit::DataHandle* readHandle() const override;
 
-    virtual size_t length() const;
-    const void* data() const;
-    virtual eckit::DataHandle* readHandle() const;
+    virtual void write(eckit::DataHandle& handle) const override;
 
-    virtual void write(eckit::DataHandle& handle) const;
-
-    virtual void print(std::ostream & s) const;
+    virtual void print(std::ostream & s) const override;
 
 };
 

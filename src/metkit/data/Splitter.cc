@@ -8,11 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/codes/Splitter.h"
+#include "metkit/data/Splitter.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/thread/Mutex.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 #include "eckit/io/PeekHandle.h"
 
 #include <vector>
@@ -21,7 +21,7 @@
 #include <iomanip>
 
 namespace metkit {
-namespace codes {
+namespace data {
 
 
 Splitter::Splitter(eckit::PeekHandle& handle):
@@ -96,5 +96,5 @@ Splitter* SplitterFactory::lookup(eckit::PeekHandle& handle) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
+}  // namespace data
 }  // namespace metkit

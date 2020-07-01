@@ -30,10 +30,6 @@ OdbContent::~OdbContent() {
 
 }
 
-OdbContent::operator bool() const {
-    return frame_.size() > 0;
-}
-
 const void* OdbContent::data() const {
     return frame_;
 }

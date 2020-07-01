@@ -14,7 +14,7 @@
 #ifndef metkit_OdbDecoder_h
 #define metkit_OdbDecoder_h
 
-#include "metkit/codes/Decoder.h"
+#include "metkit/data/Decoder.h"
 
 
 namespace metkit {
@@ -22,15 +22,15 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class OdbDecoder : public Decoder {
+class OdbDecoder : public data::Decoder {
 public: // methods
 
 
 private: // methods
 
-    virtual bool match(const Message&) const;
-    virtual void print(std::ostream&) const;
-    virtual mars::MarsRequest messageToRequest(const Message&) const;
+    virtual bool match(const data::Message&) const override;
+    virtual void print(std::ostream&) const override;
+    virtual mars::MarsRequest messageToRequest(const data::Message&) const override;
 
 };
 

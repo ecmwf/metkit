@@ -16,7 +16,7 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 #include "metkit/mars/MarsRequest.h"
 
 
@@ -24,7 +24,7 @@ namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
-bool GRIBDecoder::match(const Message& msg) const {
+bool GRIBDecoder::match(const data::Message& msg) const {
     size_t len = msg.length();
     const char* p = static_cast<const char*>(msg.data());
     return len >= 4 and (
@@ -34,7 +34,7 @@ bool GRIBDecoder::match(const Message& msg) const {
            );
 }
 
-mars::MarsRequest GRIBDecoder::messageToRequest(const Message& msg) const {
+mars::MarsRequest GRIBDecoder::messageToRequest(const data::Message& msg) const {
     static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
     const codes_handle* h = msg.codesHandle();

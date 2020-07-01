@@ -16,12 +16,12 @@
 #ifndef mars_client_CodesContent_H
 #define mars_client_CodesContent_H
 
-#include "metkit/codes/MessageContent.h"
+#include "metkit/data/MessageContent.h"
 
 namespace metkit {
 namespace codes {
 
-class CodesContent : public MessageContent {
+class CodesContent : public data::MessageContent {
 public:
     CodesContent(codes_handle* handle, bool delete_handle);
     CodesContent(const codes_handle* handle);

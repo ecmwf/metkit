@@ -26,7 +26,7 @@ namespace mars {
 class MarsRequest;
 }
 
-namespace codes {
+namespace data {
 
 class Message;
 
@@ -89,7 +89,7 @@ class SplitterBuilder : public SplitterFactory {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
+} // namespace data
 } // namespace metkit
 
 #endif

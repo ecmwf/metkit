@@ -34,7 +34,7 @@ namespace mars {
 class MarsRequest;
 }
 
-namespace codes {
+namespace data {
 
 class MessageContent;
 
@@ -85,7 +85,7 @@ private:
 };
 
 
-}  // namespace codes
+}  // namespace data
 }  // namespace metkit
 
 

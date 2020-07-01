@@ -15,20 +15,20 @@
 #include "metkit/codes/BUFRDecoder.h"
 
 #include "eckit/config/Resource.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
-bool BUFRDecoder::match(const Message& msg) const {
+bool BUFRDecoder::match(const data::Message& msg) const {
     size_t len = msg.length();
     const char* p = static_cast<const char*>(msg.data());
     return len >= 4 and p[0] == 'B' and p[1] == 'U' and p[2] == 'F' and p[3] == 'R';
 }
 
-mars::MarsRequest BUFRDecoder::messageToRequest(const Message& msg) const {
+mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const {
     static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
     const codes_handle* h = msg.codesHandle();

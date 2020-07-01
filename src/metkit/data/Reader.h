@@ -20,7 +20,7 @@
 
 #include "eckit/memory/NonCopyable.h"
 #include "eckit/io/PeekHandle.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 
 
 namespace eckit {
@@ -30,7 +30,7 @@ class Offset;
 };
 
 namespace metkit {
-namespace codes {
+namespace data {
 
 class Message;
 class Splitter;
@@ -66,7 +66,7 @@ private:
 };
 
 
-}  // namespace codes
+}  // namespace data
 }  // namespace metkit
 
 

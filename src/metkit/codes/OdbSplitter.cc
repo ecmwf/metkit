@@ -15,7 +15,7 @@
 #include "metkit/codes/OdbContent.h"
 
 #include "eckit/config/Resource.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 #include "metkit/mars/MarsRequest.h"
 #include "eckit/io/PeekHandle.h"
 #include "eckit/io/SeekableHandle.h"
@@ -37,7 +37,7 @@ OdbSplitter::OdbSplitter(eckit::PeekHandle& handle):
 OdbSplitter::~OdbSplitter() {
 }
 
-Message OdbSplitter::next() {
+data::Message OdbSplitter::next() {
 
     eckit::SeekableHandle f(handle_);
 
@@ -45,10 +45,10 @@ Message OdbSplitter::next() {
     odc::api::Frame frame(reader);
 
     if (!frame.next(false)) {
-        return Message();
+        return data::Message();
     }
 
-    return Message{new OdbContent(handle_, frame.length())};
+    return data::Message{new OdbContent(handle_, frame.length())};
 
 }
 
@@ -56,8 +56,10 @@ void OdbSplitter::print(std::ostream& s) const {
     s << "OdbSplitter[]";
 }
 
+}  // namespace codes
+
 template<>
-bool SplitterBuilder<OdbSplitter>::match(eckit::PeekHandle& handle) const {
+bool data::SplitterBuilder<codes::OdbSplitter>::match(eckit::PeekHandle& handle) const {
 
     unsigned char c0 = handle.peek(0);
     unsigned char c1 = handle.peek(1);
@@ -72,9 +74,8 @@ bool SplitterBuilder<OdbSplitter>::match(eckit::PeekHandle& handle) const {
     return false;
 }
 
-static SplitterBuilder<OdbSplitter> splitter;
+static data::SplitterBuilder<codes::OdbSplitter> splitter;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
 }  // namespace metkit

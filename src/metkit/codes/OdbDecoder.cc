@@ -16,7 +16,7 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 #include "metkit/mars/MarsRequest.h"
 #include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"
@@ -46,7 +46,7 @@ static void init() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-bool OdbDecoder::match(const Message& msg) const {
+bool OdbDecoder::match(const data::Message& msg) const {
     size_t len = msg.length();
     const unsigned char* p = static_cast<const unsigned char*>(msg.data());
     return len >= 5 and (
@@ -80,7 +80,7 @@ public:
 };
 
 
-mars::MarsRequest OdbDecoder::messageToRequest(const Message& message) const {
+mars::MarsRequest OdbDecoder::messageToRequest(const data::Message& message) const {
 
     pthread_once(&once, init);
 

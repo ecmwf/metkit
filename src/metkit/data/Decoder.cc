@@ -8,18 +8,18 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/codes/Decoder.h"
+#include "metkit/data/Decoder.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/thread/Mutex.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 
 #include <vector>
 #include <string>
 #include <algorithm>
 
 namespace metkit {
-namespace codes {
+namespace data {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -70,5 +70,5 @@ Decoder& Decoder::lookup(const Message& msg) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
+}  // namespace data
 }  // namespace metkit

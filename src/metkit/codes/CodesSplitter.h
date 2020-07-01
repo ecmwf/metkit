@@ -14,7 +14,7 @@
 #ifndef metkit_CodesSplitter_h
 #define metkit_CodesSplitter_h
 
-#include "metkit/codes/Splitter.h"
+#include "metkit/data/Splitter.h"
 
 
 namespace metkit {
@@ -22,7 +22,7 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class CodesSplitter : public Splitter {
+class CodesSplitter : public data::Splitter {
 public:
 
     CodesSplitter(eckit::PeekHandle&);
@@ -34,8 +34,8 @@ private: // members
 
 private: // methods
 
-    virtual Message next();
-    virtual void print(std::ostream&) const;
+    virtual data::Message next() override;
+    virtual void print(std::ostream&) const override;
 
 };
 

@@ -16,13 +16,13 @@
 #ifndef mars_client_DataContent_H
 #define mars_client_DataContent_H
 
-#include "metkit/codes/MessageContent.h"
+#include "metkit/data/MessageContent.h"
 
 
 namespace metkit {
 namespace codes {
 
-class DataContent : public MessageContent {
+class DataContent : public data::MessageContent {
 public:
 
     DataContent(const void* data, size_t size);

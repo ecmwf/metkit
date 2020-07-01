@@ -22,7 +22,7 @@ namespace mars {
 class MarsRequest;
 }
 
-namespace codes {
+namespace data {
 
 class Message;
 
@@ -56,7 +56,7 @@ private: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
+} // namespace data
 } // namespace metkit
 
 #endif

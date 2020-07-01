@@ -13,17 +13,17 @@
 
 #include <iostream>
 
-#include "metkit/codes/Message.h"
-#include "metkit/codes/MessageContent.h"
+#include "metkit/data/Message.h"
+#include "metkit/data/MessageContent.h"
 #include "eckit/io/Offset.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/codes/Decoder.h"
+#include "metkit/data/Decoder.h"
 
 
 
 
 namespace metkit {
-namespace codes {
+namespace data {
 
 class NoContent : public MessageContent {
 
@@ -126,6 +126,6 @@ mars::MarsRequest Message::request() const {
 }
 
 
-}  // namespace close
+}  // namespace data
 }  // namespace metkit
 

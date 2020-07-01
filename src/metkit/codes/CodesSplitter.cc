@@ -17,9 +17,10 @@
 #include "metkit/codes/MallocDataContent.h"
 
 #include "eckit/config/Resource.h"
-#include "metkit/codes/Message.h"
+#include "metkit/data/Message.h"
 #include "metkit/mars/MarsRequest.h"
 #include "eckit/io/PeekHandle.h"
+#include "metkit/grib/GribHandle.h"
 
 namespace metkit {
 namespace codes {
@@ -37,39 +38,30 @@ CodesSplitter::~CodesSplitter() {
 }
 
 
-Message CodesSplitter::next() {
-#if 1
+data::Message CodesSplitter::next() {
     size_t size;
     off_t offset;
     int err = 0;
     void *data = wmo_read_any_from_file_malloc(file_, 0, &size, &offset, &err);
 
-    // ASSERT(err == 0);
-    if(!data) {
-        return Message();
-    }
-    return Message(new MallocDataContent(data, size));
-
-#else
-    int err = 0;
-    codes_handle* h = codes_handle_new_from_file(nullptr,
-                      file_,
-                      PRODUCT_ANY,
-                      &err);
+    CODES_CALL(err);
     ASSERT(err == 0);
-    if(!h) {
-        return Message();
+    if(!data) {
+        return data::Message();
     }
-    return Message(new CodesContent(h, true));
-#endif
+    return data::Message(new MallocDataContent(data, size));
+
 }
 
 void CodesSplitter::print(std::ostream& s) const {
     s << "CodesSplitter[]";
 }
 
+}  // namespace codes
+
+
 template<>
-bool SplitterBuilder<CodesSplitter>::match(eckit::PeekHandle& handle) const {
+bool data::SplitterBuilder<codes::CodesSplitter>::match(eckit::PeekHandle& handle) const {
 
     unsigned char c0 = handle.peek(0);
     unsigned char c1 = handle.peek(1);
@@ -95,9 +87,8 @@ bool SplitterBuilder<CodesSplitter>::match(eckit::PeekHandle& handle) const {
     return false;
 }
 
-static SplitterBuilder<CodesSplitter> splitter;
+static data::SplitterBuilder<codes::CodesSplitter> splitter;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
 }  // namespace metkit

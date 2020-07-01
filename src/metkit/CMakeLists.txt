@@ -102,16 +102,16 @@ list( APPEND metkit_persistent_srcs
 list( APPEND metkit_srcs ${metkit_persistent_srcs} )
 
 list( APPEND metkit_srcs
-    codes/Decoder.cc
-    codes/Decoder.h
-    codes/Message.cc
-    codes/Message.h
-    codes/Reader.cc
-    codes/Reader.h
-    codes/Splitter.cc
-    codes/Splitter.h
-    codes/MessageContent.cc
-    codes/MessageContent.h
+    data/Decoder.cc
+    data/Decoder.h
+    data/Message.cc
+    data/Message.h
+    data/Reader.cc
+    data/Reader.h
+    data/Splitter.cc
+    data/Splitter.h
+    data/MessageContent.cc
+    data/MessageContent.h
 )
 
 if ( HAVE_GRIB )

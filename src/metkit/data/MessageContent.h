@@ -34,7 +34,7 @@ namespace mars {
 class MarsRequest;
 }
 
-namespace codes {
+namespace data {
 
 class MessageContent : public eckit::Counted {
 
@@ -73,7 +73,7 @@ private:
 };
 
 
-}  // namespace codes
+}  // namespace data
 }  // namespace metkit
 
 

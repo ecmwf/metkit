@@ -14,7 +14,7 @@
 #ifndef metkit_OdbSplitter_h
 #define metkit_OdbSplitter_h
 
-#include "metkit/codes/Splitter.h"
+#include "metkit/data/Splitter.h"
 
 
 namespace metkit {
@@ -22,7 +22,7 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class OdbSplitter : public Splitter {
+class OdbSplitter : public data::Splitter {
 public:
 
     OdbSplitter(eckit::PeekHandle&);
@@ -34,8 +34,8 @@ private: // members
 
 private: // methods
 
-    virtual Message next();
-    virtual void print(std::ostream&) const;
+    virtual data::Message next() override;
+    virtual void print(std::ostream&) const override;
 
 };
 
