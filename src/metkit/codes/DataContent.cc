@@ -52,7 +52,11 @@ const void* DataContent::data() const {
 }
 
 void DataContent::write(eckit::DataHandle& handle) const {
-    ASSERT(handle.write(data_, size_) == size_);
+    if (handle.write(data_, size_) != size_) {
+        std::ostringstream oss;
+        oss << "Write error to data handle " << handle;
+        throw eckit::WriteError(oss.str(), Here());
+    }
 }
 
 const codes_handle* DataContent::codesHandle() const {
