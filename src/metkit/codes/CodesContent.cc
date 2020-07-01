@@ -58,8 +58,11 @@ void CodesContent::write(eckit::DataHandle& handle) const {
     size_t size;
     const void* data;
     CODES_CALL(codes_get_message(handle_, &data, &size));
-    ASSERT(handle.write(data, size) == size);
-
+    if (handle.write(data, size) != size) {
+        std::ostringstream oss;
+        oss << "Write error to data handle " << handle;
+        throw eckit::WriteError(oss.str(), Here());
+    }
 }
 
 eckit::DataHandle* CodesContent::readHandle() const {
