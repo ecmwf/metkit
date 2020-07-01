@@ -17,6 +17,8 @@
 #ifndef grib_GribMetaData_H
 #define grib_GribMetaData_H
 
+#include "eckit/deprecated.h"
+
 #include "eckit/io/Buffer.h"
 #include "eckit/memory/NonCopyable.h"
 #include "eckit/serialisation/Stream.h"
@@ -29,7 +31,7 @@ namespace grib {
 
 /// Previously existed in mars-server code as GribHandle
 
-class GribMetaData : public eckit::Metadata {
+class DEPRECATED("Use mekit::data::Message instead") GribMetaData : public eckit::Metadata {
 public:  // methods
     GribMetaData(eckit::Stream&);
     GribMetaData(const void* buffer, size_t length);

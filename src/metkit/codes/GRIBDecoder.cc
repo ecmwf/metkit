@@ -35,9 +35,6 @@ bool GRIBDecoder::match(const data::Message& msg) const {
 }
 
 mars::MarsRequest GRIBDecoder::messageToRequest(const data::Message& msg) const {
-    static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
-
-    const codes_handle* h = msg.codesHandle();
 
     const char* p = static_cast<const char*>(msg.data());
 

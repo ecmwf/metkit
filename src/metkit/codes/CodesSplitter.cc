@@ -44,8 +44,9 @@ data::Message CodesSplitter::next() {
     int err = 0;
     void *data = wmo_read_any_from_file_malloc(file_, 0, &size, &offset, &err);
 
-    CODES_CALL(err);
-    ASSERT(err == 0);
+    if(err != 0 and err != GRIB_END_OF_FILE) {
+        CODES_CALL(err);
+    }
     if(!data) {
         return data::Message();
     }

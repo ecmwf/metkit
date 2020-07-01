@@ -18,6 +18,7 @@
 #define grib_GribDataBlob_H
 
 #include "eckit/io/DataBlob.h"
+#include "eckit/deprecated.h"
 
 #include "metkit/grib/GribMetaData.h"
 
@@ -30,7 +31,8 @@ class GribHandle;
 
 ///
 ///
-class GribDataBlob : public eckit::DataBlob {
+class DEPRECATED("Use mekit::data::Message instead")
+GribDataBlob : public eckit::DataBlob {
 
 public: // methods
 
