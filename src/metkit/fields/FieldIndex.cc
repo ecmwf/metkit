@@ -138,15 +138,15 @@ void FieldIndex::getValue(const std::string& key, std::string& value)
 }
 
 void FieldIndex::set(const std::string& name, double value) {
-    NOTIMP;
+    doubleValues_[name] = value;
 }
 
 void FieldIndex::set(const std::string& name, long value) {
-    NOTIMP;
+    longValues_[name] = value;
 }
 
 void FieldIndex::set(const std::string& name, const std::string value) {
-    NOTIMP;
+    stringValues_[name] = value;
 }
 
 
