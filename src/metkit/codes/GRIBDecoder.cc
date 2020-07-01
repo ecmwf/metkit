@@ -43,71 +43,8 @@ mars::MarsRequest GRIBDecoder::messageToRequest(const data::Message& msg) const 
 
     mars::MarsRequest r(p[0] == 'G' ? "grib" : (p[0] == 'T' ? "tide" : "budg"));
 
-    codes_keys_iterator *ks = codes_keys_iterator_new(
-                                  const_cast<codes_handle*>(h),
-                                  GRIB_KEYS_ITERATOR_ALL_KEYS,
-                                  gribToRequestNamespace.c_str());
-
-    ASSERT(ks);
-
-    while (codes_keys_iterator_next(ks)) {
-        const char *name = codes_keys_iterator_get_name(ks);
-
-        if (name[0] == '_') {
-            continue;
-        }
-
-        char value[1024];
-        size_t len = sizeof(value);
-
-        ASSERT( codes_keys_iterator_get_string(ks, value, &len) == 0);
-
-        if (*value) {
-            r.setValue(name, value);
-        }
-
-    }
-
-    codes_keys_iterator_delete(ks);
-
-    {
-        char value[1024];
-        size_t len = sizeof(value);
-        if (codes_get_string(h, "paramId", value, &len) == 0) {
-            r.setValue("param", value);
-        }
-    }
-
-    // Look for request embbeded in GRIB message
-    long local;
-    size_t size;
-    if (codes_get_long(h, "localDefinitionNumber", &local) ==  0 && local == 191) {
-        /* TODO: Not grib2 compatible, but speed-up process */
-        if (codes_get_size(h, "freeFormData", &size) ==  0 && size != 0) {
-            unsigned char buffer[size];
-            ASSERT(codes_get_bytes(h, "freeFormData", buffer, &size) == 0);
-
-            eckit::MemoryStream s(buffer, size);
-
-            int count;
-            s >> count; // Number of requests
-            ASSERT(count == 1);
-            std::string tmp;
-            s >> tmp; // verb
-            s >> count;
-            for (int i = 0; i < count; i++) {
-                std::string keyword, value;
-                int n;
-                s >> keyword;
-                std::transform(keyword.begin(), keyword.end(), keyword.begin(), tolower);
-                s >> n; // Number of values
-                ASSERT(n == 1);
-                s >> value;
-                std::transform(value.begin(), value.end(), value.begin(), tolower);
-                r.setValue(keyword, value);
-            }
-        }
-    }
+    data::StringSetter<mars::MarsRequest> setter(r);
+    getMetadata(msg, setter);
 
     return r;
 }
@@ -141,15 +78,17 @@ void GRIBDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer& 
 
         ASSERT( grib_keys_iterator_get_string(ks, val, &len) == 0);
 
-        gather.set(name, val);
+        if (*val) {
+            gather.setValue(name, val);
+        }
 
         len = 1;
         if (grib_keys_iterator_get_double(ks, &d, &len) == 0)       {
-            gather.set(name, d);
+            gather.setValue(name, d);
         }
         len = 1;
         if (grib_keys_iterator_get_long(ks, &l, &len) == 0)         {
-            gather.set(name, l);
+            gather.setValue(name, l);
         }
 
     }
@@ -160,7 +99,7 @@ void GRIBDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer& 
         char value[1024];
         size_t len = sizeof(value);
         if (grib_get_string(h, "paramId", value, &len) == 0) {
-            gather.set("param", value);
+            gather.setValue("param", value);
         }
     }
 
@@ -190,7 +129,7 @@ void GRIBDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer& 
                 ASSERT(n == 1);
                 s >> value;
                 std::transform(value.begin(), value.end(), value.begin(), tolower);
-                gather.set(keyword, value);
+                gather.setValue(keyword, value);
             }
         }
     }

@@ -137,15 +137,15 @@ void FieldIndex::getValue(const std::string& key, std::string& value)
     value = (*j).second;
 }
 
-void FieldIndex::set(const std::string& name, double value) {
+void FieldIndex::setValue(const std::string& name, double value) {
     doubleValues_[name] = value;
 }
 
-void FieldIndex::set(const std::string& name, long value) {
+void FieldIndex::setValue(const std::string& name, long value) {
     longValues_[name] = value;
 }
 
-void FieldIndex::set(const std::string& name, const std::string value) {
+void FieldIndex::setValue(const std::string& name, const std::string value) {
     stringValues_[name] = value;
 }
 
