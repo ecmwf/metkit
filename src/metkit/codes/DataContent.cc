@@ -30,7 +30,7 @@ namespace codes {
 DataContent::DataContent(const void* data, size_t size):
     data_(data),
     size_(size),
-    handle_(0) {
+    handle_(nullptr) {
 }
 
 DataContent::~DataContent() {
@@ -57,7 +57,7 @@ void DataContent::write(eckit::DataHandle& handle) const {
 
 const codes_handle* DataContent::codesHandle() const {
     if (!handle_) {
-        handle_ = codes_handle_new_from_message(0, data_, size_);
+        handle_ = codes_handle_new_from_message(nullptr, data_, size_);
         ASSERT(handle_);
     }
     return handle_;

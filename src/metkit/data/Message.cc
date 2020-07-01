@@ -20,10 +20,11 @@
 #include "metkit/data/Decoder.h"
 
 
-
-
 namespace metkit {
 namespace data {
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class NoContent : public MessageContent {
 
@@ -43,6 +44,7 @@ public:
 
 static NoContent noContent;
 
+//----------------------------------------------------------------------------------------------------------------------
 
 
 Message::Message():
@@ -125,6 +127,7 @@ mars::MarsRequest Message::request() const {
     return Decoder::lookup(*this).messageToRequest(*this);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace data
 }  // namespace metkit

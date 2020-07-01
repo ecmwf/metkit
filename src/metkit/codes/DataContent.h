@@ -13,8 +13,8 @@
 
 
 
-#ifndef mars_client_DataContent_H
-#define mars_client_DataContent_H
+#ifndef metkit_codes_DataContent_H
+#define metkit_codes_DataContent_H
 
 #include "metkit/data/MessageContent.h"
 
@@ -31,7 +31,7 @@ public:
 private:
 
     const void* data_;
-    size_t size_;
+    const size_t size_;
     mutable codes_handle* handle_;
 
     virtual eckit::DataHandle* readHandle() const;

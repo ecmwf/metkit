@@ -13,8 +13,8 @@
 
 
 
-#ifndef mars_client_UserDataContent_H
-#define mars_client_UserDataContent_H
+#ifndef metkit_codes_UserDataContent_H
+#define metkit_codes_UserDataContent_H
 
 #include "metkit/codes/DataContent.h"
 

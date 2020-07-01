@@ -13,8 +13,8 @@
 
 
 
-#ifndef mars_client_MessageContent_H
-#define mars_client_MessageContent_H
+#ifndef metkit_data_MessageContent_H
+#define metkit_data_MessageContent_H
 
 #include <iosfwd>
 #include <vector>

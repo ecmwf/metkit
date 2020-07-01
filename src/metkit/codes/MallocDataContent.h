@@ -13,8 +13,8 @@
 
 
 
-#ifndef mars_client_MallocDataContent_H
-#define mars_client_MallocDataContent_H
+#ifndef metkit_codes_MallocDataContent_H
+#define metkit_codes_MallocDataContent_H
 
 #include "metkit/codes/DataContent.h"
 

@@ -13,8 +13,8 @@
 
 
 
-#ifndef mars_client_OdbContent_H
-#define mars_client_OdbContent_H
+#ifndef metkit_codes_OdbContent_H
+#define metkit_codes_OdbContent_H
 
 #include "metkit/data/MessageContent.h"
 #include "eckit/io/ResizableBuffer.h"

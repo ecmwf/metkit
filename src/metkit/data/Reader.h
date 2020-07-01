@@ -12,8 +12,8 @@
 /// @date   Aug 2017
 
 
-#ifndef mars_client_Reader_H
-#define mars_client_Reader_H
+#ifndef metkit_data_Reader_H
+#define metkit_data_Reader_H
 
 #include <iosfwd>
 #include <memory>

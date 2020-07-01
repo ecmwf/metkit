@@ -23,8 +23,6 @@ namespace codes {
 //----------------------------------------------------------------------------------------------------------------------
 
 class BUFRDecoder : public data::Decoder {
-public: // methods
-
 
 private: // methods
 
@@ -33,7 +31,6 @@ private: // methods
     virtual mars::MarsRequest messageToRequest(const data::Message&) const override;
 
 };
-
 
 //----------------------------------------------------------------------------------------------------------------------
 

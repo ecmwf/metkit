@@ -11,22 +11,19 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-
-
-#ifndef mars_client_Message_H
-#define mars_client_Message_H
+#ifndef metkit_data_Message_H
+#define metkit_data_Message_H
 
 #include <iosfwd>
 #include <vector>
 
-// #include "eckit/memory/Counted.h"
 typedef struct grib_handle codes_handle;
 
 namespace eckit {
 class DataHandle;
 class Offset;
 class PathName;
-};
+};  // namespace eckit
 
 namespace metkit {
 
@@ -39,17 +36,18 @@ namespace data {
 class MessageContent;
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class Message {
 public:
-
     Message();
-    Message(MessageContent*);
+
+    explicit Message(MessageContent*);
 
     Message(const Message&);
-    // Message(const void* data, size_t len);
-
 
     ~Message();
+
     Message& operator=(const Message&);
 
     operator bool() const;
@@ -73,20 +71,19 @@ public:
     mars::MarsRequest request() const;
 
 private:
-
     mutable MessageContent* content_;
 
-    void print(std::ostream &) const; // Change to virtual if base class
+    void print(std::ostream&) const;
 
-    friend std::ostream &operator<<(std::ostream &s, const Message &p) {
+    friend std::ostream& operator<<(std::ostream& s, const Message& p) {
         p.print(s);
         return s;
     }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace data
 }  // namespace metkit
-
 
 #endif
