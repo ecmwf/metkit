@@ -62,6 +62,11 @@ mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const 
     return r;
 }
 
+void BUFRDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer&) const {
+    NOTIMP;
+}
+
+
 void BUFRDecoder::print(std::ostream& s) const {
     s << "BUFRDecoder[]";
 }

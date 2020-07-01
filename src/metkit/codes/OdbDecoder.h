@@ -31,6 +31,7 @@ private: // methods
     virtual bool match(const data::Message&) const override;
     virtual void print(std::ostream&) const override;
     virtual mars::MarsRequest messageToRequest(const data::Message&) const override;
+    virtual void getMetadata(const data::Message& msg, data::MetadataGatherer&) const override;
 
 };
 

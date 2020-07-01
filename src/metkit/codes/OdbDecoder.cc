@@ -109,6 +109,11 @@ mars::MarsRequest OdbDecoder::messageToRequest(const data::Message& message) con
     return result;
 }
 
+void OdbDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer&) const {
+    NOTIMP;
+}
+
+
 void OdbDecoder::print(std::ostream& s) const {
     s << "OdbDecoder[]";
 }

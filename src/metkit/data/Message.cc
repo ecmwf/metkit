@@ -124,7 +124,7 @@ const void* Message::data() const {
 }
 
 void Message::getMetadata(MetadataGatherer& gather) const {
-    return content_->getMetadata(gather);
+    return Decoder::lookup(*this).getMetadata(*this, gather);
 }
 
 mars::MarsRequest Message::request() const {

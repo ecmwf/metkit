@@ -25,7 +25,7 @@ class MarsRequest;
 namespace data {
 
 class Message;
-
+class MetadataGatherer;
 //----------------------------------------------------------------------------------------------------------------------
 
 
@@ -37,7 +37,7 @@ public: // methods
     virtual ~Decoder();
 
     virtual mars::MarsRequest messageToRequest(const Message&) const = 0;
-    // virtual const eckit::Metadata& metadata() const = 0;
+    virtual void getMetadata(const data::Message& msg, MetadataGatherer&) const = 0;
 
     static Decoder& lookup(const Message&);
 
