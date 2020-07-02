@@ -23,6 +23,7 @@
 namespace metkit {
 namespace codes {
 
+namespace {
 class HandleDeleter {
     codes_handle *h_;
 public:
@@ -36,6 +37,7 @@ public:
     codes_handle* get() { return h_; }
 
 };
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 bool GRIBDecoder::match(const data::Message& msg) const {
@@ -71,10 +73,9 @@ void GRIBDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer& 
 
 
 
-    grib_keys_iterator *ks = grib_keys_iterator_new(
-                                 const_cast<codes_handle*>(h),
-                                 GRIB_KEYS_ITERATOR_ALL_KEYS,
-                                 gribToRequestNamespace.c_str());
+    grib_keys_iterator *ks = grib_keys_iterator_new(h,
+                             GRIB_KEYS_ITERATOR_ALL_KEYS,
+                             gribToRequestNamespace.c_str());
 
     ASSERT(ks);
 

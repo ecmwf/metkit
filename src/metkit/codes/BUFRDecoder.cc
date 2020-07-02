@@ -20,6 +20,21 @@
 namespace metkit {
 namespace codes {
 
+namespace {
+class HandleDeleter {
+    codes_handle *h_;
+public:
+    HandleDeleter(codes_handle *h) : h_(h) {}
+    ~HandleDeleter() {
+        if (h_) {
+            codes_handle_delete(h_);
+        }
+    }
+
+    codes_handle* get() { return h_; }
+
+};
+}
 //----------------------------------------------------------------------------------------------------------------------
 
 bool BUFRDecoder::match(const data::Message& msg) const {
@@ -31,13 +46,18 @@ bool BUFRDecoder::match(const data::Message& msg) const {
 mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const {
     static std::string gribToRequestNamespace =
         eckit::Resource<std::string>("gribToRequestNamespace", "mars");
-#if 0
-    const codes_handle* h = msg.codesHandle();
+
+
+
+    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+    ASSERT(h);
+    HandleDeleter d(h);
 
     mars::MarsRequest r("bufr");
 
-    codes_keys_iterator* ks = codes_keys_iterator_new(
-        const_cast<codes_handle*>(h), GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
+    codes_keys_iterator* ks = codes_keys_iterator_new(h,
+                              GRIB_KEYS_ITERATOR_ALL_KEYS,
+                              gribToRequestNamespace.c_str());
 
     ASSERT(ks);
 
@@ -60,8 +80,6 @@ mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const 
     codes_keys_iterator_delete(ks);
 
     return r;
-#endif
-        NOTIMP;
 }
 
 void BUFRDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer&) const {
