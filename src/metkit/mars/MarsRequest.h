@@ -39,12 +39,12 @@ class MarsRequest;
 class MarsRequest {
 public:  // methods
     MarsRequest();
-    MarsRequest(const std::string&);
-    MarsRequest(eckit::Stream&, bool lowercase = false);
+    explicit MarsRequest(const std::string&);
+    explicit MarsRequest(eckit::Stream&, bool lowercase = false);
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
     MarsRequest(const std::string&, const eckit::Value&);
 
-    MarsRequest(const eckit::message::Message&);
+    explicit MarsRequest(const eckit::message::Message&);
 
     ~MarsRequest() = default;
 

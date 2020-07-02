@@ -25,8 +25,8 @@ namespace codes {
 class OdbSplitter : public eckit::message::Splitter {
 public:
 
-    OdbSplitter(eckit::PeekHandle&);
-    ~OdbSplitter();
+    explicit OdbSplitter(eckit::PeekHandle&);
+    ~OdbSplitter() override;
 
 private: // members
 

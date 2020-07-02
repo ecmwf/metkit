@@ -14,12 +14,12 @@
 #include "eckit/utils/MD5.h"
 #include "eckit/utils/StringTools.h"
 
+#include "eckit/message/Message.h"
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsExpension.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/TypeAny.h"
-#include "eckit/message/Message.h"
 
 
 namespace metkit {
@@ -27,9 +27,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 MarsRequest::MarsRequest() {}
-
 
 MarsRequest::MarsRequest(const std::string& s) : verb_(s) {}
 
@@ -45,30 +43,30 @@ MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::
 }
 
 
-MarsRequest::MarsRequest(const std::string& s, const eckit::Value& values) :
-    verb_(s) {
-
+MarsRequest::MarsRequest(const std::string& s, const eckit::Value& values) : verb_(s) {
     eckit::ValueMap m = values;
     for (auto j = m.begin(); j != m.end(); ++j) {
-        const std::string& param = (*j).first;
+        const std::string& param  = (*j).first;
         const eckit::Value& value = (*j).second;
 
         if (value.isList()) {
             std::vector<std::string> vals;
             eckit::fromValue(vals, value);
             params_.push_back(Parameter(vals, new TypeAny(param)));
-
         }
         else {
             params_.push_back(Parameter(std::vector<std::string>(1, value), new TypeAny(param)));
         }
-
     }
+}
+
+MarsRequest::MarsRequest(const eckit::message::Message& message) : verb_("message") {
+    eckit::message::StringSetter<MarsRequest> setter(*this);
+    message.getMetadata(setter);
 }
 
 MarsRequest::MarsRequest(eckit::Stream& s, bool lowercase) {
     int size;
-
 
     s >> verb_;
     if (lowercase)
@@ -290,7 +288,7 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
     return (*i).values();
 }
 
-const std::string&  MarsRequest::operator[](const std::string& name) const {
+const std::string& MarsRequest::operator[](const std::string& name) const {
     std::list<Parameter>::const_iterator i = find(name);
     if (i == params_.end()) {
         std::ostringstream oss;
@@ -419,13 +417,6 @@ MarsRequest MarsRequest::parse(const std::string& s) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-MarsRequest::MarsRequest(const eckit::message::Message& message):
-    verb_("message") {
-
-    eckit::message::StringSetter<MarsRequest> setter(*this);
-    message.getMetadata(setter);
-
-}
 
 }  // namespace mars
 }  // namespace metkit
