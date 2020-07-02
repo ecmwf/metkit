@@ -149,14 +149,14 @@ if ( HAVE_GRIB )
         codes/CodesSplitter.h
         grib/GribAccessor.cc
         grib/GribAccessor.h
-        grib/GribDataBlob.cc
-        grib/GribDataBlob.h
+        # grib/GribDataBlob.cc
+        # grib/GribDataBlob.h
         grib/GribHandle.cc
         grib/GribHandle.h
         grib/GribIterator.cc
         grib/GribIterator.h
-        grib/GribMetaData.cc
-        grib/GribMetaData.h
+        # grib/GribMetaData.cc
+        # grib/GribMetaData.h
         )
 
     set( grib_libs eccodes )

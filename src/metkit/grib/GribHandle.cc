@@ -17,8 +17,8 @@
 #include "eckit/io/StdFile.h"
 
 #include "metkit/grib/GribAccessor.h"
-#include "metkit/grib/GribDataBlob.h"
-#include "metkit/grib/GribMetaData.h"
+// #include "metkit/grib/GribDataBlob.h"
+// #include "metkit/grib/GribMetaData.h"
 
 using namespace std;
 
@@ -91,13 +91,6 @@ GribHandle::~GribHandle() noexcept(false) {
     }
 }
 
-GribDataBlob* GribHandle::message() const {
-    size_t length;
-    const void* message;
-    CODES_CALL(codes_get_message(handle_, &message, &length));
-    return new GribDataBlob(message, length);
-}
-
 std::string GribHandle::geographyHash() const {
     // The following key is edition independent
     return GribAccessor<std::string>("md5GridSection")(*this);
@@ -151,6 +144,14 @@ size_t GribHandle::write(eckit::DataHandle& handle) const {
     ASSERT(length = long(length));
     ASSERT(handle.write(message, length) == long(length));
 
+    return length;
+}
+
+size_t GribHandle::length() const {
+    const void* message = nullptr;
+    size_t length       = 0;
+
+    CODES_CALL(codes_get_message(raw(), &message, &length));
     return length;
 }
 

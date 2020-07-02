@@ -60,8 +60,7 @@ public: // types
 
 public: // methods
 
-    /// @returns a new GribDataBlob
-    GribDataBlob* message() const;
+    size_t length() const;
 
     // std::string gridType() const;
 
