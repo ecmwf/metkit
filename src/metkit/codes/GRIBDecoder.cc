@@ -23,6 +23,20 @@
 namespace metkit {
 namespace codes {
 
+class HandleDeleter {
+    codes_handle *h_;
+public:
+    HandleDeleter(codes_handle *h) : h_(h) {}
+    ~HandleDeleter() {
+        if (h_) {
+            codes_handle_delete(h_);
+        }
+    }
+
+    codes_handle* get() { return h_; }
+
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 bool GRIBDecoder::match(const data::Message& msg) const {
     size_t len = msg.length();
@@ -51,8 +65,9 @@ void GRIBDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer& 
     static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
 
-
-    const codes_handle* h = msg.codesHandle();
+    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+    ASSERT(h);
+    HandleDeleter d(h);
 
 
 

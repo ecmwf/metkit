@@ -34,10 +34,11 @@ private:
     const size_t size_;
     mutable codes_handle* handle_;
 
-    virtual eckit::DataHandle* readHandle() const;
-    virtual size_t length() const;
-    virtual const void* data() const;
-    virtual void write(eckit::DataHandle& handle) const;
+    virtual eckit::DataHandle* readHandle() const override;
+    virtual size_t length() const override;
+    virtual const void* data() const override;
+    virtual void write(eckit::DataHandle& handle) const override;
+
     virtual const codes_handle* codesHandle() const;
 
 

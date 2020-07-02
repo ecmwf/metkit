@@ -72,8 +72,6 @@ public:
 
     void getMetadata(MetadataGatherer&) const;
 
-    /// This method is temporary -- do not use in new code
-    const codes_handle* codesHandle() const;
 
     eckit::DataHandle* readHandle() const;
 

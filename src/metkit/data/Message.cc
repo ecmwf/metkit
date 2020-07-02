@@ -115,10 +115,6 @@ eckit::Offset Message::offset() const {
     return content_->offset();
 }
 
-const codes_handle* Message::codesHandle() const {
-    return content_->codesHandle();
-}
-
 const void* Message::data() const {
     return content_->data();
 }

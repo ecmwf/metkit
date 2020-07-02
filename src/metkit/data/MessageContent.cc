@@ -81,12 +81,6 @@ const void* MessageContent::data() const {
     throw eckit::SeriousBug(oss.str());
 }
 
-const codes_handle* MessageContent::codesHandle() const {
-    std::ostringstream oss;
-    oss << "Not implemented " << *this << " codesHandle()";
-    throw eckit::SeriousBug(oss.str());
-}
-
 void MessageContent::getMetadata(MetadataGatherer&) const {
     std::ostringstream oss;
     oss << "Not implemented " << *this << " getMetadata()";

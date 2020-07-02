@@ -31,7 +31,7 @@ bool BUFRDecoder::match(const data::Message& msg) const {
 mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const {
     static std::string gribToRequestNamespace =
         eckit::Resource<std::string>("gribToRequestNamespace", "mars");
-
+#if 0
     const codes_handle* h = msg.codesHandle();
 
     mars::MarsRequest r("bufr");
@@ -60,6 +60,8 @@ mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const 
     codes_keys_iterator_delete(ks);
 
     return r;
+#endif
+        NOTIMP;
 }
 
 void BUFRDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer&) const {

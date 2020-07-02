@@ -62,8 +62,6 @@ public:
 
     virtual const void* data() const;
 
-    virtual const codes_handle* codesHandle() const;
-
     virtual void getMetadata(MetadataGatherer&) const;
 
 private:
