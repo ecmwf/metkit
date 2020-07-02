@@ -19,6 +19,7 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/TypeAny.h"
+#include "eckit/message/Message.h"
 
 
 namespace metkit {
@@ -52,7 +53,7 @@ MarsRequest::MarsRequest(const std::string& s, const eckit::Value& values) :
         const std::string& param = (*j).first;
         const eckit::Value& value = (*j).second;
 
-        if(value.isList()) {
+        if (value.isList()) {
             std::vector<std::string> vals;
             eckit::fromValue(vals, value);
             params_.push_back(Parameter(vals, new TypeAny(param)));
@@ -297,7 +298,7 @@ const std::string&  MarsRequest::operator[](const std::string& name) const {
         throw eckit::UserError(oss.str());
     }
     const std::vector<std::string>& c = (*i).values();
-    if(c.size() > 1) {
+    if (c.size() > 1) {
         std::ostringstream oss;
         oss << "Parameter '" << name << "' has more than one value";
         throw eckit::UserError(oss.str());
@@ -415,6 +416,15 @@ MarsRequest MarsRequest::parse(const std::string& s) {
     std::vector<MarsRequest> v = parse(in);
     ASSERT(v.size() == 1);
     return v[0];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+MarsRequest::MarsRequest(const eckit::message::Message& message):
+    verb_("message") {
+
+    eckit::message::StringSetter<MarsRequest> setter(*this);
+    message.getMetadata(setter);
+
 }
 
 }  // namespace mars

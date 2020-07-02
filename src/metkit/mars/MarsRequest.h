@@ -22,6 +22,9 @@
 
 namespace eckit {
 class MD5;
+namespace message {
+class Message;
+}
 }
 
 namespace metkit {
@@ -40,6 +43,8 @@ public:  // methods
     MarsRequest(eckit::Stream&, bool lowercase = false);
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
     MarsRequest(const std::string&, const eckit::Value&);
+
+    MarsRequest(const eckit::message::Message&);
 
     ~MarsRequest() = default;
 

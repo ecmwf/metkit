@@ -50,17 +50,7 @@ bool GRIBDecoder::match(const eckit::message::Message& msg) const {
            );
 }
 
-// mars::MarsRequest GRIBDecoder::messageToRequest(const eckit::message::Message& msg) const {
 
-//     const char* p = static_cast<const char*>(msg.data());
-
-//     mars::MarsRequest r(p[0] == 'G' ? "grib" : (p[0] == 'T' ? "tide" : "budg"));
-
-//     data::StringSetter<mars::MarsRequest> setter(r);
-//     getMetadata(msg, setter);
-
-//     return r;
-// }
 
 void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
                               eckit::message::MetadataGatherer& gather) const  {
