@@ -26,7 +26,6 @@ namespace metkit {
 namespace grib {
 
 class GribMetaData;
-class GribDataBlob;
 class GribAccessorBase;
 class GribMutatorBase;
 
