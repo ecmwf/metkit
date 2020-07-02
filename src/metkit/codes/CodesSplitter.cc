@@ -50,7 +50,7 @@ data::Message CodesSplitter::next() {
     if(!data) {
         return data::Message();
     }
-    return data::Message(new MallocDataContent(data, size));
+    return data::Message(new MallocDataContent(data, size, offset));
 
 }
 

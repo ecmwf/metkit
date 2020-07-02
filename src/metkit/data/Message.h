@@ -17,7 +17,6 @@
 #include <iosfwd>
 #include <vector>
 
-typedef struct grib_handle codes_handle;
 
 namespace eckit {
 class DataHandle;

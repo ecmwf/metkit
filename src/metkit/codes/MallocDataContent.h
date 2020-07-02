@@ -17,6 +17,7 @@
 #define metkit_codes_MallocDataContent_H
 
 #include "metkit/codes/DataContent.h"
+#include "eckit/io/Offset.h"
 
 
 namespace metkit {
@@ -25,14 +26,16 @@ namespace codes {
 class MallocDataContent : public DataContent {
 public:
 
-    MallocDataContent(void* data, size_t size);
+    MallocDataContent(void* data, size_t size, const eckit::Offset& offset);
     ~MallocDataContent();
 
 private:
 
     void* buffer_;
+    eckit::Offset offset_;
 
-    virtual void print(std::ostream & s) const;
+    virtual void print(std::ostream & s) const override;
+    virtual eckit::Offset offset() const override;
 
 
 };

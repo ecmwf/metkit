@@ -19,9 +19,10 @@
 namespace metkit {
 namespace codes {
 
-MallocDataContent::MallocDataContent(void* data, size_t size):
+MallocDataContent::MallocDataContent(void* data, size_t size, const eckit::Offset& offset):
     DataContent(data, size),
-    buffer_(data) {
+    buffer_(data),
+    offset_(offset) {
 }
 
 MallocDataContent::~MallocDataContent() {
@@ -30,6 +31,10 @@ MallocDataContent::~MallocDataContent() {
 
 void MallocDataContent::print(std::ostream & s) const {
     s << "MallocDataContent[]";
+}
+
+eckit::Offset MallocDataContent::offset() const {
+    return offset_;
 }
 
 

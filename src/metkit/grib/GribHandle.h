@@ -94,8 +94,6 @@ public: // methods
 
 protected: // methods
 
-    friend class GribDataBlob;
-    friend class GribMetaData;
     friend class GribAccessorBase;
     friend class GribMutatorBase;
     friend class GribIterator;
