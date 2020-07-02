@@ -71,7 +71,8 @@ GribMetaData::GribMetaData(const void* buffer, size_t length) {
         eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
     codes_keys_iterator* ks =
-        codes_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS, gribToRequestNamespace.c_str());
+        codes_keys_iterator_new(h, GRIB_KEYS_ITERATOR_ALL_KEYS,
+            gribToRequestNamespace.c_str());
     ASSERT(ks);
 
     while (codes_keys_iterator_next(ks)) {
