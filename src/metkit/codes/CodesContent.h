@@ -16,12 +16,12 @@
 #ifndef metkit_codes_CodesContent_H
 #define metkit_codes_CodesContent_H
 
-#include "metkit/data/MessageContent.h"
+#include "eckit/message/MessageContent.h"
 
 namespace metkit {
 namespace codes {
 
-class CodesContent : public data::MessageContent {
+class CodesContent : public eckit::message::MessageContent {
 public:
     CodesContent(codes_handle* handle, bool delete_handle);
     explicit CodesContent(const codes_handle* handle);

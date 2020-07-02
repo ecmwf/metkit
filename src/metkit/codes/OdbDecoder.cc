@@ -16,7 +16,7 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
-#include "metkit/data/Message.h"
+#include "eckit/message/Message.h"
 #include "metkit/mars/MarsRequest.h"
 #include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"
@@ -46,7 +46,7 @@ static void init() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-bool OdbDecoder::match(const data::Message& msg) const {
+bool OdbDecoder::match(const eckit::message::Message& msg) const {
     size_t len = msg.length();
     const unsigned char* p = static_cast<const unsigned char*>(msg.data());
     return len >= 5 and (
@@ -80,36 +80,37 @@ public:
 };
 
 
-mars::MarsRequest OdbDecoder::messageToRequest(const data::Message& message) const {
+// mars::MarsRequest OdbDecoder::messageToRequest(const eckit::message::Message& message) const {
 
-    pthread_once(&once, init);
+//     pthread_once(&once, init);
 
-    mars::MarsRequest result("odb");
+//     mars::MarsRequest result("odb");
 
-    std::unique_ptr<eckit::DataHandle> handle(message.readHandle());
-    handle->openForRead();
-    eckit::AutoClose close(*handle);
+//     std::unique_ptr<eckit::DataHandle> handle(message.readHandle());
+//     handle->openForRead();
+//     eckit::AutoClose close(*handle);
 
-    odc::api::Reader reader(*handle);
-    odc::api::Frame frame(reader);
+//     odc::api::Reader reader(*handle);
+//     odc::api::Frame frame(reader);
 
-    std::vector<std::string> columnNames;
-    columnNames.reserve(mapping.size());
-    for (const auto& kv : mapping) {
-        columnNames.push_back(kv.first);
-    }
+//     std::vector<std::string> columnNames;
+//     columnNames.reserve(mapping.size());
+//     for (const auto& kv : mapping) {
+//         columnNames.push_back(kv.first);
+//     }
 
-    MarsRequestSetter setter(result);
+//     MarsRequestSetter setter(result);
 
-    while (frame.next(false)) {
-        odc::api::Span span = frame.span(columnNames, true);
-        span.visit(setter);
-    }
+//     while (frame.next(false)) {
+//         odc::api::Span span = frame.span(columnNames, true);
+//         span.visit(setter);
+//     }
 
-    return result;
-}
+//     return result;
+// }
 
-void OdbDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer&) const {
+void OdbDecoder::getMetadata(const eckit::message::Message& msg,
+                             eckit::message::MetadataGatherer&) const {
     NOTIMP;
 }
 

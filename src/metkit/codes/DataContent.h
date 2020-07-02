@@ -16,13 +16,13 @@
 #ifndef metkit_codes_DataContent_H
 #define metkit_codes_DataContent_H
 
-#include "metkit/data/MessageContent.h"
+#include "eckit/message/MessageContent.h"
 
 
 namespace metkit {
 namespace codes {
 
-class DataContent : public data::MessageContent {
+class DataContent : public eckit::message::MessageContent {
 public:
 
     DataContent(const void* data, size_t size);

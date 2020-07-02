@@ -14,7 +14,7 @@
 #ifndef metkit_CodesSplitter_h
 #define metkit_CodesSplitter_h
 
-#include "metkit/data/Splitter.h"
+#include "eckit/message/Splitter.h"
 
 
 namespace metkit {
@@ -22,7 +22,7 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class CodesSplitter : public data::Splitter {
+class CodesSplitter : public eckit::message::Splitter {
 public:
 
     CodesSplitter(eckit::PeekHandle&);
@@ -34,7 +34,7 @@ private: // members
 
 private: // methods
 
-    virtual data::Message next() override;
+    virtual eckit::message::Message next() override;
     virtual void print(std::ostream&) const override;
 
 };

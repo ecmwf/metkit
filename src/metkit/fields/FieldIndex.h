@@ -14,17 +14,20 @@
 #include "eckit/memory/NonCopyable.h"
 #include "eckit/serialisation/Stream.h"
 
-namespace metkit {
-namespace data {
+namespace eckit {
+namespace message {
 class Message;
 }
+}
+
+namespace metkit {
 namespace fields {
 
 class FieldIndex : private eckit::NonCopyable {
 public:
 
     FieldIndex();
-    FieldIndex(const data::Message&);
+    FieldIndex(const eckit::message::Message&);
 
     FieldIndex(eckit::Stream&);
 

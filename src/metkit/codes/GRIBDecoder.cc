@@ -16,7 +16,7 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
-#include "metkit/data/Message.h"
+#include "eckit/message/Message.h"
 #include "metkit/mars/MarsRequest.h"
 
 
@@ -40,7 +40,7 @@ public:
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-bool GRIBDecoder::match(const data::Message& msg) const {
+bool GRIBDecoder::match(const eckit::message::Message& msg) const {
     size_t len = msg.length();
     const char* p = static_cast<const char*>(msg.data());
     return len >= 4 and (
@@ -50,19 +50,20 @@ bool GRIBDecoder::match(const data::Message& msg) const {
            );
 }
 
-mars::MarsRequest GRIBDecoder::messageToRequest(const data::Message& msg) const {
+// mars::MarsRequest GRIBDecoder::messageToRequest(const eckit::message::Message& msg) const {
 
-    const char* p = static_cast<const char*>(msg.data());
+//     const char* p = static_cast<const char*>(msg.data());
 
-    mars::MarsRequest r(p[0] == 'G' ? "grib" : (p[0] == 'T' ? "tide" : "budg"));
+//     mars::MarsRequest r(p[0] == 'G' ? "grib" : (p[0] == 'T' ? "tide" : "budg"));
 
-    data::StringSetter<mars::MarsRequest> setter(r);
-    getMetadata(msg, setter);
+//     data::StringSetter<mars::MarsRequest> setter(r);
+//     getMetadata(msg, setter);
 
-    return r;
-}
+//     return r;
+// }
 
-void GRIBDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer& gather) const  {
+void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
+                              eckit::message::MetadataGatherer& gather) const  {
 
     static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 

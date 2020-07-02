@@ -101,19 +101,6 @@ list( APPEND metkit_persistent_srcs
 )
 list( APPEND metkit_srcs ${metkit_persistent_srcs} )
 
-list( APPEND metkit_srcs
-    data/Decoder.cc
-    data/Decoder.h
-    data/Message.cc
-    data/Message.h
-    data/Reader.cc
-    data/Reader.h
-    data/Splitter.cc
-    data/Splitter.h
-    data/MessageContent.cc
-    data/MessageContent.h
-)
-
 if ( HAVE_GRIB )
 
     list( APPEND metkit_srcs
@@ -149,14 +136,10 @@ if ( HAVE_GRIB )
         codes/CodesSplitter.h
         grib/GribAccessor.cc
         grib/GribAccessor.h
-        # grib/GribDataBlob.cc
-        # grib/GribDataBlob.h
         grib/GribHandle.cc
         grib/GribHandle.h
         grib/GribIterator.cc
         grib/GribIterator.h
-        # grib/GribMetaData.cc
-        # grib/GribMetaData.h
         )
 
     set( grib_libs eccodes )

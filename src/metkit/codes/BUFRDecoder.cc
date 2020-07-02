@@ -14,7 +14,7 @@
 #include "metkit/codes/BUFRDecoder.h"
 
 #include "eckit/config/Resource.h"
-#include "metkit/data/Message.h"
+#include "eckit/message/Message.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
@@ -37,52 +37,52 @@ public:
 }
 //----------------------------------------------------------------------------------------------------------------------
 
-bool BUFRDecoder::match(const data::Message& msg) const {
+bool BUFRDecoder::match(const eckit::message::Message& msg) const {
     size_t len    = msg.length();
     const char* p = static_cast<const char*>(msg.data());
     return len >= 4 and p[0] == 'B' and p[1] == 'U' and p[2] == 'F' and p[3] == 'R';
 }
 
-mars::MarsRequest BUFRDecoder::messageToRequest(const data::Message& msg) const {
-    static std::string gribToRequestNamespace =
-        eckit::Resource<std::string>("gribToRequestNamespace", "mars");
+// mars::MarsRequest BUFRDecoder::messageToRequest(const eckit::message::Message& msg) const {
+//     static std::string gribToRequestNamespace =
+//         eckit::Resource<std::string>("gribToRequestNamespace", "mars");
 
 
 
-    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
-    ASSERT(h);
-    HandleDeleter d(h);
+//     codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+//     ASSERT(h);
+//     HandleDeleter d(h);
 
-    mars::MarsRequest r("bufr");
+//     mars::MarsRequest r("bufr");
 
-    codes_keys_iterator* ks = codes_keys_iterator_new(h,
-                              GRIB_KEYS_ITERATOR_ALL_KEYS,
-                              gribToRequestNamespace.c_str());
+//     codes_keys_iterator* ks = codes_keys_iterator_new(h,
+//                               GRIB_KEYS_ITERATOR_ALL_KEYS,
+//                               gribToRequestNamespace.c_str());
 
-    ASSERT(ks);
+//     ASSERT(ks);
 
-    while (codes_keys_iterator_next(ks)) {
-        const char* name = codes_keys_iterator_get_name(ks);
+//     while (codes_keys_iterator_next(ks)) {
+//         const char* name = codes_keys_iterator_get_name(ks);
 
-        if (name[0] == '_') {
-            continue;
-        }
+//         if (name[0] == '_') {
+//             continue;
+//         }
 
-        char value[1024];
-        size_t len = sizeof(value);
+//         char value[1024];
+//         size_t len = sizeof(value);
 
-        ASSERT(codes_keys_iterator_get_string(ks, value, &len) == 0);
-        if (*value) {
-            r.setValue(name, value);
-        }
-    }
+//         ASSERT(codes_keys_iterator_get_string(ks, value, &len) == 0);
+//         if (*value) {
+//             r.setValue(name, value);
+//         }
+//     }
 
-    codes_keys_iterator_delete(ks);
+//     codes_keys_iterator_delete(ks);
 
-    return r;
-}
+//     return r;
 
-void BUFRDecoder::getMetadata(const data::Message& msg, data::MetadataGatherer&) const {
+void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
+                              eckit::message::MetadataGatherer&) const {
     NOTIMP;
 }
 

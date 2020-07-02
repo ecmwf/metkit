@@ -12,7 +12,7 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/StringTools.h"
-#include "metkit/data/Message.h"
+#include "eckit/message/Message.h"
 
 #include "metkit/fields/FieldIndex.h"
 
@@ -55,8 +55,8 @@ FieldIndex::FieldIndex(eckit::Stream& s) {
     }
 }
 
-FieldIndex::FieldIndex(const data::Message& message) {
-    data::TypedSetter<FieldIndex> gather(*this);
+FieldIndex::FieldIndex(const eckit::message::Message& message) {
+    eckit::message::TypedSetter<FieldIndex> gather(*this);
     message.getMetadata(gather);
 }
 

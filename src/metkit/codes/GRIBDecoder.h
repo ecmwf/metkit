@@ -14,28 +14,24 @@
 #ifndef metkit_GRIBDecoder_h
 #define metkit_GRIBDecoder_h
 
-#include "metkit/data/Decoder.h"
+#include "eckit/message/Decoder.h"
 
 
 namespace metkit {
-namespace data {
-class MetadataGatherer;
-}
-
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class GRIBDecoder : public data::Decoder {
+class GRIBDecoder : public eckit::message::Decoder {
 public: // methods
 
 
 private: // methods
 
-    virtual bool match(const data::Message&) const override;
+    virtual bool match(const eckit::message::Message&) const override;
     virtual void print(std::ostream&) const override;
-    virtual mars::MarsRequest messageToRequest(const data::Message&) const override;
-    virtual void getMetadata(const data::Message& msg, data::MetadataGatherer&) const override;
+    virtual void getMetadata(const eckit::message::Message& msg,
+                             eckit::message::MetadataGatherer&) const override;
 
 };
 

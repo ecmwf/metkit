@@ -16,13 +16,13 @@
 #ifndef metkit_codes_OdbContent_H
 #define metkit_codes_OdbContent_H
 
-#include "metkit/data/MessageContent.h"
+#include "eckit/message/MessageContent.h"
 #include "eckit/io/ResizableBuffer.h"
 
 namespace metkit {
 namespace codes {
 
-class OdbContent : public data::MessageContent {
+class OdbContent : public eckit::message::MessageContent {
 public:
     OdbContent(eckit::DataHandle&, size_t size);
     ~OdbContent();
