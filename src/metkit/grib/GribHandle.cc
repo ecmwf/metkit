@@ -17,8 +17,6 @@
 #include "eckit/io/StdFile.h"
 
 #include "metkit/grib/GribAccessor.h"
-// #include "metkit/grib/GribDataBlob.h"
-// #include "metkit/grib/GribMetaData.h"
 
 using namespace std;
 
