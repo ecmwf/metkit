@@ -17,12 +17,14 @@
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/message/Message.h"
-#include "metkit/mars/MarsRequest.h"
 #include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/types/Types.h"
 #include "eckit/utils/StringTools.h"
+
+#include "metkit/mars/MarsRequest.h"
+
 #include "odc/api/Odb.h"
 
 namespace metkit {
