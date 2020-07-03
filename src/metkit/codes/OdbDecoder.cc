@@ -80,38 +80,33 @@ public:
 };
 
 
-// mars::MarsRequest OdbDecoder::messageToRequest(const eckit::message::Message& message) const {
-
-//     pthread_once(&once, init);
-
-//     mars::MarsRequest result("odb");
-
-//     std::unique_ptr<eckit::DataHandle> handle(message.readHandle());
-//     handle->openForRead();
-//     eckit::AutoClose close(*handle);
-
-//     odc::api::Reader reader(*handle);
-//     odc::api::Frame frame(reader);
-
-//     std::vector<std::string> columnNames;
-//     columnNames.reserve(mapping.size());
-//     for (const auto& kv : mapping) {
-//         columnNames.push_back(kv.first);
-//     }
-
-//     MarsRequestSetter setter(result);
-
-//     while (frame.next(false)) {
-//         odc::api::Span span = frame.span(columnNames, true);
-//         span.visit(setter);
-//     }
-
-//     return result;
-// }
-
 void OdbDecoder::getMetadata(const eckit::message::Message& msg,
                              eckit::message::MetadataGatherer&) const {
-    NOTIMP;
+    pthread_once(&once, init);
+
+    mars::MarsRequest result("odb");
+
+    std::unique_ptr<eckit::DataHandle> handle(msg.readHandle());
+    handle->openForRead();
+    eckit::AutoClose close(*handle);
+
+    odc::api::Reader reader(*handle);
+    odc::api::Frame frame;
+
+    std::vector<std::string> columnNames;
+    columnNames.reserve(mapping.size());
+    for (const auto& kv : mapping) {
+        columnNames.push_back(kv.first);
+    }
+
+    MarsRequestSetter setter(result);
+
+    while ((frame = reader.next())) {
+        odc::api::Span span = frame.span(columnNames, true);
+        span.visit(setter);
+    }
+
+    // return result;
 }
 
 
