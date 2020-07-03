@@ -33,9 +33,9 @@ eckit::message::Message OdbSplitter::next() {
     eckit::SeekableHandle f(handle_);
 
     odc::api::Reader reader(f);
-    odc::api::Frame frame(reader);
+    odc::api::Frame frame = reader.next();
 
-    if (!frame.next(false)) {
+    if (!frame) {
         return eckit::message::Message();
     }
 

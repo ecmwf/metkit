@@ -122,9 +122,10 @@ OdbToRequest::~OdbToRequest() {}
 
 std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
     LOG_DEBUG_LIB(LibMetkit) << "OdbToRequest::odbToRequest() dh: " << dh << std::endl;
-
-    Reader o(dh);
-    Frame f(o);
+NOTIMP;
+#if 0
+    Reader reader(dh);
+    Frame frame;
 
     std::vector<MarsRequest> requests;
 
@@ -136,8 +137,8 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
     MarsLanguage language(verb_);
 
-    while (f.next(false)) {
-        Span span = f.span(columnNames, onlyConstantColumns_);
+    while ( (frame = reader.next() )) {
+        Span span = frame.span(columnNames, onlyConstantColumns_);
 
         MarsRequest r(verb_);
         MarsRequestSetter setter(r, language, mapping_);
@@ -151,6 +152,7 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
         }
     }
     return requests;
+#endif
 }
 
 //----------------------------------------------------------------------------------------------------------------------
