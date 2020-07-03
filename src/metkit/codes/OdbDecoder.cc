@@ -55,36 +55,37 @@ bool OdbDecoder::match(const eckit::message::Message& msg) const {
 }
 
 
-class MarsRequestSetter : public odc::api::SpanVisitor {
+class GatherSetter : public odc::api::SpanVisitor {
 
-    mars::MarsRequest& request_;
+    eckit::message::MetadataGatherer& gather_;
 
 public:
-    MarsRequestSetter(mars::MarsRequest& request): request_(request) {}
+    GatherSetter(eckit::message::MetadataGatherer& gather): gather_(gather) {}
 
-    virtual void operator()(const std::string& columnName, const std::set<long>& vals) {
+    virtual void operator()(const std::string& columnName,
+                            const std::set<long>& vals) {
         ASSERT(vals.size() == 1);
-        request_.setValue(mapping[columnName], *vals.begin());
+        gather_.setValue(mapping[columnName], *vals.begin());
     }
 
-    virtual void operator()(const std::string& columnName, const std::set<double>& vals) {
+    virtual void operator()(const std::string& columnName,
+                            const std::set<double>& vals) {
         ASSERT(vals.size() == 1);
-        request_.setValue(mapping[columnName], *vals.begin());
+        gather_.setValue(mapping[columnName], *vals.begin());
     }
 
-    virtual void operator()(const std::string& columnName, const std::set<std::string>& vals) {
+    virtual void operator()(const std::string& columnName,
+                            const std::set<std::string>& vals) {
         ASSERT(vals.size() == 1);
-        request_.setValue(mapping[columnName], eckit::StringTools::trim(*vals.begin()));
+        gather_.setValue(mapping[columnName], eckit::StringTools::trim(*vals.begin()));
     }
 
 };
 
 
 void OdbDecoder::getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const {
+                             eckit::message::MetadataGatherer& gather) const {
     pthread_once(&once, init);
-
-    mars::MarsRequest result("odb");
 
     std::unique_ptr<eckit::DataHandle> handle(msg.readHandle());
     handle->openForRead();
@@ -99,14 +100,13 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
         columnNames.push_back(kv.first);
     }
 
-    MarsRequestSetter setter(result);
+    GatherSetter setter(gather);
 
     while ((frame = reader.next())) {
         odc::api::Span span = frame.span(columnNames, true);
         span.visit(setter);
     }
 
-    // return result;
 }
 
 
