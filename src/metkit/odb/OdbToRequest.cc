@@ -122,9 +122,8 @@ OdbToRequest::~OdbToRequest() {}
 
 std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
     LOG_DEBUG_LIB(LibMetkit) << "OdbToRequest::odbToRequest() dh: " << dh << std::endl;
-NOTIMP;
-#if 0
-    Reader reader(dh);
+
+    Reader reader(dh, false);
     Frame frame;
 
     std::vector<MarsRequest> requests;
@@ -152,7 +151,6 @@ NOTIMP;
         }
     }
     return requests;
-#endif
 }
 
 //----------------------------------------------------------------------------------------------------------------------

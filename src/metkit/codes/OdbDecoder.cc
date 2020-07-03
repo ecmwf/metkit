@@ -93,7 +93,7 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
     handle->openForRead();
     eckit::AutoClose close(*handle);
 
-    odc::api::Reader reader(*handle);
+    odc::api::Reader reader(*handle, false);
     odc::api::Frame frame;
 
     std::vector<std::string> columnNames;
