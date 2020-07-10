@@ -30,6 +30,7 @@ def main():
 
     # Manually add type=tf parameters for PGEN
     index[('oper', 'tf', '')] = [129, 999]
+    index[('scda', 'tf', '')] = [129, 999]
     index[('enfo', 'tf', '')] = [129, 999]
 
     yaml_dump_data = []
