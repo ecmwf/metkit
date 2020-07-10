@@ -6571,6 +6571,10 @@
     - 200138
     - 200152
     - 200155
+- - stream: scda
+    type: tf
+  - - 129
+    - 999
 - - levtype: sfc
     stream: scwv
     type: 4v
