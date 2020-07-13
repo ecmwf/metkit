@@ -817,13 +817,16 @@ _postproc: &_postproc
     - auto
     - N32
     - N48
+    - N64
     - N80
+    - N96
     - N128
     - N160
     - N200
     - N256
     - N320
     - N400
+    - N512
     - N640
     - N1280
     regex:
@@ -877,12 +880,20 @@ _postproc: &_postproc
     values:
     - 'off'
     - auto
-    - N160
-    - N400
-    - N320
-    - N200
+    - N32
+    - N48
+    - N64
     - N80
+    - N96
+    - N128
+    - N160
+    - N200
+    - N256
+    - N320
+    - N400
+    - N512
     - N640
+    - N1280
     regex:
     - '^[oOfF][1-9][0-9]+$'
 
