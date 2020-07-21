@@ -29,31 +29,10 @@ static std::vector<ParamID::WindFamily> windFamilies_;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static eckit::PathName mars_wind_path() {
-
-    eckit::PathName marsWindPath = eckit::Resource<eckit::PathName>("$MARS_WIND_PATH", "~metkit/share/metkit/wind");
-    if (marsWindPath.exists()) {
-        return marsWindPath;
-    }
-
-    marsWindPath = "~metkit/etc/mars/wind";
-    if (marsWindPath.exists()) {
-        return marsWindPath;
-    }
-
-    marsWindPath = "~mars/etc/mars/wind";
-    if (eckit::system::Library::exists("mars") && marsWindPath.exists()) {
-        return marsWindPath;
-    }
-
-    // try legacy location for the path (error will be issued by caller)
-    return "~/mars/wind";
-}
-
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static void readTable()
 {
-    eckit::PathName path = mars_wind_path();
+    eckit::PathName path = eckit::Resource<eckit::PathName>("metkitWindPath;$MARS_WIND_PATH", "~metkit/share/metkit/wind")
 
     eckit::Log::debug<LibMetkit>() << "Parsing MARS wind " << path << std::endl;
 
