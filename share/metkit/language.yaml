@@ -369,10 +369,8 @@ _field: &_field
 
   levtype:
     category: data
-    # CH/SW6/req/curr/N5 has 2 levtype
     default: pl
     flatten: false
-    multiple: true
     type: enum
     values:
     - [cat, category]
