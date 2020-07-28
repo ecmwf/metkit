@@ -967,9 +967,6 @@ disseminate:
     flatten: false
     type: integer
 
-  projection:
-    type: any
-
   target:
     flatten: false
     type: any
