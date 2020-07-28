@@ -963,9 +963,6 @@ disseminate:
     type: enum
     values: ['off', 'no-local-extension', 'prodgen-areas', 'large-constant-fields']
 
-  country:
-    type: any
-
   priority:
     flatten: false
     type: integer
