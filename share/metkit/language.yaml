@@ -940,14 +940,6 @@ disseminate:
     values:
     - bin
 
-  application:
-    type: enum
-    default: "off"
-    values:
-      - "off"
-      - [prodgen, pg1, prodgen1, pgen1, product generation 1]
-      - [pgen, pg2, prodgen2, pgen2, product generation 2]
-
   option:
     default: normal
     flatten: false
