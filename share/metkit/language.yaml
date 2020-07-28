@@ -971,13 +971,6 @@ disseminate:
     flatten: false
     type: any
 
-  padding:
-    flatten: false
-    type: enum
-    values:
-    - none
-    - auto
-
 ##############################################################
 
 archive:
