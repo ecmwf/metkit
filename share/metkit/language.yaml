@@ -935,10 +935,6 @@ disseminate:
     - [thursday, mt, monthly run thursday, monthly thursday]
     - [monday, mm, monthly run monday, monthly monday]
 
-  catn:
-    flatten: false
-    type: integer
-
   file:
     type: enum
     values:
