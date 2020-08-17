@@ -41,10 +41,9 @@ public:
 
     void encode(eckit::Stream&) const;
 
-    // -----
     void setValue(const std::string& name, double value);
     void setValue(const std::string& name, long value);
-    void setValue(const std::string& name, const std::string value);
+    void setValue(const std::string& name, const std::string& value);
 
 protected: // members
 
