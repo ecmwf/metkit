@@ -32,7 +32,7 @@ static std::vector<ParamID::WindFamily> windFamilies_;
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static void readTable()
 {
-    eckit::PathName path = eckit::Resource<eckit::PathName>("marsWindPath;$MARS_WIND_PATH", "~metkit/share/metkit/wind")
+    eckit::PathName path = eckit::Resource<eckit::PathName>("marsWindPath;$MARS_WIND_PATH", "~metkit/share/metkit/wind");
 
     eckit::Log::debug<LibMetkit>() << "Parsing MARS wind " << path << std::endl;
 
