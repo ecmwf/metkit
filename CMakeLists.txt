@@ -23,14 +23,14 @@ ecbuild_add_option( FEATURE EXPERIMENTAL
 ecbuild_add_option( FEATURE GRIB
                     DEFAULT ON
                     DESCRIPTION "Add support for GRIB format (grib_api not supported)"
-                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.5" )
+                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.5" )
 
 # BUFR support
 
 ecbuild_add_option( FEATURE BUFR
                     DEFAULT OFF
                     DESCRIPTION "Add support for BUFR4 format"
-                    REQUIRED_PACKAGES "PROJECT eccodes VERSION 2.8" )
+                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.8" )
 
 # netcdf support
 
@@ -46,7 +46,7 @@ ecbuild_add_option( FEATURE NETCDF
 ecbuild_add_option( FEATURE ODB
                     DEFAULT ON
                     DESCRIPTION "Add support for ODB data"
-                    REQUIRED_PACKAGES "PROJECT odc VERSION 1.0" )
+                    REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
 # eckit
 
