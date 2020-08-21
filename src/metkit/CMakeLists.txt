@@ -182,15 +182,14 @@ ecbuild_add_library(
         ${metkit_srcs}
 
     PRIVATE_INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
-        ${ECCODES_INCLUDE_DIRS}
-        ${NETCDF_INCLUDE_DIRS}
-        ${ODC_INCLUDE_DIRS}
+        "${NETCDF_INCLUDE_DIRS}"
 
-    LIBS
-        eckit eckit_option
-        ${odc_libs}
-        ${grib_libs}
-        ${netcdflibs}
+    PRIVATE_LIBS
+        "${netcdflibs}"
+
+    PUBLIC_LIBS
+        eckit
+        eckit_option
+        "${odc_libs}"
+        "${grib_libs}"
 )
-
