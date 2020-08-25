@@ -1,14 +1,8 @@
 cmake_minimum_required( VERSION 3.12 FATAL_ERROR )
 
+find_package( ecbuild 3.4 REQUIRED )
+
 project( metkit LANGUAGES CXX )
-
-set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild/cmake")
-
-include( ecbuild_system NO_POLICY_SCOPE )
-
-ecbuild_requires_macro_version( 3.4 )
-
-ecbuild_declare_project()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
