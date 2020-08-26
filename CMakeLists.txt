@@ -1,3 +1,13 @@
+# (C) Copyright 2011- ECMWF.
+#
+# This software is licensed under the terms of the Apache Licence Version 2.0
+# which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+# In applying this licence, ECMWF does not waive the privileges and immunities
+# granted to it by virtue of its status as an intergovernmental organisation nor
+# does it submit to any jurisdiction.
+
+########################################################################################################################
+
 cmake_minimum_required( VERSION 3.12 FATAL_ERROR )
 
 find_package( ecbuild 3.4 REQUIRED )
@@ -7,6 +17,7 @@ project( metkit LANGUAGES CXX )
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+########################################################################################################################
 ### dependencies and options
 
 ecbuild_add_option( FEATURE EXPERIMENTAL
@@ -48,21 +59,14 @@ set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b
 
 ecbuild_find_package( NAME eckit  VERSION  1.11 REQUIRED )
 
-### export package info
-
-set( METKIT_INCLUDE_DIRS   ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/src )
-set( METKIT_LIBRARIES      metkit )
-
-get_directory_property( METKIT_DEFINITIONS COMPILE_DEFINITIONS )
-
-### sources
-
-include_directories( ${METKIT_INCLUDE_DIRS} )
+############################################################################################
+# sources
 
 add_subdirectory( src )
 add_subdirectory( share )
 
-### finalize project
+############################################################################################
+# finalize
 
 ecbuild_pkgconfig( NAME metkit
                    DESCRIPTION "ECMWF Meteorological toolkit"
