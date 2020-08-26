@@ -9,7 +9,7 @@
  */
 
 
-#include <eccodes.h>
+#include "eccodes.h"
 
 #include "metkit/codes/BUFRDecoder.h"
 

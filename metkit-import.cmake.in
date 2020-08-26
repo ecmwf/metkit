@@ -1,11 +1,14 @@
+set( metkit_HAVE_GRIB @metkit_HAVE_GRIB@ )
+set( metkit_HAVE_ODB  @metkit_HAVE_ODB@  )
+
 include( CMakeFindDependencyMacro )
 
-find_dependency( eckit HINTS ${CMAKE_CURRENT_LIST_DIR}/../eckit @eckit_DIR@ @eckit_BINARY_DIR@ )
+find_dependency( eckit HINTS ${CMAKE_CURRENT_LIST_DIR}/../eckit @eckit_DIR@ )
 
 if( metkit_HAVE_GRIB )
-  find_dependency( eccodes HINTS ${CMAKE_CURRENT_LIST_DIR}/../metkit @metkit_DIR@ @metkit_BINARY_DIR@ )
+  find_dependency( eccodes HINTS ${CMAKE_CURRENT_LIST_DIR}/../eccodes @metkit_DIR@ )
 endif()
 
 if( metkit_HAVE_ODB )
-  find_dependency( odc HINTS ${CMAKE_CURRENT_LIST_DIR}/../odc @odc_DIR@ @odc_BINARY_DIR@ )
+  find_dependency( odc HINTS ${CMAKE_CURRENT_LIST_DIR}/../odc @odc_DIR@ )
 endif()

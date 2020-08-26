@@ -195,5 +195,5 @@ ecbuild_add_library(
     PUBLIC_LIBS
         eckit
         eckit_option
-        "${grib_libs}"
+        ${grib_libs}
 )
