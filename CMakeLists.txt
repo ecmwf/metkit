@@ -43,7 +43,6 @@ ecbuild_add_option( FEATURE NETCDF
   DEFAULT ON
   DESCRIPTION "Support for NetCDF data"
   REQUIRED_PACKAGES NetCDF
-  NO_TPL
 )
 
 # ODB support
