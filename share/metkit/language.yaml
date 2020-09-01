@@ -948,13 +948,8 @@ disseminate:
     values:
     - normal
     - delay
-    - wmoe
+    - asap
     - gts
-    - tcpip
-    - nobackup
-    - grib1table1
-    - xmaster
-    - [asap, early delivery]
 
   compatibility:
     category: postproc
