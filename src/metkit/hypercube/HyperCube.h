@@ -30,14 +30,6 @@ namespace hypercube {
 
 class Axis;
 
-//class Sortable {
-//    virtual bool operator < (const Sortable& el) const = 0;
-
-//private:
-//    metkit::mars::MarsRequest request_;
-
-//};
-
 class HyperCube {
 public:
     HyperCube(const metkit::mars::MarsRequest&);
@@ -47,8 +39,11 @@ public:
     bool clear(const metkit::mars::MarsRequest&);
 
     size_t count() const;
-    size_t fieldOrder(const metkit::mars::MarsRequest&, bool noholes = true) const;
 
+    size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
+
+protected:
+    int indexOf(const metkit::mars::MarsRequest&) const;
     metkit::mars::MarsRequest requestOf(size_t index) const;
 
 private:
@@ -58,7 +53,6 @@ private:
     eckit::HyperCube cube_;
     size_t count_;
 
-    int indexOf(const metkit::mars::MarsRequest&) const;
 
     void print(std::ostream&) const;
 
@@ -70,40 +64,72 @@ private:
 
 
 template <typename T>
-class HyperCubeData {
+class HyperCubeEntry {
 public:
-    HyperCubeData(metkit::mars::MarsRequest request, std::chrono::system_clock::time_point timestamp, T data) :
-        request_(request), timestamp_(timestamp), data_(data) {}
+    HyperCubeEntry(metkit::mars::MarsRequest request,
+                  std::chrono::system_clock::time_point timestamp,
+                  T payload) :
+        request_(request), timestamp_(timestamp), payload_(payload) {}
 
-    metkit::mars::MarsRequest request() const { return request_; }
-    std::chrono::system_clock::time_point timestamp() const { return timestamp_; }
-    T data() const { return data_; }
+    const metkit::mars::MarsRequest& request() const { return request_; }
+    const std::chrono::system_clock::time_point& timestamp() const { return timestamp_; }
+    T payload() const { return payload_; }
 
-    static std::vector<HyperCubeData<T>> assemble(const metkit::mars::MarsRequest& request, std::set<std::vector<HyperCubeData<T>>> datasets) {
-        std::vector<HyperCubeData> out;
-
-        HyperCube order(request);
-        for (int i =0; i<order.count(); i++)
-            out.push_back(HyperCubeData<T>(order.requestOf(i), std::chrono::system_clock::time_point{}, nullptr));
-
-        for (auto datalist: datasets) {
-            for (auto data: datalist) {
-                size_t i = order.fieldOrder(data.request(), false);
-                if (out[i].data_ == nullptr || out[i].timestamp() < data.timestamp())
-                    out[i] = data;
-            }
-        }
-        return out;
-    }
-
-    bool operator < (const HyperCubeData& el) const { return true; }
+//    bool operator < (const HyperCubeData& el) const { return true; }
 
 private:
     metkit::mars::MarsRequest request_;
     std::chrono::system_clock::time_point timestamp_;
-    T data_;
+    T payload_;
 };
 
+
+template <typename T>
+class HyperCubePlusPayload : public HyperCube {
+public:
+    HyperCubePlusPayload(const metkit::mars::MarsRequest& request) : HyperCube(request) {
+
+        entries_ = std::vector<HyperCubeEntry<T>>();
+
+        for (int i=0; i<count(); i++)
+            entries_.push_back(HyperCubeEntry<T>(requestOf(i), std::chrono::system_clock::time_point{}, nullptr));
+    }
+
+
+    void add(const HyperCubeEntry<T>& entry) {
+
+        int idx = indexOf(entry.request());
+
+        ASSERT(0 <= idx);
+        ASSERT(idx < entries_.size());
+
+        if (entries_[idx].payload() == nullptr) {
+            entries_[idx] = entry;
+        } else {
+            if (entries_[idx].timestamp() < entry.timestamp()) {
+                printOlder(entries_[idx], entry);
+                entries_[idx] = entry;
+            } else {
+                printOlder(entry, entries_[idx]);
+            }
+        }
+    }
+
+    const HyperCubeEntry<T>& at(size_t idx) {
+        ASSERT(0 <= idx);
+        ASSERT(idx < entries_.size());
+        return entries_[idx];
+    }
+
+private:
+    static void printOlder(const HyperCubeEntry<T>& older, const HyperCubeEntry<T>& newer) {
+        std::cout << "Dropping payload associated with request " << older.request() << " since its timestamp is " << std::chrono::system_clock::to_time_t(older.timestamp())
+                  << " < " << std::chrono::system_clock::to_time_t(newer.timestamp()) << std::endl;
+    }
+
+private:
+    std::vector<HyperCubeEntry<T>> entries_;
+};
 
 }  // namespace hypercube
 }  // namespace metkit

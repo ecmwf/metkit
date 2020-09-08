@@ -181,7 +181,7 @@ size_t HyperCube::count() const {
     return count_;
 }
 
-size_t HyperCube::fieldOrder(const metkit::mars::MarsRequest& r, bool noholes) const {
+size_t HyperCube::fieldOrdinal(const metkit::mars::MarsRequest& r, bool noholes) const {
     int idx = indexOf(r);
     ASSERT(idx >= 0);
     if (noholes) {
