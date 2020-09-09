@@ -10,7 +10,7 @@
 
 #include <algorithm>
 
-#include <eccodes.h>
+#include "eccodes.h"
 
 #include "metkit/codes/OdbDecoder.h"
 

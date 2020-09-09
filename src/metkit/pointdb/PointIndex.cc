@@ -20,7 +20,7 @@
 // #include "eckit/io/StdFile.h"
 #include "eckit/config/Resource.h"
 
-// #include <eccodes.h>
+// #include "eccodes.h"
 
 using namespace eckit;
 

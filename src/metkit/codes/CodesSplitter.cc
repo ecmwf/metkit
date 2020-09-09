@@ -10,7 +10,7 @@
 
 
 
-#include <eccodes.h>
+#include "eccodes.h"
 
 #include "metkit/codes/CodesSplitter.h"
 #include "metkit/codes/CodesContent.h"

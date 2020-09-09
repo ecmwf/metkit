@@ -24,7 +24,7 @@
 #include "metkit/grib/GribHandle.h"
 
 
-#include <eccodes.h>
+#include "eccodes.h"
 
 namespace metkit {
 namespace codes {
