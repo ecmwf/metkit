@@ -22,6 +22,7 @@
 
 #include "eckit/utils/HyperCube.h"
 
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsRequest.h"
 
 
@@ -123,7 +124,7 @@ public:
 
 private:
     static void printOlder(const HyperCubeEntry<T>& older, const HyperCubeEntry<T>& newer) {
-        std::cout << "Dropping payload associated with request " << older.request() << " since its timestamp is " << std::chrono::system_clock::to_time_t(older.timestamp())
+        eckit::Log::debug<LibMetkit>() << "Dropping payload associated with request " << older.request() << " since its timestamp is " << std::chrono::system_clock::to_time_t(older.timestamp())
                   << " < " << std::chrono::system_clock::to_time_t(newer.timestamp()) << std::endl;
     }
 
