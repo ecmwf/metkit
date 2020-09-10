@@ -369,10 +369,8 @@ _field: &_field
 
   levtype:
     category: data
-    # CH/SW6/req/curr/N5 has 2 levtype
     default: pl
     flatten: false
-    multiple: true
     type: enum
     values:
     - [cat, category]
@@ -927,6 +925,7 @@ disseminate:
     type: any
 
   use:
+    category: data
     flatten: false
     multiple: true
     type: enum
@@ -936,22 +935,10 @@ disseminate:
     - [thursday, mt, monthly run thursday, monthly thursday]
     - [monday, mm, monthly run monday, monthly monday]
 
-  catn:
-    flatten: false
-    type: integer
-
   file:
     type: enum
     values:
     - bin
-
-  application:
-    type: enum
-    default: "off"
-    values:
-      - "off"
-      - [prodgen, pg1, prodgen1, pgen1, product generation 1]
-      - [pgen, pg2, prodgen2, pgen2, product generation 2]
 
   option:
     default: normal
@@ -961,13 +948,8 @@ disseminate:
     values:
     - normal
     - delay
-    - wmoe
+    - asap
     - gts
-    - tcpip
-    - nobackup
-    - grib1table1
-    - xmaster
-    - [asap, early delivery]
 
   compatibility:
     category: postproc
@@ -976,26 +958,13 @@ disseminate:
     type: enum
     values: ['off', 'no-local-extension', 'prodgen-areas', 'large-constant-fields']
 
-  country:
-    type: any
-
   priority:
     flatten: false
     type: integer
 
-  projection:
-    type: any
-
   target:
     flatten: false
     type: any
-
-  padding:
-    flatten: false
-    type: enum
-    values:
-    - none
-    - auto
 
 ##############################################################
 
