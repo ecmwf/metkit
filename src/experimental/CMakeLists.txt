@@ -9,9 +9,8 @@ ecbuild_add_executable(
 
     INCLUDES
         ${ECKIT_INCLUDE_DIRS}
-        ${NETCDF_INCLUDE_DIRS}
 
     LIBS
         eckit
-        ${NETCDF_LIBRARIES}
+        NetCDF::NetCDF_C
 )

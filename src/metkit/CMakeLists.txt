@@ -185,11 +185,7 @@ ecbuild_add_library(
        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src>
        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 
-    PRIVATE_INCLUDES
-        "${NETCDF_INCLUDE_DIRS}"
-
     PRIVATE_LIBS
-        "${netcdflibs}"
         "${odc_libs}"
 
     PUBLIC_LIBS
