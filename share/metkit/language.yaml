@@ -931,14 +931,8 @@ disseminate:
     type: enum
     values:
     - bc
-    - daily
-    - [thursday, mt, monthly run thursday, monthly thursday]
-    - [monday, mm, monthly run monday, monthly monday]
-
-  file:
-    type: enum
-    values:
-    - bin
+    - thursday
+    - monday
 
   option:
     default: normal
@@ -956,7 +950,9 @@ disseminate:
     flatten: false
     multiple: true
     type: enum
-    values: ['off', 'no-local-extension', 'prodgen-areas', 'large-constant-fields']
+    values:
+    - 'off'
+    - 'no-local-extension'
 
   priority:
     flatten: false
