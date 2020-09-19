@@ -42,6 +42,7 @@ public:
     size_t count() const;
 
     size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
+    metkit::mars::MarsRequest request() const;
 
 protected:
     int indexOf(const metkit::mars::MarsRequest&) const;
@@ -63,55 +64,56 @@ private:
     }
 };
 
+template <typename T>
+class Deduplicator {
+public:
+    virtual bool empty(T) const = 0;
+    virtual bool replace(T existing, T replacement) const = 0;
+};
 
 template <typename T>
 class HyperCubeEntry {
 public:
-    HyperCubeEntry(metkit::mars::MarsRequest request,
-                  std::chrono::system_clock::time_point timestamp,
+    HyperCubeEntry(const metkit::mars::MarsRequest& request,
                   T payload) :
-        request_(request), timestamp_(timestamp), payload_(payload) {}
+        request_(request), payload_(payload) {}
 
     const metkit::mars::MarsRequest& request() const { return request_; }
-    const std::chrono::system_clock::time_point& timestamp() const { return timestamp_; }
+    void payload(T p) { payload_ = p; }
     T payload() const { return payload_; }
-
-//    bool operator < (const HyperCubeData& el) const { return true; }
 
 private:
     metkit::mars::MarsRequest request_;
-    std::chrono::system_clock::time_point timestamp_;
     T payload_;
 };
 
-
 template <typename T>
-class HyperCubePlusPayload : public HyperCube {
+class HyperCubeContent : public HyperCube {
 public:
-    HyperCubePlusPayload(const metkit::mars::MarsRequest& request) : HyperCube(request) {
+    HyperCubeContent(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
+        HyperCube(request), deduplicator_(deduplicator) {
 
         entries_ = std::vector<HyperCubeEntry<T>>();
 
         for (int i=0; i<count(); i++)
-            entries_.push_back(HyperCubeEntry<T>(requestOf(i), std::chrono::system_clock::time_point{}, nullptr));
+            entries_.push_back(HyperCubeEntry<T>(requestOf(i), T()));
     }
 
 
-    void add(const HyperCubeEntry<T>& entry) {
+    void add(const metkit::mars::MarsRequest& request, T payload) {
 
-        int idx = indexOf(entry.request());
+        ASSERT(!deduplicator_.empty(payload));
+
+        int idx = indexOf(request);
 
         ASSERT(0 <= idx);
         ASSERT(idx < entries_.size());
 
-        if (entries_[idx].payload() == nullptr) {
-            entries_[idx] = entry;
+        if (deduplicator_.empty(entries_[idx].payload())) {
+            entries_[idx].payload(payload);
         } else {
-            if (entries_[idx].timestamp() < entry.timestamp()) {
-                printOlder(entries_[idx], entry);
-                entries_[idx] = entry;
-            } else {
-                printOlder(entry, entries_[idx]);
+            if (deduplicator_.replace(entries_[idx].payload(), payload)) {
+                entries_[idx].payload(payload);
             }
         }
     }
@@ -123,12 +125,7 @@ public:
     }
 
 private:
-    static void printOlder(const HyperCubeEntry<T>& older, const HyperCubeEntry<T>& newer) {
-        eckit::Log::debug<LibMetkit>() << "Dropping payload associated with request " << older.request() << " since its timestamp is " << std::chrono::system_clock::to_time_t(older.timestamp())
-                  << " < " << std::chrono::system_clock::to_time_t(newer.timestamp()) << std::endl;
-    }
-
-private:
+    const Deduplicator<T>& deduplicator_;
     std::vector<HyperCubeEntry<T>> entries_;
 };
 

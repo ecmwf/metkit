@@ -145,13 +145,13 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
         const std::vector<std::string>& values = r.values(a->name(), true);
         if (values.size() == 0) {
             std::ostringstream oss;
-            oss << "HyperCube::indexOf no value for [" << a->name() << "]";
+            oss << "HyperCube::indexOf no value for [" << a->name() << "] in request " << r;
             throw eckit::UserError(oss.str());
         }
 
         if (values.size() > 1) {
             std::ostringstream oss;
-            oss << "HyperCube::indexOf too many values for [" << a->name() << "]";
+            oss << "HyperCube::indexOf too many values for [" << a->name() << "] in request " << r;
             throw eckit::UserError(oss.str());
         }
 
@@ -164,6 +164,17 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
     }
 
     return cube_.index(coords);
+}
+
+metkit::mars::MarsRequest HyperCube::request() const {
+    metkit::mars::MarsRequest request("retrieve");
+    std::vector<eckit::Ordinal> coords(axes_.size());
+
+//    cube_.coordinates(index, coords);
+    for (size_t i=0; i<axes_.size(); i++) {
+        request.setValue(axes_[i]->name(), axes_[i]->valueOf(coords[i]));
+    }
+    return request;
 }
 
 metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
