@@ -40,9 +40,10 @@ public:
     bool clear(const metkit::mars::MarsRequest&);
 
     size_t count() const;
+    size_t size() const {return cube_.count(); }
 
     size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
-    metkit::mars::MarsRequest request() const;
+    std::set<metkit::mars::MarsRequest> request() const;
 
 protected:
     int indexOf(const metkit::mars::MarsRequest&) const;
@@ -111,6 +112,7 @@ public:
 
         if (deduplicator_.empty(entries_[idx].payload())) {
             entries_[idx].payload(payload);
+            clear(request);
         } else {
             if (deduplicator_.replace(entries_[idx].payload(), payload)) {
                 entries_[idx].payload(payload);

@@ -166,15 +166,72 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
     return cube_.index(coords);
 }
 
-metkit::mars::MarsRequest HyperCube::request() const {
-    metkit::mars::MarsRequest request("retrieve");
-    std::vector<eckit::Ordinal> coords(axes_.size());
+enum requestRelation {
+    EMBEDDED,
+    ADIACENT,
+    DISJOINT
+};
 
-//    cube_.coordinates(index, coords);
-    for (size_t i=0; i<axes_.size(); i++) {
-        request.setValue(axes_[i]->name(), axes_[i]->valueOf(coords[i]));
+requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t& baseSize, const metkit::mars::MarsRequest& additional, const size_t additionalSize) {
+
+    metkit::mars::MarsRequest tmp(base);
+    tmp.merge(additional);
+    size_t sizeAfter = HyperCube(tmp).size();
+
+    if (sizeAfter == baseSize)
+        return requestRelation::EMBEDDED;
+
+    if (baseSize + additionalSize == sizeAfter)
+        return requestRelation::ADIACENT;
+
+    //if (baseSize + additionalSize < sizeAfter)
+    return requestRelation::DISJOINT;
+}
+
+bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& requests) {
+    size_t last = requests.size()-1;
+//    metkit::mars::MarsRequest& newRequest = requests[requests.size()-1].first;
+//    size_t newRequestSize = requests[requests.size()-1].second;
+
+    int candidateIdx = -1;
+    requestRelation relation = requestRelation::DISJOINT;
+
+    // check id the new request is embedded or adiacent to existing requests
+    for (size_t j = 0; j < requests.size()-1; j++) {
+        if (relation == requestRelation::DISJOINT) {
+            relation = std::min(relation, getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second));
+            if (relation == requestRelation::ADIACENT)
+                candidateIdx = j;
+        }
     }
-    return request;
+    if (relation == requestRelation::EMBEDDED) {
+        requests.pop_back();
+        return false;
+    }
+    if (relation == requestRelation::ADIACENT && candidateIdx != -1) {
+        requests[candidateIdx].first.merge(requests[last].first);
+        requests[candidateIdx].second += requests[last].second;
+        requests.pop_back();
+        return true;
+    }
+    return false;
+}
+
+std::set<metkit::mars::MarsRequest> HyperCube::request() const {
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests;
+
+    for(size_t i = 0; i < set_.size(); ++i) {
+        if (set_[i]) {
+            metkit::mars::MarsRequest newRequest = requestOf(i);
+            requests.push_back(std::make_pair(newRequest, HyperCube(newRequest).size()));
+            while(mergeLast(requests));
+        }
+    }
+
+    std::set<metkit::mars::MarsRequest> out;
+    for (auto req: requests)
+        out.emplace(req.first);
+    return out;
 }
 
 metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
