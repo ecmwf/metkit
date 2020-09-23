@@ -184,14 +184,11 @@ requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t&
     if (baseSize + additionalSize == sizeAfter)
         return requestRelation::ADIACENT;
 
-    //if (baseSize + additionalSize < sizeAfter)
     return requestRelation::DISJOINT;
 }
 
 bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& requests) {
     size_t last = requests.size()-1;
-//    metkit::mars::MarsRequest& newRequest = requests[requests.size()-1].first;
-//    size_t newRequestSize = requests[requests.size()-1].second;
 
     int candidateIdx = -1;
     requestRelation relation = requestRelation::DISJOINT;
