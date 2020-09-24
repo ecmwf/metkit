@@ -40,7 +40,7 @@ ecbuild_add_executable(
 
     TARGET   parse-mars-request
 
-    CONDITION HAVE_GRIB
+    CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
 
     SOURCES  parse-mars-request.cc
 
@@ -54,7 +54,7 @@ ecbuild_add_executable(
 
     TARGET    odb-to-request
     SOURCES   odb-to-request.cc
-    CONDITION HAVE_ODB2
+    CONDITION HAVE_ODB2 AND HAVE_BUILD_TOOLS
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     LIBS      metkit eckit_option )
 
@@ -64,7 +64,9 @@ ecbuild_add_executable(
 #                         LIBS       metkit NetCDF::NetCDF_C )
 
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/nccompare.py
-  DESTINATION ${CMAKE_BINARY_DIR}/bin
-  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+if(HAVE_BUILD_TOOLS)
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/nccompare.py
+    DESTINATION ${CMAKE_BINARY_DIR}/bin
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+endif()
 
