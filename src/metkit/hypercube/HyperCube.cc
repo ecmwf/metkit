@@ -254,6 +254,10 @@ std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std
 }
 
 std::set<metkit::mars::MarsRequest> HyperCube::request() const {
+
+    if (cube_.count() == 0)
+        return std::set<metkit::mars::MarsRequest>{};
+
     std::set<size_t> idxs;
     for(size_t i = 0; i < set_.size(); ++i) {
         if (set_[i])

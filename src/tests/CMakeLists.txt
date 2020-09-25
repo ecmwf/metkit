@@ -66,6 +66,10 @@ ecbuild_add_test( TARGET      metkit_test_time
                   SOURCES     test_time.cc
                   LIBS        metkit )
 
+ecbuild_add_test( TARGET      metkit_test_hypercube
+                  SOURCES     test_hypercube.cc
+                  LIBS        metkit )
+
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)
 # endif()
