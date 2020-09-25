@@ -80,7 +80,6 @@ public:
             oss << "Axis::valueOf no value for [axis=" << name() << ",index=" << index << "]";
             throw eckit::UserError(oss.str());
         }
-//        std::cout << "Axis::valueOf [axis=" << name() << ",index=" << index << " of " << values_.size() << ",value=" << values_[index] << "]" << std::endl;
         return values_[index];
     }
 
@@ -93,9 +92,6 @@ private:
 
 
 HyperCube::HyperCube(const metkit::mars::MarsRequest& request) : cube_(std::vector<eckit::Ordinal>()) {
-
-    // std::set<std::string> seen;
-    // metkit::mars::MarsRequest data = request.extract("data");
 
     std::vector<eckit::Ordinal> dimensions;
 
@@ -191,14 +187,22 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& reques
     size_t last = requests.size()-1;
 
     int candidateIdx = -1;
+    int candidateSize = -1;
     requestRelation relation = requestRelation::DISJOINT;
 
     // check id the new request is embedded or adiacent to existing requests
     for (size_t j = 0; j < requests.size()-1; j++) {
-        if (relation == requestRelation::DISJOINT) {
-            relation = std::min(relation, getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second));
-            if (relation == requestRelation::ADIACENT)
+        relation = std::min(relation, getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second));
+        if (relation == requestRelation::EMBEDDED) {
+            requests.pop_back();
+            return false;
+        }
+        if (relation == requestRelation::ADIACENT) {
+            // try to merge in the largest request
+            if (candidateSize == -1 || candidateSize < requests[j].second + requests[last].second) {
                 candidateIdx = j;
+                candidateSize = requests[j].second + requests[last].second;
+            }
         }
     }
     if (relation == requestRelation::EMBEDDED) {
@@ -214,16 +218,49 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& reques
     return false;
 }
 
-std::set<metkit::mars::MarsRequest> HyperCube::request() const {
-    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests;
 
-    for(size_t i = 0; i < set_.size(); ++i) {
-        if (set_[i]) {
-            metkit::mars::MarsRequest newRequest = requestOf(i);
-            requests.push_back(std::make_pair(newRequest, HyperCube(newRequest).size()));
-            while(mergeLast(requests));
+std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std::set<size_t> idxs) const {
+    size_t min = 1;
+    int minAxis = -1;
+    std::vector<std::map<eckit::Ordinal, std::set<size_t>>> axes(axes_.size());
+
+    if (idxs.size() > 1) {
+        std::vector<eckit::Ordinal> coords(axes_.size());
+        for (size_t idx: idxs) {
+            cube_.coordinates(idx, coords);
+            for(size_t j=0; j<axes_.size(); j++) {
+                axes[j][coords[j]].emplace(idx);
+                if (1 < axes[j].size() && (axes[j].size() < min || min == 1)) {
+                    min = axes[j].size();
+                    minAxis = j;
+                }
+            }
         }
     }
+    // all requests are identical, returning just the first
+    if (min == 1)
+        return std::vector<std::pair<metkit::mars::MarsRequest, size_t>> {std::make_pair<metkit::mars::MarsRequest, size_t>(requestOf(*idxs.begin()), 1)};
+
+    auto it = axes[minAxis].begin();
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(it->second);
+    for(; it != axes[minAxis].end(); it++) {
+        std::vector<std::pair<metkit::mars::MarsRequest, size_t>> toAdd = request(it->second);
+        for(auto r: toAdd) {
+            requests.push_back(r);
+            while (mergeLast(requests));
+        }
+    }
+    return requests;
+}
+
+std::set<metkit::mars::MarsRequest> HyperCube::request() const {
+    std::set<size_t> idxs;
+    for(size_t i = 0; i < set_.size(); ++i) {
+        if (set_[i])
+            idxs.emplace(i);
+    }
+
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(idxs);
 
     std::set<metkit::mars::MarsRequest> out;
     for (auto req: requests)

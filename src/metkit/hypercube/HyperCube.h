@@ -48,6 +48,7 @@ public:
 protected:
     int indexOf(const metkit::mars::MarsRequest&) const;
     metkit::mars::MarsRequest requestOf(size_t index) const;
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(std::set<size_t> idxs) const;
 
 private:
     std::vector<Axis*> axes_;
