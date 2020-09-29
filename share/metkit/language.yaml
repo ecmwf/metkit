@@ -894,7 +894,7 @@ _postproc: &_postproc
     - N640
     - N800
     - N912
-    - N2014
+    - N1024
     - N1280
     regex:
     - '^[oOfF][1-9][0-9]+$'
