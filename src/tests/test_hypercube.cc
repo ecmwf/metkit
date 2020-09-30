@@ -34,9 +34,9 @@ CASE( "test_metkit_hypercube" ) {
 
     EXPECT(cube.contains(r));
     EXPECT(cube.size() == 1);
-    EXPECT(cube.request().size() == 1);
-    EXPECT(!(r<*cube.request().begin()));
-    EXPECT(!(*cube.request().begin()<r));
+    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT(!(r<*cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin()<r));
 }
 
 CASE( "test_metkit_hypercube_subset" ) {
@@ -45,10 +45,10 @@ CASE( "test_metkit_hypercube_subset" ) {
 
     metkit::hypercube::HyperCube cube(r);
     EXPECT(cube.size() == 2);
-    EXPECT(cube.count() == 2);
-    EXPECT(cube.request().size() == 1);
-    EXPECT(!(r<*cube.request().begin()));
-    EXPECT(!(*cube.request().begin()<r));
+    EXPECT(cube.countVacant() == 2);
+    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT(!(r<*cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin()<r));
 
     const char* text500 = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500,param=138";
     MarsRequest r500 = MarsRequest::parse(text500);
@@ -63,15 +63,15 @@ CASE( "test_metkit_hypercube_subset" ) {
 
     EXPECT(!cube.contains(r500));
     EXPECT(cube.size() == 2);
-    EXPECT(cube.count() == 1);
+    EXPECT(cube.countVacant() == 1);
 
-    EXPECT(cube.request().size() == 1);
-    EXPECT(!(r600<*cube.request().begin()));
-    EXPECT(!(*cube.request().begin()<r600));
+    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT(!(r600<*cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin()<r600));
 
     cube.clear(r600);
 
-    EXPECT(cube.count() == 0);
+    EXPECT(cube.countVacant() == 0);
 }
 
 CASE( "test_metkit_hypercube_request" ) {
@@ -80,10 +80,10 @@ CASE( "test_metkit_hypercube_request" ) {
 
     metkit::hypercube::HyperCube cube(r);
     EXPECT(cube.size() == 4);
-    EXPECT(cube.count() == 4);
-    EXPECT(cube.request().size() == 1);
-    EXPECT(!(r<*cube.request().begin()));
-    EXPECT(!(*cube.request().begin()<r));
+    EXPECT(cube.countVacant() == 4);
+    EXPECT(cube.vacantRequests().size() == 1);
+    EXPECT(!(r<*cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin()<r));
 
     const char* text500 = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500,param=138";
     MarsRequest r500 = MarsRequest::parse(text500);
@@ -98,19 +98,19 @@ CASE( "test_metkit_hypercube_request" ) {
 
     EXPECT(!cube.contains(r500));
     EXPECT(cube.size() == 4);
-    EXPECT(cube.count() == 3);
+    EXPECT(cube.countVacant() == 3);
 
-    EXPECT(cube.request().size() == 2);
+    EXPECT(cube.vacantRequests().size() == 2);
 
     cube.clear(r600);
 
-    EXPECT(cube.count() == 2);
-    EXPECT(cube.request().size() == 1);
+    EXPECT(cube.countVacant() == 2);
+    EXPECT(cube.vacantRequests().size() == 1);
 
     const char* text155 = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500/600,param=155";
     MarsRequest r155 = MarsRequest::parse(text155);
-    EXPECT(!(r155<*cube.request().begin()));
-    EXPECT(!(*cube.request().begin()<r155));
+    EXPECT(!(r155<*cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin()<r155));
 
 }
 

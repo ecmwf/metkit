@@ -40,13 +40,15 @@ public:
     bool clear(const metkit::mars::MarsRequest&);
 
     size_t count() const;
+    size_t countVacant() const;
     size_t size() const {return cube_.count(); }
 
     size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
-    std::set<metkit::mars::MarsRequest> request() const;
+    std::set<metkit::mars::MarsRequest> vacantRequests() const;
 
 protected:
     int indexOf(const metkit::mars::MarsRequest&) const;
+    bool clear(int index);
     metkit::mars::MarsRequest requestOf(size_t index) const;
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(std::set<size_t> idxs) const;
 
@@ -64,72 +66,6 @@ private:
         p.print(s);
         return s;
     }
-};
-
-template <typename T>
-class Deduplicator {
-public:
-    virtual bool empty(T) const = 0;
-    virtual bool replace(T existing, T replacement) const = 0;
-};
-
-template <typename T>
-class HyperCubeEntry {
-public:
-    HyperCubeEntry(const metkit::mars::MarsRequest& request,
-                  T payload) :
-        request_(request), payload_(payload) {}
-
-    const metkit::mars::MarsRequest& request() const { return request_; }
-    void payload(T p) { payload_ = p; }
-    T payload() const { return payload_; }
-
-private:
-    metkit::mars::MarsRequest request_;
-    T payload_;
-};
-
-template <typename T>
-class HyperCubeContent : public HyperCube {
-public:
-    HyperCubeContent(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
-        HyperCube(request), deduplicator_(deduplicator) {
-
-        entries_ = std::vector<HyperCubeEntry<T>>();
-
-        for (int i=0; i<count(); i++)
-            entries_.push_back(HyperCubeEntry<T>(requestOf(i), T()));
-    }
-
-
-    void add(const metkit::mars::MarsRequest& request, T payload) {
-
-        ASSERT(!deduplicator_.empty(payload));
-
-        int idx = indexOf(request);
-
-        ASSERT(0 <= idx);
-        ASSERT(idx < entries_.size());
-
-        if (deduplicator_.empty(entries_[idx].payload())) {
-            entries_[idx].payload(payload);
-            clear(request);
-        } else {
-            if (deduplicator_.replace(entries_[idx].payload(), payload)) {
-                entries_[idx].payload(payload);
-            }
-        }
-    }
-
-    const HyperCubeEntry<T>& at(size_t idx) {
-        ASSERT(0 <= idx);
-        ASSERT(idx < entries_.size());
-        return entries_[idx];
-    }
-
-private:
-    const Deduplicator<T>& deduplicator_;
-    std::vector<HyperCubeEntry<T>> entries_;
 };
 
 }  // namespace hypercube
