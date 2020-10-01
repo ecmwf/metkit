@@ -122,8 +122,7 @@ bool HyperCube::contains(const metkit::mars::MarsRequest& r) const {
     return (idx >= 0) and set_[idx];
 }
 
-bool HyperCube::clear(const metkit::mars::MarsRequest& r) {
-    int idx = indexOf(r);
+bool HyperCube::clear(int idx) {
     if (idx < 0)
         return false;
     if (!set_[idx])
@@ -131,6 +130,10 @@ bool HyperCube::clear(const metkit::mars::MarsRequest& r) {
     set_[idx] = false;
     count_--;
     return true;
+}
+bool HyperCube::clear(const metkit::mars::MarsRequest& r) {
+    int idx = indexOf(r);
+    return clear(idx);
 }
 
 int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
@@ -253,10 +256,10 @@ std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std
     return requests;
 }
 
-std::set<metkit::mars::MarsRequest> HyperCube::request() const {
+std::vector<metkit::mars::MarsRequest> HyperCube::vacantRequests() const {
 
-    if (cube_.count() == 0)
-        return std::set<metkit::mars::MarsRequest>{};
+    if (countVacant() == 0)
+        return std::vector<metkit::mars::MarsRequest>{};
 
     std::set<size_t> idxs;
     for(size_t i = 0; i < set_.size(); ++i) {
@@ -266,9 +269,9 @@ std::set<metkit::mars::MarsRequest> HyperCube::request() const {
 
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(idxs);
 
-    std::set<metkit::mars::MarsRequest> out;
+    std::vector<metkit::mars::MarsRequest> out;
     for (auto req: requests)
-        out.emplace(req.first);
+        out.push_back(req.first);
     return out;
 }
 
@@ -284,6 +287,9 @@ metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
 }
 
 size_t HyperCube::count() const {
+    return count_;
+}
+size_t HyperCube::countVacant() const {
     return count_;
 }
 
