@@ -12,8 +12,8 @@
 /// @date   Aug 2020
 
 
-#ifndef metkit_HyperCubeWithContent_H
-#define metkit_HyperCubeWithContent_H
+#ifndef metkit_HyperCubePayloaded_H
+#define metkit_HyperCubePayloaded_H
 
 #include "metkit/hypercube/HyperCube.h"
 
@@ -28,9 +28,9 @@ public:
 };
 
 template <typename T>
-class HyperCubeWithContent : public HyperCube {
+class HyperCubePayloaded : public HyperCube {
 public:
-    HyperCubeWithContent(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
+    HyperCubePayloaded(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
         HyperCube(request), dedup_(deduplicator) {
 
 

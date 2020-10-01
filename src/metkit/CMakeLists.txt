@@ -91,7 +91,7 @@ list( APPEND metkit_srcs
     fields/SimpleFieldIndex.h
     hypercube/HyperCube.cc
     hypercube/HyperCube.h
-    hypercube/HyperCubeWithContent.h
+    hypercube/HyperCubePayloaded.h
 )
 
 list( APPEND metkit_persistent_srcs
