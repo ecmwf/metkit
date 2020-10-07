@@ -58,8 +58,19 @@ public:
 
     const T& at(size_t idx) {
         ASSERT(0 <= idx);
-        ASSERT(idx < entries_.size());
+        ASSERT(idx < size());
+
         return entries_[idx];
+    }
+
+    bool find(size_t idx, T& payload) {
+        auto it = entries_.find(idx);
+
+        if (it == entries_.end())
+            return false;
+
+        payload = it->second;
+        return true;
     }
 
 private:
