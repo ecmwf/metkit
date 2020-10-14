@@ -15,7 +15,6 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/DataHandle.h"
-#include "metkit/grib/MetFile.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/io/PooledHandle.h"
 #include "metkit/pointdb/PointIndex.h"
@@ -97,7 +96,7 @@ const GribFieldInfo& GribHandleDataSource::info() const {
 
             handle_->seek(offset_);
 
-            grib::GribHandle h(*handle_, false); // Partial does not work
+            grib::GribHandle h(*handle_);
             info_.update(h);
 
             cache.dirName().mkdir();

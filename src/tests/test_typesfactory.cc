@@ -12,8 +12,8 @@
 /// @author Simon Smart
 /// @date   April 2017
 
-#include "metkit/types/TypesFactory.h"
-#include "metkit/types/TypeDate.h"
+#include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/TypeDate.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Tool.h"
@@ -24,6 +24,7 @@
 using namespace eckit::testing;
 
 namespace metkit {
+namespace mars {
 namespace test {
 
 //-----------------------------------------------------------------------------
@@ -56,6 +57,7 @@ CASE ("test_build") {
 }
 
 }  // namespace test
+}  // namespace mars
 }  // namespace metkit
 
 //-----------------------------------------------------------------------------

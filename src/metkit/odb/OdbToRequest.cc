@@ -20,17 +20,19 @@
 
 #include "odc/api/Odb.h"
 
-#include "metkit/MarsLanguage.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/odb/IdMapper.h"
-#include "metkit/types/Type.h"
-#include "metkit/types/TypesFactory.h"
+#include "metkit/mars/Type.h"
+#include "metkit/mars/TypesFactory.h"
 
 
 using namespace eckit;
 using namespace odc::api;
 
 namespace metkit {
+using namespace mars;
+
 namespace odb {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -114,14 +116,15 @@ OdbToRequest::OdbToRequest(const std::string& verb, bool one, bool constant) :
 }
 
 
+
 OdbToRequest::~OdbToRequest() {}
 
 
 std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
     LOG_DEBUG_LIB(LibMetkit) << "OdbToRequest::odbToRequest() dh: " << dh << std::endl;
 
-    Reader o(dh);
-    Frame f(o);
+    Reader reader(dh, false);
+    Frame frame;
 
     std::vector<MarsRequest> requests;
 
@@ -133,8 +136,8 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
     MarsLanguage language(verb_);
 
-    while (f.next(false)) {
-        Span span = f.span(columnNames, onlyConstantColumns_);
+    while ( (frame = reader.next() )) {
+        Span span = frame.span(columnNames, onlyConstantColumns_);
 
         MarsRequest r(verb_);
         MarsRequestSetter setter(r, language, mapping_);

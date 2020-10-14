@@ -18,7 +18,6 @@
 #include "eckit/io/MultiHandle.h"
 #include "eckit/io/FileHandle.h"
 
-#include "metkit/grib/MetFile.h"
 
 #include "eccodes.h"
 
@@ -38,13 +37,13 @@ CASE( "openf filehandle" ) {
 
     FILE* f = dh.openf("r");
 
-    grib_handle* h;
+    codes_handle* h;
 
     int err = 0;
     size_t count = 0;
-    while( (h =  grib_handle_new_from_file(nullptr, f, &err))) {
+    while( (h =  codes_handle_new_from_file(nullptr, f, PRODUCT_ANY, &err))) {
         count++;
-        grib_handle_delete(h);
+        codes_handle_delete(h);
     }
 
     fclose(f);
@@ -62,13 +61,13 @@ CASE( "openf multihandle" ) {
 
     FILE* f = dh.openf("r");
 
-    grib_handle* h;
+    codes_handle* h;
 
     int err = 0;
     size_t count = 0;
-    while( (h =  grib_handle_new_from_file(nullptr, f, &err))) {
+    while( (h =  codes_handle_new_from_file(nullptr, f, PRODUCT_ANY, &err))) {
         count++;
-        grib_handle_delete(h);
+        codes_handle_delete(h);
     }
 
     fclose(f);

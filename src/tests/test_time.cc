@@ -15,13 +15,14 @@
 #include "eckit/value/Value.h"
 #include "eckit/testing/Test.h"
 
-#include "metkit/types/TypeTime.h"
-#include "metkit/MarsExpandContext.h"
+#include "metkit/mars/TypeTime.h"
+#include "metkit/mars/MarsExpandContext.h"
 
 using namespace eckit;
 using namespace eckit::testing;
 
 namespace metkit {
+namespace mars {
 namespace test {
 
 //-----------------------------------------------------------------------------
@@ -192,6 +193,7 @@ CASE("Test TypeType expansions") {
 //-----------------------------------------------------------------------------
 
 }  // namespace test
+}  // namespace mars
 }  // namespace metkit
 
 int main(int argc, char **argv)

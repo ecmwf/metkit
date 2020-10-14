@@ -369,10 +369,8 @@ _field: &_field
 
   levtype:
     category: data
-    # CH/SW6/req/curr/N5 has 2 levtype
     default: pl
     flatten: false
-    multiple: true
     type: enum
     values:
     - [cat, category]
@@ -409,7 +407,7 @@ _field: &_field
     multiple: true
     type: param
     never:
-    - type: tf
+    - type: [tf, ob]
 
 #################################################################
 
@@ -741,6 +739,22 @@ _field: &_field
     category: data
     type: integer
 
+#######################################################################
+
+_observation: &_observation
+
+  obstype:
+    category: data
+    type: any
+    multiple: true
+
+  obsgroup:
+    category: data
+    type: any
+    multiple: true
+
+#######################################################################
+
 _postproc: &_postproc
 
   accuracy:
@@ -769,6 +783,8 @@ _postproc: &_postproc
       - bf
     - - grid
       - gd
+    - odb
+    - ascii
 
   frame:
     category: postproc
@@ -799,13 +815,16 @@ _postproc: &_postproc
     - auto
     - N32
     - N48
+    - N64
     - N80
+    - N96
     - N128
     - N160
     - N200
     - N256
     - N320
     - N400
+    - N512
     - N640
     - N1280
     regex:
@@ -859,12 +878,24 @@ _postproc: &_postproc
     values:
     - 'off'
     - auto
-    - N160
-    - N400
-    - N320
-    - N200
+    - N32
+    - N48
+    - N64
     - N80
+    - N96
+    - N128
+    - N160
+    - N192
+    - N200
+    - N256
+    - N320
+    - N400
+    - N512
     - N640
+    - N800
+    - N912
+    - N1024
+    - N1280
     regex:
     - '^[oOfF][1-9][0-9]+$'
 
@@ -875,9 +906,20 @@ _postproc: &_postproc
     values:
     - auto
     - 'off'
-
 #######################################################################
 
+_obspproc: &_obspproc
+
+  filter:
+    type: any
+    category: postproc
+
+  ident:
+    type: any
+    category: postproc
+
+
+#######################################################################
 
 disseminate:
   <<: *_field
@@ -887,31 +929,14 @@ disseminate:
     type: any
 
   use:
+    category: data
     flatten: false
     multiple: true
     type: enum
     values:
     - bc
-    - daily
-    - [thursday, mt, monthly run thursday, monthly thursday]
-    - [monday, mm, monthly run monday, monthly monday]
-
-  catn:
-    flatten: false
-    type: integer
-
-  file:
-    type: enum
-    values:
-    - bin
-
-  application:
-    type: enum
-    default: "off"
-    values:
-      - "off"
-      - [prodgen, pg1, prodgen1, pgen1, product generation 1]
-      - [pgen, pg2, prodgen2, pgen2, product generation 2]
+    - thursday
+    - monday
 
   option:
     default: normal
@@ -921,58 +946,70 @@ disseminate:
     values:
     - normal
     - delay
-    - wmoe
+    - asap
     - gts
-    - tcpip
-    - nobackup
-    - grib1table1
-    - xmaster
-    - [asap, early delivery]
 
   compatibility:
     category: postproc
     flatten: false
     multiple: true
     type: enum
-    values: ['off', 'no-local-extension', 'prodgen-areas', 'large-constant-fields']
-
-  country:
-    type: any
+    values:
+    - 'off'
+    - 'no-local-extension'
 
   priority:
     flatten: false
     type: integer
 
-  projection:
-    type: any
-
   target:
     flatten: false
     type: any
 
-  padding:
-    flatten: false
-    type: enum
-    values:
-    - none
-    - auto
+##############################################################
 
 archive:
   <<: *_field
+  <<: *_observation
+
 
   database:
     flatten: false
     multiple: true
     type: any
 
+  source:
+    flatten: false
+    multiple: true
+    type: any
+
+  expect:
+    flatten: false
+    multiple: false
+    type: integer
+
+##############################################################
 
 retrieve:
+
   <<: *_field
+  <<: *_observation
   <<: *_postproc
+  <<: *_obspproc
 
   target:
     flatten: false
     multiple: true
+    type: any
+
+  expect:
+    flatten: false
+    multiple: false
+    type: integer
+
+  fieldset:
+    flatten: false
+    multiple: false
     type: any
 
   database:
@@ -995,6 +1032,8 @@ retrieve:
     - none
     - auto
 
+##############################################################
+
 read:
   source:
     flatten: false
@@ -1002,11 +1041,18 @@ read:
     type: any
 
   <<: *_field
+  <<: *_observation
   <<: *_postproc
+  <<: *_obspproc
 
   target:
     flatten: false
     multiple: true
+    type: any
+
+  fieldset:
+    flatten: false
+    multiple: false
     type: any
 
   _defaults:
@@ -1021,6 +1067,91 @@ read:
     stream: null
     time: null
     type: null
+
+  _options:
+    param:
+      # expand_with:  # In case not type/stream/levtype is provided
+      #   type: an
+      #   stream: oper
+      #   levtype: pl
+      first_rule: true
+##############################################################
+
+get:
+
+  tape:
+    flatten: false
+    multiple: false
+    type: any
+
+  database:
+    flatten: false
+    multiple: true
+    type: any
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+##############################################################
+
+list:
+
+  <<: *_field
+  <<: *_observation
+
+  database:
+    flatten: false
+    multiple: true
+    type: any
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+  _defaults:
+    # class: null
+    date: null
+    domain: null
+    expver: null
+    levelist: null
+    levtype: null
+    param: null
+    step: null
+    stream: null
+    time: null
+    type: null
+
+##############################################################
+
+compute:
+  formula:
+    flatten: false
+    multiple: false
+    type: any
+
+  fieldset:
+    flatten: false
+    multiple: false
+    type: any
+
+##############################################################
+
+write:
+
+  fieldset:
+    flatten: false
+    multiple: false
+    type: any
+
+  target:
+    flatten: false
+    multiple: true
+    type: any
+
+##############################################################
 
 pointdb:
   lat:

@@ -15,8 +15,8 @@
 
 
 #include "eckit/exception/Exceptions.h"
-#include "metkit/ParamID.h"
-#include "metkit/MarsRequest.h"
+#include "metkit/mars/ParamID.h"
+#include "metkit/mars/MarsRequest.h"
 
 
 #include "eckit/testing/Test.h"
@@ -24,6 +24,7 @@
 using namespace eckit::testing;
 
 namespace metkit {
+namespace mars {
 namespace test {
 
 //-----------------------------------------------------------------------------
@@ -399,6 +400,7 @@ CASE ("table9") {
 
 
 }  // namespace test
+}  // namespace mars
 }  // namespace metkit
 
 //-----------------------------------------------------------------------------

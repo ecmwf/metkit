@@ -20,7 +20,7 @@
 // #include "eckit/io/StdFile.h"
 #include "eckit/config/Resource.h"
 
-// #include <eccodes.h>
+// #include "eccodes.h"
 
 using namespace eckit;
 
@@ -89,7 +89,7 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
 
     // PathName dump(std::string("/tmp/cache/pointdb/") + md5 + ".dump");
     // StdFile f(dump, "w");
-    // grib_dump_content(h, f, "debug", 0, 0);
+    // codes_dump_content(h, f, "debug", 0, 0);
     // f.close();
 
     PathName grib = cachePath("grids", md5 + ".grib");

@@ -10,15 +10,13 @@
 
 #include "metkit/grib/GribHandle.h"
 
-#include "grib_api.h"
+#include "eccodes.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/StdFile.h"
 
 #include "metkit/grib/GribAccessor.h"
-#include "metkit/grib/GribDataBlob.h"
-#include "metkit/grib/GribMetaData.h"
 
 using namespace std;
 
@@ -28,21 +26,24 @@ namespace grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void grib_call(int code, const char* msg, const eckit::CodeLocation& where) {
+void codes_call(int code, const char* msg, const eckit::CodeLocation& where) {
     if (code) {
         std::ostringstream os;
-        os << msg << " : " << grib_get_error_message(code);
+        os << msg << " : " << codes_get_error_message(code);
         throw eckit::Exception(os.str(), where);
     }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-GribHandle::GribHandle(const eckit::PathName& path) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(const eckit::PathName& path):
+    handle_(nullptr),
+    owned_(true) {
+
     eckit::AutoStdFile f(path);
 
     int err        = 0;
-    grib_handle* h = grib_handle_new_from_file(nullptr, f, &err);
+    codes_handle* h = codes_handle_new_from_file(nullptr, f, PRODUCT_GRIB, &err);
     if (err != 0) {
         std::ostringstream os;
         os << "GribHandle() failed to build from path " << path;
@@ -53,76 +54,39 @@ GribHandle::GribHandle(const eckit::PathName& path) : handle_(NULL), owned_(true
     handle_ = h;
 }
 
-GribHandle::GribHandle(grib_handle* h) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(codes_handle* h):
+    handle_(h),
+    owned_(true) {
     ASSERT(h);
-    handle_ = h;
 }
 
-GribHandle::GribHandle(grib_handle& h) : handle_(&h), owned_(false) {}
-
-GribHandle::GribHandle(const eckit::Buffer& buffer, bool copy, bool partial) : handle_(NULL), owned_(true) {
-    const char* message = buffer;
-    ASSERT(strncmp(message, "GRIB", 4) == 0);
-
-    grib_handle* h = nullptr;
-
-    if (copy) {
-        if (partial) {
-            h = grib_handle_new_from_partial_message_copy(0, const_cast<char*>(message), buffer.size());
-        }
-        else {
-            h = grib_handle_new_from_message_copy(0, const_cast<char*>(message), buffer.size());
-        }
-    }
-    else {
-        if (partial) {
-            h = grib_handle_new_from_partial_message(0, const_cast<char*>(message), buffer.size());
-        }
-        else {
-            h = grib_handle_new_from_message(0, const_cast<char*>(message), buffer.size());
-        }
-    }
-
-    ASSERT(h);
-    handle_ = h;
+GribHandle::GribHandle(codes_handle& h):
+    handle_(&h),
+    owned_(false) {
 }
 
-GribHandle::GribHandle(eckit::DataHandle& handle, bool partial) : handle_(NULL), owned_(true) {
+GribHandle::GribHandle(eckit::DataHandle& handle):
+    handle_(nullptr),
+    owned_(true) {
 
-    grib_handle* h = nullptr;
+    codes_handle* h = nullptr;
     int err = 0;
 
     FILE* f = handle.openf();
     ASSERT(f);
 
-    if (partial) {
-        h = grib_new_from_file(0, f, true, &err);
-    }
-    else {
-        h = grib_handle_new_from_file(0, f, &err);
-    }
+    h = codes_handle_new_from_file(0, f, PRODUCT_GRIB, &err);
 
-    GRIB_CALL(err);
+    CODES_CALL(err);
     ASSERT(h);
     handle_ = h;
 }
 
 GribHandle::~GribHandle() noexcept(false) {
     if (handle_ && owned_) {
-        GRIB_CALL(grib_handle_delete(handle_));
-        handle_ = 0;
+        CODES_CALL(codes_handle_delete(handle_));
+        handle_ = nullptr;
     }
-}
-
-GribDataBlob* GribHandle::message() const {
-    size_t length;
-    const void* message;
-    GRIB_CALL(grib_get_message(handle_, &message, &length));
-    return new GribDataBlob(message, length);
-}
-
-std::string GribHandle::gridType() const {
-    return GribAccessor<std::string>("gridType")(*this);
 }
 
 std::string GribHandle::geographyHash() const {
@@ -130,20 +94,16 @@ std::string GribHandle::geographyHash() const {
     return GribAccessor<std::string>("md5GridSection")(*this);
 }
 
-long GribHandle::edition() const {
-    return GribAccessor<long>("edition")(*this);
-}
-
 size_t GribHandle::getDataValuesSize() const {
     size_t count = 0;
-    GRIB_CALL(grib_get_size(raw(), "values", &count));
+    CODES_CALL(codes_get_size(raw(), "values", &count));
     return count;
 }
 
 void GribHandle::getDataValues(double* values, const size_t& count) const {
     ASSERT(values);
     size_t n = count;
-    GRIB_CALL(grib_get_double_array(raw(), "values", values, &n));
+    CODES_CALL(codes_get_double_array(raw(), "values", values, &n));
     ASSERT(n == count);
 }
 
@@ -157,73 +117,59 @@ double* GribHandle::getDataValues(size_t& count) const {
 
 void GribHandle::setDataValues(const double* values, size_t count) {
     ASSERT(values);
-    GRIB_CALL(grib_set_double_array(raw(), "values", values, count));
+    CODES_CALL(codes_set_double_array(raw(), "values", values, count));
 }
 
 void GribHandle::dump( const eckit::PathName& path, const char* mode) const {
     eckit::StdFile f(path.localPath(), "w");
-    grib_dump_content(handle_, f, "mode", 0, 0);
+    codes_dump_content(handle_, f, "mode", 0, 0);
     f.close();
 }
 
 void GribHandle::write(const eckit::PathName& path, const char* mode) const {
-    ASSERT(grib_write_message(handle_, path.localPath(), mode) == 0);
+    ASSERT(codes_write_message(handle_, path.localPath(), mode) == 0);
 }
 
 size_t GribHandle::write(eckit::DataHandle& handle) const {
-    const void* message = NULL;
+    const void* message = nullptr;
     size_t length       = 0;
 
-    GRIB_CALL(grib_get_message(raw(), &message, &length));
+    CODES_CALL(codes_get_message(raw(), &message, &length));
 
     ASSERT(message);
     ASSERT(length);
 
-    ASSERT(length = long(length) && handle.write(message, length) == long(length));
+    ASSERT(length = long(length));
+    ASSERT(handle.write(message, length) == long(length));
 
+    return length;
+}
+
+size_t GribHandle::length() const {
+    const void* message = nullptr;
+    size_t length       = 0;
+
+    CODES_CALL(codes_get_message(raw(), &message, &length));
     return length;
 }
 
 size_t GribHandle::write(eckit::Buffer& buff) const {
     size_t len = buff.size();
-    GRIB_CALL(grib_get_message_copy(raw(), buff, &len));  // will issue error if buffer too small
+    CODES_CALL(codes_get_message_copy(raw(), buff, &len));  // will issue error if buffer too small
     return len;
 }
 
-double GribHandle::latitudeOfFirstGridPointInDegrees() const {
-    return GribAccessor<double>("latitudeOfFirstGridPointInDegrees")(*this);
-}
-
-double GribHandle::longitudeOfFirstGridPointInDegrees() const {
-    return GribAccessor<double>("longitudeOfFirstGridPointInDegrees")(*this);
-}
-
-double GribHandle::latitudeOfLastGridPointInDegrees() const {
-    return GribAccessor<double>("latitudeOfLastGridPointInDegrees")(*this);
-}
-
-double GribHandle::longitudeOfLastGridPointInDegrees() const {
-    return GribAccessor<double>("longitudeOfLastGridPointInDegrees")(*this);
-}
-
 GribHandle* GribHandle::clone() const {
-    grib_handle* h = grib_handle_clone(raw());
-    if (!h)
+    codes_handle* h = codes_handle_clone(raw());
+    if (!h) {
         throw eckit::WriteError(std::string("failed to clone output grib"));
+    }
 
     return new GribHandle(h);
 }
 
-string GribHandle::shortName() const {
-    return GribAccessor<std::string>("shortName")(*this);
-}
-
-size_t GribHandle::numberOfPoints() const {
-    return GribAccessor<long>("numberOfDataPoints")(*this);
-}
-
 bool GribHandle::hasKey(const char* key) const {
-    return (grib_is_defined(handle_, key) != 0);
+    return (codes_is_defined(handle_, key) != 0);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

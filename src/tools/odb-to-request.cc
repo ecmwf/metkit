@@ -22,7 +22,7 @@
 #include "eckit/runtime/Tool.h"
 #include "eckit/utils/StringTools.h"
 
-#include "metkit/MetkitTool.h"
+#include "metkit/tool/MetkitTool.h"
 #include "metkit/odb/OdbToRequest.h"
 
 

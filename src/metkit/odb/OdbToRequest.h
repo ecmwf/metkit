@@ -18,13 +18,15 @@
 #include "eckit/io/Length.h"
 #include "eckit/io/Offset.h"
 
-#include "metkit/MarsRequest.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace eckit {
 class DataHandle;
 }
 
 namespace metkit {
+using namespace mars;
+
 namespace odb {
 
 //----------------------------------------------------------------------------------------------------------------------

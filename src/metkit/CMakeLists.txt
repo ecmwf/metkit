@@ -15,145 +15,156 @@ install(FILES
 ### metkit sources
 
 list( APPEND metkit_srcs
-metkit_version.cc
-BaseProtocol.cc
-BaseProtocol.h
-ClientTask.cc
-ClientTask.h
-DHSProtocol.cc
-DHSProtocol.h
-MarsHandle.cc
-MarsHandle.h
-MarsLocation.cc
-MarsLocation.h
-MarsRequest.cc
-MarsRequest.h
-MarsExpension.cc
-MarsExpension.h
-MarsLanguage.cc
-MarsLanguage.h
-MarsParser.cc
-MarsParser.h
-MarsExpandContext.h
-MarsExpandContext.cc
-MarsParserContext.h
-MarsParserContext.cc
-MarsParsedRequest.h
-MarsParsedRequest.cc
-MarsRequestHandle.cc
-MarsRequestHandle.h
-MetkitTool.h
-MetkitTool.cc
-RequestEnvironment.cc
-RequestEnvironment.h
-Parameter.cc
-Parameter.h
-ParamID.cc
-ParamID.h
-StepRangeNormalise.h
-config/LibMetkit.cc
-config/LibMetkit.h
-types/Type.cc
-types/Type.h
-types/TypeDate.cc
-types/TypeDate.h
-types/TypeAny.cc
-types/TypeAny.h
-types/TypeExpver.cc
-types/TypeExpver.h
-types/TypeToByList.cc
-types/TypeToByList.h
-types/TypeEnum.cc
-types/TypeEnum.h
-types/TypeRegex.cc
-types/TypeRegex.h
-types/TypeParam.cc
-types/TypeParam.h
-types/TypeInteger.cc
-types/TypeInteger.h
-types/TypeRange.cc
-types/TypeRange.h
-types/TypeFloat.cc
-types/TypeFloat.h
-types/TypeTime.cc
-types/TypeTime.h
-types/TypeDate.cc
-types/TypeDate.h
-types/TypeMixed.cc
-types/TypeMixed.h
-types/TypesFactory.cc
-types/TypesFactory.h
+    config/LibMetkit.cc
+    config/LibMetkit.h
+    mars/BaseProtocol.cc
+    mars/BaseProtocol.h
+    mars/ClientTask.cc
+    mars/ClientTask.h
+    mars/DHSProtocol.cc
+    mars/DHSProtocol.h
+    mars/MarsExpandContext.cc
+    mars/MarsExpandContext.h
+    mars/MarsExpension.cc
+    mars/MarsExpension.h
+    mars/MarsHandle.cc
+    mars/MarsHandle.h
+    mars/MarsLanguage.cc
+    mars/MarsLanguage.h
+    mars/MarsLocation.cc
+    mars/MarsLocation.h
+    mars/MarsParsedRequest.cc
+    mars/MarsParsedRequest.h
+    mars/MarsParser.cc
+    mars/MarsParser.h
+    mars/MarsParserContext.cc
+    mars/MarsParserContext.h
+    mars/MarsRequest.cc
+    mars/MarsRequest.h
+    mars/MarsRequestHandle.cc
+    mars/MarsRequestHandle.h
+    mars/Parameter.cc
+    mars/Parameter.h
+    mars/ParamID.cc
+    mars/ParamID.h
+    mars/RequestEnvironment.cc
+    mars/RequestEnvironment.h
+    mars/StepRangeNormalise.h
+    mars/Type.cc
+    mars/Type.h
+    mars/TypeAny.cc
+    mars/TypeAny.h
+    mars/TypeDate.cc
+    mars/TypeDate.cc
+    mars/TypeDate.h
+    mars/TypeDate.h
+    mars/TypeEnum.cc
+    mars/TypeEnum.h
+    mars/TypeExpver.cc
+    mars/TypeExpver.h
+    mars/TypeFloat.cc
+    mars/TypeFloat.h
+    mars/TypeInteger.cc
+    mars/TypeInteger.h
+    mars/TypeMixed.cc
+    mars/TypeMixed.h
+    mars/TypeParam.cc
+    mars/TypeParam.h
+    mars/TypeRange.cc
+    mars/TypeRange.h
+    mars/TypeRegex.cc
+    mars/TypeRegex.h
+    mars/TypesFactory.cc
+    mars/TypesFactory.h
+    mars/TypeTime.cc
+    mars/TypeTime.h
+    mars/TypeToByList.cc
+    mars/TypeToByList.h
+    metkit_version.cc
+    tool/MetkitTool.cc
+    tool/MetkitTool.h
+    fields/FieldIndex.cc
+    fields/FieldIndex.h
+    fields/FieldIndexList.cc
+    fields/FieldIndexList.h
+    fields/SimpleFieldIndex.cc
+    fields/SimpleFieldIndex.h
+    hypercube/HyperCube.cc
+    hypercube/HyperCube.h
+    hypercube/HyperCubePayloaded.h
 )
 
 list( APPEND metkit_persistent_srcs
-    Param.cc
-    Param.h
-    Param
-    StepRange.cc
-    StepRange.h
-    StepRange
+    mars/Param.cc
+    mars/Param.h
+    mars/Param
+    mars/StepRange.cc
+    mars/StepRange.h
+    mars/StepRange
 )
 list( APPEND metkit_srcs ${metkit_persistent_srcs} )
-
 
 if ( HAVE_GRIB )
 
     list( APPEND metkit_srcs
-        grib/GribToRequest.cc
-        grib/GribToRequest.h
-        grib/MetFile.h
-        grib/MetFile.cc
-        grib/GribFile.h
-        grib/GribFile.cc
-        grib/GribAccessor.h
+        pointdb/bits.h
+        pointdb/DataSource.cc
+        pointdb/DataSource.h
+        pointdb/FieldIndexer.cc
+        pointdb/FieldIndexer.h
+        pointdb/GribDataSource.cc
+        pointdb/GribDataSource.h
+        pointdb/GribFieldInfo.cc
+        pointdb/GribFieldInfo.h
+        pointdb/GribHandleDataSource.cc
+        pointdb/GribHandleDataSource.h
+        pointdb/masks.h
+        pointdb/PointIndex.cc
+        pointdb/PointIndex.h
+        codes/BUFRDecoder.cc
+        codes/BUFRDecoder.h
+        codes/GRIBDecoder.cc
+        codes/GRIBDecoder.h
+        codes/LibEccodes.cc
+        codes/LibEccodes.h
+        codes/CodesContent.cc
+        codes/CodesContent.h
+        codes/UserDataContent.cc
+        codes/UserDataContent.h
+        codes/DataContent.cc
+        codes/DataContent.h
+        codes/MallocDataContent.cc
+        codes/MallocDataContent.h
+        codes/CodesSplitter.cc
+        codes/CodesSplitter.h
         grib/GribAccessor.cc
-        grib/GribMutator.h
-        grib/GribMutator.cc
-        grib/GribIndex.h
-        grib/GribIndex.cc
-        grib/GribHandle.h
+        grib/GribAccessor.h
         grib/GribHandle.cc
-        grib/GribIterator.h
+        grib/GribHandle.h
         grib/GribIterator.cc
-        grib/GribDataBlob.h
-        grib/GribDataBlob.cc
-        grib/GribMetaData.h
-        grib/GribMetaData.cc
-        grib/LibEccodes.h
-        grib/LibEccodes.cc
-	pointdb/DataSource.cc
-	pointdb/DataSource.h
-	pointdb/FieldIndexer.cc
-	pointdb/FieldIndexer.h
-	pointdb/GribDataSource.cc
-	pointdb/GribDataSource.h
-	pointdb/GribFieldInfo.cc
-	pointdb/GribFieldInfo.h
-	pointdb/GribHandleDataSource.cc
-	pointdb/GribHandleDataSource.h
-	pointdb/PointIndex.cc
-	pointdb/PointIndex.h
-	pointdb/bits.h
-	pointdb/masks.h
+        grib/GribIterator.h
         )
 
     set( grib_libs eccodes )
 
 endif ()
 
-if ( HAVE_BUFR )
+if ( HAVE_ODB )
 
     list( APPEND metkit_srcs
-        bufr/BufrToRequest.cc
-        bufr/BufrToRequest.h
-        bufr/BufrHandle.h
-        bufr/BufrHandle.cc
+            odb/IdMapper.cc
+            odb/IdMapper.h
+            odb/OdbToRequest.cc
+            odb/OdbToRequest.h
+            codes/OdbDecoder.cc
+            codes/OdbContent.cc
+            codes/OdbContent.h
+            codes/OdbDecoder.h
+            codes/OdbSplitter.cc
+            codes/OdbSplitter.h
         )
-
-    set( bufr_libs eccodes )
-
-endif ()
-
+    set( odc_libs odccore )
+endif()
 
 ecbuild_add_library(
 
@@ -173,42 +184,15 @@ ecbuild_add_library(
     SOURCES
         ${metkit_srcs}
 
-    PRIVATE_INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
-        ${ECCODES_INCLUDE_DIRS}
-        ${NETCDF_INCLUDE_DIRS}
-        ${ODC_INCLUDE_DIRS}
+    PUBLIC_INCLUDES
+       $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src>
+       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 
-    LIBS
-        eckit eckit_option
-        ${odc_libs}
+    PRIVATE_LIBS
+        "${odc_libs}"
+
+    PUBLIC_LIBS
+        eckit
+        eckit_option
         ${grib_libs}
-        ${bufr_libs}
-        ${netcdflibs}
-)
-
-ecbuild_add_library(
-
-        TARGET metkit_odb
-
-        INSTALL_HEADERS LISTED
-
-        CONDITION HAVE_ODB2
-
-        HEADER_DESTINATION
-            ${INSTALL_INCLUDE_DIR}/metkit
-
-        SOURCES
-          odb/IdMapper.cc
-          odb/IdMapper.h
-          odb/OdbToRequest.cc
-          odb/OdbToRequest.h
-
-        PRIVATE_INCLUDES
-            ${ECKIT_INCLUDE_DIRS}
-            ${ODC_INCLUDE_DIRS}
-
-        LIBS
-            metkit
-            odccore
 )

@@ -16,8 +16,8 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "metkit/StepRange.h"
-#include "metkit/StepRangeNormalise.h"
+#include "metkit/mars/StepRange.h"
+#include "metkit/mars/StepRangeNormalise.h"
 
 
 #include "eckit/testing/Test.h"
@@ -25,10 +25,11 @@
 using namespace eckit::testing;
 
 namespace eckit {
-    template <> struct VectorPrintSelector<metkit::StepRange> { typedef VectorPrintSimple selector; };
+    template <> struct VectorPrintSelector<metkit::mars::StepRange> { typedef VectorPrintSimple selector; };
 }
 
 namespace metkit {
+namespace mars {
 namespace test {
 
 //-----------------------------------------------------------------------------
@@ -111,6 +112,7 @@ CASE("match range start") {
 
 
 }  // namespace test
+}  // namespace mars
 }  // namespace metkit
 
 //-----------------------------------------------------------------------------
