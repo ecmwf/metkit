@@ -62,8 +62,11 @@ void CodesSplitter::print(std::ostream& s) const {
 }  // namespace metkit
 //----------------------------------------------------------------------------------------------------------------------
 
+namespace eckit {
+namespace message {
+
 template<>
-bool eckit::message::SplitterBuilder<metkit::codes::CodesSplitter>::match(eckit::PeekHandle& handle) const {
+bool SplitterBuilder<metkit::codes::CodesSplitter>::match(eckit::PeekHandle& handle) const {
 
     unsigned char c0 = handle.peek(0);
     unsigned char c1 = handle.peek(1);
@@ -88,6 +91,9 @@ bool eckit::message::SplitterBuilder<metkit::codes::CodesSplitter>::match(eckit:
 
     return false;
 }
+
+}  // namespace message
+}  // namespace eckit
 
 static eckit::message::SplitterBuilder<metkit::codes::CodesSplitter> splitter;
 
