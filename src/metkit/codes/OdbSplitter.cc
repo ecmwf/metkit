@@ -51,8 +51,11 @@ void OdbSplitter::print(std::ostream& s) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+namespace eckit {
+namespace message {
+
 template <>
-bool eckit::message::SplitterBuilder<metkit::codes::OdbSplitter>::match(
+bool SplitterBuilder<metkit::codes::OdbSplitter>::match(
     eckit::PeekHandle& handle) const {
     unsigned char c0 = handle.peek(0);
     unsigned char c1 = handle.peek(1);
@@ -66,5 +69,8 @@ bool eckit::message::SplitterBuilder<metkit::codes::OdbSplitter>::match(
 
     return false;
 }
+
+}  // namespace message
+}  // namespace eckit
 
 static eckit::message::SplitterBuilder<metkit::codes::OdbSplitter> splitter;
