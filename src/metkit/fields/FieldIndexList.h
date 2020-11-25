@@ -20,7 +20,8 @@ namespace fields {
 
 class FieldIndex;
 
-struct FieldIndexList {
+class FieldIndexList {
+public:
     ~FieldIndexList();
 
     void readFrom( eckit::Stream& s );

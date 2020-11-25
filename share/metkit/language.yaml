@@ -468,7 +468,11 @@ _field: &_field
       - msmm
       - mmsa
 
-# anfoffset
+# anoffset
+  anoffset:
+    category: data
+    multiple: true
+    type: integer
 
   reference:
     category: data
