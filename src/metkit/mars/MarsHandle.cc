@@ -91,6 +91,18 @@ std::string MarsHandle::title() const
     return os.str();
 }
 
+std::string MarsHandle::metrics() const
+{
+    std::ostringstream os;
+
+    os << "client@" ;
+
+    os << eckit::net::TCPSocket::hostName(host_);
+
+    return os.str();
+}
+
+
 eckit::Length MarsHandle::openForRead()
 {
     static long size = eckit::Resource<long>("archiveSocketBufferSize",0);
