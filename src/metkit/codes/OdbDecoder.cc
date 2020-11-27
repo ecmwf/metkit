@@ -48,12 +48,17 @@ static void init() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-bool OdbDecoder::match(const eckit::message::Message& msg) const {
+bool OdbDecoder::isOdb(const eckit::message::Message& msg) {
     size_t len = msg.length();
     const unsigned char* p = static_cast<const unsigned char*>(msg.data());
     return len >= 5 and (
                (p[0] == 0xff and p[1] == 0xff and p[2] == 'O' and p[3] == 'D' and p[4] == 'A')
            );
+}
+
+
+bool OdbDecoder::match(const eckit::message::Message& msg) const {
+    return isOdb(msg);
 }
 
 
