@@ -44,6 +44,8 @@ public:
 
 	virtual eckit::Length estimate();
 	virtual std::string title() const;
+	virtual std::string metrics() const;
+
     virtual bool moveable() const { return true; }
 
 	// From Streamable
