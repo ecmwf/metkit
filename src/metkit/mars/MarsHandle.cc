@@ -91,7 +91,7 @@ std::string MarsHandle::title() const
     return os.str();
 }
 
-std::string MarsHandle::metrics() const
+std::string MarsHandle::metricsTag() const
 {
     std::ostringstream os;
 

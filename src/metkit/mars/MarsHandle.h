@@ -44,7 +44,7 @@ public:
 
 	virtual eckit::Length estimate();
 	virtual std::string title() const;
-	virtual std::string metrics() const;
+	virtual std::string metricsTag() const;
 
     virtual bool moveable() const { return true; }
 
