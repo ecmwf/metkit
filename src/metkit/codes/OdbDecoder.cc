@@ -9,6 +9,8 @@
  */
 
 #include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 #include "eccodes.h"
 
@@ -24,6 +26,7 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/odb/IdMapper.h"
 
 #include "odc/api/Odb.h"
 
@@ -48,17 +51,13 @@ static void init() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-bool OdbDecoder::isOdb(const eckit::message::Message& msg) {
+
+bool OdbDecoder::match(const eckit::message::Message& msg) const {
     size_t len = msg.length();
     const unsigned char* p = static_cast<const unsigned char*>(msg.data());
     return len >= 5 and (
                (p[0] == 0xff and p[1] == 0xff and p[2] == 'O' and p[3] == 'D' and p[4] == 'A')
            );
-}
-
-
-bool OdbDecoder::match(const eckit::message::Message& msg) const {
-    return isOdb(msg);
 }
 
 
@@ -72,7 +71,18 @@ public:
     virtual void operator()(const std::string& columnName,
                             const std::set<long>& vals) {
         ASSERT(vals.size() == 1);
-        gather_.setValue(mapping[columnName], *vals.begin());
+        std::string strValue;
+        if (metkit::odb::IdMapper::instance().alphanumeric(mapping[columnName], *vals.begin(), strValue)) {
+            gather_.setValue(mapping[columnName], strValue);
+        } else {
+            if (mapping[columnName] == "time") {
+                std::stringstream ss;
+                ss << std::setw(4) << std::setfill('0') << (*vals.begin()/100);
+                gather_.setValue(mapping[columnName], ss.str());
+            } else {
+                gather_.setValue(mapping[columnName], *vals.begin());
+            }
+        }
     }
 
     virtual void operator()(const std::string& columnName,
