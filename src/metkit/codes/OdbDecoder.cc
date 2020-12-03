@@ -27,6 +27,7 @@
 
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/odb/IdMapper.h"
+#include "metkit/fields/FieldIndex.h"
 
 #include "odc/api/Odb.h"
 
@@ -100,6 +101,56 @@ public:
 };
 
 
+class OdbFieldIndex : public metkit::fields::FieldIndex, public eckit::message::MetadataGatherer {
+
+public:  // methods
+
+    bool operator==(const OdbFieldIndex& rhs) {
+        return (stringValues_ == rhs.stringValues_ && doubleValues_ == rhs.doubleValues_ &&
+                longValues_ == rhs.longValues_);
+    }
+
+private:  // methods
+
+    void setValue(const std::string& name, double value) override {
+        metkit::fields::FieldIndex::setValue(name, value);
+    }
+    void setValue(const std::string& name, long value) override {
+        metkit::fields::FieldIndex::setValue(name, value);
+    }
+    void setValue(const std::string& name, const std::string& value) override {
+        metkit::fields::FieldIndex::setValue(name, value);
+    }
+
+    void print(std::ostream& s) const {
+        s << "{string:[";
+        std::string separator{""};
+        for(auto v: stringValues_) {
+            s << separator << v.first << "=" << v.second;
+            separator = ",";
+        }
+        s << longValues_.size() << "],long:[";
+        separator = "";
+        for(auto v: longValues_) {
+            s << separator << v.first << "=" << v.second;
+            separator = ",";
+        }
+        s << doubleValues_.size() << "],double:[";
+        separator = "";
+        for(auto v: doubleValues_) {
+            s << separator << v.first << "=" << v.second;
+            separator = ",";
+        }
+        s << "]}" << std::endl;
+    }
+
+    friend std::ostream& operator<<(std::ostream& s, const OdbFieldIndex& p) {
+        p.print(s);
+        return s;
+    }
+};
+
+
 void OdbDecoder::getMetadata(const eckit::message::Message& msg,
                              eckit::message::MetadataGatherer& gather) const {
     pthread_once(&once, init);
@@ -117,10 +168,32 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
         columnNames.push_back(kv.first);
     }
 
+    OdbFieldIndex* last = nullptr;
+    GatherSetter lastSetter(*last);
     GatherSetter setter(gather);
 
     while ((frame = reader.next())) {
         odc::api::Span span = frame.span(columnNames, true);
+
+        OdbFieldIndex* idx  = new OdbFieldIndex();
+        GatherSetter idxSetter(*idx);
+        span.visit(idxSetter);
+
+        if (last) {
+            if (*last == *idx) {
+                delete idx;
+            } else {
+                std::stringstream ss;
+                ss << "ERROR: Two ODB frames with different MARS metadata in the same message. ABORTING" << std::endl;
+                ss << *last;
+                ss << *idx;
+                eckit::Log::error() << ss.str() << std::endl;
+                throw eckit::SeriousBug(ss.str(), Here());
+            }
+        } else {
+            last = idx;
+        }
+
         span.visit(setter);
     }
 
