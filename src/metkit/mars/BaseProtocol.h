@@ -32,7 +32,7 @@ public:
     BaseProtocol(eckit::Stream&);
     BaseProtocol(const eckit::Configuration&);
 
-    virtual ~BaseProtocol();
+    virtual ~BaseProtocol() override;
 
     virtual eckit::Length retrieve(const MarsRequest&) = 0;
     virtual void archive(const MarsRequest&, const eckit::Length&) = 0;
@@ -46,7 +46,7 @@ public:
 
 protected:
     virtual void print(std::ostream&) const = 0;
-    virtual void encode(eckit::Stream&) const;
+    virtual void encode(eckit::Stream&) const override;
 
 private:
 
@@ -79,7 +79,7 @@ class ProtocolFactory {
 
 template<class T>
 class ProtocolBuilder : public ProtocolFactory {
-    virtual BaseProtocol *make(const eckit::Configuration &param) {
+    virtual BaseProtocol *make(const eckit::Configuration &param) override {
         return new T(param);
     }
   public:

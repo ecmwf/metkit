@@ -71,8 +71,8 @@ private:
     virtual long read(void* buffer, long len);
     virtual long write(const void* buffer, long len);
     virtual void cleanup();
-    virtual void print(std::ostream&) const;
-    virtual void encode(eckit::Stream&) const;
+    virtual void print(std::ostream&) const override;
+    virtual void encode(eckit::Stream&) const override;
 };
 
 }

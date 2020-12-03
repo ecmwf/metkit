@@ -25,7 +25,7 @@ public:
 
 // -- Destructor
 
-	virtual ~SimpleFieldIndex();
+	virtual ~SimpleFieldIndex() override;
 
 // -- Methods
 

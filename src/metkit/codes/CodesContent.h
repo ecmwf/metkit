@@ -35,7 +35,7 @@ private:
     virtual size_t length() const;
     virtual void write(eckit::DataHandle& handle) const;
     eckit::DataHandle* readHandle() const;
-    virtual void print(std::ostream & s) const;
+    virtual void print(std::ostream & s) const override;
     virtual std::string getString(const std::string& key) const;
     virtual long getLong(const std::string& key) const;
     virtual double getDouble(const std::string& key) const;
