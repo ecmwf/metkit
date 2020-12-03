@@ -65,6 +65,8 @@ ecbuild_find_package( NAME eckit  VERSION  1.11 REQUIRED )
 ############################################################################################
 # sources
 
+include(cmake/compiler_warnings.cmake) # optionally handle compiler specific warnings
+
 add_subdirectory( src )
 add_subdirectory( share )
 
