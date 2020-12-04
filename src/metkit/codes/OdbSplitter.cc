@@ -11,13 +11,6 @@
 
 #include "metkit/codes/OdbSplitter.h"
 
-#include "eckit/config/Resource.h"
-#include "eckit/io/Buffer.h"
-#include "eckit/io/PeekHandle.h"
-#include "eckit/io/MultiHandle.h"
-#include "eckit/message/Message.h"
-#include "metkit/mars/MarsRequest.h"
-
 #include "metkit/codes/OdbContent.h"
 #include "metkit/codes/OdbDecoder.h"
 #include "metkit/fields/FieldIndexGatherer.h"
@@ -36,7 +29,6 @@ eckit::message::Message OdbSplitter::next() {
         nextHandle_ = new eckit::SeekableHandle(handle_);
         nextHandle_->openForRead();
     }
-
 
     eckit::Offset offset = nextHandle_->position();
     eckit::Length length = 0;

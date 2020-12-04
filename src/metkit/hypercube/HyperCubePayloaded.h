@@ -42,8 +42,7 @@ public:
 
         int idx = indexOf(request);
 
-        ASSERT(0 <= idx);
-        ASSERT(idx < size());
+        ASSERT(0 <= idx && idx < size());
 
         auto entry = entries_.find(idx);
         if (entry == entries_.end()) {

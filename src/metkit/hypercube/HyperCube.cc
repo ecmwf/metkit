@@ -48,7 +48,7 @@ static const std::vector<std::string> axis_order = {
 
     "frequency",  "direction",
 
-    "channel",
+    "channel", "reportype"
 };
 
 
