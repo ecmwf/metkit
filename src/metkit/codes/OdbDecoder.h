@@ -16,9 +16,30 @@
 
 #include "eckit/message/Decoder.h"
 
+#include "odc/api/Odb.h"
+
 
 namespace metkit {
 namespace codes {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class OdbMetadataSetter : public odc::api::SpanVisitor {
+
+public:
+    static odc::api::Span span(odc::api::Frame& frame);
+
+    OdbMetadataSetter(eckit::message::MetadataGatherer& gather);
+
+    virtual void operator()(const std::string& columnName, const std::set<long>& vals);
+    virtual void operator()(const std::string& columnName, const std::set<double>& vals);
+    virtual void operator()(const std::string& columnName, const std::set<std::string>& vals);
+
+private:
+
+    eckit::message::MetadataGatherer& gather_;
+
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

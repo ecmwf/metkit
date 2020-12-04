@@ -27,9 +27,8 @@
 
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/odb/IdMapper.h"
-#include "metkit/fields/FieldIndex.h"
+#include "metkit/fields/FieldIndexGatherer.h"
 
-#include "odc/api/Odb.h"
 
 namespace metkit {
 namespace codes {
@@ -38,6 +37,7 @@ pthread_once_t once = PTHREAD_ONCE_INIT;
 
 
 static std::map<std::string, std::string> mapping;
+static std::vector<std::string> columnNames;
 
 static void init() {
     static eckit::PathName configPath(eckit::Resource<eckit::PathName>(
@@ -46,12 +46,55 @@ static void init() {
     eckit::YAMLConfiguration config(configPath);
     for (const auto& key : config.keys()) {
         // eckit::Log::info() << "mapping " << config.getString(key) << " - " << key << std::endl;
-        mapping[config.getString(key)] = eckit::StringTools::lower(key);
+        mapping[config.getString(key)] = eckit::StringTools::lower(key);        
+    }
+
+    columnNames.reserve(mapping.size());
+    for (const auto& kv : mapping) {
+        columnNames.push_back(kv.first);
     }
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
+
+odc::api::Span OdbMetadataSetter::span(odc::api::Frame& frame) {
+    pthread_once(&once, init);
+
+    return frame.span(columnNames, true);
+}
+
+OdbMetadataSetter::OdbMetadataSetter(eckit::message::MetadataGatherer& gather): gather_(gather) {}
+
+void OdbMetadataSetter::operator()(const std::string& columnName, const std::set<long>& vals) {
+    ASSERT(vals.size() == 1);
+    std::string strValue;
+    if (metkit::odb::IdMapper::instance().alphanumeric(mapping[columnName], *vals.begin(), strValue)) {
+        gather_.setValue(mapping[columnName], strValue);
+    } else {
+        if (mapping[columnName] == "time") {
+            std::stringstream ss;
+            ss << std::setw(4) << std::setfill('0') << (*vals.begin()/100);
+            gather_.setValue(mapping[columnName], ss.str());
+        } else {
+            gather_.setValue(mapping[columnName], *vals.begin());
+        }
+    }
+}
+
+void OdbMetadataSetter::operator()(const std::string& columnName, const std::set<double>& vals) {
+    ASSERT(vals.size() == 1);
+    gather_.setValue(mapping[columnName], *vals.begin());
+}
+
+void OdbMetadataSetter::operator()(const std::string& columnName, const std::set<std::string>& vals) {
+    ASSERT(vals.size() == 1);
+    gather_.setValue(mapping[columnName], eckit::StringTools::trim(*vals.begin()));
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 bool OdbDecoder::match(const eckit::message::Message& msg) const {
     size_t len = msg.length();
@@ -61,94 +104,6 @@ bool OdbDecoder::match(const eckit::message::Message& msg) const {
            );
 }
 
-
-class GatherSetter : public odc::api::SpanVisitor {
-
-    eckit::message::MetadataGatherer& gather_;
-
-public:
-    GatherSetter(eckit::message::MetadataGatherer& gather): gather_(gather) {}
-
-    virtual void operator()(const std::string& columnName,
-                            const std::set<long>& vals) {
-        ASSERT(vals.size() == 1);
-        std::string strValue;
-        if (metkit::odb::IdMapper::instance().alphanumeric(mapping[columnName], *vals.begin(), strValue)) {
-            gather_.setValue(mapping[columnName], strValue);
-        } else {
-            if (mapping[columnName] == "time") {
-                std::stringstream ss;
-                ss << std::setw(4) << std::setfill('0') << (*vals.begin()/100);
-                gather_.setValue(mapping[columnName], ss.str());
-            } else {
-                gather_.setValue(mapping[columnName], *vals.begin());
-            }
-        }
-    }
-
-    virtual void operator()(const std::string& columnName,
-                            const std::set<double>& vals) {
-        ASSERT(vals.size() == 1);
-        gather_.setValue(mapping[columnName], *vals.begin());
-    }
-
-    virtual void operator()(const std::string& columnName,
-                            const std::set<std::string>& vals) {
-        ASSERT(vals.size() == 1);
-        gather_.setValue(mapping[columnName], eckit::StringTools::trim(*vals.begin()));
-    }
-
-};
-
-
-class OdbFieldIndex : public metkit::fields::FieldIndex, public eckit::message::MetadataGatherer {
-
-public:  // methods
-
-    bool operator==(const OdbFieldIndex& rhs) {
-        return (stringValues_ == rhs.stringValues_ && doubleValues_ == rhs.doubleValues_ &&
-                longValues_ == rhs.longValues_);
-    }
-
-private:  // methods
-
-    void setValue(const std::string& name, double value) override {
-        metkit::fields::FieldIndex::setValue(name, value);
-    }
-    void setValue(const std::string& name, long value) override {
-        metkit::fields::FieldIndex::setValue(name, value);
-    }
-    void setValue(const std::string& name, const std::string& value) override {
-        metkit::fields::FieldIndex::setValue(name, value);
-    }
-
-    void print(std::ostream& s) const {
-        s << "{string:[";
-        std::string separator{""};
-        for(auto v: stringValues_) {
-            s << separator << v.first << "=" << v.second;
-            separator = ",";
-        }
-        s << longValues_.size() << "],long:[";
-        separator = "";
-        for(auto v: longValues_) {
-            s << separator << v.first << "=" << v.second;
-            separator = ",";
-        }
-        s << doubleValues_.size() << "],double:[";
-        separator = "";
-        for(auto v: doubleValues_) {
-            s << separator << v.first << "=" << v.second;
-            separator = ",";
-        }
-        s << "]}" << std::endl;
-    }
-
-    friend std::ostream& operator<<(std::ostream& s, const OdbFieldIndex& p) {
-        p.print(s);
-        return s;
-    }
-};
 
 
 void OdbDecoder::getMetadata(const eckit::message::Message& msg,
@@ -162,21 +117,14 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
     odc::api::Reader reader(*handle, false);
     odc::api::Frame frame;
 
-    std::vector<std::string> columnNames;
-    columnNames.reserve(mapping.size());
-    for (const auto& kv : mapping) {
-        columnNames.push_back(kv.first);
-    }
-
-    OdbFieldIndex* last = nullptr;
-    GatherSetter lastSetter(*last);
-    GatherSetter setter(gather);
+    fields::FieldIndexGatherer* last = nullptr;
+    OdbMetadataSetter setter(gather);
 
     while ((frame = reader.next())) {
-        odc::api::Span span = frame.span(columnNames, true);
+        odc::api::Span span = OdbMetadataSetter::span(frame);
 
-        OdbFieldIndex* idx  = new OdbFieldIndex();
-        GatherSetter idxSetter(*idx);
+        fields::FieldIndexGatherer* idx  = new fields::FieldIndexGatherer();
+        OdbMetadataSetter idxSetter(*idx);
         span.visit(idxSetter);
 
         if (last) {

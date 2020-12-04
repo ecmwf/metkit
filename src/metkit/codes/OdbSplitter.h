@@ -14,8 +14,9 @@
 #ifndef metkit_OdbSplitter_h
 #define metkit_OdbSplitter_h
 
-#include "eckit/message/Splitter.h"
 
+#include "eckit/message/Splitter.h"
+#include "eckit/io/SeekableHandle.h"
 
 namespace metkit {
 namespace codes {
@@ -29,8 +30,7 @@ public:
     ~OdbSplitter() override;
 
 private: // members
-
-    bool first_;
+    eckit::SeekableHandle* nextHandle_;
 
 private: // methods
 

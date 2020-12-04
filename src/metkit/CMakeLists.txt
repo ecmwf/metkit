@@ -89,6 +89,8 @@ list( APPEND metkit_srcs
     fields/FieldIndexList.h
     fields/SimpleFieldIndex.cc
     fields/SimpleFieldIndex.h
+    fields/FieldIndexGatherer.cc
+    fields/FieldIndexGatherer.h
     hypercube/HyperCube.cc
     hypercube/HyperCube.h
     hypercube/HyperCubePayloaded.h
