@@ -63,7 +63,7 @@ private: // members
 private: // members
 
     void print(std::ostream&) const;
-    void encode(eckit::Stream&) const;
+    void encode(eckit::Stream&) const override;
 
     eckit::Length openForRead();
     void openForWrite(const eckit::Length&);

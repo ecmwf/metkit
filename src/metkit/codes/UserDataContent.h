@@ -30,7 +30,7 @@ public:
 
 private:
 
-    virtual void print(std::ostream & s) const;
+    virtual void print(std::ostream & s) const override;
 
 
 };

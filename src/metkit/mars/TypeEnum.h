@@ -29,12 +29,12 @@ public: // methods
 
     TypeEnum(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeEnum();
+    virtual ~TypeEnum() override;
 
 
 private: // methods
 
-    virtual void print( std::ostream &out ) const;
+    virtual void print( std::ostream &out ) const override;
     virtual void reset();
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 

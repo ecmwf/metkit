@@ -50,7 +50,7 @@ public:
 
 	// From Streamable
 
-	virtual void encode(eckit::Stream&) const;
+	virtual void encode(eckit::Stream&) const override;
 	virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
 
 // -- Class methods

@@ -29,7 +29,7 @@ public: // methods
 
     TypeParam(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeParam();
+    virtual ~TypeParam() override;
 
 protected:
     virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
@@ -39,7 +39,7 @@ private: // methods
     eckit::ValueMap expandWith_;
     bool firstRule_;
 
-    virtual void print(std::ostream &out) const;
+    virtual void print(std::ostream &out) const override;
     virtual void reset();
     virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;

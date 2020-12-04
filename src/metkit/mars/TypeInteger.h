@@ -29,7 +29,7 @@ public: // methods
 
     TypeInteger(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeInteger();
+    virtual ~TypeInteger() override;
 
 protected:
 
@@ -39,7 +39,7 @@ protected:
 private: // methods
 
 
-    virtual void print( std::ostream &out ) const;
+    virtual void print( std::ostream &out ) const override;
 
 };
 
