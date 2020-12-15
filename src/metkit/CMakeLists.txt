@@ -89,8 +89,6 @@ list( APPEND metkit_srcs
     fields/FieldIndexList.h
     fields/SimpleFieldIndex.cc
     fields/SimpleFieldIndex.h
-    fields/FieldIndexGatherer.cc
-    fields/FieldIndexGatherer.h
     hypercube/HyperCube.cc
     hypercube/HyperCube.h
     hypercube/HyperCubePayloaded.h
@@ -158,6 +156,8 @@ if ( HAVE_ODB )
             odb/IdMapper.h
             odb/OdbToRequest.cc
             odb/OdbToRequest.h
+            codes/OdbMetadataDecoder.cc
+            codes/OdbMetadataDecoder.h
             codes/OdbDecoder.cc
             codes/OdbContent.cc
             codes/OdbContent.h

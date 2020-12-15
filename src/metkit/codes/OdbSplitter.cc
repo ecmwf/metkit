@@ -11,14 +11,17 @@
 
 #include "metkit/codes/OdbSplitter.h"
 
+#include "eckit/config/Resource.h"
+
 #include "metkit/codes/OdbContent.h"
 #include "metkit/codes/OdbDecoder.h"
-#include "metkit/fields/FieldIndexGatherer.h"
+#include "metkit/codes/OdbMetadataDecoder.h"
 
 #include "odc/api/Odb.h"
 
 namespace metkit {
 namespace codes {
+
 
 OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle), nextHandle_(nullptr) {}
 
@@ -32,29 +35,22 @@ eckit::message::Message OdbSplitter::next() {
 
     eckit::Offset offset = nextHandle_->position();
     eckit::Length length = 0;
-    fields::FieldIndexGatherer* last = nullptr;
 
-    odc::api::Frame frame;
     odc::api::Reader reader(*nextHandle_, false);
+    odc::api::Frame frame = reader.next();
+    if (frame) {
+        odc::api::Span last = frame.span(OdbMetadataDecoder::columnNames(), true);
+        length = frame.length();
 
-    while ((frame = reader.next())) {
-        odc::api::Span span = OdbMetadataSetter::span(frame);
+        while ((frame = reader.next())) {
+            odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
 
-        fields::FieldIndexGatherer* idx  = new fields::FieldIndexGatherer();
-        OdbMetadataSetter idxSetter(*idx);
-        span.visit(idxSetter);        
-
-        if (last) {
-            if (*last == *idx) {
-                delete idx;
+            if (span == last) {
                 length += frame.length();
             } else {
                 nextHandle_->seek(offset + length);
                 return eckit::message::Message{new OdbContent(handle_, length)};
             }
-        } else {
-            last = idx;
-            length = frame.length();
         }
     }
     if (length == eckit::Length(0)) {
