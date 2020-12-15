@@ -17,7 +17,6 @@
 #ifndef metkit_MarsParsedRequest_H
 #define metkit_MarsParsedRequest_H
 
-
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsParserContext.h"
 
@@ -32,10 +31,7 @@ public:
 
 };
 
-
-
 //----------------------------------------------------------------------------------------------------------------------
-
 
 } // namespace mars
 } // namespace metkit
