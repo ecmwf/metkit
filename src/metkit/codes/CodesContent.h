@@ -32,18 +32,17 @@ private:
     codes_handle* handle_;
     bool delete_handle_;
 
-    virtual size_t length() const;
-    virtual void write(eckit::DataHandle& handle) const;
-    eckit::DataHandle* readHandle() const;
-    virtual void print(std::ostream & s) const override;
-    virtual std::string getString(const std::string& key) const;
-    virtual long getLong(const std::string& key) const;
-    virtual double getDouble(const std::string& key) const;
-    virtual void getDoubleArray(const std::string& key, std::vector<double>& values) const;
-    virtual eckit::Offset offset() const;
+    size_t length() const override;
+    void write(eckit::DataHandle& handle) const override;
+    eckit::DataHandle* readHandle() const override;
+    void print(std::ostream & s) const override;
+    std::string getString(const std::string& key) const override;
+    long getLong(const std::string& key) const override;
+    double getDouble(const std::string& key) const override;
+    void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
+    eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
-    const void* data() const;
-
+    const void* data() const override;
 };
 
 
