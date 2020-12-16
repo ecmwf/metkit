@@ -15,21 +15,22 @@
 #define metkit_OdbSplitter_h
 
 #include "eckit/message/Splitter.h"
-#include "eckit/io/SeekableHandle.h"
+
+namespace eckit {
+class PeekHandle;
+}
 
 namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+
 class OdbSplitter : public eckit::message::Splitter {
 public:
 
     explicit OdbSplitter(eckit::PeekHandle&);
     ~OdbSplitter() override;
-
-private: // members
-    eckit::SeekableHandle* nextHandle_;
 
 private: // methods
 

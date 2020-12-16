@@ -11,10 +11,11 @@
 
 #include "metkit/codes/OdbSplitter.h"
 
-#include "eckit/config/Resource.h"
+#include "eckit/message/Message.h"
+//#include "eckit/io/PeekHandle.h"
+#include "eckit/io/SeekableHandle.h"
 
 #include "metkit/codes/OdbContent.h"
-#include "metkit/codes/OdbDecoder.h"
 #include "metkit/codes/OdbMetadataDecoder.h"
 
 #include "odc/api/Odb.h"
@@ -23,20 +24,20 @@ namespace metkit {
 namespace codes {
 
 
-OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle), nextHandle_(nullptr) {}
+OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle) {
+    handle.openForRead();
+}
 
 OdbSplitter::~OdbSplitter() {}
 
 eckit::message::Message OdbSplitter::next() {
-    if (!nextHandle_) {
-        nextHandle_ = new eckit::SeekableHandle(handle_);
-        nextHandle_->openForRead();
-    }
 
-    eckit::Offset offset = nextHandle_->position();
+    eckit::SeekableHandle seekHandle{handle_};
+    seekHandle.seek(handle_.position());
+
     eckit::Length length = 0;
 
-    odc::api::Reader reader(*nextHandle_, false);
+    odc::api::Reader reader(seekHandle, false);
     odc::api::Frame frame = reader.next();
     if (frame) {
         odc::api::Span last = frame.span(OdbMetadataDecoder::columnNames(), true);
@@ -48,7 +49,6 @@ eckit::message::Message OdbSplitter::next() {
             if (span == last) {
                 length += frame.length();
             } else {
-                nextHandle_->seek(offset + length);
                 return eckit::message::Message{new OdbContent(handle_, length)};
             }
         }
