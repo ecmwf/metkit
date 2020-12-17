@@ -12,7 +12,6 @@
 #include "metkit/codes/OdbSplitter.h"
 
 #include "eckit/message/Message.h"
-//#include "eckit/io/PeekHandle.h"
 #include "eckit/io/SeekableHandle.h"
 
 #include "metkit/codes/OdbContent.h"

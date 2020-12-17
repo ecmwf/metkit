@@ -38,9 +38,8 @@ public:
         return mapping;
     }
 
-    std::vector<std::string>& columnNames() { return columnNames_; }
-
-    std::map<std::string, std::string>& table() { return mapping_; }
+    const std::vector<std::string>& columnNames() { return columnNames_; }
+    const std::map<std::string, std::string>& table() { return mapping_; }
 
 private: // methods
 
@@ -68,7 +67,7 @@ private: // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<std::string>& OdbMetadataDecoder::columnNames() {
+const std::vector<std::string>& OdbMetadataDecoder::columnNames() {
     return Mapping::instance().columnNames();
 }
 

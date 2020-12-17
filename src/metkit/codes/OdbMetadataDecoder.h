@@ -39,7 +39,7 @@ public:
     virtual void operator()(const std::string& columnName, const std::set<double>& vals);
     virtual void operator()(const std::string& columnName, const std::set<std::string>& vals);
 
-    static std::vector<std::string>& columnNames();
+    static const std::vector<std::string>& columnNames();
 
 private: // methods
 
