@@ -29,13 +29,13 @@ public: // methods
 
     TypeRange(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeRange();
+    virtual ~TypeRange() override;
 
 private: // methods
 
-    virtual void print( std::ostream &out ) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
-
+    virtual void print( std::ostream &out ) const override;
+    virtual bool expand(const MarsExpandContext& ctx,
+                                              std::string& value) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -10,12 +10,8 @@
 
 #include "metkit/mars/MarsParsedRequest.h"
 
-
 namespace metkit {
 namespace mars {
-
-//----------------------------------------------------------------------------------------------------------------------
-
 
 MarsParsedRequest::MarsParsedRequest(const std::string& verb,
                                      size_t line,

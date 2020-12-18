@@ -135,7 +135,7 @@ public:
 
 	// From Streamble
 
-	// virtual void encode(eckit::Stream&) const;
+	// virtual void encode(eckit::Stream&) const override;
 	// virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
 
 	// From watcher
@@ -162,7 +162,7 @@ private:
 
 // -- Members
 
-	unsigned long long   txnID_;
+	// unsigned long long   txnID_; // unused
 	unsigned long long   metkitID_;
 	int                  port_;
     std::string               host_;

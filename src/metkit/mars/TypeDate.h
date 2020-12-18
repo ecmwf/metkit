@@ -29,16 +29,16 @@ public: // methods
 
     TypeDate(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeDate();
+    virtual ~TypeDate() override;
 
 private: // methods
 
-    virtual void print( std::ostream &out ) const;
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+    virtual void print( std::ostream &out ) const override;
+    virtual void expand(const MarsExpandContext& ctx,
+                        std::vector<std::string>& values) const override;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     long by_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------

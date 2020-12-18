@@ -29,12 +29,12 @@ public: // methods
 
     TypeAny(const std::string &name, const eckit::Value& settings = eckit::Value());
 
-    virtual ~TypeAny();
+    virtual ~TypeAny() override;
 
 private: // methods
 
-    virtual void print(std::ostream &out) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const;
+    virtual void print(std::ostream &out) const override;
+    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const override;
 
 };
 

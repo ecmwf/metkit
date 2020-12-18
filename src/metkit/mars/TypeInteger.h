@@ -29,17 +29,17 @@ public: // methods
 
     TypeInteger(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeInteger();
+    virtual ~TypeInteger() override;
 
 protected:
 
     bool ok(const std::string &value, long& n) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
 private: // methods
 
 
-    virtual void print( std::ostream &out ) const;
+    virtual void print( std::ostream &out ) const override;
 
 };
 

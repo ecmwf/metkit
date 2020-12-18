@@ -42,8 +42,8 @@ public:
 
     // -- Overridden methods (from Streamable)
 
-    virtual std::string className() const { return "DHSProtocol"; }
-    virtual const eckit::ReanimatorBase& reanimator() const;
+    virtual std::string className() const override { return "DHSProtocol"; }
+    virtual const eckit::ReanimatorBase& reanimator() const override;
     static  const eckit::ClassSpec& classSpec();
 
 private:
@@ -66,13 +66,13 @@ private:
 
     // -- Overridden methods
     // From BaseProtocol
-    virtual eckit::Length retrieve(const MarsRequest& request);
-    virtual void archive(const MarsRequest& request, const eckit::Length&);
-    virtual long read(void* buffer, long len);
-    virtual long write(const void* buffer, long len);
-    virtual void cleanup();
-    virtual void print(std::ostream&) const;
-    virtual void encode(eckit::Stream&) const;
+    virtual eckit::Length retrieve(const MarsRequest& request) override;
+    virtual void archive(const MarsRequest& request, const eckit::Length&) override;
+    virtual long read(void* buffer, long len) override;
+    virtual long write(const void* buffer, long len) override;
+    virtual void cleanup() override;
+    virtual void print(std::ostream&) const override;
+    virtual void encode(eckit::Stream&) const override;
 };
 
 }
