@@ -34,26 +34,26 @@ public:
 
 	// From eckit::DataHandle
 
-    virtual eckit::Length openForRead();
-    virtual void openForWrite(const eckit::Length&);
-    virtual void openForAppend(const eckit::Length&);
+    virtual eckit::Length openForRead() override;
+    virtual void openForWrite(const eckit::Length&) override;
+    virtual void openForAppend(const eckit::Length&) override;
 
-	virtual void close();
-	virtual long read(void*,long);
-	virtual long write(const void*,long);
+    virtual void close() override;
+    virtual long read(void*, long) override;
+    virtual long write(const void*, long) override;
 
-	virtual eckit::Length estimate();
-	virtual std::string title() const;
-	virtual std::string metricsTag() const;
+    virtual eckit::Length estimate() override;
+    virtual std::string title() const override;
+    virtual std::string metricsTag() const override;
 
-    virtual bool moveable() const { return true; }
+    virtual bool moveable() const override { return true; }
 
-	// From Streamable
+    // From Streamable
 
 	virtual void encode(eckit::Stream&) const override;
-	virtual const eckit::ReanimatorBase& reanimator() const { return reanimator_; }
+    virtual const eckit::ReanimatorBase& reanimator() const override { return reanimator_; }
 
-// -- Class methods
+    // -- Class methods
 
 	static const eckit::ClassSpec&  classSpec();
 
