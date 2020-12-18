@@ -33,7 +33,7 @@ public: // methods
 
 protected:
     virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request,
-                        std::vector<std::string>& values, bool fail) const override;
+                        std::vector<std::string>& values, bool fail) const;
 
 private: // methods
 

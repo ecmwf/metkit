@@ -36,8 +36,8 @@ public:  // methods
     Type(const std::string& name, const eckit::Value& settings);
 
     virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const override;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+                        std::vector<std::string>& values) const;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 
     virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
     virtual std::string tidy(const std::string& value) const;

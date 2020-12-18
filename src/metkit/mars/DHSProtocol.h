@@ -43,7 +43,7 @@ public:
     // -- Overridden methods (from Streamable)
 
     virtual std::string className() const override { return "DHSProtocol"; }
-    virtual const eckit::ReanimatorBase& reanimator() const;
+    virtual const eckit::ReanimatorBase& reanimator() const override;
     static  const eckit::ClassSpec& classSpec();
 
 private:
