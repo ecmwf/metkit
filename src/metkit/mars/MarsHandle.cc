@@ -18,72 +18,63 @@
 #include "metkit/mars/MarsHandle.h"
 
 
-
-
 const unsigned long startCRC = 0xffffffffL;
 
 eckit::Reanimator<MarsHandle> MarsHandle::reanimator_;
 
 class MarsHandleStream : public eckit::HandleStream {
-
     MarsHandle& handle_;
 
 public:
+    MarsHandleStream(MarsHandle& handle) : eckit::HandleStream(handle), handle_(handle) {
+        handle_.streamMode_ = true;
+    }
 
-    MarsHandleStream(MarsHandle& handle):
-        eckit::HandleStream(handle), handle_(handle)
-        { handle_.streamMode_ = true; }
-
-    ~MarsHandleStream()
-        { handle_.streamMode_ = false; }
+    ~MarsHandleStream() { handle_.streamMode_ = false; }
 };
 
-void MarsHandle::encode(eckit::Stream& s) const
-{
+void MarsHandle::encode(eckit::Stream& s) const {
     TCPHandle::encode(s);
     s << clientID_;
     s << doCRC_;
 }
 
-MarsHandle::MarsHandle(eckit::Stream& s)
-    : TCPHandle(s),
-      length_(0),
-      total_(0),
-      receiving_(false),
-      streamMode_(false),
-      doCRC_(false),
-      crc_(startCRC) {
+MarsHandle::MarsHandle(eckit::Stream& s) :
+    TCPHandle(s),
+    length_(0),
+    total_(0),
+    receiving_(false),
+    streamMode_(false),
+    doCRC_(false),
+    crc_(startCRC) {
     s >> clientID_;
 
-    if(s.endObjectFound())
-    {
+    if (s.endObjectFound()) {
         eckit::Log::info() << "Got old metkit without CRC" << std::endl;
         return;
     }
 
     s >> doCRC_;
-    if(doCRC_) eckit::Log::info() << "Got new metkit with CRC" << std::endl;
+    if (doCRC_)
+        eckit::Log::info() << "Got new metkit with CRC" << std::endl;
 }
 
-MarsHandle::MarsHandle(const std::string& host, int port, unsigned long long clientID)
-    : TCPHandle(host, port),
-      clientID_(clientID),
-      length_(0),
-      total_(0),
-      receiving_(false),
-      streamMode_(false),
-      doCRC_(false),
-      crc_(startCRC) {}
+MarsHandle::MarsHandle(const std::string& host, int port, unsigned long long clientID) :
+    TCPHandle(host, port),
+    clientID_(clientID),
+    length_(0),
+    total_(0),
+    receiving_(false),
+    streamMode_(false),
+    doCRC_(false),
+    crc_(startCRC) {}
 
-MarsHandle::~MarsHandle()
-{
-}
+MarsHandle::~MarsHandle() {}
 
-std::string MarsHandle::title() const
-{
+std::string MarsHandle::title() const {
     std::ostringstream os;
 
-    os << "Client[" ;
+    os << "Client[";
 
     os << eckit::net::TCPSocket::hostName(host_);
 
@@ -91,11 +82,10 @@ std::string MarsHandle::title() const
     return os.str();
 }
 
-std::string MarsHandle::metricsTag() const
-{
+std::string MarsHandle::metricsTag() const {
     std::ostringstream os;
 
-    os << "client@" ;
+    os << "client@";
 
     os << eckit::net::TCPSocket::hostName(host_);
 
@@ -103,9 +93,8 @@ std::string MarsHandle::metricsTag() const
 }
 
 
-eckit::Length MarsHandle::openForRead()
-{
-    static long size = eckit::Resource<long>("archiveSocketBufferSize",0);
+eckit::Length MarsHandle::openForRead() {
+    static long size = eckit::Resource<long>("archiveSocketBufferSize", 0);
 
     connection_.bufferSize(size);
 
@@ -114,9 +103,9 @@ eckit::Length MarsHandle::openForRead()
     MarsHandleStream s(*this);
 
 
-    s << clientID_;     // Send info
-    s << 'r';     // Send the request
-    s >> length_; // Get the length back
+    s << clientID_;  // Send info
+    s << 'r';        // Send the request
+    s >> length_;    // Get the length back
 
     eckit::Log::status() << "Receiving " << eckit::Bytes(length_) << std::endl;
 
@@ -127,17 +116,16 @@ eckit::Length MarsHandle::openForRead()
     return length_;
 }
 
-void MarsHandle::openForWrite(const eckit::Length& length)
-{
+void MarsHandle::openForWrite(const eckit::Length& length) {
     eckit::TCPHandle::openForWrite(length);
 
     MarsHandleStream s(*this);
 
     length_ = length;
 
-    s << clientID_; // Send info
+    s << clientID_;  // Send info
     s << 'w';
-    s << length_; // Send the length
+    s << length_;  // Send the length
 
     eckit::Log::status() << "Sending " << eckit::Bytes(length_) << std::endl;
 
@@ -145,61 +133,56 @@ void MarsHandle::openForWrite(const eckit::Length& length)
     receiving_ = false;
 }
 
-void MarsHandle::openForAppend(const eckit::Length&)
-{
+void MarsHandle::openForAppend(const eckit::Length&) {
     NOTIMP;
 }
 
-long MarsHandle::read(void *buffer,long length)
-{
-    if(streamMode_) return TCPHandle::read(buffer,length);
+long MarsHandle::read(void* buffer, long length) {
+    if (streamMode_)
+        return TCPHandle::read(buffer, length);
 
-    long long  left = length_ - total_;
+    long long left = length_ - total_;
 
-    if(left < length) {
+    if (left < length) {
         length = left;
-        if(length == 0) return 0;
+        if (length == 0)
+            return 0;
     }
 
-    long len = TCPHandle::read(buffer,length);
+    long len = TCPHandle::read(buffer, length);
 
-    if(doCRC_) updateCRC(buffer,len);
+    if (doCRC_)
+        updateCRC(buffer, len);
 
     total_ += len;
 
     return len;
 }
 
-long MarsHandle::write(const void *buffer,long length)
-{
-    long len = TCPHandle::write(buffer,length);
+long MarsHandle::write(const void* buffer, long length) {
+    long len = TCPHandle::write(buffer, length);
     total_ += len;
     return len;
 }
 
-void MarsHandle::close()
-{
-    bool gotCRC   = false;
+void MarsHandle::close() {
+    bool gotCRC           = false;
     unsigned long version = 0;
-    unsigned long crc = 0;
+    unsigned long crc     = 0;
 
-    if(length_ > 0 && total_ != length_)
-    {
+    if (length_ > 0 && total_ != length_) {
         TCPHandle::close();
 
-		eckit::Log::error() << "Recieved/Sent " << total_
-					 << " bytes instead of " << length_ << std::endl;
-        if(eckit::Exception::throwing())
-        {
+        eckit::Log::error() << "Recieved/Sent " << total_ << " bytes instead of " << length_
+                            << std::endl;
+        if (eckit::Exception::throwing()) {
             eckit::Log::error() << "A expection is already active" << std::endl;
             return;
         }
         throw eckit::ShortFile("Bad total in MarsHandle");
-	}
+    }
 
-    if(receiving_)
-    {
-
+    if (receiving_) {
         crc_ ^= 0xffffffff;
 
         length_ = 0;
@@ -217,34 +200,28 @@ void MarsHandle::close()
             crc = ((unsigned long)(c));
 
             gotCRC = true;
-
         }
-        catch(std::exception& e)
-        {
+        catch (std::exception& e) {
             eckit::Log::warning() << "Cannot read crc: " << e.what() << std::endl;
         }
-
     }
 
 
-    if(doCRC_ && gotCRC)
-    {
+    if (doCRC_ && gotCRC) {
         eckit::Log::info() << "Local CRC " << crc_ << ", remote CRC " << crc << std::endl;
         ASSERT(version == 1);
-        if(crc != crc_) {
-
+        if (crc != crc_) {
             {
-                FILE *p = popen("mail mab mar","w");
-                if(p) {
-                    fprintf(p,"CRC error\n");
+                FILE* p = popen("mail mab mar", "w");
+                if (p) {
+                    fprintf(p, "CRC error\n");
                     pclose(p);
                 }
             }
 
             {
                 eckit::PathName lock("~/locks/pause_if_crc_error");
-                while(lock.exists())
-                {
+                while (lock.exists()) {
                     eckit::Log::status() << "**** CRC ERROR ****" << std::endl;
                     ::sleep(120);
                 }
@@ -257,21 +234,16 @@ void MarsHandle::close()
     }
 
     TCPHandle::close();
-
 }
 
-eckit::Length MarsHandle::estimate()
-{
+eckit::Length MarsHandle::estimate() {
     return length_;
 }
 
 
-void MarsHandle::updateCRC(void* buffer,long length)
-{
-}
+void MarsHandle::updateCRC(void* buffer, long length) {}
 
-const eckit::ClassSpec& MarsHandle::classSpec()
-{
-    static const eckit::ClassSpec _classSpec = {&TCPHandle::classSpec(),"MarsHandle"};
+const eckit::ClassSpec& MarsHandle::classSpec() {
+    static const eckit::ClassSpec _classSpec = {&TCPHandle::classSpec(), "MarsHandle"};
     return _classSpec;
 }

@@ -162,7 +162,7 @@ private:
 
 // -- Members
 
-	unsigned long long   txnID_;
+	// unsigned long long   txnID_; // unused
 	unsigned long long   metkitID_;
 	int                  port_;
     std::string               host_;
