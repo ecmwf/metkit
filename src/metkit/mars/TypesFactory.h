@@ -71,7 +71,7 @@ protected:
 
 template <class T>
 class TypeBuilder : public TypesFactory {
-    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const {
+    virtual Type* make(const std::string& keyword, const eckit::Value& settings) const override {
         return new T(keyword, settings);
     }
 

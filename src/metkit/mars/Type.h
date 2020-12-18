@@ -81,7 +81,7 @@ protected:  // members
     std::map<std::string, std::set<std::string> > never_;
 
 protected:  // methods
-    virtual ~Type();
+    virtual ~Type() override;
 
 private:  // methods
     virtual void print(std::ostream& out) const = 0;

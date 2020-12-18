@@ -44,7 +44,7 @@ private:
     virtual eckit::Offset seek(const eckit::Offset&) const;
     virtual long read(void*, long) const;
     virtual const GribFieldInfo& info() const;
-    virtual void print(std::ostream& s) const;
+    virtual void print(std::ostream& s) const override;
     virtual const std::map<std::string, eckit::Value>& request() const;
     virtual std::string groupKey() const;
     virtual std::string sortKey() const;

@@ -29,11 +29,11 @@ public: // methods
 
     TypeToByList(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeToByList();
+    virtual ~TypeToByList() override;
 
 private: // methods
 
-    virtual void print( std::ostream &out ) const;
+    virtual void print( std::ostream &out ) const override;
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
 
     long by_;
