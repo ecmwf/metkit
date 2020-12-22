@@ -32,7 +32,8 @@ public: // methods
     virtual ~TypeParam() override;
 
 protected:
-    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
+    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request,
+                        std::vector<std::string>& values, bool fail) const;
 
 private: // methods
 
@@ -40,10 +41,10 @@ private: // methods
     bool firstRule_;
 
     virtual void print(std::ostream &out) const override;
-    virtual void reset();
-    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
-
+    virtual void reset() override;
+    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
+    virtual void expand(const MarsExpandContext& ctx,
+                        std::vector<std::string>& values) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

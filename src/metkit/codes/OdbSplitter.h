@@ -32,6 +32,8 @@ public:
     explicit OdbSplitter(eckit::PeekHandle&);
     ~OdbSplitter() override;
 
+private: // members
+
 private: // methods
 
     virtual eckit::message::Message next() override;

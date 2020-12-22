@@ -22,7 +22,6 @@
 namespace metkit {
 namespace codes {
 
-
 OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle) {
     handle.openForRead();
 }
