@@ -30,7 +30,7 @@ public:
 
 private: // members
 
-    bool first_;
+    // bool first_; // unused
 
 private: // methods
 

@@ -35,7 +35,7 @@ public:
 
 private:
     size_t line_;
-    size_t column_;
+    // size_t column_; // unused
 
     virtual void info(std::ostream& out) const;
 
