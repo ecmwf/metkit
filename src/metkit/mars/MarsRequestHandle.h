@@ -48,8 +48,8 @@ public:
     ~MarsRequestHandle();
 
     // -- Overridden methods (from Streamable)
-    virtual std::string className() const { return "MarsRequestHandle"; }
-    virtual const eckit::ReanimatorBase& reanimator() const;
+    virtual std::string className() const override { return "MarsRequestHandle"; }
+    virtual const eckit::ReanimatorBase& reanimator() const override;
     static  const eckit::ClassSpec& classSpec();
 
 private: // members
@@ -62,16 +62,16 @@ private: // members
 
 private: // members
 
-    void print(std::ostream&) const;
+    void print(std::ostream&) const override;
     void encode(eckit::Stream&) const override;
 
-    eckit::Length openForRead();
-    void openForWrite(const eckit::Length&);
-    void openForAppend(const eckit::Length&);
-    long read(void*, long );
-    long write(const void*, long);
-    void close();
-    bool canSeek() const;
+    eckit::Length openForRead() override;
+    void openForWrite(const eckit::Length&) override;
+    void openForAppend(const eckit::Length&) override;
+    long read(void*, long ) override;
+    long write(const void*, long) override;
+    void close() override;
+    bool canSeek() const override;
 };
 
 }
