@@ -60,9 +60,11 @@ StepRange::StepRange(const std::string& s):
 			break;
 
 		default:
-			ASSERT(1 == 0);
-			break;
-	}
+            std::ostringstream msg;
+            msg << "Bad StepRange [" << s << "]";
+            throw eckit::BadValue(msg.str(), Here());
+            break;
+    }
 
 }
 
