@@ -683,7 +683,11 @@ _field: &_field
     type: to-by-list
 
 # diagnostic
-# iteration
+
+  iteration:
+    category: data
+    type: integer
+    multiple: true
 
   channel:
     category: data
