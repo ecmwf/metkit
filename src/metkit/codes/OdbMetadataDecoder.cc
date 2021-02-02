@@ -25,16 +25,12 @@
 #include "metkit/odb/IdMapper.h"
 
 
-namespace metkit {
-namespace codes {
-
-//----------------------------------------------------------------------------------------------------------------------
-
-class Mapping {
+namespace {
+class OdbColumnNameMapping {
 
 public:
-    static Mapping& instance() {
-        static Mapping mapping;
+    static OdbColumnNameMapping& instance() {
+        static OdbColumnNameMapping mapping;
         return mapping;
     }
 
@@ -43,7 +39,7 @@ public:
 
 private: // methods
 
-    Mapping() {
+    OdbColumnNameMapping() {
         static eckit::PathName configPath(eckit::Resource<eckit::PathName>(
                                               "odbMarsRequestMapping",
                                               "~metkit/share/metkit/odb/marsrequest.yaml"));
@@ -64,18 +60,24 @@ private: // members
     std::vector<std::string> columnNames_;
 
 };
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace metkit {
+namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 const std::vector<std::string>& OdbMetadataDecoder::columnNames() {
-    return Mapping::instance().columnNames();
+    return OdbColumnNameMapping::instance().columnNames();
 }
 
 template <typename T>
 void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>& vals, const metkit::mars::MarsLanguage& language) {
 
-    auto mapitr = Mapping::instance().table().find(columnName);
-    ASSERT(mapitr != Mapping::instance().table().end());
+    auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
+    ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
     std::string keyword = eckit::StringTools::lower(mapitr->second);
     metkit::mars::Type* t = language.type(keyword);
 
@@ -97,8 +99,8 @@ void OdbMetadataDecoder::operator()(const std::string& columnName, const std::se
     LOG_DEBUG_LIB(LibMetkit) << "OdbMetadataDecoder::operator() columnName: " << columnName
                              << " vals: " << vals << std::endl;
 
-    auto mapitr = Mapping::instance().table().find(columnName);
-    ASSERT(mapitr != Mapping::instance().table().end());
+    auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
+    ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
 
     std::set<std::string> mapped;
     if (metkit::odb::IdMapper::instance().alphanumeric(mapitr->second, vals, mapped)) {
