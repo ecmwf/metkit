@@ -21,7 +21,7 @@
 // #include "metkit/mars/MarsRequest.h"
 // #include "metkit/codes/Decoder.h"
 
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 
 #include "eccodes.h"

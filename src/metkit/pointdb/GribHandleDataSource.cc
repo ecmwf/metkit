@@ -20,7 +20,7 @@
 #include "metkit/pointdb/PointIndex.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/io/StdFile.h"
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace pointdb {

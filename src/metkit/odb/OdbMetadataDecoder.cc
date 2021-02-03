@@ -14,7 +14,7 @@
 
 #include "eccodes.h"
 
-#include "metkit/codes/OdbMetadataDecoder.h"
+#include "metkit/odb/OdbMetadataDecoder.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"

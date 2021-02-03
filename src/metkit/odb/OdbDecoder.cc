@@ -12,7 +12,7 @@
 
 #include "eccodes.h"
 
-#include "metkit/codes/OdbDecoder.h"
+#include "metkit/odb/OdbDecoder.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
@@ -24,7 +24,7 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/codes/OdbMetadataDecoder.h"
+#include "metkit/odb/OdbMetadataDecoder.h"
 
 
 namespace metkit {

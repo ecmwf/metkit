@@ -18,7 +18,7 @@
 #include "odc/api/Odb.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/codes/OdbMetadataDecoder.h"
+#include "metkit/odb/OdbMetadataDecoder.h"
 
 
 using namespace eckit;

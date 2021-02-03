@@ -9,13 +9,13 @@
  */
 
 
-#include "metkit/codes/OdbSplitter.h"
+#include "metkit/odb/OdbSplitter.h"
 
 #include "eckit/message/Message.h"
 #include "eckit/io/SeekableHandle.h"
 
-#include "metkit/codes/OdbContent.h"
-#include "metkit/codes/OdbMetadataDecoder.h"
+#include "metkit/odb/OdbContent.h"
+#include "metkit/odb/OdbMetadataDecoder.h"
 
 #include "odc/api/Odb.h"
 
