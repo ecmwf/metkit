@@ -44,7 +44,7 @@ private:  // members
     eckit::StringDict mapping_;  // mapping ODB column names to keys in MARS keywords
 
     bool one_                 = false;
-    bool mergeSimilarBlocks_  = false;
+    // bool mergeSimilarBlocks_  = false; // unused
     bool onlyConstantColumns_ = false;
 };
 
