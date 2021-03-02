@@ -60,7 +60,7 @@ ecbuild_add_option( FEATURE ODB
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
 
-ecbuild_find_package( NAME eckit  VERSION  1.11 REQUIRED )
+ecbuild_find_package( NAME eckit  VERSION  1.16 REQUIRED )
 
 ############################################################################################
 # sources

@@ -9,37 +9,53 @@
  */
 
 
-#include "metkit/codes/OdbSplitter.h"
+#include "metkit/odb/OdbSplitter.h"
 
-#include "eckit/config/Resource.h"
-#include "eckit/io/Buffer.h"
-#include "eckit/io/PeekHandle.h"
-#include "eckit/io/SeekableHandle.h"
 #include "eckit/message/Message.h"
-#include "metkit/mars/MarsRequest.h"
+#include "eckit/io/SeekableHandle.h"
 
-#include "metkit/codes/OdbContent.h"
+#include "metkit/odb/OdbContent.h"
+#include "metkit/odb/OdbMetadataDecoder.h"
 
 #include "odc/api/Odb.h"
 
 namespace metkit {
 namespace codes {
 
-OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle) /*, first_(true) */ {}
+OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle) {
+    handle.openForRead();
+}
 
 OdbSplitter::~OdbSplitter() {}
 
 eckit::message::Message OdbSplitter::next() {
-    eckit::SeekableHandle f(handle_);
 
-    odc::api::Reader reader(f);
+    eckit::SeekableHandle seekHandle{handle_};
+    seekHandle.seek(handle_.position());
+
+    eckit::Length length = 0;
+
+    odc::api::Reader reader(seekHandle, false);
     odc::api::Frame frame = reader.next();
+    if (frame) {
+        odc::api::Span last = frame.span(OdbMetadataDecoder::columnNames(), true);
+        length = frame.length();
 
-    if (!frame) {
+        while ((frame = reader.next())) {
+            odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
+
+            if (span == last) {
+                length += frame.length();
+            } else {
+                return eckit::message::Message{new OdbContent(handle_, length)};
+            }
+        }
+    }
+    if (length == eckit::Length(0)) {
         return eckit::message::Message();
     }
 
-    return eckit::message::Message{new OdbContent(handle_, frame.length())};
+    return eckit::message::Message{new OdbContent(handle_, length)};
 }
 
 void OdbSplitter::print(std::ostream& s) const {

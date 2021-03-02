@@ -23,8 +23,6 @@ namespace codes {
 //----------------------------------------------------------------------------------------------------------------------
 
 class OdbDecoder : public eckit::message::Decoder {
-public: // methods
-
 
 private: // methods
 

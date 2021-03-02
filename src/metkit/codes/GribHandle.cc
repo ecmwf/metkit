@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 #include "eccodes.h"
 
@@ -16,7 +16,7 @@
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/StdFile.h"
 
-#include "metkit/grib/GribAccessor.h"
+#include "metkit/codes/GribAccessor.h"
 
 using namespace std;
 

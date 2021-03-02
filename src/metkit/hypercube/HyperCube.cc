@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include "eckit/exception/Exceptions.h"
+#include "eckit/parser/YAMLParser.h"
 
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -21,40 +22,40 @@
 namespace metkit {
 namespace hypercube {
 
-
-static const std::vector<std::string> axis_order = {
-
-    "class",      "type",      "stream",     "levtype",
-
-    "origin",     "product",   "section",    "method",   "system",
-
-    "date",       "refdate",   "hdate",      "time",     "anoffset",
-
-    "reference",  "step",      "fcmonth",    "fcperiod",
-
-    "leadtime",   "opttime",
-
-    "expver",     "domain",
-
-    "diagnostic", "iteration",
-
-    "quantile",   "number",
-
-    "levelist",   "latitude",  "longitude",  "range",
-
-    "param",
-
-    "ident",      "obstype",   "instrument",
-
-    "frequency",  "direction",
-
-    "channel",
-};
-
-
 static metkit::mars::Type& type(const std::string& name) {
     static metkit::mars::MarsLanguage language("retrieve");
     return *language.type(name);
+}
+
+namespace {
+class AxisOrder {
+public: // methods
+    static AxisOrder& instance() {
+        static AxisOrder instance;
+        return instance;
+    }
+
+    const std::vector<std::string>& axes() {
+        return axes_;
+    }
+
+private: // methods
+    AxisOrder() {
+        eckit::Value axis =  eckit::YAMLParser::decodeFile(axisYamlFile());
+        const eckit::Value axesNames = axis["axes"];
+
+        for (size_t i = 0; i < axesNames.size(); ++i) {
+            axes_.push_back(axesNames[i]);
+        }
+    }
+
+    eckit::PathName axisYamlFile() {
+        return "~metkit/share/metkit/axis.yaml";
+    }
+
+private: // members
+    std::vector<std::string> axes_;
+};
 }
 
 class Axis {
@@ -90,12 +91,11 @@ private:
     metkit::mars::Type& type_;
 };
 
-
 HyperCube::HyperCube(const metkit::mars::MarsRequest& request) : cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
 
-    for (auto& name : axis_order) {
+    for (auto& name : AxisOrder::instance().axes()) {
         std::vector<std::string> values = request.values(name, true);
 
         if (!values.empty()) {

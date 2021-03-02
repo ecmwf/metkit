@@ -17,7 +17,7 @@
 #define metkit_codes_OdbContent_H
 
 #include "eckit/message/MessageContent.h"
-#include "eckit/io/ResizableBuffer.h"
+#include "eckit/io/Buffer.h"
 
 namespace metkit {
 namespace codes {
@@ -29,7 +29,7 @@ public:
 
 private:
 
-    eckit::ResizableBuffer frame_;
+    eckit::Buffer frame_;
 
     virtual size_t length() const override;
     const void* data() const override;

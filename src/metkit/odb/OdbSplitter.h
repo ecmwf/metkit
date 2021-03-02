@@ -16,11 +16,15 @@
 
 #include "eckit/message/Splitter.h"
 
+namespace eckit {
+class PeekHandle;
+}
 
 namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
+
 
 class OdbSplitter : public eckit::message::Splitter {
 public:
@@ -29,8 +33,6 @@ public:
     ~OdbSplitter() override;
 
 private: // members
-
-    // bool first_; // unused
 
 private: // methods
 

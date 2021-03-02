@@ -20,7 +20,7 @@
 #include "eckit/message/Message.h"
 #include "metkit/mars/MarsRequest.h"
 #include "eckit/io/PeekHandle.h"
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace codes {

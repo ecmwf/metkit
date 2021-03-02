@@ -8,11 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/grib/GribAccessor.h"
+#include "metkit/codes/GribAccessor.h"
 
 #include "eccodes.h"
 
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace grib {

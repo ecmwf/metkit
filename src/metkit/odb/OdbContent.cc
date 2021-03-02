@@ -12,7 +12,7 @@
 /// @date   Jun 2020
 
 
-#include "metkit/codes/OdbContent.h"
+#include "metkit/odb/OdbContent.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
