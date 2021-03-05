@@ -8,24 +8,25 @@
  * does it submit to any jurisdiction.
  */
 
-
+#include "metkit/codes/CodesSplitter.h"
 
 #include "eccodes.h"
 
-#include "metkit/codes/CodesSplitter.h"
-#include "metkit/codes/CodesContent.h"
-#include "metkit/codes/MallocDataContent.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/message/Message.h"
-#include "metkit/mars/MarsRequest.h"
 #include "eckit/io/PeekHandle.h"
+
+#include "metkit/codes/CodesContent.h"
+#include "metkit/codes/MallocDataContent.h"
 #include "metkit/grib/GribHandle.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
+
 CodesSplitter::CodesSplitter(eckit::PeekHandle& handle):
     Splitter(handle) {}
 
@@ -44,11 +45,12 @@ eckit::message::Message CodesSplitter::next() {
     if(err != 0 and err != GRIB_END_OF_FILE) {
         CODES_CALL(err);
     }
+    
     if(!data) {
         return eckit::message::Message();
     }
-    return eckit::message::Message(new MallocDataContent(data, size, 0));
 
+    return eckit::message::Message(new MallocDataContent(data, size, 0));
 }
 
 void CodesSplitter::print(std::ostream& s) const {
@@ -57,6 +59,7 @@ void CodesSplitter::print(std::ostream& s) const {
 
 }  // namespace codes
 }  // namespace metkit
+
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace eckit {

@@ -28,9 +28,6 @@ public:
     CodesSplitter(eckit::PeekHandle&);
     ~CodesSplitter();
 
-private: // members
-
-
 private: // methods
 
     virtual eckit::message::Message next() override;
