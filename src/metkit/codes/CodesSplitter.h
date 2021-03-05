@@ -30,7 +30,6 @@ public:
 
 private: // members
 
-    FILE* file_;
 
 private: // methods
 
