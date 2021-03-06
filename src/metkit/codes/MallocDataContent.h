@@ -9,12 +9,10 @@
  */
 
 /// @author Baudouin Raoult
+/// @author Tiago Quintino
 /// @date   Jun 2020
 
-
-
-#ifndef metkit_codes_MallocDataContent_H
-#define metkit_codes_MallocDataContent_H
+#pragma once
 
 #include "metkit/codes/DataContent.h"
 #include "eckit/io/Offset.h"
@@ -29,20 +27,17 @@ public:
     MallocDataContent(void* data, size_t size, const eckit::Offset& offset);
     ~MallocDataContent();
 
-private:
+private:  // methods
+    void print(std::ostream& s) const override;
+    eckit::Offset offset() const override;
 
+    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
+
+private:  // members
     void* buffer_;
     eckit::Offset offset_;
-
-    virtual void print(std::ostream & s) const override;
-    virtual eckit::Offset offset() const override;
-
-
 };
 
 
 }  // namespace codes
 }  // namespace metkit
-
-
-#endif

@@ -21,7 +21,9 @@
 // #include "metkit/mars/MarsRequest.h"
 // #include "metkit/codes/Decoder.h"
 
-#include "metkit/codes/GribHandle.h"
+#include "eckit/memory/Zero.h"
+
+#include "metkit/grib/GribHandle.h"
 
 
 #include "eccodes.h"
@@ -108,6 +110,32 @@ void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& v
     values.resize(count);
     CODES_CALL(codes_get_double_array(handle_, key.c_str(), &values[0], &count));
     ASSERT(count == size);
+}
+
+eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict& dict) const {
+    codes_handle* h = codes_handle_clone(handle_);
+
+    ASSERT(dict.size() <= 256);
+    codes_values values[256];
+    eckit::zero(values);
+    size_t i = 0;
+    for (auto& kv : dict) {
+        // eckit::Log::info() << "kv: key " << kv.first << " value " << kv.second << std::endl;
+        values[i].name         = kv.first.c_str();
+        values[i].string_value = kv.second.c_str();
+        values[i].type         = GRIB_TYPE_STRING;
+        i++;
+    }
+
+    try {
+        CODES_CALL(codes_set_values(h, values, i));
+    }
+    catch(...) {
+        codes_handle_delete(h);
+        throw;
+    }
+
+    return new CodesContent(h);
 }
 
 eckit::Offset CodesContent::offset() const {
