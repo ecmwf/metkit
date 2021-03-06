@@ -23,7 +23,7 @@
 
 #include "eckit/memory/Zero.h"
 
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 
 #include "eccodes.h"

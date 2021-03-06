@@ -17,6 +17,7 @@
 #include "eckit/message/Message.h"
 #include "eckit/io/PeekHandle.h"
 
+#include "metkit/codes/MallocDataContent.h"
 #include "metkit/codes/GribHandle.h"
 
 namespace metkit {
