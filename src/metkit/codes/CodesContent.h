@@ -11,12 +11,12 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-
-
 #ifndef metkit_codes_CodesContent_H
 #define metkit_codes_CodesContent_H
 
 #include "eckit/message/MessageContent.h"
+
+typedef struct grib_handle codes_handle;
 
 namespace metkit {
 namespace codes {
@@ -40,6 +40,7 @@ private:
     long getLong(const std::string& key) const override;
     double getDouble(const std::string& key) const override;
     void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
+    void setString(const std::string& key, const std::string& value) override;
     eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
     const void* data() const override;

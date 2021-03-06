@@ -110,6 +110,11 @@ void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& v
     ASSERT(count == size);
 }
 
+void CodesContent::setString(const std::string& key, const std::string& value) {
+    size_t size = value.size();
+    CODES_CALL(codes_set_string(handle_, key.c_str(), value.c_str(), &size));
+}
+
 eckit::Offset CodesContent::offset() const {
     long pos;
     CODES_CALL(codes_get_long(handle_, "offset", &pos));
