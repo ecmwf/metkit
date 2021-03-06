@@ -40,10 +40,10 @@ private:
     long getLong(const std::string& key) const override;
     double getDouble(const std::string& key) const override;
     void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
-    void setString(const std::string& key, const std::string& value) override;
     eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
     const void* data() const override;
+    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
 };
 
 
