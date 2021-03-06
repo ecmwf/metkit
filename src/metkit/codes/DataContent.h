@@ -11,13 +11,12 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-
-
 #ifndef metkit_codes_DataContent_H
 #define metkit_codes_DataContent_H
 
 #include "eckit/message/MessageContent.h"
 
+typedef struct grib_handle codes_handle;
 
 namespace metkit {
 namespace codes {
@@ -28,8 +27,7 @@ public:
     DataContent(const void* data, size_t size);
     ~DataContent();
 
-private:
-
+protected:
     const void* data_;
     const size_t size_;
     mutable codes_handle* handle_;
@@ -40,10 +38,7 @@ private:
     virtual void write(eckit::DataHandle& handle) const override;
 
     virtual const codes_handle* codesHandle() const;
-
-
 };
-
 
 }  // namespace codes
 }  // namespace metkit
