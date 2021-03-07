@@ -12,9 +12,12 @@
 /// @date   Jun 2020
 
 #include <iostream>
+#include <memory>
+
+#include "eckit/message/MessageContent.h"
+#include "eckit/exception/Exceptions.h"
 
 #include "metkit/codes/MallocDataContent.h"
-
 #include "metkit/codes/CodesContent.h"
 
 #include "eccodes.h" /// @todo remove this depedency on eccodes fom here
@@ -46,7 +49,11 @@ eckit::message::MessageContent* MallocDataContent::transform(const eckit::String
     /// TODO come back and work on the Transformers of Messages with proper double-dispatch
 
     codes_handle* h = codes_handle_new_from_message(nullptr, data(), length());
-    std::unique_ptr<MessageContent> content(new CodesContent(h, true));
+    if(!h) {
+        throw eckit::FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle", Here());
+    }
+
+    std::unique_ptr<eckit::message::MessageContent> content(new metkit::codes::CodesContent(h, true));
 
     return content->transform(dict);
 }
