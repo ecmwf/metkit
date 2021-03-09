@@ -13,7 +13,6 @@
 
 #include "eckit/message/Message.h"
 #include "eckit/io/PeekHandle.h"
-#include "eckit/io/MemoryHandle.h"
 
 #include "metkit/odb/OdbContent.h"
 #include "metkit/odb/OdbMetadataDecoder.h"
