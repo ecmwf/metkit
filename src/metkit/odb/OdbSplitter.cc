@@ -22,7 +22,7 @@
 namespace metkit {
 namespace codes {
 
-OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle), eof_(false) {
+OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle), reader_(handle, false) {
     handle.openForRead();
 }
 
@@ -30,37 +30,34 @@ OdbSplitter::~OdbSplitter() {}
 
 eckit::message::Message OdbSplitter::next() {
 
-    if (eof_) {
-        return eckit::message::Message();
+    if (!lastFrame_) {
+        lastFrame_ = reader_.next();
+        if (!lastFrame_) {
+            return eckit::message::Message();
+        }
     }
 
-    odc::api::Reader reader(handle_, false);    
-    odc::api::Frame frame = reader.next();
-    if (!frame) {
-        eof_ = true;
-        return eckit::message::Message();
-    }
+    odc::api::Span reference = lastFrame_.span(OdbMetadataDecoder::columnNames(), true);
+    eckit::Buffer buffer = lastFrame_.encodedData();
+    eckit::Length offset = lastFrame_.length();
+    lastFrame_ = odc::api::Frame(); //< we have consumed lastFrame_
 
-    odc::api::Span last = frame.span(OdbMetadataDecoder::columnNames(), true);
-    eckit::Buffer buffer = frame.encodedData();
-    eckit::Length offset = frame.length();
-
-    while ((frame = reader.next())) {
+    odc::api::Frame frame;
+    // aggregate all frames with the same metadata Span as reference Span
+    while ((frame = reader_.next())) {
         odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
 
-        if (span == last) {
+        if (span == reference) {
             buffer.resize(offset + frame.length(), true);
             buffer.copy(frame.encodedData(), frame.length(), offset);
             offset += frame.length();
+        } else {
+            lastFrame_ = frame; //< remember last frame, to re-use it as reference on the following next()
+            break;
         }
     }
-    if (!frame) {
-        eof_ = true;
-    }
 
-    eckit::MemoryHandle odbContentHandle(buffer);
-    odbContentHandle.openForRead();
-    return eckit::message::Message{new OdbContent(odbContentHandle, offset)};
+    return eckit::message::Message{new OdbContent(std::move(buffer))};
 }
 
 void OdbSplitter::print(std::ostream& s) const {
