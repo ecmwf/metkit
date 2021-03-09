@@ -24,6 +24,7 @@ namespace codes {
 
 class OdbContent : public eckit::message::MessageContent {
 public:
+    OdbContent(eckit::Buffer&&);
     OdbContent(eckit::DataHandle&, size_t size);
     ~OdbContent();
 

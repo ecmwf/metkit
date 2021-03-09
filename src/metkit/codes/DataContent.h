@@ -26,8 +26,7 @@ public:
     DataContent(const void* data, size_t size);
     ~DataContent();
 
-private:
-
+protected:
     const void* data_;
     const size_t size_;
     mutable codes_handle* handle_;

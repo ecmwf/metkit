@@ -16,6 +16,8 @@
 
 #include "eckit/message/Splitter.h"
 
+#include "odc/api/Odb.h"
+
 namespace eckit {
 class PeekHandle;
 }
@@ -33,6 +35,8 @@ public:
     ~OdbSplitter() override;
 
 private: // members
+    odc::api::Reader reader_;
+    odc::api::Frame lastFrame_;
 
 private: // methods
 

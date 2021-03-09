@@ -12,17 +12,16 @@
 #include "metkit/odb/OdbSplitter.h"
 
 #include "eckit/message/Message.h"
-#include "eckit/io/SeekableHandle.h"
+#include "eckit/io/PeekHandle.h"
 
 #include "metkit/odb/OdbContent.h"
 #include "metkit/odb/OdbMetadataDecoder.h"
 
-#include "odc/api/Odb.h"
 
 namespace metkit {
 namespace codes {
 
-OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle) {
+OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle), reader_(handle, false) {
     handle.openForRead();
 }
 
@@ -30,32 +29,34 @@ OdbSplitter::~OdbSplitter() {}
 
 eckit::message::Message OdbSplitter::next() {
 
-    eckit::SeekableHandle seekHandle{handle_};
-    seekHandle.seek(handle_.position());
-
-    eckit::Length length = 0;
-
-    odc::api::Reader reader(seekHandle, false);
-    odc::api::Frame frame = reader.next();
-    if (frame) {
-        odc::api::Span last = frame.span(OdbMetadataDecoder::columnNames(), true);
-        length = frame.length();
-
-        while ((frame = reader.next())) {
-            odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
-
-            if (span == last) {
-                length += frame.length();
-            } else {
-                return eckit::message::Message{new OdbContent(handle_, length)};
-            }
+    if (!lastFrame_) {
+        lastFrame_ = reader_.next();
+        if (!lastFrame_) {
+            return eckit::message::Message();
         }
     }
-    if (length == eckit::Length(0)) {
-        return eckit::message::Message();
+
+    odc::api::Span reference = lastFrame_.span(OdbMetadataDecoder::columnNames(), true);
+    eckit::Buffer buffer = lastFrame_.encodedData();
+    eckit::Length offset = lastFrame_.length();
+    lastFrame_ = odc::api::Frame(); //< we have consumed lastFrame_
+
+    odc::api::Frame frame;
+    // aggregate all frames with the same metadata Span as reference Span
+    while ((frame = reader_.next())) {
+        odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
+
+        if (span == reference) {
+            buffer.resize(offset + frame.length(), true);
+            buffer.copy(frame.encodedData(), frame.length(), offset);
+            offset += frame.length();
+        } else {
+            lastFrame_ = frame; //< remember last frame, to re-use it as reference on the following next()
+            break;
+        }
     }
 
-    return eckit::message::Message{new OdbContent(handle_, length)};
+    return eckit::message::Message{new OdbContent(std::move(buffer))};
 }
 
 void OdbSplitter::print(std::ostream& s) const {

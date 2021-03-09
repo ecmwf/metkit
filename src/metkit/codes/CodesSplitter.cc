@@ -8,50 +8,47 @@
  * does it submit to any jurisdiction.
  */
 
-
+#include "metkit/codes/CodesSplitter.h"
 
 #include "eccodes.h"
 
-#include "metkit/codes/CodesSplitter.h"
-#include "metkit/codes/CodesContent.h"
-#include "metkit/codes/MallocDataContent.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/message/Message.h"
-#include "metkit/mars/MarsRequest.h"
 #include "eckit/io/PeekHandle.h"
+
+#include "metkit/codes/MallocDataContent.h"
 #include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
+
 CodesSplitter::CodesSplitter(eckit::PeekHandle& handle):
-    Splitter(handle) {
-    file_ = handle.openf();
-}
+    Splitter(handle) {}
 
-CodesSplitter::~CodesSplitter() {
-    if (file_) {
-        fclose(file_);
-    }
-}
+CodesSplitter::~CodesSplitter() {}
 
+static long readcb(void* data, void* buffer, long len) {
+    eckit::DataHandle* handle = reinterpret_cast<eckit::DataHandle*>(data);
+    return handle->read(buffer, len);
+}
 
 eckit::message::Message CodesSplitter::next() {
     size_t size;
-    off_t offset;
     int err = 0;
-    void *data = wmo_read_any_from_file_malloc(file_, 0, &size, &offset, &err);
+    void *data = wmo_read_any_from_stream_malloc(&handle_, &readcb, &size, &err);
 
     if(err != 0 and err != GRIB_END_OF_FILE) {
         CODES_CALL(err);
     }
+    
     if(!data) {
         return eckit::message::Message();
     }
-    return eckit::message::Message(new MallocDataContent(data, size, offset));
 
+    return eckit::message::Message(new MallocDataContent(data, size, 0));
 }
 
 void CodesSplitter::print(std::ostream& s) const {
@@ -60,6 +57,7 @@ void CodesSplitter::print(std::ostream& s) const {
 
 }  // namespace codes
 }  // namespace metkit
+
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace eckit {

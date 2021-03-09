@@ -17,6 +17,8 @@
 
 #include "eckit/message/MessageContent.h"
 
+typedef struct grib_handle codes_handle;
+
 namespace metkit {
 namespace codes {
 
@@ -43,6 +45,7 @@ private:
     const codes_handle* codesHandle() const;
     const void* data() const override;
 
+    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
 };
 
 }  // namespace codes
