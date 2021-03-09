@@ -33,6 +33,7 @@ public:
     ~OdbSplitter() override;
 
 private: // members
+    bool eof_;
 
 private: // methods
 
