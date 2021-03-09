@@ -11,13 +11,11 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
+#pragma once
 
-
-#ifndef metkit_codes_DataContent_H
-#define metkit_codes_DataContent_H
+#include "eccodes.h"
 
 #include "eckit/message/MessageContent.h"
-
 
 namespace metkit {
 namespace codes {
@@ -40,13 +38,7 @@ private:
     virtual void write(eckit::DataHandle& handle) const override;
 
     virtual const codes_handle* codesHandle() const;
-
-
 };
-
 
 }  // namespace codes
 }  // namespace metkit
-
-
-#endif

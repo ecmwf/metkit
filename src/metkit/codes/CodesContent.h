@@ -11,10 +11,9 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
+#pragma once
 
-
-#ifndef metkit_codes_CodesContent_H
-#define metkit_codes_CodesContent_H
+#include "eccodes.h"
 
 #include "eckit/message/MessageContent.h"
 
@@ -46,9 +45,5 @@ private:
 
 };
 
-
 }  // namespace codes
 }  // namespace metkit
-
-
-#endif
