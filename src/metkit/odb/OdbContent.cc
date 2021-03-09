@@ -21,6 +21,9 @@
 namespace metkit {
 namespace codes {
 
+OdbContent::OdbContent(eckit::Buffer&& buffer):
+    frame_(std::move(buffer)) {}
+
 OdbContent::OdbContent(eckit::DataHandle& handle, size_t size):
     frame_(size) {
     ASSERT(handle.read(frame_, frame_.size()) == frame_.size());
