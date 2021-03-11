@@ -37,7 +37,8 @@ eckit::message::Message OdbSplitter::next() {
     }
 
     odc::api::Span reference = lastFrame_.span(OdbMetadataDecoder::columnNames(), true);
-    eckit::Buffer buffer = lastFrame_.encodedData();
+    eckit::Buffer buffer(std::max(eckit::Length(16*1024*1024), lastFrame_.length()));
+    buffer.copy(lastFrame_.encodedData(), lastFrame_.length(), 0);
     eckit::Length offset = lastFrame_.length();
     lastFrame_ = odc::api::Frame(); //< we have consumed lastFrame_
 
@@ -47,7 +48,9 @@ eckit::message::Message OdbSplitter::next() {
         odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
 
         if (span == reference) {
-            buffer.resize(offset + frame.length(), true);
+            while (buffer.size() < offset + frame.length()) {
+                buffer.resize(2*buffer.size(), true);
+            }
             buffer.copy(frame.encodedData(), frame.length(), offset);
             offset += frame.length();
         } else {
@@ -56,6 +59,7 @@ eckit::message::Message OdbSplitter::next() {
         }
     }
 
+    buffer.resize(offset, true);
     return eckit::message::Message{new OdbContent(std::move(buffer))};
 }
 
