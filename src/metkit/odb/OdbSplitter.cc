@@ -11,8 +11,11 @@
 
 #include "metkit/odb/OdbSplitter.h"
 
-#include "eckit/message/Message.h"
+#include "eckit/io/BufferList.h"
 #include "eckit/io/PeekHandle.h"
+#include "eckit/message/Message.h"
+
+#include "metkit/config/LibMetkit.h"
 
 #include "metkit/odb/OdbContent.h"
 #include "metkit/odb/OdbMetadataDecoder.h"
@@ -28,7 +31,6 @@ OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) : Splitter(handle), reader_(
 OdbSplitter::~OdbSplitter() {}
 
 eckit::message::Message OdbSplitter::next() {
-
     if (!lastFrame_) {
         lastFrame_ = reader_.next();
         if (!lastFrame_) {
@@ -36,31 +38,37 @@ eckit::message::Message OdbSplitter::next() {
         }
     }
 
+    eckit::BufferList buffers;
+
     odc::api::Span reference = lastFrame_.span(OdbMetadataDecoder::columnNames(), true);
-    eckit::Buffer buffer(std::max(eckit::Length(16*1024*1024), lastFrame_.length()));
-    buffer.copy(lastFrame_.encodedData(), lastFrame_.length(), 0);
-    eckit::Length offset = lastFrame_.length();
-    lastFrame_ = odc::api::Frame(); //< we have consumed lastFrame_
+
+    buffers.append(lastFrame_.encodedData());
+    LOG_DEBUG_LIB(LibMetkit) << "ODB frame: " << buffers.count() << ", size: " << lastFrame_.length()
+                             << ", total:" << buffers.size() << std::endl;
+
+    lastFrame_ = odc::api::Frame();  //< we have consumed lastFrame_
 
     odc::api::Frame frame;
     // aggregate all frames with the same metadata Span as reference Span
     while ((frame = reader_.next())) {
         odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
-
         if (span == reference) {
-            while (buffer.size() < offset + frame.length()) {
-                buffer.resize(2*buffer.size(), true);
-            }
-            buffer.copy(frame.encodedData(), frame.length(), offset);
-            offset += frame.length();
-        } else {
-            lastFrame_ = frame; //< remember last frame, to re-use it as reference on the following next()
+            buffers.append(frame.encodedData());
+            LOG_DEBUG_LIB(LibMetkit)
+                << "ODB frame: " << buffers.count() << ", size: " << lastFrame_.length()
+                << ", total:" << buffers.size() << std::endl;
+        }
+        else {
+            // remember last frame to reuse as reference on the following next()
+            lastFrame_ = frame;
             break;
         }
     }
 
-    buffer.resize(offset, true);
-    return eckit::message::Message{new OdbContent(std::move(buffer))};
+    LOG_DEBUG_LIB(LibMetkit) << "Consolidating buffers of " << buffers.count() << " frames"
+                             << ", total size: " << buffers.size() << std::endl;
+
+    return eckit::message::Message{new OdbContent(std::move(buffers.consolidate()))};
 }
 
 void OdbSplitter::print(std::ostream& s) const {
@@ -76,8 +84,7 @@ namespace eckit {
 namespace message {
 
 template <>
-bool SplitterBuilder<metkit::codes::OdbSplitter>::match(
-    eckit::PeekHandle& handle) const {
+bool SplitterBuilder<metkit::codes::OdbSplitter>::match(eckit::PeekHandle& handle) const {
     unsigned char c0 = handle.peek(0);
     unsigned char c1 = handle.peek(1);
     unsigned char c2 = handle.peek(2);
