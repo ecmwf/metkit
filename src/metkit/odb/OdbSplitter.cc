@@ -55,7 +55,7 @@ eckit::message::Message OdbSplitter::next() {
         if (span == reference) {
             buffers.append(frame.encodedData());
             LOG_DEBUG_LIB(LibMetkit)
-                << "ODB frame: " << buffers.count() << ", size: " << lastFrame_.length()
+                << "ODB frame: " << buffers.count() << ", size: " << frame.length()
                 << ", total:" << buffers.size() << std::endl;
         }
         else {
