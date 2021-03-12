@@ -68,7 +68,7 @@ eckit::message::Message OdbSplitter::next() {
     LOG_DEBUG_LIB(LibMetkit) << "Consolidating buffers of " << buffers.count() << " frames"
                              << ", total size: " << buffers.size() << std::endl;
 
-    return eckit::message::Message{new OdbContent(std::move(buffers.consolidate()))};
+    return eckit::message::Message{new OdbContent(buffers.consolidate())};
 }
 
 void OdbSplitter::print(std::ostream& s) const {
