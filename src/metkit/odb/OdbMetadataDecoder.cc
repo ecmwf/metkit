@@ -8,13 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/odb/OdbMetadataDecoder.h"
+
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
-
-#include "eccodes.h"
-
-#include "metkit/odb/OdbMetadataDecoder.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"
