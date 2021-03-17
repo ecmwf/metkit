@@ -8,8 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/grib/GribIterator.h"
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribIterator.h"
+#include "metkit/codes/GribHandle.h"
 #include "eckit/exception/Exceptions.h"
 
 #include "eccodes.h"

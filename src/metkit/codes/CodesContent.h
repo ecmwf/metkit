@@ -11,8 +11,9 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_codes_CodesContent_H
-#define metkit_codes_CodesContent_H
+#pragma once
+
+#include "eccodes.h"
 
 #include "eckit/message/MessageContent.h"
 
@@ -32,23 +33,20 @@ private:
     codes_handle* handle_;
     bool delete_handle_;
 
-    size_t length() const override;
-    void write(eckit::DataHandle& handle) const override;
+    virtual size_t length() const override;
+    virtual void write(eckit::DataHandle& handle) const override;
     eckit::DataHandle* readHandle() const override;
-    void print(std::ostream & s) const override;
-    std::string getString(const std::string& key) const override;
-    long getLong(const std::string& key) const override;
-    double getDouble(const std::string& key) const override;
-    void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
-    eckit::Offset offset() const override;
+    virtual void print(std::ostream & s) const override;
+    virtual std::string getString(const std::string& key) const override;
+    virtual long getLong(const std::string& key) const override;
+    virtual double getDouble(const std::string& key) const override;
+    virtual void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
+    virtual eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
     const void* data() const override;
+
     eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
 };
 
-
 }  // namespace codes
 }  // namespace metkit
-
-
-#endif

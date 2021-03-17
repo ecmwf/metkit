@@ -14,8 +14,8 @@
 // #include "eckit/log/Timer.h"
 
 #include "metkit/pointdb/PointIndex.h"
-#include "metkit/grib/GribHandle.h"
-#include "metkit/grib/GribIterator.h"
+#include "metkit/codes/GribHandle.h"
+#include "metkit/codes/GribIterator.h"
 #include "eckit/thread/AutoLock.h"
 // #include "eckit/io/StdFile.h"
 #include "eckit/config/Resource.h"

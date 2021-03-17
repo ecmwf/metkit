@@ -12,7 +12,7 @@
 /// @date   Jun 2020
 
 
-#include "metkit/codes/OdbContent.h"
+#include "metkit/odb/OdbContent.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
@@ -20,6 +20,9 @@
 
 namespace metkit {
 namespace codes {
+
+OdbContent::OdbContent(eckit::Buffer&& buffer):
+    frame_(std::move(buffer)) {}
 
 OdbContent::OdbContent(eckit::DataHandle& handle, size_t size):
     frame_(size) {

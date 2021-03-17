@@ -14,7 +14,7 @@
 #include "eckit/io/Offset.h"
 
 
-#include "metkit/grib/GribToRequest.h"
+#include "metkit/codes/GribToRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
 using namespace metkit;

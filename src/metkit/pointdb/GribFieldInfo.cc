@@ -9,7 +9,7 @@
  */
 
 #include "metkit/pointdb/GribFieldInfo.h"
-#include "metkit/grib/GribAccessor.h"
+#include "metkit/codes/GribAccessor.h"
 #include "metkit/pointdb/GribDataSource.h"
 #include <bitset>
 

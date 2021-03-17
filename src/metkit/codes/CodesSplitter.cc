@@ -17,10 +17,8 @@
 #include "eckit/message/Message.h"
 #include "eckit/io/PeekHandle.h"
 
-#include "metkit/codes/CodesContent.h"
 #include "metkit/codes/MallocDataContent.h"
-#include "metkit/grib/GribHandle.h"
-#include "metkit/mars/MarsRequest.h"
+#include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace codes {

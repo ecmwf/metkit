@@ -11,27 +11,37 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_OdbDecoder_h
-#define metkit_OdbDecoder_h
+#ifndef metkit_OdbSplitter_h
+#define metkit_OdbSplitter_h
 
-#include "eckit/message/Decoder.h"
+#include "eckit/message/Splitter.h"
 
+#include "odc/api/Odb.h"
+
+namespace eckit {
+class PeekHandle;
+}
 
 namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class OdbDecoder : public eckit::message::Decoder {
-public: // methods
 
+class OdbSplitter : public eckit::message::Splitter {
+public:
+
+    explicit OdbSplitter(eckit::PeekHandle&);
+    ~OdbSplitter() override;
+
+private: // members
+    odc::api::Reader reader_;
+    odc::api::Frame lastFrame_;
 
 private: // methods
 
-    virtual bool match(const eckit::message::Message&) const override;
+    virtual eckit::message::Message next() override;
     virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
 
 };
 

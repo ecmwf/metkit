@@ -15,67 +15,70 @@
 #define MarsHandle_H
 
 #include "eckit/io/Length.h"
-#include "eckit/io/TCPHandle.h"
 #include "eckit/serialisation/Stream.h"
+#include "eckit/io/TCPHandle.h"
 
 class MarsHandle : public eckit::TCPHandle {
 public:
-    // -- Contructors
 
-    MarsHandle(const std::string& host, int port, unsigned long long);
-    MarsHandle(eckit::Stream&);
+// -- Contructors
 
-    // -- Destructor
+	MarsHandle(const std::string& host, int port, unsigned long long);
+	MarsHandle(eckit::Stream&);
 
-    ~MarsHandle();
+// -- Destructor
 
-    // -- Overridden methods
+	~MarsHandle();
 
-    // From eckit::DataHandle
+// -- Overridden methods
+
+	// From eckit::DataHandle
 
     virtual eckit::Length openForRead() override;
     virtual void openForWrite(const eckit::Length&) override;
     virtual void openForAppend(const eckit::Length&) override;
 
-    virtual void close() override;
-    virtual long read(void*, long) override;
-    virtual long write(const void*, long) override;
+	virtual void close() override;
+	virtual long read(void*,long) override;
+	virtual long write(const void*,long) override;
 
-    virtual eckit::Length estimate() override;
-    virtual std::string title() const override;
-    virtual std::string metricsTag() const override;
+	virtual eckit::Length estimate() override;
+	virtual std::string title() const override;
+	virtual std::string metricsTag() const override;
 
     virtual bool moveable() const override { return true; }
 
-    // From Streamable
+	// From Streamable
 
-    virtual void encode(eckit::Stream&) const override;
-    virtual const eckit::ReanimatorBase& reanimator() const override { return reanimator_; }
+	virtual void encode(eckit::Stream&) const override;
+	virtual const eckit::ReanimatorBase& reanimator() const override { return reanimator_; }
 
-    // -- Class methods
+// -- Class methods
 
-    static const eckit::ClassSpec& classSpec();
+	static const eckit::ClassSpec&  classSpec();
 
 private:
-    // -- Members
 
-    unsigned long long clientID_;
-    eckit::Length length_;
-    eckit::Length total_;
-    bool receiving_;
-    bool streamMode_;
-    bool doCRC_;
-    unsigned long crc_;
+// -- Members
 
-    // -- Methods
+	unsigned long long  clientID_;
+	eckit::Length         length_;
+	eckit::Length         total_;
+	bool           receiving_;
+	bool           streamMode_;
+	bool           doCRC_;
+	unsigned long  crc_;
 
-    void updateCRC(void*, long);
+// -- Methods
 
-    // -- Class members
+	void updateCRC(void*,long);
 
-    static eckit::Reanimator<MarsHandle> reanimator_;
+// -- Class members
 
-    friend class MarsHandleStream;
+	static  eckit::Reanimator<MarsHandle>  reanimator_;
+
+	friend class MarsHandleStream;
+
 };
 
 #endif

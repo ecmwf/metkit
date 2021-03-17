@@ -8,11 +8,10 @@
  * does it submit to any jurisdiction.
  */
 
+
+#include "metkit/odb/OdbDecoder.h"
+
 #include <algorithm>
-
-#include "eccodes.h"
-
-#include "metkit/codes/OdbDecoder.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
@@ -24,27 +23,11 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/odb/OdbMetadataDecoder.h"
 
-#include "odc/api/Odb.h"
 
 namespace metkit {
 namespace codes {
-
-pthread_once_t once = PTHREAD_ONCE_INIT;
-
-
-static std::map<std::string, std::string> mapping;
-
-static void init() {
-    static eckit::PathName configPath(eckit::Resource<eckit::PathName>(
-                                          "odbMarsRequestMapping",
-                                          "~metkit/share/metkit/odb/marsrequest.yaml"));
-    eckit::YAMLConfiguration config(configPath);
-    for (const auto& key : config.keys()) {
-        // eckit::Log::info() << "mapping " << config.getString(key) << " - " << key << std::endl;
-        mapping[config.getString(key)] = eckit::StringTools::lower(key);
-    }
-}
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -57,37 +40,9 @@ bool OdbDecoder::match(const eckit::message::Message& msg) const {
 }
 
 
-class GatherSetter : public odc::api::SpanVisitor {
-
-    eckit::message::MetadataGatherer& gather_;
-
-public:
-    GatherSetter(eckit::message::MetadataGatherer& gather): gather_(gather) {}
-
-    virtual void operator()(const std::string& columnName,
-                            const std::set<long>& vals) {
-        ASSERT(vals.size() == 1);
-        gather_.setValue(mapping[columnName], *vals.begin());
-    }
-
-    virtual void operator()(const std::string& columnName,
-                            const std::set<double>& vals) {
-        ASSERT(vals.size() == 1);
-        gather_.setValue(mapping[columnName], *vals.begin());
-    }
-
-    virtual void operator()(const std::string& columnName,
-                            const std::set<std::string>& vals) {
-        ASSERT(vals.size() == 1);
-        gather_.setValue(mapping[columnName], eckit::StringTools::trim(*vals.begin()));
-    }
-
-};
-
 
 void OdbDecoder::getMetadata(const eckit::message::Message& msg,
                              eckit::message::MetadataGatherer& gather) const {
-    pthread_once(&once, init);
 
     std::unique_ptr<eckit::DataHandle> handle(msg.readHandle());
     handle->openForRead();
@@ -96,16 +51,11 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
     odc::api::Reader reader(*handle, false);
     odc::api::Frame frame;
 
-    std::vector<std::string> columnNames;
-    columnNames.reserve(mapping.size());
-    for (const auto& kv : mapping) {
-        columnNames.push_back(kv.first);
-    }
-
-    GatherSetter setter(gather);
+    OdbMetadataDecoder setter(gather);
 
     while ((frame = reader.next())) {
-        odc::api::Span span = frame.span(columnNames, true);
+        odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
+
         span.visit(setter);
     }
 

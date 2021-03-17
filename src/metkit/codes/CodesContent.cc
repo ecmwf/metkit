@@ -11,22 +11,15 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-
 #include "metkit/codes/CodesContent.h"
-// #include "metkit/codes/MessageContent.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
-// #include "metkit/mars/MarsRequest.h"
-// #include "metkit/codes/Decoder.h"
 
 #include "eckit/memory/Zero.h"
 
-#include "metkit/grib/GribHandle.h"
-
-
-#include "eccodes.h"
+#include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace codes {

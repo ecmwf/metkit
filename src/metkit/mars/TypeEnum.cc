@@ -23,11 +23,8 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
-    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum::TypeEnum(name=" << name << ",settings=" << settings
-                             << ")" << std::endl;
-
-    LOG_DEBUG_LIB(LibMetkit) << "mapping:" << mapping_ << std::endl;
-
+    
+    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["values"];
 
@@ -39,7 +36,7 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
     for (size_t i = 0; i < values.size(); ++i) {
         const eckit::Value& val = values[i];
 
-        LOG_DEBUG_LIB(LibMetkit) << "val : " << val << std::endl;
+        // LOG_DEBUG_LIB(LibMetkit) << "val : " << val << std::endl;
 
         if (val.isList()) {
             ASSERT(val.size() > 0);
@@ -71,6 +68,9 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
             values_.push_back(v);
         }
     }
+    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name 
+                             << " mapping " << mapping_ 
+                             << std::endl;
 }
 
 TypeEnum::~TypeEnum() {}

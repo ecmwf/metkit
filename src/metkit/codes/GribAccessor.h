@@ -13,7 +13,7 @@
 
 #include "eckit/log/Log.h"
 #include "eckit/exception/Exceptions.h"
-#include "metkit/grib/GribHandle.h"
+#include "metkit/codes/GribHandle.h"
 
 namespace metkit {
 namespace grib {

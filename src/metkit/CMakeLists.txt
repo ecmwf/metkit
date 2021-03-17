@@ -137,12 +137,12 @@ if ( HAVE_GRIB )
         codes/MallocDataContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
-        grib/GribAccessor.cc
-        grib/GribAccessor.h
-        grib/GribHandle.cc
-        grib/GribHandle.h
-        grib/GribIterator.cc
-        grib/GribIterator.h
+        codes/GribAccessor.cc
+        codes/GribAccessor.h
+        codes/GribHandle.cc
+        codes/GribHandle.h
+        codes/GribIterator.cc
+        codes/GribIterator.h
         )
 
     set( grib_libs eccodes )
@@ -156,12 +156,14 @@ if ( HAVE_ODB )
             odb/IdMapper.h
             odb/OdbToRequest.cc
             odb/OdbToRequest.h
-            codes/OdbDecoder.cc
-            codes/OdbContent.cc
-            codes/OdbContent.h
-            codes/OdbDecoder.h
-            codes/OdbSplitter.cc
-            codes/OdbSplitter.h
+            odb/OdbMetadataDecoder.cc
+            odb/OdbMetadataDecoder.h
+            odb/OdbDecoder.cc
+            odb/OdbContent.cc
+            odb/OdbContent.h
+            odb/OdbDecoder.h
+            odb/OdbSplitter.cc
+            odb/OdbSplitter.h
         )
     set( odc_libs odccore )
 endif()

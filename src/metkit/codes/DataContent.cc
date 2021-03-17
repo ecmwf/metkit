@@ -14,15 +14,9 @@
 #include <iostream>
 
 #include "metkit/codes/DataContent.h"
-// #include "metkit/codes/MessageContent.h"
 
 #include "eckit/exception/Exceptions.h"
-// #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
-// #include "metkit/mars/MarsRequest.h"
-// #include "metkit/codes/Decoder.h"
-
-#include "eccodes.h"
 
 namespace metkit {
 namespace codes {

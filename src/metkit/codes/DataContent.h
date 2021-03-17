@@ -11,12 +11,11 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_codes_DataContent_H
-#define metkit_codes_DataContent_H
+#pragma once
+
+#include "eccodes.h"
 
 #include "eckit/message/MessageContent.h"
-
-typedef struct grib_handle codes_handle;
 
 namespace metkit {
 namespace codes {
@@ -42,6 +41,3 @@ protected:
 
 }  // namespace codes
 }  // namespace metkit
-
-
-#endif
