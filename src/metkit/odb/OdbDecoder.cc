@@ -8,11 +8,10 @@
  * does it submit to any jurisdiction.
  */
 
-#include <algorithm>
-
-#include "eccodes.h"
 
 #include "metkit/odb/OdbDecoder.h"
+
+#include <algorithm>
 
 #include "eckit/config/Resource.h"
 #include "eckit/serialisation/MemoryStream.h"
