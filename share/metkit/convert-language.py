@@ -7,6 +7,18 @@ import yaml
 with open("language.yaml") as f:
     language = yaml.load(f.read(), Loader=yaml.SafeLoader)
 
+with open("paramids.yaml") as f:
+    paramids = yaml.load(f.read(), Loader=yaml.SafeLoader)
+
+params = []
+for k, v in sorted(paramids.items(), key=lambda a: a[1][0]):
+    params.append([k] + v)
+
+paramids = params
+
+paramids.append("@")
+paramids.append("*")
+
 
 def get_enum(name, attributes):
     return attributes["values"]
@@ -25,7 +37,7 @@ def get_to_by_list(name, attributes):
 
 
 def get_param(name, attributes):
-    return "@"
+    return paramids
 
 
 def get_date(name, attributes):
