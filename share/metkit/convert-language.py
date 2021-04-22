@@ -80,6 +80,8 @@ def as_client(x):
 
 G = globals()
 
+EXTRAS = {}
+
 for verb, params in sorted(language.items()):
     if verb.startswith("_"):
         continue
@@ -87,7 +89,11 @@ for verb, params in sorted(language.items()):
     print("{} ; ignore ; MARS".format(as_client(verb)))
     print("{")
     for param, attributes in params.items():
-        print("   {}".format(as_client(param)))
+        extra = EXTRAS.get((verb, param), EXTRAS.get(param))
+        if extra:
+            print("   {} [{}]".format(as_client(param), extra))
+        else:
+            print("   {}".format(as_client(param)))
         print("   {")
         kind = attributes.get("type")
         if kind is None:
