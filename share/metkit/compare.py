@@ -6,13 +6,13 @@ def read(path):
     r = {}
     with open(path) as f:
         for k, v in yaml.safe_load(f):
-            u = (k.get('stream'), k.get('type'), k.get('levtype', 'sfc'))
+            u = (k.get("stream"), k.get("type"), k.get("levtype", "sfc"))
             r[u] = set(v)
     return r
 
 
-r = read('fieldsdb.yaml')
-s = read('params.yaml')
+r = read("fieldsdb.yaml")
+s = read("params.yaml")
 
 
 for k, v in sorted(r.items()):

@@ -6,10 +6,12 @@ import mysql.connector
 import sys
 import re
 
-gdb = mysql.connector.connect(host="grib-param-db-prod.ecmwf.int",
-                              user="ecmwf_ro",
-                              password="ecmwf_ro",
-                              database="param")
+gdb = mysql.connector.connect(
+    host="grib-param-db-prod.ecmwf.int",
+    user="ecmwf_ro",
+    password="ecmwf_ro",
+    database="param",
+)
 
 
 params = sys.argv[1:]
@@ -40,11 +42,14 @@ for p in params:
 
 
 gcursor = gdb.cursor()
-gcursor.execute("""
+gcursor.execute(
+    """
 SELECT param.id, param.shortName, param.name, units.name
 FROM param, units
 WHERE param.%s IN (%s) AND units.id = units_id
-""" % (what, ",".join(values)))
+"""
+    % (what, ",".join(values))
+)
 
 
 for n in gcursor.fetchall():
