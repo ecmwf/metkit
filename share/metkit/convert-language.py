@@ -61,7 +61,9 @@ def as_client(x):
         return "ON"
     if x is False:
         return "OFF"
-    return str(x).upper()
+    x = str(x)
+
+    return x.upper()
 
 
 G = globals()
@@ -104,6 +106,10 @@ for verb, params in sorted(language.items()):
         if default is None:
             print("   }")
         else:
-            print("   {} = {}".format("}", as_client(default)))
+            if isinstance(default, (tuple, list)):
+                default = "/".join(as_client(x) for x in default)
+            else:
+                default = as_client(default)
+            print("   {} = {}".format("}", default))
         print()
     print("}")
