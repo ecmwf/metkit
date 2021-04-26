@@ -2774,9 +2774,12 @@
 150255:
 - _param_150255
 - indicates a missing value
-151127:
+151126:
 - mswpt300m
 - mean sea water potential temperature in the upper 300 m
+151127:
+- mswt300m
+- mean sea water temperature in the upper 300 m
 151128:
 - _param_151128
 - in situ temperature
@@ -3777,7 +3780,7 @@
 - pa
 - pressure anomaly
 171055:
-- mn2t24a
+- mean2t24a
 - mean 2 metre temperature in the last 24 hours anomaly
 171056:
 - mn2d24a
@@ -6213,6 +6216,9 @@
 210169:
 - frpngtfire
 - wildfire night-time radiative power
+210170:
+- vso2
+- volcanic sulfur dioxide mass mixing ratio
 210177:
 - frpdayivar
 - wildfire day-time inverse variance of radiative power
@@ -6411,6 +6417,12 @@
 210251:
 - amaod550
 - ammonium aerosol optical depth at 550 nm
+210252:
+- aermr19
+- biogenic secondary organic aerosol mass mixing ratio
+210253:
+- aermr20
+- anthropogenic secondary organic aerosol mass mixing ratio
 211001:
 - aermr01diff
 - sea salt aerosol (0.03 - 0.5 um) mixing ratio
@@ -6873,6 +6885,9 @@
 211166:
 - sfgr10diff
 - surface flux reactive tracer 10
+211170:
+- vso2diff
+- volcanic sulfur dioxide mass mixing ratio increment
 211181:
 - radiff
 - radon
@@ -6924,6 +6939,21 @@
 211216:
 - aod1240diff
 - total aerosol optical depth at 1240nm
+211247:
+- aermr16diff
+- nitrate fine mode aerosol mass mixing ratio
+211248:
+- aermr17diff
+- nitrate coarse mode aerosol mass mixing ratio
+211249:
+- aermr18diff
+- ammonium aerosol mass mixing ratio
+211252:
+- aermr19diff
+- biogenic secondary organic aerosol mass mixing ratio increment
+211253:
+- aermr20diff
+- anthropogenic secondary organic aerosol mass mixing ratio increment
 212001:
 - _param_212001
 - experimental product
@@ -8644,6 +8674,51 @@
 215211:
 - aermssam
 - vertically integrated mass of ammonium aerosol
+215212:
+- aersrcsoab
+- source/gain of biogenic secondary organic aerosol
+215213:
+- aerddpsoab
+- dry deposition of biogenic secondary organic aerosol
+215214:
+- aersdmsoab
+- sedimentation of biogenic secondary organic aerosol
+215215:
+- aerwdlsoab
+- wet deposition of biogenic secondary organic aerosol by large-scale precipitation
+215216:
+- aerwdcsoab
+- wet deposition of biogenic secondary organic aerosol by convective precipitation
+215217:
+- aerngtsoab
+- negative fixer of biogenic secondary organic aerosol
+215218:
+- aermsssoab
+- vertically integrated mass of biogenic secondary organic aerosol
+215219:
+- aersrcsoaa
+- source/gain of anthropogenic secondary organic aerosol
+215220:
+- aerddpsoaa
+- dry deposition of anthropogenic secondary organic aerosol
+215221:
+- aersdmsoaa
+- sedimentation of anthropogenic secondary organic aerosol
+215222:
+- aerwdlsoaa
+- wet deposition of anthropogenic secondary organic aerosol by large-scale precipitation
+215223:
+- aerwdcsoaa
+- wet deposition of anthropogenic secondary organic aerosol by convective precipitation
+215224:
+- aerngtsoaa
+- negative fixer of anthropogenic secondary organic aerosol
+215225:
+- aermsssoaa
+- vertically integrated mass of anthropogenic secondary organic aerosol
+215226:
+- soaod550
+- secondary organic aerosol optical depth at 550 nm
 216001:
 - _param_216001
 - experimental product
@@ -10006,6 +10081,39 @@
 217206:
 - strataer
 - stratospheric aerosol
+217222:
+- aroo2
+- aromatic peroxy radical mass mixing ratio
+217223:
+- c2h2
+- ethyne mass mixing ratio
+217224:
+- ch3cn
+- acetonitrile mass mixing ratio
+217225:
+- ch3o2no2
+- methyl peroxy nitrate mass mixing ratio
+217226:
+- hcn
+- hydrogen cyanide mass mixing ratio
+217227:
+- hpald1
+- hydroperoxy aldehydes type 1 mass mixing ratio
+217228:
+- hpald
+- hydroperoxy aldehydes type 2 mass mixing ratio
+217229:
+- isopbo2
+- isoprene peroxy type b mass mixing ratio
+217230:
+- isopdo2
+- isoprene peroxy type d mass mixing ratio
+217231:
+- voca
+- anthropogenic volatile organic compounds mass mixing ratio
+217232:
+- vocbb
+- biomass burning volatile organic compounds mass mixing ratio
 218003:
 - tc_h2o2
 - total column hydrogen peroxide
@@ -10603,6 +10711,42 @@
 218206:
 - tc_strataer
 - total column of stratospheric aerosol
+218221:
+- tc_vso2
+- column integrated mass density of volcanic sulfur dioxide
+218222:
+- tc_aroo2
+- column integrated mass density of aromatic peroxy radical
+218223:
+- tc_c2h2
+- column integrated mass density of ethyne
+218224:
+- tc_ch3cn
+- column integrated mass density of acetonitrile
+218225:
+- tc_ch3o2no2
+- column integrated mass density of methyl peroxy nitrate
+218226:
+- tc_hcn
+- column integrated mass density of hydrogen cyanide
+218227:
+- tc_hpald1
+- column integrated mass density of hydroperoxy aldehydes type 1
+218228:
+- tc_hpald2
+- column integrated mass density of hydroperoxy aldehydes type 2
+218229:
+- tc_isopbo2
+- column integrated mass density of isoprene peroxy type b
+218230:
+- tc_isopdo2
+- column integrated mass density of isoprene peroxy type d
+218231:
+- tc_voca
+- column integrated mass density of anthropogenic volatile organic compounds
+218232:
+- tc_vocbb
+- column integrated mass density of biomass burning volatile organic compounds
 219001:
 - e_go3
 - ozone emissions
@@ -11263,6 +11407,42 @@
 219220:
 - ch3cnfire
 - wildfire flux of acetonitrile
+219221:
+- e_vso2
+- atmosphere emission mass flux of volcanic sulfur dioxide
+219222:
+- e_aroo2
+- atmosphere emission mass flux of aromatic peroxy radical
+219223:
+- e_c2h2
+- atmosphere emission mass flux of ethyne
+219224:
+- e_ch3cn
+- atmosphere emission mass flux of acetonitrile
+219225:
+- e_ch3o2no2
+- atmosphere emission mass flux of methyl peroxy nitrate
+219226:
+- e_hcn
+- atmosphere emission mass flux of hydrogen cyanide
+219227:
+- e_hpald1
+- atmosphere emission mass flux of hydroperoxy aldehydes type 1
+219228:
+- e_hpald2
+- atmosphere emission mass flux of hydroperoxy aldehydes type 2
+219229:
+- e_isopbo2
+- atmosphere emission mass flux of isoprene peroxy type b
+219230:
+- e_isopdo2
+- atmosphere emission mass flux of isoprene peroxy type d
+219231:
+- e_voca
+- atmosphere emission mass flux of anthropogenic volatile organic compounds
+219232:
+- e_vocbb
+- atmosphere emission mass flux of biomass burning volatile organic compounds
 220228:
 - tpoc
 - total precipitation observation count
@@ -11884,6 +12064,42 @@
 221206:
 - dv_strataer
 - dry deposition velocity of stratospheric aerosol
+221221:
+- dv_vso2
+- dry deposition velocity of volcanic sulfur dioxide
+221222:
+- dv_aroo2
+- dry deposition velocity of aromatic peroxy radical
+221223:
+- dv_c2h2
+- dry deposition velocity of ethyne
+221224:
+- dv_ch3cn
+- dry deposition velocity of acetonitrile
+221225:
+- dv_ch3o2no2
+- dry deposition velocity of methyl peroxy nitrate
+221226:
+- dv_hcn
+- dry deposition velocity of hydrogen cyanide
+221227:
+- dv_hpald1
+- dry deposition velocity of hydroperoxy aldehydes type 1
+221228:
+- dv_hpald2
+- dry deposition velocity of hydroperoxy aldehydes type 2
+221229:
+- dv_isopbo2
+- dry deposition velocity of isoprene peroxy type b
+221230:
+- dv_isopdo2
+- dry deposition velocity of isoprene peroxy type d
+221231:
+- dv_voca
+- dry deposition velocity of anthropogenic volatile organic compounds
+221232:
+- dv_vocbb
+- dry deposition velocity of biomass burning volatile organic compounds
 228001:
 - cin
 - convective inhibition
@@ -11904,7 +12120,7 @@
 - mean total cloud cover
 228007:
 - dl
-- lake depth
+- lake total depth
 228008:
 - lmlt
 - lake mix-layer temperature
@@ -11922,10 +12138,10 @@
 - lake shape factor
 228013:
 - lict
-- lake ice temperature
+- lake ice surface temperature
 228014:
 - licd
-- lake ice depth
+- lake ice total depth
 228015:
 - dndzn
 - minimum vertical gradient of refractivity inside trapping layer
@@ -11941,6 +12157,9 @@
 228019:
 - tplt
 - trapping layer top height
+228020:
+- degm10l
+- -10 degrees c isothermal level (atm)
 228021:
 - fdir
 - total sky direct solar radiation at surface
@@ -11952,7 +12171,7 @@
 - cloud base height
 228024:
 - deg0l
-- zero degree level
+- 0 degrees c isothermal level (atm)
 - deg0
 228025:
 - hvis
@@ -11993,6 +12212,9 @@
 228037:
 - 2rhw
 - 2 metre relative humidity with respect to water
+228038:
+- lwcs
+- liquid water content in snow pack
 228039:
 - sm
 - soil moisture
@@ -12011,6 +12233,9 @@
 228044:
 - capes
 - convective available potential energy shear
+228045:
+- trpp
+- tropopause pressure
 228046:
 - hcct
 - height of convective cloud top
@@ -12137,6 +12362,21 @@
 228103:
 - evavt
 - evaporation from vegetation transpiration
+228104:
+- e_wlch4
+- atmosphere emission mass flux of methane from wetlands
+228105:
+- sif740
+- solar induced chlorophyll fluorescence at 740nm
+228106:
+- sif755
+- solar induced chlorophyll fluorescence at 755nm
+228107:
+- sif771
+- solar induced chlorophyll fluorescence at 771nm
+228108:
+- sif757
+- solar induced chlorophyll fluorescence at 757nm
 228129:
 - ssrdc
 - surface solar radiation downward clear-sky
@@ -12224,6 +12464,27 @@
 228230:
 - smos_tb_cdfb
 - smos second brightness temperature bias correction parameter
+228231:
+- mlcape50
+- mixed-layer cape in the lowest 50 hpa
+228232:
+- mlcin50
+- mixed-layer cin in the lowest 50 hpa
+228233:
+- mlcape100
+- mixed-layer cape in the lowest 100 hpa
+228234:
+- mlcin100
+- mixed-layer cin in the lowest 100 hpa
+228235:
+- mucape
+- most-unstable cape
+228236:
+- mucin
+- most-unstable cin
+228237:
+- mudlp
+- departure level of the most unstable parcel expressed as pressure
 228239:
 - 200u
 - 200 metre u wind component
@@ -12479,6 +12740,18 @@
 235014:
 - mtdch
 - mean turbulent diffusion coefficient for heat
+235015:
+- tirf
+- time integral of rain flux
+235017:
+- tisemf
+- time integral of surface eastward momentum flux
+235018:
+- tisnmf
+- time integral of surface northward momentum flux
+235019:
+- tislhef
+- time integral of surface latent heat evaporation flux
 235020:
 - msror
 - mean surface runoff rate
@@ -12632,6 +12905,15 @@
 235070:
 - mper
 - mean potential evaporation rate
+235071:
+- tislhsf
+- time integral of surface latent heat sublimation flux
+235072:
+- tisef
+- time integral of snow evaporation flux
+235073:
+- tietrf
+- time integral of evapotranspiration flux
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -12680,6 +12962,45 @@
 240029:
 - gwls
 - groundwater lower storage
+250001:
+- lat
+- latitude
+250002:
+- lon
+- longitude
+250003:
+- tlat
+- latitude on t grid
+250004:
+- tlon
+- longitude on t grid
+250005:
+- ulat
+- latitude on u grid
+250006:
+- ulon
+- longitude on u grid
+250007:
+- vlat
+- latitude on v grid
+250008:
+- vlon
+- longitude on v grid
+250009:
+- wlat
+- latitude on w grid
+250010:
+- wlon
+- longitude on w grid
+250011:
+- flat
+- latitude on f grid
+250012:
+- flon
+- longitude on f grid
+260001:
+- tcolg
+- total column graupel
 260002:
 - lhtfl
 - latent heat net flux
@@ -14177,6 +14498,34 @@
 260556:
 - _param_260556
 - angstrom coefficient
+260557:
+- kbdi
+- keetch-byram drought index
+260558:
+- drtmrk
+- drought factor (as defined by the australian forest service)
+260559:
+- rosmrk
+- rate of spread (as defined by the australian forest service)
+260560:
+- fdimrk
+- fire danger index (as defined by the australian forest service)
+260561:
+- scnfdr
+- spread component (as defined by the u.s forest service national fire-danger rating
+  system)
+260562:
+- buinfdr
+- burning index (as defined by the u.s forest service national fire-danger rating
+  system)
+260563:
+- icnfdr
+- ignition component (as defined by the u.s forest service national fire-danger rating
+  system)
+260564:
+- ercnfdr
+- energy release component (as defined by the u.s forest service national fire-danger
+  rating system)
 260600:
 - evpsfc
 - mean evaporation
@@ -14297,6 +14646,69 @@
 260643:
 - tovg
 - type of vegetation
+260644:
+- vsi
+- volumetric soil ice
+260645:
+- titspf
+- time integral of total solid precipitation flux
+260646:
+- 10efg
+- 10 metre eastward wind gust since previous post-processing
+260647:
+- 10nfg
+- 10 metre northward wind gust since previous post-processing
+260648:
+- fog
+- fog
+260649:
+- sist
+- sea ice surface temperature
+260650:
+- sitd
+- snow on ice total depth
+260651:
+- srlh
+- surface roughness length for heat
+261001:
+- utci
+- universal thermal climate index
+261002:
+- mrt
+- mean radiant temperature
+261003:
+- mal_cases_frac
+- fraction of malaria cases
+261004:
+- mal_prot_ratio
+- malaria circumsporozoite protein ratio
+261005:
+- mal_innoc_rate
+- plasmodium falciparum entomological inoculation rate
+261006:
+- mal_hbite_rate
+- human bite rate by anopheles vectors
+261007:
+- mal_immun_ratio
+- malaria immunity ratio
+261008:
+- mal_infect_ratio
+- falciparum parasite ratio
+261009:
+- mal_infect_d10_ratio
+- detectable falciparum parasite ratio (after day 10)
+261010:
+- mal_host_ratio
+- anopheles vector to host ratio
+261011:
+- mal_vect_dens
+- anopheles vector density
+261012:
+- mal_hab_frac
+- fraction of malarial vector reproductive habitat
+261013:
+- pop_dens
+- population density
 300001:
 - pres
 - pressure
