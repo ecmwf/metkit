@@ -4,6 +4,7 @@ from collections import OrderedDict
 import psycopg2
 import yaml
 
+DEFAULT_PORT = 5432
 
 def main():
     try:
@@ -11,11 +12,16 @@ def main():
         DB = os.environ['PRODUCT_CATALOGUE_DB']
         USER = os.environ['PRODUCT_CATALOGUE_USER']
         PASSWORD = os.environ['PRODUCT_CATALOGUE_PASSWORD']
+        PORT = (
+            int(os.environ['PRODUCT_CATALOGUE_PORT'])
+            if 'PRODUCT_CATALOGUE_PORT' in os.environ
+            else DEFAULT_PORT
+        )
     except KeyError as e:
         print('ERROR: Environment variable not found: {}'.format(e))
         sys.exit(1)
 
-    with psycopg2.connect(host=HOST, dbname=DB, user=USER, password=PASSWORD) as conn:
+    with psycopg2.connect(host=HOST, dbname=DB, user=USER, password=PASSWORD, port=PORT) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT DISTINCT stream, type, levtype, param::INTEGER FROM fields WHERE param != '' ORDER BY stream, type, levtype, param::INTEGER")
             rows = cur.fetchall()
