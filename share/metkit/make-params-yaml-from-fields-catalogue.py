@@ -13,9 +13,9 @@ def main():
         USER = os.environ['PRODUCT_CATALOGUE_USER']
         PASSWORD = os.environ['PRODUCT_CATALOGUE_PASSWORD']
         PORT = (
-        int(os.environ['PRODUCT_CATALOGUE_PORT'])
-        if 'PRODUCT_CATALOGUE_PORT' in os.environ
-        else DEFAULT_PORT
+            int(os.environ['PRODUCT_CATALOGUE_PORT'])
+            if 'PRODUCT_CATALOGUE_PORT' in os.environ
+            else DEFAULT_PORT
         )
     except KeyError as e:
         print('ERROR: Environment variable not found: {}'.format(e))
