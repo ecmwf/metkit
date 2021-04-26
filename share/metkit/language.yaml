@@ -373,7 +373,6 @@ _field: &_field
     multiple: true
 
   # rdbprefix
-  # obstype
 
   levtype:
     category: data
@@ -476,7 +475,6 @@ _field: &_field
       - msmm
       - mmsa
 
-# anoffset
   anoffset:
     category: data
     multiple: true
