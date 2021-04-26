@@ -373,7 +373,6 @@ _field: &_field
     multiple: true
 
   # rdbprefix
-  # obstype
 
   levtype:
     category: data
@@ -476,7 +475,6 @@ _field: &_field
       - msmm
       - mmsa
 
-# anoffset
   anoffset:
     category: data
     multiple: true
@@ -548,7 +546,7 @@ _field: &_field
     - '7:100'
     - '8:100'
     - '9:100'
-    - ['100', '10:100']
+    - '10:100'
     - '11:100'
     - '12:100'
     - '13:100'
@@ -628,7 +626,7 @@ _field: &_field
     - '87:100'
     - '88:100'
     - '89:100'
-    - ['900', '90:100']
+    - '90:100'
     - '91:100'
     - '92:100'
     - '93:100'
@@ -690,7 +688,10 @@ _field: &_field
       - '140251'
     type: to-by-list
 
-# diagnostic
+  diagnostic:
+    category: data
+    type: integer
+    multiple: true
 
   iteration:
     category: data
