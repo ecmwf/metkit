@@ -62,6 +62,12 @@ CASE( "test_metkit_expand_4" ) {
     r.dump(std::cout);
 }
 
+CASE( "test_metkit_expand_5" ) {
+    const char* text = "retrieve,class=od,date=20050601,diagnostic=1,expver=1,iteration=0,levelist=1,levtype=ml,param=155.129,step=0,stream=sens,time=1200,type=sg";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
 //-----------------------------------------------------------------------------
 
 }  // namespace test

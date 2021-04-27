@@ -380,7 +380,7 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
     if (!rule) {
 
-                    Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;;
+        Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;;
 
 
         if (firstRule_) {
