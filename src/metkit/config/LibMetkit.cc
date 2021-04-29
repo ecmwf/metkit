@@ -52,6 +52,9 @@ eckit::PathName LibMetkit::paramYamlFile() {
     return "~metkit/share/metkit/params.yaml";
 }
 
+eckit::PathName LibMetkit::paramStaticYamlFile() {
+    return "~metkit/share/metkit/params-static.yaml";
+}
 eckit::PathName LibMetkit::paramIDYamlFile() {
     return "~metkit/share/metkit/paramids.yaml";
 }
