@@ -39,12 +39,6 @@ private: // methods
     virtual void run();
     void process(const eckit::PathName& path);
 
-
-private: // members
-
-    eckit::PathName path_;
-
-
 };
 
 void ParseRequest::run() {

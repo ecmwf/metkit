@@ -36,23 +36,14 @@
 #     LIBS     metkit eckit_option eckit eccodes
 # )
 
-ecbuild_add_executable(
-
-    TARGET   parse-mars-request
-
+ecbuild_add_executable( TARGET    parse-mars-request
     CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
-
-    SOURCES  parse-mars-request.cc
-
-    INCLUDES
-        ${ECKIT_INCLUDE_DIRS}
-
-    LIBS     metkit eckit_option eckit eccodes
+    SOURCES   parse-mars-request.cc
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    LIBS        metkit eckit_option eckit eccodes
 )
 
-ecbuild_add_executable(
-
-    TARGET    odb-to-request
+ecbuild_add_executable( TARGET    odb-to-request
     SOURCES   odb-to-request.cc
     CONDITION HAVE_ODB AND HAVE_BUILD_TOOLS
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
