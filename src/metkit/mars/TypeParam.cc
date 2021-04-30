@@ -315,10 +315,14 @@ static void init() {
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
 
-    const eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
+    eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
     ASSERT(r.isList());
-
     // r.dump(std::cout) << std::endl;
+
+    const eckit::Value rs = eckit::YAMLParser::decodeFile(LibMetkit::paramStaticYamlFile());
+    ASSERT(rs.isList());
+
+    r += rs;
 
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
