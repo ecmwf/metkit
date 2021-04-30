@@ -69,6 +69,7 @@ include(cmake/compiler_warnings.cmake) # optionally handle compiler specific war
 
 add_subdirectory( src )
 add_subdirectory( share )
+add_subdirectory( tests )
 
 ############################################################################################
 # finalize
