@@ -73,3 +73,5 @@ ecbuild_add_test( TARGET      metkit_test_hypercube
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)
 # endif()
+
+add_subdirectory(regressions)

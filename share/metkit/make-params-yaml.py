@@ -9,40 +9,48 @@ dates = "20181101"
 
 target = "streams.list"
 if not os.path.exists(target):
-    with open('tmp', "w") as f:
-        print(""" list,
+    with open("tmp", "w") as f:
+        print(
+            """ list,
        stream=all,
        type=all,
        output=tree,
        date=%s,
        target=%s,
-       hide=cubes/count/year/month/time/date/refdate/refdatemonth/refdateyear/branch/origin/system/method/expver/class/product/section/number/obsgroup""" % (dates, target,),
-              file=f)
+       hide=cubes/count/year/month/time/date/refdate/refdatemonth/refdateyear/branch/origin/system/method/expver/class/product/section/number/obsgroup"""
+            % (
+                dates,
+                target,
+            ),
+            file=f,
+        )
 
     subprocess.call(["mars", "tmp"])
 
 reqs = []
 with open(target) as f:
     for n in set(n.strip() for n in f):
-        r = dict(x.split('=') for x in n.split(','))
+        r = dict(x.split("=") for x in n.split(","))
         reqs.append(r)
 
 P = {}
 
 for req in reqs:
-    type = req['type']
-    levtype = req.get('levtype', 'sfc')
-    stream = req['stream']
+    type = req["type"]
+    levtype = req.get("levtype", "sfc")
+    stream = req["stream"]
     target = "%s-%s-%s.list" % (type, levtype, stream)
     if not os.path.exists(target):
-        with open('tmp', "w") as f:
+        with open("tmp", "w") as f:
             r = {}
-            r['stream'] = stream
-            r['type'] = type
-            r['levtype'] = levtype
-            r['time'] = "all"
-            r['date'] = dates
-            r['hide'] = """channel/ident/instrument/branch/
+            r["stream"] = stream
+            r["type"] = type
+            r["levtype"] = levtype
+            r["time"] = "all"
+            r["date"] = dates
+            r[
+                "hide"
+            ] = """channel/ident/instrument/branch/
                            frequency/direction/method/system/interval/
                            origin/quantile/domain/number/
                            fcmonth/type/class/expver/stream/
@@ -54,8 +62,8 @@ for req in reqs:
                            iteration/grid/section/
                            grand-total/cost/file/id/refdate/
                            refdatemonth/refdateyear"""
-            r['target'] = target
-            rr = 'list,' + ",".join("\n%s=%s" % (a, b) for a, b in r.items())
+            r["target"] = target
+            rr = "list," + ",".join("\n%s=%s" % (a, b) for a, b in r.items())
             print(rr, file=f)
 
         subprocess.call(["mars", "tmp"])
@@ -65,13 +73,13 @@ for req in reqs:
     with open(target) as f:
         for n in f:
             n = n.strip()
-            if n == '':
+            if n == "":
                 continue
-            if n == 'param':
+            if n == "param":
                 continue
-            if n.startswith('param = '):
-                n = n.split(' ')[-1]
-            m = n.split('.')
+            if n.startswith("param = "):
+                n = n.split(" ")[-1]
+            m = n.split(".")
             if len(m) == 2:
                 p, t = int(m[0]), int(m[1])
                 if t == 128:
@@ -94,7 +102,7 @@ for req in reqs:
 
     params = sorted(params)
     if params:
-        levtype = req.get('levtype', '')
+        levtype = req.get("levtype", "")
         P[(stream, type, levtype)] = params
         print(params)
     else:
@@ -109,73 +117,110 @@ def add(where, *params):
 """
 Add WP
 """
-P[('oper', 'wp', 'sfc')] = sorted(set([123, 228, 129, 164, 167, 165, 166,
-                                      168, 144, 121, 122, 172, 142, 143, 151, 189,
-                                      59, 134, 141, 169, 139, 170, 183, 236,
-                                      39, 40, 41, 42, 121, 122, 186, 187, 188]))
-P[('oper', 'wp', 'pl')] = sorted(set([130, 129, 157, 131, 132]))
+P[("oper", "wp", "sfc")] = sorted(
+    set(
+        [
+            123,
+            228,
+            129,
+            164,
+            167,
+            165,
+            166,
+            168,
+            144,
+            121,
+            122,
+            172,
+            142,
+            143,
+            151,
+            189,
+            59,
+            134,
+            141,
+            169,
+            139,
+            170,
+            183,
+            236,
+            39,
+            40,
+            41,
+            42,
+            121,
+            122,
+            186,
+            187,
+            188,
+        ]
+    )
+)
+P[("oper", "wp", "pl")] = sorted(set([130, 129, 157, 131, 132]))
 
-P[('enfo', 'wp', 'sfc')] = P[('oper', 'wp', 'sfc')]
-P[('enfo', 'wp', 'pl')] = P[('oper', 'wp', 'pl')]
+P[("enfo", "wp", "sfc")] = P[("oper", "wp", "sfc")]
+P[("enfo", "wp", "pl")] = P[("oper", "wp", "pl")]
 
 # Z (orog) on ML is not archived in MARS
-add(('oper', 'fc', 'ml'), 129)
-add(('scda', 'fc', 'ml'), 129)
-add(('lwda', 'fc', 'ml'), 129)
+add(("oper", "fc", "ml"), 129)
+add(("scda", "fc", "ml"), 129)
+add(("lwda", "fc", "ml"), 129)
 
 # Tropfical cyclones
 
-P[('enfo', 'tf', '')] = (129, 999)
-P[('oper', 'tf', '')] = (129, 999)
+P[("enfo", "tf", "")] = (129, 999)
+P[("oper", "tf", "")] = (129, 999)
 
 # ML for enfo is not in mars
-P[('enfo', 'cf', 'ml')] = sorted(set(P[('oper', 'fc', 'ml')]) | set(P[('oper', 'an', 'ml')]))
-P[('enfo', 'pf', 'ml')] = P[('enfo', 'cf', 'ml')]
+P[("enfo", "cf", "ml")] = sorted(
+    set(P[("oper", "fc", "ml")]) | set(P[("oper", "an", "ml")])
+)
+P[("enfo", "pf", "ml")] = P[("enfo", "cf", "ml")]
 
 
 # fsr = 244
 
-add(('enfo', 'cf', 'sfc'), 244)
-add(('enfo', 'pf', 'sfc'), 244)
+add(("enfo", "cf", "sfc"), 244)
+add(("enfo", "pf", "sfc"), 244)
 
 # SCDA pv, pt not in MARS
-P[('scda', 'an', 'pt')] = P[('oper', 'an', 'pt')]
-P[('scda', 'an', 'pv')] = P[('oper', 'an', 'pv')]
-P[('scda', 'fc', 'pt')] = P[('oper', 'fc', 'pt')]
-P[('scda', 'fc', 'pv')] = P[('oper', 'fc', 'pv')]
+P[("scda", "an", "pt")] = P[("oper", "an", "pt")]
+P[("scda", "an", "pv")] = P[("oper", "an", "pv")]
+P[("scda", "fc", "pt")] = P[("oper", "fc", "pt")]
+P[("scda", "fc", "pv")] = P[("oper", "fc", "pv")]
 
 # VPOT=2 and STRF=1 not in mars
-add(('enfh', 'cf', 'pl'), 1, 2)
-P[('enfh', 'pf', 'pl')] = P[('enfh', 'cf', 'pl')]
+add(("enfh", "cf", "pl"), 1, 2)
+P[("enfh", "pf", "pl")] = P[("enfh", "cf", "pl")]
 
 # ssro=9, sro=8, ro=205, tisr=212
-add(('msmm', 'em', 'sfc'), 8, 9, 205, 212)
-add(('msmm', 'fcmean', 'sfc'), 8, 9, 205, 212)
+add(("msmm", "em", "sfc"), 8, 9, 205, 212)
+add(("msmm", "fcmean", "sfc"), 8, 9, 205, 212)
 
 # Still in FR/FRA/req/curr/FX
-P[('enfo', 'fp', 'sfc')] = sorted([131165, 131228])
-P[('enfo', 'fp', 'pl')] = sorted([131130])
-P[('waef', 'fp', '')] = sorted([131229, 131232])
+P[("enfo", "fp", "sfc")] = sorted([131165, 131228])
+P[("enfo", "fp", "pl")] = sorted([131130])
+P[("waef", "fp", "")] = sorted([131229, 131232])
 
-P[('enfo', 'cs', 'pl')] = sorted([129])
+P[("enfo", "cs", "pl")] = sorted([129])
 
 # UA = 171131, VA = 171131, TA=171130
 # add(('enfo', 'taem', 'pl'), 171130, 171131, 171132)
 # add(('enfo', 'taes', 'pl'), 171130, 171131, 171132)
 
 # PRES = 54
-add(('enfo', 'pf', 'pv'), 54)
+add(("enfo", "pf", "pv"), 54)
 
 # FAL = 243
-add(('enfo', 'pf', 'sfc'), 243)
+add(("enfo", "pf", "sfc"), 243)
 
 # U, V
 # add(('enfo', 'cf', 'pv'), 131, 132)
 # add(('enfo', 'pf', 'pv'), 131, 132)
 
-add(('enfo', 'pf', 'pv'), 129)  # Z
-add(('enfo', 'cm', 'pl'), 130)  # T
-add(('enfo', 'cs', 'pl'), 130)  # T
+add(("enfo", "pf", "pv"), 129)  # Z
+add(("enfo", "cm", "pl"), 130)  # T
+add(("enfo", "cs", "pl"), 130)  # T
 
 
 Y = []
@@ -186,5 +231,8 @@ for k, v in sorted(P.items()):
         Y.append([dict(stream=k[0], type=k[1]), v])
 
 with open("params.yaml", "w") as f:
-    f.write('# File automatically generated by %s\n# Do not edit\n\n' % (os.path.basename(__file__)))
+    f.write(
+        "# File automatically generated by %s\n# Do not edit\n\n"
+        % (os.path.basename(__file__))
+    )
     f.write(yaml.safe_dump(Y, default_flow_style=False))

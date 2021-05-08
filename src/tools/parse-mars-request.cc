@@ -11,46 +11,81 @@
 #include <algorithm>
 #include <fstream>
 
-#include "eckit/runtime/Tool.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
+#include "eckit/log/JSON.h"
+#include "eckit/option/CmdArgs.h"
+#include "eckit/option/SimpleOption.h"
 
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsExpension.h"
+#include "metkit/tool/MetkitTool.h"
 
 
 using namespace metkit;
 using namespace metkit::mars;
+using namespace eckit;
+using namespace eckit::option;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class ParseRequest : public eckit::Tool {
+class ParseRequest : public MetkitTool {
 public:
 
-    ParseRequest(int argc, char **argv) :
-        Tool(argc, argv) {
+    ParseRequest(int argc, char **argv) : MetkitTool(argc, argv) {
+        options_.push_back(
+            new SimpleOption<bool>("json", "Format request in json, default = false"));
+        options_.push_back(
+            new SimpleOption<bool>("compact", "Compact output, default = false"));
+
     }
 
     virtual ~ParseRequest() {}
 
-private: // methods
+private:  // methods
+    int minimumPositionalArguments() const { return 1; }
 
-    virtual void run();
     void process(const eckit::PathName& path);
 
+    virtual void execute(const eckit::option::CmdArgs& args);
 
-private: // members
+    virtual void init(const CmdArgs& args);
 
-    eckit::PathName path_;
+    virtual void usage(const std::string& tool) const;
 
+private:  // members
+    bool json_            = false;
+    bool compact_          = false;
 
 };
 
-void ParseRequest::run() {
-    for (size_t i = 1; i < argc(); ++i) {
-        process(argv(i));
+//----------------------------------------------------------------------------------------------------------------------
+
+void ParseRequest::execute(const eckit::option::CmdArgs& args) {
+    for (size_t i = 0; i < args.count(); i++) {
+        process(args(i));
     }
+}
+
+void ParseRequest::init(const CmdArgs& args) {
+    args.get("json", json_);
+    args.get("compact", compact_);
+    args.get("porcelain", porcelain_);
+    if (porcelain_)
+        compact_ = true;
+}
+
+void ParseRequest::usage(const std::string& tool) const {
+    Log::info() << "Usage: " << tool << " [options] [request1] [request2] ..." << std::endl
+                << std::endl;
+
+    Log::info() << "Examples:" << std::endl
+                << "=========" << std::endl
+                << std::endl
+                << tool << " --json mars1.req mars2.req" << std::endl
+                << tool << " --porcelain folderOfRequests" << std::endl
+                << std::endl;
 }
 
 void ParseRequest::process(const eckit::PathName& path)
@@ -76,7 +111,9 @@ void ParseRequest::process(const eckit::PathName& path)
     }
 
 
-    std::cout << "==========> Parsing : " << path << std::endl;
+    if (!porcelain_) {
+        std::cout << "==========> Parsing : " << path << std::endl;
+    }
 
     std::ifstream in(path.asString().c_str());
     MarsParser parser(in);
@@ -85,16 +122,40 @@ void ParseRequest::process(const eckit::PathName& path)
     MarsExpension expand(inherit);
 
     auto p = parser.parse();
-    for (auto j = p.begin(); j != p.end(); ++j) {
-        (*j).dump(std::cout);
+    if (!porcelain_) {
+        for (auto j = p.begin(); j != p.end(); ++j) {
+            if (compact_) {
+                j->dump(std::cout, "", "");
+                std::cout << std::endl;
+            } else {
+                j->dump(std::cout);
+            }
+        }
+
+        std::cout << "----------> Expanding ... " << std::endl;
     }
 
-    std::cout << "----------> Expanding ... " << std::endl;
 
     std::vector<MarsRequest> v = expand.expand(p);
 
     for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-        (*j).dump(std::cout);
+        if (json_) {
+            if (compact_) {
+                eckit::JSON jsonOut(std::cout);
+                j->json(jsonOut);
+            } else {
+                eckit::JSON jsonOut(std::cout, eckit::JSON::Formatting(eckit::JSON::Formatting::BitFlags::INDENT_DICT));
+                j->json(jsonOut);
+            }
+            std::cout << std::endl;
+        } else {
+            if (compact_) {
+                j->dump(std::cout, "", "");
+                std::cout << std::endl;
+            } else {
+                j->dump(std::cout);
+            }
+        }
     }
 
     class Print : public FlattenCallback {
