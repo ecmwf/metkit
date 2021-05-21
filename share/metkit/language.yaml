@@ -77,7 +77,7 @@ _field: &_field
     - [ab, analysis bias]
     - [af, analysis feedback]
     - [ai, analysis input]
-    - [an, analysis, ana, a] # ana, a is for  NO/NOR/req/curr/NO
+    - [an, analysis]
     - [as, adjoint singular vector]
     - [bf, bias-corrected forecast]
     - [cd, climate distribution]
@@ -304,8 +304,6 @@ _field: &_field
     - ll
     - np
     - rl
-    # - - '0.25'
-    #   - fix me HUE:E1 !
 
   obsgroup:
     category: data
