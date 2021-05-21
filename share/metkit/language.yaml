@@ -243,7 +243,7 @@ _field: &_field
     - [msmm, multi-model seasonal forecast atmospheric monthly means]
     - [mswm, multi-model seasonal forecast wave monthly means]
     - [ocea, ocean]
-    - [oper, da, daily archive, od, atmospheric model] # IT/ITI/req/curr/I6 has OD
+    - [oper, da, daily archive, atmospheric model]
     - [rjtd, tokyo]
     - [scda, atmospheric model (short cutoff)]
     - [scwv, wave model (short cutoff)]
