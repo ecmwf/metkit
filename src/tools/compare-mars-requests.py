@@ -16,44 +16,58 @@ import json
 import datetime
 from dateutil.parser import parse
 
+def check_one(name, old, new):
+    assert len(old) == 1 and len(new) == 1, f"{name.upper()}: too many values {len(old)} and {len(new)}"
+    return old[0], new[0]
+
 def compare_int(name, old, new):
-    assert int(old) == int(new), f"{name.upper()}: value mismatch '{old}' and '{new}'"
+    for o, n in zip(old, new):
+        assert int(o) == int(n), f"{name.upper()}: value mismatch '{old}' and '{new}'"
 
 def compare_str(name, old, new):
-    assert old.replace('"', '').lower() == new.replace('"', '').lower(), f"{name.upper()}: string mismatch '{old}' and '{new}'"
+    o, n = check_one(name, old, new)
+    assert o.replace('"', '').lower() == n.replace('"', '').lower(), f"{name.upper()}: string mismatch '{old[0]}' and '{new[0]}'"
+
+def compare_strList(name, old, new):
+    for o, n in zip(old, new):
+        compare_str(name, [o], [n])
 
 def compare_strCaseSensitive(name, old, new):
-    assert old.replace('"', '') == new.replace('"', ''), f"{name.upper()}: string mismatch '{old}' and '{new}'"
+    o, n = check_one(name, old, new)
+    assert o.replace('"', '') == n.replace('"', ''), f"{name.upper()}: string mismatch '{old[0]}' and '{new[0]}'"
 
 def compare_time(name, old, new):
-    if isinstance(old, str):
-        old = int(old.replace(':', ''))
-    if old>9999:
-        old = old/100
+    o, n = check_one(name, old, new)
 
-    if isinstance(new, str):
-        new = int(new.replace(':', ''))
-    if new > 9999:
-        new = new / 100
+    if isinstance(o, str):
+        o = int(o.replace(':', ''))
+    if o>9999:
+        o = o/100
 
-    assert old == new, f"{name.upper()}: time mismatch '{old}' and '{new}'"
+    if isinstance(n, str):
+        n = int(n.replace(':', ''))
+    if n > 9999:
+        n = n / 100
+
+    assert o == n, f"{name.upper()}: time mismatch '{old[0]}' and '{new[0]}'"
 
 def compare_date(name, old, new):
-    oStart = parse(str(old), default=datetime.datetime(1901, 1, 1))
-    oEnd = parse(str(old), default=datetime.datetime(2001, 12, 31))
-    nStart = parse(str(new), default=datetime.datetime(1901, 1, 1))
-    nEnd = parse(str(new), default=datetime.datetime(2001, 12, 31))
-    # print(old, oStart.date(), oEnd.date(), new, nStart.date(), nEnd.date(), oStart.date() == nStart.date() and oEnd.date() == nEnd.date())
-    assert oStart.date() == nStart.date() and oEnd.date() == nEnd.date(), f"{name.upper()}: date mismatch '{old}' and '{new}'"
+    o, n = check_one(name, old, new)
+    oStart = parse(str(o), default=datetime.datetime(1901, 1, 1))
+    oEnd = parse(str(o), default=datetime.datetime(2001, 12, 31))
+    nStart = parse(str(n), default=datetime.datetime(1901, 1, 1))
+    nEnd = parse(str(n), default=datetime.datetime(2001, 12, 31))
+    assert oStart.date() == nStart.date() and oEnd.date() == nEnd.date(), f"{name.upper()}: date mismatch '{old[0]}' and '{new[0]}'"
 
 def compare_expver(name, old, new):
-    if (old == new):
+    o, n = check_one(name, old, new)
+    if o == n:
         return
-    if isinstance(old, int) or len(old)<4:
-        old = str(old).zfill(4)
-    if isinstance(new, int) or len(new)<4:
-        new = str(new).zfill(4)
-    assert old == new, f"{name.upper()}: expver mismatch '{old}' and '{new}'"
+    if isinstance(o, int) or len(o)<4:
+        o = str(o).zfill(4)
+    if isinstance(n, int) or len(n)<4:
+        n = str(n).zfill(4)
+    assert o == n, f"{name.upper()}: expver mismatch '{old[0]}' and '{new[0]}'"
 
 def ignore(name, old, new):
     pass
@@ -70,7 +84,7 @@ comparators = {
     "expver": compare_expver,
     "levtype": compare_str,
     "levelist": compare_int,
-    "param": compare_str,
+    "param": compare_strList,
     "step": compare_int,
     "time": compare_time,
     "target": compare_strCaseSensitive,
@@ -87,7 +101,7 @@ def compare(name, old, new):
 
     assert len(old) == len(new), f"{name}: list mismatch {len(old)} and {len(new)}"
     assert name in comparators.keys(), f"{name}: not supported"
-    all(comparators[name](name, o, n) for o, n in zip(old, new))
+    comparators[name](name, old, new)
 
 # compare_date('date', '20210501', '2021-05-01')
 # compare_date('date', '20210501', '2021-May-01')
