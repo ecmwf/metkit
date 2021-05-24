@@ -13,75 +13,88 @@
 import sys
 import os.path
 import json
+import datetime
 from dateutil.parser import parse
 
-ignore = ['repres', 'accuracy', 'area']
+def compare_int(name, old, new):
+    assert int(old) == int(new), f"{name.upper()}: value mismatch '{old}' and '{new}'"
 
-class Compare:
-    __V1 = None
-    __V2 = None
+def compare_str(name, old, new):
+    assert old.replace('"', '').lower() == new.replace('"', '').lower(), f"{name.upper()}: string mismatch '{old}' and '{new}'"
 
-    def compare(self, key, v1, v2):
-        if type(v1) == str:
-            self.__V1 = v1.lower()
-        else:
-            self.__V1 = v1
-        if type(v2) == str:
-            self.__V2 = v2.lower()
-        else:
-            self.__V2 = v2
-        default = self.__V1 == self.__V2
-        # class, type, stream, levtype, domain, [repres]
-        return getattr(self, key, lambda: default)()
+def compare_strCaseSensitive(name, old, new):
+    assert old.replace('"', '') == new.replace('"', ''), f"{name.upper()}: string mismatch '{old}' and '{new}'"
 
-    def target(self):
-        return self.__V1.replace('"', '') == self.__V2.replace('"', '')
+def compare_time(name, old, new):
+    if isinstance(old, str):
+        old = int(old.replace(':', ''))
+    if old>9999:
+        old = old/100
 
-    def toInt(self):
-        return int(self.__V1) == int(self.__V2)
-    def expver(self):
-        return self.toInt()
-    def levelist(self):
-        return self.toInt()
-    def step(self):
-        return self.toInt()
+    if isinstance(new, str):
+        new = int(new.replace(':', ''))
+    if new > 9999:
+        new = new / 100
 
-    def date(self):
-        d1 = parse(str(self.__V1))
-        d2 = parse(str(self.__V2))
-        return d1.date() == d2.date()
+    assert old == new, f"{name.upper()}: time mismatch '{old}' and '{new}'"
 
-    def time(self):
-        v1 = self.__V1
-        if type(v1) == str:
-            v1 = int(v1.replace(':', ''))
-        if v1>9999:
-            v1 = v1/100
+def compare_date(name, old, new):
+    oStart = parse(str(old), default=datetime.datetime(1901, 1, 1))
+    oEnd = parse(str(old), default=datetime.datetime(2001, 12, 31))
+    nStart = parse(str(new), default=datetime.datetime(1901, 1, 1))
+    nEnd = parse(str(new), default=datetime.datetime(2001, 12, 31))
+    # print(old, oStart.date(), oEnd.date(), new, nStart.date(), nEnd.date(), oStart.date() == nStart.date() and oEnd.date() == nEnd.date())
+    assert oStart.date() == nStart.date() and oEnd.date() == nEnd.date(), f"{name.upper()}: date mismatch '{old}' and '{new}'"
 
-        v2 = self.__V2
-        if type(v2) == str:
-            v2 = int(v2.replace(':', ''))
-        if v2 > 9999:
-            v2 = v2 / 100
+def compare_expver(name, old, new):
+    if (old == new):
+        return
+    if isinstance(old, int) or len(old)<4:
+        old = str(old).zfill(4)
+    if isinstance(new, int) or len(new)<4:
+        new = str(new).zfill(4)
+    assert old == new, f"{name.upper()}: expver mismatch '{old}' and '{new}'"
 
-        return v1 == v2
+def ignore(name, old, new):
+    pass
 
+def ignore_fixYaml(name, old, new):
+    pass
 
+comparators = {
+    "class": compare_str,
+    "stream": compare_str,
+    "type": compare_str,
+    "domain": compare_str,
+    "date": compare_date,
+    "expver": compare_expver,
+    "levtype": compare_str,
+    "levelist": compare_int,
+    "param": compare_str,
+    "step": compare_int,
+    "time": compare_time,
+    "target": compare_strCaseSensitive,
+    "accuracy": ignore_fixYaml,
+    "repres": ignore,
+    "area": ignore_fixYaml
+}
 
-def compare(key, v1, v2):
-    if type(v1) != list:
-        v1 = [v1]
-    if type(v2) != list:
-        v2 = [v2]
+def compare(name, old, new):
+    if not isinstance(old, list):
+        old = [old]
+    if not isinstance(new, list):
+        new = [new]
 
-    if len(v1) != len(v2):
-        return False
+    assert len(old) == len(new), f"{name}: list mismatch {len(old)} and {len(new)}"
+    assert name in comparators.keys(), f"{name}: not supported"
+    all(comparators[name](name, o, n) for o, n in zip(old, new))
 
-    c = Compare()
-    for i, j in zip(v1, v2):
-        if not c.compare(key, i, j):
-            return False
-    return True
+# compare_date('date', '20210501', '2021-05-01')
+# compare_date('date', '20210501', '2021-May-01')
+# compare_date('date', '20210501', '2021-may-01')
+# compare_date('date', 'May-1', 'may-01')
+# compare_date('date', 'May', 'may')
+# compare_date('date', 'May', '20210521')
 
 # check command line parameters
 if len(sys.argv) != 3 or not os.path.isfile(sys.argv[1]) or not os.path.isfile(sys.argv[2]):
@@ -104,22 +117,5 @@ with open(sys.argv[2]) as json_file2:
     for key, value in json.load(json_file2).items():
         j2[key.lower()] = value;
 
-ok = True
-#iterate over all keys and compare their values
 for key in set(j1.keys()) | set(j2.keys()):
-    if not key in ignore:
-        if not (key in j1 and key in j2 and compare(key, j1[key], j2[key])):
-            print('Error with key', '{:10}'.format(key.upper()), end=' ', flush=False)
-            ok = False
-            if not key in j1:
-                print('missing in:', sys.argv[1])
-            else:
-                if not key in j2:
-                    print('missing in:', sys.argv[2])
-                else:
-                    print('differs:', j1[key], ' and ', j2[key])
-
-if ok:
-    exit(0)
-else:
-    exit(1)
+    compare(key, j1.get(key), j2.get(key))
