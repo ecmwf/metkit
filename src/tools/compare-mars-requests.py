@@ -30,7 +30,17 @@ def compare_int(name, old, new):
 
 def compare_float(name, old, new):
     for o, n in zip(old, new):
-        assert str(o).isnumeric() and str(n).isnumeric() and float(o) == float(n), f"{name.upper()}: value mismatch '{old}' and '{new}'"
+        try:
+            o = float(o)
+        except ValueError:
+            o = o.lower()
+
+        try:
+            n = float(n)
+        except ValueError:
+            n = n.lower()
+
+        assert o == n, f"{name.upper()}: value mismatch '{old}' and '{new}'"
 
 def compare_intAndKeywords(name, old, new, keywords):
     o, n = check_atMostOne(name, old, new)
