@@ -77,7 +77,7 @@ _field: &_field
     - [ab, analysis bias]
     - [af, analysis feedback]
     - [ai, analysis input]
-    - [an, analysis, ana, a] # ana, a is for  NO/NOR/req/curr/NO
+    - [an, analysis]
     - [as, adjoint singular vector]
     - [bf, bias-corrected forecast]
     - [cd, climate distribution]
@@ -170,7 +170,6 @@ _field: &_field
     - [dahc, daily archive hindcast]
     - [dcda, atmospheric model (delayed cutoff)]
     - [dcwv, wave model (delayed cutoff)]
-    - [e1, ers1]
     - [edmm, ensemble data assimilation monthly means]
     - [edmo, ensemble data assimilation monthly means of daily means]
     - [edzw, offenbach]
@@ -201,7 +200,7 @@ _field: &_field
     - [ewla, ensemble wave long window data assimilation]
     - [ewmm, ensemble wave data assimilation monthly means]
     - [ewmo, ensemble wave data assimilation monthly means of daily means]
-    - [fgge, fg, fgge]
+    - [fgge, fg]
     - [fsob, forecast sensitivity to observations]
     - [fsow, forecast sensitivity to observations wave]
     - [gfas, global fire assimilation system]
@@ -243,7 +242,7 @@ _field: &_field
     - [msmm, multi-model seasonal forecast atmospheric monthly means]
     - [mswm, multi-model seasonal forecast wave monthly means]
     - [ocea, ocean]
-    - [oper, da, daily archive, od, atmospheric model] # IT/ITI/req/curr/I6 has OD
+    - [oper, da, daily archive, atmospheric model]
     - [rjtd, tokyo]
     - [scda, atmospheric model (short cutoff)]
     - [scwv, wave model (short cutoff)]
@@ -252,11 +251,9 @@ _field: &_field
     - [sens, sf, sensitivity forecast]
     - [sfmm, seasonal forecast atmospheric monthly means]
     - [smma, seasonal monthly means anomalies]
-    - [ssbt]
-    - [ssmi]
     - [supd, sd, deterministic supplementary data]
     - [swmm, seasonal forecast wave monthly means]
-    - [toga, tg, toga]
+    - [toga, tg]
     - [ukmo, ukmo climate centre]
     - [waef, we, wave ensemble forecast]
     - [wamd, wave monthly means of daily means]
@@ -276,7 +273,6 @@ _field: &_field
     - [wfrf, global flood awareness system (glofas) reforecasts]
     - [wfse, global flood awareness system (glofas) seasonal forecasts]
     - [wfsr, global flood awareness system (glofas) seasonal reforecasts]
-    - [wm, wmo]
     - [wmfm, wave monthly forecast means]
     - [wvhc, wave hindcast]
   expver:
@@ -304,8 +300,6 @@ _field: &_field
     - ll
     - np
     - rl
-    # - - '0.25'
-    #   - fix me HUE:E1 !
 
   obsgroup:
     category: data
