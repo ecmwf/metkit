@@ -69,7 +69,7 @@ def compare_expect(name, old, new):
 
 def compare_accuracy(name, old, new):
     # 'off', 'av' or a positive integer value
-    compare_intAndKeywords(name, old, new, [None, "off", "av"])
+    compare_intAndKeywords(name, old, new, [None, "off", "av", "n"])
 
 def compare_frame(name, old, new):
     # 'off' or a positive integer value
@@ -94,8 +94,8 @@ def compare_strList(name, old, new):
         compare_str(name, [o], [n])
 
 def compare_strCaseSensitive(name, old, new):
-    o, n = check_one(name, old, new)
-    assert o.replace('"', '') == n.replace('"', ''), f"{name.upper()}: string mismatch '{old[0]}' and '{new[0]}'"
+    for o, n in zip(old, new):
+        assert o.replace('"', '') == n.replace('"', ''), f"{name.upper()}: string mismatch '{old}' and '{new}'"
 
 def compare_time(name, old, new):
     o, n = check_one(name, old, new)
@@ -155,7 +155,7 @@ comparators = {
     # "accuracy": compare_accuracy,
     "anoffset": compare_int, # ?????
     "area": ignore_fixYaml,
-    # bitmap
+    "bitmap": compare_strCaseSensitive,
     # block
     # channel
     "class": compare_str,
