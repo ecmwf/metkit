@@ -415,7 +415,7 @@ _field: &_field
     never:
     - levtype: sfc
     - type: ssd
-    type: to-by-list
+    type: to-by-list-float
 
   param:
     category: data
