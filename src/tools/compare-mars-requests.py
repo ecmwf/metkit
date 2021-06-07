@@ -181,7 +181,7 @@ comparators = {
     # "intgrid":
     "iteration": compare_int, # ??????
     "latitude": compare_float,
-    "levelist": compare_int,
+    "levelist": compare_float,
     "levtype": compare_str,
     "longitude": compare_float,
     "lsm": compare_str, # ?????
@@ -242,15 +242,24 @@ if len(sys.argv) != 3 or not os.path.isfile(sys.argv[1]) or not os.path.isfile(s
     exit(1)
 
 #open json files and build case insensitive dictionaries
-j1 = {}
-with open(sys.argv[1]) as json_file1:
-    for key, value in json.load(json_file1).items():
-        j1[key.lower()] = value;
+json_lines_1 = []
+with open(sys.argv[1]) as json_file:
+    for line in json_file:
+        j = {}
+        for key, value in json.loads(line).items():
+            j[key.lower()] = value
+        json_lines_1.append(j)
 
-j2 = {}
-with open(sys.argv[2]) as json_file2:
-    for key, value in json.load(json_file2).items():
-        j2[key.lower()] = value;
+json_lines_2 = []
+with open(sys.argv[2]) as json_file:
+    for line in json_file:
+        j = {}
+        for key, value in json.loads(line).items():
+            j[key.lower()] = value
+        json_lines_2.append(j)
 
-for key in set(j1.keys()) | set(j2.keys()):
-    compare(key, j1.get(key), j2.get(key))
+assert len(json_lines_1) == len(json_lines_2), f"Json mismatch: {sys.argv[1]} contains {len(json_lines_1)} while {sys.argv[2]} contains {len(json_lines_2)}"
+
+for j1, j2 in zip(json_lines_1, json_lines_2):
+    for key in set(j1.keys()) | set(j2.keys()):
+        compare(key, j1.get(key), j2.get(key))
