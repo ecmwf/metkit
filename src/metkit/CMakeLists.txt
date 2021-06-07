@@ -80,6 +80,8 @@ list( APPEND metkit_srcs
     mars/TypeTime.h
     mars/TypeToByList.cc
     mars/TypeToByList.h
+    mars/TypeToByListFloat.cc
+    mars/TypeToByListFloat.h
     metkit_version.cc
     tool/MetkitTool.cc
     tool/MetkitTool.h
