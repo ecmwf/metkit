@@ -104,7 +104,7 @@ void ParamID::normalise(const REQUEST_T& r,
                 newreq.push_back(p);
             }
 
-            eckit::Log::info() << "useGRIBParamID p=" << p
+            eckit::Log::debug<LibMetkit>() << "useGRIBParamID p=" << p
                                << ", alt=" << alt
                                << ", choice=" << newreq.back() << std::endl;
 
