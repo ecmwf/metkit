@@ -12,7 +12,9 @@ axes:
     - date
     - refdate
     - hdate
+    - andate
     - time
+    - antime
     - anoffset
     - reference
     - step
