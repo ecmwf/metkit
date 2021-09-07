@@ -8,7 +8,7 @@ DEFAULT_PORT = 5432
 
 def main():
     try:
-       HOST = os.environ['PRODUCT_CATALOGUE_HOST']
+        HOST = os.environ['PRODUCT_CATALOGUE_HOST']
         DB = os.environ['PRODUCT_CATALOGUE_DB']
         USER = os.environ['PRODUCT_CATALOGUE_USER']
         PASSWORD = os.environ['PRODUCT_CATALOGUE_PASSWORD']
