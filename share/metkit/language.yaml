@@ -33,6 +33,7 @@ _field: &_field
     - [fi, finland]
     - [fr, france]
     - [gr, greece]
+    - [gw, global wildfire information system]
     - [hr, croatia]
     - [hu, hungary]
     - [ie, ireland]
@@ -53,6 +54,7 @@ _field: &_field
     - [pv, provost]
     - [rd, research]
     - [rm, euro4m]
+    - [rr, regional reanalysis]
     - [se, sweden]
     - [si, slovenia]
     - [sr, sreps]
@@ -60,6 +62,7 @@ _field: &_field
     - [to, tost]
     - [tr, turkey]
     - [uk, united kingdom]
+    - [ul, ulysses]
     - [ur, uerra]
     - [yt, yotc]
 
@@ -415,7 +418,7 @@ _field: &_field
     never:
     - levtype: sfc
     - type: ssd
-    type: to-by-list
+    type: to-by-list-float
 
   param:
     category: data

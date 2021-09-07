@@ -68,6 +68,24 @@ CASE( "test_metkit_expand_5" ) {
     r.dump(std::cout);
 }
 
+CASE( "test_metkit_expand_6" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=1/to/31";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
+CASE( "test_metkit_expand_7" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=0.01/0.7";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
+CASE( "test_metkit_expand_8" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=0.1/to/0.7/by/0.2";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
 //-----------------------------------------------------------------------------
 
 }  // namespace test
