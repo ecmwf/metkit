@@ -194,7 +194,6 @@ void ParamID::normalise(const REQUEST_T& r,
                         newreq.push_back(*k);
                     }
                 }
-                req = newreq;
             }
             else // GRIB1 and GRIB2 mixed
             {
