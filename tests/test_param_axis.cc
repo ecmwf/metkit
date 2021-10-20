@@ -164,7 +164,43 @@ CASE ("wind8") {
     test_param_axis(user, axis, expect, true);
 }
 
-CASE ("mixed") {
+CASE ("wind9") {
+
+    std::vector<std::string> user = {"131", "132",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
+    std::vector<std::string> expect = {"131", "132", "138", "155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+
+CASE ("wind10") {
+
+    std::vector<std::string> user = {"131", "132",};
+    std::vector<std::string> axis = {"129138", "129155"};
+    std::vector<std::string> expect = {"129131", "129132", "129138", "129155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+
+CASE ("wind11") {
+
+    std::vector<std::string> user = {"131", "132",};
+    std::vector<std::string> axis = {"138", "155", "129138", "129155"};
+    std::vector<std::string> expect = {"131", "132", "138", "155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+
+CASE ("wind12") {
+
+    std::vector<std::string> user = {"131", "132.129",};
+    std::vector<std::string> axis = {"138", "155", "129138", "129155"};
+    std::vector<std::string> expect = {"131", "129132", "138", "155", "129138", "129155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+
+CASE ("mixed1") {
 
     std::vector<std::string> user = {"129", };
     std::vector<std::string> axis = {"129.128", "129"};
@@ -173,6 +209,32 @@ CASE ("mixed") {
     test_param_axis(user, axis, expect, false);
 }
 
+CASE ("mixed2") {
+
+    std::vector<std::string> user = {"131"};
+    std::vector<std::string> axis = {"210131"};
+    std::vector<std::string> expect = {"210131"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("mixed3") {
+
+    std::vector<std::string> user = {"131"};
+    std::vector<std::string> axis = {"131.210"};
+    std::vector<std::string> expect = {"131.210"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("mixed4") {
+
+    std::vector<std::string> user = {"131", "132"};
+    std::vector<std::string> axis = {"210131"};
+    std::vector<std::string> expect = {"210131", "132", "138", "155"};
+
+    test_param_axis(user, axis, expect, true);
+}
 CASE ("ocean1") {
 
     std::vector<std::string> user = { "145" };

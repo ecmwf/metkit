@@ -137,78 +137,64 @@ void ParamID::normalise(const REQUEST_T& r,
                 {
                     eckit::Ordinal t = (*k).table();
                     eckit::Ordinal v = (*k).value();
-                    // If user specifies param.value
-                    if (t)
-                    {
-                        Param p(0, (t == 128 ? 0 : t) * 1000 + v);
-                        //Log::userWarning() << "Parameter " << (*k) << " changed to " << p << std::endl;
-                        newreq.push_back(p);
-                        inRequest.insert(p);
+                    bool ok = false;
+
+                    bool enablePartialMatch = !t && v<1000;
+                    Param param(0, (t == 128 ? 0 : t) * 1000 + v);
+
+
+                    if (inAxis.find(param) != inAxis.end()) { // Perfect match - not looking forward
+                        newreq.push_back(param);
+                        ok = true;
                     }
-                    else
-                    {
-                        if (inAxis.find(*k) != inAxis.end()) {
-                            // Perfect match
-                            newreq.push_back(*k);
-                            inRequest.insert(*k);
+                    if (!ok) { // Special case for U/V - exact match
+                        for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
+                            if ((param == windFamilies[w].u_ || param == windFamilies[w].v_) &&
+                                inAxis.find(windFamilies[w].vo_) != inAxis.end() &&
+                                inAxis.find(windFamilies[w].d_) != inAxis.end()) {
+
+                                newreq.push_back(param);
+                                ok = true;
+                                break;
+                            }
                         }
-                        else {
-                            bool ok = false;
-                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-                            {
-                                Param p(*j);
-                                if ((p.value() % 1000) == v) {
-                                    //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << ", please change your request" << std::endl;
-                                    newreq.push_back(p);
-                                    inRequest.insert(p);
+                    }
+
+                    if (!ok && enablePartialMatch) { // Partial match
+                        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
+                        {
+                            Param p(*j);
+                            if ((p.value() % 1000) == (v % 1000)) {
+                                //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << ", please change your request" << std::endl;
+
+                                newreq.push_back(p);
+                                ok = true;
+                                break;
+                            }
+                        }
+
+                        if (!ok) { // Special case for U/V - partial match
+                            for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
+                                size_t v = param.value()%1000;
+                                if ((v == windFamilies[w].u_.value()%1000 || v == windFamilies[w].v_.value()%1000) &&
+                                    inAxis.find(windFamilies[w].vo_) != inAxis.end() &&
+                                    inAxis.find(windFamilies[w].d_) != inAxis.end()) {
+
+                                    if (v == windFamilies[w].u_.value()%1000)
+                                        newreq.push_back(windFamilies[w].u_);
+                                    else
+                                        newreq.push_back(windFamilies[w].v_);
                                     ok = true;
-                                }
-                            }
-
-                            // Special case for U/V
-                            if (!ok) {
-                                int wind = -1;
-
-                                Param param(0, (t == 128 ? 0 : t) * 1000 + v);
-
-                                // Try exact match
-                                for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                    if (param == windFamilies[w].u_ || param == windFamilies[w].v_) {
-                                        wind = w;
-                                        break;
-                                    }
-                                }
-
-                                if (wind == -1) {
-                                    // Try partial match
-                                    for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                        if (param.value() == windFamilies[w].u_.value() || param.value() == windFamilies[w].v_.value()) {
-                                            wind = w;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (wind != -1) {
-                                    for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                        if (inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
-                                            Param p(v == windFamilies[w].u_.value() ? windFamilies[w].u_ : windFamilies[w].v_);
-                                            if (inRequest.find(p) == inRequest.end()) {
-                                                //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << " (wind field)" << std::endl;
-                                                newreq.push_back(p);
-                                                inRequest.insert(p);
-                                            }
-                                        }
-                                    }
+                                    break;
                                 }
                             }
                         }
+                    }
+                    if (!ok) {
+                        newreq.push_back(*k);
                     }
                 }
-
+                req = newreq;
             }
             else // GRIB1 and GRIB2 mixed
             {
