@@ -200,41 +200,69 @@ CASE ("wind12") {
     test_param_axis(user, axis, expect, true);
 }
 
-CASE ("mixed1") {
+CASE ("wind13") {
 
-    std::vector<std::string> user = {"129", };
-    std::vector<std::string> axis = {"129.128", "129"};
-    std::vector<std::string> expect = {"129", "129.128"};
+    std::vector<std::string> user = {"131.128", "132.128",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
+    std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, true);
 }
 
-CASE ("mixed2") {
+CASE ("wind14") {
 
-    std::vector<std::string> user = {"131"};
-    std::vector<std::string> axis = {"210131"};
+    std::vector<std::string> user = {"131",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
+    std::vector<std::string> expect = {"131", "138", "155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+
+CASE ("wind15") {
+
+    std::vector<std::string> user = {"210131",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
     std::vector<std::string> expect = {"210131"};
 
     test_param_axis(user, axis, expect, false);
 }
 
-CASE ("mixed3") {
+CASE ("wind16") {
 
-    std::vector<std::string> user = {"131"};
-    std::vector<std::string> axis = {"131.210"};
-    std::vector<std::string> expect = {"131.210"};
+    std::vector<std::string> user = {"210131", "131",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
+    std::vector<std::string> expect = {"210131", "131", "138", "155"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, true);
 }
 
-CASE ("mixed4") {
+CASE ("wind17") {
 
-    std::vector<std::string> user = {"131", "132"};
-    std::vector<std::string> axis = {"210131"};
+    std::vector<std::string> user = {"210131", "132",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
     std::vector<std::string> expect = {"210131", "132", "138", "155"};
 
     test_param_axis(user, axis, expect, true);
 }
+
+CASE ("wind18") {
+
+    std::vector<std::string> user = {"210131", "131.128",};
+    std::vector<std::string> axis = {"138", "155", "210131"};
+    std::vector<std::string> expect = {"210131", "131", "138", "155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+
+CASE ("mixed") {
+
+    std::vector<std::string> user = {"129", };
+    std::vector<std::string> axis = {"129.128", "129"};
+    std::vector<std::string> expect = {"129"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
 CASE ("ocean1") {
 
     std::vector<std::string> user = { "145" };
@@ -460,6 +488,42 @@ CASE ("table9") {
     test_param_axis(user, axis, expect, false);
 }
 
+
+CASE ("table10") {
+
+    std::vector<std::string> user = {"131"};
+    std::vector<std::string> axis = {"210131"};
+    std::vector<std::string> expect = {};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("table11") {
+
+    std::vector<std::string> user = {"131"};
+    std::vector<std::string> axis = {"131.210"};
+    std::vector<std::string> expect = {};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("table12") {
+
+    std::vector<std::string> user = {"131", "132"};
+    std::vector<std::string> axis = {"210131", "170131", "180131", "160132"};
+    std::vector<std::string> expect = {"170131", "160132"};
+
+    test_param_axis(user, axis, expect, false);
+}
+
+CASE ("table13") {
+
+    std::vector<std::string> user = {"131", "132"};
+    std::vector<std::string> axis = {"210131", "131.170", "180131", "160132"};
+    std::vector<std::string> expect = {"131.170", "160132"};
+
+    test_param_axis(user, axis, expect, false);
+}
 
 }  // namespace test
 }  // namespace mars

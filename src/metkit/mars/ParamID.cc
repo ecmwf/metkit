@@ -16,6 +16,7 @@
 #include "eckit/utils/Tokenizer.h"
 #include "eckit/config/Resource.h"
 #include "eckit/system/Library.h"
+#include "eckit/parser/YAMLParser.h"
 
 #include "metkit/config/LibMetkit.h"
 
@@ -27,9 +28,12 @@ namespace metkit {
 
 static std::vector<ParamID::WindFamily> windFamilies_;
 
+static std::map<size_t, std::set<size_t>> paramTableExpansion_;
+
 //----------------------------------------------------------------------------------------------------------------------
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
+
 static void readTable()
 {
     eckit::PathName path = eckit::Resource<eckit::PathName>("marsWindPath;$MARS_WIND_PATH", "~metkit/share/metkit/wind");
@@ -78,11 +82,31 @@ static void readTable()
 
         }
     }
+
+    const eckit::Value pts = eckit::YAMLParser::decodeFile(LibMetkit::paramTableExpansionYamlFile());
+    ASSERT(pts.isOrderedMap());
+
+    const eckit::Value keys = pts.keys();
+    ASSERT(keys.isList());
+
+    for (size_t i = 0; i < keys.size(); ++i) {
+        const eckit::Value& pt = pts.element(keys[i]);
+        ASSERT(pt.isList());
+
+        std::set<size_t> vals;
+        for (size_t j=0; j<pt.size(); j++)
+            vals.emplace((size_t) pt[j]);
+        paramTableExpansion_[(size_t) keys[i]] = vals;
+    }
 }
 
 const std::vector<ParamID::WindFamily>& ParamID::getWindFamilies() {
     pthread_once(&once, readTable);
     return windFamilies_;
+}
+const std::map<size_t, std::set<size_t>>& ParamID::getParamTableExpansion() {
+    pthread_once(&once, readTable);
+    return paramTableExpansion_;
 }
 
 
