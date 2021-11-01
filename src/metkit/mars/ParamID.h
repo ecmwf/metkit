@@ -57,17 +57,11 @@ public: // methods
                           bool& windConversion);
 
     static const std::vector<WindFamily>& getWindFamilies();
-    static const std::map<size_t, std::set<size_t>>& getParamTableExpansion();
+    static const std::vector<size_t>& getDropTables();
 
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-Param ToParamID(Param p) {
-    eckit::Ordinal t = (p.table() == 0 ? p.value() / 1000 : p.table());
-    eckit::Ordinal v = p.value() % 1000;
-
-    return Param(0, (t == 128 ? 0 : t) * 1000 + v);
-}
 
 template <typename REQUEST_T, typename AXIS_T>
 void ParamID::normalise(const REQUEST_T& r,
@@ -179,36 +173,33 @@ void ParamID::normalise(const REQUEST_T& r,
     else {
 
         std::set<Param> inAxis;
-        std::map<Param, Param> inAxisParamID;
+        std::map<long, Param> inAxisParamID;
         std::set<Param> wind;
+
         for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j) {
             inAxis.emplace(*j);
-            inAxisParamID[ToParamID(*j)] = (*j);
+            inAxisParamID[j->paramId()] = *j;
         }
 
         std::vector<Param> newreq; newreq.reserve(req.size());
 
-        for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
-        {
-            bool ok = false;
-            Param paramid = ToParamID(*k);
-
-            if (inAxis.find(*k) != inAxis.end()) { // Perfect match - not looking forward
-                newreq.push_back(*k);
-                ok = true;
+        for (auto r: req) {
+            if (inAxis.find(r) != inAxis.end()) { // Perfect match - not looking forward
+                newreq.push_back(r);
             }
-            if (!ok) {
+            else { // r is normalised to ParamID
+                long paramid = r.paramId();
                 auto ap = inAxisParamID.find(paramid);
-                if (ap != inAxisParamID.end()) { // Perfect match (beside GRIB1 or GRIB2 representation) - not looking forward
+                if (ap != inAxisParamID.end()) { // ParamID representation matching - not looking forward
                     newreq.push_back(ap->second);
-                    ok = true;
                 }
-                if (!ok) { // Special case for U/V - exact match
+                else { // Special case for U/V - exact match
+                    bool ok = false;
                     for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-                        if ((paramid == ToParamID(windFamilies[w].u_) || paramid == ToParamID(windFamilies[w].v_)) &&
+                        if ((paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].v_.paramId()) &&
                             inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
 
-                            if (paramid == ToParamID(windFamilies[w].u_))
+                            if (paramid == windFamilies[w].u_.paramId())
                                 newreq.push_back(windFamilies[w].u_);
                             else
                                 newreq.push_back(windFamilies[w].v_);
@@ -221,50 +212,36 @@ void ParamID::normalise(const REQUEST_T& r,
                             break;
                         }
                     }
-                    if (!ok) { // Partial match
-                        size_t uv = paramid.value() % 1000;
-                        size_t ut = paramid.value() / 1000;
-
-                        for (typename AXIS_T::const_iterator j = axis.begin(); !ok && j != axis.end(); ++j)
-                        {
-                            Param p = ToParamID(*j);
-                            size_t av = p.value() % 1000;
-                            size_t at = p.value() / 1000;
-
-                            if (av == uv) { // values are matching - check param-table expansion
-
-                                const std::map<size_t, std::set<size_t>>& pte = ParamID::getParamTableExpansion();
-                                auto pt = pte.find(uv);
-
-                                if (pt != pte.end() &&          // param-table expansion allowed
-                                    (at == 0 || pt->second.find(at) != pt->second.end()) &&
-                                    (ut == 0 || pt->second.find(ut) != pt->second.end())) {
-
-                                    //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << ", please change your request" << std::endl;
-                                    newreq.push_back(*j);
-                                    ok = true;
-                                    break;
-                                }
+                    if (!ok && paramid < 1000) { // Partial match
+                        const std::vector<size_t>& dropTables = ParamID::getDropTables();
+                        for (auto t: dropTables) {
+                            long pt = t*1000+paramid;
+                            auto ap = inAxisParamID.find(pt);
+                            if (ap != inAxisParamID.end()) { // ParamID representation matching - not looking forward
+                                newreq.push_back(ap->second);
+                                ok = true;
+                                break;
                             }
-                            if (!ok && ut == 0) { // Special case for U/V - partial match
-                                for (eckit::Ordinal w = 0; !ok && w < windFamilies.size() ; w++) {
-                                    if (uv == windFamilies[w].u_.value()%1000 || uv == windFamilies[w].v_.value()%1000) {
-                                        auto vo = inAxisParamID.find(ToParamID(windFamilies[w].vo_));
-                                        auto d = inAxisParamID.find(ToParamID(windFamilies[w].d_));
-                                        if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
+                        }
 
-                                            if (uv == windFamilies[w].u_.value()%1000)
-                                                newreq.push_back(windFamilies[w].u_);
-                                            else
-                                                newreq.push_back(windFamilies[w].v_);
+                        if (!ok) { // Special case for U/V - partial match
+                            for (eckit::Ordinal w = 0; !ok && w < windFamilies.size() ; w++) {
+                                if (paramid == windFamilies[w].u_.value()%1000 || paramid == windFamilies[w].v_.value()%1000) {
+                                    auto vo = inAxisParamID.find(windFamilies[w].vo_.paramId());
+                                    auto d = inAxisParamID.find(windFamilies[w].d_.paramId());
+                                    if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
 
-                                            wind.emplace(vo->second);
-                                            wind.emplace(d->second);
-                                            windConversion = true;
+                                        if (paramid == windFamilies[w].u_.value()%1000)
+                                            newreq.push_back(windFamilies[w].u_);
+                                        else
+                                            newreq.push_back(windFamilies[w].v_);
 
-                                            ok = true;
-                                            break;
-                                        }
+                                        wind.emplace(vo->second);
+                                        wind.emplace(d->second);
+                                        windConversion = true;
+
+                                        ok = true;
+                                        break;
                                     }
                                 }
                             }
