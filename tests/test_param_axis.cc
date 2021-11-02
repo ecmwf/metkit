@@ -253,6 +253,30 @@ CASE ("wind18") {
 
     test_param_axis(user, axis, expect, true);
 }
+CASE ("wind19") {
+
+    std::vector<std::string> user = {"132",};
+    std::vector<std::string> axis = {"160138", "160155", "160131"};
+    std::vector<std::string> expect = {"160132", "160138", "160155"};
+
+    test_param_axis(user, axis, expect, true);
+}
+CASE ("wind20") {
+
+    std::vector<std::string> user = {"131",};
+    std::vector<std::string> axis = {"160138", "160155", "160131"};
+    std::vector<std::string> expect = {"160131"};
+
+    test_param_axis(user, axis, expect, false);
+}
+CASE ("wind21") {
+
+    std::vector<std::string> user = {"132",};
+    std::vector<std::string> axis = {"120138", "120155", "170138", "170155", };
+    std::vector<std::string> expect = {"170132", "170138", "170155"};
+
+    test_param_axis(user, axis, expect, true);
+}
 
 CASE ("mixed") {
 

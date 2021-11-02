@@ -196,10 +196,11 @@ void ParamID::normalise(const REQUEST_T& r,
                 else { // Special case for U/V - exact match
                     bool ok = false;
                     for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-                        if ((paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].v_.paramId()) &&
+                        if ((paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].u_.grib1value() ||
+                             paramid == windFamilies[w].v_.paramId() || paramid == windFamilies[w].v_.grib1value()) &&
                             inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
 
-                            if (paramid == windFamilies[w].u_.paramId())
+                            if (paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].u_.grib1value())
                                 newreq.push_back(windFamilies[w].u_);
                             else
                                 newreq.push_back(windFamilies[w].v_);
@@ -226,22 +227,27 @@ void ParamID::normalise(const REQUEST_T& r,
 
                         if (!ok) { // Special case for U/V - partial match
                             for (eckit::Ordinal w = 0; !ok && w < windFamilies.size() ; w++) {
-                                if (paramid == windFamilies[w].u_.value()%1000 || paramid == windFamilies[w].v_.value()%1000) {
-                                    auto vo = inAxisParamID.find(windFamilies[w].vo_.paramId());
-                                    auto d = inAxisParamID.find(windFamilies[w].d_.paramId());
-                                    if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
+                                if (paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].v_.paramId()) {
+                                    for (auto t: dropTables) {
+                                        auto vo = inAxisParamID.find(t*1000+windFamilies[w].vo_.paramId());
+                                        auto d  = inAxisParamID.find(t*1000+windFamilies[w].d_.paramId());
 
-                                        if (paramid == windFamilies[w].u_.value()%1000)
-                                            newreq.push_back(windFamilies[w].u_);
-                                        else
-                                            newreq.push_back(windFamilies[w].v_);
+                                        if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
+                                            bool grib1 = vo->second.table()>0;
+                                            if (paramid == windFamilies[w].u_.paramId())
+                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, t*1000+paramid));
+                                            else
+                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, t*1000+paramid));
 
-                                        wind.emplace(vo->second);
-                                        wind.emplace(d->second);
-                                        windConversion = true;
+                                            wind.emplace(vo->second);
+                                            wind.emplace(d->second);
+                                            windConversion = true;
 
-                                        ok = true;
-                                        break;
+                                            ok = true;
+                                            break;
+                                        }
+                                        if (ok)
+                                            break;
                                     }
                                 }
                             }

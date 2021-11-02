@@ -53,7 +53,8 @@ public:
 		{ return (value_ == other.value_) ? (table_ > other.table_) : (value_ > other.value_); }
 
 	long table() const { return table_; }
-	long value()   const { return value_;   }
+        long value()   const { return value_;   }
+        long grib1value()   const { return value_%1000;   }
 
 	long paramId() const;
 
