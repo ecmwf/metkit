@@ -453,6 +453,8 @@ _field: &_field
       - efho
       - ehmm
       - ewho
+      - eefh
+      - weeh
     type: integer
 
   andate:
