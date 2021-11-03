@@ -988,6 +988,7 @@ disseminate:
     - delay
     - asap
     - gts
+    - opendata
 
   compatibility:
     category: postproc
