@@ -53,58 +53,6 @@ static void readTable()
     for (size_t i = 0; i < dropTables.size(); ++i) {
         dropTables_.push_back(dropTables[i]);
     }
-
-    std::string pathName = eckit::Resource<std::string>("marsWindPath;$MARS_WIND_PATH", "");
-    if (!pathName.empty()) {
-        eckit::PathName path(pathName);
-
-        eckit::Log::debug<LibMetkit>() << "Parsing MARS wind " << path << std::endl;
-
-        std::ifstream in(path.localPath());
-
-        if (!in)
-        {
-            Log::error() << path << Log::syserr << std::endl;
-            return;
-        }
-
-        windFamilies_.clear(); // replacing existing windFamilies
-
-        char line[1024];
-        while (in.getline(line, sizeof(line)))
-        {
-            eckit::Log::debug<LibMetkit>() << "MARS wind parsing [" << line << "]" << std::endl;
-
-            eckit::Tokenizer parse(" ");
-            std::vector<std::string> s;
-            parse(line, s);
-
-            eckit::Ordinal i = 0;
-            while (i < s.size())
-            {
-                if (s[i].length() == 0)
-                    s.erase(s.begin() + i);
-                else
-                    i++;
-            }
-
-            if (s.size() == 0 || s[0][0] == '#')
-                continue;
-
-            switch (s.size())
-            {
-            case 4:
-                eckit::Log::debug<LibMetkit>() << "MARS wind = " << s[0] << ", " << s[1] << ", " << s[2] << ", " << s[3] << std::endl;
-                windFamilies_.push_back(ParamID::WindFamily(s[0], s[1], s[2], s[3]));
-                break;
-
-            default:
-                Log::warning() << "Invalid line ignored: " << line << std::endl;
-                break;
-
-            }
-        }
-    }
 }
 
 const std::vector<ParamID::WindFamily>& ParamID::getWindFamilies() {

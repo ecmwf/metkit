@@ -63,6 +63,10 @@ public: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
+long replaceTable(size_t table, long paramid) {
+    return (table*1000 + paramid%1000);
+}
+
 template <typename REQUEST_T, typename AXIS_T>
 void ParamID::normalise(const REQUEST_T& r,
                         std::vector<Param>& req,
@@ -213,11 +217,10 @@ void ParamID::normalise(const REQUEST_T& r,
                             break;
                         }
                     }
-                    if (!ok && paramid < 1000) { // Partial match
+                    if (!ok && r.table() == 0 && paramid < 1000) { // Partial match (only it table has not been specified by user)
                         const std::vector<size_t>& dropTables = ParamID::getDropTables();
                         for (auto t: dropTables) {
-                            long pt = t*1000+paramid;
-                            auto ap = inAxisParamID.find(pt);
+                            auto ap = inAxisParamID.find(replaceTable(t, paramid));
                             if (ap != inAxisParamID.end()) { // ParamID representation matching - not looking forward
                                 newreq.push_back(ap->second);
                                 ok = true;
@@ -229,15 +232,15 @@ void ParamID::normalise(const REQUEST_T& r,
                             for (eckit::Ordinal w = 0; !ok && w < windFamilies.size() ; w++) {
                                 if (paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].v_.paramId()) {
                                     for (auto t: dropTables) {
-                                        auto vo = inAxisParamID.find(t*1000+windFamilies[w].vo_.paramId());
-                                        auto d  = inAxisParamID.find(t*1000+windFamilies[w].d_.paramId());
+                                        auto vo = inAxisParamID.find(replaceTable(t, windFamilies[w].vo_.paramId()));
+                                        auto d  = inAxisParamID.find(replaceTable(t, windFamilies[w].d_.paramId()));
 
                                         if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
                                             bool grib1 = vo->second.table()>0;
                                             if (paramid == windFamilies[w].u_.paramId())
-                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, t*1000+paramid));
+                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, replaceTable(t, paramid)));
                                             else
-                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, t*1000+paramid));
+                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, replaceTable(t, paramid)));
 
                                             wind.emplace(vo->second);
                                             wind.emplace(d->second);
@@ -246,9 +249,9 @@ void ParamID::normalise(const REQUEST_T& r,
                                             ok = true;
                                             break;
                                         }
-                                        if (ok)
-                                            break;
                                     }
+                                    if (ok)
+                                        break;
                                 }
                             }
                         }
