@@ -53,6 +53,7 @@ protected:
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(std::set<size_t> idxs) const;
 
 private:
+    std::string verb_;
     std::vector<Axis*> axes_;
     std::map<std::string, Axis*> axesByName_;
     std::vector<bool> set_;

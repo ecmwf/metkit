@@ -30,6 +30,7 @@ public:
     static eckit::PathName paramYamlFile();
     static eckit::PathName paramStaticYamlFile();
     static eckit::PathName paramIDYamlFile();
+    static eckit::PathName paramMatchingYamlFile();
 
     static const LibMetkit& instance();
 

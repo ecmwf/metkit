@@ -457,6 +457,11 @@ _field: &_field
       - weeh
     type: integer
 
+  andate:
+    category: data
+    multiple: true
+    type: date
+
   fcmonth:
     category: data
     multiple: true
@@ -471,6 +476,11 @@ _field: &_field
   time:
     category: data
     default: '1200'
+    multiple: true
+    type: time
+
+  antime:
+    category: data
     multiple: true
     type: time
 

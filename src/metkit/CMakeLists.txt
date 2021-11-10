@@ -15,6 +15,7 @@ install(FILES
 ### metkit sources
 
 list( APPEND metkit_srcs
+    ${CMAKE_CURRENT_BINARY_DIR}/metkit_version.cc
     config/LibMetkit.cc
     config/LibMetkit.h
     mars/BaseProtocol.cc
@@ -82,7 +83,6 @@ list( APPEND metkit_srcs
     mars/TypeToByList.h
     mars/TypeToByListFloat.cc
     mars/TypeToByListFloat.h
-    metkit_version.cc
     tool/MetkitTool.cc
     tool/MetkitTool.h
     fields/FieldIndex.cc
@@ -181,9 +181,6 @@ ecbuild_add_library(
 
     PERSISTENT
         ${metkit_persistent_srcs}
-
-    GENERATED
-        metkit_version.cc
 
     SOURCES
         ${metkit_srcs}

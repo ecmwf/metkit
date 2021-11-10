@@ -73,10 +73,8 @@ void Param::load(DumpLoad& a)
 }
 
 long Param::paramId() const {
-	if (table_ == 128) {
-		return value_;
-	}
-	return table_ * 1000 + value_;
+    size_t t = table_ == 0 ? value_ / 1000 : table_;
+    return (t==128 ? 0 : t*1000) + value_%1000;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
