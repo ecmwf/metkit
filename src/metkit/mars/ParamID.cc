@@ -30,6 +30,9 @@ static std::vector<ParamID::WindFamily> windFamilies_;
 
 static std::vector<size_t> dropTables_;
 
+static bool fullTableDropping_;
+
+
 //----------------------------------------------------------------------------------------------------------------------
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
@@ -53,6 +56,13 @@ static void readTable()
     for (size_t i = 0; i < dropTables.size(); ++i) {
         dropTables_.push_back(dropTables[i]);
     }
+
+    fullTableDropping_ = false;
+    if (paramMatching.contains("full-table-dropping")) {
+        const eckit::Value fullTableDropping = paramMatching["full-table-dropping"];
+        ASSERT(fullTableDropping.isBool());
+        fullTableDropping_ = fullTableDropping;
+    }
 }
 
 const std::vector<ParamID::WindFamily>& ParamID::getWindFamilies() {
@@ -62,6 +72,11 @@ const std::vector<ParamID::WindFamily>& ParamID::getWindFamilies() {
 const std::vector<size_t>& ParamID::getDropTables() {
     pthread_once(&once, readTable);
     return dropTables_;
+}
+
+bool ParamID::fullTableDropping() {
+    pthread_once(&once, readTable);
+    return fullTableDropping_;
 }
 
 

@@ -504,23 +504,23 @@ CASE ("table9") {
 }
 
 
-CASE ("table10") {
+//CASE ("table10") {
 
-    std::vector<std::string> user = {"131"};
-    std::vector<std::string> axis = {"210131"};
-    std::vector<std::string> expect = {};
+//    std::vector<std::string> user = {"131"};
+//    std::vector<std::string> axis = {"210131"};
+//    std::vector<std::string> expect = {};
 
-    test_param_axis(user, axis, expect, false);
-}
+//    test_param_axis(user, axis, expect, false);
+//}
 
-CASE ("table11") {
+//CASE ("table11") {
 
-    std::vector<std::string> user = {"131"};
-    std::vector<std::string> axis = {"131.210"};
-    std::vector<std::string> expect = {};
+//    std::vector<std::string> user = {"131"};
+//    std::vector<std::string> axis = {"131.210"};
+//    std::vector<std::string> expect = {};
 
-    test_param_axis(user, axis, expect, false);
-}
+//    test_param_axis(user, axis, expect, false);
+//}
 
 CASE ("table12") {
 

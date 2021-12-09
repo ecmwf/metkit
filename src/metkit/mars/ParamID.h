@@ -26,6 +26,7 @@
 #include "eckit/filesystem/PathName.h"
 #include "eckit/log/Log.h"
 #include "eckit/types/Types.h"
+#include "eckit/runtime/Metrics.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/Param.h"
@@ -58,6 +59,7 @@ public: // methods
 
     static const std::vector<WindFamily>& getWindFamilies();
     static const std::vector<size_t>& getDropTables();
+    static bool fullTableDropping();
 
 };
 
@@ -68,7 +70,7 @@ long replaceTable(size_t table, long paramid) {
 }
 
 template <typename REQUEST_T, typename AXIS_T>
-void ParamID::normalise(const REQUEST_T& r,
+void ParamID::normalise(const REQUEST_T& request,
                         std::vector<Param>& req,
                         const AXIS_T& axis,
                         bool& windConversion) {
@@ -76,6 +78,7 @@ void ParamID::normalise(const REQUEST_T& r,
     static const bool useGRIBParamID = eckit::Resource<bool>("useGRIBParamID", false);
 
     const std::vector<WindFamily>& windFamilies(getWindFamilies());
+
 
     if (useGRIBParamID) {
 
@@ -176,6 +179,8 @@ void ParamID::normalise(const REQUEST_T& r,
     }
     else {
 
+        std::vector<std::pair<Param, Param> > tableDropped;
+
         std::set<Param> inAxis;
         std::map<long, Param> inAxisParamID;
         std::set<Param> wind;
@@ -255,6 +260,16 @@ void ParamID::normalise(const REQUEST_T& r,
                                 }
                             }
                         }
+                        if (ParamID::fullTableDropping() && !ok) { // Backward compatibility - Partial match (drop completely table information)
+                            for(auto ap: inAxisParamID) {
+                                if (ap.first%1000 == paramid%1000) {
+                                    newreq.push_back(ap.second);
+                                    ok = true;
+                                    tableDropped.push_back(std::make_pair(r, ap.second));
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -270,6 +285,19 @@ void ParamID::normalise(const REQUEST_T& r,
                 }
             if (!exist) {
                 req.push_back(w);
+            }
+        }
+        if (tableDropped.size()>0) {
+            eckit::MetricsPrefix prefix("paramid_normalisation");
+            {
+                std::ostringstream oss;
+                oss << request;
+                eckit::Metrics::set("user_request", oss.str());
+            }
+            {
+                std::ostringstream oss;
+                oss << tableDropped;
+                eckit::Metrics::set("params", oss.str());
             }
         }
     }
