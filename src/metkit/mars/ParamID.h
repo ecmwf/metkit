@@ -55,7 +55,8 @@ public: // methods
     static void normalise(const REQUEST_T& r,
                           std::vector<Param>& req,
                           const AXIS_T& axis,
-                          bool& windConversion);
+                          bool& windConversion,
+                          bool fullTableDropping = ParamID::fullTableDropping());
 
     static const std::vector<WindFamily>& getWindFamilies();
     static const std::vector<size_t>& getDropTables();
@@ -73,7 +74,8 @@ template <typename REQUEST_T, typename AXIS_T>
 void ParamID::normalise(const REQUEST_T& request,
                         std::vector<Param>& req,
                         const AXIS_T& axis,
-                        bool& windConversion) {
+                        bool& windConversion,
+                        bool fullTableDropping) {
 
     static const bool useGRIBParamID = eckit::Resource<bool>("useGRIBParamID", false);
 
@@ -260,7 +262,7 @@ void ParamID::normalise(const REQUEST_T& request,
                                 }
                             }
                         }
-                        if (ParamID::fullTableDropping() && !ok) { // Backward compatibility - Partial match (drop completely table information)
+                        if (fullTableDropping && !ok) { // Backward compatibility - Partial match (drop completely table information)
                             for(auto ap: inAxisParamID) {
                                 if (ap.first%1000 == paramid%1000) {
                                     newreq.push_back(ap.second);
