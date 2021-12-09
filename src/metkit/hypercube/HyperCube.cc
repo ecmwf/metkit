@@ -91,7 +91,7 @@ private:
     metkit::mars::Type& type_;
 };
 
-HyperCube::HyperCube(const metkit::mars::MarsRequest& request) : cube_(std::vector<eckit::Ordinal>()) {
+HyperCube::HyperCube(const metkit::mars::MarsRequest& request) : verb_(request.verb()), cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
 
@@ -276,7 +276,7 @@ std::vector<metkit::mars::MarsRequest> HyperCube::vacantRequests() const {
 }
 
 metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
-    metkit::mars::MarsRequest request("retrieve");
+    metkit::mars::MarsRequest request(verb_);
     std::vector<eckit::Ordinal> coords(axes_.size());
 
     cube_.coordinates(index, coords);

@@ -57,9 +57,15 @@ public: // methods
                           bool& windConversion);
 
     static const std::vector<WindFamily>& getWindFamilies();
+    static const std::vector<size_t>& getDropTables();
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+
+long replaceTable(size_t table, long paramid) {
+    return (table*1000 + paramid%1000);
+}
 
 template <typename REQUEST_T, typename AXIS_T>
 void ParamID::normalise(const REQUEST_T& r,
@@ -112,306 +118,140 @@ void ParamID::normalise(const REQUEST_T& r,
 
 
         req = newreq;
+
+        for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++)
+        {
+
+            const Param windU(windFamilies[w].u_);
+            const Param windV(windFamilies[w].v_);
+            const Param windVO(windFamilies[w].vo_);
+            const Param windD(windFamilies[w].d_);
+
+            //Log::userWarning() <<  "Trying uv " << windU << " " << windV << " " << windVO << " " << windD << std::endl;
+
+
+            bool wantU  = false;
+            bool wantV  = false;
+            bool wantVO = false;
+            bool wantD  = false;
+
+            // Check if wind is requested
+
+            for (eckit::Ordinal i = 0; i < req.size() ; i++)
+            {
+                if (req[i] == windU)  wantU  = true;
+                if (req[i] == windV)  wantV  = true;
+                if (req[i] == windVO) wantVO = true;
+                if (req[i] == windD)  wantD  = true;
+                //Log::userWarning() << "req[i] = " << req[i] << std::endl;
+            }
+
+            //Log::userWarning() <<  "wantU " << wantU << " wantV " << wantV << " wantVO " << wantVO << " wantD " << wantD << std::endl;
+
+            // if (wantVO && wantD)  continue;
+            // if (!wantU && !wantV) continue;
+
+            // Check if we have got it, axis should be sorted
+
+            bool gotU = false;
+            bool gotV = false;
+
+            if (wantU)
+                gotU = std::binary_search(axis.begin(), axis.end(), windU);
+
+            if (wantV)
+                gotV = std::binary_search(axis.begin(), axis.end(), windV);
+
+
+            if ( (wantU && !gotU) || (wantV && !gotV))
+            {
+                // Push VO and D if needed
+                if (!wantVO) req.push_back(windVO);
+                if (!wantD)  req.push_back(windD);
+
+                eckit::Log::debug<LibMetkit>() << "U/V conversion requested U=" << windU << ", V=" << windV << ", VO=" << windVO << ", D=" << windD << std::endl;
+                windConversion = true;
+            }
+        }
     }
     else {
 
-        std::set<long> tables;
         std::set<Param> inAxis;
-        std::set<Param> inRequest;
-        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-        {
-            tables.insert((*j).table());
-            inAxis.insert((*j));
+        std::map<long, Param> inAxisParamID;
+        std::set<Param> wind;
+
+        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j) {
+            inAxis.emplace(*j);
+            inAxisParamID[j->paramId()] = *j;
         }
 
         std::vector<Param> newreq; newreq.reserve(req.size());
 
-        // We have GRIB2 in the cube
-        if (tables.find(0) != tables.end()) {
+        for (auto r: req) {
+            if (inAxis.find(r) != inAxis.end()) { // Perfect match - not looking forward
+                newreq.push_back(r);
+            }
+            else { // r is normalised to ParamID
+                long paramid = r.paramId();
+                auto ap = inAxisParamID.find(paramid);
+                if (ap != inAxisParamID.end()) { // ParamID representation matching - not looking forward
+                    newreq.push_back(ap->second);
+                }
+                else { // Special case for U/V - exact match
+                    bool ok = false;
+                    for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
+                        if ((paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].u_.grib1value() ||
+                             paramid == windFamilies[w].v_.paramId() || paramid == windFamilies[w].v_.grib1value()) &&
+                            inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
 
-            if (tables.size() == 1) { // GRIB2 only
+                            if (paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].u_.grib1value())
+                                newreq.push_back(windFamilies[w].u_);
+                            else
+                                newreq.push_back(windFamilies[w].v_);
 
-                eckit::Log::debug<LibMetkit>() << "Layout contains only GRIB2 fields" << std::endl;
+                            wind.emplace(windFamilies[w].vo_);
+                            wind.emplace(windFamilies[w].d_);
+                            windConversion = true;
 
-                for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
-                {
-                    eckit::Ordinal t = (*k).table();
-                    eckit::Ordinal v = (*k).value();
-                    // If user specifies param.value
-                    if (t)
-                    {
-                        Param p(0, (t == 128 ? 0 : t) * 1000 + v);
-                        //Log::userWarning() << "Parameter " << (*k) << " changed to " << p << std::endl;
-                        newreq.push_back(p);
-                        inRequest.insert(p);
-                    }
-                    else
-                    {
-                        if (inAxis.find(*k) != inAxis.end()) {
-                            // Perfect match
-                            newreq.push_back(*k);
-                            inRequest.insert(*k);
+                            ok = true;
+                            break;
                         }
-                        else {
-                            bool ok = false;
-                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-                            {
-                                Param p(*j);
-                                if ((p.value() % 1000) == v) {
-                                    //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << ", please change your request" << std::endl;
-                                    newreq.push_back(p);
-                                    inRequest.insert(p);
-                                    ok = true;
-                                }
+                    }
+                    if (!ok && r.table() == 0 && paramid < 1000) { // Partial match (only it table has not been specified by user)
+                        const std::vector<size_t>& dropTables = ParamID::getDropTables();
+                        for (auto t: dropTables) {
+                            auto ap = inAxisParamID.find(replaceTable(t, paramid));
+                            if (ap != inAxisParamID.end()) { // ParamID representation matching - not looking forward
+                                newreq.push_back(ap->second);
+                                ok = true;
+                                break;
                             }
+                        }
 
-                            // Special case for U/V
-                            if (!ok) {
-                                int wind = -1;
+                        if (!ok) { // Special case for U/V - partial match
+                            for (eckit::Ordinal w = 0; !ok && w < windFamilies.size() ; w++) {
+                                if (paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].v_.paramId()) {
+                                    for (auto t: dropTables) {
+                                        auto vo = inAxisParamID.find(replaceTable(t, windFamilies[w].vo_.paramId()));
+                                        auto d  = inAxisParamID.find(replaceTable(t, windFamilies[w].d_.paramId()));
 
-                                Param param(0, (t == 128 ? 0 : t) * 1000 + v);
+                                        if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
+                                            bool grib1 = vo->second.table()>0;
+                                            if (paramid == windFamilies[w].u_.paramId())
+                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, replaceTable(t, paramid)));
+                                            else
+                                                newreq.push_back(grib1 ? Param(t, paramid) : Param(0, replaceTable(t, paramid)));
 
-                                // Try exact match
-                                for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
+                                            wind.emplace(vo->second);
+                                            wind.emplace(d->second);
+                                            windConversion = true;
 
-                                    if (param == windFamilies[w].u_ || param == windFamilies[w].v_) {
-                                        wind = w;
-                                        break;
-                                    }
-                                }
-
-                                if (wind == -1) {
-                                    // Try partial match
-                                    for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                        if (param.value() == windFamilies[w].u_.value() || param.value() == windFamilies[w].v_.value()) {
-                                            wind = w;
+                                            ok = true;
                                             break;
                                         }
                                     }
-                                }
-
-                                if (wind != -1) {
-                                    for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                        if (inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
-                                            Param p(v == windFamilies[w].u_.value() ? windFamilies[w].u_ : windFamilies[w].v_);
-                                            if (inRequest.find(p) == inRequest.end()) {
-                                                //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << " (wind field)" << std::endl;
-                                                newreq.push_back(p);
-                                                inRequest.insert(p);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-            else // GRIB1 and GRIB2 mixed
-            {
-                eckit::Log::debug<LibMetkit>() << "Layout contains a mixture of GRIB1 and GRIB2 fields" << std::endl;
-
-                for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
-                {
-                    eckit::Ordinal t = (*k).table();
-                    eckit::Ordinal v = (*k).value();
-
-                    eckit::Log::debug<LibMetkit>() << "Trying to match " << (*k) << " t:" << t << " v:" << v << std::endl;
-
-                    bool ok = false;
-
-                    // Push perfect match
-                    {
-                        // Block for (p)
-                        Param p(*k);
-                        if (inAxis.find(p) != inAxis.end() && inRequest.find(p) == inRequest.end()) {
-                            eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
-                            newreq.push_back(p);
-                            inRequest.insert(p);
-                            ok = true;
-                        }
-                    }
-
-
-                    if (t) {
-                        Param p(0, (t == 128 ? 0 : t) * 1000 + v);
-                        // User specifies xxx.yyy
-                        if (inAxis.find(p) != inAxis.end() && inRequest.find(p) == inRequest.end()) {
-                            eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
-                            newreq.push_back(p);
-                            inRequest.insert(p);
-                            ok = true;
-                        }
-                    }
-
-                    if (t == 0 && v >= 1000) {
-                        // User specifies yyyxxx
-                        Param p(v / 1000, v % 1000);
-                        if (inAxis.find(p) != inAxis.end() && inRequest.find(p) == inRequest.end()) {
-                            eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
-                            newreq.push_back(p);
-                            inRequest.insert(p);
-                            ok = true;
-                        }
-                    }
-
-                    if (t == 0 && v < 1000) {
-                        // User specifies xxx
-
-                        // prioritise 128
-                        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-                        {
-                            Param p(*j);
-                            if(p.table() != 128) continue;
-                            if ((p.value() % 1000) == v) {
-                                if (inRequest.find(p) == inRequest.end()) {
-                                    eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
-                                    newreq.push_back(p);
-                                    inRequest.insert(p);
-                                    ok = true;
-                                }
-                            }
-                        }
-
-                        if (!ok) {
-                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-                            {
-                                Param p(*j);
-                                if ((p.value() % 1000) == v) {
-                                    if (inRequest.find(p) == inRequest.end()) {
-                                        eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " @ " << Here() << std::endl;
-                                        newreq.push_back(p);
-                                        inRequest.insert(p);
-                                        ok = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Special case for U/V
-                    if (!ok) {
-                        int wind = -1;
-
-                        // Find the most likely match
-                        for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-                            if (windFamilies[w].u_.table() == 0 && windFamilies[w].v_.table() == 0) {
-                                if (v == windFamilies[w].u_.value() || v == windFamilies[w].v_.value() ) {
-                                    wind = w;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (wind != -1) {
-                            for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-                                if (inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
-                                    Param p(v == windFamilies[w].u_.value() ? windFamilies[w].u_ : windFamilies[w].v_);
-                                    if (inRequest.find(p) == inRequest.end()) {
-                                        eckit::Log::debug<LibMetkit>() << "Trying parameter " << p << " for " << (*k) << " (wind field)" << std::endl;
-                                        newreq.push_back(p);
-                                        inRequest.insert(p);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-        else
-        {
-            // GRIB1 only
-
-            eckit::Log::debug<LibMetkit>() << "Layout contains GRIB1 fields" << std::endl;
-
-            for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k)
-            {
-                eckit::Ordinal t = (*k).table();
-                eckit::Ordinal v = (*k).value();
-
-                if (t)
-                {
-                    newreq.push_back(*k);
-                    inRequest.insert(*k);
-                }
-                else
-                {
-                    if (v > 1000) {
-                        // Asking for param=228130, old style (not a paramId)
-                        Param p(v / 1000, v % 1000);
-                        newreq.push_back(p);
-                        inRequest.insert(p);
-                    }
-                    else
-                    {
-                        // Asking for param=130, old style (not a paramId)
-                        bool ok = false;
-
-                        // Try 130.128
-
-                        Param p(128, v);
-                        if(std::find(axis.begin(), axis.end(), p) != axis.end()) {
-                            // This is a match
-                            ok = true;
-                            newreq.push_back(p);
-                        }
-                        else {
-
-                            for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j)
-                            {
-                                Param p(*j);
-                                if ((p.value() % 1000) == v) {
-                                    if (inRequest.find(p) == inRequest.end()) {
-                                        //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << std::endl;
-                                        newreq.push_back(p);
-                                        inRequest.insert(p);
-                                        ok = true;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Special case for U/V
-                        if (!ok) {
-                            int wind = -1;
-                            Param param(*k);
-
-                            // Try exact match
-                            for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                if (param == windFamilies[w].u_ || param == windFamilies[w].v_) {
-                                    wind = w;
-                                    break;
-                                }
-                            }
-
-                            if (wind == -1) {
-                                // Try partial match
-                                for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-
-                                    if (param.value() == windFamilies[w].u_.value() || param.value() == windFamilies[w].v_.value()) {
-                                        wind = w;
+                                    if (ok)
                                         break;
-                                    }
-                                }
-                            }
-
-
-                            if (wind != -1) {
-                                for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++) {
-                                    if (inAxis.find(windFamilies[w].vo_) != inAxis.end() && inAxis.find(windFamilies[w].d_) != inAxis.end()) {
-                                        Param p(v == windFamilies[w].u_.value() ? windFamilies[w].u_ : windFamilies[w].v_);
-                                        if (inRequest.find(p) == inRequest.end()) {
-                                            //Log::userWarning() << "Trying parameter " << p << " for " << (*k) << " (wind field)" << std::endl;
-                                            newreq.push_back(p);
-                                            inRequest.insert(p);
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -419,62 +259,18 @@ void ParamID::normalise(const REQUEST_T& r,
                 }
             }
         }
-
         req = newreq;
-    }
 
-    for (eckit::Ordinal w = 0; w < windFamilies.size() ; w++)
-    {
-
-        const Param windU(windFamilies[w].u_);
-        const Param windV(windFamilies[w].v_);
-        const Param windVO(windFamilies[w].vo_);
-        const Param windD(windFamilies[w].d_);
-
-        //Log::userWarning() <<  "Trying uv " << windU << " " << windV << " " << windVO << " " << windD << std::endl;
-
-
-        bool wantU  = false;
-        bool wantV  = false;
-        bool wantVO = false;
-        bool wantD  = false;
-
-        // Check if wind is requested
-
-        for (eckit::Ordinal i = 0; i < req.size() ; i++)
-        {
-            if (req[i] == windU)  wantU  = true;
-            if (req[i] == windV)  wantV  = true;
-            if (req[i] == windVO) wantVO = true;
-            if (req[i] == windD)  wantD  = true;
-            //Log::userWarning() << "req[i] = " << req[i] << std::endl;
-        }
-
-        //Log::userWarning() <<  "wantU " << wantU << " wantV " << wantV << " wantVO " << wantVO << " wantD " << wantD << std::endl;
-
-        // if (wantVO && wantD)  continue;
-        // if (!wantU && !wantV) continue;
-
-        // Check if we have got it, axis should be sorted
-
-        bool gotU = false;
-        bool gotV = false;
-
-        if (wantU)
-            gotU = std::binary_search(axis.begin(), axis.end(), windU);
-
-        if (wantV)
-            gotV = std::binary_search(axis.begin(), axis.end(), windV);
-
-
-        if ( (wantU && !gotU) || (wantV && !gotV))
-        {
-            // Push VO and D if needed
-            if (!wantVO) req.push_back(windVO);
-            if (!wantD)  req.push_back(windD);
-
-            eckit::Log::debug<LibMetkit>() << "U/V conversion requested U=" << windU << ", V=" << windV << ", VO=" << windVO << ", D=" << windD << std::endl;
-            windConversion = true;
+        for (auto w: wind) {
+            bool exist = false;
+            for (eckit::Ordinal i = 0; i < req.size() ; i++)
+                if (req[i] == w) {
+                    exist = true;
+                    break;
+                }
+            if (!exist) {
+                req.push_back(w);
+            }
         }
     }
 }
