@@ -457,7 +457,7 @@ _field: &_field
       - weeh
     type: integer
 
-  andate:
+  offsetdate:
     category: data
     multiple: true
     type: date
@@ -479,7 +479,7 @@ _field: &_field
     multiple: true
     type: time
 
-  antime:
+  offsettime:
     category: data
     multiple: true
     type: time
