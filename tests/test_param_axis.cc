@@ -39,6 +39,38 @@ static std::ostream& operator<<(std::ostream& out, const std::vector<Param>& par
     return out;
 }
 
+static void test_param_axis(const std::vector<std::string>& user,
+                 const std::vector<std::string>& axis,
+                 const std::vector<std::string>& expect,
+                 bool expectWind,
+                 bool fullTableDropping) {
+
+    bool windRequested = false;
+
+    MarsRequest ignore;
+
+    std::vector<Param> params(user.begin(), user.end());
+    std::vector<Param> expected(expect.begin(), expect.end());
+    std::vector<Param> index(axis.begin(), axis.end());
+
+    std::sort(index.begin(), index.end());
+
+
+    std::cout << "Axis:" << index << std::endl;
+    std::cout << "User:" << params << std::endl;
+    std::cout << "Wind:" << false << std::endl;
+
+
+    ParamID::normalise(ignore, params, index, windRequested, fullTableDropping);
+
+    std::cout << "Expected Params:" << expected << std::endl;
+    std::cout << "Returned Params:" << params <<  std::endl;
+    std::cout << "Expected Wind:" << expectWind <<  std::endl;
+    std::cout << "Returned Wind:" << windRequested <<  std::endl;
+
+    EXPECT(expectWind == windRequested);
+    EXPECT(params == expected);
+}
 
 
 static void test_param_axis(const std::vector<std::string>& user,
@@ -503,14 +535,14 @@ CASE ("table9") {
     test_param_axis(user, axis, expect, false);
 }
 
-
 CASE ("table10") {
 
     std::vector<std::string> user = {"131"};
     std::vector<std::string> axis = {"210131"};
     std::vector<std::string> expect = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, false, false);
+    test_param_axis(user, axis, axis, false, true);
 }
 
 CASE ("table11") {
@@ -519,7 +551,8 @@ CASE ("table11") {
     std::vector<std::string> axis = {"131.210"};
     std::vector<std::string> expect = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, false, false);
+    test_param_axis(user, axis, axis, false, true);
 }
 
 CASE ("table12") {
