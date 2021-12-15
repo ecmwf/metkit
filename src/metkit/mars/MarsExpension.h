@@ -48,7 +48,7 @@ class MarsExpension : public eckit::NonCopyable {
 public:
 // -- Contructors
 
-    MarsExpension(bool inherit);
+    MarsExpension(bool inherit, bool strict = false);
     ~MarsExpension();
 
     void reset();
@@ -72,6 +72,7 @@ private: // members
 
     std::map<std::string, MarsLanguage*> languages_;
     bool inherit_;
+    bool strict_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ public: // methods
 
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit);
+    MarsRequest expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit, bool strict);
 
     void reset();
 

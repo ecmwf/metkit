@@ -37,8 +37,8 @@ ExpandCallback::~ExpandCallback() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-MarsExpension::MarsExpension(bool inherit):
-    inherit_(inherit) {
+MarsExpension::MarsExpension(bool inherit, bool strict):
+    inherit_(inherit), strict_(strict) {
 
 }
 
@@ -75,7 +75,7 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedReque
     for (auto j = requests.begin(); j != requests.end(); ++j) {
 
         MarsLanguage& lang = language((*j), (*j).verb());
-        MarsRequest r = lang.expand(*j, *j, inherit_);
+        MarsRequest r = lang.expand(*j, *j, inherit_, strict_);
 
 
         result.push_back(r);
@@ -88,12 +88,12 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedReque
 MarsRequest MarsExpension::expand(const MarsRequest& request) {
     DummyContext ctx;
     MarsLanguage& lang = language(ctx, request.verb());
-    return lang.expand(ctx, request, inherit_);
+    return lang.expand(ctx, request, inherit_, strict_);
 }
 
 
 void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
-    MarsRequest r = language(ctx, request.verb()).expand(ctx, request, inherit_);
+    MarsRequest r = language(ctx, request.verb()).expand(ctx, request, inherit_, strict_);
     callback(ctx, r);
 }
 

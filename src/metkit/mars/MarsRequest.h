@@ -107,8 +107,8 @@ public:  // methods
     MarsRequest extract(const std::string& category) const;
 
 public:  // static methods
-    static MarsRequest parse(const std::string& s);
-    static std::vector<MarsRequest> parse(std::istream&);
+    static MarsRequest parse(const std::string& s, bool strict = false);
+    static std::vector<MarsRequest> parse(std::istream&, bool strict = false);
 
 private:  // members
     std::string verb_;

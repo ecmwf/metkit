@@ -403,15 +403,15 @@ std::list<Parameter>::iterator MarsRequest::find(const std::string& name) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<MarsRequest> MarsRequest::parse(std::istream& in) {
+std::vector<MarsRequest> MarsRequest::parse(std::istream& in, bool strict) {
     MarsParser parser(in);
-    MarsExpension expand(true);
+    MarsExpension expand(true, strict);
     return expand.expand(parser.parse());
 }
 
-MarsRequest MarsRequest::parse(const std::string& s) {
+MarsRequest MarsRequest::parse(const std::string& s, bool strict) {
     std::istringstream in(s);
-    std::vector<MarsRequest> v = parse(in);
+    std::vector<MarsRequest> v = parse(in, strict);
     ASSERT(v.size() == 1);
     return v[0];
 }
