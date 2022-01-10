@@ -306,7 +306,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit) {
+MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit, bool strict) {
     MarsRequest result(verb_);
 
     try {
@@ -372,7 +372,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
         }
 
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->finalise(ctx, result);
+            type(*k)->finalise(ctx, result, strict);
         }
     }
     catch (std::exception& e) {
