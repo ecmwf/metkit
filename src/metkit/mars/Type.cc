@@ -247,7 +247,7 @@ const std::string& Type::category() const {
 
 void Type::pass2(const MarsExpandContext& ctx, MarsRequest& request) {}
 
-void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request) {
+void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict) {
     bool ok = true;
 
     const std::vector<std::string>& values = request.values(name_, true);
@@ -264,11 +264,17 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request) {
         for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end();
              ++k) {
             if (only.find(*k) == only.end()) {
+                std::ostringstream oss;
+                oss << "Key [" << name_ << "] not acceptable since " << name << "=" << *k << " not listed in " << name_ << "->only->" << name << ": " << only << " in MARS language definition" << std::endl;
+                if (strict) {
+                    throw eckit::UserError(oss.str());
+                } else {
+                    eckit::Log::userWarning() << oss.str();
+                }
                 ok = false;
             }
         }
     }
-
 
     for (std::map<std::string, std::set<std::string> >::const_iterator j = never_.begin();
          ok && j != never_.end(); ++j) {
@@ -279,6 +285,13 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request) {
         for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end();
              ++k) {
             if (never.find(*k) != never.end()) {
+                std::ostringstream oss;
+                oss << "Key [" << name_ << "] not acceptable since " << name << "=" << *k << " listed in " << name_ << "->never->" << name << ": " << never << " in MARS language definition" << std::endl;
+                if (strict) {
+                    throw eckit::UserError(oss.str());
+                } else {
+                    eckit::Log::userWarning() << oss.str();
+                }
                 ok = false;
             }
         }

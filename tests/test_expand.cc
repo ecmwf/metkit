@@ -86,6 +86,13 @@ CASE( "test_metkit_expand_8" ) {
     r.dump(std::cout);
 }
 
+CASE( "test_metkit_expand_9_strict" ) {
+    const char* text = "retrieve,class=rd,expver=hm1u,stream=wees,time=0000,date=20210101,hdate=20190101";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+    EXPECT_THROWS(MarsRequest::parse(text, true));
+}
+
 //-----------------------------------------------------------------------------
 
 }  // namespace test

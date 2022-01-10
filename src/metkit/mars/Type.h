@@ -50,7 +50,7 @@ public:  // methods
     virtual void reset();
 
     virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
-    virtual void finalise(const MarsExpandContext& ctx, MarsRequest& request);
+    virtual void finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict);
 
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;
