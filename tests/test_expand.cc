@@ -14,6 +14,8 @@
 
 #include "eckit/types/Date.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsParser.h"
 
 #include "eckit/testing/Test.h"
 
@@ -87,10 +89,44 @@ CASE( "test_metkit_expand_8" ) {
 }
 
 CASE( "test_metkit_expand_9_strict" ) {
-    const char* text = "retrieve,class=rd,expver=hm1u,stream=wees,time=0000,date=20210101,hdate=20190101";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
-    EXPECT_THROWS(MarsRequest::parse(text, true));
+    const char* text = "retrieve,class=rd,expver=hm1u,stream=weeh,time=0000,date=20210101,domain=g,hdate=20190101";
+    {
+        std::istringstream in(text);
+        MarsParser parser(in);
+        MarsExpension expand(false, false);
+        std::vector<MarsRequest> v = expand.expand(parser.parse());
+
+        ASSERT(v.size() == 1);
+        v[0].dump(std::cout);
+    }
+    {
+        std::istringstream in(text);
+        MarsParser parser(in);
+        MarsExpension expand(false, true);
+        std::vector<MarsRequest> v = expand.expand(parser.parse());
+
+        ASSERT(v.size() == 1);
+        v[0].dump(std::cout);
+    }
+}
+
+CASE( "test_metkit_expand_10_strict" ) {
+    const char* text = "retrieve,class=rd,expver=hm1u,stream=wees,time=0000,date=20210101,domain=g,hdate=20190101";
+    {
+        std::istringstream in(text);
+        MarsParser parser(in);
+        MarsExpension expand(false, false);
+        std::vector<MarsRequest> v = expand.expand(parser.parse());
+
+        ASSERT(v.size() == 1);
+        v[0].dump(std::cout);
+    }
+    {
+        std::istringstream in(text);
+        MarsParser parser(in);
+        MarsExpension expand(false, true);
+        EXPECT_THROWS(expand.expand(parser.parse()));
+    }
 }
 
 //-----------------------------------------------------------------------------
