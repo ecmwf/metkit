@@ -49,6 +49,12 @@ ecbuild_add_executable( TARGET    odb-to-request
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     LIBS      metkit eckit_option )
 
+ecbuild_add_executable( TARGET    bufr-sanity-check
+    SOURCES   bufr-sanity-check.cc
+    CONDITION HAVE_BUILD_TOOLS
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    LIBS      metkit eckit_option )
+
 # ecbuild_add_executable( TARGET     ncmerge
 #                         SOURCES    ncmerge.cc
 #                         CONDITION  HAVE_NETCDF
