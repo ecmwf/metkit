@@ -36,9 +36,11 @@ public:
 
     BufrCheck(int argc, char **argv) : MetkitTool(argc, argv) {
         options_.push_back(
-            new SimpleOption<bool>("json", "Format request in json, default = false"));
+            new SimpleOption<bool>("fixDate", "Fix date in case of inconsistency, default = false"));
         options_.push_back(
-            new SimpleOption<bool>("compact", "Compact output, default = false"));
+            new SimpleOption<bool>("ignoreDate", "Ignore date in case of inconsistency, default = false"));
+        options_.push_back(
+            new SimpleOption<bool>("fixKey", "Fix key length in case of inconsistency, default = false"));
 
     }
 
@@ -61,6 +63,7 @@ private:  // methods
 
 private:  // members
     bool fixDate_ = false;
+    bool ignoreDate_ = false;
     bool fixKey_ = false;
 };
 
@@ -71,8 +74,9 @@ void BufrCheck::execute(const eckit::option::CmdArgs& args) {
 }
 
 void BufrCheck::init(const CmdArgs& args) {
-    args.get("fixKey", fixKey_);
     args.get("fixDate", fixDate_);
+    args.get("ignoreDate", ignoreDate_);
+    args.get("fixKey", fixKey_);
 }
 
 void BufrCheck::usage(const std::string& tool) const {
@@ -83,7 +87,7 @@ void BufrCheck::usage(const std::string& tool) const {
                 << "=========" << std::endl
                 << std::endl
                 << tool << " input.bufr output.bufr" << std::endl
-                << tool << " --fixKey --fixDate input.bufr output.bufr" << std::endl
+                << tool << " --fixKey --ignoreDate input.bufr output.bufr" << std::endl
                 << std::endl;
 }
 
@@ -167,10 +171,10 @@ bool BufrCheck::checkDate(codes_handle* h, int cnt) {
         Log::error() << "message " << cnt
             << ", date is weird " << typicalYMD.year() << "/" << typicalYMD.month() << "/" << typicalYMD.day()
             << std::endl;
-        if (!fixDate_)
+        if (!fixDate_ && !ignoreDate_)
             return false;
 
-        toFix = true;
+        toFix = !ignoreDate_;
     }
 
     long localYear;
@@ -198,7 +202,7 @@ bool BufrCheck::checkDate(codes_handle* h, int cnt) {
     }
     if (localYMD != typicalYMD || abs(typicalTime-localTime)>300) {
         Log::error() << "message " << cnt << ", date-time and local date-time differs" << std::endl;
-        toFix = true;
+        toFix = !ignoreDate_;
     }
 
     if (toFix) {
