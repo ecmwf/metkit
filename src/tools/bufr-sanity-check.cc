@@ -292,7 +292,7 @@ void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& out
             CODES_CHECK(codes_get_message(h,const_cast<const void**>(&buffer),&size),0);
             
             out.write(buffer, size);
-        } else {
+        } else if (!skip_) {
             Log::error() << "message " << numMessages << " not compliant" << std::endl;
             fclose(in);
             out.close();
