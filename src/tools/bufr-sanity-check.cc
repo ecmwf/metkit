@@ -31,16 +31,24 @@ using namespace eckit::option;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum Status {
+    OK,
+    FIXED,
+    CORRUPTED
+};
+
 class BufrCheck : public MetkitTool {
 public:
 
     BufrCheck(int argc, char **argv) : MetkitTool(argc, argv) {
         options_.push_back(
+            new SimpleOption<bool>("skip", "Skip broken messages, default = abort"));
+        options_.push_back(
             new SimpleOption<bool>("fixDate", "Fix date in case of inconsistency, default = false"));
         options_.push_back(
             new SimpleOption<bool>("ignoreDate", "Ignore date in case of inconsistency, default = false"));
         options_.push_back(
-            new SimpleOption<bool>("fixKey", "Fix key length in case of inconsistency, default = false"));
+            new SimpleOption<bool>("fixLength", "Fix message length in the key in case of inconsistency, default = false"));
 
     }
 
@@ -49,9 +57,9 @@ public:
 private:  // methods
     int minimumPositionalArguments() const { return 2; }
 
-    bool checkKeyLength(codes_handle* h, int cnt);
-    bool checkSubType(codes_handle* h, int cnt);
-    bool checkDate(codes_handle* h, int cnt);
+    Status checkMessageLength(codes_handle* h, int numMessages);
+    Status checkSubType(codes_handle* h, int numMessages);
+    Status checkDate(codes_handle* h, int numMessages);
 
     void process(const eckit::PathName& input, const eckit::PathName& output);
 
@@ -62,9 +70,10 @@ private:  // methods
     virtual void usage(const std::string& tool) const;
 
 private:  // members
+    bool skip_ = false;
     bool fixDate_ = false;
     bool ignoreDate_ = false;
-    bool fixKey_ = false;
+    bool fixLength_ = false;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -74,9 +83,10 @@ void BufrCheck::execute(const eckit::option::CmdArgs& args) {
 }
 
 void BufrCheck::init(const CmdArgs& args) {
+    args.get("skip", skip_);
     args.get("fixDate", fixDate_);
     args.get("ignoreDate", ignoreDate_);
-    args.get("fixKey", fixKey_);
+    args.get("fixLength", fixLength_);
 }
 
 void BufrCheck::usage(const std::string& tool) const {
@@ -86,12 +96,12 @@ void BufrCheck::usage(const std::string& tool) const {
     Log::info() << "Examples:" << std::endl
                 << "=========" << std::endl
                 << std::endl
-                << tool << " input.bufr output.bufr" << std::endl
-                << tool << " --fixKey --ignoreDate input.bufr output.bufr" << std::endl
+                << tool << " --skip input.bufr output.bufr" << std::endl
+                << tool << " --fixLength --ignoreDate input.bufr output.bufr" << std::endl
                 << std::endl;
 }
 
-bool BufrCheck::checkKeyLength(codes_handle* h, int cnt) {
+Status BufrCheck::checkMessageLength(codes_handle* h, int numMessages) {
     long totalLength;
     long messageLength;
 
@@ -99,17 +109,18 @@ bool BufrCheck::checkKeyLength(codes_handle* h, int cnt) {
     codes_get_long(h, "messageLength", &messageLength);
 
     if (totalLength != messageLength && totalLength < WRONG_KEY_LENGTH) {
-        Log::error() << "message " << cnt
+        Log::error() << "message " << numMessages
             << ", wrong key length in bufr message " << messageLength << " instead of " << totalLength
             << std::endl;
-        if (fixKey_) {
+        if (fixLength_) {
             codes_set_long(h, "messageLength", totalLength);
+            return Status::FIXED;
         }
         else {
-            return false;
+            return Status::CORRUPTED;
         }
     }
-    return true;
+    return Status::OK;
 }
 
 static long kTypes[256] = {
@@ -131,7 +142,7 @@ static long kTypes[256] = {
     2, -1, -1, -1, -1, -1, -1, -1, -1, -1, 2, 2, -1, -1, -1, 2,     /* 255 */
 };
 
-bool BufrCheck::checkSubType(codes_handle* h, int cnt) {
+Status BufrCheck::checkSubType(codes_handle* h, int numMessages) {
     long type;
     long subtype;
 
@@ -139,15 +150,15 @@ bool BufrCheck::checkSubType(codes_handle* h, int cnt) {
     codes_get_long(h, "oldSubtype", &subtype);
 
     if (kTypes[subtype] != type) {
-        Log::error() << "message " << cnt
+        Log::error() << "message " << numMessages
             << ", type " << type << " and known type " << kTypes[subtype] << " don't match for subtype " << subtype
             << std::endl;
-        return false;
+        return Status::CORRUPTED;
     }
-    return true;
+    return Status::OK;
 }
 
-bool BufrCheck::checkDate(codes_handle* h, int cnt) {
+Status BufrCheck::checkDate(codes_handle* h, int numMessages) {
 
     bool toFix = false;
 
@@ -168,11 +179,11 @@ bool BufrCheck::checkDate(codes_handle* h, int cnt) {
     long typicalTime = typicalHour*3600 + typicalMinute*60;
 
     if ((typicalYear%100) != typicalYearOfCentury || !typicalYMD.ok()) {
-        Log::error() << "message " << cnt
+        Log::error() << "message " << numMessages
             << ", date is weird " << typicalYMD.year() << "/" << typicalYMD.month() << "/" << typicalYMD.day()
             << std::endl;
         if (!fixDate_ && !ignoreDate_)
-            return false;
+            return Status::CORRUPTED;
 
         toFix = !ignoreDate_;
     }
@@ -195,13 +206,13 @@ bool BufrCheck::checkDate(codes_handle* h, int cnt) {
     long localTime = localHour*3600 + localMinute*60 + localSecond;
 
     if (!localYMD.ok()) {
-        Log::error() << "message " << cnt
+        Log::error() << "message " << numMessages
             << ", local date is weird " << localYMD.year() << "/" << localYMD.month() << "/" << localYMD.day()
             << std::endl;
-        return false;
+        return Status::CORRUPTED;
     }
     if (localYMD != typicalYMD || abs(typicalTime-localTime)>300) {
-        Log::error() << "message " << cnt << ", date-time and local date-time differs" << std::endl;
+        Log::error() << "message " << numMessages << ", date-time and local date-time differs" << std::endl;
         toFix = !ignoreDate_;
     }
 
@@ -212,8 +223,9 @@ bool BufrCheck::checkDate(codes_handle* h, int cnt) {
         codes_set_long(h, "typicalDay", localDay);
         codes_set_long(h, "typicalHour", localHour);
         codes_set_long(h, "typicalMinute", localMinute);
+        return Status::FIXED;
     }
-    return true;
+    return Status::OK;
 }
 
 void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& output)
@@ -231,35 +243,77 @@ void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& out
     codes_handle* h=NULL;
  
     int err=0;
-    int cnt=0;
  	void *buffer = NULL;
 	size_t size = 0;
     bool ok;
+    unsigned int numMessages=0;
+    unsigned int missingKey=0;
+    unsigned int messageLength=0;
+    unsigned int inconsistentSubType=0;
+    unsigned int inconsistentDate=0;
     /* loop over the messages in the bufr file */
     while ((h = codes_handle_new_from_file(NULL, in, PRODUCT_BUFR, &err)) != NULL || err != CODES_SUCCESS)
     {
         if (h == NULL) {
-            Log::error() << "unable to create handle for message " << cnt << std::endl;
-            cnt++;
+            Log::error() << "unable to create handle for message " << numMessages << std::endl;
+            numMessages++;
             continue;
         }
 
-        ok = checkKeyLength(h, cnt);
-        ok &= checkSubType(h, cnt);
-        ok &= checkDate(h, cnt);
+        // verify the presence of section 2 (to store the MARS key)
+        long section1Flags;
+        codes_get_long(h, "section1Flags", &section1Flags);
+
+        ok = section1Flags != 0;
+        if (!ok) {
+            missingKey++;
+        } else {
+            switch (checkMessageLength(h, numMessages)) {
+                case Status::CORRUPTED:
+                    ok = false;
+                case Status::FIXED:
+                    messageLength++;
+            };
+            switch (checkSubType(h, numMessages)) {
+                case Status::CORRUPTED:
+                    ok = false;
+                case Status::FIXED:
+                    inconsistentSubType++;
+            };
+            switch (checkDate(h, numMessages)) {
+                case Status::CORRUPTED:
+                    ok = false;
+                case Status::FIXED:
+                    inconsistentDate++;
+            };
+        }
 
         if (ok) {
             CODES_CHECK(codes_get_message(h,const_cast<const void**>(&buffer),&size),0);
             
             out.write(buffer, size);
+        } else {
+            Log::error() << "message " << numMessages << " not compliant" << std::endl;
+            fclose(in);
+            out.close();
+            exit(1);
         }
  
         /* delete handle */
         codes_handle_delete(h);
  
-        cnt++;
+        numMessages++;
     }
- 
+
+    if (missingKey)
+        Log::warning() << missingKey << " message" << (missingKey>1?"s miss ":" misses ") << " the MARS key" << std::endl;
+    if (messageLength)
+        Log::warning() << messageLength << " message" << (messageLength>1?"s ":" ") << " with incoherent message length in the MARS key" << std::endl;
+    if (inconsistentSubType)
+        Log::warning() << inconsistentSubType << " message" << (inconsistentSubType>1?"s ":" ") << " with unknown subtype" << std::endl;
+    if (inconsistentDate)
+        Log::warning() << inconsistentDate << " message" << (inconsistentDate>1? "s " : " ") << " with inconsistent date" << std::endl;
+
     fclose(in);
     out.close();
 }
