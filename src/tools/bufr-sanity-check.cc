@@ -162,23 +162,34 @@ Status BufrCheck::checkDate(codes_handle* h, int numMessages) {
 
     bool toFix = false;
 
+    long edition;
+
     long typicalDate;
+    long typicalYear;
     long typicalYearOfCentury;
     long typicalMonth;
     long typicalDay;
     long typicalHour;
     long typicalMinute;
+    long typicalSecond = 0;
     codes_get_long(h, "typicalDate", &typicalDate);
-    codes_get_long(h, "typicalYearOfCentury", &typicalYearOfCentury);
     codes_get_long(h, "typicalMonth", &typicalMonth);
     codes_get_long(h, "typicalDay", &typicalDay);
     codes_get_long(h, "typicalHour", &typicalHour);
     codes_get_long(h, "typicalMinute", &typicalMinute);
-    long typicalYear = typicalDate/10000;
+    codes_get_long(h, "edition", &edition);
+    if (edition == 3) {
+        codes_get_long(h, "typicalYearOfCentury", &typicalYearOfCentury);
+        typicalYear = typicalDate/10000;
+    } else {
+        codes_get_long(h, "typicalYear", &typicalYear);
+        typicalYearOfCentury = typicalYear-2000;
+        codes_get_long(h, "typicalSecond", &typicalSecond);
+    }
     auto typicalYMD = year(typicalYear)/typicalMonth/typicalDay;
-    long typicalTime = typicalHour*3600 + typicalMinute*60;
+    long typicalTime = typicalHour*3600 + typicalMinute*60 + typicalSecond;
 
-    if ((typicalYear%100) != typicalYearOfCentury || !typicalYMD.ok()) {
+    if (!typicalYMD.ok()) {
         Log::error() << "message " << numMessages
             << ", date is weird " << typicalYMD.year() << "/" << typicalYMD.month() << "/" << typicalYMD.day()
             << std::endl;
@@ -218,7 +229,12 @@ Status BufrCheck::checkDate(codes_handle* h, int numMessages) {
 
     if (toFix) {
         codes_set_long(h, "typicalDate", localYear*1000+localMonth*100+localDay);
-        codes_set_long(h, "typicalYearOfCentury", localYear%100);
+        if (edition == 3) {
+            codes_set_long(h, "typicalYearOfCentury", localYear-2000);
+        } else {
+            codes_set_long(h, "typicalYear", localYear);
+            codes_set_long(h, "typicalSecond", localSecond);
+        }
         codes_set_long(h, "typicalMonth", localMonth);
         codes_set_long(h, "typicalDay", localDay);
         codes_set_long(h, "typicalHour", localHour);
@@ -271,20 +287,32 @@ void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& out
             switch (checkMessageLength(h, numMessages)) {
                 case Status::CORRUPTED:
                     ok = false;
+                    messageLength++;
+                    break;
                 case Status::FIXED:
                     messageLength++;
+                    break;
+                case Status::OK: ;
             };
             switch (checkSubType(h, numMessages)) {
                 case Status::CORRUPTED:
                     ok = false;
+                    inconsistentSubType++;
+                    break;
                 case Status::FIXED:
                     inconsistentSubType++;
+                    break;
+                case Status::OK: ;
             };
             switch (checkDate(h, numMessages)) {
                 case Status::CORRUPTED:
                     ok = false;
+                    inconsistentDate++;
+                    break;
                 case Status::FIXED:
                     inconsistentDate++;
+                    break;
+                case Status::OK: ;
             };
         }
 
