@@ -498,6 +498,7 @@ _field: &_field
     - stream:
       - msmm
       - mmsa
+      - swmm
 
   anoffset:
     category: data
