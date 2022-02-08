@@ -89,6 +89,10 @@ long CodesContent::getLong(const std::string& key) const {
     return v;
 }
 
+void CodesContent::setLong(const std::string& key, long value) {
+    CODES_CALL(codes_set_long(handle_, key.c_str(), value));
+}
+
 double CodesContent::getDouble(const std::string& key) const {
     double v = 0;
     CODES_CALL(codes_get_double(handle_, key.c_str(), &v));
