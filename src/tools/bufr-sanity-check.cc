@@ -9,21 +9,21 @@
  */
 
 
-#include "eccodes.h"
-
 #include "eckit/io/FileHandle.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
 #include "eckit/types/Date.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/config/Resource.h"
+#include "eckit/parser/YAMLParser.h"
 
 #include "eckit/message/Reader.h"
 #include "eckit/message/Message.h"
 
+#include "metkit/config/LibMetkit.h"
 #include "metkit/codes/CodesContent.h"
 #include "metkit/tool/MetkitTool.h"
 
-#define MAX_VAL_LEN 1024
 #define WRONG_KEY_LENGTH 65535
 
 using namespace metkit;
@@ -37,6 +37,26 @@ enum Status {
     FIXED,
     CORRUPTED
 };
+
+static std::map<long, long> subtypes_;
+
+static pthread_once_t once = PTHREAD_ONCE_INIT;
+
+static void readTable()
+{
+    eckit::PathName bufrSubtypesPath = eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH", LibMetkit::bufrSubtypesYamlFile());
+
+    const eckit::Value bufrSubtypes = eckit::YAMLParser::decodeFile(bufrSubtypesPath);
+    const eckit::Value subtypes = bufrSubtypes["subtypes"];
+    ASSERT(subtypes.isList());
+    for (size_t i = 0; i < subtypes.size(); ++i) {
+        const eckit::Value s = subtypes[i];
+        ASSERT(s.isList());
+        ASSERT(s.size() == 2);
+        subtypes_[s[0]] = s[1];
+    }
+}
+
 
 class BufrCheck : public MetkitTool {
 public:
@@ -72,9 +92,11 @@ private:  // methods
     Status checkSubType(codes::CodesContent& c, int numMessage);
     Status checkDate(codes::CodesContent& c, int numMessage);
 
-    void process(const eckit::PathName& input, const eckit::PathName& output);
+    bool bufrTypeBySubtype(long subtype, long& type);
 
-    virtual void execute(const eckit::option::CmdArgs& args);
+    void process(const PathName& input, const PathName& output);
+
+    virtual void execute(const CmdArgs& args);
 
     virtual void init(const CmdArgs& args);
 
@@ -93,7 +115,7 @@ private:  // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void BufrCheck::execute(const eckit::option::CmdArgs& args) {
+void BufrCheck::execute(const CmdArgs& args) {
     process(args(0), args(1));
 }
 
@@ -110,7 +132,7 @@ void BufrCheck::init(const CmdArgs& args) {
         cnt++;
 
     if (cnt>1) {
-        throw eckit::UserError("Inconsistent configuration. You can only specify one of [--abort-on-error, --patch-on-error, --skip-on-error]");
+        throw UserError("Inconsistent configuration. You can only specify one of [--abort-on-error, --patch-on-error, --skip-on-error]");
     }
     if (cnt == 1) {
         abort_ = abort_ && hasAbort;
@@ -159,40 +181,42 @@ Status BufrCheck::checkMessageLength(codes::CodesContent& c, int numMessage) {
     return Status::OK;
 }
 
-// tild/share/metkit/bufr-subtypes.yaml
-static long kTypes[256] = {
-    -1, 1, 1, 1, 1, -1, -1, 1, -1, 1, -1, 1, 1, 1, 1, -1,           /* 15 */
-    -1, -1, -1, 1, -1, 1, 1, 1, -1, -1, 1, -1, 1, -1, -1, 8,        /* 31	 */
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* 47 */
-    -1, 2, -1, 2, -1, 2, 2, 2, -1, 2, -1, 2, 2, 2, 2, 2,            /* 63 */
-    -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  /* 79 */
-    -1, -1, 3, 3, 3, 3, 3, 3, 3, 3, -1, 4, 4, -1, -1, 4,            /* 95 */
-    4, -1, -1, -1, -1, 5, 5, 5, -1, -1, 5, -1, -1, 5, 1, 5,         /* 111 */
-    5, 5, -1, -1, -1, -1, -1, -1, -1, 12, 12, 12, -1, 6, 12, 12,    /* 127 */
-    -1, 2, -1, 6, 6, 6, -1, -1, 12, 12, 12, 12, 1, -1, 7, 7,        /* 143 */
-    7, 7, 7, 1, 7, 7, 7, 7, -1, 12, 2, 2, 2, -1, -1, -1,            /* 159 */
-    -1, -1, -1, -1, 10, 1, -1, -1, -1, -1, 1, -1, 1, -1, -1, -1,    /* 175 */
-    1, -1, 1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 3, 3, -1,        /* 191 */
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 12, 30, 30, -1, 2, 2,   /* 207 */
-    2, 2, 12, 2, 3, 12, 12, -1, 2, 12, 12, -1, -1, -1, -1, -1,      /* 223 */
-    12, -1, -1, -1, -1, -1, 5, 5, -1, -1, -1, -1, -1, 1, -1, -1,    /* 239 */
-    2, -1, -1, -1, -1, -1, -1, -1, -1, -1, 2, 2, -1, -1, -1, 2,     /* 255 */
-};
+bool BufrCheck::bufrTypeBySubtype(long subtype, long& type) {
+    pthread_once(&once, readTable);
+    
+    auto s = subtypes_.find(subtype);
+    if (s != subtypes_.end()) {
+        type = s->second;
+        return true;
+    }
+    return false;
+}
 
 Status BufrCheck::checkSubType(codes::CodesContent& c, int numMessage) {
 
     long type = c.getLong("rdbType");
     long subtype = c.getLong("oldSubtype");
+    long expectedType;
 
-    if (kTypes[subtype] != type) {
+    if (bufrTypeBySubtype(subtype, expectedType)) {
+        if (type == expectedType) {
+            return Status::OK;
+        } else {
+            if (verbose_) {
+                Log::error() << "message " << numMessage
+                    << ", type " << type << " and expected type " << expectedType << " don't match for subtype " << subtype
+                    << std::endl;
+            }
+            return Status::CORRUPTED;
+        }
+    } else {
         if (verbose_) {
             Log::error() << "message " << numMessage
-                << ", type " << type << " and known type " << kTypes[subtype] << " don't match for subtype " << subtype
+                << ", unknown subtype " << subtype
                 << std::endl;
         }
         return Status::CORRUPTED;
     }
-    return Status::OK;
 }
 
 Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
@@ -209,7 +233,7 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
     long typicalDay = c.getLong("typicalDay");
     long typicalJulian = 0;
     try {
-        eckit::Date date(typicalYear, typicalMonth, typicalDay);
+        Date date(typicalYear, typicalMonth, typicalDay);
         typicalJulian = date.julian();
     } catch(...) {
         if (verbose_) {
@@ -246,7 +270,7 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
     long localJulian = 0;
 
     try {
-        eckit::Date date(localYear, localMonth, localDay);
+        Date date(localYear, localMonth, localDay);
         localJulian = date.julian();
     } catch(...) {
         if (verbose_) {
@@ -284,8 +308,6 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
     }
 
     if (toFix) {
-        //const codes_handle* h = c.codesHandle();
-        //c.setLong("typicalDate", localYear*10000+localMonth*100+localDay);
         if (c.getLong("edition") == 3) {
             c.setLong("typicalYearOfCentury", localYear-2000);
         } else {
@@ -301,12 +323,12 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
     return Status::OK;
 }
 
-void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& output) {
+void BufrCheck::process(const PathName& input, const PathName& output) {
 
-    eckit::message::Reader reader(input);
-    eckit::FileHandle out(output.path());
+    message::Reader reader(input);
+    FileHandle out(output.path());
     out.openForWrite(0);
-    eckit::AutoClose closer(out);
+    AutoClose closer(out);
     
     int err=0;
  	void *buffer = NULL;
@@ -318,12 +340,12 @@ void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& out
     unsigned int inconsistentSubType=0;
     unsigned int inconsistentDate=0;
 
-    eckit::message::Message msg;
+    message::Message msg;
 
     while ( (msg = reader.next()) ) {
         codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
         if(!h) {
-            throw eckit::FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle", Here());
+            throw FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle", Here());
         }
         codes::CodesContent c(h, true);
 
@@ -370,7 +392,6 @@ void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& out
             out.write(msg.data(), msg.length());
         } else if (abort_) {
             Log::error() << "message " << numMessage << " not compliant" << std::endl;
-            out.close();
             exit(1);
         }
  
@@ -385,8 +406,6 @@ void BufrCheck::process(const eckit::PathName& input, const eckit::PathName& out
         Log::warning() << inconsistentSubType << " message" << (inconsistentSubType>1?"s ":" ") << " with unknown subtype" << std::endl;
     if (inconsistentDate)
         Log::warning() << inconsistentDate << " message" << (inconsistentDate>1? "s " : " ") << " with inconsistent date" << std::endl;
-
-    out.close();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -61,6 +61,9 @@ eckit::PathName LibMetkit::paramIDYamlFile() {
 eckit::PathName LibMetkit::paramMatchingYamlFile() {
     return "~metkit/share/metkit/param-matching.yaml";
 }
+eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
+    return "~metkit/share/metkit/bufr-subtypes.yaml";
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
