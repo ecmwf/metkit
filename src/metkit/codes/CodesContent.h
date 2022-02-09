@@ -30,7 +30,7 @@ public:
     ~CodesContent();
 
     virtual long getLong(const std::string& key) const override;
-    void setLong(const std::string& key, long value);
+    virtual void setLong(const std::string& key, long value);
     
 private:
     codes_handle* handle_;
