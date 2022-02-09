@@ -77,6 +77,8 @@ public:
         options_.push_back(
             new SimpleOption<bool>("ignore-century", "Disable patching of century in corrupted messages, default = false"));
         options_.push_back(
+            new SimpleOption<bool>("ignore-type", "Ignore inconsistent type/subtype, default = false"));
+        options_.push_back(
             new SimpleOption<long>("acceptable-time-discrepancy", "Acceptable time discrepancy in seconds, default = 300"));
            
         options_.push_back(
@@ -110,6 +112,7 @@ private:  // members
     bool ignoreLength_ = false;
     bool ignoreDate_ = false;
     bool ignoreCentury_ = false;
+    bool ignoreType_ = false;
     long timeThreshold_ = 300;
 };
 
@@ -142,6 +145,7 @@ void BufrCheck::init(const CmdArgs& args) {
     args.get("dont-patch-length", ignoreLength_);
     args.get("dont-patch-date", ignoreDate_);
     args.get("ignore-century", ignoreCentury_);
+    args.get("ignore-type", ignoreType_);
     args.get("acceptable-time-discrepancy", timeThreshold_);
 }
 
@@ -368,7 +372,8 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
             };
             switch (checkSubType(c, numMessage)) {
                 case Status::CORRUPTED:
-                    ok = false;
+                    if (!ignoreType_)
+                        ok = false;
                     inconsistentSubType++;
                     break;
                 case Status::FIXED:
@@ -403,7 +408,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
     if (messageLength)
         Log::warning() << messageLength << " message" << (messageLength>1?"s ":" ") << " with incoherent message length in the MARS key" << std::endl;
     if (inconsistentSubType)
-        Log::warning() << inconsistentSubType << " message" << (inconsistentSubType>1?"s ":" ") << " with unknown subtype" << std::endl;
+        Log::warning() << inconsistentSubType << " message" << (inconsistentSubType>1?"s ":" ") << " with unknown or inconsistent subtype" << std::endl;
     if (inconsistentDate)
         Log::warning() << inconsistentDate << " message" << (inconsistentDate>1? "s " : " ") << " with inconsistent date" << std::endl;
 }
