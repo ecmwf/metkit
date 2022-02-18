@@ -129,6 +129,44 @@ CASE( "test_metkit_expand_10_strict" ) {
     }
 }
 
+CASE( "test_metkit_expand_11_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=0:5/to/5:5";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
+CASE( "test_metkit_expand_12_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=0:10/3:10/to/7:10/by/2/10:10";
+    MarsRequest r = MarsRequest::parse(text);
+    r.dump(std::cout);
+}
+
+CASE( "test_metkit_expand_13_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=-1:5";
+    EXPECT_THROWS(MarsRequest::parse(text));
+}
+
+CASE( "test_metkit_expand_14_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=6:5";
+    EXPECT_THROWS(MarsRequest::parse(text));
+}
+
+CASE( "test_metkit_expand_15_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=0:12";
+    EXPECT_THROWS(MarsRequest::parse(text));
+}
+
+CASE( "test_metkit_expand_16_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=0:5/to/5:10";
+    EXPECT_THROWS(MarsRequest::parse(text));
+}
+
+CASE( "test_metkit_expand_17_quantile" ) {
+    const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,quantile=3:5/to/2:5";
+    EXPECT_THROWS(MarsRequest::parse(text));
+}
+
+
 //-----------------------------------------------------------------------------
 
 }  // namespace test

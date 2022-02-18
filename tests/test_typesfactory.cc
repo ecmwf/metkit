@@ -35,7 +35,7 @@ CASE ("test_list_types") {
     std::stringstream ss;
     TypesFactory::list(ss);
     std::cout << ss.str() << std::endl;
-    EXPECT(ss.str() == std::string("[any,date,enum,expver,float,integer,mixed,param,range,regex,time,to-by-list,to-by-list-float]"));
+    EXPECT(ss.str() == std::string("[any,date,enum,expver,float,integer,mixed,param,range,regex,time,to-by-list,to-by-list-float,to-by-list-quantile]"));
 }
 
 
