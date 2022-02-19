@@ -539,7 +539,7 @@ _field: &_field
       - cd
       # - sot
     type: to-by-list-quantile
-    values: [2,3,4,5,10,100,1000]
+    partitions: [2,3,4,5,10,100,1000]
     by: 1
   domain:
     category: data

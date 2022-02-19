@@ -31,7 +31,7 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string &name, const eckit:
     
     LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " settings=" << settings << std::endl;
 
-    eckit::Value values = settings["values"];
+    eckit::Value values = settings["partitions"];
 
     if (!values.isList()) {
         values = MarsLanguage::jsonFile(values);
@@ -41,23 +41,21 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string &name, const eckit:
     for (size_t i = 0; i < values.size(); ++i) {
         const eckit::Value& val = values[i];
 
-        // LOG_DEBUG_LIB(LibMetkit) << "val : " << val << std::endl;
-
         if (val.isNumber()) {
             long v = val;
-            if (values_.find(v) == values_.end()) {
-                values_.emplace(v);
+            if (partitions_.find(v) == partitions_.end()) {
+                partitions_.emplace(v);
             }
             else {
                 std::ostringstream oss;
-                oss << "Redefined quantile '" << v << "'";
+                oss << "Redefined " << v << "-quantile";
                 throw eckit::SeriousBug(oss.str());
             }
         }
     }
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name 
-                             << " values " << values_ 
+                             << " partitions " << partitions_ 
                              << std::endl;
 
     multiple_ = true;
@@ -72,7 +70,11 @@ void TypeToByListQuantile::print(std::ostream &out) const {
 
 bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::string& value) const {
     Quantile q(value);
-    ASSERT_MSG(values_.find(q.den()) != values_.end(), name_ + ": quantile denominator " +std::to_string(q.den())+ " not supported.");
+    if (partitions_.find(q.part()) == partitions_.end()) {
+        std::ostringstream oss;
+        oss << name_ << ": " << q.part() << "-quantile not supported.";
+        throw eckit::UserError(oss.str());
+    }
     return true;
 }
 
@@ -99,15 +101,26 @@ void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std:
                 i += 2;
             }
 
-            ASSERT_MSG(from.num() <= to.num(), name_ + ": 'from' value must be less that 'to' value");
-            ASSERT_MSG(from.den() == to.den(), name_ + ": 'from' and 'to' value must belong to the same quantile group");
-            ASSERT_MSG(by > 0, name_ + ": 'by' value must be a positive number");
+            if (from.part() != to.part()) {
+                std::ostringstream oss;
+                oss << name_ + ": 'from' and 'to' value must belong to the same quantile group";
+                throw eckit::UserError(oss.str());
+            }
+            if (from.num() > to.num()) {
+                std::ostringstream oss;
+                oss << name_ + ": 'from' value " << from << " cannot be greater that 'to' value " << to;
+                throw eckit::UserError(oss.str());
+            }
+            if (by <= 0) {
+                std::ostringstream oss;
+                oss << name_ + ": 'by' value " << by << " must be a positive number";
+                throw eckit::UserError(name_ + ": 'by' value must be a positive number");
+            }
             for (long j = from.num() + by; j <= to.num(); j += by) {
-                newval.emplace_back(Quantile(j,from.den()));
+                newval.emplace_back(Quantile(j,from.part()));
             }
 
             i++;
-
         }
         else {
             newval.push_back(tidy(ctx,s));

@@ -25,34 +25,45 @@ Quantile::Quantile(const std::string &value) {
     const std::regex quantile_regex("([+-]?\\d+):([+-]?\\d+)");
     std::smatch base_match;
 
-    ASSERT_MSG(std::regex_match(value, base_match, quantile_regex), "Quantile " +value+ " shall be in the form <integer>:<integer>");
+	if (!std::regex_match(value, base_match, quantile_regex)) {
+		std::ostringstream oss;
+		oss << "Quantile " << value << " shall be in the form <integer>:<integer>";
+		throw eckit::UserError(oss.str());
+	}
 
     static eckit::Translator<std::string, float> s2l;
 
 	num_ = s2l(base_match.str(1));
-	den_ = s2l(base_match.str(2));
+	part_ = s2l(base_match.str(2));
 
-	ASSERT_MSG(0 <= num_, "Quantile numerator " +std::to_string(num_)+ " shall be non negative");
-	ASSERT_MSG(num_ <= den_, "Quantile numerator " +std::to_string(num_)+ " shall less or equal to denominator " +std::to_string(den_));
+	check();
 }
 
-Quantile::Quantile(long num, long den) : num_(num), den_(den) {
-	ASSERT_MSG(0 <= num_, "Quantile numerator " +std::to_string(num_)+ " shall be non negative");
-	ASSERT_MSG(num_ <= den_, "Quantile numerator " +std::to_string(num_)+ " shall less or equal to denominator " +std::to_string(den_));
+void Quantile::check() const {
+	if (num_ < 0) {
+		std::ostringstream oss;
+		oss << "Quantile numerator " << num_ << " shall be non negative";
+		throw eckit::UserError(oss.str());
+	}
+	if (part_ < num_) {
+		std::ostringstream oss;
+		oss << "Quantile numerator " << num_ << " shall be less or equal the number of partitions " << part_;
+		throw eckit::UserError(oss.str());
+	}
 }
 
-bool Quantile::operator<(const Quantile& other) {
-	return num_<other.num_ && den_ == other.den_;
+Quantile::Quantile(long num, long part) : num_(num), part_(part) {
+	check();
 }
 
 Quantile::operator std::string() {
 	std::ostringstream oss;
-	oss <<  num_ << ':' << den_;
+	oss <<  num_ << ':' << part_;
 	return oss.str();
 }
 
 void Quantile::print(std::ostream& s) const {
-	s << num_ << ':' << den_;
+	s << num_ << ':' << part_;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
