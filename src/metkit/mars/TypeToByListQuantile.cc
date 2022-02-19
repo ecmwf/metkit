@@ -7,6 +7,7 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+#include <regex>
 
 #include "metkit/mars/TypeToByListQuantile.h"
 
@@ -80,7 +81,7 @@ bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::string& val
 
 void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
-    static eckit::Translator<std::string, float> s2l;
+    static eckit::Translator<std::string, long> s2l;
 
     std::vector<std::string> newval;
 
@@ -89,14 +90,35 @@ void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std:
         const std::string& s = values[i];
 
         if (eckit::StringTools::lower(s) == "to" || eckit::StringTools::lower(s) == "t0") {
-            ASSERT(newval.size() > 0);
-            ASSERT(i + 1 < values.size());
+            if (newval.size() == 0) {
+                std::ostringstream oss;
+                oss << name_ << " list: 'to' must be preceeded by a starting value.";
+                throw eckit::UserError(oss.str());
+            }
+            if (values.size() <= i+1) {
+                std::ostringstream oss;
+                oss << name_ << " list: 'to' must be followed by an ending value.";
+                throw eckit::UserError(oss.str());
+            }
 
             Quantile from = Quantile(tidy(ctx, newval.back()));
             Quantile to = Quantile(tidy(ctx, values[i + 1]));
             long by = by_;
 
-            if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
+            if (i+2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
+                if (values.size() <= i+3) {
+                    std::ostringstream oss;
+                    oss << name_ << " list: 'by' must be followed by a step size.";
+                    throw eckit::UserError(oss.str());
+                }
+                const std::regex by_regex("(\\d+)");
+                std::smatch base_match;
+
+                if (!std::regex_match(values[i + 3], base_match, by_regex)) {
+                    std::ostringstream oss;
+                    oss << name_ << " list: 'by' must be followed by a single integer number.";
+                    throw eckit::UserError(oss.str());
+                }
                 by = s2l(values[i + 3]);
                 i += 2;
             }
