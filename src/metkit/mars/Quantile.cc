@@ -27,14 +27,14 @@ Quantile::Quantile(const std::string &value) {
 
 	if (!std::regex_match(value, base_match, quantile_regex)) {
 		std::ostringstream oss;
-		oss << "Quantile " << value << " shall be in the form <integer>:<integer>";
-		throw eckit::UserError(oss.str());
+		oss << "Quantile " << value << " must be in the form <integer>:<integer>";
+		throw eckit::BadValue(oss.str());
 	}
 
     static eckit::Translator<std::string, float> s2l;
 
 	num_ = s2l(base_match.str(1));
-	part_ = s2l(base_match.str(2));
+	den_ = s2l(base_match.str(2));
 
 	check();
 }
@@ -42,28 +42,33 @@ Quantile::Quantile(const std::string &value) {
 void Quantile::check() const {
 	if (num_ < 0) {
 		std::ostringstream oss;
-		oss << "Quantile numerator " << num_ << " shall be non negative";
-		throw eckit::UserError(oss.str());
+		oss << "Quantile numerator " << num_ << " must be non negative";
+		throw eckit::BadValue(oss.str());
 	}
-	if (part_ < num_) {
+	if (den_ < 0) {
 		std::ostringstream oss;
-		oss << "Quantile numerator " << num_ << " shall be less or equal the number of partitions " << part_;
-		throw eckit::UserError(oss.str());
+		oss << "Quantile denominator " << den_ << " must be non negative";
+		throw eckit::BadValue(oss.str());
+	}
+	if (den_ < num_) {
+		std::ostringstream oss;
+		oss << "Quantile numerator " << num_ << " must be less or equal the value of denominator " << den_;
+		throw eckit::BadValue(oss.str());
 	}
 }
 
-Quantile::Quantile(long num, long part) : num_(num), part_(part) {
+Quantile::Quantile(long num, long den) : num_(num), den_(den) {
 	check();
 }
 
 Quantile::operator std::string() {
 	std::ostringstream oss;
-	oss <<  num_ << ':' << part_;
+	oss <<  num_ << ':' << den_;
 	return oss.str();
 }
 
 void Quantile::print(std::ostream& s) const {
-	s << num_ << ':' << part_;
+	s << num_ << ':' << den_;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

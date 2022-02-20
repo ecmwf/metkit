@@ -135,7 +135,7 @@ void quantileThrows(std::vector<std::string> values) {
     DummyContext ctx;
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type("quantile");
-    EXPECT_THROWS_AS(t->expand(ctx, values), eckit::UserError);
+    EXPECT_THROWS_AS(t->expand(ctx, values), eckit::BadValue);
 }
 
 void quantile(std::vector<std::string> values, std::vector<std::string> expected) {
@@ -148,6 +148,7 @@ void quantile(std::vector<std::string> values, std::vector<std::string> expected
 
 CASE( "test_metkit_expand_11_quantile" ) {
     quantileThrows({"-1:5"});
+    quantileThrows({"0:-5"});
     quantileThrows({"6:5"});
     quantileThrows({"0:12"});
     quantile({"2:5"}, {"2:5"});

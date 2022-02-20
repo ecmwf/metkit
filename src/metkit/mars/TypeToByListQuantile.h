@@ -36,7 +36,7 @@ private: // methods
     virtual void expand(const MarsExpandContext& ctx,
                         std::vector<std::string>& values) const override;
 
-    std::set<long> partitions_;
+    std::set<long> denominators_;
     long by_;
 
 };
