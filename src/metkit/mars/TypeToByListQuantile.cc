@@ -30,7 +30,7 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string &name, const eckit:
     Type(name, settings),
     by_(settings["by"]) {
     
-    LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " settings=" << settings << std::endl;
+    // LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["denominators"];
 
