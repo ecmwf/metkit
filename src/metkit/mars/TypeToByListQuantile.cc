@@ -7,14 +7,12 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
-#include <regex>
 
 #include "metkit/mars/TypeToByListQuantile.h"
 
 #include "eckit/exception/Exceptions.h"
-#include "eckit/parser/JSONParser.h"
-#include "eckit/utils/Translator.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Tokenizer.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
@@ -81,8 +79,6 @@ bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::string& val
 
 void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
-    static eckit::Translator<std::string, long> s2l;
-
     std::vector<std::string> newval;
 
     for (size_t i = 0; i < values.size(); ++i) {
@@ -111,15 +107,24 @@ void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std:
                     oss << name_ << " list: 'by' must be followed by a step size.";
                     throw eckit::BadValue(oss.str());
                 }
-                const std::regex by_regex("(\\d+)");
-                std::smatch base_match;
 
-                if (!std::regex_match(values[i + 3], base_match, by_regex)) {
+                eckit::Tokenizer parse(":");
+                std::vector<std::string> result;
+
+                parse(values[i + 3], result);
+                if (result.size() != 1) {
+                    std::ostringstream oss;
+                    oss << "by step " << values[i + 3] << " must be a single integer";
+                    throw eckit::BadValue(oss.str());
+                }
+
+                try {
+                    by = std::stol(values[i + 3]);
+                } catch(std::invalid_argument const& e) {
                     std::ostringstream oss;
                     oss << name_ << " list: 'by' must be followed by a single integer number.";
                     throw eckit::BadValue(oss.str());
                 }
-                by = s2l(values[i + 3]);
                 i += 2;
             }
 

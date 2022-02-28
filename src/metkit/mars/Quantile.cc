@@ -8,10 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-#include <regex>
-
-#include "eckit/utils/Translator.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/utils/Tokenizer.h"
 
 #include "metkit/mars/Quantile.h"
 
@@ -22,19 +20,24 @@ namespace metkit {
 //----------------------------------------------------------------------------------------------------------------------
 
 Quantile::Quantile(const std::string &value) {
-    const std::regex quantile_regex("([+-]?\\d+):([+-]?\\d+)");
-    std::smatch base_match;
+	Tokenizer parse(":");
+	std::vector<std::string> result;
 
-	if (!std::regex_match(value, base_match, quantile_regex)) {
+	parse(value, result);
+	if (result.size() != 2) {
 		std::ostringstream oss;
 		oss << "Quantile " << value << " must be in the form <integer>:<integer>";
 		throw eckit::BadValue(oss.str());
 	}
 
-    static eckit::Translator<std::string, float> s2l;
-
-	num_ = s2l(base_match.str(1));
-	den_ = s2l(base_match.str(2));
+	try {
+		num_ = std::stol(result[0]);
+		den_ = std::stol(result[1]);
+	} catch(std::invalid_argument const& e) {
+		std::ostringstream oss;
+		oss << "Quantile " << value << " must be in the form <integer>:<integer>";
+		throw eckit::BadValue(oss.str());
+	}
 
 	check();
 }
