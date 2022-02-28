@@ -7,6 +7,7 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+#include <stdexcept>
 
 #include "metkit/mars/TypeToByListQuantile.h"
 
@@ -120,7 +121,7 @@ void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std:
 
                 try {
                     by = std::stol(values[i + 3]);
-                } catch(std::invalid_argument const& e) {
+            	} catch(const std::invalid_argument& e) {
                     std::ostringstream oss;
                     oss << name_ << " list: 'by' must be followed by a single integer number.";
                     throw eckit::BadValue(oss.str());

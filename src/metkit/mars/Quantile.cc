@@ -8,6 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
+#include <stdexcept>
+
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/Tokenizer.h"
 
@@ -33,7 +35,7 @@ Quantile::Quantile(const std::string &value) {
 	try {
 		num_ = std::stol(result[0]);
 		den_ = std::stol(result[1]);
-	} catch(std::invalid_argument const& e) {
+	} catch(const std::invalid_argument& e) {
 		std::ostringstream oss;
 		oss << "Quantile " << value << " must be in the form <integer>:<integer>";
 		throw eckit::BadValue(oss.str());
