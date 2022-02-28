@@ -160,7 +160,9 @@ void BufrCheck::usage(const std::string& tool) const {
                 << std::endl
                 << tool << " --skip-on-error --verbose input.bufr output.bufr" << std::endl
                 << std::endl
-                << tool << " --patch-on-error --ignore-century-mismatch --acceptable-time-discrepancy=600 input.bufr output.bufr" << std::endl
+                << tool << " --patch-on-error --ignore-century --acceptable-time-discrepancy=600 input.bufr output.bufr" << std::endl
+                << std::endl
+                << tool << " --patch-on-error --dont-patch-date input.bufr output.bufr" << std::endl
                 << std::endl;
 }
 
