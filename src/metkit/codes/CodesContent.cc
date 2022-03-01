@@ -108,20 +108,19 @@ void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& v
 eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict& dict) const {
     codes_handle* h = codes_handle_clone(handle_);
 
-    ASSERT(dict.size() <= 256);
-    codes_values values[256];
-    eckit::zero(values);
-    size_t i = 0;
+    std::vector<codes_values> values;
+
     for (auto& kv : dict) {
-        // eckit::Log::info() << "kv: key " << kv.first << " value " << kv.second << std::endl;
-        values[i].name         = kv.first.c_str();
-        values[i].string_value = kv.second.c_str();
-        values[i].type         = GRIB_TYPE_STRING;
-        i++;
+        codes_values v;
+        v.name         = kv.first.c_str();
+        v.string_value = kv.second.c_str();
+        v.type         = GRIB_TYPE_STRING;
+
+        values.push_back(v);
     }
 
     try {
-        CODES_CALL(codes_set_values(h, values, i));
+        CODES_CALL(codes_set_values(h, &values[0], values.size()));
     }
     catch(...) {
         codes_handle_delete(h);
@@ -147,7 +146,6 @@ const void* CodesContent::data() const {
     CODES_CALL(codes_get_message(handle_, &data, &size));
     return data;
 }
-
 
 
 }  // namespace close

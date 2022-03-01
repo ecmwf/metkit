@@ -48,6 +48,8 @@ list( APPEND metkit_srcs
     mars/Parameter.h
     mars/ParamID.cc
     mars/ParamID.h
+    mars/Quantile.cc
+    mars/Quantile.h
     mars/RequestEnvironment.cc
     mars/RequestEnvironment.h
     mars/StepRangeNormalise.h
@@ -83,6 +85,8 @@ list( APPEND metkit_srcs
     mars/TypeToByList.h
     mars/TypeToByListFloat.cc
     mars/TypeToByListFloat.h
+    mars/TypeToByListQuantile.cc
+    mars/TypeToByListQuantile.h
     tool/MetkitTool.cc
     tool/MetkitTool.h
     fields/FieldIndex.cc
@@ -131,6 +135,8 @@ if ( HAVE_GRIB )
         codes/LibEccodes.h
         codes/CodesContent.cc
         codes/CodesContent.h
+        codes/BufrContent.cc
+        codes/BufrContent.h
         codes/UserDataContent.cc
         codes/UserDataContent.h
         codes/DataContent.cc

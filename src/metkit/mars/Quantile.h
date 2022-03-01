@@ -8,38 +8,45 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @date   Jun 2020
+/// @file   Quantile.h
+/// @author Emanuele Danovaro
+/// @date   February 2022
 
-#ifndef metkit_BUFRDecoder_h
-#define metkit_BUFRDecoder_h
+#pragma once
 
-#include "eckit/message/Decoder.h"
-
+#include <string>
 
 namespace metkit {
-namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class BUFRDecoder : public eckit::message::Decoder {
+class Quantile {
+public:
+    Quantile(const std::string &value);
+    Quantile(long num, long den);
 
-public: // methods
+	long num() {return num_;}
+	long den() {return den_;}
 
-    static bool typeBySubtype(long subtype, long& type);
+	operator std::string();
 
-private: // methods
+protected:
 
-    virtual bool match(const eckit::message::Message&) const override;
-    virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
+	void print(std::ostream& s) const;
+
+private:
+    void check() const;
+
+	friend std::ostream& operator<<(std::ostream& s,const Quantile& q)
+		{ q.print(s); return s; }
+
+private:
+    long num_;
+    long den_;    
 
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
 } // namespace metkit
 
-#endif

@@ -8,38 +8,40 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @date   Jun 2020
+/// @file   TypeToByListQuantile.h
+/// @author Emanuele Danovaro
+/// @date   February 2022
 
-#ifndef metkit_BUFRDecoder_h
-#define metkit_BUFRDecoder_h
+#pragma once
 
-#include "eckit/message/Decoder.h"
-
+#include "metkit/mars/Type.h"
 
 namespace metkit {
-namespace codes {
+namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class BUFRDecoder : public eckit::message::Decoder {
+class TypeToByListQuantile : public Type {
 
 public: // methods
 
-    static bool typeBySubtype(long subtype, long& type);
+    TypeToByListQuantile(const std::string &name, const eckit::Value& settings);
+
+    virtual ~TypeToByListQuantile() override;
 
 private: // methods
 
-    virtual bool match(const eckit::message::Message&) const override;
-    virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
+    virtual void print( std::ostream &out ) const override;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+    virtual void expand(const MarsExpandContext& ctx,
+                        std::vector<std::string>& values) const override;
+
+    std::set<long> denominators_;
+    long by_;
 
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
+} // namespace mars
 } // namespace metkit
-
-#endif
