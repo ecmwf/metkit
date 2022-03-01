@@ -15,12 +15,11 @@
 #include "eckit/types/Date.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/config/Resource.h"
-#include "eckit/parser/YAMLParser.h"
 
 #include "eckit/message/Reader.h"
 #include "eckit/message/Message.h"
 
-#include "metkit/config/LibMetkit.h"
+#include "metkit/codes/BUFRDecoder.h"
 #include "metkit/codes/CodesContent.h"
 #include "metkit/tool/MetkitTool.h"
 
@@ -37,27 +36,6 @@ enum Status {
     FIXED,
     CORRUPTED
 };
-
-static std::map<long, long> subtypes_;
-
-static pthread_once_t once = PTHREAD_ONCE_INIT;
-
-static void readTable()
-{
-    eckit::PathName bufrSubtypesPath = eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH", LibMetkit::bufrSubtypesYamlFile());
-
-    const eckit::Value bufrSubtypes = eckit::YAMLParser::decodeFile(bufrSubtypesPath);
-    const eckit::Value subtypes = bufrSubtypes["subtypes"];
-    ASSERT(subtypes.isList());
-    for (size_t i = 0; i < subtypes.size(); ++i) {
-        const eckit::Value s = subtypes[i];
-        ASSERT(s.isList());
-        ASSERT(s.size() == 2);
-        subtypes_[s[0]] = s[1];
-    }
-}
-
-
 class BufrCheck : public MetkitTool {
 public:
 
@@ -90,11 +68,9 @@ public:
 private:  // methods
     int minimumPositionalArguments() const { return 2; }
 
-    Status checkMessageLength(codes::CodesContent& c, int numMessage);
-    Status checkSubType(codes::CodesContent& c, int numMessage);
-    Status checkDate(codes::CodesContent& c, int numMessage);
-
-    bool bufrTypeBySubtype(long subtype, long& type);
+    Status checkMessageLength(const message::Message& msg, int numMessage, eckit::StringDict& transformation);
+    Status checkSubType(const message::Message& msg, int numMessage);
+    Status checkDate(const message::Message& msg, int numMessage, eckit::StringDict& transformation);
 
     void process(const PathName& input, const PathName& output);
 
@@ -105,15 +81,15 @@ private:  // methods
     virtual void usage(const std::string& tool) const;
 
 private:  // members
-    bool verbose_ = false;
-    bool abort_ = true;
-    bool patch_ = false;
-    bool skip_ = false;
-    bool ignoreLength_ = false;
-    bool ignoreDate_ = false;
-    bool ignoreCentury_ = false;
-    bool ignoreType_ = false;
-    long timeThreshold_ = 300;
+    bool verbose_;
+    bool abort_;
+    bool patch_;
+    bool skip_;
+    bool ignoreLength_;
+    bool ignoreDate_;
+    bool ignoreCentury_;
+    bool ignoreType_;
+    long timeThreshold_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -124,29 +100,20 @@ void BufrCheck::execute(const CmdArgs& args) {
 
 void BufrCheck::init(const CmdArgs& args) {
 
-    // abort-on-error OR patch-on-error OR skip-on-error
-    int cnt = 0;
-    bool hasAbort = args.get("abort-on-error", abort_);
-    if (hasAbort)
-        cnt++;
-    if (args.get("patch-on-error", patch_))
-        cnt++;
-    if (args.get("skip-on-error", skip_))
-        cnt++;
+    patch_ = args.getBool("patch-on-error", false);
+    skip_ = args.getBool("skip-on-error", false);
+    abort_ = args.getBool("abort-on-error", !(patch_ || skip_));
 
-    if (cnt>1) {
+    if (abort_ + patch_ + skip_>1) {
         throw UserError("Inconsistent configuration. You can only specify one of [--abort-on-error, --patch-on-error, --skip-on-error]");
     }
-    if (cnt == 1) {
-        abort_ = abort_ && hasAbort;
-    }
 
-    args.get("verbose", verbose_);
-    args.get("dont-patch-length", ignoreLength_);
-    args.get("dont-patch-date", ignoreDate_);
-    args.get("ignore-century", ignoreCentury_);
-    args.get("ignore-type", ignoreType_);
-    args.get("acceptable-time-discrepancy", timeThreshold_);
+    verbose_ = args.getBool("verbose", false);
+    ignoreLength_ = args.getBool("dont-patch-length", false);
+    ignoreDate_ = args.getBool("dont-patch-date", false);
+    ignoreCentury_ = args.getBool("ignore-century", false);
+    ignoreType_ = args.getBool("ignore-type", false);
+    timeThreshold_ = args.getLong("acceptable-time-discrepancy", 300);
 }
 
 void BufrCheck::usage(const std::string& tool) const {
@@ -166,10 +133,10 @@ void BufrCheck::usage(const std::string& tool) const {
                 << std::endl;
 }
 
-Status BufrCheck::checkMessageLength(codes::CodesContent& c, int numMessage) {
+Status BufrCheck::checkMessageLength(const message::Message& msg, int numMessage, eckit::StringDict& transformation) {
 
-    long totalLength = c.getLong("totalLength");
-    long messageLength = c.getLong("messageLength");
+    long totalLength = msg.getLong("totalLength");
+    long messageLength = msg.getLong("messageLength");
 
     if (totalLength != messageLength && totalLength < WRONG_KEY_LENGTH) {
         if (verbose_) {
@@ -180,31 +147,20 @@ Status BufrCheck::checkMessageLength(codes::CodesContent& c, int numMessage) {
         if (!patch_ || ignoreLength_) {
             return Status::CORRUPTED;
         } else {
-            c.setLong("messageLength", totalLength);
+            transformation.emplace("messageLength", std::to_string(totalLength));
             return Status::FIXED;
         }
     }
     return Status::OK;
 }
 
-bool BufrCheck::bufrTypeBySubtype(long subtype, long& type) {
-    pthread_once(&once, readTable);
-    
-    auto s = subtypes_.find(subtype);
-    if (s != subtypes_.end()) {
-        type = s->second;
-        return true;
-    }
-    return false;
-}
+Status BufrCheck::checkSubType(const message::Message& msg, int numMessage) {
 
-Status BufrCheck::checkSubType(codes::CodesContent& c, int numMessage) {
-
-    long type = c.getLong("rdbType");
-    long subtype = c.getLong("oldSubtype");
+    long type = msg.getLong("rdbType");
+    long subtype = msg.getLong("oldSubtype");
     long expectedType;
 
-    if (bufrTypeBySubtype(subtype, expectedType)) {
+    if (codes::BUFRDecoder::typeBySubtype(subtype, expectedType)) {
         if (type == expectedType) {
             return Status::OK;
         } else {
@@ -225,18 +181,18 @@ Status BufrCheck::checkSubType(codes::CodesContent& c, int numMessage) {
     }
 }
 
-Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
+Status BufrCheck::checkDate(const message::Message& msg, int numMessage, eckit::StringDict& transformation) {
 
     bool toFix = false;
 
-    long localYear = c.getLong("localYear");
+    long localYear = msg.getLong("localYear");
 
-    long typicalYear = c.getLong("typicalYear");
+    long typicalYear = msg.getLong("typicalYear");
     if (ignoreCentury_) {
         typicalYear = (localYear/100)*100 + typicalYear%100;
     }
-    long typicalMonth = c.getLong("typicalMonth");
-    long typicalDay = c.getLong("typicalDay");
+    long typicalMonth = msg.getLong("typicalMonth");
+    long typicalDay = msg.getLong("typicalDay");
     long typicalJulian = 0;
     try {
         Date date(typicalYear, typicalMonth, typicalDay);
@@ -247,15 +203,15 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
                 << ", date is weird " << typicalYear << "/" << typicalMonth << "/" << typicalDay
                 << std::endl;
         }
-        if (!patch_)
+        if (!patch_) {
             return Status::CORRUPTED;
-
+        }
         toFix = !ignoreDate_;
     }
 
-    long typicalHour = c.getLong("typicalHour");
-    long typicalMinute = c.getLong("typicalMinute");
-    long typicalSecond = c.getLong("typicalSecond");
+    long typicalHour = msg.getLong("typicalHour");
+    long typicalMinute = msg.getLong("typicalMinute");
+    long typicalSecond = msg.getLong("typicalSecond");
 
     if (typicalHour>23 || typicalHour<0 || typicalMinute>59 || typicalMinute<0 || typicalSecond>59 || typicalSecond<0) {
         if (verbose_) {
@@ -263,16 +219,16 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
                 << ", typical time is weird " << typicalHour << ":" << typicalMinute << ":" << typicalSecond
                 << std::endl;
         }
-        if (!patch_)
+        if (!patch_) {
             return Status::CORRUPTED;
-
+        }
         toFix = !ignoreDate_;
     }
     long typicalTime = typicalHour*3600 + typicalMinute*60 + typicalSecond;
 
 
-    long localMonth = c.getLong("localMonth");
-    long localDay = c.getLong("localDay");
+    long localMonth = msg.getLong("localMonth");
+    long localDay = msg.getLong("localDay");
     long localJulian = 0;
 
     try {
@@ -287,9 +243,9 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
         return Status::CORRUPTED;
     }
 
-    long localHour = c.getLong("localHour");
-    long localMinute = c.getLong("localMinute");
-    long localSecond = c.getLong("localSecond");
+    long localHour = msg.getLong("localHour");
+    long localMinute = msg.getLong("localMinute");
+    long localSecond = msg.getLong("localSecond");
 
     // we accept localSecond==60 for backward compatibility (filterbufr behaviour)
     if (localHour>23 || localHour<0 || localMinute>59 || localMinute<0 || localSecond>60 || localSecond<0) {
@@ -314,16 +270,16 @@ Status BufrCheck::checkDate(codes::CodesContent& c, int numMessage) {
     }
 
     if (toFix) {
-        if (c.getLong("edition") == 3) {
-            c.setLong("typicalYearOfCentury", localYear-2000);
+        if (msg.getLong("edition") == 3) {
+            transformation.emplace("typicalYearOfCentury", std::to_string(localYear-2000));
         } else {
-            c.setLong("typicalYear", localYear);
-            c.setLong("typicalSecond", localSecond);
+            transformation.emplace("typicalYear", std::to_string(localYear));
+            transformation.emplace("typicalSecond", std::to_string(localSecond));
         }
-        c.setLong("typicalMonth", localMonth);
-        c.setLong("typicalDay", localDay);
-        c.setLong("typicalHour", localHour);
-        c.setLong("typicalMinute", localMinute);
+        transformation.emplace("typicalMonth", std::to_string(localMonth));
+        transformation.emplace("typicalDay", std::to_string(localDay));
+        transformation.emplace("typicalHour", std::to_string(localHour));
+        transformation.emplace("typicalMinute", std::to_string(localMinute));
         return Status::FIXED;
     }
     return Status::OK;
@@ -346,23 +302,24 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
     unsigned int inconsistentSubType=0;
     unsigned int inconsistentDate=0;
 
-    message::Message msg;
+    message::Message rawMsg;
 
-    while ( (msg = reader.next()) ) {
-        codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+    while ( (rawMsg = reader.next()) ) {
+        codes_handle* h = codes_handle_new_from_message(nullptr, rawMsg.data(), rawMsg.length());
         if(!h) {
             throw FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle", Here());
         }
-        codes::CodesContent c(h, true);
+        codes::CodesContent* c = new codes::CodesContent(h, true);
+        message::Message msg(c);
 
         // verify the presence of section 2 (to store the MARS key)
-        long localSectionPresent = c.getLong("localSectionPresent");
-
+        long localSectionPresent = msg.getLong("localSectionPresent");
         ok = localSectionPresent != 0;
         if (!ok) {
             missingKey++;
         } else {
-            switch (checkMessageLength(c, numMessage)) {
+            eckit::StringDict transformation;
+            switch (checkMessageLength(msg, numMessage, transformation)) {
                 case Status::CORRUPTED:
                     ok = false;
                     messageLength++;
@@ -372,7 +329,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                     break;
                 case Status::OK: ;
             };
-            switch (checkSubType(c, numMessage)) {
+            switch (checkSubType(msg, numMessage)) {
                 case Status::CORRUPTED:
                     if (!ignoreType_)
                         ok = false;
@@ -383,7 +340,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                     break;
                 case Status::OK: ;
             };
-            switch (checkDate(c, numMessage)) {
+            switch (checkDate(msg, numMessage, transformation)) {
                 case Status::CORRUPTED:
                     ok = false;
                     inconsistentDate++;
@@ -393,11 +350,17 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                     break;
                 case Status::OK: ;
             };
+            if (ok) {
+                if (transformation.size() == 0) {
+                    msg.write(out);
+                } else {
+                    eckit::message::Message m = msg.transform(transformation);
+                    m.write(out);
+                }
+            }
         }
 
-        if (ok) {
-            out.write(msg.data(), msg.length());
-        } else if (abort_) {
+        if (!ok && abort_) {
             Log::error() << "message " << numMessage << " not compliant" << std::endl;
             exit(1);
         }

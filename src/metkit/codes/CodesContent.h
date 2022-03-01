@@ -28,9 +28,6 @@ public:
     explicit CodesContent(const codes_handle* handle);
 
     ~CodesContent();
-
-    virtual long getLong(const std::string& key) const override;
-    virtual void setLong(const std::string& key, long value);
     
 private:
     codes_handle* handle_;
@@ -41,6 +38,7 @@ private:
     eckit::DataHandle* readHandle() const override;
     virtual void print(std::ostream & s) const override;
     virtual std::string getString(const std::string& key) const override;
+    virtual long getLong(const std::string& key) const override;
     virtual double getDouble(const std::string& key) const override;
     virtual void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
     virtual eckit::Offset offset() const override;

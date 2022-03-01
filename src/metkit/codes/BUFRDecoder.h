@@ -24,6 +24,10 @@ namespace codes {
 
 class BUFRDecoder : public eckit::message::Decoder {
 
+public: // methods
+
+    static bool typeBySubtype(long subtype, long& type);
+
 private: // methods
 
     virtual bool match(const eckit::message::Message&) const override;
