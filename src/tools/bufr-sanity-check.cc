@@ -319,6 +319,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
             missingKey++;
         } else {
             eckit::StringDict transformation;
+            
             switch (checkMessageLength(msg, numMessage, transformation)) {
                 case Status::CORRUPTED:
                     ok = false;
@@ -327,8 +328,10 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                 case Status::FIXED:
                     messageLength++;
                     break;
-                case Status::OK: ;
+                case Status::OK:
+                    break;
             };
+
             switch (checkSubType(msg, numMessage)) {
                 case Status::CORRUPTED:
                     if (!ignoreType_)
@@ -338,8 +341,10 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                 case Status::FIXED:
                     inconsistentSubType++;
                     break;
-                case Status::OK: ;
+                case Status::OK:
+                    break;
             };
+
             switch (checkDate(msg, numMessage, transformation)) {
                 case Status::CORRUPTED:
                     ok = false;
@@ -348,8 +353,10 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                 case Status::FIXED:
                     inconsistentDate++;
                     break;
-                case Status::OK: ;
+                case Status::OK:
+                    break;
             };
+
             if (ok) {
                 if (transformation.size() == 0) {
                     msg.write(out);

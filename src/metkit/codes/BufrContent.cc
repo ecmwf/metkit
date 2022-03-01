@@ -9,12 +9,10 @@
  */
 
 /// @author Baudouin Raoult
-/// @date   Jun 2020
+/// @author Emanuele Danovaro
+/// @date   Mar 2022
 
 #include "metkit/codes/BufrContent.h"
-
-#include "eckit/exception/Exceptions.h"
-#include "eckit/memory/Zero.h"
 
 #include "metkit/codes/GribHandle.h"
 
@@ -29,23 +27,23 @@ BufrContent::BufrContent(const codes_handle* handle):
 
 BufrContent::~BufrContent() {}
 
+
 eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& dict) const {
     codes_handle* h = codes_handle_clone(handle_);
 
-    ASSERT(dict.size() <= 256);
-    codes_values values[256];
-    eckit::zero(values);
-    size_t i = 0;
+    std::vector<codes_values> values;
+
     for (auto& kv : dict) {
-        // eckit::Log::info() << "kv: key " << kv.first << " value " << kv.second << std::endl;
-        values[i].name         = kv.first.c_str();
-        values[i].long_value   = std::stol(kv.second);
-        values[i].type         = GRIB_TYPE_LONG;
-        i++;
+        codes_values v;
+        v.name         = kv.first.c_str();
+        v.long_value   = std::stol(kv.second);
+        v.type         = GRIB_TYPE_LONG;
+
+        values.push_back(v);
     }
 
     try {
-        CODES_CALL(codes_set_values(h, values, i));
+        CODES_CALL(codes_set_values(h, &values[0], values.size()));
     }
     catch(...) {
         codes_handle_delete(h);
@@ -54,7 +52,6 @@ eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& 
 
     return new BufrContent(h);
 }
-
 
 }  // namespace close
 }  // namespace metkit
