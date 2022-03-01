@@ -31,6 +31,10 @@ public:
     
 protected:
     codes_handle* handle_;
+
+    virtual eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
+
+private:
     bool delete_handle_;
 
     virtual size_t length() const override;
@@ -44,8 +48,6 @@ protected:
     virtual eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
     const void* data() const override;
-
-    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
 };
 
 }  // namespace codes

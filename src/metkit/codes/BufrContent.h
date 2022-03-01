@@ -9,28 +9,28 @@
  */
 
 /// @author Baudouin Raoult
-/// @date   Jun 2020
+/// @author Emanuele Danovaro
+/// @date   Mar 2022
 
 #pragma once
 
-#include "eccodes.h"
-
 #include "metkit/codes/CodesContent.h"
-
-typedef struct grib_handle codes_handle;
 
 namespace metkit {
 namespace codes {
 
 class BufrContent : public CodesContent {
 public:
+
     BufrContent(codes_handle* handle, bool delete_handle);
     explicit BufrContent(const codes_handle* handle);
 
     ~BufrContent();
     
 private:
-    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
+
+    eckit::message::MessageContent* transform(const eckit::StringDict& dict) const override;
+
 };
 
 }  // namespace codes
