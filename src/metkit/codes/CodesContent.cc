@@ -115,8 +115,8 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
     for (auto& kv : dict) {
         // eckit::Log::info() << "kv: key " << kv.first << " value " << kv.second << std::endl;
         values[i].name         = kv.first.c_str();
-        values[i].string_value = kv.second.c_str();
-        values[i].type         = GRIB_TYPE_STRING;
+        values[i].long_value   = std::stol(kv.second);
+        values[i].type         = GRIB_TYPE_LONG;
         i++;
     }
 

@@ -28,7 +28,7 @@ public:
     explicit CodesContent(const codes_handle* handle);
 
     ~CodesContent();
-
+    
 private:
     codes_handle* handle_;
     bool delete_handle_;

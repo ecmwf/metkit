@@ -15,6 +15,9 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/message/Message.h"
+#include "eckit/parser/YAMLParser.h"
+
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
@@ -35,6 +38,39 @@ public:
 
 };
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::map<long, long> subtypes_;
+
+static pthread_once_t once = PTHREAD_ONCE_INIT;
+
+static void readTable()
+{
+    eckit::PathName bufrSubtypesPath = eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH", LibMetkit::bufrSubtypesYamlFile());
+
+    const eckit::Value bufrSubtypes = eckit::YAMLParser::decodeFile(bufrSubtypesPath);
+    const eckit::Value subtypes = bufrSubtypes["subtypes"];
+    ASSERT(subtypes.isList());
+    for (size_t i = 0; i < subtypes.size(); ++i) {
+        const eckit::Value s = subtypes[i];
+        ASSERT(s.isList());
+        ASSERT(s.size() == 2);
+        subtypes_[s[0]] = s[1];
+    }
+}
+
+bool BUFRDecoder::typeBySubtype(long subtype, long& type) {
+    pthread_once(&once, readTable);
+    
+    auto s = subtypes_.find(subtype);
+    if (s != subtypes_.end()) {
+        type = s->second;
+        return true;
+    }
+    return false;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 bool BUFRDecoder::match(const eckit::message::Message& msg) const {
