@@ -135,6 +135,8 @@ if ( HAVE_GRIB )
         codes/LibEccodes.h
         codes/CodesContent.cc
         codes/CodesContent.h
+        codes/BufrContent.cc
+        codes/BufrContent.h
         codes/UserDataContent.cc
         codes/UserDataContent.h
         codes/DataContent.cc

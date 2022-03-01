@@ -29,7 +29,7 @@ public:
 
     ~CodesContent();
     
-private:
+protected:
     codes_handle* handle_;
     bool delete_handle_;
 
