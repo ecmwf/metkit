@@ -120,7 +120,7 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
     }
 
     try {
-        CODES_CALL(codes_set_values(h, &values[0], values.size()));
+        CODES_CALL(codes_set_values(h, values.data(), values.size()));
     }
     catch(...) {
         codes_handle_delete(h);
