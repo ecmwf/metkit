@@ -421,7 +421,7 @@
 - total column water
 137:
 - tcwv
-- total column water vapour
+- total column vertically-integrated water vapour
 138:
 - vo
 - vorticity (relative)
@@ -5939,13 +5939,13 @@
 - methane loss rate due to radical hydroxyl (oh)
 210072:
 - pm1
-- particulate matter d < 1 um
+- particulate matter d <= 1 um
 210073:
 - pm2p5
-- particulate matter d < 2.5 um
+- particulate matter d <= 2.5 um
 210074:
 - pm10
-- particulate matter d < 10 um
+- particulate matter d <= 10 um
 210079:
 - vafire
 - wildfire viewing angle of observation
@@ -6074,13 +6074,13 @@
 - altitude of plume top
 210121:
 - no2
-- nitrogen dioxide
+- nitrogen dioxide mass mixing ratio
 210122:
 - so2
-- sulphur dioxide
+- sulphur dioxide mass mixing ratio
 210123:
 - co
-- carbon monoxide
+- carbon monoxide mass mixing ratio
 210124:
 - hcho
 - formaldehyde
@@ -6278,7 +6278,7 @@
 - near ir albedo for diffuse radiation, geometric component
 210203:
 - go3
-- gems ozone
+- ozone mass mixing ratio (full chemistry scheme)
 210206:
 - gtco3
 - gems total column ozone
@@ -6749,13 +6749,13 @@
 - altitude of plume top
 211121:
 - no2diff
-- nitrogen dioxide
+- nitrogen dioxide mass mixing ratio difference
 211122:
 - so2diff
-- sulphur dioxide
+- sulphur dioxide mass mixing ratio difference
 211123:
 - codiff
-- carbon monoxide
+- carbon monoxide mass mixing ratio difference
 211124:
 - hchodiff
 - formaldehyde
@@ -6905,7 +6905,7 @@
 - anthropogenic emissions of sulphur hexafluoride
 211203:
 - go3diff
-- gems ozone
+- ozone mass mixing ratio difference (full chemistry scheme)
 211206:
 - gtco3diff
 - gems total column ozone
@@ -8324,7 +8324,7 @@
 - natural (sea-salt and dust) aerosol optical thickness at 532 nm
 215095:
 - aaot532
-- antropogenic (black carbon, organic matter, sulphate) aerosol optical thickness
+- anthropogenic (black carbon, organic matter, sulphate) aerosol optical thickness
   at 532 nm
 215096:
 - aodabs340
@@ -9525,7 +9525,7 @@
 - dimethyl sulfide
 217019:
 - nh3
-- ammonia
+- ammonia mass mixing ratio
 217020:
 - so4
 - sulfate
@@ -9546,7 +9546,7 @@
 - lead
 217027:
 - 'no'
-- nitrogen monoxide
+- nitrogen monoxide mass mixing ratio
 217028:
 - ho2
 - hydroperoxy radical
@@ -12100,6 +12100,290 @@
 221232:
 - dv_vocbb
 - dry deposition velocity of biomass burning volatile organic compounds
+222001:
+- acc_dry_depm_o3
+- time-integrated dry deposition mass flux of ozone
+222003:
+- acc_dry_depm_h2o2
+- time-integrated dry deposition mass flux of hydrogen peroxide
+222005:
+- acc_dry_depm_co
+- time-integrated dry deposition mass flux of carbon monoxide
+222006:
+- acc_dry_depm_hno3
+- time-integrated dry deposition mass flux of nitric acid
+222007:
+- acc_dry_depm_ch3ooh
+- time-integrated dry deposition mass flux of methyl peroxide
+222008:
+- acc_dry_depm_hcho
+- time-integrated dry deposition mass flux of formaldehyde
+222012:
+- acc_dry_depm_ald2
+- time-integrated dry deposition mass flux of aldehydes
+222013:
+- acc_dry_depm_pan
+- time-integrated dry deposition mass flux of peroxyacetyl nitrate
+222014:
+- acc_dry_depm_rooh
+- time-integrated dry deposition mass flux of peroxides
+222015:
+- acc_dry_depm_onit
+- time-integrated dry deposition mass flux of organic nitrates
+222016:
+- acc_dry_depm_c5h8
+- time-integrated dry deposition mass flux of isoprene
+222017:
+- acc_dry_depm_so2
+- time-integrated dry deposition mass flux of sulphur dioxide
+222019:
+- acc_dry_depm_nh3
+- time-integrated dry deposition mass flux of ammonia
+222020:
+- acc_dry_depm_so4
+- time-integrated dry deposition mass flux of sulfate
+222021:
+- acc_dry_depm_nh4
+- time-integrated dry deposition mass flux of ammonium
+222023:
+- acc_dry_depm_ch3cocho
+- time-integrated dry deposition mass flux of methyl glyoxal
+222024:
+- acc_dry_depm_o3s
+- time-integrated dry deposition mass flux of ozone (stratospheric)
+222027:
+- acc_dry_depm_no
+- time-integrated dry deposition mass flux of nitrogen monoxide
+222028:
+- acc_dry_depm_ho2
+- time-integrated dry deposition mass flux of hydroperoxy radical
+222029:
+- acc_dry_depm_ch3o2
+- time-integrated dry deposition mass flux of methylperoxy radical
+222031:
+- acc_dry_depm_no2
+- time-integrated dry deposition mass flux of nitrogen dioxide
+222032:
+- acc_dry_depm_no3
+- time-integrated dry deposition mass flux of nitrate radical
+222033:
+- acc_dry_depm_n2o5
+- time-integrated dry deposition mass flux of dinitrogen pentoxide
+222034:
+- acc_dry_depm_ho2no2
+- time-integrated dry deposition mass flux of pernitric acid
+222042:
+- acc_dry_depm_ch3oh
+- time-integrated dry deposition mass flux of methanol
+222043:
+- acc_dry_depm_hcooh
+- time-integrated dry deposition mass flux of formic acid
+222044:
+- acc_dry_depm_mcooh
+- time-integrated dry deposition mass flux of methacrylic acid
+222045:
+- acc_dry_depm_c2h6
+- time-integrated dry deposition mass flux of ethane
+222046:
+- acc_dry_depm_c2h5oh
+- time-integrated dry deposition mass flux of ethanol
+222050:
+- acc_dry_depm_ispd
+- time-integrated dry deposition mass flux of methacrolein
+222051:
+- acc_dry_depm_no3_a
+- time-integrated dry deposition mass flux of nitrate
+222052:
+- acc_dry_depm_ch3coch3
+- time-integrated dry deposition mass flux of acetone
+222086:
+- acc_dry_depm_hono
+- time-integrated dry deposition mass flux of nitrous acid
+222099:
+- acc_dry_depm_tol
+- time-integrated dry deposition mass flux of toluene and less reactive aromatics
+222100:
+- acc_dry_depm_xyl
+- time-integrated dry deposition mass flux of xylene and more reactive aromatics
+222101:
+- acc_dry_depm_glyald
+- time-integrated dry deposition mass flux of glycolaldehyde
+222107:
+- acc_dry_depm_gly
+- time-integrated dry deposition mass flux of glyoxal
+222118:
+- acc_dry_depm_hyac
+- time-integrated dry deposition mass flux of hydroxyacetone
+222161:
+- acc_dry_depm_isopooh
+- time-integrated dry deposition mass flux of all hydroxy-peroxides products of the
+  reaction of hydroxy-isoprene adducts with o2
+222224:
+- acc_dry_depm_ch3cn
+- time-integrated dry deposition mass flux of acetonitrile
+222226:
+- acc_dry_depm_hcn
+- time-integrated dry deposition mass flux of hydrogen cyanide
+223001:
+- acc_wet_depm_o3
+- time-integrated wet deposition mass flux of ozone
+223003:
+- acc_wet_depm_h2o2
+- time-integrated wet deposition mass flux of hydrogen peroxide
+223006:
+- acc_wet_depm_hno3
+- time-integrated wet deposition mass flux of nitric acid
+223007:
+- acc_wet_depm_ch3ooh
+- time-integrated wet deposition mass flux of methyl peroxide
+223008:
+- acc_wet_depm_hcho
+- time-integrated wet deposition mass flux of formaldehyde
+223012:
+- acc_wet_depm_ald2
+- time-integrated wet deposition mass flux of aldehydes
+223013:
+- acc_wet_depm_pan
+- time-integrated wet deposition mass flux of peroxyacetyl nitrate
+223014:
+- acc_wet_depm_rooh
+- time-integrated wet deposition mass flux of peroxides
+223015:
+- acc_wet_depm_onit
+- time-integrated wet deposition mass flux of organic nitrates
+223016:
+- acc_wet_depm_c5h8
+- time-integrated wet deposition mass flux of isoprene
+223017:
+- acc_wet_depm_so2
+- time-integrated wet deposition mass flux of sulphur dioxide
+223019:
+- acc_wet_depm_nh3
+- time-integrated wet deposition mass flux of ammonia
+223020:
+- acc_wet_depm_so4
+- time-integrated wet deposition mass flux of sulfate
+223021:
+- acc_wet_depm_nh4
+- time-integrated wet deposition mass flux of ammonium
+223022:
+- acc_wet_depm_msa
+- time-integrated wet deposition mass flux of methane sulfonic acid
+223023:
+- acc_wet_depm_ch3cocho
+- time-integrated wet deposition mass flux of methyl glyoxal
+223025:
+- acc_wet_depm_co
+- time-integrated wet deposition mass flux of carbon monoxide
+223026:
+- acc_wet_depm_pb
+- time-integrated wet deposition mass flux of lead
+223027:
+- acc_wet_depm_no
+- time-integrated wet deposition mass flux of nitrogen monoxide
+223028:
+- acc_wet_depm_ho2
+- time-integrated wet deposition mass flux of hydroperoxy radical
+223029:
+- acc_wet_depm_ch3o2
+- time-integrated wet deposition mass flux of methylperoxy radical
+223031:
+- acc_wet_depm_no2
+- time-integrated wet deposition mass flux of nitrogen dioxide
+223032:
+- acc_wet_depm_no3
+- time-integrated wet deposition mass flux of nitrate radical
+223033:
+- acc_wet_depm_n2o5
+- time-integrated wet deposition mass flux of dinitrogen pentoxide
+223034:
+- acc_wet_depm_ho2no2
+- time-integrated wet deposition mass flux of pernitric acid
+223042:
+- acc_wet_depm_ch3oh
+- time-integrated wet deposition mass flux of methanol
+223043:
+- acc_wet_depm_hcooh
+- time-integrated wet deposition mass flux of formic acid
+223044:
+- acc_wet_depm_mcooh
+- time-integrated wet deposition mass flux of methacrylic acid
+223045:
+- acc_wet_depm_c2h6
+- time-integrated wet deposition mass flux of ethane
+223046:
+- acc_wet_depm_c2h5oh
+- time-integrated wet deposition mass flux of ethanol
+223050:
+- acc_wet_depm_ispd
+- time-integrated wet deposition mass flux of methacrolein
+223051:
+- acc_wet_depm_no3_a
+- time-integrated wet deposition mass flux of nitrate
+223052:
+- acc_wet_depm_ch3coch3
+- time-integrated wet deposition mass flux of acetone
+223064:
+- acc_wet_depm_clono2
+- time-integrated wet deposition mass flux of chlorine nitrate
+223065:
+- acc_wet_depm_hocl
+- time-integrated wet deposition mass flux of hypochlorous acid
+223068:
+- acc_wet_depm_hbr
+- time-integrated wet deposition mass flux of hydrogen bromide
+223070:
+- acc_wet_depm_hobr
+- time-integrated wet deposition mass flux of hypobromous acid
+223086:
+- acc_wet_depm_hono
+- time-integrated wet deposition mass flux of nitrous acid
+223099:
+- acc_wet_depm_tol
+- time-integrated wet deposition mass flux of toluene and less reactive aromatics
+223100:
+- acc_wet_depm_xyl
+- time-integrated wet deposition mass flux of xylene and more reactive aromatics
+223101:
+- acc_wet_depm_glyald
+- time-integrated wet deposition mass flux of glycolaldehyde
+223107:
+- acc_wet_depm_gly
+- time-integrated wet deposition mass flux of glyoxal
+223118:
+- acc_wet_depm_hyac
+- time-integrated wet deposition mass flux of hydroxyacetone
+223161:
+- acc_wet_depm_isopooh
+- time-integrated wet deposition mass flux of all hydroxy-peroxides products of the
+  reaction of hydroxy-isoprene adducts with o2
+223186:
+- acc_wet_depm_sog1
+- time-integrated wet deposition mass flux of condensable gas type 1
+223187:
+- acc_wet_depm_sog2a
+- time-integrated wet deposition mass flux of condensable gas type 2a
+223188:
+- acc_wet_depm_sog2b
+- time-integrated wet deposition mass flux of condensable gas type 2b
+223194:
+- acc_wet_depm_brono2
+- time-integrated wet deposition mass flux of bromine nitrate
+223200:
+- acc_wet_depm_hcl
+- time-integrated wet deposition mass flux of hydrogen chloride
+223224:
+- acc_wet_depm_ch3cn
+- time-integrated wet deposition mass flux of acetonitrile
+223226:
+- acc_wet_depm_hcn
+- time-integrated wet deposition mass flux of hydrogen cyanide
+223227:
+- acc_wet_depm_hpald1
+- time-integrated wet deposition mass flux of hydroperoxy aldehydes type 1
+223228:
+- acc_wet_depm_hpald2
+- time-integrated wet deposition mass flux of hydroperoxy aldehydes type 2
 228001:
 - cin
 - convective inhibition
@@ -13874,6 +14158,15 @@
 260291:
 - mwt
 - mountain wave turbulence (eddy dissipation rate)
+260292:
+- crwc_conv
+- specific rain water content (convective)
+260293:
+- cswc_conv
+- specific snow water content (convective)
+260294:
+- glm
+- glacier mask
 260295:
 - lauv
 - latitude of u wind component of velocity
@@ -13888,10 +14181,10 @@
 - longitude of v wind component of velocity
 260299:
 - lapp
-- latitude of presure point
+- latitude of pressure point
 260300:
 - lopp
-- longitude of presure point
+- longitude of pressure point
 260301:
 - vedh
 - vertical eddy diffusivity heat exchange
@@ -13943,6 +14236,18 @@
 260317:
 - mslet
 - mslp (eta model reduction)
+260318:
+- sev_ptype1h
+- precipitation type (most severe) in the last 1 hour
+260319:
+- sev_ptype3h
+- precipitation type (most severe) in the last 3 hours
+260320:
+- freq_ptype1h
+- precipitation type (most frequent) in the last 1 hour
+260321:
+- freq_ptype3h
+- precipitation type (most frequent) in the last 3 hours
 260323:
 - mslma
 - mslp (maps system reduction)
@@ -14240,12 +14545,45 @@
 260432:
 - cwr
 - probability of wetting rain, exceeding in 0.10 in a given time period
+260433:
+- et
+- evapotranspiration rate
+260434:
+- acc_et24
+- time-integrated evapotranspiration rate in the last 24h
+260435:
+- avg_et24
+- time-mean evapotranspiration rate in the last 24h
+260436:
+- pet
+- potential evapotranspiration rate
+260437:
+- acc_pet24
+- time-integrated potential evapotranspiration rate in the last 24h
+260438:
+- avg_pet24
+- time-mean potential evapotranspiration rate in the last 24h
 260439:
 - vgtyp
 - vegetation type
+260440:
+- avg_swv24
+- time-mean volumetric soil moisture
+260441:
+- avg_tp24
+- time-mean total precipitation rate
 260442:
 - wilt
 - wilting point
+260443:
+- rod
+- water runoff and drainage rate
+260444:
+- acc_rod24
+- time-integrated water runoff and drainage rate in the last 24h
+260445:
+- avg_rod24
+- time-mean water runoff and drainage rate in the last 24h
 260447:
 - rdrip
 - rate of water dropping from canopy to ground
@@ -14296,10 +14634,10 @@
 - water condensate added by precip assimilation
 260463:
 - wvconv
-- water vapor flux convergance (vertical int)
+- water vapor flux convergence (vertical int)
 260464:
 - wcconv
-- water condensate flux convergance (vertical int)
+- water condensate flux convergence (vertical int)
 260465:
 - wvuflx
 - water vapor zonal flux (vertical int)
@@ -14321,9 +14659,24 @@
 260471:
 - trans
 - transpiration
+260472:
+- avg_sd24
+- time-mean snow depth water equivalent
+260473:
+- avg_skt24
+- time-mean skin temperature
 260474:
 - sltyp
 - surface slope type
+260475:
+- smr
+- snow melt rate
+260476:
+- acc_smr24
+- time-integrated snow melt rate in the last 24h
+260477:
+- avg_smr24
+- time-mean snow melt rate in the last 24h
 260478:
 - evbs
 - direct evaporation from bare soil
@@ -14404,7 +14757,7 @@
 - 3-d salinity
 260504:
 - bkeng
-- barotropic kinectic energy
+- barotropic kinetic energy
 260505:
 - dbss
 - geometric depth below sea surface
@@ -14709,6 +15062,300 @@
 261013:
 - pop_dens
 - population density
+261014:
+- wbgt
+- wet bulb globe temperature
+261015:
+- gt
+- globe temperature
+261016:
+- hmdx
+- humidex
+261017:
+- efft
+- effective temperature
+261018:
+- nefft
+- normal effective temperature
+261019:
+- sefft
+- standard effective temperature
+261020:
+- peqt
+- physiological equivalent temperature
+261021:
+- swvp
+- saturation water vapour pressure
+262000:
+- sithick
+- sea ice thickness
+262001:
+- siconc
+- sea ice area fraction
+262002:
+- sisnthick
+- snow thickness over sea ice
+262003:
+- siue
+- x-component of sea ice velocity
+262004:
+- sivn
+- y-component of sea ice velocity
+262005:
+- sialb
+- sea ice albedo
+262006:
+- sitemptop
+- sea ice surface temperature
+262007:
+- sigrowth
+- sea ice growth
+262100:
+- sos
+- sea surface salinity
+262101:
+- tos
+- sea surface temperature
+262102:
+- t14d
+- depth of 14 c isotherm
+262103:
+- t17d
+- depth of 17 c isotherm
+262104:
+- t20d
+- depth of 20 c isotherm
+262105:
+- t26d
+- depth of 26 c isotherm
+262106:
+- t28d
+- depth of 28 c isotherm
+262107:
+- stfbarot
+- barotropic stream function
+262108:
+- hfds
+- surface downward heat flux
+262109:
+- tauvon
+- northward surface stress
+262110:
+- tauuoe
+- eastward surface stress
+262111:
+- tauvo
+- y-component of surface stress
+262112:
+- tauuo
+- x-component of surface stress
+262113:
+- mlotst010
+- ocean mixed layer depth defined by sigma theta 0.01 kg m-3
+262114:
+- mlotst030
+- ocean mixed layer depth defined by sigma theta 0.03 kg m-3
+262115:
+- mlotst125
+- ocean mixed layer depth defined by sigma theta 0.125 kg m-3
+262116:
+- mlott02
+- ocean mixed layer depth defined by temperature 0.2 c
+262117:
+- mlott05
+- ocean mixed layer depth defined by temperature 0.5 c
+262118:
+- sc300m
+- vertically-integrated sea water practical salinity in the upper 300 m
+262119:
+- sc700m
+- vertically-integrated sea water practical salinity in the upper 700 m
+262120:
+- scbtm
+- total column sea water practical salinity
+262121:
+- hc300m
+- vertically-integrated heat content in the upper 300 m
+262122:
+- hc700m
+- vertically-integrated heat content in the upper 700 m
+262123:
+- hcbtm
+- total column of heat content
+262124:
+- zos
+- sea surface height
+262125:
+- stheig
+- steric change in sea surface height
+262126:
+- hstheig
+- halosteric change in sea surface height
+262127:
+- tstheig
+- thermosteric change in sea surface height
+262128:
+- thcline
+- thermocline depth
+262500:
+- so
+- sea water practical salinity
+262501:
+- thetao
+- sea water potential temperature
+262502:
+- sigmat
+- sea water sigma theta
+262503:
+- vo
+- y-component of sea water velocity
+262504:
+- uo
+- x-component of sea water velocity
+262505:
+- von
+- northward sea water velocity
+262506:
+- uoe
+- eastward sea water velocity
+262507:
+- wo
+- upward sea water velocity
+263000:
+- avg_sithick
+- time-mean sea ice thickness
+263001:
+- avg_siconc
+- time-mean sea ice area fraction
+263002:
+- avg_sisnthick
+- time-mean snow thickness over sea ice
+263003:
+- avg_siue
+- time-mean x-component of sea ice velocity
+263004:
+- avg_sivn
+- time-mean y-component of sea ice velocity
+263005:
+- avg_sialb
+- time-mean sea ice albedo
+263006:
+- avg_sitemptop
+- time-mean sea ice surface temperature
+263007:
+- avg_sigrowth
+- time-mean sea ice growth
+263100:
+- avg_sos
+- time-mean sea surface salinity
+263101:
+- avg_tos
+- time-mean sea surface temperature
+263102:
+- avg_t14d
+- time-mean depth of 14 c isotherm
+263103:
+- avg_t17d
+- time-mean depth of 17 c isotherm
+263104:
+- avg_t20d
+- time-mean depth of 20 c isotherm
+263105:
+- avg_t26d
+- time-mean depth of 26 c isotherm
+263106:
+- avg_t28d
+- time-mean depth of 28 c isotherm
+263107:
+- avg_stfbarot
+- time-mean barotropic stream function
+263108:
+- avg_hfds
+- time-mean surface downward heat flux
+263109:
+- avg_tauvon
+- time-mean northward surface stress
+263110:
+- avg_tauuoe
+- time-mean eastward surface stress
+263111:
+- avg_tauvo
+- time mean y-component of surface stress
+263112:
+- avg_tauuo
+- time-mean x-component of surface stress
+263113:
+- avg_mlotst010
+- time-mean ocean mixed layer depth defined by sigma theta 0.01 kg m-3
+263114:
+- avg_mlotst030
+- time-mean ocean mixed layer depth defined by sigma theta 0.03 kg m-3
+263115:
+- avg_mlotst125
+- time-mean ocean mixed layer depth defined by sigma theta 0.125 kg m-3
+263116:
+- avg_mlott02
+- time-mean ocean mixed layer depth defined by temperature 0.2 c
+263117:
+- avg_mlott05
+- time-mean ocean mixed layer depth defined by temperature 0.5 c
+263118:
+- avg_sc300m
+- time-mean vertically-integrated sea water practical salinity in the upper 300 m
+263119:
+- avg_sc700m
+- time-mean vertically-integrated sea water practical salinity in the upper 700 m
+263120:
+- avg_scbtm
+- time-mean total column sea water practical salinity
+263121:
+- avg_hc300m
+- time-mean vertically-integrated heat content in the upper 300 m
+263122:
+- avg_hc700m
+- time-mean vertically-integrated heat content in the upper 700 m
+263123:
+- avg_hcbtm
+- time-mean total column heat content
+263124:
+- avg_zos
+- time-mean sea surface height
+263125:
+- avg_stheig
+- time-mean steric change in sea surface height
+263126:
+- avg_hstheig
+- time-mean halosteric change in sea surface height
+263127:
+- avg_tstheig
+- time-mean thermosteric change in sea surface height
+263128:
+- avg_thcline
+- time-mean thermocline depth
+263500:
+- avg_so
+- time-mean sea water practical salinity
+263501:
+- avg_thetao
+- time-mean sea water potential temperature
+263502:
+- avg_sigmat
+- time-mean sea water sigma theta
+263503:
+- avg_vo
+- time-mean y-component of sea water velocity
+263504:
+- avg_uo
+- time-mean x-component of sea water velocity
+263505:
+- avg_von
+- time-mean northward sea water velocity
+263506:
+- avg_uoe
+- time-mean eastward sea water velocity
+263507:
+- avg_wo
+- time-mean upward sea water velocity
 300001:
 - pres
 - pressure
@@ -16601,6 +17248,144 @@
 7001293:
 - icsev
 - icing severity
+7001294:
+- amsre10
+- simulated brightness temperature for amsre on aqua, channel 10
+7001295:
+- amsre11
+- simulated brightness temperature for amsre on aqua, channel 11
+7001296:
+- amsre12
+- simulated brightness temperature for amsre on aqua, channel 12
+7001297:
+- amsre9
+- simulated brightness temperature for amsre on aqua, channel 9
+7001298:
+- sbc123
+- simulated brightness counts for goes 12, channel 3
+7001299:
+- sbc124
+- simulated brightness counts for goes 12, channel 4
+7001300:
+- sbt112
+- simulated brightness temperature for goes 11, channel 2
+7001301:
+- sbt113
+- simulated brightness temperature for goes 11, channel 3
+7001302:
+- sbt114
+- simulated brightness temperature for goes 11, channel 4
+7001303:
+- sbt115
+- simulated brightness temperature for goes 11, channel 5
+7001304:
+- sbt122
+- simulated brightness temperature for goes 12, channel 2
+7001305:
+- sbt123
+- simulated brightness temperature for goes 12, channel 3
+7001306:
+- sbt124
+- simulated brightness temperature for goes 12, channel 4
+7001307:
+- sbt126
+- simulated brightness temperature for goes 12, channel 6
+7001308:
+- sbta1610
+- simulated brightness temperature for abi goes-16, band-10
+7001309:
+- sbta1611
+- simulated brightness temperature for abi goes-16, band-11
+7001310:
+- sbta1612
+- simulated brightness temperature for abi goes-16, band-12
+7001311:
+- sbta1613
+- simulated brightness temperature for abi goes-16, band-13
+7001312:
+- sbta1614
+- simulated brightness temperature for abi goes-16, band-14
+7001313:
+- sbta1615
+- simulated brightness temperature for abi goes-16, band-15
+7001314:
+- sbta1616
+- simulated brightness temperature for abi goes-16, band-16
+7001315:
+- sbta167
+- simulated brightness temperature for abi goes-16, band-7
+7001316:
+- sbta168
+- simulated brightness temperature for abi goes-16, band-8
+7001317:
+- sbta169
+- simulated brightness temperature for abi goes-16, band-9
+7001318:
+- sbta1710
+- simulated brightness temperature for abi goes-17, band-10
+7001319:
+- sbta1711
+- simulated brightness temperature for abi goes-17, band-11
+7001320:
+- sbta1712
+- simulated brightness temperature for abi goes-17, band-12
+7001321:
+- sbta1713
+- simulated brightness temperature for abi goes-17, band-13
+7001322:
+- sbta1714
+- simulated brightness temperature for abi goes-17, band-14
+7001323:
+- sbta1715
+- simulated brightness temperature for abi goes-17, band-15
+7001324:
+- sbta1716
+- simulated brightness temperature for abi goes-17, band-16
+7001325:
+- sbta177
+- simulated brightness temperature for abi goes-17, band-7
+7001326:
+- sbta178
+- simulated brightness temperature for abi goes-17, band-8
+7001327:
+- sbta179
+- simulated brightness temperature for abi goes-17, band-9
+7001328:
+- srfa161
+- simulated reflectance factor for abi goes-16, band-1
+7001329:
+- srfa162
+- simulated reflectance factor for abi goes-16, band-2
+7001330:
+- srfa163
+- simulated reflectance factor for abi goes-16, band-3
+7001331:
+- srfa164
+- simulated reflectance factor for abi goes-16, band-4
+7001332:
+- srfa165
+- simulated reflectance factor for abi goes-16, band-5
+7001333:
+- srfa166
+- simulated reflectance factor for abi goes-16, band-6
+7001334:
+- srfa171
+- simulated reflectance factor for abi goes-17, band-1
+7001335:
+- srfa172
+- simulated reflectance factor for abi goes-17, band-2
+7001336:
+- srfa173
+- simulated reflectance factor for abi goes-17, band-3
+7001337:
+- srfa174
+- simulated reflectance factor for abi goes-17, band-4
+7001338:
+- srfa175
+- simulated reflectance factor for abi goes-17, band-5
+7001339:
+- srfa176
+- simulated reflectance factor for abi goes-17, band-6
 7001353:
 - vrate
 - ventilation rate
