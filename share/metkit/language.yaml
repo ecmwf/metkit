@@ -401,6 +401,8 @@ _field: &_field
     - [pv, potential vorticity]
     - [sfc, surface]
     - [wv, ocean wave]
+    - [o2d, ocean surface]
+    - [o3d, ocean model levels]
     never:
     - type: ssd
 
