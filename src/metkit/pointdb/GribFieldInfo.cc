@@ -174,8 +174,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
 
     {
         Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
-        // ASSERT(offset + eckit::Length(4) < length_); // 4 is for 7777
-        SYSCALL(f.seek(offset) == offset);
+        ASSERT(f.seek(offset) == offset);
 
 
         long len = (bitsPerValue_ + 7) / 8;
