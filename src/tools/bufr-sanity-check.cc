@@ -289,6 +289,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
 
     message::Reader reader(input);
     FileHandle out(output.path());
+    Offset pos;
     out.openForWrite(0);
     AutoClose closer(out);
     
@@ -304,76 +305,87 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
 
     message::Message rawMsg;
 
-    while ( (rawMsg = reader.next()) ) {
-        codes_handle* h = codes_handle_new_from_message(nullptr, rawMsg.data(), rawMsg.length());
-        if(!h) {
-            throw FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle", Here());
-        }
-        codes::BufrContent* c = new codes::BufrContent(h, true);
-        message::Message msg(c);
-
-        // verify the presence of section 2 (to store the MARS key)
-        long localSectionPresent = msg.getLong("localSectionPresent");
-        ok = localSectionPresent != 0;
-        if (!ok) {
-            missingKey++;
-        } else {
-            eckit::StringDict transformation;
-            
-            switch (checkMessageLength(msg, numMessage, transformation)) {
-                case Status::CORRUPTED:
-                    ok = false;
-                    messageLength++;
-                    break;
-                case Status::FIXED:
-                    messageLength++;
-                    break;
-                case Status::OK:
-                    break;
-            };
-
-            switch (checkSubType(msg, numMessage)) {
-                case Status::CORRUPTED:
-                    if (!ignoreType_)
-                        ok = false;
-                    inconsistentSubType++;
-                    break;
-                case Status::FIXED:
-                    inconsistentSubType++;
-                    break;
-                case Status::OK:
-                    break;
-            };
-
-            switch (checkDate(msg, numMessage, transformation)) {
-                case Status::CORRUPTED:
-                    ok = false;
-                    inconsistentDate++;
-                    break;
-                case Status::FIXED:
-                    inconsistentDate++;
-                    break;
-                case Status::OK:
-                    break;
-            };
-
-            if (ok) {
-                if (transformation.size() == 0) {
-                    msg.write(out);
-                } else {
-                    eckit::message::Message m = msg.transform(transformation);
-                    m.write(out);
+    do {
+        try {
+            pos = reader.position();
+            if ((rawMsg = reader.next())) {
+                codes_handle* h = codes_handle_new_from_message(nullptr, rawMsg.data(), rawMsg.length());
+                if(!h) {
+                    throw FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle", Here());
                 }
+                codes::BufrContent* c = new codes::BufrContent(h, true);
+                message::Message msg(c);
+
+                // verify the presence of section 2 (to store the MARS key)
+                long localSectionPresent = msg.getLong("localSectionPresent");
+                ok = localSectionPresent != 0;
+                if (!ok) {
+                    missingKey++;
+                } else {
+                    eckit::StringDict transformation;
+                    
+                    switch (checkMessageLength(msg, numMessage, transformation)) {
+                        case Status::CORRUPTED:
+                            ok = false;
+                            messageLength++;
+                            break;
+                        case Status::FIXED:
+                            messageLength++;
+                            break;
+                        case Status::OK:
+                            break;
+                    };
+
+                    switch (checkSubType(msg, numMessage)) {
+                        case Status::CORRUPTED:
+                            if (!ignoreType_)
+                                ok = false;
+                            inconsistentSubType++;
+                            break;
+                        case Status::FIXED:
+                            inconsistentSubType++;
+                            break;
+                        case Status::OK:
+                            break;
+                    };
+
+                    switch (checkDate(msg, numMessage, transformation)) {
+                        case Status::CORRUPTED:
+                            ok = false;
+                            inconsistentDate++;
+                            break;
+                        case Status::FIXED:
+                            inconsistentDate++;
+                            break;
+                        case Status::OK:
+                            break;
+                    };
+
+                    if (ok) {
+                        if (transformation.size() == 0) {
+                            msg.write(out);
+                        } else {
+                            eckit::message::Message m = msg.transform(transformation);
+                            m.write(out);
+                        }
+                    }
+                }
+
+                if (!ok && abort_) {
+                    Log::error() << "message " << numMessage << " not compliant" << std::endl;
+                    exit(1);
+                }
+        
+                numMessage++;
             }
         }
-
-        if (!ok && abort_) {
-            Log::error() << "message " << numMessage << " not compliant" << std::endl;
-            exit(1);
+        catch(eckit::Exception e) {
+            Log::warning() << " Error parsing message " << numMessage << " - offset " << pos << std::endl;
+            if (verbose_) {
+                e.dumpStackTrace(Log::warning());
+            }
         }
- 
-        numMessage++;
-    }
+    } while ( pos != reader.position() );
 
     if (missingKey)
         Log::warning() << missingKey << " message" << (missingKey>1?"s miss ":" misses ") << " the MARS key" << std::endl;
