@@ -40,6 +40,9 @@ eckit::message::Message CodesSplitter::next() {
     void *data = wmo_read_any_from_stream_malloc(&handle_, &readcb, &size, &err);
 
     if(err != 0 and err != GRIB_END_OF_FILE) {
+        if (data) {
+            ::free(data);
+        }
         if (err == GRIB_WRONG_LENGTH && handle_.canSeek()) {
             eckit::Offset off = handle_.position()-eckit::Length(size);
             handle_.seek((off<eckit::Offset(0) ? eckit::Offset(0) : off) + eckit::Offset(4));
