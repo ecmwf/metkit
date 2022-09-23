@@ -51,7 +51,7 @@ ecbuild_add_executable( TARGET    odb-to-request
 
 ecbuild_add_executable( TARGET    bufr-sanity-check
     SOURCES   bufr-sanity-check.cc
-    CONDITION HAVE_BUILD_TOOLS
+    CONDITION HAVE_BUFR AND HAVE_BUILD_TOOLS
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     LIBS      metkit eckit_option )
 
