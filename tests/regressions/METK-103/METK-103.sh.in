@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -eux
+
+check="$<TARGET_FILE:bufr-sanity-check>"
+
+srcdir=@CMAKE_CURRENT_SOURCE_DIR@
+bindir=@CMAKE_CURRENT_BINARY_DIR@
+wdir=$bindir/METK-103
+
+export ECCODES_DEFINITION_PATH="@ECCODES_DEFINITION_PATH@"
+
+### prepare test
+
+for f in corrupted ok
+do
+    cp $srcdir/$f $bindir
+done
+
+rm -f out aux
+
+$check ok out
+diff ok out
+
+touch empty
+
+$check corrupted out
+diff empty out
+
+cat corrupted ok corrupted > aux
+$check aux out
+diff ok out
+
+
