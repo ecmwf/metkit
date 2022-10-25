@@ -141,6 +141,16 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
 
 }
 
+
+eckit::Buffer GRIBDecoder::decode(const eckit::message::Message& msg) const  {
+    std::vector<double> v;
+    // @TODO Is this valid for all GRIB messages? Worked with results from mars
+    msg.getDoubleArray("values", v);
+
+    return eckit::Buffer(reinterpret_cast<void *>(v.data()), v.size()*sizeof(double));
+}
+
+
 void GRIBDecoder::print(std::ostream& s) const {
     s << "GRIBDecoder[]";
 }

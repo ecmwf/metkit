@@ -79,47 +79,81 @@ bool BUFRDecoder::match(const eckit::message::Message& msg) const {
     return len >= 4 and p[0] == 'B' and p[1] == 'U' and p[2] == 'F' and p[3] == 'R';
 }
 
-// mars::MarsRequest BUFRDecoder::messageToRequest(const eckit::message::Message& msg) const {
-//     static std::string gribToRequestNamespace =
-//         eckit::Resource<std::string>("gribToRequestNamespace", "mars");
-
-
-
-//     codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
-//     ASSERT(h);
-//     HandleDeleter d(h);
-
-//     mars::MarsRequest r("bufr");
-
-//     codes_keys_iterator* ks = codes_keys_iterator_new(h,
-//                               GRIB_KEYS_ITERATOR_ALL_KEYS,
-//                               gribToRequestNamespace.c_str());
-
-//     ASSERT(ks);
-
-//     while (codes_keys_iterator_next(ks)) {
-//         const char* name = codes_keys_iterator_get_name(ks);
-
-//         if (name[0] == '_') {
-//             continue;
-//         }
-
-//         char value[1024];
-//         size_t len = sizeof(value);
-
-//         ASSERT(codes_keys_iterator_get_string(ks, value, &len) == 0);
-//         if (*value) {
-//             r.setValue(name, value);
-//         }
-//     }
-
-//     codes_keys_iterator_delete(ks);
-
-//     return r;
 
 void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
-                              eckit::message::MetadataGatherer&) const {
-    NOTIMP;
+                              eckit::message::MetadataGatherer& gather) const  {
+    // This function has been implemented similarly to the GRIBDecoder and following 
+    // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
+    // It has been possible to extract flat metadata with multio-feed. However someone with more profound knowledge on BUFR and ECCODES may have improvements.
+    
+    /// @TODO Do we need something like this? Compare with GRIBDecoder...
+    // static std::string bufrToRequestNamespace = eckit::Resource<std::string>("bufrToRequestNamespace", "mars");
+
+
+    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+    ASSERT(h);
+    HandleDeleter d(h);
+    
+    /* we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator */
+    CODES_CHECK(codes_set_long(h, "unpack", 1), 0);
+
+    codes_bufr_keys_iterator *ks = codes_bufr_keys_iterator_new(h,
+                             CODES_KEYS_ITERATOR_ALL_KEYS);
+
+    ASSERT(ks);
+
+    while (codes_bufr_keys_iterator_next(ks)) {
+        const char *name = codes_bufr_keys_iterator_get_name(ks);
+
+      
+        if (std::string("subsetNumber") == name) {
+                continue;
+        }
+
+        int keyType = 0; // @TODO Extracting the keyType is not required but may be helpful to call the right get overload directly. However I can not find any documentation on types
+        size_t klen = 0;
+        char val[1024];
+        size_t len = sizeof(val);
+        double d;
+        long l;
+        
+        ASSERT(codes_get_native_type(h, name, &keyType) == 0);
+
+        /* get key size to see if it is an array */
+        ASSERT(codes_get_size(h, name, &klen) == 0);
+        
+        if (klen != 1) {
+            continue;
+        }
+        
+
+        ASSERT( codes_get_string(h, name, val, &len) == 0);
+
+        if (*val) {
+            gather.setValue(name, val);
+        }
+
+        len = 1;
+        if (codes_get_double(h, name, &d) == 0)       {
+            gather.setValue(name, d);
+        }
+        len = 1;
+        if (codes_get_long(h, name, &l) == 0)         {
+            gather.setValue(name, l);
+        }
+
+    }
+
+    codes_bufr_keys_iterator_delete(ks);
+}
+
+
+eckit::Buffer BUFRDecoder::decode(const eckit::message::Message& msg) const  {
+    std::vector<double> v;
+    // @TODO Is this valid for all BUFR messages? Worked with results from mars
+    msg.getDoubleArray("numericValues", v);
+    
+    return eckit::Buffer(reinterpret_cast<void *>(v.data()), v.size()*sizeof(double));
 }
 
 

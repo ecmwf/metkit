@@ -14,24 +14,22 @@
 
 #pragma once
 
-#include "metkit/codes/DataContent.h"
+#include "metkit/codes/CodesContent.h"
 #include "eckit/io/Offset.h"
 
 
 namespace metkit {
 namespace codes {
 
-class MallocDataContent : public DataContent {
+class MallocCodesContent : public CodesContent {
 public:
 
-    MallocDataContent(void* data, size_t size, const eckit::Offset& offset);
-    ~MallocDataContent();
+    MallocCodesContent(void* data, size_t size, const eckit::Offset& offset);
+    ~MallocCodesContent();
 
 private:  // methods
     void print(std::ostream& s) const override;
     eckit::Offset offset() const override;
-
-    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
 
 private:  // members
     void* buffer_;

@@ -16,6 +16,8 @@
 
 #include "eckit/message/Decoder.h"
 
+#include "eckit/io/Buffer.h"
+
 
 namespace metkit {
 namespace codes {
@@ -24,22 +26,21 @@ namespace codes {
 
 class BUFRDecoder : public eckit::message::Decoder {
 
-public: // methods
-
+public:  // methods
     static bool typeBySubtype(long subtype, long& type);
 
-private: // methods
-
+private:  // methods
     virtual bool match(const eckit::message::Message&) const override;
     virtual void print(std::ostream&) const override;
     virtual void getMetadata(const eckit::message::Message& msg,
                              eckit::message::MetadataGatherer&) const override;
 
+    virtual eckit::Buffer decode(const eckit::message::Message& msg) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
-} // namespace metkit
+}  // namespace codes
+}  // namespace metkit
 
 #endif

@@ -18,7 +18,7 @@
 #include "eckit/message/Message.h"
 
 #include "metkit/codes/GribHandle.h"
-#include "metkit/codes/MallocDataContent.h"
+#include "metkit/codes/MallocCodesContent.h"
 
 namespace metkit {
 namespace codes {
@@ -70,7 +70,7 @@ eckit::message::Message CodesSplitter::next() {
         return eckit::message::Message();
     }
 
-    return eckit::message::Message(new MallocDataContent(data, size, 0));
+    return eckit::message::Message(new MallocCodesContent(data, size, 0));
 }
 
 void CodesSplitter::print(std::ostream& s) const {
