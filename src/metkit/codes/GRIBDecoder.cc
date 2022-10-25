@@ -64,45 +64,61 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
 
 
 
-    grib_keys_iterator *ks = grib_keys_iterator_new(h,
+    codes_keys_iterator *ks = codes_keys_iterator_new(h,
                              GRIB_KEYS_ITERATOR_ALL_KEYS,
                              gribToRequestNamespace.c_str());
 
     ASSERT(ks);
 
-    while (grib_keys_iterator_next(ks)) {
-        const char *name = grib_keys_iterator_get_name(ks);
+    while (codes_keys_iterator_next(ks)) {
+        const char *name = codes_keys_iterator_get_name(ks);
 
         if (name[0] == '_') continue; // skip silly underscores in GRIB
 
-        char val[1024];
-        size_t len = sizeof(val);
-        double d;
-        long l;
+        size_t klen = 0;
+        /* get key size to see if it is an array */
+        ASSERT(codes_get_size(h, name, &klen) == 0);
 
-        ASSERT( grib_keys_iterator_get_string(ks, val, &len) == 0);
-
-        if (*val) {
-            gather.setValue(name, val);
+        if (klen != 1) {
+            continue;
         }
 
-        len = 1;
-        if (grib_keys_iterator_get_double(ks, &d, &len) == 0)       {
-            gather.setValue(name, d);
-        }
-        len = 1;
-        if (grib_keys_iterator_get_long(ks, &l, &len) == 0)         {
-            gather.setValue(name, l);
+        int keyType = 0;  
+        ASSERT(codes_get_native_type(h, name, &keyType) == 0);
+        // GRIB_ Type prefixes are also valid for BUFR
+        switch (keyType) {
+            case GRIB_TYPE_STRING: {
+                char val[1024];
+                size_t len = sizeof(val);
+                ASSERT(codes_get_string(h, name, val, &len) == 0);
+                if (*val) {
+                    gather.setValue(name, val);
+                }
+                break;
+            }
+            case GRIB_TYPE_LONG: {
+                long l;
+                if (codes_get_long(h, name, &l) == 0) {
+                    gather.setValue(name, l);
+                }
+                break;
+            }
+            case GRIB_TYPE_DOUBLE: {
+                double d;
+                if (codes_get_double(h, name, &d) == 0) {
+                    gather.setValue(name, d);
+                }
+            }
         }
 
     }
 
-    grib_keys_iterator_delete(ks);
+    codes_keys_iterator_delete(ks);
 
     {
         char value[1024];
         size_t len = sizeof(value);
-        if (grib_get_string(h, "paramId", value, &len) == 0) {
+        if (codes_get_string(h, "paramId", value, &len) == 0) {
             gather.setValue("param", value);
         }
     }
@@ -110,11 +126,11 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
     // Look for request embbeded in GRIB message
     long local;
     size_t size;
-    if (grib_get_long(h, "localDefinitionNumber", &local) ==  0 && local == 191) {
+    if (codes_get_long(h, "localDefinitionNumber", &local) ==  0 && local == 191) {
         /* TODO: Not grib2 compatible, but speed-up process */
-        if (grib_get_size(h, "freeFormData", &size) ==  0 && size != 0) {
+        if (codes_get_size(h, "freeFormData", &size) ==  0 && size != 0) {
             unsigned char buffer[size];
-            ASSERT(grib_get_bytes(h, "freeFormData", buffer, &size) == 0);
+            ASSERT(codes_get_bytes(h, "freeFormData", buffer, &size) == 0);
 
             eckit::MemoryStream s(buffer, size);
 
