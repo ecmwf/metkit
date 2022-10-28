@@ -29,7 +29,7 @@ private:  // methods
     virtual bool match(const eckit::message::Message&) const override;
     virtual void print(std::ostream&) const override;
     virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
+                             eckit::message::MetadataGatherer&, eckit::message::ValueRepresentation) const override;
     virtual eckit::Buffer decode(const eckit::message::Message& msg) const override;
 };
 

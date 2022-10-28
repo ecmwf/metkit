@@ -28,6 +28,7 @@ namespace codes {
 MallocCodesContent::MallocCodesContent(void* data, size_t size, const eckit::Offset& offset):
     CodesContent(codes_handle_new_from_message(nullptr, data, size), true),
     buffer_(data),
+    length_(size),
     offset_(offset) {
 }
 
@@ -41,6 +42,12 @@ void MallocCodesContent::print(std::ostream & s) const {
 
 eckit::Offset MallocCodesContent::offset() const {
     return offset_;
+}
+const void* MallocCodesContent::data() const {
+    return buffer_;
+}
+size_t MallocCodesContent::length() const {
+    return length_;
 }
 
 }  // namespace close

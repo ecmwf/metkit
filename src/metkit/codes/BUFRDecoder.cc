@@ -81,7 +81,7 @@ bool BUFRDecoder::match(const eckit::message::Message& msg) const {
 
 
 void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
-                              eckit::message::MetadataGatherer& gather) const {
+                              eckit::message::MetadataGatherer& gather, eckit::message::ValueRepresentation repr) const {
     // This function has been implemented similarly to the GRIBDecoder and following
     // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
     // It has been possible to extract flat metadata with multio-feed. However someone with more profound knowledge on BUFR and ECCODES may have improvements.
@@ -119,32 +119,64 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
         if (klen != 1) {
             continue;
         }
-        
-        int keyType = 0;  
-        ASSERT(codes_get_native_type(h, name, &keyType) == 0);
-        // GRIB_ Type prefixes are also valid for BUFR
-        switch (keyType) {
-            case GRIB_TYPE_STRING: {
-                char val[1024];
-                size_t len = sizeof(val);
-                ASSERT(codes_get_string(h, name, val, &len) == 0);
-                if (*val) {
-                    gather.setValue(name, val);
+
+        const auto decodeString = [&]() {
+            char val[1024];
+            size_t len = sizeof(val);
+            ASSERT(codes_get_string(h, name, val, &len) == 0);
+            if (*val) {
+                gather.setValue(name, val);
+                return true;
+            }
+            return false;
+        };
+        const auto decodeLong = [&]() {
+            long l;
+            if (codes_get_long(h, name, &l) == 0 == 0) {
+                gather.setValue(name, l);
+                return true;
+            }
+            return false;
+        };
+        const auto decodeDouble = [&]() {
+            double d;
+            if (codes_get_double(h, name, &d) == 0) {
+                gather.setValue(name, d);
+                return true;
+            }
+            return false;
+        };
+
+        const auto decodeNative = [&]() {
+            int keyType = 0;  
+            ASSERT(codes_get_native_type(h, name, &keyType) == 0);
+            // GRIB_ Type prefixes are also valid for BUFR
+            switch (keyType) {
+                case GRIB_TYPE_LONG: {
+                    return decodeLong();
                 }
+                case GRIB_TYPE_DOUBLE: {
+                    return decodeDouble();
+                }
+                default: {
+                    return decodeString();
+                }
+            }
+            return true;
+        };
+
+        switch (repr) {
+            case eckit::message::ValueRepresentation::Native: { 
+                decodeNative();
                 break;
             }
-            case GRIB_TYPE_LONG: {
-                long l;
-                if (codes_get_long(h, name, &l) == 0) {
-                    gather.setValue(name, l);
-                }
+            case eckit::message::ValueRepresentation::String: {
+                decodeString() || decodeNative();
                 break;
             }
-            case GRIB_TYPE_DOUBLE: {
-                double d;
-                if (codes_get_double(h, name, &d) == 0) {
-                    gather.setValue(name, d);
-                }
+            case eckit::message::ValueRepresentation::Numeric: {
+                decodeLong() || decodeDouble() || decodeNative();
+                break;
             }
         }
     }
