@@ -199,6 +199,11 @@ eckit::Buffer GRIBDecoder::decode(const eckit::message::Message& msg) const  {
     return eckit::Buffer(reinterpret_cast<void *>(v.data()), v.size()*sizeof(double));
 }
 
+eckit::message::EncodingFormat GRIBDecoder::getEncodingFormat(const eckit::message::Message& msg) const {
+    return eckit::message::EncodingFormat::GRIB;
+};
+
+
 
 void GRIBDecoder::print(std::ostream& s) const {
     s << "GRIBDecoder[]";

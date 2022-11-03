@@ -36,6 +36,8 @@ private:  // methods
                              eckit::message::MetadataGatherer&, eckit::message::ValueRepresentation) const override;
 
     virtual eckit::Buffer decode(const eckit::message::Message& msg) const override;
+    
+    virtual eckit::message::EncodingFormat getEncodingFormat(const eckit::message::Message& msg) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
