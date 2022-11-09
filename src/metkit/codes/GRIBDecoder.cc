@@ -123,7 +123,7 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
                     return decodeString();
                 }
                 default: {
-                    return decodeDouble() || decodeLong() || decodeString();
+                    return decodeLong() || decodeDouble() || decodeString();
                 }
             }
             return true;
@@ -139,7 +139,7 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
                 break;
             }
             case eckit::message::ValueRepresentation::Numeric: {
-                decodeDouble() || decodeLong() || decodeNative();
+                decodeLong() || decodeDouble() || decodeString();
                 break;
             }
         }
