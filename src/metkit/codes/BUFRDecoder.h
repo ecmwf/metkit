@@ -29,14 +29,14 @@ public:  // methods
     static bool typeBySubtype(long subtype, long& type);
 
 private:  // methods
-    virtual bool match(const eckit::message::Message&) const override;
-    virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
+    bool match(const eckit::message::Message&) const override;
+    void print(std::ostream&) const override;
+    void getMetadata(const eckit::message::Message& msg,
                              eckit::message::MetadataGatherer&, const eckit::message::GetMetadataOptions&) const override;
 
-    virtual eckit::Buffer decode(const eckit::message::Message& msg) const override;
+    eckit::Buffer decode(const eckit::message::Message& msg) const override;
     
-    virtual eckit::message::EncodingFormat getEncodingFormat(const eckit::message::Message& msg) const override;
+    eckit::message::EncodingFormat getEncodingFormat(const eckit::message::Message& msg) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

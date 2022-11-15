@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "metkit/codes/CodesContent.h"
 #include "eckit/io/Offset.h"
+#include "metkit/codes/CodesContent.h"
 
 
 namespace metkit {
@@ -23,7 +23,6 @@ namespace codes {
 
 class MallocCodesContent : public CodesContent {
 public:
-
     MallocCodesContent(void* data, size_t size, const eckit::Offset& offset);
     ~MallocCodesContent();
 

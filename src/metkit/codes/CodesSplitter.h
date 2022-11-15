@@ -29,8 +29,8 @@ public:
 
 private: // methods
 
-    virtual eckit::message::Message next() override;
-    virtual void print(std::ostream&) const override;
+    eckit::message::Message next() override;
+    void print(std::ostream&) const override;
 
 };
 

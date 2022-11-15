@@ -30,9 +30,9 @@ protected:
 
     const void* addr() const override;
 
-    virtual std::string version() const override;
+    std::string version() const override;
 
-    virtual std::string gitsha1(unsigned int count) const override;
+    std::string gitsha1(unsigned int count) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

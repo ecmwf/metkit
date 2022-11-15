@@ -21,19 +21,14 @@ namespace codes {
 
 class UserDataContent : public DataContent {
 public:
-
     UserDataContent(const void* data, size_t size);
     ~UserDataContent();
 
 private:
-
-    virtual void print(std::ostream & s) const override;
-
-
+    void print(std::ostream& s) const override;
 };
 
 
 }  // namespace codes
 }  // namespace metkit
-
 
