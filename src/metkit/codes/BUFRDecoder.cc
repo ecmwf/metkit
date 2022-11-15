@@ -30,7 +30,8 @@ static std::map<long, long> subtypes_;
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 
 static void readTable() {
-    eckit::PathName bufrSubtypesPath = eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH", LibMetkit::bufrSubtypesYamlFile());
+    eckit::PathName bufrSubtypesPath = eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH",
+                                                                        LibMetkit::bufrSubtypesYamlFile());
 
     const eckit::Value bufrSubtypes = eckit::YAMLParser::decodeFile(bufrSubtypesPath);
     const eckit::Value subtypes     = bufrSubtypes["subtypes"];
@@ -63,13 +64,15 @@ bool BUFRDecoder::match(const eckit::message::Message& msg) const {
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
-                              eckit::message::MetadataGatherer& gather, const eckit::message::GetMetadataOptions& options) const {
+                              eckit::message::MetadataGatherer& gather,
+                              const eckit::message::GetMetadataOptions& options) const {
     using ItCtx                           = codes_bufr_keys_iterator;
     eckit::message::MetadataFilter filter = options.filter;
 
-
-    decoder::getMetadata(
+    ::metkit::codes::getMetadata(
         msg, gather, options,
         // Init it
         [filter](codes_handle* h) {
@@ -80,7 +83,7 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
             // we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
             CODES_CHECK(codes_set_long(h, "unpack", 1), 0);
 
-            return codes_bufr_keys_iterator_new(h, decoder::metadataFilterToEccodes(filter));
+            return codes_bufr_keys_iterator_new(h, metadataFilterToEccodes(filter));
         },
         // Iterator next
         [](codes_handle* h, ItCtx* ks) {
@@ -116,23 +119,32 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 eckit::Buffer BUFRDecoder::decode(const eckit::message::Message& msg) const {
     std::size_t size = msg.getSize("numericValues");
     eckit::Buffer buf(size * sizeof(double));
-    
+
     msg.getDoubleArray("numericValues", reinterpret_cast<double*>(buf.data()), size);
     return buf;
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 eckit::message::EncodingFormat BUFRDecoder::getEncodingFormat(const eckit::message::Message& msg) const {
     return eckit::message::EncodingFormat::BUFR;
 };
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void BUFRDecoder::print(std::ostream& s) const {
     s << "BUFRDecoder[]";
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static BUFRDecoder bufrDecoder;
 

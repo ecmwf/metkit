@@ -13,6 +13,8 @@
 
 #include "metkit/codes/CodesContent.h"
 
+#include "eccodes.h"
+
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
@@ -23,6 +25,8 @@
 
 namespace metkit {
 namespace codes {
+
+//----------------------------------------------------------------------------------------------------------------------
 
 CodesContent::CodesContent(codes_handle* handle, bool delete_handle):
     handle_(handle),
@@ -42,12 +46,18 @@ CodesContent::~CodesContent() {
     }
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 size_t CodesContent::length() const {
     size_t size;
     const void* data;
     CODES_CALL(codes_get_message(handle_, &data, &size));
     return size;
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::write(eckit::DataHandle& handle) const {
     size_t size;
@@ -60,6 +70,9 @@ void CodesContent::write(eckit::DataHandle& handle) const {
     }
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 eckit::DataHandle* CodesContent::readHandle() const {
     size_t size;
     const void* data;
@@ -67,9 +80,15 @@ eckit::DataHandle* CodesContent::readHandle() const {
     return new eckit::MemoryHandle(data, size);
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void CodesContent::print(std::ostream & s) const {
     s << "CodesContent[]";
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string CodesContent::getString(const std::string& key) const {
     char values[10240];
@@ -83,17 +102,25 @@ std::string CodesContent::getString(const std::string& key) const {
     return values;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 long CodesContent::getLong(const std::string& key) const {
     long v = 0;
     CODES_CALL(codes_get_long(handle_, key.c_str(), &v));
     return v;
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 double CodesContent::getDouble(const std::string& key) const {
     double v = 0;
     CODES_CALL(codes_get_double(handle_, key.c_str(), &v));
     return v;
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& values) const {
     size_t size = 0;
@@ -105,17 +132,26 @@ void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& v
     ASSERT(count == size);
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 size_t CodesContent::getSize(const std::string& key) const {
     size_t size = 0;
     CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
     return size;
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void CodesContent::getDoubleArray(const std::string& key, double* data, size_t len) const {
     size_t count = len;
     CODES_CALL(codes_get_double_array(handle_, key.c_str(), data, &count));
     ASSERT(count == len);
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
 
 eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict& dict) const {
     codes_handle* h = codes_handle_clone(handle_);
@@ -142,15 +178,23 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
     return new CodesContent(h);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 eckit::Offset CodesContent::offset() const {
     long pos;
     CODES_CALL(codes_get_long(handle_, "offset", &pos));
     return pos;
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 const codes_handle* CodesContent::codesHandle() const {
     return handle_;
 }
+ 
+
+//----------------------------------------------------------------------------------------------------------------------
 
 const void* CodesContent::data() const {
     size_t size;

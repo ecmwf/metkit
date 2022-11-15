@@ -27,23 +27,30 @@ namespace metkit {
 namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
+
 bool GRIBDecoder::match(const eckit::message::Message& msg) const {
     size_t len    = msg.length();
     const char* p = static_cast<const char*>(msg.data());
-    return len >= 4 and ((p[0] == 'G' and p[1] == 'R' and p[2] == 'I' and p[3] == 'B') or (p[0] == 'T' and p[1] == 'I' and p[2] == 'D' and p[3] == 'E') or (p[0] == 'B' and p[1] == 'U' and p[2] == 'D' and p[3] == 'G'));
+    return len >= 4
+           and ((p[0] == 'G' and p[1] == 'R' and p[2] == 'I' and p[3] == 'B')
+                or (p[0] == 'T' and p[1] == 'I' and p[2] == 'D' and p[3] == 'E')
+                or (p[0] == 'B' and p[1] == 'U' and p[2] == 'D' and p[3] == 'G'));
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
-                              eckit::message::MetadataGatherer& gather, const eckit::message::GetMetadataOptions& options) const {
+                              eckit::message::MetadataGatherer& gather,
+                              const eckit::message::GetMetadataOptions& options) const {
     static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
     std::string nameSpace                     = options.nameSpace ? *options.nameSpace : gribToRequestNamespace;
 
     using ItCtx            = codes_keys_iterator;
-    unsigned long filter   = decoder::metadataFilterToEccodes(options.filter);
+    unsigned long filter   = metadataFilterToEccodes(options.filter);
     const char* cNameSpace = nameSpace.c_str();
 
-    decoder::getMetadata(
+    ::metkit::codes::getMetadata(
         msg, gather, options,
         // Init iterator
         [cNameSpace, filter](codes_handle* h) {
@@ -122,24 +129,32 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 eckit::Buffer GRIBDecoder::decode(const eckit::message::Message& msg) const {
     std::size_t size = msg.getSize("values");
     eckit::Buffer buf(size * sizeof(double));
 
     msg.getDoubleArray("values", reinterpret_cast<double*>(buf.data()), size);
     return buf;
-
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 eckit::message::EncodingFormat GRIBDecoder::getEncodingFormat(const eckit::message::Message& msg) const {
     return eckit::message::EncodingFormat::GRIB;
 };
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void GRIBDecoder::print(std::ostream& s) const {
     s << "GRIBDecoder[]";
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static GRIBDecoder gribDecoder;
 

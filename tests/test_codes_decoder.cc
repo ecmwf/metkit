@@ -1,10 +1,7 @@
 /*
-}
  * (C) Copyright 1996- ECMWF.
  *
-        {
  * This software is licensed under the terms of the Apache Licence Version 2.0
-        {
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  * In applying this licence, ECMWF does not waive the privileges and immunities
  * granted to it by virtue of its status as an intergovernmental organisation
@@ -34,55 +31,124 @@ namespace metkit {
 namespace codes {
 namespace test {
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-CASE("test decoder::metadataFilterFlagToEccodes") {
+CASE("test metadataFilterFlagToEccodes") {
     using eckit::message::MetadataFilter;
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::AllKeys) == CODES_KEYS_ITERATOR_ALL_KEYS);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipReadOnly) == CODES_KEYS_ITERATOR_SKIP_READ_ONLY);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipOptional) == CODES_KEYS_ITERATOR_SKIP_OPTIONAL);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipEditionSpecific) == CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipCoded) == CODES_KEYS_ITERATOR_SKIP_CODED);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipComputed) == CODES_KEYS_ITERATOR_SKIP_COMPUTED);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipDuplicates) == CODES_KEYS_ITERATOR_SKIP_DUPLICATES);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipFunction) == CODES_KEYS_ITERATOR_SKIP_FUNCTION);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::DumpOnly) == CODES_KEYS_ITERATOR_DUMP_ONLY);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::AllKeys)
+           == CODES_KEYS_ITERATOR_ALL_KEYS);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipReadOnly)
+           == CODES_KEYS_ITERATOR_SKIP_READ_ONLY);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipOptional)
+           == CODES_KEYS_ITERATOR_SKIP_OPTIONAL);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipEditionSpecific)
+           == CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipCoded)
+           == CODES_KEYS_ITERATOR_SKIP_CODED);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipComputed)
+           == CODES_KEYS_ITERATOR_SKIP_COMPUTED);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipDuplicates)
+           == CODES_KEYS_ITERATOR_SKIP_DUPLICATES);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::SkipFunction)
+           == CODES_KEYS_ITERATOR_SKIP_FUNCTION);
+    EXPECT(metadataFilterFlagToEccodes(
+               MetadataFilter::DumpOnly)
+           == CODES_KEYS_ITERATOR_DUMP_ONLY);
 
     // Combinations should not be resolved
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded | MetadataFilter::SkipComputed) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipCoded | MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction | MetadataFilter::DumpOnly) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::SkipFunction | MetadataFilter::DumpOnly | MetadataFilter::AllKeys) == 0);
-    EXPECT(decoder::metadataFilterFlagToEccodes(MetadataFilter::DumpOnly | MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly) == 0);
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded | MetadataFilter::SkipComputed));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipCoded | MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction | MetadataFilter::DumpOnly));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::SkipFunction | MetadataFilter::DumpOnly | MetadataFilter::AllKeys));
+    EXPECT_THROWS(metadataFilterFlagToEccodes(
+        MetadataFilter::DumpOnly | MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly));
 }
 
-CASE("test decoder::metadataFilterToEccodes") {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+CASE("test metadataFilterToEccodes") {
     using eckit::message::MetadataFilter;
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::AllKeys) == CODES_KEYS_ITERATOR_ALL_KEYS);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipReadOnly) == CODES_KEYS_ITERATOR_SKIP_READ_ONLY);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipOptional) == CODES_KEYS_ITERATOR_SKIP_OPTIONAL);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipEditionSpecific) == CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipCoded) == CODES_KEYS_ITERATOR_SKIP_CODED);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipComputed) == CODES_KEYS_ITERATOR_SKIP_COMPUTED);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipDuplicates) == CODES_KEYS_ITERATOR_SKIP_DUPLICATES);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipFunction) == CODES_KEYS_ITERATOR_SKIP_FUNCTION);
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::DumpOnly) == CODES_KEYS_ITERATOR_DUMP_ONLY);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::AllKeys)
+           == CODES_KEYS_ITERATOR_ALL_KEYS);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipReadOnly)
+           == CODES_KEYS_ITERATOR_SKIP_READ_ONLY);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipOptional)
+           == CODES_KEYS_ITERATOR_SKIP_OPTIONAL);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipEditionSpecific)
+           == CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipCoded)
+           == CODES_KEYS_ITERATOR_SKIP_CODED);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipComputed)
+           == CODES_KEYS_ITERATOR_SKIP_COMPUTED);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipDuplicates)
+           == CODES_KEYS_ITERATOR_SKIP_DUPLICATES);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipFunction)
+           == CODES_KEYS_ITERATOR_SKIP_FUNCTION);
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::DumpOnly)
+           == CODES_KEYS_ITERATOR_DUMP_ONLY);
 
     // Combinations should be mapped exactly
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional) == (CODES_KEYS_ITERATOR_ALL_KEYS | CODES_KEYS_ITERATOR_SKIP_READ_ONLY | CODES_KEYS_ITERATOR_SKIP_OPTIONAL));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific) == (CODES_KEYS_ITERATOR_SKIP_READ_ONLY | CODES_KEYS_ITERATOR_SKIP_OPTIONAL | CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded) == (CODES_KEYS_ITERATOR_SKIP_OPTIONAL | CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_CODED));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded | MetadataFilter::SkipComputed) == (CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_CODED | CODES_KEYS_ITERATOR_SKIP_COMPUTED));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipCoded | MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates) == (CODES_KEYS_ITERATOR_SKIP_CODED | CODES_KEYS_ITERATOR_SKIP_COMPUTED | CODES_KEYS_ITERATOR_SKIP_DUPLICATES));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction) == (CODES_KEYS_ITERATOR_SKIP_COMPUTED | CODES_KEYS_ITERATOR_SKIP_DUPLICATES | CODES_KEYS_ITERATOR_SKIP_FUNCTION));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction | MetadataFilter::DumpOnly) == (CODES_KEYS_ITERATOR_SKIP_DUPLICATES | CODES_KEYS_ITERATOR_SKIP_FUNCTION | CODES_KEYS_ITERATOR_DUMP_ONLY));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::SkipFunction | MetadataFilter::DumpOnly | MetadataFilter::AllKeys) == (CODES_KEYS_ITERATOR_SKIP_FUNCTION | CODES_KEYS_ITERATOR_DUMP_ONLY | CODES_KEYS_ITERATOR_ALL_KEYS));
-    EXPECT(decoder::metadataFilterToEccodes(MetadataFilter::DumpOnly | MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly) == (CODES_KEYS_ITERATOR_DUMP_ONLY | CODES_KEYS_ITERATOR_ALL_KEYS | CODES_KEYS_ITERATOR_SKIP_READ_ONLY));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional)
+           == (CODES_KEYS_ITERATOR_ALL_KEYS | CODES_KEYS_ITERATOR_SKIP_READ_ONLY | CODES_KEYS_ITERATOR_SKIP_OPTIONAL));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific)
+           == (CODES_KEYS_ITERATOR_SKIP_READ_ONLY | CODES_KEYS_ITERATOR_SKIP_OPTIONAL | CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded)
+           == (CODES_KEYS_ITERATOR_SKIP_OPTIONAL | CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_CODED));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded | MetadataFilter::SkipComputed)
+           == (CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_CODED | CODES_KEYS_ITERATOR_SKIP_COMPUTED));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipCoded | MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates)
+           == (CODES_KEYS_ITERATOR_SKIP_CODED | CODES_KEYS_ITERATOR_SKIP_COMPUTED | CODES_KEYS_ITERATOR_SKIP_DUPLICATES));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction)
+           == (CODES_KEYS_ITERATOR_SKIP_COMPUTED | CODES_KEYS_ITERATOR_SKIP_DUPLICATES | CODES_KEYS_ITERATOR_SKIP_FUNCTION));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction | MetadataFilter::DumpOnly)
+           == (CODES_KEYS_ITERATOR_SKIP_DUPLICATES | CODES_KEYS_ITERATOR_SKIP_FUNCTION | CODES_KEYS_ITERATOR_DUMP_ONLY));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::SkipFunction | MetadataFilter::DumpOnly | MetadataFilter::AllKeys)
+           == (CODES_KEYS_ITERATOR_SKIP_FUNCTION | CODES_KEYS_ITERATOR_DUMP_ONLY | CODES_KEYS_ITERATOR_ALL_KEYS));
+    EXPECT(metadataFilterToEccodes(
+               MetadataFilter::DumpOnly | MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly)
+           == (CODES_KEYS_ITERATOR_DUMP_ONLY | CODES_KEYS_ITERATOR_ALL_KEYS | CODES_KEYS_ITERATOR_SKIP_READ_ONLY));
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class MetadataSetter : public eckit::LocalConfiguration {
 public:
@@ -106,32 +172,42 @@ public:
     std::vector<std::string> keys() { return eckit::LocalConfiguration::keys(); }
 };
 
-static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x9f, 0x00, 0x00, 0x00, 0x15, 0x01, 0x00, 0x62, 0x00, 0xff, 0x19, 0x00, 0x00, 0x00, 0x01,
-                                       0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x02, 0x00, 0x01, 0x00, 0x01, 0x00, 0x02, 0x04, 0x01, 0x30, 0x30, 0x30, 0x31, 0x00, 0x00, 0x00, 0x23, 0x03, 0x00,
-                                       0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x65, 0x06, 0x00, 0x00, 0x0a, 0x01, 0x66, 0xa3, 0x41, 0xd2, 0x1d, 0xcf, 0x11, 0xb2, 0x88, 0x0c, 0x0f, 0x16, 0x45, 0xf3, 0xd1, 0xdc, 0x00,
-                                       0x00, 0x00, 0x22, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xa8, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff,
-                                       0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x15, 0x05, 0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06, 0xff,
+
+static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                       0x9f, 0x00, 0x00, 0x00, 0x15, 0x01, 0x00, 0x62, 0x00, 0xff, 0x19, 0x00, 0x00, 0x00, 0x01,
+                                       0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x02, 0x00, 0x01, 0x00,
+                                       0x01, 0x00, 0x02, 0x04, 0x01, 0x30, 0x30, 0x30, 0x31, 0x00, 0x00, 0x00, 0x23, 0x03, 0x00,
+                                       0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x65, 0x06, 0x00, 0x00, 0x0a, 0x01, 0x66, 0xa3,
+                                       0x41, 0xd2, 0x1d, 0xcf, 0x11, 0xb2, 0x88, 0x0c, 0x0f, 0x16, 0x45, 0xf3, 0xd1, 0xdc, 0x00,
+                                       0x00, 0x00, 0x22, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00,
+                                       0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xa8, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff,
+                                       0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x15, 0x05, 0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00,
+                                       0x00, 0x00, 0x00, 0x80, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06, 0xff,
                                        0x00, 0x00, 0x00, 0x05, 0x07, 0x37, 0x37, 0x37, 0x37};
 
-#define MD_EXPECT_STRING(md, name, eq) \
-            EXPECT(md.has(name)); \
-            std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" << std::endl; \
-            EXPECT(md.getString(name) == eq);
 
-#define MD_EXPECT_LONG(md, name, eq) \
-            EXPECT(md.has(name)); \
-            std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
-            EXPECT(md.getLong(name) == eq);
-            
-#define MD_EXPECT_DOUBLE(md, name, eq) \
-            EXPECT(md.has(name)); \
-            std::cout << "expect double for " << name << " to equal " << std::to_string(eq) << " (got " << std::to_string(md.getDouble(name)) << ")" << std::endl; \
-            EXPECT(std::to_string(md.getDouble(name)) == std::to_string(eq));
+#define MD_EXPECT_STRING(md, name, eq)                                                                                     \
+    EXPECT(md.has(name));                                                                                                  \
+    std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" << std::endl; \
+    EXPECT(md.getString(name) == eq);
+
+#define MD_EXPECT_LONG(md, name, eq)                                                                                   \
+    EXPECT(md.has(name));                                                                                              \
+    std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
+    EXPECT(md.getLong(name) == eq);
+
+#define MD_EXPECT_DOUBLE(md, name, eq)                                                                                                                     \
+    EXPECT(md.has(name));                                                                                                                                  \
+    std::cout << "expect double for " << name << " to equal " << std::to_string(eq) << " (got " << std::to_string(md.getDouble(name)) << ")" << std::endl; \
+    EXPECT(std::to_string(md.getDouble(name)) == std::to_string(eq));
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 CASE("test codessplitter unstr_latlot.tmpl Native") {
     eckit::MemoryHandle data(static_cast<void*>(unstr_latlon), sizeof(unstr_latlon));
-    
-    std::cout << "Data location " << ((size_t) &unstr_latlon) << std::endl;
+
+    std::cout << "Data location " << ((size_t)&unstr_latlon) << std::endl;
 
     eckit::message::Reader reader(data);
     eckit::message::Message msg;
@@ -147,7 +223,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
     mdOpts.filter              = eckit::message::MetadataFilter::AllKeys;
     mdOpts.nameSpace           = "";
     msg.getMetadata(gatherer, mdOpts);
-    
+
     {
         MD_EXPECT_STRING(md, "globalDomain", "g");
         MD_EXPECT_LONG(md, "GRIBEditionNumber", 2);
@@ -323,10 +399,13 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
     }
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 CASE("test codessplitter unstr_latlot.tmpl String") {
     eckit::MemoryHandle data(static_cast<void*>(unstr_latlon), sizeof(unstr_latlon));
 
-    std::cout << "Data location " << ((size_t) &unstr_latlon) << std::endl;
+    std::cout << "Data location " << ((size_t)&unstr_latlon) << std::endl;
 
     eckit::message::Reader reader(data);
     eckit::message::Message msg;
@@ -517,6 +596,9 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "param", "260179");
     }
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace test
 }  // namespace codes

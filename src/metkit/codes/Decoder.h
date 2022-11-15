@@ -17,9 +17,11 @@
 #include "eckit/message/Decoder.h"
 #include "eckit/message/Message.h"
 
+
 namespace metkit {
 namespace codes {
-namespace decoder {
+
+//----------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
 class HandleDeleter {
@@ -33,40 +35,77 @@ public:
     T* get();
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 
 // Maps specific flags to Eccodes flag.
 // TODO make constexpr in C++14
-unsigned long metadataFilterFlagToEccodes(eckit::message::MetadataFilter f) noexcept;
+unsigned long metadataFilterFlagToEccodes(eckit::message::MetadataFilter f);
 // Maps a combined flags to an eccodes
 // TODO make constexpr in C++14
-unsigned long metadataFilterToEccodes(eckit::message::MetadataFilter f) noexcept;
+unsigned long metadataFilterToEccodes(eckit::message::MetadataFilter f);
 
 
-template <typename ItCtx, typename GetString>
-bool decodeString(codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name, GetString&& getString) {
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename ItCtx,
+          typename GetString>
+bool decodeString(codes_handle* h,
+                  eckit::message::MetadataGatherer& gather,
+                  ItCtx* itCtx,
+                  const std::string& name,
+                  GetString&& getString) {
     char val[1024];
     size_t len = sizeof(val);
-    ASSERT(getString(h, itCtx, name, val, &len) == 0);
+    ASSERT(getString(h,
+                     itCtx,
+                     name,
+                     val,
+                     &len)
+           == 0);
     if (*val) {
-        gather.setValue(name, val);
+        gather.setValue(name,
+                        val);
         return true;
     }
     return false;
 }
 
-template <typename ItCtx, typename GetLong>
-bool decodeLong(codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name, GetLong&& getLong) {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename ItCtx,
+          typename GetLong>
+bool decodeLong(codes_handle* h,
+                eckit::message::MetadataGatherer& gather,
+                ItCtx* itCtx,
+                const std::string& name,
+                GetLong&& getLong) {
     long l;
     size_t len = 1;
-    if (getLong(h, itCtx, name, &l, &len) == 0) {
-        gather.setValue(name, l);
+    if (getLong(h,
+                itCtx,
+                name,
+                &l,
+                &len)
+        == 0) {
+        gather.setValue(name,
+                        l);
         return true;
     }
     return false;
 }
 
-template <typename ItCtx, typename GetDouble>
-bool decodeDouble(codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name, GetDouble&& getDouble) {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename ItCtx,
+          typename GetDouble>
+bool decodeDouble(codes_handle* h,
+                  eckit::message::MetadataGatherer& gather,
+                  ItCtx* itCtx,
+                  const std::string& name,
+                  GetDouble&& getDouble) {
     double d;
     size_t len = 1;
     if (getDouble(h, itCtx, name, &d, &len) == 0) {
@@ -76,8 +115,18 @@ bool decodeDouble(codes_handle* h, eckit::message::MetadataGatherer& gather, ItC
     return false;
 }
 
-template <typename ItCtx, typename GetBytes, typename GetString>
-bool decodeByte(codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name, GetBytes&& getBytes, GetString&& getString) {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename ItCtx,
+          typename GetBytes,
+          typename GetString>
+bool decodeByte(codes_handle* h,
+                eckit::message::MetadataGatherer& gather,
+                ItCtx* itCtx,
+                const std::string& name,
+                GetBytes&& getBytes,
+                GetString&& getString) {
     // TODO the field uuidOfHGrid is of native type BYTE and returns 1 for codes_get_size,
     // however eccodes prints an error because it requires 16bytes and should probably be decoded as string
     unsigned char c[1024];
@@ -95,8 +144,22 @@ bool decodeByte(codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx
     return false;
 }
 
-template <typename ItCtx, typename GetString, typename GetLong, typename GetDouble, typename GetBytes>
-bool decodeNative(codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name, GetString&& getString, GetLong&& getLong, GetDouble&& getDouble, GetBytes&& getBytes) {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename ItCtx,
+          typename GetString,
+          typename GetLong,
+          typename GetDouble,
+          typename GetBytes>
+bool decodeNative(codes_handle* h,
+                  eckit::message::MetadataGatherer& gather,
+                  ItCtx* itCtx,
+                  const std::string& name,
+                  GetString&& getString,
+                  GetLong&& getLong,
+                  GetDouble&& getDouble,
+                  GetBytes&& getBytes) {
     int keyType = 0;
     ASSERT(codes_get_native_type(h, name.c_str(), &keyType) == 0);
     // GRIB_ Type prefixes are also valid for BUFR
@@ -121,8 +184,17 @@ bool decodeNative(codes_handle* h, eckit::message::MetadataGatherer& gather, ItC
     return true;
 }
 
-template <typename ItCtx, typename ItNextName, typename DecodeFunc>
-void iterateMetadata(codes_handle* h, ItCtx* itCtx, eckit::message::MetadataGatherer& gather, ItNextName&& itNextName, DecodeFunc&& decodeFunc) {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename ItCtx,
+          typename ItNextName,
+          typename DecodeFunc>
+void iterateMetadata(codes_handle* h,
+                     ItCtx* itCtx,
+                     eckit::message::MetadataGatherer& gather,
+                     ItNextName&& itNextName,
+                     DecodeFunc&& decodeFunc) {
     eckit::Optional<std::string> name;
     while ((name = itNextName(h, itCtx))) {
         size_t klen = 0;
@@ -136,13 +208,32 @@ void iterateMetadata(codes_handle* h, ItCtx* itCtx, eckit::message::MetadataGath
     }
 }
 
-template <typename InitIt, typename ItNextName, typename GetString, typename GetLong, typename GetDouble, typename GetBytes, typename PostProcess>
-void getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer& gather, const eckit::message::GetMetadataOptions& options, InitIt&& initIt, ItNextName&& itNextName, GetString&& getString, GetLong&& getLong, GetDouble&& getDouble, GetBytes&& getBytes, PostProcess&& postProcess) {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <typename InitIt,
+          typename ItNextName,
+          typename GetString,
+          typename GetLong,
+          typename GetDouble,
+          typename GetBytes,
+          typename PostProcess>
+void getMetadata(
+    const eckit::message::Message& msg,
+    eckit::message::MetadataGatherer& gather,
+    const eckit::message::GetMetadataOptions& options,
+    InitIt&& initIt,
+    ItNextName&& itNextName,
+    GetString&& getString,
+    GetLong&& getLong,
+    GetDouble&& getDouble,
+    GetBytes&& getBytes,
+    PostProcess&& postProcess) {
     codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
     ASSERT(h);
     HandleDeleter<codes_handle> handleDeleter(h);
 
-    auto itCtx  = initIt(h);
+    auto itCtx = initIt(h);
     ASSERT(itCtx);
     using ItCtx = typename std::remove_pointer<decltype(itCtx)>::type;
     HandleDeleter<ItCtx> itDeleter(itCtx);
@@ -150,13 +241,32 @@ void getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGat
     switch (options.valueRepresentation) {
         case eckit::message::ValueRepresentation::Native:
             iterateMetadata(h, itCtx, gather, std::forward<ItNextName>(itNextName),
-                            [&getString, &getLong, &getDouble, &getBytes](codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name) {
-                                decodeNative(h, gather, itCtx, name, getString, getLong, getDouble, getBytes);
+                            [&getString,
+                             &getLong,
+                             &getDouble,
+                             &getBytes](codes_handle* h,
+                                        eckit::message::MetadataGatherer& gather,
+                                        ItCtx* itCtx,
+                                        const std::string& name) {
+                                decodeNative(h,
+                                             gather,
+                                             itCtx,
+                                             name,
+                                             getString,
+                                             getLong,
+                                             getDouble,
+                                             getBytes);
                             });
             break;
         case eckit::message::ValueRepresentation::String:
-            iterateMetadata(h, itCtx, gather, std::forward<ItNextName>(itNextName),
-                            [&getString](codes_handle* h, eckit::message::MetadataGatherer& gather, ItCtx* itCtx, const std::string& name) {
+            iterateMetadata(h,
+                            itCtx,
+                            gather,
+                            std::forward<ItNextName>(itNextName),
+                            [&getString](codes_handle* h,
+                                         eckit::message::MetadataGatherer& gather,
+                                         ItCtx* itCtx,
+                                         const std::string& name) {
                                 decodeString(h, gather, itCtx, name, getString);
                             });
             break;
@@ -166,6 +276,5 @@ void getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGat
 }
 
 
-}  // namespace decoder
 }  // namespace codes
 }  // namespace metkit

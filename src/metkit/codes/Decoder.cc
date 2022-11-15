@@ -13,25 +13,29 @@
 
 #include "Decoder.h"
 
+#include "eckit/exception/Exceptions.h"
+
 namespace metkit {
 namespace codes {
-namespace decoder {
 
-template<>
+
+//----------------------------------------------------------------------------------------------------------------------
+
+template <>
 HandleDeleter<codes_handle>::~HandleDeleter() noexcept(true) {
     if (h_) {
         codes_handle_delete(h_);
     }
 }
 
-template<>
+template <>
 HandleDeleter<codes_keys_iterator>::~HandleDeleter() noexcept(true) {
     if (h_) {
         codes_keys_iterator_delete(h_);
     }
 }
 
-template<>
+template <>
 HandleDeleter<codes_bufr_keys_iterator>::~HandleDeleter() noexcept(true) {
     if (h_) {
         codes_bufr_keys_iterator_delete(h_);
@@ -39,9 +43,11 @@ HandleDeleter<codes_bufr_keys_iterator>::~HandleDeleter() noexcept(true) {
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 // Maps specific flags to Eccodes flag.
 // TODO make constexpr in C++14
-unsigned long metadataFilterFlagToEccodes(eckit::message::MetadataFilter f) noexcept {
+unsigned long metadataFilterFlagToEccodes(eckit::message::MetadataFilter f) {
     using eckit::message::MetadataFilter;
     // Perform a switch. The compiler should be able to generate an efficient table lookup.
     switch (f) {
@@ -63,14 +69,21 @@ unsigned long metadataFilterFlagToEccodes(eckit::message::MetadataFilter f) noex
             return CODES_KEYS_ITERATOR_SKIP_FUNCTION;
         case MetadataFilter::DumpOnly:
             return CODES_KEYS_ITERATOR_DUMP_ONLY;
-        default:
+        case MetadataFilter::IncludeExtraKeyAttributes:
+            // No ECCODES filter flag, hence return default
             return 0;
+        default:
+            std::ostringstream oss;
+            oss << "Unknown MetadataFilter flag \""
+                << (unsigned long)f
+                << "\". To map a combination of flags to eccodes, use metadataFilterFlagToEccodes() instead.";
+            throw eckit::Exception(oss.str());
     }
 }
 
 // Maps a combined flags to an eccodes
 // TODO make constexpr in C++14
-unsigned long metadataFilterToEccodes(eckit::message::MetadataFilter f) noexcept {
+unsigned long metadataFilterToEccodes(eckit::message::MetadataFilter f) {
     using eckit::message::MetadataFilter;
     return (metadataFilterFlagToEccodes(f & MetadataFilter::AllKeys))
            | (metadataFilterFlagToEccodes(f & MetadataFilter::SkipReadOnly))
@@ -83,7 +96,8 @@ unsigned long metadataFilterToEccodes(eckit::message::MetadataFilter f) noexcept
            | (metadataFilterFlagToEccodes(f & MetadataFilter::DumpOnly));
 }
 
-}  // namespace decoder
+//----------------------------------------------------------------------------------------------------------------------
+
 }  // namespace codes
 }  // namespace metkit
 
