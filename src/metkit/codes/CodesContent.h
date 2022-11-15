@@ -45,6 +45,9 @@ private:
     virtual long getLong(const std::string& key) const override;
     virtual double getDouble(const std::string& key) const override;
     virtual void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
+    virtual size_t getSize(const std::string& key) const override;
+    virtual void getDoubleArray(const std::string& key, double* data, size_t lenExpected) const override;
+
     virtual eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
     const void* data() const override;

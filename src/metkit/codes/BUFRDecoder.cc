@@ -9,7 +9,7 @@
  */
 
 
-#include "eccodes.h"
+#include "metkit/codes/Decoder.h"
 
 #include "metkit/codes/BUFRDecoder.h"
 
@@ -22,23 +22,6 @@
 
 namespace metkit {
 namespace codes {
-
-namespace {
-class HandleDeleter {
-    codes_handle* h_;
-
-public:
-    HandleDeleter(codes_handle* h) :
-        h_(h) {}
-    ~HandleDeleter() {
-        if (h_) {
-            codes_handle_delete(h_);
-        }
-    }
-
-    codes_handle* get() { return h_; }
-};
-}  // namespace
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -81,116 +64,64 @@ bool BUFRDecoder::match(const eckit::message::Message& msg) const {
 
 
 void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
-                              eckit::message::MetadataGatherer& gather, eckit::message::ValueRepresentation repr) const {
-    // This function has been implemented similarly to the GRIBDecoder and following
-    // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
-    // It has been possible to extract flat metadata with multio-feed. However someone with more profound knowledge on BUFR and ECCODES may have improvements.
-
-    /// @TODO Do we need something like this? Compare with GRIBDecoder...
-    // static std::string bufrToRequestNamespace = eckit::Resource<std::string>("bufrToRequestNamespace", "mars");
+                              eckit::message::MetadataGatherer& gather, const eckit::message::GetMetadataOptions& options) const {
+    using ItCtx                           = codes_bufr_keys_iterator;
+    eckit::message::MetadataFilter filter = options.filter;
 
 
-    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
-    ASSERT(h);
-    HandleDeleter d(h);
-
-    // we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
-    // BUFR Performance improvement: https://confluence.ecmwf.int/display/UDOC/Performance+improvement+by+skipping+some+keys+-+ecCodes+BUFR+FAQ
-    CODES_CHECK(codes_set_long(h, "skipExtraKeyAttributes", 1), 0);
-    CODES_CHECK(codes_set_long(h, "unpack", 1), 0);
-
-    codes_bufr_keys_iterator* ks = codes_bufr_keys_iterator_new(h,
-                                                                CODES_KEYS_ITERATOR_ALL_KEYS);
-
-    ASSERT(ks);
-
-    while (codes_bufr_keys_iterator_next(ks)) {
-        const char* name = codes_bufr_keys_iterator_get_name(ks);
-
-
-        if (strcmp(name, "subsetNumber") == 0) {
-            continue;
-        }
-
-        size_t klen = 0;
-        /* get key size to see if it is an array */
-        ASSERT(codes_get_size(h, name, &klen) == 0);
-
-        if (klen != 1) {
-            continue;
-        }
-
-        const auto decodeString = [&]() {
-            char val[1024];
-            size_t len = sizeof(val);
-            ASSERT(codes_get_string(h, name, val, &len) == 0);
-            if (*val) {
-                gather.setValue(name, val);
-                return true;
+    decoder::getMetadata(
+        msg, gather, options,
+        // Init it
+        [filter](codes_handle* h) {
+            // BUFR Performance improvement: https://confluence.ecmwf.int/display/UDOC/Performance+improvement+by+skipping+some+keys+-+ecCodes+BUFR+FAQ
+            if ((unsigned long)(filter & eckit::message::MetadataFilter::IncludeExtraKeyAttributes) != 0) {
+                CODES_CHECK(codes_set_long(h, "skipExtraKeyAttributes", 1), 0);
             }
-            return false;
-        };
-        const auto decodeLong = [&]() {
-            long l;
-            if (codes_get_long(h, name, &l) == 0 == 0) {
-                gather.setValue(name, l);
-                return true;
-            }
-            return false;
-        };
-        const auto decodeDouble = [&]() {
-            double d;
-            if (codes_get_double(h, name, &d) == 0) {
-                gather.setValue(name, d);
-                return true;
-            }
-            return false;
-        };
+            // we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
+            CODES_CHECK(codes_set_long(h, "unpack", 1), 0);
 
-        const auto decodeNative = [&]() {
-            int keyType = 0;  
-            ASSERT(codes_get_native_type(h, name, &keyType) == 0);
-            // GRIB_ Type prefixes are also valid for BUFR
-            switch (keyType) {
-                case GRIB_TYPE_LONG: {
-                    return decodeLong();
-                }
-                case GRIB_TYPE_DOUBLE: {
-                    return decodeDouble();
-                }
-                default: {
-                    return decodeString();
-                }
-            }
-            return true;
-        };
+            return codes_bufr_keys_iterator_new(h, decoder::metadataFilterToEccodes(filter));
+        },
+        // Iterator next
+        [](codes_handle* h, ItCtx* ks) {
+            while (codes_bufr_keys_iterator_next(ks)) {
+                const char* name = codes_bufr_keys_iterator_get_name(ks);
 
-        switch (repr) {
-            case eckit::message::ValueRepresentation::Native: { 
-                decodeNative();
-                break;
-            }
-            case eckit::message::ValueRepresentation::String: {
-                decodeString() || decodeNative();
-                break;
-            }
-            case eckit::message::ValueRepresentation::Numeric: {
-                decodeLong() || decodeDouble() || decodeNative();
-                break;
-            }
-        }
-    }
+                if (strcmp(name, "subsetNumber") == 0)
+                    continue;  // skip silly underscores in GRIB
 
-    codes_bufr_keys_iterator_delete(ks);
+                return eckit::Optional<std::string>(name);
+            }
+            return eckit::Optional<std::string>{};
+        },
+        // GetString
+        [](codes_handle* h, ItCtx*, const std::string& name, char* val, size_t* len) {
+            return codes_get_string(h, name.c_str(), val, len);
+        },
+        // GetLong
+        [](codes_handle* h, ItCtx*, const std::string& name, long* l, size_t* len) {
+            return codes_get_long(h, name.c_str(), l);
+        },
+        // GetDouble
+        [](codes_handle* h, ItCtx*, const std::string& name, double* d, size_t* len) {
+            return codes_get_double(h, name.c_str(), d);
+        },
+        // GetBytes
+        [](codes_handle* h, ItCtx*, const std::string& name, unsigned char* c, size_t* len) {
+            return codes_get_bytes(h, name.c_str(), c, len);
+        },
+        // Post Process
+        [](codes_handle*, eckit::message::MetadataGatherer&, ItCtx*) {
+        });
 }
 
 
 eckit::Buffer BUFRDecoder::decode(const eckit::message::Message& msg) const {
-    std::vector<double> v;
-    // @TODO Is this valid for all BUFR messages? Worked with results from mars
-    msg.getDoubleArray("numericValues", v);
-
-    return eckit::Buffer(reinterpret_cast<void*>(v.data()), v.size() * sizeof(double));
+    std::size_t size = msg.getSize("numericValues");
+    eckit::Buffer buf(size * sizeof(double));
+    
+    msg.getDoubleArray("numericValues", reinterpret_cast<double*>(buf.data()), size);
+    return buf;
 }
 
 eckit::message::EncodingFormat BUFRDecoder::getEncodingFormat(const eckit::message::Message& msg) const {
@@ -203,7 +134,7 @@ void BUFRDecoder::print(std::ostream& s) const {
 }
 
 
-static BUFRDecoder decoder;
+static BUFRDecoder bufrDecoder;
 
 //----------------------------------------------------------------------------------------------------------------------
 

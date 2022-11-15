@@ -105,6 +105,18 @@ void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& v
     ASSERT(count == size);
 }
 
+size_t CodesContent::getSize(const std::string& key) const {
+    size_t size = 0;
+    CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
+    return size;
+}
+void CodesContent::getDoubleArray(const std::string& key, double* data, size_t len) const {
+    size_t count = len;
+    CODES_CALL(codes_get_double_array(handle_, key.c_str(), data, &count));
+    ASSERT(count == len);
+}
+
+
 eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict& dict) const {
     codes_handle* h = codes_handle_clone(handle_);
 

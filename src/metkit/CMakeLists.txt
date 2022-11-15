@@ -127,6 +127,8 @@ if ( HAVE_GRIB )
         pointdb/masks.h
         pointdb/PointIndex.cc
         pointdb/PointIndex.h
+        codes/Decoder.h
+        codes/Decoder.cc
         codes/BUFRDecoder.cc
         codes/BUFRDecoder.h
         codes/GRIBDecoder.cc
