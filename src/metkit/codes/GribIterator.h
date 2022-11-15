@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef grib_GribIterator_H
-#define grib_GribIterator_H
+#pragma once
 
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/Buffer.h"
@@ -49,4 +48,3 @@ private: // members
 } // namespace grib
 } // namespace metkit
 
-#endif

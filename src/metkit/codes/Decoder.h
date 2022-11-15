@@ -11,8 +11,7 @@
 /// @author Philipp Geier
 /// @date   Nov 2022
 
-#ifndef metkit_codes_Decoder_h
-#define metkit_codes_Decoder_h
+#pragma once
 
 #include "eccodes.h"
 #include "eckit/message/Decoder.h"
@@ -29,7 +28,7 @@ class HandleDeleter {
 public:
     HandleDeleter(T* h) :
         h_(h) {}
-    ~HandleDeleter();
+    ~HandleDeleter() noexcept(true);
 
     T* get();
 };
@@ -170,5 +169,3 @@ void getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGat
 }  // namespace decoder
 }  // namespace codes
 }  // namespace metkit
-
-#endif

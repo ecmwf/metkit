@@ -11,8 +11,7 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_BUFRDecoder_h
-#define metkit_BUFRDecoder_h
+#pragma once
 
 #include "eckit/message/Decoder.h"
 
@@ -45,4 +44,3 @@ private:  // methods
 }  // namespace codes
 }  // namespace metkit
 
-#endif

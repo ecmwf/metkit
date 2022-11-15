@@ -11,8 +11,7 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_GRIBDecoder_h
-#define metkit_GRIBDecoder_h
+#pragma once
 
 #include "eckit/message/Decoder.h"
 
@@ -41,4 +40,3 @@ private:  // methods
 }  // namespace codes
 }  // namespace metkit
 
-#endif

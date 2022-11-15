@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef grib_GribAccessor_H
-#define grib_GribAccessor_H
+#pragma once
 
 #include "eckit/log/Log.h"
 #include "eckit/exception/Exceptions.h"
@@ -84,4 +83,3 @@ public: // methods
 } // namespace grib
 } // namespace metkit
 
-#endif

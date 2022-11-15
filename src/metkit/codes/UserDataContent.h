@@ -12,10 +12,7 @@
 /// @date   Jun 2020
 
 
-
-#ifndef metkit_codes_UserDataContent_H
-#define metkit_codes_UserDataContent_H
-
+#pragma once
 #include "metkit/codes/DataContent.h"
 
 
@@ -40,4 +37,3 @@ private:
 }  // namespace metkit
 
 
-#endif

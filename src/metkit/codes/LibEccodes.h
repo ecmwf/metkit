@@ -11,8 +11,7 @@
 /// @author Olivier Iffrig
 /// @date   October 2019
 
-#ifndef metkit_LibEccodes_H
-#define metkit_LibEccodes_H
+#pragma once
 
 #include "eckit/system/Library.h"
 
@@ -40,4 +39,3 @@ protected:
 
 } // namespace metkit
 
-#endif

@@ -18,21 +18,21 @@ namespace codes {
 namespace decoder {
 
 template<>
-HandleDeleter<codes_handle>::~HandleDeleter() {
+HandleDeleter<codes_handle>::~HandleDeleter() noexcept(true) {
     if (h_) {
         codes_handle_delete(h_);
     }
 }
 
 template<>
-HandleDeleter<codes_keys_iterator>::~HandleDeleter() {
+HandleDeleter<codes_keys_iterator>::~HandleDeleter() noexcept(true) {
     if (h_) {
         codes_keys_iterator_delete(h_);
     }
 }
 
 template<>
-HandleDeleter<codes_bufr_keys_iterator>::~HandleDeleter() {
+HandleDeleter<codes_bufr_keys_iterator>::~HandleDeleter() noexcept(true) {
     if (h_) {
         codes_bufr_keys_iterator_delete(h_);
     }
