@@ -30,7 +30,7 @@ class HandleDeleter {
 public:
     HandleDeleter(T* h) :
         h_(h) {}
-    ~HandleDeleter() noexcept(true);
+    ~HandleDeleter();
 
     T* get();
 };

@@ -24,21 +24,21 @@ namespace codes {
 //----------------------------------------------------------------------------------------------------------------------
 
 template <>
-HandleDeleter<codes_handle>::~HandleDeleter() noexcept(true) {
+HandleDeleter<codes_handle>::~HandleDeleter() {
     if (h_) {
         codes_handle_delete(h_);
     }
 }
 
 template <>
-HandleDeleter<codes_keys_iterator>::~HandleDeleter() noexcept(true) {
+HandleDeleter<codes_keys_iterator>::~HandleDeleter() {
     if (h_) {
         codes_keys_iterator_delete(h_);
     }
 }
 
 template <>
-HandleDeleter<codes_bufr_keys_iterator>::~HandleDeleter() noexcept(true) {
+HandleDeleter<codes_bufr_keys_iterator>::~HandleDeleter() {
     if (h_) {
         codes_bufr_keys_iterator_delete(h_);
     }
