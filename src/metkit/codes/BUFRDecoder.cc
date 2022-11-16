@@ -8,6 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
+#include "eccodes.h"
 
 #include "metkit/codes/Decoder.h"
 
@@ -66,56 +67,78 @@ bool BUFRDecoder::match(const eckit::message::Message& msg) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+namespace {
+
+// TODO In C++14: move to lambda with auto
+struct BUFRMetadataIt {
+    codes_handle* h;
+    codes_bufr_keys_iterator* itCtx;
+    eckit::message::MetadataGatherer& gather;
+
+    template <typename DecFunc>
+    void operator()(DecFunc&& decode) {
+        while (codes_bufr_keys_iterator_next(itCtx)) {
+            const char* name = codes_bufr_keys_iterator_get_name(itCtx);
+
+            if (strcmp(name, "subsetNumber") == 0)
+                continue;
+
+            size_t klen = 0;
+
+            /* get key size to see if it is an array */
+            ASSERT(codes_get_size(h, name, &klen) == 0);
+            if (klen != 1) {
+                continue;
+            }
+            decode(h, gather, name);
+        }
+    }
+};
+
+}  // namespace
+
+
 void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
                               eckit::message::MetadataGatherer& gather,
                               const eckit::message::GetMetadataOptions& options) const {
-    using ItCtx                           = codes_bufr_keys_iterator;
-    eckit::message::MetadataFilter filter = options.filter;
+    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+    ASSERT(h);
+    HandleDeleter<codes_handle> handleDeleter(h);
 
-    ::metkit::codes::getMetadata(
-        msg, gather, options,
-        // Init it
-        [filter](codes_handle* h) {
-            // BUFR Performance improvement: https://confluence.ecmwf.int/display/UDOC/Performance+improvement+by+skipping+some+keys+-+ecCodes+BUFR+FAQ
-            if ((unsigned long)(filter & eckit::message::MetadataFilter::IncludeExtraKeyAttributes) != 0) {
-                CODES_CHECK(codes_set_long(h, "skipExtraKeyAttributes", 1), 0);
-            }
-            // we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
-            CODES_CHECK(codes_set_long(h, "unpack", 1), 0);
 
-            return codes_bufr_keys_iterator_new(h, metadataFilterToEccodes(filter));
-        },
-        // Iterator next
-        [](codes_handle* h, ItCtx* ks) {
-            while (codes_bufr_keys_iterator_next(ks)) {
-                const char* name = codes_bufr_keys_iterator_get_name(ks);
+    // BUFR Performance improvement: https://confluence.ecmwf.int/display/UDOC/Performance+improvement+by+skipping+some+keys+-+ecCodes+BUFR+FAQ
+    if ((unsigned long)(options.filter & eckit::message::MetadataFilter::IncludeExtraKeyAttributes) != 0) {
+        CODES_CHECK(codes_set_long(h, "skipExtraKeyAttributes", 1), 0);
+    }
+    // we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
+    CODES_CHECK(codes_set_long(h, "unpack", 1), 0);
 
-                if (strcmp(name, "subsetNumber") == 0)
-                    continue;  // skip silly underscores in GRIB
 
-                return eckit::Optional<std::string>(name);
-            }
-            return eckit::Optional<std::string>{};
-        },
+    codes_bufr_keys_iterator* itCtx = codes_bufr_keys_iterator_new(h, metadataFilterToEccodes(options.filter));
+    ASSERT(itCtx);
+    HandleDeleter<codes_bufr_keys_iterator> itDeleter(itCtx);
+
+
+    withSpecializedDecoder(
+        options,
         // GetString
-        [](codes_handle* h, ItCtx*, const std::string& name, char* val, size_t* len) {
-            return codes_get_string(h, name.c_str(), val, len);
+        [](codes_handle* h, const char* name, char* val, size_t* len) {
+            return codes_get_string(h, name, val, len);
         },
         // GetLong
-        [](codes_handle* h, ItCtx*, const std::string& name, long* l, size_t* len) {
-            return codes_get_long(h, name.c_str(), l);
+        [](codes_handle* h, const char* name, long* l, size_t* len) {
+            return codes_get_long(h, name, l);
         },
         // GetDouble
-        [](codes_handle* h, ItCtx*, const std::string& name, double* d, size_t* len) {
-            return codes_get_double(h, name.c_str(), d);
+        [](codes_handle* h, const char* name, double* d, size_t* len) {
+            return codes_get_double(h, name, d);
         },
         // GetBytes
-        [](codes_handle* h, ItCtx*, const std::string& name, unsigned char* c, size_t* len) {
-            return codes_get_bytes(h, name.c_str(), c, len);
+        [](codes_handle* h, const char* name, unsigned char* c, size_t* len) {
+            return codes_get_bytes(h, name, c, len);
         },
-        // Post Process
-        [](codes_handle*, eckit::message::MetadataGatherer&, ItCtx*) {
-        });
+        // Iteration logic
+        BUFRMetadataIt{h, itCtx, gather});
 }
 
 

@@ -15,6 +15,8 @@
 #include <cstring>
 #include <limits>
 
+#include "eccodes.h"
+
 #include "metkit/codes/CodesSplitter.h"
 #include "metkit/codes/Decoder.h"
 

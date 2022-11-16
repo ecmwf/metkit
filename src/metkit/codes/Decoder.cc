@@ -13,6 +13,8 @@
 
 #include "Decoder.h"
 
+#include "eccodes.h"
+
 #include "eckit/exception/Exceptions.h"
 
 namespace metkit {
@@ -97,6 +99,32 @@ unsigned long metadataFilterToEccodes(eckit::message::MetadataFilter f) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+NativeType getNativeType(codes_handle* h, const char* name) {
+    int keyType = 0;
+    ASSERT(codes_get_native_type(h, name, &keyType) == 0);
+    // GRIB_ Type prefixes are also valid for BUFR
+    switch (keyType) {
+        case GRIB_TYPE_LONG: {
+            return NativeType::Long;
+        }
+        case GRIB_TYPE_DOUBLE: {
+            return NativeType::Double;
+        }
+        case GRIB_TYPE_STRING: {
+            return NativeType::String;
+        }
+        case GRIB_TYPE_BYTES: {
+            return NativeType::Bytes;
+        }
+        default: {
+            return NativeType::Unknown;
+        }
+    }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 }  // namespace codes
 }  // namespace metkit
