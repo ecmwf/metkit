@@ -43,7 +43,22 @@ bool GRIBDecoder::match(const eckit::message::Message& msg) const {
 
 namespace {
 
-// TODO In C++14: move to lambda with auto
+/* TODO In C++14: move to lambda with auto
+ * https://en.cppreference.com/w/cpp/language/constraints
+ *
+ * With C++20 use Concepts and templated lambdas:
+ *  template<typename T>
+ *  concept Decoder = requires(T d, codes_handle* h, MetadataGatherer& gather, const char* name)
+ *  {
+ *      d(h, gather, name);
+ *  };
+ *
+ * withSpecializedDecoder(...,
+ *  [h, &gather]template<Decoder Dec>(Dec&& decode) {
+ *     ...
+ *     decode(h, gather, name);
+ *  });
+ */
 struct GRIBMetadataIt {
     codes_handle* h;
     codes_keys_iterator* itCtx;
