@@ -122,7 +122,6 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
         GRIBMetadataIt{h, itCtx, gather});
 
 
-    // Default behaviour for FDB, should be maintained
     {
         char value[1024];
         size_t len = sizeof(value);
