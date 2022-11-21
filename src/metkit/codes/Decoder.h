@@ -199,7 +199,15 @@ void withSpecializedDecoder(
     ForwardToFunc&& func) {
 
     switch (options.valueRepresentation) {
-        case eckit::message::ValueRepresentation::Native:
+        case eckit::message::ValueRepresentation::String:
+            std::forward<ForwardToFunc>(func)(
+                [&getString](codes_handle* h,
+                             eckit::message::MetadataGatherer& gather,
+                             const char* name) {
+                    decodeString(h, gather, name, getString);
+                });
+            return;
+        default:
             std::forward<ForwardToFunc>(func)(
                 [&getString,
                  &getLong,
@@ -214,14 +222,6 @@ void withSpecializedDecoder(
                                  getLong,
                                  getDouble,
                                  getBytes);
-                });
-            return;
-        case eckit::message::ValueRepresentation::String:
-            std::forward<ForwardToFunc>(func)(
-                [&getString](codes_handle* h,
-                             eckit::message::MetadataGatherer& gather,
-                             const char* name) {
-                    decodeString(h, gather, name, getString);
                 });
             return;
     }
