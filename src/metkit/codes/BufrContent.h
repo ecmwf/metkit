@@ -19,6 +19,9 @@
 namespace metkit {
 namespace codes {
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class BufrContent : public CodesContent {
 public:
 
@@ -32,6 +35,9 @@ private:
     eckit::message::MessageContent* transform(const eckit::StringDict& dict) const override;
 
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 }  // namespace codes
 }  // namespace metkit

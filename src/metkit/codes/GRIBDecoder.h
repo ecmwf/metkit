@@ -11,11 +11,11 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_GRIBDecoder_h
-#define metkit_GRIBDecoder_h
+#pragma once
 
 #include "eckit/message/Decoder.h"
 
+#include "eckit/io/Buffer.h"
 
 namespace metkit {
 namespace codes {
@@ -23,22 +23,20 @@ namespace codes {
 //----------------------------------------------------------------------------------------------------------------------
 
 class GRIBDecoder : public eckit::message::Decoder {
-public: // methods
-
-
-private: // methods
-
-    virtual bool match(const eckit::message::Message&) const override;
-    virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
-
+public:   // methods
+private:  // methods
+    bool match(const eckit::message::Message&) const override;
+    void print(std::ostream&) const override;
+    void getMetadata(const eckit::message::Message& msg,
+                             eckit::message::MetadataGatherer&, const eckit::message::GetMetadataOptions&) const override;
+    eckit::Buffer decode(const eckit::message::Message& msg) const override;
+    
+    eckit::message::EncodingFormat getEncodingFormat(const eckit::message::Message& msg) const override;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
-} // namespace metkit
+}  // namespace codes
+}  // namespace metkit
 
-#endif
