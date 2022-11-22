@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "eckit/message/Decoder.h"
+#include "metkit/codes/CodesDecoder.h"
 
 #include "eckit/io/Buffer.h"
 
@@ -23,7 +23,7 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class BUFRDecoder : public eckit::message::Decoder {
+class BUFRDecoder : public metkit::codes::CodesDecoder<BUFRDecoder> {
 
 public:  // methods
     static bool typeBySubtype(long subtype, long& type);
@@ -31,12 +31,19 @@ public:  // methods
 private:  // methods
     bool match(const eckit::message::Message&) const override;
     void print(std::ostream&) const override;
+
     void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&, const eckit::message::GetMetadataOptions&) const override;
+                     eckit::message::MetadataGatherer&,
+                     const eckit::message::GetMetadataOptions&) const override;
 
     eckit::Buffer decode(const eckit::message::Message& msg) const override;
-    
-    eckit::message::EncodingFormat getEncodingFormat(const eckit::message::Message& msg) const override;
+
+public: // methods for decoding the metadata
+
+    static std::string getString(codes_handle* h, codes_keys_iterator* it, const char* name);
+    static long getLong(codes_handle* h, codes_keys_iterator* it, const char* name);
+    static double getDouble(codes_handle* h, codes_keys_iterator* it, const char* name);
+    static bool getBytes(codes_handle* h, codes_keys_iterator* it, const char* name, unsigned char* vals, size_t* len);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

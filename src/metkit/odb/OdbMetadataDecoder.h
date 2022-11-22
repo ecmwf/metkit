@@ -33,7 +33,9 @@ class OdbMetadataDecoder : public odc::api::SpanVisitor {
 
 public:
 
-    OdbMetadataDecoder(eckit::message::MetadataGatherer& gatherer, const std::string& verb = "retrieve");
+    OdbMetadataDecoder(eckit::message::MetadataGatherer& gatherer,
+                       const eckit::message::GetMetadataOptions& options,
+                       const std::string& verb = "retrieve");
 
     virtual void operator()(const std::string& columnName, const std::set<long>& vals);
     virtual void operator()(const std::string& columnName, const std::set<double>& vals);
@@ -50,6 +52,7 @@ private: // members
 
     metkit::mars::MarsLanguage language_;
     eckit::message::MetadataGatherer& gather_;
+    eckit::message::GetMetadataOptions options_;
 
 };
 

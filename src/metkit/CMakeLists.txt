@@ -127,8 +127,7 @@ if ( HAVE_GRIB )
         pointdb/masks.h
         pointdb/PointIndex.cc
         pointdb/PointIndex.h
-        codes/Decoder.h
-        codes/Decoder.cc
+        codes/CodesDecoder.h
         codes/BUFRDecoder.cc
         codes/BUFRDecoder.h
         codes/GRIBDecoder.cc
@@ -153,6 +152,7 @@ if ( HAVE_GRIB )
         codes/GribHandle.h
         codes/GribIterator.cc
         codes/GribIterator.h
+        codes/CodesHandleDeleter.h
         )
 
     set( grib_libs eccodes )
