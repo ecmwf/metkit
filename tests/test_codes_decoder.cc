@@ -18,7 +18,7 @@
 #include "eccodes.h"
 
 #include "metkit/codes/CodesSplitter.h"
-#include "metkit/codes/Decoder.h"
+#include "metkit/codes/CodesDecoder.h"
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/io/MemoryHandle.h"
@@ -32,123 +32,6 @@ using namespace eckit::testing;
 namespace metkit {
 namespace codes {
 namespace test {
-
-//----------------------------------------------------------------------------------------------------------------------
-
-CASE("test metadataFilterFlagToEccodes") {
-    using eckit::message::MetadataFilter;
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::AllKeys)
-           == CODES_KEYS_ITERATOR_ALL_KEYS);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipReadOnly)
-           == CODES_KEYS_ITERATOR_SKIP_READ_ONLY);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipOptional)
-           == CODES_KEYS_ITERATOR_SKIP_OPTIONAL);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipEditionSpecific)
-           == CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipCoded)
-           == CODES_KEYS_ITERATOR_SKIP_CODED);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipComputed)
-           == CODES_KEYS_ITERATOR_SKIP_COMPUTED);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipDuplicates)
-           == CODES_KEYS_ITERATOR_SKIP_DUPLICATES);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::SkipFunction)
-           == CODES_KEYS_ITERATOR_SKIP_FUNCTION);
-    EXPECT(metadataFilterFlagToEccodes(
-               MetadataFilter::DumpOnly)
-           == CODES_KEYS_ITERATOR_DUMP_ONLY);
-
-    // Combinations should not be resolved
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded | MetadataFilter::SkipComputed));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipCoded | MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction | MetadataFilter::DumpOnly));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::SkipFunction | MetadataFilter::DumpOnly | MetadataFilter::AllKeys));
-    EXPECT_THROWS(metadataFilterFlagToEccodes(
-        MetadataFilter::DumpOnly | MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly));
-}
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
-CASE("test metadataFilterToEccodes") {
-    using eckit::message::MetadataFilter;
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::AllKeys)
-           == CODES_KEYS_ITERATOR_ALL_KEYS);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipReadOnly)
-           == CODES_KEYS_ITERATOR_SKIP_READ_ONLY);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipOptional)
-           == CODES_KEYS_ITERATOR_SKIP_OPTIONAL);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipEditionSpecific)
-           == CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipCoded)
-           == CODES_KEYS_ITERATOR_SKIP_CODED);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipComputed)
-           == CODES_KEYS_ITERATOR_SKIP_COMPUTED);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipDuplicates)
-           == CODES_KEYS_ITERATOR_SKIP_DUPLICATES);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipFunction)
-           == CODES_KEYS_ITERATOR_SKIP_FUNCTION);
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::DumpOnly)
-           == CODES_KEYS_ITERATOR_DUMP_ONLY);
-
-    // Combinations should be mapped exactly
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional)
-           == (CODES_KEYS_ITERATOR_ALL_KEYS | CODES_KEYS_ITERATOR_SKIP_READ_ONLY | CODES_KEYS_ITERATOR_SKIP_OPTIONAL));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipReadOnly | MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific)
-           == (CODES_KEYS_ITERATOR_SKIP_READ_ONLY | CODES_KEYS_ITERATOR_SKIP_OPTIONAL | CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipOptional | MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded)
-           == (CODES_KEYS_ITERATOR_SKIP_OPTIONAL | CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_CODED));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipEditionSpecific | MetadataFilter::SkipCoded | MetadataFilter::SkipComputed)
-           == (CODES_KEYS_ITERATOR_SKIP_EDITION_SPECIFIC | CODES_KEYS_ITERATOR_SKIP_CODED | CODES_KEYS_ITERATOR_SKIP_COMPUTED));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipCoded | MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates)
-           == (CODES_KEYS_ITERATOR_SKIP_CODED | CODES_KEYS_ITERATOR_SKIP_COMPUTED | CODES_KEYS_ITERATOR_SKIP_DUPLICATES));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipComputed | MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction)
-           == (CODES_KEYS_ITERATOR_SKIP_COMPUTED | CODES_KEYS_ITERATOR_SKIP_DUPLICATES | CODES_KEYS_ITERATOR_SKIP_FUNCTION));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipDuplicates | MetadataFilter::SkipFunction | MetadataFilter::DumpOnly)
-           == (CODES_KEYS_ITERATOR_SKIP_DUPLICATES | CODES_KEYS_ITERATOR_SKIP_FUNCTION | CODES_KEYS_ITERATOR_DUMP_ONLY));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::SkipFunction | MetadataFilter::DumpOnly | MetadataFilter::AllKeys)
-           == (CODES_KEYS_ITERATOR_SKIP_FUNCTION | CODES_KEYS_ITERATOR_DUMP_ONLY | CODES_KEYS_ITERATOR_ALL_KEYS));
-    EXPECT(metadataFilterToEccodes(
-               MetadataFilter::DumpOnly | MetadataFilter::AllKeys | MetadataFilter::SkipReadOnly)
-           == (CODES_KEYS_ITERATOR_DUMP_ONLY | CODES_KEYS_ITERATOR_ALL_KEYS | CODES_KEYS_ITERATOR_SKIP_READ_ONLY));
-}
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -216,13 +99,11 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
 
     msg = reader.next();
     EXPECT(msg);
-    EXPECT(msg.getEncodingFormat() == eckit::message::EncodingFormat::GRIB);
 
     MetadataSetter md;
     eckit::message::TypedSetter<MetadataSetter> gatherer{md};
     eckit::message::GetMetadataOptions mdOpts{};
     mdOpts.valueRepresentation = eckit::message::ValueRepresentation::Native;
-    mdOpts.filter              = eckit::message::MetadataFilter::AllKeys;
     mdOpts.nameSpace           = "";
     msg.getMetadata(gatherer, mdOpts);
 
@@ -414,13 +295,11 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
 
     msg = reader.next();
     EXPECT(msg);
-    EXPECT(msg.getEncodingFormat() == eckit::message::EncodingFormat::GRIB);
 
     MetadataSetter md;
     eckit::message::TypedSetter<MetadataSetter> gatherer{md};
     eckit::message::GetMetadataOptions mdOpts{};
     mdOpts.valueRepresentation = eckit::message::ValueRepresentation::String;
-    mdOpts.filter              = eckit::message::MetadataFilter::AllKeys;
     mdOpts.nameSpace           = "";
     msg.getMetadata(gatherer, mdOpts);
 

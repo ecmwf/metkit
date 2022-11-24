@@ -8,20 +8,20 @@
  * does it submit to any jurisdiction.
  */
 
-#include <algorithm>
-#include <iomanip>
-#include <iostream>
-
-#include "eccodes.h"
-
-#include "metkit/codes/Decoder.h"
-
-#include "metkit/codes/GRIBDecoder.h"
+#include "metkit/codes/CodesDecoder.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/message/Message.h"
 #include "eckit/serialisation/MemoryStream.h"
-#include "metkit/mars/MarsRequest.h"
+#include "eckit/utils/StringTools.h"
+
+#include "metkit/codes/CodesHandleDeleter.h"
+#include "metkit/codes/GRIBDecoder.h"
+
+#include <algorithm>
+#include <iostream>
+
+#include "eccodes.h"
 
 
 namespace metkit {
@@ -39,93 +39,40 @@ bool GRIBDecoder::match(const eckit::message::Message& msg) const {
 }
 
 
-//----------------------------------------------------------------------------------------------------------------------
-
-namespace {
-
-/* TODO In C++14: move to lambda with auto
- * https://en.cppreference.com/w/cpp/language/constraints
- *
- * With C++20 use Concepts and templated lambdas:
- *  template<typename T>
- *  concept Decoder = requires(T d, codes_handle* h, MetadataGatherer& gather, const char* name)
- *  {
- *      d(h, gather, name);
- *  };
- *
- * withSpecializedDecoder(...,
- *  [h, &gather]template<Decoder Dec>(Dec&& decode) {
- *     ...
- *     decode(h, gather, name);
- *  });
- */
-struct GRIBMetadataIt {
-    codes_handle* h;
-    codes_keys_iterator* itCtx;
-    eckit::message::MetadataGatherer& gather;
-
-    template <typename DecFunc>
-    void operator()(DecFunc&& decode) {
-        while (codes_keys_iterator_next(itCtx)) {
-            const char* name = codes_keys_iterator_get_name(itCtx);
-
-            if (name[0] == '_')
-                continue;  // skip silly underscores in GRIB
-
-            size_t klen = 0;
-
-            /* get key size to see if it is an array */
-            ASSERT(codes_get_size(h, name, &klen) == 0);
-            if (klen != 1) {
-                continue;
-            }
-            decode(h, gather, name);
-        }
-    }
-};
-
-}  // namespace
-
-
 void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
                               eckit::message::MetadataGatherer& gather,
                               const eckit::message::GetMetadataOptions& options) const {
     static std::string gribToRequestNamespace = eckit::Resource<std::string>("gribToRequestNamespace", "mars");
     std::string nameSpace                     = options.nameSpace ? *options.nameSpace : gribToRequestNamespace;
 
-    codes_handle* h = codes_handle_new_from_message(nullptr, msg.data(), msg.length());
+    std::unique_ptr<codes_handle> h(::codes_handle_new_from_message(nullptr, msg.data(), msg.length()));
     ASSERT(h);
-    HandleDeleter<codes_handle> handleDeleter(h);
 
-    codes_keys_iterator* itCtx = codes_keys_iterator_new(h, metadataFilterToEccodes(options.filter), nameSpace.c_str());
+    std::unique_ptr<codes_keys_iterator> itCtx(::codes_keys_iterator_new(h.get(), 0, nameSpace.c_str()));
     ASSERT(itCtx);
-    HandleDeleter<codes_keys_iterator> itDeleter(itCtx);
 
-    withSpecializedDecoder(
-        options,
-        // GetString
-        [itCtx](codes_handle* h, const char*, char* val, size_t* len) {
-            return codes_keys_iterator_get_string(itCtx, val, len);
-        },
-        // GetLong
-        [itCtx](codes_handle* h, const char*, long* l, size_t* len) {
-            return codes_keys_iterator_get_long(itCtx, l, len);
-        },
-        // GetDouble
-        [itCtx](codes_handle* h, const char*, double* d, size_t* len) {
-            return codes_keys_iterator_get_double(itCtx, d, len);
-        },
-        // GetBytes
-        [itCtx](codes_handle* h, const char*, unsigned char* c, size_t* len) {
-            return codes_keys_iterator_get_bytes(itCtx, c, len);
-        },
-        GRIBMetadataIt{h, itCtx, gather});
+    while (::codes_keys_iterator_next(itCtx.get())) {
+        const char* name = ::codes_keys_iterator_get_name(itCtx.get());
 
+        if (name[0] == '_')
+            continue;  // skip silly underscores in GRIB
 
+        size_t klen = 0;
+
+        /* get key size to see if it is an array */
+        ASSERT(::codes_get_size(h.get(), name, &klen) == 0);
+        if (klen != 1) {
+            continue;
+        }
+
+        decodeKey(h.get(), itCtx.get(), name, gather, options);
+    }
+
+    // Explicit override for param (kludge for paramID handling)
     {
         char value[1024];
         size_t len = sizeof(value);
-        if (codes_get_string(h, "paramId", value, &len) == 0) {
+        if (::codes_get_string(h.get(), "paramId", value, &len) == 0) {
             gather.setValue("param", value);
         }
     }
@@ -133,11 +80,11 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
     // Look for request embbeded in GRIB message
     long local;
     size_t size;
-    if (codes_get_long(h, "localDefinitionNumber", &local) == 0 && local == 191) {
+    if (::codes_get_long(h.get(), "localDefinitionNumber", &local) == 0 && local == 191) {
         /* TODO: Not grib2 compatible, but speed-up process */
-        if (codes_get_size(h, "freeFormData", &size) == 0 && size != 0) {
+        if (::codes_get_size(h.get(), "freeFormData", &size) == 0 && size != 0) {
             unsigned char buffer[size];
-            ASSERT(codes_get_bytes(h, "freeFormData", buffer, &size) == 0);
+            ASSERT(::codes_get_bytes(h.get(), "freeFormData", buffer, &size) == 0);
 
             eckit::MemoryStream s(buffer, size);
 
@@ -162,9 +109,6 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg,
     }
 }
 
-
-//----------------------------------------------------------------------------------------------------------------------
-
 eckit::Buffer GRIBDecoder::decode(const eckit::message::Message& msg) const {
     std::size_t size = msg.getSize("values");
     eckit::Buffer buf(size * sizeof(double));
@@ -173,20 +117,37 @@ eckit::Buffer GRIBDecoder::decode(const eckit::message::Message& msg) const {
     return buf;
 }
 
+std::string GRIBDecoder::getString(codes_handle*, codes_keys_iterator* it, const char*) {
+    char val[1024];
+    size_t len = sizeof(val);
+    // n.b. Do not rely on the returned len value. It is inconsistent (sometimes includes '\0', sometimes doesn't,
+    //      and sometimes doesn't get updated at all).
+    ASSERT(::codes_keys_iterator_get_string(it, val, &len) == 0);
+    return eckit::StringTools::trim(std::string{val});
+}
 
-//----------------------------------------------------------------------------------------------------------------------
+long GRIBDecoder::getLong(codes_handle* h, codes_keys_iterator* it, const char*) {
+    size_t len = 1;
+    long val;
+    ASSERT(::codes_keys_iterator_get_long(it, &val, &len) == 0);
+    return val;
+}
 
-eckit::message::EncodingFormat GRIBDecoder::getEncodingFormat(const eckit::message::Message& msg) const {
-    return eckit::message::EncodingFormat::GRIB;
-};
+double GRIBDecoder::getDouble(codes_handle*, codes_keys_iterator* it, const char*) {
+    double val;
+    size_t len = 1;
+    ASSERT(::codes_keys_iterator_get_double(it, &val, &len) == 0);
+    return val;
+}
 
+bool GRIBDecoder::getBytes(codes_handle*, codes_keys_iterator* it, const char*, unsigned char* vals, size_t* len) {
+    return ::codes_keys_iterator_get_bytes(it, vals, len) == 0;
+}
 
-//----------------------------------------------------------------------------------------------------------------------
 
 void GRIBDecoder::print(std::ostream& s) const {
     s << "GRIBDecoder[]";
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 

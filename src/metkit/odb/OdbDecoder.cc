@@ -42,7 +42,8 @@ bool OdbDecoder::match(const eckit::message::Message& msg) const {
 
 
 void OdbDecoder::getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer& gather) const {
+                             eckit::message::MetadataGatherer& gather,
+                             const eckit::message::GetMetadataOptions& options) const {
 
     std::unique_ptr<eckit::DataHandle> handle(msg.readHandle());
     handle->openForRead();
@@ -51,7 +52,7 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
     odc::api::Reader reader(*handle, false);
     odc::api::Frame frame;
 
-    OdbMetadataDecoder setter(gather);
+    OdbMetadataDecoder setter(gather, options);
 
     while ((frame = reader.next())) {
         odc::api::Span span = frame.span(OdbMetadataDecoder::columnNames(), true);
@@ -61,6 +62,9 @@ void OdbDecoder::getMetadata(const eckit::message::Message& msg,
 
 }
 
+eckit::Buffer OdbDecoder::decode(const eckit::message::Message& msg) const {
+    NOTIMP; // Not relevant for MultIO hackathon. Implement as needed in future.
+}
 
 void OdbDecoder::print(std::ostream& s) const {
     s << "OdbDecoder[]";
