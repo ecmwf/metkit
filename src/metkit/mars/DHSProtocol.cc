@@ -13,6 +13,7 @@
 
 #include "metkit/mars/DHSProtocol.h"
 
+#include "eckit/net/IPAddress.h"
 #include "eckit/net/TCPClient.h"
 #include "eckit/net/TCPStream.h"
 
@@ -79,12 +80,12 @@ const eckit::ClassSpec& DHSProtocol::classSpec() {
 
 eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 {
-    std::string host = callback_.localHost();
-    int    port = callback_.localPort();
+    std::string addr = eckit::net::IPAddress::hostAddress(callback_.localHost()).asString();
+    int         port = callback_.localPort();
 
-    eckit::Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
+    eckit::Log::info() << "DHSProtocol: call back on " << addr << ":" << port << std::endl;
 
-    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
+    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), addr, port));
 
     eckit::net::TCPStream s(eckit::net::TCPClient().connect(host_, port_));
 
@@ -102,13 +103,13 @@ eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 
 void DHSProtocol::archive(const MarsRequest& request, const eckit::Length& size)
 {
-    std::string host = callback_.localHost();
-    int    port = callback_.localPort();
+    std::string addr = eckit::net::IPAddress::hostAddress(callback_.localHost()).asString();
+    int         port = callback_.localPort();
 
     eckit::Log::info() << "DHSProtocol::archive " << size << std::endl;
-    eckit::Log::info() << "DHSProtocol: call back on " << host << ":" << port << std::endl;
+    eckit::Log::info() << "DHSProtocol: call back on " << addr << ":" << port << std::endl;
 
-    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), host, port));
+    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), addr, port));
 
     eckit::net::TCPStream s(eckit::net::TCPClient().connect(host_, port_));
 
@@ -192,7 +193,6 @@ long DHSProtocol::write(const void* buffer, long len)
 bool DHSProtocol::wait(eckit::Length& size)
 {
     for (;;) {
-
         socket_ = callback_.accept();
 
         eckit::net::InstantTCPStream s(socket_);
