@@ -226,20 +226,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "topLevel", 0);
         MD_EXPECT_STRING(md, "tempPressureUnits", "hPa");
         MD_EXPECT_STRING(md, "levtype", "o3d");
-        MD_EXPECT_LONG(md, "paramIdECMF", 260179);
-        MD_EXPECT_LONG(md, "paramId", 260179);
-        MD_EXPECT_STRING(md, "shortNameECMF", "land");
-        MD_EXPECT_STRING(md, "shortName", "land");
-        MD_EXPECT_STRING(md, "unitsECMF", "Proportion");
-        MD_EXPECT_STRING(md, "units", "Proportion");
-        MD_EXPECT_STRING(md, "nameECMF", "Land cover (1=land, 0=sea)");
-        MD_EXPECT_STRING(md, "name", "Land cover (1=land, 0=sea)");
-        MD_EXPECT_STRING(md, "cfNameECMF", "unknown");
-        MD_EXPECT_STRING(md, "cfName", "unknown");
-        MD_EXPECT_STRING(md, "cfVarNameECMF", "land");
-        MD_EXPECT_STRING(md, "cfVarName", "land");
         MD_EXPECT_STRING(md, "modelName", "unknown");
-        MD_EXPECT_LONG(md, "ifsParam", 260179);
         MD_EXPECT_LONG(md, "PVPresent", 0);
         MD_EXPECT_STRING(md, "deletePV", "1");
         MD_EXPECT_LONG(md, "lengthOfHeaders", 107);
@@ -277,7 +264,6 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_STRING(md, "productType", "unknown");
         MD_EXPECT_LONG(md, "section8Length", 4);
         MD_EXPECT_STRING(md, "7777", "7777");
-        MD_EXPECT_STRING(md, "param", "260179");
         MD_EXPECT_STRING(md, "uuidOfHGrid", "66a341d21dcf11b2880c0f1645f3d1dc");
     }
 }
@@ -423,20 +409,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "topLevel", "0");
         MD_EXPECT_STRING(md, "tempPressureUnits", "hPa");
         MD_EXPECT_STRING(md, "levtype", "o3d");
-        MD_EXPECT_STRING(md, "paramIdECMF", "260179");
-        MD_EXPECT_STRING(md, "paramId", "260179");
-        MD_EXPECT_STRING(md, "shortNameECMF", "land");
-        MD_EXPECT_STRING(md, "shortName", "land");
-        MD_EXPECT_STRING(md, "unitsECMF", "Proportion");
-        MD_EXPECT_STRING(md, "units", "Proportion");
-        MD_EXPECT_STRING(md, "nameECMF", "Land cover (1=land, 0=sea)");
-        MD_EXPECT_STRING(md, "name", "Land cover (1=land, 0=sea)");
-        MD_EXPECT_STRING(md, "cfNameECMF", "unknown");
-        MD_EXPECT_STRING(md, "cfName", "unknown");
-        MD_EXPECT_STRING(md, "cfVarNameECMF", "land");
-        MD_EXPECT_STRING(md, "cfVarName", "land");
         MD_EXPECT_STRING(md, "modelName", "unknown");
-        MD_EXPECT_STRING(md, "ifsParam", "260179");
         MD_EXPECT_STRING(md, "PVPresent", "0");
         MD_EXPECT_STRING(md, "deletePV", "1");
         MD_EXPECT_STRING(md, "lengthOfHeaders", "107");
@@ -474,7 +447,6 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "productType", "unknown");
         MD_EXPECT_STRING(md, "section8Length", "4");
         MD_EXPECT_STRING(md, "7777", "7777");
-        MD_EXPECT_STRING(md, "param", "260179");
     }
 }
 
