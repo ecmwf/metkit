@@ -31,10 +31,10 @@ protected:
     const size_t size_;
     mutable codes_handle* handle_;
 
-    virtual eckit::DataHandle* readHandle() const override;
-    virtual size_t length() const override;
-    virtual const void* data() const override;
-    virtual void write(eckit::DataHandle& handle) const override;
+    eckit::DataHandle* readHandle() const override;
+    size_t length() const override;
+    const void* data() const override;
+    void write(eckit::DataHandle& handle) const override;
 
     virtual const codes_handle* codesHandle() const;
 };

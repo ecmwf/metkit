@@ -72,12 +72,16 @@ const std::vector<std::string>& OdbMetadataDecoder::columnNames() {
 }
 
 template <typename T>
-void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>& vals, const metkit::mars::MarsLanguage& language) {
+void OdbMetadataDecoder::visit(const std::string& columnName,
+                               const std::set<T>& vals,
+                               const metkit::mars::MarsLanguage& language) {
 
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
     std::string keyword = eckit::StringTools::lower(mapitr->second);
     metkit::mars::Type* t = language.type(keyword);
+
+    ASSERT(options_.valueRepresentation == eckit::message::ValueRepresentation::String);
 
     for(auto val: vals) {
         std::string stringVal = eckit::Translator<T, std::string>()(val);
@@ -90,8 +94,10 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 }
 
 
-OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather, const std::string& verb) :
-    language_(verb), gather_(gather) {}
+OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather,
+                                       const eckit::message::GetMetadataOptions& options,
+                                       const std::string& verb) :
+    language_(verb), gather_(gather), options_(options) {}
 
 void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<long>& vals) {
     LOG_DEBUG_LIB(LibMetkit) << "OdbMetadataDecoder::operator() columnName: " << columnName

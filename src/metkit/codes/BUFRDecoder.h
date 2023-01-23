@@ -11,10 +11,11 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_BUFRDecoder_h
-#define metkit_BUFRDecoder_h
+#pragma once
 
-#include "eckit/message/Decoder.h"
+#include "metkit/codes/CodesDecoder.h"
+
+#include "eckit/io/Buffer.h"
 
 
 namespace metkit {
@@ -22,24 +23,31 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class BUFRDecoder : public eckit::message::Decoder {
+class BUFRDecoder : public metkit::codes::CodesDecoder<BUFRDecoder> {
 
-public: // methods
-
+public:  // methods
     static bool typeBySubtype(long subtype, long& type);
 
-private: // methods
+private:  // methods
+    bool match(const eckit::message::Message&) const override;
+    void print(std::ostream&) const override;
 
-    virtual bool match(const eckit::message::Message&) const override;
-    virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
+    void getMetadata(const eckit::message::Message& msg,
+                     eckit::message::MetadataGatherer&,
+                     const eckit::message::GetMetadataOptions&) const override;
 
+    eckit::Buffer decode(const eckit::message::Message& msg) const override;
+
+public: // methods for decoding the metadata
+
+    static std::string getString(codes_handle* h, codes_keys_iterator* it, const char* name);
+    static long getLong(codes_handle* h, codes_keys_iterator* it, const char* name);
+    static double getDouble(codes_handle* h, codes_keys_iterator* it, const char* name);
+    static bool getBytes(codes_handle* h, codes_keys_iterator* it, const char* name, unsigned char* vals, size_t* len);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
-} // namespace metkit
+}  // namespace codes
+}  // namespace metkit
 
-#endif

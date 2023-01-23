@@ -8,3 +8,4 @@ doc/latex
 *.sublime-workspace
 .*.sw*
 .*un~
+*.ccls-cache

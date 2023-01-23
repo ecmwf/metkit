@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996- ECMWF.
+ * (C) Copyright 2022- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -8,35 +8,32 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @date   Jun 2020
+/// @author Philipp Geier
+/// @author Simon Smart
+/// @date   Nov 2022
 
 #pragma once
 
-#include "eckit/message/Splitter.h"
-
-
-namespace metkit {
-namespace codes {
+#include <memory>
+#include <eccodes.h>
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class CodesSplitter : public eckit::message::Splitter {
-public:
+namespace std {
 
-    CodesSplitter(eckit::PeekHandle&);
-    ~CodesSplitter();
-
-private: // methods
-
-    eckit::message::Message next() override;
-    void print(std::ostream&) const override;
-
+template <> struct default_delete<codes_handle> {
+    void operator()(codes_handle* h) { ::codes_handle_delete(h); }
 };
 
+template <> struct default_delete<codes_keys_iterator> {
+    void operator()(codes_keys_iterator* it) { ::codes_keys_iterator_delete(it); }
+};
+
+template <> struct default_delete<codes_bufr_keys_iterator> {
+    void operator()(codes_bufr_keys_iterator* it) { ::codes_bufr_keys_iterator_delete(it); }
+};
+
+}
 
 //----------------------------------------------------------------------------------------------------------------------
-
-} // namespace codes
-} // namespace metkit
 

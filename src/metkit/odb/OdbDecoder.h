@@ -11,8 +11,7 @@
 /// @author Baudouin Raoult
 /// @date   Jun 2020
 
-#ifndef metkit_OdbDecoder_h
-#define metkit_OdbDecoder_h
+#pragma once
 
 #include "eckit/message/Decoder.h"
 
@@ -22,15 +21,17 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class OdbDecoder : public eckit::message::Decoder {
+class OdbDecoder : public eckit::message::MessageDecoder {
 
 private: // methods
 
-    virtual bool match(const eckit::message::Message&) const override;
-    virtual void print(std::ostream&) const override;
-    virtual void getMetadata(const eckit::message::Message& msg,
-                             eckit::message::MetadataGatherer&) const override;
+    bool match(const eckit::message::Message&) const override;
+    void print(std::ostream&) const override;
+    void getMetadata(const eckit::message::Message& msg,
+                     eckit::message::MetadataGatherer&,
+                     const eckit::message::GetMetadataOptions&) const override;
 
+    eckit::Buffer decode(const eckit::message::Message& msg) const override;
 };
 
 
@@ -39,4 +40,3 @@ private: // methods
 } // namespace codes
 } // namespace metkit
 
-#endif

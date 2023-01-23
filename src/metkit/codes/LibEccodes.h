@@ -11,8 +11,7 @@
 /// @author Olivier Iffrig
 /// @date   October 2019
 
-#ifndef metkit_LibEccodes_H
-#define metkit_LibEccodes_H
+#pragma once
 
 #include "eckit/system/Library.h"
 
@@ -31,13 +30,12 @@ protected:
 
     const void* addr() const override;
 
-    virtual std::string version() const override;
+    std::string version() const override;
 
-    virtual std::string gitsha1(unsigned int count) const override;
+    std::string gitsha1(unsigned int count) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit
 
-#endif

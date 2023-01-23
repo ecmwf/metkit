@@ -12,10 +12,7 @@
 /// @date   Jun 2020
 
 
-
-#ifndef metkit_codes_UserDataContent_H
-#define metkit_codes_UserDataContent_H
-
+#pragma once
 #include "metkit/codes/DataContent.h"
 
 
@@ -24,20 +21,14 @@ namespace codes {
 
 class UserDataContent : public DataContent {
 public:
-
     UserDataContent(const void* data, size_t size);
     ~UserDataContent();
 
 private:
-
-    virtual void print(std::ostream & s) const override;
-
-
+    void print(std::ostream& s) const override;
 };
 
 
 }  // namespace codes
 }  // namespace metkit
 
-
-#endif

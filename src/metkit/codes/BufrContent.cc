@@ -16,8 +16,13 @@
 
 #include "metkit/codes/GribHandle.h"
 
+#include "eccodes.h"
+
 namespace metkit {
 namespace codes {
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 BufrContent::BufrContent(codes_handle* handle, bool delete_handle): CodesContent(handle, delete_handle) {}
 
@@ -27,6 +32,8 @@ BufrContent::BufrContent(const codes_handle* handle):
 
 BufrContent::~BufrContent() {}
 
+
+//----------------------------------------------------------------------------------------------------------------------
 
 eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& dict) const {
     codes_handle* h = codes_handle_clone(handle_);
@@ -52,6 +59,9 @@ eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& 
 
     return new BufrContent(h);
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace close
 }  // namespace metkit

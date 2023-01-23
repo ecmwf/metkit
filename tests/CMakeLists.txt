@@ -39,36 +39,15 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   ENVIRONMENT   "${metkit_env}"
 )
 
-ecbuild_add_test( TARGET    metkit_test_typesfactory
-                  SOURCES   test_typesfactory.cc
-                  INCLUDES  "${ECKIT_INCLUDE_DIRS}"
-                  ENVIRONMENT   "${metkit_env}"
-                  LIBS      metkit )
+list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube codes_decoder)
 
-ecbuild_add_test( TARGET    metkit_test_expand
-                  SOURCES   test_expand.cc
-                  INCLUDES  "${ECKIT_INCLUDE_DIRS}"
-                  ENVIRONMENT   "${metkit_env}"
-                  LIBS      metkit)
-
-ecbuild_add_test( TARGET    metkit_test_param_axis
-                  SOURCES   test_param_axis.cc
-                  INCLUDES  "${ECKIT_INCLUDE_DIRS}"
-                  ENVIRONMENT   "${metkit_env}"
-                  LIBS      metkit)
-
-ecbuild_add_test( TARGET      metkit_test_steprange_axis
-                  SOURCES     test_steprange_axis.cc
-                  ENVIRONMENT "${metkit_env}"
-                  LIBS        metkit )
-
-ecbuild_add_test( TARGET      metkit_test_time
-                  SOURCES     test_time.cc
-                  LIBS        metkit )
-
-ecbuild_add_test( TARGET      metkit_test_hypercube
-                  SOURCES     test_hypercube.cc
-                  LIBS        metkit )
+foreach(test IN LISTS testFileSuffixes)
+    ecbuild_add_test( TARGET    "metkit_test_${test}"
+                      SOURCES   "test_${test}.cc"
+                      INCLUDES  "${ECKIT_INCLUDE_DIRS}"
+                      ENVIRONMENT   "${metkit_env}"
+                      LIBS      metkit)
+endforeach()
 
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)

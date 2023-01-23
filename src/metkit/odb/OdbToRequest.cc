@@ -75,7 +75,7 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
         MarsRequest r(verb_);
         MarsRequestSetter setter(r);
-        OdbMetadataDecoder decoder(setter, verb_);
+        OdbMetadataDecoder decoder(setter, {}, verb_);
         span.visit(decoder);
 
         if (one_ and requests.size()) {

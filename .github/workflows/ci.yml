@@ -31,4 +31,5 @@ jobs:
           ecmwf/ecbuild
           ecmwf/eckit
           ecmwf/eccodes
+          MathisRosenhauer/libaec@master
         dependency_branch: develop
