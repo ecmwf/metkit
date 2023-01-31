@@ -60,4 +60,8 @@
 61  ; TOVS MULTISENSOR  ; 4  ; TOVS_MS  ; TOVS MULTISENSOR  ;    
 62  ; Cloud reflectivity  ; 2  ; CLOUD_R  ; Cloud reflectivity  ;    
 63  ; Cloud Lidar  ; 2  ; CLOUD_L  ; Cloud Lidar  ;    
+65  ; GEOS VIS  ; 2  ; GEOS_VIS  ; GEOS visible reflectances  ;
+66  ; OCONV  ; 1  ; OCONV  ; Ocean conventional in situ  ;
+67  ; MWTS3 All-sky  ; 2  ; MWTS3_AS  ; MWTS3 All-sky  ;
+68  ; GIIRS  ; 2  ; GIIRS  ; GIIRS  ;
 99  ; TEST  ; 4  ; TEST  ;    ;    
