@@ -1,0 +1,31 @@
+name: reusable-ci-hpc
+
+on:
+  workflow_call:
+    inputs:
+      metkit:
+        required: false
+        type: string
+      eccodes:
+        required: false
+        type: string
+      eckit:
+        required: false
+        type: string
+jobs:
+  ci-hpc:
+    name: ci-hpc
+    uses: ecmwf-actions/build-package-hpc/.github/workflows/ci-hpc.yml@main
+    with:
+      name-prefix: metkit-
+      build-inputs: |
+        --package: ${{ inputs.metkit || 'ecmwf/metkit@develop' }}
+        --modules: |
+          ecbuild
+          ninja
+        --dependencies: |
+          ${{ inputs.eccodes || 'ecmwf/eccodes@develop' }}
+          ${{ inputs.eckit || 'ecmwf/eckit@develop' }}
+        --parallel: 64
+    secrets:
+      PAT: ${{ secrets.PAT }}
