@@ -3,7 +3,7 @@ name: reusable-ci
 on:
   workflow_call:
     inputs:
-      metkit:
+      metkit_sha:
         required: false
         type: string
       eccodes:
@@ -14,28 +14,17 @@ on:
         type: string
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get commit hash from input
-        if: ${{ inputs.metkit }}
-        id: split
-        env:
-          INPUT: ${{ inputs.metkit }}
-        run: echo sha=${INPUT##*@} >> $GITHUB_OUTPUT
-
   ci:
     name: metkit-ci
     needs: setup
     uses: ecmwf-actions/reusable-workflows/.github/workflows/ci.yml@v2
     with:
       repository: ecmwf/metkit
-      ref: ${{ steps.split.outputs.sha }}
+      ref: ${{ inputs.metkit_sha }}
       name_prefix: metkit-
-
       build_package_inputs: |
         repository: ecmwf/metkit
-        sha: ${{ steps.split.outputs.sha }}
+        sha: ${{ inputs.metkit_sha }}
         self_coverage: true
         dependencies: |
           ecmwf/ecbuild
