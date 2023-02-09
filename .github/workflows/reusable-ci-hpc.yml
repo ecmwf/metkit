@@ -27,5 +27,4 @@ jobs:
           ${{ inputs.eccodes || 'ecmwf/eccodes@develop' }}
           ${{ inputs.eckit || 'ecmwf/eckit@develop' }}
         --parallel: 64
-    secrets:
-      PAT: ${{ secrets.PAT }}
+    secrets: inherit

@@ -30,6 +30,7 @@ jobs:
     with:
       metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
       metkit_sha: ${{ github.event.pull_request.head.sha }}
+    secrets: inherit
 
   # Build downstream packages on HPC
   downstream-ci-hpc:
@@ -38,3 +39,4 @@ jobs:
     uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci-hpc.yml@metkit
     with:
       metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
+    secrets: inherit
