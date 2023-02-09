@@ -15,7 +15,7 @@ on:
 jobs:
   ci-hpc:
     name: ci-hpc
-    uses: ecmwf-actions/build-package-hpc/.github/workflows/ci-hpc.yml@main
+    uses: ecmwf-actions/reusable-workflows/.github/workflows/ci-hpc.yml@main
     with:
       name-prefix: metkit-
       build-inputs: |
