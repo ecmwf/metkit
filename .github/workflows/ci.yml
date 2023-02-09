@@ -38,4 +38,3 @@ jobs:
     uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci-hpc.yml@main
     with:
       metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
-      metkit_sha: ${{ github.event.pull_request.head.sha }}
