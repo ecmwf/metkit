@@ -799,6 +799,7 @@ _postproc: &_postproc
     - ['off', av]
     - [co, complex]
     - simple
+    - ccsds
 
   resol:
     category: postproc
