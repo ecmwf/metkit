@@ -1,35 +1,41 @@
 name: ci
 
-# Controls when the workflow will run
 on:
-
-  # Trigger the workflow on all pushes, except on tag creation
+  # Trigger the workflow on push to master or develop, except tag creation
   push:
     branches:
-    - '**'
+      - 'master'
+      - 'develop'
     tags-ignore:
-    - '**'
+      - '**'
 
-  # Trigger the workflow on all pull requests
+  # Trigger the workflow on pull request
   pull_request: ~
 
-  # Allow workflow to be dispatched on demand
-  workflow_dispatch: ~
-
 jobs:
-
   # Calls a reusable CI workflow to build & test the current repository.
-  #   It will pull in all needed dependencies and produce a code coverage report on success.
   ci:
     name: ci
-    uses: ecmwf-actions/reusable-workflows/.github/workflows/ci.yml@v1
+    uses: ./.github/workflows/reusable-ci.yml
     with:
-      codecov_upload: true
-      build_package_inputs: |
-        self_coverage: true
-        dependencies: |
-          ecmwf/ecbuild
-          ecmwf/eckit
-          ecmwf/eccodes
-          MathisRosenhauer/libaec@master
-        dependency_branch: develop
+      metkit_sha: ${{ github.sha }}
+    secrets: inherit
+
+  # # Build downstream packages on self-hosted runners
+  # downstream-ci:
+  #   name: metkit-downstream-ci
+  #   if: github.event_name == "pull_request"
+  #   uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci.yml@metkit
+  #   with:
+  #     metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
+  #     metkit_sha: ${{ github.event.pull_request.head.sha }}
+  #   secrets: inherit
+
+  # # Build downstream packages on HPC
+  # downstream-ci-hpc:
+  #   name: metkit-downstream-ci-hpc
+  #   if: github.event_name == "pull_request"
+  #   uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci-hpc.yml@metkit
+  #   with:
+  #     metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
+  #   secrets: inherit
