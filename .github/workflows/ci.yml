@@ -15,7 +15,7 @@ jobs:
   # Calls a reusable CI workflow to build & test the current repository.
   ci:
     name: ci
-    if: github.event_name == "push"
+    if: github.event_name == 'push'
     uses: ./.github/workflows/reusable-ci.yml
     with:
       metkit_sha: ${{ github.sha }}
