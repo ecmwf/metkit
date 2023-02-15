@@ -3,9 +3,8 @@ name: ci
 on:
   # Trigger the workflow on push to all branches, except master, develop and on tag creation
   push:
-    branches-ignore:
-      - 'master'
-      - 'develop'
+    branches:
+      - '**'
     tags-ignore:
       - '**'
 
@@ -22,21 +21,21 @@ jobs:
       metkit_sha: ${{ github.sha }}
     secrets: inherit
 
-  # Build downstream packages on self-hosted runners
-  downstream-ci:
-    name: metkit-downstream-ci
-    if: github.event_name == "pull_request"
-    uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci.yml@metkit
-    with:
-      metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
-      metkit_sha: ${{ github.event.pull_request.head.sha }}
-    secrets: inherit
+  # # Build downstream packages on self-hosted runners
+  # downstream-ci:
+  #   name: metkit-downstream-ci
+  #   if: github.event_name == "pull_request"
+  #   uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci.yml@metkit
+  #   with:
+  #     metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
+  #     metkit_sha: ${{ github.event.pull_request.head.sha }}
+  #   secrets: inherit
 
-  # Build downstream packages on HPC
-  downstream-ci-hpc:
-    name: metkit-downstream-ci-hpc
-    if: github.event_name == "pull_request"
-    uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci-hpc.yml@metkit
-    with:
-      metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
-    secrets: inherit
+  # # Build downstream packages on HPC
+  # downstream-ci-hpc:
+  #   name: metkit-downstream-ci-hpc
+  #   if: github.event_name == "pull_request"
+  #   uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci-hpc.yml@metkit
+  #   with:
+  #     metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
+  #   secrets: inherit
