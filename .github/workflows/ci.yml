@@ -1,10 +1,11 @@
 name: ci
 
 on:
-  # Trigger the workflow on push to all branches, except master, develop and on tag creation
+  # Trigger the workflow on push to master or develop, except tag creation
   push:
     branches:
-      - '**'
+      - 'master'
+      - 'develop'
     tags-ignore:
       - '**'
 
@@ -15,7 +16,6 @@ jobs:
   # Calls a reusable CI workflow to build & test the current repository.
   ci:
     name: ci
-    if: github.event_name == 'push'
     uses: ./.github/workflows/reusable-ci.yml
     with:
       metkit_sha: ${{ github.sha }}
