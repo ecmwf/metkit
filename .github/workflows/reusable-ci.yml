@@ -6,12 +6,15 @@ on:
       metkit:
         required: false
         type: string
+        default: 'ecmwf/metkit@develop'
       eccodes:
         required: false
         type: string
+        default: 'ecmwf/eccodes@develop'
       eckit:
         required: false
         type: string
+        default: 'ecmwf/eckit@develop'
 
 jobs:
   ci:
@@ -26,8 +29,8 @@ jobs:
         dependencies: |
           ecmwf/ecbuild
           MathisRosenhauer/libaec@master
-          ${{ inputs.eccodes || 'ecmwf/eccodes' }}
-          ${{ inputs.eckit || 'ecmwf/eckit' }}
+          ${{ inputs.eccodes }}
+          ${{ inputs.eckit }}
         dependency_branch: develop
         parallelism_factor: 8
     secrets: inherit
