@@ -3,7 +3,7 @@ name: reusable-ci
 on:
   workflow_call:
     inputs:
-      metkit_sha:
+      metkit:
         required: false
         type: string
       eccodes:
@@ -18,12 +18,10 @@ jobs:
     name: metkit-ci
     uses: ecmwf-actions/reusable-workflows/.github/workflows/ci.yml@v2
     with:
-      repository: ecmwf/metkit
-      ref: ${{ inputs.metkit_sha }}
+      repository: ${{ inputs.metkit }}
       name_prefix: metkit-
       build_package_inputs: |
-        repository: ecmwf/metkit
-        sha: ${{ inputs.metkit_sha }}
+        repository: ${{ inputs.metkit }}
         self_coverage: true
         dependencies: |
           ecmwf/ecbuild
