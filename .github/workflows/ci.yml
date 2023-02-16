@@ -13,23 +13,13 @@ on:
   pull_request: ~
 
 jobs:
-  # Calls a reusable CI workflow to build & test the current repository.
-  ci:
-    name: ci
-    uses: ./.github/workflows/reusable-ci.yml
+  # Run CI including downstream packages on self-hosted runners
+  downstream-ci:
+    name: downstream-ci
+    uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci.yml@main
     with:
-      metkit_sha: ${{ github.sha }}
+      metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
-
-  # # Build downstream packages on self-hosted runners
-  # downstream-ci:
-  #   name: metkit-downstream-ci
-  #   if: github.event_name == "pull_request"
-  #   uses: ecmwf-actions/downstream-ci/.github/workflows/downstream-ci.yml@metkit
-  #   with:
-  #     metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha }}
-  #     metkit_sha: ${{ github.event.pull_request.head.sha }}
-  #   secrets: inherit
 
   # # Build downstream packages on HPC
   # downstream-ci-hpc:
