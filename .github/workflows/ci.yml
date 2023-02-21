@@ -28,6 +28,7 @@ jobs:
   private-downstream-ci:
     name: private-downstream-ci
     needs: [downstream-ci]
+    if: success() || failure()
     runs-on: ubuntu-latest
     steps:
       - uses: ecmwf-actions/dispatch-private-downstream-ci@main
