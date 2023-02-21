@@ -31,7 +31,8 @@ jobs:
     if: success() || failure()
     runs-on: ubuntu-latest
     steps:
-      - uses: ecmwf-actions/dispatch-private-downstream-ci@main
+      - name: Dispatch private downstream CI
+        uses: ecmwf-actions/dispatch-private-downstream-ci@v1
         with:
           token: ${{ secrets.GH_REPO_READ_TOKEN }}
           owner: ecmwf-actions
