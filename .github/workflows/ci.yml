@@ -24,6 +24,19 @@ jobs:
       metkit: ecmwf/metkit@${{ github.event.pull_request.head.sha || github.sha }}
     secrets: inherit
 
+  # Run CI of private downstream packages on self-hosted runners
+  private-downstream-ci:
+    name: private-downstream-ci
+    needs: [downstream-ci]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ecmwf-actions/dispatch-private-downstream-ci@main
+        with:
+          owner: ecmwf-actions
+          repository: private-downstream-ci
+          event_type: downstream-ci
+          payload: '{"metkit": "ecmwf/metkit@${{ github.event.pull_request.head.sha || github.sha }}"}'
+
   # # Build downstream packages on HPC
   # downstream-ci-hpc:
   #   name: metkit-downstream-ci-hpc
