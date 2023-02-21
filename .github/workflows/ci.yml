@@ -33,6 +33,7 @@ jobs:
     steps:
       - uses: ecmwf-actions/dispatch-private-downstream-ci@main
         with:
+          token: ${{ secrets.GH_REPO_READ_TOKEN }}
           owner: ecmwf-actions
           repository: private-downstream-ci
           event_type: downstream-ci
