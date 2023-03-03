@@ -39,7 +39,15 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   ENVIRONMENT   "${metkit_env}"
 )
 
-list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube codes_decoder)
+ecbuild_add_test( TARGET      "metkit_test_codes_decoder"
+                  CONDITION   HAVE_GRIB OR HAVE_BUFR
+                  SOURCES     "test_codes_decoder.cc"
+                  INCLUDES    "${ECKIT_INCLUDE_DIRS}" "${ECCODES_INCLUDE_DIR}"
+                  LIBS        metkit
+                  ENVIRONMENT "${metkit_env}"
+)
+
+list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube)
 
 foreach(test IN LISTS testFileSuffixes)
     ecbuild_add_test( TARGET    "metkit_test_${test}"
