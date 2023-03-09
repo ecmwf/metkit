@@ -538,7 +538,7 @@ _field: &_field
     - ensemble
     by: 1
     only:
-    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp]
+    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
     never:
     # This is to prevent number with type=fc and stream=oper
     - stream: [oper, wave]
