@@ -35,6 +35,7 @@ ecbuild_add_test( TARGET        metkit_test_multihandle
                   INCLUDES      "${ECCODES_INCLUDE_DIRS}"
                   SOURCES       test_multihandle.cc
                   LIBS          metkit
+                  NO_AS_NEEDED
                   TEST_DEPENDS  grib_get_data
                   ENVIRONMENT   "${metkit_env}"
 )
@@ -54,6 +55,7 @@ foreach(test IN LISTS testFileSuffixes)
                       SOURCES   "test_${test}.cc"
                       INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                       ENVIRONMENT   "${metkit_env}"
+                      NO_AS_NEEDED
                       LIBS      metkit)
 endforeach()
 
