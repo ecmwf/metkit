@@ -20,6 +20,7 @@ jobs:
     with:
       skip_matrix_jobs: |
         gnu@debian-11
+        gnu@ubuntu-22.04
       repository: ${{ inputs.metkit || 'ecmwf/metkit@develop' }}
       name_prefix: metkit-
       build_package_inputs: |
