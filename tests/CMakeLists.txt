@@ -45,6 +45,7 @@ ecbuild_add_test( TARGET      "metkit_test_codes_decoder"
                   SOURCES     "test_codes_decoder.cc"
                   INCLUDES    "${ECKIT_INCLUDE_DIRS}" "${ECCODES_INCLUDE_DIR}"
                   LIBS        metkit
+                  NO_AS_NEEDED
                   ENVIRONMENT "${metkit_env}"
 )
 
