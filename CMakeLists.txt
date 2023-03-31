@@ -56,6 +56,10 @@ ecbuild_add_option( FEATURE ODB
                     DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
+# Temporary
+ecbuild_add_option( FEATURE FAIL_ON_CCSDS
+                    DESCRIPTION "Fail on CCSDS"
+                    DEFAULT OFF	 )
 # eckit
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
