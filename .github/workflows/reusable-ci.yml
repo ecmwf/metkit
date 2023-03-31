@@ -12,16 +12,19 @@ on:
       eckit:
         required: false
         type: string
+      codecov:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   ci:
     name: metkit-ci
     uses: ecmwf-actions/reusable-workflows/.github/workflows/ci.yml@v2
     with:
-      skip_matrix_jobs: |
-        gnu@debian-11
       repository: ${{ inputs.metkit || 'ecmwf/metkit@develop' }}
       name_prefix: metkit-
+      codecov_upload: ${{ inputs.codecov }}
       build_package_inputs: |
         repository: ${{ inputs.metkit || 'ecmwf/metkit@develop' }}
         self_coverage: true

@@ -12,6 +12,9 @@ on:
       eckit:
         required: false
         type: string
+      ecbuild:
+        required: false
+        type: string
 jobs:
   ci-hpc:
     name: ci-hpc
@@ -21,9 +24,9 @@ jobs:
       build-inputs: |
         --package: ${{ inputs.metkit || 'ecmwf/metkit@develop' }}
         --modules: |
-          ecbuild
           ninja
         --dependencies: |
+          ${{ inputs.ecbuild || 'ecmwf/ecbuild@develop' }}
           ${{ inputs.eccodes || 'ecmwf/eccodes@develop' }}
           ${{ inputs.eckit || 'ecmwf/eckit@develop' }}
         --parallel: 64
