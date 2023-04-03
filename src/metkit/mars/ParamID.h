@@ -66,7 +66,7 @@ public: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-long replaceTable(size_t table, long paramid) {
+inline long replaceTable(size_t table, long paramid) {
     return (table*1000 + paramid%1000);
 }
 

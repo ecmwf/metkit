@@ -10,7 +10,7 @@
 
 cmake_minimum_required( VERSION 3.12 FATAL_ERROR )
 
-find_package( ecbuild 3.4 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
+find_package( ecbuild 3.7.2 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
 
 project( metkit LANGUAGES CXX )
 
@@ -56,6 +56,10 @@ ecbuild_add_option( FEATURE ODB
                     DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
+# Temporary
+ecbuild_add_option( FEATURE FAIL_ON_CCSDS
+                    DESCRIPTION "Fail on CCSDS"
+                    DEFAULT OFF	 )
 # eckit
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support

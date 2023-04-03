@@ -19,6 +19,7 @@
 #cmakedefine metkit_HAVE_NETCDF
 #cmakedefine metkit_HAVE_BUFR
 #cmakedefine metkit_HAVE_ODB
+#cmakedefine metkit_HAVE_FAIL_ON_CCSDS
 
 /* packages */
 
