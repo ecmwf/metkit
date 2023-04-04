@@ -17,7 +17,7 @@ if not os.path.exists(target):
        output=tree,
        date=%s,
        target=%s,
-       source="fdbprod-server",
+       database="fdbprod-server",
        hide=cubes/count/year/month/time/date/refdate/refdatemonth/refdateyear/branch/origin/system/method/expver/class/product/section/number/obsgroup"""
             % (
                 dates,
@@ -50,7 +50,7 @@ for req in reqs:
             r["time"] = "all"
             r["date"] = dates
             r["expver"] = "0078"
-            r["source"] = "fdbprod-server"
+            r["database"] = "fdbprod-server"
             r[
                 "hide"
             ] = """channel/ident/instrument/branch/
