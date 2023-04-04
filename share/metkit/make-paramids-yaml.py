@@ -7,19 +7,19 @@ import os
 # import json
 
 
-db = MySQLdb.connect("grib-param-db-prod.ecmwf.int", "ecmwf_ro", "ecmwf_ro", "param")
+db = MySQLdb.connect("webapps-db-prod.ecmwf.int", "ecmwf_ro", "ecmwf_ro", "param")
 
 PRODGEN = {}
 if os.path.exists("prodgen-paramids.yaml"):
     with open("prodgen-paramids.yaml") as f:
-        PRODGEN = yaml.load(f.read())
+        PRODGEN = yaml.load(f.read(), Loader=yaml.FullLoader)
 
 # print(json.dumps(PRODGEN))
 
 PARAMSIDS = {}
 if os.path.exists("paramids.yaml"):
     with open("paramids.yaml") as f:
-        PARAMSIDS = yaml.load(f.read())
+        PARAMSIDS = yaml.load(f.read(), Loader=yaml.FullLoader)
 
 cursor = db.cursor()
 

@@ -40,7 +40,14 @@ def main():
     index[("oper", "tf", "")] = [129, 999]
     index[("scda", "tf", "")] = [129, 999]
     index[("enfo", "tf", "")] = [129, 999]
-
+    index[("eefo", "tf", "")] = [129, 999]
+    
+    # type=wp
+    index[("oper", "wp", "")] = [129, 999]
+    index[("scda", "wp", "")] = [129, 999]
+    index[("enfo", "wp", "")] = [129, 999]
+    index[("eefo", "wp", "")] = [129, 999]
+    
     yaml_dump_data = []
     for key, vals in sorted(index.items()):
         if key[2]:

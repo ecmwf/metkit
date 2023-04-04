@@ -4,19 +4,20 @@ import subprocess
 import os
 import yaml
 
-dates = "20181101/to/20181130"
-dates = "20181101"
+dates = "20230330/to/20230403"
 
 target = "streams.list"
 if not os.path.exists(target):
     with open("tmp", "w") as f:
         print(
             """ list,
+       expver=0078,
        stream=all,
        type=all,
        output=tree,
        date=%s,
        target=%s,
+       source="fdbprod-server",
        hide=cubes/count/year/month/time/date/refdate/refdatemonth/refdateyear/branch/origin/system/method/expver/class/product/section/number/obsgroup"""
             % (
                 dates,
@@ -48,6 +49,8 @@ for req in reqs:
             r["levtype"] = levtype
             r["time"] = "all"
             r["date"] = dates
+            r["expver"] = "0078"
+            r["source"] = "fdbprod-server"
             r[
                 "hide"
             ] = """channel/ident/instrument/branch/
@@ -113,7 +116,7 @@ def add(where, *params):
     global P
     P[where] = sorted(set(P[where]) | set(params))
 
-
+    
 """
 Add WP
 """
@@ -163,7 +166,7 @@ P[("enfo", "wp", "pl")] = P[("oper", "wp", "pl")]
 
 # Z (orog) on ML is not archived in MARS
 add(("oper", "fc", "ml"), 129)
-add(("scda", "fc", "ml"), 129)
+P[("scda", "fc", "ml")] = [129]
 add(("lwda", "fc", "ml"), 129)
 
 # Tropfical cyclones
@@ -189,13 +192,14 @@ P[("scda", "an", "pv")] = P[("oper", "an", "pv")]
 P[("scda", "fc", "pt")] = P[("oper", "fc", "pt")]
 P[("scda", "fc", "pv")] = P[("oper", "fc", "pv")]
 
-# VPOT=2 and STRF=1 not in mars
-add(("enfh", "cf", "pl"), 1, 2)
+# TODO: reactivate, temporarilty turned off for 48r1 gradual addition of fields
+# # VPOT=2 and STRF=1 not in mars
+P[("enfh", "cf", "pl")] = [1, 2]
 P[("enfh", "pf", "pl")] = P[("enfh", "cf", "pl")]
 
 # ssro=9, sro=8, ro=205, tisr=212
-add(("msmm", "em", "sfc"), 8, 9, 205, 212)
-add(("msmm", "fcmean", "sfc"), 8, 9, 205, 212)
+P[("msmm", "em", "sfc")] = [8, 9, 205, 212]
+P[("msmm", "fcmean", "sfc")] = [8, 9, 205, 212]
 
 # Still in FR/FRA/req/curr/FX
 P[("enfo", "fp", "sfc")] = sorted([131165, 131228])
@@ -222,6 +226,20 @@ add(("enfo", "pf", "pv"), 129)  # Z
 add(("enfo", "cm", "pl"), 130)  # T
 add(("enfo", "cs", "pl"), 130)  # T
 
+# New stream eefo since CY48r1
+P[("eefo", "cf", "pv")]  = [129]
+P[("eefo", "cf", "pl")]  = [129]
+P[("eefo", "cf", "ml")]  = [129]
+P[("eefo", "cf", "sfc")] = [129]
+P[("eefo", "pf", "pv")]  = P[("eefo", "cf", "pv")]
+P[("eefo", "pf", "pl")]  = P[("eefo", "cf", "pl")]
+P[("eefo", "pf", "ml")]  = P[("eefo", "cf", "ml")]
+P[("eefo", "pf", "sfc")] = P[("eefo", "cf", "sfc")]
+P[("eefo", "em", "pl")]  = [129]
+P[("eefo", "es", "pl")]  = P[("eefo", "em", "pl")]
+P[("eefo", "fcmean", "pl")]  = [129]
+P[("eefo", "taem", "pl")]  = [129]
+P[("eefo", "taes", "pl")]  = P[("eefo", "taem", "pl")]
 
 Y = []
 for k, v in sorted(P.items()):
