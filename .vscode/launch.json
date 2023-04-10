@@ -13,7 +13,7 @@
             "justMyCode": true
         },
         {
-            "name": "make params MARS",
+            "name": "make params MARS (deprecated method)",
             "type": "python",
             "request": "launch",
             "program": "~/git/metkit/share/metkit/make-params-yaml.py",

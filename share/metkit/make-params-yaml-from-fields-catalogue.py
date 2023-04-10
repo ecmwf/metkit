@@ -37,13 +37,13 @@ def main():
         index[key].append(param)
 
     # Manually add type=tf parameters for PGEN
-    index[("oper", "tf", "")] = [129, 999]
+    index[("oper", "tf", "")] = [129, 143, 999]
     index[("scda", "tf", "")] = [129, 999]
     index[("enfo", "tf", "")] = [129, 999]
     index[("eefo", "tf", "")] = [129, 999]
     
     # type=wp
-    index[("oper", "wp", "")] = [129, 999]
+    index[("oper", "wp", "")] = [129, 143, 999]
     index[("scda", "wp", "")] = [129, 999]
     index[("enfo", "wp", "")] = [129, 999]
     index[("eefo", "wp", "")] = [129, 999]
