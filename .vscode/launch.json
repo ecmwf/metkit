@@ -16,33 +16,33 @@
             "name": "make params MARS (deprecated method)",
             "type": "python",
             "request": "launch",
-            "program": "~/git/metkit/share/metkit/make-params-yaml.py",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
                 "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1" // "${env:ECFLOW_DIR}"
             },
             "args": [""],
-            "cwd":"/home/madd/git/metkit/share/metkit/"
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
         },
         {
             "name": "make paramIds list",
             "type": "python",
             "request": "launch",
-            "program": "~/git/metkit/share/metkit/make-paramids-yaml.py",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-paramids-yaml.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
                 "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1" // "${env:ECFLOW_DIR}"
             },
             "args": [""],
-            "cwd":"/home/madd/git/metkit/share/metkit/"
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
         },
         {
             "name": "make params FDB",
             "type": "python",
             "request": "launch",
-            "program": "~/git/metkit/share/metkit/make-params-yaml-from-fields-catalogue.py",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml-from-fields-catalogue.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "env": {
@@ -54,7 +54,7 @@
                 "PRODUCT_CATALOGUE_PORT": "30544"
             },
             "args": [""],
-            "cwd":"/home/madd/git/metkit/share/metkit/"
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
         },
 
     ]
