@@ -15,6 +15,7 @@ _field: &_field
     - [co, cosmo]
     - [cr, cams research]
     - [cs, ecsn]
+    - [d1, destine]
     - [de, germany]
     - [dk, denmark]
     - [dm, demeter]
@@ -51,6 +52,7 @@ _field: &_field
     - [ma, metaps]
     - [mc, macc]
     - [me, mersea]
+    - [ml, machine learning]
     - [ms, member states]
     - [nl, netherlands]
     - ['no', norway]
@@ -391,6 +393,7 @@ _field: &_field
     - [tovs_ms, 61,  TOVS MULTISENSOR ]
     - [cloud_r, 62,  CLOUD REFLECTIVITY ]
     - [cloud_l, 63,  CLOUD LIDAR ]
+    - [satellite_lightning, 64,  SATELLITE LIGHTNING ]
     - [test, 99,  TEST ]
 
   reportype:
