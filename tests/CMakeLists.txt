@@ -19,6 +19,10 @@ ecbuild_get_test_multidata( TARGET grib_get_data
                             DIRNAME grib_api/data
                             NAMES latlon.grib )
 
+ecbuild_get_test_multidata( TARGET metkit_get_odb_data
+                            NAMES multiodb.odb
+                                  multiodb2.odb )
+
 # ecbuild_add_test( TARGET        metkit_test_emosfile
 #                   ARGS          --log_level=message
 #                   CONDITION     HAVE_GRIB
@@ -49,13 +53,14 @@ ecbuild_add_test( TARGET      "metkit_test_codes_decoder"
                   ENVIRONMENT "${metkit_env}"
 )
 
-list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube)
+list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube odbsplitter )
 
 foreach(test IN LISTS testFileSuffixes)
     ecbuild_add_test( TARGET    "metkit_test_${test}"
                       SOURCES   "test_${test}.cc"
                       INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                       ENVIRONMENT   "${metkit_env}"
+                      TEST_DEPENDS metkit_get_odb_data
                       NO_AS_NEEDED
                       LIBS      metkit)
 endforeach()

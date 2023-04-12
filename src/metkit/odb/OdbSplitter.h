@@ -15,6 +15,7 @@
 #define metkit_OdbSplitter_h
 
 #include "eckit/message/Splitter.h"
+#include "eckit/io/SeekableHandle.h"
 
 #include "odc/api/Odb.h"
 
@@ -35,6 +36,8 @@ public:
     ~OdbSplitter() override;
 
 private: // members
+
+    eckit::SeekableHandle handleWrapper_;
     odc::api::Reader reader_;
     odc::api::Frame lastFrame_;
 
