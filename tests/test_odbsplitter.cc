@@ -13,6 +13,8 @@
 #include "eckit/message/Reader.h"
 #include "eckit/io/BufferList.h"
 
+#include <cstring>
+
 using namespace eckit::testing;
 
 namespace metkit {
