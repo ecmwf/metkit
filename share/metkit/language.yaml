@@ -393,6 +393,7 @@ _field: &_field
     - [tovs_ms, 61,  TOVS MULTISENSOR ]
     - [cloud_r, 62,  CLOUD REFLECTIVITY ]
     - [cloud_l, 63,  CLOUD LIDAR ]
+    - [satellite_lightning, 64,  SATELLITE LIGHTNING ]
     - [test, 99,  TEST ]
 
   reportype:
