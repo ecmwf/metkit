@@ -369,6 +369,11 @@ void TypeParam::print(std::ostream &out) const {
 
 bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const {
 
+    bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
+    if (metkitRawParam) {
+        return true;
+    }
+
     pthread_once(&once, init);
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
 
