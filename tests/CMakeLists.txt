@@ -53,14 +53,21 @@ ecbuild_add_test( TARGET      "metkit_test_codes_decoder"
                   ENVIRONMENT "${metkit_env}"
 )
 
-list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube odbsplitter )
+ecbuild_add_test( TARGET        metkit_test_odbsplitter
+                  CONDITION     HAVE_ODB
+                  SOURCES       test_odbsplitter.cc
+                  INCLUDES      "${ECKIT_INCLUDE_DIRS}"
+                  TEST_DEPENDS  metkit_get_odb_data
+                  NO_AS_NEEDED
+                  LIBS          metkit )
+
+list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube )
 
 foreach(test IN LISTS testFileSuffixes)
     ecbuild_add_test( TARGET    "metkit_test_${test}"
                       SOURCES   "test_${test}.cc"
                       INCLUDES  "${ECKIT_INCLUDE_DIRS}"
                       ENVIRONMENT   "${metkit_env}"
-                      TEST_DEPENDS metkit_get_odb_data
                       NO_AS_NEEDED
                       LIBS      metkit)
 endforeach()
