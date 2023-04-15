@@ -13,7 +13,7 @@
             "justMyCode": true
         },
         {
-            "name": "make params MARS (deprecated method)",
+            "name": "make params MARS yaml (deprecated method)",
             "type": "python",
             "request": "launch",
             "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml.py",
@@ -26,7 +26,7 @@
             "cwd":"${env:HOME}/git/metkit/share/metkit/"
         },
         {
-            "name": "make paramIds list",
+            "name": "make paramIds yaml",
             "type": "python",
             "request": "launch",
             "program": "${env:HOME}/git/metkit/share/metkit/make-paramids-yaml.py",
@@ -39,7 +39,7 @@
             "cwd":"${env:HOME}/git/metkit/share/metkit/"
         },
         {
-            "name": "make params FDB",
+            "name": "make params FDB yaml",
             "type": "python",
             "request": "launch",
             "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml-from-fields-catalogue.py",
@@ -56,6 +56,18 @@
             "args": [""],
             "cwd":"${env:HOME}/git/metkit/share/metkit/"
         },
-
+        {
+            "name": "make fields DB yaml",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/fieldsdb.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1", // "${env:ECFLOW_DIR}"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
     ]
 }
