@@ -417,6 +417,7 @@ _field: &_field
     - [pt, potential temperature]
     - [pv, potential vorticity]
     - [sfc, surface]
+    - [sol, surface other (multi)levels]
     - [wv, ocean wave]
     - [o2d, ocean surface]
     - [o3d, ocean model levels]
