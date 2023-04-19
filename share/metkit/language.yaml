@@ -394,6 +394,10 @@ _field: &_field
     - [cloud_r, 62,  CLOUD REFLECTIVITY ]
     - [cloud_l, 63,  CLOUD LIDAR ]
     - [satellite_lightning, 64,  SATELLITE LIGHTNING ]
+    - [geos_vis, 65,  GEOS VIS ]
+    - [oconv, 66,  OCONV ]
+    - [mwts3_as, 67,  MWTS3 All-sky ]
+    - [giirs, 68,  GIIRS ]
     - [test, 99,  TEST ]
 
   reportype:
