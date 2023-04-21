@@ -1660,14 +1660,6 @@
     - 172228
     - 228246
     - 228247
-- - stream: eefo
-    type: tf
-  - - 129
-    - 999
-- - stream: eefo
-    type: wp
-  - - 129
-    - 999
 - - levtype: sfc
     stream: eehs
     type: cd
@@ -5469,10 +5461,16 @@
 - - stream: enfo
     type: tf
   - - 129
+    - 156
+    - 172
+    - 188
     - 999
 - - stream: enfo
     type: wp
   - - 129
+    - 156
+    - 172
+    - 188  
     - 999
 - - levtype: pl
     stream: enfo
@@ -5481,6 +5479,7 @@
     - 130
     - 131
     - 132
+    - 156
     - 157
 - - levtype: sfc
     stream: enfo
@@ -5501,6 +5500,7 @@
     - 143
     - 144
     - 151
+    - 156
     - 164
     - 165
     - 166
@@ -8050,11 +8050,17 @@
     type: tf
   - - 129
     - 143
+    - 156
+    - 172
+    - 188
     - 999
 - - stream: oper
     type: wp
   - - 129
     - 143
+    - 156
+    - 172
+    - 188
     - 999
 - - levtype: pl
     stream: oper
@@ -8063,6 +8069,7 @@
     - 130
     - 131
     - 132
+    - 156
     - 157
 - - levtype: sfc
     stream: oper
@@ -8083,6 +8090,7 @@
     - 143
     - 144
     - 151
+    - 156
     - 164
     - 165
     - 166
@@ -8711,6 +8719,9 @@
 - - stream: scda
     type: wp
   - - 129
+    - 156
+    - 172
+    - 188
     - 999
 - - levtype: sfc
     stream: scwv
