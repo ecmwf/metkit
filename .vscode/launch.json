@@ -1,0 +1,138 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "make params MARS yaml (deprecated method)",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1" // "${env:ECFLOW_DIR}"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+        {
+            "name": "make paramIds yaml - 0001",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-paramids-yaml.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1" // "${env:ECFLOW_DIR}"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+        {
+            "name": "make paramIds yaml - 0078",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-paramids-yaml-esuite.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1" // "${env:ECFLOW_DIR}"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+        {
+            "name": "make params FDB yaml - 0001",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml-from-fields-catalogue.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1", // "${env:ECFLOW_DIR}"
+                "PRODUCT_CATALOGUE_HOST": "bol-db-products-prod-01",
+                "PRODUCT_CATALOGUE_DB": "products",
+                "PRODUCT_CATALOGUE_USER":     "ecmwf_ro",
+                "PRODUCT_CATALOGUE_PASSWORD": "ecmwf_ro",
+                "PRODUCT_CATALOGUE_PORT": "5432",
+                "VALIDATION_SERVICE_HOST":    "https://products.ecmwf.int/requirements/"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+        {            
+            "name": "make params FDB yaml - 0078 - preprod",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml-from-fields-catalogue.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1", // "${env:ECFLOW_DIR}"
+                "PRODUCT_CATALOGUE_HOST": "k8s-bol-webapps-test-worker-016",
+                "PRODUCT_CATALOGUE_DB": "products",
+                "PRODUCT_CATALOGUE_USER": "products",
+                "PRODUCT_CATALOGUE_PASSWORD": "products",
+                "PRODUCT_CATALOGUE_PORT": "30544",
+                "VALIDATION_SERVICE_HOST": "https://products-test.ecmwf.int/esuite/requirements/"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+        {            
+            "name": "make params FDB yaml - 0078 - prod",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/make-params-yaml-from-fields-catalogue.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1", // "${env:ECFLOW_DIR}"
+                "PRODUCT_CATALOGUE_HOST": "k8s-bol-webapps-prod-worker-012",
+                "PRODUCT_CATALOGUE_DB": "products",
+                "PRODUCT_CATALOGUE_USER": "products",
+                "PRODUCT_CATALOGUE_PASSWORD": "products",
+                "PRODUCT_CATALOGUE_PORT": "30545",
+                "VALIDATION_SERVICE_HOST": "https://products.ecmwf.int/esuite/requirements/"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },     
+        {
+            "name": "make fields DB yaml - 0001",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/fieldsdb.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1", // "${env:ECFLOW_DIR}"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+        {
+            "name": "make fields DB yaml - 0078",
+            "type": "python",
+            "request": "launch",
+            "program": "${env:HOME}/git/metkit/share/metkit/fieldsdb-esuite.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "ECFLOW_DIR": "/usr/local/apps/ecflow/5.8.1", // "${env:ECFLOW_DIR}"
+            },
+            "args": [""],
+            "cwd":"${env:HOME}/git/metkit/share/metkit/"
+        },
+    ]
+}

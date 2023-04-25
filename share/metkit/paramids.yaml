@@ -519,7 +519,7 @@
 - 2 metre dewpoint temperature
 169:
 - ssrd
-- surface solar radiation downwards
+- surface short-wave (solar) radiation downwards
 170:
 - stl2
 - soil temperature level 2
@@ -537,19 +537,19 @@
 - albedo
 175:
 - strd
-- surface thermal radiation downwards
+- surface long-wave (thermal) radiation downwards
 176:
 - ssr
-- surface net solar radiation
+- surface net short-wave (solar) radiation
 177:
 - str
-- surface net thermal radiation
+- surface net long-wave (thermal) radiation
 178:
 - tsr
-- top net solar radiation
+- top net short-wave (solar) radiation
 179:
 - ttr
-- top net thermal radiation
+- top net long-wave (thermal) radiation
 180:
 - ewss
 - eastward turbulent surface stress
@@ -643,10 +643,10 @@
 - ttru
 210:
 - ssrc
-- surface net solar radiation, clear sky
+- surface net short-wave (solar) radiation, clear sky
 211:
 - strc
-- surface net thermal radiation, clear sky
+- surface net long-wave (thermal) radiation, clear sky
 212:
 - tisr
 - toa incident solar radiation
@@ -6068,10 +6068,10 @@
 - wildfire flux of ethane (c2h6)
 210119:
 - mami
-- mean altitude of maximum injection
+- mean height of maximum injection
 210120:
 - apt
-- altitude of plume top
+- plume top height above surface
 210121:
 - no2
 - nitrogen dioxide mass mixing ratio
@@ -6389,7 +6389,7 @@
 - wildfire flux of heptane (c7h16)
 210242:
 - apb
-- altitude of plume bottom
+- plume bottom height above surface
 210243:
 - vsuaod550
 - volcanic sulphate aerosol optical depth at 550 nm
@@ -7884,6 +7884,219 @@
 213150:
 - spp50
 - random pattern 50 for spp scheme
+213151:
+- spp51
+- random pattern 51 for spp scheme
+213152:
+- spp52
+- random pattern 52 for spp scheme
+213153:
+- spp53
+- random pattern 53 for spp scheme
+213154:
+- spp54
+- random pattern 54 for spp scheme
+213155:
+- spp55
+- random pattern 55 for spp scheme
+213156:
+- spp56
+- random pattern 56 for spp scheme
+213157:
+- spp57
+- random pattern 57 for spp scheme
+213158:
+- spp58
+- random pattern 58 for spp scheme
+213159:
+- spp59
+- random pattern 59 for spp scheme
+213160:
+- spp60
+- random pattern 60 for spp scheme
+213161:
+- spp61
+- random pattern 61 for spp scheme
+213162:
+- spp62
+- random pattern 62 for spp scheme
+213163:
+- spp63
+- random pattern 63 for spp scheme
+213164:
+- spp64
+- random pattern 64 for spp scheme
+213165:
+- spp65
+- random pattern 65 for spp scheme
+213166:
+- spp66
+- random pattern 66 for spp scheme
+213167:
+- spp67
+- random pattern 67 for spp scheme
+213168:
+- spp68
+- random pattern 68 for spp scheme
+213169:
+- spp69
+- random pattern 69 for spp scheme
+213170:
+- spp70
+- random pattern 70 for spp scheme
+213171:
+- spp71
+- random pattern 71 for spp scheme
+213172:
+- spp72
+- random pattern 72 for spp scheme
+213173:
+- spp73
+- random pattern 73 for spp scheme
+213174:
+- spp74
+- random pattern 74 for spp scheme
+213175:
+- spp75
+- random pattern 75 for spp scheme
+213176:
+- spp76
+- random pattern 76 for spp scheme
+213177:
+- spp77
+- random pattern 77 for spp scheme
+213178:
+- spp78
+- random pattern 78 for spp scheme
+213179:
+- spp79
+- random pattern 79 for spp scheme
+213180:
+- spp80
+- random pattern 80 for spp scheme
+213181:
+- spp81
+- random pattern 81 for spp scheme
+213182:
+- spp82
+- random pattern 82 for spp scheme
+213183:
+- spp83
+- random pattern 83 for spp scheme
+213184:
+- spp84
+- random pattern 84 for spp scheme
+213185:
+- spp85
+- random pattern 85 for spp scheme
+213186:
+- spp86
+- random pattern 86 for spp scheme
+213187:
+- spp87
+- random pattern 87 for spp scheme
+213188:
+- spp88
+- random pattern 88 for spp scheme
+213189:
+- spp89
+- random pattern 89 for spp scheme
+213190:
+- spp90
+- random pattern 90 for spp scheme
+213191:
+- spp91
+- random pattern 91 for spp scheme
+213192:
+- spp92
+- random pattern 92 for spp scheme
+213193:
+- spp93
+- random pattern 93 for spp scheme
+213194:
+- spp94
+- random pattern 94 for spp scheme
+213195:
+- spp95
+- random pattern 95 for spp scheme
+213196:
+- spp96
+- random pattern 96 for spp scheme
+213197:
+- spp97
+- random pattern 97 for spp scheme
+213198:
+- spp98
+- random pattern 98 for spp scheme
+213199:
+- spp99
+- random pattern 99 for spp scheme
+213200:
+- spp100
+- random pattern 100 for spp scheme
+213201:
+- spp101
+- random pattern 101 for spp scheme
+213202:
+- spp102
+- random pattern 102 for spp scheme
+213203:
+- spp103
+- random pattern 103 for spp scheme
+213204:
+- spp104
+- random pattern 104 for spp scheme
+213205:
+- spp105
+- random pattern 105 for spp scheme
+213206:
+- spp106
+- random pattern 106 for spp scheme
+213207:
+- spp107
+- random pattern 107 for spp scheme
+213208:
+- spp108
+- random pattern 108 for spp scheme
+213209:
+- spp109
+- random pattern 109 for spp scheme
+213210:
+- spp110
+- random pattern 110 for spp scheme
+213211:
+- spp111
+- random pattern 111 for spp scheme
+213212:
+- spp112
+- random pattern 112 for spp scheme
+213213:
+- spp113
+- random pattern 113 for spp scheme
+213214:
+- spp114
+- random pattern 114 for spp scheme
+213215:
+- spp115
+- random pattern 115 for spp scheme
+213216:
+- spp116
+- random pattern 116 for spp scheme
+213217:
+- spp117
+- random pattern 117 for spp scheme
+213218:
+- spp118
+- random pattern 118 for spp scheme
+213219:
+- spp119
+- random pattern 119 for spp scheme
+213220:
+- spp120
+- random pattern 120 for spp scheme
+213221:
+- spp121
+- random pattern 121 for spp scheme
 214001:
 - uvcossza
 - cosine of solar zenith angle
@@ -12820,6 +13033,39 @@
 228255:
 - tcclw
 - surface long wave-effective total cloudiness
+229001:
+- cur
+- urban cover
+229002:
+- cro
+- road cover
+229003:
+- cbu
+- building cover
+229004:
+- bldh
+- building height
+229005:
+- hwr
+- vertical-to-horizontal area ratio
+229006:
+- bhstd
+- standard deviation of building height
+229007:
+- cwe
+- wetland cover
+229008:
+- twe
+- wetland type
+229009:
+- cirr
+- irrigation cover
+229010:
+- c4cr
+- c4 crop cover
+229011:
+- c4gr
+- c4 grass cover
 230008:
 - srovar
 - surface runoff (variable resolution)
@@ -12970,6 +13216,27 @@
 230251:
 - pevvar
 - potential evaporation (variable resolution)
+231001:
+- fzrawe
+- accumulated freezing rain water equivalent
+231002:
+- rowe
+- runoff water equivalent
+231003:
+- eswe
+- snow evaporation water equivalent
+231004:
+- pevr
+- potential evaporation rate
+231005:
+- peva
+- potential evaporation
+231006:
+- tifr
+- tile fraction
+231007:
+- tipe
+- tile percentage
 234139:
 - sts
 - surface temperature significance
@@ -14237,16 +14504,16 @@
 - mslet
 - mslp (eta model reduction)
 260318:
-- sev_ptype1h
+- ptype_sev1h
 - precipitation type (most severe) in the last 1 hour
 260319:
-- sev_ptype3h
+- ptype_sev3h
 - precipitation type (most severe) in the last 3 hours
 260320:
-- freq_ptype1h
+- ptype_freq1h
 - precipitation type (most frequent) in the last 1 hour
 260321:
-- freq_ptype3h
+- ptype_freq3h
 - precipitation type (most frequent) in the last 3 hours
 260323:
 - mslma
@@ -14293,6 +14560,12 @@
 260337:
 - presn
 - pressure (nearest grid point)
+260338:
+- ptype_sev6h
+- precipitation type (most severe) in the last 6 hours
+260339:
+- ptype_freq6h
+- precipitation type (most frequent) in the last 6 hours
 260340:
 - duvb
 - uv-b downward solar flux
@@ -14365,6 +14638,9 @@
 260367:
 - sod
 - soil depth
+260368:
+- som
+- soil moisture
 260369:
 - ri
 - richardson number
@@ -14811,25 +15087,25 @@
 - fire detection indicator
 260540:
 - fwinx
-- forest fire weather index
+- forest fire weather index (as defined by the canadian forest service)
 260541:
 - ffmcode
-- fine fuel moisture code
+- fine fuel moisture code (as defined by the canadian forest service)
 260542:
 - dufmcode
-- duff moisture code
+- duff moisture code (as defined by the canadian forest service)
 260543:
 - drtcode
-- drought code
+- drought code (as defined by the canadian forest service)
 260544:
 - infsinx
-- initial fire spread index
+- initial fire spread index (as defined by the canadian forest service)
 260545:
 - fbupinx
-- fire buildup index
+- fire buildup index (as defined by the canadian forest service)
 260546:
 - fdsrte
-- fire daily severity rating
+- fire daily severity rating (as defined by the canadian forest service)
 260550:
 - _param_260550
 - cloudy radiance (with respect to wave number)
@@ -15086,6 +15362,9 @@
 261021:
 - swvp
 - saturation water vapour pressure
+261022:
+- wbpt
+- wet-bulb potential temperature
 262000:
 - sithick
 - sea ice thickness
@@ -15110,6 +15389,45 @@
 262007:
 - sigrowth
 - sea ice growth
+262008:
+- sivol
+- sea ice volume per unit area
+262009:
+- snvol
+- snow volume over sea ice per unit area
+262010:
+- sitemp
+- sea ice temperature
+262011:
+- sntemp
+- snow temperature over sea ice
+262012:
+- sisntemp
+- sea ice temperature at the sea ice and snow interface
+262013:
+- usitemp
+- underside ice temperature
+262014:
+- sihc
+- sea ice heat content
+262015:
+- snhc
+- snow heat content over sea ice
+262016:
+- sifbr
+- sea ice freeboard thickness
+262017:
+- sipf
+- sea ice melt pond fraction
+262018:
+- sipd
+- sea ice melt pond depth
+262019:
+- sipvol
+- sea ice melt pond volume per unit area
+262020:
+- bckinsic
+- sea ice fraction tendency due to parameterization
 262100:
 - sos
 - sea surface salinity
@@ -15197,6 +15515,48 @@
 262128:
 - thcline
 - thermocline depth
+262129:
+- btp
+- bottom pressure equivalent height
+262130:
+- swfup
+- net surface upward water flux
+262131:
+- fw2sw
+- fresh water flux into sea water (from rivers)
+262132:
+- vsf2sw
+- virtual salt flux into sea water
+262133:
+- hfcorr
+- heat flux correction
+262134:
+- fwcorr
+- fresh water flux correction
+262135:
+- vsfcorr
+- virtual salt flux correction
+262136:
+- turbocl
+- turbocline depth (kz=5e-4)
+262137:
+- svy
+- y-component of surface sea water velocity
+262138:
+- svx
+- x-component of surface sea water velocity
+262139:
+- svn
+- northward surface sea water velocity
+262140:
+- sve
+- eastward surface sea water velocity
+262141:
+- hct26
+- heat content surface to 26c isotherm
+262142:
+- bckineta
+- sea surface height tendency due to parameterization
 262500:
 - so
 - sea water practical salinity
@@ -15221,6 +15581,60 @@
 262507:
 - wo
 - upward sea water velocity
+262508:
+- thetaodmp
+- sea water potential temperature tendency due to newtonian relaxation
+262509:
+- sodmp
+- sea water salinity tendency due to newtonian relaxation
+262510:
+- bckint
+- sea water temperature tendency due to parameterization
+262511:
+- bckins
+- sea water salinity tendency due to parameterization
+262512:
+- bckine
+- eastward sea water velocity tendency due to parameterization
+262513:
+- bckinn
+- northward sea water velocity tendency due to parameterization
+262514:
+- tdbiascorr
+- sea water temperature tendency due to direct bias correction
+262515:
+- sdbiascorr
+- sea water salinity tendency due to direct bias correction
+262900:
+- ssr_sea
+- net short wave radiation rate at sea surface
+262901:
+- 10wst_sea
+- wind stress at 10m above sea surface
+262902:
+- 10ws_sea
+- wind speed at 10m above sea surface
+262903:
+- 10nd_sea
+- neutral drag coefficient at 10m above sea surface
+262904:
+- tprate_sea
+- total precipitation rate at sea surface
+262905:
+- snrate_sea
+- snow precipitation rate at sea surface
+262906:
+- ewst_sea
+- eastward of wind stress over sea ice
+262907:
+- nwst_sea
+- northward of wind stress over sea ice
+262908:
+- uwst_sea
+- u-component of wind stress over sea ice
+262909:
+- vwst_sea
+- v-component of wind stress over sea ice
 263000:
 - avg_sithick
 - time-mean sea ice thickness
@@ -15245,6 +15659,45 @@
 263007:
 - avg_sigrowth
 - time-mean sea ice growth
+263008:
+- avg_sivol
+- time-mean sea ice volume per unit area
+263009:
+- avg_snvol
+- time-mean snow volume over sea ice per unit area
+263010:
+- avg_sitemp
+- time-mean sea ice temperature
+263011:
+- avg_sntemp
+- time-mean snow temperature over sea ice
+263012:
+- avg_sisntemp
+- time-mean sea ice temperature at the sea ice and snow interface
+263013:
+- avg_usitemp
+- time-mean underside ice temperature
+263014:
+- avg_sihc
+- time-mean sea ice heat content
+263015:
+- avg_snhc
+- time-mean snow heat content over sea ice
+263016:
+- avg_sifbr
+- time-mean sea ice freeboard thickness
+263017:
+- avg_sipf
+- time-mean sea ice melt pond fraction
+263018:
+- avg_sipd
+- time-mean sea ice melt pond depth
+263019:
+- avg_sipvol
+- time-mean sea ice melt pond volume per unit area
+263020:
+- avg_bckinsic
+- time-mean sea ice fraction tendency due to parameterization
 263100:
 - avg_sos
 - time-mean sea surface salinity
@@ -15332,6 +15785,48 @@
 263128:
 - avg_thcline
 - time-mean thermocline depth
+263129:
+- avg_btp
+- time-mean bottom pressure equivalent height
+263130:
+- avg_swfup
+- time-mean net surface upward water flux
+263131:
+- avg_fw2sw
+- time-mean fresh water flux into sea water (from rivers)
+263132:
+- avg_vsf2sw
+- time-mean virtual salt flux into sea water
+263133:
+- avg_hfcorr
+- time-mean heat flux correction
+263134:
+- avg_fwcorr
+- time-mean fresh water flux correction
+263135:
+- avg_vsfcorr
+- time-mean virtual salt flux correction
+263136:
+- avg_turbocl
+- time-mean turbocline depth (kz=5e-4)
+263137:
+- avg_svy
+- time-mean y-component of surface sea water velocity
+263138:
+- avg_svx
+- time-mean x-component of surface sea water velocity
+263139:
+- avg_svn
+- time-mean northward surface sea water velocity
+263140:
+- avg_sve
+- time-mean eastward surface sea water velocity
+263141:
+- avg_hct26
+- time-mean heat content surface to 26c isotherm
+263142:
+- avg_bckineta
+- time-mean sea surface height tendency due to parameterization
 263500:
 - avg_so
 - time-mean sea water practical salinity
@@ -15356,6 +15851,69 @@
 263507:
 - avg_wo
 - time-mean upward sea water velocity
+263508:
+- avg_thetaodmp
+- time-mean sea water potential temperature tendency due to newtonian relaxation
+263509:
+- avg_sodmp
+- time-mean sea water salinity tendency due to newtonian relaxation
+263510:
+- avg_bckint
+- time-mean sea water temperature tendency due to parameterization
+263511:
+- avg_bckins
+- time-mean sea water salinity tendency due to parameterization
+263512:
+- avg_bckine
+- time-mean eastward sea water velocity tendency due to parameterization
+263513:
+- avg_bckinn
+- time-mean northward sea water velocity tendency due to parameterization
+263514:
+- avg_tdbiascorr
+- time-mean sea water temperature tendency due to direct bias correction
+263515:
+- avg_sdbiascorr
+- time-mean sea water salinity tendency due to direct bias correction
+263900:
+- avg_ssr_sea
+- time-mean net short wave radiation rate at sea surface
+263901:
+- avg_10wst_sea
+- time-mean wind stress at 10m above sea surface
+263902:
+- avg_10ws_sea
+- time-mean wind speed at 10m above sea surface
+263903:
+- avg_10nd_sea
+- time-mean neutral drag coefficient at 10m above sea surface
+263904:
+- avg_tprate_sea
+- time-mean total precipitation rate at sea surface
+263905:
+- avg_snrate_sea
+- time-mean snow precipitation rate at sea surface
+263906:
+- avg_ewst_sea
+- time-mean eastward of wind stress over sea ice
+263907:
+- avg_nwst_sea
+- time-mean northward of wind stress over sea ice
+263908:
+- avg_uwst_sea
+- time-mean u-component of wind stress over sea ice
+263909:
+- avg_vwst_sea
+- time-mean v-component of wind stress over sea ice
+264900:
+- acc_ssr_sea
+- time-accumulated net short wave radiation at sea surface
+264904:
+- tp_sea
+- time-accumulated total precipitation at sea surface
+264905:
+- sn_sea
+- time-accumulated snow precipitation at sea surface
 300001:
 - pres
 - pressure
@@ -16037,6 +16595,123 @@
 300255:
 - uvmt
 - time mean zonal wind (u)
+400000:
+- mdens
+- mass density
+401000:
+- tc_mdens
+- total column vertically-integrated mass density
+402000:
+- mass_mixrat
+- mass mixing ratio
+403000:
+- emi_mflx
+- emission mass flux
+404000:
+- drydep_vel
+- dry deposition velocity
+405000:
+- wetdep_mflx
+- wet deposition mass flux
+406000:
+- drydep_mflx
+- dry deposition mass flux
+407000:
+- sed_mflx
+- sedimentation mass flux
+408000:
+- vol_mixrat
+- volume mixing ratio
+409000:
+- vm_tc_vol_mixrat
+- volume-mean total column mixing ratio
+410000:
+- wetdep_mflx_lsp
+- wet deposition mass flux by large-scale precipitation
+411000:
+- wetdep_mflx_cp
+- wet deposition mass flux by convective precipitation
+412000:
+- emi_mflx_veg
+- emission mass flux from vegetation
+413000:
+- emi_mflx_natsrc
+- emission mass flux from natural sources
+414000:
+- emi_mflx_antsrc
+- emission mass flux from anthropogenic sources
+415000:
+- emi_mflx_elevantsrc
+- emission mass flux from elevated anthropogenic sources
+416000:
+- emi_mflx_sfcantsrc
+- emission mass flux from surface anthropogenic sources
+417000:
+- emi_mflx_biomburn
+- emission mass flux from biomass burning
+418000:
+- emi_mflx_aviation
+- emission from aviation
+419000:
+- emi_mflx_agriliv
+- emission mass flux from agriculture livestock
+420000:
+- emi_mflx_agrisol
+- emission mass flux from agriculture soils
+421000:
+- emi_mflx_agriwasburn
+- emission mass flux from agricultural waste burning
+422000:
+- emi_mflx_rescomb
+- emission mass flux from residential, commercial and other combustion
+423000:
+- emi_mflx_powgen
+- emission mass flux from power generation
+424000:
+- emi_mflx_fug
+- emission mass flux from fugitives
+425000:
+- emi_mflx_indproc
+- emission mass flux from industrial process
+426000:
+- emi_mflx_solv
+- emission mass flux from solvents
+427000:
+- emi_mflx_shp
+- emission mass flux from ships
+428000:
+- emi_mflx_wastes
+- emission mass flux from wastes (solid and water)
+429000:
+- emi_mflx_offrdtrans
+- emission mass flux from off-road transportation
+430000:
+- emi_mflx_rdtrans
+- emission mass flux from road transportation
+431000:
+- emi_mflx_suppowstn
+- emission mass flux from super power stations
+432000:
+- emi_mflx_settl
+- emission mass flux from settlements
+433000:
+- emi_mflx_vol
+- emission mass flux from volcanoes
+434000:
+- emi_mflx_wetl
+- emission mass flux from wetlands
+450000:
+- aer_ndens
+- aerosol number density
+451000:
+- aer_negfix_mflx
+- aerosol negative fixer mass flux
+452000:
+- aer_sink_mflx
+- aerosol sink/loss mass flux
+453000:
+- aer_src_mflx
+- aerosol source/gain mass flux
 500000:
 - ps
 - pressure (s) (not reduced)
