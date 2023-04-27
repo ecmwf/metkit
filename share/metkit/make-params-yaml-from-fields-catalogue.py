@@ -35,7 +35,12 @@ def main():
         if key not in index:
             index[key] = []
         index[key].append(param)
-
+        
+    # Manually add type=tf parameters for PGEN
+    index[("oper", "tf", "")] = [129, 999]
+    index[("scda", "tf", "")] = [129, 999]
+    index[("enfo", "tf", "")] = [129, 999]
+    
     yaml_dump_data = []
     for key, vals in sorted(index.items()):
         if key[2]:
