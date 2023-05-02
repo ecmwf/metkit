@@ -72,7 +72,7 @@ const GribInfo& GribHandleData::updateInfo(){
         info_.update(h);
 
         // Write to json
-        // XXX gribpath_ is set in constructor, but in future will probably always be reading from a file.
+        // XXX gribpath_ is set in constructor, but in future may not always be reading from a file.
         eckit::PathName jsonName = gribpath_ + ".json";
         std::ofstream f(jsonName);
         eckit::JSON json(f, false);
@@ -83,7 +83,7 @@ const GribInfo& GribHandleData::updateInfo(){
 }
 
 void GribHandleData::print(std::ostream& s) const {
-    s << "GribHandleDataSource2[" << *handle_ << "]" << std::endl;
+    s << "GribHandleData[" << *handle_ << "]" << std::endl;
 }
 
 const std::map<std::string, eckit::Value>& GribHandleData::request() const {

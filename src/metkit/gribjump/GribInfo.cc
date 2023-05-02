@@ -66,6 +66,8 @@ GribInfo::GribInfo():
     numberOfValues_(0),
     numberOfDataPoints_(0),
     sphericalHarmonics_(0) {
+    binaryMultiplier_ = 1;
+    decimalMultiplier_ = 1;
 }
 
 void GribInfo::update(const GribHandle& h) {
@@ -82,6 +84,9 @@ void GribInfo::update(const GribHandle& h) {
         offsetBeforeBitmap_ = offsetBeforeBitmap(h);
     else
         offsetBeforeBitmap_ = 0;
+
+    binaryMultiplier_ = grib_power(binaryScaleFactor_, 2);
+    decimalMultiplier_ = grib_power(-decimalScaleFactor_, 10);
 }
 
 void GribInfo::print(std::ostream& s) const {
@@ -100,6 +105,8 @@ void GribInfo::print(std::ostream& s) const {
 }
 
 void GribInfo::toJSON(eckit::JSON& json) const {
+    // set precision to 15 digits
+    json.precision(15);
     json.startObject();
     json << "binaryScaleFactor" << binaryScaleFactor_;
     json << "decimalScaleFactor" << decimalScaleFactor_;
@@ -110,6 +117,8 @@ void GribInfo::toJSON(eckit::JSON& json) const {
     json << "numberOfValues" << numberOfValues_;
     json << "offsetBeforeBitmap" << offsetBeforeBitmap_;
     json << "sphericalHarmonics" << sphericalHarmonics_;
+    json << "binaryMultiplier" << binaryMultiplier_;
+    json << "decimalMultiplier" << decimalMultiplier_;
     json.endObject();
 }
 
@@ -125,33 +134,36 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
     numberOfValues_ = v["numberOfValues"];
     offsetBeforeBitmap_ = v["offsetBeforeBitmap"];
     sphericalHarmonics_ = v["sphericalHarmonics"];
+    binaryMultiplier_ = v["binaryMultiplier"];
+    decimalMultiplier_ = v["decimalMultiplier"];
 }
 
 
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
-    unsigned char buf[8];
+    unsigned char buf[8]; // 8 byte buffer
 
     if (bitsPerValue_ == 0)
-        return referenceValue_;
+        return referenceValue_; // all values are the same?
 
     ASSERT(!sphericalHarmonics_);
 
     if (offsetBeforeBitmap_) {
         // TODO: Still need to go through this section...
         // and also find a grib that will use it.
-        ASSERT(index < numberOfDataPoints_);
+        ASSERT(index < numberOfDataPoints_); // difference between this and numberOfValues_ is ..? 
+        // COPILOT: [numberOfValues_ is the number of values in the data section, numberOfDataPoints_ is the number of points in the bitmap]
 
         Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
                     << ",index " << index
                     << std::endl;
 
-        Offset offset(offsetBeforeBitmap_);
+        Offset offset(offsetBeforeBitmap_); 
 
-        f.seek(offset);
-        ASSERT(f.seek(offset) == offset);
+        f.seek(offset); // Jump to the bitmap?
+        ASSERT(f.seek(offset) == offset); // This seeks twice? Why?
         size_t count = 0;
         uint64_t n;
-        ASSERT(sizeof(n) == 8);
+        ASSERT(sizeof(n) == 8); // paranoia..., should be 64 bits
 
         size_t skip = index / (sizeof(n) * 8); // ie number of 64 bit words to skip
 
@@ -178,7 +190,7 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
         count += count_bits(n);
         Log::info() << "Count " << count << std::endl;
 
-        n = (n >> (64 - pos)) & 1;
+        n = (n >> (64 - pos)) & 1; 
 
         if (!n) {
             return MISSING;
@@ -192,7 +204,7 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     ASSERT(index < numberOfValues_);
 
     {
-        Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8); // offset to byte containing value
+        Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8); // offset to start of byte containing value
         ASSERT(f.seek(offset) == offset); // seek to byte containing value
 
         long len = (bitsPerValue_ + 7) / 8; // number of bytes per value, rounded up
@@ -200,117 +212,11 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     }
 
     long bitp = (index * bitsPerValue_) % 8; // bit offset within byte to start of value
-    unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
-
-    double s = grib_power(binaryScaleFactor_, 2); // 2^binaryScaleFactor_
-    double d = grib_power(-decimalScaleFactor_, 10); // 10^-decimalScaleFactor_
-
-    double v = (double) (((p * s) + referenceValue_) * d); // decode stored value into double
+    unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_); // decode value from buf as unsigned long
+    double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_); // translate value into double
 
     return v;
 }
-
-
-
-
-
-
-
-
-
-// double GribInfo::value(const GribDataSource &f, size_t index) const {
-//     unsigned char buf[8];
-
-//     if (bitsPerValue_ == 0)
-//         return referenceValue_;
-
-//     ASSERT(!sphericalHarmonics_);
-
-//     if (offsetBeforeBitmap_) {
-//         // What this does, according to copilot:
-//         // 1. Read the bitmap
-//         // 2. Count the number of bits set before the index
-//         // 3. Skip the data to the right position
-//         // 4. Read the data
-//         // 5. Mask the data to the right number of bits
-        
-//         ASSERT(index < numberOfDataPoints_);
-
-//         Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
-//                     << ",index " << index
-//                     << std::endl;
-
-
-//         Offset offset(offsetBeforeBitmap_);
-//         ASSERT(f.seek(offset) == offset);
-//         size_t count = 0;
-
-//         uint64_t n;
-//         ASSERT(sizeof(n) == 8);
-
-//         size_t skip = index / (sizeof(n) * 8);
-
-//         Log::info() << "Read " << skip  << " words" << std::endl;
-//         for (size_t i = 0; i < skip; ++i) {
-//             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
-//             count += count_bits(n);
-//         }
-//         Log::info() << "Count " << count << std::endl;
-
-//         size_t pos = index % (sizeof(n) * 8);
-
-//         Log::info() << "Read last bits, " << pos << std::endl;
-//         ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
-
-//         Log::info() << "Read last bits, " << pos << ", before mask " << std::bitset<64>(n) << std::endl;
-
-
-//         n &= masks[pos];
-
-//         Log::info() << "Read last bits, " << pos << ", after mask " << std::bitset<64>(n) << ", bits="
-//                     << count_bits(n) <<
-//                     std::endl;
-
-
-
-//         count += count_bits(n);
-//         Log::info() << "Count " << count << std::endl;
-
-//         n = (n >> (64 - pos)) & 1;
-
-//         if (!n) {
-//             return MISSING;
-//         }
-
-//         ASSERT(count);
-//         index = count - 1;
-//     }
-
-//     // By the time we're here, index should be start of the part we care about?
-
-//     Log::info() << "index " << index << ", numberOfValues " << numberOfValues_ << std::endl;
-//     ASSERT(index < numberOfValues_);
-
-//     {
-//         Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
-//         ASSERT(f.seek(offset) == offset);
-
-
-//         long len = (bitsPerValue_ + 7) / 8; //ceil essentially, want a complete byte
-//         ASSERT(f.read(buf, len) == len);
-//     }
-
-//     long bitp = (index * bitsPerValue_) % 8;
-//     unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
-
-//     // TODO: store the precomputed values
-//     double s = grib_power(binaryScaleFactor_, 2);
-//     double d = grib_power(-decimalScaleFactor_, 10) ;
-
-//     double v = (double) (((p * s) + referenceValue_) * d);
-
-//     return v;
-// }
 
 } // namespace gribjump
 } // namespace metkit

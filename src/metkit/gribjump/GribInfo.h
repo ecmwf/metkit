@@ -59,6 +59,8 @@ private:
     unsigned long numberOfDataPoints_;
     long          sphericalHarmonics_;
 
+    double binaryMultiplier_; // = 2^binaryScaleFactor_
+    double decimalMultiplier_; // = 10^-decimalScaleFactor_
 
     friend std::ostream& operator<<(std::ostream& s, const GribInfo& f) {
         f.print(s);
