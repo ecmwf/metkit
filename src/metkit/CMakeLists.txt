@@ -153,6 +153,10 @@ if ( HAVE_GRIB )
         codes/GribIterator.cc
         codes/GribIterator.h
         codes/CodesHandleDeleter.h
+        gribjump/GribInfo.cc
+        gribjump/GribInfo.h
+        gribjump/GribHandleData.cc
+        gribjump/GribHandleData.h
         )
 
     set( grib_libs eccodes )

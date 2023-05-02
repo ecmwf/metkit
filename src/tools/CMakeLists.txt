@@ -58,6 +58,14 @@ ecbuild_add_executable( TARGET    bufr-sanity-check
     NO_AS_NEEDED
     LIBS      metkit eckit_option )
 
+
+ecbuild_add_executable( TARGET   grib-jump
+    CONDITION HAVE_GRIB
+    SOURCES   grib-jump.cc
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    LIBS      metkit
+)
+
 # ecbuild_add_executable( TARGET     ncmerge
 #                         SOURCES    ncmerge.cc
 #                         CONDITION  HAVE_NETCDF
