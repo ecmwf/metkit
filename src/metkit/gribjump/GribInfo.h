@@ -33,7 +33,6 @@ namespace gribjump {
 
 class GribHandleData;
 
-
 class GribInfo {
 public:
 

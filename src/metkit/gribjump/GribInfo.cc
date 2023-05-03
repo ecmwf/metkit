@@ -45,9 +45,6 @@ static int bits[65536] = {
 #include "metkit/pointdb/bits.h"
 };
 
-static uint64_t masks[64] = {
-#include "metkit/pointdb/masks.h"
-};
 
 static inline int count_bits(unsigned long long n) {
     return bits[n         & 0xffffu]
@@ -105,7 +102,6 @@ void GribInfo::print(std::ostream& s) const {
 }
 
 void GribInfo::toJSON(eckit::JSON& json) const {
-    // set precision to 15 digits
     json.precision(15);
     json.startObject();
     json << "binaryScaleFactor" << binaryScaleFactor_;
@@ -140,7 +136,7 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
 
 
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
-    unsigned char buf[8]; // 8 byte buffer
+    unsigned char buf[8];
 
     if (bitsPerValue_ == 0)
         return referenceValue_; // all values are the same?
@@ -148,56 +144,42 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     ASSERT(!sphericalHarmonics_);
 
     if (offsetBeforeBitmap_) {
-        // TODO: Still need to go through this section...
-        // and also find a grib that will use it.
-        ASSERT(index < numberOfDataPoints_); // difference between this and numberOfValues_ is ..? 
-        // COPILOT: [numberOfValues_ is the number of values in the data section, numberOfDataPoints_ is the number of points in the bitmap]
+        ASSERT(index < numberOfDataPoints_);
 
         Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
                     << ",index " << index
                     << std::endl;
 
         Offset offset(offsetBeforeBitmap_); 
-
-        f.seek(offset); // Jump to the bitmap?
-        ASSERT(f.seek(offset) == offset); // This seeks twice? Why?
+        ASSERT(f.seek(offset) == offset); // Jump to the bitmap
         size_t count = 0;
-        uint64_t n;
-        ASSERT(sizeof(n) == 8); // paranoia..., should be 64 bits
+        uint8_t n;
+        ASSERT(sizeof(n) == 1);
 
-        size_t skip = index / (sizeof(n) * 8); // ie number of 64 bit words to skip
-
-        Log::info() << "Read " << skip  << " words" << std::endl;
+        size_t skip = index / (8); // ie number of bytes to skip.
+        Log::info() << "Read " << skip  << " bytes" << std::endl;
         for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
             count += count_bits(n);
         }
-        Log::info() << "Count " << count << std::endl;
 
-        size_t pos = index % (sizeof(n) * 8);
-
-        Log::info() << "Read last bits, " << pos << std::endl;
+        // read the byte containing the bit we want
         ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
 
-        Log::info() << "Read last bits, " << pos << ", before mask " << std::bitset<64>(n) << std::endl;
+        Log::info() << "chunk, bin " << std::bitset<8>(n) << ", bits=" << count_bits(n) << std::endl;
 
-        n &= masks[pos];
+        uint8_t pos = index%8;
 
-        Log::info() << "Read last bits, " << pos << ", after mask " << std::bitset<64>(n) << ", bits="
-                    << count_bits(n) <<
-                    std::endl;
-
+        // check if the bit is set, if not then the value is marked missing
+        n = (n >> (sizeof(n)*8 -pos -1));
         count += count_bits(n);
-        Log::info() << "Count " << count << std::endl;
 
-        n = (n >> (64 - pos)) & 1; 
-
-        if (!n) {
+        if (!(n & 1)) {
+            Log::info() << "MISSING" << std::endl;
             return MISSING;
         }
-
-        ASSERT(count);
-        index = count - 1;
+        index = count -1;
+        Log::info() << "new index (accounting for missing vals): " << index << std::endl;
     }
 
     Log::info() << "index " << index << ", numberOfValues " << numberOfValues_ << std::endl;
