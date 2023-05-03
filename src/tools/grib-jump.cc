@@ -99,7 +99,8 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
     if (doQuery_) {
         size_t index = std::stoi(args(2));
         std::cout << "Query index " << index << " in " << args(1) << std::endl;
-        query(gribInfo, index);
+        double v = query(gribInfo, index);
+        std::cout << "Value: " << v << std::endl;
     }
 }
 
@@ -166,6 +167,7 @@ void GribJump::test() {
     ASSERT(gribInfo.ready());
     for (size_t index = 0; index < numberOfDataPoints; index++) {
         double v = query(gribInfo, index);
+        std::cout << "index " << index << " value " << v << " expected " << expected_v[index] << std::endl;
         double delta = std::abs(v - expected_v[index]);
         ASSERT(delta < 1e-15);
     }

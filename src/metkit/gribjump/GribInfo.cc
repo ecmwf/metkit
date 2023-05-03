@@ -53,6 +53,17 @@ static inline int count_bits(unsigned long long n) {
            +  bits[(n >> 48) & 0xffffu];
 }
 
+static inline uint64_t reverse_bytes(uint64_t n) {
+    return ((n & 0x00000000000000FF) << 56) |
+           ((n & 0x000000000000FF00) << 40) |
+           ((n & 0x0000000000FF0000) << 24) |
+           ((n & 0x00000000FF000000) << 8) |
+           ((n & 0x000000FF00000000) >> 8) |
+           ((n & 0x0000FF0000000000) >> 24) |
+           ((n & 0x00FF000000000000) >> 40) |
+           ((n & 0xFF00000000000000) >> 56);
+}
+
 GribInfo::GribInfo():
     referenceValue_(0),
     binaryScaleFactor_(0),
@@ -145,26 +156,29 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     if (offsetBeforeBitmap_) {
         ASSERT(index < numberOfDataPoints_);
 
-        // Jump to start of bitmap
+        // Jump to start of bitmap.
         Offset offset(offsetBeforeBitmap_); 
         ASSERT(f.seek(offset) == offset);
 
-        // XXX: Currently reading one byte at a time. May later change uint8_t to w/e we want to read.
-        uint8_t n;
-        ASSERT(sizeof(n) == 1);
+        // We will read in 8-byte chunks.
+        uint64_t n;
+        const size_t n_bytes = sizeof(n);
 
         // skip to the byte containing the bit we want, counting set bits as we go.
         size_t count = 0;
-        size_t skip = index / (8);
+        size_t skip = index / (8*n_bytes);
         for (size_t i = 0; i < skip; ++i) {
-            ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
+            ASSERT(f.read(&n, n_bytes) == n_bytes);
             count += count_bits(n);
         }
-        ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
+        ASSERT(f.read(&n, n_bytes) == n_bytes);
+
+        // XXX We need to reverse the byte order of n (but not the bits in each byte).
+        n = reverse_bytes(n);
 
         // check if the bit is set, if not then the value is marked missing
-        // bit we want is, from the left, index%8.
-        n = (n >> (sizeof(n)*8 -index%8 -1));
+        // bit we want is, from the left, index%(n_bytes*8)
+        n = (n >> (n_bytes*8 -index%(n_bytes*8) -1));
         count += count_bits(n);
 
         if (!(n & 1)) {
