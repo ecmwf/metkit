@@ -136,66 +136,60 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
 
 
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
-    unsigned char buf[8];
 
     if (bitsPerValue_ == 0)
-        return referenceValue_; // all values are the same?
+        return referenceValue_; // XXX: single valued?
 
     ASSERT(!sphericalHarmonics_);
 
     if (offsetBeforeBitmap_) {
         ASSERT(index < numberOfDataPoints_);
 
-        Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
-                    << ",index " << index
-                    << std::endl;
-
+        // Jump to start of bitmap
         Offset offset(offsetBeforeBitmap_); 
-        ASSERT(f.seek(offset) == offset); // Jump to the bitmap
-        size_t count = 0;
+        ASSERT(f.seek(offset) == offset);
+
+        // XXX: Currently reading one byte at a time. May later change uint8_t to w/e we want to read.
         uint8_t n;
         ASSERT(sizeof(n) == 1);
 
-        size_t skip = index / (8); // ie number of bytes to skip.
-        Log::info() << "Read " << skip  << " bytes" << std::endl;
+        // skip to the byte containing the bit we want, counting set bits as we go.
+        size_t count = 0;
+        size_t skip = index / (8);
         for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
             count += count_bits(n);
         }
-
-        // read the byte containing the bit we want
         ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
 
-        Log::info() << "chunk, bin " << std::bitset<8>(n) << ", bits=" << count_bits(n) << std::endl;
-
-        uint8_t pos = index%8;
-
         // check if the bit is set, if not then the value is marked missing
-        n = (n >> (sizeof(n)*8 -pos -1));
+        // bit we want is, from the left, index%8.
+        n = (n >> (sizeof(n)*8 -index%8 -1));
         count += count_bits(n);
 
         if (!(n & 1)) {
-            Log::info() << "MISSING" << std::endl;
             return MISSING;
         }
+
+        // update index to be the index of the value in the (not-missing) data section
         index = count -1;
-        Log::info() << "new index (accounting for missing vals): " << index << std::endl;
     }
 
-    Log::info() << "index " << index << ", numberOfValues " << numberOfValues_ << std::endl;
     ASSERT(index < numberOfValues_);
 
-    {
-        Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8); // offset to start of byte containing value
-        ASSERT(f.seek(offset) == offset); // seek to byte containing value
+    // seek to start of first byte containing value
+    Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
+    ASSERT(f.seek(offset) == offset);
 
-        long len = (bitsPerValue_ + 7) / 8; // number of bytes per value, rounded up
-        ASSERT(f.read(buf, len) == len); // read [len] whole bytes containing value into buf
-    }
+    // read `len` whole bytes into buffer
+    long len = (bitsPerValue_ + 7) / 8;
+    unsigned char buf[8];
+    ASSERT(f.read(buf, len) == len);
 
-    long bitp = (index * bitsPerValue_) % 8; // bit offset within byte to start of value
-    unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_); // decode value from buf as unsigned long
-    double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_); // translate value into double
+    // interpret as double
+    long bitp = (index * bitsPerValue_) % 8; // bit position in first byte
+    unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
+    double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
 
     return v;
 }
