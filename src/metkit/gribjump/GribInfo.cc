@@ -47,7 +47,7 @@ static int bits[65536] = {
 
 
 static inline int count_bits(unsigned long long n) {
-    #elif __has_builtin(__builtin_popcount)
+    #if __has_builtin(__builtin_popcount)
         return __builtin_popcountll(n);
     #endif
 
@@ -150,6 +150,21 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
     decimalMultiplier_ = v["decimalMultiplier"];
 }
 
+
+std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, size_t i_start,  size_t i_end) const {
+    // simply a for loop around extractAtIndex, for testing purposes
+    std::vector<double> values;
+    values.reserve(i_end - i_start);
+    for (size_t i = i_start; i < i_end; ++i) {
+        values.push_back(extractAtIndex(f, i));
+    }
+    return values;
+}
+
+
+std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_t i_start,  size_t i_end) const {
+    NOTIMP;
+}
 
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
 

@@ -41,6 +41,8 @@ public:
     bool ready() const { return numberOfValues_ > 0; }
     void update(const grib::GribHandle& h);
     double extractAtIndex(const GribHandleData&, size_t index) const;
+    std::vector<double> extractAtIndexRange(const GribHandleData&, size_t i_start, size_t i_end) const;
+    std::vector<double> extractAtIndexRangeNaive(const GribHandleData&, size_t i_start, size_t i_end) const;
     
     void print(std::ostream&) const;
     void toJSON(eckit::JSON&) const;

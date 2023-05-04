@@ -34,11 +34,13 @@ private: // methods
     virtual void usage(const std::string& tool) const;
     GribInfo extract();
     double query(GribInfo, size_t);
+    std::vector<double> queryRange(GribInfo gribInfo, size_t start_i, size_t end_i);
     void test();
 
 private: // members
     bool doExtract_ = false;
     bool doQuery_ = false;
+    bool doRange_ = false;
     eckit::PathName gribFileName_;
     eckit::PathName jsonFileName_;
 };
@@ -66,6 +68,10 @@ void GribJump::init(const eckit::option::CmdArgs& args) {
     }
     else if (args(0) == "-q" && args.count() == 3){
         doQuery_ = true;
+    }
+    else if (args(0) == "-qr" && args.count() == 4){
+        doQuery_ = true;
+        doRange_ = true; // XXX hacky for now
     }
     else if (args(0) == "-test" && args.count() == 1){
         // XXX
@@ -98,10 +104,19 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
     
     ASSERT(gribInfo.ready());
     if (doQuery_) {
-        size_t index = std::stoi(args(2));
-        std::cout << "Query index " << index << " in " << args(1) << std::endl;
-        double v = query(gribInfo, index);
-        std::cout << "Value: " << v << std::endl;
+        if (doRange_){
+            size_t start_i = std::stoi(args(2));
+            size_t end_i = std::stoi(args(3));
+            std::cout << "Query index range [" << start_i << ", " << end_i << ") in " << gribFileName_ << std::endl;
+            std::vector<double> v = queryRange(gribInfo, start_i, end_i);
+            std::cout << "Value: " << v << std::endl;
+        }
+        else{
+            size_t index = std::stoi(args(2));
+            std::cout << "Query index " << index << " in " << gribFileName_ << std::endl;
+            double v = query(gribInfo, index);
+            std::cout << "Value: " << v << std::endl;
+        }
     }
 }
 
@@ -116,6 +131,13 @@ double GribJump::query(GribInfo gribInfo, size_t index) {
     // double/float value
     GribHandleData dataSource(gribFileName_);
     double v = gribInfo.extractAtIndex(dataSource, index);
+    return v;
+}
+std::vector<double> GribJump::queryRange(GribInfo gribInfo, size_t start_i, size_t end_i) {
+    // Given an index, query the grib (with the aid of the json) to find and print the index-th
+    // double/float value
+    GribHandleData dataSource(gribFileName_);
+    std::vector<double> v = gribInfo.extractAtIndexRangeNaive(dataSource, start_i, end_i);
     return v;
 }
 
@@ -168,11 +190,19 @@ void GribJump::test() {
     ASSERT(gribInfo.ready());
     for (size_t index = 0; index < numberOfDataPoints; index++) {
         double v = query(gribInfo, index);
-        std::cout << "index " << index << " value " << v << " expected " << expected_v[index] << std::endl;
         double delta = std::abs(v - expected_v[index]);
         ASSERT(delta < 1e-15);
     }
     std::cout << "query indices test passed" << std::endl;
+
+    // test range query
+    std::vector<double> values_naive = queryRange(gribInfo, 0, numberOfDataPoints);
+    ASSERT(values_naive.size() == numberOfDataPoints);
+    for (size_t index = 0; index < numberOfDataPoints; index++) {
+        double delta = std::abs(values_naive[index] - expected_v[index]);
+        ASSERT(delta < 1e-15);
+    }
+    std::cout << "query naive range test passed" << std::endl;
 
     exit(0);
 }
