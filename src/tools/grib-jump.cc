@@ -60,6 +60,7 @@ void GribJump::usage(const std::string &tool) const {
 }
 
 void GribJump::init(const eckit::option::CmdArgs& args) {
+    // XXX: better arg parsing
     if (args(0) == "-x" && args.count() == 2){
         doExtract_ = true;
     }

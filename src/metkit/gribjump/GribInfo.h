@@ -47,7 +47,8 @@ public:
     void fromJSONFile(eckit::PathName);
 
 private:
-
+    static constexpr unsigned int currentVersion_ = 1; // later ASSERT version == currentVersion
+    unsigned int version_;
     double        referenceValue_;
     long          binaryScaleFactor_;
     long          decimalScaleFactor_;

@@ -47,6 +47,11 @@ static int bits[65536] = {
 
 
 static inline int count_bits(unsigned long long n) {
+    #elif __has_builtin(__builtin_popcount)
+        return __builtin_popcountll(n);
+    #endif
+
+    // fallback: lookup table
     return bits[n         & 0xffffu]
            +  bits[(n >> 16) & 0xffffu]
            +  bits[(n >> 32) & 0xffffu]
@@ -149,7 +154,7 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
 
     if (bitsPerValue_ == 0)
-        return referenceValue_; // XXX: single valued?
+        return referenceValue_;
 
     ASSERT(!sphericalHarmonics_);
 
