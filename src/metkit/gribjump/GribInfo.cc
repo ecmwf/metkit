@@ -13,6 +13,7 @@
 #include "metkit/gribjump/GribHandleData.h"
 #include "eckit/parser/JSONParser.h"
 #include <bitset>
+#include <numeric>
 
 using namespace eckit;
 using namespace metkit::grib;
@@ -151,7 +152,7 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
 }
 
 
-std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, size_t i_start,  size_t i_end) const {
+std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, size_t i_start, size_t i_end) const {
     // simply a for loop around extractAtIndex, for testing purposes
     std::vector<double> values;
     values.reserve(i_end - i_start);
@@ -162,8 +163,93 @@ std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, 
 }
 
 
-std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_t i_start,  size_t i_end) const {
-    NOTIMP;
+std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_t i_start, size_t i_end) const {
+
+    std::vector<double> values;
+    std::vector<size_t> n_index;
+
+    if (bitsPerValue_ == 0) {
+        values = std::vector<double>(i_end - i_start, referenceValue_);
+        return values;
+    }
+
+    values.reserve(i_end - i_start);
+    n_index.reserve(i_end - i_start); // new index after skipping missing values
+
+    ASSERT(i_start < i_end);
+    ASSERT(i_end <= numberOfDataPoints_);
+    ASSERT(!sphericalHarmonics_);
+    // ASSERT (offsetBeforeBitmap_ == 0); // TODO: implement bitmap
+    if (offsetBeforeBitmap_) {
+
+        // Jump to start of bitmap.
+        Offset offset(offsetBeforeBitmap_);
+        ASSERT(f.seek(offset) == offset);
+
+        // We will read in 8-byte chunks.
+        uint64_t n;
+        const size_t n_bytes = sizeof(n);
+
+        for (size_t index = i_start; index < i_end; ++index) {
+
+            ASSERT(f.seek(offset) == offset); // XXX: start again, should be able to read more cleverly.
+
+            // skip to the byte containing the bit we want, counting set bits as we go.
+            size_t count = 0;
+            size_t skip = index / (8*n_bytes);
+            for (size_t i = 0; i < skip; ++i) {
+                ASSERT(f.read(&n, n_bytes) == n_bytes);
+                count += count_bits(n);
+            }
+            ASSERT(f.read(&n, n_bytes) == n_bytes);
+
+            // XXX We need to reverse the byte order of n (but not the bits in each byte).
+            n = reverse_bytes(n);
+
+            // std::cout << "n = " << std::bitset<64>(n) << ", " << std::hex << n << std::dec << std::endl;
+
+            // check if the bit is set, if not then the value is marked missing
+            // bit we want is, from the left, index%(n_bytes*8)
+            n = (n >> (n_bytes*8 -index%(n_bytes*8) -1));
+            count += count_bits(n);
+
+            if (n & 1) {
+                n_index.push_back(count -1); // index of value in the (not-missing) data section
+            }
+            else {
+                n_index.push_back(-1); // missing value
+            }
+        }
+    }
+    else{
+        n_index = std::vector<size_t>(i_end - i_start);
+        std::iota(n_index.begin(), n_index.end(), i_start);
+    }
+
+    for (size_t i=0; i < n_index.size(); ++i) {
+        if (n_index[i] == -1) {
+            values.push_back(MISSING);
+            continue;
+        }
+
+        // seek to start of byte containing value
+        size_t index = n_index[i];
+        Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
+        ASSERT(f.seek(offset) == offset);
+
+        // read `len` whole bytes into buffer
+        long len = (bitsPerValue_ + 7) / 8;
+        unsigned char buf[8];
+        ASSERT(f.read(buf, len) == len);
+
+        // interpret as double
+        long bitp = (index * bitsPerValue_) % 8; // bit position in first byte
+        unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
+        double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
+        values.push_back(v);
+        // std::cout << "value at index " << index << " is " << v << std::endl;
+    }
+    return values;
 }
 
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {

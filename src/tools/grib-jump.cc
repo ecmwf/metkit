@@ -34,6 +34,7 @@ private: // methods
     virtual void usage(const std::string& tool) const;
     GribInfo extract();
     double query(GribInfo, size_t);
+    std::vector<double> queryRangeNaive(GribInfo gribInfo, size_t start_i, size_t end_i);
     std::vector<double> queryRange(GribInfo gribInfo, size_t start_i, size_t end_i);
     void test();
 
@@ -108,7 +109,7 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
             size_t start_i = std::stoi(args(2));
             size_t end_i = std::stoi(args(3));
             std::cout << "Query index range [" << start_i << ", " << end_i << ") in " << gribFileName_ << std::endl;
-            std::vector<double> v = queryRange(gribInfo, start_i, end_i);
+            std::vector<double> v = queryRangeNaive(gribInfo, start_i, end_i);
             std::cout << "Value: " << v << std::endl;
         }
         else{
@@ -133,11 +134,18 @@ double GribJump::query(GribInfo gribInfo, size_t index) {
     double v = gribInfo.extractAtIndex(dataSource, index);
     return v;
 }
-std::vector<double> GribJump::queryRange(GribInfo gribInfo, size_t start_i, size_t end_i) {
+std::vector<double> GribJump::queryRangeNaive(GribInfo gribInfo, size_t start_i, size_t end_i) {
     // Given an index, query the grib (with the aid of the json) to find and print the index-th
     // double/float value
     GribHandleData dataSource(gribFileName_);
     std::vector<double> v = gribInfo.extractAtIndexRangeNaive(dataSource, start_i, end_i);
+    return v;
+}
+std::vector<double> GribJump::queryRange(GribInfo gribInfo, size_t start_i, size_t end_i) {
+    // Given an index, query the grib (with the aid of the json) to find and print the index-th
+    // double/float value
+    GribHandleData dataSource(gribFileName_);
+    std::vector<double> v = gribInfo.extractAtIndexRange(dataSource, start_i, end_i);
     return v;
 }
 
@@ -165,7 +173,7 @@ void GribJump::test() {
     std::cout << "extract/read json test passed" << std::endl;
 
     // check that the indices read from grib are as expected.
-    // input data is a surface level grib, so contains a bitmap mask.
+    // -- input with bitmask --
     unsigned long numberOfDataPoints = 90;
     double expected_v[] = {
         31.11083984375, 31.11083984375, 31.11083984375, 31.11083984375, 31.11083984375,
@@ -193,16 +201,72 @@ void GribJump::test() {
         double delta = std::abs(v - expected_v[index]);
         ASSERT(delta < 1e-15);
     }
-    std::cout << "query indices test passed" << std::endl;
+    std::cout << "query indices test passed (with bitmask)" << std::endl;
 
     // test range query
-    std::vector<double> values_naive = queryRange(gribInfo, 0, numberOfDataPoints);
-    ASSERT(values_naive.size() == numberOfDataPoints);
-    for (size_t index = 0; index < numberOfDataPoints; index++) {
-        double delta = std::abs(values_naive[index] - expected_v[index]);
-        ASSERT(delta < 1e-15);
+    size_t i_start = 10;
+    size_t i_end = 80;
+    std::vector<double> values_naive = queryRangeNaive(gribInfo, i_start, i_end);
+    ASSERT(values_naive.size() == (i_end - i_start));
+    for (size_t i = 0; i < i_end - i_start; i++) {
+        double delta = std::abs(values_naive[i] - expected_v[i_start + i]);
+        ASSERT(delta < 1e-12);
     }
-    std::cout << "query naive range test passed" << std::endl;
+    std::cout << "query naive range test passed (with bitmask)" << std::endl;
+
+
+    // test range query
+    std::vector<double> values = queryRange(gribInfo, i_start, i_end);
+    ASSERT(values.size() == (i_end - i_start));
+    for (size_t i = 0; i < i_end - i_start; i++) {
+        double delta = std::abs(values[i] - expected_v[i_start + i]);
+        ASSERT(delta < 1e-12);
+    }
+    std::cout << "query smarter range test passed (with bitmask)" << std::endl;
+
+    // -- input without bitmask --
+
+    gribFileName_ = "no_mask.grib";
+    jsonFileName_ = "no_mask.grib.json";
+    GribInfo gribInfo2 = extract();
+//
+    double expected_v2[] = {
+        245.789428710938, 245.789428710938, 245.789428710938, 245.789428710938, 245.789428710938,
+        245.789428710938, 245.789428710938, 245.789428710938, 253.002319335938, 253.116088867188,
+        252.827026367188, 252.722534179688, 252.907104492188, 252.855834960938, 252.554077148438,
+        252.596557617188, 265.281127929688, 266.042846679688, 266.145874023438, 265.752319335938,
+        265.715209960938, 265.834350585938, 265.416870117188, 264.930053710938, 252.105346679688,
+        252.270874023438, 252.200561523438, 251.764526367188, 251.864135742188, 252.612670898438,
+        252.925170898438, 252.447143554688, 244.540405273438, 244.540405273438, 244.540405273438,
+        244.540405273438, 244.540405273438, 244.540405273438, 244.540405273438, 244.540405273438
+    };
+    numberOfDataPoints = 40;
+    for (size_t index = 0; index < numberOfDataPoints; index++) {
+        double v = query(gribInfo2, index);
+        double delta = std::abs(v - expected_v2[index]);
+        ASSERT(delta < 1e-12);
+    }
+    std::cout << "query indices test passed (without bitmask)" << std::endl;
+
+    // test range query
+    i_start = 5;
+    i_end = 35;
+    std::vector<double> values_naive2 = queryRangeNaive(gribInfo2, i_start, i_end);
+    ASSERT(values_naive2.size() == (i_end - i_start));
+    for (size_t i = 0; i < i_end - i_start; i++) {
+        double delta = std::abs(values_naive2[i] - expected_v2[i_start + i]);
+        ASSERT(delta < 1e-12);
+    }
+    std::cout << "query naive range test passed (without bitmask)" << std::endl;
+
+    // test range query
+    std::vector<double> values_2 = queryRange(gribInfo2, i_start, i_end);
+    ASSERT(values_2.size() == (i_end - i_start));
+    for (size_t i = 0; i < i_end - i_start; i++) {
+        double delta = std::abs(values_2[i] - expected_v2[i_start + i]);
+        ASSERT(delta < 1e-12);
+    }
+    std::cout << "query smarter range test passed (without bitmask)" << std::endl;
 
     exit(0);
 }
