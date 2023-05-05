@@ -162,64 +162,98 @@ std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, 
     return values;
 }
 
+void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &n_index) {
+    // count the next nread bits in n, storing the number of 1s in count
+    // and store the index of each 1 in n_index
+    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
+
+    if (nread == 0) return;
+    ASSERT(nread <= 64);
+    // first bit
+    count += (n & msb_64) ? 1 : 0;
+    n_index.push_back((n & msb_64) ? count : -1);
+
+    // rest of the bits
+    for (size_t i = 0; i < nread-1; ++i) {
+        n <<= 1;
+        count += (n & msb_64) ? 1 : 0;
+        n_index.push_back((n & msb_64) ? count : -1);
+    }
+}
 
 std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_t i_start, size_t i_end) const {
-
-    std::vector<double> values;
-    std::vector<size_t> n_index;
-
-    if (bitsPerValue_ == 0) {
-        values = std::vector<double>(i_end - i_start, referenceValue_);
-        return values;
-    }
-
-    values.reserve(i_end - i_start);
-    n_index.reserve(i_end - i_start); // new index after skipping missing values
 
     ASSERT(i_start < i_end);
     ASSERT(i_end <= numberOfDataPoints_);
     ASSERT(!sphericalHarmonics_);
-    // ASSERT (offsetBeforeBitmap_ == 0); // TODO: implement bitmap
+
+    std::vector<double> values;
+    std::vector<size_t> n_index;
+    size_t remaining_bits = i_end - i_start;
+
+    if (bitsPerValue_ == 0) {
+        values = std::vector<double>(remaining_bits, referenceValue_);
+        return values;
+    }
+
+    values.reserve(remaining_bits);
+    n_index.reserve(remaining_bits); // new index after skipping missing values
+
     if (offsetBeforeBitmap_) {
+
+        // We will read in 8-byte chunks.
+        uint64_t n;
+        constexpr size_t n_bytes = sizeof(n);
+        constexpr size_t n_bits = n_bytes * 8;
+        constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
+        size_t count = 0;
 
         // Jump to start of bitmap.
         Offset offset(offsetBeforeBitmap_);
         ASSERT(f.seek(offset) == offset);
 
-        // We will read in 8-byte chunks.
-        uint64_t n;
-        const size_t n_bytes = sizeof(n);
-
-        for (size_t index = i_start; index < i_end; ++index) {
-
-            ASSERT(f.seek(offset) == offset); // XXX: start again, should be able to read more cleverly.
-
-            // skip to the byte containing the bit we want, counting set bits as we go.
-            size_t count = 0;
-            size_t skip = index / (8*n_bytes);
-            for (size_t i = 0; i < skip; ++i) {
-                ASSERT(f.read(&n, n_bytes) == n_bytes);
-                count += count_bits(n);
-            }
+        // skip to byte containing i_start-th bit, counting set bits as we go.
+        size_t skip = i_start / (n_bits);
+        for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, n_bytes) == n_bytes);
-
-            // XXX We need to reverse the byte order of n (but not the bits in each byte).
-            n = reverse_bytes(n);
-
-            // std::cout << "n = " << std::bitset<64>(n) << ", " << std::hex << n << std::dec << std::endl;
-
-            // check if the bit is set, if not then the value is marked missing
-            // bit we want is, from the left, index%(n_bytes*8)
-            n = (n >> (n_bytes*8 -index%(n_bytes*8) -1));
             count += count_bits(n);
-
-            if (n & 1) {
-                n_index.push_back(count -1); // index of value in the (not-missing) data section
-            }
-            else {
-                n_index.push_back(-1); // missing value
-            }
         }
+
+        // -- Handle first word in range. --
+        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        n = reverse_bytes(n);
+
+        // move to first relevant bit.
+        count += count_bits(n);
+        n <<= (i_start%n_bits);
+        count -= count_bits(n) + 1;
+
+        size_t nread = n_bits - (i_start%n_bits);
+        // handle case where i_end is in the same word as i_start
+        if (nread > remaining_bits) nread = i_end%n_bits -(i_start%n_bits); // XXX: not tested
+
+        accumulate_bits(nread, n, count, n_index);
+        remaining_bits -= nread;
+
+        // -- Handle whole words in range --
+        // XXX THIS ISN'T BEING CALLED BECAUSE MY TEST CASE IS TOO SMALL
+        nread = n_bits;
+        while (remaining_bits > n_bits) {
+            ASSERT(f.read(&n, n_bytes) == n_bytes);
+            n = reverse_bytes(n);
+            accumulate_bits(nread, n, count, n_index);
+            remaining_bits -= n_bits;
+        }
+
+        // -- Handle final word, if incomplete word --
+        if (remaining_bits > 0) {
+            ASSERT(f.read(&n, n_bytes) == n_bytes);
+            n = reverse_bytes(n);
+            nread = remaining_bits;
+            accumulate_bits(nread, n, count, n_index);
+            remaining_bits = 0;
+        }
+
     }
     else{
         n_index = std::vector<size_t>(i_end - i_start);

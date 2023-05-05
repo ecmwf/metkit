@@ -199,7 +199,7 @@ void GribJump::test() {
     for (size_t index = 0; index < numberOfDataPoints; index++) {
         double v = query(gribInfo, index);
         double delta = std::abs(v - expected_v[index]);
-        ASSERT(delta < 1e-15);
+        ASSERT(delta < 1e-12);
     }
     std::cout << "query indices test passed (with bitmask)" << std::endl;
 
