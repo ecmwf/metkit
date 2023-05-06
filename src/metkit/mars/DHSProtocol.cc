@@ -13,13 +13,16 @@
 
 #include "metkit/mars/DHSProtocol.h"
 
+#include "eckit/config/Configuration.h"
+#include "eckit/config/Resource.h"
 #include "eckit/net/IPAddress.h"
 #include "eckit/net/TCPClient.h"
 #include "eckit/net/TCPStream.h"
+#include "eckit/io/AutoCloser.h"
 
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars/ClientTask.h"
 #include "metkit/mars/RequestEnvironment.h"
-#include "eckit/config/Configuration.h"
 
 
 namespace metkit {
@@ -27,21 +30,292 @@ namespace mars {
 
 static eckit::Reanimator<DHSProtocol> dhsProtocolReanimator;
 
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Implement the default callback behaviour. Client opens a socket that can be connected to by
+// the server or data mover
+
+class SimpleCallback : public BaseCallbackConnection {
+
+public:
+
+    SimpleCallback() {
+        LOG_DEBUG_LIB(LibMetkit) << "Simple callback. host=" << host() << " port=" << port() << std::endl;
+    }
+    SimpleCallback(const eckit::Configuration&) : SimpleCallback() {}
+    SimpleCallback(eckit::Stream&) : SimpleCallback() {}
+
+private:
+
+    std::string host() const override {
+        return eckit::net::IPAddress::hostAddress(callback_.localHost()).asString();
+    }
+
+    int port() const override {
+        return callback_.localPort();
+    }
+
+    eckit::net::TCPSocket& connect() override {
+        return callback_.accept();
+    }
+
+    eckit::net::EphemeralTCPServer callback_;
+
+public:
+    static const eckit::ClassSpec&  classSpec() {
+        static eckit::ClassSpec spec = {&BaseCallbackConnection::classSpec(), "SimpleCallback"};
+        return spec;
+    }
+protected:
+    virtual const eckit::ReanimatorBase& reanimator() const override { return reanimator_; }
+    virtual void encode(eckit::Stream&) const override {}
+    static eckit::Reanimator<SimpleCallback> reanimator_;
+};
+
+eckit::Reanimator<SimpleCallback> SimpleCallback::reanimator_;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Implement a callback via the callback proxy. First we open a connection to the proxy. This then returns to us
+// the host/port that it has made available for the server/mover to connect to. It then proxies the connection
+// to our host/port
+
+class ProxyCallback : public BaseCallbackConnection {
+
+public:
+
+    ProxyCallback(const std::string& proxyhost, int proxyport) :
+        control_(eckit::net::TCPClient().connect(proxyhost, proxyport)),
+        proxyHost_(proxyhost),
+        proxyPort_(proxyport) {
+
+        LOG_DEBUG_LIB(LibMetkit) << "Proxy callback. proxyhost=" << proxyhost
+                                 << " proxyport=" << proxyport << std::endl;
+
+        std::string localAddr = eckit::net::IPAddress::hostAddress(callback_.localHost()).asString();
+        int localPort         = callback_.localPort();
+
+        bool passive = false;
+        control_ << localAddr;
+        control_ << localPort;
+        control_ << passive;
+
+        control_ >> remoteAddr_;
+        control_ >> remotePort_;
+    }
+
+    ProxyCallback(const eckit::Configuration& config) :
+        ProxyCallback(config.getString("proxyHost"), config.getInt("proxyPort")) {}
+
+    ProxyCallback(eckit::Stream& s) :
+        ProxyCallback(readStreamHost(s), readStreamPort(s)) {}
+
+private:
+
+    std::string readStreamHost(eckit::Stream& s) {
+        std::string h;
+        s >> h;
+        return h;
+    }
+
+    int readStreamPort(eckit::Stream& s) {
+        int p;
+        s >> p;
+        return p;
+    }
+
+    std::string host() const override {
+        return remoteAddr_;
+    }
+
+    int port() const override {
+        return remotePort_;
+    }
+
+    eckit::net::TCPSocket& connect() override {
+        // FIXME: Check that the callback connection is still alive...
+        return callback_.accept();
+    }
+
+    eckit::net::TCPStream control_;
+    eckit::net::EphemeralTCPServer callback_;
+
+    std::string proxyHost_;
+    int proxyPort_;
+
+    std::string remoteAddr_;
+    int remotePort_;
+
+public:
+    static const eckit::ClassSpec&  classSpec() {
+        static eckit::ClassSpec spec = {&BaseCallbackConnection::classSpec(), "ProxyCallback"};
+        return spec;
+    }
+protected:
+    virtual const eckit::ReanimatorBase& reanimator() const override { return reanimator_; }
+    virtual void encode(eckit::Stream& s) const override {
+        s << proxyHost_;
+        s << proxyPort_;
+    }
+    static eckit::Reanimator<ProxyCallback> reanimator_;
+};
+
+eckit::Reanimator<ProxyCallback> ProxyCallback::reanimator_;
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// Implement a callback via the callback proxy using passive mode. First we open a connection to the proxy.
+// This then returns to us the host/port that it has made available for the server/mover to connect to.
+// We then need to open connections to the proxy for the callbacks to connect to.
+
+class PassiveProxyCallback : public BaseCallbackConnection {
+
+public:
+
+    PassiveProxyCallback(const std::string& proxyhost, int proxyport) :
+        control_(eckit::net::TCPClient().connect(proxyhost, proxyport)),
+        proxyHost_(proxyhost),
+        proxyPort_(proxyport) {
+
+        LOG_DEBUG_LIB(LibMetkit) << "Passive proxy callback. proxyhost=" << proxyhost
+                                 << " proxyport=" << proxyport << std::endl;
+
+        std::string localAddr = "<invalid>";
+        int localPort         = -1;
+
+        bool passive = true;
+        control_ << localAddr;
+        control_ << localPort;
+        control_ << passive;
+
+        control_ >> remoteAddr_;
+        control_ >> remotePort_;
+
+        LOG_DEBUG_LIB(LibMetkit) << "Remote address. host=" << remoteAddr_ << " port=" << remotePort_ << std::endl;
+
+        control_ >> passiveAddr_;
+        control_ >> passivePort_;
+        control_ >> passiveCheck_;
+
+        LOG_DEBUG_LIB(LibMetkit) << "Passive address. host=" << passiveAddr_ << " port=" << passivePort_
+                                 << " check=" << passiveCheck_ << std::endl;
+    }
+
+    PassiveProxyCallback(const eckit::Configuration& config) :
+        PassiveProxyCallback(config.getString("proxyHost"), config.getInt("proxyPort")) {}
+
+    PassiveProxyCallback(eckit::Stream& s) :
+        PassiveProxyCallback(readStreamHost(s), readStreamPort(s)) {}
+
+private:
+
+    std::string readStreamHost(eckit::Stream& s) {
+        std::string h;
+        s >> h;
+        return h;
+    }
+
+    int readStreamPort(eckit::Stream& s) {
+        int p;
+        s >> p;
+        return p;
+    }
+
+    std::string host() const override {
+        return remoteAddr_;
+    }
+
+    int port() const override {
+        return remotePort_;
+    }
+
+    eckit::net::TCPSocket& connect() override {
+        // FIXME: Check that the callback connection is still alive...
+        ASSERT(!socket_.isConnected());
+        socket_ = eckit::net::TCPClient().connect(passiveAddr_, passivePort_);
+        eckit::net::InstantTCPStream s(socket_);
+        s << passiveCheck_;
+        return socket_;
+    }
+
+    eckit::net::TCPStream control_;
+    eckit::net::TCPSocket socket_;
+
+    std::string proxyHost_;
+    std::string remoteAddr_;
+    std::string passiveAddr_;
+    int proxyPort_;
+    int remotePort_;
+    int passivePort_;
+
+    unsigned long long passiveCheck_;
+
+public:
+    static const eckit::ClassSpec&  classSpec() {
+        static eckit::ClassSpec spec = {&BaseCallbackConnection::classSpec(), "PassiveProxyCallback"};
+        return spec;
+    }
+protected:
+    virtual const eckit::ReanimatorBase& reanimator() const override { return reanimator_; }
+    virtual void encode(eckit::Stream& s) const override {
+        s << proxyHost_;
+        s << proxyPort_;
+    }
+    static eckit::Reanimator<PassiveProxyCallback> reanimator_;
+};
+
+eckit::Reanimator<PassiveProxyCallback> PassiveProxyCallback::reanimator_;
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+const eckit::ClassSpec& BaseCallbackConnection::classSpec() {
+    static eckit::ClassSpec spec = { &Streamable::classSpec(), "BaseCallbackConnection" };
+    return spec;
+}
+
+BaseCallbackConnection* BaseCallbackConnection::build(const eckit::Configuration& config) {
+    if (config.has("proxyHost")) {
+        if (config.getBool("passiveProxy", false)) {
+            return new PassiveProxyCallback{config};
+        }
+        return new ProxyCallback{config};
+    }
+
+    static bool passiveProxy = eckit::Resource<bool>("$MARS_CLIENT_PASSIVE_PROXY", false);
+    static std::string proxyHost = eckit::Resource<std::string>("$MARS_CLIENT_CALLBACK_PROXY_HOST", "");
+    static int proxyPort = eckit::Resource<int>("$MARS_CLIENT_CALLBACK_PROXY_PORT", -1);
+
+    if (!proxyHost.empty()) {
+        ASSERT(proxyPort != -1);
+        if (passiveProxy) {
+            return new PassiveProxyCallback(proxyHost, proxyPort);
+        } else {
+            return new ProxyCallback(proxyHost, proxyPort);
+        }
+    }
+
+    return new SimpleCallback{config};
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 DHSProtocol::DHSProtocol(const std::string& name,
                          const std::string& host,
                          int port,
-                         bool forwardMessages )
-    : name_(name),
-      host_(host),
-      port_(port),
-      done_(false),
-      error_(false),
-      sending_(false),
-      forward_(forwardMessages)
-{}
+                         bool forwardMessages ) :
+    callback_(new SimpleCallback{}),
+    name_(name),
+    host_(host),
+    port_(port),
+    done_(false),
+    error_(false),
+    sending_(false),
+    forward_(forwardMessages) {}
 
 DHSProtocol::DHSProtocol(const eckit::Configuration& params):
     BaseProtocol(params),
+    callback_(BaseCallbackConnection::build(params)),
     name_(params.getString("name")),
     host_(params.getString("host")),
     port_(params.getInt("port", 9000)),
@@ -53,7 +327,8 @@ DHSProtocol::DHSProtocol(const eckit::Configuration& params):
 }
 
 DHSProtocol::DHSProtocol(eckit::Stream& s):
-    BaseProtocol(s) {
+    BaseProtocol(s),
+    callback_(eckit::Reanimator<BaseCallbackConnection>::reanimate(s)) {
     s >> name_;
     s >> host_;
     s >> port_;
@@ -80,8 +355,8 @@ const eckit::ClassSpec& DHSProtocol::classSpec() {
 
 eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 {
-    std::string addr = eckit::net::IPAddress::hostAddress(callback_.localHost()).asString();
-    int         port = callback_.localPort();
+    std::string addr = callback_->host();
+    int         port = callback_->port();
 
     eckit::Log::info() << "DHSProtocol: call back on " << addr << ":" << port << std::endl;
 
@@ -103,8 +378,8 @@ eckit::Length DHSProtocol::retrieve(const MarsRequest& request)
 
 void DHSProtocol::archive(const MarsRequest& request, const eckit::Length& size)
 {
-    std::string addr = eckit::net::IPAddress::hostAddress(callback_.localHost()).asString();
-    int         port = callback_.localPort();
+    std::string addr = callback_->host();
+    int         port = callback_->port();
 
     eckit::Log::info() << "DHSProtocol::archive " << size << std::endl;
     eckit::Log::info() << "DHSProtocol: call back on " << addr << ":" << port << std::endl;
@@ -171,6 +446,7 @@ void DHSProtocol::print(std::ostream& s) const
 
 void DHSProtocol::encode(eckit::Stream& s) const {
     BaseProtocol::encode(s);
+    callback_->encode(s);
     s << name_;
     s << host_;
     s << port_;
@@ -193,7 +469,9 @@ long DHSProtocol::write(const void* buffer, long len)
 bool DHSProtocol::wait(eckit::Length& size)
 {
     for (;;) {
-        socket_ = callback_.accept();
+
+        if (socket_.isConnected()) socket_.close();
+        socket_ = callback_->connect();
 
         eckit::net::InstantTCPStream s(socket_);
 
