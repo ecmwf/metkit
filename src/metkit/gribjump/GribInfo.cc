@@ -164,7 +164,7 @@ std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, 
 
 void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &n_index) {
     // count the next nread bits in n, storing the number of 1s in count
-    // and store the index of each 1 in n_index
+    // and push the index of each 1 to n_index
     constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
 
     if (nread == 0) return;
@@ -179,6 +179,75 @@ void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_
         count += (n & msb_64) ? 1 : 0;
         n_index.push_back((n & msb_64) ? count : -1);
     }
+}
+
+size_t GribInfo::readBitmapRange(const GribHandleData& f, unsigned long offset0, size_t i_start, size_t i_end, std::vector<size_t> &n_index) const{
+    // will return count of set bits in range [i_start, i_end)
+    // as well as push the index of each set bit to n_index
+    // We will read in 8-byte chunks.
+    uint64_t n;
+    constexpr size_t n_bytes = sizeof(n);
+    constexpr size_t n_bits = n_bytes * 8;
+    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
+    size_t count = 0;
+    size_t remaining_bits = i_end - i_start;
+
+
+    // Jump to start of bitmap.
+    Offset offset(offset0);
+    ASSERT(f.seek(offset) == offset);
+
+    // skip to byte containing i_start-th bit, counting set bits as we go.
+    size_t skip = i_start / (n_bits);
+    for (size_t i = 0; i < skip; ++i) {
+        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        count += count_bits(n);
+    }
+
+    // -- Handle first word in range. --
+    ASSERT(f.read(&n, n_bytes) == n_bytes);
+    n = reverse_bytes(n);
+
+    // move to first relevant bit.
+    count += count_bits(n);
+    n <<= (i_start%n_bits);
+    count -= count_bits(n) + 1;
+
+    size_t nread = n_bits - (i_start%n_bits); // number of bits left to read in this word
+
+    // Case where i_start and i_end are both in the first word. i.e. we've already read all the bits we need.
+    if (nread > remaining_bits) {
+        Log::debug() << i_start << "," << i_end << "extractAtIndexRange: i_end and i_start in same word" << std::endl;
+        nread = remaining_bits;
+    }
+
+    Log::debug() << "nread" << nread << std::endl;
+
+    accumulate_bits(nread, n, count, n_index);
+    remaining_bits -= nread;
+
+    // -- Handle remaining whole words --
+    size_t n_whole_words = remaining_bits/n_bits;
+    for (size_t i = 0; i < n_whole_words; ++i) {
+        Log::debug() << i_start << "," << i_end << "whole word" << std::endl;
+
+        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        n = reverse_bytes(n);
+        accumulate_bits(n_bits, n, count, n_index);
+    }
+    remaining_bits = remaining_bits % n_bits;
+    
+    // -- Handle final word, if incomplete word --
+    if (remaining_bits) {
+        Log::debug() << i_start << "," << i_end << "extractAtIndexRange: i_end in additional incomplete word" << std::endl;
+
+        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        n = reverse_bytes(n);
+        accumulate_bits(remaining_bits, n, count, n_index);
+        remaining_bits = 0;
+    }
+
+    return count;
 }
 
 std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_t i_start, size_t i_end) const {
@@ -199,99 +268,22 @@ std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_
     }
 
     values.reserve(remaining_bits);
-    n_index.reserve(remaining_bits); // new index after skipping missing values
 
-    if (offsetBeforeBitmap_) {
-
-        // We will read in 8-byte chunks.
-        uint64_t n;
-        constexpr size_t n_bytes = sizeof(n);
-        constexpr size_t n_bits = n_bytes * 8;
-        constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
-        size_t count = 0;
-
-        // Jump to start of bitmap.
-        Offset offset(offsetBeforeBitmap_);
-        ASSERT(f.seek(offset) == offset);
-
-        // skip to byte containing i_start-th bit, counting set bits as we go.
-        size_t skip = i_start / (n_bits);
-        for (size_t i = 0; i < skip; ++i) {
-            ASSERT(f.read(&n, n_bytes) == n_bytes);
-            count += count_bits(n);
+    if (!offsetBeforeBitmap_){
+        // no bitmap, just read the values
+        for (size_t i = i_start; i < i_end; ++i) {
+            double v = readDataValue(f, i);
+            values.push_back(v);
         }
-
-        // -- Handle first word in range. --
-        ASSERT(f.read(&n, n_bytes) == n_bytes);
-        n = reverse_bytes(n);
-
-        // move to first relevant bit.
-        count += count_bits(n);
-        n <<= (i_start%n_bits);
-        count -= count_bits(n) + 1;
-
-        size_t nread = n_bits - (i_start%n_bits); // number of bits left to read in this word
-
-        // Case where i_start and i_end are both in the first word. i.e. we've already read all the bits we need.
-        if (nread > remaining_bits) {
-            Log::debug() << i_start << "," << i_end << "extractAtIndexRange: i_end and i_start in same word" << std::endl;
-            nread = remaining_bits;
-        }
-
-        Log::debug() << "nread" << nread << std::endl;
-
-        accumulate_bits(nread, n, count, n_index);
-        remaining_bits -= nread;
-
-        // -- Handle remaining whole words --
-        size_t n_whole_words = remaining_bits/n_bits;
-        for (size_t i = 0; i < n_whole_words; ++i) {
-            Log::debug() << i_start << "," << i_end << "whole word" << std::endl;
-
-            ASSERT(f.read(&n, n_bytes) == n_bytes);
-            n = reverse_bytes(n);
-            accumulate_bits(n_bits, n, count, n_index);
-        }
-        remaining_bits = remaining_bits % n_bits;
-    
-        // -- Handle final word, if incomplete word --
-        if (remaining_bits) {
-            Log::debug() << i_start << "," << i_end << "extractAtIndexRange: i_end in additional incomplete word" << std::endl;
-
-            ASSERT(f.read(&n, n_bytes) == n_bytes);
-            n = reverse_bytes(n);
-            accumulate_bits(remaining_bits, n, count, n_index);
-            remaining_bits = 0;
-        }
-
+        return values;
     }
-    else{
-        n_index = std::vector<size_t>(i_end - i_start);
-        std::iota(n_index.begin(), n_index.end(), i_start);
-    }
+    // else, we have a bitmap, so we need to read it first and find the new indices
+    n_index.reserve(remaining_bits); 
+    readBitmapRange(f, offsetBeforeBitmap_, i_start, i_end, n_index);
 
-    for (size_t i=0; i < n_index.size(); ++i) {
-        if (n_index[i] == -1) {
-            values.push_back(MISSING);
-            continue;
-        }
-
-        // seek to start of byte containing value
-        size_t index = n_index[i];
-        Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
-        ASSERT(f.seek(offset) == offset);
-
-        // read `len` whole bytes into buffer
-        long len = (bitsPerValue_ + 7) / 8;
-        unsigned char buf[8];
-        ASSERT(f.read(buf, len) == len);
-
-        // interpret as double
-        long bitp = (index * bitsPerValue_) % 8; // bit position in first byte
-        unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
-        double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
+    for (auto index : n_index) {
+        double v = index == -1 ? MISSING : readDataValue(f, index);
         values.push_back(v);
-        // std::cout << "value at index " << index << " is " << v << std::endl;
     }
     return values;
 }
@@ -356,6 +348,97 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
 
     return v;
+}
+
+std::vector<double> GribInfo::extractAtIndexRangeOfRangesNaive(const GribHandleData& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
+    // just a for loop over the ranges, calling extractAtIndexRange for each
+    std::vector<double> values;
+    for (auto r : ranges) {
+        auto v = extractAtIndexRange(f, std::get<0>(r), std::get<1>(r));
+        values.insert(values.end(), v.begin(), v.end());
+    }
+    return values;
+}
+
+std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
+    
+    // sort ranges by start index
+    std::sort(ranges.begin(), ranges.end(), [](const std::tuple<size_t, size_t>& a, const std::tuple<size_t, size_t>& b) {
+        return std::get<0>(a) < std::get<0>(b);
+    });
+
+    // print out ranges
+    for (auto r : ranges) {
+        std::cout << std::get<0>(r) << "," << std::get<1>(r) << std::endl;
+    }
+
+    size_t remaining_bits = 0;
+
+    // sanity check ranges, and count total number of values
+    for (size_t i = 0; i < ranges.size(); ++i) {
+        size_t i_start = std::get<0>(ranges[i]);
+        size_t i_end = std::get<1>(ranges[i]);
+        ASSERT(i_start < i_end);
+        // assert no overlap with other ranges
+        for (size_t j = i+1; j < ranges.size(); ++j) {
+            size_t j_start = std::get<0>(ranges[j]);
+            ASSERT(i_end <= j_start);
+        }
+        remaining_bits += i_end - i_start;
+    }
+
+    size_t i_start = std::get<0>(ranges.front());
+    size_t i_end = std::get<1>(ranges.back());    
+
+    ASSERT(i_start < i_end);
+    ASSERT(i_end < numberOfValues_);
+    ASSERT(!sphericalHarmonics_);
+
+    std::vector<double> values;
+    std::vector<size_t> n_index;
+
+    if (bitsPerValue_ == 0) {
+        values = std::vector<double>(remaining_bits, referenceValue_);
+        return values;
+    }
+
+    values.reserve(remaining_bits);
+
+    if (!offsetBeforeBitmap_) {
+        // no bitmap, just read the values
+        for (auto r : ranges) {
+            size_t i_start = std::get<0>(r);
+            size_t i_end = std::get<1>(r);
+            for (size_t i = i_start; i < i_end; ++i) {
+                double v = readDataValue(f, i);
+                values.push_back(v);
+            }
+        }
+        return values;
+    }
+    // else we have a bitmap, so we need to read the bitmap and skip missing values
+    n_index.reserve(remaining_bits); // new index after skipping missing values
+
+    NOTIMP; // not implemented yet
+}
+
+double GribInfo::readDataValue(const GribHandleData& f, size_t index) const {
+    // Read the data value at index.
+    // We will do no error checking here, so make sure index is valid
+    
+    // seek to start of byte containing value
+    Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
+    ASSERT(f.seek(offset) == offset);
+
+    // read `len` whole bytes into buffer
+    long len = (bitsPerValue_ + 7) / 8;
+    unsigned char buf[8];
+    ASSERT(f.read(buf, len) == len);
+
+    // interpret as double
+    long bitp = (index * bitsPerValue_) % 8; // bit position in first byte
+    unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
+    return (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
 }
 
 } // namespace gribjump

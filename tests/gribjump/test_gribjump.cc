@@ -316,7 +316,6 @@ void setGribJumpData(){
     // todo...
 }
 
-
 CASE( "test_metkit_gribjump_query" ) {
     // loop through the test cases
     for (int i = 0; i < numTestData; i++) {
@@ -339,29 +338,29 @@ CASE( "test_metkit_gribjump_query" ) {
         EXPECT(numberOfDataPoints == testData[i].expectedData.size());
         for (size_t index = 0; index < numberOfDataPoints; index++) {
             double v = gribInfo.extractAtIndex(dataSource, index);
-            // std::cin.precision(15);
-            // std::cout << "index: " << index << ", value: " << v << std::endl;
             double delta = std::abs(v - testData[i].expectedData[index]);
             EXPECT(delta < 1e-12);
         }
         
         // Ranges to query
-        std::tuple<size_t, size_t> ranges[] = {
-            std::make_tuple(12, 34),   // start and end in same word
-            std::make_tuple(0, 63),    // test edge of word
-            std::make_tuple(0, 64),    // test edge of word
-            std::make_tuple(0, 65),    // test edge of word
-            std::make_tuple(32, 100),  // start and end in adjacent words
-            std::make_tuple(123, 456), // start and end in non-adjacent words
-        };
-        for (size_t rangeIndex = 0; rangeIndex < 6; rangeIndex++) {
-            size_t start_i = std::get<0>(ranges[rangeIndex]);
-            size_t end_i = std::get<1>(ranges[rangeIndex]);
-            std::vector<double> v = gribInfo.extractAtIndexRange(dataSource, start_i, end_i);
-            EXPECT(v.size() == end_i - start_i);
-            for (size_t index = start_i; index < end_i; index++) {
-                double delta = std::abs(v[index - start_i] - testData[i].expectedData[index]);
-                EXPECT(delta < 1e-12);
+        {
+            std::tuple<size_t, size_t> ranges[] = {
+                std::make_tuple(12, 34),   // start and end in same word
+                std::make_tuple(0, 63),    // test edge of word
+                std::make_tuple(0, 64),    // test edge of word
+                std::make_tuple(0, 65),    // test edge of word
+                std::make_tuple(32, 100),  // start and end in adjacent words
+                std::make_tuple(123, 456), // start and end in non-adjacent words
+            };
+            for (size_t rangeIndex = 0; rangeIndex < 6; rangeIndex++) {
+                size_t start_i = std::get<0>(ranges[rangeIndex]);
+                size_t end_i = std::get<1>(ranges[rangeIndex]);
+                std::vector<double> v = gribInfo.extractAtIndexRange(dataSource, start_i, end_i);
+                EXPECT(v.size() == end_i - start_i);
+                for (size_t index = start_i; index < end_i; index++) {
+                    double delta = std::abs(v[index - start_i] - testData[i].expectedData[index]);
+                    EXPECT(delta < 1e-12);
+                }
             }
         }
         // Also test full range
@@ -375,6 +374,49 @@ CASE( "test_metkit_gribjump_query" ) {
                 EXPECT(delta < 1e-12);
             }
         }
+
+        // Range of ranges, all at once. Note ranges must not overlap. Ranges will be sorted automatically.
+        {
+            std::vector<std::tuple<size_t, size_t> > ranges = {
+                std::make_tuple(20, 25),
+                std::make_tuple(0, 10),
+                std::make_tuple(25, 33),
+            };
+
+            // get the expected result
+            std::vector<double> expected;
+            for (size_t rangeIndex = 0; rangeIndex < ranges.size(); rangeIndex++) {
+                size_t start_i = std::get<0>(ranges[rangeIndex]);
+                size_t end_i = std::get<1>(ranges[rangeIndex]);
+                for (size_t index = start_i; index < end_i; index++) {
+                    expected.push_back(testData[i].expectedData[index]);
+                }
+            }
+
+            // get the actual (naive) result
+            std::vector<double> actualNaive = gribInfo.extractAtIndexRangeOfRangesNaive(dataSource, ranges);
+
+            // compare
+            EXPECT(actualNaive.size() == expected.size());
+            for (size_t index = 0; index < actualNaive.size(); index++) {
+                double delta = std::abs(actualNaive[index] - expected[index]);
+                EXPECT(delta < 1e-12);
+            }
+
+            // TODO:
+
+            // // get the actual (fast) result
+            std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
+
+            // // compare
+            EXPECT(actual.size() == expected.size());
+            for (size_t index = 0; index < actual.size(); index++) {
+                double delta = std::abs(actual[index] - expected[index]);
+                EXPECT(delta < 1e-12);
+            }
+
+        }
+
     }
 }
 
