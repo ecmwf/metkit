@@ -187,6 +187,8 @@ std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_
     ASSERT(i_end <= numberOfDataPoints_);
     ASSERT(!sphericalHarmonics_);
 
+    Log::debug() << "GribInfo::extractAtIndexRange " << i_start << ", " << i_end << std::endl;
+
     std::vector<double> values;
     std::vector<size_t> n_index;
     size_t remaining_bits = i_end - i_start;
@@ -228,29 +230,37 @@ std::vector<double> GribInfo::extractAtIndexRange(const GribHandleData& f, size_
         n <<= (i_start%n_bits);
         count -= count_bits(n) + 1;
 
-        size_t nread = n_bits - (i_start%n_bits);
-        // handle case where i_end is in the same word as i_start
-        if (nread > remaining_bits) nread = i_end%n_bits -(i_start%n_bits); // XXX: not tested
+        size_t nread = n_bits - (i_start%n_bits); // number of bits left to read in this word
+
+        // Case where i_start and i_end are both in the first word. i.e. we've already read all the bits we need.
+        if (nread > remaining_bits) {
+            Log::debug() << i_start << "," << i_end << "extractAtIndexRange: i_end and i_start in same word" << std::endl;
+            nread = remaining_bits;
+        }
+
+        Log::debug() << "nread" << nread << std::endl;
 
         accumulate_bits(nread, n, count, n_index);
         remaining_bits -= nread;
 
-        // -- Handle whole words in range --
-        // XXX THIS ISN'T BEING CALLED BECAUSE MY TEST CASE IS TOO SMALL
-        nread = n_bits;
-        while (remaining_bits > n_bits) {
-            ASSERT(f.read(&n, n_bytes) == n_bytes);
-            n = reverse_bytes(n);
-            accumulate_bits(nread, n, count, n_index);
-            remaining_bits -= n_bits;
-        }
+        // -- Handle remaining whole words --
+        size_t n_whole_words = remaining_bits/n_bits;
+        for (size_t i = 0; i < n_whole_words; ++i) {
+            Log::debug() << i_start << "," << i_end << "whole word" << std::endl;
 
-        // -- Handle final word, if incomplete word --
-        if (remaining_bits > 0) {
             ASSERT(f.read(&n, n_bytes) == n_bytes);
             n = reverse_bytes(n);
-            nread = remaining_bits;
-            accumulate_bits(nread, n, count, n_index);
+            accumulate_bits(n_bits, n, count, n_index);
+        }
+        remaining_bits = remaining_bits % n_bits;
+    
+        // -- Handle final word, if incomplete word --
+        if (remaining_bits) {
+            Log::debug() << i_start << "," << i_end << "extractAtIndexRange: i_end in additional incomplete word" << std::endl;
+
+            ASSERT(f.read(&n, n_bytes) == n_bytes);
+            n = reverse_bytes(n);
+            accumulate_bits(remaining_bits, n, count, n_index);
             remaining_bits = 0;
         }
 

@@ -76,4 +76,5 @@ endforeach()
 #    add_subdirectory(netcdf)
 # endif()
 
+add_subdirectory(gribjump)
 add_subdirectory(regressions)

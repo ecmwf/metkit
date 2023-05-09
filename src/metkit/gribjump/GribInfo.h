@@ -48,6 +48,8 @@ public:
     void toJSON(eckit::JSON&) const;
     void fromJSONFile(eckit::PathName);
 
+    unsigned long getNumberOfDataPoints() const { return numberOfDataPoints_; }
+
 private:
     static constexpr unsigned int currentVersion_ = 1; // later ASSERT version == currentVersion
     unsigned int version_;
