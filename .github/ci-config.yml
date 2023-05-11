@@ -1,0 +1,8 @@
+self_coverage: true
+dependencies: |
+  ecmwf/ecbuild
+  MathisRosenhauer/libaec@master
+  ecmwf/eccodes
+  ecmwf/eckit
+dependency_branch: develop
+parallelism_factor: 8
