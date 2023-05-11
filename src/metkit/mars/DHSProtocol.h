@@ -18,10 +18,12 @@
 
 #include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
+#include "eckit/net/Endpoint.h"
 
 #include "metkit/mars/BaseProtocol.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ClientTask.h"
+
 
 namespace metkit {
 namespace mars {
@@ -36,8 +38,7 @@ public:
 
     static BaseCallbackConnection* build(const eckit::Configuration& config);
 
-    virtual std::string host() const = 0;
-    virtual int port() const = 0;
+    virtual const eckit::net::Endpoint& endpoint() const = 0;
 
     virtual eckit::net::TCPSocket& connect() = 0;
 
