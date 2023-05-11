@@ -14,6 +14,7 @@
 #include "eckit/parser/JSONParser.h"
 #include <bitset>
 #include <numeric>
+#include <queue>
 
 using namespace eckit;
 using namespace metkit::grib;
@@ -151,7 +152,6 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
     decimalMultiplier_ = v["decimalMultiplier"];
 }
 
-
 std::vector<double> GribInfo::extractAtIndexRangeNaive(const GribHandleData& f, size_t i_start, size_t i_end) const {
     // simply a for loop around extractAtIndex, for testing purposes
     std::vector<double> values;
@@ -181,6 +181,30 @@ void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_
     }
 }
 
+void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, std::queue<size_t> &edges, bool &rangeToggle, size_t &bp) {
+    // count the set bits in n
+    // and push the new index of each set bit to n_index, if rangeToggle = true. At each edge, toggle rangeToggle.
+
+    ASSERT(!edges.empty());
+    ASSERT(bp%64 == 0); // bp must be a multiple of 64 (i.e. we must be at the start of a new uint64_t)
+
+    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000 
+    size_t endbit = bp + 64;
+    while (bp < endbit) {
+        if (bp == edges.front()) {
+            rangeToggle = !rangeToggle;
+            edges.pop();
+            if (edges.empty()) break;
+        }
+        bool set = n & msb_64;
+        count += set ? 1 : 0;
+        if (rangeToggle) n_index.push_back(set ? count : 0);
+        n <<= 1;
+        ++bp;
+    }
+}
+
+
 size_t GribInfo::readBitmapRange(const GribHandleData& f, unsigned long offset0, size_t i_start, size_t i_end, std::vector<size_t> &n_index) const{
     // will return count of set bits in range [i_start, i_end)
     // as well as push the index of each set bit to n_index
@@ -191,7 +215,6 @@ size_t GribInfo::readBitmapRange(const GribHandleData& f, unsigned long offset0,
     constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
     size_t count = 0;
     size_t remaining_bits = i_end - i_start;
-
 
     // Jump to start of bitmap.
     Offset offset(offset0);
@@ -362,17 +385,14 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRangesNaive(const GribHandleD
 
 std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
     
+    ASSERT(!sphericalHarmonics_);
+    
     // sort ranges by start index
     std::sort(ranges.begin(), ranges.end(), [](const std::tuple<size_t, size_t>& a, const std::tuple<size_t, size_t>& b) {
         return std::get<0>(a) < std::get<0>(b);
     });
 
-    // print out ranges
-    for (auto r : ranges) {
-        std::cout << std::get<0>(r) << "," << std::get<1>(r) << std::endl;
-    }
-
-    size_t remaining_bits = 0;
+    size_t sizeAllRanges = 0;
 
     // sanity check ranges, and count total number of values
     for (size_t i = 0; i < ranges.size(); ++i) {
@@ -384,25 +404,18 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
             size_t j_start = std::get<0>(ranges[j]);
             ASSERT(i_end <= j_start);
         }
-        remaining_bits += i_end - i_start;
+        sizeAllRanges += i_end - i_start;
+        ASSERT(i_end <= numberOfDataPoints_);
     }
 
-    size_t i_start = std::get<0>(ranges.front());
-    size_t i_end = std::get<1>(ranges.back());    
-
-    ASSERT(i_start < i_end);
-    ASSERT(i_end < numberOfValues_);
-    ASSERT(!sphericalHarmonics_);
-
     std::vector<double> values;
-    std::vector<size_t> n_index;
 
     if (bitsPerValue_ == 0) {
-        values = std::vector<double>(remaining_bits, referenceValue_);
+        values = std::vector<double>(sizeAllRanges, referenceValue_);
         return values;
     }
 
-    values.reserve(remaining_bits);
+    values.reserve(sizeAllRanges);
 
     if (!offsetBeforeBitmap_) {
         // no bitmap, just read the values
@@ -416,10 +429,59 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         }
         return values;
     }
-    // else we have a bitmap, so we need to read the bitmap and skip missing values
-    n_index.reserve(remaining_bits); // new index after skipping missing values
+    // else we have a bitmap
+    std::vector<size_t> n_index;
+    n_index.reserve(sizeAllRanges); // new index after skipping missing values. Use 0 to denote missing values.
 
-    NOTIMP; // not implemented yet
+    // Form a queue of `range edges`, denoting when we enter and leave a ranged region.
+    // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
+    // This will make it easier to toggle counting mode on and off, as we enter and leave ranges.
+    std::queue<size_t> edges;
+    edges.push(std::get<0>(ranges[0]));
+    size_t prev_end = std::get<1>(ranges[0]);
+    for (size_t i = 1; i < ranges.size(); ++i) {
+        size_t i_start = std::get<0>(ranges[i]);
+        if (i_start != prev_end) {
+            edges.push(prev_end);
+            edges.push(i_start);
+        } 
+        size_t i_end = std::get<1>(ranges[i]);
+        prev_end = i_end;
+    }
+    edges.push(prev_end);
+
+    // Jump to start of bitmap.
+    Offset offset(offsetBeforeBitmap_);
+    ASSERT(f.seek(offset) == offset);
+
+    uint64_t n;
+    constexpr size_t n_bytes = sizeof(n);
+    constexpr size_t n_bits = n_bytes * 8;
+    size_t bp = 0;
+    size_t count = 0;
+    bool rangeToggle = false; // whether we are within a range we care about or not.
+
+    while (!edges.empty()) {
+        if (!rangeToggle){
+            // Not within range, skip to word containing start of next range
+            for (size_t i = bp/n_bits; i < edges.front()/n_bits; ++i) {
+               ASSERT(f.read(&n, n_bytes) == n_bytes);
+                count += count_bits(n);
+                bp += n_bits;
+            }    
+        }
+        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        n = reverse_bytes(n);
+        accumulateEdges(n, count, n_index, edges, rangeToggle, bp);
+    }
+
+    // read the values
+    for (size_t i : n_index) {
+        double v = (i == 0) ? MISSING : readDataValue(f, i-1);
+        values.push_back(v);
+    }
+
+    return values;
 }
 
 double GribInfo::readDataValue(const GribHandleData& f, size_t index) const {

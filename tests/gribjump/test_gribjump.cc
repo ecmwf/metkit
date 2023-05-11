@@ -375,49 +375,237 @@ CASE( "test_metkit_gribjump_query" ) {
             }
         }
 
-        // Range of ranges, all at once. Note ranges must not overlap. Ranges will be sorted automatically.
+        // Range of ranges, all at once. Note ranges must not overlap. Ranges will be sorted automatically ≈
+        // TODO: Currently ranges are sorted internally so data is not returned in the original order. Implement if required. 
         {
-            std::vector<std::tuple<size_t, size_t> > ranges = {
-                std::make_tuple(20, 25),
-                std::make_tuple(0, 10),
-                std::make_tuple(25, 33),
-            };
+            // make a vector of vectors of ranges
+            std::vector<std::vector<std::tuple<size_t, size_t> > > rangesVector;
+            // densely backed ranges
+            rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+                std::make_tuple(0, 30), std::make_tuple(30, 60), std::make_tuple(60, 90), std::make_tuple(90, 120)
+            });
+            // slightly seperated ranges, also starting from non-zero. also big ranges
+            rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+                std::make_tuple(1, 30), std::make_tuple(31, 60), std::make_tuple(61, 90), std::make_tuple(91, 120),
+                std::make_tuple(200, 400), std::make_tuple(401, 402), std::make_tuple(403, 600),
+            });
+            // not starting on first word. Hitting last index.
+            rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+               std::make_tuple(200, 220), std::make_tuple(220, 240), std::make_tuple(240, 260), std::make_tuple(600, 684)
+            });
+            // ranges with entire words between them (so word skipping should take place)
+            rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+                std::make_tuple(5, 10), std::make_tuple(130, 135), std::make_tuple(400, 410)
+            });
 
-            // get the expected result
-            std::vector<double> expected;
-            for (size_t rangeIndex = 0; rangeIndex < ranges.size(); rangeIndex++) {
-                size_t start_i = std::get<0>(ranges[rangeIndex]);
-                size_t end_i = std::get<1>(ranges[rangeIndex]);
-                for (size_t index = start_i; index < end_i; index++) {
-                    expected.push_back(testData[i].expectedData[index]);
+            // loop through the ranges
+            for (auto ranges: rangesVector) {
+
+                // get the expected result
+                std::vector<double> expected;
+                for (auto range: ranges) {
+                    for (size_t index = std::get<0>(range); index < std::get<1>(range); index++) {
+                        expected.push_back(testData[i].expectedData[index]);
+                    }
+                }
+
+                // get the actual (naive) result
+                std::vector<double> actualNaive = gribInfo.extractAtIndexRangeOfRangesNaive(dataSource, ranges);
+
+                // compare
+                EXPECT(actualNaive.size() == expected.size());
+                for (size_t index = 0; index < actualNaive.size(); index++) {
+                    double delta = std::abs(actualNaive[index] - expected[index]);
+                    EXPECT(delta < 1e-12);
+                }
+
+                // TODO:
+                // get the actual (better) result
+                std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
+
+                // // print the actual result
+                std::cout << "actual:   ";
+                for (size_t index = 0; index < actual.size(); index++) {
+                    std::cout << actual[index] << ", ";
+                }
+                std::cout << std::endl;
+
+                // print the expected result
+                std::cout << "expected: ";
+                for (size_t index = 0; index < expected.size(); index++) {
+                    std::cout << expected[index] << ", ";
+                }
+                std::cout << std::endl;
+
+                // compare
+
+                EXPECT(actual.size() == expected.size());
+                for (size_t index = 0; index < actual.size(); index++) {
+                    double delta = std::abs(actual[index] - expected[index]);
+                    EXPECT(delta < 1e-12);
                 }
             }
-
-            // get the actual (naive) result
-            std::vector<double> actualNaive = gribInfo.extractAtIndexRangeOfRangesNaive(dataSource, ranges);
-
-            // compare
-            EXPECT(actualNaive.size() == expected.size());
-            for (size_t index = 0; index < actualNaive.size(); index++) {
-                double delta = std::abs(actualNaive[index] - expected[index]);
-                EXPECT(delta < 1e-12);
-            }
-
-            // TODO:
-
-            // // get the actual (fast) result
-            std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
-
-            // // compare
-            EXPECT(actual.size() == expected.size());
-            for (size_t index = 0; index < actual.size(); index++) {
-                double delta = std::abs(actual[index] - expected[index]);
-                EXPECT(delta < 1e-12);
-            }
-
         }
 
     }
+}
+
+CASE( "test_metkit_gribjump_accedges1" ) {
+    // unit test for accumulateEdges function
+
+    for (size_t ti=0; ti < 2; ti ++){
+        uint64_t n;
+        std::queue<size_t> edges;
+        std::vector<size_t> n_index;
+        std::vector<size_t> expected_n;
+        size_t expected_count;
+        if (ti == 0) {
+            n = 0xF0F0F0F0F0F0F0F0;
+            expected_n = {
+                1, 2, 3, 4, 0, 0, 0, 0, 5, 6,
+                0, 0, 0, 0, 13, 14, 15, 16, 0, 0,
+                0,
+                18, 19, 20, 0, 0, 0, 0, 21, 22, 23, 24,
+                0, 0, 0, 25, 26, 27, 28, 0, 0, 0, 0, 29, 30, 31, 32, 0, 0, 0, 0
+            };
+            expected_count = 32;
+        } else if (ti == 1) {
+            n = 0;
+            expected_n = {
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            };
+            expected_count = 0;
+        } else if (ti == 2){
+            n = 0xFFFFFFFFFFFFFFFF;
+            expected_n = {
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                21, 22, 23 ,24, 25, 26, 27, 28, 29, 30,
+                32,
+                34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
+                46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64
+            };
+            expected_count = 64;
+        } 
+        else {
+            continue;
+        }
+        
+        // std::cout << "bitstring n: " << std::bitset<64>(n) << std::endl;
+        size_t count = 0;
+        edges.push(0);
+        edges.push(10);
+
+        edges.push(20);
+        edges.push(30);
+        
+        edges.push(31);
+        edges.push(32);
+        
+        edges.push(33);
+        edges.push(44);
+
+        edges.push(45);
+        edges.push(64);
+
+        bool pushToggle = false; // note this test doesnt utilise this trick, its for inter-word edges
+        size_t bp = 0; // ditto
+        accumulateEdges(n, count, n_index, edges, pushToggle, bp);
+
+        // print out expected
+        // std::cout << "expected: ";
+        // for (size_t i = 0; i < expected_n.size(); i++) {
+        //     std::cout << expected_n[i] << ", ";
+        // }
+        // std::cout << std::endl;
+
+        // std::cout << "count: " << count << std::endl;
+        // std::cout << "n_index: ";
+        // for (size_t i = 0; i < n_index.size(); i++) {
+        //     std::cout << n_index[i] << ", ";
+        // }
+        // std::cout << std::endl;
+
+        EXPECT (expected_n.size() == n_index.size());
+        for (size_t i = 0; i < expected_n.size(); i++) {
+            EXPECT(n_index[i] == expected_n[i]);
+        }
+        EXPECT(count == expected_count);
+    }
+}
+
+CASE( "test_metkit_gribjump_accedges2" ) {
+    // unit test for accumulateEdges function
+    uint64_t bitstream[] = {
+        0xFFFFFFFFFFFFFFFF, // [0, 64)
+        0xFFFFFFFFFFFFFFFF, // [64, 128)
+        0x0000000000000000, // [128, 192)
+        0xFFFFFFFFFFFFFFFF, // [192, 256)
+        0xFFFFFFFFFFFFFFFF, // [256, 320)
+    };
+    uint64_t n;
+    std::queue<size_t> edges;
+    std::vector<size_t> n_index;
+    std::vector<size_t> expected_n;
+    size_t expected_count;
+    size_t count = 0;
+
+    // inter-word range
+    edges.push(0);
+    edges.push(96); 
+    // intra-word range
+    edges.push(100);
+    edges.push(120);
+    // inter-word range, edge case
+    edges.push(191); 
+    edges.push(193);
+    // intra-word range, edge case
+    edges.push(255);
+    edges.push(256);
+
+
+    bool pushToggle = false; 
+    size_t bp = 0;
+    size_t word = 0;
+    while (!edges.empty()) {
+        n = bitstream[word];
+        accumulateEdges(n, count, n_index, edges, pushToggle, bp);
+        ASSERT(bp < 1000); // infinite loop protection
+        word++;
+    }
+    expected_n = {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+        22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+        60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
+        79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 101,
+        102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+        117, 118, 119, 120, 0, 129, 192, 
+    };
+    expected_count = 192;
+
+    // print out expected
+    // std::cout << "expected: ";
+    // for (size_t i = 0; i < expected_n.size(); i++) {
+    //     std::cout << expected_n[i] << ", ";
+    // }
+    // std::cout << std::endl;
+
+    // std::cout << "count: " << count << std::endl;
+    // std::cout << "n_index: ";
+    // for (size_t i = 0; i < n_index.size(); i++) {
+    //     std::cout << n_index[i] << ", ";
+    // }
+    // std::cout << std::endl;
+
+    EXPECT (expected_n.size() == n_index.size());
+    for (size_t i = 0; i < expected_n.size(); i++) {
+        EXPECT(n_index[i] == expected_n[i]);
+    }
+    EXPECT(count == expected_count);
 }
 
 //-----------------------------------------------------------------------------

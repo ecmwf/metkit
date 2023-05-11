@@ -18,6 +18,7 @@
 #include "eckit/io/Offset.h"
 #include "eckit/types/FixedString.h"
 #include "eckit/log/JSON.h"
+#include <queue>
 
 
 namespace eckit { class PathName; }
@@ -30,8 +31,8 @@ class GribHandle;
 
 namespace gribjump {
 
-
 class GribHandleData;
+void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, std::queue<size_t> &edges, bool&, size_t&);
 
 class GribInfo {
 public:
