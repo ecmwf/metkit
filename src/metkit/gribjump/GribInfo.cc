@@ -361,7 +361,7 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     ASSERT(f.seek(offset) == offset);
 
     // read `len` whole bytes into buffer
-    long len = (bitsPerValue_ + 7) / 8;
+    long len = 1 + (bitsPerValue_ + 7) / 8;
     unsigned char buf[8];
     ASSERT(f.read(buf, len) == len);
 
@@ -484,9 +484,8 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     for (auto r : ranges) {
         size_t i0 = std::get<0>(r);
         size_t i1 = std::get<1>(r);
-        bufferSize = std::max(bufferSize, ((i1 - i0)*bitsPerValue_ + 7 )/8);
+        bufferSize = std::max(bufferSize, 1 + ((i1 - i0)*bitsPerValue_ + 7 )/8);
     }
-
     std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
 
     count = 0;
@@ -525,15 +524,15 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
                 ASSERT(f.seek(offset) == offset);
 
                 // reading whole range at once
-                long len = (((index1 - index0)+1)*(bitsPerValue_) + 7) / 8;
-
+                long len = 1 + (((index1 - index0)+1)*(bitsPerValue_) + 7) / 8;
                 ASSERT (len <= bufferSize);
                 ASSERT(f.read(buf.get(), len) == len);
                 // only needed for first value
                 bitp = ((index0-1) * bitsPerValue_) % 8;
             }
-            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_);
-            values.push_back((double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_));
+            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccode have an array version?
+            double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
+            values.push_back(v);
         }
         count += i1 - i0;
     }
@@ -550,7 +549,7 @@ double GribInfo::readDataValue(const GribHandleData& f, size_t index) const {
     ASSERT(f.seek(offset) == offset);
 
     // read `len` whole bytes into buffer
-    long len = (bitsPerValue_ + 7) / 8;
+    long len = 1 + (bitsPerValue_ + 7) / 8;
     unsigned char buf[8];
     ASSERT(f.read(buf, len) == len);
 
