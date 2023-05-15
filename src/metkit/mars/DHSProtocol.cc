@@ -214,9 +214,7 @@ public:
 
         passiveAddr_ = Endpoint(control_);
 
-        // FIXME: This is a massive hack. Force this to use the same host for the passive host as for the proxy control
-        //        connection. Needs to be fixed properly on the client side.
-        passiveAddr_ = Endpoint(proxyHost_.host(), passiveAddr_.port());
+        LOG_DEBUG_LIB(LibMetkit) << "Passive address. host=" << passiveAddr_<< std::endl;
 
         control_ >> passiveCheck_;
 
