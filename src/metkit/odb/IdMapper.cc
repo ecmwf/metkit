@@ -98,7 +98,7 @@ IdMap::IdMap(const std::string& configFile,
 		{
             long num = eckit::Translator<std::string, long>()(StringTools::trim(words[numericIndex]));
             std::string alpha (StringTools::trim(words[alphanumericIndex]));
-			numeric2alpha_[num] = alpha;
+			numeric2alpha_[num] = StringTools::lower(alpha);
             Log::debug<LibMetkit>() << "GribCodesBase::readConfig: num='" << num << "' alpha='" << alpha << "'" << std::endl;
 		}
 	}

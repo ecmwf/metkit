@@ -81,6 +81,11 @@ static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02,
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
     EXPECT(md.getLong(name) == eq);
 
+#define MD_EXPECT_GE_LONG(md, name, eq)                                                                                   \
+    EXPECT(md.has(name));                                                                                              \
+    std::cout << "expect long for " << name << " to be greater than or equal to " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
+    EXPECT(md.getLong(name) >= eq);
+
 #define MD_EXPECT_DOUBLE(md, name, eq)                                                                                                                     \
     EXPECT(md.has(name));                                                                                                                                  \
     std::cout << "expect double for " << name << " to equal " << std::to_string(eq) << " (got " << std::to_string(md.getDouble(name)) << ")" << std::endl; \
@@ -110,8 +115,8 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
     {
         MD_EXPECT_STRING(md, "globalDomain", "g");
         MD_EXPECT_LONG(md, "GRIBEditionNumber", 2);
-        MD_EXPECT_LONG(md, "tablesVersionLatestOfficial", 30);
-        MD_EXPECT_LONG(md, "tablesVersionLatest", 30);
+        MD_EXPECT_GE_LONG(md, "tablesVersionLatestOfficial", 30);
+        MD_EXPECT_GE_LONG(md, "tablesVersionLatest", 30);
         MD_EXPECT_LONG(md, "grib2divider", 1000000);
         MD_EXPECT_LONG(md, "angleSubdivisions", 1000000);
         MD_EXPECT_LONG(md, "missingValue", 9999);
@@ -292,8 +297,9 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
     {
         MD_EXPECT_STRING(md, "globalDomain", "g");
         MD_EXPECT_STRING(md, "GRIBEditionNumber", "2");
-        MD_EXPECT_STRING(md, "tablesVersionLatestOfficial", "30");
-        MD_EXPECT_STRING(md, "tablesVersionLatest", "30");
+        // This is not easy to test, as the latest official version can increment...
+        // MD_EXPECT_STRING(md, "tablesVersionLatestOfficial", "30");
+        // MD_EXPECT_STRING(md, "tablesVersionLatest", "30");
         MD_EXPECT_STRING(md, "grib2divider", "1e+06");
         MD_EXPECT_STRING(md, "angleSubdivisions", "1e+06");
         MD_EXPECT_STRING(md, "missingValue", "9999");
