@@ -188,7 +188,7 @@ void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, s
     ASSERT(!edges.empty());
     ASSERT(bp%64 == 0); // bp must be a multiple of 64 (i.e. we must be at the start of a new uint64_t)
 
-    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000 
+    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
     size_t endbit = bp + 64;
     while (bp < endbit) {
         if (bp == edges.front()) {
@@ -386,8 +386,9 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRangesNaive(const GribHandleD
 std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
     
     ASSERT(!sphericalHarmonics_);
-    
+
     // sort ranges by start index
+    // TODO: unsort the ranges later, so that the output is in the same order as the input
     std::sort(ranges.begin(), ranges.end(), [](const std::tuple<size_t, size_t>& a, const std::tuple<size_t, size_t>& b) {
         return std::get<0>(a) < std::get<0>(b);
     });
@@ -444,7 +445,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         if (i_start != prev_end) {
             edges.push(prev_end);
             edges.push(i_start);
-        } 
+        }
         size_t i_end = std::get<1>(ranges[i]);
         prev_end = i_end;
     }
@@ -468,7 +469,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
                ASSERT(f.read(&n, n_bytes) == n_bytes);
                 count += count_bits(n);
                 bp += n_bits;
-            }    
+            }
         }
         ASSERT(f.read(&n, n_bytes) == n_bytes);
         n = reverse_bytes(n);
@@ -476,9 +477,65 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     }
 
     // read the values
-    for (size_t i : n_index) {
-        double v = (i == 0) ? MISSING : readDataValue(f, i-1);
-        values.push_back(v);
+
+    // set bufferSize equal to minimum bytes that will hold the largest range.
+    // XXX: Should there be an upper limit on this?
+    size_t bufferSize = 0;
+    for (auto r : ranges) {
+        size_t i0 = std::get<0>(r);
+        size_t i1 = std::get<1>(r);
+        bufferSize = std::max(bufferSize, ((i1 - i0)*bitsPerValue_ + 7 )/8);
+    }
+
+    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
+
+    count = 0;
+    for (size_t ri = 0; ri < ranges.size(); ++ri) {
+        auto r = ranges[ri];
+        size_t i0 = std::get<0>(r);
+        size_t i1 = std::get<1>(r);
+        size_t index0;
+        size_t index1;
+        // find index of first and last non-missing values in this range
+        for (size_t i = count; i < count + (i1 - i0); ++i) {
+            index0 = n_index[i];
+            if (index0!=0) break;
+        }
+        if (index0 == 0){
+            // all values in this range are missing
+            for (size_t i = 0; i < i1 - i0; ++i) {
+                values.push_back(MISSING);
+            }
+            count += i1 - i0;
+            continue;
+        }
+        for (size_t i = count + (i1 - i0) - 1; i >= count; --i) {
+            index1 = n_index[i];
+            if (index1!=0) break;
+        }
+
+        long bitp = -1;
+        for (size_t i = count; i < count + (i1 - i0); ++i) {
+            size_t index = n_index[i];
+            if (index == 0){
+                values.push_back(MISSING);
+                continue;
+            } else if (bitp == -1){
+                Offset offset = off_t(offsetBeforeData_)  + off_t((index0-1) * bitsPerValue_ / 8);
+                ASSERT(f.seek(offset) == offset);
+
+                // reading whole range at once
+                long len = (((index1 - index0)+1)*(bitsPerValue_) + 7) / 8;
+
+                ASSERT (len <= bufferSize);
+                ASSERT(f.read(buf.get(), len) == len);
+                // only needed for first value
+                bitp = ((index0-1) * bitsPerValue_) % 8;
+            }
+            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_);
+            values.push_back((double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_));
+        }
+        count += i1 - i0;
     }
 
     return values;
