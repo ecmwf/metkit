@@ -890,8 +890,13 @@ disseminate:
     type: enum
     values:
     - bc
-    - thursday
     - monday
+    - tuesday
+    - wednesday
+    - thursday
+    - friday
+    - saturday
+    - sunday
 
   option:
     default: normal
