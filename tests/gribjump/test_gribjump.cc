@@ -23,9 +23,10 @@ class inputData {
     public:
     std::vector<double> expectedData;
     eckit::PathName gribFileName;
+    double epsilon = 1e-12;
 };
 
-constexpr size_t numTestData = 2;
+constexpr size_t numTestData = 5;
 inputData testData[numTestData];
 
 void setGribJumpData(){
@@ -311,9 +312,84 @@ void setGribJumpData(){
         9999, 9999, 9999, 9999, 9999,
         9999, 9999, 9999, 9999
     };
-
+    testData[2].gribFileName = "synth11.grib";
+    testData[2].expectedData =  {
+        0, 9999, 9999, 3, 4, 9999, 9999, 9999, 8, 9,
+        10, 9999, 9999, 9999, 9999, 15, 16, 17, 18, 9999,
+        9999, 9999, 9999, 9999, 24, 25, 26, 27, 28, 9999,
+        9999, 9999, 9999, 9999, 9999, 35, 36, 37, 38, 39,
+        40, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 48, 49,
+        50, 51, 52, 53, 54, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 63, 64, 65, 66, 67, 68, 69,
+        70, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        80, 81, 82, 83, 84, 85, 86, 87, 88, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 99,
+        100, 101, 102, 103, 104, 105, 106, 107, 108, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+        130, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 143, 144, 145, 146, 147, 148, 149,
+        150, 151, 152, 153, 154, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 168, 169,
+        170, 171, 172, 173, 174, 175, 176, 177, 178, 179,
+        180, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 195, 196, 197, 198, 199,
+        200, 201, 202, 203, 204, 205, 206, 207, 208, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 224, 225, 226, 227, 228, 229,
+        230, 231, 232, 233, 234, 235, 236, 237, 238, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 255, 256, 257, 258, 259,
+        260, 261, 262, 263, 264, 265, 266, 267, 268, 269,
+        270, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 288, 289,
+        290, 291, 292, 293, 294, 295, 296, 297, 298, 299,
+        300, 301, 302, 303, 304, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 323, 324, 325, 326, 327, 328, 329,
+        330, 331, 332, 333, 334, 335, 336, 337, 338, 339,
+        340, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        360, 361, 362, 363, 364, 365, 366, 367, 368, 369,
+        370, 371, 372, 373, 374, 375, 376, 377, 378, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 399,
+        400, 401, 402, 403, 404, 405, 406, 407, 408, 409,
+        410, 411, 412, 413, 414, 415, 416, 417, 418, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        440, 441, 442, 443, 444, 445, 446, 447, 448, 449,
+        450, 451, 452, 453, 454, 455, 456, 457, 458, 459,
+        460, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 483, 484, 485, 486, 487, 488, 489,
+        490, 491, 492, 493, 494, 495, 496, 497, 498, 499,
+        500, 501, 502, 503, 504, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 528, 529,
+        530, 531, 532, 533, 534, 535, 536, 537, 538, 539,
+        540, 541, 542, 543, 544, 545, 546, 547, 548, 549,
+        550, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 575, 576, 577, 578, 579,
+        580, 581, 582, 583, 584, 585, 586, 587, 588, 589,
+        590, 591, 592, 593, 594, 595, 596, 597, 598, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 624, 625, 626, 627, 628, 629,
+        630, 631, 632, 633, 634, 635, 636, 637, 638, 639,
+        640, 641, 642, 643, 644, 645, 646, 647, 648, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999,
+        9999, 9999, 9999, 9999, 9999, 675, 676, 677, 678, 679,
+        680, 681, 682, 683
+    };
+    testData[3].gribFileName = "synth12.grib";
+    testData[3].expectedData = testData[2].expectedData;
     // Grib with single value
-    // todo...
+    testData[4].gribFileName = "const.grib";
+    testData[4].expectedData = std::vector<double>(testData[2].expectedData.size(), 1.23456789);
+    testData[4].epsilon = 1e-6; // Constant fields are stored at reduced precision
 }
 
 CASE( "test_metkit_gribjump_query" ) {
@@ -324,8 +400,9 @@ CASE( "test_metkit_gribjump_query" ) {
         GribInfo gribInfo = dataSource.updateInfo();
         EXPECT(gribInfo.ready());
         size_t numberOfDataPoints = gribInfo.getNumberOfDataPoints();
+        double epsilon = testData[i].epsilon;
 
-        // // XXX print every data point
+        // XXX print every data point
         // for (size_t index = 0; index < numberOfDataPoints; index++) {
         //     double v = gribInfo.extractAtIndex(dataSource, index);
         //     std::cout.precision(15);
@@ -335,11 +412,14 @@ CASE( "test_metkit_gribjump_query" ) {
         // std::cout << std::endl;
         
         // Query each single data point, and compare with expected value
+        std::cout << "Testing " << testData[i].gribFileName << std::endl;
         EXPECT(numberOfDataPoints == testData[i].expectedData.size());
         for (size_t index = 0; index < numberOfDataPoints; index++) {
             double v = gribInfo.extractAtIndex(dataSource, index);
+            std::cout.precision(15);
+            std::cout << v << " " << testData[i].expectedData[index] << std::endl;
             double delta = std::abs(v - testData[i].expectedData[index]);
-            EXPECT(delta < 1e-12);
+            EXPECT(delta < epsilon);
         }
         
         // Ranges to query
@@ -359,7 +439,7 @@ CASE( "test_metkit_gribjump_query" ) {
                 EXPECT(v.size() == end_i - start_i);
                 for (size_t index = start_i; index < end_i; index++) {
                     double delta = std::abs(v[index - start_i] - testData[i].expectedData[index]);
-                    EXPECT(delta < 1e-12);
+                    EXPECT(delta < epsilon);
                 }
             }
         }
@@ -371,20 +451,20 @@ CASE( "test_metkit_gribjump_query" ) {
             EXPECT(v.size() == end_i - start_i);
             for (size_t index = start_i; index < end_i; index++) {
                 double delta = std::abs(v[index - start_i] - testData[i].expectedData[index]);
-                EXPECT(delta < 1e-12);
+                EXPECT(delta < epsilon);
             }
         }
 
-        // Range of ranges, all at once. Note ranges must not overlap. Ranges will be sorted automatically ≈
+        // Range of ranges, all at once. Note ranges must not overlap.
         // TODO: Currently ranges are sorted internally so data is not returned in the original order. Implement if required. 
         {
             // make a vector of vectors of ranges
             std::vector<std::vector<std::tuple<size_t, size_t> > > rangesVector;
             // densely backed ranges
             rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-                std::make_tuple(0, 30), std::make_tuple(30, 60), std::make_tuple(60, 90), std::make_tuple(90, 120)
+                std::make_tuple(0, 3), std::make_tuple(30, 60), std::make_tuple(60, 90), std::make_tuple(90, 120)
             });
-            // slightly seperated ranges, also starting from non-zero. also big ranges
+            // // slightly seperated ranges, also starting from non-zero. also big ranges
             rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
                 std::make_tuple(1, 30), std::make_tuple(31, 60), std::make_tuple(61, 90), std::make_tuple(91, 120),
                 std::make_tuple(200, 400), std::make_tuple(401, 402), std::make_tuple(403, 600),
@@ -412,37 +492,37 @@ CASE( "test_metkit_gribjump_query" ) {
                 // get the actual (naive) result
                 std::vector<double> actualNaive = gribInfo.extractAtIndexRangeOfRangesNaive(dataSource, ranges);
 
-                // compare
                 EXPECT(actualNaive.size() == expected.size());
                 for (size_t index = 0; index < actualNaive.size(); index++) {
                     double delta = std::abs(actualNaive[index] - expected[index]);
-                    EXPECT(delta < 1e-12);
+                    EXPECT(delta < epsilon);
                 }
 
-                // TODO:
-                // get the actual (better) result
+                // the non-naive result
                 std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
 
-                // // print the actual result
+                // printing 
+                std::cout << "range: ";
+                for (auto range: ranges) {
+                    std::cout << std::get<0>(range) << "-" << std::get<1>(range) << ", ";
+                }
+
                 std::cout << "actual:   ";
                 for (size_t index = 0; index < actual.size(); index++) {
                     std::cout << actual[index] << ", ";
                 }
                 std::cout << std::endl;
 
-                // print the expected result
                 std::cout << "expected: ";
                 for (size_t index = 0; index < expected.size(); index++) {
                     std::cout << expected[index] << ", ";
                 }
                 std::cout << std::endl;
 
-                // compare
-
                 EXPECT(actual.size() == expected.size());
                 for (size_t index = 0; index < actual.size(); index++) {
                     double delta = std::abs(actual[index] - expected[index]);
-                    EXPECT(delta < 1e-12);
+                    EXPECT(delta < epsilon);
                 }
             }
         }
