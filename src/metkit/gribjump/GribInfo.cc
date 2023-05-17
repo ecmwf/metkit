@@ -152,34 +152,34 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
     decimalMultiplier_ = v["decimalMultiplier"];
 }
 
-void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &n_index) {
+void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &newIndex) {
     // count the next nread bits in n, storing the number of 1s in count
-    // and push the index of each 1 to n_index
-    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
+    // and push the index of each 1 to newIndex
+    constexpr uint64_t msb64 = 0x8000000000000000; // 0b100....000
 
     if (nread == 0) return;
     ASSERT(nread <= 64);
 
     // first bit
-    count += (n & msb_64) ? 1 : 0;
-    n_index.push_back((n & msb_64) ? count : -1);
+    count += (n & msb64) ? 1 : 0;
+    newIndex.push_back((n & msb64) ? count : -1);
 
     // rest of the bits
     for (size_t i = 0; i < nread-1; ++i) {
         n <<= 1;
-        count += (n & msb_64) ? 1 : 0;
-        n_index.push_back((n & msb_64) ? count : -1);
+        count += (n & msb64) ? 1 : 0;
+        newIndex.push_back((n & msb64) ? count : -1);
     }
 }
 
-void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, std::queue<size_t> &edges, bool &rangeToggle, size_t &bp) {
+void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &newIndex, std::queue<size_t> &edges, bool &rangeToggle, size_t &bp) {
     // count the set bits in n
-    // and push the new index of each set bit to n_index, if rangeToggle = true. At each edge, toggle rangeToggle.
+    // and push the new index of each set bit to newIndex, if rangeToggle = true. At each edge, toggle rangeToggle.
 
     ASSERT(!edges.empty());
     ASSERT(bp%64 == 0); // bp must be a multiple of 64 (i.e. we must be at the start of a new uint64_t)
 
-    constexpr uint64_t msb_64 = 0x8000000000000000; // 0b100....000
+    constexpr uint64_t msb64 = 0x8000000000000000; // 0b100....000
     size_t endbit = bp + 64;
     while (bp < endbit) {
         if (bp == edges.front()) {
@@ -187,9 +187,9 @@ void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, s
             edges.pop();
             if (edges.empty()) break;
         }
-        bool set = n & msb_64;
+        bool set = n & msb64;
         count += set ? 1 : 0;
-        if (rangeToggle) n_index.push_back(set ? count : 0);
+        if (rangeToggle) newIndex.push_back(set ? count : 0);
         n <<= 1;
         ++bp;
     }
@@ -212,23 +212,23 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
 
         // We will read in 8-byte chunks.
         uint64_t n;
-        const size_t n_bytes = sizeof(n);
+        const size_t nBytes = sizeof(n);
 
         // skip to the byte containing the bit we want, counting set bits as we go.
         size_t count = 0;
-        size_t skip = index / (8*n_bytes);
+        size_t skip = index / (8*nBytes);
         for (size_t i = 0; i < skip; ++i) {
-            ASSERT(f.read(&n, n_bytes) == n_bytes);
+            ASSERT(f.read(&n, nBytes) == nBytes);
             count += count_bits(n);
         }
-        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        ASSERT(f.read(&n, nBytes) == nBytes);
 
         // XXX We need to reverse the byte order of n (but not the bits in each byte).
         n = reverse_bytes(n);
 
         // check if the bit is set, if not then the value is marked missing
-        // bit we want is, from the left, index%(n_bytes*8)
-        n = (n >> (n_bytes*8 -index%(n_bytes*8) -1));
+        // bit we want is, from the left, index%(nBytes*8)
+        n = (n >> (nBytes*8 -index%(nBytes*8) -1));
         count += count_bits(n);
 
         if (!(n & 1)) {
@@ -257,16 +257,16 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
 
     // sanity check ranges, and count total number of values
     for (size_t i = 0; i < ranges.size(); ++i) {
-        size_t i_start = std::get<0>(ranges[i]);
-        size_t i_end = std::get<1>(ranges[i]);
-        ASSERT(i_start < i_end);
+        size_t istart = std::get<0>(ranges[i]);
+        size_t iend = std::get<1>(ranges[i]);
+        ASSERT(istart < iend);
         // assert no overlap with other ranges
         for (size_t j = i+1; j < ranges.size(); ++j) {
-            size_t j_start = std::get<0>(ranges[j]);
-            ASSERT(i_end <= j_start);
+            size_t jstart = std::get<0>(ranges[j]);
+            ASSERT(iend <= jstart);
         }
-        sizeAllRanges += i_end - i_start;
-        ASSERT(i_end <= numberOfDataPoints_);
+        sizeAllRanges += iend - istart;
+        ASSERT(iend <= numberOfDataPoints_);
     }
 
     std::vector<double> values;
@@ -281,9 +281,9 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     if (!offsetBeforeBitmap_) {
         // no bitmap, just read the values
         for (auto r : ranges) {
-            size_t i_start = std::get<0>(r);
-            size_t i_end = std::get<1>(r);
-            for (size_t i = i_start; i < i_end; ++i) {
+            size_t istart = std::get<0>(r);
+            size_t iend = std::get<1>(r);
+            for (size_t i = istart; i < iend; ++i) {
                 double v = readDataValue(f, i);
                 values.push_back(v);
             }
@@ -291,33 +291,33 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         return values;
     }
     // else we have a bitmap
-    std::vector<size_t> n_index;
-    n_index.reserve(sizeAllRanges); // new index after skipping missing values. Use 0 to denote missing values.
+    std::vector<size_t> newIndex;
+    newIndex.reserve(sizeAllRanges); // new index after skipping missing values. Use 0 to denote missing values.
 
     // Form a queue of `range edges`, denoting when we enter and leave a ranged region.
     // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
     // This will make it easier to toggle counting mode on and off, as we enter and leave ranges.
     std::queue<size_t> edges;
     edges.push(std::get<0>(ranges[0]));
-    size_t prev_end = std::get<1>(ranges[0]);
+    size_t prevEnd = std::get<1>(ranges[0]);
     for (size_t i = 1; i < ranges.size(); ++i) {
-        size_t i_start = std::get<0>(ranges[i]);
-        if (i_start != prev_end) {
-            edges.push(prev_end);
-            edges.push(i_start);
+        size_t istart = std::get<0>(ranges[i]);
+        if (istart != prevEnd) {
+            edges.push(prevEnd);
+            edges.push(istart);
         }
-        size_t i_end = std::get<1>(ranges[i]);
-        prev_end = i_end;
+        size_t iend = std::get<1>(ranges[i]);
+        prevEnd = iend;
     }
-    edges.push(prev_end);
+    edges.push(prevEnd);
 
     // Jump to start of bitmap.
     Offset offset(offsetBeforeBitmap_);
     ASSERT(f.seek(offset) == offset);
 
     uint64_t n;
-    constexpr size_t n_bytes = sizeof(n);
-    constexpr size_t n_bits = n_bytes * 8;
+    constexpr size_t nBytes = sizeof(n);
+    constexpr size_t nBits = nBytes * 8;
     size_t bp = 0;
     size_t count = 0;
     bool rangeToggle = false; // whether we are within a range we care about or not.
@@ -325,15 +325,15 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     while (!edges.empty()) {
         if (!rangeToggle){
             // Not within range, skip to word containing start of next range
-            for (size_t i = bp/n_bits; i < edges.front()/n_bits; ++i) {
-               ASSERT(f.read(&n, n_bytes) == n_bytes);
+            for (size_t i = bp/nBits; i < edges.front()/nBits; ++i) {
+               ASSERT(f.read(&n, nBytes) == nBytes);
                 count += count_bits(n);
-                bp += n_bits;
+                bp += nBits;
             }
         }
-        ASSERT(f.read(&n, n_bytes) == n_bytes);
+        ASSERT(f.read(&n, nBytes) == nBytes);
         n = reverse_bytes(n);
-        accumulateEdges(n, count, n_index, edges, rangeToggle, bp);
+        accumulateEdges(n, count, newIndex, edges, rangeToggle, bp);
     }
 
     // read the values
@@ -357,7 +357,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         size_t index1;
         // find index of first and last non-missing values in this range
         for (size_t i = count; i < count + (i1 - i0); ++i) {
-            index0 = n_index[i];
+            index0 = newIndex[i];
             if (index0!=0) break;
         }
         if (index0 == 0){
@@ -369,13 +369,13 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
             continue;
         }
         for (size_t i = count + (i1 - i0) - 1; i >= count; --i) {
-            index1 = n_index[i];
+            index1 = newIndex[i];
             if (index1!=0) break;
         }
 
         long bitp = -1;
         for (size_t i = count; i < count + (i1 - i0); ++i) {
-            size_t index = n_index[i];
+            size_t index = newIndex[i];
             if (index == 0){
                 values.push_back(MISSING);
                 continue;
