@@ -63,7 +63,6 @@ void GribJump::usage(const std::string &tool) const {
 }
 
 void GribJump::init(const eckit::option::CmdArgs& args) {
-    // XXX: better arg parsing
     doExtract_ = args.getBool("extract", true);
     doQuery_ = args.getBool("query", false);
 

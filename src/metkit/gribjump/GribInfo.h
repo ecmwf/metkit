@@ -42,10 +42,7 @@ public:
     bool ready() const { return numberOfValues_ > 0; }
     void update(const grib::GribHandle& h);
     double extractAtIndex(const GribHandleData&, size_t index) const;
-    std::vector<double> extractAtIndexRange(const GribHandleData&, size_t i_start, size_t i_end) const;
-    std::vector<double> extractAtIndexRangeNaive(const GribHandleData&, size_t i_start, size_t i_end) const;
     std::vector<double> extractAtIndexRangeOfRanges(const GribHandleData&, std::vector<std::tuple<size_t, size_t>> ranges) const;
-    std::vector<double> extractAtIndexRangeOfRangesNaive(const GribHandleData&, std::vector<std::tuple<size_t, size_t>> ranges) const;
     
     void print(std::ostream&) const;
     void toJSON(eckit::JSON&) const;
@@ -54,7 +51,6 @@ public:
     unsigned long getNumberOfDataPoints() const { return numberOfDataPoints_; }
 
 private:
-    size_t readBitmapRange(const GribHandleData&, unsigned long, size_t, size_t, std::vector<size_t>&) const;
     double readDataValue(const GribHandleData&, size_t) const;
 
     static constexpr unsigned int currentVersion_ = 1; // later ASSERT version == currentVersion
