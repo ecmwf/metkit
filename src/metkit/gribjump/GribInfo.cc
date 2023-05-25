@@ -38,6 +38,7 @@ static GribAccessor<unsigned long> offsetBeforeBitmap("offsetBeforeBitmap");
 static GribAccessor<unsigned long> numberOfValues("numberOfValues");
 static GribAccessor<unsigned long> numberOfDataPoints("numberOfDataPoints");
 static GribAccessor<long>          sphericalHarmonics("sphericalHarmonics");
+static GribAccessor<unsigned long> totalLength("totalLength");
 
 static Mutex mutex;
 
@@ -80,9 +81,11 @@ GribInfo::GribInfo():
     offsetBeforeBitmap_(0),
     numberOfValues_(0),
     numberOfDataPoints_(0),
-    sphericalHarmonics_(0) {
-    binaryMultiplier_ = 1;
-    decimalMultiplier_ = 1;
+    totalLength_(0),
+    sphericalHarmonics_(0),
+    msgStartOffset_(0),
+    binaryMultiplier_(0),
+    decimalMultiplier_(0) {
 }
 
 void GribInfo::update(const GribHandle& h) {
@@ -94,6 +97,7 @@ void GribInfo::update(const GribHandle& h) {
     numberOfDataPoints_ = numberOfDataPoints(h);
     numberOfValues_     = numberOfValues(h);
     sphericalHarmonics_ = sphericalHarmonics(h);
+    totalLength_        = totalLength(h);
 
     if (bitmapPresent(h))
         offsetBeforeBitmap_ = offsetBeforeBitmap(h);
@@ -115,6 +119,10 @@ void GribInfo::print(std::ostream& s) const {
     s << "    numberOfValues=" << numberOfValues_ << std::endl;
     s << "    offsetBeforeBitmap=" << offsetBeforeBitmap_ << std::endl;
     s << "    sphericalHarmonics=" << sphericalHarmonics_ << std::endl;
+    s << "    binaryMultiplier=" << binaryMultiplier_ << std::endl;
+    s << "    decimalMultiplier=" << decimalMultiplier_ << std::endl;
+    s << "    totalLength=" << totalLength_ << std::endl;
+    s << "    msgStartOffset=" << msgStartOffset_ << std::endl;
     s << "]";
     s << std::endl;
 }
@@ -133,6 +141,8 @@ void GribInfo::toJSON(eckit::JSON& json) const {
     json << "sphericalHarmonics" << sphericalHarmonics_;
     json << "binaryMultiplier" << binaryMultiplier_;
     json << "decimalMultiplier" << decimalMultiplier_;
+    json << "totalLength" << totalLength_;
+    json << "msgStartOffset" << msgStartOffset_;
     json.endObject();
 }
 
@@ -150,6 +160,8 @@ void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
     sphericalHarmonics_ = v["sphericalHarmonics"];
     binaryMultiplier_ = v["binaryMultiplier"];
     decimalMultiplier_ = v["decimalMultiplier"];
+    totalLength_ = v["totalLength"];
+    msgStartOffset_ = v["msgStartOffset"];
 }
 
 void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &newIndex) {
@@ -207,7 +219,7 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
         ASSERT(index < numberOfDataPoints_);
 
         // Jump to start of bitmap.
-        Offset offset(offsetBeforeBitmap_); 
+        Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeBitmap_);
         ASSERT(f.seek(offset) == offset);
 
         // We will read in 8-byte chunks.
@@ -312,7 +324,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     edges.push(prevEnd);
 
     // Jump to start of bitmap.
-    Offset offset(offsetBeforeBitmap_);
+    Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeBitmap_);
     ASSERT(f.seek(offset) == offset);
 
     uint64_t n;
@@ -380,7 +392,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
                 values.push_back(MISSING);
                 continue;
             } else if (bitp == -1){
-                Offset offset = off_t(offsetBeforeData_)  + off_t((index0-1) * bitsPerValue_ / 8);
+                Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t((index0-1) * bitsPerValue_ / 8);
                 ASSERT(f.seek(offset) == offset);
 
                 // reading whole range at once
@@ -405,7 +417,7 @@ double GribInfo::readDataValue(const GribHandleData& f, size_t index) const {
     // We will do no error checking here, so make sure index is valid
     
     // seek to start of byte containing value
-    Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
+    Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
     ASSERT(f.seek(offset) == offset);
 
     // read `len` whole bytes into buffer

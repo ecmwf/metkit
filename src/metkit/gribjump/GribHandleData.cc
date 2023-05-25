@@ -19,16 +19,15 @@
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/DataHandle.h"
 #include "eckit/log/JSON.h"
+#include "eccodes.h"
 
 namespace metkit {
 namespace gribjump {
 
-GribHandleData::GribHandleData(const eckit::PathName& path,
-        const eckit::Offset& offset):
+GribHandleData::GribHandleData(const eckit::PathName& path):
     handle_(path.fileHandle()),
     ownsHandle_(true),
-    opened_(false),
-    offset_(offset) {
+    opened_(false) {
     gribpath_ = path;
 }
 
@@ -50,8 +49,8 @@ void GribHandleData::open() const {
 
 eckit::Offset GribHandleData::seek(const eckit::Offset& offset) const {
     open();
-    eckit::Offset pos = handle_->seek(offset_ + offset);
-    return (long long)pos - (long long)offset_;
+    eckit::Offset pos = handle_->seek(offset);
+    return (long long)pos;
 }
 
 long GribHandleData::read(void* buffer, long len) const {
@@ -64,20 +63,33 @@ const pointdb::GribFieldInfo& GribHandleData::info() const {
 }
 
 const GribInfo& GribHandleData::updateInfo(){
-    // update info and write to json.
     if (!info_.ready()) {
+        open();
 
-        seek(offset_);
-        grib::GribHandle h(*handle_);
-        info_.update(h);
+        // count number of messages in file
+        grib_context* c = nullptr;
+        int n = 0;
+        int err = codes_count_in_filename(c, gribpath_.asString().c_str(), &n);
+        ASSERT(!err);
 
-        // Write to json
-        // XXX gribpath_ is set in constructor, but in future may not always be reading from a file.
-        eckit::PathName jsonName = gribpath_ + ".json";
-        std::ofstream f(jsonName);
-        eckit::JSON json(f, false);
-        info_.toJSON(json);
-        f.close();
+        // extract metadata from each message
+        eckit::Offset offset = 0; // Note: we'll find the correct offset as we go
+        for (size_t i = 0; i < n; i++) {
+            grib::GribHandle h(*handle_, offset);
+            info_.update(h);
+            unsigned long fp = handle_->position();
+            info_.set_msgStartOffset(fp - info_.get_totalLength());
+            offset = handle_->position();
+            std::cout << info_ << std::endl;
+
+            // XXX for now, write each message data to its own json file.
+            // Soon: stop using json, and write to binary file.
+            eckit::PathName jsonName = gribpath_ + "_" + std::to_string(i) +  ".json";
+            std::ofstream f(jsonName);
+            eckit::JSON json(f, false);
+            info_.toJSON(json);
+            f.close();
+        }
     }
     return info_;
 }

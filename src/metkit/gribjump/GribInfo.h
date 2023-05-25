@@ -48,7 +48,9 @@ public:
     void toJSON(eckit::JSON&) const;
     void fromJSONFile(eckit::PathName);
 
-    unsigned long getNumberOfDataPoints() const { return numberOfDataPoints_; }
+    unsigned long get_numberOfDataPoints() const { return numberOfDataPoints_; }
+    unsigned long get_totalLength() const { return totalLength_; }
+    void set_msgStartOffset(eckit::Offset offset) { msgStartOffset_ = offset; }
 
 private:
     double readDataValue(const GribHandleData&, size_t) const;
@@ -63,6 +65,8 @@ private:
     unsigned long offsetBeforeBitmap_;
     unsigned long numberOfValues_;
     unsigned long numberOfDataPoints_;
+    unsigned long totalLength_;
+    unsigned long msgStartOffset_;
     long          sphericalHarmonics_;
 
     double binaryMultiplier_; // = 2^binaryScaleFactor_

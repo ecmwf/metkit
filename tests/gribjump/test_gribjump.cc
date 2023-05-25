@@ -399,7 +399,7 @@ CASE( "test_metkit_gribjump_query" ) {
         GribHandleData dataSource(testData[i].gribFileName);
         GribInfo gribInfo = dataSource.updateInfo();
         EXPECT(gribInfo.ready());
-        size_t numberOfDataPoints = gribInfo.getNumberOfDataPoints();
+        size_t numberOfDataPoints = gribInfo.get_numberOfDataPoints();
         double epsilon = testData[i].epsilon;
 
         // XXX print every data point

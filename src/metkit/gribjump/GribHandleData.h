@@ -26,7 +26,7 @@ namespace gribjump {
 class GribHandleData : public pointdb::GribDataSource {
 public:
 
-    GribHandleData(const eckit::PathName&, const eckit::Offset& = 0);
+    GribHandleData(const eckit::PathName&);
     ~GribHandleData();
 
     const GribInfo& updateInfo();
@@ -40,8 +40,6 @@ private:
 
     mutable pointdb::GribFieldInfo infoOld_;
     mutable GribInfo info_;
-
-    eckit::Offset offset_;
 
     virtual eckit::Offset seek(const eckit::Offset&) const override;
     virtual long read(void*, long) const override;

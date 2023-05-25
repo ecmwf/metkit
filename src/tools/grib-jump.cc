@@ -27,6 +27,7 @@ public:
     GribJump(int argc, char **argv) : metkit::MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<bool>("extract", "Extract info from grib header to write to json file"));
         options_.push_back(new eckit::option::SimpleOption<bool>("query", "Query data range from grib file"));
+        options_.push_back(new eckit::option::SimpleOption<std::string>("msg", "Which message (from 0 to N-1) of the N messages in grib file to query"));
     }
 
 private: // methods
@@ -63,13 +64,19 @@ void GribJump::usage(const std::string &tool) const {
 }
 
 void GribJump::init(const eckit::option::CmdArgs& args) {
-    doExtract_ = args.getBool("extract", true);
+    doExtract_ = args.getBool("extract", false);
     doQuery_ = args.getBool("query", false);
-
+    int msgid = args.getInt("msg", -1);
+    std::cout << "msg: " << msgid << std::endl;
     gribFileName_ = args(0);
     ASSERT(gribFileName_.exists());
 
-    jsonFileName_ = gribFileName_.baseName() + ".json";
+    if (msgid == -1){
+        jsonFileName_ = gribFileName_.baseName() + ".json";
+    } else{
+        jsonFileName_ = gribFileName_.baseName() + "_" + std::to_string(msgid) + ".json";
+        ASSERT(jsonFileName_.exists()); // no lazy mode when using msgid for now.
+    }
     doExtract_ |= !jsonFileName_.exists(); // if json doesn't exist, extract before query
 
     if (!doQuery_) return;
