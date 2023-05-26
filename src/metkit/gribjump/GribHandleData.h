@@ -29,7 +29,7 @@ public:
     GribHandleData(const eckit::PathName&);
     ~GribHandleData();
 
-    const GribInfo& updateInfo();
+    const GribInfo& extractMetadata(eckit::PathName&);
 
 private:
 

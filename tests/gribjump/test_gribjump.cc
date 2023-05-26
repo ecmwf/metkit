@@ -397,7 +397,8 @@ CASE( "test_metkit_gribjump_query" ) {
     for (int i = 0; i < numTestData; i++) {
         // Extract
         GribHandleData dataSource(testData[i].gribFileName);
-        GribInfo gribInfo = dataSource.updateInfo();
+        eckit::PathName binName = "temp";
+        GribInfo gribInfo = dataSource.extractMetadata(binName);
         EXPECT(gribInfo.ready());
         size_t numberOfDataPoints = gribInfo.get_numberOfDataPoints();
         double epsilon = testData[i].epsilon;

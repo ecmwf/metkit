@@ -11,10 +11,10 @@
 #include "metkit/gribjump/GribInfo.h"
 #include "metkit/codes/GribAccessor.h"
 #include "metkit/gribjump/GribHandleData.h"
-#include "eckit/parser/JSONParser.h"
 #include <bitset>
 #include <numeric>
 #include <queue>
+#include "eckit/io/DataHandle.h"
 
 using namespace eckit;
 using namespace metkit::grib;
@@ -73,6 +73,7 @@ static inline uint64_t reverse_bytes(uint64_t n) {
 }
 
 GribInfo::GribInfo():
+    version_(0),
     referenceValue_(0),
     binaryScaleFactor_(0),
     decimalScaleFactor_(0),
@@ -82,8 +83,8 @@ GribInfo::GribInfo():
     numberOfValues_(0),
     numberOfDataPoints_(0),
     totalLength_(0),
-    sphericalHarmonics_(0),
     msgStartOffset_(0),
+    sphericalHarmonics_(0),
     binaryMultiplier_(0),
     decimalMultiplier_(0) {
 }
@@ -110,6 +111,7 @@ void GribInfo::update(const GribHandle& h) {
 
 void GribInfo::print(std::ostream& s) const {
     s << "GribInfo[" << std::endl;
+    s << "    version=" << +version_ << std::endl;
     s << "    binaryScaleFactor=" << binaryScaleFactor_ << std::endl;
     s << "    decimalScaleFactor=" << decimalScaleFactor_ << std::endl;
     s << "    bitsPerValue=" << bitsPerValue_ << std::endl;
@@ -127,41 +129,55 @@ void GribInfo::print(std::ostream& s) const {
     s << std::endl;
 }
 
-void GribInfo::toJSON(eckit::JSON& json) const {
-    json.precision(15);
-    json.startObject();
-    json << "binaryScaleFactor" << binaryScaleFactor_;
-    json << "decimalScaleFactor" << decimalScaleFactor_;
-    json << "bitsPerValue" << bitsPerValue_;
-    json << "referenceValue" << referenceValue_;
-    json << "offsetBeforeData" << offsetBeforeData_;
-    json << "numberOfDataPoints" << numberOfDataPoints_;
-    json << "numberOfValues" << numberOfValues_;
-    json << "offsetBeforeBitmap" << offsetBeforeBitmap_;
-    json << "sphericalHarmonics" << sphericalHarmonics_;
-    json << "binaryMultiplier" << binaryMultiplier_;
-    json << "decimalMultiplier" << decimalMultiplier_;
-    json << "totalLength" << totalLength_;
-    json << "msgStartOffset" << msgStartOffset_;
-    json.endObject();
-}
+void GribInfo::toBinary(eckit::PathName pathname, bool append){
+    std::unique_ptr<DataHandle> dh(pathname.fileHandle());
+    version_ = currentVersion_;
 
-void GribInfo::fromJSONFile(eckit::PathName jsonFileName) {
-    std::cout << "GribInfo::fromJSONFile " << jsonFileName << std::endl;
-    eckit::Value v = eckit::JSONParser::decodeFile(jsonFileName);
-    binaryScaleFactor_ = v["binaryScaleFactor"];
-    decimalScaleFactor_ = v["decimalScaleFactor"];
-    bitsPerValue_ = v["bitsPerValue"];
-    referenceValue_ = v["referenceValue"];
-    offsetBeforeData_ = v["offsetBeforeData"];
-    numberOfDataPoints_ = v["numberOfDataPoints"];
-    numberOfValues_ = v["numberOfValues"];
-    offsetBeforeBitmap_ = v["offsetBeforeBitmap"];
-    sphericalHarmonics_ = v["sphericalHarmonics"];
-    binaryMultiplier_ = v["binaryMultiplier"];
-    decimalMultiplier_ = v["decimalMultiplier"];
-    totalLength_ = v["totalLength"];
-    msgStartOffset_ = v["msgStartOffset"];
+    if (append) {
+        dh->openForAppend(0);
+    } else {
+        dh->openForWrite(0);
+    }
+
+    dh->write(&version_, sizeof(version_));
+    dh->write(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
+    dh->write(&decimalScaleFactor_, sizeof(decimalScaleFactor_));
+    dh->write(&bitsPerValue_, sizeof(bitsPerValue_));
+    dh->write(&referenceValue_, sizeof(referenceValue_));
+    dh->write(&offsetBeforeData_, sizeof(offsetBeforeData_));
+    dh->write(&numberOfDataPoints_, sizeof(numberOfDataPoints_));
+    dh->write(&numberOfValues_, sizeof(numberOfValues_));
+    dh->write(&offsetBeforeBitmap_, sizeof(offsetBeforeBitmap_));
+    dh->write(&sphericalHarmonics_, sizeof(sphericalHarmonics_));
+    dh->write(&binaryMultiplier_, sizeof(binaryMultiplier_));
+    dh->write(&decimalMultiplier_, sizeof(decimalMultiplier_));
+    dh->write(&totalLength_, sizeof(totalLength_));
+    dh->write(&msgStartOffset_, sizeof(msgStartOffset_));
+    std::cout << dh->position() << std::endl;
+    dh->close();
+}
+void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
+    std::unique_ptr<DataHandle> dh(pathname.fileHandle());
+
+    dh->openForRead();
+    dh->seek(msg_id*metadataSize);
+    dh->read(&version_, sizeof(version_));
+    dh->read(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
+    dh->read(&decimalScaleFactor_, sizeof(decimalScaleFactor_));
+    dh->read(&bitsPerValue_, sizeof(bitsPerValue_));
+    dh->read(&referenceValue_, sizeof(referenceValue_));
+    dh->read(&offsetBeforeData_, sizeof(offsetBeforeData_));
+    dh->read(&numberOfDataPoints_, sizeof(numberOfDataPoints_));
+    dh->read(&numberOfValues_, sizeof(numberOfValues_));
+    dh->read(&offsetBeforeBitmap_, sizeof(offsetBeforeBitmap_));
+    dh->read(&sphericalHarmonics_, sizeof(sphericalHarmonics_));
+    dh->read(&binaryMultiplier_, sizeof(binaryMultiplier_));
+    dh->read(&decimalMultiplier_, sizeof(decimalMultiplier_));
+    dh->read(&totalLength_, sizeof(totalLength_));
+    dh->read(&msgStartOffset_, sizeof(msgStartOffset_));
+    dh->close();
+
+    ASSERT (version_ == currentVersion_);
 }
 
 void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &newIndex) {

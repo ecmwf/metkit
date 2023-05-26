@@ -10,7 +10,6 @@
 
 #include "eckit/option/SimpleOption.h"
 #include "eckit/option/CmdArgs.h"
-#include "eckit/parser/JSONParser.h"
 #include "eckit/value/Value.h"
 #include "metkit/tool/MetkitTool.h"
 #include "metkit/gribjump/GribInfo.h"
@@ -25,7 +24,8 @@ class GribJump : public metkit::MetkitTool {
 public:
 
     GribJump(int argc, char **argv) : metkit::MetkitTool(argc, argv) {
-        options_.push_back(new eckit::option::SimpleOption<bool>("extract", "Extract info from grib header to write to json file"));
+        options_.push_back(new eckit::option::SimpleOption<bool>("extract", "Extract info from grib header to write to binary metadata file (set by -o)"));
+        options_.push_back(new eckit::option::SimpleOption<std::string>("o", "Name of binary metadata file to write to (default: <input_grib_name>.bin)"));
         options_.push_back(new eckit::option::SimpleOption<bool>("query", "Query data range from grib file"));
         options_.push_back(new eckit::option::SimpleOption<std::string>("msg", "Which message (from 0 to N-1) of the N messages in grib file to query"));
     }
@@ -42,7 +42,8 @@ private: // members
     bool doQuery_ = false;
     bool doRange_ = false;
     eckit::PathName gribFileName_;
-    eckit::PathName jsonFileName_;
+    eckit::PathName binFileName_;
+    int msgid_;
     size_t singleIndex_;
     std::vector<std::tuple<size_t, size_t>> rangesVector;
 };
@@ -55,7 +56,7 @@ void GribJump::usage(const std::string &tool) const {
     eckit::Log::info() << "Examples:" << std::endl
                         << "=========" << std::endl
                         << std::endl
-                        << "e.g. Process and relevant extract info from data.grib to data.json:" << std::endl
+                        << "e.g. Process and extract metadata from data.grib to data.grib.bin:" << std::endl
                         << tool << " --extract data.grib" << std::endl
                         << std::endl
                         << "e.g. Retrieve data in range [12, 45) and [56, 789) from data.grib." << std::endl
@@ -66,18 +67,12 @@ void GribJump::usage(const std::string &tool) const {
 void GribJump::init(const eckit::option::CmdArgs& args) {
     doExtract_ = args.getBool("extract", false);
     doQuery_ = args.getBool("query", false);
-    int msgid = args.getInt("msg", -1);
-    std::cout << "msg: " << msgid << std::endl;
+    msgid_ = args.getInt("msg", 0);
     gribFileName_ = args(0);
+    binFileName_ = args.getString("o", gribFileName_.baseName() + ".bin");
     ASSERT(gribFileName_.exists());
 
-    if (msgid == -1){
-        jsonFileName_ = gribFileName_.baseName() + ".json";
-    } else{
-        jsonFileName_ = gribFileName_.baseName() + "_" + std::to_string(msgid) + ".json";
-        ASSERT(jsonFileName_.exists()); // no lazy mode when using msgid for now.
-    }
-    doExtract_ |= !jsonFileName_.exists(); // if json doesn't exist, extract before query
+    doExtract_ |= !binFileName_.exists(); // if bin doesn't exist, extract before query
 
     if (!doQuery_) return;
 
@@ -105,17 +100,16 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
 
     if (doExtract_) {
         std::cout << "Extract from " << gribFileName_ << std::endl;
-        gribInfo = dataSource.updateInfo();
+        gribInfo = dataSource.extractMetadata(binFileName_);
 
-    } else {
-        // read from json
-        std::cout << "Read from " << jsonFileName_ << std::endl;
-        gribInfo.fromJSONFile(jsonFileName_);
     }
-    
-    ASSERT(gribInfo.ready());
 
-    if (doQuery_) {
+    if (doQuery_){
+        std::cout << "Read from " << binFileName_ << ", msg id: " << msgid_ << std::endl;
+        gribInfo.fromBinary(binFileName_, msgid_);
+    
+        ASSERT(gribInfo.ready());
+
         if (doRange_){
             std::vector<double> v = gribInfo.extractAtIndexRangeOfRanges(dataSource, rangesVector);
             std::cout << "Value: " << v << std::endl;

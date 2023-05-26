@@ -18,7 +18,6 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/DataHandle.h"
-#include "eckit/log/JSON.h"
 #include "eccodes.h"
 
 namespace metkit {
@@ -62,7 +61,7 @@ const pointdb::GribFieldInfo& GribHandleData::info() const {
     NOTIMP;
 }
 
-const GribInfo& GribHandleData::updateInfo(){
+const GribInfo& GribHandleData::extractMetadata(eckit::PathName& binName){
     if (!info_.ready()) {
         open();
 
@@ -72,7 +71,7 @@ const GribInfo& GribHandleData::updateInfo(){
         int err = codes_count_in_filename(c, gribpath_.asString().c_str(), &n);
         ASSERT(!err);
 
-        // extract metadata from each message
+        // extract metadata from each message to a binary file
         eckit::Offset offset = 0; // Note: we'll find the correct offset as we go
         for (size_t i = 0; i < n; i++) {
             grib::GribHandle h(*handle_, offset);
@@ -80,15 +79,8 @@ const GribInfo& GribHandleData::updateInfo(){
             unsigned long fp = handle_->position();
             info_.set_msgStartOffset(fp - info_.get_totalLength());
             offset = handle_->position();
-            std::cout << info_ << std::endl;
 
-            // XXX for now, write each message data to its own json file.
-            // Soon: stop using json, and write to binary file.
-            eckit::PathName jsonName = gribpath_ + "_" + std::to_string(i) +  ".json";
-            std::ofstream f(jsonName);
-            eckit::JSON json(f, false);
-            info_.toJSON(json);
-            f.close();
+            info_.toBinary(binName, i!=0);
         }
     }
     return info_;

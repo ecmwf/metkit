@@ -17,7 +17,6 @@
 #include "eckit/io/Length.h"
 #include "eckit/io/Offset.h"
 #include "eckit/types/FixedString.h"
-#include "eckit/log/JSON.h"
 #include <queue>
 
 
@@ -45,8 +44,9 @@ public:
     std::vector<double> extractAtIndexRangeOfRanges(const GribHandleData&, std::vector<std::tuple<size_t, size_t>> ranges) const;
     
     void print(std::ostream&) const;
-    void toJSON(eckit::JSON&) const;
-    void fromJSONFile(eckit::PathName);
+
+    void toBinary(eckit::PathName, bool);
+    void fromBinary(eckit::PathName, uint16_t msg_id=0);
 
     unsigned long get_numberOfDataPoints() const { return numberOfDataPoints_; }
     unsigned long get_totalLength() const { return totalLength_; }
@@ -55,8 +55,8 @@ public:
 private:
     double readDataValue(const GribHandleData&, size_t) const;
 
-    static constexpr unsigned int currentVersion_ = 1; // later ASSERT version == currentVersion
-    unsigned int version_;
+    static constexpr uint8_t currentVersion_ = 1; // later ASSERT version == currentVersion
+    uint8_t version_;
     double        referenceValue_;
     long          binaryScaleFactor_;
     long          decimalScaleFactor_;
@@ -71,6 +71,21 @@ private:
 
     double binaryMultiplier_; // = 2^binaryScaleFactor_
     double decimalMultiplier_; // = 10^-decimalScaleFactor_
+
+    static constexpr size_t metadataSize = sizeof(version_) + \
+                                           sizeof(referenceValue_) + \
+                                           sizeof(binaryScaleFactor_) + \
+                                           sizeof(decimalScaleFactor_) + \
+                                           sizeof(bitsPerValue_) + \
+                                           sizeof(offsetBeforeData_) + \
+                                           sizeof(offsetBeforeBitmap_) + \
+                                           sizeof(numberOfValues_) + \
+                                           sizeof(numberOfDataPoints_) + \
+                                           sizeof(totalLength_) + \
+                                           sizeof(msgStartOffset_) + \
+                                           sizeof(sphericalHarmonics_) + \
+                                           sizeof(binaryMultiplier_) + \
+                                           sizeof(decimalMultiplier_);
 
     friend std::ostream& operator<<(std::ostream& s, const GribInfo& f) {
         f.print(s);
