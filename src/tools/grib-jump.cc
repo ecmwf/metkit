@@ -25,9 +25,9 @@ public:
 
     GribJump(int argc, char **argv) : metkit::MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<bool>("extract", "Extract info from grib header to write to binary metadata file (set by -o)"));
-        options_.push_back(new eckit::option::SimpleOption<std::string>("o", "Name of binary metadata file to write to (default: <input_grib_name>.bin)"));
+        options_.push_back(new eckit::option::SimpleOption<std::string>("meta", "Name of binary metadata file to write/read to/from (default: <input_grib_name>.bin)"));
         options_.push_back(new eckit::option::SimpleOption<bool>("query", "Query data range from grib file"));
-        options_.push_back(new eckit::option::SimpleOption<std::string>("msg", "Which message (from 0 to N-1) of the N messages in grib file to query"));
+        options_.push_back(new eckit::option::SimpleOption<size_t>("msg", "Which message (from 0 to N-1) of the N messages in grib file to query"));
     }
 
 private: // methods
@@ -50,7 +50,7 @@ private: // members
 
 void GribJump::usage(const std::string &tool) const {
     eckit::Log::info() << std::endl
-                        << "Usage: " << tool << " [options] [input] [min0] [max0] [min1] ... "
+                        << "Usage: " << tool << " [options] [input_grib_file] [min0] [max0] [min1] ... "
                         << std::endl;
 
     eckit::Log::info() << "Examples:" << std::endl
@@ -59,8 +59,8 @@ void GribJump::usage(const std::string &tool) const {
                         << "e.g. Process and extract metadata from data.grib to data.grib.bin:" << std::endl
                         << tool << " --extract data.grib" << std::endl
                         << std::endl
-                        << "e.g. Retrieve data in range [12, 45) and [56, 789) from data.grib." << std::endl
-                        << tool << " --query data.grib 12 45 56 789" << std::endl
+                        << "e.g. Retrieve data in range [12, 45) and [56, 789) from the 0th message in data.grib." << std::endl
+                        << tool << " --query --msg=0 data.grib 12 45 56 789" << std::endl
                         << std::endl;
 }
 
@@ -69,7 +69,7 @@ void GribJump::init(const eckit::option::CmdArgs& args) {
     doQuery_ = args.getBool("query", false);
     msgid_ = args.getInt("msg", 0);
     gribFileName_ = args(0);
-    binFileName_ = args.getString("o", gribFileName_.baseName() + ".bin");
+    binFileName_ = args.getString("meta", gribFileName_.baseName() + ".bin");
     ASSERT(gribFileName_.exists());
 
     doExtract_ |= !binFileName_.exists(); // if bin doesn't exist, extract before query
