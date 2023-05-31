@@ -11,6 +11,8 @@
 #include "eckit/testing/Test.h"
 #include "metkit/gribjump/GribInfo.h"
 #include "metkit/gribjump/GribHandleData.h"
+#include <fstream>
+
 using namespace eckit::testing;
 
 namespace metkit {
@@ -392,6 +394,112 @@ void setGribJumpData(){
     testData[4].epsilon = 1e-6; // Constant fields are stored at reduced precision
 }
 
+void doTest(int i, GribInfo gribInfo, GribHandleData &dataSource){
+    EXPECT(gribInfo.ready());
+    size_t numberOfDataPoints = gribInfo.get_numberOfDataPoints();
+    double epsilon = testData[i].epsilon;
+
+    // XXX print every data point
+    // for (size_t index = 0; index < numberOfDataPoints; index++) {
+    //     double v = gribInfo.extractAtIndex(dataSource, index);
+    //     std::cout.precision(15);
+    //     std::cout << v;
+    //     std::cout << ((index % 5 == 4) ? ",\n" : ", ");
+    // }
+    // std::cout << std::endl;
+    
+    // Query each single data point, and compare with expected value
+    std::cout << "Testing " << testData[i].gribFileName << std::endl;
+    EXPECT(numberOfDataPoints == testData[i].expectedData.size());
+    for (size_t index = 0; index < numberOfDataPoints; index++) {
+        double v = gribInfo.extractAtIndex(dataSource, index);
+        // std::cout.precision(15);
+        // std::cout << v << " " << testData[i].expectedData[index] << std::endl;
+        double delta = std::abs(v - testData[i].expectedData[index]);
+        EXPECT(delta < epsilon);
+    }
+    // Range of ranges, all at once. Note ranges must not overlap.
+    // TODO: Currently ranges are sorted internally so data is not returned in the original order. Implement if required. 
+
+    std::vector<std::vector<std::tuple<size_t, size_t> > > rangesVector;
+    // Single ranges
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(12, 34),   // start and end in same word
+    });
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(0, 63),    // test edge of word
+    });
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(0, 64),    // test edge of word
+    });
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(0, 65),    // test edge of word
+    });
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(32, 100),  // start and end in adjacent words
+    });
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(123, 456), // start and end in non-adjacent words
+    });
+
+    // Ranges of ranges:
+    // densely backed ranges
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(0, 3), std::make_tuple(30, 60), std::make_tuple(60, 90), std::make_tuple(90, 120)
+    });
+    // // slightly seperated ranges, also starting from non-zero. also big ranges
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(1, 30), std::make_tuple(31, 60), std::make_tuple(61, 90), std::make_tuple(91, 120),
+        std::make_tuple(200, 400), std::make_tuple(401, 402), std::make_tuple(403, 600),
+    });
+    // not starting on first word. Hitting last index.
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(200, 220), std::make_tuple(220, 240), std::make_tuple(240, 260), std::make_tuple(600, 684)
+    });
+    // ranges with entire words between them (so word skipping should take place)
+    rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
+        std::make_tuple(5, 10), std::make_tuple(130, 135), std::make_tuple(400, 410)
+    });
+
+    // loop through the ranges
+    for (auto ranges: rangesVector) {
+
+        // get the expected result
+        std::vector<double> expected;
+        for (auto range: ranges) {
+            for (size_t index = std::get<0>(range); index < std::get<1>(range); index++) {
+                expected.push_back(testData[i].expectedData[index]);
+            }
+        }
+
+        std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
+
+        // printing 
+        std::cout << "range: ";
+        for (auto range: ranges) {
+            std::cout << std::get<0>(range) << "-" << std::get<1>(range) << ", ";
+        }
+
+        // std::cout << "actual:   ";
+        // for (size_t index = 0; index < actual.size(); index++) {
+        //     std::cout << actual[index] << ", ";
+        // }
+        // std::cout << std::endl;
+
+        // std::cout << "expected: ";
+        // for (size_t index = 0; index < expected.size(); index++) {
+        //     std::cout << expected[index] << ", ";
+        // }
+        // std::cout << std::endl;
+
+        EXPECT(actual.size() == expected.size());
+        for (size_t index = 0; index < actual.size(); index++) {
+            double delta = std::abs(actual[index] - expected[index]);
+            EXPECT(delta < epsilon);
+        }
+    }
+}
+
 CASE( "test_metkit_gribjump_query" ) {
     // loop through the test cases
     for (int i = 0; i < numTestData; i++) {
@@ -399,114 +507,38 @@ CASE( "test_metkit_gribjump_query" ) {
         GribHandleData dataSource(testData[i].gribFileName);
         eckit::PathName binName = "temp";
         GribInfo gribInfo = dataSource.extractMetadata(binName);
-        EXPECT(gribInfo.ready());
-        size_t numberOfDataPoints = gribInfo.get_numberOfDataPoints();
-        double epsilon = testData[i].epsilon;
+        doTest(i, gribInfo, dataSource);
+    }
+}
 
-        // XXX print every data point
-        // for (size_t index = 0; index < numberOfDataPoints; index++) {
-        //     double v = gribInfo.extractAtIndex(dataSource, index);
-        //     std::cout.precision(15);
-        //     std::cout << v;
-        //     std::cout << ((index % 5 == 4) ? ",\n" : ", ");
-        // }
-        // std::cout << std::endl;
-        
-        // Query each single data point, and compare with expected value
-        std::cout << "Testing " << testData[i].gribFileName << std::endl;
-        EXPECT(numberOfDataPoints == testData[i].expectedData.size());
-        for (size_t index = 0; index < numberOfDataPoints; index++) {
-            double v = gribInfo.extractAtIndex(dataSource, index);
-            std::cout.precision(15);
-            std::cout << v << " " << testData[i].expectedData[index] << std::endl;
-            double delta = std::abs(v - testData[i].expectedData[index]);
-            EXPECT(delta < epsilon);
-        }
-    // Range of ranges, all at once. Note ranges must not overlap.
-    // TODO: Currently ranges are sorted internally so data is not returned in the original order. Implement if required. 
+CASE( "test_metkit_gribjump_query_multimsg" ) {
+    // concatenate each test file into one big file, and check that reading from that file
+    // gives the same result as reading from the individual files
 
-        std::vector<std::vector<std::tuple<size_t, size_t> > > rangesVector;
-        // Single ranges
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(12, 34),   // start and end in same word
-        });
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(0, 63),    // test edge of word
-        });
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(0, 64),    // test edge of word
-        });
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(0, 65),    // test edge of word
-        });
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(32, 100),  // start and end in adjacent words
-        });
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(123, 456), // start and end in non-adjacent words
-        });
+    std::ofstream f("combine.grib", std::ios::binary);
+    for (int i = 0; i < numTestData; i++) {
+        std::ifstream testFileStream(testData[i].gribFileName, std::ios::binary);
+        f << testFileStream.rdbuf();
+        // add some junk between some of the files (as long as its not the string GRIB)
+        if (i == 1 || i == 3)  f << "junky junk";
+    }
+    f.close();
 
-        // Ranges of ranges:
-        // densely backed ranges
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(0, 3), std::make_tuple(30, 60), std::make_tuple(60, 90), std::make_tuple(90, 120)
-        });
-        // // slightly seperated ranges, also starting from non-zero. also big ranges
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(1, 30), std::make_tuple(31, 60), std::make_tuple(61, 90), std::make_tuple(91, 120),
-            std::make_tuple(200, 400), std::make_tuple(401, 402), std::make_tuple(403, 600),
-        });
-        // not starting on first word. Hitting last index.
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(200, 220), std::make_tuple(220, 240), std::make_tuple(240, 260), std::make_tuple(600, 684)
-        });
-        // ranges with entire words between them (so word skipping should take place)
-        rangesVector.push_back(std::vector<std::tuple<size_t, size_t> >{
-            std::make_tuple(5, 10), std::make_tuple(130, 135), std::make_tuple(400, 410)
-        });
+    // Extract
+    GribHandleData dataSource("combine.grib");
+    eckit::PathName binName = "temp";
+    GribInfo gribInfo = dataSource.extractMetadata(binName);
 
-        // loop through the ranges
-        for (auto ranges: rangesVector) {
-
-            // get the expected result
-            std::vector<double> expected;
-            for (auto range: ranges) {
-                for (size_t index = std::get<0>(range); index < std::get<1>(range); index++) {
-                    expected.push_back(testData[i].expectedData[index]);
-                }
-            }
-
-            std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
-
-            // printing 
-            std::cout << "range: ";
-            for (auto range: ranges) {
-                std::cout << std::get<0>(range) << "-" << std::get<1>(range) << ", ";
-            }
-
-            std::cout << "actual:   ";
-            for (size_t index = 0; index < actual.size(); index++) {
-                std::cout << actual[index] << ", ";
-            }
-            std::cout << std::endl;
-
-            std::cout << "expected: ";
-            for (size_t index = 0; index < expected.size(); index++) {
-                std::cout << expected[index] << ", ";
-            }
-            std::cout << std::endl;
-
-            EXPECT(actual.size() == expected.size());
-            for (size_t index = 0; index < actual.size(); index++) {
-                double delta = std::abs(actual[index] - expected[index]);
-                EXPECT(delta < epsilon);
-            }
-        }
+    // loop through the test cases
+    for (int i = 0; i < numTestData; i++) {
+        gribInfo.fromBinary(binName, i);
+        doTest(i, gribInfo, dataSource);
     }
 }
 
 CASE( "test_metkit_gribjump_accedges1" ) {
     // unit test for accumulateEdges function
+    // Testing handling of single words
 
     for (size_t ti=0; ti < 2; ti ++){
         uint64_t n;
@@ -594,6 +626,8 @@ CASE( "test_metkit_gribjump_accedges1" ) {
 
 CASE( "test_metkit_gribjump_accedges2" ) {
     // unit test for accumulateEdges function
+    // Testing handling of multiple words
+
     uint64_t bitstream[] = {
         0xFFFFFFFFFFFFFFFF, // [0, 64)
         0xFFFFFFFFFFFFFFFF, // [64, 128)

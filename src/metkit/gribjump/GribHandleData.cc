@@ -57,10 +57,6 @@ long GribHandleData::read(void* buffer, long len) const {
     return handle_->read(buffer, len);
 }
 
-const pointdb::GribFieldInfo& GribHandleData::info() const {
-    NOTIMP;
-}
-
 const GribInfo& GribHandleData::extractMetadata(eckit::PathName& binName){
     if (!info_.ready()) {
         open();
@@ -89,20 +85,6 @@ const GribInfo& GribHandleData::extractMetadata(eckit::PathName& binName){
 void GribHandleData::print(std::ostream& s) const {
     s << "GribHandleData[" << *handle_ << "]" << std::endl;
 }
-
-const std::map<std::string, eckit::Value>& GribHandleData::request() const {
-    NOTIMP;
-}
-
-std::string GribHandleData::groupKey() const {
-    NOTIMP;
-}
-
-
-std::string GribHandleData::sortKey() const {
-    NOTIMP;
-}
-
 
 //----------------------------------------------------------------------------------------------------------------------
 } // namespace gribjump

@@ -23,7 +23,7 @@ namespace metkit {
 namespace gribjump {
 
 
-class GribHandleData : public pointdb::GribDataSource {
+class GribHandleData : public eckit::NonCopyable {
 public:
 
     GribHandleData(const eckit::PathName&);
@@ -41,13 +41,9 @@ private:
     mutable pointdb::GribFieldInfo infoOld_;
     mutable GribInfo info_;
 
-    virtual eckit::Offset seek(const eckit::Offset&) const override;
-    virtual long read(void*, long) const override;
-    virtual const pointdb::GribFieldInfo& info() const override; // XXX only here because parent requires it
-    virtual void print(std::ostream& s) const override;
-    virtual const std::map<std::string, eckit::Value>& request() const override;
-    virtual std::string groupKey() const override;
-    virtual std::string sortKey() const override;
+    virtual eckit::Offset seek(const eckit::Offset&) const;
+    virtual long read(void*, long) const;
+    virtual void print(std::ostream& s) const;
 
     void open() const;
 

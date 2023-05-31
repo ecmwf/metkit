@@ -133,11 +133,7 @@ void GribInfo::toBinary(eckit::PathName pathname, bool append){
     std::unique_ptr<DataHandle> dh(pathname.fileHandle());
     version_ = currentVersion_;
 
-    if (append) {
-        dh->openForAppend(0);
-    } else {
-        dh->openForWrite(0);
-    }
+    append ? dh->openForAppend(0) : dh->openForWrite(0);
 
     dh->write(&version_, sizeof(version_));
     dh->write(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
@@ -153,7 +149,6 @@ void GribInfo::toBinary(eckit::PathName pathname, bool append){
     dh->write(&decimalMultiplier_, sizeof(decimalMultiplier_));
     dh->write(&totalLength_, sizeof(totalLength_));
     dh->write(&msgStartOffset_, sizeof(msgStartOffset_));
-    std::cout << dh->position() << std::endl;
     dh->close();
 }
 void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
@@ -312,7 +307,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
             size_t istart = std::get<0>(r);
             size_t iend = std::get<1>(r);
             for (size_t i = istart; i < iend; ++i) {
-                double v = readDataValue(f, i);
+                double v = readDataValue(f, i); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
                 values.push_back(v);
             }
         }
@@ -408,17 +403,15 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
                 values.push_back(MISSING);
                 continue;
             } else if (bitp == -1){
+                // At first non-missing value for this range, so read into buffer and set bitp
                 Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t((index0-1) * bitsPerValue_ / 8);
                 ASSERT(f.seek(offset) == offset);
-
-                // reading whole range at once
                 long len = 1 + (((index1 - index0)+1)*(bitsPerValue_) + 7) / 8;
                 ASSERT (len <= bufferSize);
                 ASSERT(f.read(buf.get(), len) == len);
-                // only needed for first value
                 bitp = ((index0-1) * bitsPerValue_) % 8;
             }
-            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccode have an array version?
+            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
             double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
             values.push_back(v);
         }
