@@ -14,6 +14,8 @@
 #include "metkit/tool/MetkitTool.h"
 #include "metkit/gribjump/GribInfo.h"
 #include "metkit/gribjump/GribHandleData.h"
+#include <chrono>
+#include <fstream>
 // using namespace metkit;
 using namespace metkit::gribjump;
 
@@ -28,6 +30,7 @@ public:
         options_.push_back(new eckit::option::SimpleOption<std::string>("meta", "Name of binary metadata file to write/read to/from (default: <input_grib_name>.bin)"));
         options_.push_back(new eckit::option::SimpleOption<bool>("query", "Query data range from grib file"));
         options_.push_back(new eckit::option::SimpleOption<size_t>("msg", "Which message (from 0 to N-1) of the N messages in grib file to query"));
+        options_.push_back(new eckit::option::SimpleOption<bool>("time", "Append timing information to gribjump-timing.txt"));
     }
 
 private: // methods
@@ -41,11 +44,12 @@ private: // members
     bool doExtract_ = false;
     bool doQuery_ = false;
     bool doRange_ = false;
+    bool doTime_ = false;
     eckit::PathName gribFileName_;
     eckit::PathName binFileName_;
     int msgid_;
     size_t singleIndex_;
-    std::vector<std::tuple<size_t, size_t>> rangesVector;
+    std::vector<std::tuple<size_t, size_t>> rangesVector_;
 };
 
 void GribJump::usage(const std::string &tool) const {
@@ -67,12 +71,15 @@ void GribJump::usage(const std::string &tool) const {
 void GribJump::init(const eckit::option::CmdArgs& args) {
     doExtract_ = args.getBool("extract", false);
     doQuery_ = args.getBool("query", false);
+    doTime_ = args.getBool("time", false);
     msgid_ = args.getInt("msg", 0);
     gribFileName_ = args(0);
     binFileName_ = args.getString("meta", gribFileName_.baseName() + ".bin");
     ASSERT(gribFileName_.exists());
 
     doExtract_ |= !binFileName_.exists(); // if bin doesn't exist, extract before query
+
+    ASSERT(!(doTime_ && doExtract_ && doQuery_)); // Do not time both extract and query at the same time.
 
     if (!doQuery_) return;
 
@@ -88,20 +95,25 @@ void GribJump::init(const eckit::option::CmdArgs& args) {
         std::cout << "Query range(s): ";
         for (int i = 1; i < args.count(); i+=2){
             std::cout << args(i) << "-" << args(i+1) << ", ";
-            rangesVector.push_back({std::make_tuple(std::stoi(args(i)), std::stoi(args(i+1)))});
+            rangesVector_.push_back({std::make_tuple(std::stoi(args(i)), std::stoi(args(i+1)))});
         }
         std::cout << std::endl;
     }
 }
 
 void GribJump::execute(const eckit::option::CmdArgs& args) {
+    auto startTime = std::chrono::high_resolution_clock::now();
+    auto endTime = std::chrono::high_resolution_clock::now();
     GribInfo gribInfo;
     GribHandleData dataSource(gribFileName_);
 
     if (doExtract_) {
         std::cout << "Extract from " << gribFileName_ << std::endl;
+        startTime = std::chrono::high_resolution_clock::now();
         gribInfo = dataSource.extractMetadata(binFileName_);
+        endTime = std::chrono::high_resolution_clock::now();
 
+        std::cout << gribInfo << std::endl;
     }
 
     if (doQuery_){
@@ -111,15 +123,39 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
         ASSERT(gribInfo.ready());
 
         if (doRange_){
-            std::vector<double> v = gribInfo.extractAtIndexRangeOfRanges(dataSource, rangesVector);
+            startTime = std::chrono::high_resolution_clock::now();
+            std::vector<double> v = gribInfo.extractAtIndexRangeOfRanges(dataSource, rangesVector_);
+            endTime = std::chrono::high_resolution_clock::now();
             std::cout << "Value: " << v << std::endl;
         }
         else{
-            size_t index = std::stoi(args(2));
+            size_t index = std::stoi(args(1));
             std::cout << "Query index " << index << " in " << gribFileName_ << std::endl;
             double v = gribInfo.extractAtIndex(dataSource, index);
             std::cout << "Value: " << v << std::endl;
         }
+    }
+
+    if (doTime_){
+        // filename, msgid, ranges, time
+        std::chrono::duration<double> elapsed = endTime - startTime;
+        std::cout << "Elapsed time: " << elapsed.count() << " s" << std::endl;
+        std::ofstream timingFile;
+        timingFile.open("gribjump-timing.txt", std::ios_base::app);
+        // also priint the rangesvector in the next column
+        timingFile << "\"" << gribFileName_ << "\",";
+        timingFile << "\"" << msgid_ << "\",";
+        timingFile << "\"";
+        for (auto r : rangesVector_){
+            timingFile << std::get<0>(r) << "-" << std::get<1>(r);
+            if (r != rangesVector_.back()){
+                timingFile << ",";
+            }
+        }
+        timingFile << "\"," << elapsed.count() << std::endl;
+
+
+        timingFile.close();
     }
 }
 
