@@ -15,6 +15,7 @@
 #include <numeric>
 #include <queue>
 #include "eckit/io/DataHandle.h"
+#include "eckit/utils/MD5.h"
 
 using namespace eckit;
 using namespace metkit::grib;
@@ -28,6 +29,7 @@ extern "C" {
 namespace metkit {
 namespace gribjump {
 
+static GribAccessor<long>          editionNumber("editionNumber");
 static GribAccessor<long>          bitmapPresent("bitmapPresent");
 static GribAccessor<long>          binaryScaleFactor("binaryScaleFactor");
 static GribAccessor<long>          decimalScaleFactor("decimalScaleFactor");
@@ -39,6 +41,10 @@ static GribAccessor<unsigned long> numberOfValues("numberOfValues");
 static GribAccessor<unsigned long> numberOfDataPoints("numberOfDataPoints");
 static GribAccessor<long>          sphericalHarmonics("sphericalHarmonics");
 static GribAccessor<unsigned long> totalLength("totalLength");
+static GribAccessor<unsigned long> offsetBSection6("offsetBSection6");
+static GribAccessor<std::string> md5GridSection("md5GridSection");
+
+
 
 static Mutex mutex;
 
@@ -74,22 +80,28 @@ static inline uint64_t reverse_bytes(uint64_t n) {
 
 GribInfo::GribInfo():
     version_(0),
+    editionNumber_(0),
     referenceValue_(0),
     binaryScaleFactor_(0),
     decimalScaleFactor_(0),
     bitsPerValue_(0),
     offsetBeforeData_(0),
+    bitmapPresent_(0),
     offsetBeforeBitmap_(0),
     numberOfValues_(0),
     numberOfDataPoints_(0),
     totalLength_(0),
     msgStartOffset_(0),
     sphericalHarmonics_(0),
+    md5GridSection_(),
     binaryMultiplier_(0),
-    decimalMultiplier_(0) {
+    decimalMultiplier_(0)
+    {
 }
 
 void GribInfo::update(const GribHandle& h) {
+    editionNumber_      = editionNumber(h);
+    ASSERT(editionNumber_ == 1 || editionNumber_ == 2);
     binaryScaleFactor_  = binaryScaleFactor(h);
     decimalScaleFactor_ = decimalScaleFactor(h);
     bitsPerValue_       = bitsPerValue(h);
@@ -97,11 +109,12 @@ void GribInfo::update(const GribHandle& h) {
     offsetBeforeData_   = offsetBeforeData(h);
     numberOfDataPoints_ = numberOfDataPoints(h);
     numberOfValues_     = numberOfValues(h);
-    sphericalHarmonics_ = sphericalHarmonics(h);
+    sphericalHarmonics_ = sphericalHarmonics(h); // todo: make quiet
     totalLength_        = totalLength(h);
-
-    if (bitmapPresent(h))
-        offsetBeforeBitmap_ = offsetBeforeBitmap(h);
+    md5GridSection_     = md5GridSection(h);
+    bitmapPresent_ = bitmapPresent(h);
+    if (bitmapPresent_)
+        offsetBeforeBitmap_ = editionNumber_ == 1? offsetBeforeBitmap(h) : offsetBSection6(h);
     else
         offsetBeforeBitmap_ = 0;
 
@@ -112,6 +125,7 @@ void GribInfo::update(const GribHandle& h) {
 void GribInfo::print(std::ostream& s) const {
     s << "GribInfo[" << std::endl;
     s << "    version=" << +version_ << std::endl;
+    s << "    editionNumber=" << editionNumber_ << std::endl;
     s << "    binaryScaleFactor=" << binaryScaleFactor_ << std::endl;
     s << "    decimalScaleFactor=" << decimalScaleFactor_ << std::endl;
     s << "    bitsPerValue=" << bitsPerValue_ << std::endl;
@@ -125,6 +139,7 @@ void GribInfo::print(std::ostream& s) const {
     s << "    decimalMultiplier=" << decimalMultiplier_ << std::endl;
     s << "    totalLength=" << totalLength_ << std::endl;
     s << "    msgStartOffset=" << msgStartOffset_ << std::endl;
+    s << "    md5GridSection=" << md5GridSection_ << std::endl;
     s << "]";
     s << std::endl;
 }
@@ -136,6 +151,7 @@ void GribInfo::toBinary(eckit::PathName pathname, bool append){
     append ? dh->openForAppend(0) : dh->openForWrite(0);
 
     dh->write(&version_, sizeof(version_));
+    dh->write(&editionNumber_, sizeof(editionNumber_));
     dh->write(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
     dh->write(&decimalScaleFactor_, sizeof(decimalScaleFactor_));
     dh->write(&bitsPerValue_, sizeof(bitsPerValue_));
@@ -149,6 +165,7 @@ void GribInfo::toBinary(eckit::PathName pathname, bool append){
     dh->write(&decimalMultiplier_, sizeof(decimalMultiplier_));
     dh->write(&totalLength_, sizeof(totalLength_));
     dh->write(&msgStartOffset_, sizeof(msgStartOffset_));
+    dh->write(md5GridSection_.data(), md5GridSection_.size());
     dh->close();
 }
 void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
@@ -157,6 +174,7 @@ void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
     dh->openForRead();
     dh->seek(msg_id*metadataSize);
     dh->read(&version_, sizeof(version_));
+    dh->read(&editionNumber_, sizeof(editionNumber_));
     dh->read(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
     dh->read(&decimalScaleFactor_, sizeof(decimalScaleFactor_));
     dh->read(&bitsPerValue_, sizeof(bitsPerValue_));
@@ -170,6 +188,7 @@ void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
     dh->read(&decimalMultiplier_, sizeof(decimalMultiplier_));
     dh->read(&totalLength_, sizeof(totalLength_));
     dh->read(&msgStartOffset_, sizeof(msgStartOffset_));
+    dh->read(md5GridSection_.data(), md5GridSection_.size());
     dh->close();
 
     ASSERT (version_ == currentVersion_);
@@ -217,7 +236,6 @@ void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &newIndex, 
         ++bp;
     }
 }
-
 
 double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
 
@@ -301,13 +319,34 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
 
     values.reserve(sizeAllRanges);
 
+    // set bufferSize equal to minimum bytes that will hold the largest range.
+    // TODO: There should be an upper limit. If range is too large, read it in chunks.
+    size_t bufferSize = 0;
+    for (auto r : ranges) {
+        size_t i0 = std::get<0>(r);
+        size_t i1 = std::get<1>(r);
+        bufferSize = std::max(bufferSize, 1 + ((i1 - i0)*bitsPerValue_ + 7 )/8);
+    }
+    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
+
     if (!offsetBeforeBitmap_) {
         // no bitmap, just read the values
         for (auto r : ranges) {
             size_t istart = std::get<0>(r);
             size_t iend = std::get<1>(r);
+
+            Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t(istart * bitsPerValue_ / 8);
+            ASSERT(f.seek(offset) == offset);
+
+            long len = 1 + ((iend - istart)*(bitsPerValue_) + 7) / 8;
+            ASSERT (len <= bufferSize);
+
+            ASSERT(f.read(buf.get(), len) == len);
+            long bitp = ((istart) * bitsPerValue_) % 8;
+
             for (size_t i = istart; i < iend; ++i) {
-                double v = readDataValue(f, i); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
+                unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
+                double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
                 values.push_back(v);
             }
         }
@@ -361,16 +400,6 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
 
     // read the values
 
-    // set bufferSize equal to minimum bytes that will hold the largest range.
-    // XXX: Should there be an upper limit on this?
-    size_t bufferSize = 0;
-    for (auto r : ranges) {
-        size_t i0 = std::get<0>(r);
-        size_t i1 = std::get<1>(r);
-        bufferSize = std::max(bufferSize, 1 + ((i1 - i0)*bitsPerValue_ + 7 )/8);
-    }
-    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
-
     count = 0;
     for (size_t ri = 0; ri < ranges.size(); ++ri) {
         auto r = ranges[ri];
@@ -397,6 +426,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         }
 
         long bitp = -1;
+        index1 += 1; // we read up to but not including index1
         for (size_t i = count; i < count + (i1 - i0); ++i) {
             size_t index = newIndex[i];
             if (index == 0){
@@ -406,7 +436,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
                 // At first non-missing value for this range, so read into buffer and set bitp
                 Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t((index0-1) * bitsPerValue_ / 8);
                 ASSERT(f.seek(offset) == offset);
-                long len = 1 + (((index1 - index0)+1)*(bitsPerValue_) + 7) / 8;
+                long len = 1 + ((index1 - index0)*(bitsPerValue_) + 7) / 8;
                 ASSERT (len <= bufferSize);
                 ASSERT(f.read(buf.get(), len) == len);
                 bitp = ((index0-1) * bitsPerValue_) % 8;

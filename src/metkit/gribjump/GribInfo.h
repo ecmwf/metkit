@@ -26,8 +26,6 @@ namespace grib {
 class GribHandle;
 }
 
-
-
 namespace gribjump {
 
 class GribHandleData;
@@ -60,19 +58,23 @@ private:
     double        referenceValue_;
     long          binaryScaleFactor_;
     long          decimalScaleFactor_;
+    unsigned long editionNumber_;
     unsigned long bitsPerValue_;
     unsigned long offsetBeforeData_;
+    unsigned long bitmapPresent_;
     unsigned long offsetBeforeBitmap_;
     unsigned long numberOfValues_;
     unsigned long numberOfDataPoints_;
     unsigned long totalLength_;
     unsigned long msgStartOffset_;
     long          sphericalHarmonics_;
+    eckit::FixedString<32> md5GridSection_;
 
     double binaryMultiplier_; // = 2^binaryScaleFactor_
     double decimalMultiplier_; // = 10^-decimalScaleFactor_
 
     static constexpr size_t metadataSize = sizeof(version_) + \
+                                           sizeof(editionNumber_) + \
                                            sizeof(referenceValue_) + \
                                            sizeof(binaryScaleFactor_) + \
                                            sizeof(decimalScaleFactor_) + \
@@ -85,7 +87,8 @@ private:
                                            sizeof(msgStartOffset_) + \
                                            sizeof(sphericalHarmonics_) + \
                                            sizeof(binaryMultiplier_) + \
-                                           sizeof(decimalMultiplier_);
+                                           sizeof(decimalMultiplier_) + \
+                                           sizeof(md5GridSection_);
 
     friend std::ostream& operator<<(std::ostream& s, const GribInfo& f) {
         f.print(s);
