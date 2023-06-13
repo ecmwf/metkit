@@ -26,6 +26,7 @@ class inputData {
     std::vector<double> expectedData;
     eckit::PathName gribFileName;
     double epsilon = 1e-12;
+    std::string expectedString;
 };
 
 constexpr size_t numTestData = 5;
@@ -173,6 +174,7 @@ void setGribJumpData(){
         227.88688659668, 227.88688659668, 227.88688659668, 227.88688659668, 227.88688659668,
         227.88688659668, 227.88688659668, 227.88688659668, 227.88688659668
     };
+    testData[0].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=16,referenceValue=227.887,offsetBeforeData=103,numberOfDataPoints=684,numberOfValues=684,offsetBeforeBitmap=0,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=1476,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     // Surface level grib with bitmask
     testData[1].gribFileName = "sl_mask.grib";
     testData[1].expectedData = {
@@ -314,6 +316,7 @@ void setGribJumpData(){
         9999, 9999, 9999, 9999, 9999,
         9999, 9999, 9999, 9999
     };
+    testData[1].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=16,referenceValue=2.32006,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=439,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=1078,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     testData[2].gribFileName = "synth11.grib";
     testData[2].expectedData =  {
         0, 9999, 9999, 3, 4, 9999, 9999, 9999, 8, 9,
@@ -386,12 +389,15 @@ void setGribJumpData(){
         9999, 9999, 9999, 9999, 9999, 675, 676, 677, 678, 679,
         680, 681, 682, 683
     };
+    testData[2].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-1,decimalScaleFactor=0,bitsPerValue=11,referenceValue=0,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=334,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.5,decimalMultiplier=1,totalLength=660,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     testData[3].gribFileName = "synth12.grib";
     testData[3].expectedData = testData[2].expectedData;
+    testData[3].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-2,decimalScaleFactor=0,bitsPerValue=12,referenceValue=0,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=334,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.25,decimalMultiplier=1,totalLength=700,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     // Grib with single value
     testData[4].gribFileName = "const.grib";
     testData[4].expectedData = std::vector<double>(testData[2].expectedData.size(), 1.23456789);
     testData[4].epsilon = 1e-6; // Constant fields are stored at reduced precision
+    testData[4].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=0,referenceValue=1.23457,offsetBeforeData=111,numberOfDataPoints=684,numberOfValues=1,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=116,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
 }
 
 void doTest(int i, GribInfo gribInfo, GribHandleData &dataSource){
@@ -497,6 +503,22 @@ void doTest(int i, GribInfo gribInfo, GribHandleData &dataSource){
             double delta = std::abs(actual[index] - expected[index]);
             EXPECT(delta < epsilon);
         }
+    }
+}
+CASE( "test_metkit_gribjump_extract" ) {
+    // loop through the test cases, ensure metadata is extracted correctly
+    for (int i=0; i < numTestData; i++) {
+        GribHandleData dataSource(testData[i].gribFileName);
+        eckit::PathName binName = "temp";
+        GribInfo gribInfo = dataSource.extractMetadata(binName);
+
+        std::ostringstream out;
+        gribInfo.print(out);
+        std::string s = out.str();
+        s.erase(s.size()-1); // remove newline
+
+        // Check s against expected string testData[i].expectedString
+        EXPECT(s == testData[i].expectedString);
     }
 }
 
