@@ -123,24 +123,23 @@ void GribInfo::update(const GribHandle& h) {
 }
 
 void GribInfo::print(std::ostream& s) const {
-    s << "GribInfo[" << std::endl;
-    s << "    version=" << +version_ << std::endl;
-    s << "    editionNumber=" << editionNumber_ << std::endl;
-    s << "    binaryScaleFactor=" << binaryScaleFactor_ << std::endl;
-    s << "    decimalScaleFactor=" << decimalScaleFactor_ << std::endl;
-    s << "    bitsPerValue=" << bitsPerValue_ << std::endl;
-    s << "    referenceValue=" << referenceValue_ << std::endl;
-    s << "    offsetBeforeData=" << offsetBeforeData_ << std::endl;
-    s << "    numberOfDataPoints=" << numberOfDataPoints_ << std::endl;
-    s << "    numberOfValues=" << numberOfValues_ << std::endl;
-    s << "    offsetBeforeBitmap=" << offsetBeforeBitmap_ << std::endl;
-    s << "    sphericalHarmonics=" << sphericalHarmonics_ << std::endl;
-    s << "    binaryMultiplier=" << binaryMultiplier_ << std::endl;
-    s << "    decimalMultiplier=" << decimalMultiplier_ << std::endl;
-    s << "    totalLength=" << totalLength_ << std::endl;
-    s << "    msgStartOffset=" << msgStartOffset_ << std::endl;
-    s << "    md5GridSection=" << md5GridSection_ << std::endl;
-    s << "]";
+    s << "GribInfo[";
+    s << "version=" << +version_ << ",";
+    s << "editionNumber=" << editionNumber_ << ",";
+    s << "binaryScaleFactor=" << binaryScaleFactor_ << ",";
+    s << "decimalScaleFactor=" << decimalScaleFactor_ << ",";
+    s << "bitsPerValue=" << bitsPerValue_ << ",";
+    s << "referenceValue=" << referenceValue_ << ",";
+    s << "offsetBeforeData=" << offsetBeforeData_ << ",";
+    s << "numberOfDataPoints=" << numberOfDataPoints_ << ",";
+    s << "numberOfValues=" << numberOfValues_ << ",";
+    s << "offsetBeforeBitmap=" << offsetBeforeBitmap_ << ",";
+    s << "sphericalHarmonics=" << sphericalHarmonics_ << ",";
+    s << "binaryMultiplier=" << binaryMultiplier_ << ",";
+    s << "decimalMultiplier=" << decimalMultiplier_ << ",";
+    s << "totalLength=" << totalLength_ << ",";
+    s << "msgStartOffset=" << msgStartOffset_ << ",";
+    s << "md5GridSection=" << md5GridSection_ << "]";
     s << std::endl;
 }
 
