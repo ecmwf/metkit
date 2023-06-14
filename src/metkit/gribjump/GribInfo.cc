@@ -44,8 +44,6 @@ static GribAccessor<unsigned long> totalLength("totalLength");
 static GribAccessor<unsigned long> offsetBSection6("offsetBSection6");
 static GribAccessor<std::string> md5GridSection("md5GridSection");
 
-
-
 static Mutex mutex;
 
 #define MISSING 9999
@@ -54,12 +52,25 @@ static int bits[65536] = {
 #include "metkit/pointdb/bits.h"
 };
 
+// clang, gcc 10+
+#if defined(__has_builtin)
+    #if __has_builtin(__builtin_popcountll)
+        #define POPCOUNT_AVAILABLE 1
+    #else
+        #define POPCOUNT_AVAILABLE 0
+    #endif
+// gcc 3.4+
+#elif defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
+    #define POPCOUNT_AVAILABLE 1
+#else
+    #define POPCOUNT_AVAILABLE 0
+#endif
 
 static inline int count_bits(unsigned long long n) {
-    #if __has_builtin(__builtin_popcount)
+    if (POPCOUNT_AVAILABLE) {
         return __builtin_popcountll(n);
-    #endif
-
+    }
+    // TODO: see also _mm_popcnt_u64 in <immintrin.h>, but not suitable for ARM
     // fallback: lookup table
     return bits[n         & 0xffffu]
            +  bits[(n >> 16) & 0xffffu]

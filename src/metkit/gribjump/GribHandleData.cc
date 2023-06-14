@@ -46,6 +46,14 @@ void GribHandleData::open() const {
     }
 }
 
+
+void GribHandleData::close() const {
+    if (opened_) {
+        handle_->close();
+        opened_ = false;
+    }
+}
+
 eckit::Offset GribHandleData::seek(const eckit::Offset& offset) const {
     open();
     eckit::Offset pos = handle_->seek(offset);
@@ -59,8 +67,6 @@ long GribHandleData::read(void* buffer, long len) const {
 
 const GribInfo& GribHandleData::extractMetadata(eckit::PathName& binName){
     if (!info_.ready()) {
-        open();
-
         // count number of messages in file
         grib_context* c = nullptr;
         int n = 0;
@@ -70,13 +76,18 @@ const GribInfo& GribHandleData::extractMetadata(eckit::PathName& binName){
         // extract metadata from each message to a binary file
         eckit::Offset offset = 0; // Note: we'll find the correct offset as we go
         for (size_t i = 0; i < n; i++) {
+            open();
             grib::GribHandle h(*handle_, offset);
             info_.update(h);
             unsigned long fp = handle_->position();
             info_.set_msgStartOffset(fp - info_.get_totalLength());
             offset = handle_->position();
-
             info_.toBinary(binName, i!=0);
+
+            // XXX: On linux, fp is wrong if handle is not closed and reopened.
+            // XXX: Possibly due to interaction in GribHandle constructor between openf and eccodes.
+            // XXX: This needs to be investigated further.
+            close();
         }
     }
     return info_;

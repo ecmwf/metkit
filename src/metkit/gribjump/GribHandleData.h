@@ -46,6 +46,7 @@ private:
     virtual void print(std::ostream& s) const;
 
     void open() const;
+    void close() const;
 
     friend class GribInfo;
 };
