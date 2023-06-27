@@ -16,7 +16,6 @@
 #include <queue>
 #include "eckit/io/DataHandle.h"
 #include "eckit/utils/MD5.h"
-
 using namespace eckit;
 using namespace metkit::grib;
 
@@ -337,10 +336,19 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         size_t i1 = std::get<1>(r);
         bufferSize = std::max(bufferSize, 1 + ((i1 - i0)*bitsPerValue_ + 7 )/8);
     }
-    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
+
+    // find also the largest seperation between ranges, so we can allocate a buffer for the bitmap
+    size_t maxSeparation = std::get<0>(ranges[0]); // need to parse up to start of first range at least.
+    for (size_t i = 0; i < ranges.size()-1; ++i) {
+        size_t i1 = std::get<1>(ranges[i]);
+        size_t j0 = std::get<0>(ranges[i+1]);
+        maxSeparation = std::max(maxSeparation, (j0 - i1));
+    }
 
     if (!offsetBeforeBitmap_) {
         // no bitmap, just read the values
+        std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
+
         for (auto r : ranges) {
             size_t istart = std::get<0>(r);
             size_t iend = std::get<1>(r);
@@ -394,14 +402,17 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     size_t count = 0;
     bool rangeToggle = false; // whether we are within a range we care about or not.
 
+    std::vector<uint64_t> bufskip(maxSeparation/nBits + 1);
+
     while (!edges.empty()) {
         if (!rangeToggle){
-            // Not within range, skip to word containing start of next range
-            for (size_t i = bp/nBits; i < edges.front()/nBits; ++i) {
-               ASSERT(f.read(&n, nBytes) == nBytes);
-                count += count_bits(n);
-                bp += nBits;
+            size_t nWordsToSkip = (edges.front() - bp)/nBits;
+            size_t nBytesToSkip = nWordsToSkip * nBytes;
+            ASSERT(f.read(bufskip.data(), nBytesToSkip) == nBytesToSkip);
+            for (size_t i = 0; i < nWordsToSkip; ++i) {
+                count += count_bits(bufskip[i]);
             }
+            bp += nWordsToSkip * nBits;
         }
         ASSERT(f.read(&n, nBytes) == nBytes);
         n = reverse_bytes(n);
@@ -409,7 +420,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     }
 
     // read the values
-
+    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
     count = 0;
     for (size_t ri = 0; ri < ranges.size(); ++ri) {
         auto r = ranges[ri];
@@ -457,7 +468,6 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         }
         count += i1 - i0;
     }
-
     return values;
 }
 
