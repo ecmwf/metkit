@@ -310,13 +310,15 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         size_t istart = std::get<0>(ranges[i]);
         size_t iend = std::get<1>(ranges[i]);
         ASSERT(istart < iend);
+        ASSERT(iend <= numberOfDataPoints_);
+
         // assert no overlap with other ranges
-        for (size_t j = i+1; j < ranges.size(); ++j) {
-            size_t jstart = std::get<0>(ranges[j]);
+        // the ranges are sorted, so we only need to check the next range
+        if (i < ranges.size()-1) {
+            size_t jstart = std::get<0>(ranges[i+1]);
             ASSERT(iend <= jstart);
         }
         sizeAllRanges += iend - istart;
-        ASSERT(iend <= numberOfDataPoints_);
     }
 
     std::vector<double> values;
