@@ -322,19 +322,40 @@ static void init() {
     const eckit::Value rs = eckit::YAMLParser::decodeFile(LibMetkit::paramStaticYamlFile());
     ASSERT(rs.isList());
 
-    r += rs;
-
+    // merge r and rs
+    eckit::ValueMap merge;
     for (size_t i = 0; i < r.size(); ++i) {
         const eckit::Value& rule = r[i];
 
         if (!rule.isList()) {
             rule.dump(Log::error()) << std::endl;
         }
-
         ASSERT(rule.isList());
         ASSERT(rule.size() == 2);
 
-        (*rules).push_back(Rule(rule[0], rule[1], ids));
+        merge.emplace(rule[0], rule[1]);
+    }
+
+    for (size_t i = 0; i < rs.size(); ++i) {
+        const eckit::Value& rule = rs[i];
+
+        if (!rule.isList()) {
+            rule.dump(Log::error()) << std::endl;
+        }
+        ASSERT(rule.isList());
+        ASSERT(rule.size() == 2);
+
+        auto it = merge.find(rule[0]);
+        if (it == merge.end()) {
+            merge.emplace(rule[0], rule[1]);
+        }
+        else {
+            it->second += rule[1];
+        }
+    }
+
+    for (auto it = merge.begin(); it != merge.end(); it++) {
+        (*rules).push_back(Rule(it->first, it->second, ids));
     }
 }
 
