@@ -9,15 +9,15 @@
  */
 
 #include <iomanip>
+#include <regex>
 
 #include "eckit/utils/Translator.h"
-
 #include "eckit/types/Date.h"
-#include "metkit/mars/MarsRequest.h"
+#include "eckit/utils/StringTools.h"
 
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeTime.h"
-#include "eckit/utils/StringTools.h"
 
 namespace metkit {
 namespace mars {
@@ -31,54 +31,87 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
 TypeTime::~TypeTime() {
 }
 
-bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
-
-    long n = 0;
-    int colon = 0;
-
-    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
-        switch (*j) {
-
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            n *= 10;
-            n += (*j) - '0';
-            break;
-
-        case ':':
-            colon++;
-            break;
-
-        default:
-            // throw eckit::UserError(name_ + ": invalid time '" + value + "'");
-            return false;
+long TypeTime::seconds(std::string& value) {
+    long seconds=0;
+    long minutes = 0;
+    long hours = 0;
+    long days = 0;
+    std::smatch m;
+    if (std::regex_match (value, m, std::regex("^[0-9]+$"))) { // only digits
+        long time = std::stol(value);
+        if (time < 100) {          // cases: h, hh
+            hours = time;
+        } else {
+            if (time < 10000) { // cases: hmm, hhmm
+                hours = time/100;
+                minutes = time%100;
+            } else {                   // cases: hmmss, hhmmss
+                hours = time/10000;
+                minutes = (time/100)%100;
+                seconds = time%100;
+            }
         }
-    }
-
-    if (colon == 2 || (value.size() > 4 && colon == 0)) {
-        if (n % 100 != 0) {
+        if (minutes > 59 || seconds > 59) {
             std::ostringstream ss;
-            ss << "Cannot normalise time '" << value << "' - seconds not supported";
+            ss << "Invalid time '" << value << "' ==> '" << hours << ":" << std::setfill('0') << std::setw(2) << minutes << ":" << std::setfill('0') << std::setw(2) << seconds << "'" << std::endl;
             throw eckit::SeriousBug(ss.str(), Here());
         }
-        n /= 100;
+        seconds += 60*(60*hours + minutes);
+    }
+    else {
+        if (std::regex_match (value, m, std::regex("^([0-9]+):([0-5]?[0-9])(:[0-5]?[0-9])?$"))) {
+            int count=0;
+            for (int i=1; i<m.size(); i++) {
+                if (m[i].matched) {
+                    count++;
+                    std::string aux = m[i].str();
+                    if (aux[0] == ':') {
+                        aux.erase(0,1);
+                    }
+                    seconds = seconds*60+std::stol(aux);
+                }
+            }
+            for (; count<3; count++) {
+                seconds *= 60;
+            }
+        }
+        else {
+            if (std::regex_match (value, m, std::regex("^([0-9]+d)?([0-9]+h)?([0-9]+m)?([0-9]+s)?$"))) {
+                for (int i=1; i<m.size(); i++) {
+                    if (m[i].matched) {
+                        std::string aux = m[i].str();
+                        aux.pop_back();
+                        long n = std::stol(aux);
+                        switch (i) {
+                            case 1: days = n; break;
+                            case 2: hours = n; break;
+                            case 3: minutes = n; break;
+                            case 4:
+                            default: seconds = n;
+                        }
+                    }
+                }
+                seconds += 60*(minutes+60*(hours+24*days));
+            }
+        }
     }
 
-    if (n < 100 && value.size() < 3) {
-        n *= 100;
-    }
+    return seconds;
+}
+
+bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
+
+    long time = seconds(value);
+    
+    long d = time/86400;
+    long h = (time/3600)%24;
+    long m = (time/60)%60;
+    long s = time%60;
+
+//    std::cout << value << " ==> " << d << "d" << std::setfill('0') << std::setw(2) << h << "h" << std::setfill('0') << std::setw(2) << m << "m" << std::setfill('0') << std::setw(2) << s << "s" << std::endl;
 
     std::ostringstream oss;
-    oss << std::setfill('0') << std::setw(4) << n;
-    value = oss.str();
+    oss << d << std::setfill('0') << std::setw(2) << h << std::setfill('0') << std::setw(2) << m << std::setfill('0') << std::setw(2) << s;
     return true;
 }
 
