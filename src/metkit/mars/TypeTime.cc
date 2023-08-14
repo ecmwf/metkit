@@ -31,87 +31,23 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
 TypeTime::~TypeTime() {
 }
 
-long TypeTime::seconds(std::string& value) {
-    long seconds=0;
-    long minutes = 0;
-    long hours = 0;
-    long days = 0;
-    std::smatch m;
-    if (std::regex_match (value, m, std::regex("^[0-9]+$"))) { // only digits
-        long time = std::stol(value);
-        if (time < 100) {          // cases: h, hh
-            hours = time;
-        } else {
-            if (time < 10000) { // cases: hmm, hhmm
-                hours = time/100;
-                minutes = time%100;
-            } else {                   // cases: hmmss, hhmmss
-                hours = time/10000;
-                minutes = (time/100)%100;
-                seconds = time%100;
-            }
-        }
-        if (minutes > 59 || seconds > 59) {
-            std::ostringstream ss;
-            ss << "Invalid time '" << value << "' ==> '" << hours << ":" << std::setfill('0') << std::setw(2) << minutes << ":" << std::setfill('0') << std::setw(2) << seconds << "'" << std::endl;
-            throw eckit::SeriousBug(ss.str(), Here());
-        }
-        seconds += 60*(60*hours + minutes);
-    }
-    else {
-        if (std::regex_match (value, m, std::regex("^([0-9]+):([0-5]?[0-9])(:[0-5]?[0-9])?$"))) {
-            int count=0;
-            for (int i=1; i<m.size(); i++) {
-                if (m[i].matched) {
-                    count++;
-                    std::string aux = m[i].str();
-                    if (aux[0] == ':') {
-                        aux.erase(0,1);
-                    }
-                    seconds = seconds*60+std::stol(aux);
-                }
-            }
-            for (; count<3; count++) {
-                seconds *= 60;
-            }
-        }
-        else {
-            if (std::regex_match (value, m, std::regex("^([0-9]+d)?([0-9]+h)?([0-9]+m)?([0-9]+s)?$"))) {
-                for (int i=1; i<m.size(); i++) {
-                    if (m[i].matched) {
-                        std::string aux = m[i].str();
-                        aux.pop_back();
-                        long n = std::stol(aux);
-                        switch (i) {
-                            case 1: days = n; break;
-                            case 2: hours = n; break;
-                            case 3: minutes = n; break;
-                            case 4:
-                            default: seconds = n;
-                        }
-                    }
-                }
-                seconds += 60*(minutes+60*(hours+24*days));
-            }
-        }
-    }
-
-    return seconds;
-}
-
 bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
 
-    long time = seconds(value);
+    eckit::Time time(value, true);
     
-    long d = time/86400;
-    long h = (time/3600)%24;
-    long m = (time/60)%60;
-    long s = time%60;
-
-//    std::cout << value << " ==> " << d << "d" << std::setfill('0') << std::setw(2) << h << "h" << std::setfill('0') << std::setw(2) << m << "m" << std::setfill('0') << std::setw(2) << s << "s" << std::endl;
-
     std::ostringstream oss;
-    oss << d << std::setfill('0') << std::setw(2) << h << std::setfill('0') << std::setw(2) << m << std::setfill('0') << std::setw(2) << s;
+    if (time.seconds() != 0) {
+        oss << "Cannot normalise time '" << value << "' - seconds not supported";
+        throw eckit::SeriousBug(oss.str(), Here());
+    }
+    if (time.hours() >= 24) {
+        oss << "Cannot normalise time '" << value << "' - " << time.hours() << " hours > 24 not supported";
+        throw eckit::SeriousBug(oss.str(), Here());
+    }
+
+    oss << std::setfill('0') << std::setw(2) << time.hours() << std::setfill('0') << std::setw(2) << time.minutes();
+    value = oss.str();
+    
     return true;
 }
 

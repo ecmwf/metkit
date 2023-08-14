@@ -31,14 +31,11 @@ public: // methods
 
     virtual ~TypeTime() override;
 
-
 private: // methods
 
     virtual void print( std::ostream &out ) const override;
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
-
-    static long seconds(std::string& value);
     
     long by_;
 
