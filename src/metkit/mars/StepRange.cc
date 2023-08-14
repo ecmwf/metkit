@@ -9,6 +9,7 @@
  */
 
 #include "metkit/mars/StepRange.h"
+#include "metkit/mars/TypeTime.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/persist/DumpLoad.h"
@@ -47,16 +48,20 @@ StepRange::StepRange(const std::string& s):
 	std::vector<std::string> result;
 
 	parse(s,result);
+	eckit::Second from, to;
 
 	switch(result.size())
 	{
 		case 1:
-			from_ = to_ = atof(result[0].c_str());
+			from = eckit::Time(result[0], true);
+			from_ = to_ = from/3600.f;
 			break;
 
 		case 2:
-			from_ = atof(result[0].c_str());
-			to_   = atof(result[1].c_str());
+			from = eckit::Time(result[0], true);
+			to   = eckit::Time(result[1], true);
+			from_ = from/3600.f;
+			to_   = to/3600.f;
 			break;
 
 		default:
@@ -65,7 +70,6 @@ StepRange::StepRange(const std::string& s):
             throw eckit::BadValue(msg.str(), Here());
             break;
     }
-
 }
 
 void StepRange::dump(DumpLoad& a) const

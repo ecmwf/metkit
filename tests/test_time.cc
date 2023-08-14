@@ -33,8 +33,13 @@ CASE("Test TypeType expansions") {
     Type& tt(ttime);
     DummyContext ctx;
 
-    // 2-digit times
+    // 1 and 2-digit times
 
+    {
+        std::string value = "0";
+        tt.expand(ctx, value);
+        EXPECT(value == "0000");
+    }
     {
         std::string value = "00";
         tt.expand(ctx, value);
@@ -46,22 +51,32 @@ CASE("Test TypeType expansions") {
         EXPECT(value == "1200");
     }
     {
-        std::string value = "06";
-        tt.expand(ctx, value);
-        EXPECT(value == "0600");
-    }
-    {
         std::string value = "6";
         tt.expand(ctx, value);
         EXPECT(value == "0600");
     }
+    {
+        std::string value = "06";
+        tt.expand(ctx, value);
+        EXPECT(value == "0600");
+    }
 
-    // 4-digit times
+    // 3 and 4-digit times
 
+    {
+        std::string value = "000";
+        tt.expand(ctx, value);
+        EXPECT(value == "0000");
+    }
     {
         std::string value = "0000";
         tt.expand(ctx, value);
         EXPECT(value == "0000");
+    }
+    {
+        std::string value = "012";
+        tt.expand(ctx, value);
+        EXPECT(value == "0012");
     }
     {
         std::string value = "0012";
@@ -74,45 +89,21 @@ CASE("Test TypeType expansions") {
         EXPECT(value == "1234");
     }
     {
+        std::string value = "623";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
         std::string value = "0623";
         tt.expand(ctx, value);
         EXPECT(value == "0623");
     }
     {
-        std::string value = "623";
-        tt.expand(ctx, value);
-        EXPECT(value == "0623");
+        std::string value = "675";
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadTime);
     }
 
-    // 4-digit times with colons
-
-    {
-        std::string value = "00:00";
-        tt.expand(ctx, value);
-        EXPECT(value == "0000");
-    }
-    {
-        std::string value = "00:12";
-        tt.expand(ctx, value);
-        EXPECT(value == "0012");
-    }
-    {
-        std::string value = "12:34";
-        tt.expand(ctx, value);
-        EXPECT(value == "1234");
-    }
-    {
-        std::string value = "06:23";
-        tt.expand(ctx, value);
-        EXPECT(value == "0623");
-    }
-    {
-        std::string value = "6:23";
-        tt.expand(ctx, value);
-        EXPECT(value == "0623");
-    }
-
-    // 6-digit times
+    // 5 and 6-digit times
 
     {
         std::string value = "000000";
@@ -150,12 +141,51 @@ CASE("Test TypeType expansions") {
         EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
     }
 
-    // 6-digit times with colons
+    // times with colons
 
+    {
+        std::string value = "0:0";
+        tt.expand(ctx, value);
+        EXPECT(value == "0000");
+    }
+    {
+        std::string value = "00:00";
+        tt.expand(ctx, value);
+        EXPECT(value == "0000");
+    }
     {
         std::string value = "00:00:00";
         tt.expand(ctx, value);
         EXPECT(value == "0000");
+    }
+    {
+        std::string value = "0:12";
+        tt.expand(ctx, value);
+        EXPECT(value == "0012");
+    }
+    {
+        std::string value = "00:12";
+        tt.expand(ctx, value);
+        EXPECT(value == "0012");
+    }
+    {
+        std::string value = "00:62";
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadTime);
+    }
+    {
+        std::string value = "12:34";
+        tt.expand(ctx, value);
+        EXPECT(value == "1234");
+    }
+    {
+        std::string value = "6:23";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
+    }
+    {
+        std::string value = "06:23";
+        tt.expand(ctx, value);
+        EXPECT(value == "0623");
     }
     {
         // We don't support seconds yet.
@@ -186,6 +216,29 @@ CASE("Test TypeType expansions") {
         // We don't support seconds yet.
         std::string value = "12:34:56";
         EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+    }
+
+    // times with units
+
+    {
+        std::string value = "0h";
+        tt.expand(ctx, value);
+        EXPECT(value == "0000");
+    }
+    {
+        std::string value = "00H";
+        tt.expand(ctx, value);
+        EXPECT(value == "0000");
+    }
+    {
+        std::string value = "60m";
+        tt.expand(ctx, value);
+        EXPECT(value == "0100");
+    }
+    {
+        std::string value = "2h30m";
+        tt.expand(ctx, value);
+        EXPECT(value == "0230");
     }
 }
 

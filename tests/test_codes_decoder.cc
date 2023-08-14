@@ -211,7 +211,8 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "forecastTime", 0);
         MD_EXPECT_LONG(md, "startStep", 0);
         MD_EXPECT_LONG(md, "endStep", 0);
-        MD_EXPECT_STRING(md, "stepRange", "0");
+//        MD_EXPECT_STRING(md, "stepRange", "0");
+        MD_EXPECT_STRING(md, "stepRange", "0h");
         MD_EXPECT_LONG(md, "validityDate", 10101);
         MD_EXPECT_LONG(md, "validityTime", 0);
         MD_EXPECT_STRING(md, "typeOfFirstFixedSurface", "168");
@@ -395,7 +396,8 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "forecastTime", "0");
         MD_EXPECT_STRING(md, "startStep", "0");
         MD_EXPECT_STRING(md, "endStep", "0");
-        MD_EXPECT_STRING(md, "stepRange", "0");
+//        MD_EXPECT_STRING(md, "stepRange", "0");
+        MD_EXPECT_STRING(md, "stepRange", "0h");
         MD_EXPECT_STRING(md, "validityDate", "10101");
         MD_EXPECT_STRING(md, "validityTime", "0");
         MD_EXPECT_STRING(md, "typeOfFirstFixedSurface", "168");
