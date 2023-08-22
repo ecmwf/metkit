@@ -67,4 +67,5 @@
 67  ; MWTS3 All-sky  ; 2  ; MWTS3_AS  ; MWTS3 All-sky  ;    
 68  ; GIIRS  ; 2  ; GIIRS  ; GIIRS  ;    
 69  ; HIRAS  ; 2  ; HIRAS  ; HIRAS  ;    
+70  ; TROPICS All-sky  ; 2  ; TROPICS_AS  ; TROPICS All-sky  ;    
 99  ; TEST  ; 4  ; TEST  ;    ;    
