@@ -182,6 +182,8 @@ void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
 
     dh->openForRead();
     dh->seek(msg_id*metadataSize);
+    // make sure we aren't reading past the end of the file
+    ASSERT(dh->position() + eckit::Offset(metadataSize) <= dh->size());
     dh->read(&version_, sizeof(version_));
     dh->read(&editionNumber_, sizeof(editionNumber_));
     dh->read(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
