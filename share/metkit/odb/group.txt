@@ -45,6 +45,7 @@
 45  ; MHS All-sky  ; 2  ; MHS_AS  ; MHS All-sky  ;    
 46  ; Doppler Wind Lidar  ; 2  ; DWL  ; Doppler Wind Lidar  ;    
 47  ; IRIS  ; 2  ; IRIS  ; Infrared Interferometer Spectrometer  ;    
+48  ; Altimeter  ; 3  ; ALT  ; Altimeter  ;    
 49  ; AATSR  ; 2  ; AATSR  ; Advanced Along Track Scanning Radiometer  ;    
 50  ; ATMS All-sky  ; 2  ; ATMS_AS  ; ATMS All-sky  ;    
 51  ; GMI All-sky  ; 2  ; GMI_AS  ; GMI All-sky  ;    
@@ -59,10 +60,12 @@
 60  ; SMAP  ; 2  ; SMAP  ; Soil Moisture Active and Passive  ;    
 61  ; TOVS MULTISENSOR  ; 4  ; TOVS_MS  ; TOVS MULTISENSOR  ;    
 62  ; Cloud reflectivity  ; 2  ; CLOUD_R  ; Cloud reflectivity  ;    
-63  ; Cloud Lidar  ; 2  ; CLOUD_L  ; Cloud Lidar  ;
-64  ; Satellite Lightning  ; 2  ; SATELLITE_LIGHTNING ; Satellite Lightning  ;   
-65  ; GEOS VIS  ; 2  ; GEOS_VIS  ; GEOS visible reflectances  ;
-66  ; OCONV  ; 1  ; OCONV  ; Ocean conventional in situ  ;
-67  ; MWTS3 All-sky  ; 2  ; MWTS3_AS  ; MWTS3 All-sky  ;
-68  ; GIIRS  ; 2  ; GIIRS  ; GIIRS  ;
+63  ; Cloud Lidar  ; 2  ; CLOUD_L  ; Cloud Lidar  ;    
+64  ; Satellite Lightning  ; 2  ; SATELLITE_LIGHTNING  ; Satellite Lightning  ;    
+65  ; GEOS VIS  ; 2  ; GEOS_VIS  ; GEOS visible reflectances  ;    
+66  ; OCONV  ; 1  ; OCONV  ; Ocean conventional in situ  ;    
+67  ; MWTS3 All-sky  ; 2  ; MWTS3_AS  ; MWTS3 All-sky  ;    
+68  ; GIIRS  ; 2  ; GIIRS  ; GIIRS  ;    
+69  ; HIRAS  ; 2  ; HIRAS  ; HIRAS  ;    
+70  ; TROPICS All-sky  ; 2  ; TROPICS_AS  ; TROPICS All-sky  ;    
 99  ; TEST  ; 4  ; TEST  ;    ;    
