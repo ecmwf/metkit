@@ -22,38 +22,37 @@
 
 namespace eckit { class PathName; }
 namespace metkit {
-namespace grib {
-class GribHandle;
-}
+namespace grib { class GribHandle; }
 
 namespace gribjump {
 
-class GribHandleData;
+class JumpHandle;
 void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, std::queue<size_t> &edges, bool&, size_t&);
 
-class GribInfo {
+class JumpInfo {
 public:
 
-    GribInfo();
+    JumpInfo();
+    JumpInfo(const grib::GribHandle& h);
 
     bool ready() const { return numberOfValues_ > 0; }
     void update(const grib::GribHandle& h);
-    double extractAtIndex(const GribHandleData&, size_t index) const;
-    std::vector<double> extractAtIndexRangeOfRanges(const GribHandleData&, std::vector<std::tuple<size_t, size_t>> ranges) const;
+    double extractAtIndex(const JumpHandle&, size_t index) const;
+    std::vector<double> extractRanges(const JumpHandle&, std::vector<std::tuple<size_t, size_t>> ranges) const;
     
     void print(std::ostream&) const;
 
     void toBinary(eckit::PathName, bool);
     void fromBinary(eckit::PathName, uint16_t msg_id=0);
 
-    unsigned long get_numberOfDataPoints() const { return numberOfDataPoints_; }
-    unsigned long get_totalLength() const { return totalLength_; }
-    void set_msgStartOffset(eckit::Offset offset) { msgStartOffset_ = offset; }
+    unsigned long getNumberOfDataPoints() const { return numberOfDataPoints_; }
+    unsigned long getLength() const { return totalLength_; }
+    void setStartOffset(eckit::Offset offset) { msgStartOffset_ = offset; }
 
 private:
-    double readDataValue(const GribHandleData&, size_t) const;
+    double readDataValue(const JumpHandle&, size_t) const;
 
-    static constexpr uint8_t currentVersion_ = 1; // later ASSERT version == currentVersion
+    static constexpr uint8_t currentVersion_ = 1;
     uint8_t version_;
     double        referenceValue_;
     long          binaryScaleFactor_;
@@ -90,7 +89,7 @@ private:
                                            sizeof(decimalMultiplier_) + \
                                            sizeof(md5GridSection_);
 
-    friend std::ostream& operator<<(std::ostream& s, const GribInfo& f) {
+    friend std::ostream& operator<<(std::ostream& s, const JumpInfo& f) {
         f.print(s);
         return s;
     }

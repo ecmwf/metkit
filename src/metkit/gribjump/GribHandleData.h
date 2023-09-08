@@ -22,33 +22,40 @@ class DataHandle;
 namespace metkit {
 namespace gribjump {
 
-
-class GribHandleData : public eckit::NonCopyable {
+// xxx pending better name...
+class JumpHandle : public eckit::NonCopyable {
 public:
 
-    GribHandleData(const eckit::PathName&);
-    ~GribHandleData();
+    JumpHandle(const eckit::PathName&);
 
-    const GribInfo& extractMetadata(eckit::PathName&);
+    /// constructor taking ownership of a handle pointer
+    JumpHandle(eckit::DataHandle*);
+
+    ~JumpHandle();
+
+    const JumpInfo& extractFileToBin(eckit::PathName&);
+    const JumpInfo& extractNext();
+    eckit::Offset handlePosition();
+    eckit::Length handleSize();
+    eckit::Offset seek(const eckit::Offset&) const;
 
 private:
 
     mutable eckit::DataHandle *handle_;
-    eckit::PathName gribpath_;
+    eckit::PathName path_;
     bool ownsHandle_;
     mutable bool opened_;
 
     mutable pointdb::GribFieldInfo infoOld_;
-    mutable GribInfo info_;
+    mutable JumpInfo info_;
 
-    virtual eckit::Offset seek(const eckit::Offset&) const;
     virtual long read(void*, long) const;
     virtual void print(std::ostream& s) const;
 
     void open() const;
     void close() const;
 
-    friend class GribInfo;
+    friend class JumpInfo;
 };
 
 } // namespace gribjump

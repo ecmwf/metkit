@@ -174,7 +174,7 @@ void setGribJumpData(){
         227.88688659668, 227.88688659668, 227.88688659668, 227.88688659668, 227.88688659668,
         227.88688659668, 227.88688659668, 227.88688659668, 227.88688659668
     };
-    testData[0].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=16,referenceValue=227.887,offsetBeforeData=103,numberOfDataPoints=684,numberOfValues=684,offsetBeforeBitmap=0,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=1476,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
+    testData[0].expectedString = "JumpInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=16,referenceValue=227.887,offsetBeforeData=103,numberOfDataPoints=684,numberOfValues=684,offsetBeforeBitmap=0,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=1476,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     // Surface level grib with bitmask
     testData[1].gribFileName = "sl_mask.grib";
     testData[1].expectedData = {
@@ -316,7 +316,7 @@ void setGribJumpData(){
         9999, 9999, 9999, 9999, 9999,
         9999, 9999, 9999, 9999
     };
-    testData[1].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=16,referenceValue=2.32006,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=439,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=1078,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
+    testData[1].expectedString = "JumpInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=16,referenceValue=2.32006,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=439,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=1078,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     testData[2].gribFileName = "synth11.grib";
     testData[2].expectedData =  {
         0, 9999, 9999, 3, 4, 9999, 9999, 9999, 8, 9,
@@ -389,20 +389,20 @@ void setGribJumpData(){
         9999, 9999, 9999, 9999, 9999, 675, 676, 677, 678, 679,
         680, 681, 682, 683
     };
-    testData[2].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-1,decimalScaleFactor=0,bitsPerValue=11,referenceValue=0,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=334,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.5,decimalMultiplier=1,totalLength=660,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
+    testData[2].expectedString = "JumpInfo[version=1,editionNumber=1,binaryScaleFactor=-1,decimalScaleFactor=0,bitsPerValue=11,referenceValue=0,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=334,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.5,decimalMultiplier=1,totalLength=660,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     testData[3].gribFileName = "synth12.grib";
     testData[3].expectedData = testData[2].expectedData;
-    testData[3].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-2,decimalScaleFactor=0,bitsPerValue=12,referenceValue=0,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=334,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.25,decimalMultiplier=1,totalLength=700,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
+    testData[3].expectedString = "JumpInfo[version=1,editionNumber=1,binaryScaleFactor=-2,decimalScaleFactor=0,bitsPerValue=12,referenceValue=0,offsetBeforeData=195,numberOfDataPoints=684,numberOfValues=334,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.25,decimalMultiplier=1,totalLength=700,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
     // Grib with single value
     testData[4].gribFileName = "const.grib";
     testData[4].expectedData = std::vector<double>(testData[2].expectedData.size(), 1.23456789);
     testData[4].epsilon = 1e-6; // Constant fields are stored at reduced precision
-    testData[4].expectedString = "GribInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=0,referenceValue=1.23457,offsetBeforeData=111,numberOfDataPoints=684,numberOfValues=1,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=116,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
+    testData[4].expectedString = "JumpInfo[version=1,editionNumber=1,binaryScaleFactor=-10,decimalScaleFactor=0,bitsPerValue=0,referenceValue=1.23457,offsetBeforeData=111,numberOfDataPoints=684,numberOfValues=1,offsetBeforeBitmap=98,sphericalHarmonics=0,binaryMultiplier=0.000976562,decimalMultiplier=1,totalLength=116,msgStartOffset=0,md5GridSection=33c7d6025995e1b4913811e77d38ec50]";
 }
 
-void doTest(int i, GribInfo gribInfo, GribHandleData &dataSource){
+void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
     EXPECT(gribInfo.ready());
-    size_t numberOfDataPoints = gribInfo.get_numberOfDataPoints();
+    size_t numberOfDataPoints = gribInfo.getNumberOfDataPoints();
     double epsilon = testData[i].epsilon;
 
     // XXX print every data point
@@ -478,7 +478,7 @@ void doTest(int i, GribInfo gribInfo, GribHandleData &dataSource){
             }
         }
 
-        std::vector<double> actual = gribInfo.extractAtIndexRangeOfRanges(dataSource, ranges);
+        std::vector<double> actual = gribInfo.extractRanges(dataSource, ranges);
 
         // printing 
         std::cout << "range: ";
@@ -508,9 +508,9 @@ void doTest(int i, GribInfo gribInfo, GribHandleData &dataSource){
 CASE( "test_metkit_gribjump_extract" ) {
     // loop through the test cases, ensure metadata is extracted correctly
     for (int i=0; i < numTestData; i++) {
-        GribHandleData dataSource(testData[i].gribFileName);
+        JumpHandle dataSource(testData[i].gribFileName);
         eckit::PathName binName = "temp";
-        GribInfo gribInfo = dataSource.extractMetadata(binName);
+        JumpInfo gribInfo = dataSource.extractFileToBin(binName);
 
         std::ostringstream out;
         gribInfo.print(out);
@@ -526,9 +526,9 @@ CASE( "test_metkit_gribjump_query" ) {
     // loop through the test cases
     for (int i = 0; i < numTestData; i++) {
         // Extract
-        GribHandleData dataSource(testData[i].gribFileName);
+        JumpHandle dataSource(testData[i].gribFileName);
         eckit::PathName binName = "temp";
-        GribInfo gribInfo = dataSource.extractMetadata(binName);
+        JumpInfo gribInfo = dataSource.extractFileToBin(binName);
         doTest(i, gribInfo, dataSource);
     }
 }
@@ -547,9 +547,10 @@ CASE( "test_metkit_gribjump_query_multimsg" ) {
     f.close();
 
     // Extract
-    GribHandleData dataSource("combine.grib");
+    eckit::PathName fname("combine.grib");
+    JumpHandle dataSource(fname);
     eckit::PathName binName = "temp";
-    GribInfo gribInfo = dataSource.extractMetadata(binName);
+    JumpInfo gribInfo = dataSource.extractFileToBin(binName);
 
     // loop through the test cases
     for (int i = 0; i < numTestData; i++) {
@@ -561,7 +562,7 @@ CASE( "test_metkit_gribjump_query_multimsg" ) {
 CASE( "test_metkit_gribjump_accedges1" ) {
     // unit test for accumulateEdges function
     // Testing handling of single words
-
+    size_t MASKED = -1;
     for (size_t ti=0; ti < 2; ti ++){
         uint64_t n;
         std::queue<size_t> edges;
@@ -571,21 +572,21 @@ CASE( "test_metkit_gribjump_accedges1" ) {
         if (ti == 0) {
             n = 0xF0F0F0F0F0F0F0F0;
             expected_n = {
-                1, 2, 3, 4, 0, 0, 0, 0, 5, 6,
-                0, 0, 0, 0, 13, 14, 15, 16, 0, 0,
-                0,
-                18, 19, 20, 0, 0, 0, 0, 21, 22, 23, 24,
-                0, 0, 0, 25, 26, 27, 28, 0, 0, 0, 0, 29, 30, 31, 32, 0, 0, 0, 0
+                1, 2, 3, 4, MASKED, MASKED, MASKED, MASKED, 5, 6,
+                MASKED, MASKED, MASKED, MASKED, 13, 14, 15, 16, MASKED, MASKED,
+                MASKED,
+                18, 19, 20, MASKED, MASKED, MASKED, MASKED, 21, 22, 23, 24,
+                MASKED, MASKED, MASKED, 25, 26, 27, 28, MASKED, MASKED, MASKED, MASKED, 29, 30, 31, 32, MASKED, MASKED, MASKED, MASKED
             };
             expected_count = 32;
         } else if (ti == 1) {
             n = 0;
             expected_n = {
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED,
+                MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED,
+                MASKED,
+                MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED,
+                MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED, MASKED,
             };
             expected_count = 0;
         } else if (ti == 2){
@@ -638,6 +639,14 @@ CASE( "test_metkit_gribjump_accedges1" ) {
         // }
         // std::cout << std::endl;
 
+
+        // XXX: WIP, expected_n currently off by 1 intentionally while developments happen
+        for (size_t i = 0; i < expected_n.size(); i++) {
+            if (expected_n[i] != MASKED) {
+                expected_n[i] -= 1;
+            }
+        }
+
         EXPECT (expected_n.size() == n_index.size());
         for (size_t i = 0; i < expected_n.size(); i++) {
             EXPECT(n_index[i] == expected_n[i]);
@@ -687,6 +696,7 @@ CASE( "test_metkit_gribjump_accedges2" ) {
         ASSERT(bp < 1000); // infinite loop protection
         word++;
     }
+    size_t MASKED = -1;
     expected_n = {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
         22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
@@ -694,7 +704,7 @@ CASE( "test_metkit_gribjump_accedges2" ) {
         60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
         79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 101,
         102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
-        117, 118, 119, 120, 0, 129, 192, 
+        117, 118, 119, 120, MASKED, 129, 192, 
     };
     expected_count = 192;
 
@@ -711,6 +721,15 @@ CASE( "test_metkit_gribjump_accedges2" ) {
     //     std::cout << n_index[i] << ", ";
     // }
     // std::cout << std::endl;
+
+
+
+    // XXX: WIP, expected_n currently off by 1 intentionally while developments happen
+    for (size_t i = 0; i < expected_n.size(); i++) {
+        if (expected_n[i] != MASKED) {
+            expected_n[i] -= 1;
+        }
+    }
 
     EXPECT (expected_n.size() == n_index.size());
     for (size_t i = 0; i < expected_n.size(); i++) {

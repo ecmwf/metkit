@@ -19,7 +19,6 @@
 using namespace eckit;
 using namespace metkit::grib;
 
-
 extern "C" {
     unsigned long grib_decode_unsigned_long(const unsigned char* p, long* offset, int bits);
     double grib_power(long s, long n);
@@ -45,7 +44,8 @@ static GribAccessor<std::string> md5GridSection("md5GridSection");
 
 static Mutex mutex;
 
-#define MISSING 9999
+constexpr double MISSING_VALUE = 9999;
+constexpr size_t MISSING_INDEX = -1;
 
 static int bits[65536] = {
 #include "metkit/pointdb/bits.h"
@@ -88,28 +88,14 @@ static inline uint64_t reverse_bytes(uint64_t n) {
            ((n & 0xFF00000000000000) >> 56);
 }
 
-GribInfo::GribInfo():
-    version_(0),
-    editionNumber_(0),
-    referenceValue_(0),
-    binaryScaleFactor_(0),
-    decimalScaleFactor_(0),
-    bitsPerValue_(0),
-    offsetBeforeData_(0),
-    bitmapPresent_(0),
-    offsetBeforeBitmap_(0),
-    numberOfValues_(0),
-    numberOfDataPoints_(0),
-    totalLength_(0),
-    msgStartOffset_(0),
-    sphericalHarmonics_(0),
-    md5GridSection_(),
-    binaryMultiplier_(0),
-    decimalMultiplier_(0)
-    {
+JumpInfo::JumpInfo():numberOfValues_(0){
 }
 
-void GribInfo::update(const GribHandle& h) {
+JumpInfo::JumpInfo(const GribHandle& h):numberOfValues_(0){
+    update(h);
+}
+
+void JumpInfo::update(const GribHandle& h) {
     editionNumber_      = editionNumber(h);
     ASSERT(editionNumber_ == 1 || editionNumber_ == 2);
     binaryScaleFactor_  = binaryScaleFactor(h);
@@ -132,8 +118,8 @@ void GribInfo::update(const GribHandle& h) {
     decimalMultiplier_ = grib_power(-decimalScaleFactor_, 10);
 }
 
-void GribInfo::print(std::ostream& s) const {
-    s << "GribInfo[";
+void JumpInfo::print(std::ostream& s) const {
+    s << "JumpInfo[";
     s << "version=" << +version_ << ",";
     s << "editionNumber=" << editionNumber_ << ",";
     s << "binaryScaleFactor=" << binaryScaleFactor_ << ",";
@@ -153,7 +139,7 @@ void GribInfo::print(std::ostream& s) const {
     s << std::endl;
 }
 
-void GribInfo::toBinary(eckit::PathName pathname, bool append){
+void JumpInfo::toBinary(eckit::PathName pathname, bool append){
     std::unique_ptr<DataHandle> dh(pathname.fileHandle());
     version_ = currentVersion_;
 
@@ -177,7 +163,7 @@ void GribInfo::toBinary(eckit::PathName pathname, bool append){
     dh->write(md5GridSection_.data(), md5GridSection_.size());
     dh->close();
 }
-void GribInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
+void JumpInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
     std::unique_ptr<DataHandle> dh(pathname.fileHandle());
 
     dh->openForRead();
@@ -215,13 +201,13 @@ void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_
 
     // first bit
     count += (n & msb64) ? 1 : 0;
-    newIndex.push_back((n & msb64) ? count : -1);
+    newIndex.push_back((n & msb64) ? count : MISSING_INDEX);
 
     // rest of the bits
     for (size_t i = 0; i < nread-1; ++i) {
         n <<= 1;
         count += (n & msb64) ? 1 : 0;
-        newIndex.push_back((n & msb64) ? count : -1);
+        newIndex.push_back((n & msb64) ? count : MISSING_INDEX);
     }
 }
 
@@ -241,14 +227,14 @@ void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &newIndex, 
             if (edges.empty()) break;
         }
         bool set = n & msb64;
+        if (rangeToggle) newIndex.push_back(set ? count : MISSING_INDEX);
         count += set ? 1 : 0;
-        if (rangeToggle) newIndex.push_back(set ? count : 0);
         n <<= 1;
         ++bp;
     }
 }
 
-double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
+double JumpInfo::extractAtIndex(const JumpHandle& f, size_t index) const {
 
     if (bitsPerValue_ == 0)
         return referenceValue_;
@@ -284,7 +270,7 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
         count += count_bits(n);
 
         if (!(n & 1)) {
-            return MISSING;
+            return MISSING_VALUE;
         }
 
         // update index to be the index of the value in the (not-missing) data section
@@ -295,7 +281,7 @@ double GribInfo::extractAtIndex(const GribHandleData& f, size_t index) const {
     return readDataValue(f, index);
 }
 
-std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
+std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
     
     ASSERT(!sphericalHarmonics_);
 
@@ -376,7 +362,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     }
     // else we have a bitmap
     std::vector<size_t> newIndex;
-    newIndex.reserve(sizeAllRanges); // new index after skipping missing values. Use 0 to denote missing values.
+    newIndex.reserve(sizeAllRanges); // new index after skipping missing values. Use -1 to denote missing values.
 
     // Form a queue of `range edges`, denoting when we enter and leave a ranged region.
     // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
@@ -435,36 +421,36 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
         // find index of first and last non-missing values in this range
         for (size_t i = count; i < count + (i1 - i0); ++i) {
             index0 = newIndex[i];
-            if (index0!=0) break;
+            if (index0!=MISSING_INDEX) break;
         }
-        if (index0 == 0){
+        if (index0 == MISSING_INDEX){
             // all values in this range are missing
             for (size_t i = 0; i < i1 - i0; ++i) {
-                values.push_back(MISSING);
+                values.push_back(MISSING_VALUE);
             }
             count += i1 - i0;
             continue;
         }
         for (size_t i = count + (i1 - i0) - 1; i >= count; --i) {
             index1 = newIndex[i];
-            if (index1!=0) break;
+            if (index1!=MISSING_INDEX) break;
         }
 
         long bitp = -1;
         index1 += 1; // we read up to but not including index1
         for (size_t i = count; i < count + (i1 - i0); ++i) {
             size_t index = newIndex[i];
-            if (index == 0){
-                values.push_back(MISSING);
+            if (index == MISSING_INDEX){
+                values.push_back(MISSING_VALUE);
                 continue;
             } else if (bitp == -1){
                 // At first non-missing value for this range, so read into buffer and set bitp
-                Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t((index0-1) * bitsPerValue_ / 8);
+                Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t((index0) * bitsPerValue_ / 8);
                 ASSERT(f.seek(offset) == offset);
                 long len = 1 + ((index1 - index0)*(bitsPerValue_) + 7) / 8;
                 ASSERT (len <= bufferSize);
                 ASSERT(f.read(buf.get(), len) == len);
-                bitp = ((index0-1) * bitsPerValue_) % 8;
+                bitp = ((index0) * bitsPerValue_) % 8;
             }
             unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
             double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
@@ -475,7 +461,7 @@ std::vector<double> GribInfo::extractAtIndexRangeOfRanges(const GribHandleData& 
     return values;
 }
 
-double GribInfo::readDataValue(const GribHandleData& f, size_t index) const {
+double JumpInfo::readDataValue(const JumpHandle& f, size_t index) const {
     // Read the data value at index.
     // We will do no error checking here, so make sure index is valid
     

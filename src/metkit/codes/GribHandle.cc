@@ -93,7 +93,7 @@ GribHandle::GribHandle(eckit::DataHandle& handle, eckit::Offset offset):
     ASSERT(f);
 
     fseek(f, offset, SEEK_SET);
-
+    // XXX: creating this handle scales badly with message size.
     h = codes_handle_new_from_file(0, f, PRODUCT_GRIB, &err);
     CODES_CALL(err);
     ASSERT(h);

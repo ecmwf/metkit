@@ -116,13 +116,13 @@ void GribJump::init(const eckit::option::CmdArgs& args) {
 void GribJump::execute(const eckit::option::CmdArgs& args) {
     auto startTime = std::chrono::high_resolution_clock::now();
     Timing timing;
-    GribInfo gribInfo;
-    GribHandleData dataSource(gribFileName_);
+    JumpInfo gribInfo;
+    JumpHandle dataSource(gribFileName_);
 
     if (doExtract_) {
         std::cout << "Build jump info from " << gribFileName_ << std::endl;
         auto t0 = std::chrono::high_resolution_clock::now();
-        gribInfo = dataSource.extractMetadata(binFileName_);
+        gribInfo = dataSource.extractFileToBin(binFileName_);
         auto t1 = std::chrono::high_resolution_clock::now();
         timing.extractTime = std::chrono::duration<double>(t1 - t0).count();
         std::cout << gribInfo << std::endl;
@@ -137,7 +137,7 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
 
             if (doRange_){
                 auto t0 = std::chrono::high_resolution_clock::now();
-                std::vector<double> v = gribInfo.extractAtIndexRangeOfRanges(dataSource, rangesVector_);
+                std::vector<double> v = gribInfo.extractRanges(dataSource, rangesVector_);
                 auto t1 = std::chrono::high_resolution_clock::now();
                 timing.msgTimes.push_back(std::chrono::duration<double>(t1 - t0).count());
                 std::cout << "Value: " << v << std::endl;
