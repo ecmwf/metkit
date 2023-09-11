@@ -191,50 +191,192 @@ void JumpInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
     ASSERT (version_ == currentVersion_);
 }
 
-void accumulate_bits(size_t nread, uint64_t &n, size_t &count, std::vector<size_t> &newIndex) {
-    // count the next nread bits in n, storing the number of 1s in count
-    // and push the index of each 1 to newIndex
-    constexpr uint64_t msb64 = 0x8000000000000000; // 0b100....000
-
-    if (nread == 0) return;
-    ASSERT(nread <= 64);
-
-    // first bit
-    count += (n & msb64) ? 1 : 0;
-    newIndex.push_back((n & msb64) ? count : MISSING_INDEX);
-
-    // rest of the bits
-    for (size_t i = 0; i < nread-1; ++i) {
-        n <<= 1;
-        count += (n & msb64) ? 1 : 0;
-        newIndex.push_back((n & msb64) ? count : MISSING_INDEX);
-    }
-}
-
-void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &newIndex, std::queue<size_t> &edges, bool &rangeToggle, size_t &bp) {
-    // count the set bits in n
-    // and push the new index of each set bit to newIndex, if rangeToggle = true. At each edge, toggle rangeToggle.
+void accumulateIndexes(uint64_t &n, size_t &count, std::vector<size_t> &newIndex, std::queue<size_t> &edges, bool &inRange, size_t &bp) {
+    // Used by extractRanges to parse bitmap and calculate new indexes.
+    // Counts set bits in n, and pushes new indexes to newIndex.
 
     ASSERT(!edges.empty());
-    ASSERT(bp%64 == 0); // bp must be a multiple of 64 (i.e. we must be at the start of a new uint64_t)
+    ASSERT(bp%64 == 0); // at start of new word
 
-    constexpr uint64_t msb64 = 0x8000000000000000; // 0b100....000
+    constexpr uint64_t msb64 = 0x8000000000000000; // 0b100...0
     size_t endbit = bp + 64;
     while (bp < endbit) {
         if (bp == edges.front()) {
-            rangeToggle = !rangeToggle;
+            inRange = !inRange;
             edges.pop();
             if (edges.empty()) break;
         }
         bool set = n & msb64;
-        if (rangeToggle) newIndex.push_back(set ? count : MISSING_INDEX);
+        if (inRange) newIndex.push_back(set ? count : MISSING_INDEX);
         count += set ? 1 : 0;
         n <<= 1;
         ++bp;
     }
 }
 
-double JumpInfo::extractAtIndex(const JumpHandle& f, size_t index) const {
+std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
+    // NOTE: Ranges are treated as half-open intervals [start, end)
+    
+    ASSERT(!sphericalHarmonics_);
+
+    // TODO: Either assert ranges are already sorted, or match output values to input ranges
+    std::sort(ranges.begin(), ranges.end(), [](const std::tuple<size_t, size_t>& a, const std::tuple<size_t, size_t>& b) {
+        return std::get<0>(a) < std::get<0>(b);
+    });
+
+    // Sanity check ranges
+    size_t nValues = 0;
+    for (size_t i = 0; i < ranges.size(); ++i) {
+        size_t start = std::get<0>(ranges[i]);
+        size_t end = std::get<1>(ranges[i]);
+        ASSERT(start < end);
+        ASSERT(end <= numberOfDataPoints_);
+
+        // Assert no overlap
+        if (i < ranges.size()-1) {
+            size_t jstart = std::get<0>(ranges[i+1]);
+            ASSERT(end <= jstart);
+        }
+        nValues += end - start;
+    }
+
+    if (bitsPerValue_ == 0) return std::vector<double>(nValues, referenceValue_);
+    
+    std::vector<double> values;
+    values.reserve(nValues);
+
+    // set bufferSize equal to minimum bytes that will hold the largest range.
+    size_t bufferSize = 0;
+    for (auto r : ranges) {
+        size_t i0 = std::get<0>(r);
+        size_t i1 = std::get<1>(r);
+        bufferSize = std::max(bufferSize, 1 + ((i1 - i0)*bitsPerValue_ + 7 )/8);
+    }
+    
+    if (!offsetBeforeBitmap_) {
+        // no bitmap, just read the values
+        std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
+
+        for (auto r : ranges) {
+            size_t start = std::get<0>(r);
+            size_t end = std::get<1>(r);
+
+            Offset offset = msgStartOffset_ + offsetBeforeData_  + start * bitsPerValue_ / 8;
+            ASSERT(f.seek(offset) == offset);
+
+            long len = 1 + ((end - start)*(bitsPerValue_) + 7) / 8;
+            ASSERT (len <= bufferSize);
+
+            ASSERT(f.read(buf.get(), len) == len);
+            long bitp = (start * bitsPerValue_) % 8;
+
+            for (size_t i = start; i < end; ++i) {
+                // TODO: array version of grib_decode_unsigned_long?
+                unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); 
+                double v = (p*binaryMultiplier_ + referenceValue_) * decimalMultiplier_;
+                values.push_back(v);
+            }
+        }
+        return values;
+    }
+    // Flatten ranges into a list of edges.
+    // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
+    std::queue<size_t> edges;
+    edges.push(std::get<0>(ranges[0]));
+    size_t prevEnd = std::get<1>(ranges[0]);
+    for (size_t i = 1; i < ranges.size(); ++i) {
+        size_t start = std::get<0>(ranges[i]);
+        if (start != prevEnd) {
+            edges.push(prevEnd);
+            edges.push(start);
+        }
+        prevEnd = std::get<1>(ranges[i]);
+    }
+    edges.push(prevEnd);
+
+    uint64_t n;
+    constexpr size_t nBytes = sizeof(n);
+    constexpr size_t nBits = nBytes * 8;
+
+    size_t maxSep = std::get<0>(ranges[0]);
+    for (size_t i = 0; i < ranges.size()-1; ++i) {
+        maxSep = std::max(maxSep, (std::get<0>(ranges[i+1]) - std::get<1>(ranges[i])));
+    }
+    std::unique_ptr<uint64_t[]> bufskip(new uint64_t[maxSep/nBits + 1]);
+
+    // Read bitmap and find new indexes
+    std::vector<size_t> newIndex;
+    newIndex.reserve(nValues);
+    size_t bp = 0;
+    size_t count = 0;
+    bool inRange = false;
+    Offset offset = msgStartOffset_ + offsetBeforeBitmap_;
+    ASSERT(f.seek(offset) == offset);
+    while (!edges.empty()) {
+        if (!inRange){
+            size_t nWordsToSkip = (edges.front() - bp)/nBits;
+            size_t nBytesToSkip = nWordsToSkip * nBytes;
+            ASSERT(f.read(bufskip.get(), nBytesToSkip) == nBytesToSkip);
+            for (size_t i = 0; i < nWordsToSkip; ++i) {
+                count += count_bits(bufskip[i]);
+            }
+            bp += nWordsToSkip * nBits;
+        }
+        ASSERT(f.read(&n, nBytes) == nBytes);
+        // TODO: Endian check?
+        n = reverse_bytes(n);
+        accumulateIndexes(n, count, newIndex, edges, inRange, bp);
+    }
+
+    // read the values
+    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
+    count = 0;
+    for (auto r : ranges) {
+        // find index of first and final non-missing values in this range
+        size_t size = std::get<1>(r) - std::get<0>(r);
+        size_t start;
+        size_t end;
+        for (size_t i = count; i < count + size; ++i) {
+            start = newIndex[i];
+            if (start != MISSING_INDEX) break;
+        }
+        if (start == MISSING_INDEX){
+            // all values in this range are missing
+            values.insert(values.end(), size, MISSING_VALUE);
+            count += size;
+            continue;
+        }
+        for (size_t i = count + size - 1; i >= count; --i) {
+            end = newIndex[i];
+            if (end != MISSING_INDEX) break;
+        }
+
+        // Read data range into buffer
+        Offset offset = msgStartOffset_ + offsetBeforeData_ + start*bitsPerValue_/8;
+        long len = 1 + ((end + 1 - start)*bitsPerValue_ + 7) / 8;
+        ASSERT (len <= bufferSize);
+        ASSERT(f.seek(offset) == offset);
+        ASSERT(f.read(buf.get(), len) == len);
+
+        // Decode values
+        long bitp = (start * bitsPerValue_) % 8;
+        for (size_t i = count; i < count + size; ++i) {
+            size_t index = newIndex[i];
+            if (index == MISSING_INDEX){
+                values.push_back(MISSING_VALUE);
+                continue;
+            }
+            // TODO: array version of grib_decode_unsigned_long?
+            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); 
+            double v = (p*binaryMultiplier_ + referenceValue_) * decimalMultiplier_;
+            values.push_back(v);
+        }
+        count += size;
+    }
+    return values;
+}
+
+double JumpInfo::extractValue(const JumpHandle& f, size_t index) const {
 
     if (bitsPerValue_ == 0)
         return referenceValue_;
@@ -248,11 +390,10 @@ double JumpInfo::extractAtIndex(const JumpHandle& f, size_t index) const {
         Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeBitmap_);
         ASSERT(f.seek(offset) == offset);
 
-        // We will read in 8-byte chunks.
+        // Skip to byte containing the bit we want, counting set bits as we go.
         uint64_t n;
         const size_t nBytes = sizeof(n);
-
-        // skip to the byte containing the bit we want, counting set bits as we go.
+        const size_t nBits = nBytes * 8;
         size_t count = 0;
         size_t skip = index / (8*nBytes);
         for (size_t i = 0; i < skip; ++i) {
@@ -261,223 +402,33 @@ double JumpInfo::extractAtIndex(const JumpHandle& f, size_t index) const {
         }
         ASSERT(f.read(&n, nBytes) == nBytes);
 
-        // XXX We need to reverse the byte order of n (but not the bits in each byte).
         n = reverse_bytes(n);
-
-        // check if the bit is set, if not then the value is marked missing
-        // bit we want is, from the left, index%(nBytes*8)
-        n = (n >> (nBytes*8 -index%(nBytes*8) -1));
+        n = (n >> (nBits - index%(nBits) -1));
         count += count_bits(n);
+        if (!(n & 1)) return MISSING_VALUE;
 
-        if (!(n & 1)) {
-            return MISSING_VALUE;
-        }
-
-        // update index to be the index of the value in the (not-missing) data section
-        index = count -1;
+        // Update index accounting for bitmask
+        index = count - 1;
     }
     ASSERT(index < numberOfValues_);
 
     return readDataValue(f, index);
 }
 
-std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
-    
-    ASSERT(!sphericalHarmonics_);
-
-    // sort ranges by start index
-    // TODO: unsort the ranges later, so that the output is in the same order as the input
-    std::sort(ranges.begin(), ranges.end(), [](const std::tuple<size_t, size_t>& a, const std::tuple<size_t, size_t>& b) {
-        return std::get<0>(a) < std::get<0>(b);
-    });
-
-    size_t sizeAllRanges = 0;
-
-    // sanity check ranges, and count total number of values
-    for (size_t i = 0; i < ranges.size(); ++i) {
-        size_t istart = std::get<0>(ranges[i]);
-        size_t iend = std::get<1>(ranges[i]);
-        ASSERT(istart < iend);
-        ASSERT(iend <= numberOfDataPoints_);
-
-        // assert no overlap with other ranges
-        // the ranges are sorted, so we only need to check the next range
-        if (i < ranges.size()-1) {
-            size_t jstart = std::get<0>(ranges[i+1]);
-            ASSERT(iend <= jstart);
-        }
-        sizeAllRanges += iend - istart;
-    }
-
-    std::vector<double> values;
-
-    if (bitsPerValue_ == 0) {
-        values = std::vector<double>(sizeAllRanges, referenceValue_);
-        return values;
-    }
-
-    values.reserve(sizeAllRanges);
-
-    // set bufferSize equal to minimum bytes that will hold the largest range.
-    // TODO: There should be an upper limit. If range is too large, read it in chunks.
-    size_t bufferSize = 0;
-    for (auto r : ranges) {
-        size_t i0 = std::get<0>(r);
-        size_t i1 = std::get<1>(r);
-        bufferSize = std::max(bufferSize, 1 + ((i1 - i0)*bitsPerValue_ + 7 )/8);
-    }
-
-    // find also the largest seperation between ranges, so we can allocate a buffer for the bitmap
-    size_t maxSeparation = std::get<0>(ranges[0]); // need to parse up to start of first range at least.
-    for (size_t i = 0; i < ranges.size()-1; ++i) {
-        size_t i1 = std::get<1>(ranges[i]);
-        size_t j0 = std::get<0>(ranges[i+1]);
-        maxSeparation = std::max(maxSeparation, (j0 - i1));
-    }
-
-    if (!offsetBeforeBitmap_) {
-        // no bitmap, just read the values
-        std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
-
-        for (auto r : ranges) {
-            size_t istart = std::get<0>(r);
-            size_t iend = std::get<1>(r);
-
-            Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t(istart * bitsPerValue_ / 8);
-            ASSERT(f.seek(offset) == offset);
-
-            long len = 1 + ((iend - istart)*(bitsPerValue_) + 7) / 8;
-            ASSERT (len <= bufferSize);
-
-            ASSERT(f.read(buf.get(), len) == len);
-            long bitp = ((istart) * bitsPerValue_) % 8;
-
-            for (size_t i = istart; i < iend; ++i) {
-                unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
-                double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
-                values.push_back(v);
-            }
-        }
-        return values;
-    }
-    // else we have a bitmap
-    std::vector<size_t> newIndex;
-    newIndex.reserve(sizeAllRanges); // new index after skipping missing values. Use -1 to denote missing values.
-
-    // Form a queue of `range edges`, denoting when we enter and leave a ranged region.
-    // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
-    // This will make it easier to toggle counting mode on and off, as we enter and leave ranges.
-    std::queue<size_t> edges;
-    edges.push(std::get<0>(ranges[0]));
-    size_t prevEnd = std::get<1>(ranges[0]);
-    for (size_t i = 1; i < ranges.size(); ++i) {
-        size_t istart = std::get<0>(ranges[i]);
-        if (istart != prevEnd) {
-            edges.push(prevEnd);
-            edges.push(istart);
-        }
-        size_t iend = std::get<1>(ranges[i]);
-        prevEnd = iend;
-    }
-    edges.push(prevEnd);
-
-    // Jump to start of bitmap.
-    Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeBitmap_);
-    ASSERT(f.seek(offset) == offset);
-
-    uint64_t n;
-    constexpr size_t nBytes = sizeof(n);
-    constexpr size_t nBits = nBytes * 8;
-    size_t bp = 0;
-    size_t count = 0;
-    bool rangeToggle = false; // whether we are within a range we care about or not.
-
-    std::vector<uint64_t> bufskip(maxSeparation/nBits + 1);
-
-    while (!edges.empty()) {
-        if (!rangeToggle){
-            size_t nWordsToSkip = (edges.front() - bp)/nBits;
-            size_t nBytesToSkip = nWordsToSkip * nBytes;
-            ASSERT(f.read(bufskip.data(), nBytesToSkip) == nBytesToSkip);
-            for (size_t i = 0; i < nWordsToSkip; ++i) {
-                count += count_bits(bufskip[i]);
-            }
-            bp += nWordsToSkip * nBits;
-        }
-        ASSERT(f.read(&n, nBytes) == nBytes);
-        n = reverse_bytes(n);
-        accumulateEdges(n, count, newIndex, edges, rangeToggle, bp);
-    }
-
-    // read the values
-    std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
-    count = 0;
-    for (size_t ri = 0; ri < ranges.size(); ++ri) {
-        auto r = ranges[ri];
-        size_t i0 = std::get<0>(r);
-        size_t i1 = std::get<1>(r);
-        size_t index0;
-        size_t index1;
-        // find index of first and last non-missing values in this range
-        for (size_t i = count; i < count + (i1 - i0); ++i) {
-            index0 = newIndex[i];
-            if (index0!=MISSING_INDEX) break;
-        }
-        if (index0 == MISSING_INDEX){
-            // all values in this range are missing
-            for (size_t i = 0; i < i1 - i0; ++i) {
-                values.push_back(MISSING_VALUE);
-            }
-            count += i1 - i0;
-            continue;
-        }
-        for (size_t i = count + (i1 - i0) - 1; i >= count; --i) {
-            index1 = newIndex[i];
-            if (index1!=MISSING_INDEX) break;
-        }
-
-        long bitp = -1;
-        index1 += 1; // we read up to but not including index1
-        for (size_t i = count; i < count + (i1 - i0); ++i) {
-            size_t index = newIndex[i];
-            if (index == MISSING_INDEX){
-                values.push_back(MISSING_VALUE);
-                continue;
-            } else if (bitp == -1){
-                // At first non-missing value for this range, so read into buffer and set bitp
-                Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t((index0) * bitsPerValue_ / 8);
-                ASSERT(f.seek(offset) == offset);
-                long len = 1 + ((index1 - index0)*(bitsPerValue_) + 7) / 8;
-                ASSERT (len <= bufferSize);
-                ASSERT(f.read(buf.get(), len) == len);
-                bitp = ((index0) * bitsPerValue_) % 8;
-            }
-            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); // TODO: does eccodes have an array version of grib_decode_unsigned_long?
-            double v = (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
-            values.push_back(v);
-        }
-        count += i1 - i0;
-    }
-    return values;
-}
-
 double JumpInfo::readDataValue(const JumpHandle& f, size_t index) const {
     // Read the data value at index.
-    // We will do no error checking here, so make sure index is valid
     
-    // seek to start of byte containing value
-    Offset offset = off_t(msgStartOffset_) + off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
-    ASSERT(f.seek(offset) == offset);
-
-    // read `len` whole bytes into buffer
+    // Seek to start of byte containing value and read.
+    Offset offset = msgStartOffset_ + offsetBeforeData_  + index*bitsPerValue_/8;
     long len = 1 + (bitsPerValue_ + 7) / 8;
     unsigned char buf[8];
+    ASSERT(f.seek(offset) == offset);
     ASSERT(f.read(buf, len) == len);
 
-    // interpret as double
-    long bitp = (index * bitsPerValue_) % 8; // bit position in first byte
+    // Decode
+    long bitp = (index * bitsPerValue_) % 8;
     unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
-    return (double) (((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_);
+    return ((p * binaryMultiplier_) + referenceValue_) * decimalMultiplier_;
 }
 
 } // namespace gribjump

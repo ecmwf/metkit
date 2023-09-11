@@ -27,7 +27,7 @@ namespace grib { class GribHandle; }
 namespace gribjump {
 
 class JumpHandle;
-void accumulateEdges(uint64_t &n, size_t &count, std::vector<size_t> &n_index, std::queue<size_t> &edges, bool&, size_t&);
+void accumulateIndexes(uint64_t &n, size_t &count, std::vector<size_t> &n_index, std::queue<size_t> &edges, bool&, size_t&);
 
 class JumpInfo {
 public:
@@ -37,7 +37,7 @@ public:
 
     bool ready() const { return numberOfValues_ > 0; }
     void update(const grib::GribHandle& h);
-    double extractAtIndex(const JumpHandle&, size_t index) const;
+    double extractValue(const JumpHandle&, size_t index) const;
     std::vector<double> extractRanges(const JumpHandle&, std::vector<std::tuple<size_t, size_t>> ranges) const;
     
     void print(std::ostream&) const;

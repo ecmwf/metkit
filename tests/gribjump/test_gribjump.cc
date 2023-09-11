@@ -407,7 +407,7 @@ void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
 
     // XXX print every data point
     // for (size_t index = 0; index < numberOfDataPoints; index++) {
-    //     double v = gribInfo.extractAtIndex(dataSource, index);
+    //     double v = gribInfo.extractValue(dataSource, index);
     //     std::cout.precision(15);
     //     std::cout << v;
     //     std::cout << ((index % 5 == 4) ? ",\n" : ", ");
@@ -418,7 +418,7 @@ void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
     std::cout << "Testing " << testData[i].gribFileName << std::endl;
     EXPECT(numberOfDataPoints == testData[i].expectedData.size());
     for (size_t index = 0; index < numberOfDataPoints; index++) {
-        double v = gribInfo.extractAtIndex(dataSource, index);
+        double v = gribInfo.extractValue(dataSource, index);
         // std::cout.precision(15);
         // std::cout << v << " " << testData[i].expectedData[index] << std::endl;
         double delta = std::abs(v - testData[i].expectedData[index]);
@@ -560,7 +560,7 @@ CASE( "test_metkit_gribjump_query_multimsg" ) {
 }
 
 CASE( "test_metkit_gribjump_accedges1" ) {
-    // unit test for accumulateEdges function
+    // unit test for accumulateIndexes function
     // Testing handling of single words
     size_t MASKED = -1;
     for (size_t ti=0; ti < 2; ti ++){
@@ -623,7 +623,7 @@ CASE( "test_metkit_gribjump_accedges1" ) {
 
         bool pushToggle = false; // note this test doesnt utilise this trick, its for inter-word edges
         size_t bp = 0; // ditto
-        accumulateEdges(n, count, n_index, edges, pushToggle, bp);
+        accumulateIndexes(n, count, n_index, edges, pushToggle, bp);
 
         // print out expected
         // std::cout << "expected: ";
@@ -656,7 +656,7 @@ CASE( "test_metkit_gribjump_accedges1" ) {
 }
 
 CASE( "test_metkit_gribjump_accedges2" ) {
-    // unit test for accumulateEdges function
+    // unit test for accumulateIndexes function
     // Testing handling of multiple words
 
     uint64_t bitstream[] = {
@@ -692,7 +692,7 @@ CASE( "test_metkit_gribjump_accedges2" ) {
     size_t word = 0;
     while (!edges.empty()) {
         n = bitstream[word];
-        accumulateEdges(n, count, n_index, edges, pushToggle, bp);
+        accumulateIndexes(n, count, n_index, edges, pushToggle, bp);
         ASSERT(bp < 1000); // infinite loop protection
         word++;
     }

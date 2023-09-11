@@ -42,9 +42,9 @@ public:
 private:
 
     mutable eckit::DataHandle *handle_;
-    eckit::PathName path_;
     bool ownsHandle_;
     mutable bool opened_;
+    eckit::PathName path_;
 
     mutable pointdb::GribFieldInfo infoOld_;
     mutable JumpInfo info_;

@@ -145,7 +145,7 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
             else{
                 size_t index = std::stoi(args(1));
                 std::cout << "Query index " << index << " in " << gribFileName_ << std::endl;
-                double v = gribInfo.extractAtIndex(dataSource, index);
+                double v = gribInfo.extractValue(dataSource, index);
                 std::cout << "Value: " << v << std::endl;
             }
         }
