@@ -10,15 +10,13 @@
 
 #include <iomanip>
 #include <fstream>
-
-#include "metkit/gribjump/GribHandleData.h"
-#include "metkit/gribjump/GribInfo.h"
-#include "metkit/codes/GribHandle.h"
-
+#include "eccodes.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/DataHandle.h"
-#include "eccodes.h"
+#include "metkit/codes/GribHandle.h"
+#include "metkit/gribjump/GribHandleData.h"
+#include "metkit/gribjump/GribInfo.h"
 
 namespace metkit {
 namespace gribjump {
@@ -65,51 +63,49 @@ long JumpHandle::read(void* buffer, long len) const {
     return handle_->read(buffer, len);
 }
 
-eckit::Offset JumpHandle::handlePosition(){ 
+eckit::Offset JumpHandle::position(){ 
     open();
     return handle_->position();
 }
 
-eckit::Length JumpHandle::handleSize(){ 
+eckit::Length JumpHandle::size(){ 
     open();
     return handle_->size();
 }
 
 // todo: now we're supporting non file handles, further refactor here would be good.
-const JumpInfo& JumpHandle::extractFileToBin(eckit::PathName& binName){
-    if (!info_.ready()) {
+const JumpInfo& JumpHandle::extractInfoFromFile(eckit::PathName& outName){
 
-        ASSERT(path_.asString().size() > 0);
+    ASSERT(path_.asString().size() > 0);
 
-        // count number of messages in file
-        grib_context* c = nullptr;
-        int n = 0;
-        int err = codes_count_in_filename(c, path_.asString().c_str(), &n);
-        ASSERT(!err);
+    // count number of messages in file
+    grib_context* c = nullptr;
+    int n = 0;
+    int err = codes_count_in_filename(c, path_.asString().c_str(), &n);
+    ASSERT(!err);
 
-        // extract metadata from each message to a binary file
-        eckit::Offset offset = 0;
-        for (size_t i = 0; i < n; i++) {
-            open();
-            grib::GribHandle h(*handle_, offset);
-            info_.update(h);
-            unsigned long fp = handle_->position();
-            info_.setStartOffset(fp - info_.getLength());
-            offset = handle_->position();
-            info_.toBinary(binName, i!=0);
+    // extract metadata from each message to a binary file
+    eckit::Offset offset = 0;
+    for (size_t i = 0; i < n; i++) {
+        open();
+        grib::GribHandle h(*handle_, offset);
+        info_.update(h);
+        unsigned long fp = handle_->position();
+        info_.setStartOffset(fp - info_.length());
+        offset = handle_->position();
+        info_.toFile(outName, i!=0);
 
-            // XXX: On linux, fp is wrong if handle is not closed and reopened.
-            close();
-        }
+        // XXX: On linux, fp is wrong if handle is not closed and reopened.
+        close();
     }
     return info_;
 }
 
-const JumpInfo& JumpHandle::extractNext(){
-    // Note: Assumes handle at start of message, and will advance handle to end of message.
+const JumpInfo& JumpHandle::extractInfo(){
+    // Note: Requires handle at start of message, and will advance handle to end of message.
     open();
 
-    // Explicitly check we are at beginning of message
+    // Explicitly check we are at beginning of GRIB message
     eckit::Offset initialPos = handle_->position();
     char buffer[4];
     ASSERT(read(buffer, 4) == 4);
@@ -118,7 +114,7 @@ const JumpInfo& JumpHandle::extractNext(){
 
     grib::GribHandle h(*handle_, initialPos);
     info_.update(h);
-    eckit::Offset endOfField = initialPos + eckit::Offset(info_.getLength());
+    eckit::Offset endOfField = initialPos + eckit::Offset(info_.length());
     ASSERT(seek(endOfField) == endOfField); // In anticipation of next call
     return info_;
 }

@@ -22,11 +22,11 @@ using namespace metkit::gribjump;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class GribJump : public metkit::MetkitTool {
+class GribJumpTool : public metkit::MetkitTool {
 
 public:
 
-    GribJump(int argc, char **argv) : metkit::MetkitTool(argc, argv) {
+    GribJumpTool(int argc, char **argv) : metkit::MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<bool>("extract", "Extract info from grib header to write to binary metadata file (set by -o)"));
         options_.push_back(new eckit::option::SimpleOption<std::string>("meta", "Name of binary metadata file to write/read to/from (default: <input_grib_name>.bin)"));
         options_.push_back(new eckit::option::SimpleOption<bool>("query", "Query data range from grib file"));
@@ -54,7 +54,7 @@ private: // members
     std::vector<std::tuple<size_t, size_t>> rangesVector_;
 };
 
-void GribJump::usage(const std::string &tool) const {
+void GribJumpTool::usage(const std::string &tool) const {
     eckit::Log::info() << std::endl
                         << "Usage: " << tool << " [options] [input_grib_file] [min0] [max0] [min1] ... "
                         << std::endl;
@@ -76,7 +76,7 @@ struct Timing {
     double extractTime = 0;
 };
 
-void GribJump::init(const eckit::option::CmdArgs& args) {
+void GribJumpTool::init(const eckit::option::CmdArgs& args) {
     doExtract_ = args.getBool("extract", false);
     doQuery_ = args.getBool("query", false);
     timingFname_ = args.getString("time", "");
@@ -113,7 +113,7 @@ void GribJump::init(const eckit::option::CmdArgs& args) {
     }
 }
 
-void GribJump::execute(const eckit::option::CmdArgs& args) {
+void GribJumpTool::execute(const eckit::option::CmdArgs& args) {
     auto startTime = std::chrono::high_resolution_clock::now();
     Timing timing;
     JumpInfo gribInfo;
@@ -122,7 +122,7 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
     if (doExtract_) {
         std::cout << "Build jump info from " << gribFileName_ << std::endl;
         auto t0 = std::chrono::high_resolution_clock::now();
-        gribInfo = dataSource.extractFileToBin(binFileName_);
+        gribInfo = dataSource.extractInfoFromFile(binFileName_);
         auto t1 = std::chrono::high_resolution_clock::now();
         timing.extractTime = std::chrono::duration<double>(t1 - t0).count();
         std::cout << gribInfo << std::endl;
@@ -131,7 +131,7 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
     if (doQuery_){
         for (auto msg : msgids_){
             std::cout << "Grib file: " << gribFileName_ << ", jump info file: " << binFileName_ << ", msg id: " << msg << std::endl;
-            gribInfo.fromBinary(binFileName_, msg);
+            gribInfo.fromFile(binFileName_, msg);
         
             ASSERT(gribInfo.ready());
 
@@ -178,6 +178,6 @@ void GribJump::execute(const eckit::option::CmdArgs& args) {
 
 int main(int argc,char **argv)
 {
-    GribJump tool(argc,argv);
+    GribJumpTool tool(argc,argv);
     return tool.start();
 }

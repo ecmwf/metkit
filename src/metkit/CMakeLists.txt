@@ -157,6 +157,10 @@ if ( HAVE_GRIB )
         gribjump/GribInfo.h
         gribjump/GribHandleData.cc
         gribjump/GribHandleData.h
+        gribjump/GribJump.h
+        gribjump/GribJump.cc
+        gribjump/GribJumpException.h
+
         )
 
     set( grib_libs eccodes )

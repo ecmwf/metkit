@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996-2013 ECMWF.
+ * (C) Copyright 1996- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -8,12 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_GribHandleDataSource2_H
-#define metkit_GribHandleDataSource2_H
+#ifndef metkit_JumpHandle_H
+#define metkit_JumpHandle_H
 
-#include "metkit/pointdb/GribDataSource.h"
+#include "eckit/filesystem/PathName.h"
 #include "metkit/gribjump/GribInfo.h"
-#include "metkit/pointdb/GribFieldInfo.h"
 
 namespace eckit {
 class DataHandle;
@@ -22,21 +21,20 @@ class DataHandle;
 namespace metkit {
 namespace gribjump {
 
-// xxx pending better name...
 class JumpHandle : public eckit::NonCopyable {
 public:
 
     JumpHandle(const eckit::PathName&);
 
-    /// constructor taking ownership of a handle pointer
+    /// Takes ownership of a handle pointer
     JumpHandle(eckit::DataHandle*);
 
     ~JumpHandle();
 
-    const JumpInfo& extractFileToBin(eckit::PathName&);
-    const JumpInfo& extractNext();
-    eckit::Offset handlePosition();
-    eckit::Length handleSize();
+    const JumpInfo& extractInfoFromFile(eckit::PathName&);
+    const JumpInfo& extractInfo();
+    eckit::Offset position();
+    eckit::Length size();
     eckit::Offset seek(const eckit::Offset&) const;
 
 private:
@@ -46,7 +44,6 @@ private:
     mutable bool opened_;
     eckit::PathName path_;
 
-    mutable pointdb::GribFieldInfo infoOld_;
     mutable JumpInfo info_;
 
     virtual long read(void*, long) const;

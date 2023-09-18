@@ -8,14 +8,14 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/gribjump/GribInfo.h"
-#include "metkit/codes/GribAccessor.h"
-#include "metkit/gribjump/GribHandleData.h"
-#include <bitset>
-#include <numeric>
 #include <queue>
 #include "eckit/io/DataHandle.h"
 #include "eckit/utils/MD5.h"
+#include "metkit/codes/GribAccessor.h"
+#include "metkit/gribjump/GribHandleData.h"
+#include "metkit/gribjump/GribInfo.h"
+#include "metkit/gribjump/GribJumpException.h"
+
 using namespace eckit;
 using namespace metkit::grib;
 
@@ -41,10 +41,12 @@ static GribAccessor<long>          sphericalHarmonics("sphericalHarmonics");
 static GribAccessor<unsigned long> totalLength("totalLength");
 static GribAccessor<unsigned long> offsetBSection6("offsetBSection6");
 static GribAccessor<std::string> md5GridSection("md5GridSection");
+static GribAccessor<std::string> packingType("packingType");
 
 static Mutex mutex;
 
-constexpr double MISSING_VALUE = 9999;
+// GRIB does not in general specify what do use in place of missing value.
+constexpr double MISSING_VALUE = 9999; // TODO: make configurable
 constexpr size_t MISSING_INDEX = -1;
 
 static int bits[65536] = {
@@ -97,7 +99,11 @@ JumpInfo::JumpInfo(const GribHandle& h):numberOfValues_(0){
 
 void JumpInfo::update(const GribHandle& h) {
     editionNumber_      = editionNumber(h);
-    ASSERT(editionNumber_ == 1 || editionNumber_ == 2);
+    if (editionNumber_ != 1 && editionNumber_ != 2) {
+        std::stringstream ss;
+        ss << "Unsupported GRIB edition number: " << editionNumber_;
+        throw JumpException(ss.str(), Here());
+    }
     binaryScaleFactor_  = binaryScaleFactor(h);
     decimalScaleFactor_ = decimalScaleFactor(h);
     bitsPerValue_       = bitsPerValue(h);
@@ -108,6 +114,7 @@ void JumpInfo::update(const GribHandle& h) {
     sphericalHarmonics_ = sphericalHarmonics(h); // todo: make quiet
     totalLength_        = totalLength(h);
     md5GridSection_     = md5GridSection(h);
+    packingType_        = packingType(h);
     bitmapPresent_ = bitmapPresent(h);
     if (bitmapPresent_)
         offsetBeforeBitmap_ = editionNumber_ == 1? offsetBeforeBitmap(h) : offsetBSection6(h);
@@ -135,11 +142,13 @@ void JumpInfo::print(std::ostream& s) const {
     s << "decimalMultiplier=" << decimalMultiplier_ << ",";
     s << "totalLength=" << totalLength_ << ",";
     s << "msgStartOffset=" << msgStartOffset_ << ",";
-    s << "md5GridSection=" << md5GridSection_ << "]";
+    s << "md5GridSection=" << md5GridSection_  << ",";
+    s << "packingType=" << packingType_;
+    s << "]";
     s << std::endl;
 }
 
-void JumpInfo::toBinary(eckit::PathName pathname, bool append){
+void JumpInfo::toFile(eckit::PathName pathname, bool append){
     std::unique_ptr<DataHandle> dh(pathname.fileHandle());
     version_ = currentVersion_;
 
@@ -161,9 +170,10 @@ void JumpInfo::toBinary(eckit::PathName pathname, bool append){
     dh->write(&totalLength_, sizeof(totalLength_));
     dh->write(&msgStartOffset_, sizeof(msgStartOffset_));
     dh->write(md5GridSection_.data(), md5GridSection_.size());
+    dh->write(packingType_.data(), packingType_.size());
     dh->close();
 }
-void JumpInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
+void JumpInfo::fromFile(eckit::PathName pathname, uint16_t msg_id){
     std::unique_ptr<DataHandle> dh(pathname.fileHandle());
 
     dh->openForRead();
@@ -171,6 +181,12 @@ void JumpInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
     // make sure we aren't reading past the end of the file
     ASSERT(dh->position() + eckit::Offset(metadataSize) <= dh->size());
     dh->read(&version_, sizeof(version_));
+    if (version_ != currentVersion_) {
+        std::stringstream ss;
+        ss << "Bad JumpInfo version found in " << pathname;
+        dh->close();
+        throw JumpException(ss.str(), Here());
+    }
     dh->read(&editionNumber_, sizeof(editionNumber_));
     dh->read(&binaryScaleFactor_, sizeof(binaryScaleFactor_));
     dh->read(&decimalScaleFactor_, sizeof(decimalScaleFactor_));
@@ -186,9 +202,9 @@ void JumpInfo::fromBinary(eckit::PathName pathname, uint16_t msg_id){
     dh->read(&totalLength_, sizeof(totalLength_));
     dh->read(&msgStartOffset_, sizeof(msgStartOffset_));
     dh->read(md5GridSection_.data(), md5GridSection_.size());
+    dh->read(packingType_.data(), packingType_.size());
     dh->close();
 
-    ASSERT (version_ == currentVersion_);
 }
 
 void accumulateIndexes(uint64_t &n, size_t &count, std::vector<size_t> &newIndex, std::queue<size_t> &edges, bool &inRange, size_t &bp) {

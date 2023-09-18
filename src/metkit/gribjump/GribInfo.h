@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996-2013 ECMWF.
+ * (C) Copyright 1996- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -8,19 +8,17 @@
  * does it submit to any jurisdiction.
  */
 
+#ifndef metkit_JumpInfo_H
+#define metkit_JumpInfo_H
 
-// XXX (based on pointdb/GribFieldInfo)
-
-#ifndef InfoData_H
-#define InfoData_H
-
+#include <queue>
+#include "eckit/filesystem/PathName.h"
 #include "eckit/io/Length.h"
 #include "eckit/io/Offset.h"
 #include "eckit/types/FixedString.h"
-#include <queue>
 
 
-namespace eckit { class PathName; }
+// namespace eckit { class PathName; }
 namespace metkit {
 namespace grib { class GribHandle; }
 
@@ -42,17 +40,17 @@ public:
     
     void print(std::ostream&) const;
 
-    void toBinary(eckit::PathName, bool);
-    void fromBinary(eckit::PathName, uint16_t msg_id=0);
+    void toFile(eckit::PathName, bool);
+    void fromFile(eckit::PathName, uint16_t msg_id=0);
 
     unsigned long getNumberOfDataPoints() const { return numberOfDataPoints_; }
-    unsigned long getLength() const { return totalLength_; }
+    unsigned long length() const { return totalLength_; }
     void setStartOffset(eckit::Offset offset) { msgStartOffset_ = offset; }
 
 private:
     double readDataValue(const JumpHandle&, size_t) const;
 
-    static constexpr uint8_t currentVersion_ = 1;
+    static constexpr uint8_t currentVersion_ = 2;
     uint8_t version_;
     double        referenceValue_;
     long          binaryScaleFactor_;
@@ -68,6 +66,7 @@ private:
     unsigned long msgStartOffset_;
     long          sphericalHarmonics_;
     eckit::FixedString<32> md5GridSection_;
+    eckit::FixedString<64> packingType_;
 
     double binaryMultiplier_; // = 2^binaryScaleFactor_
     double decimalMultiplier_; // = 10^-decimalScaleFactor_
@@ -87,7 +86,8 @@ private:
                                            sizeof(sphericalHarmonics_) + \
                                            sizeof(binaryMultiplier_) + \
                                            sizeof(decimalMultiplier_) + \
-                                           sizeof(md5GridSection_);
+                                           sizeof(md5GridSection_) + \
+                                           sizeof(packingType_);
 
     friend std::ostream& operator<<(std::ostream& s, const JumpInfo& f) {
         f.print(s);
