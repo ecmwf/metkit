@@ -401,6 +401,13 @@ std::list<Parameter>::iterator MarsRequest::find(const std::string& name) {
     return params_.end();
 }
 
+void MarsRequest::erase(const std::string& name) {
+    auto it = find(name);
+    if (it != params_.end()) {
+        params_.erase(it);
+    }
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 std::vector<MarsRequest> MarsRequest::parse(std::istream& in, bool strict) {
