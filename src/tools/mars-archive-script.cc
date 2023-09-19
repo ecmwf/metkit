@@ -1,6 +1,5 @@
 
 #include "eckit/io/DataHandle.h"
-#include "eckit/io/FileDescHandle.h"
 #include "eckit/io/FileHandle.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
@@ -9,8 +8,6 @@
 #include "metkit/tool/MetkitTool.h"
 
 #include <fstream>
-
-#include <unistd.h>
 
 
 using namespace metkit;
@@ -267,13 +264,13 @@ void MarsArchiveScript::execute(const CmdArgs& args) {
         rq.dump(out);
     }
 
-    out << "@\n\n$" << archiveComplete_ << "\n\n";
+    out << "@\n\n$" << archiveComplete_;
 
     // 3. Comparison of re-retrieved data
 
     if (compare_) {
 
-        out << "$" << compareMars_ << " << @\n\n";
+        out << "\n\n$" << compareMars_ << " << @\n\n";
 
         cnt = 0;
         for (MarsParsedRequest rq : requests) {
@@ -289,7 +286,7 @@ void MarsArchiveScript::execute(const CmdArgs& args) {
             out << "$" << compareCommand_ << " " << arcfile(cnt) << " " << cmpfile(cnt) << "\n\n";
         }
 
-        out << "$" << compareComplete_ << "\n";
+        out << "$" << compareComplete_;
     }
 
     out << std::endl;

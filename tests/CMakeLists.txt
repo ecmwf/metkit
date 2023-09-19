@@ -77,3 +77,4 @@ endforeach()
 # endif()
 
 add_subdirectory(regressions)
+add_subdirectory(marsgen)
