@@ -25,7 +25,7 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings), by_(6) {
+    Type(name, settings), by_(6*3600) {
 }
 
 TypeTime::~TypeTime() {
@@ -54,8 +54,8 @@ bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
 
 void TypeTime::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
-    static eckit::Translator<std::string, long> s2l;
-    static eckit::Translator<long, std::string> l2s;
+    //static eckit::Translator<std::string, long> s2l;
+    //static eckit::Translator<long, std::string> l2s;
 
     std::vector<std::string> newval;
 
@@ -67,17 +67,18 @@ void TypeTime::expand(const MarsExpandContext& ctx, std::vector<std::string>& va
             ASSERT(newval.size() > 0);
             ASSERT(i + 1 < values.size());
 
-            long from = s2l(tidy(ctx, newval.back()));
-            long to = s2l(tidy(ctx, values[i + 1]));
+            long from = ((eckit::Second) eckit::Time(tidy(ctx, newval.back())));
+            long to   = ((eckit::Second) eckit::Time(tidy(ctx, values[i + 1])));
+            ASSERT(from <= to);
             long by = by_;
 
             if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                by = s2l(tidy(ctx, values[i + 3]));
+                by = ((eckit::Second) eckit::Time(tidy(ctx, values[i + 3])));
                 i += 2;
             }
 
              for (long j = from + by; j <= to; j += by) {
-                newval.push_back(l2s(j));
+                newval.push_back(eckit::Time(j));
             }
 
             i++;
