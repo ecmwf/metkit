@@ -271,6 +271,8 @@ CASE( "test_metkit_expand_13_step" ) {
     step({"1h"}, {"1"});
     step({"60m"}, {"1"});
     step({"1h60m"}, {"2"});
+    step({"1-2"}, {"1-2"});
+    step({"30m-1"}, {"30m-60m"});
     // quantileThrows({"6:5"});
     // quantileThrows({"0:12"});
     // quantile({"2:5"}, {"2:5"});
