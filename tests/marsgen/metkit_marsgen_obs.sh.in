@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -uex
+
+[ -e outfile.simple ] && rm outfile.simple
+
+MARSGEN="@CMAKE_BINARY_DIR@/bin/mars-archive-script"
+GENFILE="@CMAKE_CURRENT_SOURCE_DIR@/genfile"
+OUTFILE="outfile.obs"
+CHECKFILE="checkfile.obs"
+
+$MARSGEN --obs < $GENFILE > $OUTFILE
+
+cat << EOF > $CHECKFILE
+\$PREOBS \$header.1 \$data.1 mars.archive.0
+
+\$ARCHIVE_MARS << @
+
+archive,
+	class=EA,
+	stream=DA,
+	expver=9999,
+	type=analysis,
+	anoffset=3,
+	param=129/152/130/138/155/75/76/133/203.128/246/247/248,
+	levtype=modellevels,
+	levels=1/to/137,
+	pass=runda,
+	date=20200601,
+	time=06,
+	step=00,
+	source=mars.archive.0
+
+@
+
+\$ARCHIVE_COMPLETE
+EOF
+
+cmp $CHECKFILE $OUTFILE
