@@ -106,6 +106,8 @@ public:  // methods
 
     MarsRequest extract(const std::string& category) const;
 
+    void erase(const std::string& param);
+
 public:  // static methods
     static MarsRequest parse(const std::string& s, bool strict = false);
     static std::vector<MarsRequest> parse(std::istream&, bool strict = false);

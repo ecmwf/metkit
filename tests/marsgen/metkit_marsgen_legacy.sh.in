@@ -1,0 +1,60 @@
+#!/bin/bash
+
+set -uex
+
+[ -e outfile.legacy ] && rm outfile.legacy
+
+MARSGEN="@CMAKE_BINARY_DIR@/bin/mars-archive-script"
+GENFILE="@CMAKE_CURRENT_SOURCE_DIR@/genfile.legacy"
+OUTFILE="outfile.legacy"
+CHECKFILE="checkfile.legacy"
+
+$MARSGEN --in="$GENFILE" --out="$OUTFILE"
+
+cat << EOF > $CHECKFILE
+\$RETRIEVE_MARS << @
+
+retrieve,
+	class=EA,
+	stream=LWDA,
+	expver=9999,
+	type=analysis,
+	anoffset=3,
+	param=129/152/130/138/155/75/76/133/203.128/246/247/248,
+	levtype=modellevels,
+	levels=1/to/137,
+	pass=runda,
+	date=20200601,
+	time=06,
+	step=00,
+	target=mars.source.0
+
+@
+
+\$RETRIEVE_COMPLETE
+
+\$UNBLOCK mars.source.0 mars.archive.0
+
+\$ARCHIVE_MARS << @
+
+archive,
+	class=EA,
+	stream=DA,
+	expver=9999,
+	type=analysis,
+	anoffset=3,
+	param=129/152/130/138/155/75/76/133/203.128/246/247/248,
+	levtype=modellevels,
+	levels=1/to/137,
+	pass=runda,
+	date=20200601,
+	time=06,
+	step=00,
+	source=mars.archive.0
+
+@
+
+\$ARCHIVE_COMPLETE
+EOF
+
+cmp $CHECKFILE $OUTFILE
