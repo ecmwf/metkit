@@ -33,7 +33,7 @@ TypeTime::~TypeTime() {
 
 bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
 
-    eckit::Time time(value, true);
+    eckit::Time time(value);
     
     std::ostringstream oss;
     if (time.seconds() != 0) {
@@ -77,7 +77,7 @@ void TypeTime::expand(const MarsExpandContext& ctx, std::vector<std::string>& va
                 i += 2;
             }
 
-             for (long j = from + by; j <= to; j += by) {
+            for (long j = from + by; j <= to; j += by) {
                 newval.push_back(eckit::Time(j));
             }
 

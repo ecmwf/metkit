@@ -35,7 +35,11 @@ public:
 	StepRange(const std::string&);
 
 	StepRange(double from = 0,double to = 0):
-		from_(from),to_(to) {}
+		from_(from),to_(to) {
+			if (from_ != 0 && to_ == 0) {
+				to_ = from_;
+			}
+		}
 
 #include "metkit/mars/StepRange.b"
 
