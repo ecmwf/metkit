@@ -54,14 +54,14 @@ StepRange::StepRange(const std::string& s):
 	{
 		case 1:
 			from = eckit::Time(result[0], true);
-			from_ = to_ = from/3600.f;
+			from_ = to_ = from/3600.;
 			break;
 
 		case 2:
 			from = eckit::Time(result[0], true);
 			to   = eckit::Time(result[1], true);
-			from_ = from/3600.f;
-			to_   = to/3600.f;
+			from_ = from/3600.;
+			to_   = to/3600.;
 			break;
 
 		default:

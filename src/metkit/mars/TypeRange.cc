@@ -20,63 +20,68 @@
 #include "metkit/mars/Quantile.h"
 #include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeTime.h"
+#include "metkit/mars/StepRange.h"
 
 namespace {
 
-enum TimeUnit {
-    Second = 0,
-    Minute = 1,
-    Hour = 2,
-    Day = 3
-};
+// enum TimeUnit {
+//     Second = 0,
+//     Minute = 1,
+//     Hour = 2,
+//     Day = 3
+// };
 
-TimeUnit maxUnit(const eckit::Time& t) {
-    if (t.seconds() == 0) {
-        if (t.minutes() == 0) {
-            if (t.hours() == 0) {
-                return TimeUnit::Day;
-            }
-            return TimeUnit::Hour;
-        }
-        return TimeUnit::Minute;
-    }
-    return TimeUnit::Second;
-}
+// TimeUnit maxUnit(const eckit::Time& t) {
+//     if (t.seconds() == 0) {
+//         if (t.minutes() == 0) {
+//             if (t.hours() == 0) {
+//                 return TimeUnit::Day;
+//             }
+//             return TimeUnit::Hour;
+//         }
+//         return TimeUnit::Minute;
+//     }
+//     return TimeUnit::Second;
+// }
 
 std::string canonical(const eckit::Time& time) {
-    long d = time.hours()/24;
-    long h = time.hours()%24;
-    long m = time.minutes();
-    long s = time.seconds();
+    return metkit::mars::StepRange(time/3600.);
 
-    std::string out = "";
-    if (d!=0) {
-        out += std::to_string(d) + "D";
-    }
-    if (h!=0) {
-        out += std::to_string(h) + "h";
-    }
-    if (m!=0) {
-        out += std::to_string(m) + "m";
-    }
-    if (s!=0) {
-        out = std::to_string(s) + "s";
-    }
-    return out;
+    // long d = time.hours()/24;
+    // long h = time.hours()%24;
+    // long m = time.minutes();
+    // long s = time.seconds();
+
+    // std::string out = "";
+    // if (d!=0) {
+    //     out += std::to_string(d) + "D";
+    // }
+    // if (h!=0) {
+    //     out += std::to_string(h) + "h";
+    // }
+    // if (m!=0) {
+    //     out += std::to_string(m) + "m";
+    // }
+    // if (s!=0) {
+    //     out = std::to_string(s) + "s";
+    // }
+    // return out;
 }
 
-std::string canonical(const eckit::Time& time, TimeUnit unit) {
-    switch (unit) {
-        case TimeUnit::Second:
-            return std::to_string(time.seconds()) + "s";
-        case TimeUnit::Minute:
-            return std::to_string(time.minutes()) + "m";
-        case TimeUnit::Day:
-        case TimeUnit::Hour:
-        default:
-            return std::to_string(time.hours());
-    }
-}
+// std::string canonical(const eckit::Time& time, TimeUnit unit) {
+//     return metkit::mars::StepRange(time/3600.);
+
+//     switch (unit) {
+//         case TimeUnit::Second:
+//             return std::to_string(time.seconds()+60*time.minutes()+3600*time.hours()) + "s";
+//         case TimeUnit::Minute:
+//             return std::to_string(time.minutes()+60*time.hours()) + "m";
+//         case TimeUnit::Day:
+//         case TimeUnit::Hour:
+//         default:
+//             return std::to_string(time.hours());
+//     }
+// }
 
 }
 namespace metkit::mars {
@@ -107,7 +112,8 @@ bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
     switch (result.size()) {
         case 1: {
             eckit::Time start = eckit::Time(result[0], true);
-            value = canonical(start, maxUnit(start));
+            // value = canonical(start, maxUnit(start));
+            value = canonical(start);
             return true;
         }
         case 2: {
@@ -115,12 +121,14 @@ bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
             eckit::Time end = eckit::Time(result[1], true);
             if (start > end) {
                 std::ostringstream oss;
+                std::cout << result[0] << "  -  " << result[1] << std::endl;
                 oss << name_ + ": initial value " << start << " cannot be greater that final value " << end;
                 throw eckit::BadValue(oss.str());
             }
 
-            TimeUnit unit = std::max(maxUnit(start), maxUnit(end));            
-            value = canonical(start, unit) + "-" + canonical(end, unit);
+            // TimeUnit unit = std::max(maxUnit(start), maxUnit(end));            
+            // value = canonical(start, unit) + "-" + canonical(end, unit);
+            value = canonical(start) + "-" + canonical(end);
             return true;
         }
         default:
@@ -140,8 +148,7 @@ void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& v
         const std::string& s = values[i];
 
         if (eckit::StringTools::lower(s) == "to" || eckit::StringTools::lower(s) == "t0") {
-            std::vector<eckit::Time> tmpval;
-            TimeUnit unit;
+            // TimeUnit unit;
 
             if (newval.size() == 0) {
                 std::ostringstream oss;
@@ -155,8 +162,7 @@ void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& v
             }
 
             eckit::Time from = eckit::Time(values[i - 1], true);
-            tmpval.push_back(from);
-            unit = maxUnit(from);            
+            // unit = maxUnit(from);            
 
             eckit::Time to = eckit::Time(values[i + 1], true);
             eckit::Time by = by_;
@@ -172,7 +178,6 @@ void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& v
 
                 i += 2;
             }
-//            std::cout << from << " " << to << " " << by << std::endl;
 
             if (from > to) {
                 std::ostringstream oss;
@@ -184,15 +189,19 @@ void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& v
                 oss << name_ + ": 'by' value " << by << " must be a positive number";
                 throw eckit::BadValue(name_ + ": 'by' value must be a positive number");
             }
-            for (long j = from + by; j <= to; j += by) {
-                unit = std::min(unit, maxUnit(j));
-            }
-            for (long j = from + by; j <= to; j += by) {
-                if (unit >= TimeUnit::Hour) {
-                    newval.emplace_back(canonical(j, unit));
-                } else {
+            eckit::Time j = from;
+            // j += by;
+            // for (; j <= to; j += by) {
+            //     unit = std::min(unit, maxUnit(j));
+            // }
+            // j = from;
+            j += by;
+            for (; j <= to; j += by) {
+                // if (unit >= TimeUnit::Hour) {
+                //     newval.emplace_back(canonical(j, unit));
+                // } else {
                     newval.emplace_back(canonical(j));
-                }
+                // }
             }
 
             i++;

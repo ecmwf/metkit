@@ -27,7 +27,7 @@ namespace test {
 
 //-----------------------------------------------------------------------------
 
-CASE("Test TypeType expansions") {
+CASE("Test TypeTime expansions") {
 
     TypeTime ttime("time", Value());
     Type& tt(ttime);
