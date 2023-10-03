@@ -107,15 +107,15 @@ const JumpInfo& JumpHandle::extractInfo(){
 
     // Explicitly check we are at beginning of GRIB message
     eckit::Offset initialPos = handle_->position();
-    char buffer[4];
-    ASSERT(read(buffer, 4) == 4);
-    ASSERT(strncmp(buffer, "GRIB", 4) == 0);
-    ASSERT(seek(initialPos) == initialPos);
+    // char buffer[4]; // todo: avoid the rewind. move this logic outside. wip.
+    // ASSERT(read(buffer, 4) == 4);
+    // ASSERT(strncmp(buffer, "GRIB", 4) == 0);
+    // ASSERT(seek(initialPos) == initialPos);
 
     grib::GribHandle h(*handle_, initialPos);
     info_.update(h);
     eckit::Offset endOfField = initialPos + eckit::Offset(info_.length());
-    ASSERT(seek(endOfField) == endOfField); // In anticipation of next call
+    // ASSERT(seek(endOfField) == endOfField); // In anticipation of next call
     return info_;
 }
 

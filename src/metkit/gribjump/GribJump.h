@@ -26,14 +26,17 @@ public:
     GribJump();
     ~GribJump();
 
-    std::vector<std::vector<std::vector<double>>> directJump(eckit::DataHandle* handle, 
-        std::vector<std::vector<std::tuple<size_t, size_t>>> allRanges,
-        std::vector<JumpInfo> infos);
+    std::vector<std::vector<double>> directJump(eckit::DataHandle* handle, 
+        std::vector<std::tuple<size_t, size_t>> allRanges,
+        JumpInfo info) const;
 
-    JumpInfo extractInfo(eckit::DataHandle* handle);
+    JumpInfo extractInfo(eckit::DataHandle* handle) const;
+
+    bool isCached(std::string) const {return false;} // todo implement caching
 
 private:
 
+    // std::map<Key, std::tuple<FieldLocation*, JumpInfo> > cache_; // not imp
 };
 
 

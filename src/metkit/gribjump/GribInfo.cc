@@ -46,7 +46,7 @@ static GribAccessor<std::string> packingType("packingType");
 static Mutex mutex;
 
 // GRIB does not in general specify what do use in place of missing value.
-constexpr double MISSING_VALUE = 9999; // TODO: make configurable
+constexpr double MISSING_VALUE = std::numeric_limits<double>::quiet_NaN();
 constexpr size_t MISSING_INDEX = -1;
 
 static int bits[65536] = {

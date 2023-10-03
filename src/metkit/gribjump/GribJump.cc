@@ -18,39 +18,32 @@ GribJump::GribJump() {}
 
 GribJump::~GribJump() {}
 
-std::vector<std::vector<std::vector<double>>> GribJump::directJump(eckit::DataHandle* handle,
-    std::vector<std::vector<std::tuple<size_t, size_t>>> allRanges,
-    std::vector<JumpInfo> infos) {
+std::vector<std::vector<double>> GribJump::directJump(eckit::DataHandle* handle,
+    std::vector<std::tuple<size_t, size_t>> ranges,
+    JumpInfo info) const {
+    // Note, we don't seek to next message, we are assuming a single message in the handle here.
 
     JumpHandle dataSource(handle);
-    std::vector<std::vector<std::vector<double>>> result; 
-    for (size_t i = 0; i < infos.size(); ++i) {
-        JumpInfo info = infos[i];
-        info.setStartOffset(dataSource.position());
-        ASSERT(info.ready());
-        std::vector<std::tuple<size_t, size_t>> ranges = allRanges[i];
-        std::vector<double> v = info.extractRanges(dataSource, ranges);
+    std::vector<std::vector<double>> result; 
 
-        // extractRanges returns a flattened vector, so we need to unflatten it
-        // TODO: avoid flattening in the first place
-        std::vector<std::vector<double>> v2;
-        size_t n = 0;
-        for (auto range : ranges) {
-            size_t len = std::get<1>(range) - std::get<0>(range);
-            std::vector<double> v3(v.begin() + n, v.begin() + n + len);
-            v2.push_back(v3);
-            n += len;
-        }
-        result.push_back(v2);
+    info.setStartOffset(0); // Message starts at the beginning of the handle
+    ASSERT(info.ready());
+    std::vector<double> v = info.extractRanges(dataSource, ranges);
 
-        // Seek to start of next message
-        dataSource.seek(info.length()); 
+    // extractRanges returns a flattened vector, so we need to unflatten it
+    // TODO: avoid flattening in the first place
+    size_t n = 0;
+    for (auto range : ranges) {
+        const size_t len = std::get<1>(range) - std::get<0>(range);
+        std::vector<double> v3(v.begin() + n, v.begin() + n + len);
+        result.push_back(v3);
+        n += len;
     }
 
     return result;
 }
 
-JumpInfo GribJump::extractInfo(eckit::DataHandle* handle) {
+JumpInfo GribJump::extractInfo(eckit::DataHandle* handle) const {
     JumpHandle dataSource(handle);
     return dataSource.extractInfo();
 }
