@@ -230,36 +230,41 @@ void accumulateIndexes(uint64_t &n, size_t &count, std::vector<size_t> &newIndex
     }
 }
 
-std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
+std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
     // NOTE: Ranges are treated as half-open intervals [start, end)
     
     ASSERT(!sphericalHarmonics_);
 
-    // TODO: Either assert ranges are already sorted, or match output values to input ranges
-    std::sort(ranges.begin(), ranges.end(), [](const std::tuple<size_t, size_t>& a, const std::tuple<size_t, size_t>& b) {
-        return std::get<0>(a) < std::get<0>(b);
-    });
-
-    // Sanity check ranges
+    // Sanity check ranges: Assert ranges are sorted and non-overlapping
     size_t nValues = 0;
     for (size_t i = 0; i < ranges.size(); ++i) {
-        size_t start = std::get<0>(ranges[i]);
-        size_t end = std::get<1>(ranges[i]);
+        const size_t start = std::get<0>(ranges[i]);
+        const size_t end = std::get<1>(ranges[i]);
         ASSERT(start < end);
         ASSERT(end <= numberOfDataPoints_);
 
-        // Assert no overlap
+        // Assert no overlap with next range
         if (i < ranges.size()-1) {
-            size_t jstart = std::get<0>(ranges[i+1]);
-            ASSERT(end <= jstart);
+            const size_t nextstart = std::get<0>(ranges[i+1]);
+            ASSERT(end <= nextstart);
         }
         nValues += end - start;
     }
 
-    if (bitsPerValue_ == 0) return std::vector<double>(nValues, referenceValue_);
-    
-    std::vector<double> values;
-    values.reserve(nValues);
+    std::vector<std::vector<double>> result;
+    for (auto r : ranges) {
+        result.push_back(std::vector<double>());
+        result.back().reserve(std::get<1>(r) - std::get<0>(r));
+    }
+
+    if (bitsPerValue_ == 0) {
+        // all values are the same: referenceValue_
+        for (size_t i=0; i<ranges.size(); ++i) {
+            size_t size = std::get<1>(ranges[i]) - std::get<0>(ranges[i]);
+            result[i].insert(result[i].end(), size, referenceValue_);
+        }
+        return result;
+    }
 
     // set bufferSize equal to minimum bytes that will hold the largest range.
     size_t bufferSize = 0;
@@ -273,27 +278,28 @@ std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std
         // no bitmap, just read the values
         std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
 
-        for (auto r : ranges) {
-            size_t start = std::get<0>(r);
-            size_t end = std::get<1>(r);
+        for (size_t i = 0; i < ranges.size(); ++i) {
+            const auto r = ranges[i];
+            const size_t start = std::get<0>(r);
+            const size_t end = std::get<1>(r);
 
-            Offset offset = msgStartOffset_ + offsetBeforeData_  + start * bitsPerValue_ / 8;
+            const Offset offset = msgStartOffset_ + offsetBeforeData_  + start * bitsPerValue_ / 8;
             ASSERT(f.seek(offset) == offset);
 
-            long len = 1 + ((end - start)*(bitsPerValue_) + 7) / 8;
+            const long len = 1 + ((end - start)*(bitsPerValue_) + 7) / 8;
             ASSERT (len <= bufferSize);
 
             ASSERT(f.read(buf.get(), len) == len);
             long bitp = (start * bitsPerValue_) % 8;
 
-            for (size_t i = start; i < end; ++i) {
+            for (size_t j = start; j < end; ++j) {
                 // TODO: array version of grib_decode_unsigned_long?
                 unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); 
                 double v = (p*binaryMultiplier_ + referenceValue_) * decimalMultiplier_;
-                values.push_back(v);
+                result[i].push_back(v);
             }
         }
-        return values;
+        return result;
     }
     // Flatten ranges into a list of edges.
     // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
@@ -326,12 +332,12 @@ std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std
     size_t bp = 0;
     size_t count = 0;
     bool inRange = false;
-    Offset offset = msgStartOffset_ + offsetBeforeBitmap_;
+    const Offset offset = msgStartOffset_ + offsetBeforeBitmap_;
     ASSERT(f.seek(offset) == offset);
     while (!edges.empty()) {
         if (!inRange){
-            size_t nWordsToSkip = (edges.front() - bp)/nBits;
-            size_t nBytesToSkip = nWordsToSkip * nBytes;
+            const size_t nWordsToSkip = (edges.front() - bp)/nBits;
+            const size_t nBytesToSkip = nWordsToSkip * nBytes;
             ASSERT(f.read(bufskip.get(), nBytesToSkip) == nBytesToSkip);
             for (size_t i = 0; i < nWordsToSkip; ++i) {
                 count += count_bits(bufskip[i]);
@@ -347,9 +353,11 @@ std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std
     // read the values
     std::unique_ptr<unsigned char[]> buf(new unsigned char[bufferSize]);
     count = 0;
-    for (auto r : ranges) {
+    for (size_t ri = 0; ri < ranges.size(); ++ri) {
         // find index of first and final non-missing values in this range
-        size_t size = std::get<1>(r) - std::get<0>(r);
+        const auto r = ranges[ri];
+        std::vector<double>& values = result[ri];
+        const size_t size = std::get<1>(r) - std::get<0>(r);
         size_t start;
         size_t end;
         for (size_t i = count; i < count + size; ++i) {
@@ -368,8 +376,8 @@ std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std
         }
 
         // Read data range into buffer
-        Offset offset = msgStartOffset_ + offsetBeforeData_ + start*bitsPerValue_/8;
-        long len = 1 + ((end + 1 - start)*bitsPerValue_ + 7) / 8;
+        const Offset offset = msgStartOffset_ + offsetBeforeData_ + start*bitsPerValue_/8;
+        const long len = 1 + ((end + 1 - start)*bitsPerValue_ + 7) / 8;
         ASSERT (len <= bufferSize);
         ASSERT(f.seek(offset) == offset);
         ASSERT(f.read(buf.get(), len) == len);
@@ -377,19 +385,19 @@ std::vector<double> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std
         // Decode values
         long bitp = (start * bitsPerValue_) % 8;
         for (size_t i = count; i < count + size; ++i) {
-            size_t index = newIndex[i];
+            const size_t index = newIndex[i];
             if (index == MISSING_INDEX){
                 values.push_back(MISSING_VALUE);
                 continue;
             }
             // TODO: array version of grib_decode_unsigned_long?
-            unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); 
-            double v = (p*binaryMultiplier_ + referenceValue_) * decimalMultiplier_;
+            const unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); 
+            const double v = (p*binaryMultiplier_ + referenceValue_) * decimalMultiplier_;
             values.push_back(v);
         }
         count += size;
     }
-    return values;
+    return result;
 }
 
 double JumpInfo::extractValue(const JumpHandle& f, size_t index) const {

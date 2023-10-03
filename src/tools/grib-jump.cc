@@ -137,10 +137,16 @@ void GribJumpTool::execute(const eckit::option::CmdArgs& args) {
 
             if (doRange_){
                 auto t0 = std::chrono::high_resolution_clock::now();
-                std::vector<double> v = gribInfo.extractRanges(dataSource, rangesVector_);
+                std::vector<std::vector<double>> v = gribInfo.extractRanges(dataSource, rangesVector_);
                 auto t1 = std::chrono::high_resolution_clock::now();
                 timing.msgTimes.push_back(std::chrono::duration<double>(t1 - t0).count());
-                std::cout << "Value: " << v << std::endl;
+                for (auto r : v){
+                    std::cout << "Value: ";
+                    for (auto v2 : r){
+                        std::cout << v2 << ", ";
+                    }
+                    std::cout << std::endl;
+                }
             }
             else{
                 size_t index = std::stoi(args(1));

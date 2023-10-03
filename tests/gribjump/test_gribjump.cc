@@ -405,23 +405,12 @@ void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
     EXPECT(gribInfo.ready());
     size_t numberOfDataPoints = gribInfo.getNumberOfDataPoints();
     double epsilon = testData[i].epsilon;
-
-    // XXX print every data point
-    // for (size_t index = 0; index < numberOfDataPoints; index++) {
-    //     double v = gribInfo.extractValue(dataSource, index);
-    //     std::cout.precision(15);
-    //     std::cout << v;
-    //     std::cout << ((index % 5 == 4) ? ",\n" : ", ");
-    // }
-    // std::cout << std::endl;
     
     // Query each single data point, and compare with expected value
     std::cout << "Testing " << testData[i].gribFileName << std::endl;
     EXPECT(numberOfDataPoints == testData[i].expectedData.size());
     for (size_t index = 0; index < numberOfDataPoints; index++) {
         double v = gribInfo.extractValue(dataSource, index);
-        // std::cout.precision(15);
-        // std::cout << v << " " << testData[i].expectedData[index] << std::endl;
         if (std::isnan(testData[i].expectedData[index]) ) {
             EXPECT(std::isnan(v));
             continue;
@@ -430,7 +419,6 @@ void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
         EXPECT(delta < epsilon);
     }
     // Range of ranges, all at once. Note ranges must not overlap.
-    // TODO: Currently ranges are sorted internally so data is not returned in the original order. Implement if required. 
 
     std::vector<std::vector<std::tuple<size_t, size_t> > > rangesVector;
     // Single ranges
@@ -476,40 +464,29 @@ void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
     for (auto ranges: rangesVector) {
 
         // get the expected result
-        std::vector<double> expected;
+        std::vector<std::vector<double>> expected;
         for (auto range: ranges) {
-            for (size_t index = std::get<0>(range); index < std::get<1>(range); index++) {
-                expected.push_back(testData[i].expectedData[index]);
+            std::vector<double> expectedRange;
+            for (size_t index = std::get<0>(range); index < std::get<1>(range); index++) {  
+                expectedRange.push_back(testData[i].expectedData[index]);
             }
+            expected.push_back(expectedRange);
         }
 
-        std::vector<double> actual = gribInfo.extractRanges(dataSource, ranges);
+        std::vector<std::vector<double>> actual = gribInfo.extractRanges(dataSource, ranges);
 
-        // printing 
-        std::cout << "range: ";
-        for (auto range: ranges) {
-            std::cout << std::get<0>(range) << "-" << std::get<1>(range) << ", ";
-        }
-        // std::cout << "actual:   ";
-        // for (size_t index = 0; index < actual.size(); index++) {
-        //     std::cout << actual[index] << ", ";
-        // }
-        // std::cout << std::endl;
-
-        // std::cout << "expected: ";
-        // for (size_t index = 0; index < expected.size(); index++) {
-        //     std::cout << expected[index] << ", ";
-        // }
-        // std::cout << std::endl;
 
         EXPECT(actual.size() == expected.size());
-        for (size_t index = 0; index < actual.size(); index++) {
-            if (std::isnan(expected[index]) ) {
-                EXPECT(std::isnan(actual[index]));
-                continue;
+        for (size_t ri = 0; ri < expected.size(); ri++) {
+            EXPECT(actual[ri].size() == expected[ri].size());
+            for (size_t index = 0; index < expected[ri].size(); index++) {
+                if (std::isnan(expected[ri][index]) ) {
+                    EXPECT(std::isnan(actual[ri][index]));
+                    continue;
+                }
+                double delta = std::abs(actual[ri][index] - expected[ri][index]);
+                EXPECT(delta < epsilon);
             }
-            double delta = std::abs(actual[index] - expected[index]);
-            EXPECT(delta < epsilon);
         }
     }
     std::cout << std::endl;
