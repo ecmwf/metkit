@@ -36,7 +36,7 @@ public:
     bool ready() const { return numberOfValues_ > 0; }
     void update(const grib::GribHandle& h);
     double extractValue(const JumpHandle&, size_t index) const;
-    std::vector<std::vector<double>> extractRanges(const JumpHandle&, std::vector<std::tuple<size_t, size_t>> ranges) const;
+    std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::bitset<64>>>> extractRanges(const JumpHandle&, std::vector<std::tuple<size_t, size_t>> ranges) const;
     
     void print(std::ostream&) const;
 

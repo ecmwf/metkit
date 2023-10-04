@@ -9,6 +9,7 @@
  */
 
 #include <queue>
+#include <cmath> // isnan. Temp, only for debug, remove later.
 #include "eckit/io/DataHandle.h"
 #include "eckit/utils/MD5.h"
 #include "metkit/codes/GribAccessor.h"
@@ -230,11 +231,12 @@ void accumulateIndexes(uint64_t &n, size_t &count, std::vector<size_t> &newIndex
     }
 }
 
-std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
+std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::bitset<64>>>> 
+JumpInfo::extractRanges(const JumpHandle& f, std::vector<std::tuple<size_t, size_t>> ranges) const {
     // NOTE: Ranges are treated as half-open intervals [start, end)
     
     ASSERT(!sphericalHarmonics_);
-
+    
     // Sanity check ranges: Assert ranges are sorted and non-overlapping
     size_t nValues = 0;
     for (size_t i = 0; i < ranges.size(); ++i) {
@@ -251,19 +253,32 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
         nValues += end - start;
     }
 
+    // construct vectors for result values and mask.
     std::vector<std::vector<double>> result;
+    std::vector<std::vector<std::bitset<64>>> masks;
+    constexpr size_t nBytes = sizeof(uint64_t);
+    constexpr size_t nBits = nBytes * 8;
     for (auto r : ranges) {
+        const size_t size = std::get<1>(r) - std::get<0>(r);
         result.push_back(std::vector<double>());
-        result.back().reserve(std::get<1>(r) - std::get<0>(r));
+        result.back().reserve(size);
+
+        std::vector<std::bitset<64>> mask;
+        mask.reserve(size/nBits + 1);
+        for (size_t i = 0; i < size/nBits + 1; ++i) {
+            mask.push_back(std::bitset<64>(0xffffffffffffffff));
+        }
+        masks.push_back(mask);
     }
 
     if (bitsPerValue_ == 0) {
-        // all values are the same: referenceValue_
+        // XXX can constant fields have a bitmap? We explicitly assuming not. TODO handle constant fields with bitmaps
+        // ASSERT(!offsetBeforeBitmap_);
         for (size_t i=0; i<ranges.size(); ++i) {
             size_t size = std::get<1>(ranges[i]) - std::get<0>(ranges[i]);
             result[i].insert(result[i].end(), size, referenceValue_);
         }
-        return result;
+        return std::make_tuple(result, masks);
     }
 
     // set bufferSize equal to minimum bytes that will hold the largest range.
@@ -299,7 +314,7 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
                 result[i].push_back(v);
             }
         }
-        return result;
+        return std::make_tuple(result, masks);
     }
     // Flatten ranges into a list of edges.
     // e.g. range(1, 5), range(7, 10) range(10, 20), range(20, 30) -> edges(1, 5, 7, 30)
@@ -316,10 +331,6 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
     }
     edges.push(prevEnd);
 
-    uint64_t n;
-    constexpr size_t nBytes = sizeof(n);
-    constexpr size_t nBits = nBytes * 8;
-
     size_t maxSep = std::get<0>(ranges[0]);
     for (size_t i = 0; i < ranges.size()-1; ++i) {
         maxSep = std::max(maxSep, (std::get<0>(ranges[i+1]) - std::get<1>(ranges[i])));
@@ -327,6 +338,7 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
     std::unique_ptr<uint64_t[]> bufskip(new uint64_t[maxSep/nBits + 1]);
 
     // Read bitmap and find new indexes
+    uint64_t n;
     std::vector<size_t> newIndex;
     newIndex.reserve(nValues);
     size_t bp = 0;
@@ -360,6 +372,9 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
         const size_t size = std::get<1>(r) - std::get<0>(r);
         size_t start;
         size_t end;
+        std::vector<std::bitset<64>>& mask = masks[ri];
+        size_t maskCount = 0;
+
         for (size_t i = count; i < count + size; ++i) {
             start = newIndex[i];
             if (start != MISSING_INDEX) break;
@@ -367,6 +382,9 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
         if (start == MISSING_INDEX){
             // all values in this range are missing
             values.insert(values.end(), size, MISSING_VALUE);
+            for (size_t i = 0; i < size/nBits + 1; ++i) {
+                mask[i].reset();
+            }
             count += size;
             continue;
         }
@@ -388,16 +406,20 @@ std::vector<std::vector<double>> JumpInfo::extractRanges(const JumpHandle& f, st
             const size_t index = newIndex[i];
             if (index == MISSING_INDEX){
                 values.push_back(MISSING_VALUE);
+                mask[maskCount/nBits].set(maskCount%nBits, 0);
+                ++maskCount;
                 continue;
             }
             // TODO: array version of grib_decode_unsigned_long?
             const unsigned long p = grib_decode_unsigned_long(buf.get(), &bitp, bitsPerValue_); 
             const double v = (p*binaryMultiplier_ + referenceValue_) * decimalMultiplier_;
             values.push_back(v);
+            ++maskCount;
         }
         count += size;
     }
-    return result;
+
+    return std::make_tuple(result, masks);
 }
 
 double JumpInfo::extractValue(const JumpHandle& f, size_t index) const {

@@ -473,19 +473,25 @@ void doTest(int i, JumpInfo gribInfo, JumpHandle &dataSource){
             expected.push_back(expectedRange);
         }
 
-        std::vector<std::vector<double>> actual = gribInfo.extractRanges(dataSource, ranges);
-
+        // auto [actual, mask] = gribInfo.extractRanges(dataSource, ranges); // lets not use auto in the testing code
+        std::vector<std::vector<double>> actual;
+        std::vector<std::vector<std::bitset<64>>> mask;
+        std::tie(actual, mask) = gribInfo.extractRanges(dataSource, ranges);
 
         EXPECT(actual.size() == expected.size());
         for (size_t ri = 0; ri < expected.size(); ri++) {
             EXPECT(actual[ri].size() == expected[ri].size());
+            // std::cout << "range " << std::get<0>(ranges[ri]) << " to " << std::get<1>(ranges[ri]) << std::endl;
+            // std::cout << "xxx:" << " expected " << expected[ri] << " actual " << actual[ri] << std::endl;
             for (size_t index = 0; index < expected[ri].size(); index++) {
                 if (std::isnan(expected[ri][index]) ) {
                     EXPECT(std::isnan(actual[ri][index]));
+                    EXPECT(!mask[ri][index/64][index%64]);
                     continue;
                 }
                 double delta = std::abs(actual[ri][index] - expected[ri][index]);
                 EXPECT(delta < epsilon);
+                EXPECT(mask[ri][index/64][index%64]);
             }
         }
     }
