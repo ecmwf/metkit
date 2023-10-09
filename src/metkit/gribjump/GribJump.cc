@@ -18,15 +18,13 @@ GribJump::GribJump() {}
 
 GribJump::~GribJump() {}
 
-std::vector<std::vector<double>> GribJump::directJump(eckit::DataHandle* handle,
+PolyOutput GribJump::directJump(eckit::DataHandle* handle,
     std::vector<std::tuple<size_t, size_t>> ranges,
     JumpInfo info) const {
     JumpHandle dataSource(handle);
     info.setStartOffset(0); // Message starts at the beginning of the handle
     ASSERT(info.ready());
-    auto [values, mask] = info.extractRanges(dataSource, ranges);
-    // todo return mask
-    return values;
+    return info.extractRanges(dataSource, ranges);
 }
 
 JumpInfo GribJump::extractInfo(eckit::DataHandle* handle) const {

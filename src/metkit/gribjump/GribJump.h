@@ -18,24 +18,21 @@
 namespace metkit {
 namespace gribjump {
 
+using PolyOutput = std::tuple<std::vector<std::vector<double>>, std::vector<std::vector<std::bitset<64>>>>;
+
 // Gribjump API
 class GribJump : public eckit::NonCopyable {
-
 public: 
-
     GribJump();
     ~GribJump();
 
-    std::vector<std::vector<double>> directJump(eckit::DataHandle* handle, 
-        std::vector<std::tuple<size_t, size_t>> allRanges,
-        JumpInfo info) const;
+    PolyOutput directJump(eckit::DataHandle* handle, std::vector<std::tuple<size_t, size_t>> allRanges, JumpInfo info) const;
 
     JumpInfo extractInfo(eckit::DataHandle* handle) const;
 
     bool isCached(std::string) const {return false;} // todo implement caching
 
 private:
-
     // std::map<Key, std::tuple<FieldLocation*, JumpInfo> > cache_; // not imp
 };
 
