@@ -256,14 +256,14 @@ std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std
     return requests;
 }
 
-std::vector<metkit::mars::MarsRequest> HyperCube::vacantRequests() const {
+std::vector<metkit::mars::MarsRequest> HyperCube::aggregatedRequests(bool remaining) const {
 
-    if (countVacant() == 0)
+    if (countVacant() == (remaining ? 0 : size()))
         return std::vector<metkit::mars::MarsRequest>{};
 
     std::set<size_t> idxs;
     for(size_t i = 0; i < set_.size(); ++i) {
-        if (set_[i])
+        if (set_[i] == remaining)
             idxs.emplace(i);
     }
 
