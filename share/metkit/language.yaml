@@ -179,8 +179,8 @@ _field: &_field
     - [amap, analysis for multianalysis project]
     - [ammc, melbourne]
     - [cher, ch, chernobyl]
-    - [clim, climate]
-    - [clmn, climate-monthly]
+    - [clim, climate, Climate run output]
+    - [clmn, climate-monthly, Climate run monthly means output]
     - [cnrm, meteo france climate centre]
     - [cwao, montreal]
     - [dacl, daily climatology]
@@ -465,6 +465,29 @@ _field: &_field
     default: 0
     type: date
     multiple: true
+
+  year:
+    category: data
+    type: date
+    multiple: true
+
+  month:
+    category: data
+    flatten: true
+    type: enum
+    values:
+    - [1, jan, January]
+    - [2, feb, February]
+    - [3, mar, March]
+    - [4, apr, April]
+    - [5, may, May]
+    - [6, jun, June]
+    - [7, jul, July]
+    - [8, aug, August]
+    - [9, sep, September]
+    - [10, oct, October]
+    - [11, nov, November]
+    - [12, dec, December]
 
   # verify
   # refdate
