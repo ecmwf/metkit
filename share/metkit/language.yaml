@@ -475,6 +475,7 @@ _field: &_field
     category: data
     flatten: true
     type: enum
+    multiple: true
     values:
     - [1, jan, January]
     - [2, feb, February]
