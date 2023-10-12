@@ -179,6 +179,8 @@ _field: &_field
     - [amap, analysis for multianalysis project]
     - [ammc, melbourne]
     - [cher, ch, chernobyl]
+    - [clim, climate]
+    - [clmn, climate-monthly]
     - [cnrm, meteo france climate centre]
     - [cwao, montreal]
     - [dacl, daily climatology]
