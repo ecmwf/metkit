@@ -468,8 +468,9 @@ _field: &_field
 
   year:
     category: data
-    type: date
+    type: to-by-list
     multiple: true
+    by: 1
 
   month:
     category: data
