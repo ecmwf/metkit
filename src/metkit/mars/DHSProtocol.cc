@@ -194,7 +194,7 @@ class PassiveProxyCallback : public BaseCallbackConnection {
 
 public:
 
-    explicit PassiveProxyCallback(const Endpoint& proxyhost) :
+    explicit PassiveProxyCallback(const Endpoint& proxyhost, bool useProxyHostAsCallback = true) :
         control_(net::TCPClient().connect(proxyhost)),
         proxyHost_(proxyhost) {
 
@@ -213,6 +213,10 @@ public:
         LOG_DEBUG_LIB(LibMetkit) << "Remote address. host=" << remoteAddr_<< std::endl;
 
         passiveAddr_ = Endpoint(control_);
+        
+        if (useProxyHostAsCallback) {
+           passiveAddr_ = Endpoint(proxyhost.host(), passiveAddr_.port()); 
+        }
 
         LOG_DEBUG_LIB(LibMetkit) << "Passive address. host=" << passiveAddr_<< std::endl;
 
@@ -222,7 +226,7 @@ public:
     }
 
     explicit PassiveProxyCallback(const Configuration& config) :
-        PassiveProxyCallback(selectProxyHost(config)) {}
+        PassiveProxyCallback(selectProxyHost(config), config.getBool("useProxyHostAsCallback", true)) {}
 
     explicit PassiveProxyCallback(Stream& s) :
         PassiveProxyCallback(Endpoint(s)) {}

@@ -31,6 +31,21 @@ namespace hypercube {
 
 class Axis;
 
+class AxisOrder {
+public: // methods
+    static AxisOrder& instance();
+
+    const std::vector<std::string>& axes() { return axes_; }
+
+private: // methods
+    AxisOrder();
+
+    eckit::PathName axisYamlFile() { return "~metkit/share/metkit/axis.yaml"; }
+
+private: // members
+    std::vector<std::string> axes_;
+};
+
 class HyperCube {
 public:
     HyperCube(const metkit::mars::MarsRequest&);
