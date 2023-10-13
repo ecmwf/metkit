@@ -99,7 +99,7 @@ std::string MarsParser::parseString(char quote)
 }
 
 static bool inindent(char c) {
-    return isalnum(c) || c == '_' || c == ':' || c == '-' || c == '.';
+    return isalnum(c) || c == '_' || c == ':' || c == '-' || c == '.' || c == '@';
 }
 
 
