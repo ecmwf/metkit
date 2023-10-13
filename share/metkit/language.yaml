@@ -712,6 +712,29 @@ _field: &_field
     type: integer
 
 #######################################################################
+# DestinE ClimateDT related keywords
+
+  activity:
+    category: data
+    type: any
+
+  experiment:
+    category: data
+    type: any
+
+  generation:
+    category: data
+    type: integer
+
+  realization:
+    category: data
+    type: integer
+
+  resolution:
+    category: data
+    type: any
+
+#######################################################################
 
 _observation: &_observation
 
