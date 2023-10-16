@@ -76,6 +76,12 @@ static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02,
     std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" << std::endl; \
     EXPECT(md.getString(name) == eq);
 
+// we accept two possible encodings, to enable testing with different versions of ecCodes (ECC-1704)
+#define MD_EXPECT_STRINGS(md, name, eq1, eq2)                                                                                     \
+    EXPECT(md.has(name));                                                                                                  \
+    std::cout << "expect string for " << name << " to equal " << eq1 << " or " << eq2 << " (got " << md.getString(name) << ")" << std::endl; \
+    EXPECT(md.getString(name) == eq1 || md.getString(name) == eq2);
+
 #define MD_EXPECT_LONG(md, name, eq)                                                                                   \
     EXPECT(md.has(name));                                                                                              \
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
@@ -397,7 +403,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "endStep", "0");
         MD_EXPECT_STRING(md, "stepRange", "0");
         MD_EXPECT_STRING(md, "validityDate", "10101");
-        MD_EXPECT_STRING(md, "validityTime", "0");
+        MD_EXPECT_STRINGS(md, "validityTime", "0", "0000");
         MD_EXPECT_STRING(md, "typeOfFirstFixedSurface", "168");
         MD_EXPECT_STRING(md, "unitsOfFirstFixedSurface", "Numeric");
         MD_EXPECT_STRING(md, "nameOfFirstFixedSurface", "Ocean model level");
