@@ -179,7 +179,7 @@ _field: &_field
     - [amap, analysis for multianalysis project]
     - [ammc, melbourne]
     - [cher, ch, chernobyl]
-    - [clim, climate, Climate run output]
+    - [clte, climate, Climate run output]
     - [clmn, climate-monthly, Climate run monthly means output]
     - [cnrm, meteo france climate centre]
     - [cwao, montreal]
