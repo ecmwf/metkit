@@ -94,7 +94,7 @@ public:  // methods
 
     void md5(eckit::MD5&) const;
 
-    void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t") const;
+    void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
     void setValuesTyped(Type*, const std::vector<std::string>&);
 

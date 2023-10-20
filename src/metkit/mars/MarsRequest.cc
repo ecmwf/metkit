@@ -121,18 +121,20 @@ bool MarsRequest::empty() const {
 
 
 void MarsRequest::print(std::ostream& s) const {
-    dump(s, "", "");
+    dump(s, "", "", true);
 }
 
-void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab) const {
+void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool verb) const {
     std::list<Parameter>::const_iterator begin = params_.begin();
     std::list<Parameter>::const_iterator end   = params_.end();
 
-
-    s << verb_;
-
+    if (verb) {
+        s << verb_ << ',';
+    }
+    std::string separator = "";
     if (begin != end) {
-        s << ',' << cr << tab;
+        s << separator << cr << tab;
+        separator = ",";
 
         int a = 0;
         for (std::list<Parameter>::const_iterator i = begin; i != end; ++i) {
