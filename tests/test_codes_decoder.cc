@@ -219,7 +219,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "endStep", 0);
         MD_EXPECT_STRING(md, "stepRange", "0");
         MD_EXPECT_LONG(md, "validityDate", 10101);
-        MD_EXPECT_LONG(md, "validityTime", 0);
+        MD_EXPECT_STRINGS(md, "validityTime", "0", "0000");
         MD_EXPECT_STRING(md, "typeOfFirstFixedSurface", "168");
         MD_EXPECT_STRING(md, "unitsOfFirstFixedSurface", "Numeric");
         MD_EXPECT_STRING(md, "nameOfFirstFixedSurface", "Ocean model level");
