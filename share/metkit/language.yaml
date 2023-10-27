@@ -179,6 +179,8 @@ _field: &_field
     - [amap, analysis for multianalysis project]
     - [ammc, melbourne]
     - [cher, ch, chernobyl]
+    - [clte, climate, Climate run output]
+    - [clmn, climate-monthly, Climate run monthly means output]
     - [cnrm, meteo france climate centre]
     - [cwao, montreal]
     - [dacl, daily climatology]
@@ -418,6 +420,7 @@ _field: &_field
     - [layer]
     - [ml, model levels]
     - [pl, pressure levels]
+    - [hl, height levels]
     - [pt, potential temperature]
     - [pv, potential vorticity]
     - [sfc, surface]
@@ -463,6 +466,31 @@ _field: &_field
     default: 0
     type: date
     multiple: true
+
+  year:
+    category: data
+    type: to-by-list
+    multiple: true
+    by: 1
+
+  month:
+    category: data
+    flatten: true
+    type: enum
+    multiple: true
+    values:
+    - [1, jan, January]
+    - [2, feb, February]
+    - [3, mar, March]
+    - [4, apr, April]
+    - [5, may, May]
+    - [6, jun, June]
+    - [7, jul, July]
+    - [8, aug, August]
+    - [9, sep, September]
+    - [10, oct, October]
+    - [11, nov, November]
+    - [12, dec, December]
 
   # verify
   # refdate
@@ -683,6 +711,29 @@ _field: &_field
   system:
     category: data
     type: integer
+
+#######################################################################
+# DestinE ClimateDT related keywords
+
+  activity:
+    category: data
+    type: any
+
+  experiment:
+    category: data
+    type: any
+
+  generation:
+    category: data
+    type: integer
+
+  realization:
+    category: data
+    type: integer
+
+  resolution:
+    category: data
+    type: any
 
 #######################################################################
 
