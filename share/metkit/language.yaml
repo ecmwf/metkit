@@ -420,6 +420,7 @@ _field: &_field
     - [layer]
     - [ml, model levels]
     - [pl, pressure levels]
+    - [hl, height levels]
     - [pt, potential temperature]
     - [pv, potential vorticity]
     - [sfc, surface]
