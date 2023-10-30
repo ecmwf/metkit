@@ -57,7 +57,7 @@ _field: &_field
     - [nl, netherlands]
     - ['no', norway]
     - [nr, ncep 20cr, 20cr]
-      [o6, 'ocean 6 reanalysis']
+    - [o6, 'ocean 6 reanalysis']
     - [od, operations]
     - [pe, permanent experiment]
     - [pt, portugal]
