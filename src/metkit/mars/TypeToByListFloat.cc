@@ -61,7 +61,7 @@ void TypeToByListFloat::expand(const MarsExpandContext& ctx, std::vector<std::st
                 i += 2;
             }
 
-            ASSERT_MSG(from <= to, name_ + ": 'from' value must be less that 'to' value");
+            ASSERT_MSG(from <= to, name_ + ": 'from' value must be less than 'to' value");
             ASSERT_MSG(by > 0, name_ + ": 'by' value must be a positive number");
             for (float j = from + by; j <= to; j += by) {
                 newval.push_back(l2s(j));
