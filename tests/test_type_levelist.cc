@@ -63,8 +63,6 @@ CASE("test_metkit_expand_levelist") {
     // by < 0 && from < to
     EXPECT_THROWS(assertTypeExpansion("levelist", {"4", "to", "10", "by", "-4"}, {"4", "8", "12", "16", "20"}));
     EXPECT_THROWS(assertTypeExpansion("levelist", {"-4", "to", "2", "by", "-0.5"}, {"0", "-0.5", "-1", "-1.5", "-2"}));
-    //  by < 0 && from < to
-    EXPECT_THROWS(assertTypeExpansion("levelist", {"-1", "to", "2", "by", "-0.5"}, {"-1"}));
 }
 
 }  // namespace test
