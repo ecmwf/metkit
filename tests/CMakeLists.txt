@@ -61,7 +61,7 @@ ecbuild_add_test( TARGET        metkit_test_odbsplitter
                   NO_AS_NEEDED
                   LIBS          metkit )
 
-list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube )
+list(APPEND testFileSuffixes typesfactory expand param_axis steprange_axis time hypercube type_levelist )
 
 foreach(test IN LISTS testFileSuffixes)
     ecbuild_add_test( TARGET    "metkit_test_${test}"
