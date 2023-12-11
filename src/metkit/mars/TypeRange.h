@@ -8,22 +8,20 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeRange.h
-/// @author Baudouin Raoult
-/// @author Tiago Quintino
-/// @date   April 2016
+/// @file   TypeToByListQuantile.h
+/// @author Emanuele Danovaro
+/// @date   February 2022
 
-#ifndef metkit_TypeRange_H
-#define metkit_TypeRange_H
+#pragma once
 
-#include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit {
 namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeRange : public TypeToByList {
+class TypeRange : public Type {
 
 public: // methods
 
@@ -34,13 +32,15 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const override;
-    virtual bool expand(const MarsExpandContext& ctx,
-                                              std::string& value) const override;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+    virtual void expand(const MarsExpandContext& ctx,
+                        std::vector<std::string>& values) const override;
+
+    eckit::Time by_;
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace mars
 } // namespace metkit
-
-#endif

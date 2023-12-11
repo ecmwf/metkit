@@ -9,15 +9,15 @@
  */
 
 #include <iomanip>
+#include <regex>
 
 #include "eckit/utils/Translator.h"
-
 #include "eckit/types/Date.h"
-#include "metkit/mars/MarsRequest.h"
+#include "eckit/utils/StringTools.h"
 
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeTime.h"
-#include "eckit/utils/StringTools.h"
 
 namespace metkit {
 namespace mars {
@@ -25,7 +25,7 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings), by_(6) {
+    Type(name, settings), by_(6*3600) {
 }
 
 TypeTime::~TypeTime() {
@@ -33,60 +33,29 @@ TypeTime::~TypeTime() {
 
 bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
 
-    long n = 0;
-    int colon = 0;
-
-    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
-        switch (*j) {
-
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            n *= 10;
-            n += (*j) - '0';
-            break;
-
-        case ':':
-            colon++;
-            break;
-
-        default:
-            // throw eckit::UserError(name_ + ": invalid time '" + value + "'");
-            return false;
-        }
-    }
-
-    if (colon == 2 || (value.size() > 4 && colon == 0)) {
-        if (n % 100 != 0) {
-            std::ostringstream ss;
-            ss << "Cannot normalise time '" << value << "' - seconds not supported";
-            throw eckit::SeriousBug(ss.str(), Here());
-        }
-        n /= 100;
-    }
-
-    if (n < 100 && value.size() < 3) {
-        n *= 100;
-    }
-
+    eckit::Time time(value);
+    
     std::ostringstream oss;
-    oss << std::setfill('0') << std::setw(4) << n;
+    if (time.seconds() != 0) {
+        oss << "Cannot normalise time '" << value << "' - seconds not supported";
+        throw eckit::SeriousBug(oss.str(), Here());
+    }
+    if (time.hours() >= 24) {
+        oss << "Cannot normalise time '" << value << "' - " << time.hours() << " hours > 24 not supported";
+        throw eckit::SeriousBug(oss.str(), Here());
+    }
+
+    oss << std::setfill('0') << std::setw(2) << time.hours() << std::setfill('0') << std::setw(2) << time.minutes();
     value = oss.str();
+    
     return true;
 }
 
 
 void TypeTime::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
-    static eckit::Translator<std::string, long> s2l;
-    static eckit::Translator<long, std::string> l2s;
+    //static eckit::Translator<std::string, long> s2l;
+    //static eckit::Translator<long, std::string> l2s;
 
     std::vector<std::string> newval;
 
@@ -98,17 +67,18 @@ void TypeTime::expand(const MarsExpandContext& ctx, std::vector<std::string>& va
             ASSERT(newval.size() > 0);
             ASSERT(i + 1 < values.size());
 
-            long from = s2l(tidy(ctx, newval.back()));
-            long to = s2l(tidy(ctx, values[i + 1]));
+            long from = ((eckit::Second) eckit::Time(tidy(ctx, newval.back())));
+            long to   = ((eckit::Second) eckit::Time(tidy(ctx, values[i + 1])));
+            ASSERT(from <= to);
             long by = by_;
 
             if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                by = s2l(tidy(ctx, values[i + 3]));
+                by = ((eckit::Second) eckit::Time(tidy(ctx, values[i + 3])));
                 i += 2;
             }
 
-             for (long j = from + by; j <= to; j += by) {
-                newval.push_back(l2s(j));
+            for (long j = from + by; j <= to; j += by) {
+                newval.push_back(eckit::Time(j));
             }
 
             i++;

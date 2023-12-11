@@ -7,22 +7,30 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+#include <stdexcept>
 
-#include "eckit/utils/Translator.h"
-
-#include "metkit/mars/MarsRequest.h"
-
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeRange.h"
-#include "eckit/utils/StringTools.h"
 
-namespace metkit {
-namespace mars {
+#include "eckit/exception/Exceptions.h"
+#include "eckit/utils/StringTools.h"
+#include "eckit/utils/Tokenizer.h"
+
+#include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/Quantile.h"
+#include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/TypeTime.h"
+#include "metkit/mars/StepRange.h"
+
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeRange::TypeRange(const std::string &name, const eckit::Value& settings) :
-    TypeToByList(name, settings) {
+    Type(name, settings),
+    by_((std::string)settings["by"]) {
+
+    multiple_ = true;
 }
 
 TypeRange::~TypeRange() {
@@ -32,84 +40,107 @@ void TypeRange::print(std::ostream &out) const {
     out << "TypeRange[name=" << name_ << "]";
 }
 
+bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
 
-bool TypeRange::expand(const MarsExpandContext& ctx, std::string &value) const  {
+	eckit::Tokenizer parse("-");
+	std::vector<std::string> result;
 
-    long p = 0;
-    if (ok(value, p)) {
-        static eckit::Translator<long, std::string> l2s;
-        value = l2s(p);
-        return true;
-    }
-
-    long a = 0;
-    long b = 0;
-
-    long *n = &a;
-
-    for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
-        switch (*j) {
-        case '-':
-            if (j != value.begin()) {
-                if (n == &b) {
-                    return false;
-                    // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (a)");
-
-                }
-                n = &b;
+	parse(value, result);
+    switch (result.size()) {
+        case 1: {
+            value = StepRange(eckit::Time(result[0], true));
+            return true;
+        }
+        case 2: {
+            eckit::Time start = eckit::Time(result[0], true);
+            eckit::Time end = eckit::Time(result[1], true);
+            if (start > end) {
+                std::ostringstream oss;
+                std::cout << result[0] << "  -  " << result[1] << std::endl;
+                oss << name_ + ": initial value " << start << " cannot be greater that final value " << end;
+                throw eckit::BadValue(oss.str());
             }
-            else {
-                return false;
-                // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (b)");
-            }
-            break;
-
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            (*n) *= 10;
-            (*n) += (*j) - '0';
-            break;
-
-
+            value = StepRange(start, end);
+            return true;
+        }
         default:
-        {
-            std::string lower = eckit::StringTools::lower(value);
-            if (lower == "to" || lower == "t0" || lower == "by") {
-                return true;
-            }
-        }
-        return false;
-            // throw eckit::UserError(name_ + ": invalid integer range '" + value + "' (c)");
-        break;
-        }
+            std::ostringstream oss;
+            oss << name_ + ": invalid value " << value << " " << result.size();
+            throw eckit::BadValue(oss.str());
     }
-
-    if (n == &a) {
-        std::ostringstream oss;
-        oss << a;
-
-        value = oss.str();
-        return true;
-    }
-
-    std::ostringstream oss;
-    oss << a << "-" << b;
-
-    value = oss.str();
-    return true;
+    return false;
 }
 
+void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
+
+    std::vector<std::string> newval;
+
+    for (size_t i = 0; i < values.size(); ++i) {
+
+        const std::string& s = values[i];
+
+        if (eckit::StringTools::lower(s) == "to" || eckit::StringTools::lower(s) == "t0") {
+            // TimeUnit unit;
+
+            if (newval.size() == 0) {
+                std::ostringstream oss;
+                oss << name_ << " list: 'to' must be preceeded by a starting value.";
+                throw eckit::BadValue(oss.str());
+            }
+            if (values.size() <= i+1) {
+                std::ostringstream oss;
+                oss << name_ << " list: 'to' must be followed by an ending value.";
+                throw eckit::BadValue(oss.str());
+            }
+
+            eckit::Time from = eckit::Time(values[i - 1], true);
+            // unit = maxUnit(from);            
+
+            eckit::Time to = eckit::Time(values[i + 1], true);
+            eckit::Time by = by_;
+
+            if (i+2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
+                if (values.size() <= i+3) {
+                    std::ostringstream oss;
+                    oss << name_ << " list: 'by' must be followed by a step size.";
+                    throw eckit::BadValue(oss.str());
+                }
+
+                by = eckit::Time(values[i + 3], true);
+
+                i += 2;
+            }
+
+            if (from > to) {
+                std::ostringstream oss;
+                oss << name_ + ": 'from' value " << from << " cannot be greater that 'to' value " << to;
+                throw eckit::BadValue(oss.str());
+            }
+            if (by <= eckit::Time(0)) {
+                std::ostringstream oss;
+                oss << name_ + ": 'by' value " << by << " must be a positive number";
+                throw eckit::BadValue(name_ + ": 'by' value must be a positive number");
+            }
+            eckit::Time j = from;
+            j += by;
+            for (; j <= to; j += by) {
+                newval.emplace_back(StepRange(j));
+            }
+
+            i++;
+        }
+        else {
+            newval.push_back(tidy(ctx,s));
+        }
+    }
+
+    std::swap(values, newval);
+
+    Type::expand(ctx, values);
+}
 
 static TypeBuilder<TypeRange> type("range");
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+
+} // namespace metkit::mars
