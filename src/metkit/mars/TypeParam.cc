@@ -107,6 +107,15 @@ public:
             sep = ",";
         }
         out << "}";
+
+        // for (auto v:values_) {
+        //     out << v;
+        //     auto m = mapping_.find(v);
+        //     if (m!=mapping_.end()) {
+        //         out << "("<<m->second<< ")";
+        //     }
+        //     out << ",";
+        // }
     }
 
     void info(std::ostream& out) const {
@@ -314,6 +323,15 @@ static void init() {
 
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
+
+    bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
+    if (metkitRawParam) {
+        (*rules).push_back(Rule(eckit::Value::makeMap(), ids.keys(), ids));
+        // for (int i=0; i<rules->size(); i++) {
+        //     std::cout << "rule "<<i<<": " << rules->at(i) << std::endl;
+        // }
+        return;
+    }
 
     eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
     ASSERT(r.isList());
