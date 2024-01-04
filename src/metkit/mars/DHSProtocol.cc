@@ -321,13 +321,19 @@ DHSProtocol::DHSProtocol(const Configuration& params):
     BaseProtocol(params),
     callback_(BaseCallbackConnection::build(params)),
     name_(params.getString("name")),
-    host_(params.getString("host")),
     port_(params.getInt("port", 9000)),
     done_(false),
     error_(false),
     sending_(false),
     forward_(false)
 {
+    if (params.has("hosts")) {
+        std::vector<std::string> hosts = params.getStringVector("hosts");
+        host_ = hosts.at(std::rand() % hosts.size());
+    } else {
+        ASSERT(params.has("host"));
+        host_ = params.getString("host");
+    }
 }
 
 DHSProtocol::DHSProtocol(Stream& s):
