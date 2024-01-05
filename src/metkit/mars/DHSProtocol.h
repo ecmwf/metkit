@@ -36,7 +36,7 @@ public:
     BaseCallbackConnection() {}
     virtual ~BaseCallbackConnection() {}
 
-    static BaseCallbackConnection* build(const eckit::Configuration& config);
+    static BaseCallbackConnection* build(const eckit::Configuration& config, const std::string& host = "");
 
     virtual const eckit::net::Endpoint& endpoint() const = 0;
 
