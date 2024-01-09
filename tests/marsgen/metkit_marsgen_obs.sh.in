@@ -2,7 +2,7 @@
 
 set -uex
 
-[ -e outfile.simple ] && rm outfile.simple
+[ -e outfile.obs ] && rm outfile.obs
 
 MARSGEN="@CMAKE_BINARY_DIR@/bin/mars-archive-script"
 GENFILE="@CMAKE_CURRENT_SOURCE_DIR@/genfile"
