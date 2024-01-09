@@ -68,9 +68,6 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
         return partial;
     }
 
-    // std::cout << vals << std::endl;
-
-
     for (size_t i = 0; i < values_.size(); i++) {
         std::string v = values_[i];
 
@@ -107,15 +104,6 @@ public:
             sep = ",";
         }
         out << "}";
-
-        // for (auto v:values_) {
-        //     out << v;
-        //     auto m = mapping_.find(v);
-        //     if (m!=mapping_.end()) {
-        //         out << "("<<m->second<< ")";
-        //     }
-        //     out << ",";
-        // }
     }
 
     void info(std::ostream& out) const {
@@ -274,15 +262,11 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
         }
     }
 
-    // std::cout << "OK " << ok << " " << param << std::endl;
-
     if (ok && param > 0) {
         std::ostringstream oss;
         if (table == 128) {
             table = 0;
         }
-
-        // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
         // return  metkit::mars::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
@@ -327,15 +311,11 @@ static void init() {
     bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
     if (metkitRawParam) {
         (*rules).push_back(Rule(eckit::Value::makeMap(), ids.keys(), ids));
-        // for (int i=0; i<rules->size(); i++) {
-        //     std::cout << "rule "<<i<<": " << rules->at(i) << std::endl;
-        // }
         return;
     }
 
     eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
     ASSERT(r.isList());
-    // r.dump(std::cout) << std::endl;
 
     const eckit::Value rs = eckit::YAMLParser::decodeFile(LibMetkit::paramStaticYamlFile());
     ASSERT(rs.isList());
@@ -484,7 +464,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
 
 void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
-    // std::cout << request << std::endl;
     std::vector<std::string> values = request.values(name_, true);
     expand(ctx, request, values, true);
     request.setValuesTyped(this, values);
