@@ -31,6 +31,21 @@ namespace hypercube {
 
 class Axis;
 
+class AxisOrder {
+public: // methods
+    static AxisOrder& instance();
+
+    const std::vector<std::string>& axes() { return axes_; }
+
+private: // methods
+    AxisOrder();
+
+    eckit::PathName axisYamlFile() { return "~metkit/share/metkit/axis.yaml"; }
+
+private: // members
+    std::vector<std::string> axes_;
+};
+
 class HyperCube {
 public:
     HyperCube(const metkit::mars::MarsRequest&);
@@ -44,9 +59,11 @@ public:
     size_t size() const {return cube_.count(); }
 
     size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
-    std::vector<metkit::mars::MarsRequest> vacantRequests() const;
+    std::vector<metkit::mars::MarsRequest> vacantRequests() const { return aggregatedRequests(true); }
+    std::vector<metkit::mars::MarsRequest> requests() const { return aggregatedRequests(false); }
 
 protected:
+    std::vector<metkit::mars::MarsRequest> aggregatedRequests(bool remaining) const;
     int indexOf(const metkit::mars::MarsRequest&) const;
     bool clear(int index);
     metkit::mars::MarsRequest requestOf(size_t index) const;
