@@ -68,9 +68,6 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
         return partial;
     }
 
-    // std::cout << vals << std::endl;
-
-
     for (size_t i = 0; i < values_.size(); i++) {
         std::string v = values_[i];
 
@@ -265,15 +262,11 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
         }
     }
 
-    // std::cout << "OK " << ok << " " << param << std::endl;
-
     if (ok && param > 0) {
         std::ostringstream oss;
         if (table == 128) {
             table = 0;
         }
-
-        // std::cerr << "Param " << param << " " << table << std::endl;
 
         oss <<  table * 1000 + param;
         // return  metkit::mars::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
@@ -315,9 +308,14 @@ static void init() {
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
 
+    bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
+    if (metkitRawParam) {
+        (*rules).push_back(Rule(eckit::Value::makeMap(), ids.keys(), ids));
+        return;
+    }
+
     eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
     ASSERT(r.isList());
-    // r.dump(std::cout) << std::endl;
 
     const eckit::Value rs = eckit::YAMLParser::decodeFile(LibMetkit::paramStaticYamlFile());
     ASSERT(rs.isList());
@@ -466,7 +464,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
 
 void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
-    // std::cout << request << std::endl;
     std::vector<std::string> values = request.values(name_, true);
     expand(ctx, request, values, true);
     request.setValuesTyped(this, values);
