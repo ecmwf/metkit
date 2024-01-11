@@ -72,7 +72,7 @@ namespace {
             return selectProxyHost(config.getStringVector("proxyHosts"));
         }
 
-        throw UserError("Neither proxyHost nor proxyPort specified in configuration");
+        throw UserError("Neither proxyHosts nor proxyHost specified in configuration");
     }
 }
 
@@ -278,9 +278,12 @@ const ClassSpec& BaseCallbackConnection::classSpec() {
     return spec;
 }
 
-BaseCallbackConnection* BaseCallbackConnection::build(const Configuration& config) {
-    if (config.has("proxyHost") || config.has("proxyHosts")) {
+BaseCallbackConnection* BaseCallbackConnection::build(const Configuration& config, const std::string& host) {
+    if (config.has("proxyHost") || config.has("proxyHosts") || (config.getBool("passiveProxy", true) && config.getBool("useHostAsProxy", false))) {
         if (config.getBool("passiveProxy", true)) {
+            if (config.getBool("useHostAsProxy", false)) {
+                return new PassiveProxyCallback{unpackHostPort(host)};
+            }
             return new PassiveProxyCallback{config};
         }
         return new ProxyCallback{config};
@@ -319,15 +322,21 @@ DHSProtocol::DHSProtocol(const std::string& name,
 
 DHSProtocol::DHSProtocol(const Configuration& params):
     BaseProtocol(params),
-    callback_(BaseCallbackConnection::build(params)),
     name_(params.getString("name")),
-    host_(params.getString("host")),
     port_(params.getInt("port", 9000)),
     done_(false),
     error_(false),
     sending_(false),
     forward_(false)
 {
+    if (params.has("hosts")) {
+        std::vector<std::string> hosts = params.getStringVector("hosts");
+        host_ = hosts.at(std::rand() % hosts.size());
+    } else {
+        ASSERT(params.has("host"));
+        host_ = params.getString("host");
+    }
+    callback_.reset(BaseCallbackConnection::build(params, host_));
 }
 
 DHSProtocol::DHSProtocol(Stream& s):
