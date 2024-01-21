@@ -333,9 +333,64 @@ MarsRequest::operator eckit::Value() const {
     NOTIMP;
 }
 
+// recursively expand along keys in expvalues
+void expand_along_keys(
+    const MarsRequest& prototype,
+    const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
+    std::vector<MarsRequest>& requests,
+    size_t i) {
+
+    if(i == expvalues.size()) {
+        requests.push_back(prototype);
+        return;
+    }
+
+    const std::string& key = expvalues[i].first;
+    const std::vector<std::string>& values = expvalues[i].second;
+
+    MarsRequest req(prototype);
+    for (auto& value : values) {
+        req.setValue(key, value);
+        expand_along_keys(req, expvalues, requests, i+1);
+    }
+}
+
+std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys) const {
+
+    size_t n = 1;
+
+    LOG_DEBUG_LIB(LibMetkit) << "Splitting request with keys" << keys << std::endl;
+
+    std::vector<std::pair<std::string, std::vector<std::string>>> expvalues;
+    for (auto& key : keys) {
+        std::vector<std::string> v = values(key, true); // ok to be empty
+        LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() <<  " values " << v << std::endl;
+        if (v.empty()) continue;
+        n *= v.size();
+        expvalues.emplace_back(std::make_pair(key, v));
+    }
+
+    std::vector<MarsRequest> requests;
+    requests.reserve(n);
+
+    if(n == 1) {
+        requests.push_back(*this);
+        return requests;
+    }
+
+    expand_along_keys(*this, expvalues, requests, 0);
+
+    return requests;
+}
+
+std::vector<MarsRequest> MarsRequest::split(const std::string& key) const {
+    std::vector<std::string> keys = { key };
+    return split( keys );
+}
+
 void MarsRequest::merge(const MarsRequest& other) {
     for (auto& param : params_) {
-        eckit::Log::debug<LibMetkit>() << "Merging parameter " << param << std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << "Merging parameter " << param << std::endl;
         auto it = other.find(param.name());
         if (it != other.params_.end())
             param.merge(*it);

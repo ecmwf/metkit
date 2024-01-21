@@ -12,10 +12,11 @@
 // Baudouin Raoult - (c) ECMWF Feb 12
 
 #include "metkit/mars/MarsRequestHandle.h"
+
 #include "eckit/utils/StringTools.h"
 #include "eckit/types/Types.h"
 
-
+#include "metkit/config/LibMetkit.h"
 
 namespace metkit {
 namespace mars {
@@ -53,7 +54,7 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
     protocol_(protocol),
     opened_(false)
 {
-    eckit::Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
     ASSERT(protocol);
 }
 

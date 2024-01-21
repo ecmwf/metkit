@@ -115,7 +115,7 @@ void ParamID::normalise(const REQUEST_T& request,
                 newreq.push_back(p);
             }
 
-            eckit::Log::debug<LibMetkit>() << "useGRIBParamID p=" << p
+            LOG_DEBUG_LIB(LibMetkit) << "useGRIBParamID p=" << p
                                << ", alt=" << alt
                                << ", choice=" << newreq.back() << std::endl;
 
@@ -174,7 +174,7 @@ void ParamID::normalise(const REQUEST_T& request,
                 if (!wantVO) req.push_back(windVO);
                 if (!wantD)  req.push_back(windD);
 
-                eckit::Log::debug<LibMetkit>() << "U/V conversion requested U=" << windU << ", V=" << windV << ", VO=" << windVO << ", D=" << windD << std::endl;
+                LOG_DEBUG_LIB(LibMetkit) << "U/V conversion requested U=" << windU << ", V=" << windV << ", VO=" << windVO << ", D=" << windD << std::endl;
                 windConversion = true;
             }
         }

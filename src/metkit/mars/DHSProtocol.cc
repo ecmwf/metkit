@@ -361,7 +361,7 @@ Length DHSProtocol::retrieve(const MarsRequest& request)
 {
     Endpoint callbackEndpoint = callback_->endpoint();
 
-    Log::debug() << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
     task_.reset(new ClientTask(request, RequestEnvironment::instance().request(),
                                   callbackEndpoint.host(), callbackEndpoint.port()));
@@ -376,7 +376,7 @@ Length DHSProtocol::retrieve(const MarsRequest& request)
     while (wait(result)) {
     }
 
-    Log::debug() << "DHSProtocol::retrieve " << result << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol::retrieve " << result << std::endl;
     return result;
 }
 
@@ -384,8 +384,8 @@ void DHSProtocol::archive(const MarsRequest& request, const Length& size)
 {
     Endpoint callbackEndpoint = callback_->endpoint();
 
-    Log::debug() << "DHSProtocol::archive " << size << std::endl;
-    Log::debug() << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol::archive " << size << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
     task_.reset(new ClientTask(request, RequestEnvironment::instance().request(),
                                   callbackEndpoint.host(), callbackEndpoint.port()));
@@ -399,7 +399,7 @@ void DHSProtocol::archive(const MarsRequest& request, const Length& size)
     Length result = size;
     while (wait(result)) {
     }
-    Log::debug() << "DHSProtocol: archive completed." << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: archive completed." << std::endl;
 }
 
 void DHSProtocol::cleanup()
@@ -479,7 +479,7 @@ bool DHSProtocol::wait(Length& size)
 
         char code = task_->receive(s);
 
-        Log::debug() << "DHSProtocol: code [" << code << "]" << std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: code [" << code << "]" << std::endl;
 
         std::string msg;
         long long bytes;
@@ -493,7 +493,7 @@ bool DHSProtocol::wait(Length& size)
         /* read source */
         case 'r':
             bytes = size;
-            Log::debug() << "DHSProtocol:r [" << bytes << "]" << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol:r [" << bytes << "]" << std::endl;
             s << bytes;
             sending_ = true;
             return false;
@@ -505,7 +505,7 @@ bool DHSProtocol::wait(Length& size)
 
         case 'w':
             s >> bytes;
-            Log::debug() << "DHSProtocol:w " << bytes << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol:w " << bytes << std::endl;
             size = bytes;
             return false;
 
@@ -546,7 +546,7 @@ bool DHSProtocol::wait(Length& size)
 
         case 'D': /* debug */
             s >> msg;
-            Log::debug() << msg << " [" << name_ << "]" << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << msg << " [" << name_ << "]" << std::endl;
             if (forward_) {
                 Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
             }

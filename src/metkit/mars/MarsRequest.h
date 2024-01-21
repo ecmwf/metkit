@@ -38,9 +38,12 @@ class MarsRequest;
 
 class MarsRequest {
 public:  // methods
+
     MarsRequest();
+
     explicit MarsRequest(const std::string&);
     explicit MarsRequest(eckit::Stream&, bool lowercase = false);
+
     MarsRequest(const std::string&, const std::map<std::string, std::string>&);
     MarsRequest(const std::string&, const eckit::Value&);
 
@@ -60,11 +63,9 @@ public:  // methods
     size_t countValues(const std::string&) const;
     bool has(const std::string&) const;
 
-
     bool is(const std::string& param, const std::string& value) const;
 
     const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const;
-
 
     template <class T>
     size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;
@@ -82,6 +83,12 @@ public:  // methods
     void setValue(const std::string& name, const char* value);
 
     void unsetValues(const std::string&);
+
+    /// Splits a MARS request into multiple requests along the provided key
+    std::vector<MarsRequest> split(const std::string& keys) const;
+
+    /// Splits a MARS request into multiple requests along the indicated keys
+    std::vector<MarsRequest> split(const std::vector<std::string>& keys) const;
 
     /// Merges one MarsRequest into another
     /// @todo Improve performance -- uses O(N^2) search / merge in std::list's
@@ -109,6 +116,7 @@ public:  // methods
     void erase(const std::string& param);
 
 public:  // static methods
+
     static MarsRequest parse(const std::string& s, bool strict = false);
     static std::vector<MarsRequest> parse(std::istream&, bool strict = false);
 
