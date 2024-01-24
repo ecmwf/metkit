@@ -465,6 +465,12 @@ void MarsRequest::erase(const std::string& name) {
     }
 }
 
+std::string MarsRequest::asString() const {
+    std::ostringstream oss;
+    oss << *this;
+    return oss.str();
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 std::vector<MarsRequest> MarsRequest::parse(std::istream& in, bool strict) {

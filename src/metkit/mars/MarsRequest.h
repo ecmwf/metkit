@@ -115,6 +115,8 @@ public:  // methods
 
     void erase(const std::string& param);
 
+    std::string asString() const;
+
 public:  // static methods
 
     static MarsRequest parse(const std::string& s, bool strict = false);
