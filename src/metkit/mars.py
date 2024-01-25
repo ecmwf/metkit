@@ -28,6 +28,10 @@ def ffi_decode(data: FFI.CData) -> str:
 
 
 class ParameterList:
+    """
+    Class for iterating over parameters in MetKit MarsRequest
+    """
+
     def __init__(self, request: FFI.CData):
         cparams = ffi.new("metkit_paramiterator_t **")
         lib.metkit_request_get_params(request, cparams)
@@ -36,7 +40,7 @@ class ParameterList:
     def __iter__(self):
         return self
 
-    def __next__(self) -> FFI.CData:
+    def __next__(self) -> str:
         if lib.metkit_paramiterator_next(self._cdata) == lib.METKIT_ITERATION_COMPLETE:
             raise StopIteration
         cvalue = ffi.new("const char **")
@@ -45,6 +49,10 @@ class ParameterList:
 
 
 class ValueList:
+    """
+    Class for iterating over values for a parameter in MetKit MarsRequest
+    """
+
     def __init__(self, request: FFI.CData, param: str):
         cvalues = ffi.new("metkit_valueiterator_t **")
         lib.metkit_request_get_values(request, ffi_encode(param), cvalues)
@@ -53,7 +61,7 @@ class ValueList:
     def __iter__(self):
         return self
 
-    def __next__(self) -> FFI.CData:
+    def __next__(self) -> str:
         if lib.metkit_valueiterator_next(self._cdata) == lib.METKIT_ITERATION_COMPLETE:
             raise StopIteration
         cvalue = ffi.new("const char **")
@@ -62,15 +70,43 @@ class ValueList:
 
 
 class Request(dict):
+    """
+    Class containing MarsRequest keys and values, inheriting from dict with
+    additional attribute verb.
+    """
+
     def __init__(self, verb: str):
         self.verb = verb
 
     def set_values(self, param: str, values: list[str]):
+        """
+        Set parameters and values in Request
+
+        Params
+        ------
+        param: str, parameter name
+        values: list of str, values for parameter
+
+        Raises
+        ------
+        AssertError if param already exists in Request
+        """
         assert param not in self
         self[param] = values
 
     @staticmethod
     def _from_metkit_request(crequest: FFI.CData) -> "Request":
+        """
+        Creates Request from MetKit MarsRequest instance
+
+        Params
+        ------
+        crequest: metkit_request_t **, MarsRequest
+
+        Returns
+        -------
+        Request instance
+        """
         cverb = ffi.new("const char **")
         lib.metkit_request_get_verb(crequest, cverb)
         req = Request(ffi_decode(cverb[0]))
