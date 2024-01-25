@@ -14,19 +14,25 @@ extern "C" {
 
 struct Request : public metkit::mars::MarsRequest {
     using metkit::mars::MarsRequest::MarsRequest;
-    Request(const metkit::mars::MarsRequest& k) : metkit::mars::MarsRequest(k) {}
+    Request(const metkit::mars::MarsRequest& k) :
+        metkit::mars::MarsRequest(k) {}
 };
 
 struct metkit_requestiterator_t {
-    metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest> vec): first(true), vector(std::move(vec)), iterator(vector.begin()) {}
+    metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest> vec) :
+        first(true), vector(std::move(vec)), iterator(vector.begin()) {}
 
     int next() {
-            if (first) { first = false; }
-            else { ++iterator; }
-            if (iterator == vector.end()) {
-                return METKIT_ITERATION_COMPLETE;
-            }
-            return METKIT_SUCCESS;
+        if (first) {
+            first = false;
+        }
+        else {
+            ++iterator;
+        }
+        if (iterator == vector.end()) {
+            return METKIT_ITERATION_COMPLETE;
+        }
+        return METKIT_SUCCESS;
     }
 
     bool first;
@@ -35,15 +41,20 @@ struct metkit_requestiterator_t {
 };
 
 struct StringVecIterator {
-    StringVecIterator(std::vector<std::string> vec): first(true), vector(std::move(vec)), iterator(vector.begin()) {}
+    StringVecIterator(std::vector<std::string> vec) :
+        first(true), vector(std::move(vec)), iterator(vector.begin()) {}
 
     int next() {
-            if (first) { first = false; }
-            else { ++iterator; }
-            if (iterator == vector.end()) {
-                return METKIT_ITERATION_COMPLETE;
-            }
-            return METKIT_SUCCESS;
+        if (first) {
+            first = false;
+        }
+        else {
+            ++iterator;
+        }
+        if (iterator == vector.end()) {
+            return METKIT_ITERATION_COMPLETE;
+        }
+        return METKIT_SUCCESS;
     }
 
     bool first;
@@ -141,12 +152,12 @@ int metkit_initialise() {
 // -----------------------------------------------------------------------------
 
 int metkit_parse_mars(metkit_requestiterator_t** requests, const char* str) {
-    return tryCatch([requests, str] { 
+    return tryCatch([requests, str] {
         ASSERT(requests);
         ASSERT(str);
         std::istringstream in(str);
         *requests = new metkit_requestiterator_t(metkit::mars::MarsRequest::parse(in));
-        });
+    });
 }
 
 // -----------------------------------------------------------------------------
@@ -154,7 +165,7 @@ int metkit_parse_mars(metkit_requestiterator_t** requests, const char* str) {
 // -----------------------------------------------------------------------------
 
 int metkit_free_request(const metkit_request_t* request) {
-        return tryCatch([request] {
+    return tryCatch([request] {
         ASSERT(request);
         delete request;
     });
@@ -190,7 +201,7 @@ int metkit_request_get_values(const metkit_request_t* request, const char* param
 // -----------------------------------------------------------------------------
 
 int metkit_free_requestiterator(const metkit_requestiterator_t* list) {
-        return tryCatch([list] {
+    return tryCatch([list] {
         ASSERT(list);
         delete list;
     });
@@ -217,7 +228,7 @@ int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_
 // -----------------------------------------------------------------------------
 
 int metkit_free_paramiterator(const metkit_paramiterator_t* list) {
-        return tryCatch([list] {
+    return tryCatch([list] {
         ASSERT(list);
         delete list;
     });
@@ -244,7 +255,7 @@ int metkit_paramiterator_param(const metkit_paramiterator_t* list, const char** 
 // -----------------------------------------------------------------------------
 
 int metkit_free_valueiterator(const metkit_valueiterator_t* list) {
-        return tryCatch([list] {
+    return tryCatch([list] {
         ASSERT(list);
         delete list;
     });
