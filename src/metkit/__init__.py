@@ -1,1 +1,1 @@
-from .metkit import parse_mars_request
+from .mars import parse_mars_request

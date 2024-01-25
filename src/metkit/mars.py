@@ -2,6 +2,7 @@ import os
 from cffi import FFI
 from pkg_resources import parse_version
 import findlibs
+from typing import IO
 
 __metkit_version__ = "1.11.0"
 
@@ -82,12 +83,24 @@ class Request(dict):
         return f"verb: {self.verb}, request: {super().__str__()}"
 
 
-def parse_mars_request(filename: str) -> list[Request]:
+def parse_mars_request(file_or_str: IO | str) -> list[Request]:
+    """
+    Function for parsing mars request from file object or string.
+
+    Params
+    ------
+    file_or_str: string or file-like object, containing mars request
+
+    Returns
+    -------
+    list of Request
+    """
     crequest_iter = ffi.new("metkit_requestiterator_t **")
 
-    with open(filename, "r") as f:
-        file = f.read()
-    lib.metkit_parse_mars(crequest_iter, ffi_encode(file))
+    if isinstance(file_or_str, str):
+        lib.metkit_parse_mars(crequest_iter, ffi_encode(file_or_str))
+    else:
+        lib.metkit_parse_mars(crequest_iter, ffi_encode(file_or_str.read()))
     request_iter = ffi.gc(crequest_iter[0], lib.metkit_free_requestiterator)
 
     requests = []
