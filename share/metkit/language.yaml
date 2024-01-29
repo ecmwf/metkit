@@ -7,6 +7,7 @@ _field: &_field
     flatten: false
     type: enum
     values:
+    - [ai, operational aifs]
     - [at, austria]
     - [be, belgium]
     - [c3, c3s]
