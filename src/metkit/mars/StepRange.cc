@@ -49,7 +49,6 @@ std::string canonical(const eckit::Time& time) {
     long m = time.minutes();
     long s = time.seconds();
 
-	// std::cout << h << "h" << m << "m" << s << "s\n";
     std::string out = "";
     if (h!=0 || (m==0 && s==0)) {
         out += std::to_string(h);
@@ -96,17 +95,20 @@ StepRange::operator std::string() const
 void StepRange::print(std::ostream& s) const
 {
 	if(from_ == to_) {
-        s << canonical(from_);
+        s << canonical(eckit::Time(from_*3600, true));
     }
     else {
-        TimeUnit unit = std::min(maxUnit(from_), maxUnit(to_));            
-        s << canonical(from_,unit) << '-' << canonical(to_,unit);
+        eckit::Time f{static_cast<long>(from_*3600.), true};
+        eckit::Time t{static_cast<long>(to_*3600.), true};
+
+        TimeUnit unit = std::min(maxUnit(f), maxUnit(t));
+        s << canonical(f, unit) << '-' << canonical(t, unit);
     }
 }
 
 StepRange::StepRange(const std::string& s):
-	from_(0),
-	to_(0)
+	from_(0.),
+	to_(0.)
 {
 	Tokenizer parse("-");
 	std::vector<std::string> result;
@@ -116,12 +118,12 @@ StepRange::StepRange(const std::string& s):
 	switch(result.size())
 	{
 		case 1:
-			to_ = from_ = eckit::Time(result[0], true);
+			to_ = from_ = eckit::Time(result[0], true)/3600.;
 			break;
 
 		case 2:
-			from_ = eckit::Time(result[0], true);
-			to_   = eckit::Time(result[1], true);
+			from_ = eckit::Time(result[0], true)/3600.;
+			to_   = eckit::Time(result[1], true)/3600.;
 			break;
 
 		default:
@@ -134,18 +136,14 @@ StepRange::StepRange(const std::string& s):
 
 void StepRange::dump(DumpLoad& a) const
 {
-	a.dump(from_.seconds()/3600.);
-	a.dump(to_.seconds()/3600.);
+	a.dump(from_);
+	a.dump(to_);
 }
 
 void StepRange::load(DumpLoad& a)
 {
-	double from, to;
-	a.load(from);
-	a.load(to);
-
-	from_ = eckit::Time(from*3600., true);
-	to_ = eckit::Time(to*3600., true);
+	a.load(from_);
+	a.load(to_);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
