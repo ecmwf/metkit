@@ -34,15 +34,15 @@ public:
 
 	StepRange(const std::string&);
 
-	StepRange(eckit::Time from = eckit::Time(0), eckit::Time to = eckit::Time(0)):
-		from_(from),to_(to) {
+	explicit StepRange(eckit::Time from = eckit::Time(0), eckit::Time to = eckit::Time(0)) :
+		from_(from/3600.), to_(to/3600.) {
 
-		if (from_ != eckit::Time(0) && to_ == eckit::Time(0)) {
+		if (from != eckit::Time(0) && to == eckit::Time(0)) {
 			to_ = from_;
 		}
 	}
 
-	StepRange(double from, double to = 0):
+	explicit StepRange(double from, double to = 0):
 		StepRange(eckit::Time(from*3600, true), eckit::Time(to*3600, true)) {}
 
 
@@ -74,8 +74,8 @@ public:
 
 // -- Methods
 
-	double from() const { return from_/3600.; }
-	double to()   const { return to_/3600.;   }
+	double from() const { return from_; }
+	double to()   const { return to_;   }
 
 	void dump(eckit::DumpLoad&) const;
 	void load(eckit::DumpLoad&);
@@ -115,8 +115,8 @@ private:
 
 // -- Members
 
-	eckit::Time from_;
-	eckit::Time to_;
+	double from_;
+	double to_;
 
 // -- Methods
 	// None
