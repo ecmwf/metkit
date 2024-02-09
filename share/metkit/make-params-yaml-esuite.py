@@ -11,7 +11,7 @@ if not os.path.exists(target):
     with open("tmp", "w") as f:
         print(
             """ list,
-       expver=0001,
+       expver=0078,
        stream=all,
        type=all,
        output=tree,
@@ -49,7 +49,7 @@ for req in reqs:
             r["levtype"] = levtype
             r["time"] = "all"
             r["date"] = dates
-            r["expver"] = "0001"
+            r["expver"] = "0078"
             r["database"] = "fdbprod-server"
             r[
                 "hide"
@@ -282,14 +282,14 @@ for k, v in sorted(P.items()):
     Q[v].append(k)
 
 Y = []
-# for k, v in sorted(P.items()):
-#     if k[2]:
-#         Y.append([dict(stream=k[0], type=k[1], levtype=k[2]), v])
-#     else:
-#         Y.append([dict(stream=k[0], type=k[1]), v])
-for v, k in sorted(Q.items()):
-    k = merge(k)
-    Y.append([k, v])
+for k, v in sorted(P.items()):
+    if k[2]:
+        Y.append([dict(stream=k[0], type=k[1], levtype=k[2]), v])
+    else:
+        Y.append([dict(stream=k[0], type=k[1]), v])
+# for v, k in sorted(Q.items()):
+#     k = merge(k)
+#     Y.append([k, v])
 
 with open("params.yaml", "w") as f:
     f.write(

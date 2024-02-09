@@ -2,8 +2,7 @@ from sqlalchemy import create_engine, text
 import yaml
 import os
 
-db = create_engine("postgresql://ecmwf_ro:ecmwf_ro@bol-db-products-prod-01.ecmwf.int:5432/products")
-
+db = create_engine("postgresql://products:products@k8s-bol-webapps-test-worker-016.ecmwf.int:30544/products")
 TYPES = text("select distinct stream, type, levtype from fields")
 PARAMS = text(
     "select distinct param from fields where stream=:stream and type=:type and levtype=:levtype"

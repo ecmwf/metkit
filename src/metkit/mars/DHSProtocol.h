@@ -18,13 +18,36 @@
 
 #include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
+#include "eckit/net/Endpoint.h"
 
 #include "metkit/mars/BaseProtocol.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ClientTask.h"
 
+
 namespace metkit {
 namespace mars {
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+class BaseCallbackConnection : public eckit::Streamable {
+public:
+
+    BaseCallbackConnection() {}
+    virtual ~BaseCallbackConnection() {}
+
+    static BaseCallbackConnection* build(const eckit::Configuration& config, const std::string& host = "");
+
+    virtual const eckit::net::Endpoint& endpoint() const = 0;
+
+    virtual eckit::net::TCPSocket& connect() = 0;
+
+    virtual void encode(eckit::Stream&) const override = 0;
+    static  const eckit::ClassSpec& classSpec();
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
+
 
 class DHSProtocol : public BaseProtocol {
 
@@ -49,7 +72,7 @@ public:
 private:
 
     // -- Members
-    eckit::net::EphemeralTCPServer callback_;
+    std::unique_ptr<BaseCallbackConnection> callback_;
     eckit::net::TCPSocket          socket_;
     std::string               name_;
     std::string               host_;
@@ -74,6 +97,8 @@ private:
     virtual void print(std::ostream&) const override;
     virtual void encode(eckit::Stream&) const override;
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 }
 }

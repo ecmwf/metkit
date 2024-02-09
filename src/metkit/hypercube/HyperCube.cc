@@ -19,44 +19,27 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace hypercube {
+namespace metkit::hypercube {
 
 static metkit::mars::Type& type(const std::string& name) {
     static metkit::mars::MarsLanguage language("retrieve");
     return *language.type(name);
 }
 
-namespace {
-class AxisOrder {
-public: // methods
-    static AxisOrder& instance() {
-        static AxisOrder instance;
-        return instance;
+AxisOrder::AxisOrder() {
+    eckit::Value axis =  eckit::YAMLParser::decodeFile(axisYamlFile());
+    const eckit::Value axesNames = axis["axes"];
+
+    for (size_t i = 0; i < axesNames.size(); ++i) {
+        axes_.push_back(axesNames[i]);
     }
-
-    const std::vector<std::string>& axes() {
-        return axes_;
-    }
-
-private: // methods
-    AxisOrder() {
-        eckit::Value axis =  eckit::YAMLParser::decodeFile(axisYamlFile());
-        const eckit::Value axesNames = axis["axes"];
-
-        for (size_t i = 0; i < axesNames.size(); ++i) {
-            axes_.push_back(axesNames[i]);
-        }
-    }
-
-    eckit::PathName axisYamlFile() {
-        return "~metkit/share/metkit/axis.yaml";
-    }
-
-private: // members
-    std::vector<std::string> axes_;
-};
 }
+
+AxisOrder& AxisOrder::instance() {
+    static AxisOrder instance;
+    return instance;
+}
+
 
 class Axis {
 public:
@@ -256,14 +239,14 @@ std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std
     return requests;
 }
 
-std::vector<metkit::mars::MarsRequest> HyperCube::vacantRequests() const {
+std::vector<metkit::mars::MarsRequest> HyperCube::aggregatedRequests(bool remaining) const {
 
-    if (countVacant() == 0)
+    if (countVacant() == (remaining ? 0 : size()))
         return std::vector<metkit::mars::MarsRequest>{};
 
     std::set<size_t> idxs;
     for(size_t i = 0; i < set_.size(); ++i) {
-        if (set_[i])
+        if (set_[i] == remaining)
             idxs.emplace(i);
     }
 
@@ -308,5 +291,4 @@ size_t HyperCube::fieldOrdinal(const metkit::mars::MarsRequest& r, bool noholes)
     return idx;
 }
 
-}  // namespace hypercube
-}  // namespace metkit
+}  // namespace metkit::hypercube

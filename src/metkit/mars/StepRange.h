@@ -16,11 +16,11 @@
 
 #include "eckit/persist/Bless.h"
 #include "eckit/types/Types.h"
+#include "eckit/types/Time.h"
 
 namespace eckit { class DumpLoad; }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -34,8 +34,17 @@ public:
 
 	StepRange(const std::string&);
 
-	StepRange(double from = 0,double to = 0):
-		from_(from),to_(to) {}
+	explicit StepRange(eckit::Time from = eckit::Time(0), eckit::Time to = eckit::Time(0)) :
+		from_(from/3600.), to_(to/3600.) {
+
+		if (from != eckit::Time(0) && to == eckit::Time(0)) {
+			to_ = from_;
+		}
+	}
+
+	explicit StepRange(double from, double to = 0):
+		StepRange(eckit::Time(from*3600, true), eckit::Time(to*3600, true)) {}
+
 
 #include "metkit/mars/StepRange.b"
 
@@ -130,7 +139,6 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+} // namespace metkit::mars
 
 #endif

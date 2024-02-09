@@ -9,6 +9,8 @@
  */
 
 #include "metkit/mars/StepRange.h"
+#include "metkit/mars/TypeTime.h"
+#include "metkit/mars/TypeRange.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/persist/DumpLoad.h"
@@ -16,8 +18,70 @@
 
 using namespace eckit;
 
-namespace metkit {
-namespace mars {
+
+//----------------------------------------------------------------------------------------------------------------------
+
+namespace {
+
+enum TimeUnit {
+    Second = 0,
+    Minute = 1,
+    Hour = 2,
+    Day = 3
+};
+
+TimeUnit maxUnit(const eckit::Time& t) {
+    if (t.seconds() == 0) {
+        if (t.minutes() == 0) {
+            if (t.hours() == 0) {
+                return TimeUnit::Day;
+            }
+            return TimeUnit::Hour;
+        }
+        return TimeUnit::Minute;
+    }
+    return TimeUnit::Second;
+}
+
+std::string canonical(const eckit::Time& time) {
+
+    long h = time.hours();
+    long m = time.minutes();
+    long s = time.seconds();
+
+    std::string out = "";
+    if (h!=0 || (m==0 && s==0)) {
+        out += std::to_string(h);
+        if (m!=0 || s!=0) {
+            out += "h";
+        }
+    }
+    if (m!=0) {
+        out += std::to_string(m) + "m";
+    }
+    if (s!=0) {
+        out += std::to_string(s) + "s";
+    }
+    return out;
+}
+
+std::string canonical(const eckit::Time& time, TimeUnit unit) {
+    switch (unit) {
+        case TimeUnit::Second:
+            return std::to_string(time.seconds()+60*time.minutes()+3600*time.hours()) + "s";
+        case TimeUnit::Minute:
+            return std::to_string(time.minutes()+60*time.hours()) + "m";
+        case TimeUnit::Day:
+        case TimeUnit::Hour:
+        default:
+            return std::to_string(time.hours());
+    }
+}
+
+}
+
+namespace metkit::mars {
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -31,17 +95,20 @@ StepRange::operator std::string() const
 void StepRange::print(std::ostream& s) const
 {
 	if(from_ == to_) {
-        s << from_;
+        s << canonical(eckit::Time(from_*3600, true));
     }
     else {
-        s << from_ << '-';
-        s << to_;
+        eckit::Time f{static_cast<long>(from_*3600.), true};
+        eckit::Time t{static_cast<long>(to_*3600.), true};
+
+        TimeUnit unit = std::min(maxUnit(f), maxUnit(t));
+        s << canonical(f, unit) << '-' << canonical(t, unit);
     }
 }
 
 StepRange::StepRange(const std::string& s):
-	from_(0),
-	to_(0)
+	from_(0.),
+	to_(0.)
 {
 	Tokenizer parse("-");
 	std::vector<std::string> result;
@@ -51,12 +118,12 @@ StepRange::StepRange(const std::string& s):
 	switch(result.size())
 	{
 		case 1:
-			from_ = to_ = atof(result[0].c_str());
+			to_ = from_ = eckit::Time(result[0], true)/3600.;
 			break;
 
 		case 2:
-			from_ = atof(result[0].c_str());
-			to_   = atof(result[1].c_str());
+			from_ = eckit::Time(result[0], true)/3600.;
+			to_   = eckit::Time(result[1], true)/3600.;
 			break;
 
 		default:
@@ -65,7 +132,6 @@ StepRange::StepRange(const std::string& s):
             throw eckit::BadValue(msg.str(), Here());
             break;
     }
-
 }
 
 void StepRange::dump(DumpLoad& a) const
@@ -81,5 +147,4 @@ void StepRange::load(DumpLoad& a)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+} // namespace metkit::mars

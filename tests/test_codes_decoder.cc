@@ -76,10 +76,21 @@ static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02,
     std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" << std::endl; \
     EXPECT(md.getString(name) == eq);
 
+// we accept two possible encodings, to enable testing with different versions of ecCodes (ECC-1704)
+#define MD_EXPECT_STRINGS(md, name, eq1, eq2)                                                                                     \
+    EXPECT(md.has(name));                                                                                                  \
+    std::cout << "expect string for " << name << " to equal " << eq1 << " or " << eq2 << " (got " << md.getString(name) << ")" << std::endl; \
+    EXPECT(md.getString(name) == eq1 || md.getString(name) == eq2);
+
 #define MD_EXPECT_LONG(md, name, eq)                                                                                   \
     EXPECT(md.has(name));                                                                                              \
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
     EXPECT(md.getLong(name) == eq);
+
+#define MD_EXPECT_GE_LONG(md, name, eq)                                                                                   \
+    EXPECT(md.has(name));                                                                                              \
+    std::cout << "expect long for " << name << " to be greater than or equal to " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
+    EXPECT(md.getLong(name) >= eq);
 
 #define MD_EXPECT_DOUBLE(md, name, eq)                                                                                                                     \
     EXPECT(md.has(name));                                                                                                                                  \
@@ -110,8 +121,8 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
     {
         MD_EXPECT_STRING(md, "globalDomain", "g");
         MD_EXPECT_LONG(md, "GRIBEditionNumber", 2);
-        MD_EXPECT_LONG(md, "tablesVersionLatestOfficial", 30);
-        MD_EXPECT_LONG(md, "tablesVersionLatest", 30);
+        MD_EXPECT_GE_LONG(md, "tablesVersionLatestOfficial", 30);
+        MD_EXPECT_GE_LONG(md, "tablesVersionLatest", 30);
         MD_EXPECT_LONG(md, "grib2divider", 1000000);
         MD_EXPECT_LONG(md, "angleSubdivisions", 1000000);
         MD_EXPECT_LONG(md, "missingValue", 9999);
@@ -208,7 +219,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "endStep", 0);
         MD_EXPECT_STRING(md, "stepRange", "0");
         MD_EXPECT_LONG(md, "validityDate", 10101);
-        MD_EXPECT_LONG(md, "validityTime", 0);
+        MD_EXPECT_STRINGS(md, "validityTime", "0", "0000");
         MD_EXPECT_STRING(md, "typeOfFirstFixedSurface", "168");
         MD_EXPECT_STRING(md, "unitsOfFirstFixedSurface", "Numeric");
         MD_EXPECT_STRING(md, "nameOfFirstFixedSurface", "Ocean model level");
@@ -292,8 +303,9 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
     {
         MD_EXPECT_STRING(md, "globalDomain", "g");
         MD_EXPECT_STRING(md, "GRIBEditionNumber", "2");
-        MD_EXPECT_STRING(md, "tablesVersionLatestOfficial", "30");
-        MD_EXPECT_STRING(md, "tablesVersionLatest", "30");
+        // This is not easy to test, as the latest official version can increment...
+        // MD_EXPECT_STRING(md, "tablesVersionLatestOfficial", "30");
+        // MD_EXPECT_STRING(md, "tablesVersionLatest", "30");
         MD_EXPECT_STRING(md, "grib2divider", "1e+06");
         MD_EXPECT_STRING(md, "angleSubdivisions", "1e+06");
         MD_EXPECT_STRING(md, "missingValue", "9999");
@@ -391,7 +403,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "endStep", "0");
         MD_EXPECT_STRING(md, "stepRange", "0");
         MD_EXPECT_STRING(md, "validityDate", "10101");
-        MD_EXPECT_STRING(md, "validityTime", "0");
+        MD_EXPECT_STRINGS(md, "validityTime", "0", "0000");
         MD_EXPECT_STRING(md, "typeOfFirstFixedSurface", "168");
         MD_EXPECT_STRING(md, "unitsOfFirstFixedSurface", "Numeric");
         MD_EXPECT_STRING(md, "nameOfFirstFixedSurface", "Ocean model level");

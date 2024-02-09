@@ -5,9 +5,9 @@ import re
 import os
 
 # import json
-db = MySQLdb.connect("webapps-db-prod", "ecmwf_ro", "ecmwf_ro", "param")
 # db = MySQLdb.connect("bol-db-products-prod-01.ecmwf.int", "ecmwf_ro", "ecmwf_ro", "param")
-# db = MySQLdb.connect("k8s-bol-webapps-test-worker-016.ecmwf.int", "products", "products", "param", port=30544)
+db = MySQLdb.connect("k8s-bol-webapps-test-worker-016.ecmwf.int", "products", "products", "param", port=30544)
+# db = MySQLdb.connect("k8s-bol-webapps-prod-worker-012.ecmwf.int", "products", "products", "param", port=30545)
                      
 PRODGEN = {}
 if os.path.exists("prodgen-paramids.yaml"):
