@@ -450,7 +450,7 @@ _field: &_field
     - 400
     - 300
     never:
-    - levtype: sfc
+    - levtype: [sfc, o2d]
     - type: ssd
     type: to-by-list-float
 
