@@ -11,17 +11,16 @@ extern "C" {
  * TYPES
  * -----*/
 
-struct Request;
-typedef struct Request metkit_request_t;
+struct metkit_request_t;
+typedef struct metkit_request_t metkit_request_t;
 
 struct metkit_requestiterator_t;
 /** RequestIterator for iterating over vector of Request instances */
 typedef struct metkit_requestiterator_t metkit_requestiterator_t;
 
-struct StringVecIterator;
-/** Iterators for vector of std::string for iterating over parameters and values in Request */
-typedef struct StringVecIterator metkit_paramiterator_t;
-typedef struct StringVecIterator metkit_valueiterator_t;
+struct metkit_paramiterator_t;
+/** Iterator for iterating over parameters in Request */
+typedef struct metkit_paramiterator_t metkit_paramiterator_t;
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * ERROR HANDLING
@@ -73,17 +72,24 @@ int metkit_initialise();
  * --- */
 
 /**
- * @brief Parse MARS requests into RequestIterator of MarsRequest instances
+ * Parse MARS requests into RequestIterator of Request instances. Resulting RequestIterator
+ * must be deallocated with metkit_free_requestiterator
  *
- * @param requests RequestIterator instance
  * @param str MARS requests
+ * @param requests Allocates RequestIterator object
  * @return int Error code
  */
-int metkit_parse_mars(metkit_requestiterator_t** requests, const char* str);
+int metkit_parse_mars_request(const char* str, metkit_requestiterator_t** requests, bool strict = false);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST
  * --- */
+
+/** Allocates new Request object. Must be deallocated with mekit_free_request
+ * @param request new Request instance
+ * @return int Error code
+ */
+int metkit_new_request(metkit_request_t** request);
 
 /** Deallocates Request object and associated resources.
  * @param request Request instance
@@ -91,27 +97,69 @@ int metkit_parse_mars(metkit_requestiterator_t** requests, const char* str);
  */
 int metkit_free_request(const metkit_request_t* request);
 
+/** Add parameter and values to request
+ * @param request Request instance
+ * @param param parameter name
+ * @param values list of values for parameter
+ * @param numValues number of values
+ * @return int Error code
+ */
+int metkit_request_add(metkit_request_t* request, const char* param, const char* values[], int numValues);
+
+/** Set verb in Request object
+ * @param request Request instance
+ * @param verb verb to set
+ * @return int Error code
+ */
+int metkit_request_set_verb(metkit_request_t* request, const char* verb);
+
 /** Returns the verb in Request object
  * @param request Request instance
  * @param verb verb in request
  * @return int Error code
  */
-int metkit_request_get_verb(const metkit_request_t* request, const char** verb);
+int metkit_request_verb(const metkit_request_t* request, const char** verb);
+
+/** Returns whether parameter is in Request object
+ * @param request Request instance
+ * @param param parameter name
+ * @param has whether parameter exists in request
+ * @return int Error code
+ */
+int metkit_request_has_param(const metkit_request_t* request, const char* param, bool* has);
 
 /** Returns list of parameter names in Request object
  * @param request Request instance
  * @param params ParamIterator instance for parameter names in request
  * @return int Error code
  */
-int metkit_request_get_params(const metkit_request_t* request, metkit_paramiterator_t** params);
+int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_t** params);
 
-/** Returns list of values for specific parameter in Request object
+/** Returns number of values for specific parameter in Request object
  * @param request Request instance
  * @param param parameter name in request
- * @param values ValueIterator instance for values for param in request
+ * @param count number of values for param in request
  * @return int Error code
  */
-int metkit_request_get_values(const metkit_request_t* request, const char* param, metkit_valueiterator_t** values);
+int metkit_request_count_values(const metkit_request_t* request, const char* param, size_t* count);
+
+/** Returns value for specific parameter and index in Request object
+ * @param request Request instance
+ * @param param parameter name in request
+ * @param index index of value to retrieve for param in request
+ * @param value retrieved value
+ * @return int Error code
+ */
+int metkit_request_value(const metkit_request_t* request, const char* param, int index, const char** value);
+
+/** Populates empty Request object by expanding existing request
+ * @param request Request instance to be expanded
+ * @param expandedRequest empty Request instance to be populated
+ * @param inherit if true, populate expanded request with default values 
+ * @param strict it true, raise error rather than warning on invalid values
+ * @return int Error code
+ */
+int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit = true, bool strict = false);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST ITERATOR
@@ -129,12 +177,12 @@ int metkit_free_requestiterator(const metkit_requestiterator_t* list);
  */
 int metkit_requestiterator_next(metkit_requestiterator_t* list);
 
-/** Returns the current Request element in RequestIterator
+/** Populates empty Requestion object with data from current element in RequestIterator
  * @param list RequestIterator instance
- * @param request current Request element in list
+ * @param request empty Request instance to populate with data
  * @return int Error code
  */
-int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t** request);
+int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t* request);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * PARAM ITERATOR
@@ -158,31 +206,6 @@ int metkit_paramiterator_next(metkit_paramiterator_t* list);
  * @return int Error code
  */
 int metkit_paramiterator_param(const metkit_paramiterator_t* list, const char** param);
-
-/* ---------------------------------------------------------------------------------------------------------------------
- * VALUE ITERATOR
- * --- */
-
-/** Deallocates ValueIterator object and associated resources.
- * @param list ValueIterator instance
- * @returns int Error code
- */
-int metkit_free_valueiterator(const metkit_valueiterator_t* list);
-
-/** Moves to the next string element in ValueIterator
- * @param list ValueIterator instance
- * @return int Error code
- */
-int metkit_valueiterator_next(metkit_valueiterator_t* list);
-
-/** Returns the current value in ValueIterator
- * @param list ValueIterator instance
- * @param value current value in list
- * @return int Error code
- */
-int metkit_valueiterator_value(const metkit_valueiterator_t* list, const char** value);
-
-/* -------------------------------------------------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
 }

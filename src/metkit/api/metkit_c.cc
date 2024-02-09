@@ -1,4 +1,5 @@
 #include "metkit_c.h"
+#include "metkit/mars/MarsExpension.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/metkit_version.h"
 
@@ -12,9 +13,9 @@ extern "C" {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-struct Request : public metkit::mars::MarsRequest {
+struct metkit_request_t : public metkit::mars::MarsRequest {
     using metkit::mars::MarsRequest::MarsRequest;
-    Request(const metkit::mars::MarsRequest& k) :
+    metkit_request_t(const metkit::mars::MarsRequest& k) :
         metkit::mars::MarsRequest(k) {}
 };
 
@@ -40,8 +41,8 @@ struct metkit_requestiterator_t {
     std::vector<metkit::mars::MarsRequest>::const_iterator iterator;
 };
 
-struct StringVecIterator {
-    StringVecIterator(std::vector<std::string> vec) :
+struct metkit_paramiterator_t {
+    metkit_paramiterator_t(std::vector<std::string> vec) :
         first(true), vector(std::move(vec)), iterator(vector.begin()) {}
 
     int next() {
@@ -151,18 +152,25 @@ int metkit_initialise() {
 //                           PARSING
 // -----------------------------------------------------------------------------
 
-int metkit_parse_mars(metkit_requestiterator_t** requests, const char* str) {
-    return tryCatch([requests, str] {
+int metkit_parse_mars_request(const char* str, metkit_requestiterator_t** requests, bool strict) {
+    return tryCatch([requests, str, strict] {
         ASSERT(requests);
         ASSERT(str);
         std::istringstream in(str);
-        *requests = new metkit_requestiterator_t(metkit::mars::MarsRequest::parse(in));
+        *requests = new metkit_requestiterator_t(metkit::mars::MarsRequest::parse(in, strict));
     });
 }
 
 // -----------------------------------------------------------------------------
 //                           REQUEST
 // -----------------------------------------------------------------------------
+
+int metkit_new_request(metkit_request_t** request) {
+    return tryCatch([request] {
+        ASSERT(request);
+        *request = new metkit_request_t();
+    });
+}
 
 int metkit_free_request(const metkit_request_t* request) {
     return tryCatch([request] {
@@ -171,7 +179,29 @@ int metkit_free_request(const metkit_request_t* request) {
     });
 }
 
-int metkit_request_get_verb(const metkit_request_t* request, const char** verb) {
+int metkit_request_add(metkit_request_t* request, const char* param, const char* values[], int numValues) {
+    return tryCatch([request, param, values, numValues] {
+        ASSERT(request);
+        ASSERT(param);
+        ASSERT(values);
+        std::string n(param);
+        std::vector<std::string> vv;
+        for (int i = 0; i < numValues; i++) {
+            vv.push_back(std::string(values[i]));
+        }
+        request->values(n, vv);
+    });
+}
+
+int metkit_request_set_verb(metkit_request_t* request, const char* verb) {
+    return tryCatch([request, verb] {
+        ASSERT(request);
+        ASSERT(verb);
+        request->verb(verb);
+    });
+}
+
+int metkit_request_verb(const metkit_request_t* request, const char** verb) {
     return tryCatch([request, verb] {
         ASSERT(request);
         ASSERT(verb);
@@ -179,7 +209,16 @@ int metkit_request_get_verb(const metkit_request_t* request, const char** verb) 
     });
 }
 
-int metkit_request_get_params(const metkit_request_t* request, metkit_paramiterator_t** params) {
+int metkit_request_has_param(const metkit_request_t* request, const char* param, bool* has) {
+    return tryCatch([request, param, has] {
+        ASSERT(request);
+        ASSERT(param);
+        ASSERT(has);
+        *has = request->has(param);
+    });
+}
+
+int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_t** params) {
     return tryCatch([request, params] {
         ASSERT(request);
         ASSERT(params);
@@ -187,12 +226,31 @@ int metkit_request_get_params(const metkit_request_t* request, metkit_paramitera
     });
 }
 
-int metkit_request_get_values(const metkit_request_t* request, const char* param, metkit_valueiterator_t** values) {
-    return tryCatch([request, param, values] {
+int metkit_request_count_values(const metkit_request_t* request, const char* param, size_t* count) {
+    return tryCatch([request, param, count] {
         ASSERT(request);
         ASSERT(param);
-        ASSERT(values);
-        *values = new metkit_valueiterator_t(request->values(param));
+        ASSERT(count);
+        *count = request->countValues(param);
+    });
+}
+
+int metkit_request_value(const metkit_request_t* request, const char* param, int index, const char** value) {
+    return tryCatch([request, param, index, value] {
+        ASSERT(request);
+        ASSERT(param);
+        ASSERT(value);
+        *value = (request->values(param, false))[index].c_str();
+    });
+}
+
+int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit, bool strict) {
+    return tryCatch([request, expandedRequest, inherit, strict] {
+        ASSERT(request);
+        ASSERT(expandedRequest);
+        ASSERT(expandedRequest->empty());
+        metkit::mars::MarsExpension expand(inherit, strict);
+        *expandedRequest = std::move(expand.expand(*request));
     });
 }
 
@@ -214,12 +272,13 @@ int metkit_requestiterator_next(metkit_requestiterator_t* list) {
     }});
 }
 
-int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t** request) {
+int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t* request) {
     return tryCatch([list, request] {
         ASSERT(list);
         ASSERT(request);
         ASSERT(list->iterator != list->vector.end());
-        *request = new Request(*(list->iterator));
+        ASSERT(request->empty());
+        *request = std::move(*(list->iterator));
     });
 }
 
@@ -250,32 +309,6 @@ int metkit_paramiterator_param(const metkit_paramiterator_t* list, const char** 
     });
 }
 
-// -----------------------------------------------------------------------------
-//                           VALUE ITERATOR
-// -----------------------------------------------------------------------------
-
-int metkit_free_valueiterator(const metkit_valueiterator_t* list) {
-    return tryCatch([list] {
-        ASSERT(list);
-        delete list;
-    });
-}
-
-int metkit_valueiterator_next(metkit_valueiterator_t* list) {
-    return tryCatch(std::function<int()>{[list] {
-        ASSERT(list);
-        return list->next();
-    }});
-}
-
-int metkit_valueiterator_value(const metkit_valueiterator_t* list, const char** value) {
-    return tryCatch([list, value] {
-        ASSERT(list);
-        ASSERT(value);
-        ASSERT(list->iterator != list->vector.end());
-        *value = list->iterator->c_str();
-    });
-}
 
 // ---------------------------------------------------------------------------------------------------------------------
 
