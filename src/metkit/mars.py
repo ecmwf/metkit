@@ -2,7 +2,7 @@ import os
 from cffi import FFI
 from pkg_resources import parse_version
 import findlibs
-from typing import IO
+from typing import IO, Iterator
 
 __metkit_version__ = "1.11.0"
 
@@ -27,96 +27,130 @@ def ffi_decode(data: FFI.CData) -> str:
         return buf.decode(encoding="utf-8", errors="surrogateescape")
 
 
-class ParameterList:
+class Request:
     """
-    Class for iterating over parameters in MetKit MarsRequest
-    """
-
-    def __init__(self, request: FFI.CData):
-        cparams = ffi.new("metkit_paramiterator_t **")
-        lib.metkit_request_get_params(request, cparams)
-        self._cdata = ffi.gc(cparams[0], lib.metkit_free_paramiterator)
-
-    def __iter__(self):
-        return self
-
-    def __next__(self) -> str:
-        if lib.metkit_paramiterator_next(self._cdata) == lib.METKIT_ITERATION_COMPLETE:
-            raise StopIteration
-        cvalue = ffi.new("const char **")
-        lib.metkit_paramiterator_param(self._cdata, cvalue)
-        return ffi_decode(cvalue[0])
-
-
-class ValueList:
-    """
-    Class for iterating over values for a parameter in MetKit MarsRequest
+    Class for creating MetKit MarsRequest
     """
 
-    def __init__(self, request: FFI.CData, param: str):
-        cvalues = ffi.new("metkit_valueiterator_t **")
-        lib.metkit_request_get_values(request, ffi_encode(param), cvalues)
-        self._cdata = ffi.gc(cvalues[0], lib.metkit_free_valueiterator)
-
-    def __iter__(self):
-        return self
-
-    def __next__(self) -> str:
-        if lib.metkit_valueiterator_next(self._cdata) == lib.METKIT_ITERATION_COMPLETE:
-            raise StopIteration
-        cvalue = ffi.new("const char **")
-        lib.metkit_valueiterator_value(self._cdata, cvalue)
-        return ffi_decode(cvalue[0])
-
-
-class Request(dict):
-    """
-    Class containing MarsRequest keys and values, inheriting from dict with
-    additional attribute verb.
-    """
-
-    def __init__(self, verb: str):
-        self.verb = verb
-
-    def set_values(self, param: str, values: list[str]):
-        """
-        Set parameters and values in Request
-
-        Params
-        ------
-        param: str, parameter name
-        values: list of str, values for parameter
-
-        Raises
-        ------
-        AssertError if param already exists in Request
-        """
-        assert param not in self
-        self[param] = values
+    def __init__(self, verb: str | None = None):
+        crequest = ffi.new("metkit_request_t **")
+        lib.metkit_new_request(crequest)
+        self.__request = ffi.gc(crequest[0], lib.metkit_free_request)
+        if verb is not None:
+            lib.metkit_request_set_verb(self.__request, ffi_encode(verb))
 
     @staticmethod
-    def _from_metkit_request(crequest: FFI.CData) -> "Request":
+    def from_dict(verb: str, req: dict) -> "Request":
         """
-        Creates Request from MetKit MarsRequest instance
-
-        Params
-        ------
-        crequest: metkit_request_t **, MarsRequest
+        Create Request from verb and dictionary of parameters
+        and values
 
         Returns
         -------
-        Request instance
+        New request containing dictionary items
         """
+        request = Request(verb)
+        for param, values in req.items():
+            request[param] = values
+        return request
+
+    def ctype(self) -> FFI.CData:
+        return self.__request
+
+    def verb(self) -> str:
         cverb = ffi.new("const char **")
-        lib.metkit_request_get_verb(crequest, cverb)
-        req = Request(ffi_decode(cverb[0]))
+        lib.metkit_request_verb(self.__request, cverb)
+        return ffi_decode(cverb[0])
 
-        for param in ParameterList(crequest):
-            req.set_values(param, [val for val in ValueList(crequest, param)])
-        return req
+    def expand(self, inherit: bool = True, strict: bool = False) -> "Request":
+        """
+        Return expanded request
 
-    def __str__(self) -> str:
-        return f"verb: {self.verb}, request: {super().__str__()}"
+        Params
+        ------
+        inherit: bool, if True, populates expanded request with default values
+        strict: bool, if True, raise error instead of warning for invalid values
+
+        Returns
+        -------
+        Expanded request
+        """
+        expanded_request = Request()
+        lib.metkit_request_expand(
+            self.__request, expanded_request.ctype(), inherit, strict
+        )
+        return expanded_request
+
+    def params(self) -> Iterator[str]:
+        """
+        Get iterator over parameters in request
+
+        Returns
+        -------
+        Iterator over parameter names
+        """
+        cparams = ffi.new("metkit_paramiterator_t **")
+        lib.metkit_request_params(self.__request, cparams)
+        self._cdata = ffi.gc(cparams[0], lib.metkit_free_paramiterator)
+
+        while lib.metkit_paramiterator_next(self._cdata) == lib.METKIT_SUCCESS:
+            cvalue = ffi.new("const char **")
+            lib.metkit_paramiterator_param(self._cdata, cvalue)
+            yield ffi_decode(cvalue[0])
+
+    def num_values(self, param: str) -> int:
+        """
+        Number of values for parameter
+
+        Params
+        ------
+        param: parameter name
+
+        Returns
+        -------
+        int
+        """
+        assert param in self
+        cparam = ffi_encode(param)
+        count = ffi.new("size_t *", 0)
+        lib.metkit_request_count_values(self.__request, cparam, count)
+        return count[0]
+
+    def __iter__(self) -> Iterator[tuple[str, list[str]]]:
+        for param in self.params():
+            yield param, self[param]
+
+    def __getitem__(self, param: str) -> str | list[str]:
+        num_values = self.num_values(param)
+        values = []
+        for index in range(num_values):
+            cvalue = ffi.new("const char **")
+            lib.metkit_request_value(self.__request, ffi_encode(param), index, cvalue)
+            value = ffi_decode(cvalue[0])
+            if num_values == 1:
+                return value
+            values.append(value)
+        return values
+
+    def __contains__(self, param: str) -> bool:
+        has = ffi.new("bool *", False)
+        lib.metkit_request_has_param(self.__request, ffi_encode(param), has)
+        return has[0]
+
+    def __setitem__(self, param: str, values: int | str | list[str]):
+        if isinstance(values, (str, int)):
+            values = [values]
+        cvals = []
+        for value in values:
+            if isinstance(value, int):
+                value = str(value)
+            cvals.append(ffi.new("const char[]", value.encode("ascii")))
+        lib.metkit_request_add(
+            self.__request,
+            ffi_encode(param),
+            ffi.new("const char*[]", cvals),
+            len(values),
+        )
 
 
 def parse_mars_request(file_or_str: IO | str) -> list[Request]:
@@ -134,17 +168,18 @@ def parse_mars_request(file_or_str: IO | str) -> list[Request]:
     crequest_iter = ffi.new("metkit_requestiterator_t **")
 
     if isinstance(file_or_str, str):
-        lib.metkit_parse_mars(crequest_iter, ffi_encode(file_or_str))
+        lib.metkit_parse_mars_request(ffi_encode(file_or_str), crequest_iter, False)
     else:
-        lib.metkit_parse_mars(crequest_iter, ffi_encode(file_or_str.read()))
+        lib.metkit_parse_mars_request(
+            ffi_encode(file_or_str.read()), crequest_iter, False
+        )
     request_iter = ffi.gc(crequest_iter[0], lib.metkit_free_requestiterator)
 
     requests = []
     while lib.metkit_requestiterator_next(request_iter) == lib.METKIT_SUCCESS:
-        crequest = ffi.new("metkit_request_t **")
-        lib.metkit_requestiterator_request(request_iter, crequest)
-        request = ffi.gc(crequest[0], lib.metkit_free_request)
-        requests.append(Request._from_metkit_request(request))
+        new_request = Request()
+        lib.metkit_requestiterator_request(request_iter, new_request.ctype())
+        requests.append(new_request)
 
     return requests
 
