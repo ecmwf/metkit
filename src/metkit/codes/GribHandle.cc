@@ -82,6 +82,29 @@ GribHandle::GribHandle(eckit::DataHandle& handle):
     handle_ = h;
 }
 
+GribHandle::GribHandle(eckit::DataHandle& handle, eckit::Offset offset):
+    handle_(nullptr),
+    owned_(true) {
+
+    codes_handle* h = nullptr;
+    int err = 0;
+
+    FILE* f = handle.openf();
+    ASSERT(f);
+
+    fseek(f, offset, SEEK_SET);
+    h = codes_handle_new_from_file(0, f, PRODUCT_GRIB, &err);
+
+    CODES_CALL(err);
+    ASSERT(h);
+    handle_ = h;
+
+    // XXX: Part of a workaround to sync handle and f on linux.
+    // XXX: This needs to be investigated further.
+    handle.seek(ftello(f));
+    fclose(f); // XXX: The other constructor does not close the file, why do we?
+}
+
 GribHandle::~GribHandle() noexcept(false) {
     if (handle_ && owned_) {
         CODES_CALL(codes_handle_delete(handle_));
