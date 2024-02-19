@@ -7,11 +7,13 @@ _field: &_field
     flatten: false
     type: enum
     values:
+    - [ai, operational aifs]
     - [at, austria]
     - [be, belgium]
     - [c3, c3s]
     - [ce, cems]
     - [ch, switzerland]
+    - [ci, cerise]
     - [co, cosmo]
     - [cr, cams research]
     - [cs, ecsn]
@@ -448,7 +450,7 @@ _field: &_field
     - 400
     - 300
     never:
-    - levtype: sfc
+    - levtype: [sfc, o2d]
     - type: ssd
     type: to-by-list-float
 
@@ -552,6 +554,8 @@ _field: &_field
     default: 0
     type: range
     never:
+    - dataset:
+      - climate-dt
     - stream:
       - msmm
       - mmsa
@@ -603,6 +607,9 @@ _field: &_field
     default: g
     flatten: false
     type: enum
+    never:
+    - dataset:
+      - climate-dt
     values:
     - [a, north west europe]
     - [b, north east europe, baltic and black sea]
