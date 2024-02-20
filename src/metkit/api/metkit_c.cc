@@ -254,6 +254,14 @@ int metkit_request_expand(const metkit_request_t* request, metkit_request_t* exp
     });
 }
 
+int metkit_request_merge(metkit_request_t* request, const metkit_request_t* otherRequest) {
+    return tryCatch([request, otherRequest] {
+        ASSERT(request);
+        ASSERT(otherRequest);
+        request->merge(*otherRequest);
+    });
+}
+
 // -----------------------------------------------------------------------------
 //                           REQUEST ITERATOR
 // -----------------------------------------------------------------------------

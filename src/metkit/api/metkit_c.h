@@ -74,7 +74,6 @@ int metkit_initialise();
 /**
  * Parse MARS requests into RequestIterator of Request instances. Resulting RequestIterator
  * must be deallocated with metkit_free_requestiterator
- *
  * @param str MARS requests
  * @param requests Allocates RequestIterator object
  * @return int Error code
@@ -128,9 +127,10 @@ int metkit_request_verb(const metkit_request_t* request, const char** verb);
  */
 int metkit_request_has_param(const metkit_request_t* request, const char* param, bool* has);
 
-/** Returns list of parameter names in Request object
+/** Returns ParamIterator of parameters in request. Resulting ParamIterator
+ * must be deallocated with metkit_free_paramiterator
  * @param request Request instance
- * @param params ParamIterator instance for parameter names in request
+ * @param params Allocates ParamIterator object for parameter names in request
  * @return int Error code
  */
 int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_t** params);
@@ -155,11 +155,18 @@ int metkit_request_value(const metkit_request_t* request, const char* param, int
 /** Populates empty Request object by expanding existing request
  * @param request Request instance to be expanded
  * @param expandedRequest empty Request instance to be populated
- * @param inherit if true, populate expanded request with default values 
+ * @param inherit if true, populate expanded request with default values
  * @param strict it true, raise error rather than warning on invalid values
  * @return int Error code
  */
 int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit = true, bool strict = false);
+
+/** Merges other Request object into existing request
+ * @param request Request instance to contain result of merge
+ * @param otherRequest other Request instance to merge
+ * @return int Error code
+ */
+int metkit_request_merge(metkit_request_t* request, const metkit_request_t* otherRequest);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST ITERATOR
