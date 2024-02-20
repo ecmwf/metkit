@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
+from contextlib import nullcontext as does_not_raise
 import pytest
 
 from metkit import parse_mars_request
-from metkit.mars import Request
+from metkit.mars import Request, MetKitException
 
 request = """
 retrieve,
@@ -113,7 +114,8 @@ def test_request_from_expand():
 
 
 @pytest.mark.parametrize(
-    "extra_kv", [{"levelist": [500]}, {"type": "cf", "number": [1, 2]}]
+    "extra_kv",
+    [{"levelist": [500]}, {"type": "cf", "number": [1, 2]}, {"class": "invalid"}],
 )
 def test_request_validate(extra_kv):
     request = {
@@ -125,5 +127,28 @@ def test_request_validate(extra_kv):
         "levtype": "sfc",
     }
     req = Request.from_dict("retrieve", {**request, **extra_kv})
-    with pytest.raises(Exception):
+    with pytest.raises(MetKitException):
         req.validate()
+
+
+@pytest.mark.parametrize(
+    "extra_kv, expectation",
+    [
+        [{"levtype": "pl"}, pytest.raises(MetKitException)],
+        [{"type": "em"}, pytest.raises(AssertionError)],
+        [{"levtype": "sfc", "date": "20230101"}, does_not_raise()],
+    ],
+)
+def test_request_merge(extra_kv, expectation):
+    request = {
+        "class": "od",
+        "domain": "g",
+        "date": "-1",
+        "expver": "0001",
+        "step": range(0, 13, 6),
+        "levtype": "sfc",
+    }
+    req = Request.from_dict("retrieve", request)
+    other_req = Request.from_dict("retrieve", {**request, **extra_kv})
+    with expectation:
+        req.merge(other_req)

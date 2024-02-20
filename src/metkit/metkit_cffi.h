@@ -28,6 +28,7 @@ int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_
 int metkit_request_count_values(const metkit_request_t* request, const char* param, size_t* count);
 int metkit_request_value(const metkit_request_t* request, const char* param, int index, const char** value);
 int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit, bool strict);
+int metkit_request_merge(metkit_request_t* request, const metkit_request_t* otherRequest);
 int metkit_free_requestiterator(const metkit_requestiterator_t* list);
 int metkit_requestiterator_next(metkit_requestiterator_t* list);
 int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t* request);

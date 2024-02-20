@@ -127,6 +127,34 @@ class Request:
         lib.metkit_request_count_values(self.__request, cparam, count)
         return count[0]
 
+    def merge(self, other: "Request") -> "Request":
+        """
+        Merge the values in another request with existing request and returns result as a
+        new Request object. Does not modify inputs to merge. Both input requests must contain
+        the same values and the resulting request object must be compatible with MARS language
+        definition
+
+        Params
+        ------
+        other: Request, request to merge with self
+
+        Returns
+        -------
+        Request, containing the result of the merge
+
+        Raises
+        ------
+        AssertionError if parameters in the two requests do not match
+        MetKitException if resulting request is not incompatible with MARS language definition
+        """
+        assert set(self.params()) == set(
+            other.params()
+        ), "Can not merge requests with different parameters."
+        res = Request.from_dict(self.verb(), {k: v for k, v in self})
+        lib.metkit_request_merge(res.ctype(), other.ctype())
+        res.validate()
+        return res
+
     def __iter__(self) -> Iterator[tuple[str, list[str]]]:
         for param in self.params():
             yield param, self[param]
