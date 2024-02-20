@@ -15,7 +15,7 @@ retrieve,
     time=12,                 
     param=151.128,               
 	grid=O640,                
-	step=0/to/24/by/6,               
+	step=0/to/24/by/6,         
 	target=fileset:test.grib,
 	type=em
 retrieve,
@@ -86,11 +86,11 @@ def test_request_from_dict():
         "step": range(0, 13, 6),
     }
     req = Request.from_dict("retrieve", original_dict)
-    for name, value in original_dict.items():
+    for name, value in req:
         if name == "step":
-            assert list(map(str, value)) == req[name]
+            assert list(map(str, original_dict[name])) == value
         else:
-            assert value == req[name]
+            assert original_dict[name] == value
     assert req.verb() == "retrieve"
 
 
@@ -109,3 +109,21 @@ def test_request_from_expand():
     assert expanded.verb() == req.verb()
     assert expanded["date"] == yesterday
     assert "param" in expanded
+    expanded.validate()
+
+
+@pytest.mark.parametrize(
+    "extra_kv", [{"levelist": [500]}, {"type": "cf", "number": [1, 2]}]
+)
+def test_request_validate(extra_kv):
+    request = {
+        "class": "od",
+        "domain": "g",
+        "date": "-1",
+        "expver": "0001",
+        "step": range(0, 13, 6),
+        "levtype": "sfc",
+    }
+    req = Request.from_dict("retrieve", {**request, **extra_kv})
+    with pytest.raises(Exception):
+        req.validate()

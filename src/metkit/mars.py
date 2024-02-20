@@ -81,6 +81,17 @@ class Request:
         )
         return expanded_request
 
+    def validate(self):
+        """
+        Check if request is valid against MARS language definition. Does not
+        inherit missing parameters.
+
+        Raises
+        ------
+        Exception if request is incompatible with MARS language definition
+        """
+        self.expand(False, True)
+
     def params(self) -> Iterator[str]:
         """
         Get iterator over parameters in request
