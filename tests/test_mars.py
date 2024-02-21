@@ -12,12 +12,12 @@ retrieve,
     expver=0001,
     levtype=sfc,
     stream=enfo,
-    date=-1,            
-    time=12,                 
-    param=151.128,               
-	grid=O640,                
-	step=0/to/24/by/6,         
-	target=fileset:test.grib,
+    date=-1,
+    time=12,
+    param=151.128,
+    grid=O640,
+    step=0/to/24/by/6,         
+	target=test.grib,
 	type=em
 retrieve,
     class=od,
@@ -25,13 +25,13 @@ retrieve,
     expver=0001,
     levtype=pl,
     stream=enfo,
-    date=-1,            
-    time=12,                 
+    date=-1,
+    time=12,
     param=129, 
-    levelist=500,              
-	grid=O640,                
-	step=0/to/24/by/6,               
-	target=fileset:test.grib,
+    levelist=500,
+    grid=O640,
+    step=0/to/24/by/6,               
+	target=test.grib,
 	type=em
 """
 
@@ -53,17 +53,25 @@ def test_parse_file(tmpdir):
 
 
 @pytest.mark.parametrize(
-    "req_str, length, steps",
+    "req_str, length, steps, strict, expectation",
     [
-        [request, 2, 5],
-        ["retrieve,class=od,date=-1,time=12,param=129,step=12,target=test.grib", 1, 1],
+        [request, 2, 5, False, does_not_raise()],
+        [request, 2, 5, True, pytest.raises(MetKitException)],
+        [
+            "retrieve,class=od,date=-1,time=12,param=129,step=12,target=test.grib",
+            1,
+            1,
+            False,
+            does_not_raise(),
+        ],
     ],
 )
-def test_parse_string(req_str, length, steps):
-    requests = parse_mars_request(req_str)
-    assert len(requests) == length
-    for req in requests:
-        assert req.num_values("step") == steps
+def test_parse_string(req_str, length, steps, strict, expectation):
+    with expectation:
+        requests = parse_mars_request(req_str, strict)
+        assert len(requests) == length
+        for req in requests:
+            assert req.num_values("step") == steps
 
 
 def test_empty_request(tmpdir):
@@ -78,27 +86,16 @@ def test_new_request():
     req = Request("retrieve")
     assert req.verb() == "retrieve"
 
-
-def test_request_from_dict():
-    original_dict = {
-        "class": "od",
-        "domain": "g",
-        "expver": "0001",
-        "step": range(0, 13, 6),
-    }
-    req = Request.from_dict("retrieve", original_dict)
-    for name, value in req:
-        if name == "step":
-            assert list(map(str, original_dict[name])) == value
-        else:
-            assert original_dict[name] == value
-    assert req.verb() == "retrieve"
+    req = Request("request", class_="od", type="pf", date=["20200101", "20200102"])
+    assert req["class"] == "od"
+    assert req["type"] == "pf"
+    assert req["date"] == ["20200101", "20200102"]
 
 
 def test_request_from_expand():
-    req = Request.from_dict(
+    req = Request(
         "retrieve",
-        {
+        **{
             "class": "od",
             "domain": "g",
             "date": "-1",
@@ -126,7 +123,8 @@ def test_request_validate(extra_kv):
         "step": range(0, 13, 6),
         "levtype": "sfc",
     }
-    req = Request.from_dict("retrieve", {**request, **extra_kv})
+    request.update(extra_kv)
+    req = Request("retrieve", **request)
     with pytest.raises(MetKitException):
         req.validate()
 
@@ -134,8 +132,8 @@ def test_request_validate(extra_kv):
 @pytest.mark.parametrize(
     "extra_kv, expectation",
     [
-        [{"levtype": "pl"}, pytest.raises(MetKitException)],
-        [{"type": "em"}, pytest.raises(AssertionError)],
+        [{"levtype": "pl", "date": "-1"}, pytest.raises(MetKitException)],
+        [{"levtype": "sfc", "date": "-1", "type": "em"}, pytest.raises(ValueError)],
         [{"levtype": "sfc", "date": "20230101"}, does_not_raise()],
     ],
 )
@@ -143,12 +141,10 @@ def test_request_merge(extra_kv, expectation):
     request = {
         "class": "od",
         "domain": "g",
-        "date": "-1",
         "expver": "0001",
         "step": range(0, 13, 6),
-        "levtype": "sfc",
     }
-    req = Request.from_dict("retrieve", request)
-    other_req = Request.from_dict("retrieve", {**request, **extra_kv})
+    req = Request("retrieve", **request, date="-1", levtype="sfc")
+    other_req = Request("retrieve", **request, **extra_kv)
     with expectation:
         req.merge(other_req)

@@ -28,31 +28,19 @@ def ffi_decode(data: FFI.CData) -> str:
 
 
 class Request:
-    """
-    Class for creating MetKit MarsRequest
-    """
-
-    def __init__(self, verb: str | None = None):
+    def __init__(self, verb: str | None = None, **kwargs):
+        """
+        Create MetKit MarsRequest object. Parameters and values in
+        the request can be specified through kwargs, noting that
+        reserved words in Python must be suffixed with "_" e.g. "class_"
+        """
         crequest = ffi.new("metkit_request_t **")
         lib.metkit_new_request(crequest)
         self.__request = ffi.gc(crequest[0], lib.metkit_free_request)
         if verb is not None:
             lib.metkit_request_set_verb(self.__request, ffi_encode(verb))
-
-    @staticmethod
-    def from_dict(verb: str, req: dict) -> "Request":
-        """
-        Create Request from verb and dictionary of parameters
-        and values
-
-        Returns
-        -------
-        New request containing dictionary items
-        """
-        request = Request(verb)
-        for param, values in req.items():
-            request[param] = values
-        return request
+        for param, values in kwargs.items():
+            self[param.rstrip("_")] = values
 
     def ctype(self) -> FFI.CData:
         return self.__request
@@ -73,7 +61,7 @@ class Request:
 
         Returns
         -------
-        Expanded request
+        Request, resulting from expansion
         """
         expanded_request = Request()
         lib.metkit_request_expand(
@@ -92,7 +80,7 @@ class Request:
         """
         self.expand(False, True)
 
-    def params(self) -> Iterator[str]:
+    def keys(self) -> Iterator[str]:
         """
         Get iterator over parameters in request
 
@@ -144,19 +132,18 @@ class Request:
 
         Raises
         ------
-        AssertionError if parameters in the two requests do not match
-        MetKitException if resulting request is not incompatible with MARS language definition
+        ValueError if parameters in the two requests do not match
+        MetKitException if resulting request is not compatible with MARS language definition
         """
-        assert set(self.params()) == set(
-            other.params()
-        ), "Can not merge requests with different parameters."
-        res = Request.from_dict(self.verb(), {k: v for k, v in self})
+        if set(self.keys()) != set(other.keys()):
+            raise ValueError("Can not merge requests with different parameters.")
+        res = Request(self.verb(), **{k: v for k, v in self})
         lib.metkit_request_merge(res.ctype(), other.ctype())
         res.validate()
         return res
 
     def __iter__(self) -> Iterator[tuple[str, list[str]]]:
-        for param in self.params():
+        for param in self.keys():
             yield param, self[param]
 
     def __getitem__(self, param: str) -> str | list[str]:
@@ -192,13 +179,16 @@ class Request:
         )
 
 
-def parse_mars_request(file_or_str: IO | str) -> list[Request]:
+def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Request]:
     """
     Function for parsing mars request from file object or string.
 
     Params
     ------
     file_or_str: string or file-like object, containing mars request
+    strict: bool, whether to raise error or warning when request is not compatible with
+    MARS language definition. In the case of warning, when False, the incompatible
+    parameters are unset from the request.
 
     Returns
     -------
@@ -207,10 +197,10 @@ def parse_mars_request(file_or_str: IO | str) -> list[Request]:
     crequest_iter = ffi.new("metkit_requestiterator_t **")
 
     if isinstance(file_or_str, str):
-        lib.metkit_parse_mars_request(ffi_encode(file_or_str), crequest_iter, False)
+        lib.metkit_parse_mars_request(ffi_encode(file_or_str), crequest_iter, strict)
     else:
         lib.metkit_parse_mars_request(
-            ffi_encode(file_or_str.read()), crequest_iter, False
+            ffi_encode(file_or_str.read()), crequest_iter, strict
         )
     request_iter = ffi.gc(crequest_iter[0], lib.metkit_free_requestiterator)
 
