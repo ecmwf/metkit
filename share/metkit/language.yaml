@@ -316,7 +316,7 @@ _field: &_field
 
   model:
     category: data
-    type: any
+    type: lowercase
 
   repres:
     flatten: false
@@ -729,11 +729,11 @@ _field: &_field
 
   activity:
     category: data
-    type: any
+    type: lowercase
 
   experiment:
     category: data
-    type: any
+    type: lowercase
 
   generation:
     category: data
@@ -745,7 +745,7 @@ _field: &_field
 
   resolution:
     category: data
-    type: any
+    type: lowercase
 
 #######################################################################
 

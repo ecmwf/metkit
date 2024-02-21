@@ -69,6 +69,8 @@ list( APPEND metkit_srcs
     mars/TypeFloat.h
     mars/TypeInteger.cc
     mars/TypeInteger.h
+    mars/TypeLowercase.cc
+    mars/TypeLowercase.h
     mars/TypeMixed.cc
     mars/TypeMixed.h
     mars/TypeParam.cc
