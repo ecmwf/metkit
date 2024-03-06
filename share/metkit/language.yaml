@@ -1,5 +1,16 @@
 ---
 _field: &_field
+  project:
+    category: data
+    type: any
+
+  platform:
+    category: data
+    type: any
+
+  observation_variable:
+    category: data
+    type: any
 
   class:
     category: data

@@ -1,9 +1,9 @@
 ---
 CLASS: class
-DATE: andate
-TIME: antime
-TYPE: type
-OBSGROUP: groupid@hdr
-REPORTYPE: reportype
-STREAM: stream
 EXPVER: expver
+STREAM: stream
+PROJECT: project
+PLATFORM: platform
+OBSERVATION_VARIABLE: observation_variable
+DATE: date # Really this should be andate
+TIME: time # Really this should be antime
