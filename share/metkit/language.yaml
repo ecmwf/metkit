@@ -115,6 +115,7 @@ _field: &_field
     - [emtm, ensemble mean of temporal mean]
     - [ep, event probability]
     - [es, ensemble standard deviation]
+    - [est, ensemble statistics]
     - [estdtm, ensemble standard deviation of temporal mean]
     - [fa, forecast accumulation]
     - [fb, feedback]
