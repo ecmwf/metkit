@@ -16,7 +16,7 @@ namespace metkit {
 namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
-MarsParserContext::MarsParserContext(size_t line, size_t /* column */):
+MarsParserContext::MarsParserContext(std::size_t line, std::size_t /* column */):
     line_(line)
     //,column_(column) 
     {

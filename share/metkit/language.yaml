@@ -115,6 +115,7 @@ _field: &_field
     - [emtm, ensemble mean of temporal mean]
     - [ep, event probability]
     - [es, ensemble standard deviation]
+    - [est, ensemble statistics]
     - [estdtm, ensemble standard deviation of temporal mean]
     - [fa, forecast accumulation]
     - [fb, feedback]
@@ -316,7 +317,7 @@ _field: &_field
 
   model:
     category: data
-    type: any
+    type: lowercase
 
   repres:
     flatten: false
@@ -450,7 +451,7 @@ _field: &_field
     - 400
     - 300
     never:
-    - levtype: sfc
+    - levtype: [sfc, o2d]
     - type: ssd
     type: to-by-list-float
 
@@ -554,6 +555,8 @@ _field: &_field
     default: 0
     type: range
     never:
+    - dataset:
+      - climate-dt
     - stream:
       - msmm
       - mmsa
@@ -605,6 +608,9 @@ _field: &_field
     default: g
     flatten: false
     type: enum
+    never:
+    - dataset:
+      - climate-dt
     values:
     - [a, north west europe]
     - [b, north east europe, baltic and black sea]
@@ -724,11 +730,11 @@ _field: &_field
 
   activity:
     category: data
-    type: any
+    type: lowercase
 
   experiment:
     category: data
-    type: any
+    type: lowercase
 
   generation:
     category: data
@@ -740,7 +746,7 @@ _field: &_field
 
   resolution:
     category: data
-    type: any
+    type: lowercase
 
 #######################################################################
 
