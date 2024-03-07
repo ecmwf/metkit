@@ -19,6 +19,7 @@
 
 #include "metkit/mars/MarsExpandContext.h"
 
+#include <cstddef>
 
 namespace metkit {
 namespace mars {
@@ -31,10 +32,10 @@ class MarsParserContext : public MarsExpandContext {
 
 public:
 
-    MarsParserContext(size_t, size_t);
+    MarsParserContext(std::size_t, std::size_t);
 
 private:
-    size_t line_;
+    std::size_t line_;
     // size_t column_; // unused
 
     virtual void info(std::ostream& out) const;
