@@ -15055,6 +15055,9 @@
 260511:
 - csbt
 - clear-sky brightness temperature
+260512:
+- cdrfl
+- cloudy reflectance
 260530:
 - _param_260530
 - scaled radiance
