@@ -108,6 +108,7 @@ def test_request_from_expand():
     assert expanded["date"] == yesterday
     assert "param" in expanded
     expanded.validate()
+    assert req == expanded
 
 
 @pytest.mark.parametrize(
@@ -148,3 +149,25 @@ def test_request_merge(extra_kv, expectation):
     other_req = Request("retrieve", **request, **extra_kv)
     with expectation:
         req.merge(other_req)
+
+
+@pytest.mark.parametrize(
+    "verb, updates, expected",
+    [["retrieve", {"date": 20230101, "param": 130}, True], ["compute", {}, False]],
+)
+def test_request_equality(verb, updates, expected):
+    init_request = {
+        "class": "od",
+        "domain": "g",
+        "date": "20230101",
+        "param": "130",
+        "expver": "0001",
+        "step": range(0, 13, 6),
+    }
+    req = Request(
+        "retrieve",
+        **init_request,
+    )
+    second_request = {**init_request, **updates}
+    req2 = Request(verb, **second_request)
+    assert (req == req2) == expected

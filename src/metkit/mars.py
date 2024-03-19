@@ -178,6 +178,13 @@ class Request:
             len(values),
         )
 
+    def __eq__(self, other: "Request") -> bool:
+        if self.verb() != other.verb():
+            return False
+        expanded = self.expand()
+        other_expanded = other.expand()
+        return dict(expanded) == dict(other_expanded)
+
 
 def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Request]:
     """
