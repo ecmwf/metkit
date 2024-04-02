@@ -85,7 +85,7 @@ class SimpleCallback : public BaseCallbackConnection {
 public:
 
     SimpleCallback() :
-        callbackEndpoint_(net::IPAddress::hostAddress(callback_.localHost()).asString(), callback_.localPort()) {
+        callbackEndpoint_(computeEndpoint()) {
         LOG_DEBUG_LIB(LibMetkit) << "Simple callback. host=" << callbackEndpoint_.host()
                                  << " port=" << callbackEndpoint_.port() << std::endl;
     }
@@ -104,6 +104,19 @@ private:
 
     net::EphemeralTCPServer callback_;
     Endpoint callbackEndpoint_;
+
+    Endpoint computeEndpoint() const {
+        static std::string callbackHost = Resource<std::string>("$MARS_DHS_CALLBACK_HOST", "");
+        static int callbackPort = Resource<int>("$MARS_DHS_CALLBACK_PORT", 0);
+
+        if (callbackHost.empty()) {
+            return Endpoint{net::IPAddress::hostAddress(callback_.localHost()).asString(), callback_.localPort()};
+        }
+        if (callbackPort == 0) {
+            return Endpoint{callbackHost, callback_.localPort()};
+        }
+        return Endpoint{callbackHost, callbackPort};
+    }
 
 public:
     static const ClassSpec&  classSpec() {
