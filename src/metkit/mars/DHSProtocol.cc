@@ -85,8 +85,9 @@ class SimpleCallback : public BaseCallbackConnection {
 public:
 
     SimpleCallback() :
+        callback_(Resource<int>("$MARS_DHS_LOCALPORT", 0)),
         callbackEndpoint_(computeEndpoint()) {
-        LOG_DEBUG_LIB(LibMetkit) << "Simple callback. host=" << callbackEndpoint_.host()
+        LOG_DEBUG_LIB(LibMetkit) << "Simple callback. local port=" << callback_.localPort() << " host=" << callbackEndpoint_.host()
                                  << " port=" << callbackEndpoint_.port() << std::endl;
     }
     explicit SimpleCallback(const Configuration&) : SimpleCallback() {}
