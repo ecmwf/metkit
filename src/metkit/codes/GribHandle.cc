@@ -94,7 +94,7 @@ GribHandle::GribHandle(eckit::DataHandle& handle, eckit::Offset offset):
     FILE* f = handle.openf();
     ASSERT(f);
 
-    handle.seek(offset);
+    fseek(f, offset, SEEK_SET);
 
     h = codes_handle_new_from_file(0, f, PRODUCT_GRIB, &err);
 
