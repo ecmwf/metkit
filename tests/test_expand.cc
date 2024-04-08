@@ -20,6 +20,7 @@
 #include "metkit/mars/Type.h"
 
 #include "eckit/testing/Test.h"
+#include "eckit/utils/Tokenizer.h"
 
 using namespace eckit::testing;
 
@@ -233,44 +234,59 @@ CASE( "test_metkit_expand_12_time" ) {
 void stepThrows(std::vector<std::string> values) {
     expandKeyThrows("step", values);
 }
-void step(std::vector<std::string> values, std::vector<std::string> expected) {
+void step(std::string valuesStr, std::string expectedStr) {
+    eckit::Tokenizer parse("/");
+	std::vector<std::string> values;
+	std::vector<std::string> expected;
+
+	parse(valuesStr, values);
+	parse(expectedStr, expected);
+
     expandKey("step", values, expected);
 }
 
 CASE( "test_metkit_expand_13_step" ) {
-    step({"0"}, {"0"});
-    step({"1"}, {"1"});
-    step({"24"}, {"24"});
-    step({"144"}, {"144"});
-    step({"012"}, {"12"});
-    step({"12:30"}, {"12h30m"});
-    step({"1:00"}, {"1"});
-    step({"1:0:0"}, {"1"});
-    step({"1h"}, {"1"});
-    step({"60m"}, {"1"});
-    step({"1h60m"}, {"2"});
-    step({"0:5"}, {"5m"});
-    step({"0:05"}, {"5m"});
-    step({"0:05:0"}, {"5m"});
-    step({"0:06"}, {"6m"});
-    step({"0:10"}, {"10m"});
-    step({"0:12"}, {"12m"});
-    step({"0:15"}, {"15m"});
-    step({"0:20"}, {"20m"});
-    step({"0:25"}, {"25m"});
-    step({"0:30"}, {"30m"});
-    step({"0:35"}, {"35m"});
-    step({"0:40"}, {"40m"});
-    step({"0:45"}, {"45m"});
-    step({"0:50"}, {"50m"});
-    step({"0:55"}, {"55m"});
-    step({"0-24"}, {"0-24"});
-    step({"0-24s"}, {"0s-24s"});
-    step({"0-120s"}, {"0m-2m"});
-    step({"0s-120m"}, {"0-2"});
-    step({"1-2"}, {"1-2"});
-    step({"30m-1"}, {"30m-60m"});
+    step("0", "0");
+    step("1", "1");
+    step("24", "24");
+    step("144", "144");
+    step("012", "12");
+    step("12:30", "12h30m");
+    step("1:00", "1");
+    step("1:0:0", "1");
+    step("1h", "1");
+    step("60m", "1");
+    step("1h60m", "2");
+    step("0:5", "5m");
+    step("0:05", "5m");
+    step("0:05:0", "5m");
+    step("0:06", "6m");
+    step("0:10", "10m");
+    step("0:12", "12m");
+    step("0:15", "15m");
+    step("0:20", "20m");
+    step("0:25", "25m");
+    step("0:30", "30m");
+    step("0:35", "35m");
+    step("0:40", "40m");
+    step("0:45", "45m");
+    step("0:50", "50m");
+    step("0:55", "55m");
+    step("0-24", "0-24");
+    step("0-24s", "0-24s");
+    step("0-120s", "0-2m");
+    step("0s-120m", "0-2");
+    step("1-2", "1-2");
+    step("30m-1", "30m-1");
+    step("30m-90m", "30m-1h30m");
 
+    step("0/to/24/by/3", "0/3/6/9/12/15/18/21/24");
+    step("12/to/48/by/12", "12/24/36/48");
+    step("12/to/47/by/12", "12/24/36");
+    step("0/to/6/by/30m", "0/30m/1/1h30m/2/2h30m/3/3h30m/4/4h30m/5/5h30m/6");
+    step("0-6/to/18-24/by/6", "0-6/6-12/12-18/18-24");
+    step("0-24/to/48-72/by/24", "0-24/24-48/48-72");
+    step("0/to/24/by/3/0-6/to/18-24/by/6", "0/3/6/9/12/15/18/21/24/0-6/6-12/12-18/18-24");
 }
 
 

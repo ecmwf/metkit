@@ -102,7 +102,8 @@ void StepRange::print(std::ostream& s) const
         eckit::Time t{static_cast<long>(to_*3600.), true};
 
         TimeUnit unit = std::min(maxUnit(f), maxUnit(t));
-        s << canonical(f, unit) << '-' << canonical(t, unit);
+        // s << canonical(f, unit) << '-' << canonical(t, unit);
+        s << canonical(f) << '-' << canonical(t);
     }
 }
 
