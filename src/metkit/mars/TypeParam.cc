@@ -140,12 +140,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
 
         if (aliases.isNil()) {
 
-            Log::debug<LibMetkit>()
-                    << "No aliases for "
-                    << id
-                    << " "
-                    << *this
-                    << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << " " << *this << std::endl;
             continue;
         }
 
@@ -158,8 +153,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
 
                 if (precedence[v] <= j) {
 
-                    Log::debug<LibMetkit>()
-                            << "Redefinition ignored: param "
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param "
                             << v
                             << "='"
                             << first
@@ -172,8 +166,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
                 }
                 else {
 
-                    Log::debug<LibMetkit>()
-                            << "Redefinition of param "
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
                             << v
                             << "='"
                             << first

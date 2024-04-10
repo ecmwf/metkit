@@ -84,7 +84,7 @@ IdMap::IdMap(const std::string& configFile,
              size_t alphanumericIndex) {
 
     PathName configPath = codes_path() / configFile;
-    Log::debug<LibMetkit>() << "GribCodesBase::GribCodesBase: config file:" << configPath << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "GribCodesBase::GribCodesBase: config file:" << configPath << std::endl;
 
 	numeric2alpha_.clear();
 
@@ -99,7 +99,7 @@ IdMap::IdMap(const std::string& configFile,
             long num = eckit::Translator<std::string, long>()(StringTools::trim(words[numericIndex]));
             std::string alpha (StringTools::trim(words[alphanumericIndex]));
 			numeric2alpha_[num] = StringTools::lower(alpha);
-            Log::debug<LibMetkit>() << "GribCodesBase::readConfig: num='" << num << "' alpha='" << alpha << "'" << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "GribCodesBase::readConfig: num='" << num << "' alpha='" << alpha << "'" << std::endl;
 		}
 	}
 }
