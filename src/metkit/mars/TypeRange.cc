@@ -40,16 +40,14 @@ void TypeRange::print(std::ostream &out) const {
     out << "TypeRange[name=" << name_ << "]";
 }
 
-bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
-
+StepRange TypeRange::parse(std::string& value) const {
 	eckit::Tokenizer parse("-");
 	std::vector<std::string> result;
 
 	parse(value, result);
     switch (result.size()) {
         case 1: {
-            value = StepRange(eckit::Time(result[0], true));
-            return true;
+            return StepRange(eckit::Time(result[0], true));
         }
         case 2: {
             eckit::Time start = eckit::Time(result[0], true);
@@ -60,15 +58,20 @@ bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
                 oss << name_ + ": initial value " << start << " cannot be greater that final value " << end;
                 throw eckit::BadValue(oss.str());
             }
-            value = StepRange(start, end);
-            return true;
+            return StepRange(start, end);
         }
         default:
             std::ostringstream oss;
             oss << name_ + ": invalid value " << value << " " << result.size();
             throw eckit::BadValue(oss.str());
-    }
-    return false;
+    }   
+}
+
+bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
+
+    value = parse(value);
+    return true;
+
 }
 
 void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
@@ -93,10 +96,10 @@ void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& v
                 throw eckit::BadValue(oss.str());
             }
 
-            eckit::Time from = eckit::Time(values[i - 1], true);
+            StepRange from = parse(values[i - 1]);
             // unit = maxUnit(from);            
 
-            eckit::Time to = eckit::Time(values[i + 1], true);
+            StepRange to = parse(values[i + 1]);
             eckit::Time by = by_;
 
             if (i+2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
@@ -121,7 +124,7 @@ void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& v
                 oss << name_ + ": 'by' value " << by << " must be a positive number";
                 throw eckit::BadValue(name_ + ": 'by' value must be a positive number");
             }
-            eckit::Time j = from;
+            StepRange j = from;
             j += by;
             for (; j <= to; j += by) {
                 newval.emplace_back(StepRange(j));
