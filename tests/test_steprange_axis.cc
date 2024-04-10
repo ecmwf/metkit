@@ -21,6 +21,7 @@
 
 
 #include "eckit/testing/Test.h"
+#include "eckit/types/FloatCompare.h"
 
 using namespace eckit::testing;
 
@@ -50,17 +51,17 @@ CASE("steprange") {
     {
         StepRange sr{0,.5};
         EXPECT(sr.from()==0);
-        EXPECT(sr.to()==0.5);
+        EXPECT(eckit::types::is_approximately_equal(sr.to(), 0.5));
     }
     {
         StepRange sr{"0-30m"};
         EXPECT(sr.from()==0);
-        EXPECT(sr.to()==0.5);
+        EXPECT(eckit::types::is_approximately_equal(sr.to(), 0.5));
     }
     {
         StepRange sr{"0-24s"};
         EXPECT(sr.from()==0);
-        EXPECT(sr.to()==(24./3600.));
+        EXPECT(eckit::types::is_approximately_equal(sr.to(), 24./3600.));
     }
 }
 
