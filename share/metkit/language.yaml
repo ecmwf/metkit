@@ -26,6 +26,7 @@ _field: &_field
     - [e4, reanalyse40]
     - [e6, era6]
     - [ea, era5, esat]
+    - [ed, eerie]
     - [ef, efas]
     - [ei, era interim]
     - [el, eldas]
