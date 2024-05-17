@@ -80,6 +80,29 @@ GribHandle::GribHandle(eckit::DataHandle& handle):
     CODES_CALL(err);
     ASSERT(h);
     handle_ = h;
+
+    fclose(f);
+}
+
+GribHandle::GribHandle(eckit::DataHandle& handle, eckit::Offset offset):
+    handle_(nullptr),
+    owned_(true) {
+
+    codes_handle* h = nullptr;
+    int err = 0;
+
+    FILE* f = handle.openf();
+    ASSERT(f);
+
+    fseek(f, offset, SEEK_SET);
+
+    h = codes_handle_new_from_file(0, f, PRODUCT_GRIB, &err);
+
+    CODES_CALL(err);
+    ASSERT(h);
+    handle_ = h;
+
+    fclose(f);
 }
 
 GribHandle::~GribHandle() noexcept(false) {

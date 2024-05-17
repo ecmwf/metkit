@@ -40,3 +40,12 @@ axes:
     - direction
     - channel
     - reportype
+    - dataset
+    - activity
+    - experiment
+    - generation
+    - model
+    - realization
+    - resolution
+    - year
+    - month

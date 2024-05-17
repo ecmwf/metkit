@@ -164,7 +164,7 @@ Status BufrCheck::checkSubType(const message::Message& msg, int numMessage) {
         if (type == expectedType) {
             return Status::OK;
         } else {
-            if (verbose_) {
+            if (verbose_ || !ignoreType_) {
                 Log::error() << "message " << numMessage
                     << ", type " << type << " and expected type " << expectedType << " don't match for subtype " << subtype
                     << std::endl;
@@ -172,7 +172,7 @@ Status BufrCheck::checkSubType(const message::Message& msg, int numMessage) {
             return Status::CORRUPTED;
         }
     } else {
-        if (verbose_) {
+        if (verbose_ || !ignoreType_) {
             Log::error() << "message " << numMessage
                 << ", unknown subtype " << subtype
                 << std::endl;
@@ -338,8 +338,9 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
 
                     switch (checkSubType(msg, numMessage)) {
                         case Status::CORRUPTED:
-                            if (!ignoreType_)
+                            if (!ignoreType_) {
                                 ok = false;
+                            }
                             inconsistentSubType++;
                             break;
                         case Status::FIXED:

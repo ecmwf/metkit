@@ -8,45 +8,33 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Manuel Fuentes
-/// @author Baudouin Raoult
-/// @author Tiago Quintino
+/// @file   TypeLowercase.h
+/// @author Emanuele Danovaro
+/// @date   February 2024
 
-/// @date Sep 96
+#pragma once
 
-#ifndef metkit_MarsParserContext_H
-#define metkit_MarsParserContext_H
+#include "metkit/mars/Type.h"
 
-#include <stddef.h>
-
-#include "metkit/mars/MarsExpandContext.h"
-
-#include <cstddef>
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsParserContext : public MarsExpandContext {
+class TypeLowercase : public Type {
 
-public:
+public: // methods
 
-    MarsParserContext(std::size_t, std::size_t);
+    TypeLowercase(const std::string &name, const eckit::Value& settings = eckit::Value());
 
-private:
-    std::size_t line_;
-    // size_t column_; // unused
+    virtual ~TypeLowercase() override;
 
-    virtual void info(std::ostream& out) const;
+private: // methods
+
+    virtual void print(std::ostream &out) const override;
+    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const override;
 
 };
 
-
-
 //----------------------------------------------------------------------------------------------------------------------
+} // namespace metkit::mars
 
-} // namespace mars
-} // namespace metkit
-
-#endif

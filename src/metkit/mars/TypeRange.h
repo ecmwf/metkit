@@ -19,6 +19,7 @@
 namespace metkit {
 namespace mars {
 
+class StepRange;
 //----------------------------------------------------------------------------------------------------------------------
 
 class TypeRange : public Type {
@@ -35,6 +36,10 @@ private: // methods
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
     virtual void expand(const MarsExpandContext& ctx,
                         std::vector<std::string>& values) const override;
+
+    StepRange parse(std::string& value) const;
+
+private: // attributes
 
     eckit::Time by_;
 

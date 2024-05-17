@@ -20,6 +20,7 @@
 #include "metkit/mars/Type.h"
 
 #include "eckit/testing/Test.h"
+#include "eckit/utils/Tokenizer.h"
 
 using namespace eckit::testing;
 
@@ -131,19 +132,29 @@ CASE( "test_metkit_expand_10_strict" ) {
     }
 }
 
-void quantileThrows(std::vector<std::string> values) {
+
+void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     DummyContext ctx;
     static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type("quantile");
-    EXPECT_THROWS_AS(t->expand(ctx, values), eckit::BadValue);
+    metkit::mars::Type* t = language.type(key);
+    std::cout << key << "Throws " << values << std::endl;
+    EXPECT_THROWS(t->expand(ctx, values));
+}
+void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
+    DummyContext ctx;
+    static metkit::mars::MarsLanguage language("retrieve");
+    metkit::mars::Type* t = language.type(key);
+    std::cout << key << " " << values;
+    t->expand(ctx, values);
+    std::cout << " ==> " << values << " - expected " << expected << std::endl;
+    ASSERT(values == expected);
 }
 
+void quantileThrows(std::vector<std::string> values) {
+    expandKeyThrows("quantile", values);
+}
 void quantile(std::vector<std::string> values, std::vector<std::string> expected) {
-    DummyContext ctx;
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type("quantile");
-    t->expand(ctx, values);
-    ASSERT(values == expected);
+    expandKey("quantile", values, expected);
 }
 
 CASE( "test_metkit_expand_11_quantile" ) {
@@ -178,21 +189,10 @@ CASE( "test_metkit_expand_11_quantile" ) {
 
 
 void timeThrows(std::vector<std::string> values) {
-    DummyContext ctx;
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type("time");
-    std::cout << "timeThrows " << values << std::endl;
-    EXPECT_THROWS(t->expand(ctx, values));
+    expandKeyThrows("time", values);
 }
-
 void time(std::vector<std::string> values, std::vector<std::string> expected) {
-    DummyContext ctx;
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type("time");
-    std::cout << "time " << values;
-    t->expand(ctx, values);
-    std::cout << " ==> " << values << " - expected " << expected << std::endl;
-    ASSERT(values == expected);
+    expandKey("time", values, expected);
 }
 
 CASE( "test_metkit_expand_12_time" ) {
@@ -228,75 +228,93 @@ CASE( "test_metkit_expand_12_time" ) {
     time({"1","to","6","by","6"}, {"0100"});
 
     time({"1","to","3h","by","30m"}, {"0100", "0130", "0200", "0230", "0300"});
-
-    // quantile({"0:5","to","0:5"}, {"0:5"});
-    // quantile({"3:3","to","3:3"}, {"3:3"});
-    // quantile({"0:5","to","5:5"}, {"0:5","1:5","2:5","3:5","4:5","5:5"});
-    // quantile({"0:5","to","5:5","by","1"}, {"0:5","1:5","2:5","3:5","4:5","5:5"});
-    // quantile({"0:5","to","5:5","by","2"}, {"0:5","2:5","4:5"});
-    // quantile({"0:5","to","5:5","by","3"}, {"0:5","3:5"});
-    // quantile({"0:5","to","5:5","by","5"}, {"0:5","5:5"});
-    // quantile({"0:5","to","5:5","by","6"}, {"0:5"});
-    // quantile({"2:5","to","5:5","by","2"}, {"2:5","4:5"});
-    // quantile({"3:5","to","5:5","by","2"}, {"3:5","5:5"});
-    // quantile({"4:5","to","5:5","by","2"}, {"4:5"});
-    // quantile({"0:10","3:10","to","7:10","by","2","10:10"}, {"0:10","3:10","5:10","7:10","10:10"});
 }
 
 
 void stepThrows(std::vector<std::string> values) {
-    DummyContext ctx;
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type("step");
-    std::cout << "stepThrows " << values << std::endl;
-    EXPECT_THROWS(t->expand(ctx, values));
+    expandKeyThrows("step", values);
 }
+void step(std::string valuesStr, std::string expectedStr) {
+    eckit::Tokenizer parse("/");
+	std::vector<std::string> values;
+	std::vector<std::string> expected;
 
-void step(std::vector<std::string> values, std::vector<std::string> expected) {
-    DummyContext ctx;
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type("step");
-    std::cout << "step " << values << " ==> ";
-    t->expand(ctx, values);
-    std::cout << values << " - expected: " << expected << std::endl;
-    ASSERT(values == expected);
+	parse(valuesStr, values);
+	parse(expectedStr, expected);
+
+    expandKey("step", values, expected);
 }
 
 CASE( "test_metkit_expand_13_step" ) {
-//    stepThrows({"0:70"});
-    step({"0"}, {"0"});
-    step({"1"}, {"1"});
-    step({"24"}, {"24"});
-    step({"144"}, {"144"});
-    step({"012"}, {"12"});
-    step({"12:30"}, {"12h30m"});
-    step({"1:00"}, {"1"});
-    step({"1:0:0"}, {"1"});
-    step({"1h"}, {"1"});
-    step({"60m"}, {"1"});
-    step({"1h60m"}, {"2"});
-    step({"0:5"}, {"5m"});
-    step({"0:05"}, {"5m"});
-    step({"0:05:0"}, {"5m"});
-    step({"0:06"}, {"6m"});
-    step({"0:10"}, {"10m"});
-    step({"0:12"}, {"12m"});
-    step({"0:15"}, {"15m"});
-    step({"0:20"}, {"20m"});
-    step({"0:25"}, {"25m"});
-    step({"0:30"}, {"30m"});
-    step({"0:35"}, {"35m"});
-    step({"0:40"}, {"40m"});
-    step({"0:45"}, {"45m"});
-    step({"0:50"}, {"50m"});
-    step({"0:55"}, {"55m"});
-    step({"0-24"}, {"0-24"});
-    step({"0-24s"}, {"0s-24s"});
-    step({"0-120s"}, {"0m-2m"});
-    step({"0s-120m"}, {"0-2"});
-    step({"1-2"}, {"1-2"});
-    step({"30m-1"}, {"30m-60m"});
+    step("0", "0");
+    step("1", "1");
+    step("24", "24");
+    step("144", "144");
+    step("012", "12");
+    step("12:30", "12h30m");
+    step("1:00", "1");
+    step("1:0:0", "1");
+    step("1h", "1");
+    step("60m", "1");
+    step("1h60m", "2");
+    step("0:5", "5m");
+    step("0:05", "5m");
+    step("0:05:0", "5m");
+    step("0:06", "6m");
+    step("0:10", "10m");
+    step("0:12", "12m");
+    step("0:15", "15m");
+    step("0:20", "20m");
+    step("0:25", "25m");
+    step("0:30", "30m");
+    step("0:35", "35m");
+    step("0:40", "40m");
+    step("0:45", "45m");
+    step("0:50", "50m");
+    step("0:55", "55m");
+    step("0-24", "0-24");
+    step("0-24s", "0-24s");
+    step("0-120s", "0-2m");
+    step("0s-120m", "0-2");
+    step("1-2", "1-2");
+    step("30m-1", "30m-1");
+    step("30m-90m", "30m-1h30m");
 
+    step("0/to/24/by/3", "0/3/6/9/12/15/18/21/24");
+    step("12/to/48/by/12", "12/24/36/48");
+    step("12/to/47/by/12", "12/24/36");
+    step("0/to/6/by/30m", "0/30m/1/1h30m/2/2h30m/3/3h30m/4/4h30m/5/5h30m/6");
+    step("0-6/to/18-24/by/6", "0-6/6-12/12-18/18-24");
+    step("0-24/to/48-72/by/24", "0-24/24-48/48-72");
+    step("0/to/24/by/3/0-6/to/18-24/by/6", "0/3/6/9/12/15/18/21/24/0-6/6-12/12-18/18-24");
+    step("0-24/to/24-48/by/90m", "0-24/1h30m-25h30m/3-27/4h30m-28h30m/6-30/7h30m-31h30m/9-33/10h30m-34h30m/12-36/13h30m-37h30m/15-39/16h30m-40h30m/18-42/19h30m-43h30m/21-45/22h30m-46h30m/24-48");
+}
+
+
+void activity(std::vector<std::string> values, std::vector<std::string> expected) {
+    expandKey("activity", values, expected);
+}
+void experiment(std::vector<std::string> values, std::vector<std::string> expected) {
+    expandKey("experiment", values, expected);
+}
+void model(std::vector<std::string> values, std::vector<std::string> expected) {
+    expandKey("model", values, expected);
+}
+
+CASE( "test_metkit_expand_lowercase" ) {
+    activity({"ScenarioMIP"}, {"scenariomip"});
+    activity({"CMIP6"}, {"cmip6"});
+    activity({"ScenarioMIP"}, {"scenariomip"});
+    activity({"cmip6"}, {"cmip6"});
+    experiment({"SSP3-7.0"}, {"ssp3-7.0"});
+    experiment({"ssp3-7.0"}, {"ssp3-7.0"});
+    experiment({"hist"}, {"hist"});
+    model({"IFS-NEMO"}, {"ifs-nemo"});
+    model({"IFS"}, {"ifs"});
+    model({"ifs-nemo"}, {"ifs-nemo"});
+    model({"ifs"}, {"ifs"});
+    model({"ICON"}, {"icon"});
+    model({"icon"}, {"icon"});
 }
 
 //-----------------------------------------------------------------------------
