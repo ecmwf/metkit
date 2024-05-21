@@ -1,1 +1,1 @@
-# mars-config
+# metkit-config
