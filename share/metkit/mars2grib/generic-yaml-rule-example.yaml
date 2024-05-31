@@ -1,0 +1,34 @@
+key: KEYNAME    
+# dict: work
+# dict: initial
+
+# default is optional (will throw if no mapping is provided)
+default:
+    fail: "Not supported"
+
+# Map values for KEYNAME to sub actions
+value-map:
+    val1:
+        fail: "Not supported"
+        
+    val2:
+        key: levtype
+        dict: initial
+        value-map:
+            sfc:
+                write:
+                    levtype: surface
+            
+    
+           
+    val2:
+        # Writes to both... directly to supplied codes handle and working dir
+        write: 
+            KEY_X: VALUE
+            KEY_Y: VALUE
+        write-out: 
+            SOMECODES_CONTROL_KEY: VALUE
+        write-work: 
+            TMP_KEY: VALUE
+    
+    

@@ -155,6 +155,18 @@ if ( HAVE_GRIB )
         codes/GribIterator.cc
         codes/GribIterator.h
         codes/CodesHandleDeleter.h
+
+        mars2grib/CodesKeySetter.cc
+        mars2grib/CodesKeySetter.h
+        mars2grib/Mars2Grib.cc
+        mars2grib/Mars2Grib.h
+        mars2grib/Mars2GribException.cc
+        mars2grib/Mars2GribException.h
+        mars2grib/Rule.cc
+        mars2grib/Rule.h
+        mars2grib/YAMLRule.cc
+        mars2grib/YAMLRule.h
+        mars2grib/KeySetter.h
         )
 
     set( grib_libs eccodes )
