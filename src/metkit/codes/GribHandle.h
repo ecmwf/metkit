@@ -88,6 +88,18 @@ public: // methods
     // double longitudeOfFirstGridPointInDegrees() const;
     // double latitudeOfLastGridPointInDegrees()   const;
     // double longitudeOfLastGridPointInDegrees()  const;
+    
+    void setValue(const char* key, double value);
+    void setValue(const char* key, const std::string& value);
+    void setValue(const char* key, const char* value);
+    void setValue(const char* key, long value);
+
+    void setValue(const std::string& key, double value);
+    void setValue(const std::string& key, const std::string& value);
+    void setValue(const std::string& key, const char* value);
+    void setValue(const std::string& key, long value);
+
+
 
     bool hasKey(const char*) const;
 

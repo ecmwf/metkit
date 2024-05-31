@@ -18,6 +18,8 @@
 
 #include "metkit/codes/GribAccessor.h"
 
+#include <cstring>
+
 using namespace std;
 
 
@@ -142,6 +144,39 @@ void GribHandle::setDataValues(const double* values, size_t count) {
     ASSERT(values);
     CODES_CALL(codes_set_double_array(raw(), "values", values, count));
 }
+
+
+void GribHandle::setValue(const char* key, double value) {
+    ASSERT(key);
+    CODES_CALL(codes_set_double(raw(), key, value));
+}
+void GribHandle::setValue(const char* key, const char* value) {
+    ASSERT(key);
+    std::size_t len = strlen(value);
+    CODES_CALL(codes_set_string(raw(), key, value, &len));
+}
+void GribHandle::setValue(const char* key, const std::string& value) {
+    setValue(key, value.c_str());
+}
+void GribHandle::setValue(const char* key, long value) {
+    ASSERT(key);
+    CODES_CALL(codes_set_double(raw(), key, value));
+}
+
+
+void GribHandle::setValue(const std::string& key, double value) {
+    setValue(key.c_str(), value);
+};
+void GribHandle::setValue(const std::string& key, const std::string& value) {
+    setValue(key.c_str(), value);
+};
+void GribHandle::setValue(const std::string& key, const char* value) {
+    setValue(key.c_str(), value);
+};
+void GribHandle::setValue(const std::string& key, long value) {
+    setValue(key.c_str(), value);
+};
+
 
 void GribHandle::dump( const eckit::PathName& path, const char* mode) const {
     eckit::StdFile f(path.localPath(), "w");
