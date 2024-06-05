@@ -53,6 +53,9 @@ public: // types
     /// constructor creating a grib_handle from a DataHandle
     explicit GribHandle(eckit::DataHandle&);
 
+    // Constructor creating a grib_handle from a DataHandle starting from a given offset
+    explicit GribHandle(eckit::DataHandle&, eckit::Offset);
+
     /// destructor will delete the grib_handle if we own it
     ~GribHandle() noexcept(false);
 

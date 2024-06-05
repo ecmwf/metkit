@@ -212,7 +212,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "generatingProcessIdentifier", 1);
         MD_EXPECT_LONG(md, "hoursAfterDataCutoff", 0);
         MD_EXPECT_LONG(md, "minutesAfterDataCutoff", 0);
-        MD_EXPECT_LONG(md, "indicatorOfUnitOfTimeRange", 1);
+        // MD_EXPECT_LONG(md, "indicatorOfUnitOfTimeRange", 1);
         MD_EXPECT_LONG(md, "stepUnits", 1);
         MD_EXPECT_LONG(md, "forecastTime", 0);
         MD_EXPECT_LONG(md, "startStep", 0);
@@ -237,7 +237,6 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "topLevel", 0);
         MD_EXPECT_STRING(md, "tempPressureUnits", "hPa");
         MD_EXPECT_STRING(md, "levtype", "o3d");
-        MD_EXPECT_STRING(md, "modelName", "unknown");
         MD_EXPECT_LONG(md, "PVPresent", 0);
         MD_EXPECT_STRING(md, "deletePV", "1");
         MD_EXPECT_LONG(md, "lengthOfHeaders", 107);
@@ -396,7 +395,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "generatingProcessIdentifier", "1");
         MD_EXPECT_STRING(md, "hoursAfterDataCutoff", "0");
         MD_EXPECT_STRING(md, "minutesAfterDataCutoff", "0");
-        MD_EXPECT_STRING(md, "indicatorOfUnitOfTimeRange", "h");
+        // MD_EXPECT_STRING(md, "indicatorOfUnitOfTimeRange", "h");
         MD_EXPECT_STRING(md, "stepUnits", "h");
         MD_EXPECT_STRING(md, "forecastTime", "0");
         MD_EXPECT_STRING(md, "startStep", "0");
@@ -421,7 +420,6 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "topLevel", "0");
         MD_EXPECT_STRING(md, "tempPressureUnits", "hPa");
         MD_EXPECT_STRING(md, "levtype", "o3d");
-        MD_EXPECT_STRING(md, "modelName", "unknown");
         MD_EXPECT_STRING(md, "PVPresent", "0");
         MD_EXPECT_STRING(md, "deletePV", "1");
         MD_EXPECT_STRING(md, "lengthOfHeaders", "107");

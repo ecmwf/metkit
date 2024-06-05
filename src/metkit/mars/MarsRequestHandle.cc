@@ -12,6 +12,8 @@
 // Baudouin Raoult - (c) ECMWF Feb 12
 
 #include "metkit/mars/MarsRequestHandle.h"
+#include "metkit/config/LibMetkit.h"
+
 #include "eckit/utils/StringTools.h"
 #include "eckit/types/Types.h"
 
@@ -53,7 +55,7 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request,
     protocol_(protocol),
     opened_(false)
 {
-    eckit::Log::debug() << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "MarsRequestHandle::MarsRequestHandle: request: " << request << " protocol: " << protocol << std::endl;
     ASSERT(protocol);
 }
 

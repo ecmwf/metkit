@@ -47,19 +47,20 @@ class GribAccessor : private GribAccessorBase {
 private: // members
 
     std::string name_;
+    bool quiet_;
 
 public: // methods
 
-    GribAccessor(const std::string& name): name_(name) {}
+    GribAccessor(const std::string& name, bool quiet = false): name_(name), quiet_(quiet) {}
 
     T value(const GribHandle& h) const
     {
         T value;
-        grib_get_value(h, name_, value);
+        grib_get_value(h, name_, value, quiet_);
         return value;
     }
 
-    T value(const GribHandle& h,T def) const
+    T value(const GribHandle& h, T def) const
     {
         T value = def;
         grib_get_value(h, name_, value, true);

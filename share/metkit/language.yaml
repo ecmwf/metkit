@@ -26,6 +26,7 @@ _field: &_field
     - [e4, reanalyse40]
     - [e6, era6]
     - [ea, era5, esat]
+    - [ed, eerie]
     - [ef, efas]
     - [ei, era interim]
     - [el, eldas]
@@ -115,6 +116,7 @@ _field: &_field
     - [emtm, ensemble mean of temporal mean]
     - [ep, event probability]
     - [es, ensemble standard deviation]
+    - [est, ensemble statistics]
     - [estdtm, ensemble standard deviation of temporal mean]
     - [fa, forecast accumulation]
     - [fb, feedback]
@@ -316,7 +318,7 @@ _field: &_field
 
   model:
     category: data
-    type: any
+    type: lowercase
 
   repres:
     flatten: false
@@ -595,9 +597,6 @@ _field: &_field
     by: 1
     only:
     - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
-    never:
-    # This is to prevent number with type=fc and stream=oper
-    - stream: [oper, wave]
     type: to-by-list
 
   quantile:
@@ -740,11 +739,11 @@ _field: &_field
 
   activity:
     category: data
-    type: any
+    type: lowercase
 
   experiment:
     category: data
-    type: any
+    type: lowercase
 
   generation:
     category: data
@@ -756,7 +755,7 @@ _field: &_field
 
   resolution:
     category: data
-    type: any
+    type: lowercase
 
 #######################################################################
 
