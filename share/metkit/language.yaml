@@ -464,6 +464,17 @@ _field: &_field
     never:
     - type: [tf, ob]
 
+  chem:
+    category: data
+    default: 0
+    multiple: true
+    type: enum
+
+  wavelenth:
+    category: data
+    multiple: true
+    type: enum
+
 #################################################################
 
   # year
