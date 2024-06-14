@@ -88,3 +88,4 @@ endforeach()
 
 add_subdirectory(regressions)
 add_subdirectory(marsgen)
+add_subdirectory(mars2grib)
