@@ -65,6 +65,7 @@ public:
     YAMLRule(const eckit::LocalConfiguration&, const std::string& ruleSource);
     YAMLRule(const eckit::LocalConfiguration&);
     YAMLRule(const eckit::PathName&);
+    YAMLRule(const RuleConfiguration& ruleConf);
 
     void apply(const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) override;
 

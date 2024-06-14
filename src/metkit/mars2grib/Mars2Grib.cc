@@ -12,11 +12,14 @@
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
+#include "eckit/config/YAMLConfiguration.h"
 #include "eckit/thread/AutoLock.h"
 
 #include "metkit/config/LibMetkit.h"
 
 #include "metkit/mars2grib/Mars2Grib.h"
+#include "metkit/mars2grib/Rule.h"
+#include "metkit/mars2grib/CodesKeySetter.h"
 
 
 using eckit::Log;
@@ -27,15 +30,31 @@ namespace {
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
 
+static std::unique_ptr<metkit::mars2grib::RuleList> ruleList{nullptr};
 }
 
+static void init() {
+    local_mutex = new eckit::Mutex();
+    ruleList = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribRuleListYamlFile()});
+}
 
 namespace metkit::mars2grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
-static void convertMars2Grib(const eckit::ValueMap&, KeySetter&) {
+void convertMars2Grib(const eckit::ValueMap& initial, KeySetter& out) {
+    pthread_once(&once, init);
+    
+    // TODO mutex not really required here?
+    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
+    
+    ruleList->apply(initial, out);
+}
+
+void convertMars2Grib(const eckit::ValueMap& initial, grib::GribHandle& out) {
+    CodesKeySetter ks{out};
+    convertMars2Grib(initial, ks); 
 }
 
 

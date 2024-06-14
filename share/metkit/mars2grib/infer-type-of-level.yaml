@@ -1,0 +1,139 @@
+# WIP
+#
+# This file is manually created and maintained
+# Structure of nested dicts
+# Level 1 key: levtype
+# Level 2 key: stream
+# Level 3 key: paramid
+#
+# Special key '*' describes any value for given key
+
+- key: levtype
+  values:
+    sfc:
+        *:
+            *: surface
+            ?: entireAtmosphere
+            ?: entireLake
+            ?: cloudBase
+            ?: tropopause
+            ?: nominalTop
+            ?: adiabaticCondensation 
+            ?: freeConvection
+            ?: neutralBuoyancy
+            ?: mostUnstableParcel
+            ?: mixedLayerParcel
+            ?: lowCloudLayer
+            ?: mediumCloudLayer
+            ?: highCloudLayer
+            ?: meanSea
+            ?: heightAboveSea
+            ?: heightAboveGround
+            ?: heightAboveGroundLayer
+            ?: depthBelowLand
+            ?: depthBelowLandLayer
+            ?: lakeBottom
+            ?: mixingLayer
+            ?: indefiniteSoilDepth
+            ?: totalSoilLayer
+            ?: rootZone
+            ?: urbanCanyon
+            
+            # 
+            
+            ?: iceTopOnWater # for discipline 1 (hydrological) only other wise o2d
+            ?: iceLayerOnWater # for discipline 1 (hydrological) only other wise o2d
+    # end levtype: sfc
+
+    pl:
+        *:
+            *: isobaricInPa
+            ?: isobaricInhPa
+            ?: isobaricLayer
+    # end levtype: pl
+
+    ml:
+        *:
+            *: hybrid
+            ?: hybridLayer
+    # end levtype: ml
+
+    pt:
+        *:
+            *: theta
+            ?: thetaLayer
+            
+    # end levtype: pt
+
+    pv:
+        *:
+            *: potentialVorticity
+            
+    # end levtype: pv
+
+
+    hhl:
+        *:
+            *: hybridHeight
+            
+    # end levtype: hhl
+
+
+    hpl:
+        *:
+            *: hybridPressure
+            
+    # end levtype: hpl
+
+
+    sol:
+        *:
+            *: snow
+            ?: snowLayer
+            ?: soil
+            ?: soilLayer
+            ?: seaIce
+            ?: seaIceLayer
+            ?: roof
+            ?: roofLayer
+            ?: wall
+            ?: wallLayer
+            ?: road
+            ?: roadLayer
+    # end levtype: sol
+
+    o2d:
+        *:
+            *: entireOcean
+            ?: isothermal
+            ?: depthBelowLand
+            ?: depthBelowSea 
+            ?: depthBelowSeaLayer
+            ?: oceanSurface
+            ?: oceanSurfaceToBottom
+            ?: mixedLayerDepthByDensity
+            ?: mixedLayerDepthByTemperature
+            ?: mixedLayerDepthByDiffusivity
+            ?: snowTopOverIceOnWater
+            ?: snowLayerOverIceOnWater
+            ?: iceTopOnWater
+            ?: iceLayerOnWater
+            ?: iceTopUnderSnowOnWater
+            ?: iceLayerUnderSnowOnWater
+            ?: iceBottomOnWater
+            ?: meltPondTop
+            ?: iceLayerAboveWaterSurface
+            ?: waterSurfaceToIsothermalOceanLayer
+            
+            
+    # end levtype: o2d
+
+    o3d:
+        *:
+            *: oceanModel
+            ?: oceanModelLayer
+    # end levtype: o3d
+
+
+
+

@@ -65,6 +65,10 @@ eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
     return "~metkit/share/metkit/bufr-subtypes.yaml";
 }
 
+eckit::PathName LibMetkit::mars2gribRuleListYamlFile() {
+    return "~metkit/share/metkit/mars2grib/RuleList.yaml";
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 } // namespace metkit

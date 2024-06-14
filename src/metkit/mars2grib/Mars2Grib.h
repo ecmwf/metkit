@@ -16,12 +16,16 @@
 #define metkit_Mars2Grib_H
 
 #include "metkit/mars2grib/KeySetter.h"
+#include "metkit/codes/GribHandle.h"
+#include "eckit/value/Value.h"
+
 
 namespace metkit::mars2grib {
 /**
  * Reads specific mars keys
  */
-static void convertMars2Grib(const eckit::ValueMap&, KeySetter&);
+void convertMars2Grib(const eckit::ValueMap&, KeySetter&);
+void convertMars2Grib(const eckit::ValueMap&, grib::GribHandle&);
 
 
 //----------------------------------------------------------------------------------------------------------------------

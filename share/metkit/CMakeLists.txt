@@ -11,3 +11,4 @@ foreach( _file ${files} )
 endforeach()
 
 add_subdirectory( odb )
+add_subdirectory( mars2grib )
