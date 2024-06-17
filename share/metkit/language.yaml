@@ -466,7 +466,6 @@ _field: &_field
 
   chem:
     category: data
-    default: 0
     multiple: true
     type: enum
 
