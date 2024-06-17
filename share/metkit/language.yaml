@@ -477,6 +477,7 @@ _field: &_field
     values:
       - [base]
       - [wave]
+      - [wave_spectra]
       - [chem, chemical]
 
   wavelenth:
