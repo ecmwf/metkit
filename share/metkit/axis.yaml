@@ -33,6 +33,8 @@ axes:
     - longitude
     - range
     - param
+    - chem
+    - paramtype
     - ident
     - obstype
     - instrument
