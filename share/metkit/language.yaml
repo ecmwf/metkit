@@ -471,14 +471,13 @@ _field: &_field
 
   paramtype:
     category: data
-    default: base
     flatten: false
     type: enum
     values:
-      - [base]
-      - [wave]
-      - [wave_spectra]
-      - [chem, chemical]
+      - base
+      - wave
+      - wave_spectra
+      - chemical
 
   wavelenth:
     category: data
