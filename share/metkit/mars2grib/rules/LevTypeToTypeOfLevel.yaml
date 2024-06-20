@@ -1,0 +1,1380 @@
+# File is manually updated and has been initially created from extraction of reference files
+
+
+key: levtype
+dict: initial
+default:
+    pass: null
+value-map: 
+    sfc:
+        key: paramId
+        dict: initial
+        default:
+            key: stream
+            dict: initial
+            default:
+                # Most are mapped to surface
+                write:
+                    typeOfLevel: surface
+            # Possibly stream dependend group
+            value-map: {} 
+            # OD & RD reference data checked streams: 
+            # enfh, enfo, oper, cwao, egrr, kwbc, lfpw, rjtd, enda, eefh, eefo, wave, efho, efov, lwda, scda, elda]
+        value-map: 
+            "39": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "40": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "41": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "42": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "49": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "59": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "78": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "79": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "121":
+                write:
+                    typeOfLevel: heightAboveGround
+            "122":
+                write:
+                    typeOfLevel: heightAboveGround
+            "130":
+                write:
+                    typeOfLevel: heightAboveGround
+            "134":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "136":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "139": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "140": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "151": 
+                write:
+                    typeOfLevel: meanSea
+            "157": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "164":
+                write:
+                    typeOfLevel: heightAboveGround
+            "165":
+                write:
+                    typeOfLevel: heightAboveGround
+            "166":
+                write:
+                    typeOfLevel: heightAboveGround
+            "167":
+                write:
+                    typeOfLevel: heightAboveGround
+            "168":
+                write:
+                    typeOfLevel: heightAboveGround
+            "170":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "183":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "184":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "178": 
+                write:
+                    typeOfLevel: nominalTop
+            "179":
+                write:
+                    typeOfLevel: nominalTop
+            "183": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "201": 
+                # 2m temp: Sometimes encoded as surface...
+                write:
+                    typeOfLevel: heightAboveGround
+            "202": 
+                # 2m temp: Sometimes encoded as surface...
+                write:
+                    typeOfLevel: heightAboveGround
+            "207": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "236": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "3073": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "3074": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "3075": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "129035":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129036":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129037":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129038":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129039":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129040":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129041":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129042":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129139":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129140":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129170":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129171":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129183":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129184":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129236":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "129237":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "131009":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "131015":
+                write:
+                    typeOfLevel: isothermZero
+            "131074":
+                write:
+                    typeOfLevel: meanSea
+            "131075":
+                write:
+                    typeOfLevel: meanSea
+            "131076":
+                write:
+                    typeOfLevel: meanSea
+            "131077":
+                write:
+                    typeOfLevel: meanSea
+            "131078":
+                write:
+                    typeOfLevel: meanSea
+            "131079":
+                write:
+                    typeOfLevel: meanSea
+            "131080":
+                write:
+                    typeOfLevel: meanSea
+            "131081":
+                write:
+                    typeOfLevel: meanSea
+            "131100": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "131139":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "131201":
+                write:
+                    typeOfLevel: heightAboveGround
+            "131202":
+                write:
+                    typeOfLevel: heightAboveGround
+            "131229":
+                write:
+                    typeOfLevel: meanSea
+            "131232":
+                write:
+                    typeOfLevel: meanSea
+            "132216":
+                write:
+                    typeOfLevel: meanSea
+            "140080":
+                write:
+                    typeOfLevel: meanSea
+            "140081":
+                write:
+                    typeOfLevel: meanSea
+            "140082":
+                write:
+                    typeOfLevel: meanSea
+            "140083":
+                write:
+                    typeOfLevel: meanSea
+            "140084":
+                write:
+                    typeOfLevel: meanSea
+            "140098":
+                write:
+                    typeOfLevel: meanSea
+            "140099":
+                write:
+                    typeOfLevel: meanSea
+            "140100":
+                write:
+                    typeOfLevel: meanSea
+            "140101":
+                write:
+                    typeOfLevel: meanSea
+            "140102":
+                write:
+                    typeOfLevel: meanSea
+            "140103":
+                write:
+                    typeOfLevel: meanSea
+            "140104":
+                write:
+                    typeOfLevel: meanSea
+            "140105":
+                write:
+                    typeOfLevel: meanSea
+            "140112":
+                write:
+                    typeOfLevel: meanSea
+            "140113":
+                write:
+                    typeOfLevel: meanSea
+            "140114":
+                write:
+                    typeOfLevel: meanSea
+            "140115":
+                write:
+                    typeOfLevel: meanSea
+            "140116":
+                write:
+                    typeOfLevel: meanSea
+            "140117":
+                write:
+                    typeOfLevel: meanSea
+            "140118":
+                write:
+                    typeOfLevel: meanSea
+            "140119":
+                write:
+                    typeOfLevel: meanSea
+            "140120":
+                write:
+                    typeOfLevel: meanSea
+            "140121":
+                write:
+                    typeOfLevel: meanSea
+            "140122":
+                write:
+                    typeOfLevel: meanSea
+            "140123":
+                write:
+                    typeOfLevel: meanSea
+            "140124":
+                write:
+                    typeOfLevel: meanSea
+            "140125":
+                write:
+                    typeOfLevel: meanSea
+            "140126":
+                write:
+                    typeOfLevel: meanSea
+            "140127":
+                write:
+                    typeOfLevel: meanSea
+            "140128":
+                write:
+                    typeOfLevel: meanSea
+            "140129":
+                write:
+                    typeOfLevel: meanSea
+            "140200":
+                write:
+                    typeOfLevel: meanSea
+            "140207":
+                write:
+                    typeOfLevel: meanSea
+            "140208":
+                write:
+                    typeOfLevel: meanSea
+            "140209":
+                write:
+                    typeOfLevel: meanSea
+            "140211":
+                write:
+                    typeOfLevel: meanSea
+            "140212":
+                write:
+                    typeOfLevel: meanSea
+            "140213":
+                write:
+                    typeOfLevel: meanSea
+            "140214":
+                write:
+                    typeOfLevel: meanSea
+            "140215":
+                write:
+                    typeOfLevel: meanSea
+            "140216":
+                write:
+                    typeOfLevel: meanSea
+            "140217":
+                write:
+                    typeOfLevel: meanSea
+            "140218":
+                write:
+                    typeOfLevel: meanSea
+            "140219":
+                write:
+                    typeOfLevel: meanSea
+            "140220":
+                write:
+                    typeOfLevel: meanSea
+            "140221":
+                write:
+                    typeOfLevel: meanSea
+            "140222":
+                write:
+                    typeOfLevel: meanSea
+            "140223":
+                write:
+                    typeOfLevel: meanSea
+            "140224":
+                write:
+                    typeOfLevel: meanSea
+            "140225":
+                write:
+                    typeOfLevel: meanSea
+            "140226":
+                write:
+                    typeOfLevel: meanSea
+            "140227":
+                write:
+                    typeOfLevel: meanSea
+            "140228":
+                write:
+                    typeOfLevel: meanSea
+            "140229":
+                write:
+                    typeOfLevel: meanSea
+            "140230":
+                write:
+                    typeOfLevel: meanSea
+            "140231":
+                write:
+                    typeOfLevel: meanSea
+            "140232":
+                write:
+                    typeOfLevel: meanSea
+            "140233":
+                write:
+                    typeOfLevel: heightAboveGround
+            "140234":
+                write:
+                    typeOfLevel: meanSea
+            "140235":
+                write:
+                    typeOfLevel: meanSea
+            "140236":
+                write:
+                    typeOfLevel: meanSea
+            "140237":
+                write:
+                    typeOfLevel: meanSea
+            "140238":
+                write:
+                    typeOfLevel: meanSea
+            "140239":
+                write:
+                    typeOfLevel: meanSea
+            "140240":
+                write:
+                    typeOfLevel: meanSea
+            "140241":
+                write:
+                    typeOfLevel: meanSea
+            "140242":
+                write:
+                    typeOfLevel: meanSea
+            "140243":
+                write:
+                    typeOfLevel: meanSea
+            "140244":
+                write:
+                    typeOfLevel: meanSea
+            "140245":
+                write:
+                    typeOfLevel: heightAboveGround
+            "140246":
+                write:
+                    typeOfLevel: meanSea
+            "140247":
+                write:
+                    typeOfLevel: meanSea
+            "140248":
+                write:
+                    typeOfLevel: meanSea
+            "140249":
+                write:
+                    typeOfLevel: heightAboveGround
+            "140250":
+                write:
+                    typeOfLevel: meanSea
+            "140251":
+                write:
+                    typeOfLevel: meanSea
+            "140252":
+                write:
+                    typeOfLevel: meanSea
+            "140253":
+                write:
+                    typeOfLevel: meanSea
+            "140254":
+                write:
+                    typeOfLevel: meanSea
+ 
+            "151131":
+                write:
+                    typeOfLevel: meanSea
+            "151132":
+                write:
+                    typeOfLevel: meanSea
+            "160140":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "160171":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "160184":
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "162051":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162053":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162054":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162055":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162056":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162057":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162058":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162059":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162060":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162061":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162062":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162063":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162064":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162065":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162066":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162067":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162068":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162069":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162070":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162071":
+                # Also encoded as surface sometimes. But according to description of parameter, the whole atmosphere is involved.
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162072":
+                # Also encoded as surface sometimes. But according to description of parameter, the whole atmosphere is involved.
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162073":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162074":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162075":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162076":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162077":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162078":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162079":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162080":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162081":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162082":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162083":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162084":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162085":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162086":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162087":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162088":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162089":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162090":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162091":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "162092":
+                write:
+                    typeOfLevel: entireAtmosphere
+            "170171": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171039": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171040": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171041": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171042": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171051": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171052": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171139": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171151": 
+                write:
+                    typeOfLevel: meanSea
+            "171164": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171165": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171166": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171167": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171168": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "171170": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171183": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "171236": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "172178": 
+                write:
+                    typeOfLevel: nominalTop
+            "172179": 
+                write:
+                    typeOfLevel: nominalTop
+            "173179": 
+                write:
+                    typeOfLevel: nominalTop
+            "174025": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174039": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174040": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174041": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174042": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174049": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174050": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174051": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174052": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174085": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174086": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174087": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174095": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174096": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "174117": 
+                write:
+                    typeOfLevel: nominalTop
+            "174139": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174170": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174183": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "174236": 
+                write:
+                    typeOfLevel: depthBelowLand
+            "175039": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175040": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175041": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175042": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175139": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175170": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175183": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "175236": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "190229": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "201187": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "228001": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228007": 
+                write:
+                    typeOfLevel: entireLake
+            "228008": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    typeOfLevel: mixingLayer
+            "228009": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    typeOfLevel: mixingLayer
+            "228010": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    typeOfLevel: lakeBottom
+            "228011": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    typeOfLevel: entireLake
+            "228012": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    # Not sure about this, just a guess
+                    typeOfLevel: depthBelowSeaLayer
+            "228013": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    typeOfLevel: iceTopOnWater
+            "228014": 
+                # grib1: surface for most of fields, sometimes depthBelowLandLayer
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "228028": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "228035": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228036": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228039": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228045": 
+                write:
+                    typeOfLevel: tropopause
+            "228050": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228051": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228052": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228053": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228057": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228058": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228059": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228060": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "228086": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228087": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228095": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228096": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228139": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228164": 
+                key: stream
+                dict: initial
+                default:
+                    write:
+                        typeOfLevel: entireAtmosphere
+                value-map:
+                    kwbc:
+                        write:
+                            typeOfLevel: surface
+                    # Ambugities occuring sometimes:
+                    #  * rjtd -> surface
+                    #  * oper -> heightAboveGround
+            "228170": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228171": 
+                write:
+                    typeOfLevel: depthBelowLandLayer
+            "228231": 
+                write:
+                    typeOfLevel: mixedLayerParcel
+            "228232": 
+                write:
+                    typeOfLevel: mixedLayerParcel
+            "228233": 
+                write:
+                    typeOfLevel: mixedLayerParcel
+            "228234": 
+                write:
+                    typeOfLevel: mixedLayerParcel
+            "228235": 
+                write:
+                    typeOfLevel: mostUnstableParcel
+            "228236": 
+                write:
+                    typeOfLevel: mostUnstableParcel
+            "228237": 
+                write:
+                    typeOfLevel: mostUnstableParcel
+            "228246": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "228247": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "260001": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "260057": 
+                write:
+                    typeOfLevel: entireAtmosphere
+            "260242": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "260260": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "260430": 
+                write:
+                    typeOfLevel: indefiniteSoilDepth
+            "260646": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "260647": 
+                write:
+                    typeOfLevel: heightAboveGround
+            "260649": 
+                write:
+                    typeOfLevel: iceTopOnWater
+            "260650": 
+                write:
+                    typeOfLevel: iceTopOnWater
+        
+                    
+            # *:
+            # *: surface
+            # ?: entireAtmosphere
+            # ?: entireLake
+            # ?: cloudBase
+            # ?: tropopause
+            # ?: nominalTop
+            # ?: adiabaticCondensation
+            # ?: freeConvection
+            # ?: neutralBuoyancy
+            # ?: mostUnstableParcel
+            # ?: mixedLayerParcel
+            # ?: lowCloudLayer
+            # ?: mediumCloudLayer
+            # ?: highCloudLayer
+            # ?: meanSea
+            # ?: heightAboveSea
+            # ?: heightAboveGround
+            # ?: heightAboveGroundLayer
+            # ?: depthBelowLand
+            # ?: depthBelowLandLayer
+            # ?: lakeBottom
+            # ?: mixingLayer
+            # ?: indefiniteSoilDepth
+            # ?: totalSoilLayer
+            # ?: rootZone
+            # ?: urbanCanyon
+
+            # #
+
+            # ?: iceTopOnWater # for discipline 1 (hydrological) only other wise o2d
+            # ?: iceLayerOnWater # for discipline 1 (hydrological) only other wise o2d
+    # end levtype: sfc
+
+    pl:
+        key: pressureUnits
+        dict: initial
+        default:
+            key: stream
+            dict: initial
+            default:
+                # GRIB2 is isobaricInhPa
+                # MARS level is hPa by default (controlled through `transient pressureUnits` in eccodes)
+                write:
+                    typeOfLevel: isobaricInhPa
+            value-map: {}
+                # mmsf:
+                #     write:
+                #         typeOfLevel: isobaricInPa
+        value-map:
+            hPa:
+                write:
+                    typeOfLevel: isobaricInhPa
+            Pa:
+                write:
+                    typeOfLevel: isobaricInPa
+        
+        # *:
+        #     *: isobaricInPa
+        #     ?: isobaricInhPa
+        #     ?: isobaricLayer
+    # end levtype: pl
+
+    ml:
+        key: origin
+        dict: initial
+        default:
+            write:
+                typeOfLevel: hybrid
+        value-map: 
+            # All reference file from edzw had stream: enda and typeOfLevel: hybridHeight
+            edzw:
+                write:
+                    typeOfLevel: hybridHeight
+            
+            # *
+            #     *: hybrid
+            #     ?: hybridLayer
+    # end levtype: ml
+
+    pt:
+        key: paramId
+        dict: initial
+        default:
+            write:
+                typeOfLevel: theta
+        value-map: {}
+            # identify cases for thetaLayer
+        
+        # *:
+        #     *: theta
+        #     ?: thetaLayer
+
+    # end levtype: pt
+
+    pv:
+        write:
+            typeOfLevel: potentialVorticity
+            
+    # end levtype: pv
+
+
+    hhl:
+        write:
+            typeOfLevel: hybridHeight
+        # *:
+        #     *: hybridHeight
+
+    # end levtype: hhl
+
+
+    hpl:
+        write:
+            typeOfLevel: hybridPressure
+        # *:
+        #     *: hybridPressure
+
+    # end levtype: hpl
+
+
+    sol:
+        key: paramId
+        dict: initial
+        value-map: 
+            "228038":
+                write:
+                    typeOfLevel: snowLayer
+            "228094":
+                write:
+                    typeOfLevel: soilLayer
+            "228141":
+                write:
+                    typeOfLevel: snowLayer
+            "238":
+                write:
+                    typeOfLevel: snowLayer
+            "260199":
+                write:
+                    typeOfLevel: soilLayer
+            "260200":
+                write:
+                    typeOfLevel: soilLayer
+            "260210":
+                write:
+                    typeOfLevel: soilLayer
+            "260211":
+                write:
+                    typeOfLevel: soilLayer
+            "260360":
+                # Soil temperatur - can soil or soilLayer ?
+                key: origin
+                dict: initial
+                default:
+                    write:
+                        typeOfLevel: soilLayer
+                value-map:                
+                    # Centre eswi
+                    se-al-ec:
+                        write:
+                            typeOfLevel: soil
+            "260367":
+                write:
+                    typeOfLevel: soilLayer
+            "260644":
+                write:
+                    typeOfLevel: soil
+            "33":
+                write:
+                    typeOfLevel: snowLayer
+
+    
+        # *:
+        #     *: snow
+        #     ?: snowLayer
+        #     ?: soil
+        #     ?: soilLayer
+        #     ?: seaIce
+        #     ?: seaIceLayer
+        #     ?: roof
+        #     ?: roofLayer
+        #     ?: wall
+        #     ?: wallLayer
+        #     ?: road
+        #     ?: roadLayer
+    # end levtype: sol
+
+    o2d:
+        key: paramId
+        dict: initial
+        value-map:
+            "151126":
+                write:
+                    typeOfLevel: depthBelowSeaLayer
+            "151131":
+                write:
+                    typeOfLevel: oceanSurface
+            "151132":
+                write:
+                    typeOfLevel: oceanSurface
+            "151145":
+                write:
+                    typeOfLevel: oceanSurface
+            "151163":
+                write:
+                    typeOfLevel: isothermal
+            "151175":
+                write:
+                    typeOfLevel: depthBelowSeaLayer
+            "151219":
+                write:
+                    typeOfLevel: oceanSurface
+            "151225":
+                write:
+                    typeOfLevel: mixedLayerDepthByDensity
+            "174098":
+                write:
+                    typeOfLevel: oceanSurface
+            "263000":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263001":
+                write:
+                    typeOfLevel: iceTopOnWater
+            "263002":
+                write:
+                    typeOfLevel: snowLayerOverIceOnWater
+            "263002":
+                write:
+                    typeOfLevel: snowLayerOverIceOnWater
+            "263003":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263004":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263006":
+                write:
+                    typeOfLevel: iceTopOnWater
+            "263008":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263010":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263017":
+                write:
+                    typeOfLevel: entireMeltPond
+            "263021":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263022":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263023":
+                write:
+                    typeOfLevel: iceLayerOnWater
+            "263100":
+                write:
+                    typeOfLevel: oceanSurface
+            "263101":
+                write:
+                    typeOfLevel: oceanSurface
+            "263102":
+                write:
+                    typeOfLevel: isothermal
+            "263103":
+                write:
+                    typeOfLevel: isothermal
+            "263104":
+                write:
+                    typeOfLevel: isothermal
+            "263105":
+                write:
+                    typeOfLevel: isothermal
+            "263106":
+                write:
+                    typeOfLevel: isothermal
+            "263108":
+                write:
+                    typeOfLevel: oceanSurface
+            "263109":
+                write:
+                    typeOfLevel: oceanSurface
+            "263110":
+                write:
+                    typeOfLevel: oceanSurface
+            "263111":
+                write:
+                    typeOfLevel: oceanSurface
+            "263112":
+                write:
+                    typeOfLevel: oceanSurface
+            "263113":
+                write:
+                    typeOfLevel: mixedLayerDepthByDensity
+            "263114":
+                write:
+                    typeOfLevel: mixedLayerDepthByDensity
+            "263115":
+                write:
+                    typeOfLevel: mixedLayerDepthByDensity
+            "263116":
+                write:
+                    typeOfLevel: mixedLayerDepthByTemperature
+            "263117":
+                write:
+                    typeOfLevel: mixedLayerDepthByTemperature
+            "263118":
+                write:
+                    typeOfLevel: depthBelowSeaLayer
+            "263119":
+                write:
+                    typeOfLevel: depthBelowSeaLayer
+            "263120":
+                write:
+                    typeOfLevel: oceanSurfaceToBottom
+            "263121":
+                write:
+                    typeOfLevel: depthBelowSeaLayer
+            "263122":
+                write:
+                    typeOfLevel: depthBelowSeaLayer
+            "263123":
+                write:
+                    typeOfLevel: oceanSurfaceToBottom
+            "263124":
+                write:
+                    typeOfLevel: oceanSurface
+            "263125":
+                write:
+                    typeOfLevel: oceanSurface
+            "263128":
+                write:
+                    typeOfLevel: oceanSurface
+            "263129":
+                write:
+                    typeOfLevel: oceanSurfaceToBottom
+            "263130":
+                write:
+                    typeOfLevel: oceanSurface
+            "263131":
+                write:
+                    typeOfLevel: oceanSurface
+            "263132":
+                write:
+                    typeOfLevel: oceanSurface
+            "263133":
+                write:
+                    typeOfLevel: oceanSurface
+            "263134":
+                write:
+                    typeOfLevel: oceanSurface
+            "263136":
+                write:
+                    typeOfLevel: mixedLayerDepthByDiffusivity
+            "263137":
+                write:
+                    typeOfLevel: oceanSurface
+            "263138":
+                write:
+                    typeOfLevel: oceanSurface
+            "263139":
+                write:
+                    typeOfLevel: oceanSurface
+            "263140":
+                write:
+                    typeOfLevel: oceanSurface
+            "263141":
+                write:
+                    typeOfLevel: waterSurfaceToIsothermalOceanLayer
+            "263900":
+                write:
+                    typeOfLevel: oceanSurface
+            "263901":
+                write:
+                    typeOfLevel: oceanSurface
+            "263902":
+                write:
+                    typeOfLevel: heightAboveSea
+            "263904":
+                write:
+                    typeOfLevel: oceanSurface
+            "263905":
+                write:
+                    typeOfLevel: oceanSurface
+            "263906":
+                write:
+                    typeOfLevel: iceTopOnWater
+            "263907":
+                write:
+                    typeOfLevel: iceTopOnWater
+            "263908":
+                write:
+                    typeOfLevel: iceTopOnWater
+            "263909":
+                write:
+                    typeOfLevel: iceTopOnWater
+ 
+        # *:
+        #     *: entireOcean
+        #     ?: isothermal
+        #     ?: depthBelowLand
+        #     ?: depthBelowSea
+        #     ?: depthBelowSeaLayer
+        #     ?: oceanSurface
+        #     ?: oceanSurfaceToBottom
+        #     ?: mixedLayerDepthByDensity
+        #     ?: mixedLayerDepthByTemperature
+        #     ?: mixedLayerDepthByDiffusivity
+        #     ?: snowTopOverIceOnWater
+        #     ?: snowLayerOverIceOnWater
+        #     ?: iceTopOnWater
+        #     ?: iceLayerOnWater
+        #     ?: iceTopUnderSnowOnWater
+        #     ?: iceLayerUnderSnowOnWater
+        #     ?: iceBottomOnWater
+        #     ?: meltPondTop
+        #     ?: iceLayerAboveWaterSurface
+        #     ?: waterSurfaceToIsothermalOceanLayer
+
+
+    # end levtype: o2d
+
+    o3d:
+        key: paramId
+        dict: initial
+        default:
+            # Seems to be at least valid for paramIds:
+            # 263500
+            # 263500
+            # 263501
+            # 263501
+            # 263502
+            # 263502
+            # 263503
+            # 263503
+            # 263504
+            # 263504
+            # 263505
+            # 263505
+            # 263506
+            # 263506
+            # 263507
+            # 263507
+            # 263508
+            # 263509
+            write:
+                typeOfLevel: "oceanModelLayer"
+        value-map: {}
+            
+        # *:
+        #     *: oceanModel
+        #     ?: oceanModelLayer
+    # end levtype: o3d
+
+
+
+
+
