@@ -57,6 +57,8 @@ struct Action {
  *    Keys: `fail` (String with error message)
  *  - Write (write keys to workdir and/or keysetter)
  *    Keys: `write`, `write-out`, `write-work`
+ *  - Null/Pass (do dothing)
+ *    keys: `pass` (null or String with log message)
  */
 class YAMLRule : public GenericRule {
 public:

@@ -52,6 +52,7 @@ void printLogTrace(const LogTrace& logTrace, std::ostream& os) {
         if (log.customMessage) {
             os << *log.customMessage << std::endl;
         }
+        ++n;
     }
 }
 
@@ -83,7 +84,7 @@ struct Mapping : Action {
             }
 
             std::ostringstream ss;
-            ss << "Key \"" << lookUpKey_ << "\" is not available in " << (useInitialDict_ ? "intitil " : "work") << "dictionary.";
+            ss << "Key \"" << lookUpKey_ << "\" is not available in " << (useInitialDict_ ? "initial " : "work") << "dictionary.";
             logTrace.push_back(Log{NULL, ss.str()});
             throw Mars2GribException(stringifyLogTrace(logTrace), Here());
         }
@@ -153,6 +154,26 @@ struct Failure : Action {
     };
 
     std::string reason_;
+};
+
+struct Pass : Action {
+    virtual ~Pass() = default;
+
+    Pass(const std::string& logMsg = "") :
+        logMsg_{logMsg} {}
+
+    void apply(LogTrace& logTrace, const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) override {
+        logTrace.push_back(Log{this, {}});
+    };
+
+    void print(std::ostream& os) override {
+        os << "mars2grib::YAMLAction::Pass"; 
+        if (!logMsg_.empty()) {
+            os << " with message: " << logMsg_;
+        }
+    };
+
+    std::string logMsg_;
 };
 
 struct Write : Action {
@@ -330,6 +351,10 @@ std::unique_ptr<Action> buildAction(const eckit::LocalConfiguration& conf, LogTr
 
     if (conf.has("fail")) {
         return std::make_unique<Failure>(conf.getString("fail"));
+    }
+    
+    if (conf.has("pass")) {
+        return std::make_unique<Pass>(conf.isString("pass") ? conf.getString("pass") : std::string(""));
     }
 
     logTrace.push_back(Log{NULL, "Unknown action"});
