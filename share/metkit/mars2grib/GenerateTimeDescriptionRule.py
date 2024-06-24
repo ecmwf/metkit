@@ -74,26 +74,29 @@ def main():
     
 
     # TODO handle other products like satellite which have no timeExtent. Possibly have to evaluate stream for that
+    pointInTime = {
+        "write-work": {
+                    "timeExtent": "pointInTime"
+        }
+    }
+    timeRange = {
+        "write-work": {
+                    "timeExtent": "timeRange"
+        }
+    }
     timeExtentRule = {
         "key": "paramId",
         "dict": "initial",
         "default": {
             "key": "stream",
             "dict": "initial",
-            "default": {
-                "write-work": {
-                    "timeExtent": "pointInTime"
-                }
-            },
+            "default": pointInTime,
             "value-map": {} # PUT in stream general stuff
         },
         "value-map": { 
             "{}".format(paramId): (specialHandlingForParamId[paramId] 
-                if paramId in specialHandlingForParamId.keys() else { 
-                "write-work": {
-                    "timeExtent": "timeRange"
-                }
-            }) for paramId in statisticalParamIds 
+                if paramId in specialHandlingForParamId.keys() else timeRange
+                ) for paramId in statisticalParamIds 
         }
     }
     
