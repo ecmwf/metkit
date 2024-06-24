@@ -1,4 +1,4 @@
-list( APPEND files_mars2grib_rules MapSection2.yaml CategoriesToPDT.yaml TimeDescription.yaml LevTypeToTypeOfLevel.yaml )
+list( APPEND files_mars2grib_rules MapSection2.yaml CategoriesToPDT.yaml TimeDescription.yaml LevTypeToTypeOfLevel.yaml MapLevel.yaml )
 
 foreach( _file ${files_mars2grib_rules} )
 

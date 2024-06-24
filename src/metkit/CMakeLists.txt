@@ -158,6 +158,8 @@ if ( HAVE_GRIB )
 
         mars2grib/CodesKeySetter.cc
         mars2grib/CodesKeySetter.h
+        mars2grib/ValueMapSetter.cc
+        mars2grib/ValueMapSetter.h
         mars2grib/Mars2Grib.cc
         mars2grib/Mars2Grib.h
         mars2grib/Mars2GribException.cc
@@ -166,6 +168,7 @@ if ( HAVE_GRIB )
         mars2grib/Rule.h
         mars2grib/YAMLRule.cc
         mars2grib/YAMLRule.h
+        mars2grib/KeySetter.cc
         mars2grib/KeySetter.h
         )
 

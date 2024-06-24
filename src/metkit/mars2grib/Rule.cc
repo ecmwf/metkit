@@ -54,7 +54,7 @@ RuleList::RuleList(const eckit::Configuration& conf) :
     RuleList(buildRules(conf)) {}
 
 
-void RuleList::apply(const eckit::ValueMap& initial, KeySetter& out) {
+void RuleList::apply(const eckit::ValueMap& initial, KeySetter& out) const {
     eckit::ValueMap workdict{initial};
 
     for (auto& rule : rules_) {

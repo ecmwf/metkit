@@ -1,0 +1,35 @@
+# To be updated...
+
+key: typeOfLevel
+dict: work
+default:
+    pass: null
+value-map: 
+    # One surface
+    snow: &mapLevelToFirstFixedSurface
+        write:
+            scaledValueOfFirstFixedSurface: 
+                key: level
+                default: 0
+    soil: *mapLevelToFirstFixedSurface
+    seaIce: *mapLevelToFirstFixedSurface
+    hybrid: *mapLevelToFirstFixedSurface
+    oceanModel: *mapLevelToFirstFixedSurface
+    
+    
+    # Two surfaces
+    snowLayer: &mapLevelFixedSurfaces
+        write:
+            scaledValueOfFirstFixedSurface: 
+                op: subtract
+                lhs:
+                    key: level
+                    default: 0
+                rhs: 1
+            scaledValueOfSecondFixedSurface: 
+                key: level
+                default: 0
+    soilLayer: *mapLevelFixedSurfaces
+    seaIceLayer: *mapLevelFixedSurfaces
+    hybridLayer: *mapLevelFixedSurfaces
+    oceanModelLayer: *mapLevelFixedSurfaces

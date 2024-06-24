@@ -26,7 +26,7 @@ namespace metkit::mars2grib {
 class GenericRule {
 public:
     virtual ~GenericRule(){};
-    virtual void apply(const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) = 0;
+    virtual void apply(const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) const = 0;
 };
 
 
@@ -38,7 +38,7 @@ public:
     RuleList(const std::vector<eckit::LocalConfiguration>&);
     RuleList(const eckit::Configuration&);
     
-    void apply(const eckit::ValueMap& inital, KeySetter& out);
+    void apply(const eckit::ValueMap& inital, KeySetter& out) const;
 
 private:
     Rules rules_;

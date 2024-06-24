@@ -6,3 +6,5 @@
   file: "~metkit/share/metkit/mars2grib/rules/CategoriesToPDT.yaml"
 - type: yaml
   file: "~metkit/share/metkit/mars2grib/rules/LevTypeToTypeOfLevel.yaml"
+- type: yaml
+  file: "~metkit/share/metkit/mars2grib/rules/MapLevel.yaml"

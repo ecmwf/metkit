@@ -983,8 +983,9 @@ value-map:
     # end levtype: pl
 
     ml:
-        key: origin
+        key: centre # usually for origin...
         dict: initial
+        not-found-is-default: false
         default:
             write:
                 typeOfLevel: hybrid
@@ -1069,14 +1070,15 @@ value-map:
                     typeOfLevel: soilLayer
             "260360":
                 # Soil temperatur - can soil or soilLayer ?
-                key: origin
+                key: centre # usually ... origin
                 dict: initial
                 default:
                     write:
                         typeOfLevel: soilLayer
                 value-map:                
                     # Centre eswi
-                    se-al-ec:
+                    # origin: se-al-ec - need to resolve origin mapping
+                    eswi:
                         write:
                             typeOfLevel: soil
             "260367":

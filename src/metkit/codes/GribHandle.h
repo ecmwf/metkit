@@ -98,6 +98,9 @@ public: // methods
     void setValue(const std::string& key, const std::string& value);
     void setValue(const std::string& key, const char* value);
     void setValue(const std::string& key, long value);
+    
+    void setMissing(const char* key);
+    void setMissing(const std::string& key);
 
 
 

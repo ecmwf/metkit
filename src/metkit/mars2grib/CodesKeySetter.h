@@ -30,6 +30,11 @@ public:
     void setValue(const std::string& key, long value) override;
     void setValue(const std::string& key, double value) override;
 
+    void setValue(const std::string& key, NullOrMissing) override;
+
+
+    void print(std::ostream&) const override;
+
 private:
     grib::GribHandle& handle_;
 };
