@@ -15,9 +15,12 @@
 #ifndef metkit_mars2grib_KeySetter_H
 #define metkit_mars2grib_KeySetter_H
 
+#include <iostream>
 #include <string>
 
 namespace metkit::mars2grib {
+
+struct NullOrMissing {};
 
 /**
  * Abstract interface to set eccodes/grib2 related keys
@@ -26,11 +29,22 @@ namespace metkit::mars2grib {
  */
 class KeySetter {
 public:
-    virtual ~KeySetter() {};
+    virtual ~KeySetter(){};
     virtual void setValue(const std::string& key, const std::string& value) = 0;
     virtual void setValue(const std::string& key, long value)               = 0;
     virtual void setValue(const std::string& key, double value)             = 0;
+
+    // Explicitly declare key as missing for codes or nil for other things
+    virtual void setValue(const std::string& key, NullOrMissing) = 0;
+
+
+    virtual void print(std::ostream& os) const = 0;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+std::ostream& operator<<(std::ostream& os, const KeySetter& map);
 
 //----------------------------------------------------------------------------------------------------------------------
 

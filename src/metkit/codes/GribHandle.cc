@@ -177,6 +177,14 @@ void GribHandle::setValue(const std::string& key, long value) {
     setValue(key.c_str(), value);
 };
 
+void GribHandle::setMissing(const char* key) {
+    ASSERT(key);
+    CODES_CALL(codes_set_missing(raw(), key));
+}
+void GribHandle::setMissing(const std::string& key) {
+    setMissing(key.c_str());
+}
+
 
 void GribHandle::dump( const eckit::PathName& path, const char* mode) const {
     eckit::StdFile f(path.localPath(), "w");

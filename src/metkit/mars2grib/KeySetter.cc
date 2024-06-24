@@ -9,37 +9,19 @@
  */
 
 
-#include "metkit/mars2grib/CodesKeySetter.h"
+#include "metkit/mars2grib/KeySetter.h"
 
 
 namespace metkit::mars2grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CodesKeySetter::CodesKeySetter(grib::GribHandle& h) :
-    handle_{h} {}
-
-
-void CodesKeySetter::setValue(const std::string& key, const std::string& value) {
-    handle_.setValue(key, value);
+std::ostream& operator<<(std::ostream& os, const KeySetter& setter) {
+    setter.print(os);
+    return os;
 }
-void CodesKeySetter::setValue(const std::string& key, long value) {
-    handle_.setValue(key, value);
-}
-void CodesKeySetter::setValue(const std::string& key, double value) {
-    handle_.setValue(key, value);
-}
-void CodesKeySetter::setValue(const std::string& key, NullOrMissing) {
-    handle_.setMissing(key);
-}
-
-void CodesKeySetter::print(std::ostream& os) const {
-    os << "CodesKeySetter{";
-    os << handle_;
-    os << "}";
-}
-
 
 //----------------------------------------------------------------------------------------------------------------------
+
 
 }  // namespace metkit::mars2grib

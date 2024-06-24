@@ -22,16 +22,19 @@ namespace metkit::mars2grib {
 namespace YAMLAction {
 struct Action;
 
+struct Printable {
+    virtual void print(std::ostream&) const = 0;
+};
+
 struct Log {
-    Action* action;  // May be null
+    const Printable* printable;  // May be null
     std::optional<std::string> customMessage;
 };
 
 
-struct Action {
-    virtual ~Action()                                                                                                        = default;
-    virtual void apply(std::vector<Log>& logTrace, const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) = 0;
-    virtual void print(std::ostream& os)                                                                                     = 0;
+struct Action: Printable {
+    virtual ~Action()                                                                                                              = default;
+    virtual void apply(std::vector<Log>& logTrace, const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) const = 0;
 };
 };  // namespace YAMLAction
 
@@ -69,7 +72,7 @@ public:
     YAMLRule(const eckit::PathName&);
     YAMLRule(const RuleConfiguration& ruleConf);
 
-    void apply(const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) override;
+    void apply(const eckit::ValueMap& inital, eckit::ValueMap& workDict, KeySetter& out) const override;
 
 
 private:
