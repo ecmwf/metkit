@@ -20,7 +20,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ########################################################################################################################
 ### dependencies and options
 
-ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH feature/mtg2 UPDATE)
+# ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH feature/mtg2 UPDATE)
+ecbuild_bundle( PROJECT share    GIT "https://github.com/danovaro/metkit-config"    BRANCH feature/mtg2 UPDATE)
 
 ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
