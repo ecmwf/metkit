@@ -466,9 +466,18 @@ _field: &_field
 
   chem:
     category: data
-    default: 0
     multiple: true
     type: enum
+
+  paramtype:
+    category: data
+    flatten: false
+    type: enum
+    values:
+      - base
+      - wave
+      - wave_spectra
+      - chemical
 
   wavelenth:
     category: data
