@@ -58,11 +58,6 @@ ecbuild_add_option( FEATURE ODB
                     DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
-# METKIT config files support
-ecbuild_add_option( FEATURE METKIT_CONFIG
-                    DEFAULT ON
-                    DESCRIPTION "Install metkit configuration files" )
-
 # Temporary
 ecbuild_add_option( FEATURE FAIL_ON_CCSDS
                     DESCRIPTION "Fail on CCSDS"
