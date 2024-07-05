@@ -59,7 +59,6 @@ ecbuild_add_option( FEATURE ODB
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
 # METKIT config files support
-
 ecbuild_add_option( FEATURE METKIT_CONFIG
                     DEFAULT ON
                     DESCRIPTION "Install metkit configuration files" )
