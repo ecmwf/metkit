@@ -2581,7 +2581,7 @@
 - period corresponding to maximum individual wave height
 140218:
 - hmax
-- maximum individual wave height
+- envelop-maximum individual wave height
 140219:
 - wmb
 - model bathymetry
@@ -2693,6 +2693,18 @@
 140255:
 - _param_140255
 - indicates a missing value
+141221:
+- avg_mp2
+- time-mean mean zero-crossing wave period
+141229:
+- avg_swh
+- time-mean significant height of combined wind waves and swell
+141231:
+- avg_pp1d
+- time-mean peak wave period
+141232:
+- avg_mwp
+- time-mean mean wave period
 150129:
 - ocpt
 - ocean potential temperature
@@ -2806,10 +2818,10 @@
 - sea water practical salinity
 151131:
 - ocu
-- eastward sea water velocity
+- eastward surface sea water velocity
 151132:
 - ocv
-- northward sea water velocity
+- northward surface sea water velocity
 151133:
 - wo
 - upward sea water velocity
@@ -2938,7 +2950,7 @@
 - depth of salinity maximum
 151175:
 - sav300
-- average salinity in the upper 300m
+- average sea water practical salinity in the upper 300m
 151176:
 - ldp
 - layer thickness at scalar points
@@ -13435,6 +13447,30 @@
 231056:
 - ucq
 - urban canyon specific humidity
+231057:
+- csfwe
+- convective snowfall water equivalent
+231058:
+- lsfwe
+- large-scale snowfall water equivalent
+231059:
+- lslt
+- lake surface temperature
+231060:
+- sbrn
+- surface bulk richardson number
+231061:
+- mx2r
+- time-maximum 2 metre relative humidity
+231062:
+- mn2r
+- time-minimum 2 metre relative humidity
+231063:
+- srhe
+- surface roughness for heat
+231064:
+- srmo
+- surface roughness for moisture
 232000:
 - fba
 - burned area
@@ -13840,6 +13876,228 @@
 235079:
 - mskt
 - time-mean skin temperature
+235080:
+- avg_rsn
+- time-mean snow density
+235081:
+- avg_cvl
+- time-mean low vegetation cover
+235082:
+- avg_cvh
+- time-mean high vegetation cover
+235083:
+- avg_ci
+- time-mean sea ice area fraction
+235084:
+- avg_sst
+- time-mean sea surface temperature
+235085:
+- avg_lai_lv
+- time-mean leaf area index, low vegetation
+235086:
+- avg_lai_hv
+- time-mean leaf area index, high vegetation
+235087:
+- avg_tclw
+- time-mean total column liquid water
+235088:
+- avg_tciw
+- time-mean total column cloud ice water
+235089:
+- avg_2sh
+- time-mean 2 metre specific humidity
+235090:
+- avg_lmlt
+- time-mean lake mix-layer temperature
+235091:
+- avg_lmld
+- time-mean lake mix-layer depth
+235092:
+- avg_2r
+- time-mean 2 metre relative humidity
+235093:
+- avg_fscov
+- time-mean fraction of snow cover
+235094:
+- avg_sot
+- time-mean soil temperature
+235095:
+- avg_sde
+- time-mean snow depth
+235096:
+- avg_snowc
+- time-mean snow cover
+235097:
+- avg_ws
+- time-mean wind speed
+235098:
+- avg_pres
+- time-mean pressure
+235100:
+- avg_pv
+- time-mean potential vorticity
+235101:
+- avg_crwc
+- time-mean specific rain water content
+235102:
+- avg_cswc
+- time-mean specific snow water content
+235103:
+- avg_etadot
+- time-mean eta-coordinate vertical velocity
+235117:
+- avg_mucape
+- time-mean most-unstable cape
+235129:
+- avg_z
+- time-mean geopotential
+235130:
+- avg_t
+- time-mean temperature
+235131:
+- avg_u
+- time-mean u component of wind
+235132:
+- avg_v
+- time-mean v component of wind
+235133:
+- avg_q
+- time-mean specific humidity
+235134:
+- avg_sp
+- time-mean surface pressure
+235135:
+- avg_w
+- time-mean vertical velocity
+235136:
+- avg_tcw
+- time-mean total column water
+235137:
+- avg_tcwv
+- time-mean total column vertically-integrated water vapour
+235138:
+- avg_vo
+- time-mean vorticity (relative)
+235141:
+- avg_sd_m
+- time-mean snow depth
+235151:
+- avg_msl
+- time-mean mean sea level pressure
+235152:
+- avg_lnsp
+- time-mean logarithm of surface pressure
+235155:
+- avg_d
+- time-mean divergence
+235157:
+- avg_r
+- time-mean relative humidity
+235159:
+- avg_blh
+- time-mean boundary layer height
+235165:
+- avg_10u
+- time-mean 10 metre u wind component
+235166:
+- avg_10v
+- time-mean 10 metre v wind component
+235168:
+- avg_2d
+- time-mean 2 metre dewpoint temperature
+235186:
+- avg_lcc_frac
+- time-mean low cloud cover
+235187:
+- avg_mcc_frac
+- time-mean medium cloud cover
+235188:
+- avg_hcc_frac
+- time-mean high cloud cover
+235203:
+- avg_o3
+- time-mean ozone mass mixing ratio
+235238:
+- avg_tsn
+- time-mean temperature of snow layer
+235243:
+- avg_fal_frac
+- time-mean forecast albedo
+235244:
+- avg_fsr
+- time-mean forecast surface roughness
+235245:
+- avg_flsr
+- time-mean forecast logarithm of surface roughness for heat
+235246:
+- avg_clwc
+- time-mean specific cloud liquid water content
+235247:
+- avg_ciwc
+- time-mean specific cloud ice water content
+235248:
+- avg_cc
+- time-mean fraction of cloud cover
+235257:
+- avg_kx
+- time-mean k index
+235258:
+- avg_totalx
+- time-mean total totals index
+235262:
+- avg_cat
+- time-mean clear air turbulence (cat)
+235270:
+- avg_dis
+- time-mean discharge from rivers or streams
+235271:
+- avg_swit
+- time-mean soil wetness index (total layer)
+235272:
+- avg_swir
+- time-mean soil wetness index (root zone)
+235273:
+- avg_swil
+- time-mean soil wetness index(layer)
+235274:
+- avg_flddep
+- time-mean floodplain depth
+235275:
+- avg_fldffr
+- time-mean floodplain flooded fraction
+235276:
+- avg_fldfar
+- time-mean floodplain flooded area
+235277:
+- avg_rivfr
+- time-mean river fraction
+235278:
+- avg_rivar
+- time-mean river area
+235279:
+- avg_rivcffr
+- time-mean fraction of river coverage plus river related flooding
+235280:
+- avg_rivcfar
+- time-mean area of river coverage plus river related flooding
+237077:
+- max_vsw
+- time-maximum volumetric soil moisture
+237117:
+- max_mucape
+- time-maximum most-unstable cape
+238077:
+- min_vsw
+- time-minimum volumetric soil moisture
+238117:
+- min_mucape
+- time-minimum most-unstable cape
+239077:
+- std_vsw
+- time-standard-deviation volumetric soil moisture
+239117:
+- std_mucape
+- time-standard-deviation most-unstable cape
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -13903,6 +14161,27 @@
 240034:
 - pthflw
 - floodpath outflow of water
+240035:
+- flddep
+- floodplain depth
+240036:
+- fldffr
+- floodplain flooded fraction
+240037:
+- fldfar
+- floodplain flooded area
+240038:
+- rivfr
+- river fraction
+240039:
+- rivar
+- river area
+240040:
+- rivcffr
+- fraction of river coverage plus river related flooding
+240041:
+- rivcfar
+- area of river coverage plus river related flooding
 250001:
 - lat
 - latitude
@@ -15776,6 +16055,27 @@
 260657:
 - tcsqw
 - total column integrated saturation specific humidity with respect to water
+260658:
+- spi
+- standardised precipitation index (spi)
+260659:
+- spei
+- standardised precipitation evapotranspiration index (spei)
+260660:
+- ssfi
+- standardised streamflow index (ssfi)
+260661:
+- srsi
+- standardised reservoir supply index (srsi)
+260662:
+- swi
+- standardised water-level index (swi)
+260663:
+- smri
+- standardised snowmelt and rain index (smri)
+260664:
+- sdi
+- streamflow drought index (sdi)
 261001:
 - utci
 - universal thermal climate index
@@ -17315,6 +17615,24 @@
 456000:
 - drydep_vel_vol
 - dry deposition velocity from volcanoes
+457000:
+- aod
+- aerosol optical depth
+458000:
+- ssa
+- single scattering albedo
+459000:
+- asymf
+- asymmetry factor
+460000:
+- aerbscattoa
+- aerosol backscatter from top of atmosphere
+461000:
+- aerbscatgnd
+- aerosol backscatter from ground
+462000:
+- aerext
+- aerosol extinction coefficient
 500000:
 - ps
 - pressure (s) (not reduced)
