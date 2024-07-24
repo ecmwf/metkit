@@ -381,7 +381,7 @@ static void init() {
         }
     }
 
-    // std::cout << associatedIDs.size() << "  " << associatedIDs << std::endl;
+    (*rules).push_back(Rule(eckit::Value::makeMap(), unambiguousIDs, ids));
 
     for (auto it = merge.begin(); it != merge.end(); it++) {
         auto listIDs = eckit::Value::makeList();
@@ -398,7 +398,7 @@ static void init() {
             unambiguousIDs.push_back(listIDs[0]);
         }
     }
-    (*rules).push_back(Rule(eckit::Value::makeMap(), unambiguousIDs, ids));
+    (*rules)[0] = Rule(eckit::Value::makeMap(), unambiguousIDs, ids);
 }
 
 namespace metkit {
