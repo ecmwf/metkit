@@ -3,8 +3,20 @@
 key: typeOfLevel
 dict: work
 default:
-    pass: null
+    write:
+        level: 
+            key: level
+            default: 0
 value-map: 
+    # Level unrelated?? At least according to ClimateDT runs
+    meanSea: &mapLevelUnrelated
+        pass: null
+    lowCloudLayer: *mapLevelUnrelated
+    mediumCloudLayer: *mapLevelUnrelated
+    highCloudLayer: *mapLevelUnrelated
+    oceanSurface: *mapLevelUnrelated
+    
+    
     # One surface
     snow: &mapLevelToFirstFixedSurface
         write:
@@ -33,3 +45,10 @@ value-map:
     seaIceLayer: *mapLevelFixedSurfaces
     hybridLayer: *mapLevelFixedSurfaces
     oceanModelLayer: *mapLevelFixedSurfaces
+    
+    # Special
+    iceLayerAboveWaterSurface: *mapLevelToFirstFixedSurface
+    waterSurfaceToIsothermalOceanLayer: &mapLevelToSecondFixedSurface
+        write:
+            scaledValueOfSecondFixedSurface: 
+                key: level
