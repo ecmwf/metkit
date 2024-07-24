@@ -31,6 +31,7 @@ public:
     static eckit::PathName paramStaticYamlFile();
     static eckit::PathName paramIDYamlFile();
     static eckit::PathName paramMatchingYamlFile();
+    static eckit::PathName shortnameContextYamlFile();
     static eckit::PathName bufrSubtypesYamlFile();
 
     static const LibMetkit& instance();
