@@ -354,7 +354,6 @@ static void init() {
         return;
     }
 
-
     std::set<std::string> shortnames;
     std::set<std::string> associatedIDs;
     eckit::ValueList unambiguousIDs;
@@ -392,8 +391,11 @@ static void init() {
                 listIDs.append(it->second[j]);
             }
         }
-        if (listIDs.size() > 0) {
+        if (listIDs.size() > 1) {
             (*rules).push_back(Rule(it->first, listIDs, ids));
+        }
+        if (listIDs.size() == 1) {
+            unambiguousIDs.push_back(listIDs[0]);
         }
     }
     (*rules).push_back(Rule(eckit::Value::makeMap(), unambiguousIDs, ids));
