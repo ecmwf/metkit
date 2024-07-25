@@ -132,7 +132,6 @@ CASE( "test_metkit_expand_10_strict" ) {
     }
 }
 
-
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     DummyContext ctx;
     static metkit::mars::MarsLanguage language("retrieve");
@@ -201,7 +200,10 @@ CASE( "test_metkit_expand_12_time" ) {
     timeThrows({"0:0:12"});
     timeThrows({"12s"});
     time({"0"}, {"0000"});
+    time({"0","1","6","12","18"}, {"0000","0100","0600","1200","1800"});
     time({"0","1","12"}, {"0000","0100","1200"});
+    time({"0030"}, {"0030"});
+    time({"30m"}, {"0030"});
     time({"00:30","1:30","02:50"}, {"0030","0130","0250"});
     time({"0h","3h","120m","170m"}, {"0000","0300","0200","0250"});
 
@@ -315,6 +317,45 @@ CASE( "test_metkit_expand_lowercase" ) {
     model({"ifs"}, {"ifs"});
     model({"ICON"}, {"icon"});
     model({"icon"}, {"icon"});
+}
+
+CASE( "test_metkit_expand_param" ) {
+    {
+        const char* text = "retrieve,class=od,expver=0079,stream=enfo,date=-1,time=00/12,type=pf,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
+        MarsRequest r = MarsRequest::parse(text);
+        auto params = r.values("param");
+        EXPECT_EQUAL(params.size(), 3);
+
+        EXPECT_EQUAL(params[0], "228236");
+        EXPECT_EQUAL(params[1], "228235");
+        EXPECT_EQUAL(params[2], "260048");
+    }
+    {
+        const char* text = "retrieve,class=od,expver=0079,stream=enfh,date=-1,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
+        MarsRequest r = MarsRequest::parse(text);
+        auto params = r.values("param");
+        EXPECT_EQUAL(params.size(), 3);
+
+        EXPECT_EQUAL(params[0], "228236");
+        EXPECT_EQUAL(params[1], "228235");
+        EXPECT_EQUAL(params[2], "172228");
+    }
+    {
+        const char* text = "retrieve,class=od,expver=1,stream=wave,date=-1,time=00/12,type=an,levtype=sfc,step=24,param=2dfd ";
+        MarsRequest r = MarsRequest::parse(text);
+        auto params = r.values("param");
+        EXPECT_EQUAL(params.size(), 1);
+
+        EXPECT_EQUAL(params[0], "140251");
+    }
+    {
+        const char* text = "retrieve,class=od,expver=1,stream=enwh,date=-1,time=00/12,type=cf,levtype=sfc,step=24,param=tmax";
+        MarsRequest r = MarsRequest::parse(text);
+        auto params = r.values("param");
+        EXPECT_EQUAL(params.size(), 1);
+
+        EXPECT_EQUAL(params[0], "140217");
+    }
 }
 
 //-----------------------------------------------------------------------------

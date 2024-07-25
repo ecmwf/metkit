@@ -20,6 +20,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ########################################################################################################################
 ### dependencies and options
 
+ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH main UPDATE)
+
 ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
                     DESCRIPTION "Build the command line tools" )
@@ -56,12 +58,6 @@ ecbuild_add_option( FEATURE ODB
                     DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
-# METKIT config files support
-
-ecbuild_add_option( FEATURE METKIT_CONFIG
-                    DEFAULT ON
-                    DESCRIPTION "Install metkit configuration files" )
-
 # Temporary
 ecbuild_add_option( FEATURE FAIL_ON_CCSDS
                     DESCRIPTION "Fail on CCSDS"
@@ -78,7 +74,6 @@ ecbuild_find_package( NAME eckit  VERSION  1.16 REQUIRED )
 include(cmake/compiler_warnings.cmake) # optionally handle compiler specific warnings
 
 add_subdirectory( src )
-add_subdirectory( share )
 add_subdirectory( tests )
 
 ############################################################################################
