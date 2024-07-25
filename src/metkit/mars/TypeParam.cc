@@ -287,7 +287,7 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
     return metkit::mars::MarsLanguage::bestMatch(c, s, values_, fail, false, mapping_);
 }
 
-static std::vector<Rule>* rules = 0;
+static std::vector<Rule>* rules = nullptr;
 
 }
 
@@ -362,27 +362,24 @@ static void init() {
     ASSERT(pc.isList());
 
     for (size_t i = 0; i < pc.size(); i++) {
-        // std::cout << pc[i] << std::endl;
         shortnames.emplace(pc[i]);
     }
+
     auto keys = ids.keys();
 
     for (size_t i=0; i < keys.size(); i++) {
         auto el = ids.element(keys[i]);
         ASSERT(el.size() > 0);
-        // std::cout << keys[i] << "  " << ids.element(keys[i])[0] << std::endl;
         auto val = el[0];
 
         if (shortnames.find(val) != shortnames.end()) {
             associatedIDs.emplace(keys[i]);
-            // std::cout << "Found " << val << " in " << keys[i] << std::endl;
         } else {
             unambiguousIDs.push_back(keys[i]);
         }
     }
 
-    (*rules).push_back(Rule(eckit::Value::makeMap(), unambiguousIDs, ids));
-
+    std::vector<std::pair<const eckit::Value, eckit::Value>> contextes;
     for (auto it = merge.begin(); it != merge.end(); it++) {
         auto listIDs = eckit::Value::makeList();
 
@@ -391,14 +388,17 @@ static void init() {
                 listIDs.append(it->second[j]);
             }
         }
-        if (listIDs.size() > 1) {
-            (*rules).push_back(Rule(it->first, listIDs, ids));
-        }
-        if (listIDs.size() == 1) {
-            unambiguousIDs.push_back(listIDs[0]);
+        if (listIDs.size() > 0) {
+            contextes.push_back(std::make_pair(it->first, listIDs));
         }
     }
-    (*rules)[0] = Rule(eckit::Value::makeMap(), unambiguousIDs, ids);
+    for (auto& c: contextes) {
+        for (auto id: unambiguousIDs) {
+            c.second.append(id);
+        }
+        (*rules).push_back(Rule{c.first, c.second, ids});
+    }
+    (*rules).push_back(Rule{eckit::Value::makeMap(), unambiguousIDs, ids});
 }
 
 namespace metkit {
@@ -447,7 +447,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;;
 
-
         if (firstRule_) {
             bool found = false;
             for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule ; ++j) {
@@ -487,7 +486,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
             oss << "TypeParam: cannot find a context to expand 'param' in " << request;
             throw eckit::SeriousBug(oss.str());
         }
-
     }
 
 
