@@ -95,6 +95,7 @@ public:
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
+    Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids);
 
     void print(std::ostream& out) const {
         out << "{";
@@ -117,6 +118,64 @@ public:
     }
 
 };
+
+Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
+
+    const eckit::Value& keys = matchers.keys();
+    for (size_t i = 0; i < keys.size(); ++i) {
+        std::string name = keys[i];
+        matchers_.push_back(Matcher(name, matchers[name]));
+    }
+ 
+    // cloning other Rule
+    values_.reserve(other.values_.size());
+    for (const std::string& v : other.values_) {
+        values_.push_back(v);
+    }
+
+    auto it = mapping_.begin();
+    for (auto m : other.mapping_) {
+        mapping_.emplace_hint(it, m.first, m.second);
+        it = mapping_.end();
+    }
+
+    // adding new values
+    for (size_t i = 0; i < values.size(); ++i) {
+
+        const eckit::Value& id = values[i];
+
+        std::string first = id;
+        values_.push_back(first);
+
+        const eckit::Value& aliases = ids[id];
+
+        if (aliases.isNil()) {
+
+            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << " " << *this << std::endl;
+            continue;
+        }
+
+        for (size_t j = 0; j < aliases.size(); ++j) {
+            std::string v = aliases[j];
+
+            if (mapping_.find(v) != mapping_.end()) {
+
+                LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
+                        << v
+                        << "='"
+                        << first
+                        << "', overriding previous value of '"
+                        << mapping_[v]
+                        << "' "
+                        << *this
+                        << std::endl;
+            }
+
+            mapping_[v] = first;
+            values_.push_back(v);
+        }
+    }
+}
 
 
 Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
@@ -378,8 +437,8 @@ static void init() {
             unambiguousIDs.push_back(keys[i]);
         }
     }
+    Rule baseRule(eckit::Value::makeMap(), unambiguousIDs, ids);
 
-    std::vector<std::pair<const eckit::Value, eckit::Value>> contextes;
     for (auto it = merge.begin(); it != merge.end(); it++) {
         auto listIDs = eckit::Value::makeList();
 
@@ -389,16 +448,12 @@ static void init() {
             }
         }
         if (listIDs.size() > 0) {
-            contextes.push_back(std::make_pair(it->first, listIDs));
+            (*rules).push_back(Rule{baseRule, it->first, listIDs, ids});
         }
     }
-    for (auto& c: contextes) {
-        for (auto id: unambiguousIDs) {
-            c.second.append(id);
-        }
-        (*rules).push_back(Rule{c.first, c.second, ids});
-    }
-    (*rules).push_back(Rule{eckit::Value::makeMap(), unambiguousIDs, ids});
+
+    (*rules).push_back(Rule{eckit::Value::makeMap(), ids.keys(), ids});
+    // (*rules).push_back(Rule{eckit::Value::makeMap(), unambiguousIDs, ids});
 }
 
 namespace metkit {
