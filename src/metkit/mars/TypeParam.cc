@@ -121,6 +121,8 @@ public:
 
 Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
 
+    std::map<std::string, size_t> precedence;
+
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
         std::string name = keys[i];
@@ -132,7 +134,6 @@ Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& 
     for (const std::string& v : other.values_) {
         values_.push_back(v);
     }
-
     auto it = mapping_.begin();
     for (auto m : other.mapping_) {
         mapping_.emplace_hint(it, m.first, m.second);
@@ -159,16 +160,37 @@ Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& 
             std::string v = aliases[j];
 
             if (mapping_.find(v) != mapping_.end()) {
+                auto it = precedence.find(v);
 
-                LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
-                        << v
-                        << "='"
-                        << first
-                        << "', overriding previous value of '"
-                        << mapping_[v]
-                        << "' "
-                        << *this
-                        << std::endl;
+                if (it != precedence.end() and (*it).second <= j) {
+
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param "
+                            << v
+                            << "='"
+                            << first
+                            << "', keeping previous value of '"
+                            << mapping_[v]
+                            << "' "
+                            << *this
+                            << std::endl;
+                    continue;
+                }
+                else {
+
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
+                            << v
+                            << "='"
+                            << first
+                            << "', overriding previous value of '"
+                            << mapping_[v]
+                            << "' "
+                            << *this
+                            << std::endl;
+
+                    precedence[v] = j;
+                }
+            } else {
+                precedence[v] = j;
             }
 
             mapping_[v] = first;
@@ -453,7 +475,6 @@ static void init() {
     }
 
     (*rules).push_back(Rule{eckit::Value::makeMap(), ids.keys(), ids});
-    // (*rules).push_back(Rule{eckit::Value::makeMap(), unambiguousIDs, ids});
 }
 
 namespace metkit {
