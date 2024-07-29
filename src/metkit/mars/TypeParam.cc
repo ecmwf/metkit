@@ -84,9 +84,12 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
 class Rule : public metkit::mars::MarsExpandContext {
 
     std::vector<Matcher> matchers_;
-    std::vector<std::string> values_;
 
-    mutable std::map<std::string, std::string> mapping_;
+    std::vector<std::string> values_;
+    mutable std::map<std::string, std::string> mapping_; 
+
+    static std::vector<std::string> defaultValues_;
+    static std::map<std::string, std::string> defaultMapping_;
 
 public:
 
@@ -95,7 +98,7 @@ public:
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
-    Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids);
+    static void setDefault(const eckit::Value& setters, const eckit::Value& ids);
 
     void print(std::ostream& out) const {
         out << "{";
@@ -119,59 +122,44 @@ public:
 
 };
 
-Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
+std::vector<std::string> Rule::defaultValues_;
+std::map<std::string, std::string> Rule::defaultMapping_;
+
+void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
 
     std::map<std::string, size_t> precedence;
 
-    const eckit::Value& keys = matchers.keys();
-    for (size_t i = 0; i < keys.size(); ++i) {
-        std::string name = keys[i];
-        matchers_.push_back(Matcher(name, matchers[name]));
-    }
- 
-    // cloning other Rule
-    values_.reserve(other.values_.size());
-    for (const std::string& v : other.values_) {
-        values_.push_back(v);
-    }
-    auto it = mapping_.begin();
-    for (auto m : other.mapping_) {
-        mapping_.emplace_hint(it, m.first, m.second);
-        it = mapping_.end();
-    }
-
-    // adding new values
     for (size_t i = 0; i < values.size(); ++i) {
 
         const eckit::Value& id = values[i];
 
         std::string first = id;
-        values_.push_back(first);
+        defaultValues_.push_back(first);
 
         const eckit::Value& aliases = ids[id];
 
         if (aliases.isNil()) {
 
-            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << " " << *this << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << std::endl;
             continue;
         }
+
+
 
         for (size_t j = 0; j < aliases.size(); ++j) {
             std::string v = aliases[j];
 
-            if (mapping_.find(v) != mapping_.end()) {
-                auto it = precedence.find(v);
+            if (defaultMapping_.find(v) != defaultMapping_.end()) {
 
-                if (it != precedence.end() and (*it).second <= j) {
+                if (precedence[v] <= j) {
 
                     LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param "
                             << v
                             << "='"
                             << first
                             << "', keeping previous value of '"
-                            << mapping_[v]
+                            << defaultMapping_[v]
                             << "' "
-                            << *this
                             << std::endl;
                     continue;
                 }
@@ -182,9 +170,8 @@ Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& 
                             << "='"
                             << first
                             << "', overriding previous value of '"
-                            << mapping_[v]
+                            << defaultMapping_[v]
                             << "' "
-                            << *this
                             << std::endl;
 
                     precedence[v] = j;
@@ -193,12 +180,11 @@ Rule::Rule(const Rule& other, const eckit::Value& matchers, const eckit::Value& 
                 precedence[v] = j;
             }
 
-            mapping_[v] = first;
-            values_.push_back(v);
+            defaultMapping_[v] = first;
+            defaultValues_.push_back(v);
         }
     }
 }
-
 
 Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
 
@@ -304,7 +290,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
     size_t *n = &param;
     bool ok = true;
 
-
     for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
         case '0':
@@ -352,6 +337,12 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
             }
         }
 
+        for (std::vector<std::string>::const_iterator j = defaultValues_.begin(); j != defaultValues_.end(); ++j) {
+            if ((*j) == p) {
+                return p;
+            }
+        }
+
         throw eckit::UserError("Cannot match parameter " + p);
         return p;
     }
@@ -365,7 +356,13 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
 
     ChainedContext c(ctx, *this);
 
-    return metkit::mars::MarsLanguage::bestMatch(c, s, values_, fail, false, mapping_);
+    std::cout << "############# bestMatch 1111111111111111111\n";
+    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, mapping_);
+    if (!paramid.empty()) {
+        return paramid;
+    }
+    std::cout << "############# bestMatch 222222222222222222\n";
+    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, defaultMapping_);
 }
 
 static std::vector<Rule>* rules = nullptr;
@@ -430,14 +427,17 @@ static void init() {
         return;
     }
 
+    Rule::setDefault(ids.keys(), ids);
+
     if (metkitRawParam) {
-        (*rules).push_back(Rule(eckit::Value::makeMap(), ids.keys(), ids));
+        // empty rule, to enable default
+        (*rules).push_back(Rule(eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()));
         return;
     }
 
     std::set<std::string> shortnames;
     std::set<std::string> associatedIDs;
-    eckit::ValueList unambiguousIDs;
+    // eckit::ValueList unambiguousIDs;
 
     const eckit::Value pc = eckit::YAMLParser::decodeFile(LibMetkit::shortnameContextYamlFile());
     ASSERT(pc.isList());
@@ -455,11 +455,8 @@ static void init() {
 
         if (shortnames.find(val) != shortnames.end()) {
             associatedIDs.emplace(keys[i]);
-        } else {
-            unambiguousIDs.push_back(keys[i]);
         }
     }
-    Rule baseRule(eckit::Value::makeMap(), unambiguousIDs, ids);
 
     for (auto it = merge.begin(); it != merge.end(); it++) {
         auto listIDs = eckit::Value::makeList();
@@ -470,11 +467,11 @@ static void init() {
             }
         }
         if (listIDs.size() > 0) {
-            (*rules).push_back(Rule{baseRule, it->first, listIDs, ids});
+            (*rules).push_back(Rule{it->first, listIDs, ids});
         }
     }
 
-    (*rules).push_back(Rule{eckit::Value::makeMap(), ids.keys(), ids});
+    (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()});
 }
 
 namespace metkit {
