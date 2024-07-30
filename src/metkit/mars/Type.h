@@ -54,6 +54,7 @@ public:  // methods
 
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;
+    virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;

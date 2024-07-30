@@ -108,6 +108,10 @@ bool Type::flatten() const {
     return flatten_;
 }
 
+bool Type::multiple() const {
+    return multiple_;
+}
+
 size_t Type::count(const std::vector<std::string>& values) const {
     return flatten_ ? values.size() : 1;
 }
