@@ -377,6 +377,23 @@ CASE( "test_metkit_expand_param" ) {
         EXPECT_EQUAL(params[4], "164");
         EXPECT_EQUAL(params[5], "228");
     }
+    {
+        const char* text = "retrieve,class=od,expver=1,stream=msmm,date=-1,time=0000,type=em,levtype=sfc,step=24,param=e";
+        MarsRequest r = MarsRequest::parse(text);
+        auto params = r.values("param");
+        EXPECT_EQUAL(params.size(), 1);
+
+        EXPECT_EQUAL(params[0], "172182");
+    }
+    {
+        const char* text = "retrieve,class=od,expver=1,stream=msmm,date=-1,time=0000,type=em,levtype=sfc,step=24,param=e/erate";
+        MarsRequest r = MarsRequest::parse(text);
+        auto params = r.values("param");
+        EXPECT_EQUAL(params.size(), 2);
+
+        EXPECT_EQUAL(params[0], "172182");
+        EXPECT_EQUAL(params[1], "172182");
+    }
 }
 
 //-----------------------------------------------------------------------------
