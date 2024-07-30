@@ -221,9 +221,9 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         }
     }
 
+    static std::string empty;
     if (best.empty()) {
-        if (!fail) {
-            static std::string empty;
+        if (!fail) {        
             return empty;
         }
 
@@ -250,7 +250,10 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         return best[0];
     }
 
-
+    if (!fail) {
+        return empty;
+    }
+    
     std::ostringstream oss;
     oss << "Ambiguous value '" << name << "' could be";
 
