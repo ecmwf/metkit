@@ -97,7 +97,7 @@ public:  // methods
     /// Create a new MarsRequest from this one with only the given set of keys
     MarsRequest subset(const std::set<std::string>&) const;
 
-    void json(eckit::JSON&) const;
+    void json(eckit::JSON&, bool array=false) const;
 
     void md5(eckit::MD5&) const;
 
