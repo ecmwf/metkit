@@ -328,7 +328,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
         }
 
         oss <<  table * 1000 + param;
-        // return  metkit::mars::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
 
         std::string p = oss.str();
         for (std::vector<std::string>::const_iterator j = values_.begin(); j != values_.end(); ++j) {
@@ -379,6 +378,7 @@ static void init() {
 
     static bool metkitLegacyParamCheck = eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
     static bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
+
     if (metkitLegacyParamCheck || (!metkitRawParam)) {
         eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
         ASSERT(r.isList());
@@ -425,7 +425,8 @@ static void init() {
         return;
     }
 
-    Rule::setDefault(ids.keys(), ids);
+    auto keys = ids.keys();
+    Rule::setDefault(keys, ids);
 
     if (metkitRawParam) {
         // empty rule, to enable default
@@ -435,7 +436,6 @@ static void init() {
 
     std::set<std::string> shortnames;
     std::set<std::string> associatedIDs;
-    // eckit::ValueList unambiguousIDs;
 
     const eckit::Value pc = eckit::YAMLParser::decodeFile(LibMetkit::shortnameContextYamlFile());
     ASSERT(pc.isList());
@@ -443,8 +443,6 @@ static void init() {
     for (size_t i = 0; i < pc.size(); i++) {
         shortnames.emplace(pc[i]);
     }
-
-    auto keys = ids.keys();
 
     for (size_t i=0; i < keys.size(); i++) {
         auto el = ids.element(keys[i]);
@@ -488,11 +486,9 @@ TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
     if (settings.contains("first_rule")) {
         firstRule_ = settings["first_rule"];
     }
-
 }
 
-TypeParam::~TypeParam() {
-}
+TypeParam::~TypeParam() {}
 
 void TypeParam::print(std::ostream &out) const {
     out << "TypeParam[name=" << name_ << "]";
@@ -512,7 +508,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
             break;
         }
     }
-
 
     if (!rule) {
 
