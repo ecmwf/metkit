@@ -141,6 +141,7 @@ _field: &_field
     - [hcmean, hindcast mean]
     - [ia, init. analysis]
     - [icp, initial condition perturbation]
+    - [mpp, model physics perturbation]
     - [if, interim forecast]
     - [im, images]
     - [me, model errors]
