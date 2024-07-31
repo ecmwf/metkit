@@ -355,12 +355,12 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
 
     ChainedContext c(ctx, *this);
 
-    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, mapping_);
+    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
     if (!paramid.empty()) {
         return paramid;
     }
 
-    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, defaultMapping_);
+    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
 static std::vector<Rule>* rules = nullptr;
