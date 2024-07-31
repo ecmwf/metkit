@@ -34,13 +34,13 @@ namespace test {
 
 CASE( "test_request_json" ) {
     {
-        const char* text = "retrieve,class=od,expver=0079,stream=enfh,date=-1,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
+        const char* text = "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
         MarsRequest r = MarsRequest::parse(text);
         {
             std::stringstream ss;
             eckit::JSON plain(ss);
             r.json(plain);
-            // std::cout << ss.str() << std::endl;
+            std::cout << ss.str() << std::endl;
             EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":\"20240729\",\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":\"24\",\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
         }
         {
@@ -52,7 +52,7 @@ CASE( "test_request_json" ) {
         }
     }
     {
-        const char* text = "retrieve,class=od,expver=1,stream=wave,date=-1,time=00,type=an,levtype=sfc,step=24,param=2dfd ";
+        const char* text = "retrieve,class=od,expver=1,stream=wave,date=20240729,time=00,type=an,levtype=sfc,step=24,param=2dfd ";
         MarsRequest r = MarsRequest::parse(text);
         {
             std::stringstream ss;

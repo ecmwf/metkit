@@ -355,11 +355,12 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
 
     ChainedContext c(ctx, *this);
 
-    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, mapping_);
+    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
     if (!paramid.empty()) {
         return paramid;
     }
-    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, defaultMapping_);
+
+    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
 static std::vector<Rule>* rules = nullptr;
@@ -436,7 +437,7 @@ static void init() {
 
     std::set<std::string> shortnames;
     std::set<std::string> associatedIDs;
-
+    
     const eckit::Value pc = eckit::YAMLParser::decodeFile(LibMetkit::shortnameContextYamlFile());
     ASSERT(pc.isList());
 
@@ -446,11 +447,10 @@ static void init() {
 
     for (size_t i=0; i < keys.size(); i++) {
         auto el = ids.element(keys[i]);
-        ASSERT(el.size() > 0);
-        auto val = el[0];
-
-        if (shortnames.find(val) != shortnames.end()) {
-            associatedIDs.emplace(keys[i]);
+        for (size_t j=0; j < el.size(); j++) {
+            if (shortnames.find(el[j]) != shortnames.end()) {
+                associatedIDs.emplace(keys[i]);
+            }
         }
     }
 
