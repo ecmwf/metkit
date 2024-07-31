@@ -16,6 +16,7 @@
 - cdct
 - clc
 - cp
+- d
 - dhcc
 - dhlc
 - dhr
@@ -28,6 +29,7 @@
 - dv_con
 - e
 - ewgd
+- gh
 - hbas_con
 - hc300m
 - hc700m
@@ -60,6 +62,7 @@
 - mlott05
 - mpps
 - mpww
+- msl
 - msror
 - mssror
 - mtha
@@ -104,6 +107,7 @@
 - sithick
 - siue
 - sivn
+- slhf
 - snowlmt
 - so
 - sohr_rad
@@ -113,10 +117,15 @@
 - sr
 - sro
 - srweq
+- sshf
 - ssr
+- ssrd
 - sst
 - stfbarot
 - str
+- strd
+- strda
+- sund
 - swdi
 - swh
 - swhr
@@ -128,6 +137,8 @@
 - t20d
 - t26d
 - t28d
+- t_ice
+- t_snow
 - ta
 - tauuo
 - tauvo
@@ -146,8 +157,6 @@
 - tsw
 - ttr
 - twater
-- t_ice
-- t_snow
 - u
 - ucq
 - uflx
@@ -169,19 +178,12 @@
 - vt
 - vv
 - w
+- w_i
 - wilt
 - wind
 - wo
 - wvsp1
 - wvsp2
 - wvsp3
-- w_i
-- zos
-- sund
-- d
-- gh
 - z
-- strd
-- sshf
-- ssrd
-- slhf
+- zos
