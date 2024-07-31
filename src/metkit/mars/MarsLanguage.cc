@@ -144,9 +144,9 @@ static bool isnumeric(const std::string& s) {
 }
 
 std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
-                                    const std::vector<std::string>& values, bool fail, bool quiet,
+                                    const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
                                     const std::map<std::string, std::string>& aliases) {
-    size_t score = 1;
+    size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
     static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", false);
@@ -282,7 +282,7 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
     // }
 
     // return cache_[verb] = bestMatch(verb, verbs_, true);
-    return bestMatch(ctx, verb, verbs_, true, true);
+    return bestMatch(ctx, verb, verbs_, true, true, false);
 }
 
 class TypeHidden : public Type {
@@ -325,7 +325,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
                 p = (*c).second;
             }
             else {
-                p = cache_[*j] = bestMatch(ctx, *j, keywords_, true, false, aliases_);
+                p = cache_[*j] = bestMatch(ctx, *j, keywords_, true, false, false, aliases_);
             }
 
             // if (seen.find(p) != seen.end()) {
