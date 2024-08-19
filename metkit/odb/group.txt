@@ -68,4 +68,9 @@
 68  ; GIIRS  ; 2  ; GIIRS  ; GIIRS  ;    
 69  ; HIRAS  ; 2  ; HIRAS  ; HIRAS  ;    
 70  ; TROPICS All-sky  ; 2  ; TROPICS_AS  ; TROPICS All-sky  ;    
+71  ; SSMT1  ; 2  ; SSMT1  ; SSMT1  ;    
+72  ; SSMT1 All-sky  ; 2  ; SSMT1_AS  ; SSMT1 All-sky  ;    
+73  ; MWS All-sky  ; 2  ; MWS_AS  ; MWS All-sky  ;    
+74  ; MWIICI All-sky  ; 2  ; MWIICI_AS  ; MWIICI All-sky  ;    
+75  ; AWS All-sky  ; 2  ; AWS_AS  ; AWS All-sky  ;    
 99  ; TEST  ; 4  ; TEST  ;    ;    
