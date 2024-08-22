@@ -428,6 +428,7 @@ _field: &_field
     - [cat, category]
     - [dp, depth]
     - [layer]
+    - [al, abstract levels]
     - [ml, model levels]
     - [pl, pressure levels]
     - [hl, height levels]
