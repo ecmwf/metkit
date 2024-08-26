@@ -73,6 +73,9 @@ eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
 eckit::PathName LibMetkit::mars2gribRuleListYamlFile() {
     return "~metkit/share/metkit/mars2grib/RuleList.yaml";
 }
+eckit::PathName LibMetkit::mars2gribStatParamRuleListYamlFile() {
+    return "~metkit/share/metkit/mars2grib/StatParamRuleList.yaml";
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

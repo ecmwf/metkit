@@ -30,31 +30,41 @@ namespace {
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
 
-static std::unique_ptr<metkit::mars2grib::RuleList> ruleList{nullptr};
+static std::unique_ptr<metkit::mars2grib::RuleList> mars2GribRuleList_{nullptr};
+static std::unique_ptr<metkit::mars2grib::RuleList> statParamInfoRuleList_{nullptr};
 }
 
 static void init() {
     local_mutex = new eckit::Mutex();
-    ruleList = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribRuleListYamlFile()});
+    mars2GribRuleList_ = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribRuleListYamlFile()});
+    statParamInfoRuleList_ = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribStatParamRuleListYamlFile()});
 }
 
 namespace metkit::mars2grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
-void convertMars2Grib(const eckit::ValueMap& initial, KeySetter& out) {
+const RuleList& ruleList() {
     pthread_once(&once, init);
-    
-    // TODO mutex not really required here?
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    
-    ruleList->apply(initial, out);
+    return *(mars2GribRuleList_.get());
 }
 
-void convertMars2Grib(const eckit::ValueMap& initial, grib::GribHandle& out) {
+const RuleList& statParamRuleList() {
+    pthread_once(&once, init);
+    return *(statParamInfoRuleList_.get());
+}
+
+
+
+void convertMars2Grib(const eckit::ValueMap& initial, KeySetter& out, const RuleList& ruleList) {
+    // TODO mutex not really required here?
+    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
+    ruleList.apply(initial, out);
+}
+
+void convertMars2Grib(const eckit::ValueMap& initial, grib::GribHandle& out, const RuleList& ruleList) {
     CodesKeySetter ks{out};
-    convertMars2Grib(initial, ks); 
+    convertMars2Grib(initial, ks, ruleList); 
 }
 
 

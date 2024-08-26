@@ -17,15 +17,22 @@
 
 #include "metkit/mars2grib/KeySetter.h"
 #include "metkit/codes/GribHandle.h"
+#include "metkit/mars2grib/Rule.h"
+
 #include "eckit/value/Value.h"
 
 
+
 namespace metkit::mars2grib {
+
+const RuleList& ruleList();
+const RuleList& statParamRuleList();
+
 /**
  * Reads specific mars keys
  */
-void convertMars2Grib(const eckit::ValueMap&, KeySetter&);
-void convertMars2Grib(const eckit::ValueMap&, grib::GribHandle&);
+void convertMars2Grib(const eckit::ValueMap&, KeySetter&, const RuleList& = ruleList());
+void convertMars2Grib(const eckit::ValueMap&, grib::GribHandle&, const RuleList& = ruleList());
 
 
 //----------------------------------------------------------------------------------------------------------------------

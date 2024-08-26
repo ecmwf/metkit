@@ -10,14 +10,15 @@
 
 
 #include "metkit/mars2grib/ValueMapSetter.h"
+#include <algorithm>
 
 
 namespace metkit::mars2grib {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-ValueMapSetter::ValueMapSetter(eckit::ValueMap& map) :
-    map_{map} {}
+ValueMapSetter::ValueMapSetter(eckit::ValueMap& map, bool nullOrMissingIsRemoval) :
+    map_{map}, nullOrMissingIsRemoval_{nullOrMissingIsRemoval}  {}
 
 
 void ValueMapSetter::setValue(const std::string& key, const std::string& value) {
@@ -30,7 +31,11 @@ void ValueMapSetter::setValue(const std::string& key, double value) {
     map_.insert_or_assign(key, value);
 }
 void ValueMapSetter::setValue(const std::string& key, NullOrMissing) {
-    map_.insert_or_assign(key, eckit::Value{});
+    if (nullOrMissingIsRemoval_) {
+        map_.erase(key);
+    } else {
+        map_.insert_or_assign(key, eckit::Value{});
+    }
 }
 
 void ValueMapSetter::print(std::ostream& os) const {
@@ -41,8 +46,8 @@ void ValueMapSetter::print(std::ostream& os) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-OrderedValueMapSetter::OrderedValueMapSetter(eckit::ValueMap& map, std::deque<std::string>& keys) :
-    map_{map}, keys_{keys} {}
+OrderedValueMapSetter::OrderedValueMapSetter(eckit::ValueMap& map, std::deque<std::string>& keys, bool nullOrMissingIsRemoval) :
+    map_{map}, keys_{keys}, nullOrMissingIsRemoval_{nullOrMissingIsRemoval} {}
 
 
 void OrderedValueMapSetter::setValue(const std::string& key, const std::string& value) {
@@ -58,8 +63,13 @@ void OrderedValueMapSetter::setValue(const std::string& key, double value) {
     keys_.push_back(key);
 }
 void OrderedValueMapSetter::setValue(const std::string& key, NullOrMissing) {
-    map_.insert_or_assign(key, eckit::Value{});
-    keys_.push_back(key);
+    if (nullOrMissingIsRemoval_) {
+        map_.erase(key);
+        keys_.erase(std::remove(keys_.begin(), keys_.end(), key), keys_.end());
+    } else {
+        map_.insert_or_assign(key, eckit::Value{});
+        keys_.push_back(key);
+    }
 }
 
 void OrderedValueMapSetter::print(std::ostream& os) const {

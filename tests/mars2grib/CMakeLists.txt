@@ -12,7 +12,15 @@ ecbuild_add_test( TARGET        metkit_test_mars2grib_pdt_selection
                   SOURCES       test_pdt_selection.cc
                   LIBS          metkit
                   NO_AS_NEEDED
-                  # TEST_DEPENDS  grib_get_data
+                  ENVIRONMENT   "${metkit_env}"
+)
+
+ecbuild_add_test( TARGET        metkit_test_mars2grib_statparam_only
+                  CONDITION     HAVE_GRIB
+                  INCLUDES      "${ECCODES_INCLUDE_DIRS}"
+                  SOURCES       test_statparam_only.cc
+                  LIBS          metkit
+                  NO_AS_NEEDED
                   ENVIRONMENT   "${metkit_env}"
 )
 

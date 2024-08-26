@@ -26,6 +26,8 @@
 #include "metkit/mars2grib/YAMLRule.h"
 
 #include <ostream>
+#include <unordered_map>
+#include <variant>
 
 
 namespace metkit::mars2grib {
@@ -555,6 +557,8 @@ ScalarCodesValue handleOp(LogTrace& logTrace, BinaryOperation op, const ScalarCo
                 return l * r;
             case BinaryOperation::Divide:
                 return l / r;
+            default:
+                NOTIMP;
         }
     },
                       toNumeric(logTrace, lhs), toNumeric(logTrace, rhs));

@@ -26,7 +26,7 @@ namespace metkit::mars2grib {
 
 class ValueMapSetter : public KeySetter {
 public:
-    ValueMapSetter(eckit::ValueMap& map);
+    ValueMapSetter(eckit::ValueMap& map, bool nullOrMissingIsRemoval=false);
 
     virtual ~ValueMapSetter() = default;
 
@@ -40,6 +40,7 @@ public:
 
 private:
     eckit::ValueMap& map_;
+    bool nullOrMissingIsRemoval_;
 };
 
 
@@ -47,7 +48,7 @@ private:
 
 class OrderedValueMapSetter : public KeySetter {
 public:
-    OrderedValueMapSetter(eckit::ValueMap& map, std::deque<std::string>& keys);
+    OrderedValueMapSetter(eckit::ValueMap& map, std::deque<std::string>& keys, bool nullOrMissingIsRemoval=false);
 
     virtual ~OrderedValueMapSetter() = default;
 
@@ -62,6 +63,7 @@ public:
 private:
     eckit::ValueMap& map_;
     std::deque<std::string>& keys_;
+    bool nullOrMissingIsRemoval_;
 };
 
 

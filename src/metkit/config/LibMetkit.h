@@ -35,6 +35,7 @@ public:
     static eckit::PathName bufrSubtypesYamlFile();
     
     static eckit::PathName mars2gribRuleListYamlFile();
+    static eckit::PathName mars2gribStatParamRuleListYamlFile();
 
     static const LibMetkit& instance();
 
