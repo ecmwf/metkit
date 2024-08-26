@@ -54,6 +54,34 @@ CASE("test pdt selection") {
         EXPECT(searchPDT != out.end());
         EXPECT_EQUAL(static_cast<long>(searchPDT->second), 8);
     }
+    
+    {
+        eckit::ValueMap initial{{"stream", "enfo"}};
+        eckit::ValueMap out;
+        std::deque<std::string> keys;
+
+        OrderedValueMapSetter setter{out, keys};
+
+        convertMars2Grib(initial, setter);
+        eckit::Log::info() << "Mapped: " << initial << " to " << setter << std::endl;
+        auto searchPDT = out.find("productDefinitionTemplateNumber");
+        EXPECT(searchPDT != out.end());
+        EXPECT_EQUAL(static_cast<long>(searchPDT->second), 1);
+    }
+    
+    {
+        eckit::ValueMap initial{{"paramId", 8}, {"stream", "enfo"}};
+        eckit::ValueMap out;
+        std::deque<std::string> keys;
+
+        OrderedValueMapSetter setter{out, keys};
+
+        convertMars2Grib(initial, setter);
+        eckit::Log::info() << "Mapped: " << initial << " to " << setter << std::endl;
+        auto searchPDT = out.find("productDefinitionTemplateNumber");
+        EXPECT(searchPDT != out.end());
+        EXPECT_EQUAL(static_cast<long>(searchPDT->second), 11);
+    }
 }
 
 
