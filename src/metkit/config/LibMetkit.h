@@ -36,6 +36,7 @@ public:
     
     static eckit::PathName mars2gribRuleListYamlFile();
     static eckit::PathName mars2gribStatParamRuleListYamlFile();
+    static eckit::PathName mars2gribIfsPrefixToLevTypeYamlFile();
 
     static const LibMetkit& instance();
 

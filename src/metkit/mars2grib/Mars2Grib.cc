@@ -32,12 +32,14 @@ static pthread_once_t once       = PTHREAD_ONCE_INIT;
 
 static std::unique_ptr<metkit::mars2grib::RuleList> mars2GribRuleList_{nullptr};
 static std::unique_ptr<metkit::mars2grib::RuleList> statParamInfoRuleList_{nullptr};
+static std::unique_ptr<metkit::mars2grib::RuleList> ifsPrefixToLevTypeRuleList_{nullptr};
 }
 
 static void init() {
     local_mutex = new eckit::Mutex();
     mars2GribRuleList_ = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribRuleListYamlFile()});
     statParamInfoRuleList_ = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribStatParamRuleListYamlFile()});
+    ifsPrefixToLevTypeRuleList_ = std::make_unique<metkit::mars2grib::RuleList>(eckit::YAMLConfiguration{LibMetkit::mars2gribIfsPrefixToLevTypeYamlFile()});
 }
 
 namespace metkit::mars2grib {
@@ -54,6 +56,10 @@ const RuleList& statParamRuleList() {
     return *(statParamInfoRuleList_.get());
 }
 
+const RuleList& ifsPrefixToLevTypeRuleList() {
+    pthread_once(&once, init);
+    return *(ifsPrefixToLevTypeRuleList_.get());
+}
 
 
 void convertMars2Grib(const eckit::ValueMap& initial, KeySetter& out, const RuleList& ruleList) {

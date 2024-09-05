@@ -76,6 +76,9 @@ eckit::PathName LibMetkit::mars2gribRuleListYamlFile() {
 eckit::PathName LibMetkit::mars2gribStatParamRuleListYamlFile() {
     return "~metkit/share/metkit/mars2grib/StatParamRuleList.yaml";
 }
+eckit::PathName LibMetkit::mars2gribIfsPrefixToLevTypeYamlFile() {
+    return "~metkit/share/metkit/mars2grib/IfsPrefixToLevTypeRuleList.yaml";
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

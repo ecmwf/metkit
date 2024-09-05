@@ -27,6 +27,7 @@ namespace metkit::mars2grib {
 
 const RuleList& ruleList();
 const RuleList& statParamRuleList();
+const RuleList& ifsPrefixToLevTypeRuleList();
 
 /**
  * Reads specific mars keys
