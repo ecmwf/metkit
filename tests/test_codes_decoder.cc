@@ -375,7 +375,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "numberOfGridUsed", "10");
         MD_EXPECT_STRING(md, "numberOfGridInReference", "1");
         MD_EXPECT_STRING(md, "uuidOfHGrid", "66a341d21dcf11b2880c0f1645f3d1dc");
-        MD_EXPECT_STRING(md, "unstructuredGridType", "unknown");
+        MD_EXPECT_STRINGS(md, "unstructuredGridType", "unknown", "DART");
         MD_EXPECT_STRING(md, "unstructuredGridSubtype", "T");
         MD_EXPECT_STRING(md, "unstructuredGridUUID", "unknown");
         MD_EXPECT_STRING(md, "gridName", "unknown");
