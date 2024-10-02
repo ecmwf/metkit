@@ -192,7 +192,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_LONG(md, "shapeOfTheEarth", 6);
         MD_EXPECT_LONG(md, "numberOfGridUsed", 10);
         MD_EXPECT_LONG(md, "numberOfGridInReference", 1);
-        MD_EXPECT_STRING(md, "unstructuredGridType", "unknown");
+        MD_EXPECT_STRINGS(md, "unstructuredGridType", "unknown", "DART");
         MD_EXPECT_STRING(md, "unstructuredGridSubtype", "T");
         MD_EXPECT_STRING(md, "unstructuredGridUUID", "unknown");
         MD_EXPECT_STRING(md, "gridName", "unknown");
