@@ -195,7 +195,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_STRINGS(md, "unstructuredGridType", "unknown", "DART");
         MD_EXPECT_STRING(md, "unstructuredGridSubtype", "T");
         MD_EXPECT_STRING(md, "unstructuredGridUUID", "unknown");
-        MD_EXPECT_STRING(md, "gridName", "unknown");
+        MD_EXPECT_STRINGS(md, "gridName", "unknown", "DART_T");
         MD_EXPECT_STRING(md, "gridType", "unstructured_grid");
         MD_EXPECT_LONG(md, "section4Length", 34);
         MD_EXPECT_LONG(md, "NV", 0);
@@ -378,7 +378,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRINGS(md, "unstructuredGridType", "unknown", "DART");
         MD_EXPECT_STRING(md, "unstructuredGridSubtype", "T");
         MD_EXPECT_STRING(md, "unstructuredGridUUID", "unknown");
-        MD_EXPECT_STRING(md, "gridName", "unknown");
+        MD_EXPECT_STRINGS(md, "gridName", "unknown", "DART_T");
         MD_EXPECT_STRING(md, "gridType", "unstructured_grid");
         MD_EXPECT_STRING(md, "section4Length", "34");
         MD_EXPECT_STRING(md, "NV", "0");
