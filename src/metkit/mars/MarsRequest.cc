@@ -31,6 +31,13 @@ MarsRequest::MarsRequest() {}
 
 MarsRequest::MarsRequest(const std::string& s) : verb_(s) {}
 
+MarsRequest::MarsRequest(const std::string& verb, const std::vector<std::pair<std::string, std::string>>& values)
+    : verb_(verb) {
+    for (const auto& [param, value] : values) {
+        params_.push_back(Parameter(std::vector<std::string>(1, value), new TypeAny(param)));
+    }
+}
+
 MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::string>& values) :
     verb_(s) {
     for (auto j = values.begin(); j != values.end(); ++j) {
