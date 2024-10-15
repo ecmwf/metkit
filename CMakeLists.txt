@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ########################################################################################################################
 ### dependencies and options
 
-ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH main UPDATE)
+ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH feature/bufr_mucape  UPDATE )
 
 ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
