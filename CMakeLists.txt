@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ########################################################################################################################
 ### dependencies and options
 
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/share")
+if (NOT ${SKIP_METKIT_CONFIGS})
   ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH main UPDATE)
 endif()
 
