@@ -45,10 +45,10 @@ CASE( "test_metkit_expand_2" ) {
     const std::vector< std::string >& dates = r.values("date");
     EXPECT(dates.size() == 1);
 
-    eckit::Date today(0);
+    eckit::Date yesterday(-1);
     std::ostringstream oss;
 
-    oss << today.yyyymmdd();
+    oss << yesterday.yyyymmdd();
     EXPECT(dates[0] == oss.str());
 
 
