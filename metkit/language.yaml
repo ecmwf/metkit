@@ -474,7 +474,7 @@ _field: &_field
 
   date:
     category: data
-    default: 0
+    default: -1
     type: date
     multiple: true
 
