@@ -441,6 +441,9 @@ _field: &_field
     - [o3d, ocean model levels]
     never:
     - type: ssd
+    unset:
+    - stream: [ssmi]
+    - type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   levelist:
     category: data
@@ -456,6 +459,9 @@ _field: &_field
     never:
     - levtype: [sfc, o2d]
     - type: ssd
+    unset:
+    - stream: [ssmi]
+    - type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
     type: to-by-list-float
 
   param:
@@ -560,10 +566,10 @@ _field: &_field
     never:
     - dataset:
       - climate-dt
-    - stream:
-      - msmm
-      - mmsa
-      - swmm
+    - stream: [msmm, mmsa, swmm]
+    unset:
+    - stream: [ssmi]
+    - type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   anoffset:
     category: data
@@ -851,6 +857,9 @@ _postproc: &_postproc
     regex:
     - '^[oOfF][1-9][0-9]+$'
     uppercase: true
+    unset:
+    - stream: [ssmi]
+    - type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   interpolation:
     category: postproc
@@ -892,6 +901,9 @@ _postproc: &_postproc
     flatten: false
     multiple: true
     type: float
+    unset:
+    - stream: [ssmi]
+    - type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   intgrid:
     category: postproc
