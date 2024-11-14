@@ -100,6 +100,30 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
+
+    if (settings.contains("unset")) {
+        eckit::Value d = settings["unset"];
+
+        size_t len = d.size();
+        for (size_t i = 0; i < len; i++) {
+            eckit::Value a    = d[i];
+            eckit::Value keys = a.keys();
+
+            for (size_t j = 0; j < keys.size(); j++) {
+                std::string key = keys[j];
+                eckit::Value v  = a[key];
+
+                if (v.isList()) {
+                    for (size_t k = 0; k < v.size(); k++) {
+                        unset_[key].insert(v[k]);
+                    }
+                }
+                else {
+                    unset_[key].insert(v);
+                }
+            }
+        }
+    }
 }
 
 Type::~Type() {}
@@ -257,6 +281,21 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
     const std::vector<std::string>& values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "off") {
         ok = false;
+    }
+
+    for (const auto& [name, unset] : unset_) {
+        const std::vector<std::string>& values = request.values(name, true);
+        bool found = false;
+        for (const auto& v : values) {
+            if (unset.find(v) != unset.end()) {
+                request.unsetValues(name_);
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
     }
 
     for (std::map<std::string, std::set<std::string> >::const_iterator j = only_.begin();

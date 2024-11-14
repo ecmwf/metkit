@@ -81,6 +81,7 @@ protected:  // members
 
     std::map<std::string, std::set<std::string> > only_;
     std::map<std::string, std::set<std::string> > never_;
+    std::map<std::string, std::set<std::string> > unset_;
 
 protected:  // methods
     virtual ~Type() override;

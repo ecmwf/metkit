@@ -30,65 +30,181 @@ namespace test {
 
 //-----------------------------------------------------------------------------
 
-CASE( "test_metkit_expand_1" ) {
-    const char* text = "ret,date=-5/to/-1";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+void expand(const MarsRequest& r, const std::string& verb, std::map<std::string, std::vector<std::string>> expected, std::vector<long> dates) {
+    std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
+    ASSERT(r.verb() == verb);
+    for(const auto& [key, vals] : expected) {
+        ASSERT(r.has(key));
+        auto vv = r.values(key);
+        ASSERT(vv.size() == vals.size());
+        for (int i=0; i<vv.size(); i++) {
+            ASSERT(vv.at(i) == vals.at(i));
+        }
+    }
+    if (dates.size() > 0) {
+        ASSERT(r.has("date"));
+        auto dd = r.values("date");
+        ASSERT(dd.size() == dates.size());
+        for (int i=0; i<dates.size(); i++) {
+            long d = dates.at(i);
+            if (d<0) {
+                eckit::Date day(d);
+                d = day.yyyymmdd();
+            }
+            ASSERT(dd.at(i) == std::to_string(d));
+        }
+    }
 }
 
 
+void expand(const std::string& text, const std::string& verb, std::map<std::string, std::vector<std::string>> expected, std::vector<long> dates) {
+    MarsRequest r = MarsRequest::parse(text, true);
+    expand(r, verb, expected, dates);
+}
+
+CASE( "test_metkit_expand_1" ) {
+    const char* text = "ret,date=-5/to/-1.";
+    std::map<std::string, std::vector<std::string>> expected{
+            {"class", {"od"}},
+            {"domain", {"g"}},
+            {"expver", {"0001"}},
+            {"levelist", {"1000","850","700","500","400","300"}},
+            {"levtype", {"pl"}},
+            {"param", {"129"}},
+            {"step", {"0"}},
+            {"stream", {"oper"}},
+            {"time", {"1200"}},
+            {"type", {"an"}}
+        };
+    expand(text, "retrieve", expected, {-5,-4,-3,-2,-1});
+}
+
 CASE( "test_metkit_expand_2" ) {
     const char* text = "ret";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
-
-    const std::vector< std::string >& dates = r.values("date");
-    EXPECT(dates.size() == 1);
-
-    eckit::Date yesterday(-1);
-    std::ostringstream oss;
-
-    oss << yesterday.yyyymmdd();
-    EXPECT(dates[0] == oss.str());
-
-
+    std::map<std::string, std::vector<std::string>> expected{
+            {"class", {"od"}},
+            {"domain", {"g"}},
+            {"expver", {"0001"}},
+            {"levelist", {"1000","850","700","500","400","300"}},
+            {"levtype", {"pl"}},
+            {"param", {"129"}},
+            {"step", {"0"}},
+            {"stream", {"oper"}},
+            {"time", {"1200"}},
+            {"type", {"an"}}
+        };
+    expand(text, "retrieve", expected, {-1});
 }
 
 CASE( "test_metkit_expand_3" ) {
     const char* text = "ret,date=-5/to/-1,grid=n640";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+    std::map<std::string, std::vector<std::string>> expected{
+            {"class", {"od"}},
+            {"domain", {"g"}},
+            {"expver", {"0001"}},
+            {"levelist", {"1000","850","700","500","400","300"}},
+            {"levtype", {"pl"}},
+            {"param", {"129"}},
+            {"step", {"0"}},
+            {"stream", {"oper"}},
+            {"time", {"1200"}},
+            {"type", {"an"}},
+            {"grid", {"N640"}}
+        };
+    expand(text, "retrieve", expected, {-5,-4,-3,-2,-1});
 }
 
 
 CASE( "test_metkit_expand_4" ) {
     const char* text = "ret,date=-5/to/-1,grid=o640";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+    std::map<std::string, std::vector<std::string>> expected{
+            {"class", {"od"}},
+            {"domain", {"g"}},
+            {"expver", {"0001"}},
+            {"levelist", {"1000","850","700","500","400","300"}},
+            {"levtype", {"pl"}},
+            {"param", {"129"}},
+            {"step", {"0"}},
+            {"stream", {"oper"}},
+            {"time", {"1200"}},
+            {"type", {"an"}},
+            {"grid", {"O640"}}
+        };
+    expand(text, "retrieve", expected, {-5,-4,-3,-2,-1});
 }
 
 CASE( "test_metkit_expand_5" ) {
     const char* text = "retrieve,class=od,date=20050601,diagnostic=1,expver=1,iteration=0,levelist=1,levtype=ml,param=155.129,stream=sens,time=1200,type=sg";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+    std::map<std::string, std::vector<std::string>> expected{
+            {"class", {"od"}},
+            {"diagnostic", {"1"}},
+            {"domain", {"g"}},
+            {"expver", {"0001"}},
+            {"iteration", {"0"}},
+            {"levelist", {"1"}},
+            {"levtype", {"ml"}},
+            {"param", {"129155"}},
+            {"step", {"0"}},
+            {"stream", {"sens"}},
+            {"time", {"1200"}},
+            {"type", {"sg"}}
+        };
+    expand(text, "retrieve", expected, {20050601});
 }
 
 CASE( "test_metkit_expand_6" ) {
     const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=1/to/31";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+    std::map<std::string, std::vector<std::string>> expected{
+        {"class", {"rd"}},
+        {"expver", {"hl1m"}},
+        {"stream", {"oper"}},
+        {"time", {"0000"}},
+        {"domain", {"g"}},
+        {"type", {"fc"}},
+        {"levtype", {"pl"}},
+        {"step", {"24"}},
+        {"param", {"129"}}
+    };
+    std::vector<std::string> levelist;
+    for (int i=1; i<=31; i++) {
+        levelist.push_back(std::to_string(i));
+    }
+    expected["levelist"] = levelist;
+    expand(text, "retrieve", expected, {20000801});
 }
 
 CASE( "test_metkit_expand_7" ) {
     const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=0.01/0.7";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+    std::map<std::string, std::vector<std::string>> expected{
+        {"class", {"rd"}},
+        {"expver", {"hl1m"}},
+        {"stream", {"oper"}},
+        {"time", {"0000"}},
+        {"domain", {"g"}},
+        {"type", {"fc"}},
+        {"levtype", {"pl"}},
+        {"step", {"24"}},
+        {"param", {"129"}},
+        {"levelist", {".01", ".7"}}
+    };
+    expand(text, "retrieve", expected, {20000801});
 }
 
 CASE( "test_metkit_expand_8" ) {
     const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=0.1/to/0.7/by/0.2";
-    MarsRequest r = MarsRequest::parse(text);
-    r.dump(std::cout);
+    std::map<std::string, std::vector<std::string>> expected{
+        {"class", {"rd"}},
+        {"expver", {"hl1m"}},
+        {"stream", {"oper"}},
+        {"time", {"0000"}},
+        {"domain", {"g"}},
+        {"type", {"fc"}},
+        {"levtype", {"pl"}},
+        {"step", {"24"}},
+        {"param", {"129"}},
+        {"levelist", {".1", ".3", ".5", ".7"}}
+    };
+    expand(text, "retrieve", expected, {20000801});
 }
 
 CASE( "test_metkit_expand_9_strict" ) {
@@ -131,6 +247,50 @@ CASE( "test_metkit_expand_10_strict" ) {
         EXPECT_THROWS(expand.expand(parser.parse()));
     }
 }
+
+CASE( "test_metkit_expand_multirequest-1" ) {
+    const std::string text = "ret,date=-5/to/-2.\nret,date=-1";
+    std::istringstream in(text);
+    std::vector<MarsRequest> reqs = MarsRequest::parse(in, true);
+    EXPECT_EQUAL(reqs.size(), 2);
+    std::map<std::string, std::vector<std::string>> expected{
+            {"class", {"od"}},
+            {"domain", {"g"}},
+            {"expver", {"0001"}},
+            {"levelist", {"1000","850","700","500","400","300"}},
+            {"levtype", {"pl"}},
+            {"param", {"129"}},
+            {"step", {"0"}},
+            {"stream", {"oper"}},
+            {"time", {"1200"}},
+            {"type", {"an"}}
+        };
+    expand(reqs.at(0), "retrieve", expected, {-5,-4,-3,-2});
+    expand(reqs.at(1), "retrieve", expected, {-1});
+}
+
+// CASE( "test_metkit_expand_multirequest-2" ) {
+//     const std::string text = "retrieve,\n type=ai,date=20230616,time=12,class=OD,stream=LWDA,\n obstype=airs,expver=0001,target=\"airs\".";
+//     std::istringstream in(text);
+//     std::vector<MarsRequest> reqs = MarsRequest::parse(in, true);
+//     EXPECT_EQUAL(reqs.size(), 1);
+//     std::map<std::string, std::vector<std::string>> expected{
+//             {"class", {"od"}},
+//             {"domain", {"g"}},
+//             {"expver", {"0001"}},
+//             {"stream", {"lwda"}},
+//             {"time", {"1200"}},
+//             {"type", {"ai"}},
+//             {"target", {"\"airs\""}},
+//             // {"repres", {"bu"}},
+//             {"obstype", {"57"}},
+//             {"duplicates", {"keep"}}
+//         };
+
+//     expand(reqs.at(0), "retrieve", expected, {20230616});
+// }
+
+
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     DummyContext ctx;
