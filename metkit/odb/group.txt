@@ -73,4 +73,5 @@
 73  ; MWS All-sky  ; 2  ; MWS_AS  ; MWS All-sky  ;    
 74  ; MWIICI All-sky  ; 2  ; MWIICI_AS  ; MWIICI All-sky  ;    
 75  ; AWS All-sky  ; 2  ; AWS_AS  ; AWS All-sky  ;    
+76  ; LEOS VIS  ; 2  ; LEOS_VIS  ; LEOS visible reflectances  ;    
 99  ; TEST  ; 4  ; TEST  ;    ;    
