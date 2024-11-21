@@ -20,22 +20,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ########################################################################################################################
 ### dependencies and options
 
-  # if (NOT ${SKIP_METKIT_CONFIGS})
-  #   ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH main UPDATE)
-  # endif()
-
 if (METKIT_CONFIGS_PATH)
-    message (creating_symlink)
-    # set (original "metkit_configs")
-    # set (link "metkit/share")
     file( CREATE_LINK "${METKIT_CONFIGS_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/share" SYMBOLIC )
-    # execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink "${METKIT_CONFIGS_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/share" )
-    #     ${target} 
-    #     ${link}   \
-    #     )"
-    # )
 else()
-    ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH main UPDATE )
+    if(NOT METKIT_CONFIGS_BRANCH)
+        set(METKIT_CONFIGS_BRANCH main)
+    endif()
+    ecbuild_bundle( PROJECT share    GIT "https://github.com/ecmwf/metkit-configs"    BRANCH "${METKIT_CONFIGS_BRANCH}" UPDATE )
 endif()
 
 
