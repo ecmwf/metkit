@@ -28,7 +28,7 @@ if (METKIT_CONFIGS_PATH)
     message (creating_symlink)
     # set (original "metkit_configs")
     # set (link "metkit/share")
-    file( CREATE_LINK "${METKIT_CONFIGS_PATH}" "share" SYMBOLIC )
+    file( CREATE_LINK "${METKIT_CONFIGS_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/share" SYMBOLIC )
     # execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink "${METKIT_CONFIGS_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/share" )
     #     ${target} 
     #     ${link}   \
