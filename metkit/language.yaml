@@ -85,11 +85,11 @@ _field: &_field
   type:
     category: data
     defaults:
-      - val: an
+      - vals: [an]
     set:
       - context:
-        - _verb: [retrieve]
-        - stream: [ssmi]
+          _verb: [retrieve]
+          stream: [ssmi]
         val: ob
         warn: "Changed type=ob"
     flatten: false
@@ -191,11 +191,11 @@ _field: &_field
   stream:
     category: data
     defaults:
-      - val: oper
+      - vals: [oper]
     set:
       - context:
-        - _verb: [retrieve]
-        - stream: [ssbt, e1, ssmi]
+          _verb: [retrieve]
+          stream: [ssbt, e1, ssmi]
         val: oper
         warn: "Changed stream=oper"
     flatten: false
@@ -335,11 +335,11 @@ _field: &_field
     flatten: false
     type: expver
     defaults:
-      - val: '0001'
+      - vals: ['0001']
     set:
       - context:
-        - class: [ti, s2, ur, rr, lw]
-        - expver:
+          class: [ti, s2, ur, rr, lw]
+          expver:
             op: 'u'
         val: 'prod'
 
@@ -453,20 +453,20 @@ _field: &_field
   levtype:
     category: data
     defaults:
-      - val: pl
+      - vals: [pl]
     unset:
       # - context:
       #   - type: ssd
       #   error: "levtype not alowded with type {type}"
       - context:
-        - stream:
+          stream:
             op: '!'
             vals: [ssmi]
-        - type: [im, sim, oldim]
+          type: [im, sim, oldim]
       - context:
-        - type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
       - context:
-        - stream: [ssmi]
+          stream: [ssmi]
     flatten: false
     type: enum
     values:
@@ -492,11 +492,11 @@ _field: &_field
     by: 1
     defaults:
       - context:
-        - levtype: [pl]
-        vals: [1000, 850, 700, 500, 400, 300]
-      - context:
-        - levtype: [ml]
+          levtype: [ml]
         vals: [1, 2]
+      - context:
+          levtype: [pl]
+        vals: [1000, 850, 700, 500, 400, 300]
       # - context:
       #   - levtype: [sfc, o2d]
       #   error: "levelist not alowded with levtype {levtype}"
@@ -505,46 +505,46 @@ _field: &_field
       #   error: "levelist not alowded with type {type}"
     unset:
       - context:
-        - stream:
+          stream:
             op: '!'
             vals: [ssmi]
-        - type: [im, sim, oldim]
+          type: [im, sim, oldim]
       - context:
-        - stream: [ssmi]
+          stream: [ssmi]
       - context:
-        - type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
       - context:
-        - levtype: [o2d, sfc, wave]
+          levtype: [o2d, sfc, wave]
       - context:
-        - class: [er]
-        - levtype: [o3d]
+          class: [er]
+          levtype: [o3d]
       - context:
-        - section: [m, z]
-        - product: [inst, tacc, tavg]
-        - levtype: [dp]
+          section: [m, z]
+          product: [inst, tacc, tavg]
+          levtype: [dp]
       - context:
-        - section: [v]
-        - product: [tims]
-        - levtype: [dp]
+          section: [v]
+          product: [tims]
+          levtype: [dp]
 
   param:
     category: data
     multiple: true
     type: param
     defaults:
-      - val: 129
+      - vals: [129]
     unset:
       - context:
-        - stream:
+          stream:
             op: '!'
             vals: [ssmi]
-        - type: [im, sim, oldim]
+          type: [im, sim, oldim]
       - context:
-        - stream: [ssmi]
+          stream: [ssmi]
       - context:
-        - stream: [ssmi]
+          stream: [ssmi]
       - context:
-        - type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
     # never:
     # - type: [tf, ob]
 
@@ -559,14 +559,14 @@ _field: &_field
     multiple: true
     type: date
     defaults:
-      - val: -1
+      - vals: [-1]
     unset:
       - context:
-        - stream: [mfhm]
-        - type: [em, es, ses]
+          stream: [mfhm]
+          type: [em, es, ses]
       - context:
-        - stream: [mnfh]
-        - type: [em, es, ses, ed]
+          stream: [mnfh]
+          type: [em, es, ses, ed]
 # %if _VERB = RETRIEVE %and (YEAR %or MONTH) %then
 #         %unset DATE
 # %if (_VERB = LIST %and OUTPUT <> BROWSER %and CLASS <> RD  %and (%not DATE) %and (%not PSEUDODATE) ) %then
@@ -607,7 +607,7 @@ _field: &_field
     type: integer
     unset:
       - context:
-        - stream:
+          stream:
             op: '!'
             vals: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
 
@@ -632,22 +632,22 @@ _field: &_field
     multiple: true
     type: time
     defaults:
-      - val: '1200'
+      - vals: ['1200']
     set:
       - context:
-        - class: [dm]
-        - type: [fc]
+          class: [dm]
+          type: [fc]
         val: 0
     unset:
       - context:
-        - type: [ab]
+          type: [ab]
       - context:
-        - stream: [dame, mdfa]
+          stream: [dame, mdfa]
       - context:
-        - class:
+          class:
             op: '!'
             vals: [er]
-        - stream: [moda, msda, edmo, ewmo, wamd]
+          stream: [moda, msda, edmo, ewmo, wamd]
 
   offsettime:
     category: data
@@ -660,13 +660,13 @@ _field: &_field
     type: any
     unset:
       - context:
-        - class:
-          op: '!'
-          vals: [to, dt]
+          class:
+            op: '!'
+            vals: [to, dt]
       - context:
-        - stream:
-          op: '!'
-          vals: [seap]
+          stream:
+            op: '!'
+            vals: [seap]
 
 
   opttime:
@@ -675,13 +675,13 @@ _field: &_field
     type: any
     unset:
       - context:
-        - class:
-          op: '!'
-          vals: [to, dt]
+          class:
+            op: '!'
+            vals: [to, dt]
       - context:
-        - stream:
-          op: '!'
-          vals: [seap]
+          stream:
+            op: '!'
+            vals: [seap]
 
   # range
 
@@ -691,22 +691,22 @@ _field: &_field
     by: 12
     type: range
     defaults:
-      - val: 0
+      - vals: [0]
     unset:
       - context:
-        - stream:
+          stream:
             op: '!'
             vals: [ssmi]
-        - type: [im, oldim]
+          type: [im, oldim]
       - context:
-        - stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame]
+          stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame]
       - context:
-        - type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
+          type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
       - context:
-        - class: [er]
-        - stream: [moda, msda, edmo, ewmo, wamd]    
+          class: [er]
+          stream: [moda, msda, edmo, ewmo, wamd]    
       - context:
-        - class: [ed]
+          class: [ed]
     # %if (FCMONTH %or FCPERIOD)  %and (_APPL = mars %or _APPL = marsG2 %or _APPL = msserver %or _APPL = uniserver) %then
     #     %unset STEP
 
@@ -716,12 +716,12 @@ _field: &_field
     type: integer
     unset:
       - context:
-        - stream:
+          stream:
             op: '!'
             vals: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
       - context:
-        - stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
-        - type:
+          stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
+          type:
             op: '!'
             vals: [go, sfo, fu]
 # ANOFFSET not valid unless Long window 4dvar or for EFAS/EFCL/EFSE/EFRF/EFSR/WFAS/WFCL/WFSE/WFRF/WFSR water balance/fillup
@@ -747,24 +747,24 @@ _field: &_field
     by: 1
     set:
       - context:
-        - class: [ti, s2]
-        - type: [cf]
+          class: [ti, s2]
+          type: [cf]
         val: 0
     unset:
       - context:
-        - type:
+          type:
             op: '!'
             vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
-        - class:
+          class:
             op: '!'
             vals: [ti, lw, s2]
-        - stream:
+          stream:
             op: '!'
             vals: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
       - context:
-        - _verb: [retrieve, archive]
-        - type: [cf, em, es, ses, taem, taes]
-        - stream:
+          _verb: [retrieve, archive]
+          type: [cf, em, es, ses, taem, taes]
+          stream:
             op: '!'
             vals: [mofc, wamf, mofm, wmfm]
     # only:
@@ -788,7 +788,7 @@ _field: &_field
     by: 1
     unset:
       - context:
-        - type:
+          type:
             op: '!'
             vals: [pd, cd, pb, taem]
 
@@ -798,19 +798,19 @@ _field: &_field
       - vals: [g]
     set:
       - context:
-        - class: [od]
-        - type: [cm, cs, cr]
-        - domain: [g]
+          class: [od]
+          type: [cm, cs, cr]
+          domain: [g]
         val: e
       # - context:
       #   - dataset: [climate-dt]
       #   error: "domain not alowded with dataset {dataset}"
     unset:  
       - context:
-        - class: [ep]
-        - levtype: [o2d, o3d]
+          class: [ep]
+          levtype: [o2d, o3d]
       - context:
-        - class: [ti, s2, ur, lw, rr, ed]
+          class: [ti, s2, ur, lw, rr, ed]
     flatten: false
     type: enum
     values:
@@ -882,7 +882,7 @@ _field: &_field
     multiple: true
     unset:
       - context:
-        - type:
+          type:
             op: '!'
             vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb]
     # only:
@@ -900,7 +900,7 @@ _field: &_field
     type: integer
     unset:
       - context:
-        - class: [ci, dt]
+          class: [ci, dt]
 
   origin:
     category: data
@@ -936,7 +936,7 @@ _field: &_field
     type: integer
     unset:
       - context:
-        - class:
+          class:
             op: '!'
             vals: [od, en, me, c3, ci]
 
@@ -972,41 +972,41 @@ _observation: &_observation
     type: any
     multiple: true
 
-type: [im]
-obstype: [=0 %and (ident=52 %or ident=53 %or ident=54))  %then
-        %warning "replacing obstype=0 by channel=2, instrument=205"
-        %unset obstype
-        %set channel    = 2
-        %set instrument = 205
+# type: [im]
+# obstype: [=0 %and (ident=52 %or ident=53 %or ident=54))  %then
+#         %warning "replacing obstype=0 by channel=2, instrument=205"
+#         %unset obstype
+#         %set channel    = 2
+#         %set instrument = 205
 
-%if (type=im %and obstype=10 %and (ident=52 %or ident=53 %or ident=54))  %then
-        %warning "replacing obstype=10 by channel=3, instrument=205"
-        %unset obstype
-        %set channel    = 3
-        %set instrument = 205
+# %if (type=im %and obstype=10 %and (ident=52 %or ident=53 %or ident=54))  %then
+#         %warning "replacing obstype=10 by channel=3, instrument=205"
+#         %unset obstype
+#         %set channel    = 3
+#         %set instrument = 205
 
-%if (type=im %and obstype=20 %and (ident=52 %or ident=53 %or ident=54))  %then
-        %warning "replacing obstype=10 by channel=1, instrument=205"
-        %unset obstype
-        %set channel    = 1
-        %set instrument = 205
+# %if (type=im %and obstype=20 %and (ident=52 %or ident=53 %or ident=54))  %then
+#         %warning "replacing obstype=10 by channel=1, instrument=205"
+#         %unset obstype
+#         %set channel    = 1
+#         %set instrument = 205
 
-# goes
-%if (type=im %and obstype=0 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
-        %warning "replacing obstype=0 by channel=4, instrument=615"
-        %unset obstype
-        %set channel    = 4
-        %set instrument = 615
+# # goes
+# %if (type=im %and obstype=0 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
+#         %warning "replacing obstype=0 by channel=4, instrument=615"
+#         %unset obstype
+#         %set channel    = 4
+#         %set instrument = 615
 
-%if (type=im %and obstype=10 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
-        %warning "replacing obstype=10 by channel=1, instrument=615"
-        %unset obstype
-        %set channel    = 1
-        %set instrument = 615
+# %if (type=im %and obstype=10 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
+#         %warning "replacing obstype=10 by channel=1, instrument=615"
+#         %unset obstype
+#         %set channel    = 1
+#         %set instrument = 615
 
-%if (type=im %and obstype=20 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
-        %warning "replacing obstype=20 by channel=3, instrument=615"
-        %unset obstype
+# %if (type=im %and obstype=20 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
+#         %warning "replacing obstype=20 by channel=3, instrument=615"
+#         %unset obstype
 
 
 
@@ -1104,8 +1104,9 @@ _postproc: &_postproc
     - '^[oOfF][1-9][0-9]+$'
     uppercase: true
     unset:
-    - stream: [ssmi]
-    - type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+      - context:
+          stream: [ssmi]
+          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   interpolation:
     category: postproc
@@ -1135,7 +1136,7 @@ _postproc: &_postproc
     category: postproc
     flatten: false
     aliases:
-        - tra
+    - tra
     type: [enum, integer]
     values:
     - - 'off'
@@ -1148,8 +1149,9 @@ _postproc: &_postproc
     multiple: true
     type: float
     unset:
-    - stream: [ssmi]
-    - type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+      - context:
+          stream: [ssmi]
+          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   intgrid:
     category: postproc
@@ -1309,7 +1311,7 @@ retrieve:
     - true
     - false
     defaults:
-      - val: "off"
+      - vals: ["off"]
 
   padding:
     flatten: false
@@ -1341,18 +1343,18 @@ read:
     multiple: false
     type: any
 
-  _defaults:
-    class: null
-    date: null
-    domain: null
-    expver: null
-    levelist: null
-    levtype: null
-    param: null
-    step: null
-    stream: null
-    time: null
-    type: null
+  # _defaults:
+  #   class: null
+  #   date: null
+  #   domain: null
+  #   expver: null
+  #   levelist: null
+  #   levtype: null
+  #   param: null
+  #   step: null
+  #   stream: null
+  #   time: null
+  #   type: null
 
   _options:
     param:
