@@ -3,7 +3,8 @@ _field: &_field
 
   class:
     category: data
-    default: od
+    defaults:
+      - vals: [od]
     flatten: false
     type: enum
     values:
@@ -83,7 +84,14 @@ _field: &_field
 
   type:
     category: data
-    default: an
+    defaults:
+      - val: an
+    set:
+      - context:
+        - _verb: [retrieve]
+        - stream: [ssmi]
+        val: ob
+        warn: "Changed type=ob"
     flatten: false
     type: enum
     values:
@@ -182,7 +190,14 @@ _field: &_field
 
   stream:
     category: data
-    default: oper
+    defaults:
+      - val: oper
+    set:
+      - context:
+        - _verb: [retrieve]
+        - stream: [ssbt, e1, ssmi]
+        val: oper
+        warn: "Changed stream=oper"
     flatten: false
     type: enum
     values:
@@ -306,11 +321,27 @@ _field: &_field
     - [wfsr, global flood awareness system (glofas) seasonal reforecasts]
     - [wmfm, wave monthly forecast means]
     - [wvhc, wave hindcast]
+
+  # product:
+  # %if LEVTYPE = DP
+  #       %and TYPE = OR
+  #       %and (%not PRODUCT)
+  #       %then
+  #               %warning "Default PRODUCT for Ocean ReAnalysis set to Instantaneous"
+  #               %set PRODUCT = INST
+
   expver:
     category: data
-    default: '0001'
     flatten: false
     type: expver
+    defaults:
+      - val: '0001'
+    set:
+      - context:
+        - class: [ti, s2, ur, rr, lw]
+        - expver:
+            op: 'u'
+        val: 'prod'
 
   dataset:
     # flatten: false
@@ -421,7 +452,21 @@ _field: &_field
 
   levtype:
     category: data
-    default: pl
+    defaults:
+      - val: pl
+    unset:
+      # - context:
+      #   - type: ssd
+      #   error: "levtype not alowded with type {type}"
+      - context:
+        - stream:
+            op: '!'
+            vals: [ssmi]
+        - type: [im, sim, oldim]
+      - context:
+        - type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+      - context:
+        - stream: [ssmi]
     flatten: false
     type: enum
     values:
@@ -439,38 +484,69 @@ _field: &_field
     - [wv, ocean wave]
     - [o2d, ocean surface]
     - [o3d, ocean model levels]
-    never:
-    - type: ssd
-    unset:
-    - stream: [ssmi]
-    - type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   levelist:
     category: data
     multiple: true
-    by: 1
-    default:
-    - 1000
-    - 850
-    - 700
-    - 500
-    - 400
-    - 300
-    never:
-    - levtype: [sfc, o2d]
-    - type: ssd
-    unset:
-    - stream: [ssmi]
-    - type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
     type: to-by-list-float
+    by: 1
+    defaults:
+      - context:
+        - levtype: [pl]
+        vals: [1000, 850, 700, 500, 400, 300]
+      - context:
+        - levtype: [ml]
+        vals: [1, 2]
+      # - context:
+      #   - levtype: [sfc, o2d]
+      #   error: "levelist not alowded with levtype {levtype}"
+      # - context:
+      #   - type: ssd
+      #   error: "levelist not alowded with type {type}"
+    unset:
+      - context:
+        - stream:
+            op: '!'
+            vals: [ssmi]
+        - type: [im, sim, oldim]
+      - context:
+        - stream: [ssmi]
+      - context:
+        - type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+      - context:
+        - levtype: [o2d, sfc, wave]
+      - context:
+        - class: [er]
+        - levtype: [o3d]
+      - context:
+        - section: [m, z]
+        - product: [inst, tacc, tavg]
+        - levtype: [dp]
+      - context:
+        - section: [v]
+        - product: [tims]
+        - levtype: [dp]
 
   param:
     category: data
-    default: 129
     multiple: true
     type: param
-    never:
-    - type: [tf, ob]
+    defaults:
+      - val: 129
+    unset:
+      - context:
+        - stream:
+            op: '!'
+            vals: [ssmi]
+        - type: [im, sim, oldim]
+      - context:
+        - stream: [ssmi]
+      - context:
+        - stream: [ssmi]
+      - context:
+        - type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+    # never:
+    # - type: [tf, ob]
 
 #################################################################
 
@@ -480,9 +556,22 @@ _field: &_field
 
   date:
     category: data
-    default: -1
-    type: date
     multiple: true
+    type: date
+    defaults:
+      - val: -1
+    unset:
+      - context:
+        - stream: [mfhm]
+        - type: [em, es, ses]
+      - context:
+        - stream: [mnfh]
+        - type: [em, es, ses, ed]
+# %if _VERB = RETRIEVE %and (YEAR %or MONTH) %then
+#         %unset DATE
+# %if (_VERB = LIST %and OUTPUT <> BROWSER %and CLASS <> RD  %and (%not DATE) %and (%not PSEUDODATE) ) %then
+#         %warning "Missing DATE. Force to yesterday"
+#         %set DATE = -1
 
   year:
     category: data
@@ -515,16 +604,12 @@ _field: &_field
   hdate:
     category: data
     multiple: true
-    only:
-    - stream:
-      - enfh
-      - enwh
-      - efho
-      - ehmm
-      - ewho
-      - eefh
-      - weeh
     type: integer
+    unset:
+      - context:
+        - stream:
+            op: '!'
+            vals: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
 
   offsetdate:
     category: data
@@ -544,37 +629,104 @@ _field: &_field
 
   time:
     category: data
-    default: '1200'
     multiple: true
     type: time
+    defaults:
+      - val: '1200'
+    set:
+      - context:
+        - class: [dm]
+        - type: [fc]
+        val: 0
+    unset:
+      - context:
+        - type: [ab]
+      - context:
+        - stream: [dame, mdfa]
+      - context:
+        - class:
+            op: '!'
+            vals: [er]
+        - stream: [moda, msda, edmo, ewmo, wamd]
 
   offsettime:
     category: data
     multiple: true
     type: time
 
-  # leadtime
-  # opttime
+  leadtime:
+    category: data
+    multiple: true
+    type: any
+    unset:
+      - context:
+        - class:
+          op: '!'
+          vals: [to, dt]
+      - context:
+        - stream:
+          op: '!'
+          vals: [seap]
+
+
+  opttime:
+    category: data
+    multiple: true
+    type: any
+    unset:
+      - context:
+        - class:
+          op: '!'
+          vals: [to, dt]
+      - context:
+        - stream:
+          op: '!'
+          vals: [seap]
+
   # range
 
   step:
     category: data
     multiple: true
     by: 12
-    default: 0
     type: range
-    never:
-    - dataset:
-      - climate-dt
-    - stream: [msmm, mmsa, swmm]
+    defaults:
+      - val: 0
     unset:
-    - stream: [ssmi]
-    - type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+      - context:
+        - stream:
+            op: '!'
+            vals: [ssmi]
+        - type: [im, oldim]
+      - context:
+        - stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame]
+      - context:
+        - type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
+      - context:
+        - class: [er]
+        - stream: [moda, msda, edmo, ewmo, wamd]    
+      - context:
+        - class: [ed]
+    # %if (FCMONTH %or FCPERIOD)  %and (_APPL = mars %or _APPL = marsG2 %or _APPL = msserver %or _APPL = uniserver) %then
+    #     %unset STEP
 
   anoffset:
     category: data
     multiple: true
     type: integer
+    unset:
+      - context:
+        - stream:
+            op: '!'
+            vals: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+      - context:
+        - stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
+        - type:
+            op: '!'
+            vals: [go, sfo, fu]
+# ANOFFSET not valid unless Long window 4dvar or for EFAS/EFCL/EFSE/EFRF/EFSR/WFAS/WFCL/WFSE/WFRF/WFSR water balance/fillup
+
+
 
   reference:
     category: data
@@ -591,35 +743,76 @@ _field: &_field
     multiple: true
     aliases:
     - ensemble
-    by: 1
-    only:
-    - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
-    never:
-    # This is to prevent number with type=fc and stream=oper
-    - stream: [oper, wave]
     type: to-by-list
+    by: 1
+    set:
+      - context:
+        - class: [ti, s2]
+        - type: [cf]
+        val: 0
+    unset:
+      - context:
+        - type:
+            op: '!'
+            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
+        - class:
+            op: '!'
+            vals: [ti, lw, s2]
+        - stream:
+            op: '!'
+            vals: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
+      - context:
+        - _verb: [retrieve, archive]
+        - type: [cf, em, es, ses, taem, taes]
+        - stream:
+            op: '!'
+            vals: [mofc, wamf, mofm, wmfm]
+    # only:
+    # - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
+    # never:
+    # # This is to prevent number with type=fc and stream=oper
+    # - stream: [oper, wave]
+
+
+
+
+
+
+
 
   quantile:
     category: data
     multiple: true
-    only:
-    - type:
-      - pd
-      - pb
-      - taem
-      - cd
-      # - sot
     type: to-by-list-quantile
     denominators: [2,3,4,5,10,100,1000]
     by: 1
+    unset:
+      - context:
+        - type:
+            op: '!'
+            vals: [pd, cd, pb, taem]
+
   domain:
     category: data
-    default: g
+    defaults:
+      - vals: [g]
+    set:
+      - context:
+        - class: [od]
+        - type: [cm, cs, cr]
+        - domain: [g]
+        val: e
+      # - context:
+      #   - dataset: [climate-dt]
+      #   error: "domain not alowded with dataset {dataset}"
+    unset:  
+      - context:
+        - class: [ep]
+        - levtype: [o2d, o3d]
+      - context:
+        - class: [ti, s2, ur, lw, rr, ed]
     flatten: false
     type: enum
-    never:
-    - dataset:
-      - climate-dt
     values:
     - [a, north west europe]
     - [b, north east europe, baltic and black sea]
@@ -685,10 +878,15 @@ _field: &_field
 
   ident:
     category: data
-    only:
-    - type: ssd
     type: integer
     multiple: true
+    unset:
+      - context:
+        - type:
+            op: '!'
+            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb]
+    # only:
+    # - type: ssd
 
   instrument:
     category: data
@@ -700,6 +898,9 @@ _field: &_field
   method:
     category: data
     type: integer
+    unset:
+      - context:
+        - class: [ci, dt]
 
   origin:
     category: data
@@ -733,6 +934,11 @@ _field: &_field
   system:
     category: data
     type: integer
+    unset:
+      - context:
+        - class:
+            op: '!'
+            vals: [od, en, me, c3, ci]
 
 #######################################################################
 # DestinE ClimateDT related keywords
@@ -765,6 +971,46 @@ _observation: &_observation
     category: data
     type: any
     multiple: true
+
+type: [im]
+obstype: [=0 %and (ident=52 %or ident=53 %or ident=54))  %then
+        %warning "replacing obstype=0 by channel=2, instrument=205"
+        %unset obstype
+        %set channel    = 2
+        %set instrument = 205
+
+%if (type=im %and obstype=10 %and (ident=52 %or ident=53 %or ident=54))  %then
+        %warning "replacing obstype=10 by channel=3, instrument=205"
+        %unset obstype
+        %set channel    = 3
+        %set instrument = 205
+
+%if (type=im %and obstype=20 %and (ident=52 %or ident=53 %or ident=54))  %then
+        %warning "replacing obstype=10 by channel=1, instrument=205"
+        %unset obstype
+        %set channel    = 1
+        %set instrument = 205
+
+# goes
+%if (type=im %and obstype=0 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
+        %warning "replacing obstype=0 by channel=4, instrument=615"
+        %unset obstype
+        %set channel    = 4
+        %set instrument = 615
+
+%if (type=im %and obstype=10 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
+        %warning "replacing obstype=10 by channel=1, instrument=615"
+        %unset obstype
+        %set channel    = 1
+        %set instrument = 615
+
+%if (type=im %and obstype=20 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
+        %warning "replacing obstype=20 by channel=3, instrument=615"
+        %unset obstype
+
+
+
+
 
   obsgroup:
     category: data
@@ -1062,8 +1308,8 @@ retrieve:
     values:
     - true
     - false
-    default:
-      "off"
+    defaults:
+      - val: "off"
 
   padding:
     flatten: false
