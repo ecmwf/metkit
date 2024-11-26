@@ -25,6 +25,7 @@
 
 #include "metkit/config/LibMetkit.h"
 
+#include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpension.h"
 #include "metkit/mars/MarsLanguage.h"
@@ -60,7 +61,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
     eckit::Value lang   = languages_[verb];
     eckit::Value params = lang.keys();
 
-    eckit::Value defaults = lang["_defaults"];
+    // eckit::Value defaults = lang["_defaults"];
     eckit::Value options  = lang["_options"];
 
     for (size_t i = 0; i < params.size(); ++i) {
@@ -73,10 +74,9 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
 
         ASSERT(types_.find(keyword) == types_.end());
 
-
-        if (defaults.contains(keyword)) {
-            settings["default"] = defaults[keyword];
-        }
+        // if (defaults.contains(keyword)) {
+        //     settings["default"] = defaults[keyword];
+        // }
 
         if (options.contains(keyword)) {
             eckit::ValueMap m = options[keyword];
@@ -95,6 +95,22 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
                 aliases_[aliases[j]] = keyword;
                 keywords_.push_back(aliases[j]);
             }
+        }
+    }
+
+    std::set<std::string> keywordsInAxis;
+    for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
+        keywordsInAxis.insert(a);
+        Type* t=nullptr;
+        auto it = types_.find(a);
+        if(it != types_.end()) {
+            t = (*it).second;
+        }
+        typesByAxisOrder_.push_back(std::make_pair(a,t)); 
+    }
+    for (const auto& [k,t] : types_) {
+        if (keywordsInAxis.find(k) == keywordsInAxis.end()) {
+            typesByAxisOrder_.push_back(std::make_pair(k,t));
         }
     }
 }
@@ -276,12 +292,6 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
 
 std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
     pthread_once(&once, init);
-    // std::map<std::string, std::string>::iterator c = cache_.find(verb);
-    // if(c != cache_.end()) {
-    //     return (*c).second;
-    // }
-
-    // return cache_[verb] = bestMatch(verb, verbs_, true);
     return bestMatch(ctx, verb, verbs_, true, true, false);
 }
 
@@ -353,18 +363,16 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 
 
         if (inherit) {
-            for (std::map<std::string, Type*>::iterator k = types_.begin(); k != types_.end();
-                 ++k) {
-                const std::string& name = (*k).first;
-                if (result.countValues(name) == 0) {
-                    (*k).second->setDefaults(result);
+            for (const auto& [k,t] : typesByAxisOrder_) {
+                if (t != nullptr && result.countValues(k) == 0) {
+                    t->setDefaults(result);
                 }
             }
 
             result.getParams(params);
             for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end();
                  ++k) {
-                type(*k)->setDefaults(result.values(*k));
+                type(*k)->setInheritance(result.values(*k));
             }
         }
 

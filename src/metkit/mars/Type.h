@@ -31,6 +31,37 @@ class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class ContextRule {
+public:
+    ContextRule(const std::string& k);
+    virtual bool matches(MarsRequest req) const = 0;
+
+    friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
+
+protected:
+    std::string key_;
+
+private:  // methods
+    virtual void print(std::ostream& out) const = 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class Context {
+public:
+    void add(ContextRule* rule);
+    bool matches(MarsRequest req) const;
+
+    friend std::ostream& operator<<(std::ostream& s, const Context& x);
+
+private:  // methods
+    void print(std::ostream& out) const;
+private:
+    std::vector<ContextRule*> rules_;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class Type : public eckit::Counted {
 public:  // methods
     Type(const std::string& name, const eckit::Value& settings);
@@ -44,7 +75,7 @@ public:  // methods
     virtual std::vector<std::string> tidy(const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
-    virtual void setDefaults(const std::vector<std::string>& defaults);
+    virtual void setInheritance(const std::vector<std::string>& inheritance);
     virtual void check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const;
     virtual void clearDefaults();
     virtual void reset();
@@ -72,16 +103,21 @@ protected:  // members
     std::string name_;
     std::string category_;
 
-    std::vector<std::string> defaults_;
+    // std::vector<std::string> defaults_;
     bool flatten_;
     bool multiple_;
     bool duplicates_;
 
-    std::vector<std::string> originalDefaults_;
+    std::map<Context*, std::vector<std::string>> defaults_;
+    std::optional<std::vector<std::string>> inheritance_;
+    std::map<Context*, std::string> sets_;
+    std::set<Context*> unsets_;
 
-    std::map<std::string, std::set<std::string> > only_;
-    std::map<std::string, std::set<std::string> > never_;
-    std::map<std::string, std::set<std::string> > unset_;
+    // std::vector<std::string> originalDefaults_;
+
+    // std::map<std::string, std::set<std::string> > only_;
+    // std::map<std::string, std::set<std::string> > never_;
+    // std::map<std::string, std::set<std::string> > unset_;
 
 protected:  // methods
     virtual ~Type() override;

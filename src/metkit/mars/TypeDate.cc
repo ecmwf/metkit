@@ -31,14 +31,20 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
 
     DummyContext ctx;
 
-    for (size_t i = 0; i < originalDefaults_.size(); i++ ) {
-        originalDefaults_[i] = tidy(ctx, originalDefaults_[i]);
-    }
+    // for (size_t i = 0; i < originalDefaults_.size(); i++ ) {
+    //     originalDefaults_[i] = tidy(ctx, originalDefaults_[i]);
+    // }
 
-    defaults_ = originalDefaults_;
+    // defaults_ = originalDefaults_;
 }
 
 TypeDate::~TypeDate() {
+}
+
+void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
+    std::vector<std::string> values = request.values(name_, true);
+    expand(ctx, values);
+    request.setValuesTyped(this, values);
 }
 
 bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {

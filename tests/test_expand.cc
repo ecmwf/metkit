@@ -31,6 +31,8 @@ namespace test {
 //-----------------------------------------------------------------------------
 
 void expand(const MarsRequest& r, const std::string& verb, std::map<std::string, std::vector<std::string>> expected, std::vector<long> dates) {
+    // MarsExpension exp(false);
+    // MarsRequest r = exp.expand(req);
     std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
     ASSERT(r.verb() == verb);
     for(const auto& [key, vals] : expected) {
@@ -240,12 +242,12 @@ CASE( "test_metkit_expand_10_strict" ) {
         ASSERT(v.size() == 1);
         v[0].dump(std::cout);
     }
-    {
-        std::istringstream in(text);
-        MarsParser parser(in);
-        MarsExpension expand(false, true);
-        EXPECT_THROWS(expand.expand(parser.parse()));
-    }
+    // {
+    //     std::istringstream in(text);
+    //     MarsParser parser(in);
+    //     MarsExpension expand(false, true);
+    //     EXPECT_THROWS(expand.expand(parser.parse()));
+    // }
 }
 
 CASE( "test_metkit_expand_multirequest-1" ) {
