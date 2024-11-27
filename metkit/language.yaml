@@ -57,6 +57,7 @@ _field: &_field
     - [me, mersea]
     - [ml, machine learning]
     - [ms, member states]
+    - [ng, nextgems]
     - [nl, netherlands]
     - ['no', norway]
     - [nr, ncep 20cr, 20cr]
@@ -313,9 +314,14 @@ _field: &_field
     type: expver
 
   dataset:
-    # flatten: false
-    multiple: true
-    type: any
+    multiple: false
+    type: enum
+    values:
+    - climate-dt
+    - extremes-dt
+    - on-demand-extremes-dt
+    only:
+      - class: [d1]
 
   model:
     category: data
@@ -558,8 +564,8 @@ _field: &_field
     default: 0
     type: range
     never:
-    - dataset:
-      - climate-dt
+    # - dataset:
+    #   - climate-dt
     - stream:
       - msmm
       - mmsa
@@ -611,9 +617,8 @@ _field: &_field
     default: g
     flatten: false
     type: enum
-    never:
-    - dataset:
-      - climate-dt
+    # never:
+    # - class: [d1,ed,ng]
     values:
     - [a, north west europe]
     - [b, north east europe, baltic and black sea]
