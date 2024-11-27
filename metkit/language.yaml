@@ -58,6 +58,7 @@ _field: &_field
     - [me, mersea]
     - [ml, machine learning]
     - [ms, member states]
+    - [ng, nextgems]
     - [nl, netherlands]
     - ['no', norway]
     - [nr, ncep 20cr, 20cr]
@@ -74,6 +75,7 @@ _field: &_field
     - [si, slovenia]
     - [sr, sreps]
     - [te, test]
+    - [ti, tigge]    
     - [to, tost]
     - [tr, turkey]
     - [uk, united kingdom]
@@ -81,6 +83,10 @@ _field: &_field
     - [ur, uerra]
     - [yp, yopp]
     - [yt, yotc]
+
+
+
+
 
   type:
     category: data
@@ -344,9 +350,15 @@ _field: &_field
         val: 'prod'
 
   dataset:
-    # flatten: false
-    multiple: true
-    type: any
+    multiple: false
+    type: enum
+    values:
+    - climate-dt
+    - extremes-dt
+    - on-demand-extremes-dt
+    only:
+      - context:
+          class: [d1]
 
   model:
     category: data
@@ -479,7 +491,7 @@ _field: &_field
     - [hl, height levels]
     - [pt, potential temperature]
     - [pv, potential vorticity]
-    - [sfc, surface]
+    - [sfc, surface] # sl ??
     - [sol, surface other (multi)levels]
     - [wv, ocean wave]
     - [o2d, ocean surface]
@@ -907,28 +919,57 @@ _field: &_field
     multiple: true
     type: enum
     values:
+    - [aladinhuneps-omsz-eu]
+    - [aladinlaef-zamg-eu]
     - [ammc, 1, melbourne]
+    - [anso]
+    - [aromeeps-mf-eu]
     - [babj, 38, beijing]
     - [cmcc]
     - [cnmc, 80]
     - [consensus, 255]
+    - [cosmodeeps-dwd-eu]
+    - [cosmoleps-arpasimc-eu]
     - [crfc, 239, cerfacs]
     - [cwao, 54, montreal]
+    - [dems]
     - [ecmf, 98, ecmwf]
     - [edzw, dwd, 78, offenbach]
     - [egrr, 74, exeter, bracknell]
+    - [ekmi]
     - [enmi, 88, oslo]
+    - [eswi]
+    - [fapr]
     - [fnmo, fnmoc, 58, fleet numerical]
+    - [fr-ms-ec]
+    - [glameps-hirlamcons-eu]
     - [hadc, 247, hadley centre]
+    - [hirlam-dmi-eu]
     - [ifmk, 246]
     - [ingv, 235]
+    - [isac]
     - [knmi, 245]
     - [kwbc, 7, washington]
     - [lemm, 214, madrid]
     - [lfpw, 84, 85, paris, toulouse]
+    - [lops]
+    - [mogreps-mo-eua]
+    - [nasa]
+    - [niwa]
+    - [no-ar-ce]
+    - [no-ar-cw]
+    - [no-ar-pa]
+    - [nzkl]
+    - [pearp-mf-eu]
     - [rjtd, 34, tokyo]
     - [rksl, 40, seoul]
+    - [rums]
+    - [sabm]
     - [sbsj, 46, cptec]
+    - [se-al-ec]
+    - [sreps-aemet-eua]
+    - [srnwppeps-dwd-eua]
+    - [vabb]
     - [vuwien, 244, university of vienna]
 
   system:
