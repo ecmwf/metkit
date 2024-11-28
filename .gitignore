@@ -8,3 +8,7 @@ doc/latex
 .*.sw*
 .*un~
 *.ccls-cache
+share
+__pycache__/
+*.pyc
+*.egg-info/
