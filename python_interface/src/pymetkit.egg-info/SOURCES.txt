@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+src/pymetkit/__init__.py
+src/pymetkit.egg-info/PKG-INFO
+src/pymetkit.egg-info/SOURCES.txt
+src/pymetkit.egg-info/dependency_links.txt
+src/pymetkit.egg-info/requires.txt
+src/pymetkit.egg-info/top_level.txt
