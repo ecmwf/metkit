@@ -8,20 +8,14 @@
 #define metkit_VERSION_MINOR @metkit_VERSION_MINOR@
 #define metkit_VERSION_PATCH @metkit_VERSION_PATCH@
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+inline const char * metkit_version() { return metkit_VERSION; }
 
-const char * metkit_version();
-
-unsigned int metkit_version_int();
-
-const char * metkit_version_str();
-
-const char * metkit_git_sha1();
-
-#ifdef __cplusplus
+inline unsigned int metkit_version_int() {
+  return 10000*metkit_VERSION_MAJOR + 100*metkit_VERSION_MINOR + 1*metkit_VERSION_PATCH;
 }
-#endif
+
+inline const char * metkit_version_str() { return metkit_VERSION_STR; }
+
+inline const char * metkit_git_sha1() { return "@metkit_GIT_SHA1@"; }
 
 #endif // metkit_version_h
