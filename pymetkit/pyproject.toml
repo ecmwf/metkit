@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "wheel", "cffi"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metkit-python"
+version = "0.0.1"
+description = "Python interface for metkit"
+authors = [
+  { name = "European Centre for Medium-Range Weather Forecasts (ECMWF)", email = "software.support@ecmwf.int" },
+]
+license = { text = "Apache License Version 2.0" }
+requires-python = ">=3.10"
+dependencies = [
+    "cffi",
+    "findlibs"
+]
+
+[project.optional-dependencies]
+tests = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
