@@ -380,7 +380,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                 numMessage++;
             }
         }
-        catch(eckit::Exception e) {
+        catch(eckit::Exception& e) {
             Log::warning() << " Error parsing message " << numMessage << " - offset " << pos << std::endl;
             if (verbose_) {
                 e.dumpStackTrace(Log::warning());

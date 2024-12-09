@@ -116,7 +116,6 @@ CASE( "test_metkit_expand_3" ) {
     expand(text, "retrieve", expected, {-5,-4,-3,-2,-1});
 }
 
-
 CASE( "test_metkit_expand_4" ) {
     const char* text = "ret,date=-5/to/-1,grid=o640";
     std::map<std::string, std::vector<std::string>> expected{
@@ -596,6 +595,102 @@ CASE( "test_metkit_expand_param" ) {
         EXPECT_EQUAL(params.size(), 1);
 
         EXPECT_EQUAL(params[0], "171175");
+    }
+}
+
+CASE( "test_metkit_expand_d1" ) {
+    {
+        const char* text = "retrieve,class=d1,dataset=extremes-dt,date=-1";
+        std::map<std::string, std::vector<std::string>> expected{
+                {"class", {"d1"}},
+                {"dataset", {"extremes-dt"}},
+                {"domain", {"g"}},
+                {"expver", {"0001"}},
+                {"levelist", {"1000","850","700","500","400","300"}},
+                {"levtype", {"pl"}},
+                {"param", {"129"}},
+                {"step", {"0"}},
+                {"stream", {"oper"}},
+                {"time", {"1200"}},
+                {"type", {"an"}}
+            };
+        expand(text, "retrieve", expected, {-1});
+    }    {
+        const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
+        std::map<std::string, std::vector<std::string>> expected{
+                {"class", {"d1"}},
+                {"dataset", {"extremes-dt"}},
+                {"expver", {"0001"}},
+                {"levelist", {"1000","850","700","500","400","300"}},
+                {"levtype", {"pl"}},
+                {"param", {"129"}},
+                {"step", {"0"}},
+                {"stream", {"oper"}},
+                {"time", {"1200"}},
+                {"type", {"an"}}
+            };
+        expand(text, "retrieve", expected, {-1});
+    }
+    // {
+    //     const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
+    //     std::istringstream in(text);
+    //     MarsParser parser(in);
+    //     MarsExpension expand(false, true);
+    //     EXPECT_THROWS(expand.expand(parser.parse()));
+    // }
+    {
+        const char* text = "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,param=134/137";
+        std::map<std::string, std::vector<std::string>> expected{
+                {"class", {"d1"}},
+                {"dataset", {"climate-dt"}},
+                {"activity", {"cmip6"}},
+                {"experiment", {"hist"}},
+                {"model", {"ifs-nemo"}},
+                {"generation", {"1"}},
+                {"realization", {"1"}},
+                {"resolution", {"high"}},
+                {"expver", {"0001"}},
+                {"date", {"20000101"}},
+                {"time", {"1200"}},
+                {"stream", {"clte"}},
+                {"type", {"fc"}},
+                {"levtype", {"pl"}},
+                {"levelist", {"1000","850","700","500","400","300"}},
+                {"param", {"134","137"}}
+            };
+        expand(text, "retrieve", expected, {20000101});
+    }           
+}
+
+
+CASE( "test_metkit_expand_ng" ) {
+    {
+        const char* text = "retrieve,class=ng,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,levtype=pl,param=134/137";
+        std::map<std::string, std::vector<std::string>> expected {
+                {"class", {"ng"}},
+                {"levtype", {"pl"}},
+                {"levelist", {"1000","850","700","500","400","300"}},
+                {"activity", {"cmip6"}},
+                {"experiment", {"hist"}},
+                {"model", {"ifs-nemo"}},
+                {"generation", {"1"}},
+                {"realization", {"1"}},
+                {"resolution", {"high"}},
+                {"expver", {"0001"}},
+                {"date", {"20000101"}},
+                {"time", {"1200"}},
+                {"stream", {"clte"}},
+                {"type", {"fc"}},
+                {"param", {"134","137"}}
+            };
+        expand(text, "retrieve", expected, {20000101});
+    }
+    {
+        const char* text = "retrieve,class=ng,dataset=climate-dt,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,levtype=sfc,param=134/137";
+        std::istringstream in(text);
+        MarsParser parser(in);
+        MarsExpension expand(false, true);
+        EXPECT_THROWS(expand.expand(parser.parse()));
     }
 }
 
