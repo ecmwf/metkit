@@ -11,8 +11,8 @@ extern "C" {
  * TYPES
  * -----*/
 
-struct metkit_request_t;
-typedef struct metkit_request_t metkit_request_t;
+struct metkit_marsrequest_t;
+typedef struct metkit_marsrequest_t metkit_marsrequest_t;
 
 struct metkit_requestiterator_t;
 /** RequestIterator for iterating over vector of Request instances */
@@ -78,7 +78,7 @@ int metkit_initialise();
  * @param requests Allocates RequestIterator object
  * @return int Error code
  */
-int metkit_parse_mars_request(const char* str, metkit_requestiterator_t** requests, bool strict = false);
+int metkit_parse_marsrequest(const char* str, metkit_requestiterator_t** requests, bool strict = false);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST
@@ -88,13 +88,13 @@ int metkit_parse_mars_request(const char* str, metkit_requestiterator_t** reques
  * @param request new Request instance
  * @return int Error code
  */
-int metkit_new_request(metkit_request_t** request);
+int metkit_new_marsrequest(metkit_marsrequest_t** request);
 
 /** Deallocates Request object and associated resources.
  * @param request Request instance
  * @return int Error code
  */
-int metkit_free_request(const metkit_request_t* request);
+int metkit_free_marsrequest(const metkit_marsrequest_t* request);
 
 /** Add parameter and values to request
  * @param request Request instance
@@ -103,21 +103,21 @@ int metkit_free_request(const metkit_request_t* request);
  * @param numValues number of values
  * @return int Error code
  */
-int metkit_request_add(metkit_request_t* request, const char* param, const char* values[], int numValues);
+int metkit_marsrequest_add(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues);
 
 /** Set verb in Request object
  * @param request Request instance
  * @param verb verb to set
  * @return int Error code
  */
-int metkit_request_set_verb(metkit_request_t* request, const char* verb);
+int metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb);
 
 /** Returns the verb in Request object
  * @param request Request instance
  * @param verb verb in request
  * @return int Error code
  */
-int metkit_request_verb(const metkit_request_t* request, const char** verb);
+int metkit_marsrequest_verb(const metkit_marsrequest_t* request, const char** verb);
 
 /** Returns whether parameter is in Request object
  * @param request Request instance
@@ -125,7 +125,7 @@ int metkit_request_verb(const metkit_request_t* request, const char** verb);
  * @param has whether parameter exists in request
  * @return int Error code
  */
-int metkit_request_has_param(const metkit_request_t* request, const char* param, bool* has);
+int metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char* param, bool* has);
 
 /** Returns ParamIterator of parameters in request. Resulting ParamIterator
  * must be deallocated with metkit_free_paramiterator
@@ -133,7 +133,7 @@ int metkit_request_has_param(const metkit_request_t* request, const char* param,
  * @param params Allocates ParamIterator object for parameter names in request
  * @return int Error code
  */
-int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_t** params);
+int metkit_marsrequest_params(const metkit_marsrequest_t* request, metkit_paramiterator_t** params);
 
 /** Returns number of values for specific parameter in Request object
  * @param request Request instance
@@ -141,7 +141,7 @@ int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_
  * @param count number of values for param in request
  * @return int Error code
  */
-int metkit_request_count_values(const metkit_request_t* request, const char* param, size_t* count);
+int metkit_marsrequest_count_values(const metkit_marsrequest_t* request, const char* param, size_t* count);
 
 /** Returns value for specific parameter and index in Request object
  * @param request Request instance
@@ -150,7 +150,7 @@ int metkit_request_count_values(const metkit_request_t* request, const char* par
  * @param value retrieved value
  * @return int Error code
  */
-int metkit_request_value(const metkit_request_t* request, const char* param, int index, const char** value);
+int metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value);
 
 /** Returns values for specific parameter Request object
  * @param request Request instance
@@ -159,7 +159,7 @@ int metkit_request_value(const metkit_request_t* request, const char* param, int
  * @param numValues number of values for param in request
  * @return int Error code
  */
-int metkit_request_values(const metkit_request_t* request, const char* param, const char** values[], size_t* numValues);
+int metkit_marsrequest_values(const metkit_marsrequest_t* request, const char* param, const char** values[], size_t* numValues);
 
 /** Populates empty Request object by expanding existing request
  * @param request Request instance to be expanded
@@ -168,14 +168,14 @@ int metkit_request_values(const metkit_request_t* request, const char* param, co
  * @param strict it true, raise error rather than warning on invalid values
  * @return int Error code
  */
-int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit = true, bool strict = false);
+int metkit_marsrequest_expand(const metkit_marsrequest_t* request, metkit_marsrequest_t* expandedRequest, bool inherit = true, bool strict = false);
 
 /** Merges other Request object into existing request
  * @param request Request instance to contain result of merge
  * @param otherRequest other Request instance to merge
  * @return int Error code
  */
-int metkit_request_merge(metkit_request_t* request, const metkit_request_t* otherRequest);
+int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsrequest_t* otherRequest);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST ITERATOR
@@ -198,7 +198,7 @@ int metkit_requestiterator_next(metkit_requestiterator_t* list);
  * @param request empty Request instance to populate with data
  * @return int Error code
  */
-int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t* request);
+int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_marsrequest_t* request);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * PARAM ITERATOR

@@ -13,9 +13,9 @@ extern "C" {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-struct metkit_request_t : public metkit::mars::MarsRequest {
+struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
     using metkit::mars::MarsRequest::MarsRequest;
-    metkit_request_t(const metkit::mars::MarsRequest& k) :
+    metkit_marsrequest_t(const metkit::mars::MarsRequest& k) :
         metkit::mars::MarsRequest(k) {}
 };
 
@@ -152,7 +152,7 @@ int metkit_initialise() {
 //                           PARSING
 // -----------------------------------------------------------------------------
 
-int metkit_parse_mars_request(const char* str, metkit_requestiterator_t** requests, bool strict) {
+int metkit_parse_marsrequest(const char* str, metkit_requestiterator_t** requests, bool strict) {
     return tryCatch([requests, str, strict] {
         ASSERT(requests);
         ASSERT(str);
@@ -165,21 +165,21 @@ int metkit_parse_mars_request(const char* str, metkit_requestiterator_t** reques
 //                           REQUEST
 // -----------------------------------------------------------------------------
 
-int metkit_new_request(metkit_request_t** request) {
+int metkit_new_marsrequest(metkit_marsrequest_t** request) {
     return tryCatch([request] {
         ASSERT(request);
-        *request = new metkit_request_t();
+        *request = new metkit_marsrequest_t();
     });
 }
 
-int metkit_free_request(const metkit_request_t* request) {
+int metkit_free_marsrequest(const metkit_marsrequest_t* request) {
     return tryCatch([request] {
         ASSERT(request);
         delete request;
     });
 }
 
-int metkit_request_add(metkit_request_t* request, const char* param, const char* values[], int numValues) {
+int metkit_marsrequest_add(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
     return tryCatch([request, param, values, numValues] {
         ASSERT(request);
         ASSERT(param);
@@ -193,7 +193,7 @@ int metkit_request_add(metkit_request_t* request, const char* param, const char*
     });
 }
 
-int metkit_request_set_verb(metkit_request_t* request, const char* verb) {
+int metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb) {
     return tryCatch([request, verb] {
         ASSERT(request);
         ASSERT(verb);
@@ -201,7 +201,7 @@ int metkit_request_set_verb(metkit_request_t* request, const char* verb) {
     });
 }
 
-int metkit_request_verb(const metkit_request_t* request, const char** verb) {
+int metkit_marsrequest_verb(const metkit_marsrequest_t* request, const char** verb) {
     return tryCatch([request, verb] {
         ASSERT(request);
         ASSERT(verb);
@@ -209,7 +209,7 @@ int metkit_request_verb(const metkit_request_t* request, const char** verb) {
     });
 }
 
-int metkit_request_has_param(const metkit_request_t* request, const char* param, bool* has) {
+int metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char* param, bool* has) {
     return tryCatch([request, param, has] {
         ASSERT(request);
         ASSERT(param);
@@ -218,7 +218,7 @@ int metkit_request_has_param(const metkit_request_t* request, const char* param,
     });
 }
 
-int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_t** params) {
+int metkit_marsrequest_params(const metkit_marsrequest_t* request, metkit_paramiterator_t** params) {
     return tryCatch([request, params] {
         ASSERT(request);
         ASSERT(params);
@@ -226,7 +226,7 @@ int metkit_request_params(const metkit_request_t* request, metkit_paramiterator_
     });
 }
 
-int metkit_request_count_values(const metkit_request_t* request, const char* param, size_t* count) {
+int metkit_marsrequest_count_values(const metkit_marsrequest_t* request, const char* param, size_t* count) {
     return tryCatch([request, param, count] {
         ASSERT(request);
         ASSERT(param);
@@ -235,7 +235,7 @@ int metkit_request_count_values(const metkit_request_t* request, const char* par
     });
 }
 
-int metkit_request_value(const metkit_request_t* request, const char* param, int index, const char** value) {
+int metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value) {
     return tryCatch([request, param, index, value] {
         ASSERT(request);
         ASSERT(param);
@@ -244,7 +244,7 @@ int metkit_request_value(const metkit_request_t* request, const char* param, int
     });
 }
 
-int metkit_request_values(const metkit_request_t* request, const char* param, const char** values[], size_t* numValues) {
+int metkit_marsrequest_values(const metkit_marsrequest_t* request, const char* param, const char** values[], size_t* numValues) {
     return tryCatch([request, param, values, numValues] {
         ASSERT(request);
         ASSERT(param);
@@ -259,7 +259,7 @@ int metkit_request_values(const metkit_request_t* request, const char* param, co
     });
 }
 
-int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit, bool strict) {
+int metkit_marsrequest_expand(const metkit_marsrequest_t* request, metkit_marsrequest_t* expandedRequest, bool inherit, bool strict) {
     return tryCatch([request, expandedRequest, inherit, strict] {
         ASSERT(request);
         ASSERT(expandedRequest);
@@ -269,7 +269,7 @@ int metkit_request_expand(const metkit_request_t* request, metkit_request_t* exp
     });
 }
 
-int metkit_request_merge(metkit_request_t* request, const metkit_request_t* otherRequest) {
+int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsrequest_t* otherRequest) {
     return tryCatch([request, otherRequest] {
         ASSERT(request);
         ASSERT(otherRequest);
@@ -295,7 +295,7 @@ int metkit_requestiterator_next(metkit_requestiterator_t* list) {
     }});
 }
 
-int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_request_t* request) {
+int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_marsrequest_t* request) {
     return tryCatch([list, request] {
         ASSERT(list);
         ASSERT(request);

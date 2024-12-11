@@ -20,47 +20,47 @@ namespace metkit::test {
 
 CASE( "Request get/set" ) {
 
-    metkit_request_t* request = nullptr;
+    metkit_marsrequest_t* request = nullptr;
 
-    metkit_new_request(&request);
+    metkit_new_marsrequest(&request);
     EXPECT(request);
 
     // set/get verb
-    metkit_request_set_verb(request, "retrieve");
+    metkit_marsrequest_set_verb(request, "retrieve");
     const char* verb = nullptr;
-    metkit_request_verb(request, &verb);
+    metkit_marsrequest_verb(request, &verb);
     EXPECT(strcmp(verb, "retrieve") == 0);
 
     // set array of values
     const char* dates[] = {"20200101", "20200102", "20200103"};
-    metkit_request_add(request, "date", dates, 3);
+    metkit_marsrequest_add(request, "date", dates, 3);
 
     // set single value
     const char* expver = "xxxx";
-    metkit_request_add(request, "expver", &expver, 1);
+    metkit_marsrequest_add(request, "expver", &expver, 1);
 
     // check values
     bool has = false;
-    metkit_request_has_param(request, "date", &has);
+    metkit_marsrequest_has_param(request, "date", &has);
     EXPECT(has);
 
-    metkit_request_has_param(request, "random", &has);
+    metkit_marsrequest_has_param(request, "random", &has);
     EXPECT(!has);
 
     size_t count = 0;
-    metkit_request_count_values(request, "date", &count);
+    metkit_marsrequest_count_values(request, "date", &count);
     EXPECT_EQUAL(count, 3);
 
     for (size_t i = 0; i < count; i++) {
         const char* value = nullptr;
-        metkit_request_value(request, "date", i, &value);
+        metkit_marsrequest_value(request, "date", i, &value);
         EXPECT(strcmp(value, dates[i]) == 0);
     }
 
     // all values 
     const char** values = nullptr;
     count = 0;
-    metkit_request_values(request, "date", &values, &count);
+    metkit_marsrequest_values(request, "date", &values, &count);
     EXPECT_EQUAL(count, 3);
 
     for (size_t i = 0; i < count; i++) {
@@ -68,7 +68,7 @@ CASE( "Request get/set" ) {
     }
 
     // done
-    metkit_free_request(request);
+    metkit_free_marsrequest(request);
 }
 
 //-----------------------------------------------------------------------------
