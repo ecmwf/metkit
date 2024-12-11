@@ -152,6 +152,15 @@ int metkit_request_count_values(const metkit_request_t* request, const char* par
  */
 int metkit_request_value(const metkit_request_t* request, const char* param, int index, const char** value);
 
+/** Returns values for specific parameter Request object
+ * @param request Request instance
+ * @param param parameter name in request
+ * @param values list of values for param in request
+ * @param numValues number of values for param in request
+ * @return int Error code
+ */
+int metkit_request_values(const metkit_request_t* request, const char* param, const char** values[], size_t* numValues);
+
 /** Populates empty Request object by expanding existing request
  * @param request Request instance to be expanded
  * @param expandedRequest empty Request instance to be populated

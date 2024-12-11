@@ -244,6 +244,21 @@ int metkit_request_value(const metkit_request_t* request, const char* param, int
     });
 }
 
+int metkit_request_values(const metkit_request_t* request, const char* param, const char** values[], size_t* numValues) {
+    return tryCatch([request, param, values, numValues] {
+        ASSERT(request);
+        ASSERT(param);
+        ASSERT(values);
+        ASSERT(numValues);
+        const std::vector<std::string>& v = request->values(param);
+        *numValues = v.size();
+        *values = new const char*[v.size()];
+        for (size_t i = 0; i < v.size(); i++) {
+            (*values)[i] = v[i].c_str();
+        }
+    });
+}
+
 int metkit_request_expand(const metkit_request_t* request, metkit_request_t* expandedRequest, bool inherit, bool strict) {
     return tryCatch([request, expandedRequest, inherit, strict] {
         ASSERT(request);
