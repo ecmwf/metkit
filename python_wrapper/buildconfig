@@ -8,7 +8,9 @@
 
 # to be source'd by wheelmaker's compile.sh *and* wheel-linux.sh
 # NOTE replace the whole thing with pyproject.toml? Less powerful, and quaint to use for sourcing ecbuild invocation
+# TODO we duplicate information -- pyproject.toml's `name` and `packages` are derivable from $NAME and must stay consistent
 
 NAME="metkit"
-CMAKE_PARAMS="-DECKIT_PATH=/target/eckit"
+CMAKE_PARAMS="-DECKIT_PATH=/tmp/target/eckit"
 PYPROJECT_DIR="python_wrapper"
+DEPENDENCIES='["eckit"]'
