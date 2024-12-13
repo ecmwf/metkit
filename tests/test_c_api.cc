@@ -14,68 +14,162 @@
 
 #include "metkit/api/metkit_c.h"
 #include "eckit/testing/Test.h"
+#include "eckit/types/Date.h"
 
 using namespace eckit::testing;
 namespace metkit::test {
 
-CASE( "Request get/set" ) {
+// Wrapper around the C function calls that will throw an exception if the function fails
+// i.e. if the return value is not METKIT_SUCCESS
+#define METKIT_TEST_C(expr) \
+    do { \
+        int err = expr; \
+        if (err != METKIT_SUCCESS) { \
+            throw TestException("C-API error: " + std::string(metkit_get_error_string(err)), Here()); \
+        } \
+    } while (false)
+
+// Wrapper around EXPECT(strcmp(a, b) == 0) that will throw an exception if the comparison fails
+#define EXPECT_STR_EQUAL(a, b) \
+    do { \
+        if (strcmp(a, b) != 0) { \
+            throw TestException("Expected: " + std::string(a) + " == " + std::string(b), Here()); \
+        } \
+    } while (false)
+
+// Fairly minimal test coverage
+CASE( "metkit_marsrequest" ) {
+
+    // -----------------------------------------------------------------
+    // Basics
+    // -----------------------------------------------------------------
 
     metkit_marsrequest_t* request = nullptr;
 
-    metkit_new_marsrequest(&request);
+    METKIT_TEST_C(metkit_new_marsrequest(&request));
     EXPECT(request);
 
     // set/get verb
-    metkit_marsrequest_set_verb(request, "retrieve");
+    METKIT_TEST_C(metkit_marsrequest_set_verb(request, "retrieve"));
     const char* verb = nullptr;
-    metkit_marsrequest_verb(request, &verb);
-    EXPECT(strcmp(verb, "retrieve") == 0);
+    METKIT_TEST_C(metkit_marsrequest_verb(request, &verb));
+    EXPECT_STR_EQUAL(verb, "retrieve");
 
     // set array of values
-    const char* dates[] = {"20200101", "20200102", "20200103"};
-    metkit_marsrequest_add(request, "date", dates, 3);
+    const char* dates[] = {"20200101", "20200102", "-1"};
+    METKIT_TEST_C(metkit_marsrequest_add(request, "date", dates, 3));
 
     // set single value
     const char* expver = "xxxx";
-    metkit_marsrequest_add(request, "expver", &expver, 1);
+    METKIT_TEST_C(metkit_marsrequest_add1(request, "expver", expver));
+    METKIT_TEST_C(metkit_marsrequest_add1(request, "param", "2t"));
 
     // check values
     bool has = false;
-    metkit_marsrequest_has_param(request, "date", &has);
+    METKIT_TEST_C(metkit_marsrequest_has_param(request, "date", &has));
     EXPECT(has);
 
-    metkit_marsrequest_has_param(request, "random", &has);
+    METKIT_TEST_C(metkit_marsrequest_has_param(request, "random", &has));
     EXPECT(!has);
 
     size_t count = 0;
-    metkit_marsrequest_count_values(request, "date", &count);
+    METKIT_TEST_C(metkit_marsrequest_count_values(request, "date", &count));
     EXPECT_EQUAL(count, 3);
 
     for (size_t i = 0; i < count; i++) {
         const char* value = nullptr;
-        metkit_marsrequest_value(request, "date", i, &value);
-        EXPECT(strcmp(value, dates[i]) == 0);
+        METKIT_TEST_C(metkit_marsrequest_value(request, "date", i, &value));
+        EXPECT_STR_EQUAL(value, dates[i]);
     }
 
     // all values 
     const char** values = nullptr;
     count = 0;
-    metkit_marsrequest_values(request, "date", &values, &count);
+    METKIT_TEST_C(metkit_marsrequest_values(request, "date", &values, &count));
     EXPECT_EQUAL(count, 3);
 
     for (size_t i = 0; i < count; i++) {
-        EXPECT(strcmp(values[i], dates[i]) == 0);
+        EXPECT_STR_EQUAL(values[i], dates[i]);
     }
 
-    // done
-    metkit_free_marsrequest(request);
-}
+    // -----------------------------------------------------------------
+    // Expand
+    // -----------------------------------------------------------------
 
+    metkit_marsrequest_t* expandedRequest = nullptr;
+    METKIT_TEST_C(metkit_new_marsrequest(&expandedRequest));
+    METKIT_TEST_C(metkit_marsrequest_expand(request, expandedRequest, false, true));
+
+    // Check date expanded -1 -> yesterday
+    const char** dates_expanded = nullptr;
+    METKIT_TEST_C(metkit_marsrequest_values(expandedRequest, "date", &dates_expanded, &count));
+    EXPECT_EQUAL(count, 3);
+    EXPECT_STR_EQUAL(dates_expanded[2], std::to_string(eckit::Date(-1).yyyymmdd()).c_str());
+    // check param expanded 2t -> 167
+    const char* param = nullptr;
+    METKIT_TEST_C(metkit_marsrequest_value(expandedRequest, "param", 0, &param));
+    EXPECT_STR_EQUAL(param, "167");
+    
+    // -----------------------------------------------------------------
+    // Merge
+    // -----------------------------------------------------------------
+
+    metkit_marsrequest_t* req_manydates = nullptr;
+    METKIT_TEST_C(metkit_new_marsrequest(&req_manydates));
+    const char* dates_many[] = {"19000101", "19000102", "19000103"};
+    METKIT_TEST_C(metkit_marsrequest_add(req_manydates, "date", dates_many, 3));
+
+    METKIT_TEST_C(metkit_marsrequest_merge(request, req_manydates));
+    METKIT_TEST_C(metkit_marsrequest_count_values(request, "date", &count));
+    EXPECT_EQUAL(count, 6);
+
+    // -----------------------------------------------------------------
+    // done
+
+    metkit_free_marsrequest(request);
+    metkit_free_marsrequest(expandedRequest);
+    metkit_free_marsrequest(req_manydates);
+}
 //-----------------------------------------------------------------------------
+
+CASE( "metkit_requestiterator_t parsing" ) {
+    
+    metkit_marsrequest_t* request0 = nullptr;
+    metkit_marsrequest_t* request1 = nullptr;
+    metkit_marsrequest_t* request2 = nullptr;
+    METKIT_TEST_C(metkit_new_marsrequest(&request0));
+    METKIT_TEST_C(metkit_new_marsrequest(&request1));
+    METKIT_TEST_C(metkit_new_marsrequest(&request2));
+
+    metkit_requestiterator_t* it = nullptr;
+    METKIT_TEST_C(metkit_parse_marsrequest("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2", &it, true)); // two requests
+
+    METKIT_TEST_C(metkit_requestiterator_request(it, request0));
+    METKIT_TEST_C(metkit_requestiterator_next(it));
+    METKIT_TEST_C(metkit_requestiterator_request(it, request1));
+    EXPECT_EQUAL(metkit_requestiterator_next(it), METKIT_ITERATION_COMPLETE);
+    EXPECT_NOT_EQUAL(metkit_requestiterator_request(it, request2), METKIT_SUCCESS); // Error to get request after iteration complete
+    
+    // check the date
+    const char* date = nullptr;
+    METKIT_TEST_C(metkit_marsrequest_value(request0, "date", 0, &date));
+    EXPECT_STR_EQUAL(date, std::to_string(eckit::Date(-1).yyyymmdd()).c_str()); // parser also calls expand
+
+    METKIT_TEST_C(metkit_marsrequest_value(request1, "date", 0, &date));
+    EXPECT_STR_EQUAL(date, "20200102");
+
+    // Check steps have been parsed
+    const char** steps = nullptr;
+    size_t count = 0;
+    METKIT_TEST_C(metkit_marsrequest_values(request1, "step", &steps, &count));
+    for (size_t i = 0; i < count; i++) {
+        EXPECT_STR_EQUAL(steps[i], std::to_string(10 + i*2).c_str());
+    }
+
+}
 
 }  // namespace metkit::test
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     return run_tests ( argc, argv );
 }

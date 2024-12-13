@@ -105,6 +105,14 @@ int metkit_free_marsrequest(const metkit_marsrequest_t* request);
  */
 int metkit_marsrequest_add(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues);
 
+/** Add parameter and values to request
+ * @param request Request instance
+ * @param param parameter name
+ * @param values value to add
+ * @return int Error code
+ */
+int metkit_marsrequest_add1(metkit_marsrequest_t* request, const char* param, const char* value);
+
 /** Set verb in Request object
  * @param request Request instance
  * @param verb verb to set

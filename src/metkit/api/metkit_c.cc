@@ -21,41 +21,35 @@ struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
 
 struct metkit_requestiterator_t {
     metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest> vec) :
-        first(true), vector(std::move(vec)), iterator(vector.begin()) {}
+        vector(std::move(vec)), iterator(vector.begin()) {}
 
     int next() {
-        if (first) {
-            first = false;
-        }
-        else {
-            ++iterator;
-        }
         if (iterator == vector.end()) {
             return METKIT_ITERATION_COMPLETE;
         }
-        return METKIT_SUCCESS;
+        ++iterator;
+        return iterator == vector.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
     }
 
-    bool first;
     std::vector<metkit::mars::MarsRequest> vector;
     std::vector<metkit::mars::MarsRequest>::const_iterator iterator;
 };
 
+/// @comment: (maby)
+/// Not sure if there is much value in having a param iterator. We could just return an array of
+/// strings (char**) using metkit_marsrequest_params.
+/// I think we should metkit_paramiterator_t.
 struct metkit_paramiterator_t {
     metkit_paramiterator_t(std::vector<std::string> vec) :
         first(true), vector(std::move(vec)), iterator(vector.begin()) {}
 
     int next() {
-        if (first) {
-            first = false;
-        }
-        else {
-            ++iterator;
-        }
         if (iterator == vector.end()) {
             return METKIT_ITERATION_COMPLETE;
         }
-        return METKIT_SUCCESS;
+        ++iterator;
+
+        return iterator == vector.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
     }
 
     bool first;
@@ -177,7 +171,7 @@ int metkit_free_marsrequest(const metkit_marsrequest_t* request) {
         ASSERT(request);
         delete request;
     });
-}
+}   
 
 int metkit_marsrequest_add(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
     return tryCatch([request, param, values, numValues] {
@@ -191,6 +185,10 @@ int metkit_marsrequest_add(metkit_marsrequest_t* request, const char* param, con
         }
         request->values(n, vv);
     });
+}
+
+int metkit_marsrequest_add1(metkit_marsrequest_t* request, const char* param, const char* value) {
+    return metkit_marsrequest_add(request, param, &value, 1);
 }
 
 int metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb) {
@@ -265,7 +263,7 @@ int metkit_marsrequest_expand(const metkit_marsrequest_t* request, metkit_marsre
         ASSERT(expandedRequest);
         ASSERT(expandedRequest->empty());
         metkit::mars::MarsExpension expand(inherit, strict);
-        *expandedRequest = std::move(expand.expand(*request));
+        *expandedRequest = expand.expand(*request);
     });
 }
 
