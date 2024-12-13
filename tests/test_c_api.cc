@@ -15,6 +15,7 @@
 #include "metkit/api/metkit_c.h"
 #include "eckit/testing/Test.h"
 #include "eckit/types/Date.h"
+#include <cstring>
 
 using namespace eckit::testing;
 namespace metkit::test {
