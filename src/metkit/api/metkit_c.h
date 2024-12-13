@@ -99,7 +99,7 @@ int metkit_free_marsrequest(const metkit_marsrequest_t* request);
 /** Add parameter and values to request
  * @param request Request instance
  * @param param parameter name
- * @param values list of values for parameter
+ * @param values array of values for parameter
  * @param numValues number of values
  * @return int Error code
  */
@@ -163,7 +163,7 @@ int metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* pa
 /** Returns values for specific parameter Request object
  * @param request Request instance
  * @param param parameter name in request
- * @param values list of values for param in request
+ * @param values array of values for param in request
  * @param numValues number of values for param in request
  * @return int Error code
  */
@@ -190,46 +190,46 @@ int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsreq
  * --- */
 
 /** Deallocates RequestIterator object and associated resources.
- * @param list RequestIterator instance
+ * @param it RequestIterator instance
  * @return int Error code
  */
-int metkit_free_requestiterator(const metkit_requestiterator_t* list);
+int metkit_free_requestiterator(const metkit_requestiterator_t* it);
 
 /** Moves to the next Request element in RequestIterator
- * @param list RequestIterator instance
+ * @param it RequestIterator instance
  * @return int Error code
  */
-int metkit_requestiterator_next(metkit_requestiterator_t* list);
+int metkit_requestiterator_next(metkit_requestiterator_t* it);
 
 /** Populates empty Requestion object with data from current element in RequestIterator
- * @param list RequestIterator instance
+ * @param it RequestIterator instance
  * @param request empty Request instance to populate with data
  * @return int Error code
  */
-int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_marsrequest_t* request);
+int metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * PARAM ITERATOR
  * --- */
 
 /** Deallocates ParamIterator object and associated resources.
- * @param list ParamIterator instance
+ * @param it ParamIterator instance
  * @return int Error code
  */
-int metkit_free_paramiterator(const metkit_paramiterator_t* list);
+int metkit_free_paramiterator(const metkit_paramiterator_t* it);
 
 /** Moves to the next string element in ParamIterator
- * @param list ParamIterator instance
+ * @param it ParamIterator instance
  * @return int Error code
  */
-int metkit_paramiterator_next(metkit_paramiterator_t* list);
+int metkit_paramiterator_next(metkit_paramiterator_t* it);
 
 /** Returns the current parameter name in ParamIterator
- * @param list ParamIterator instance
- * @param param current parameter name in list
+ * @param it ParamIterator instance
+ * @param param current parameter name in iterator
  * @return int Error code
  */
-int metkit_paramiterator_param(const metkit_paramiterator_t* list, const char** param);
+int metkit_paramiterator_param(metkit_paramiterator_t* it, const char** param);
 
 #ifdef __cplusplus
 }

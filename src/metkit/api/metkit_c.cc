@@ -15,24 +15,32 @@ extern "C" {
 
 struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
     using metkit::mars::MarsRequest::MarsRequest;
-    metkit_marsrequest_t(const metkit::mars::MarsRequest& k) :
-        metkit::mars::MarsRequest(k) {}
+
+    metkit_marsrequest_t(metkit::mars::MarsRequest&& k) :
+        metkit::mars::MarsRequest(std::move(k)) {}
 };
 
 struct metkit_requestiterator_t {
-    metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest> vec) :
-        vector(std::move(vec)), iterator(vector.begin()) {}
+    metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest>&& vec) :
+        vector_(std::move(vec)), iterator_(vector_.begin()) {}
 
     int next() {
-        if (iterator == vector.end()) {
+        if (iterator_ == vector_.end()) {
             return METKIT_ITERATION_COMPLETE;
         }
-        ++iterator;
-        return iterator == vector.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
+        ++iterator_;
+        return iterator_ == vector_.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
     }
 
-    std::vector<metkit::mars::MarsRequest> vector;
-    std::vector<metkit::mars::MarsRequest>::const_iterator iterator;
+    void current(metkit_marsrequest_t* request)  {
+        ASSERT(iterator_ != vector_.end());
+        *request = std::move(*iterator_);
+    }
+
+private:
+
+    std::vector<metkit::mars::MarsRequest> vector_;
+    std::vector<metkit::mars::MarsRequest>::iterator iterator_;
 };
 
 /// @comment: (maby)
@@ -41,20 +49,25 @@ struct metkit_requestiterator_t {
 /// I think we should metkit_paramiterator_t.
 struct metkit_paramiterator_t {
     metkit_paramiterator_t(std::vector<std::string> vec) :
-        first(true), vector(std::move(vec)), iterator(vector.begin()) {}
+        vector_(std::move(vec)), iterator_(vector_.begin()) {}
 
     int next() {
-        if (iterator == vector.end()) {
+        if (iterator_ == vector_.end()) {
             return METKIT_ITERATION_COMPLETE;
         }
-        ++iterator;
+        ++iterator_;
 
-        return iterator == vector.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
+        return iterator_ == vector_.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
     }
 
-    bool first;
-    std::vector<std::string> vector;
-    std::vector<std::string>::const_iterator iterator;
+    void current(const char** param) {
+        ASSERT(iterator_ != vector_.end());
+        *param = iterator_->c_str();
+    }
+
+private: 
+    std::vector<std::string> vector_;
+    std::vector<std::string>::iterator iterator_;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -279,27 +292,27 @@ int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsreq
 //                           REQUEST ITERATOR
 // -----------------------------------------------------------------------------
 
-int metkit_free_requestiterator(const metkit_requestiterator_t* list) {
-    return tryCatch([list] {
-        ASSERT(list);
-        delete list;
+int metkit_free_requestiterator(const metkit_requestiterator_t* it) {
+    return tryCatch([it] {
+        ASSERT(it);
+        delete it;
     });
 }
 
-int metkit_requestiterator_next(metkit_requestiterator_t* list) {
-    return tryCatch(std::function<int()>{[list] {
-        ASSERT(list);
-        return list->next();
+int metkit_requestiterator_next(metkit_requestiterator_t* it) {
+    return tryCatch(std::function<int()>{[it] {
+        ASSERT(it);
+        return it->next();
     }});
 }
 
-int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_marsrequest_t* request) {
-    return tryCatch([list, request] {
-        ASSERT(list);
+int metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequest_t* request) {
+    return tryCatch([it, request] {
+        ASSERT(it);
         ASSERT(request);
-        ASSERT(list->iterator != list->vector.end());
         ASSERT(request->empty());
-        *request = std::move(*(list->iterator));
+
+        it->current(request);
     });
 }
 
@@ -307,26 +320,25 @@ int metkit_requestiterator_request(const metkit_requestiterator_t* list, metkit_
 //                           PARAM ITERATOR
 // -----------------------------------------------------------------------------
 
-int metkit_free_paramiterator(const metkit_paramiterator_t* list) {
-    return tryCatch([list] {
-        ASSERT(list);
-        delete list;
+int metkit_free_paramiterator(const metkit_paramiterator_t* it) {
+    return tryCatch([it] {
+        ASSERT(it);
+        delete it;
     });
 }
 
-int metkit_paramiterator_next(metkit_paramiterator_t* list) {
-    return tryCatch(std::function<int()>{[list] {
-        ASSERT(list);
-        return list->next();
+int metkit_paramiterator_next(metkit_paramiterator_t* it) {
+    return tryCatch(std::function<int()>{[it] {
+        ASSERT(it);
+        return it->next();
     }});
 }
 
-int metkit_paramiterator_param(const metkit_paramiterator_t* list, const char** param) {
-    return tryCatch([list, param] {
-        ASSERT(list);
+int metkit_paramiterator_param(metkit_paramiterator_t* it, const char** param) {
+    return tryCatch([it, param] {
+        ASSERT(it);
         ASSERT(param);
-        ASSERT(list->iterator != list->vector.end());
-        *param = list->iterator->c_str();
+        it->current(param);
     });
 }
 
