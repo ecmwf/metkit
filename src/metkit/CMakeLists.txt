@@ -4,7 +4,6 @@ ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
 
 configure_file( metkit_config.h.in    metkit_config.h )
 configure_file( metkit_version.h.in   metkit_version.h )
-configure_file( metkit_version.cc.in  metkit_version.cc )
 
 install(FILES
             ${CMAKE_CURRENT_BINARY_DIR}/metkit_config.h
@@ -15,7 +14,6 @@ install(FILES
 ### metkit sources
 
 list( APPEND metkit_srcs
-    ${CMAKE_CURRENT_BINARY_DIR}/metkit_version.cc
     config/LibMetkit.cc
     config/LibMetkit.h
     mars/BaseProtocol.cc
@@ -100,6 +98,8 @@ list( APPEND metkit_srcs
     hypercube/HyperCube.cc
     hypercube/HyperCube.h
     hypercube/HyperCubePayloaded.h
+    api/metkit_c.cc 
+    api/metkit_c.h
 )
 
 list( APPEND metkit_persistent_srcs
