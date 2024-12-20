@@ -82,6 +82,15 @@ foreach(test IN LISTS testFileSuffixes)
                       LIBS      metkit)
 endforeach()
 
+# Compile C test
+ecbuild_add_test( TARGET        metkit_test_c_compiled
+                  SOURCES       test_c_api.c
+                  INCLUDES      "${ECKIT_INCLUDE_DIRS}"
+                  LIBS          metkit
+                  NO_AS_NEEDED
+                  ENVIRONMENT   "${metkit_env}"
+                  LINKER_LANGUAGE C)
+
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)
 # endif()

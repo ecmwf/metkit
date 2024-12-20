@@ -2,26 +2,20 @@
 #include "metkit/mars/MarsExpension.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/metkit_version.h"
-
-#include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Main.h"
-#include "eckit/utils/Optional.h"
-
 #include <functional>
-
-extern "C" {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
     using metkit::mars::MarsRequest::MarsRequest;
 
-    metkit_marsrequest_t(metkit::mars::MarsRequest&& k) :
-        metkit::mars::MarsRequest(std::move(k)) {}
+    metkit_marsrequest_t(metkit::mars::MarsRequest&& req) :
+        metkit::mars::MarsRequest(std::move(req)) {}
 };
 
 struct metkit_requestiterator_t {
-    metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest>&& vec) :
+    explicit metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest>&& vec) :
         vector_(std::move(vec)), iterator_(vector_.begin()) {}
 
     int next() {
@@ -48,7 +42,7 @@ private:
 /// strings (char**) using metkit_marsrequest_params.
 /// I think we should metkit_paramiterator_t.
 struct metkit_paramiterator_t {
-    metkit_paramiterator_t(std::vector<std::string> vec) :
+    explicit metkit_paramiterator_t(std::vector<std::string> vec) :
         vector_(std::move(vec)), iterator_(vector_.begin()) {}
 
     int next() {
@@ -73,12 +67,21 @@ private:
 // ---------------------------------------------------------------------------------------------------------------------
 //                           ERROR HANDLING
 
-}  // extern "C"
-
 static thread_local std::string g_current_error_string;
 
-const char* metkit_get_error_string(int) {
-    return g_current_error_string.c_str();
+const char* metkit_get_error_string(enum metkit_error_values_t err) {
+    switch (err) {
+        case METKIT_SUCCESS:
+            return "Success";
+        case METKIT_ITERATION_COMPLETE:
+            return "Iteration complete";
+        case METKIT_ERROR:
+        case METKIT_ERROR_USER:
+        case METKIT_ERROR_ASSERT:
+            return g_current_error_string.c_str();
+        default:
+            return "<unknown>";
+    }
 }
 
 int innerWrapFn(std::function<int()> f) {
@@ -117,12 +120,9 @@ template <typename FN>
     }
     catch (...) {
         eckit::Log::error() << "Unknown Error!" << std::endl;
-        g_current_error_string = "<unknown>";
         return METKIT_ERROR_UNKNOWN;
     }
 }
-
-extern "C" {
 
 // -----------------------------------------------------------------------------
 //                           HELPERS
@@ -179,29 +179,28 @@ int metkit_new_marsrequest(metkit_marsrequest_t** request) {
     });
 }
 
-int metkit_free_marsrequest(const metkit_marsrequest_t* request) {
+int metkit_delete_marsrequest(const metkit_marsrequest_t* request) {
     return tryCatch([request] {
-        ASSERT(request);
         delete request;
     });
 }   
 
-int metkit_marsrequest_add(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
+int metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
     return tryCatch([request, param, values, numValues] {
         ASSERT(request);
         ASSERT(param);
         ASSERT(values);
-        std::string n(param);
-        std::vector<std::string> vv;
-        for (int i = 0; i < numValues; i++) {
-            vv.push_back(std::string(values[i]));
-        }
-        request->values(n, vv);
+        std::string param_str(param);
+        std::vector<std::string> values_vec;
+        values_vec.reserve(numValues);
+        std::copy(values, values + numValues, std::back_inserter(values_vec));
+
+        request->values(param_str, values_vec);
     });
 }
 
-int metkit_marsrequest_add1(metkit_marsrequest_t* request, const char* param, const char* value) {
-    return metkit_marsrequest_add(request, param, &value, 1);
+int metkit_marsrequest_set_one(metkit_marsrequest_t* request, const char* param, const char* value) {
+    return metkit_marsrequest_set(request, param, &value, 1);
 }
 
 int metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb) {
@@ -261,12 +260,10 @@ int metkit_marsrequest_values(const metkit_marsrequest_t* request, const char* p
         ASSERT(param);
         ASSERT(values);
         ASSERT(numValues);
-        const std::vector<std::string>& v = request->values(param);
-        *numValues = v.size();
-        *values = new const char*[v.size()];
-        for (size_t i = 0; i < v.size(); i++) {
-            (*values)[i] = v[i].c_str();
-        }
+        const std::vector<std::string>& values_str = request->values(param);
+        *numValues = values_str.size();
+        *values = new const char*[values_str.size()];
+        std::transform(values_str.begin(), values_str.end(), *values, [](const std::string& s) { return s.c_str(); });
     });
 }
 
@@ -292,9 +289,8 @@ int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsreq
 //                           REQUEST ITERATOR
 // -----------------------------------------------------------------------------
 
-int metkit_free_requestiterator(const metkit_requestiterator_t* it) {
+int metkit_delete_requestiterator(const metkit_requestiterator_t* it) {
     return tryCatch([it] {
-        ASSERT(it);
         delete it;
     });
 }
@@ -320,9 +316,8 @@ int metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequ
 //                           PARAM ITERATOR
 // -----------------------------------------------------------------------------
 
-int metkit_free_paramiterator(const metkit_paramiterator_t* it) {
+int metkit_delete_paramiterator(const metkit_paramiterator_t* it) {
     return tryCatch([it] {
-        ASSERT(it);
         delete it;
     });
 }
@@ -344,5 +339,3 @@ int metkit_paramiterator_param(metkit_paramiterator_t* it, const char** param) {
 
 
 // ---------------------------------------------------------------------------------------------------------------------
-
-}  // extern "C"
