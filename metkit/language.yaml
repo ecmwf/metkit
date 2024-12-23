@@ -718,7 +718,10 @@ _field: &_field
           class: [er]
           stream: [moda, msda, edmo, ewmo, wamd]    
       - context:
-          class: [ed]
+          class: [ed,ng]
+      - context:
+          class: [d1]
+          dataset: [climate-dt]
     # %if (FCMONTH %or FCPERIOD)  %and (_APPL = mars %or _APPL = marsG2 %or _APPL = msserver %or _APPL = uniserver) %then
     #     %unset STEP
 
