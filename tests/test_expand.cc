@@ -672,7 +672,6 @@ CASE( "test_metkit_expand_d1" ) {
                 {"realization", {"1"}},
                 {"resolution", {"high"}},
                 {"expver", {"0001"}},
-                {"date", {"20000101"}},
                 {"time", {"1200"}},
                 {"stream", {"clte"}},
                 {"type", {"fc"}},
@@ -681,10 +680,29 @@ CASE( "test_metkit_expand_d1" ) {
                 {"param", {"134","137"}}
             };
         expand(text, "retrieve", expected, {20000101});
+    }   
+    {
+        const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
+        std::map<std::string, std::vector<std::string>> expected{
+                {"class", {"d1"}},
+                {"dataset", {"climate-dt"}},
+                {"activity", {"cmip6"}},
+                {"experiment", {"hist"}},
+                {"model", {"icon"}},
+                {"generation", {"1"}},
+                {"realization", {"1"}},
+                {"resolution", {"high"}},
+                {"expver", {"0001"}},
+                {"time", {"0000"}},
+                {"stream", {"clte"}},
+                {"type", {"fc"}},
+                {"levtype", {"o3d"}},
+                {"levelist", {"1"}},
+                {"param", {"263500"}}
+            };
+        expand(text, "retrieve", expected, {20120515});
     }           
 }
-
-
 CASE( "test_metkit_expand_ng" ) {
     {
         const char* text = "retrieve,class=ng,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,levtype=pl,param=134/137";
