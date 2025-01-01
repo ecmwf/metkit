@@ -825,7 +825,7 @@ _field: &_field
           class: [ep]
           levtype: [o2d, o3d]
       - context:
-          class: [ti, s2, ur, lw, rr, ed]
+          class: [d1, ng, ti, s2, ur, lw, rr, ed]
     flatten: false
     type: enum
     values:
