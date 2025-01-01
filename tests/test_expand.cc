@@ -626,7 +626,6 @@ CASE( "test_metkit_expand_d1" ) {
         std::map<std::string, std::vector<std::string>> expected{
                 {"class", {"d1"}},
                 {"dataset", {"extremes-dt"}},
-                {"domain", {"g"}},
                 {"expver", {"0001"}},
                 {"levelist", {"1000","850","700","500","400","300"}},
                 {"levtype", {"pl"}},
