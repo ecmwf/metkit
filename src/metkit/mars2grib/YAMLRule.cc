@@ -100,8 +100,8 @@ std::string stringifyLogTrace(const LogTrace& logTrace) {
 struct Mapping : Action {
     virtual ~Mapping() = default;
 
-    Mapping(bool useInitialDict, bool nullIsDefault, bool notFoundIsDefault, const std::string& lookUpKey, std::unique_ptr<Action> defaultAction, MappedActions&& mappedActions) :
-        useInitialDict_{useInitialDict}, nullIsDefault_{nullIsDefault}, notFoundIsDefault_{notFoundIsDefault}, lookUpKey_{lookUpKey}, defaultAction_{std::move(defaultAction)}, mappedActions_{std::move(mappedActions)} {}
+    Mapping(bool useInitialDict, bool nullIsDefault, bool notFoundIsDefault, const std::string& lookUpKey, std::unique_ptr<Action> defaultAction, std::unique_ptr<Action> notFoundAction, MappedActions&& mappedActions) :
+        useInitialDict_{useInitialDict}, nullIsDefault_{nullIsDefault}, notFoundIsDefault_{notFoundIsDefault}, lookUpKey_{lookUpKey}, defaultAction_{std::move(defaultAction)}, notFoundAction_{std::move(notFoundAction)}, mappedActions_{std::move(mappedActions)} {}
 
     void apply(LogTrace& logTrace, const eckit::ValueMap& initial, eckit::ValueMap& workDict, KeySetter& out) const override {
         logTrace.push_back(Log{this, {}});
@@ -113,7 +113,10 @@ struct Mapping : Action {
 
         auto searchLookUpKey = dict.find(lookUpKey_);
         if (searchLookUpKey == dict.end()) {
-            if (notFoundIsDefault_ && defaultAction_) {
+            if (notFoundAction_) {
+                applyNext(*notFoundAction_.get());
+                return;
+            } else if (notFoundIsDefault_ && defaultAction_) {
                 applyNext(*defaultAction_.get());
                 return;
             }
@@ -170,6 +173,7 @@ struct Mapping : Action {
     std::string lookUpKey_;
 
     std::unique_ptr<Action> defaultAction_;  // Can be null
+    std::unique_ptr<Action> notFoundAction_;  // Can be null
     MappedActions mappedActions_;
 };
 
@@ -326,6 +330,11 @@ std::unique_ptr<Action> buildAction(const eckit::LocalConfiguration& conf, LogTr
         bool hasNullIsDefault     = conf.has("null-is-default");
         bool hasNotFoundIsDefault = conf.has("not-found-is-default");
 
+        // Allow separate action than default
+        bool hasNotFound = conf.has("not-found");
+
+
+
 
         std::string key = conf.getString("key");
         logTrace.push_back(Log{NULL, std::string("Build mapping action for key: ") + key});
@@ -338,6 +347,13 @@ std::unique_ptr<Action> buildAction(const eckit::LocalConfiguration& conf, LogTr
             LogTrace cpyLogTrace{logTrace};
             cpyLogTrace.push_back(Log{NULL, std::string("Building default action")});
             defaultAction = buildAction(conf.getSubConfiguration("default"), cpyLogTrace);
+        }
+        
+        std::unique_ptr<Action> notFoundAction;
+        if (hasNotFound) {
+            LogTrace cpyLogTrace{logTrace};
+            cpyLogTrace.push_back(Log{NULL, std::string("Building not-found action")});
+            notFoundAction = buildAction(conf.getSubConfiguration("not-found"), cpyLogTrace);
         }
 
         if (!hasValueMap) {
@@ -357,7 +373,7 @@ std::unique_ptr<Action> buildAction(const eckit::LocalConfiguration& conf, LogTr
             mappedActions.insert_or_assign(val, buildAction(valueMap.getSubConfiguration(val), cpyLogTrace));
         }
 
-        return std::make_unique<Mapping>(useInitialDict, nullIsDefault, notFoundIsDefault, key, std::move(defaultAction), std::move(mappedActions));
+        return std::make_unique<Mapping>(useInitialDict, nullIsDefault, notFoundIsDefault, key, std::move(defaultAction), std::move(notFoundAction), std::move(mappedActions));
     }
 
     // Action is an output
@@ -414,8 +430,8 @@ std::unique_ptr<Action> buildAction(const eckit::LocalConfiguration& conf, const
 struct DictValueLookUp : GenericValueLookUp {
     virtual ~DictValueLookUp() = default;
 
-    DictValueLookUp(bool useInitialDict, bool nullIsDefault, bool notFoundIsDefault, const std::string& lookUpKey, std::optional<ValueLookUp> defaultValue = {}) :
-        useInitialDict_{useInitialDict}, nullIsDefault_{nullIsDefault}, notFoundIsDefault_{notFoundIsDefault}, lookUpKey_{lookUpKey}, default_{std::move(defaultValue)} {
+    DictValueLookUp(bool useInitialDict, bool nullIsDefault, bool notFoundIsDefault, const std::string& lookUpKey, std::optional<ValueLookUp> defaultValue = {}, std::optional<ValueLookUp> notFoundValue = {}) :
+        useInitialDict_{useInitialDict}, nullIsDefault_{nullIsDefault}, notFoundIsDefault_{notFoundIsDefault}, lookUpKey_{lookUpKey}, default_{std::move(defaultValue)}, notFound_{std::move(notFoundValue)} {
     }
 
 
@@ -477,6 +493,7 @@ struct DictValueLookUp : GenericValueLookUp {
     bool notFoundIsDefault_;
     std::string lookUpKey_;
     std::optional<ValueLookUp> default_;
+    std::optional<ValueLookUp> notFound_;
 };
 
 
@@ -598,7 +615,8 @@ std::unique_ptr<GenericValueLookUp> buildLookUp(const eckit::LocalConfiguration&
         bool hasDefault           = conf.has("default");
         bool hasNullIsDefault     = conf.has("null-is-default");
         bool hasNotFoundIsDefault = conf.has("not-found-is-default");
-
+        
+        bool hasNotFound = conf.has("not-found");
 
         std::string key = conf.getString("key");
         logTrace.push_back(Log{NULL, std::string("Build dict lookup for key: ") + key});
@@ -606,14 +624,21 @@ std::unique_ptr<GenericValueLookUp> buildLookUp(const eckit::LocalConfiguration&
         bool nullIsDefault     = hasNullIsDefault ? conf.getBool("null-is-default") : true;
         bool notFoundIsDefault = hasNotFoundIsDefault ? conf.getBool("not-found-is-default") : true;
 
-        std::optional<ValueLookUp> defaultAction;
+        std::optional<ValueLookUp> defaultValue;
         if (hasDefault) {
             LogTrace cpyLogTrace{logTrace};
             cpyLogTrace.push_back(Log{NULL, std::string("Building default lookup")});
-            defaultAction = parseValueLookUp(conf, "default", cpyLogTrace);
+            defaultValue = parseValueLookUp(conf, "default", cpyLogTrace);
+        }
+        
+        std::optional<ValueLookUp> notFoundValue;
+        if (hasNotFound) {
+            LogTrace cpyLogTrace{logTrace};
+            cpyLogTrace.push_back(Log{NULL, std::string("Building not-found lookup")});
+            notFoundValue = parseValueLookUp(conf, "not-found", cpyLogTrace);
         }
 
-        return std::make_unique<DictValueLookUp>(useInitialDict, nullIsDefault, notFoundIsDefault, key, std::move(defaultAction));
+        return std::make_unique<DictValueLookUp>(useInitialDict, nullIsDefault, notFoundIsDefault, key, std::move(defaultValue), std::move(notFoundValue));
     }
 
     if (conf.has("op")) {
