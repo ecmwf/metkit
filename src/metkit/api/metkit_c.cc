@@ -42,7 +42,7 @@ private:
 
 static thread_local std::string g_current_error_string;
 
-const char* metkit_get_error_string(enum metkit_error_values_t err) {
+const char* metkit_get_error_string(metkit_error_t err) {
     switch (err) {
         case METKIT_SUCCESS:
             return "Success";
@@ -57,19 +57,19 @@ const char* metkit_get_error_string(enum metkit_error_values_t err) {
     }
 }
 
-int innerWrapFn(std::function<int()> f) {
-    return f();
+metkit_error_t innerWrapFn(std::function<int()> f) {
+    return static_cast<metkit_error_t>(f());
 }
 
-int innerWrapFn(std::function<void()> f) {
+metkit_error_t innerWrapFn(std::function<void()> f) {
     f();
     return METKIT_SUCCESS;
 }
 
 template <typename FN>
-[[nodiscard]] int tryCatch(FN&& fn) {
+[[nodiscard]] metkit_error_t tryCatchEnum(FN&& fn) {
     try {
-        return innerWrapFn(fn);
+        return innerWrapFn(std::forward<FN>(fn));
     }
     catch (const eckit::UserError& e) {
         g_current_error_string = e.what();
@@ -96,8 +96,8 @@ template <typename FN>
 //                           HELPERS
 // -----------------------------------------------------------------------------
 
-int metkit_initialise() {
-    return tryCatch([] {
+metkit_error_t metkit_initialise() {
+    return tryCatchEnum([] {
         static bool initialised = false;
 
         if (initialised) {
@@ -117,8 +117,8 @@ int metkit_initialise() {
 //                           PARSING
 // -----------------------------------------------------------------------------
 
-int metkit_parse_marsrequests(const char* str, metkit_requestiterator_t** requests, bool strict) {
-    return tryCatch([requests, str, strict] {
+metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator_t** requests, bool strict) {
+    return tryCatchEnum([requests, str, strict] {
         ASSERT(requests);
         ASSERT(str);
         std::istringstream in(str);
@@ -130,21 +130,21 @@ int metkit_parse_marsrequests(const char* str, metkit_requestiterator_t** reques
 //                           REQUEST
 // -----------------------------------------------------------------------------
 
-int metkit_new_marsrequest(metkit_marsrequest_t** request) {
-    return tryCatch([request] {
+metkit_error_t metkit_new_marsrequest(metkit_marsrequest_t** request) {
+    return tryCatchEnum([request] {
         ASSERT(request);
         *request = new metkit_marsrequest_t();
     });
 }
 
-int metkit_delete_marsrequest(const metkit_marsrequest_t* request) {
-    return tryCatch([request] {
+metkit_error_t metkit_delete_marsrequest(const metkit_marsrequest_t* request) {
+    return tryCatchEnum([request] {
         delete request;
     });
 }   
 
-int metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
-    return tryCatch([request, param, values, numValues] {
+metkit_error_t metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
+    return tryCatchEnum([request, param, values, numValues] {
         ASSERT(request);
         ASSERT(param);
         ASSERT(values);
@@ -157,28 +157,28 @@ int metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, con
     });
 }
     
-int metkit_marsrequest_set_one(metkit_marsrequest_t* request, const char* param, const char* value) {
+metkit_error_t metkit_marsrequest_set_one(metkit_marsrequest_t* request, const char* param, const char* value) {
     return metkit_marsrequest_set(request, param, &value, 1);
 }
 
-int metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb) {
-    return tryCatch([request, verb] {
+metkit_error_t metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb) {
+    return tryCatchEnum([request, verb] {
         ASSERT(request);
         ASSERT(verb);
         request->verb(verb);
     });
 }
 
-int metkit_marsrequest_verb(const metkit_marsrequest_t* request, const char** verb) {
-    return tryCatch([request, verb] {
+metkit_error_t metkit_marsrequest_verb(const metkit_marsrequest_t* request, const char** verb) {
+    return tryCatchEnum([request, verb] {
         ASSERT(request);
         ASSERT(verb);
         *verb = request->verb().c_str();
     });
 }
 
-int metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char* param, bool* has) {
-    return tryCatch([request, param, has] {
+metkit_error_t metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char* param, bool* has) {
+    return tryCatchEnum([request, param, has] {
         ASSERT(request);
         ASSERT(param);
         ASSERT(has);
@@ -186,24 +186,24 @@ int metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char
     });
 }
 
-int metkit_marsrequest_count_params(const metkit_marsrequest_t* request, size_t* count) {
-    return tryCatch([request, count] {
+metkit_error_t metkit_marsrequest_count_params(const metkit_marsrequest_t* request, size_t* count) {
+    return tryCatchEnum([request, count] {
         ASSERT(request);
         ASSERT(count);
         *count = request->params().size();
     });
 }
 
-int metkit_marsrequest_param(const metkit_marsrequest_t* request, size_t index, const char** param) {
-    return tryCatch([request, index, param] {
+metkit_error_t metkit_marsrequest_param(const metkit_marsrequest_t* request, size_t index, const char** param) {
+    return tryCatchEnum([request, index, param] {
         ASSERT(request);
         ASSERT(param);
         *param = request->params()[index].c_str();
     });
 }
 
-int metkit_marsrequest_count_values(const metkit_marsrequest_t* request, const char* param, size_t* count) {
-    return tryCatch([request, param, count] {
+metkit_error_t metkit_marsrequest_count_values(const metkit_marsrequest_t* request, const char* param, size_t* count) {
+    return tryCatchEnum([request, param, count] {
         ASSERT(request);
         ASSERT(param);
         ASSERT(count);
@@ -211,16 +211,16 @@ int metkit_marsrequest_count_values(const metkit_marsrequest_t* request, const c
     });
 }
 
-int metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value) {
-    return tryCatch([request, param, index, value] {
+metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value) {
+    return tryCatchEnum([request, param, index, value] {
         ASSERT(request);
         ASSERT(param);
         ASSERT(value);
         *value = request->values(param, false)[index].c_str();
     });
 }
-int metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit, bool strict, metkit_marsrequest_t* expandedRequest) {
-    return tryCatch([request, expandedRequest, inherit, strict] {
+metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit, bool strict, metkit_marsrequest_t* expandedRequest) {
+    return tryCatchEnum([request, expandedRequest, inherit, strict] {
         ASSERT(request);
         ASSERT(expandedRequest);
         ASSERT(expandedRequest->empty());
@@ -229,8 +229,8 @@ int metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit,
     });
 }
 
-int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsrequest_t* otherRequest) {
-    return tryCatch([request, otherRequest] {
+metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsrequest_t* otherRequest) {
+    return tryCatchEnum([request, otherRequest] {
         ASSERT(request);
         ASSERT(otherRequest);
         request->merge(*otherRequest);
@@ -241,21 +241,21 @@ int metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsreq
 //                           REQUEST ITERATOR
 // -----------------------------------------------------------------------------
 
-int metkit_delete_requestiterator(const metkit_requestiterator_t* it) {
-    return tryCatch([it] {
+metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it) {
+    return tryCatchEnum([it] {
         delete it;
     });
 }
 
-int metkit_requestiterator_next(metkit_requestiterator_t* it) {
-    return tryCatch(std::function<int()>{[it] {
+metkit_error_t metkit_requestiterator_next(metkit_requestiterator_t* it) {
+    return tryCatchEnum(std::function<int()>{[it] {
         ASSERT(it);
         return it->next();
     }});
 }
 
-int metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequest_t* request) {
-    return tryCatch([it, request] {
+metkit_error_t metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequest_t* request) {
+    return tryCatchEnum([it, request] {
         ASSERT(it);
         ASSERT(request);
         ASSERT(request->empty());
