@@ -17,8 +17,7 @@
 
 int main(int argc, char **argv) {
 
-    const char* version;
-    int errno = metkit_version(&version);
+    const char* version = metkit_version();
 
     fprintf(stdout, "MetKit version: %s\n", version);
 

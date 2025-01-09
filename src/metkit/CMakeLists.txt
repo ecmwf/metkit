@@ -4,6 +4,7 @@ ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
 
 configure_file( metkit_config.h.in    metkit_config.h )
 configure_file( metkit_version.h.in   metkit_version.h )
+configure_file( metkit_version.c.in   ${CMAKE_CURRENT_BINARY_DIR}/metkit_version.c   )
 
 install(FILES
             ${CMAKE_CURRENT_BINARY_DIR}/metkit_config.h
@@ -14,6 +15,7 @@ install(FILES
 ### metkit sources
 
 list( APPEND metkit_srcs
+    ${CMAKE_CURRENT_BINARY_DIR}/metkit_version.c
     config/LibMetkit.cc
     config/LibMetkit.h
     mars/BaseProtocol.cc

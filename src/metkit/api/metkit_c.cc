@@ -37,33 +37,6 @@ private:
     std::vector<metkit::mars::MarsRequest>::iterator iterator_;
 };
 
-/// @comment: (maby)
-/// Not sure if there is much value in having a param iterator. We could just return an array of
-/// strings (char**) using metkit_marsrequest_params.
-/// I think we should metkit_paramiterator_t.
-struct metkit_paramiterator_t {
-    explicit metkit_paramiterator_t(std::vector<std::string> vec) :
-        vector_(std::move(vec)), iterator_(vector_.begin()) {}
-
-    int next() {
-        if (iterator_ == vector_.end()) {
-            return METKIT_ITERATION_COMPLETE;
-        }
-        ++iterator_;
-
-        return iterator_ == vector_.end() ? METKIT_ITERATION_COMPLETE : METKIT_SUCCESS;
-    }
-
-    void current(const char** param) {
-        ASSERT(iterator_ != vector_.end());
-        *param = iterator_->c_str();
-    }
-
-private: 
-    std::vector<std::string> vector_;
-    std::vector<std::string>::iterator iterator_;
-};
-
 // ---------------------------------------------------------------------------------------------------------------------
 //                           ERROR HANDLING
 
@@ -99,27 +72,22 @@ template <typename FN>
         return innerWrapFn(fn);
     }
     catch (const eckit::UserError& e) {
-        eckit::Log::error() << "User Error: " << e.what() << std::endl;
         g_current_error_string = e.what();
         return METKIT_ERROR_USER;
     }
     catch (const eckit::AssertionFailed& e) {
-        eckit::Log::error() << "Assertion Failed: " << e.what() << std::endl;
         g_current_error_string = e.what();
         return METKIT_ERROR_ASSERT;
     }
     catch (const eckit::Exception& e) {
-        eckit::Log::error() << "METKIT Error: " << e.what() << std::endl;
         g_current_error_string = e.what();
         return METKIT_ERROR;
     }
     catch (const std::exception& e) {
-        eckit::Log::error() << "Unknown Error: " << e.what() << std::endl;
         g_current_error_string = e.what();
         return METKIT_ERROR_UNKNOWN;
     }
     catch (...) {
-        eckit::Log::error() << "Unknown Error!" << std::endl;
         return METKIT_ERROR_UNKNOWN;
     }
 }
@@ -127,16 +95,6 @@ template <typename FN>
 // -----------------------------------------------------------------------------
 //                           HELPERS
 // -----------------------------------------------------------------------------
-
-int metkit_version(const char** version) {
-    *version = metkit_version_str();
-    return METKIT_SUCCESS;
-}
-
-int metkit_vcs_version(const char** sha1) {
-    *sha1 = metkit_git_sha1();
-    return METKIT_SUCCESS;
-}
 
 int metkit_initialise() {
     return tryCatch([] {
@@ -159,7 +117,7 @@ int metkit_initialise() {
 //                           PARSING
 // -----------------------------------------------------------------------------
 
-int metkit_parse_marsrequest(const char* str, metkit_requestiterator_t** requests, bool strict) {
+int metkit_parse_marsrequests(const char* str, metkit_requestiterator_t** requests, bool strict) {
     return tryCatch([requests, str, strict] {
         ASSERT(requests);
         ASSERT(str);
@@ -198,7 +156,7 @@ int metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, con
         request->values(param_str, values_vec);
     });
 }
-
+    
 int metkit_marsrequest_set_one(metkit_marsrequest_t* request, const char* param, const char* value) {
     return metkit_marsrequest_set(request, param, &value, 1);
 }
@@ -228,11 +186,19 @@ int metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char
     });
 }
 
-int metkit_marsrequest_params(const metkit_marsrequest_t* request, metkit_paramiterator_t** params) {
-    return tryCatch([request, params] {
+int metkit_marsrequest_count_params(const metkit_marsrequest_t* request, size_t* count) {
+    return tryCatch([request, count] {
         ASSERT(request);
-        ASSERT(params);
-        *params = new metkit_paramiterator_t(request->params());
+        ASSERT(count);
+        *count = request->params().size();
+    });
+}
+
+int metkit_marsrequest_param(const metkit_marsrequest_t* request, size_t index, const char** param) {
+    return tryCatch([request, index, param] {
+        ASSERT(request);
+        ASSERT(param);
+        *param = request->params()[index].c_str();
     });
 }
 
@@ -250,24 +216,10 @@ int metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* pa
         ASSERT(request);
         ASSERT(param);
         ASSERT(value);
-        *value = (request->values(param, false))[index].c_str();
+        *value = request->values(param, false)[index].c_str();
     });
 }
-
-int metkit_marsrequest_values(const metkit_marsrequest_t* request, const char* param, const char** values[], size_t* numValues) {
-    return tryCatch([request, param, values, numValues] {
-        ASSERT(request);
-        ASSERT(param);
-        ASSERT(values);
-        ASSERT(numValues);
-        const std::vector<std::string>& values_str = request->values(param);
-        *numValues = values_str.size();
-        *values = new const char*[values_str.size()];
-        std::transform(values_str.begin(), values_str.end(), *values, [](const std::string& s) { return s.c_str(); });
-    });
-}
-
-int metkit_marsrequest_expand(const metkit_marsrequest_t* request, metkit_marsrequest_t* expandedRequest, bool inherit, bool strict) {
+int metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit, bool strict, metkit_marsrequest_t* expandedRequest) {
     return tryCatch([request, expandedRequest, inherit, strict] {
         ASSERT(request);
         ASSERT(expandedRequest);
@@ -311,31 +263,5 @@ int metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequ
         it->current(request);
     });
 }
-
-// -----------------------------------------------------------------------------
-//                           PARAM ITERATOR
-// -----------------------------------------------------------------------------
-
-int metkit_delete_paramiterator(const metkit_paramiterator_t* it) {
-    return tryCatch([it] {
-        delete it;
-    });
-}
-
-int metkit_paramiterator_next(metkit_paramiterator_t* it) {
-    return tryCatch(std::function<int()>{[it] {
-        ASSERT(it);
-        return it->next();
-    }});
-}
-
-int metkit_paramiterator_param(metkit_paramiterator_t* it, const char** param) {
-    return tryCatch([it, param] {
-        ASSERT(it);
-        ASSERT(param);
-        it->current(param);
-    });
-}
-
 
 // ---------------------------------------------------------------------------------------------------------------------

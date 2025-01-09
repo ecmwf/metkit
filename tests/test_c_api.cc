@@ -79,28 +79,22 @@ CASE( "metkit_marsrequest" ) {
         EXPECT_STR_EQUAL(value, dates[i]);
     }
 
-    // all values 
-    const char** values{};
-    count = 0;
-    METKIT_TEST_C(metkit_marsrequest_values(request, "date", &values, &count));
-    EXPECT_EQUAL(count, 3);
-
-    for (size_t i = 0; i < count; i++) {
-        EXPECT_STR_EQUAL(values[i], dates[i]);
-    }
-
     // -----------------------------------------------------------------
     // Expand
     // -----------------------------------------------------------------
 
     metkit_marsrequest_t* expandedRequest{};
     METKIT_TEST_C(metkit_new_marsrequest(&expandedRequest));
-    METKIT_TEST_C(metkit_marsrequest_expand(request, expandedRequest, false, true));
+    METKIT_TEST_C(metkit_marsrequest_expand(request, false, true, expandedRequest));
 
     // Check date expanded -1 -> yesterday
-    const char** dates_expanded{};
-    METKIT_TEST_C(metkit_marsrequest_values(expandedRequest, "date", &dates_expanded, &count));
+    METKIT_TEST_C(metkit_marsrequest_count_values(expandedRequest, "date", &count));
     EXPECT_EQUAL(count, 3);
+    const char** dates_expanded = new const char*[count];
+    for (size_t i = 0; i < count; i++) {
+        METKIT_TEST_C(metkit_marsrequest_value(expandedRequest, "date", i, &dates_expanded[i]));
+    }
+
     EXPECT_STR_EQUAL(dates_expanded[2], std::to_string(eckit::Date(-1).yyyymmdd()).c_str());
     // check param expanded 2t -> 167
     const char* param{};
@@ -139,7 +133,7 @@ CASE( "metkit_requestiterator_t parsing" ) {
     METKIT_TEST_C(metkit_new_marsrequest(&request2));
 
     metkit_requestiterator_t* it{};
-    METKIT_TEST_C(metkit_parse_marsrequest("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2", &it, true)); // two requests
+    METKIT_TEST_C(metkit_parse_marsrequests("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2", &it, true)); // two requests
 
     METKIT_TEST_C(metkit_requestiterator_request(it, request0));
     METKIT_TEST_C(metkit_requestiterator_next(it));
@@ -157,11 +151,13 @@ CASE( "metkit_requestiterator_t parsing" ) {
     EXPECT_STR_EQUAL(date, "20200102");
 
     // Check steps have been parsed
-    const char** steps{};
     size_t count = 0;
-    METKIT_TEST_C(metkit_marsrequest_values(request1, "step", &steps, &count));
+    METKIT_TEST_C(metkit_marsrequest_count_values(request1, "step", &count));
+    EXPECT_EQUAL(count, 6);
     for (size_t i = 0; i < count; i++) {
-        EXPECT_STR_EQUAL(steps[i], std::to_string(10 + i*2).c_str());
+        const char* step{};
+        METKIT_TEST_C(metkit_marsrequest_value(request1, "step", i, &step));
+        EXPECT_STR_EQUAL(step, std::to_string(10 + i*2).c_str());
     }
 
 }
