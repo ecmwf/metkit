@@ -16,10 +16,10 @@
 #ifndef metkit_Type_H
 #define metkit_Type_H
 
+#include <optional>
 #include <string>
 
 #include "eckit/memory/Counted.h"
-#include "eckit/types/Types.h"
 #include "eckit/value/Value.h"
 
 
