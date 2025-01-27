@@ -43,7 +43,7 @@ CASE( "metkit_marsrequest" ) {
 
     metkit_marsrequest_t* request{};
 
-    METKIT_TEST_C(metkit_new_marsrequest(&request));
+    METKIT_TEST_C(metkit_marsrequest_new(&request));
     EXPECT(request);
 
     // set/get verb
@@ -84,7 +84,7 @@ CASE( "metkit_marsrequest" ) {
     // -----------------------------------------------------------------
 
     metkit_marsrequest_t* expandedRequest{};
-    METKIT_TEST_C(metkit_new_marsrequest(&expandedRequest));
+    METKIT_TEST_C(metkit_marsrequest_new(&expandedRequest));
     METKIT_TEST_C(metkit_marsrequest_expand(request, false, true, expandedRequest));
 
     // Check date expanded -1 -> yesterday
@@ -106,7 +106,7 @@ CASE( "metkit_marsrequest" ) {
     // -----------------------------------------------------------------
 
     metkit_marsrequest_t* req_manydates{};
-    METKIT_TEST_C(metkit_new_marsrequest(&req_manydates));
+    METKIT_TEST_C(metkit_marsrequest_new(&req_manydates));
     const char* dates_many[] = {"19000101", "19000102", "19000103"};
     METKIT_TEST_C(metkit_marsrequest_set(req_manydates, "date", dates_many, 3));
 
@@ -117,49 +117,75 @@ CASE( "metkit_marsrequest" ) {
     // -----------------------------------------------------------------
     // done
 
-    metkit_delete_marsrequest(request);
-    metkit_delete_marsrequest(expandedRequest);
-    metkit_delete_marsrequest(req_manydates);
+    metkit_marsrequest_delete(request);
+    metkit_marsrequest_delete(expandedRequest);
+    metkit_marsrequest_delete(req_manydates);
 }
 //-----------------------------------------------------------------------------
 
 CASE( "metkit_requestiterator_t parsing" ) {
     
-    metkit_marsrequest_t* request0{};
-    metkit_marsrequest_t* request1{};
-    metkit_marsrequest_t* request2{};
-    METKIT_TEST_C(metkit_new_marsrequest(&request0));
-    METKIT_TEST_C(metkit_new_marsrequest(&request1));
-    METKIT_TEST_C(metkit_new_marsrequest(&request2));
-
     metkit_requestiterator_t* it{};
-    METKIT_TEST_C(metkit_parse_marsrequests("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2", &it, true)); // two requests
+    METKIT_TEST_C(metkit_parse_marsrequests("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2", &it, true)); // two separate requests
 
-    METKIT_TEST_C(metkit_requestiterator_request(it, request0));
-    METKIT_TEST_C(metkit_requestiterator_next(it));
-    METKIT_TEST_C(metkit_requestiterator_request(it, request1));
-
-    EXPECT_EQUAL(metkit_requestiterator_next(it), METKIT_ITERATION_COMPLETE);
-    EXPECT_NOT_EQUAL(metkit_requestiterator_request(it, request2), METKIT_SUCCESS); // Error to get request after iteration complete
+    std::vector <metkit_marsrequest_t*> requests;
+    metkit_iterator_status_t status;
+    while ((status = metkit_requestiterator_next(it)) == METKIT_ITERATOR_SUCCESS) {
+        metkit_marsrequest_t* req{};
+        METKIT_TEST_C(metkit_marsrequest_new(&req));
+        EXPECT_EQUAL(metkit_requestiterator_current(it, req), METKIT_ITERATOR_SUCCESS);
+        requests.push_back(req);
+    }
+    EXPECT_EQUAL(status, METKIT_ITERATOR_COMPLETE);
+    EXPECT_EQUAL(requests.size(), 2);
     
     // check the date
     const char* date{};
-    METKIT_TEST_C(metkit_marsrequest_value(request0, "date", 0, &date));
+    METKIT_TEST_C(metkit_marsrequest_value(requests[0], "date", 0, &date));
     EXPECT_STR_EQUAL(date, std::to_string(eckit::Date(-1).yyyymmdd()).c_str()); // parser also calls expand
 
-    METKIT_TEST_C(metkit_marsrequest_value(request1, "date", 0, &date));
+    METKIT_TEST_C(metkit_marsrequest_value(requests[1], "date", 0, &date));
     EXPECT_STR_EQUAL(date, "20200102");
 
     // Check steps have been parsed
     size_t count = 0;
-    METKIT_TEST_C(metkit_marsrequest_count_values(request1, "step", &count));
+    METKIT_TEST_C(metkit_marsrequest_count_values(requests[1], "step", &count));
     EXPECT_EQUAL(count, 6);
     for (size_t i = 0; i < count; i++) {
         const char* step{};
-        METKIT_TEST_C(metkit_marsrequest_value(request1, "step", i, &step));
+        METKIT_TEST_C(metkit_marsrequest_value(requests[1], "step", i, &step));
         EXPECT_STR_EQUAL(step, std::to_string(10 + i*2).c_str());
     }
 
+    // cleanup
+    metkit_delete_requestiterator(it); // NB: requests have been moved out of the iterator
+    for (auto req : requests) {
+        metkit_marsrequest_delete(req);
+    }
+}
+
+CASE( "metkit_requestiterator_t 1 item" ) {
+    // Edge case: verify iterator with one item works the same way.
+
+    metkit_requestiterator_t* it{};
+    METKIT_TEST_C(metkit_parse_marsrequests("retrieve,date=-1,param=2t", &it, true));
+
+    std::vector <metkit_marsrequest_t*> requests;
+    metkit_iterator_status_t status;
+    while ((status = metkit_requestiterator_next(it)) == METKIT_ITERATOR_SUCCESS) {
+        metkit_marsrequest_t* req{};
+        METKIT_TEST_C(metkit_marsrequest_new(&req));
+        EXPECT_EQUAL(metkit_requestiterator_current(it, req), METKIT_ITERATOR_SUCCESS);
+        requests.push_back(req);
+    }
+    EXPECT_EQUAL(status, METKIT_ITERATOR_COMPLETE);
+    EXPECT_EQUAL(requests.size(), 1);
+
+    // cleanup
+    metkit_delete_requestiterator(it);
+    for (auto req : requests) {
+        metkit_marsrequest_delete(req);
+    }
 }
 
 }  // namespace metkit::test

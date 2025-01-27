@@ -29,12 +29,19 @@ typedef struct metkit_paramiterator_t metkit_paramiterator_t;
 typedef enum metkit_error_values_t
 {
     METKIT_SUCCESS            = 0, /* Operation succeded. */
-    METKIT_ITERATION_COMPLETE = 1, /* All elements have been returned */
-    METKIT_ERROR              = 2, /* Operation failed. */
-    METKIT_ERROR_UNKNOWN      = 3, /* Failed with an unknown error. */
-    METKIT_ERROR_USER         = 4, /* Failed with an user error. */
-    METKIT_ERROR_ASSERT       = 5  /* Failed with an assert() */
+    METKIT_ERROR              = 1, /* Operation failed. */
+    METKIT_ERROR_UNKNOWN      = 2, /* Failed with an unknown error. */
+    METKIT_ERROR_USER         = 3, /* Failed with an user error. */
+    METKIT_ERROR_ASSERT       = 4  /* Failed with an assert() */
 } metkit_error_t;
+
+typedef enum metkit_iterator_status_t
+{
+    METKIT_ITERATOR_SUCCESS  = 0, /* Operation succeded. */
+    METKIT_ITERATOR_COMPLETE = 1, /* All elements have been returned */
+    METKIT_ITERATOR_ERROR    = 2  /* Operation failed. */
+} metkit_iterator_status_t;
+
 
 const char* metkit_get_error_string(enum metkit_error_values_t err);
 
@@ -86,13 +93,13 @@ metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator
  * @param[out] request new Request instance
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_new_marsrequest(metkit_marsrequest_t** request);
+metkit_error_t metkit_marsrequest_new(metkit_marsrequest_t** request);
 
 /** Deallocates Request object and associated resources.
  * @param request Request instance
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_delete_marsrequest(const metkit_marsrequest_t* request);
+metkit_error_t metkit_marsrequest_delete(const metkit_marsrequest_t* request);
 
 /** Add parameter and values to request
  * @param request Request instance
@@ -195,16 +202,26 @@ metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it)
 
 /** Moves to the next Request element in RequestIterator
  * @param it RequestIterator instance
- * @return metkit_error_t Error code
+ * @return metkit_iterator_status_t Status of iterator
  */
-metkit_error_t metkit_requestiterator_next(metkit_requestiterator_t* it);
+// metkit_error_t metkit_requestiterator_next(metkit_requestiterator_t* it);
+metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* it);
 
 /** Populates empty Requestion object with data from current element in RequestIterator
  * @param it RequestIterator instance
  * @param request empty Request instance to populate with data
- * @return metkit_error_t Error code
+ * @return metkit_iterator_status_t Status of iterator
+ * @note must call metkit_requestiterator_next before calling metkit_requestiterator_current.
+ *
+ * Example usage:
+    * while (metkit_requestiterator_next(it) == METKIT_ITERATOR_SUCCESS) {
+    *     metkit_marsrequest_t* req{};
+    *     metkit_marsrequest_new(&req);
+    *     metkit_requestiterator_current(it, req);
+    *     // use req ...
+    * }
  */
-metkit_error_t metkit_requestiterator_request(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
+metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
 
 #ifdef __cplusplus
 }

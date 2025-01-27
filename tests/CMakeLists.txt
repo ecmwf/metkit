@@ -88,8 +88,7 @@ ecbuild_add_test( TARGET        metkit_test_c_compiled
                   INCLUDES      "${ECKIT_INCLUDE_DIRS}"
                   LIBS          metkit
                   NO_AS_NEEDED
-                  ENVIRONMENT   "${metkit_env}"
-                  LINKER_LANGUAGE C)
+                  ENVIRONMENT   "${metkit_env}")
 
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)
