@@ -30,12 +30,6 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
     by_(1) {
 
     DummyContext ctx;
-
-    // for (size_t i = 0; i < originalDefaults_.size(); i++ ) {
-    //     originalDefaults_[i] = tidy(ctx, originalDefaults_[i]);
-    // }
-
-    // defaults_ = originalDefaults_;
 }
 
 TypeDate::~TypeDate() {

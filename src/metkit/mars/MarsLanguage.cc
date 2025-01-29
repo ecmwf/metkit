@@ -61,7 +61,6 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
     eckit::Value lang   = languages_[verb];
     eckit::Value params = lang.keys();
 
-    // eckit::Value defaults = lang["_defaults"];
     eckit::Value options  = lang["_options"];
 
     for (size_t i = 0; i < params.size(); ++i) {
@@ -73,10 +72,6 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
 
         ASSERT(types_.find(keyword) == types_.end());
-
-        // if (defaults.contains(keyword)) {
-        //     settings["default"] = defaults[keyword];
-        // }
 
         if (options.contains(keyword)) {
             eckit::ValueMap m = options[keyword];
@@ -203,22 +198,8 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         std::cerr << "Matching '" << name << "' with " << best << ctx << std::endl;
     }
 
-    // size_t max = 3;
-    // if (best.size() > 0 && score < max) {
-    //     std::cerr << "Matching '"
-    //               << name
-    //               << "' with "
-    //               << best
-    //               << " "
-    //               << "Please give at least " << max << " first letters"
-    //               << std::endl;
-    // }
-
     if (best.size() == 1) {
         if (isnumeric(best[0]) && (best[0] != name)) {
-            // std::ostringstream oss;
-            // oss << "Invalid match [" << name << "] and [" << best[0] << "] (ignored)" << ctx;
-            // throw eckit::UserError(oss.str());
             best.clear();
         }
         else {
@@ -338,12 +319,6 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
                 p = cache_[*j] = bestMatch(ctx, *j, keywords_, true, false, false, aliases_);
             }
 
-            // if (seen.find(p) != seen.end()) {
-            //     std::cerr << "Duplicate " << p << " " << *j << std::endl;
-            // }
-
-            // seen.insert(p);
-
             std::vector<std::string> values = r.values(*j);
 
             if (values.size() == 1) {
@@ -358,7 +333,6 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             type(p)->expand(ctx, values);
             result.setValuesTyped(type(p), values);
             type(p)->check(ctx, values);
-            // result.setValues(p, values);
         }
 
 

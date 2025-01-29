@@ -14,8 +14,7 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace mars::metkit {
 
 ContextRule::ContextRule(const std::string& k) : key_(k) {}
 
@@ -227,80 +226,6 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
-
-    // originalDefaults_ = defaults_;
-
-    // if (settings.contains("only")) {
-    //     eckit::Value d = settings["only"];
-
-    //     size_t len = d.size();
-    //     for (size_t i = 0; i < len; i++) {
-    //         eckit::Value a    = d[i];
-    //         eckit::Value keys = a.keys();
-
-    //         for (size_t j = 0; j < keys.size(); j++) {
-    //             std::string key = keys[j];
-    //             eckit::Value v  = a[key];
-
-    //             if (v.isList()) {
-    //                 for (size_t k = 0; k < v.size(); k++) {
-    //                     only_[key].insert(v[k]);
-    //                 }
-    //             }
-    //             else {
-    //                 only_[key].insert(v);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // if (settings.contains("never")) {
-    //     eckit::Value d = settings["never"];
-
-    //     size_t len = d.size();
-    //     for (size_t i = 0; i < len; i++) {
-    //         eckit::Value a    = d[i];
-    //         eckit::Value keys = a.keys();
-
-    //         for (size_t j = 0; j < keys.size(); j++) {
-    //             std::string key = keys[j];
-    //             eckit::Value v  = a[key];
-
-    //             if (v.isList()) {
-    //                 for (size_t k = 0; k < v.size(); k++) {
-    //                     never_[key].insert(v[k]);
-    //                 }
-    //             }
-    //             else {
-    //                 never_[key].insert(v);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // if (settings.contains("unset")) {
-    //     eckit::Value d = settings["unset"];
-
-    //     size_t len = d.size();
-    //     for (size_t i = 0; i < len; i++) {
-    //         eckit::Value a    = d[i];
-    //         eckit::Value keys = a.keys();
-
-    //         for (size_t j = 0; j < keys.size(); j++) {
-    //             std::string key = keys[j];
-    //             eckit::Value v  = a[key];
-
-    //             if (v.isList()) {
-    //                 for (size_t k = 0; k < v.size(); k++) {
-    //                     unset_[key].insert(v[k]);
-    //                 }
-    //             }
-    //             else {
-    //                 unset_[key].insert(v);
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 Type::~Type() {}
@@ -460,98 +385,24 @@ const std::string& Type::category() const {
 void Type::pass2(const MarsExpandContext& ctx, MarsRequest& request) {}
 
 void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict) {
-    // bool ok = true;
 
     const std::vector<std::string>& values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "off") {
-        // ok = false;
         request.unsetValues(name_);
     }
     else {
         for (const auto& context : unsets_) {
             if (context->matches(request)) {
-                // std::cout << "finalise unset: " << name_ << std::endl;
                 request.unsetValues(name_);
             }
-            // const std::vector<std::string>& values = request.values(name, true);
-            // bool found = false;
-            // for (const auto& v : values) {
-            //     if (unset.find(v) != unset.end()) {
-            //         request.unsetValues(name_);
-            //         found = true;
-            //         break;
-            //     }
-            // }
-            // if (found) {
-            //     break;
-            // }
         }
 
         for (const auto& [context, value]: sets_) {
             if (context->matches(request)) {
-                // std::cout << "finalise set: " << name_ << "=" << value << std::endl;
                 request.setValuesTyped(this, std::vector<std::string>{value});
             }
-            // const std::vector<std::string>& values = request.values(name, true);
-            // bool found = false;
-            // for (const auto& v : values) {
-            //     if (unset.find(v) != unset.end()) {
-            //         request.unsetValues(name_);
-            //         found = true;
-            //         break;
-            //     }
-            // }
-            // if (found) {
-            //     break;
-            // }
         }
     }
-
-    // for (std::map<std::string, std::set<std::string> >::const_iterator j = only_.begin();
-    //      ok && j != only_.end(); ++j) {
-    //     const std::string& name           = (*j).first;
-    //     const std::set<std::string>& only = (*j).second;
-
-    //     const std::vector<std::string>& values = request.values(name, true);
-    //     for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end();
-    //          ++k) {
-    //         if (only.find(*k) == only.end()) {
-    //             std::ostringstream oss;
-    //             oss << "Key [" << name_ << "] not acceptable since " << name << "=" << *k << " not listed in " << name_ << "->only->" << name << ": " << only << " in MARS language definition" << std::endl;
-    //             if (strict) {
-    //                 throw eckit::UserError(oss.str());
-    //             } else {
-    //                 eckit::Log::userWarning() << oss.str();
-    //             }
-    //             ok = false;
-    //         }
-    //     }
-    // }
-
-    // for (std::map<std::string, std::set<std::string> >::const_iterator j = never_.begin();
-    //      ok && j != never_.end(); ++j) {
-    //     const std::string& name            = (*j).first;
-    //     const std::set<std::string>& never = (*j).second;
-
-    //     const std::vector<std::string>& values = request.values(name, true);
-    //     for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end();
-    //          ++k) {
-    //         if (never.find(*k) != never.end()) {
-    //             std::ostringstream oss;
-    //             oss << "Key [" << name_ << "] not acceptable since " << name << "=" << *k << " listed in " << name_ << "->never->" << name << ": " << never << " in MARS language definition" << std::endl;
-    //             if (strict) {
-    //                 throw eckit::UserError(oss.str());
-    //             } else {
-    //                 eckit::Log::userWarning() << oss.str();
-    //             }
-    //             ok = false;
-    //         }
-    //     }
-    // }
-
-    // if (!ok) {
-    //     request.unsetValues(name_);
-    // }
 }
 
 void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const {
@@ -576,5 +427,4 @@ void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& v
 
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
+}  // namespace mars::metkit

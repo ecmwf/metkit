@@ -23,8 +23,7 @@
 #include "eckit/value/Value.h"
 
 
-namespace metkit {
-namespace mars {
+namespace mars::metkit {
 
 class MarsRequest;
 class MarsExpandContext;
@@ -103,7 +102,6 @@ protected:  // members
     std::string name_;
     std::string category_;
 
-    // std::vector<std::string> defaults_;
     bool flatten_;
     bool multiple_;
     bool duplicates_;
@@ -112,12 +110,6 @@ protected:  // members
     std::optional<std::vector<std::string>> inheritance_;
     std::map<Context*, std::string> sets_;
     std::set<Context*> unsets_;
-
-    // std::vector<std::string> originalDefaults_;
-
-    // std::map<std::string, std::set<std::string> > only_;
-    // std::map<std::string, std::set<std::string> > never_;
-    // std::map<std::string, std::set<std::string> > unset_;
 
 protected:  // methods
     virtual ~Type() override;
@@ -128,7 +120,6 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace mars::metkit
 
 #endif

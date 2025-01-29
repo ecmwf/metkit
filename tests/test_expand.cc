@@ -263,12 +263,6 @@ CASE( "test_metkit_expand_10_strict" ) {
         ASSERT(v.size() == 1);
         v[0].dump(std::cout);
     }
-    // {
-    //     std::istringstream in(text);
-    //     MarsParser parser(in);
-    //     MarsExpension expand(false, true);
-    //     EXPECT_THROWS(expand.expand(parser.parse()));
-    // }
 }
 
 CASE( "test_metkit_expand_multirequest-1" ) {
@@ -291,29 +285,6 @@ CASE( "test_metkit_expand_multirequest-1" ) {
     expand(reqs.at(0), "retrieve", expected, {-5,-4,-3,-2});
     expand(reqs.at(1), "retrieve", expected, {-1});
 }
-
-// CASE( "test_metkit_expand_multirequest-2" ) {
-//     const std::string text = "retrieve,\n type=ai,date=20230616,time=12,class=OD,stream=LWDA,\n obstype=airs,expver=0001,target=\"airs\".";
-//     std::istringstream in(text);
-//     std::vector<MarsRequest> reqs = MarsRequest::parse(in, true);
-//     EXPECT_EQUAL(reqs.size(), 1);
-//     std::map<std::string, std::vector<std::string>> expected{
-//             {"class", {"od"}},
-//             {"domain", {"g"}},
-//             {"expver", {"0001"}},
-//             {"stream", {"lwda"}},
-//             {"time", {"1200"}},
-//             {"type", {"ai"}},
-//             {"target", {"\"airs\""}},
-//             // {"repres", {"bu"}},
-//             {"obstype", {"57"}},
-//             {"duplicates", {"keep"}}
-//         };
-
-//     expand(reqs.at(0), "retrieve", expected, {20230616});
-// }
-
-
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     DummyContext ctx;
@@ -652,13 +623,6 @@ CASE( "test_metkit_expand_d1" ) {
             };
         expand(text, "retrieve", expected, {-1});
     }
-    // {
-    //     const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
-    //     std::istringstream in(text);
-    //     MarsParser parser(in);
-    //     MarsExpension expand(false, true);
-    //     EXPECT_THROWS(expand.expand(parser.parse()));
-    // }
     {
         const char* text = "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,param=134/137";
         std::map<std::string, std::vector<std::string>> expected{
@@ -724,10 +688,6 @@ CASE( "test_metkit_expand_ng" ) {
             };
         expand(text, "retrieve", expected, {20000101});
     }
-    // {
-    //     const char* textDataset = "retrieve,class=ng,dataset=climate-dt,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,levtype=sfc,param=134/137";
-    //     expandException(textDataset);
-    // }
 }
 
 //-----------------------------------------------------------------------------
