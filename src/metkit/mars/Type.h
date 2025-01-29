@@ -23,7 +23,7 @@
 #include "eckit/value/Value.h"
 
 
-namespace mars::metkit {
+namespace metkit::mars {
 
 class MarsRequest;
 class MarsExpandContext;
@@ -120,6 +120,6 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars::metkit
+}  // namespace metkit::mars
 
 #endif
