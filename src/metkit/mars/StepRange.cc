@@ -23,25 +23,25 @@ using namespace eckit;
 
 namespace {
 
-enum TimeUnit {
-    Second = 0,
-    Minute = 1,
-    Hour = 2,
-    Day = 3
-};
+// enum TimeUnit {
+//     Second = 0,
+//     Minute = 1,
+//     Hour = 2,
+//     Day = 3
+// };
 
-TimeUnit maxUnit(const eckit::Time& t) {
-    if (t.seconds() == 0) {
-        if (t.minutes() == 0) {
-            if (t.hours() == 0) {
-                return TimeUnit::Day;
-            }
-            return TimeUnit::Hour;
-        }
-        return TimeUnit::Minute;
-    }
-    return TimeUnit::Second;
-}
+// TimeUnit maxUnit(const eckit::Time& t) {
+//     if (t.seconds() == 0) {
+//         if (t.minutes() == 0) {
+//             if (t.hours() == 0) {
+//                 return TimeUnit::Day;
+//             }
+//             return TimeUnit::Hour;
+//         }
+//         return TimeUnit::Minute;
+//     }
+//     return TimeUnit::Second;
+// }
 
 std::string canonical(const eckit::Time& time) {
 
@@ -65,23 +65,22 @@ std::string canonical(const eckit::Time& time) {
     return out;
 }
 
-std::string canonical(const eckit::Time& time, TimeUnit unit) {
-    switch (unit) {
-        case TimeUnit::Second:
-            return std::to_string(time.seconds()+60*time.minutes()+3600*time.hours()) + "s";
-        case TimeUnit::Minute:
-            return std::to_string(time.minutes()+60*time.hours()) + "m";
-        case TimeUnit::Day:
-        case TimeUnit::Hour:
-        default:
-            return std::to_string(time.hours());
-    }
-}
+// std::string canonical(const eckit::Time& time, TimeUnit unit) {
+//     switch (unit) {
+//         case TimeUnit::Second:
+//             return std::to_string(time.seconds()+60*time.minutes()+3600*time.hours()) + "s";
+//         case TimeUnit::Minute:
+//             return std::to_string(time.minutes()+60*time.hours()) + "m";
+//         case TimeUnit::Day:
+//         case TimeUnit::Hour:
+//         default:
+//             return std::to_string(time.hours());
+//     }
+// }
 
 }
 
 namespace metkit::mars {
-
 
 //----------------------------------------------------------------------------------------------------------------------
 

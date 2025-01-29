@@ -17,6 +17,8 @@
 #ifndef metkit_MarsParserContext_H
 #define metkit_MarsParserContext_H
 
+#include <stddef.h>
+
 #include "metkit/mars/MarsExpandContext.h"
 
 #include <cstddef>
@@ -27,8 +29,6 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsParserContext : public MarsExpandContext {
-
-
 
 public:
 

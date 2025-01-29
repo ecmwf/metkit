@@ -62,6 +62,7 @@ public: // class methods
                                  const std::vector<std::string>& values,
                                  bool fail,
                                  bool quiet,
+                                 bool fullMatch,
                                  const StringMap& aliases = StringMap());
 
     static eckit::Value jsonFile(const std::string& name);
@@ -79,6 +80,7 @@ private: // members
 
     std::string verb_;
     std::map<std::string, Type* > types_;
+    std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
     std::vector<std::string> keywords_;
 
     StringMap aliases_;

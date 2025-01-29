@@ -84,9 +84,12 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
 class Rule : public metkit::mars::MarsExpandContext {
 
     std::vector<Matcher> matchers_;
-    std::vector<std::string> values_;
 
-    mutable std::map<std::string, std::string> mapping_;
+    std::vector<std::string> values_;
+    mutable std::map<std::string, std::string> mapping_; 
+
+    static std::vector<std::string> defaultValues_;
+    static std::map<std::string, std::string> defaultMapping_;
 
 public:
 
@@ -95,6 +98,7 @@ public:
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
+    static void setDefault(const eckit::Value& setters, const eckit::Value& ids);
 
     void print(std::ostream& out) const {
         out << "{";
@@ -118,6 +122,69 @@ public:
 
 };
 
+std::vector<std::string> Rule::defaultValues_;
+std::map<std::string, std::string> Rule::defaultMapping_;
+
+void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
+
+    std::map<std::string, size_t> precedence;
+
+    for (size_t i = 0; i < values.size(); ++i) {
+
+        const eckit::Value& id = values[i];
+
+        std::string first = id;
+        defaultValues_.push_back(first);
+
+        const eckit::Value& aliases = ids[id];
+
+        if (aliases.isNil()) {
+
+            LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << std::endl;
+            continue;
+        }
+
+
+
+        for (size_t j = 0; j < aliases.size(); ++j) {
+            std::string v = aliases[j];
+
+            if (defaultMapping_.find(v) != defaultMapping_.end()) {
+
+                if (precedence[v] <= j) {
+
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param "
+                            << v
+                            << "='"
+                            << first
+                            << "', keeping previous value of '"
+                            << defaultMapping_[v]
+                            << "' "
+                            << std::endl;
+                    continue;
+                }
+                else {
+
+                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
+                            << v
+                            << "='"
+                            << first
+                            << "', overriding previous value of '"
+                            << defaultMapping_[v]
+                            << "' "
+                            << std::endl;
+
+                    precedence[v] = j;
+                }
+            } else {
+                precedence[v] = j;
+            }
+
+            defaultMapping_[v] = first;
+            defaultValues_.push_back(v);
+        }
+    }
+}
 
 Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
 
@@ -223,7 +290,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
     size_t *n = &param;
     bool ok = true;
 
-
     for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
         case '0':
@@ -262,7 +328,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
         }
 
         oss <<  table * 1000 + param;
-        // return  metkit::mars::MarsLanguage::bestMatch(oss.str(), values_, fail, false, mapping_, this);
 
         std::string p = oss.str();
         for (std::vector<std::string>::const_iterator j = values_.begin(); j != values_.end(); ++j) {
@@ -271,10 +336,14 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
             }
         }
 
-        throw eckit::UserError("Cannot match parameter " + p);
-        // eckit::Log::warning() << "Cannot match parameter " << p  << std::endl;
-        return p;
+        for (std::vector<std::string>::const_iterator j = defaultValues_.begin(); j != defaultValues_.end(); ++j) {
+            if ((*j) == p) {
+                return p;
+            }
+        }
 
+        throw eckit::UserError("Cannot match parameter " + p);
+        return p;
     }
 
     // std::cout << "--- [" << s << "]" << std::endl;
@@ -286,10 +355,15 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
 
     ChainedContext c(ctx, *this);
 
-    return metkit::mars::MarsLanguage::bestMatch(c, s, values_, fail, false, mapping_);
+    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
+    if (!paramid.empty()) {
+        return paramid;
+    }
+
+    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
-static std::vector<Rule>* rules = 0;
+static std::vector<Rule>* rules = nullptr;
 
 }
 
@@ -301,56 +375,100 @@ static void init() {
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
 
-    bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
-    if (metkitRawParam) {
-        (*rules).push_back(Rule(eckit::Value::makeMap(), ids.keys(), ids));
+    eckit::ValueMap merge;
+
+    static bool metkitLegacyParamCheck = eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
+    static bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
+
+    if (metkitLegacyParamCheck || (!metkitRawParam)) {
+        eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
+        ASSERT(r.isList());
+
+        const eckit::Value rs = eckit::YAMLParser::decodeFile(LibMetkit::paramStaticYamlFile());
+        ASSERT(rs.isList());
+
+        // merge r and rs
+        for (size_t i = 0; i < r.size(); ++i) {
+            const eckit::Value& rule = r[i];
+
+            if (!rule.isList()) {
+                rule.dump(Log::error()) << std::endl;
+            }
+            ASSERT(rule.isList());
+            ASSERT(rule.size() == 2);
+
+            merge.emplace(rule[0], rule[1]);
+        }
+
+        for (size_t i = 0; i < rs.size(); ++i) {
+            const eckit::Value& rule = rs[i];
+
+            if (!rule.isList()) {
+                rule.dump(Log::error()) << std::endl;
+            }
+            ASSERT(rule.isList());
+            ASSERT(rule.size() == 2);
+
+            auto it = merge.find(rule[0]);
+            if (it == merge.end()) {
+                merge.emplace(rule[0], rule[1]);
+            }
+            else {
+                it->second += rule[1];
+            }
+        }
+    }
+
+    if (metkitLegacyParamCheck) {
+        for (auto it = merge.begin(); it != merge.end(); it++) {
+            (*rules).push_back(Rule(it->first, it->second, ids));
+        }
         return;
     }
 
-    eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
-    ASSERT(r.isList());
+    auto keys = ids.keys();
+    Rule::setDefault(keys, ids);
 
-    const eckit::Value rs = eckit::YAMLParser::decodeFile(LibMetkit::paramStaticYamlFile());
-    ASSERT(rs.isList());
-
-    // merge r and rs
-    eckit::ValueMap merge;
-    for (size_t i = 0; i < r.size(); ++i) {
-        const eckit::Value& rule = r[i];
-
-        if (!rule.isList()) {
-            rule.dump(Log::error()) << std::endl;
-        }
-        ASSERT(rule.isList());
-        ASSERT(rule.size() == 2);
-
-        merge.emplace(rule[0], rule[1]);
+    if (metkitRawParam) {
+        // empty rule, to enable default
+        (*rules).push_back(Rule(eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()));
+        return;
     }
 
-    for (size_t i = 0; i < rs.size(); ++i) {
-        const eckit::Value& rule = rs[i];
+    std::set<std::string> shortnames;
+    std::set<std::string> associatedIDs;
+    
+    const eckit::Value pc = eckit::YAMLParser::decodeFile(LibMetkit::shortnameContextYamlFile());
+    ASSERT(pc.isList());
 
-        if (!rule.isList()) {
-            rule.dump(Log::error()) << std::endl;
-        }
-        ASSERT(rule.isList());
-        ASSERT(rule.size() == 2);
+    for (size_t i = 0; i < pc.size(); i++) {
+        shortnames.emplace(pc[i]);
+    }
 
-        auto it = merge.find(rule[0]);
-        if (it == merge.end()) {
-            merge.emplace(rule[0], rule[1]);
-        }
-        else {
-            it->second += rule[1];
+    for (size_t i=0; i < keys.size(); i++) {
+        auto el = ids.element(keys[i]);
+        for (size_t j=0; j < el.size(); j++) {
+            if (shortnames.find(el[j]) != shortnames.end()) {
+                associatedIDs.emplace(keys[i]);
+            }
         }
     }
 
     for (auto it = merge.begin(); it != merge.end(); it++) {
-        (*rules).push_back(Rule(it->first, it->second, ids));
+        auto listIDs = eckit::Value::makeList();
+
+        for (size_t j=0; j<it->second.size(); j++) {
+            if (associatedIDs.find(it->second[j]) != associatedIDs.end()) {
+                listIDs.append(it->second[j]);
+            }
+        }
+        if (listIDs.size() > 0) {
+            (*rules).push_back(Rule{it->first, listIDs, ids});
+        }
     }
+
+    (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()});
 }
-
-
 
 namespace metkit {
 namespace mars {
@@ -368,11 +486,9 @@ TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
     if (settings.contains("first_rule")) {
         firstRule_ = settings["first_rule"];
     }
-
 }
 
-TypeParam::~TypeParam() {
-}
+TypeParam::~TypeParam() {}
 
 void TypeParam::print(std::ostream &out) const {
     out << "TypeParam[name=" << name_ << "]";
@@ -393,11 +509,9 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
         }
     }
 
-
     if (!rule) {
 
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;;
-
 
         if (firstRule_) {
             bool found = false;
@@ -438,7 +552,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
             oss << "TypeParam: cannot find a context to expand 'param' in " << request;
             throw eckit::SeriousBug(oss.str());
         }
-
     }
 
 

@@ -86,7 +86,7 @@ bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value) const {
         return true;
     }
 
-    std::string v = MarsLanguage::bestMatch(ctx, value, values_, false, false, mapping_);
+    std::string v = MarsLanguage::bestMatch(ctx, value, values_, false, false, false, mapping_);
     if (v.empty()) {
         return false;
     }

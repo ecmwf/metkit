@@ -163,7 +163,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool ve
     s << cr << cr;
 }
 
-void MarsRequest::json(eckit::JSON& s) const {
+void MarsRequest::json(eckit::JSON& s, bool array) const {
     s.startObject();
     // s << "_verb" << verb_;
     std::list<Parameter>::const_iterator begin = params_.begin();
@@ -173,7 +173,8 @@ void MarsRequest::json(eckit::JSON& s) const {
         s << (*i).name();
         const std::vector<std::string>& v = (*i).values();
 
-        if (v.size() != 1) {
+        bool list = v.size() != 1 || (array && (*i).type().multiple());
+        if (list) {
             s.startList();
         }
 
@@ -181,7 +182,7 @@ void MarsRequest::json(eckit::JSON& s) const {
             s << (*k);
         }
 
-        if (v.size() != 1) {
+        if (list) {
             s.endList();
         }
     }

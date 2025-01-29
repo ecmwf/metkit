@@ -73,6 +73,10 @@ public:  // methods
     void getParams(std::vector<std::string>&) const;
     std::vector<std::string> params() const;
 
+    std::list<Parameter>& parameters() { return params_; }
+
+    const std::list<Parameter>& parameters() const { return params_; }
+
     void verb(const std::string&);
 
     void values(const std::string&, const std::vector<std::string>&);
@@ -97,7 +101,7 @@ public:  // methods
     /// Create a new MarsRequest from this one with only the given set of keys
     MarsRequest subset(const std::set<std::string>&) const;
 
-    void json(eckit::JSON&) const;
+    void json(eckit::JSON&, bool array=false) const;
 
     void md5(eckit::MD5&) const;
 
