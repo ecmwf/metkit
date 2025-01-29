@@ -14,7 +14,7 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
-namespace mars::metkit {
+namespace metkit::mars {
 
 ContextRule::ContextRule(const std::string& k) : key_(k) {}
 
@@ -427,4 +427,4 @@ void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& v
 
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars::metkit
+}  // namespace metkit::mars
