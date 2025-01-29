@@ -274,3 +274,9 @@ metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// Bridge between C and C++
+const metkit::mars::MarsRequest& metkit::mars::MarsRequest::fromOpaque(const metkit_marsrequest_t* request) {
+    return *static_cast<const metkit::mars::MarsRequest*>(request);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
