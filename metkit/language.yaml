@@ -503,12 +503,13 @@ _field: &_field
     type: to-by-list-float
     by: 1
     defaults:
-      - context:
-          levtype: [ml]
-        vals: [1, 2]
-      - context:
-          levtype: [pl]
-        vals: [1000, 850, 700, 500, 400, 300]
+      - vals: [1000, 850, 700, 500, 400, 300]
+      # - context:
+      #     levtype: [ml]
+      #   vals: [1, 2]
+      # - context:
+      #     levtype: [pl]
+      #   vals: [1000, 850, 700, 500, 400, 300]
       # - context:
       #   - levtype: [sfc, o2d]
       #   error: "levelist not alowded with levtype {levtype}"
