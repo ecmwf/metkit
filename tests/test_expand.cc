@@ -108,7 +108,8 @@ CASE( "test_metkit_expand_2" ) {
                 {"class", {"od"}},
                 {"domain", {"g"}},
                 {"expver", {"0001"}},
-                {"levelist", {"1","2"}},
+                {"levelist", {"1000","850","700","500","400","300"}},
+                // {"levelist", {"1","2"}}, // keeping the old default, for MARS client tests
                 {"levtype", {"ml"}},
                 {"param", {"129"}},
                 {"step", {"0"}},
