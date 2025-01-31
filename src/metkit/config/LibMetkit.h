@@ -18,9 +18,9 @@
 #include "eckit/system/Library.h"
 #include "eckit/filesystem/PathName.h"
 
-namespace metkit {
-
 //----------------------------------------------------------------------------------------------------------------------
+
+namespace metkit {
 
 class LibMetkit : public eckit::system::Library {
 public:
@@ -45,8 +45,32 @@ protected:
     virtual std::string gitsha1(unsigned int count) const;
 };
 
+} // namespace metkit
+
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+namespace metkit_config {
+
+class LibMetkitConfig : public eckit::system::Library {
+public:
+
+    LibMetkitConfig();
+
+    static eckit::PathName gitHashFile();
+
+    static const LibMetkitConfig& instance();
+
+protected:
+
+    const void* addr() const;
+
+    virtual std::string version() const;
+
+    virtual std::string gitsha1(unsigned int count) const;
+};
+
+} // namespace metkit_config
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #endif
