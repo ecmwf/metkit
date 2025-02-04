@@ -14,12 +14,150 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
+
+ContextRule::ContextRule(const std::string& k) : key_(k) {}
+
+std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
+    r.print(s);
+    return s;
+}
+
+void Context::add(ContextRule* rule) {
+    rules_.push_back(rule);
+}
+
+bool Context::matches(MarsRequest req) const {
+
+    for (ContextRule* r : rules_) {
+        if (!r->matches(req)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::ostream& operator<<(std::ostream& s, const Context& c) {
+    c.print(s);
+    return s;
+}
+
+void Context::print(std::ostream& out) const {
+    std::string sep;
+    out << "Context[";
+    for(const ContextRule* r: rules_) {
+        out << sep << *r;
+        sep = ",";
+    }
+    out << "]";
+}
+
+class Include : public ContextRule {
+public:
+    Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+
+    bool matches(MarsRequest req) const override {
+        if (!req.has(key_)) {
+            return false;
+        }
+        for (const std::string& v : req.values(key_)) {
+            if (vals_.find(v) != vals_.end()) {
+                return true;
+            }
+        }
+        return false;
+    }
+private:  // methods
+    void print(std::ostream& out) const override {
+        out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]";
+    }
+private:
+    std::set<std::string> vals_;
+};
+
+class Exclude : public ContextRule {
+public:
+    Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(MarsRequest req) const override {
+        if (!req.has(key_)) {
+            return false;
+        }
+        for (const std::string& v : req.values(key_)) {
+            if (vals_.find(v) != vals_.end()) {
+                return false;
+            }
+        }
+        return true;
+    }
+private:  // methods
+    void print(std::ostream& out) const override {
+        out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]";
+    }
+private:
+    std::set<std::string> vals_;
+};
+
+class Undef : public ContextRule {
+public:
+    Undef(const std::string& k) : ContextRule(k) {}
+    bool matches(MarsRequest req) const override {
+        if (!req.has(key_)) {
+            return false;
+        }
+        return true;
+    }
+private:  // methods
+    void print(std::ostream& out) const override {
+        out << "Undef[key=" << key_ << "]";
+    }
+};
+
+ContextRule* parseRule(std::string key, eckit::Value r) {
+
+    std::set<std::string> vals;
+
+    if (r.isList()) {
+        for (size_t k = 0; k < r.size(); k++) {
+            vals.insert(r[k]);
+        }
+        return new Include(key, vals);
+    }
+
+    ASSERT(r.contains("op"));
+    std::string op = r["op"];
+    ASSERT(op.size() == 1);
+    switch (op[0]) {
+        case 'u': return new Undef(key);
+        case '!':
+            ASSERT(r.contains("vals"));
+            eckit::Value vv = r["vals"];
+            for (size_t k = 0; k < vv.size(); k++) {
+                vals.insert(vv[k]);
+            }
+            return new Exclude(key, vals);
+    }
+    return nullptr;
+}
+
+Context* parseContext(eckit::Value c) {
+
+    Context* context = new Context{};
+
+    eckit::Value keys = c.keys();
+
+    for (size_t j = 0; j < keys.size(); j++) {
+        std::string key = keys[j];
+        ContextRule* r = parseRule(key, c[key]);
+        context->add(r);
+    }
+    return context;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 Type::Type(const std::string& name, const eckit::Value& settings) :
     name_(name), flatten_(true), multiple_(false), duplicates_(true) {
+
     if (settings.contains("multiple")) {
         multiple_ = settings["multiple"];
     }
@@ -36,67 +174,55 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
         category_ = std::string(settings["category"]);
     }
 
-    if (settings.contains("default")) {
-        eckit::Value d = settings["default"];
-        if (!d.isNil()) {
-            if (d.isList()) {
-                size_t len = d.size();
-                for (size_t i = 0; i < len; i++) {
-                    defaults_.push_back(d[i]);
-                }
-            }
-            else {
-                defaults_.push_back(d);
-            }
-        }
-    }
+    if (settings.contains("defaults")) {
+        eckit::Value defaults = settings["defaults"];
+        if (!defaults.isNil() && defaults.isList()) {
 
-    originalDefaults_ = defaults_;
+            for (size_t i = 0; i < defaults.size(); i++) {
+                std::vector<std::string> vals;
+                eckit::Value d = defaults[i];
+                ASSERT(d.contains("vals"));
+                eckit::Value vv = d["vals"];
 
-    if (settings.contains("only")) {
-        eckit::Value d = settings["only"];
-
-        size_t len = d.size();
-        for (size_t i = 0; i < len; i++) {
-            eckit::Value a    = d[i];
-            eckit::Value keys = a.keys();
-
-            for (size_t j = 0; j < keys.size(); j++) {
-                std::string key = keys[j];
-                eckit::Value v  = a[key];
-
-                if (v.isList()) {
-                    for (size_t k = 0; k < v.size(); k++) {
-                        only_[key].insert(v[k]);
+                if (vv.isList()) {
+                    for (size_t k = 0; k < vv.size(); k++) {
+                        vals.push_back(vv[k]);
                     }
                 }
                 else {
-                    only_[key].insert(v);
+                    vals.push_back(vv);
                 }
+
+                Context* context = nullptr;
+                if (d.contains("context")) {
+                    context = parseContext(d["context"]);
+                } else {
+                    context = new Context;
+                }
+                defaults_.emplace(context, vals);
             }
         }
     }
-
-    if (settings.contains("never")) {
-        eckit::Value d = settings["never"];
-
-        size_t len = d.size();
-        for (size_t i = 0; i < len; i++) {
-            eckit::Value a    = d[i];
-            eckit::Value keys = a.keys();
-
-            for (size_t j = 0; j < keys.size(); j++) {
-                std::string key = keys[j];
-                eckit::Value v  = a[key];
-
-                if (v.isList()) {
-                    for (size_t k = 0; k < v.size(); k++) {
-                        never_[key].insert(v[k]);
-                    }
-                }
-                else {
-                    never_[key].insert(v);
-                }
+    if (settings.contains("set")) {
+        eckit::Value sets = settings["set"];
+        if (!sets.isNil() && sets.isList()) {
+            for (size_t i = 0; i < sets.size(); i++) {
+                eckit::Value s = sets[i];
+                ASSERT(s.contains("val"));
+                eckit::Value val = s["val"];
+                ASSERT(s.contains("context"));
+                sets_.emplace(parseContext(s["context"]), val);
+            }
+        }
+    }
+    if (settings.contains("unset")) {
+        eckit::Value unsets = settings["unset"];
+        if (!unsets.isNil() && unsets.isList()) {
+            for (size_t i = 0; i < unsets.size(); i++) {
+                eckit::Value u = unsets[i];
+                ASSERT(u.contains("context"));
+                Context* c = parseContext(u["context"]);
+                unsets_.emplace(c);
             }
         }
     }
@@ -218,13 +344,20 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
 }
 
 void Type::setDefaults(MarsRequest& request) {
-    if (!defaults_.empty()) {
-        request.setValuesTyped(this, defaults_);
+    if (inheritance_) {
+        request.setValuesTyped(this, inheritance_.value());
+    } else {
+        for (const auto& [context, values] : defaults_) {
+            if (context->matches(request)) {
+                request.setValuesTyped(this, values);
+                break;
+            }
+        }
     }
 }
 
-void Type::setDefaults(const std::vector<std::string>& defaults) {
-    defaults_ = defaults;
+void Type::setInheritance(const std::vector<std::string>& inheritance) {
+    inheritance_ = inheritance;
 }
 
 const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) {
@@ -237,7 +370,7 @@ void Type::clearDefaults() {
 }
 
 void Type::reset() {
-    defaults_ = originalDefaults_;
+    inheritance_.reset();
 }
 
 const std::string& Type::name() const {
@@ -252,57 +385,23 @@ const std::string& Type::category() const {
 void Type::pass2(const MarsExpandContext& ctx, MarsRequest& request) {}
 
 void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict) {
-    bool ok = true;
 
     const std::vector<std::string>& values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "off") {
-        ok = false;
-    }
-
-    for (std::map<std::string, std::set<std::string> >::const_iterator j = only_.begin();
-         ok && j != only_.end(); ++j) {
-        const std::string& name           = (*j).first;
-        const std::set<std::string>& only = (*j).second;
-
-        const std::vector<std::string>& values = request.values(name, true);
-        for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end();
-             ++k) {
-            if (only.find(*k) == only.end()) {
-                std::ostringstream oss;
-                oss << "Key [" << name_ << "] not acceptable since " << name << "=" << *k << " not listed in " << name_ << "->only->" << name << ": " << only << " in MARS language definition" << std::endl;
-                if (strict) {
-                    throw eckit::UserError(oss.str());
-                } else {
-                    eckit::Log::userWarning() << oss.str();
-                }
-                ok = false;
-            }
-        }
-    }
-
-    for (std::map<std::string, std::set<std::string> >::const_iterator j = never_.begin();
-         ok && j != never_.end(); ++j) {
-        const std::string& name            = (*j).first;
-        const std::set<std::string>& never = (*j).second;
-
-        const std::vector<std::string>& values = request.values(name, true);
-        for (std::vector<std::string>::const_iterator k = values.begin(); ok && k != values.end();
-             ++k) {
-            if (never.find(*k) != never.end()) {
-                std::ostringstream oss;
-                oss << "Key [" << name_ << "] not acceptable since " << name << "=" << *k << " listed in " << name_ << "->never->" << name << ": " << never << " in MARS language definition" << std::endl;
-                if (strict) {
-                    throw eckit::UserError(oss.str());
-                } else {
-                    eckit::Log::userWarning() << oss.str();
-                }
-                ok = false;
-            }
-        }
-    }
-
-    if (!ok) {
         request.unsetValues(name_);
+    }
+    else {
+        for (const auto& context : unsets_) {
+            if (context->matches(request)) {
+                request.unsetValues(name_);
+            }
+        }
+
+        for (const auto& [context, value]: sets_) {
+            if (context->matches(request)) {
+                request.setValuesTyped(this, std::vector<std::string>{value});
+            }
+        }
     }
 }
 
@@ -328,5 +427,4 @@ void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& v
 
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

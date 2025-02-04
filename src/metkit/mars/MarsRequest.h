@@ -73,6 +73,10 @@ public:  // methods
     void getParams(std::vector<std::string>&) const;
     std::vector<std::string> params() const;
 
+    std::list<Parameter>& parameters() { return params_; }
+
+    const std::list<Parameter>& parameters() const { return params_; }
+
     void verb(const std::string&);
 
     void values(const std::string&, const std::vector<std::string>&);

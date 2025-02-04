@@ -14,10 +14,11 @@
 
 #include "metkit/config/LibMetkit.h"
 
+#include <fstream>
+
 #include "eckit/config/Resource.h"
 
 #include "metkit/metkit_version.h"
-
 
 
 namespace metkit {
@@ -70,7 +71,48 @@ eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
     return "~metkit/share/metkit/bufr-subtypes.yaml";
 }
 
+} // namespace metkit
+
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+namespace metkit_config {
+
+REGISTER_LIBRARY(LibMetkitConfig);
+
+LibMetkitConfig::LibMetkitConfig() : Library("metkit-config") {}
+
+const LibMetkitConfig& LibMetkitConfig::instance() {
+    static LibMetkitConfig libmetkitconfig;
+    return libmetkitconfig;
+}
+
+const void* LibMetkitConfig::addr() const { return this; }
+
+std::string LibMetkitConfig::version() const {
+    return "";
+}
+
+static std::string readHash(const std::string& filename) {
+    std::string hash;
+    std::ifstream t(filename);
+    t >> hash;
+    return hash;
+}
+
+std::string LibMetkitConfig::gitsha1(unsigned int count) const {
+    static std::string sha1(readHash(LibMetkitConfig::gitHashFile()));
+    if (sha1.empty()) {
+        return "not available";
+    }
+
+    return sha1.substr(0, std::min(count, 40u));
+}
+
+eckit::PathName LibMetkitConfig::gitHashFile() {
+    return "~metkit/share/metkit/git-hash.txt";
+}
+
+} // namespace metkit_config
+
+//----------------------------------------------------------------------------------------------------------------------
 

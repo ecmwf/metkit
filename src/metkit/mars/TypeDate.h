@@ -34,6 +34,7 @@ public: // methods
 private: // methods
 
     virtual void print( std::ostream &out ) const override;
+    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
