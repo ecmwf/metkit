@@ -75,7 +75,7 @@ _field: &_field
     - [si, slovenia]
     - [sr, sreps]
     - [te, test]
-    - [ti, tigge]    
+    - [ti, tigge]
     - [to, tost]
     - [tr, turkey]
     - [uk, united kingdom]
@@ -717,7 +717,7 @@ _field: &_field
           type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
       - context:
           class: [er]
-          stream: [moda, msda, edmo, ewmo, wamd]    
+          stream: [moda, msda, edmo, ewmo, wamd]
       - context:
           class: [ed,ng]
       - context:
@@ -821,7 +821,7 @@ _field: &_field
       # - context:
       #   - dataset: [climate-dt]
       #   error: "domain not alowded with dataset {dataset}"
-    unset:  
+    unset:
       - context:
           class: [ep]
           levtype: [o2d, o3d]
@@ -1388,18 +1388,7 @@ read:
     multiple: false
     type: any
 
-  # _defaults:
-  #   class: null
-  #   date: null
-  #   domain: null
-  #   expver: null
-  #   levelist: null
-  #   levtype: null
-  #   param: null
-  #   step: null
-  #   stream: null
-  #   time: null
-  #   type: null
+  _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
 
   _options:
     param:
@@ -1444,18 +1433,8 @@ list:
     multiple: true
     type: any
 
-  _defaults:
-    # class: null
-    date: null
-    domain: null
-    expver: null
-    levelist: null
-    levtype: null
-    param: null
-    step: null
-    stream: null
-    time: null
-    type: null
+  _clear_defaults: [date, domain, expver, levelist, levtype, param, step, stream, time, type]
+
 
 ##############################################################
 
@@ -1497,18 +1476,7 @@ pointdb:
 
   <<: *_field
 
-  _defaults:
-    class: null
-    date: null
-    domain: null
-    expver: null
-    levelist: null
-    levtype: null
-    param: null
-    step: null
-    stream: null
-    time: null
-    type: null
+  _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
 
   _options:
     param:
