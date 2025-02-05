@@ -644,7 +644,7 @@ CASE( "test_metkit_expand_d1" ) {
                 {"param", {"134","137"}}
             };
         expand(text, "retrieve", expected, {20000101});
-    }   
+    }
     {
         const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
         std::map<std::string, std::vector<std::string>> expected{
@@ -665,7 +665,7 @@ CASE( "test_metkit_expand_d1" ) {
                 {"param", {"263500"}}
             };
         expand(text, "retrieve", expected, {20120515});
-    }           
+    }
 }
 CASE( "test_metkit_expand_ng" ) {
     {
@@ -689,6 +689,58 @@ CASE( "test_metkit_expand_ng" ) {
             };
         expand(text, "retrieve", expected, {20000101});
     }
+}
+
+CASE("test_metkit_expand_list") {
+  {
+    const char *text = "list,date=20250105,domain=g,levtype=pl,expver="
+                       "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
+                       "300,time=1200,type=an,param=129";
+    std::map<std::string, std::vector<std::string>> expected{
+        {"class", {"od"}},
+        {"date", {"20250105"}},
+        {"domain", {"g"}},
+        {"levtype", {"pl"}},
+        {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+        {"expver", {"0001"}},
+        {"time", {"1200"}},
+        {"stream", {"oper"}},
+        {"type", {"an"}},
+        {"param", {"129"}}};
+    expand(text, "list", expected, {20250105});
+  }
+  {
+    const char *text = "list,class=tr,date=20250105";
+    std::map<std::string, std::vector<std::string>> expected{
+        {"class", {"tr"}}, {"date", {"20250105"}}};
+    expand(text, "list", expected, {20250105});
+  }
+}
+
+CASE("test_metkit_expand_read") {
+  {
+    const char *text = "read,class=tr,date=20250105,domain=g,levtype=pl,expver="
+                       "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
+                       "300,time=1200,type=an,param=129";
+    std::map<std::string, std::vector<std::string>> expected{
+        {"class", {"tr"}},
+        {"date", {"20250105"}},
+        {"domain", {"g"}},
+        {"levtype", {"pl"}},
+        {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+        {"expver", {"0001"}},
+        {"time", {"1200"}},
+        {"stream", {"oper"}},
+        {"type", {"an"}},
+        {"param", {"129"}}};
+    expand(text, "read", expected, {20250105});
+  }
+  {
+    const char *text = "read,date=20250105,param=129";
+    std::map<std::string, std::vector<std::string>> expected{
+        {"date", {"20250105"}}, {"param", {"129"}}};
+    expand(text, "read", expected, {20250105});
+  }
 }
 
 //-----------------------------------------------------------------------------
