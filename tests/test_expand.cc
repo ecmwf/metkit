@@ -8,9 +8,11 @@
  * nor does it submit to any jurisdiction.
  */
 
-/// @file   test_MetFile.cc
+/// @file   test_expand.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
+
+#include <utility>
 
 #include "eckit/types/Date.h"
 #include "metkit/mars/MarsRequest.h"
@@ -28,9 +30,13 @@ namespace metkit {
 namespace mars {
 namespace test {
 
+namespace {
+using ExpectedOutput = std::map<std::string, std::vector<std::string>>;
+}
+
 //-----------------------------------------------------------------------------
 
-void expand(const MarsRequest& r, const std::string& verb, std::map<std::string, std::vector<std::string>> expected, std::vector<long> dates) {
+void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput& expected, const std::vector<long> dates) {
     // MarsExpension exp(false);
     // MarsRequest r = exp.expand(req);
     std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
@@ -59,9 +65,9 @@ void expand(const MarsRequest& r, const std::string& verb, std::map<std::string,
 }
 
 
-void expand(const std::string& text, const std::string& verb, std::map<std::string, std::vector<std::string>> expected, std::vector<long> dates) {
+void expand(const std::string& text, const std::string& verb, const ExpectedOutput& expected, std::vector<long> dates) {
     MarsRequest r = MarsRequest::parse(text, true);
-    expand(r, verb, expected, dates);
+    expand(r, verb, expected, std::move(dates));
 }
 
 void expandException(const std::string& text) {
@@ -70,7 +76,7 @@ void expandException(const std::string& text) {
 
 CASE( "test_metkit_expand_1" ) {
     const char* text = "ret,date=-5/to/-1.";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
             {"class", {"od"}},
             {"domain", {"g"}},
             {"expver", {"0001"}},
@@ -87,8 +93,8 @@ CASE( "test_metkit_expand_1" ) {
 
 CASE( "test_metkit_expand_2" ) {
     {
-        const char* text = "ret";
-        std::map<std::string, std::vector<std::string>> expected{
+        const char* text = "ret,date=-1";
+        ExpectedOutput expected{
                 {"class", {"od"}},
                 {"domain", {"g"}},
                 {"expver", {"0001"}},
@@ -104,7 +110,7 @@ CASE( "test_metkit_expand_2" ) {
     }
     {
         const char* text = "ret,levtype=ml";
-        std::map<std::string, std::vector<std::string>> expected{
+        ExpectedOutput expected{
                 {"class", {"od"}},
                 {"domain", {"g"}},
                 {"expver", {"0001"}},
@@ -123,7 +129,7 @@ CASE( "test_metkit_expand_2" ) {
 
 CASE( "test_metkit_expand_3" ) {
     const char* text = "ret,date=-5/to/-1,grid=n640";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
             {"class", {"od"}},
             {"domain", {"g"}},
             {"expver", {"0001"}},
@@ -141,7 +147,7 @@ CASE( "test_metkit_expand_3" ) {
 
 CASE( "test_metkit_expand_4" ) {
     const char* text = "ret,date=-5/to/-1,grid=o640";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
             {"class", {"od"}},
             {"domain", {"g"}},
             {"expver", {"0001"}},
@@ -159,7 +165,7 @@ CASE( "test_metkit_expand_4" ) {
 
 CASE( "test_metkit_expand_5" ) {
     const char* text = "retrieve,class=od,date=20050601,diagnostic=1,expver=1,iteration=0,levelist=1,levtype=ml,param=155.129,stream=sens,time=1200,type=sg";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
             {"class", {"od"}},
             {"diagnostic", {"1"}},
             {"domain", {"g"}},
@@ -178,7 +184,7 @@ CASE( "test_metkit_expand_5" ) {
 
 CASE( "test_metkit_expand_6" ) {
     const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=1/to/31";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
         {"class", {"rd"}},
         {"expver", {"hl1m"}},
         {"stream", {"oper"}},
@@ -199,7 +205,7 @@ CASE( "test_metkit_expand_6" ) {
 
 CASE( "test_metkit_expand_7" ) {
     const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=0.01/0.7";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
         {"class", {"rd"}},
         {"expver", {"hl1m"}},
         {"stream", {"oper"}},
@@ -216,7 +222,7 @@ CASE( "test_metkit_expand_7" ) {
 
 CASE( "test_metkit_expand_8" ) {
     const char* text = "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param=129,levelist=0.1/to/0.7/by/0.2";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
         {"class", {"rd"}},
         {"expver", {"hl1m"}},
         {"stream", {"oper"}},
@@ -271,7 +277,7 @@ CASE( "test_metkit_expand_multirequest-1" ) {
     std::istringstream in(text);
     std::vector<MarsRequest> reqs = MarsRequest::parse(in, true);
     EXPECT_EQUAL(reqs.size(), 2);
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
             {"class", {"od"}},
             {"domain", {"g"}},
             {"expver", {"0001"}},
@@ -595,7 +601,7 @@ CASE( "test_metkit_expand_param" ) {
 CASE( "test_metkit_expand_d1" ) {
     {
         const char* text = "retrieve,class=d1,dataset=extremes-dt,date=-1";
-        std::map<std::string, std::vector<std::string>> expected{
+        ExpectedOutput expected{
                 {"class", {"d1"}},
                 {"dataset", {"extremes-dt"}},
                 {"expver", {"0001"}},
@@ -610,7 +616,7 @@ CASE( "test_metkit_expand_d1" ) {
         expand(text, "retrieve", expected, {-1});
     }    {
         const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
-        std::map<std::string, std::vector<std::string>> expected{
+        ExpectedOutput expected{
                 {"class", {"d1"}},
                 {"dataset", {"extremes-dt"}},
                 {"expver", {"0001"}},
@@ -626,7 +632,7 @@ CASE( "test_metkit_expand_d1" ) {
     }
     {
         const char* text = "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,param=134/137";
-        std::map<std::string, std::vector<std::string>> expected{
+        ExpectedOutput expected{
                 {"class", {"d1"}},
                 {"dataset", {"climate-dt"}},
                 {"activity", {"cmip6"}},
@@ -647,7 +653,7 @@ CASE( "test_metkit_expand_d1" ) {
     }
     {
         const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
-        std::map<std::string, std::vector<std::string>> expected{
+        ExpectedOutput expected{
                 {"class", {"d1"}},
                 {"dataset", {"climate-dt"}},
                 {"activity", {"cmip6"}},
@@ -670,7 +676,7 @@ CASE( "test_metkit_expand_d1" ) {
 CASE( "test_metkit_expand_ng" ) {
     {
         const char* text = "retrieve,class=ng,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,levtype=pl,param=134/137";
-        std::map<std::string, std::vector<std::string>> expected {
+        ExpectedOutput expected {
                 {"class", {"ng"}},
                 {"levtype", {"pl"}},
                 {"levelist", {"1000","850","700","500","400","300"}},
@@ -696,7 +702,7 @@ CASE("test_metkit_expand_list") {
     const char *text = "list,date=20250105,domain=g,levtype=pl,expver="
                        "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
                        "300,time=1200,type=an,param=129";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
         {"class", {"od"}},
         {"date", {"20250105"}},
         {"domain", {"g"}},
@@ -711,36 +717,34 @@ CASE("test_metkit_expand_list") {
   }
   {
     const char *text = "list,class=tr,date=20250105";
-    std::map<std::string, std::vector<std::string>> expected{
+    ExpectedOutput expected{
         {"class", {"tr"}}, {"date", {"20250105"}}};
     expand(text, "list", expected, {20250105});
   }
 }
 
 CASE("test_metkit_expand_read") {
-  {
-    const char *text = "read,class=tr,date=20250105,domain=g,levtype=pl,expver="
-                       "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
-                       "300,time=1200,type=an,param=129";
-    std::map<std::string, std::vector<std::string>> expected{
-        {"class", {"tr"}},
-        {"date", {"20250105"}},
-        {"domain", {"g"}},
-        {"levtype", {"pl"}},
-        {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-        {"expver", {"0001"}},
-        {"time", {"1200"}},
-        {"stream", {"oper"}},
-        {"type", {"an"}},
-        {"param", {"129"}}};
-    expand(text, "read", expected, {20250105});
-  }
-  {
-    const char *text = "read,date=20250105,param=129";
-    std::map<std::string, std::vector<std::string>> expected{
-        {"date", {"20250105"}}, {"param", {"129"}}};
-    expand(text, "read", expected, {20250105});
-  }
+    {
+        const char* text = "read,class=tr,date=20250105,domain=g,levtype=pl,expver=0001,step=0,stream=oper,"
+                           "levelist=1000/850/700/500/400/300,time=1200,type=an,param=129";
+        ExpectedOutput expected {
+            {"class", {"tr"}},
+            {"date", {"20250105"}},
+            {"domain", {"g"}},
+            {"levtype", {"pl"}},
+            {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+            {"expver", {"0001"}},
+            {"time", {"1200"}},
+            {"stream", {"oper"}},
+            {"type", {"an"}},
+            {"param", {"129"}}};
+        expand(text, "read", expected, {20250105});
+    }
+    {
+        const char* text = "read,date=20250105,param=129";
+        ExpectedOutput expected {{"date", {"20250105"}}, {"param", {"129"}}};
+        expand(text, "read", expected, {20250105});
+    }
 }
 
 //-----------------------------------------------------------------------------
