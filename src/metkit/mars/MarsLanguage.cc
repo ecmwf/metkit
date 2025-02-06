@@ -94,8 +94,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
     }
 
     if (lang.contains("_clear_defaults")) {
-        auto keywords = lang["_clear_defaults"];
-        for (size_t i = 0; i < keywords.size(); ++i) {
+        const auto& keywords = lang["_clear_defaults"];
+        for (auto i = 0; i < keywords.size(); ++i) {
             if (auto iter = types_.find(keywords[i]); iter != types_.end()) { iter->second->clearDefaults(); }
         }
     }
