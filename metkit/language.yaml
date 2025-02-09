@@ -1353,8 +1353,8 @@ retrieve:
   optimise:
     type: enum
     values:
-    - true
-    - false
+    - 'on'
+    - 'off'
     defaults:
       - vals: ["off"]
 
