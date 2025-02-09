@@ -101,14 +101,23 @@ class Undef : public ContextRule {
 public:
     Undef(const std::string& k) : ContextRule(k) {}
     bool matches(MarsRequest req) const override {
-        if (!req.has(key_)) {
-            return false;
-        }
-        return true;
+        return !req.has(key_);
     }
 private:  // methods
     void print(std::ostream& out) const override {
         out << "Undef[key=" << key_ << "]";
+    }
+};
+
+class Def : public ContextRule {
+public:
+    Def(const std::string& k) : ContextRule(k) {}
+    bool matches(MarsRequest req) const override {
+        return req.has(key_);
+    }
+private:  // methods
+    void print(std::ostream& out) const override {
+        out << "Def[key=" << key_ << "]";
     }
 };
 
@@ -128,6 +137,7 @@ ContextRule* parseRule(std::string key, eckit::Value r) {
     ASSERT(op.size() == 1);
     switch (op[0]) {
         case 'u': return new Undef(key);
+        case 'd': return new Def(key);
         case '!':
             ASSERT(r.contains("vals"));
             eckit::Value vv = r["vals"];
