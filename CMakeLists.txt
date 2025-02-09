@@ -21,7 +21,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ### dependencies and options
 
 if(NOT METKIT_CONFIGS_BRANCH)
-    set(METKIT_CONFIGS_BRANCH enum)
+    set(METKIT_CONFIGS_BRANCH chk)
 endif()
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/share")
