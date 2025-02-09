@@ -93,6 +93,13 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
     }
 
+    if (lang.contains("_clear_defaults")) {
+        const auto& keywords = lang["_clear_defaults"];
+        for (auto i = 0; i < keywords.size(); ++i) {
+            if (auto iter = types_.find(keywords[i]); iter != types_.end()) { iter->second->clearDefaults(); }
+        }
+    }
+
     std::set<std::string> keywordsInAxis;
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
         keywordsInAxis.insert(a);
@@ -101,12 +108,10 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         if(it != types_.end()) {
             t = (*it).second;
         }
-        typesByAxisOrder_.push_back(std::make_pair(a,t)); 
+        typesByAxisOrder_.emplace_back(a, t);
     }
     for (const auto& [k,t] : types_) {
-        if (keywordsInAxis.find(k) == keywordsInAxis.end()) {
-            typesByAxisOrder_.push_back(std::make_pair(k,t));
-        }
+        if (keywordsInAxis.find(k) == keywordsInAxis.end()) { typesByAxisOrder_.emplace_back(k, t); }
     }
 }
 
@@ -220,9 +225,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
 
     static std::string empty;
     if (best.empty()) {
-        if (!fail) {        
-            return empty;
-        }
+        if (!fail) { return empty; }
 
         std::ostringstream oss;
         oss << "Cannot match [" << name << "] in " << values << ctx;
@@ -250,7 +253,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     if (!fail) {
         return empty;
     }
-    
+
     std::ostringstream oss;
     oss << "Ambiguous value '" << name << "' could be";
 
