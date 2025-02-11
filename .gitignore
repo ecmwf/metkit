@@ -9,3 +9,7 @@ doc/latex
 .*un~
 *.ccls-cache
 share
+__pycache__/
+*.pyc
+*.egg-info/
+
