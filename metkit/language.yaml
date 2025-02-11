@@ -362,7 +362,29 @@ _field: &_field
 
   model:
     category: data
-    type: lowercase
+    type: enum
+    values:
+    - [ecmf]
+    - [edzw]
+    - [egrr]
+    - [lfpw]
+    - [kwbc]
+    - [none]
+    - [hrm]
+    - [lm]
+    - [ifs]
+    - [ifs-nemo]
+    - [ifs-fesom]
+    - [icon]
+    - [aifs-single]
+    - [aifs-single-mse]
+    - [aifs-ens]
+    - [aifs-ens-crps]
+    - [aifs-ens-diff]
+    - [alaro]
+    - [arome]
+    - [harmonie-arome]
+    - [global, glob]
 
   repres:
     flatten: false
