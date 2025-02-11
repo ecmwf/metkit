@@ -557,7 +557,11 @@ CASE( "test_metkit_expand_param" ) {
         EXPECT_EQUAL(params[0], "140217");
     }
     {
-        const char* text = "retrieve,class=ai,expver=1,stream=oper,date=-1,time=00/12,type=pf,levtype=pl,step=24,param=t";
+        const char* text = "retrieve,class=ai,expver=1,stream=oper,model=aifs-singlw,date=-1,time=00/12,type=pf,levtype=pl,step=24,param=t";
+        EXPECT_THROWS(MarsRequest::parse(text, true));
+    }
+    {
+        const char* text = "retrieve,class=ai,expver=1,stream=oper,model=aifs-single,date=-1,time=00/12,type=pf,levtype=pl,step=24,param=t";
         MarsRequest r=MarsRequest::parse(text);
         auto params=r.values("param");
         EXPECT_EQUAL(params.size(), 1);
@@ -733,6 +737,24 @@ CASE( "test_metkit_expand_ng" ) {
                 {"param", {"134","137"}}
             };
         expand(text, "retrieve", expected, {20000101});
+    }
+}
+CASE( "test_metkit_expand_ai" ) {
+    {
+        const char* text = "retrieve,class=ai,date=20250208,time=1800,expver=9999,model=aifs-single,type=fc,levtype=sfc,param=169";
+        ExpectedOutput expected {
+                {"class", {"ai"}},
+                {"domain", {"g"}},
+                {"expver", {"9999"}},
+                {"levtype", {"sfc"}},
+                {"step", {"0"}},
+                {"stream", {"oper"}},
+                {"time", {"1800"}},
+                {"type", {"fc"}},
+                {"model", {"aifs-single"}},
+                {"param", {"169"}}
+            };
+        expand(text, "retrieve", expected, {20250208});
     }
 }
 
