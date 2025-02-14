@@ -337,18 +337,18 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
 
     std::set<std::string> seen;
 
-    for (std::vector<std::string>::const_iterator j = values.begin(); j != values.end(); ++j) {
-        std::string value = *j;
+    for (const std::string& val : values) {
+        std::string value = val;
         if (!expand(ctx, value)) {
             std::ostringstream oss;
-            oss << *this << ": cannot expand '" << *j << "'" << ctx;
+            oss << *this << ": cannot expand '" << val << "'" << ctx;
             throw eckit::UserError(oss.str());
         }
 
         if (!duplicates_) {
             if (seen.find(value) != seen.end()) {
                 std::ostringstream oss;
-                oss << *this << ": duplicated value '" << *j << "'" << ctx;
+                oss << *this << ": duplicated value '" << val << "'" << ctx;
                 throw eckit::UserError(oss.str());
             }
             seen.insert(value);
@@ -430,12 +430,12 @@ void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& v
         if (values.size() != s.size()) {
             std::cerr << "Duplicate values in " << name_ << " " << values;
             std::set<std::string> seen;
-            for (std::vector<std::string>::const_iterator k = values.begin(); k != values.end(); ++k) {
-                if (seen.find(*k) != seen.end()) {
-                    std::cerr << ' ' << *k;
+            for (const std::string& val : values) {
+                if (seen.find(val) != seen.end()) {
+                    std::cerr << ' ' << val;
                 }
 
-                seen.insert(*k);
+                seen.insert(val);
             }
 
             std::cerr << std::endl;
