@@ -16,8 +16,11 @@
 #ifndef metkit_Type_H
 #define metkit_Type_H
 
+#include <iosfwd>
+#include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
@@ -32,7 +35,15 @@ class MarsExpandContext;
 
 class ContextRule {
 public:
-    ContextRule(const std::string& k);
+    ContextRule(const ContextRule&)            = default;
+    ContextRule& operator=(const ContextRule&) = default;
+    ContextRule(ContextRule&&)                 = delete;
+    ContextRule& operator=(ContextRule&&)      = delete;
+
+    explicit ContextRule(const std::string& k);
+
+    virtual ~ContextRule() = default;
+
     virtual bool matches(MarsRequest req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
@@ -48,7 +59,7 @@ private:  // methods
 
 class Context {
 public:
-    void add(ContextRule* rule);
+    void add(std::unique_ptr<ContextRule> rule);
     bool matches(MarsRequest req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
@@ -56,7 +67,7 @@ public:
 private:  // methods
     void print(std::ostream& out) const;
 private:
-    std::vector<ContextRule*> rules_;
+    std::vector<std::unique_ptr<ContextRule>> rules_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -106,10 +117,10 @@ protected:  // members
     bool multiple_;
     bool duplicates_;
 
-    std::map<Context*, std::vector<std::string>> defaults_;
+    std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
-    std::map<Context*, std::string> sets_;
-    std::set<Context*> unsets_;
+    std::map<std::unique_ptr<Context>, std::string> sets_;
+    std::set<std::unique_ptr<Context>> unsets_;
 
 protected:  // methods
     virtual ~Type() override;
