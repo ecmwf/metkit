@@ -35,6 +35,8 @@ class ContextRule {
 public:
     ContextRule(const std::string& k);
 
+    virtual ~ContextRule() = default;
+
     virtual bool matches(MarsRequest req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
