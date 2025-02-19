@@ -27,12 +27,12 @@ class TypeExpver : public Type {
 public:  // methods
     TypeExpver(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeExpver() override;
+    ~TypeExpver() override;
 
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
 private:  // methods
-    virtual void print(std::ostream& out) const override;
+    void print(std::ostream& out) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -21,12 +21,9 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 class UndefinedType : public Type {
-    virtual void print(std::ostream& out) const { out << "<undefined type>"; }
+    void print(std::ostream& out) const override { out << "<undefined type>"; }
 
-    virtual bool filter(const std::vector<std::string>&,
-                        std::vector<std::string>&) const {
-        NOTIMP;
-    }
+    bool filter(const std::vector<std::string>&, std::vector<std::string>&) const override { NOTIMP; }
 
 public:
     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }

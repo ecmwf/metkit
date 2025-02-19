@@ -28,14 +28,12 @@ public: // methods
 
     TypeRange(const std::string &name, const eckit::Value& settings);
 
-    virtual ~TypeRange() override;
+    ~TypeRange() override;
 
 private: // methods
-
-    virtual void print( std::ostream &out ) const override;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const override;
+    void print(std::ostream& out) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+    void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
 
     StepRange parse(std::string& value) const;
 

@@ -280,9 +280,9 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 }
 
 class TypeHidden : public Type {
-    virtual bool flatten() const { return false; }
-    virtual void print(std::ostream& out) const { out << "TypeHidden"; }
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const { return true; }
+    bool flatten() const override { return false; }
+    void print(std::ostream& out) const override { out << "TypeHidden"; }
+    bool expand(const MarsExpandContext& ctx, std::string& value) const override { return true; }
 
 public:
     TypeHidden() : Type("hidden", eckit::Value()) { attach(); }
