@@ -23,6 +23,14 @@ std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
     return s;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+Context::~Context() {
+    for (ContextRule* r : rules_) {
+        delete r;
+    }
+}
+
 void Context::add(ContextRule* rule) {
     rules_.push_back(rule);
 }
@@ -51,6 +59,8 @@ void Context::print(std::ostream& out) const {
     }
     out << "]";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class Include : public ContextRule {
 public:
@@ -121,6 +131,11 @@ private:  // methods
     }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+// HELPERS
+
+namespace {
+
 ContextRule* parseRule(std::string key, eckit::Value r) {
 
     std::set<std::string> vals;
@@ -157,11 +172,13 @@ Context* parseContext(eckit::Value c) {
 
     for (size_t j = 0; j < keys.size(); j++) {
         std::string key = keys[j];
-        ContextRule* r = parseRule(key, c[key]);
+        ContextRule* r  = parseRule(key, c[key]);
         context->add(r);
     }
     return context;
 }
+
+}  // namespace
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -238,7 +255,17 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
     }
 }
 
-Type::~Type() {}
+Type::~Type() {
+    for (const auto& [context, _] : defaults_) {
+        delete context;
+    }
+    for (const auto& context : unsets_) {
+        delete context;
+    }
+    for (const auto& [context, _] : sets_) {
+        delete context;
+    }
+}
 
 bool Type::flatten() const {
     return flatten_;
@@ -374,8 +401,10 @@ const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) 
     return request.values(name_);
 }
 
-
 void Type::clearDefaults() {
+    for (const auto& [context, _] : defaults_) {
+        delete context;
+    }
     defaults_.clear();
 }
 
@@ -386,7 +415,6 @@ void Type::reset() {
 const std::string& Type::name() const {
     return name_;
 }
-
 
 const std::string& Type::category() const {
     return category_;
@@ -434,6 +462,6 @@ void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& v
     }
 }
 
-
 //----------------------------------------------------------------------------------------------------------------------
+
 }  // namespace metkit::mars

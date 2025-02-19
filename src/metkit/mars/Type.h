@@ -18,6 +18,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
@@ -33,6 +34,7 @@ class MarsExpandContext;
 class ContextRule {
 public:
     ContextRule(const std::string& k);
+
     virtual bool matches(MarsRequest req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
@@ -48,7 +50,11 @@ private:  // methods
 
 class Context {
 public:
+    ~Context();
+
+    /// @note takes ownership of the rule
     void add(ContextRule* rule);
+
     bool matches(MarsRequest req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
@@ -98,6 +104,8 @@ public:  // methods
 
     virtual size_t count(const std::vector<std::string>& values) const;
 
+    ~Type() override;
+
 protected:  // members
     std::string name_;
     std::string category_;
@@ -110,9 +118,6 @@ protected:  // members
     std::optional<std::vector<std::string>> inheritance_;
     std::map<Context*, std::string> sets_;
     std::set<Context*> unsets_;
-
-protected:  // methods
-    virtual ~Type() override;
 
 private:  // methods
     virtual void print(std::ostream& out) const = 0;
