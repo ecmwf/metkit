@@ -16,6 +16,8 @@
 #ifndef metkit_Type_H
 #define metkit_Type_H
 
+#include <iosfwd>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -28,8 +30,6 @@ namespace metkit::mars {
 
 class MarsRequest;
 class MarsExpandContext;
-
-//----------------------------------------------------------------------------------------------------------------------
 
 class ContextRule {
 public:
@@ -48,12 +48,8 @@ private:  // methods
     virtual void print(std::ostream& out) const = 0;
 };
 
-//----------------------------------------------------------------------------------------------------------------------
-
 class Context {
 public:
-    ~Context();
-
     /// @note takes ownership of the rule
     void add(ContextRule* rule);
 
@@ -64,7 +60,7 @@ public:
 private:  // methods
     void print(std::ostream& out) const;
 private:
-    std::vector<ContextRule*> rules_;
+    std::vector<std::unique_ptr<ContextRule>> rules_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -72,6 +68,8 @@ private:
 class Type : public eckit::Counted {
 public:  // methods
     Type(const std::string& name, const eckit::Value& settings);
+
+    ~Type() override = default;
 
     virtual void expand(const MarsExpandContext& ctx,
                         std::vector<std::string>& values) const;
@@ -106,8 +104,6 @@ public:  // methods
 
     virtual size_t count(const std::vector<std::string>& values) const;
 
-    ~Type() override;
-
 protected:  // members
     std::string name_;
     std::string category_;
@@ -116,10 +112,10 @@ protected:  // members
     bool multiple_;
     bool duplicates_;
 
-    std::map<Context*, std::vector<std::string>> defaults_;
+    std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
-    std::map<Context*, std::string> sets_;
-    std::set<Context*> unsets_;
+    std::map<std::unique_ptr<Context>, std::string> sets_;
+    std::set<std::unique_ptr<Context>> unsets_;
 
 private:  // methods
     virtual void print(std::ostream& out) const = 0;

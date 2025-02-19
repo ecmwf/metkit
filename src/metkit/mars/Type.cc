@@ -11,11 +11,25 @@
 #include "metkit/mars/Type.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <iostream>
+#include <iterator>
+#include <memory>
+#include <ostream>
+#include <set>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "eckit/exception/Exceptions.h"
+#include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
 
 ContextRule::ContextRule(const std::string& k) : key_(k) {}
 
@@ -26,19 +40,13 @@ std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Context::~Context() {
-    for (ContextRule* r : rules_) {
-        delete r;
-    }
-}
-
 void Context::add(ContextRule* rule) {
-    rules_.push_back(rule);
+    rules_.emplace_back(rule);
 }
 
 bool Context::matches(MarsRequest req) const {
 
-    for (ContextRule* r : rules_) {
+    for (const auto& r : rules_) {
         if (!r->matches(req)) {
             return false;
         }
@@ -54,7 +62,7 @@ std::ostream& operator<<(std::ostream& s, const Context& c) {
 void Context::print(std::ostream& out) const {
     std::string sep;
     out << "Context[";
-    for(const ContextRule* r: rules_) {
+    for (const auto& r : rules_) {
         out << sep << *r;
         sep = ",";
     }
@@ -256,18 +264,6 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
     }
 }
 
-Type::~Type() {
-    for (const auto& [context, _] : defaults_) {
-        delete context;
-    }
-    for (const auto& context : unsets_) {
-        delete context;
-    }
-    for (const auto& [context, _] : sets_) {
-        delete context;
-    }
-}
-
 bool Type::flatten() const {
     return flatten_;
 }
@@ -403,9 +399,6 @@ const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) 
 }
 
 void Type::clearDefaults() {
-    for (const auto& [context, _] : defaults_) {
-        delete context;
-    }
     defaults_.clear();
 }
 
