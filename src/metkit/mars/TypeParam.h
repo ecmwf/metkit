@@ -32,8 +32,8 @@ public: // methods
     virtual ~TypeParam() override;
 
 protected:
-    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request,
-                        std::vector<std::string>& values, bool fail) const;
+    virtual bool expandFail(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
+                            bool fail) const;
 
 private: // methods
 
