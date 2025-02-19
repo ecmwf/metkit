@@ -8,11 +8,12 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/Type.h"
+
 #include <algorithm>
 
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/Type.h"
 
 namespace metkit::mars {
 
