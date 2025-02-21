@@ -328,6 +328,11 @@ _field: &_field
     category: data
     type: lowercase
 
+  georef:
+    type: lowercase
+    only:
+      - dataset: [on-demand-extremes-dt]
+
   repres:
     flatten: false
     multiple: true
