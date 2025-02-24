@@ -14,8 +14,17 @@ struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
         metkit::mars::MarsRequest(std::move(req)) {}
 };
 
-struct metkit_requestiterator_t {
-    explicit metkit_requestiterator_t(std::vector<metkit::mars::MarsRequest>&& vec) :
+// In future: a MarsRequest will be a Selection + a Verb.
+// Right now they are equivalent, but we will not expose any verb-dependent functionality on metkit_selection_t
+struct metkit_selection_t : public metkit_marsrequest_t {
+    using metkit_marsrequest_t::metkit_marsrequest_t;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+template <typename T>
+struct metkit_iterator_t {
+    explicit metkit_iterator_t(std::vector<T>&& vec) :
         vector_(std::move(vec)), current_(vector_.begin()) {}
 
     metkit_iterator_status_t next() {
@@ -36,7 +45,7 @@ struct metkit_requestiterator_t {
     }
 
     // Note: expected to call next() before calling current()
-    metkit_iterator_status_t current(metkit_marsrequest_t* out)  {
+    metkit_iterator_status_t current(T* out)  {
         if (first_ || current_ == vector_.end()) {
             return METKIT_ITERATOR_ERROR;
         }
@@ -47,8 +56,12 @@ struct metkit_requestiterator_t {
 
 private:
     bool first_ = true;
-    std::vector<metkit::mars::MarsRequest> vector_;
-    std::vector<metkit::mars::MarsRequest>::iterator current_;
+    std::vector<T> vector_;
+    typename std::vector<T>::iterator current_;
+};
+
+struct metkit_requestiterator_t : public metkit_iterator_t<metkit::mars::MarsRequest> {
+    using metkit_iterator_t<metkit::mars::MarsRequest>::metkit_iterator_t;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -137,6 +150,76 @@ metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator
         *requests = new metkit_requestiterator_t(metkit::mars::MarsRequest::parse(in, strict));
     });
 }
+
+
+// -----------------------------------------------------------------------------
+//                        SELECTION
+// -----------------------------------------------------------------------------
+
+
+metkit_error_t metkit_selection_new(metkit_selection_t** selection) {
+    return tryCatch([selection] {
+        ASSERT(selection);
+        *selection = new metkit_selection_t("retrieve"); /// @note: in future, object should not require a verb. Must hardcode for now.
+    });
+}
+
+metkit_error_t metkit_selection_delete(const metkit_selection_t* selection) {
+    return tryCatch([selection] {
+        delete selection;
+    });
+}
+
+metkit_error_t metkit_selection_set(metkit_selection_t* selection, const char* param, const char* values[], int numValues) {
+    return tryCatch([selection, param, values, numValues] {
+        ASSERT(selection);
+        ASSERT(param);
+        ASSERT(values);
+        std::string param_str(param);
+        std::vector<std::string> values_vec;
+        values_vec.reserve(numValues);
+        std::copy(values, values + numValues, std::back_inserter(values_vec));
+
+        selection->values(param_str, values_vec);
+    });
+}
+
+metkit_error_t metkit_selection_count_values(const metkit_selection_t* selection, const char* param, size_t* count) {
+    return tryCatch([selection, param, count] {
+        ASSERT(selection);
+        ASSERT(param);
+        ASSERT(count);
+        *count = selection->countValues(param);
+    });
+}
+
+metkit_error_t metkit_selection_value(const metkit_selection_t* selection, const char* param, int index, const char** value) {
+    return tryCatch([selection, param, index, value] {
+        ASSERT(selection);
+        ASSERT(param);
+        ASSERT(value);
+        *value = selection->values(param, false)[index].c_str();
+    });
+}
+
+metkit_error_t metkit_selection_expand_self(metkit_selection_t* selection, bool inherit, bool strict) {
+    return tryCatch([selection, inherit, strict] {
+        ASSERT(selection);
+        metkit::mars::MarsExpension expand(inherit, strict);
+        *selection = expand.expand(*selection);
+    });
+}
+
+metkit_error_t metkit_selection_expand(const metkit_selection_t* selection, bool inherit, bool strict, metkit_selection_t* expandedSelection) {
+    return tryCatch([selection, expandedSelection, inherit, strict] {
+        ASSERT(selection);
+        ASSERT(expandedSelection);
+        ASSERT(expandedSelection->empty());
+        metkit::mars::MarsExpension expand(inherit, strict);
+        *expandedSelection = expand.expand(*selection);
+    });
+}
+
 
 // -----------------------------------------------------------------------------
 //                           REQUEST
@@ -241,6 +324,14 @@ metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request, bo
     });
 }
 
+metkit_error_t metkit_marsrequest_expand_self(metkit_marsrequest_t* request, bool inherit, bool strict) {
+    return tryCatch([request, inherit, strict] {
+        ASSERT(request);
+        metkit::mars::MarsExpension expand(inherit, strict);
+        *request = expand.expand(*request);
+    });
+}
+
 metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsrequest_t* otherRequest) {
     return tryCatch([request, otherRequest] {
         ASSERT(request);
@@ -275,8 +366,12 @@ metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Bridge between C and C++
-const metkit::mars::MarsRequest& metkit::mars::MarsRequest::fromOpaque(const metkit_marsrequest_t* request) {
+const metkit::mars::MarsRequest& metkit::mars::MarsRequest::fromOpaqueRequest(const metkit_marsrequest_t* request) {
     return *static_cast<const metkit::mars::MarsRequest*>(request);
+}
+
+const metkit::mars::MarsRequest& metkit::mars::MarsRequest::fromOpaqueSelection(const metkit_selection_t* selection) {
+    return *static_cast<const metkit::mars::MarsRequest*>(selection);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

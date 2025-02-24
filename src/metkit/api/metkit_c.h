@@ -14,6 +14,9 @@ extern "C" {
 struct metkit_marsrequest_t;
 typedef struct metkit_marsrequest_t metkit_marsrequest_t;
 
+struct metkit_selection_t;
+typedef struct metkit_selection_t metkit_selection_t;
+
 struct metkit_requestiterator_t;
 /** RequestIterator for iterating over vector of Request instances */
 typedef struct metkit_requestiterator_t metkit_requestiterator_t;
@@ -183,12 +186,91 @@ metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, con
  */
 metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request,  bool inherit, bool strict, metkit_marsrequest_t* expandedRequest);
 
+
+/** Mutate an input Request object by expanding it.
+ * @param[out] request Request instance to be expanded
+ * @param inherit if true, populate expanded request with default values
+ * @param strict it true, raise error rather than warning on invalid values
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_marsrequest_expand_self(metkit_marsrequest_t* request,  bool inherit, bool strict);
+
 /** Merges other Request object into existing request
  * @param request Request instance to contain result of merge
  * @param otherRequest other Request instance to merge
  * @return metkit_error_t Error code
  */
 metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const metkit_marsrequest_t* otherRequest);
+
+
+
+// XXXXX
+// TODO 
+// UPDATE THESE DOCS FOR SELECTION
+// XXXXXX
+
+/* ---------------------------------------------------------------------------------------------------------------------
+ * SELECTION
+ * --- */
+
+/** Allocates new Request object. Must be deallocated with mekit_delete_request
+ * @param[out] request new Request instance
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_new(metkit_selection_t** request);
+
+/** Deallocates Request object and associated resources.
+ * @param request Request instance
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_delete(const metkit_selection_t* request);
+
+/** Add parameter and values to request
+ * @param request Request instance
+ * @param param parameter name
+ * @param values array of values for parameter
+ * @param numValues number of values
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_set(metkit_selection_t* request, const char* param, const char* values[], int numValues);
+
+/** Returns number of values for specific parameter in Request object
+ * @param request Request instance
+ * @param param parameter name in request
+ * @param[out] count number of values for param in request
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_count_values(const metkit_selection_t* request, const char* param, size_t* count);
+
+/** Returns value for specific parameter and index in Request object
+ * @param request Request instance
+ * @param param parameter name in request
+ * @param index index of value to retrieve for param in request
+ * @param[out] value retrieved value
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_value(const metkit_selection_t* request, const char* param, int index, const char** value);
+
+/** Mutate an input Request object by expanding it.
+ * @param request Request instance to be expanded
+ * @param inherit if true, populate expanded request with default values
+ * @param strict it true, raise error rather than warning on invalid values
+ * @param[out] expandedRequest empty Request instance to be populated
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_expand_self(metkit_selection_t* request,  bool inherit, bool strict);
+
+
+
+/** Populates empty Request object by expanding existing request
+ * @param request Request instance to be expanded
+ * @param inherit if true, populate expanded request with default values
+ * @param strict it true, raise error rather than warning on invalid values
+ * @param[out] expandedRequest empty Request instance to be populated
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_selection_expand(const metkit_selection_t* request,  bool inherit, bool strict, metkit_selection_t* expandedRequest);
+
 
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST ITERATOR

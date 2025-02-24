@@ -13,6 +13,7 @@
 /// @author Christopher Bradley
 
 #include "metkit/api/metkit_c.h"
+#include "metkit/mars/MarsRequest.h"
 #include "eckit/testing/Test.h"
 #include "eckit/types/Date.h"
 #include <cstring>
@@ -100,6 +101,16 @@ CASE( "metkit_marsrequest" ) {
     const char* param{};
     METKIT_TEST_C(metkit_marsrequest_value(expandedRequest, "param", 0, &param));
     EXPECT_STR_EQUAL(param, "167");
+
+    // Expand self method
+    METKIT_TEST_C(metkit_marsrequest_expand_self(request, false, true));
+
+    // check the two requests are the same.
+    const metkit::mars::MarsRequest& request_cpp = metkit::mars::MarsRequest::fromOpaqueRequest(request);
+    const metkit::mars::MarsRequest& expandedRequest_cpp = metkit::mars::MarsRequest::fromOpaqueRequest(expandedRequest);
+
+    EXPECT(request_cpp.matches(expandedRequest_cpp));
+    EXPECT(expandedRequest_cpp.matches(request_cpp));
     
     // -----------------------------------------------------------------
     // Merge

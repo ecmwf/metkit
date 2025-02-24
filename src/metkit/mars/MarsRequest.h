@@ -28,6 +28,7 @@ class Message;
 }
 
 struct metkit_marsrequest_t;
+struct metkit_selection_t;
 
 namespace metkit {
 namespace mars {
@@ -35,6 +36,7 @@ namespace mars {
 class Type;
 class MarsRequest;
 
+using Selection = MarsRequest; // For now, Selection is just a MarsRequest
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -128,8 +130,10 @@ public:  // static methods
     static MarsRequest parse(const std::string& s, bool strict = false);
     static std::vector<MarsRequest> parse(std::istream&, bool strict = false);
 
+    /// Converts from opaque C pointer metkit_marsrequest_t* to concrete C++ MarsRequest. Needed in FDB C API.
     /// Implementation in api/metkit_c.cc
-    static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
+    static const MarsRequest& fromOpaqueRequest(const metkit_marsrequest_t* request);
+    static const MarsRequest& fromOpaqueSelection(const metkit_selection_t* selection);
 
 private:  // members
     std::string verb_;
