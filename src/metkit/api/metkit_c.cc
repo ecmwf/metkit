@@ -210,7 +210,7 @@ metkit_error_t metkit_marsrequest_param(const metkit_marsrequest_t* request, siz
     return tryCatch([request, index, param] {
         ASSERT(request);
         ASSERT(param);
-        *param = request->params()[index].c_str();
+        *param = strdup(request->params()[index].c_str());
     });
 }
 
@@ -249,11 +249,15 @@ metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const met
     });
 }
 
+void metkit_string_delete(const char* str) {
+    delete[] str;
+}
+
 // -----------------------------------------------------------------------------
 //                           REQUEST ITERATOR
 // -----------------------------------------------------------------------------
 
-metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it) {
+metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it) {
     return tryCatch([it] {
         delete it;
     });

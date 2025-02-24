@@ -149,13 +149,13 @@ metkit_error_t metkit_marsrequest_has_param(const metkit_marsrequest_t* request,
 metkit_error_t metkit_marsrequest_count_params(const metkit_marsrequest_t* request, size_t* count);
 
 /** Returns parameter name for specific index in Request object
+ * @note This allocates a char* that must be deallocated with metkit_string_delete
  * @param request Request instance
  * @param index index of parameter to retrieve
  * @param[out] param parameter name
  * @return metkit_error_t Error code
  */
 metkit_error_t metkit_marsrequest_param(const metkit_marsrequest_t* request, size_t index, const char** param);
-
 
 /** Returns number of values for specific parameter in Request object
  * @param request Request instance
@@ -198,7 +198,7 @@ metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const met
  * @param it RequestIterator instance
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it);
+metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it);
 
 /** Moves to the next Request element in RequestIterator
  * @param it RequestIterator instance
@@ -222,6 +222,13 @@ metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* i
     * }
  */
 metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Deallocates string allocated by metkit (e.g. by metkit_marsrequest_param)
+ * @param str string to deallocate
+ */
+ void metkit_string_delete(const char* str);
 
 #ifdef __cplusplus
 }

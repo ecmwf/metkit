@@ -34,11 +34,11 @@ class Request:
         the request can be specified through kwargs, noting that
         reserved words in Python must be suffixed with "_" e.g. "class_"
         """
-        crequest = ffi.new("metkit_request_t **")
-        lib.metkit_new_request(crequest)
-        self.__request = ffi.gc(crequest[0], lib.metkit_free_request)
+        crequest = ffi.new("metkit_marsrequest_t **")
+        lib.metkit_marsrequest_new(crequest)
+        self.__request = ffi.gc(crequest[0], lib.metkit_marsrequest_delete)
         if verb is not None:
-            lib.metkit_request_set_verb(self.__request, ffi_encode(verb))
+            lib.metkit_marsrequest_set_verb(self.__request, ffi_encode(verb))
         for param, values in kwargs.items():
             self[param.rstrip("_")] = values
 
@@ -47,7 +47,7 @@ class Request:
 
     def verb(self) -> str:
         cverb = ffi.new("const char **")
-        lib.metkit_request_verb(self.__request, cverb)
+        lib.metkit_marsrequest_verb(self.__request, cverb)
         return ffi_decode(cverb[0])
 
     def expand(self, inherit: bool = True, strict: bool = False) -> "Request":
@@ -64,8 +64,8 @@ class Request:
         Request, resulting from expansion
         """
         expanded_request = Request()
-        lib.metkit_request_expand(
-            self.__request, expanded_request.ctype(), inherit, strict
+        lib.metkit_marsrequest_expand(
+            self.__request, inherit, strict, expanded_request.ctype()
         )
         return expanded_request
 
@@ -88,14 +88,17 @@ class Request:
         -------
         Iterator over parameter names
         """
-        cparams = ffi.new("metkit_paramiterator_t **")
-        lib.metkit_request_params(self.__request, cparams)
-        self._cdata = ffi.gc(cparams[0], lib.metkit_free_paramiterator)
+        # @TODO: the treatment of params is bad on the C++ API: accessing one index requires a copy of the entire list
+        # to be made. We can do better than this.
+        nparams = ffi.new("size_t *", 0)
+        lib.metkit_marsrequest_count_params(self.__request, nparams)
 
-        while lib.metkit_paramiterator_next(self._cdata) == lib.METKIT_SUCCESS:
-            cvalue = ffi.new("const char **")
-            lib.metkit_paramiterator_param(self._cdata, cvalue)
-            yield ffi_decode(cvalue[0])
+        for index in range(0,nparams[0]):
+            cparam = ffi.new("const char **")
+            lib.metkit_marsrequest_param(self.__request, index, cparam)
+            param = ffi.string(cparam[0]).decode("utf-8")
+            lib.metkit_string_delete(cparam[0])
+            yield param
 
     def num_values(self, param: str) -> int:
         """
@@ -109,10 +112,9 @@ class Request:
         -------
         int
         """
-        assert param in self
         cparam = ffi_encode(param)
         count = ffi.new("size_t *", 0)
-        lib.metkit_request_count_values(self.__request, cparam, count)
+        lib.metkit_marsrequest_count_values(self.__request, cparam, count)
         return count[0]
 
     def merge(self, other: "Request") -> "Request":
@@ -138,7 +140,7 @@ class Request:
         if set(self.keys()) != set(other.keys()):
             raise ValueError("Can not merge requests with different parameters.")
         res = Request(self.verb(), **{k: v for k, v in self})
-        lib.metkit_request_merge(res.ctype(), other.ctype())
+        lib.metkit_marsrequest_merge(res.ctype(), other.ctype())
         res.validate()
         return res
 
@@ -147,20 +149,20 @@ class Request:
             yield param, self[param]
 
     def __getitem__(self, param: str) -> str | list[str]:
-        num_values = self.num_values(param)
+        nvalues = self.num_values(param)
         values = []
-        for index in range(num_values):
+        for index in range(nvalues):
             cvalue = ffi.new("const char **")
-            lib.metkit_request_value(self.__request, ffi_encode(param), index, cvalue)
+            lib.metkit_marsrequest_value(self.__request, ffi_encode(param), index, cvalue)
             value = ffi_decode(cvalue[0])
-            if num_values == 1:
+            if nvalues == 1:
                 return value
             values.append(value)
         return values
 
     def __contains__(self, param: str) -> bool:
         has = ffi.new("bool *", False)
-        lib.metkit_request_has_param(self.__request, ffi_encode(param), has)
+        lib.metkit_marsrequest_has_param(self.__request, ffi_encode(param), has)
         return has[0]
 
     def __setitem__(self, param: str, values: int | str | list[str]):
@@ -171,7 +173,7 @@ class Request:
             if isinstance(value, int):
                 value = str(value)
             cvals.append(ffi.new("const char[]", value.encode("ascii")))
-        lib.metkit_request_add(
+        lib.metkit_marsrequest_set(
             self.__request,
             ffi_encode(param),
             ffi.new("const char*[]", cvals),
@@ -204,17 +206,17 @@ def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Requ
     crequest_iter = ffi.new("metkit_requestiterator_t **")
 
     if isinstance(file_or_str, str):
-        lib.metkit_parse_mars_request(ffi_encode(file_or_str), crequest_iter, strict)
+        lib.metkit_parse_marsrequests(ffi_encode(file_or_str), crequest_iter, strict)
     else:
-        lib.metkit_parse_mars_request(
+        lib.metkit_parse_marsrequests(
             ffi_encode(file_or_str.read()), crequest_iter, strict
         )
-    request_iter = ffi.gc(crequest_iter[0], lib.metkit_free_requestiterator)
+    request_iter = ffi.gc(crequest_iter[0], lib.metkit_requestiterator_delete)
 
     requests = []
-    while lib.metkit_requestiterator_next(request_iter) == lib.METKIT_SUCCESS:
+    while lib.metkit_requestiterator_next(request_iter) == lib.METKIT_ITERATOR_SUCCESS:
         new_request = Request()
-        lib.metkit_requestiterator_request(request_iter, new_request.ctype())
+        lib.metkit_requestiterator_current(request_iter, new_request.ctype())
         requests.append(new_request)
 
     return requests
@@ -270,10 +272,7 @@ class PatchedLib:
 
         # Check the library version
 
-        tmp_str = ffi.new("char**")
-        self.metkit_version(tmp_str)
-        versionstr = ffi.string(tmp_str[0]).decode("utf-8")
-
+        versionstr = ffi.string(self.metkit_version()).decode("utf-8")
         if parse_version(versionstr) < parse_version(__metkit_version__):
             raise CFFIModuleLoadFailed(
                 "Version of libmetkit found is too old. {} < {}".format(
@@ -293,9 +292,16 @@ class PatchedLib:
 
         def wrapped_fn(*args, **kwargs):
             retval = fn(*args, **kwargs)
+
+            # Some functions dont return error codes. Ignore these.
+            if name in ["metkit_version", "metkit_git_sha1", "metkit_string_delete"]:
+                return retval
+
+            # error codes:
             if retval not in (
                 self.__lib.METKIT_SUCCESS,
-                self.__lib.METKIT_ITERATION_COMPLETE,
+                self.__lib.METKIT_ITERATOR_SUCCESS,
+                self.__lib.METKIT_ITERATOR_COMPLETE,
             ):
                 err = ffi_decode(self.__lib.metkit_get_error_string(retval))
                 msg = "Error in function '{}': {}".format(name, err)
