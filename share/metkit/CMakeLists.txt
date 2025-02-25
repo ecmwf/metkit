@@ -1,8 +1,5 @@
 list( APPEND files language.yaml paramids.yaml params.yaml params-static.yaml param-matching.yaml bufr-subtypes.yaml axis.yaml shortname-context.yaml )
 
-include(../cmake/CheckGit.cmake)
-CheckGitSetup()
-
 foreach( _file ${files} )
 
     configure_file( ${_file} ${CMAKE_BINARY_DIR}/share/metkit/${_file} COPYONLY )
