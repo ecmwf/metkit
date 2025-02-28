@@ -557,7 +557,11 @@ CASE( "test_metkit_expand_param" ) {
         EXPECT_EQUAL(params[0], "140217");
     }
     {
-        const char* text = "retrieve,class=ai,expver=1,stream=oper,date=-1,time=00/12,type=pf,levtype=pl,step=24,param=t";
+        const char* text = "retrieve,class=ai,expver=1,stream=oper,model=aifs-singlw,date=-1,time=00/12,type=pf,levtype=pl,step=24,param=t";
+        EXPECT_THROWS(MarsRequest::parse(text, true));
+    }
+    {
+        const char* text = "retrieve,class=ai,expver=1,stream=oper,model=aifs-single,date=-1,time=00/12,type=pf,levtype=pl,step=24,param=t";
         MarsRequest r=MarsRequest::parse(text);
         auto params=r.values("param");
         EXPECT_EQUAL(params.size(), 1);
@@ -691,7 +695,7 @@ CASE( "test_metkit_expand_d1" ) {
         expand(text, "retrieve", expected, {20000101});
     }
     {
-        const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
+        const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,georef=acbdef,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
         ExpectedOutput expected{
                 {"class", {"d1"}},
                 {"dataset", {"climate-dt"}},
@@ -733,6 +737,24 @@ CASE( "test_metkit_expand_ng" ) {
                 {"param", {"134","137"}}
             };
         expand(text, "retrieve", expected, {20000101});
+    }
+}
+CASE( "test_metkit_expand_ai" ) {
+    {
+        const char* text = "retrieve,class=ai,date=20250208,time=1800,expver=9999,model=aifs-single,type=fc,levtype=sfc,param=169";
+        ExpectedOutput expected {
+                {"class", {"ai"}},
+                {"domain", {"g"}},
+                {"expver", {"9999"}},
+                {"levtype", {"sfc"}},
+                {"step", {"0"}},
+                {"stream", {"oper"}},
+                {"time", {"1800"}},
+                {"type", {"fc"}},
+                {"model", {"aifs-single"}},
+                {"param", {"169"}}
+            };
+        expand(text, "retrieve", expected, {20250208});
     }
 }
 
@@ -783,6 +805,29 @@ CASE("test_metkit_expand_read") {
         const char* text = "read,date=20250105,param=129";
         ExpectedOutput expected {{"date", {"20250105"}}, {"param", {"129"}}};
         expand(text, "read", expected, {20250105});
+    }
+}
+
+CASE("test_metkit_expand_clmn") {
+    {
+        const char* text = "retrieve,class=d1,expver=1,dataset=climate-dt,activity=story-nudging,experiment=Tplus2.0K,generation=1,model=IFS-FESOM,realization=1,stream=clmn,year=2024,month=october,resolution=standard,type=fc,levtype=sfc,param=144";
+        ExpectedOutput expected {
+            {"class", {"d1"}},
+            {"dataset", {"climate-dt"}},
+            {"activity", {"story-nudging"}},
+            {"experiment", {"tplus2.0k"}},
+            {"generation", {"1"}},
+            {"model", {"ifs-fesom"}},
+            {"realization", {"1"}},
+            {"expver", {"0001"}},
+            {"stream", {"clmn"}},
+            {"year", {"2024"}},
+            {"month", {"10"}},
+            {"resolution", {"standard"}},
+            {"type", {"fc"}},
+            {"levtype", {"sfc"}},
+            {"param", {"144"}}};
+        expand(text, "retrieve", expected, {});
     }
 }
 
