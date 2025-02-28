@@ -1,0 +1,9 @@
+---
+CLASS: class
+DATE: andate
+TIME: antime
+TYPE: type
+OBSGROUP: groupid@hdr
+REPORTYPE: reportype
+STREAM: stream
+EXPVER: expver
