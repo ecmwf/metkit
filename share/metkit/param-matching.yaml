@@ -1,0 +1,15 @@
+# wind families used by ParamID normalisation to retrieve u/v from vo/d and related gradients/anomalies
+wind:
+# GRIB2
+  - [131,132,138,155]
+  - [129131,129132,129138,129155]
+  - [171131,171132,171138,171155]
+  - [200131,200132,200138,200155]
+# GRIB1
+  - [131.128,132.128,138.128,155.128]
+  - [131.129,132.129,138.129,155.129]
+  - [131.171,132.171,138.171,155.171]
+  - [131.200,132.200,138.200,155.200]
+# list of tables used by ParamID normalisation to limit the param-table expansion to wind, ocean and reanalysis
+drop-tables: [140,150,151,160,162,170,180,190]
+full-table-dropping: true
