@@ -695,7 +695,7 @@ CASE( "test_metkit_expand_d1" ) {
         expand(text, "retrieve", expected, {20000101});
     }
     {
-        const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
+        const char* text = "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model=icon,realization=1,georef=acbdef,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,levtype=o3d,param=263500";
         ExpectedOutput expected{
                 {"class", {"d1"}},
                 {"dataset", {"climate-dt"}},
@@ -805,6 +805,29 @@ CASE("test_metkit_expand_read") {
         const char* text = "read,date=20250105,param=129";
         ExpectedOutput expected {{"date", {"20250105"}}, {"param", {"129"}}};
         expand(text, "read", expected, {20250105});
+    }
+}
+
+CASE("test_metkit_expand_clmn") {
+    {
+        const char* text = "retrieve,class=d1,expver=1,dataset=climate-dt,activity=story-nudging,experiment=Tplus2.0K,generation=1,model=IFS-FESOM,realization=1,stream=clmn,year=2024,month=october,resolution=standard,type=fc,levtype=sfc,param=144";
+        ExpectedOutput expected {
+            {"class", {"d1"}},
+            {"dataset", {"climate-dt"}},
+            {"activity", {"story-nudging"}},
+            {"experiment", {"tplus2.0k"}},
+            {"generation", {"1"}},
+            {"model", {"ifs-fesom"}},
+            {"realization", {"1"}},
+            {"expver", {"0001"}},
+            {"stream", {"clmn"}},
+            {"year", {"2024"}},
+            {"month", {"10"}},
+            {"resolution", {"standard"}},
+            {"type", {"fc"}},
+            {"levtype", {"sfc"}},
+            {"param", {"144"}}};
+        expand(text, "retrieve", expected, {});
     }
 }
 

@@ -376,6 +376,7 @@ _field: &_field
     - [ifs-nemo]
     - [ifs-fesom]
     - [icon]
+    - [aifs]
     - [aifs-single]
     - [aifs-single-mse]
     - [aifs-ens]
@@ -385,17 +386,36 @@ _field: &_field
     - [arome]
     - [harmonie-arome]
     - [global, glob]
+    unset:
+      - context:
+          class: [ml]
+
+  georef:
+    type: lowercase
+    unset:
+      - context:
+          class:
+            op: '!'
+            vals: [d1]
+          dataset:
+            op: '!'
+            vals: [on-demand-extremes-dt]
 
   repres:
     flatten: false
     multiple: true
     type: enum
     values:
-    - gg
-    - sh
-    - ll
-    - np
-    - rl
+    - [bu, 'bufr']
+    - [sh, 'spherical harmonics']
+    - [ll, 'lat long grid']
+    - [gg, 'gaussian grid']
+    - [sv, 'space view']
+    - [og, 'ocean grid']
+    - [np]
+    - [rl]
+
+
 
   obsgroup:
     category: data
@@ -602,6 +622,8 @@ _field: &_field
       - context:
           stream: [mnfh]
           type: [em, es, ses, ed]
+      - context:
+          stream: [clmn]
 # %if _VERB = RETRIEVE %and (YEAR %or MONTH) %then
 #         %unset DATE
 # %if (_VERB = LIST %and OUTPUT <> BROWSER %and CLASS <> RD  %and (%not DATE) %and (%not PSEUDODATE) ) %then
@@ -677,7 +699,7 @@ _field: &_field
       - context:
           type: [ab]
       - context:
-          stream: [dame, mdfa]
+          stream: [clmn, dame, mdfa]
       - context:
           class:
             op: '!'
@@ -810,13 +832,6 @@ _field: &_field
     # never:
     # # This is to prevent number with type=fc and stream=oper
     # - stream: [oper, wave]
-
-
-
-
-
-
-
 
   quantile:
     category: data
@@ -1012,11 +1027,29 @@ _field: &_field
 
   activity:
     category: data
-    type: lowercase
+    type: enum
+    values:
+    - cmip6
+    - scenariomip
+    - highresmip
+    - story-nudging
 
   experiment:
     category: data
-    type: lowercase
+    type: enum
+    values:
+    - hist
+    - cont
+    - amip
+    - ssp1-1.9
+    - ssp1-2.6
+    - ssp2-4.5
+    - ssp3-7.0
+    - ssp5-8.5
+    - tplus1.5k
+    - tplus2.0k
+    - tplus3.0k
+    - tplus4.0k
 
   generation:
     category: data
@@ -1028,7 +1061,10 @@ _field: &_field
 
   resolution:
     category: data
-    type: lowercase
+    type: enum
+    values:
+    - standard
+    - high
 
 #######################################################################
 
