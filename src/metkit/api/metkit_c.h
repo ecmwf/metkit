@@ -85,6 +85,15 @@ metkit_error_t metkit_initialise();
  */
 metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator_t** requests, bool strict);
 
+/**
+ * Parse MARS request into Request instance
+ * @note will error if request expands to multiple requests: use metkit_parse_marsrequests instead
+ * @param str MARS request
+ * @param[out] request Request instance
+ * @param strict if true, raise error rather than warning on invalid values
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* request, bool strict);
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST
  * --- */
@@ -141,21 +150,15 @@ metkit_error_t metkit_marsrequest_verb(const metkit_marsrequest_t* request, cons
 metkit_error_t metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char* param, bool* has);
 
 
-/** Returns number of parameters in Request object
+/** Returns parameter iterator for Request object
+ * Must be deallocated with metkit_paramiterator_delete
+ * @note: The strings obtained from next() are owned by the iterator and should be copied if they need to outlive it.
  * @param request Request instance
- * @param[out] count number of parameters in request
+ * @param[out] params parameter iterator
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_marsrequest_count_params(const metkit_marsrequest_t* request, size_t* count);
+metkit_error_t metkit_marsrequest_params(const metkit_marsrequest_t* request, metkit_paramiterator_t** params);
 
-/** Returns parameter name for specific index in Request object
- * @note This allocates a char* that must be deallocated with metkit_string_delete
- * @param request Request instance
- * @param index index of parameter to retrieve
- * @param[out] param parameter name
- * @return metkit_error_t Error code
- */
-metkit_error_t metkit_marsrequest_param(const metkit_marsrequest_t* request, size_t index, const char** param);
 
 /** Returns number of values for specific parameter in Request object
  * @param request Request instance
@@ -207,7 +210,7 @@ metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it)
 // metkit_error_t metkit_requestiterator_next(metkit_requestiterator_t* it);
 metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* it);
 
-/** Populates empty Requestion object with data from current element in RequestIterator
+/** Populates empty Request object with data from current element in RequestIterator
  * @param it RequestIterator instance
  * @param request empty Request instance to populate with data
  * @return metkit_iterator_status_t Status of iterator
@@ -223,13 +226,29 @@ metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* i
  */
 metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
 
-// ---------------------------------------------------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------------------------------------------------
+ * PARAMETER ITERATOR
+ * --- */
 
-/** Deallocates string allocated by metkit (e.g. by metkit_marsrequest_param)
- * @param str string to deallocate
+/** Deallocates ParamIterator object and the char* strings it owns.
+ * @param it ParamIterator instance
+ * @return metkit_error_t Error code
  */
- void metkit_string_delete(const char* str);
+metkit_error_t metkit_paramiterator_delete(const metkit_paramiterator_t* it);
 
+/** Moves to the next parameter in ParamIterator
+ * @param it ParamIterator instance
+ * @return metkit_iterator_status_t Status of iterator
+ */
+metkit_iterator_status_t metkit_paramiterator_next(metkit_paramiterator_t* it);
+
+/** Returns current parameter in ParamIterator
+ * @param it ParamIterator instance
+ * @param[out] param current parameter
+ * @return metkit_iterator_status_t Status of iterator
+ */
+metkit_iterator_status_t metkit_paramiterator_current(const metkit_paramiterator_t* it, const char** param);
+    
 #ifdef __cplusplus
 }
 #endif

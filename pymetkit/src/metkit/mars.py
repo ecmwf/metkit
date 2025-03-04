@@ -88,16 +88,14 @@ class Request:
         -------
         Iterator over parameter names
         """
-        # @TODO: the treatment of params is bad on the C++ API: accessing one index requires a copy of the entire list
-        # to be made. We can do better than this.
-        nparams = ffi.new("size_t *", 0)
-        lib.metkit_marsrequest_count_params(self.__request, nparams)
-
-        for index in range(0,nparams[0]):
+        it_c = ffi.new("metkit_paramiterator_t **")
+        lib.metkit_marsrequest_params(self.__request, it_c)
+        it = ffi.gc(it_c[0], lib.metkit_paramiterator_delete)
+        
+        while lib.metkit_paramiterator_next(it) == lib.METKIT_ITERATOR_SUCCESS:
             cparam = ffi.new("const char **")
-            lib.metkit_marsrequest_param(self.__request, index, cparam)
-            param = ffi.string(cparam[0]).decode("utf-8")
-            lib.metkit_string_delete(cparam[0])
+            lib.metkit_paramiterator_current(it, cparam)
+            param = ffi_decode(cparam[0])
             yield param
 
     def num_values(self, param: str) -> int:

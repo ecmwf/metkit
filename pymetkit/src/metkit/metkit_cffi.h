@@ -36,8 +36,7 @@ metkit_error_t metkit_marsrequest_set_one(metkit_marsrequest_t* request, const c
 metkit_error_t metkit_marsrequest_set_verb(metkit_marsrequest_t* request, const char* verb);
 metkit_error_t metkit_marsrequest_verb(const metkit_marsrequest_t* request, const char** verb);
 metkit_error_t metkit_marsrequest_has_param(const metkit_marsrequest_t* request, const char* param, bool* has);
-metkit_error_t metkit_marsrequest_count_params(const metkit_marsrequest_t* request, size_t* count);
-metkit_error_t metkit_marsrequest_param(const metkit_marsrequest_t* request, size_t index, const char** param);
+metkit_error_t metkit_marsrequest_params(const metkit_marsrequest_t* request, metkit_paramiterator_t** params);
 metkit_error_t metkit_marsrequest_count_values(const metkit_marsrequest_t* request, const char* param, size_t* count);
 metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value);
 metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request,  bool inherit, bool strict, metkit_marsrequest_t* expandedRequest);
@@ -46,5 +45,7 @@ metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const met
 metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it);
 metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* it);
 metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
-void metkit_string_delete(const char* str);
 
+metkit_error_t metkit_paramiterator_delete(const metkit_paramiterator_t* it);
+metkit_iterator_status_t metkit_paramiterator_next(metkit_paramiterator_t* it);
+metkit_iterator_status_t metkit_paramiterator_current(const metkit_paramiterator_t* it, const char** param);
