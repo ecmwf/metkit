@@ -27,6 +27,8 @@ class Message;
 }
 }
 
+struct metkit_marsrequest_t;
+
 namespace metkit {
 namespace mars {
 
@@ -125,6 +127,9 @@ public:  // static methods
 
     static MarsRequest parse(const std::string& s, bool strict = false);
     static std::vector<MarsRequest> parse(std::istream&, bool strict = false);
+
+    /// Implementation in api/metkit_c.cc
+    static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
 
 private:  // members
     std::string verb_;

@@ -12,7 +12,7 @@ cmake_minimum_required( VERSION 3.12 FATAL_ERROR )
 
 find_package( ecbuild 3.7.2 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
 
-project( metkit LANGUAGES CXX )
+project( metkit LANGUAGES CXX C )
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
