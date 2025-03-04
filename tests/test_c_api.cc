@@ -15,6 +15,7 @@
 #include "metkit/api/metkit_c.h"
 #include "eckit/testing/Test.h"
 #include "eckit/types/Date.h"
+#include "metkit/mars/MarsRequest.h"
 #include <cstring>
 
 using namespace eckit::testing;
@@ -162,6 +163,36 @@ CASE( "metkit_requestiterator_t parsing" ) {
     for (auto req : requests) {
         metkit_marsrequest_delete(req);
     }
+}
+
+// Ensure that the param iterator works as expected
+CASE( "metkit_paramiterator_t " ) {
+
+    std::string str = "retrieve,date=20200102,param=2t,step=10/to/20/by/2";
+    metkit_marsrequest_t* request{};
+    METKIT_TEST_C(metkit_marsrequest_new(&request));
+    METKIT_TEST_C(metkit_parse_marsrequest(str.c_str(), request, true));
+
+    metkit_paramiterator_t* it{};
+    METKIT_TEST_C(metkit_marsrequest_params(request, &it));
+    metkit_iterator_status_t status;
+    std::set<std::string> keys;
+    while ((status = metkit_paramiterator_next(it)) == METKIT_ITERATOR_SUCCESS) {
+        const char* key{};
+        EXPECT_EQUAL(metkit_paramiterator_current(it, &key), METKIT_ITERATOR_SUCCESS);
+        keys.insert(key);
+    }
+    EXPECT_EQUAL(status, METKIT_ITERATOR_COMPLETE);
+
+    // Compare with C++ impl for consistency
+
+    mars::MarsRequest req = mars::MarsRequest::parse(str, true);
+    std::set<std::string> keys_cpp;
+    for (const auto& k : req.params()) {
+        keys_cpp.insert(k);
+    }
+
+    EXPECT_EQUAL(keys, keys_cpp);
 }
 
 CASE( "metkit_requestiterator_t 1 item" ) {
