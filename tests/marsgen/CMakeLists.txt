@@ -12,7 +12,7 @@ foreach( _test ${marsgen_tests} )
 
     ecbuild_add_test(
         TYPE       SCRIPT
-        CONDITION  HAVE_BUILD_TOOLS
+        CONDITION  HAVE_METKIT_BUILD_TOOLS
         COMMAND    metkit_marsgen_${_test}.sh )
 
 endforeach()

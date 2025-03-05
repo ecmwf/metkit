@@ -24,9 +24,9 @@ if(NOT METKIT_CONFIGS_BRANCH)
     set(METKIT_CONFIGS_BRANCH chk)
 endif()
 
-ecbuild_add_option( FEATURE BUILD_TOOLS
+ecbuild_add_option( FEATURE METKIT_BUILD_TOOLS
                     DEFAULT ON
-                    DESCRIPTION "Build the command line tools" )
+                    DESCRIPTION "Build the metkit command line tools" )
 
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
