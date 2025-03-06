@@ -37,7 +37,7 @@
 # )
 
 ecbuild_add_executable( TARGET    parse-mars-request
-    CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
+    CONDITION HAVE_GRIB AND HAVE_METKIT_BUILD_TOOLS
     SOURCES   parse-mars-request.cc
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     LIBS        metkit eckit_option eckit eccodes
@@ -46,14 +46,14 @@ ecbuild_add_executable( TARGET    parse-mars-request
 
 ecbuild_add_executable( TARGET    odb-to-request
     SOURCES   odb-to-request.cc
-    CONDITION HAVE_ODB AND HAVE_BUILD_TOOLS
+    CONDITION HAVE_ODB AND HAVE_METKIT_BUILD_TOOLS
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
     LIBS      metkit eckit_option )
 
 ecbuild_add_executable( TARGET    bufr-sanity-check
     SOURCES   bufr-sanity-check.cc
-    CONDITION HAVE_BUFR AND HAVE_BUILD_TOOLS
+    CONDITION HAVE_BUFR AND HAVE_METKIT_BUILD_TOOLS
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
     LIBS      metkit eckit_option )
@@ -61,7 +61,7 @@ ecbuild_add_executable( TARGET    bufr-sanity-check
 ecbuild_add_executable(
     TARGET        mars-archive-script
     SOURCES       mars-archive-script.cc
-    CONDITION     HAVE_BUILD_TOOLS
+    CONDITION     HAVE_METKIT_BUILD_TOOLS
     INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
     LIBS          metkit
