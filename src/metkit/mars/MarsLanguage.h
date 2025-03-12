@@ -80,6 +80,7 @@ private: // members
 
     std::string verb_;
     std::map<std::string, Type* > types_;
+    std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
     std::vector<std::string> keywords_;
 
     StringMap aliases_;

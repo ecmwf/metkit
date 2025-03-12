@@ -16,18 +16,59 @@
 #ifndef metkit_Type_H
 #define metkit_Type_H
 
+#include <iosfwd>
+#include <memory>
+#include <optional>
 #include <string>
+#include <vector>
 
 #include "eckit/memory/Counted.h"
-#include "eckit/types/Types.h"
 #include "eckit/value/Value.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class MarsRequest;
 class MarsExpandContext;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class ContextRule {
+public:
+    ContextRule(const ContextRule&)            = default;
+    ContextRule& operator=(const ContextRule&) = default;
+    ContextRule(ContextRule&&)                 = delete;
+    ContextRule& operator=(ContextRule&&)      = delete;
+
+    explicit ContextRule(const std::string& k);
+
+    virtual ~ContextRule() = default;
+
+    virtual bool matches(MarsRequest req) const = 0;
+
+    friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
+
+protected:
+    std::string key_;
+
+private:  // methods
+    virtual void print(std::ostream& out) const = 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class Context {
+public:
+    void add(std::unique_ptr<ContextRule> rule);
+    bool matches(MarsRequest req) const;
+
+    friend std::ostream& operator<<(std::ostream& s, const Context& x);
+
+private:  // methods
+    void print(std::ostream& out) const;
+private:
+    std::vector<std::unique_ptr<ContextRule>> rules_;
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -44,7 +85,7 @@ public:  // methods
     virtual std::vector<std::string> tidy(const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
-    virtual void setDefaults(const std::vector<std::string>& defaults);
+    virtual void setInheritance(const std::vector<std::string>& inheritance);
     virtual void check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const;
     virtual void clearDefaults();
     virtual void reset();
@@ -72,15 +113,14 @@ protected:  // members
     std::string name_;
     std::string category_;
 
-    std::vector<std::string> defaults_;
     bool flatten_;
     bool multiple_;
     bool duplicates_;
 
-    std::vector<std::string> originalDefaults_;
-
-    std::map<std::string, std::set<std::string> > only_;
-    std::map<std::string, std::set<std::string> > never_;
+    std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
+    std::optional<std::vector<std::string>> inheritance_;
+    std::map<std::unique_ptr<Context>, std::string> sets_;
+    std::set<std::unique_ptr<Context>> unsets_;
 
 protected:  // methods
     virtual ~Type() override;
@@ -91,7 +131,6 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
 
 #endif

@@ -14,10 +14,11 @@
 
 #include "metkit/config/LibMetkit.h"
 
+#include <fstream>
+
 #include "eckit/config/Resource.h"
 
 #include "metkit/metkit_version.h"
-
 
 
 namespace metkit {
@@ -70,7 +71,6 @@ eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
     return "~metkit/share/metkit/bufr-subtypes.yaml";
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-
 } // namespace metkit
 
+//----------------------------------------------------------------------------------------------------------------------
