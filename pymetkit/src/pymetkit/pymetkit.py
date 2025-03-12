@@ -1,10 +1,9 @@
 import os
 from cffi import FFI
-from pkg_resources import parse_version
 import findlibs
 from typing import IO, Iterator
-
-__metkit_version__ = "1.11.0"
+import warnings
+from ._version import __version__
 
 ffi = FFI()
 
@@ -271,15 +270,11 @@ class PatchedLib:
         # Check the library version
 
         versionstr = ffi.string(self.metkit_version()).decode("utf-8")
-        if parse_version(versionstr) < parse_version(__metkit_version__):
-            raise CFFIModuleLoadFailed(
-                "Version of libmetkit found is too old. {} < {}".format(
-                    versionstr, __metkit_version__
-                )
-            )
+        if versionstr != __version__:
+            warnings.warn(f"Metkit library version {versionstr} does not match python version {__version__}")
 
     def __read_header(self):
-        with open(os.path.join(os.path.dirname(__file__), "metkit_cffi.h"), "r") as f:
+        with open(os.path.join(os.path.dirname(__file__), "metkit_c.h"), "r") as f:
             return f.read()
 
     def __check_error(self, fn, name: str):
@@ -289,7 +284,12 @@ class PatchedLib:
         """
 
         def wrapped_fn(*args, **kwargs):
+
+            # debug
             retval = fn(*args, **kwargs)
+
+            # print("Calling", name, "with", args, kwargs, "returned", retval)
+
 
             # Some functions dont return error codes. Ignore these.
             if name in ["metkit_version", "metkit_git_sha1", "metkit_string_delete"]:

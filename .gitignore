@@ -9,3 +9,14 @@ doc/latex
 .*un~
 *.ccls-cache
 share
+*.py[cod]
+*.swp
+**/__pycache__
+.vscode
+*.egg-info
+.pytest_cache
+*.prof
+*.idx
+.mypy_cache
+build/
+Testing/

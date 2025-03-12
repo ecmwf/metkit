@@ -1,4 +1,4 @@
-# metkit-python
+# pymetkit
 
 This repository contains an Python interface to the MetKit library for parsing MARS requests. 
 

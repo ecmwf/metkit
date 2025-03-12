@@ -2,8 +2,7 @@ from datetime import datetime, timedelta
 from contextlib import nullcontext as does_not_raise
 import pytest
 
-from metkit import parse_mars_request
-from metkit.mars import Request, MetKitException
+from pymetkit import parse_mars_request, Request, MetKitException
 
 request = """
 retrieve,
