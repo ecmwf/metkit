@@ -52,7 +52,6 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
         }
     }
     return true;
-
 }
 
 

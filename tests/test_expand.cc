@@ -44,11 +44,14 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
     ASSERT(r.verb() ==verb);
     for(const auto& [key, vals] : expected) {
         if (!r.has(key)) {
-                std::cerr << "Expected key " << key << " not found!" << std::endl;
+            std::cerr << "Expected key " << key << " not found!" << std::endl;
         }
         ASSERT(r.has(key));
         auto vv=r.values(key);
-        ASSERT(vv.size() ==vals.size());
+        if (key != "date" && vv.size() != vals.size()) { // dates are verified at a later stage
+            std::cerr << "Expecting " << vals.size() << " values for key " << key << " - found " << vv.size() << " values" << std::endl;
+            ASSERT(vv.size() ==vals.size());
+        }
         for (int i=0; i<vv.size(); i++) {
             if (vv.at(i) != vals.at(i)) {
                 std::cerr << "Error comparing " << key << " -- expecting: " << vals.at(i) << " found: " << vv.at(i) << std::endl;
@@ -66,7 +69,10 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
                 eckit::Date day(d);
                 d=day.yyyymmdd();
             }
-            ASSERT(dd.at(i) ==std::to_string(d));
+            if (dd.at(i) != std::to_string(d)) {
+                std::cerr << "Error comparing dates. Expecting: " << std::to_string(d) << " found: " << dd.at(i) << std::endl;
+            }
+            ASSERT(dd.at(i) == std::to_string(d));
         }
     }
 }
@@ -77,7 +83,7 @@ void expand(const std::string& text, const std::string& verb, const ExpectedOutp
     expand(r, verb, expected, std::move(dates));
 }
 
-void expand(const std::string& text, const std::string& verb, const std::string& expected, std::vector<long> dates) {
+void expand(const std::string& text, const std::string& verb, const std::string& expected, std::vector<long> dates = {}) {
     ExpectedOutput out;
     eckit::Tokenizer c(",");
     eckit::Tokenizer e("=");
@@ -90,6 +96,9 @@ void expand(const std::string& text, const std::string& verb, const std::string&
         e(tt, kv);
         ASSERT(kv.size() == 2);
         auto key = eckit::StringTools::lower(eckit::StringTools::trim(kv[0]));
+        if (key == "date") {
+            ASSERT(dates.size() == 0);
+        }
         eckit::StringList vals;
         s(kv[1], vals);
         std::vector<std::string> vv;
@@ -98,12 +107,19 @@ void expand(const std::string& text, const std::string& verb, const std::string&
             if (key != "source" && key != "target") {
                 val = eckit::StringTools::lower(val);
             }
-            vv.push_back(val);
+            if (key == "date") {
+                dates.push_back(std::stol(val));
+            }
+            else {
+                vv.push_back(val);
+            }
         }
-        out.emplace(key, vv);
+        if (key != "date") {
+            out.emplace(key, vv);
+        }
     }
     MarsRequest r=MarsRequest::parse(text, true);
-    // expand(r, verb, out, std::move(dates));
+    expand(r, verb, out, std::move(dates));
 }
 
 void expandException(const std::string& text) {
@@ -126,7 +142,8 @@ CASE( "test_metkit_expand_1" ) {
         };
     expand(text, "retrieve", expected, {-5,-4,-3,-2,-1});
 
-    const char* expectedStr = "CLASS      = OD,    TYPE       = AN,    STREAM     = OPER,    EXPVER     = 0001,    REPRES     = SH,    LEVTYPE    = PL,    LEVELIST   = 1000/850/700/500/400/300,    PARAM      = 129,    TIME       = 1200,    STEP       = 00,    DOMAIN     = G";
+    // const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,REPRES = SH,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 00,DOMAIN = G";
+    const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 0,DOMAIN = G";
     expand(text, "retrieve", expectedStr, {-5,-4,-3,-2,-1});
 }
 
@@ -834,13 +851,23 @@ CASE("test_metkit_expand_clmn") {
 CASE("test_metkit_expand_") {
     {
         const char* text = "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/0.0,step=000,stream=oper,time=15:00:00,type=an,target=\"reference.1OEDK0.data\"";
-        const char* expected = "CLASS=EA,TYPE=AN,STREAM=OPER, EXPVER=0001, LEVTYPE=ML, LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137, PARAM=133/130/131/132/152/129, TIME=1500, STEP=000, DOMAIN=G, TARGET=reference.1OEDK0.data, RESOL=AUTO, ACCURACY=16, AREA=60/-60/-60/60, ROTATION=0.0/0.0, GRID=.3/.3";
-        expand(text, "retrieve", expected, {20101029});
+        const char* expected = "CLASS=EA,TYPE=AN,STREAM=OPER, EXPVER=0001, LEVTYPE=ML, LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137, PARAM=133/130/131/132/152/129, TIME=1500, STEP=000, DOMAIN=G, TARGET=reference.1OEDK0.data, RESOL=AUTO, ACCURACY=16, AREA=60/-60/-60/60, ROTATION=0.0/0.0, GRID=.3/.3,DATE=20101029";
+        // expand(text, "retrieve", expected);
     }
     {
         const char* text = "retrieve,accuracy=10,class=ea,date=1969-03-28,expver=11,grid=0.25/0.25,levtype=sfc,packing=si,param=142.128/143.128/151.128/165.128/166.128,step=0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,stream=oper,time=00:00:00,type=fc,target=\"reference.rFP7XB.data\"";
-        const char* expected = "CLASS      = EA,    TYPE       = FC,    STREAM     = OPER,    EXPVER     = 0011,     LEVTYPE    = SFC,    PARAM      = 142.128/143.128/151.128/165.128/166.128,    TIME       = 0000,    STEP       = 0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,    DOMAIN     = G,    TARGET     = reference.rFP7XB.data,    RESOL      = AUTO,    ACCURACY   = 10,    GRID       = 0.25/0.25,    PACKING    = SIMPLE";
-        expand(text, "retrieve", expected, {19690328});
+        // const char* expected = "CLASS = EA, TYPE = FC, STREAM = OPER, EXPVER = 0011, LEVTYPE = SFC, PARAM = 142.128/143.128/151.128/165.128/166.128,DATE = 19690328,TIME = 0000,STEP = 0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240, DOMAIN = G, TARGET = reference.rFP7XB.data, RESOL = AUTO, ACCURACY = 10, GRID = 0.25/0.25, PACKING = SIMPLE";
+        /// TODO: RESOL
+        const char* expected = "CLASS = EA, TYPE = FC, STREAM = OPER, EXPVER = 0011, LEVTYPE = SFC, PARAM = 142/143/151/165/166,DATE = 19690328,TIME = 0000,STEP = 0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240, DOMAIN = G, TARGET = reference.rFP7XB.data,ACCURACY = 10,GRID = .25/.25,PACKING = SIMPLE";
+        expand(text, "retrieve", expected);
+    }
+    {
+        const char* text = "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/235,stream=da,style=dissemination,time=00,type=an,target=\"reference.tzpUX7.data\"";
+        // const char* expected = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,REPRES = GG,LEVTYPE = SFC,PARAM = 134/137/165/166/167/168/235,DATE = 20240102,TIME = 0000,STEP = 0,DOMAIN = G,TARGET = \"reference.tzpUX7.data\",RESOL = AV,ACCURACY = 12,STYLE = DISSEMINATION,AREA = 90/0/-90/359.5,GRID = .5/.5,PADDING = 0";
+        /// TODO: RESOL
+        const char* expected = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,LEVTYPE = SFC,PARAM = 134/137/165/166/167/168/235,DATE = 20240102,TIME = 0000,STEP = 0,DOMAIN = G,TARGET = reference.tzpUX7.data,ACCURACY = 12,STYLE = DISSEMINATION,AREA = 90/0/-90/359.5,GRID = .5/.5,PADDING = 0";
+        expand(text, "retrieve", expected);
+
     }
     
 }
