@@ -288,11 +288,8 @@ class PatchedLib:
             # debug
             retval = fn(*args, **kwargs)
 
-            # print("Calling", name, "with", args, kwargs, "returned", retval)
-
-
             # Some functions dont return error codes. Ignore these.
-            if name in ["metkit_version", "metkit_git_sha1", "metkit_string_delete"]:
+            if name in ["metkit_version", "metkit_git_sha1"]:
                 return retval
 
             # error codes:
