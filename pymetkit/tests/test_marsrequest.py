@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from contextlib import nullcontext as does_not_raise
 import pytest
 
-from pymetkit import parse_mars_request, Request, MetKitException
+from pymetkit import parse_mars_request, MarsRequest, MetKitException
 
 request = """
 retrieve,
@@ -50,7 +50,7 @@ def test_parse_file(tmpdir):
     assert "class" in requests[0]
     assert requests[1]["levelist"] == "500"
 
-
+# @todo: [1] no longer raises an exception. Is this correct?
 @pytest.mark.parametrize(
     "req_str, length, steps, strict, expectation",
     [
@@ -82,17 +82,17 @@ def test_empty_request(tmpdir):
 
 
 def test_new_request():
-    req = Request("retrieve")
+    req = MarsRequest("retrieve")
     assert req.verb() == "retrieve"
 
-    req = Request("request", class_="od", type="pf", date=["20200101", "20200102"])
+    req = MarsRequest("request", class_="od", type="pf", date=["20200101", "20200102"])
     assert req["class"] == "od"
     assert req["type"] == "pf"
     assert req["date"] == ["20200101", "20200102"]
 
 
 def test_request_from_expand():
-    req = Request(
+    req = MarsRequest(
         "retrieve",
         **{
             "class": "od",
@@ -109,7 +109,7 @@ def test_request_from_expand():
     expanded.validate()
     assert req == expanded
 
-
+# @todo: [0] and [1] no longer raise an exception. Is this correct?
 @pytest.mark.parametrize(
     "extra_kv",
     [{"levelist": [500]}, {"type": "cf", "number": [1, 2]}, {"class": "invalid"}],
@@ -124,7 +124,7 @@ def test_request_validate(extra_kv):
         "levtype": "sfc",
     }
     request.update(extra_kv)
-    req = Request("retrieve", **request)
+    req = MarsRequest("retrieve", **request)
     with pytest.raises(MetKitException):
         req.validate()
 
@@ -144,8 +144,8 @@ def test_request_merge(extra_kv, expectation):
         "expver": "0001",
         "step": range(0, 13, 6),
     }
-    req = Request("retrieve", **request, date="-1", levtype="sfc")
-    other_req = Request("retrieve", **request, **extra_kv)
+    req = MarsRequest("retrieve", **request, date="-1", levtype="sfc")
+    other_req = MarsRequest("retrieve", **request, **extra_kv)
     with expectation:
         req.merge(other_req)
 
@@ -163,10 +163,10 @@ def test_request_equality(verb, updates, expected):
         "expver": "0001",
         "step": range(0, 13, 6),
     }
-    req = Request(
+    req = MarsRequest(
         "retrieve",
         **init_request,
     )
     second_request = {**init_request, **updates}
-    req2 = Request(verb, **second_request)
+    req2 = MarsRequest(verb, **second_request)
     assert (req == req2) == expected

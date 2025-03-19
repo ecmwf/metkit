@@ -26,7 +26,7 @@ def ffi_decode(data: FFI.CData) -> str:
         return buf.decode(encoding="utf-8", errors="surrogateescape")
 
 
-class Request:
+class MarsRequest:
     def __init__(self, verb: str | None = None, **kwargs):
         """
         Create MetKit MarsRequest object. Parameters and values in
@@ -49,7 +49,7 @@ class Request:
         lib.metkit_marsrequest_verb(self.__request, cverb)
         return ffi_decode(cverb[0])
 
-    def expand(self, inherit: bool = True, strict: bool = False) -> "Request":
+    def expand(self, inherit: bool = True, strict: bool = False) -> "MarsRequest":
         """
         Return expanded request
 
@@ -62,7 +62,7 @@ class Request:
         -------
         Request, resulting from expansion
         """
-        expanded_request = Request()
+        expanded_request = MarsRequest()
         lib.metkit_marsrequest_expand(
             self.__request, inherit, strict, expanded_request.ctype()
         )
@@ -114,7 +114,7 @@ class Request:
         lib.metkit_marsrequest_count_values(self.__request, cparam, count)
         return count[0]
 
-    def merge(self, other: "Request") -> "Request":
+    def merge(self, other: "MarsRequest") -> "MarsRequest":
         """
         Merge the values in another request with existing request and returns result as a
         new Request object. Does not modify inputs to merge. Both input requests must contain
@@ -136,7 +136,7 @@ class Request:
         """
         if set(self.keys()) != set(other.keys()):
             raise ValueError("Can not merge requests with different parameters.")
-        res = Request(self.verb(), **{k: v for k, v in self})
+        res = MarsRequest(self.verb(), **{k: v for k, v in self})
         lib.metkit_marsrequest_merge(res.ctype(), other.ctype())
         res.validate()
         return res
@@ -177,7 +177,7 @@ class Request:
             len(values),
         )
 
-    def __eq__(self, other: "Request") -> bool:
+    def __eq__(self, other: "MarsRequest") -> bool:
         if self.verb() != other.verb():
             return False
         expanded = self.expand()
@@ -185,7 +185,7 @@ class Request:
         return dict(expanded) == dict(other_expanded)
 
 
-def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Request]:
+def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[MarsRequest]:
     """
     Function for parsing mars request from file object or string.
 
@@ -212,7 +212,7 @@ def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Requ
 
     requests = []
     while lib.metkit_requestiterator_next(request_iter) == lib.METKIT_ITERATOR_SUCCESS:
-        new_request = Request()
+        new_request = MarsRequest()
         lib.metkit_requestiterator_current(request_iter, new_request.ctype())
         requests.append(new_request)
 
