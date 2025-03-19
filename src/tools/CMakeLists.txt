@@ -74,8 +74,19 @@ ecbuild_add_executable(
 
 
 if(HAVE_BUILD_TOOLS)
-  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/nccompare.py
-    DESTINATION ${CMAKE_BINARY_DIR}/bin
-    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+    list( APPEND tools nccompare.py compare-mars-requests.py )
+
+    foreach( _tool ${tools} )
+
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${_tool}
+            DESTINATION ${CMAKE_BINARY_DIR}/bin
+            FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+
+    endforeach()
+
+    install( FILES  ${CMAKE_BINARY_DIR}/bin/compare-mars-requests.py
+        DESTINATION "bin"
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ )
+
 endif()
 

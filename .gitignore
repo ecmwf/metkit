@@ -8,7 +8,6 @@ doc/latex
 .*.sw*
 .*un~
 *.ccls-cache
-share
 *.py[cod]
 *.swp
 **/__pycache__

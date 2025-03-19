@@ -195,6 +195,9 @@ MarsParsedRequest MarsParser::parseRequest() {
         r.values(key, parseValues());
         c = peek();
     }
+    if (c == '.') {
+        consume('.');
+    }
 
     return r;
 }
