@@ -159,7 +159,7 @@ CASE( "metkit_requestiterator_t parsing" ) {
     }
 
     // cleanup
-    metkit_delete_requestiterator(it); // NB: requests have been moved out of the iterator
+    metkit_requestiterator_delete(it); // NB: requests have been moved out of the iterator
     for (auto req : requests) {
         metkit_marsrequest_delete(req);
     }
@@ -213,7 +213,7 @@ CASE( "metkit_requestiterator_t 1 item" ) {
     EXPECT_EQUAL(requests.size(), 1);
 
     // cleanup
-    metkit_delete_requestiterator(it);
+    metkit_requestiterator_delete(it);
     for (auto req : requests) {
         metkit_marsrequest_delete(req);
     }

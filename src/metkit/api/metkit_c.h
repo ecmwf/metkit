@@ -201,7 +201,7 @@ metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const met
  * @param it RequestIterator instance
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it);
+metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it);
 
 /** Moves to the next Request element in RequestIterator
  * @param it RequestIterator instance
