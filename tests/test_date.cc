@@ -18,6 +18,7 @@
 
 #include "metkit/mars/TypeDate.h"
 #include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsLanguage.h"
 
 using namespace eckit;
 using namespace eckit::testing;
@@ -26,24 +27,34 @@ namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 
+void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
+    const std::vector<std::string>& expected) {
+    std::cout << "comparing " << values << " with " << expected;
+    static MarsLanguage language("retrieve");
+    language.type(name)->expand(DummyContext(), values);
+    std::cout << " ==> got " << values << std::endl;
+    ASSERT(values == expected);
+}
+
 CASE("Test TypeDate expansions") {
 
     TypeDate tdate("date", Value());
     Type& td(tdate);
     DummyContext ctx;
 
-    // 1 and 2-digit times
+    assertTypeExpansion("date", {"20140506"}, {"20140506"});
+    assertTypeExpansion("date", {"2014-05-06"}, {"20140506"});
+    assertTypeExpansion("date", {"20140506", "20140507"}, {"20140506", "20140507"});
+    assertTypeExpansion("date", {"20140506", "to", "20140506"}, {"20140506"});
+    assertTypeExpansion("date", {"20140506", "to", "20140507"}, {"20140506", "20140507"});
+    assertTypeExpansion("date", {"20140506", "to", "20140508"}, {"20140506", "20140507", "20140508"});
+    assertTypeExpansion("date", {"20140504", "20140506", "to", "20140508"}, {"20140504", "20140506", "20140507", "20140508"});
+    assertTypeExpansion("date", {"2"}, {"2"});
+    assertTypeExpansion("date", {"jan"}, {"1"});
+    assertTypeExpansion("date", {"1-01"}, {"101"});
+    assertTypeExpansion("date", {"jan-01"}, {"101"});
+    assertTypeExpansion("date", {"feb-23"}, {"223"});
 
-    {
-        std::string value = "20140506";
-        td.expand(ctx, value);
-        EXPECT(value == "20140506");
-    }
-    {
-        std::string value = "2014-05-06";
-        td.expand(ctx, value);
-        EXPECT(value == "20140506");
-    }
     {
         std::string value = "20141506";
         EXPECT_THROWS(td.expand(ctx, value)); // throws BadDate that is not exported
@@ -52,43 +63,6 @@ CASE("Test TypeDate expansions") {
         std::string value = "-1";
         td.expand(ctx, value);
         // EXPECT(value == "0600");
-    }
-    {
-        std::vector<std::string> values{"20140506", "20140507"};
-        td.expand(ctx, values);
-        EXPECT(values.size() == 2);
-        EXPECT(values[0] == "20140506");
-        EXPECT(values[1] == "20140507");
-    }
-    {
-        std::vector<std::string> values{"20140506", "to", "20140506"};
-        td.expand(ctx, values);
-        EXPECT(values.size() == 1);
-        EXPECT(values[0] == "20140506");
-    }
-    {
-        std::vector<std::string> values{"20140506", "to", "20140507"};
-        td.expand(ctx, values);
-        EXPECT(values.size() == 2);
-        EXPECT(values[0] == "20140506");
-        EXPECT(values[1] == "20140507");
-    }
-    {
-        std::vector<std::string> values{"20140506", "to", "20140508"};
-        td.expand(ctx, values);
-        EXPECT(values.size() == 3);
-        EXPECT(values[0] == "20140506");
-        EXPECT(values[1] == "20140507");
-        EXPECT(values[2] == "20140508");
-    }
-    {
-        std::vector<std::string> values{"20140504", "20140506", "to", "20140508"};
-        td.expand(ctx, values);
-        EXPECT(values.size() == 4);
-        EXPECT(values[0] == "20140504");
-        EXPECT(values[1] == "20140506");
-        EXPECT(values[2] == "20140507");
-        EXPECT(values[3] == "20140508");
     }
 }
 
