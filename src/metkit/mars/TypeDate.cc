@@ -20,16 +20,15 @@
 #include "metkit/mars/MarsExpandContext.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings),
-    by_(1) {
+    Type(name, settings), TypeToByList<eckit::Date, long>(name, settings) {
 
     DummyContext ctx;
+    multiple_ = true;
 }
 
 TypeDate::~TypeDate() {
@@ -37,59 +36,27 @@ TypeDate::~TypeDate() {
 
 void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
-    expand(ctx, values);
+    Type::expand(ctx, values);
     request.setValuesTyped(this, values);
 }
 
 bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
-    if (!value.empty() && (value[0] == '0' || value[0] == '-')) {
-        eckit::Translator<std::string, long> t;
-        long n = t(value);
-        if (n <= 0) {
-            eckit::Date now(n);
-            eckit::Translator<long, std::string> t;
-            value = t(now.yyyymmdd());
+    if (!value.empty()) {
+        eckit::Translator<long, std::string> l2s;
+        if (value[0] == '0' || value[0] == '-') {
+            eckit::Translator<std::string, long> s2l;
+            long n = s2l(value);
+            if (n <= 0) {
+                eckit::Date now(n);
+                value = l2s(now.yyyymmdd());
+            }
+        }
+        else {
+            eckit::Date date(value);
+            value = l2s(date.yyyymmdd());
         }
     }
     return true;
-}
-
-
-void TypeDate::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
-
-    static eckit::Translator<std::string, long> s2l;
-    static eckit::Translator<long, std::string> l2s;
-
-    if (values.size() == 3) {
-        if (eckit::StringTools::lower(values[1])[0] == 't') {
-            eckit::Date from = tidy(ctx, values[0]);
-            eckit::Date to = tidy(ctx, values[2]);
-            long by = by_;
-            values.clear();
-            values.reserve((to - from) / by + 1);
-            for (eckit::Date i = from; i <= to; i += by) {
-                values.push_back(l2s(i.yyyymmdd()));
-            }
-            return;
-        }
-    }
-
-    if (values.size() == 5) {
-        if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
-            eckit::Date from = tidy(ctx, values[0]);
-            eckit::Date to = tidy(ctx, values[2]);
-            long by = s2l(tidy(ctx, values[4]));
-            values.clear();
-            values.reserve((to - from) / by + 1);
-
-            for (eckit::Date i = from; i <= to; i += by) {
-                values.push_back(l2s(i.yyyymmdd()));
-            }
-            return;
-        }
-    }
-
-    Type::expand(ctx, values);
 }
 
 void TypeDate::print(std::ostream & out) const {
@@ -100,5 +67,4 @@ static TypeBuilder<TypeDate> type("date");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+} // namespace metkit::mars

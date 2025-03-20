@@ -619,6 +619,7 @@ _field: &_field
     category: data
     multiple: true
     type: date
+    by: 1
     defaults:
       - vals: [-1]
     unset:
@@ -694,6 +695,7 @@ _field: &_field
     category: data
     multiple: true
     type: time
+    by: 6h
     defaults:
       - vals: ['1200']
     set:

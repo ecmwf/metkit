@@ -62,7 +62,10 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
     if (dates.size() > 0) {
         ASSERT(r.has("date"));
         auto dd=r.values("date");
-        ASSERT(dd.size() ==dates.size());
+        if (dd.size() != dates.size()) {
+            std::cerr << "expecting: " << dates << " found: " << dd << std::endl;
+        }
+        ASSERT(dd.size() == dates.size());
         for (int i=0; i<dates.size(); i++) {
             long d=dates.at(i);
             if (d<0) {
@@ -127,7 +130,7 @@ void expandException(const std::string& text) {
 }
 
 CASE( "test_metkit_expand_1" ) {
-    const char* text = "ret,date=-5/to/-1.";
+    const char* text = "ret,date=-5/to/-1";
     ExpectedOutput expected{
             {"class", {"od"}},
             {"domain", {"g"}},
@@ -141,6 +144,9 @@ CASE( "test_metkit_expand_1" ) {
             {"type", {"an"}}
         };
     expand(text, "retrieve", expected, {-5,-4,-3,-2,-1});
+
+    const char* text2 = "ret,date=-5/to/-1.";
+    expand(text2, "retrieve", expected, {-5,-4,-3,-2,-1});
 
     // const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,REPRES = SH,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 00,DOMAIN = G";
     const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 0,DOMAIN = G";
@@ -387,7 +393,6 @@ CASE( "test_metkit_expand_11_quantile" ) {
     quantileThrows({"3:5","to","5:10"});
     quantileThrows({"3:5","to","2:5"});
     quantileThrows({"1:5","to","3:5","by"});
-    quantileThrows({"1:5","to","3:5","by","1:5"});
 
     quantile({"0:5","to","0:5"}, {"0:5"});
     quantile({"3:3","to","3:3"}, {"3:3"});

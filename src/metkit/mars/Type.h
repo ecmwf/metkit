@@ -11,10 +11,10 @@
 /// @file   Type.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_Type_H
-#define metkit_Type_H
+#pragma once
 
 #include <iosfwd>
 #include <memory>
@@ -24,7 +24,6 @@
 
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
-
 
 namespace metkit::mars {
 
@@ -76,8 +75,8 @@ class Type : public eckit::Counted {
 public:  // methods
     Type(const std::string& name, const eckit::Value& settings);
 
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const;
+    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const {}
+    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 
     virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
@@ -132,5 +131,3 @@ private:  // methods
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif

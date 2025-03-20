@@ -11,19 +11,19 @@
 /// @file   TypeFloat.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_TypeFloat_H
-#define metkit_TypeFloat_H
+#pragma once
 
 #include "metkit/mars/Type.h"
+#include "metkit/mars/TypeToByList.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeFloat : public Type {
+class TypeFloat : virtual public Type {
 
 public: // methods
 
@@ -37,9 +37,15 @@ private: // methods
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 };
 
+
+class TypeToByListFloat : public TypeFloat, public TypeToByList<float, float> {
+public: 
+    TypeToByListFloat(const std::string &name, const eckit::Value& settings);
+
+protected:
+    void print( std::ostream &out ) const override;
+};
+        
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
-
-#endif
+} // namespace metkit::mars

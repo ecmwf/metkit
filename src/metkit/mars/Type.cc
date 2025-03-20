@@ -333,6 +333,9 @@ bool Type::expand(const MarsExpandContext&, std::string& value) const {
 }
 
 void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
+
+    expandRanges(ctx, values);
+
     std::vector<std::string> newvals;
 
     std::set<std::string> seen;
