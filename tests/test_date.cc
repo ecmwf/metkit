@@ -46,7 +46,7 @@ CASE("Test TypeDate expansions") {
     }
     {
         std::string value = "20141506";
-        EXPECT_THROWS_AS(td.expand(ctx, value), BadDate);
+        EXPECT_THROWS(td.expand(ctx, value)); // throws BadDate that is not exported
     }
     {
         std::string value = "-1";
