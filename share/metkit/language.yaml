@@ -350,6 +350,7 @@ _field: &_field
         val: 'prod'
 
   dataset:
+    category: data
     multiple: false
     type: enum
     values:
@@ -1323,7 +1324,6 @@ disseminate:
     type: any
 
   use:
-    category: data
     flatten: false
     multiple: true
     type: enum
