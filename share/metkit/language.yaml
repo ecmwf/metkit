@@ -1,6 +1,11 @@
 ---
 _field: &_field
 
+  style:
+    type: enum
+    values:
+    - [dissemination]
+
   class:
     category: data
     defaults:
@@ -373,11 +378,12 @@ _field: &_field
     - [kwbc]
     - [none]
     - [hrm]
-    - [lm]
     - [ifs, IFS, IFS with no ocean model]
     - [ifs-nemo, IFS-NEMO, IFS with NEMO ocean model]
     - [ifs-fesom, IFS-FESOM, IFS with FESOM ocean model]
     - [icon, ICON, ICON-A with ICON-O ocean model]
+    - [lisflood]
+    - [lm]
     - [aifs]
     - [aifs-single]
     - [aifs-single-mse]
@@ -616,6 +622,7 @@ _field: &_field
     category: data
     multiple: true
     type: date
+    by: 1
     defaults:
       - vals: [-1]
     unset:
@@ -691,6 +698,7 @@ _field: &_field
     category: data
     multiple: true
     type: time
+    by: 6h
     defaults:
       - vals: ['1200']
     set:
@@ -1241,8 +1249,8 @@ _postproc: &_postproc
     - - so
       - second order
     - ['off', av]
-    - [co, complex]
-    - simple
+    - [complex, co]
+    - [simple, si]
     - ccsds
 
   resol:
@@ -1427,7 +1435,7 @@ retrieve:
 
   padding:
     flatten: false
-    type: enum
+    type: [enum, integer]
     values:
     - none
     - auto

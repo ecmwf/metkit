@@ -84,12 +84,25 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string &value) const  
     return true;
 }
 
-
 void TypeFloat::print(std::ostream &out) const {
-    out << "TypeFloat[name=" << name_ << "]";
+    out << "TypeFloat[name=" << name() << "]";
 }
 
 static TypeBuilder<TypeFloat> type("float");
+
+//----------------------------------------------------------------------------------------------------------------------
+
+TypeToByListFloat::TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings), TypeFloat(name, settings), TypeToByList<float, float>(name, settings) {
+
+    multiple_ = true;
+}
+
+void TypeToByListFloat::print(std::ostream &out) const {
+    out << "TypeToByListFloat[name=" << name()  << "]";
+}
+
+static TypeBuilder<TypeToByListFloat> typeList("to-by-list-float");
 
 //----------------------------------------------------------------------------------------------------------------------
 

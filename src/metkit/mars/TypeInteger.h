@@ -11,19 +11,19 @@
 /// @file   TypeInteger.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_TypeInteger_H
-#define metkit_TypeInteger_H
+#pragma once
 
 #include "metkit/mars/Type.h"
+#include "metkit/mars/TypeToByList.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeInteger : public Type {
+class TypeInteger : virtual public Type {
 
 public: // methods
 
@@ -34,7 +34,7 @@ public: // methods
 protected:
 
     bool ok(const std::string &value, long& n) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
 private: // methods
 
@@ -43,9 +43,14 @@ private: // methods
 
 };
 
+class TypeToByListInt : public TypeInteger, public TypeToByList<long, long> {
+public: 
+    TypeToByListInt(const std::string &name, const eckit::Value& settings);
+
+protected:
+    void print( std::ostream &out ) const override;
+};
+    
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
-
-#endif
+} // namespace metkit::mars

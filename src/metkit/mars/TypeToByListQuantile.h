@@ -15,13 +15,13 @@
 #pragma once
 
 #include "metkit/mars/Type.h"
-
-namespace metkit {
-namespace mars {
+#include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/Quantile.h"
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeToByListQuantile : public Type {
+class TypeToByListQuantile : virtual public Type, public TypeToByList<Quantile, long> {
 
 public: // methods
 
@@ -33,15 +33,10 @@ private: // methods
 
     virtual void print( std::ostream &out ) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const override;
 
     std::set<long> denominators_;
-    long by_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+} // namespace metkit::mars

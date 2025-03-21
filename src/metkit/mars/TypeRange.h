@@ -15,14 +15,22 @@
 #pragma once
 
 #include "metkit/mars/Type.h"
+#include "metkit/mars/TypeToByList.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class StepRange;
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeRange : public Type {
+class ExtendedTime : public eckit::Time {
+public:
+    ExtendedTime(long seconds = 0) : Time(seconds, true) {}
+    ExtendedTime(const std::string& time) : Time(time, true) {}
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class TypeRange : virtual public Type, public TypeToByList<StepRange, ExtendedTime> {
 
 public: // methods
 
@@ -34,18 +42,11 @@ private: // methods
 
     virtual void print( std::ostream &out ) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const override;
 
     StepRange parse(std::string& value) const;
-
-private: // attributes
-
-    eckit::Time by_;
 
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+} // namespace metkit::mars

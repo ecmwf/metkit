@@ -11,9 +11,8 @@
 #include "eckit/utils/Translator.h"
 
 #include "metkit/mars/MarsRequest.h"
-
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeInteger.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit {
 namespace mars {
@@ -28,7 +27,7 @@ TypeInteger::~TypeInteger() {
 }
 
 void TypeInteger::print(std::ostream &out) const {
-    out << "TypeInteger[name=" << name_ << "]";
+    out << "TypeInteger[name=" << name() << "]";
 }
 
 bool TypeInteger::ok(const std::string &value, long& n) const {
@@ -79,6 +78,20 @@ bool TypeInteger::expand(const MarsExpandContext& ctx, std::string &value) const
 }
 
 static TypeBuilder<TypeInteger> type("integer");
+
+//----------------------------------------------------------------------------------------------------------------------
+
+TypeToByListInt::TypeToByListInt(const std::string &name, const eckit::Value& settings) :
+    Type(name, settings), TypeInteger(name, settings), TypeToByList<long, long>(name, settings) {
+
+    Type::multiple_ = true;
+}
+
+void TypeToByListInt::print(std::ostream &out) const {
+    out << "TypeToByListInt[name=" << name() << "]";
+}
+
+static TypeBuilder<TypeToByListInt> typeList("to-by-list");
 
 //----------------------------------------------------------------------------------------------------------------------
 
