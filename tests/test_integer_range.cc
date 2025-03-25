@@ -131,10 +131,12 @@ CASE("Test TypeInteger day expansion range=[-1,1]") {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CASE("Test disseminate day expansion default by/2") {
+CASE("Test disseminate day expansion default by/1") {
 
-    const auto expected = std::vector<std::string>{"1",  "3",  "5",  "7",  "9",  "11", "13", "15",
-                                                   "17", "19", "21", "23", "25", "27", "29", "31"};
+    std::vector<std::string> expected;
+    for (int i = 1; i < 32; ++i) {
+        expected.push_back(std::to_string(i));
+    }
 
     const auto* text = R"(disseminate,
   class               = od,
