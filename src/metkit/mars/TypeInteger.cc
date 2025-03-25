@@ -22,9 +22,10 @@ namespace mars {
 
 TypeInteger::TypeInteger(const std::string &name, const eckit::Value& settings) :
     Type(name, settings) {
-}
-
-TypeInteger::~TypeInteger() {
+    // check if the settings contain a range
+    if (settings.contains("range") && settings["range"].size() == 2) {
+        range_ = {settings["range"][0], settings["range"][1]};
+    }
 }
 
 void TypeInteger::print(std::ostream &out) const {
@@ -65,7 +66,8 @@ bool TypeInteger::ok(const std::string &value, long& n) const {
         }
     }
     n *= sign;
-    return true;
+
+    return !range_ || (n >= range_->lower_ && n <= range_->upper_);
 }
 
 bool TypeInteger::expand(const MarsExpandContext& ctx, std::string &value) const  {

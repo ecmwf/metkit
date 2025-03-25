@@ -16,36 +16,39 @@
 #ifndef metkit_TypeInteger_H
 #define metkit_TypeInteger_H
 
+#include <iosfwd>
+#include <optional>
+
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class TypeInteger : public Type {
 
-public: // methods
-
-    TypeInteger(const std::string &name, const eckit::Value& settings);
-
-    virtual ~TypeInteger() override;
+public:  // methods
+    TypeInteger(const std::string& name, const eckit::Value& settings);
 
 protected:
+    bool ok(const std::string& value, long& n) const;
 
-    bool ok(const std::string &value, long& n) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
-private: // methods
+private:  // methods
+    void print(std::ostream& out) const override;
 
+private:  // members
+    struct Range {
+        int lower_;
+        int upper_;
+    };
 
-    virtual void print( std::ostream &out ) const override;
-
+    std::optional<Range> range_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace metkit::mars
 
 #endif
