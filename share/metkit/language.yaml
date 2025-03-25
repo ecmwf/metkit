@@ -1323,6 +1323,12 @@ disseminate:
   requirements:
     type: any
 
+  day:
+    category: postproc
+    multiple: true
+    type: integer
+    range: [1, 31]
+
   use:
     flatten: false
     multiple: true
