@@ -1326,7 +1326,8 @@ disseminate:
   day:
     category: postproc
     multiple: true
-    type: integer
+    type: to-by-list
+    by: 2
     range: [1, 31]
 
   use:
