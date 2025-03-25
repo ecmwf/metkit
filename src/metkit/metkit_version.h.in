@@ -8,6 +8,7 @@
 #define metkit_VERSION_MINOR @metkit_VERSION_MINOR@
 #define metkit_VERSION_PATCH @metkit_VERSION_PATCH@
 
+#define metkit_GIT_SHA1 "@metkit_GIT_SHA1@"
 
 #ifdef __cplusplus
 extern "C" {

@@ -49,3 +49,4 @@ axes:
     - resolution
     - year
     - month
+    - obsgroup

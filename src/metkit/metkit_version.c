@@ -12,7 +12,7 @@ unsigned int metkit_version_int() {
 
 const char * metkit_version_str() { return metkit_VERSION_STR; }
 
-const char * metkit_git_sha1() { return "@metkit_GIT_SHA1@"; }
+const char * metkit_git_sha1() { return metkit_GIT_SHA1; }
 
 #ifdef __cplusplus
 }
