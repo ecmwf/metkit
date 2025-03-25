@@ -15,13 +15,12 @@
 #pragma once
 
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/Quantile.h"
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeToByListQuantile : virtual public Type, public TypeToByList<Quantile, long> {
+class TypeToByListQuantile : public Type {
 
 public: // methods
 

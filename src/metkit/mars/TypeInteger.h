@@ -17,13 +17,12 @@
 #pragma once
 
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeInteger : virtual public Type {
+class TypeInteger : public Type {
 
 public: // methods
 
@@ -43,7 +42,7 @@ private: // methods
 
 };
 
-class TypeToByListInt : public TypeInteger, public TypeToByList<long, long> {
+class TypeToByListInt : public TypeInteger {
 public: 
     TypeToByListInt(const std::string &name, const eckit::Value& settings);
 

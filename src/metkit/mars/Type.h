@@ -71,17 +71,24 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class ITypeToByList {
+public:
+    virtual ~ITypeToByList() = default;
+    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
+};
+    
+//----------------------------------------------------------------------------------------------------------------------
+
 class Type : public eckit::Counted {
 public:  // methods
     Type(const std::string& name, const eckit::Value& settings);
 
-    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const {}
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 
-    virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
-    virtual std::string tidy(const std::string& value) const;
-    virtual std::vector<std::string> tidy(const std::vector<std::string>& values) const;
+    std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
+    std::string tidy(const std::string& value) const;
+    std::vector<std::string> tidy(const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
@@ -123,6 +130,8 @@ protected:  // members
 
 protected:  // methods
     virtual ~Type() override;
+
+    std::unique_ptr<ITypeToByList> toByList_;
 
 private:  // methods
     virtual void print(std::ostream& out) const = 0;

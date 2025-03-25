@@ -18,13 +18,12 @@
 #define metkit_TypeTime_H
 
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeTime : virtual public Type, public TypeToByList<eckit::Time, eckit::Time>  {
+class TypeTime : public Type {
 
 public: // methods
 
@@ -38,8 +37,6 @@ private: // methods
     // virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
     
-    // long by_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------

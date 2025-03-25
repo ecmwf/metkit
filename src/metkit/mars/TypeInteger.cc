@@ -13,6 +13,7 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeInteger.h"
 #include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/TypeToByList.h"
 
 namespace metkit {
 namespace mars {
@@ -82,9 +83,10 @@ static TypeBuilder<TypeInteger> type("integer");
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeToByListInt::TypeToByListInt(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings), TypeInteger(name, settings), TypeToByList<long, long>(name, settings) {
+    TypeInteger(name, settings) {
 
-    Type::multiple_ = true;
+    toByList_ = std::make_unique<TypeToByList<long, long>>(this, settings);
+    multiple_ = true;
 }
 
 void TypeToByListInt::print(std::ostream &out) const {

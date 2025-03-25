@@ -15,22 +15,14 @@
 #pragma once
 
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
 
 class StepRange;
-//----------------------------------------------------------------------------------------------------------------------
-
-class ExtendedTime : public eckit::Time {
-public:
-    ExtendedTime(long seconds = 0) : Time(seconds, true) {}
-    ExtendedTime(const std::string& time) : Time(time, true) {}
-};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeRange : virtual public Type, public TypeToByList<StepRange, ExtendedTime> {
+class TypeRange : public Type {
 
 public: // methods
 

@@ -8,17 +8,16 @@
  * does it submit to any jurisdiction.
  */
 
-#include "eckit/utils/Translator.h"
-#include "eckit/utils/Tokenizer.h"
 #include "eckit/types/Date.h"
+#include "eckit/utils/StringTools.h"
+#include "eckit/utils/Tokenizer.h"
+#include "eckit/utils/Translator.h"
 
+#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeDate.h"
-#include "eckit/utils/StringTools.h"
-
-#include "metkit/mars/MarsExpandContext.h"
-
+#include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
 
@@ -43,9 +42,11 @@ int month(const std::string& value) {
 }
 
 TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings), TypeToByList<eckit::Date, long>(name, settings) {
+    Type(name, settings) {
 
     DummyContext ctx;
+    toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(this, settings);
+
     multiple_ = true;
 }
 

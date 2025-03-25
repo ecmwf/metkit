@@ -17,13 +17,12 @@
 #pragma once
 
 #include "metkit/mars/Type.h"
-#include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class TypeDate : virtual public Type, public TypeToByList<eckit::Date, long>  {
+class TypeDate : public Type {
 
 public: // methods
 

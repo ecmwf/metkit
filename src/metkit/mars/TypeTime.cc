@@ -13,18 +13,18 @@
 
 #include "metkit/mars/TypeTime.h"
 
-// #include "eckit/utils/Translator.h"
-// #include "eckit/types/Date.h"
-// #include "eckit/utils/StringTools.h"
-
 #include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/TypeToByList.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings), TypeToByList<eckit::Time, eckit::Time>(name, settings) {
+    Type(name, settings) {
+
+    toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(this, settings);
+    multiple_ = true;
 }
 
 TypeTime::~TypeTime() {

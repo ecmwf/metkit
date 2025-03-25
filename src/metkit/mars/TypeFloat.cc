@@ -14,6 +14,7 @@
 
 #include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeFloat.h"
+#include "metkit/mars/TypeToByList.h"
 
 namespace metkit {
 namespace mars {
@@ -93,8 +94,9 @@ static TypeBuilder<TypeFloat> type("float");
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeToByListFloat::TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings), TypeFloat(name, settings), TypeToByList<float, float>(name, settings) {
+    TypeFloat(name, settings) {
 
+    toByList_ = std::make_unique<TypeToByList<float, float>>(this, settings);
     multiple_ = true;
 }
 
