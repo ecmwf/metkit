@@ -350,12 +350,14 @@ _field: &_field
         val: 'prod'
 
   dataset:
+    category: data
     multiple: false
     type: enum
     values:
-    - climate-dt
-    - extremes-dt
-    - on-demand-extremes-dt
+    - [climate-dt, Climate change adaptation digital twin]
+    - [extremes-dt, Weather and geophysical extremes digital twin]
+    - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
+    - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
     only:
       - context:
           class: [d1]
@@ -372,10 +374,10 @@ _field: &_field
     - [none]
     - [hrm]
     - [lm]
-    - [ifs]
-    - [ifs-nemo]
-    - [ifs-fesom]
-    - [icon]
+    - [ifs, IFS, IFS with no ocean model]
+    - [ifs-nemo, IFS-NEMO, IFS with NEMO ocean model]
+    - [ifs-fesom, IFS-FESOM, IFS with FESOM ocean model]
+    - [icon, ICON, ICON-A with ICON-O ocean model]
     - [aifs]
     - [aifs-single]
     - [aifs-single-mse]
@@ -389,6 +391,7 @@ _field: &_field
     unset:
       - context:
           class: [ml]
+
 
   georef:
     type: lowercase
@@ -1029,42 +1032,49 @@ _field: &_field
     category: data
     type: enum
     values:
-    - cmip6
-    - scenariomip
-    - highresmip
-    - story-nudging
+    - [cmip6, CMIP6, Coupled Model Intercomparison Project Phase 6]
+    - [scenariomip, ScenarioMIP, Scenario Model Intercomparison Project]
+    - [highresmip, HighResMIP, High Resolution Model Intercomparison Project]
+    - [story-nudging, Climate storylines by nudging to reanalysis]
+    - [baseline, Baseline simulations for climate model evaluation]
+    - [projections, Future climate projections]
+
 
   experiment:
     category: data
     type: enum
     values:
-    - hist
-    - cont
-    - amip
-    - ssp1-1.9
-    - ssp1-2.6
-    - ssp2-4.5
-    - ssp3-7.0
-    - ssp5-8.5
-    - tplus1.5k
-    - tplus2.0k
-    - tplus3.0k
-    - tplus4.0k
+    - [hist, Historical]
+    - [cont, Control]
+    - [amip, Atmospheric Model Intercomparison Project]
+    - [ssp1-1.9, SSP1-1.9, Shared Socio-economic Pathways 1-1.9]
+    - [ssp1-2.6, SSP1-2.6, Shared Socio-economic Pathways 1-2.6]
+    - [ssp2-4.5, SSP2-4.5, Shared Socio-economic Pathways 2-4.5]
+    - [ssp3-7.0, SSP3-7.0, Shared Socio-economic Pathways 3-7.0]
+    - [ssp5-8.5, SSP5-8.5, Shared Socio-economic Pathways 5-8.5]
+    - [tplus1.5k, Tplus1.5K, Warmer world at 1.5 degrees K above pre-industrial temperatures]
+    - [tplus2.0k, Tplus2.0K, Warmer world at 2.0 degrees K above pre-industrial temperatures]
+    - [tplus3.0k, Tplus3.0K, Warmer world at 3.0 degrees K above pre-industrial temperatures]
+    - [tplus4.0k, Tplus4.0K, Warmer world at 4.0 degrees K above pre-industrial temperatures]
+    - [abrupt4xco2, CO2 abruptly quadrupled and then held constant]
+
 
   generation:
     category: data
     type: integer
 
+
   realization:
     category: data
     type: integer
+
 
   resolution:
     category: data
     type: enum
     values:
-    - standard
-    - high
+    - [standard, Standard resolution model output with longer availability]
+    - [high, High resolution model output with limited availability]
 
 #######################################################################
 
@@ -1314,7 +1324,6 @@ disseminate:
     type: any
 
   use:
-    category: data
     flatten: false
     multiple: true
     type: enum
