@@ -42,41 +42,28 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
     // MarsExpension exp(false);
     // MarsRequest r=exp.expand(req);
     std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
-    EXPECT_EQUAL(r.verb(), verb);
-    for(const auto& [key, vals] : expected) {
-        if (!r.has(key)) {
-            std::cerr << "Expected key " << key << " not found!" << std::endl;
-        }
-        EXPECT(r.has(key));
-        auto vv=r.values(key);
-        if (key != "date" && vv.size() != vals.size()) { // dates are verified at a later stage
-            std::cerr << "Expecting " << vals.size() << " values for key " << key << " - found " << vv.size() << " values" << std::endl;
-            EXPECT_EQUAL(vv.size(), vals.size());
+    EXPECT_EQUAL(verb, r.verb());
+    for(const auto& e : expected) {
+        EXPECT(r.has(e.first));
+        auto vv=r.values(e.first);
+        if (e.first != "date") { // dates are verified at a later stage
+            EXPECT_EQUAL(e.second.size(), vv.size());
         }
         for (int i=0; i<vv.size(); i++) {
-            if (vv.at(i) != vals.at(i)) {
-                std::cerr << "Error comparing " << key << " -- expecting: " << vals.at(i) << " found: " << vv.at(i) << std::endl;
-            }
-            EXPECT_EQUAL(vv.at(i), vals.at(i));
+            EXPECT_EQUAL(e.second.at(i), vv.at(i));
         }
     }
     if (dates.size() > 0) {
         EXPECT(r.has("date"));
         auto dd=r.values("date");
-        if (dd.size() != dates.size()) {
-            std::cerr << "expecting: " << dates << " found: " << dd << std::endl;
-        }
-        EXPECT_EQUAL(dd.size(), dates.size());
+        EXPECT_EQUAL(dates.size(), dd.size());
         for (int i=0; i<dates.size(); i++) {
             long d=dates.at(i);
             if (d<0) {
                 eckit::Date day(d);
                 d=day.yyyymmdd();
             }
-            if (dd.at(i) != std::to_string(d)) {
-                std::cerr << "Error comparing dates. Expecting: " << std::to_string(d) << " found: " << dd.at(i) << std::endl;
-            }
-            EXPECT_EQUAL(dd.at(i), std::to_string(d));
+            EXPECT_EQUAL(std::to_string(d), dd.at(i));
         }
     }
 }
@@ -97,10 +84,10 @@ void expand(const std::string& text, const std::string& verb, const std::string&
         auto tt = eckit::StringTools::trim(t);
         eckit::StringList kv;
         e(tt, kv);
-        EXPECT_EQUAL(kv.size(), 2);
+        EXPECT_EQUAL(2, kv.size());
         auto key = eckit::StringTools::lower(eckit::StringTools::trim(kv[0]));
         if (key == "date") {
-            EXPECT_EQUAL(dates.size(), 0);
+            EXPECT_EQUAL(0, dates.size());
         }
         eckit::StringList vals;
         s(kv[1], vals);
