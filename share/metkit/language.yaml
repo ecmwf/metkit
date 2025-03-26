@@ -1331,6 +1331,13 @@ disseminate:
   requirements:
     type: any
 
+  day:
+    category: postproc
+    multiple: true
+    type: to-by-list
+    by: 1
+    range: [1, 31]
+
   use:
     flatten: false
     multiple: true
@@ -1437,8 +1444,8 @@ retrieve:
     flatten: false
     type: [enum, integer]
     values:
-    - none
-    - auto
+    - [none, n, 0]
+    - [auto, automatic]
 
 ##############################################################
 
