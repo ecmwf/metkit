@@ -1436,8 +1436,8 @@ retrieve:
     flatten: false
     type: enum
     values:
-    - none
-    - auto
+    - [none, n, 0]
+    - [auto, automatic]
 
 ##############################################################
 
