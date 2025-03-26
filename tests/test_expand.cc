@@ -81,12 +81,12 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
 }
 
 
-void expand(const std::string& text, const std::string& verb, const ExpectedOutput& expected, std::vector<long> dates) {
-    MarsRequest r=MarsRequest::parse(text, true);
+void expand(const std::string& text, const std::string& verb, const ExpectedOutput& expected, std::vector<long> dates, bool strict = false) {
+    MarsRequest r=MarsRequest::parse(text, strict);
     expand(r, verb, expected, std::move(dates));
 }
 
-void expand(const std::string& text, const std::string& verb, const std::string& expected, std::vector<long> dates = {}) {
+void expand(const std::string& text, const std::string& verb, const std::string& expected, bool strict = false, std::vector<long> dates = {}) {
     ExpectedOutput out;
     eckit::Tokenizer c(",");
     eckit::Tokenizer e("=");
@@ -121,12 +121,12 @@ void expand(const std::string& text, const std::string& verb, const std::string&
             out.emplace(key, vv);
         }
     }
-    MarsRequest r=MarsRequest::parse(text, true);
+    MarsRequest r=MarsRequest::parse(text, strict);
     expand(r, verb, out, std::move(dates));
 }
 
-void expandException(const std::string& text) {
-    EXPECT_THROWS(MarsRequest::parse(text, true));
+void expandException(const std::string& text, bool strict = false) {
+    EXPECT_THROWS(MarsRequest::parse(text, strict));
 }
 
 CASE( "test_metkit_expand_1" ) {
@@ -150,7 +150,7 @@ CASE( "test_metkit_expand_1" ) {
 
     // const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,REPRES = SH,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 00,DOMAIN = G";
     const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 0,DOMAIN = G";
-    expand(text, "retrieve", expectedStr, {-5,-4,-3,-2,-1});
+    expand(text, "retrieve", expectedStr, true, {-5,-4,-3,-2,-1});
 }
 
 CASE( "test_metkit_expand_2" ) {
@@ -318,6 +318,22 @@ CASE( "test_metkit_expand_9_strict" ) {
 
         ASSERT(v.size() ==1);
         v[0].dump(std::cout);
+    }
+    {
+        const char* text = "retrieve,class=od,expver=1,date=20240304,time=0,type=fc,levtype=sfc,levelist=1/2/3,step=0,param=2t,target=out";
+        expandException(text, true);
+        // const char* expected = "CLASS=OD,TYPE=FC,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
+        // TODO REPRES
+        const char* expected = "CLASS=OD,TYPE=FC,STREAM=OPER,EXPVER=0001,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
+        expand(text, "retrieve", expected, false);
+    }
+    {
+        const char* text = "retrieve,class=od,expver=1,stream=enfo,date=20240304,time=0,type=cf,levtype=sfc,levelist=1/2/3,step=0,param=2t,number=1/2/3,target=out";
+        expandException(text, true);
+        // const char* expected = "CLASS=OD,TYPE=CF,STREAM=ENFO,EXPVER=0001,REPRES=SH,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
+        // TODO REPRES
+        const char* expected = "CLASS=OD,TYPE=CF,STREAM=ENFO,EXPVER=0001,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
+        expand(text, "retrieve", expected, false);
     }
 }
 
