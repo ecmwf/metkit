@@ -381,10 +381,19 @@ void Type::setDefaults(MarsRequest& request) {
     if (inheritance_) {
         request.setValuesTyped(this, inheritance_.value());
     } else {
-        for (const auto& [context, values] : defaults_) {
-            if (context->matches(request)) {
-                request.setValuesTyped(this, values);
-                break;
+        bool unset = false;
+        for (const auto& unsetContext : unsets_) {
+            if (unsetContext->matches(request)) {
+                unset=true;
+            }
+        }
+        if (!unset) {
+            for (const auto& [defaultContext, values] : defaults_) {
+                if (defaultContext->matches(request)) {
+                    
+                    request.setValuesTyped(this, values);
+                    break;
+                }
             }
         }
     }
@@ -425,12 +434,22 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
     else {
         for (const auto& context : unsets_) {
             if (context->matches(request)) {
+                if (strict && request.has(name_)) {
+                    std::ostringstream oss;
+                    oss << *this << ": " << name_ << " not supported with context: " << *context;
+                    throw eckit::UserError(oss.str());
+                }
                 request.unsetValues(name_);
             }
         }
 
         for (const auto& [context, value]: sets_) {
             if (context->matches(request)) {
+                if (strict && !request.has(name_)) {
+                    std::ostringstream oss;
+                    oss << *this << ": missing " << name_ << " - required with context: " << *context;
+                    throw eckit::UserError(oss.str());
+                }
                 request.setValuesTyped(this, std::vector<std::string>{value});
             }
         }
