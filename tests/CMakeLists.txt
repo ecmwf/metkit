@@ -71,7 +71,7 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
                   NO_AS_NEEDED
                   ENVIRONMENT   "${metkit_env}")
 
-list(APPEND testFileSuffixes typesfactory expand request param_axis steprange_axis time hypercube type_levelist )
+list(APPEND testFileSuffixes typesfactory expand request param_axis steprange_axis time hypercube type_levelist c_api )
 
 foreach(test IN LISTS testFileSuffixes)
     ecbuild_add_test( TARGET    "metkit_test_${test}"
@@ -81,6 +81,14 @@ foreach(test IN LISTS testFileSuffixes)
                       NO_AS_NEEDED
                       LIBS      metkit)
 endforeach()
+
+# Compile C test
+ecbuild_add_test( TARGET        metkit_test_c_compiled
+                  SOURCES       test_c_api.c
+                  INCLUDES      "${ECKIT_INCLUDE_DIRS}"
+                  LIBS          metkit
+                  NO_AS_NEEDED
+                  ENVIRONMENT   "${metkit_env}")
 
 # if ( HAVE_NETCDF )
 #    add_subdirectory(netcdf)

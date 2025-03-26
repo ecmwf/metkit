@@ -84,11 +84,22 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         types_[keyword]->attach();
         keywords_.push_back(keyword);
 
+        std::optional<eckit::Value> aliases;
         if (settings.contains("aliases")) {
-            eckit::Value aliases = settings["aliases"];
-            for (size_t j = 0; j < aliases.size(); ++j) {
-                aliases_[aliases[j]] = keyword;
-                keywords_.push_back(aliases[j]);
+            aliases = settings["aliases"];
+        }
+        if (settings.contains("category") && settings["category"] == "data") {
+            dataKeywords_.insert(keyword);
+            if (aliases) {
+                for (size_t j = 0; j < aliases->size(); ++j) {
+                    dataKeywords_.insert((*aliases)[j]);
+                }
+            }
+        }
+        if (aliases) {
+            for (size_t j = 0; j < aliases->size(); ++j) {
+                aliases_[(*aliases)[j]] = keyword;
+                keywords_.push_back((*aliases)[j]);
             }
         }
     }
@@ -100,9 +111,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
     }
 
-    std::set<std::string> keywordsInAxis;
     for (const std::string& a : hypercube::AxisOrder::instance().axes()) {
-        keywordsInAxis.insert(a);
         Type* t=nullptr;
         auto it = types_.find(a);
         if(it != types_.end()) {
@@ -111,9 +120,14 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         typesByAxisOrder_.emplace_back(a, t);
     }
     for (const auto& [k,t] : types_) {
-        if (keywordsInAxis.find(k) == keywordsInAxis.end()) { typesByAxisOrder_.emplace_back(k, t); }
+        if (dataKeywords_.find(k) == dataKeywords_.end()) { typesByAxisOrder_.emplace_back(k, t); }
     }
 }
+
+bool MarsLanguage::isData(const std::string& keyword) const {
+    return (dataKeywords_.find(keyword) != dataKeywords_.end());
+}
+
 
 MarsLanguage::~MarsLanguage() {
     for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
