@@ -31,16 +31,9 @@ namespace metkit::mars {
 class MarsRequest;
 class MarsExpandContext;
 
-//----------------------------------------------------------------------------------------------------------------------
-
 class ContextRule {
 public:
-    ContextRule(const ContextRule&)            = default;
-    ContextRule& operator=(const ContextRule&) = default;
-    ContextRule(ContextRule&&)                 = delete;
-    ContextRule& operator=(ContextRule&&)      = delete;
-
-    explicit ContextRule(const std::string& k);
+    ContextRule(const std::string& k);
 
     virtual ~ContextRule() = default;
 
@@ -55,11 +48,11 @@ private:  // methods
     virtual void print(std::ostream& out) const = 0;
 };
 
-//----------------------------------------------------------------------------------------------------------------------
-
 class Context {
 public:
-    void add(std::unique_ptr<ContextRule> rule);
+    /// @note takes ownership of the rule
+    void add(ContextRule* rule);
+
     bool matches(MarsRequest req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
@@ -75,6 +68,8 @@ private:
 class Type : public eckit::Counted {
 public:  // methods
     Type(const std::string& name, const eckit::Value& settings);
+
+    ~Type() override = default;
 
     virtual void expand(const MarsExpandContext& ctx,
                         std::vector<std::string>& values) const;
@@ -121,9 +116,6 @@ protected:  // members
     std::optional<std::vector<std::string>> inheritance_;
     std::map<std::unique_ptr<Context>, std::string> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
-
-protected:  // methods
-    virtual ~Type() override;
 
 private:  // methods
     virtual void print(std::ostream& out) const = 0;
