@@ -10,17 +10,26 @@
 
 #include "metkit/mars/Type.h"
 
-#include "metkit/mars/MarsExpandContext.h"
-#include "metkit/mars/MarsRequest.h"
-
 #include <algorithm>
+#include <cstddef>
+#include <iostream>
+#include <iterator>
 #include <memory>
 #include <ostream>
 #include <set>
+#include <sstream>
 #include <string>
-#include <utility>
+#include <vector>
+
+#include "eckit/exception/Exceptions.h"
+#include "eckit/value/Value.h"
+
+#include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
 
 ContextRule::ContextRule(const std::string& k) : key_(k) {}
 
@@ -29,8 +38,10 @@ std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
     return s;
 }
 
-void Context::add(std::unique_ptr<ContextRule> rule) {
-    rules_.emplace_back(std::move(rule));
+//----------------------------------------------------------------------------------------------------------------------
+
+void Context::add(ContextRule* rule) {
+    rules_.emplace_back(rule);
 }
 
 bool Context::matches(MarsRequest req) const {
@@ -58,13 +69,11 @@ void Context::print(std::ostream& out) const {
     out << "]";
 }
 
-namespace {
+//----------------------------------------------------------------------------------------------------------------------
 
 class Include : public ContextRule {
 public:
     Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-
-    ~Include() override = default;
 
     bool matches(MarsRequest req) const override {
         if (!req.has(key_)) {
@@ -77,10 +86,10 @@ public:
         }
         return false;
     }
-
 private:  // methods
-    void print(std::ostream& out) const override { out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]"; }
-
+    void print(std::ostream& out) const override {
+        out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]";
+    }
 private:
     std::set<std::string> vals_;
 };
@@ -88,9 +97,6 @@ private:
 class Exclude : public ContextRule {
 public:
     Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-
-    ~Exclude() override = default;
-
     bool matches(MarsRequest req) const override {
         if (!req.has(key_)) {
             return false;
@@ -102,10 +108,10 @@ public:
         }
         return true;
     }
-
 private:  // methods
-    void print(std::ostream& out) const override { out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]"; }
-
+    void print(std::ostream& out) const override {
+        out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]";
+    }
 private:
     std::set<std::string> vals_;
 };
@@ -113,26 +119,33 @@ private:
 class Undef : public ContextRule {
 public:
     Undef(const std::string& k) : ContextRule(k) {}
-
-    ~Undef() override = default;
-
-    bool matches(MarsRequest req) const override { return req.has(key_); }
-
+    bool matches(MarsRequest req) const override {
+        return !req.has(key_);
+    }
 private:  // methods
-    void print(std::ostream& out) const override { out << "Undef[key=" << key_ << "]"; }
+    void print(std::ostream& out) const override {
+        out << "Undef[key=" << key_ << "]";
+    }
 };
 
 class Def : public ContextRule {
 public:
     Def(const std::string& k) : ContextRule(k) {}
-
-    bool matches(MarsRequest req) const override { return req.has(key_); }
-
+    bool matches(MarsRequest req) const override {
+        return req.has(key_);
+    }
 private:  // methods
-    void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
+    void print(std::ostream& out) const override {
+        out << "Def[key=" << key_ << "]";
+    }
 };
 
-std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
+//----------------------------------------------------------------------------------------------------------------------
+// HELPERS
+
+namespace {
+
+ContextRule* parseRule(std::string key, eckit::Value r) {
 
     std::set<std::string> vals;
 
@@ -140,39 +153,37 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
         for (size_t k = 0; k < r.size(); k++) {
             vals.insert(r[k]);
         }
-        return std::make_unique<Include>(key, vals);
+        return new Include(key, vals);
     }
 
     ASSERT(r.contains("op"));
     std::string op = r["op"];
     ASSERT(op.size() == 1);
     switch (op[0]) {
-        case 'u':
-            return std::make_unique<Undef>(key);
-        case 'd':
-            return std::make_unique<Def>(key);
+        case 'u': return new Undef(key);
+        case 'd': return new Def(key);
         case '!':
             ASSERT(r.contains("vals"));
             eckit::Value vv = r["vals"];
             for (size_t k = 0; k < vv.size(); k++) {
                 vals.insert(vv[k]);
             }
-            return std::make_unique<Exclude>(key, vals);
+            return new Exclude(key, vals);
     }
     return nullptr;
 }
 
-std::unique_ptr<Context> parseContext(const eckit::Value c) {
+Context* parseContext(eckit::Value c) {
 
-    auto context = std::make_unique<Context>();
+    Context* context = new Context{};
 
-    auto keys = c.keys();
+    eckit::Value keys = c.keys();
 
-    for (size_t j = 0; j < keys.size(); ++j) {
-        const auto& key = keys[j];
-        context->add(parseRule(key, c[key]));
+    for (size_t j = 0; j < keys.size(); j++) {
+        std::string key = keys[j];
+        ContextRule* r  = parseRule(key, c[key]);
+        context->add(r);
     }
-
     return context;
 }
 
@@ -218,13 +229,13 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                     vals.push_back(vv);
                 }
 
-                std::unique_ptr<Context> context;
+                Context* context = nullptr;
                 if (d.contains("context")) {
                     context = parseContext(d["context"]);
                 } else {
-                    context = std::make_unique<Context>();
+                    context = new Context;
                 }
-                defaults_.emplace(std::move(context), vals);
+                defaults_.emplace(context, vals);
             }
         }
     }
@@ -246,13 +257,12 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < unsets.size(); i++) {
                 eckit::Value u = unsets[i];
                 ASSERT(u.contains("context"));
-                unsets_.emplace(parseContext(u["context"]));
+                Context* c = parseContext(u["context"]);
+                unsets_.emplace(c);
             }
         }
     }
 }
-
-Type::~Type() {}
 
 bool Type::flatten() const {
     return flatten_;
@@ -292,15 +302,18 @@ public:
     bool operator()(const std::string& s) const { return set_.find(s) != set_.end(); }
 };
 
-bool Type::matches(const std::vector<std::string>& match, const std::vector<std::string>& values) const {
+bool Type::matches(const std::vector<std::string>& match,
+                   const std::vector<std::string>& values) const {
     InSet in_set(match);
     return std::find_if(values.begin(), values.end(), in_set) != values.end();
 }
+
 
 std::ostream& operator<<(std::ostream& s, const Type& x) {
     x.print(s);
     return s;
 }
+
 
 std::string Type::tidy(const MarsExpandContext& ctx, const std::string& value) const {
     std::string result = value;
@@ -444,4 +457,5 @@ void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& v
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
 }  // namespace metkit::mars
