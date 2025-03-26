@@ -350,6 +350,7 @@ _field: &_field
         val: 'prod'
 
   dataset:
+    category: data
     multiple: false
     type: enum
     values:
@@ -1322,8 +1323,14 @@ disseminate:
   requirements:
     type: any
 
+  day:
+    category: postproc
+    multiple: true
+    type: to-by-list
+    by: 1
+    range: [1, 31]
+
   use:
-    category: data
     flatten: false
     multiple: true
     type: enum
@@ -1429,8 +1436,8 @@ retrieve:
     flatten: false
     type: enum
     values:
-    - none
-    - auto
+    - [none, n, 0]
+    - [auto, automatic]
 
 ##############################################################
 
