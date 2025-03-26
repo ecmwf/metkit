@@ -385,12 +385,12 @@ void Type::setDefaults(MarsRequest& request) {
         for (const auto& unsetContext : unsets_) {
             if (unsetContext->matches(request)) {
                 unset=true;
+                break;
             }
         }
         if (!unset) {
             for (const auto& [defaultContext, values] : defaults_) {
-                if (defaultContext->matches(request)) {
-                    
+                if (defaultContext->matches(request)) {                    
                     request.setValuesTyped(this, values);
                     break;
                 }

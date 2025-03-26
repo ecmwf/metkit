@@ -42,31 +42,31 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
     // MarsExpension exp(false);
     // MarsRequest r=exp.expand(req);
     std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
-    ASSERT(r.verb() ==verb);
+    EXPECT_EQUAL(r.verb(), verb);
     for(const auto& [key, vals] : expected) {
         if (!r.has(key)) {
             std::cerr << "Expected key " << key << " not found!" << std::endl;
         }
-        ASSERT(r.has(key));
+        EXPECT(r.has(key));
         auto vv=r.values(key);
         if (key != "date" && vv.size() != vals.size()) { // dates are verified at a later stage
             std::cerr << "Expecting " << vals.size() << " values for key " << key << " - found " << vv.size() << " values" << std::endl;
-            ASSERT(vv.size() ==vals.size());
+            EXPECT_EQUAL(vv.size(), vals.size());
         }
         for (int i=0; i<vv.size(); i++) {
             if (vv.at(i) != vals.at(i)) {
                 std::cerr << "Error comparing " << key << " -- expecting: " << vals.at(i) << " found: " << vv.at(i) << std::endl;
             }
-            ASSERT(vv.at(i) ==vals.at(i));
+            EXPECT_EQUAL(vv.at(i), vals.at(i));
         }
     }
     if (dates.size() > 0) {
-        ASSERT(r.has("date"));
+        EXPECT(r.has("date"));
         auto dd=r.values("date");
         if (dd.size() != dates.size()) {
             std::cerr << "expecting: " << dates << " found: " << dd << std::endl;
         }
-        ASSERT(dd.size() == dates.size());
+        EXPECT_EQUAL(dd.size(), dates.size());
         for (int i=0; i<dates.size(); i++) {
             long d=dates.at(i);
             if (d<0) {
@@ -76,7 +76,7 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
             if (dd.at(i) != std::to_string(d)) {
                 std::cerr << "Error comparing dates. Expecting: " << std::to_string(d) << " found: " << dd.at(i) << std::endl;
             }
-            ASSERT(dd.at(i) == std::to_string(d));
+            EXPECT_EQUAL(dd.at(i), std::to_string(d));
         }
     }
 }
@@ -97,10 +97,10 @@ void expand(const std::string& text, const std::string& verb, const std::string&
         auto tt = eckit::StringTools::trim(t);
         eckit::StringList kv;
         e(tt, kv);
-        ASSERT(kv.size() == 2);
+        EXPECT_EQUAL(kv.size(), 2);
         auto key = eckit::StringTools::lower(eckit::StringTools::trim(kv[0]));
         if (key == "date") {
-            ASSERT(dates.size() == 0);
+            EXPECT_EQUAL(dates.size(), 0);
         }
         eckit::StringList vals;
         s(kv[1], vals);
@@ -307,7 +307,7 @@ CASE( "test_metkit_expand_9_strict" ) {
         MarsExpension expand(false, false);
         std::vector<MarsRequest> v=expand.expand(parser.parse());
 
-        ASSERT(v.size() ==1);
+        EXPECT_EQUAL(v.size(), 1);
         v[0].dump(std::cout);
     }
     {
@@ -316,7 +316,7 @@ CASE( "test_metkit_expand_9_strict" ) {
         MarsExpension expand(false, true);
         std::vector<MarsRequest> v=expand.expand(parser.parse());
 
-        ASSERT(v.size() ==1);
+        EXPECT_EQUAL(v.size(), 1);
         v[0].dump(std::cout);
     }
     {
@@ -345,7 +345,7 @@ CASE( "test_metkit_expand_10_strict" ) {
         MarsExpension expand(false, false);
         std::vector<MarsRequest> v=expand.expand(parser.parse());
 
-        ASSERT(v.size() ==1);
+        EXPECT_EQUAL(v.size(), 1);
         v[0].dump(std::cout);
     }
 }
@@ -385,7 +385,7 @@ void expandKey(const std::string& key, std::vector<std::string> values, std::vec
     std::cout << key << " " << values;
     t->expand(ctx, values);
     std::cout << " ==> " << values << " - expected " << expected << std::endl;
-    ASSERT(values ==expected);
+    EXPECT_EQUAL(values, expected);
 }
 
 void quantileThrows(std::vector<std::string> values) {
@@ -871,14 +871,23 @@ CASE("test_metkit_expand_clmn") {
 }
 
 CASE("test_metkit_expand_") {
+    // issues from https://confluence.ecmwf.int/pages/viewpage.action?pageId=496866851
+    // not yet supported (thus the tests are disabled)
     {
-        const char* text = "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/0.0,step=000,stream=oper,time=15:00:00,type=an,target=\"reference.1OEDK0.data\"";
-        const char* expected = "CLASS=EA,TYPE=AN,STREAM=OPER, EXPVER=0001, LEVTYPE=ML, LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137, PARAM=133/130/131/132/152/129, TIME=1500, STEP=000, DOMAIN=G, TARGET=reference.1OEDK0.data, RESOL=AUTO, ACCURACY=16, AREA=60/-60/-60/60, ROTATION=0.0/0.0, GRID=.3/.3,DATE=20101029";
+        // https://jira.ecmwf.int/browse/MARS-962
+        const char* text = "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/235,stream=da,style=dissemination,time=00,type=an,target=\"reference.tzpUX7.data\"";
+        const char* expected = "CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=134/137/165/166/167/168/235,DATE=20240102,TIME=0000,STEP=00,DOMAIN=G,TARGET=\"reference.tzpUX7.data\",RESOL=AV,ACCURACY=12,STYLE=DISSEMINATION,AREA=90.0/0.0/-90.0/359.5,GRID=0.5/0.5,PADDING=0";
         // expand(text, "retrieve", expected);
     }
     {
+        const char* text = "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/0.0,step=000,stream=oper,time=15:00:00,type=an,target=\"reference.1OEDK0.data\"";
+        const char* expected = "CLASS=EA,TYPE=AN,STREAM=OPER,EXPVER=0001,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,PARAM=133/130/131/132/152/129,TIME=1500,STEP=000,DOMAIN=G,TARGET=reference.1OEDK0.data,RESOL=AUTO,ACCURACY=16,AREA=60/-60/-60/60,ROTATION=0.0/0.0,GRID=.3/.3,DATE=20101029";
+        // expand(text, "retrieve", expected);
+    }
+    {
+        // https://jira.ecmwf.int/browse/MARS-959
         const char* text = "retrieve,accuracy=10,class=ea,date=1969-03-28,expver=11,grid=0.25/0.25,levtype=sfc,packing=si,param=142.128/143.128/151.128/165.128/166.128,step=0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,stream=oper,time=00:00:00,type=fc,target=\"reference.rFP7XB.data\"";
-        const char* expected = "CLASS      = EA,    TYPE       = FC,    STREAM     = OPER,    EXPVER     = 0011,     LEVTYPE    = SFC,    PARAM      = 142.128/143.128/151.128/165.128/166.128,    TIME       = 0000,    STEP       = 0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,    DOMAIN     = G,    TARGET     = reference.rFP7XB.data,    RESOL      = AUTO,    ACCURACY   = 10,    GRID       = 0.25/0.25,    PACKING    = SIMPLE";
+        const char* expected = "CLASS=EA,TYPE=FC,STREAM=OPER,EXPVER=0011,LEVTYPE=SFC,PARAM=142.128/143.128/151.128/165.128/166.128,TIME=0000,STEP=0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,DOMAIN=G,TARGET=reference.rFP7XB.data,RESOL=AUTO,ACCURACY=10,GRID=0.25/0.25,PACKING=SIMPLE";
         // expand(text, "retrieve", expected, {19690328});
     }
     
