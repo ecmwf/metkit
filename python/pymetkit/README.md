@@ -4,4 +4,4 @@ To demonstrate functionality, install `eckit` and `metkit` binary wheels in your
 
 To be done:
 1. proper cffi setup
-2. wheel building (note this is **not** a binary wheel! That happens in `../python_wrapper`, and contains no python code)
+2. wheel building (note this is **not** a wheel containing the metkit cpp lib! That happens in `../metkitlib`, and contains no python code)

@@ -10,7 +10,7 @@ def _get_lib():
     if _lib is None:
         ffi = cffi.FFI()
         ffi.cdef("unsigned int metkit_version_int();")
-        loc = findlibs.find("metkit", "metkitlibs")
+        loc = findlibs.find("metkit")
         _lib = ffi.dlopen(loc)
     return _lib
 

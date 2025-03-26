@@ -12,5 +12,5 @@
 
 NAME="metkit"
 CMAKE_PARAMS="-DECKIT_PATH=/tmp/target/eckit"
-PYPROJECT_DIR="python_wrapper"
+PYPROJECT_DIR="python/metkitlib"
 DEPENDENCIES='["eckit"]'
