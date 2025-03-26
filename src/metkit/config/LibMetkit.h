@@ -49,28 +49,4 @@ protected:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-namespace metkit_config {
-
-class LibMetkitConfig : public eckit::system::Library {
-public:
-
-    LibMetkitConfig();
-
-    static eckit::PathName gitHashFile();
-
-    static const LibMetkitConfig& instance();
-
-protected:
-
-    const void* addr() const;
-
-    virtual std::string version() const;
-
-    virtual std::string gitsha1(unsigned int count) const;
-};
-
-} // namespace metkit_config
-
-//----------------------------------------------------------------------------------------------------------------------
-
 #endif
