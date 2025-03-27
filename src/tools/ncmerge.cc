@@ -18,24 +18,21 @@
 
 using namespace metkit::netcdf;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     try {
 
         NCFileCache cache;
         OutputDataset out("out.nc", cache);
-        for (int i = 1 ; i < argc ; i++) {
+        for (int i = 1; i < argc; i++) {
             InputDataset f(argv[i], cache);
             std::cout << "@@@@@@@@@@@ " << argv[i] << std::endl;
             out.merge(f);
         }
         out.save();
     }
-    catch (std::exception &e) {
+    catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
     return 0;
-
 }
-

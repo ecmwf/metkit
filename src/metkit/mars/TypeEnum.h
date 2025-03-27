@@ -25,16 +25,16 @@ namespace mars {
 
 class TypeEnum : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeEnum(const std::string &name, const eckit::Value& settings);
+    TypeEnum(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeEnum() override;
 
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
+    virtual void print(std::ostream& out) const override;
     virtual void reset() override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
@@ -42,12 +42,11 @@ private: // methods
     std::vector<std::string> values_;
 
     mutable std::map<std::string, std::string> cache_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

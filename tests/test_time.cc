@@ -12,11 +12,11 @@
 /// @author Simon Smart
 /// @date   April 2020
 
-#include "eckit/value/Value.h"
 #include "eckit/testing/Test.h"
+#include "eckit/value/Value.h"
 
-#include "metkit/mars/TypeTime.h"
 #include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/TypeTime.h"
 
 using namespace eckit;
 using namespace eckit::testing;
@@ -249,7 +249,6 @@ CASE("Test TypeTime expansions") {
 }  // namespace mars
 }  // namespace metkit
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

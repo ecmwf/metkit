@@ -26,15 +26,15 @@ class GribHandleDataSource : public GribDataSource {
 public:
 
     GribHandleDataSource(const eckit::PathName&, const eckit::Offset& = 0);
-    GribHandleDataSource( eckit::DataHandle&, const eckit::Offset& = 0);
-    GribHandleDataSource( eckit::DataHandle*, const eckit::Offset& = 0);
+    GribHandleDataSource(eckit::DataHandle&, const eckit::Offset& = 0);
+    GribHandleDataSource(eckit::DataHandle*, const eckit::Offset& = 0);
 
 
     ~GribHandleDataSource();
 
 private:
 
-    mutable eckit::DataHandle *handle_;
+    mutable eckit::DataHandle* handle_;
     bool ownsHandle_;
     mutable bool opened_;
 
@@ -50,10 +50,9 @@ private:
     virtual std::string sortKey() const override;
 
     void open() const;
-
 };
 
-} // namespace pointdb
-} // namespace metkit
+}  // namespace pointdb
+}  // namespace metkit
 
 #endif

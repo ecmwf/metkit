@@ -12,10 +12,10 @@
 /// @author Metin Cakircali
 /// @date   November 2023
 
-#include "metkit/mars/TypesFactory.h"
-#include "metkit/mars/TypeToByListFloat.h"
-#include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsParser.h"
+#include "metkit/mars/TypeToByListFloat.h"
+#include "metkit/mars/TypesFactory.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"

@@ -12,8 +12,8 @@
 
 #include <algorithm>
 
-#include "eckit/message/Message.h"
 #include "eckit/io/DataHandle.h"
+#include "eckit/message/Message.h"
 
 #include "odc/api/Odb.h"
 
@@ -34,19 +34,15 @@ namespace odb {
 
 class MarsRequestSetter : public eckit::message::MetadataGatherer {
 public:  // methods
+
     MarsRequestSetter(MarsRequest& request) : request_(request) {}
 
-    void setValue(const std::string& key, const std::string& value) override {
-        request_.setValue(key, value);
-    }
-    void setValue(const std::string& key, long value) override {
-        request_.setValue(key, value);
-    }
-    void setValue(const std::string& key, double value) override {
-        request_.setValue(key, value);
-    }
+    void setValue(const std::string& key, const std::string& value) override { request_.setValue(key, value); }
+    void setValue(const std::string& key, long value) override { request_.setValue(key, value); }
+    void setValue(const std::string& key, double value) override { request_.setValue(key, value); }
 
 private:  // members
+
     MarsRequest& request_;
 };
 
@@ -54,8 +50,7 @@ private:  // members
 
 OdbToRequest::OdbToRequest(const std::string& verb, bool one, bool constant) :
     verb_(verb), one_(one), onlyConstantColumns_(constant) {
-    LOG_DEBUG_LIB(LibMetkit) << "OdbToRequest one: " << one << " constant: " << constant
-                             << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "OdbToRequest one: " << one << " constant: " << constant << std::endl;
 }
 
 
@@ -70,7 +65,7 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
 
     std::vector<MarsRequest> requests;
 
-    while ( (frame = reader.next() )) {
+    while ((frame = reader.next())) {
         Span span = frame.span(OdbMetadataDecoder::columnNames(), onlyConstantColumns_);
 
         MarsRequest r(verb_);

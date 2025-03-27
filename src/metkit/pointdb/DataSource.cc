@@ -15,9 +15,7 @@
 namespace metkit {
 namespace pointdb {
 
-DataSource::~DataSource() {
-
-}
+DataSource::~DataSource() {}
 
 
 size_t DataSource::batch() const {
@@ -31,6 +29,6 @@ void PointResult::print(std::ostream& s) const {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace pointdb
+}  // namespace pointdb
 
-} // namespace metkit
+}  // namespace metkit

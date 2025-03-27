@@ -12,11 +12,11 @@
 /// @date   Dec 2024
 /// @author Christopher Bradley
 
-#include "metkit/api/metkit_c.h"
+#include <cstring>
 #include "eckit/testing/Test.h"
 #include "eckit/types/Date.h"
+#include "metkit/api/metkit_c.h"
 #include "metkit/mars/MarsRequest.h"
-#include <cstring>
 
 using namespace eckit::testing;
 namespace metkit::test {
@@ -36,7 +36,7 @@ void EXPECT_STR_EQUAL(const char* a, const char* b) {
 }
 
 // Fairly minimal test coverage
-CASE( "metkit_marsrequest" ) {
+CASE("metkit_marsrequest") {
 
     // -----------------------------------------------------------------
     // Basics
@@ -101,7 +101,7 @@ CASE( "metkit_marsrequest" ) {
     const char* param{};
     test_succes(metkit_marsrequest_value(expandedRequest, "param", 0, &param));
     EXPECT_STR_EQUAL(param, "167");
-    
+
     // -----------------------------------------------------------------
     // Merge
     // -----------------------------------------------------------------
@@ -124,12 +124,14 @@ CASE( "metkit_marsrequest" ) {
 }
 //-----------------------------------------------------------------------------
 
-CASE( "metkit_requestiterator_t parsing" ) {
-    
-    metkit_requestiterator_t* it{};
-    test_succes(metkit_parse_marsrequests("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2", &it, true)); // two separate requests
+CASE("metkit_requestiterator_t parsing") {
 
-    std::vector <metkit_marsrequest_t*> requests;
+    metkit_requestiterator_t* it{};
+    test_succes(
+        metkit_parse_marsrequests("retrieve,date=-1,param=2t \n retrieve,date=20200102,param=2t,step=10/to/20/by/2",
+                                  &it, true));  // two separate requests
+
+    std::vector<metkit_marsrequest_t*> requests;
     metkit_iterator_status_t status;
     while ((status = metkit_requestiterator_next(it)) == METKIT_ITERATOR_SUCCESS) {
         metkit_marsrequest_t* req{};
@@ -139,11 +141,11 @@ CASE( "metkit_requestiterator_t parsing" ) {
     }
     EXPECT_EQUAL(status, METKIT_ITERATOR_COMPLETE);
     EXPECT_EQUAL(requests.size(), 2);
-    
+
     // check the date
     const char* date{};
     test_succes(metkit_marsrequest_value(requests[0], "date", 0, &date));
-    EXPECT_STR_EQUAL(date, std::to_string(eckit::Date(-1).yyyymmdd()).c_str()); // parser also calls expand
+    EXPECT_STR_EQUAL(date, std::to_string(eckit::Date(-1).yyyymmdd()).c_str());  // parser also calls expand
 
     test_succes(metkit_marsrequest_value(requests[1], "date", 0, &date));
     EXPECT_STR_EQUAL(date, "20200102");
@@ -155,18 +157,18 @@ CASE( "metkit_requestiterator_t parsing" ) {
     for (size_t i = 0; i < count; i++) {
         const char* step{};
         test_succes(metkit_marsrequest_value(requests[1], "step", i, &step));
-        EXPECT_STR_EQUAL(step, std::to_string(10 + i*2).c_str());
+        EXPECT_STR_EQUAL(step, std::to_string(10 + i * 2).c_str());
     }
 
     // cleanup
-    metkit_requestiterator_delete(it); // NB: requests have been moved out of the iterator
+    metkit_requestiterator_delete(it);  // NB: requests have been moved out of the iterator
     for (auto req : requests) {
         metkit_marsrequest_delete(req);
     }
 }
 
 // Ensure that the param iterator works as expected
-CASE( "metkit_paramiterator_t " ) {
+CASE("metkit_paramiterator_t ") {
 
     std::string str = "retrieve,date=20200102,param=2t,step=10/to/20/by/2";
     metkit_marsrequest_t* request{};
@@ -195,13 +197,13 @@ CASE( "metkit_paramiterator_t " ) {
     EXPECT_EQUAL(keys, keys_cpp);
 }
 
-CASE( "metkit_requestiterator_t 1 item" ) {
+CASE("metkit_requestiterator_t 1 item") {
     // Edge case: verify iterator with one item works the same way.
 
     metkit_requestiterator_t* it{};
     test_succes(metkit_parse_marsrequests("retrieve,date=-1,param=2t", &it, true));
 
-    std::vector <metkit_marsrequest_t*> requests;
+    std::vector<metkit_marsrequest_t*> requests;
     metkit_iterator_status_t status;
     while ((status = metkit_requestiterator_next(it)) == METKIT_ITERATOR_SUCCESS) {
         metkit_marsrequest_t* req{};
@@ -221,6 +223,6 @@ CASE( "metkit_requestiterator_t 1 item" ) {
 
 }  // namespace metkit::test
 
-int main(int argc, char **argv) {
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

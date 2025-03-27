@@ -23,12 +23,10 @@ namespace mars {
 class UndefinedType : public Type {
     virtual void print(std::ostream& out) const { out << "<undefined type>"; }
 
-    virtual bool filter(const std::vector<std::string>&,
-                        std::vector<std::string>&) const {
-        NOTIMP;
-    }
+    virtual bool filter(const std::vector<std::string>&, std::vector<std::string>&) const { NOTIMP; }
 
 public:
+
     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
 };
 
@@ -47,8 +45,7 @@ Parameter::~Parameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, Type* type) :
-    type_(type), values_(values) {
+Parameter::Parameter(const std::vector<std::string>& values, Type* type) : type_(type), values_(values) {
     if (!type) {
         type_ = &undefined;
     }
@@ -101,8 +98,7 @@ void Parameter::merge(const Parameter& p) {
             diff.push_back(o);
     }
 
-    values_.insert(values_.end(), std::make_move_iterator(diff.begin()),
-                   std::make_move_iterator(diff.end()));
+    values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 
 

@@ -11,8 +11,8 @@
 #include "TypeToByListFloat.h"
 
 #include "eckit/exception/Exceptions.h"
-#include "eckit/utils/Translator.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Translator.h"
 
 #include "metkit/mars/TypesFactory.h"
 
@@ -21,18 +21,15 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListFloat::TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
-    TypeFloat(name, settings),
-    by_(settings["by"]) {
+TypeToByListFloat::TypeToByListFloat(const std::string& name, const eckit::Value& settings) :
+    TypeFloat(name, settings), by_(settings["by"]) {
 
     multiple_ = true;
-
 }
 
-TypeToByListFloat::~TypeToByListFloat() {
-}
+TypeToByListFloat::~TypeToByListFloat() {}
 
-void TypeToByListFloat::print(std::ostream &out) const {
+void TypeToByListFloat::print(std::ostream& out) const {
     out << "TypeToByListFloat[name=" << name_ << "]";
 }
 
@@ -53,8 +50,8 @@ void TypeToByListFloat::expand(const MarsExpandContext& ctx, std::vector<std::st
             ASSERT(i + 1 < values.size());
 
             float from = s2l(tidy(ctx, newval.back()));
-            float to = s2l(tidy(ctx, values[i + 1]));
-            float by = by_;
+            float to   = s2l(tidy(ctx, values[i + 1]));
+            float by   = by_;
 
             if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
                 by = s2l(tidy(ctx, values[i + 3]));
@@ -64,15 +61,19 @@ void TypeToByListFloat::expand(const MarsExpandContext& ctx, std::vector<std::st
             if (by > 0) {
                 ASSERT_MSG(from <= to, name_ + ": [" + std::to_string(from) + "] value must be less than [" +
                                            std::to_string(to) + "] value!");
-                for (float j = from + by; j <= to; j += by) { newval.push_back(l2s(j)); }
-            } else if (by < 0) {
+                for (float j = from + by; j <= to; j += by) {
+                    newval.push_back(l2s(j));
+                }
+            }
+            else if (by < 0) {
                 ASSERT_MSG(from >= to, name_ + ": [" + std::to_string(from) + "] value must be greater than [" +
                                            std::to_string(to) + "] value!");
-                for (float j = from + by; j >= to; j += by) { newval.push_back(l2s(j)); }
+                for (float j = from + by; j >= to; j += by) {
+                    newval.push_back(l2s(j));
+                }
             }
 
             i++;
-
         }
         else {
             newval.push_back(s);
@@ -87,5 +88,5 @@ static TypeBuilder<TypeToByListFloat> type("to-by-list-float");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

@@ -26,19 +26,20 @@ namespace codes {
 class BUFRDecoder : public metkit::codes::CodesDecoder<BUFRDecoder> {
 
 public:  // methods
+
     static bool typeBySubtype(long subtype, long& type);
 
 private:  // methods
+
     bool match(const eckit::message::Message&) const override;
     void print(std::ostream&) const override;
 
-    void getMetadata(const eckit::message::Message& msg,
-                     eckit::message::MetadataGatherer&,
+    void getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer&,
                      const eckit::message::GetMetadataOptions&) const override;
 
     eckit::Buffer decode(const eckit::message::Message& msg) const override;
 
-public: // methods for decoding the metadata
+public:  // methods for decoding the metadata
 
     static std::string getString(codes_handle* h, codes_keys_iterator* it, const char* name);
     static long getLong(codes_handle* h, codes_keys_iterator* it, const char* name);
@@ -50,4 +51,3 @@ public: // methods for decoding the metadata
 
 }  // namespace codes
 }  // namespace metkit
-

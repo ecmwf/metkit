@@ -16,13 +16,13 @@
 
 #include <memory>
 
+#include "eckit/net/Endpoint.h"
 #include "eckit/net/TCPServer.h"
 #include "eckit/net/TCPSocket.h"
-#include "eckit/net/Endpoint.h"
 
 #include "metkit/mars/BaseProtocol.h"
-#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/ClientTask.h"
+#include "metkit/mars/MarsRequest.h"
 
 
 namespace metkit {
@@ -43,7 +43,7 @@ public:
     virtual eckit::net::TCPSocket& connect() = 0;
 
     virtual void encode(eckit::Stream&) const override = 0;
-    static  const eckit::ClassSpec& classSpec();
+    static const eckit::ClassSpec& classSpec();
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -55,10 +55,7 @@ public:
 
     DHSProtocol(const eckit::Configuration&);
 
-    DHSProtocol(const std::string& name,
-                const std::string& host,
-                int port,
-                bool forewardMessages = false);
+    DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
 
     DHSProtocol(eckit::Stream&);
     ~DHSProtocol();
@@ -67,22 +64,22 @@ public:
 
     virtual std::string className() const override { return "DHSProtocol"; }
     virtual const eckit::ReanimatorBase& reanimator() const override;
-    static  const eckit::ClassSpec& classSpec();
+    static const eckit::ClassSpec& classSpec();
 
 private:
 
     // -- Members
     std::unique_ptr<BaseCallbackConnection> callback_;
-    eckit::net::TCPSocket          socket_;
-    std::string               name_;
-    std::string               host_;
-    int                       port_;
-    std::string               msg_;
+    eckit::net::TCPSocket socket_;
+    std::string name_;
+    std::string host_;
+    int port_;
+    std::string msg_;
     std::unique_ptr<ClientTask> task_;
-    bool                      done_;
-    bool                      error_;
-    bool                      sending_;
-    bool                      forward_;
+    bool done_;
+    bool error_;
+    bool sending_;
+    bool forward_;
 
     // -- Methods
     bool wait(eckit::Length&);
@@ -100,7 +97,7 @@ private:
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-}
-}
+}  // namespace mars
+}  // namespace metkit
 
 #endif

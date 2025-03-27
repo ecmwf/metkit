@@ -9,8 +9,8 @@
  */
 
 #include "metkit/codes/GribIterator.h"
-#include "metkit/codes/GribHandle.h"
 #include "eckit/exception/Exceptions.h"
+#include "metkit/codes/GribHandle.h"
 
 #include "eccodes.h"
 
@@ -21,14 +21,12 @@ using namespace std;
 namespace metkit {
 namespace grib {
 
-GribIterator::GribIterator(const GribHandle& handle):
-    iterator_(nullptr) {
+GribIterator::GribIterator(const GribHandle& handle) : iterator_(nullptr) {
 
-    int ret = 0;
+    int ret   = 0;
     iterator_ = grib_iterator_new(handle.raw(), 0, &ret);
     ASSERT(iterator_);
     CODES_CALL(ret);
-
 }
 
 GribIterator::~GribIterator() noexcept(false) {

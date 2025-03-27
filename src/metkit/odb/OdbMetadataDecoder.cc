@@ -11,8 +11,8 @@
 #include "metkit/odb/OdbMetadataDecoder.h"
 
 #include <algorithm>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 #include "eckit/config/Resource.h"
 #include "eckit/config/YAMLConfiguration.h"
@@ -27,6 +27,7 @@ namespace {
 class OdbColumnNameMapping {
 
 public:
+
     static OdbColumnNameMapping& instance() {
         static OdbColumnNameMapping mapping;
         return mapping;
@@ -35,12 +36,11 @@ public:
     const std::vector<std::string>& columnNames() { return columnNames_; }
     const std::map<std::string, std::string>& table() { return mapping_; }
 
-private: // methods
+private:  // methods
 
     OdbColumnNameMapping() {
-        static eckit::PathName configPath(eckit::Resource<eckit::PathName>(
-                                              "odbMarsRequestMapping",
-                                              "~metkit/share/metkit/odb/marsrequest.yaml"));
+        static eckit::PathName configPath(
+            eckit::Resource<eckit::PathName>("odbMarsRequestMapping", "~metkit/share/metkit/odb/marsrequest.yaml"));
         eckit::YAMLConfiguration config(configPath);
         for (const auto& key : config.keys()) {
             mapping_[config.getString(key)] = eckit::StringTools::lower(key);
@@ -52,13 +52,12 @@ private: // methods
         }
     }
 
-private: // members
+private:  // members
 
     std::map<std::string, std::string> mapping_;
     std::vector<std::string> columnNames_;
-
 };
-}
+}  // namespace
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -72,21 +71,20 @@ const std::vector<std::string>& OdbMetadataDecoder::columnNames() {
 }
 
 template <typename T>
-void OdbMetadataDecoder::visit(const std::string& columnName,
-                               const std::set<T>& vals,
+void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>& vals,
                                const metkit::mars::MarsLanguage& language) {
 
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());
-    std::string keyword = eckit::StringTools::lower(mapitr->second);
+    std::string keyword   = eckit::StringTools::lower(mapitr->second);
     metkit::mars::Type* t = language.type(keyword);
 
     ASSERT(options_.valueRepresentation == eckit::message::ValueRepresentation::String);
 
-    for(auto val: vals) {
+    for (auto val : vals) {
         std::string stringVal = eckit::Translator<T, std::string>()(val);
-        std::string tidyVal = t->tidy(stringVal);
-        if (stringVal == tidyVal) // if t->tidy had no effect, set the original value
+        std::string tidyVal   = t->tidy(stringVal);
+        if (stringVal == tidyVal)  // if t->tidy had no effect, set the original value
             gather_.setValue(keyword, val);
         else
             gather_.setValue(keyword, tidyVal);
@@ -95,13 +93,12 @@ void OdbMetadataDecoder::visit(const std::string& columnName,
 
 
 OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather,
-                                       const eckit::message::GetMetadataOptions& options,
-                                       const std::string& verb) :
+                                       const eckit::message::GetMetadataOptions& options, const std::string& verb) :
     language_(verb), gather_(gather), options_(options) {}
 
 void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<long>& vals) {
-    LOG_DEBUG_LIB(LibMetkit) << "OdbMetadataDecoder::operator() columnName: " << columnName
-                             << " vals: " << vals << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "OdbMetadataDecoder::operator() columnName: " << columnName << " vals: " << vals
+                             << std::endl;
 
     auto mapitr = OdbColumnNameMapping::instance().table().find(columnName);
     ASSERT(mapitr != OdbColumnNameMapping::instance().table().end());

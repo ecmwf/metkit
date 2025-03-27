@@ -25,21 +25,21 @@ namespace mars {
 
 class TypeFloat : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeFloat(const std::string &name, const eckit::Value& settings);
+    TypeFloat(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeFloat() override;
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
+    virtual void print(std::ostream& out) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

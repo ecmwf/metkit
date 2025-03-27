@@ -25,23 +25,26 @@ namespace codes {
 
 class CodesContent : public eckit::message::MessageContent {
 public:
+
     CodesContent(codes_handle* handle, bool delete_handle);
     explicit CodesContent(const codes_handle* handle);
 
     ~CodesContent();
-    
+
 protected:
+
     codes_handle* handle_;
 
     eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
 
 private:
+
     bool delete_handle_;
 
     size_t length() const override;
     void write(eckit::DataHandle& handle) const override;
     eckit::DataHandle* readHandle() const override;
-    void print(std::ostream & s) const override;
+    void print(std::ostream& s) const override;
     std::string getString(const std::string& key) const override;
     long getLong(const std::string& key) const override;
     double getDouble(const std::string& key) const override;

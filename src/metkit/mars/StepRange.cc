@@ -9,8 +9,8 @@
  */
 
 #include "metkit/mars/StepRange.h"
-#include "metkit/mars/TypeTime.h"
 #include "metkit/mars/TypeRange.h"
+#include "metkit/mars/TypeTime.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/persist/DumpLoad.h"
@@ -50,16 +50,16 @@ std::string canonical(const eckit::Time& time) {
     long s = time.seconds();
 
     std::string out = "";
-    if (h!=0 || (m==0 && s==0)) {
+    if (h != 0 || (m == 0 && s == 0)) {
         out += std::to_string(h);
-        if (m!=0 || s!=0) {
+        if (m != 0 || s != 0) {
             out += "h";
         }
     }
-    if (m!=0) {
+    if (m != 0) {
         out += std::to_string(m) + "m";
     }
-    if (s!=0) {
+    if (s != 0) {
         out += std::to_string(s) + "s";
     }
     return out;
@@ -78,53 +78,47 @@ std::string canonical(const eckit::Time& time) {
 //     }
 // }
 
-}
+}  // namespace
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-StepRange::operator std::string() const
-{
+StepRange::operator std::string() const {
     std::ostringstream os;
     os << *this;
     return os.str();
 }
 
-void StepRange::print(std::ostream& s) const
-{
-	if(from_ == to_) {
-        s << canonical(eckit::Time(from_*3600, true));
+void StepRange::print(std::ostream& s) const {
+    if (from_ == to_) {
+        s << canonical(eckit::Time(from_ * 3600, true));
     }
     else {
-        eckit::Time f{static_cast<long>(from_*3600.), true};
-        eckit::Time t{static_cast<long>(to_*3600.), true};
+        eckit::Time f{static_cast<long>(from_ * 3600.), true};
+        eckit::Time t{static_cast<long>(to_ * 3600.), true};
 
         s << canonical(f) << '-' << canonical(t);
     }
 }
 
-StepRange::StepRange(const std::string& s):
-	from_(0.),
-	to_(0.)
-{
-	Tokenizer parse("-");
-	std::vector<std::string> result;
+StepRange::StepRange(const std::string& s) : from_(0.), to_(0.) {
+    Tokenizer parse("-");
+    std::vector<std::string> result;
 
-	parse(s,result);
+    parse(s, result);
 
-	switch(result.size())
-	{
-		case 1:
-			to_ = from_ = eckit::Time(result[0], true)/3600.;
-			break;
+    switch (result.size()) {
+        case 1:
+            to_ = from_ = eckit::Time(result[0], true) / 3600.;
+            break;
 
-		case 2:
-			from_ = eckit::Time(result[0], true)/3600.;
-			to_   = eckit::Time(result[1], true)/3600.;
-			break;
+        case 2:
+            from_ = eckit::Time(result[0], true) / 3600.;
+            to_   = eckit::Time(result[1], true) / 3600.;
+            break;
 
-		default:
+        default:
             std::ostringstream msg;
             msg << "Bad StepRange [" << s << "]";
             throw eckit::BadValue(msg.str(), Here());
@@ -132,17 +126,15 @@ StepRange::StepRange(const std::string& s):
     }
 }
 
-void StepRange::dump(DumpLoad& a) const
-{
-	a.dump(from_);
-	a.dump(to_);
+void StepRange::dump(DumpLoad& a) const {
+    a.dump(from_);
+    a.dump(to_);
 }
 
-void StepRange::load(DumpLoad& a)
-{
-	a.load(from_);
-	a.load(to_);
+void StepRange::load(DumpLoad& a) {
+    a.load(from_);
+    a.load(to_);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace metkit::mars
+}  // namespace metkit::mars

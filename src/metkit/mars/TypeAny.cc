@@ -9,8 +9,8 @@
  */
 
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeAny.h"
+#include "metkit/mars/TypesFactory.h"
 
 
 namespace metkit {
@@ -18,18 +18,15 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeAny::TypeAny(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
-}
+TypeAny::TypeAny(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-TypeAny::~TypeAny() {
-}
+TypeAny::~TypeAny() {}
 
-void TypeAny::print(std::ostream &out) const {
+void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name_ << "]";
 }
 
-bool TypeAny::expand(const MarsExpandContext& ctx, std::string &value) const {
+bool TypeAny::expand(const MarsExpandContext& ctx, std::string& value) const {
     return true;
 }
 
@@ -37,5 +34,5 @@ bool TypeAny::expand(const MarsExpandContext& ctx, std::string &value) const {
 static TypeBuilder<TypeAny> type("any");
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

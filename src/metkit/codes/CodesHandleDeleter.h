@@ -14,26 +14,28 @@
 
 #pragma once
 
-#include <memory>
 #include <eccodes.h>
+#include <memory>
 
 //----------------------------------------------------------------------------------------------------------------------
 
 namespace std {
 
-template <> struct default_delete<codes_handle> {
+template <>
+struct default_delete<codes_handle> {
     void operator()(codes_handle* h) { ::codes_handle_delete(h); }
 };
 
-template <> struct default_delete<codes_keys_iterator> {
+template <>
+struct default_delete<codes_keys_iterator> {
     void operator()(codes_keys_iterator* it) { ::codes_keys_iterator_delete(it); }
 };
 
-template <> struct default_delete<codes_bufr_keys_iterator> {
+template <>
+struct default_delete<codes_bufr_keys_iterator> {
     void operator()(codes_bufr_keys_iterator* it) { ::codes_bufr_keys_iterator_delete(it); }
 };
 
-}
+}  // namespace std
 
 //----------------------------------------------------------------------------------------------------------------------
-

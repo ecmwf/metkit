@@ -36,13 +36,11 @@ void codes_call(int code, const char* msg, const eckit::CodeLocation& where) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-GribHandle::GribHandle(const eckit::PathName& path):
-    handle_(nullptr),
-    owned_(true) {
+GribHandle::GribHandle(const eckit::PathName& path) : handle_(nullptr), owned_(true) {
 
     eckit::AutoStdFile f(path);
 
-    int err        = 0;
+    int err         = 0;
     codes_handle* h = codes_handle_new_from_file(nullptr, f, PRODUCT_GRIB, &err);
     if (err != 0) {
         std::ostringstream os;
@@ -54,23 +52,16 @@ GribHandle::GribHandle(const eckit::PathName& path):
     handle_ = h;
 }
 
-GribHandle::GribHandle(codes_handle* h):
-    handle_(h),
-    owned_(true) {
+GribHandle::GribHandle(codes_handle* h) : handle_(h), owned_(true) {
     ASSERT(h);
 }
 
-GribHandle::GribHandle(codes_handle& h):
-    handle_(&h),
-    owned_(false) {
-}
+GribHandle::GribHandle(codes_handle& h) : handle_(&h), owned_(false) {}
 
-GribHandle::GribHandle(eckit::DataHandle& handle):
-    handle_(nullptr),
-    owned_(true) {
+GribHandle::GribHandle(eckit::DataHandle& handle) : handle_(nullptr), owned_(true) {
 
     codes_handle* h = nullptr;
-    int err = 0;
+    int err         = 0;
 
     FILE* f = handle.openf();
     ASSERT(f);
@@ -84,12 +75,10 @@ GribHandle::GribHandle(eckit::DataHandle& handle):
     fclose(f);
 }
 
-GribHandle::GribHandle(eckit::DataHandle& handle, eckit::Offset offset):
-    handle_(nullptr),
-    owned_(true) {
+GribHandle::GribHandle(eckit::DataHandle& handle, eckit::Offset offset) : handle_(nullptr), owned_(true) {
 
     codes_handle* h = nullptr;
-    int err = 0;
+    int err         = 0;
 
     FILE* f = handle.openf();
     ASSERT(f);
@@ -143,7 +132,7 @@ void GribHandle::setDataValues(const double* values, size_t count) {
     CODES_CALL(codes_set_double_array(raw(), "values", values, count));
 }
 
-void GribHandle::dump( const eckit::PathName& path, const char* mode) const {
+void GribHandle::dump(const eckit::PathName& path, const char* mode) const {
     eckit::StdFile f(path.localPath(), "w");
     codes_dump_content(handle_, f, "mode", 0, 0);
     f.close();

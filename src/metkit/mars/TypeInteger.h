@@ -28,17 +28,21 @@ namespace metkit::mars {
 class TypeInteger : public Type {
 
 public:  // methods
+
     TypeInteger(const std::string& name, const eckit::Value& settings);
 
 protected:
+
     bool ok(const std::string& value, long& n) const;
 
     bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
 private:  // methods
+
     void print(std::ostream& out) const override;
 
 private:  // members
+
     struct Range {
         int lower_;
         int upper_;
