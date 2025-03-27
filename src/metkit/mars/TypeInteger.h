@@ -50,14 +50,6 @@ private:  // members
     std::optional<Range> range_;
 };
 
-class TypeToByListInt : public TypeInteger {
-public: 
-    TypeToByListInt(const std::string &name, const eckit::Value& settings);
-
-protected:
-    void print( std::ostream &out ) const override;
-};
-    
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars

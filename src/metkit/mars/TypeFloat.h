@@ -35,15 +35,6 @@ private:  // methods
     virtual void print(std::ostream& out) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 };
-
-
-class TypeToByListFloat : public TypeFloat {
-public: 
-    TypeToByListFloat(const std::string &name, const eckit::Value& settings);
-
-protected:
-    void print( std::ostream &out ) const override;
-};
         
 //----------------------------------------------------------------------------------------------------------------------
 

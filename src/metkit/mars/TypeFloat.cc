@@ -90,31 +90,21 @@ static TypeBuilder<TypeFloat> type("float");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListFloat::TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
-    TypeFloat(name, settings) {
 
-    toByList_ = std::make_unique<TypeToByList<float, float>>(this, settings);
-    multiple_ = true;
-}
+class TypeToByListFloat : public TypeFloat {
+public: 
+    TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
+        TypeFloat(name, settings) {
 
-void TypeToByListFloat::print(std::ostream &out) const {
-    out << "TypeToByListFloat[name=" << name()  << "]";
-}
+        toByList_ = std::make_unique<TypeToByList<float, float>>(this, settings);
+        multiple_ = true;
+    }
 
-static TypeBuilder<TypeToByListFloat> typeList("to-by-list-float");
-
-//----------------------------------------------------------------------------------------------------------------------
-
-TypeToByListFloat::TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
-    TypeFloat(name, settings) {
-
-    toByList_ = std::make_unique<TypeToByList<float, float>>(this, settings);
-    multiple_ = true;
-}
-
-void TypeToByListFloat::print(std::ostream &out) const {
-    out << "TypeToByListFloat[name=" << name()  << "]";
-}
+protected:
+    void print( std::ostream &out ) const override {
+        out << "TypeToByListFloat[name=" << name()  << "]";
+    }
+};
 
 static TypeBuilder<TypeToByListFloat> typeList("to-by-list-float");
 

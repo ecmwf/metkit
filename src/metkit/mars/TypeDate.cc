@@ -18,6 +18,8 @@
 #include "eckit/utils/StringTools.h"
 #include "metkit/mars/TypeDate.h"
 #include "metkit/mars/TypesFactory.h"
+#include "metkit/mars/TypeToByList.h"
+
 
 #include "metkit/mars/MarsExpandContext.h"
 

@@ -82,31 +82,20 @@ static TypeBuilder<TypeInteger> type("integer");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListInt::TypeToByListInt(const std::string &name, const eckit::Value& settings) :
-    TypeInteger(name, settings) {
+class TypeToByListInt : public TypeInteger {
+public: 
+    TypeToByListInt(const std::string &name, const eckit::Value& settings) :
+        TypeInteger(name, settings) {
 
-    toByList_ = std::make_unique<TypeToByList<long, long>>(this, settings);
-    multiple_ = true;
-}
+        toByList_ = std::make_unique<TypeToByList<long, long>>(this, settings);
+        multiple_ = true;
+    }
 
-void TypeToByListInt::print(std::ostream &out) const {
-    out << "TypeToByListInt[name=" << name() << "]";
-}
-
-static TypeBuilder<TypeToByListInt> typeList("to-by-list");
-
-//----------------------------------------------------------------------------------------------------------------------
-
-TypeToByListInt::TypeToByListInt(const std::string &name, const eckit::Value& settings) :
-    TypeInteger(name, settings) {
-
-    toByList_ = std::make_unique<TypeToByList<long, long>>(this, settings);
-    multiple_ = true;
-}
-
-void TypeToByListInt::print(std::ostream &out) const {
-    out << "TypeToByListInt[name=" << name() << "]";
-}
+protected:
+    void print( std::ostream &out ) const override {
+        out << "TypeToByListInt[name=" << name() << "]";
+    }
+};
 
 static TypeBuilder<TypeToByListInt> typeList("to-by-list");
 
