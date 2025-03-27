@@ -18,16 +18,16 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Quantile.h"
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByListQuantile::TypeToByListQuantile(const std::string &name, const eckit::Value& settings) :
+TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit::Value& settings) :
     Type(name, settings) {
-    
+
     eckit::Value values = settings["denominators"];
 
     if (!values.isList()) {
@@ -77,4 +77,4 @@ static TypeBuilder<TypeToByListQuantile> type("to-by-list-quantile");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars

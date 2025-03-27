@@ -15,8 +15,8 @@
 #pragma once
 
 #include "eckit/exception/Exceptions.h"
-#include "eckit/utils/Translator.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Translator.h"
 
 #include "metkit/mars/Type.h"
 
@@ -28,7 +28,7 @@ class MarsExpandContext;
 template <typename EL, typename BY>
 class TypeToByList : public ITypeToByList {
 
-private: // members
+private:  // members
 
     const Type* type_;
     const std::string by_;
@@ -45,7 +45,7 @@ public:  // methods
         static eckit::Translator<std::string, EL> s2el;
         static eckit::Translator<std::string, BY> s2by;
         static eckit::Translator<EL, std::string> el2s;
-    
+
         std::vector<std::string> newval;
 
         for (size_t i = 0; i < values.size(); ++i) {
@@ -60,7 +60,7 @@ public:  // methods
                     oss << type_->name() << " list: 'to' must be preceeded by a starting value.";
                     throw eckit::BadValue(oss.str());
                 }
-                if (values.size() <= i+1) {
+                if (values.size() <= i + 1) {
                     std::ostringstream oss;
                     oss << type_->name() << " list: 'to' must be followed by an ending value.";
                     throw eckit::BadValue(oss.str());
@@ -70,8 +70,8 @@ public:  // methods
                 EL to   = s2el(type_->tidy(ctx, values[i + 1]));
                 BY by   = s2by(by_);
 
-                if (i+2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                    if (values.size() <= i+3) {
+                if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
+                    if (values.size() <= i + 3) {
                         std::ostringstream oss;
                         oss << type_->name() << " list: 'by' must be followed by a step size.";
                         throw eckit::BadValue(oss.str());
@@ -92,7 +92,8 @@ public:  // methods
                 if (by > BY{0}) {
                     if (to < from) {
                         std::ostringstream oss;
-                        oss << type_->name() + ": 'from' value " << from << " cannot be greater that 'to' value " << to << "";
+                        oss << type_->name() + ": 'from' value " << from << " cannot be greater that 'to' value " << to
+                            << "";
                         throw eckit::BadValue(oss.str());
                     }
                     while (true) {
@@ -101,17 +102,18 @@ public:  // methods
                             if (to < j) {
                                 break;
                             }
-                            newval.emplace_back(type_->tidy(ctx,el2s(j)));
+                            newval.emplace_back(type_->tidy(ctx, el2s(j)));
                         }
-                        catch(...) {
-                            break; /// reached an invalid value
+                        catch (...) {
+                            break;  /// reached an invalid value
                         }
                     }
                 }
                 else {
                     if (from < to) {
                         std::ostringstream oss;
-                        oss << type_->name() + ": 'from' value " << from << " cannot be lower that 'to' value " << to << "";
+                        oss << type_->name() + ": 'from' value " << from << " cannot be lower that 'to' value " << to
+                            << "";
                         throw eckit::BadValue(oss.str());
                     }
                     while (true) {
@@ -120,17 +122,17 @@ public:  // methods
                             if (j < to) {
                                 break;
                             }
-                            newval.emplace_back(type_->tidy(ctx,el2s(j)));
+                            newval.emplace_back(type_->tidy(ctx, el2s(j)));
                         }
-                        catch(...) {
-                            break; /// reached an invalid value
+                        catch (...) {
+                            break;  /// reached an invalid value
                         }
                     }
                 }
                 i++;
             }
             else {
-                newval.push_back(type_->tidy(ctx,s));
+                newval.push_back(type_->tidy(ctx, s));
             }
         }
 
@@ -140,4 +142,4 @@ public:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars

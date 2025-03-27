@@ -78,28 +78,28 @@ void Quantile::print(std::ostream& s) const {
 }
 
 Quantile& Quantile::operator+=(const long& rhs) {
-	num_+=rhs;
-	check();
-	return *this;
+    num_ += rhs;
+    check();
+    return *this;
 }
 
 bool operator==(const Quantile& lhs, const Quantile& rhs) {
 
-	if (lhs.den() != rhs.den()) {
-		std::ostringstream oss;
-		oss << "Quantile values must belong to the same quantile group";
-		throw eckit::BadValue(oss.str());
-	}
-	return (lhs.num() == rhs.num());
+    if (lhs.den() != rhs.den()) {
+        std::ostringstream oss;
+        oss << "Quantile values must belong to the same quantile group";
+        throw eckit::BadValue(oss.str());
+    }
+    return (lhs.num() == rhs.num());
 }
 bool operator<(const Quantile& lhs, const Quantile& rhs) {
 
-	if (lhs.den() != rhs.den()) {
-		std::ostringstream oss;
-		oss << "Quantile values must belong to the same quantile group";
-		throw eckit::BadValue(oss.str());
-	}
-	return (lhs.num() < rhs.num());
+    if (lhs.den() != rhs.den()) {
+        std::ostringstream oss;
+        oss << "Quantile values must belong to the same quantile group";
+        throw eckit::BadValue(oss.str());
+    }
+    return (lhs.num() < rhs.num());
 }
 
 //----------------------------------------------------------------------------------------------------------------------

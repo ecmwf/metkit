@@ -13,12 +13,12 @@
 #include "eckit/utils/Tokenizer.h"
 #include "eckit/utils/Translator.h"
 
+#include "eckit/utils/StringTools.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
-#include "eckit/utils/StringTools.h"
 #include "metkit/mars/TypeDate.h"
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 
 #include "metkit/mars/MarsExpandContext.h"
@@ -34,10 +34,10 @@ static const char* months[] = {
 
 int month(const std::string& value) {
     if (value.size() == 3) {
-        std::string month = eckit::StringTools::lower(value).substr(0,3);
-        for (size_t i=0; i<12; i++) { // check month name
+        std::string month = eckit::StringTools::lower(value).substr(0, 3);
+        for (size_t i = 0; i < 12; i++) {  // check month name
             if (months[i] == month) {
-                return i+1;
+                return i + 1;
             }
         }
     }
@@ -46,8 +46,7 @@ int month(const std::string& value) {
     return s2i(value);
 }
 
-TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     DummyContext ctx;
     toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(this, settings);
@@ -63,7 +62,7 @@ void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
+bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
     if (!value.empty()) {
         eckit::Translator<std::string, long> s2l;
         eckit::Translator<long, std::string> l2s;
@@ -78,11 +77,11 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
             eckit::Tokenizer t("-");
             std::vector<std::string> tokens = t.tokenize(value);
 
-            if (tokens.size() == 2) { // TypeClimateDaily
-                int m = month(tokens[0]);
+            if (tokens.size() == 2) {  // TypeClimateDaily
+                int m  = month(tokens[0]);
                 long d = s2l(tokens[1]);
-                
-                value = l2s(100*m + d);
+
+                value = l2s(100 * m + d);
             }
             else {
                 if (tokens[0].size() <= 3) {
@@ -91,7 +90,7 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
                 }
                 else {
                     eckit::Date date(value);
-                    value = l2s(date.yyyymmdd());        
+                    value = l2s(date.yyyymmdd());
                 }
             }
         }
@@ -107,4 +106,4 @@ static TypeBuilder<TypeDate> type("date");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars

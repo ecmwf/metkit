@@ -12,13 +12,13 @@
 /// @author Emanuele Danovaro
 /// @date   March 2025
 
-#include "eckit/value/Value.h"
-#include "eckit/types/Date.h"
 #include "eckit/testing/Test.h"
+#include "eckit/types/Date.h"
+#include "eckit/value/Value.h"
 
-#include "metkit/mars/TypeDate.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/TypeDate.h"
 
 using namespace eckit;
 using namespace eckit::testing;
@@ -28,7 +28,7 @@ namespace metkit::mars::test {
 //-----------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
-    const std::vector<std::string>& expected) {
+                         const std::vector<std::string>& expected) {
     std::cout << "comparing " << values << " with " << expected;
     static MarsLanguage language("retrieve");
     language.type(name)->expand(DummyContext(), values);
@@ -48,7 +48,8 @@ CASE("Test TypeDate expansions") {
     assertTypeExpansion("date", {"20140506", "to", "20140506"}, {"20140506"});
     assertTypeExpansion("date", {"20140506", "to", "20140507"}, {"20140506", "20140507"});
     assertTypeExpansion("date", {"20140506", "to", "20140508"}, {"20140506", "20140507", "20140508"});
-    assertTypeExpansion("date", {"20140504", "20140506", "to", "20140508"}, {"20140504", "20140506", "20140507", "20140508"});
+    assertTypeExpansion("date", {"20140504", "20140506", "to", "20140508"},
+                        {"20140504", "20140506", "20140507", "20140508"});
     assertTypeExpansion("date", {"2"}, {"2"});
     assertTypeExpansion("date", {"jan"}, {"1"});
     assertTypeExpansion("date", {"1-01"}, {"101"});
@@ -57,7 +58,7 @@ CASE("Test TypeDate expansions") {
 
     {
         std::string value = "20141506";
-        EXPECT_THROWS(td.expand(ctx, value)); // throws BadDate that is not exported
+        EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
     }
     {
         std::string value = "-1";
@@ -71,7 +72,6 @@ CASE("Test TypeDate expansions") {
 
 }  // namespace metkit::mars::test
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

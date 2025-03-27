@@ -13,15 +13,14 @@
 
 #include "metkit/mars/TypeTime.h"
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+TypeTime::TypeTime(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(this, settings);
     multiple_ = true;
@@ -57,4 +56,4 @@ static TypeBuilder<TypeTime> type("time");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars

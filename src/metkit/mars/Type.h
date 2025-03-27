@@ -73,10 +73,11 @@ private:
 
 class ITypeToByList {
 public:
-    virtual ~ITypeToByList() = default;
+
+    virtual ~ITypeToByList()                                                                        = default;
     virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
 };
-    
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class Type : public eckit::Counted {

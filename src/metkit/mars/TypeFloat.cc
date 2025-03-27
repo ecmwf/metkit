@@ -13,9 +13,8 @@
 #include "metkit/mars/MarsRequest.h"
 
 #include "metkit/mars/TypeFloat.h"
-#include "metkit/mars/TypesFactory.h"
-#include "metkit/mars/TypeFloat.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
@@ -82,7 +81,7 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value) const {
     return true;
 }
 
-void TypeFloat::print(std::ostream &out) const {
+void TypeFloat::print(std::ostream& out) const {
     out << "TypeFloat[name=" << name() << "]";
 }
 
@@ -92,18 +91,17 @@ static TypeBuilder<TypeFloat> type("float");
 
 
 class TypeToByListFloat : public TypeFloat {
-public: 
-    TypeToByListFloat(const std::string &name, const eckit::Value& settings) :
-        TypeFloat(name, settings) {
+public:
+
+    TypeToByListFloat(const std::string& name, const eckit::Value& settings) : TypeFloat(name, settings) {
 
         toByList_ = std::make_unique<TypeToByList<float, float>>(this, settings);
         multiple_ = true;
     }
 
 protected:
-    void print( std::ostream &out ) const override {
-        out << "TypeToByListFloat[name=" << name()  << "]";
-    }
+
+    void print(std::ostream& out) const override { out << "TypeToByListFloat[name=" << name() << "]"; }
 };
 
 static TypeBuilder<TypeToByListFloat> typeList("to-by-list-float");

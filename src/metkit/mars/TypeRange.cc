@@ -20,25 +20,23 @@
 #include "metkit/mars/Quantile.h"
 #include "metkit/mars/StepRange.h"
 #include "metkit/mars/TypeTime.h"
-#include "metkit/mars/TypesFactory.h"
-#include "metkit/mars/TypeTime.h"
-#include "metkit/mars/StepRange.h"
 #include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class ExtendedTime : public eckit::Time {
-    public:
-        ExtendedTime(long seconds = 0) : Time(seconds, true) {}
-        ExtendedTime(const std::string& time) : Time(time, true) {}
-    };
+public:
+
+    ExtendedTime(long seconds = 0) : Time(seconds, true) {}
+    ExtendedTime(const std::string& time) : Time(time, true) {}
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRange::TypeRange(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(this, settings);
     multiple_ = true;

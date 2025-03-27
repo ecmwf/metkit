@@ -31,7 +31,7 @@ public:
 
     operator std::string();
 
-	Quantile& operator+=(const long& rhs);
+    Quantile& operator+=(const long& rhs);
 
 protected:
 
@@ -53,11 +53,19 @@ private:
 };
 
 bool operator==(const Quantile& lhs, const Quantile& rhs);
-inline bool operator!=(const Quantile& lhs, const Quantile& rhs) { return !(rhs == lhs); }
+inline bool operator!=(const Quantile& lhs, const Quantile& rhs) {
+    return !(rhs == lhs);
+}
 bool operator<(const Quantile& lhs, const Quantile& rhs);
-inline bool operator> (const Quantile& lhs, const Quantile& rhs) { return rhs < lhs; }
-inline bool operator<=(const Quantile& lhs, const Quantile& rhs) { return !(lhs > rhs); }
-inline bool operator>=(const Quantile& lhs, const Quantile& rhs) { return !(lhs < rhs); }
+inline bool operator>(const Quantile& lhs, const Quantile& rhs) {
+    return rhs < lhs;
+}
+inline bool operator<=(const Quantile& lhs, const Quantile& rhs) {
+    return !(lhs > rhs);
+}
+inline bool operator>=(const Quantile& lhs, const Quantile& rhs) {
+    return !(lhs < rhs);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

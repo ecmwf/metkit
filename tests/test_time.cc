@@ -17,8 +17,8 @@
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
-#include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsParser.h"
 #include "metkit/mars/TypeTime.h"
 
 using namespace eckit;
@@ -31,7 +31,7 @@ namespace test {
 //-----------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
-    const std::vector<std::string>& expected) {
+                         const std::vector<std::string>& expected) {
     std::cout << "comparing " << values << " with " << expected;
     static MarsLanguage language("retrieve");
     language.type(name)->expand(DummyContext(), values);
@@ -241,9 +241,9 @@ CASE("Test TypeTime expansions") {
     assertTypeExpansion("time", {"60m"}, {"0100"});
     assertTypeExpansion("time", {"2h30m"}, {"0230"});
     assertTypeExpansion("time", {"60s"}, {"0001"});
-    EXPECT_THROWS_AS(assertTypeExpansion("time", {"6s"}, {"0000"}),SeriousBug);
-    EXPECT_THROWS_AS(assertTypeExpansion("time", {"25"}, {"0000"}),BadValue);
-    
+    EXPECT_THROWS_AS(assertTypeExpansion("time", {"6s"}, {"0000"}), SeriousBug);
+    EXPECT_THROWS_AS(assertTypeExpansion("time", {"25"}, {"0000"}), BadValue);
+
     // from to by
     assertTypeExpansion("time", {"0", "to", "18"}, {"0000", "0600", "1200", "1800"});
     assertTypeExpansion("time", {"0", "to", "6", "by", "1"}, {"0000", "0100", "0200", "0300", "0400", "0500", "0600"});

@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "metkit/mars/Type.h"
 #include "metkit/mars/Quantile.h"
+#include "metkit/mars/Type.h"
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -38,4 +38,4 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars
