@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   TypeToByListQuantile.h
+/// @file   TypeRange.h
 /// @author Emanuele Danovaro
 /// @date   February 2022
 
@@ -36,8 +36,9 @@ private:  // methods
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     StepRange parse(std::string& value) const;
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace metkit::mars
+} // namespace metkit::mars
