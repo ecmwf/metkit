@@ -287,11 +287,15 @@ metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const met
     });
 }
 
+void metkit_string_delete(const char* str) {
+    delete[] str;
+}
+
 // -----------------------------------------------------------------------------
 //                           REQUEST ITERATOR
 // -----------------------------------------------------------------------------
 
-metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it) {
+metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it) {
     return tryCatch([it] {
         delete it;
     });
