@@ -6,11 +6,8 @@
 # granted to it by virtue of its status as an intergovernmental organisation
 # nor does it submit to any jurisdiction.
 
-# NOTE just an empty action, to allow explicit running from a branch where the
-# actual development is happening
 
-
-name: Build Python Wheel for Linux
+name: Build Python Wrapper Wheel
 
 on:
   # Trigger the workflow manually
@@ -22,13 +19,9 @@ on:
   # TODO automation trigger
 
 jobs:
-  build:
-    name: Build manylinux_2_28
-    runs-on: [self-hosted, Linux, platform-builder-Rocky-8.6]
-    container:
-      image: eccr.ecmwf.int/wheelmaker/2_28:latest
-      credentials:
-        username: ${{ secrets.ECMWF_DOCKER_REGISTRY_USERNAME }}
-        password: ${{ secrets.ECMWF_DOCKER_REGISTRY_ACCESS_TOKEN }}
-    steps:
-      - run: echo "nihil"
+  python-wrapper-wheel:
+    name: Python Wrapper Wheel
+    uses: ecmwf/reusable-workflows/.github/workflows/python-wrapper-wheel.yml@main
+    with:
+      wheel_directory: python/metkitlib
+    secrets: inherit
