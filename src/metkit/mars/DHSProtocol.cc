@@ -40,41 +40,41 @@ static Reanimator<DHSProtocol> dhsProtocolReanimator;
 
 namespace {
 
-    constexpr const int DEFAULT_CALLBACK_PROXY_PORT = 9707;
+constexpr const int DEFAULT_CALLBACK_PROXY_PORT = 9707;
 
-    // Normally we would let the Endpoint constructor do this unpacking itself, but we want to set a default port
+// Normally we would let the Endpoint constructor do this unpacking itself, but we want to set a default port
 
-    Endpoint unpackHostPort(const std::string& hoststr) {
+Endpoint unpackHostPort(const std::string& hoststr) {
 
-        auto bits = StringTools::split(":", hoststr);
-        ASSERT(!bits.empty() && bits.size() < 3);
+    auto bits = StringTools::split(":", hoststr);
+    ASSERT(!bits.empty() && bits.size() < 3);
 
-        int port  = DEFAULT_CALLBACK_PROXY_PORT;
-        if (bits.size() == 2) {
-            port = Translator<std::string, int>()(bits[1]);
-        }
-
-        return {bits[0], port};
+    int port = DEFAULT_CALLBACK_PROXY_PORT;
+    if (bits.size() == 2) {
+        port = Translator<std::string, int>()(bits[1]);
     }
 
-
-    Endpoint selectProxyHost(const std::vector<std::string> proxies) {
-        return unpackHostPort(proxies[std::rand() % proxies.size()]);
-    }
-
-
-    Endpoint selectProxyHost(const Configuration& config) {
-        if (config.has("proxyHost")) {
-            return unpackHostPort(config.getString("proxyHost"));
-        }
-
-        if (config.has("proxyHosts")) {
-            return selectProxyHost(config.getStringVector("proxyHosts"));
-        }
-
-        throw UserError("Neither proxyHosts nor proxyHost specified in configuration");
-    }
+    return {bits[0], port};
 }
+
+
+Endpoint selectProxyHost(const std::vector<std::string> proxies) {
+    return unpackHostPort(proxies[std::rand() % proxies.size()]);
+}
+
+
+Endpoint selectProxyHost(const Configuration& config) {
+    if (config.has("proxyHost")) {
+        return unpackHostPort(config.getString("proxyHost"));
+    }
+
+    if (config.has("proxyHosts")) {
+        return selectProxyHost(config.getStringVector("proxyHosts"));
+    }
+
+    throw UserError("Neither proxyHosts nor proxyHost specified in configuration");
+}
+}  // namespace
 
 
 // Implement the default callback behaviour. Client opens a socket that can be connected to by
@@ -84,31 +84,26 @@ class SimpleCallback : public BaseCallbackConnection {
 
 public:
 
-    SimpleCallback() :
-        callback_(Resource<int>("$MARS_DHS_LOCALPORT", 0)),
-        callbackEndpoint_(computeEndpoint()) {
-        LOG_DEBUG_LIB(LibMetkit) << "Simple callback. local port=" << callback_.localPort() << " host=" << callbackEndpoint_.host()
-                                 << " port=" << callbackEndpoint_.port() << std::endl;
+    SimpleCallback() : callback_(Resource<int>("$MARS_DHS_LOCALPORT", 0)), callbackEndpoint_(computeEndpoint()) {
+        LOG_DEBUG_LIB(LibMetkit) << "Simple callback. local port=" << callback_.localPort()
+                                 << " host=" << callbackEndpoint_.host() << " port=" << callbackEndpoint_.port()
+                                 << std::endl;
     }
     explicit SimpleCallback(const Configuration&) : SimpleCallback() {}
     explicit SimpleCallback(Stream&) : SimpleCallback() {}
 
 private:
 
-    const Endpoint& endpoint() const override {
-        return callbackEndpoint_;
-    }
+    const Endpoint& endpoint() const override { return callbackEndpoint_; }
 
-    net::TCPSocket& connect() override {
-        return callback_.accept();
-    }
+    net::TCPSocket& connect() override { return callback_.accept(); }
 
     net::EphemeralTCPServer callback_;
     Endpoint callbackEndpoint_;
 
     Endpoint computeEndpoint() const {
         static std::string callbackHost = Resource<std::string>("$MARS_DHS_CALLBACK_HOST", "");
-        static int callbackPort = Resource<int>("$MARS_DHS_CALLBACK_PORT", 0);
+        static int callbackPort         = Resource<int>("$MARS_DHS_CALLBACK_PORT", 0);
 
         if (callbackHost.empty()) {
             return Endpoint{net::IPAddress::hostAddress(callback_.localHost()).asString(), callback_.localPort()};
@@ -120,11 +115,14 @@ private:
     }
 
 public:
-    static const ClassSpec&  classSpec() {
+
+    static const ClassSpec& classSpec() {
         static ClassSpec spec = {&BaseCallbackConnection::classSpec(), "SimpleCallback"};
         return spec;
     }
+
 protected:
+
     const ReanimatorBase& reanimator() const override { return reanimator_; }
     void encode(Stream&) const override {}
     static Reanimator<SimpleCallback> reanimator_;
@@ -143,8 +141,7 @@ class ProxyCallback : public BaseCallbackConnection {
 public:
 
     explicit ProxyCallback(const Endpoint& proxyhost) :
-        control_(net::TCPClient().connect(proxyhost)),
-        proxyHost_(proxyhost) {
+        control_(net::TCPClient().connect(proxyhost)), proxyHost_(proxyhost) {
 
         LOG_DEBUG_LIB(LibMetkit) << "Proxy callback. proxyhost=" << proxyhost.host()
                                  << " proxyport=" << proxyhost.port() << std::endl;
@@ -160,17 +157,13 @@ public:
         remoteAddr_ = Endpoint(control_);
     }
 
-    explicit ProxyCallback(const Configuration& config) :
-        ProxyCallback(selectProxyHost(config)) {}
+    explicit ProxyCallback(const Configuration& config) : ProxyCallback(selectProxyHost(config)) {}
 
-    explicit ProxyCallback(Stream& s) :
-        ProxyCallback(Endpoint(s)) {}
+    explicit ProxyCallback(Stream& s) : ProxyCallback(Endpoint(s)) {}
 
 private:
 
-    const Endpoint& endpoint() const override {
-        return remoteAddr_;
-    }
+    const Endpoint& endpoint() const override { return remoteAddr_; }
 
     net::TCPSocket& connect() override {
         // FIXME: Check that the callback connection is still alive...
@@ -184,15 +177,16 @@ private:
     Endpoint remoteAddr_;
 
 public:
-    static const ClassSpec&  classSpec() {
+
+    static const ClassSpec& classSpec() {
         static ClassSpec spec = {&BaseCallbackConnection::classSpec(), "ProxyCallback"};
         return spec;
     }
+
 protected:
+
     const ReanimatorBase& reanimator() const override { return reanimator_; }
-    void encode(Stream& s) const override {
-        s << proxyHost_;
-    }
+    void encode(Stream& s) const override { s << proxyHost_; }
     static Reanimator<ProxyCallback> reanimator_;
 };
 
@@ -209,8 +203,7 @@ class PassiveProxyCallback : public BaseCallbackConnection {
 public:
 
     explicit PassiveProxyCallback(const Endpoint& proxyhost, bool useProxyHostAsCallback = true) :
-        control_(net::TCPClient().connect(proxyhost)),
-        proxyHost_(proxyhost) {
+        control_(net::TCPClient().connect(proxyhost)), proxyHost_(proxyhost) {
 
         LOG_DEBUG_LIB(LibMetkit) << "Passive proxy callback. proxyhost=" << proxyhost << std::endl;
 
@@ -224,15 +217,15 @@ public:
 
         remoteAddr_ = Endpoint(control_);
 
-        LOG_DEBUG_LIB(LibMetkit) << "Remote address. host=" << remoteAddr_<< std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << "Remote address. host=" << remoteAddr_ << std::endl;
 
         passiveAddr_ = Endpoint(control_);
-        
+
         if (useProxyHostAsCallback) {
-           passiveAddr_ = Endpoint(proxyhost.host(), passiveAddr_.port()); 
+            passiveAddr_ = Endpoint(proxyhost.host(), passiveAddr_.port());
         }
 
-        LOG_DEBUG_LIB(LibMetkit) << "Passive address. host=" << passiveAddr_<< std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << "Passive address. host=" << passiveAddr_ << std::endl;
 
         control_ >> passiveCheck_;
 
@@ -242,14 +235,11 @@ public:
     explicit PassiveProxyCallback(const Configuration& config) :
         PassiveProxyCallback(selectProxyHost(config), config.getBool("useProxyHostAsCallback", true)) {}
 
-    explicit PassiveProxyCallback(Stream& s) :
-        PassiveProxyCallback(Endpoint(s)) {}
+    explicit PassiveProxyCallback(Stream& s) : PassiveProxyCallback(Endpoint(s)) {}
 
 private:
 
-    const Endpoint& endpoint() const override {
-        return remoteAddr_;
-    }
+    const Endpoint& endpoint() const override { return remoteAddr_; }
 
     net::TCPSocket& connect() override {
         // FIXME: Check that the callback connection is still alive...
@@ -270,15 +260,16 @@ private:
     unsigned long long passiveCheck_;
 
 public:
-    static const ClassSpec&  classSpec() {
+
+    static const ClassSpec& classSpec() {
         static ClassSpec spec = {&BaseCallbackConnection::classSpec(), "PassiveProxyCallback"};
         return spec;
     }
+
 protected:
+
     const ReanimatorBase& reanimator() const override { return reanimator_; }
-    void encode(Stream& s) const override {
-        s << proxyHost_;
-    }
+    void encode(Stream& s) const override { s << proxyHost_; }
     static Reanimator<PassiveProxyCallback> reanimator_;
 };
 
@@ -288,12 +279,13 @@ Reanimator<PassiveProxyCallback> PassiveProxyCallback::reanimator_;
 // ---------------------------------------------------------------------------------------------------------------------
 
 const ClassSpec& BaseCallbackConnection::classSpec() {
-    static ClassSpec spec = { &Streamable::classSpec(), "BaseCallbackConnection" };
+    static ClassSpec spec = {&Streamable::classSpec(), "BaseCallbackConnection"};
     return spec;
 }
 
 BaseCallbackConnection* BaseCallbackConnection::build(const Configuration& config, const std::string& host) {
-    if (config.has("proxyHost") || config.has("proxyHosts") || (config.getBool("passiveProxy", true) && config.getBool("useHostAsProxy", false))) {
+    if (config.has("proxyHost") || config.has("proxyHosts") ||
+        (config.getBool("passiveProxy", true) && config.getBool("useHostAsProxy", false))) {
         if (config.getBool("passiveProxy", true)) {
             if (config.getBool("useHostAsProxy", false)) {
                 return new PassiveProxyCallback{unpackHostPort(host)};
@@ -304,14 +296,16 @@ BaseCallbackConnection* BaseCallbackConnection::build(const Configuration& confi
     }
 
     static bool passiveProxy = Resource<bool>("$MARS_DHS_PASSIVE_PROXY", true);
-    static std::vector<std::string> proxyHosts = Resource<std::vector<std::string>>("$MARS_DHS_CALLBACK_PROXY_HOST", {});
+    static std::vector<std::string> proxyHosts =
+        Resource<std::vector<std::string>>("$MARS_DHS_CALLBACK_PROXY_HOST", {});
 
     if (!proxyHosts.empty()) {
         Endpoint proxyHost = selectProxyHost(proxyHosts);
 
         if (passiveProxy) {
             return new PassiveProxyCallback(proxyHost);
-        } else {
+        }
+        else {
             return new ProxyCallback(proxyHost);
         }
     }
@@ -321,10 +315,7 @@ BaseCallbackConnection* BaseCallbackConnection::build(const Configuration& confi
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-DHSProtocol::DHSProtocol(const std::string& name,
-                         const std::string& host,
-                         int port,
-                         bool forwardMessages ) :
+DHSProtocol::DHSProtocol(const std::string& name, const std::string& host, int port, bool forwardMessages) :
     callback_(new SimpleCallback{}),
     name_(name),
     host_(host),
@@ -334,28 +325,26 @@ DHSProtocol::DHSProtocol(const std::string& name,
     sending_(false),
     forward_(forwardMessages) {}
 
-DHSProtocol::DHSProtocol(const Configuration& params):
+DHSProtocol::DHSProtocol(const Configuration& params) :
     BaseProtocol(params),
     name_(params.getString("name")),
     port_(params.getInt("port", 9000)),
     done_(false),
     error_(false),
     sending_(false),
-    forward_(false)
-{
+    forward_(false) {
     if (params.has("hosts")) {
         std::vector<std::string> hosts = params.getStringVector("hosts");
-        host_ = hosts.at(std::rand() % hosts.size());
-    } else {
+        host_                          = hosts.at(std::rand() % hosts.size());
+    }
+    else {
         ASSERT(params.has("host"));
         host_ = params.getString("host");
     }
     callback_.reset(BaseCallbackConnection::build(params, host_));
 }
 
-DHSProtocol::DHSProtocol(Stream& s):
-    BaseProtocol(s),
-    callback_(Reanimator<BaseCallbackConnection>::reanimate(s)) {
+DHSProtocol::DHSProtocol(Stream& s) : BaseProtocol(s), callback_(Reanimator<BaseCallbackConnection>::reanimate(s)) {
     s >> name_;
     s >> host_;
     s >> port_;
@@ -365,8 +354,7 @@ DHSProtocol::DHSProtocol(Stream& s):
     s >> forward_;
 }
 
-DHSProtocol::~DHSProtocol()
-{
+DHSProtocol::~DHSProtocol() {
     done_ = true;
     cleanup();
 }
@@ -376,62 +364,55 @@ const ReanimatorBase& DHSProtocol::reanimator() const {
 }
 
 const ClassSpec& DHSProtocol::classSpec() {
-    static ClassSpec spec = { &BaseProtocol::classSpec(), "DHSProtocol" };
+    static ClassSpec spec = {&BaseProtocol::classSpec(), "DHSProtocol"};
     return spec;
 }
 
-Length DHSProtocol::retrieve(const MarsRequest& request)
-{
+Length DHSProtocol::retrieve(const MarsRequest& request) {
     Endpoint callbackEndpoint = callback_->endpoint();
 
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
-    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(),
-                                  callbackEndpoint.host(), callbackEndpoint.port()));
+    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), callbackEndpoint.host(),
+                               callbackEndpoint.port()));
 
     net::TCPStream s(net::TCPClient().connect(host_, port_));
 
     task_->send(s);
 
-    ASSERT(task_->receive(s) == 'a'); // Acknoledgement
+    ASSERT(task_->receive(s) == 'a');  // Acknoledgement
 
     Length result = 0;
-    while (wait(result)) {
-    }
+    while (wait(result)) {}
 
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol::retrieve " << result << std::endl;
     return result;
 }
 
-void DHSProtocol::archive(const MarsRequest& request, const Length& size)
-{
+void DHSProtocol::archive(const MarsRequest& request, const Length& size) {
     Endpoint callbackEndpoint = callback_->endpoint();
 
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol::archive " << size << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
-    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(),
-                                  callbackEndpoint.host(), callbackEndpoint.port()));
+    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), callbackEndpoint.host(),
+                               callbackEndpoint.port()));
 
     net::TCPStream s(net::TCPClient().connect(host_, port_));
 
     task_->send(s);
 
-    ASSERT(task_->receive(s) == 'a'); // Acknoledgement
+    ASSERT(task_->receive(s) == 'a');  // Acknoledgement
 
     Length result = size;
-    while (wait(result)) {
-    }
+    while (wait(result)) {}
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: archive completed." << std::endl;
 }
 
-void DHSProtocol::cleanup()
-{
-    if (socket_.isConnected())
-    {
-        if ( sending_ )
-        {
-            unsigned long version = 1;
+void DHSProtocol::cleanup() {
+    if (socket_.isConnected()) {
+        if (sending_) {
+            unsigned long version  = 1;
             unsigned long long crc = 0;
 
             try {
@@ -439,8 +420,7 @@ void DHSProtocol::cleanup()
                 s << version;
                 s << crc;
             }
-            catch (std::exception& e)
-            {
+            catch (std::exception& e) {
                 Log::error() << "** " << e.what() << " Caught in " << Here() << std::endl;
                 Log::error() << "** Exception is ignored" << std::endl;
             }
@@ -457,15 +437,13 @@ void DHSProtocol::cleanup()
         }
     }
 
-    if (error_)
-    {
+    if (error_) {
         error_ = false;
-        throw UserError(std::string("Error from [") + name_ + "]: "  + msg_);
+        throw UserError(std::string("Error from [") + name_ + "]: " + msg_);
     }
 }
 
-void DHSProtocol::print(std::ostream& s) const
-{
+void DHSProtocol::print(std::ostream& s) const {
     s << "DHSProtocol[" << name_ << "]";
 }
 
@@ -481,21 +459,19 @@ void DHSProtocol::encode(Stream& s) const {
     s << forward_;
 }
 
-long DHSProtocol::read(void* buffer, long len)
-{
+long DHSProtocol::read(void* buffer, long len) {
     return socket_.read(buffer, len);
 }
 
-long DHSProtocol::write(const void* buffer, long len)
-{
+long DHSProtocol::write(const void* buffer, long len) {
     return socket_.write(buffer, len);
 }
 
-bool DHSProtocol::wait(Length& size)
-{
+bool DHSProtocol::wait(Length& size) {
     for (;;) {
 
-        if (socket_.isConnected()) socket_.close();
+        if (socket_.isConnected())
+            socket_.close();
         socket_ = callback_->connect();
 
         net::InstantTCPStream s(socket_);
@@ -508,117 +484,115 @@ bool DHSProtocol::wait(Length& size)
         long long bytes;
 
         switch (code) {
-        /* OK */
-        case 'o':
-            done_ = true;
-            return false;
+            /* OK */
+            case 'o':
+                done_ = true;
+                return false;
 
-        /* read source */
-        case 'r':
-            bytes = size;
-            LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol:r [" << bytes << "]" << std::endl;
-            s << bytes;
-            sending_ = true;
-            return false;
+            /* read source */
+            case 'r':
+                bytes = size;
+                LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol:r [" << bytes << "]" << std::endl;
+                s << bytes;
+                sending_ = true;
+                return false;
 
-        /* get */
-        case 'h':
-            NOTIMP;
-            break;
+            /* get */
+            case 'h':
+                NOTIMP;
+                break;
 
-        case 'w':
-            s >> bytes;
-            LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol:w " << bytes << std::endl;
-            size = bytes;
-            return false;
+            case 'w':
+                s >> bytes;
+                LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol:w " << bytes << std::endl;
+                size = bytes;
+                return false;
 
-        case 'm':
-            NOTIMP;
-            break;
+            case 'm':
+                NOTIMP;
+                break;
 
-        case 'X':
-            NOTIMP;
-            break;
+            case 'X':
+                NOTIMP;
+                break;
 
-        case 'e':
-            s >> msg_;
-            Log::error() << msg_ << " [" << name_ << "]" << std::endl;
-            error_ = true;
-            done_ = true;
-            return false;
+            case 'e':
+                s >> msg_;
+                Log::error() << msg_ << " [" << name_ << "]" << std::endl;
+                error_ = true;
+                done_  = true;
+                return false;
 
-        case 'y':    /* retry */
-            NOTIMP;
-            break;
+            case 'y': /* retry */
+                NOTIMP;
+                break;
 
-        case 'I': /* info */
-            s >> msg;
-            Log::info() << msg << " [" << name_ << "]" << std::endl;
-            if (forward_) {
-                Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
-            }
-            break;
+            case 'I': /* info */
+                s >> msg;
+                Log::info() << msg << " [" << name_ << "]" << std::endl;
+                if (forward_) {
+                    Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+                }
+                break;
 
-        case 'W': /* warning */
-            s >> msg;
-            Log::warning() << msg << " [" << name_ << "]" << std::endl;
-            if (forward_) {
-                Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
-            }
-            break;
+            case 'W': /* warning */
+                s >> msg;
+                Log::warning() << msg << " [" << name_ << "]" << std::endl;
+                if (forward_) {
+                    Log::userWarning() << msg << " [" << name_ << "]" << std::endl;
+                }
+                break;
 
-        case 'D': /* debug */
-            s >> msg;
-            LOG_DEBUG_LIB(LibMetkit) << msg << " [" << name_ << "]" << std::endl;
-            if (forward_) {
-                Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
-            }
-            break;
+            case 'D': /* debug */
+                s >> msg;
+                LOG_DEBUG_LIB(LibMetkit) << msg << " [" << name_ << "]" << std::endl;
+                if (forward_) {
+                    Log::userInfo() << msg << " [" << name_ << "]" << std::endl;
+                }
+                break;
 
-        case 'E': /* error */
-            s >> msg;
-            Log::error() << msg << " [" << name_ << "]" << std::endl;
-            if (forward_) {
-                Log::userError() << msg << " [" << name_ << "]" << std::endl;
-            }
-            break;
+            case 'E': /* error */
+                s >> msg;
+                Log::error() << msg << " [" << name_ << "]" << std::endl;
+                if (forward_) {
+                    Log::userError() << msg << " [" << name_ << "]" << std::endl;
+                }
+                break;
 
-        case 'N': /* notification */
-            NOTIMP;
+            case 'N': /* notification */
+                NOTIMP;
 
-        case 'p': /* ping */
-            s << 'p';
-            break;
+            case 'p': /* ping */
+                s << 'p';
+                break;
 
-        case 's': /* statistics */
-        {
-            int n;
-            s >> n;
-            std::string key, value;
-            for (int i = 0; i < n; i++)
+            case 's': /* statistics */
             {
-                s >> key >> value;
-                Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
-            }
-        }
-        break;
+                int n;
+                s >> n;
+                std::string key, value;
+                for (int i = 0; i < n; i++) {
+                    s >> key >> value;
+                    Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
+                }
+            } break;
 
-        case 'S': /* notification start */
-            NOTIMP;
-            break;
+            case 'S': /* notification start */
+                NOTIMP;
+                break;
 
-        case 't': /* new timeout */
-            NOTIMP;
-            break;
+            case 't': /* new timeout */
+                NOTIMP;
+                break;
 
-        default:
-            throw Exception(std::string("Unknown code [") + code + "]");
-            break;
+            default:
+                throw Exception(std::string("Unknown code [") + code + "]");
+                break;
         }
     }
 }
 
 static ProtocolBuilder<DHSProtocol> builder("dhsbase");
 
-}
-}
+}  // namespace mars
+}  // namespace metkit

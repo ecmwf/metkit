@@ -12,8 +12,8 @@
 /// @author Simon Smart
 /// @date   April 2017
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeDate.h"
+#include "metkit/mars/TypesFactory.h"
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Tool.h"
@@ -30,16 +30,17 @@ namespace test {
 //-----------------------------------------------------------------------------
 
 
-CASE ("test_list_types") {
+CASE("test_list_types") {
 
     std::stringstream ss;
     TypesFactory::list(ss);
     std::cout << ss.str() << std::endl;
-    EXPECT(ss.str() == std::string("[any,date,enum,expver,float,integer,lowercase,mixed,param,range,regex,time,to-by-list,to-by-list-float,to-by-list-quantile]"));
+    EXPECT(ss.str() == std::string("[any,date,enum,expver,float,integer,lowercase,mixed,param,range,regex,time,to-by-"
+                                   "list,to-by-list-float,to-by-list-quantile]"));
 }
 
 
-CASE ("test_build") {
+CASE("test_build") {
 
     eckit::ValueMap settings;
     settings["type"] = "date";
@@ -62,7 +63,6 @@ CASE ("test_build") {
 
 //-----------------------------------------------------------------------------
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

@@ -32,22 +32,26 @@ namespace hypercube {
 class Axis;
 
 class AxisOrder {
-public: // methods
+public:  // methods
+
     static AxisOrder& instance();
 
     const std::vector<std::string>& axes() { return axes_; }
 
-private: // methods
+private:  // methods
+
     AxisOrder();
 
     eckit::PathName axisYamlFile() { return "~metkit/share/metkit/axis.yaml"; }
 
-private: // members
+private:  // members
+
     std::vector<std::string> axes_;
 };
 
 class HyperCube {
 public:
+
     HyperCube(const metkit::mars::MarsRequest&);
     ~HyperCube();
 
@@ -56,13 +60,14 @@ public:
 
     size_t count() const;
     size_t countVacant() const;
-    size_t size() const {return cube_.count(); }
+    size_t size() const { return cube_.count(); }
 
     size_t fieldOrdinal(const metkit::mars::MarsRequest&, bool noholes = true) const;
     std::vector<metkit::mars::MarsRequest> vacantRequests() const { return aggregatedRequests(true); }
     std::vector<metkit::mars::MarsRequest> requests() const { return aggregatedRequests(false); }
 
 protected:
+
     std::vector<metkit::mars::MarsRequest> aggregatedRequests(bool remaining) const;
     int indexOf(const metkit::mars::MarsRequest&) const;
     bool clear(int index);
@@ -70,6 +75,7 @@ protected:
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(std::set<size_t> idxs) const;
 
 private:
+
     std::string verb_;
     std::vector<Axis*> axes_;
     std::map<std::string, Axis*> axesByName_;

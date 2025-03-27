@@ -13,8 +13,8 @@
 /// @author Florian Rathgeber
 
 #include "eckit/types/Date.h"
-#include "metkit/mars/MarsRequest.h"
 #include "metkit/hypercube/HyperCube.h"
+#include "metkit/mars/MarsRequest.h"
 
 #include "eckit/testing/Test.h"
 
@@ -24,8 +24,10 @@ namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 
-CASE( "test_metkit_hypercube" ) {
-    const char* text = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500,param=138";
+CASE("test_metkit_hypercube") {
+    const char* text =
+        "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
+        "500,param=138";
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
@@ -35,12 +37,14 @@ CASE( "test_metkit_hypercube" ) {
     EXPECT(cube.vacantRequests().size() == 1);
     EXPECT_EQUAL("sh", r.values("repres").at(0));
     r.unsetValues("repres");
-    EXPECT(!(r<*cube.vacantRequests().begin()));
-    EXPECT(!(*cube.vacantRequests().begin()<r));
+    EXPECT(!(r < *cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin() < r));
 }
 
-CASE( "test_metkit_hypercube_subset" ) {
-    const char* text = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500/600,param=138";
+CASE("test_metkit_hypercube_subset") {
+    const char* text =
+        "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
+        "500/600,param=138";
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
@@ -49,10 +53,12 @@ CASE( "test_metkit_hypercube_subset" ) {
     EXPECT(cube.vacantRequests().size() == 1);
     EXPECT_EQUAL("sh", r.values("repres").at(0));
     r.unsetValues("repres");
-    EXPECT(!(r<*cube.vacantRequests().begin()));
-    EXPECT(!(*cube.vacantRequests().begin()<r));
+    EXPECT(!(r < *cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin() < r));
 
-    const char* text500 = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500,param=138";
+    const char* text500 =
+        "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
+        "500,param=138";
     MarsRequest r500 = MarsRequest::parse(text500);
     EXPECT_EQUAL("sh", r500.values("repres").at(0));
     r500.unsetValues("repres");
@@ -73,16 +79,18 @@ CASE( "test_metkit_hypercube_subset" ) {
     EXPECT(cube.countVacant() == 1);
 
     EXPECT(cube.vacantRequests().size() == 1);
-    EXPECT(!(r600<*cube.vacantRequests().begin()));
-    EXPECT(!(*cube.vacantRequests().begin()<r600));
+    EXPECT(!(r600 < *cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin() < r600));
 
     cube.clear(r600);
 
     EXPECT(cube.countVacant() == 0);
 }
 
-CASE( "test_metkit_hypercube_request" ) {
-    const char* text = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500/600,param=138/155";
+CASE("test_metkit_hypercube_request") {
+    const char* text =
+        "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
+        "500/600,param=138/155";
     MarsRequest r = MarsRequest::parse(text);
 
     metkit::hypercube::HyperCube cube(r);
@@ -91,10 +99,12 @@ CASE( "test_metkit_hypercube_request" ) {
     EXPECT(cube.vacantRequests().size() == 1);
     EXPECT_EQUAL("sh", r.values("repres").at(0));
     r.unsetValues("repres");
-    EXPECT(!(r<*cube.vacantRequests().begin()));
-    EXPECT(!(*cube.vacantRequests().begin()<r));
+    EXPECT(!(r < *cube.vacantRequests().begin()));
+    EXPECT(!(*cube.vacantRequests().begin() < r));
 
-    const char* text500 = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500,param=138";
+    const char* text500 =
+        "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
+        "500,param=138";
     MarsRequest r500 = MarsRequest::parse(text500);
     EXPECT_EQUAL("sh", r500.values("repres").at(0));
     r500.unsetValues("repres");
@@ -121,7 +131,9 @@ CASE( "test_metkit_hypercube_request" ) {
     EXPECT(cube.countVacant() == 2);
     EXPECT(cube.vacantRequests().size() == 1);
 
-    const char* text155 = "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist=500/600,param=155";
+    const char* text155 =
+        "retrieve,class=rd,type=an,stream=oper,levtype=pl,date=20191110,time=0000,step=0,expver=xxxy,domain=g,levelist="
+        "500/600,param=155";
     MarsRequest r155 = MarsRequest::parse(text155);
     EXPECT_EQUAL("sh", r155.values("repres").at(0));
     r155.unsetValues("repres");
@@ -133,7 +145,6 @@ CASE( "test_metkit_hypercube_request" ) {
 
 }  // namespace metkit::mars::test
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

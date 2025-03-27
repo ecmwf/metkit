@@ -17,15 +17,15 @@
 
 #include <vector>
 
-#include "eckit/runtime/Tool.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/runtime/Tool.h"
 
 namespace eckit {
-    namespace option {
-    class Option;
-    class CmdArgs;
-    }
-}
+namespace option {
+class Option;
+class CmdArgs;
+}  // namespace option
+}  // namespace eckit
 
 namespace metkit {
 
@@ -33,23 +33,23 @@ namespace metkit {
 
 class MetkitTool : public eckit::Tool {
 
-public: // methods
+public:  // methods
 
-    MetkitTool(int argc, char **argv);
+    MetkitTool(int argc, char** argv);
 
-    virtual void usage(const std::string &tool) const;
+    virtual void usage(const std::string& tool) const;
 
-protected: // methods
+protected:  // methods
 
     using options_t = std::vector<eckit::option::Option*>;
 
-protected: // members
+protected:  // members
 
     options_t options_;
 
     bool porcelain_ = false;
 
-private: // methods
+private:  // methods
 
     virtual void init(const eckit::option::CmdArgs& args);
     virtual void execute(const eckit::option::CmdArgs& args) = 0;
@@ -59,7 +59,6 @@ private: // methods
     virtual int minimumPositionalArguments() const { return -1; }
 
     virtual void run();
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -67,6 +66,7 @@ private: // methods
 
 class MetkitToolException : public eckit::Exception {
 public:
+
     MetkitToolException(const std::string&);
     MetkitToolException(const std::string&, const eckit::CodeLocation&);
 };
@@ -74,6 +74,6 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+}  // namespace metkit
 
 #endif

@@ -30,6 +30,7 @@ class UndefinedType : public Type {
         NOTIMP;
     }
 public:
+
     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
 };
 
@@ -48,8 +49,7 @@ Parameter::~Parameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, Type* type) :
-    type_(type), values_(values) {
+Parameter::Parameter(const std::vector<std::string>& values, Type* type) : type_(type), values_(values) {
     if (!type) {
         type_ = &undefined;
     }
@@ -102,8 +102,7 @@ void Parameter::merge(const Parameter& p) {
             diff.push_back(o);
     }
 
-    values_.insert(values_.end(), std::make_move_iterator(diff.begin()),
-                   std::make_move_iterator(diff.end()));
+    values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 
 

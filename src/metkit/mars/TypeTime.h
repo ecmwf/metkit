@@ -25,13 +25,13 @@ namespace metkit::mars {
 
 class TypeTime : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeTime(const std::string &name, const eckit::Value& settings);
+    TypeTime(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeTime() override;
 
-private: // methods
+private:  // methods
 
     virtual void print( std::ostream &out ) const override;
     // virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;

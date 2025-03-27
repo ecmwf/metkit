@@ -15,9 +15,12 @@
 
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/TypesFactory.h"
+#include "eckit/utils/StringTools.h"
 #include "metkit/mars/TypeDate.h"
-#include "metkit/mars/TypeToByList.h"
+#include "metkit/mars/TypesFactory.h"
+
+#include "metkit/mars/MarsExpandContext.h"
+
 
 namespace metkit::mars {
 
@@ -50,8 +53,7 @@ TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
     multiple_ = true;
 }
 
-TypeDate::~TypeDate() {
-}
+TypeDate::~TypeDate() {}
 
 void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
@@ -95,7 +97,7 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
     return true;
 }
 
-void TypeDate::print(std::ostream & out) const {
+void TypeDate::print(std::ostream& out) const {
     out << "TypeDate[name=" << name_ << "]";
 }
 

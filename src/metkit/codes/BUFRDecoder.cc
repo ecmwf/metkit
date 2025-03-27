@@ -31,8 +31,8 @@ static std::map<long, long> subtypes_;
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 
 static void readTable() {
-    eckit::PathName bufrSubtypesPath = eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH",
-                                                                        LibMetkit::bufrSubtypesYamlFile());
+    eckit::PathName bufrSubtypesPath =
+        eckit::Resource<eckit::PathName>("bufrSubtypesPath;$BUFR_SUBTYPES_PATH", LibMetkit::bufrSubtypesYamlFile());
 
     const eckit::Value bufrSubtypes = eckit::YAMLParser::decodeFile(bufrSubtypesPath);
     const eckit::Value subtypes     = bufrSubtypes["subtypes"];
@@ -98,21 +98,22 @@ struct BUFRMetadataIt {
 }  // namespace
 
 
-void BUFRDecoder::getMetadata(const eckit::message::Message& msg,
-                              eckit::message::MetadataGatherer& gather,
+void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer& gather,
                               const eckit::message::GetMetadataOptions& options) const {
 
     std::unique_ptr<codes_handle> h(::codes_handle_new_from_message(nullptr, msg.data(), msg.length()));
     ASSERT(h);
 
     /*
-    // BUFR Performance improvement: https://confluence.ecmwf.int/display/UDOC/Performance+improvement+by+skipping+some+keys+-+ecCodes+BUFR+FAQ
-    if ((unsigned long)(options.filter & eckit::message::MetadataFilter::IncludeExtraKeyAttributes) != 0) {
+    // BUFR Performance improvement:
+    https://confluence.ecmwf.int/display/UDOC/Performance+improvement+by+skipping+some+keys+-+ecCodes+BUFR+FAQ if
+    ((unsigned long)(options.filter & eckit::message::MetadataFilter::IncludeExtraKeyAttributes) != 0) {
         CODES_CHECK(codes_set_long(h.get(), "skipExtraKeyAttributes", 1), 0);
     }
      */
 
-    // we need to instruct ecCodes to unpack the data values: https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
+    // we need to instruct ecCodes to unpack the data values:
+    // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
     CODES_CHECK(codes_set_long(h.get(), "unpack", 1), 0);
 
     std::unique_ptr<codes_bufr_keys_iterator> itCtx(::codes_bufr_keys_iterator_new(h.get(), 0));

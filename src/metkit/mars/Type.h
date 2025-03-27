@@ -32,6 +32,7 @@ class MarsExpandContext;
 
 class ContextRule {
 public:
+
     ContextRule(const std::string& k);
 
     virtual ~ContextRule() = default;
@@ -41,14 +42,17 @@ public:
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
 
 protected:
+
     std::string key_;
 
 private:  // methods
+
     virtual void print(std::ostream& out) const = 0;
 };
 
 class Context {
 public:
+
     /// @note takes ownership of the rule
     void add(ContextRule* rule);
 
@@ -57,8 +61,11 @@ public:
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
 
 private:  // methods
+
     void print(std::ostream& out) const;
+
 private:
+
     std::vector<std::unique_ptr<ContextRule>> rules_;
 };
 
@@ -74,6 +81,7 @@ public:
 
 class Type : public eckit::Counted {
 public:  // methods
+
     Type(const std::string& name, const eckit::Value& settings);
 
     ~Type() override = default;
@@ -98,10 +106,8 @@ public:  // methods
     virtual bool flatten() const;
     virtual bool multiple() const;
 
-    virtual bool filter(const std::vector<std::string>& filter,
-                        std::vector<std::string>& values) const;
-    virtual bool matches(const std::vector<std::string>& filter,
-                         const std::vector<std::string>& values) const;
+    virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
+    virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
     const std::string& category() const;
@@ -111,6 +117,7 @@ public:  // methods
     virtual size_t count(const std::vector<std::string>& values) const;
 
 protected:  // members
+
     std::string name_;
     std::string category_;
 
@@ -126,6 +133,7 @@ protected:  // members
     std::unique_ptr<ITypeToByList> toByList_;
 
 private:  // methods
+
     virtual void print(std::ostream& out) const = 0;
 };
 

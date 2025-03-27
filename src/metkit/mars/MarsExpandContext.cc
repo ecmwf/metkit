@@ -17,7 +17,7 @@ namespace mars {
 
 MarsExpandContext::~MarsExpandContext() {}
 
-void DummyContext::info(std::ostream &) const {}
+void DummyContext::info(std::ostream&) const {}
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

@@ -27,13 +27,12 @@ TypeTime::TypeTime(const std::string &name, const eckit::Value& settings) :
     multiple_ = true;
 }
 
-TypeTime::~TypeTime() {
-}
+TypeTime::~TypeTime() {}
 
-bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
+bool TypeTime::expand(const MarsExpandContext&, std::string& value) const {
 
     eckit::Time time(value);
-    
+
     std::ostringstream oss;
     if (time.seconds() != 0) {
         oss << "Cannot normalise time '" << value << "' - seconds not supported";
@@ -46,11 +45,11 @@ bool TypeTime::expand(const MarsExpandContext&, std::string &value) const {
 
     oss << std::setfill('0') << std::setw(2) << time.hours() << std::setfill('0') << std::setw(2) << time.minutes();
     value = oss.str();
-    
+
     return true;
 }
 
-void TypeTime::print(std::ostream &out) const {
+void TypeTime::print(std::ostream& out) const {
     out << "TypeTime[name=" << name_ << "]";
 }
 

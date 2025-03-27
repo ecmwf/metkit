@@ -1,17 +1,16 @@
 #include "metkit_c.h"
+#include <functional>
+#include "eckit/runtime/Main.h"
 #include "metkit/mars/MarsExpension.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/metkit_version.h"
-#include "eckit/runtime/Main.h"
-#include <functional>
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 struct metkit_marsrequest_t : public metkit::mars::MarsRequest {
     using metkit::mars::MarsRequest::MarsRequest;
 
-    metkit_marsrequest_t(metkit::mars::MarsRequest&& req) :
-        metkit::mars::MarsRequest(std::move(req)) {}
+    metkit_marsrequest_t(metkit::mars::MarsRequest&& req) : metkit::mars::MarsRequest(std::move(req)) {}
 };
 
 struct metkit_requestiterator_t {
@@ -46,16 +45,17 @@ struct metkit_requestiterator_t {
     }
 
 private:
+
     bool first_ = true;
     std::vector<metkit::mars::MarsRequest> vector_;
     std::vector<metkit::mars::MarsRequest>::iterator current_;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
-/// @note: Unlike metkit_requestiterator_t, lifetime of the char* returned from this iterator are have the same as the iterator's lifetime.
+/// @note: Unlike metkit_requestiterator_t, lifetime of the char* returned from this iterator are have the same as the
+/// iterator's lifetime.
 struct metkit_paramiterator_t {
-    metkit_paramiterator_t(std::vector<std::string> vec) :
-        vector_(vec), current_(vector_.begin()) {}
+    metkit_paramiterator_t(std::vector<std::string> vec) : vector_(vec), current_(vector_.begin()) {}
 
     metkit_iterator_status_t next() {
         if (first_) {
@@ -151,8 +151,7 @@ metkit_error_t metkit_initialise() {
         static bool initialised = false;
 
         if (initialised) {
-            eckit::Log::warning()
-                << "Initialising Metkit library twice" << std::endl;
+            eckit::Log::warning() << "Initialising Metkit library twice" << std::endl;
         }
 
         if (!initialised) {
@@ -196,12 +195,11 @@ metkit_error_t metkit_marsrequest_new(metkit_marsrequest_t** request) {
 }
 
 metkit_error_t metkit_marsrequest_delete(const metkit_marsrequest_t* request) {
-    return tryCatch([request] {
-        delete request;
-    });
-}   
+    return tryCatch([request] { delete request; });
+}
 
-metkit_error_t metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues) {
+metkit_error_t metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[],
+                                      int numValues) {
     return tryCatch([request, param, values, numValues] {
         ASSERT(request);
         ASSERT(param);
@@ -214,7 +212,7 @@ metkit_error_t metkit_marsrequest_set(metkit_marsrequest_t* request, const char*
         request->values(param_str, values_vec);
     });
 }
-    
+
 metkit_error_t metkit_marsrequest_set_one(metkit_marsrequest_t* request, const char* param, const char* value) {
     return metkit_marsrequest_set(request, param, &value, 1);
 }
@@ -257,11 +255,12 @@ metkit_error_t metkit_marsrequest_count_values(const metkit_marsrequest_t* reque
         ASSERT(request);
         ASSERT(param);
         ASSERT(count);
-        *count = request->countValues(param);   
+        *count = request->countValues(param);
     });
 }
 
-metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value) {
+metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index,
+                                        const char** value) {
     return tryCatch([request, param, index, value] {
         ASSERT(request);
         ASSERT(param);
@@ -269,7 +268,8 @@ metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, con
         *value = request->values(param, false)[index].c_str();
     });
 }
-metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit, bool strict, metkit_marsrequest_t* expandedRequest) {
+metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit, bool strict,
+                                         metkit_marsrequest_t* expandedRequest) {
     return tryCatch([request, expandedRequest, inherit, strict] {
         ASSERT(request);
         ASSERT(expandedRequest);
@@ -296,16 +296,14 @@ void metkit_string_delete(const char* str) {
 // -----------------------------------------------------------------------------
 
 metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it) {
-    return tryCatch([it] {
-        delete it;
-    });
+    return tryCatch([it] { delete it; });
 }
 
 metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* it) {
     if (!it) {
         return METKIT_ITERATOR_ERROR;
     }
-    
+
     return it->next();
 }
 
@@ -322,9 +320,7 @@ metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t
 // -----------------------------------------------------------------------------
 
 metkit_error_t metkit_paramiterator_delete(const metkit_paramiterator_t* it) {
-    return tryCatch([it] {
-        delete it;
-    });
+    return tryCatch([it] { delete it; });
 }
 
 metkit_iterator_status_t metkit_paramiterator_next(metkit_paramiterator_t* it) {

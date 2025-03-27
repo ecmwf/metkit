@@ -33,7 +33,7 @@ private: // members
     const Type* type_;
     const std::string by_;
 
-public: // methods
+public:  // methods
 
     TypeToByList(const Type* type, const eckit::Value& settings) :
         type_(type), by_(settings.contains("by") ? settings["by"] : "1") {}

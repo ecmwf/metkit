@@ -24,12 +24,14 @@ namespace hypercube {
 template <typename T>
 class Deduplicator {
 public:
+
     virtual bool toReplace(const T& existing, const T& replacement) const = 0;
 };
 
 template <typename T>
 class HyperCubePayloaded : public HyperCube {
 public:
+
     HyperCubePayloaded(const metkit::mars::MarsRequest& request, const Deduplicator<T>& deduplicator) :
         HyperCube(request), dedup_(deduplicator) {
 
@@ -48,9 +50,10 @@ public:
         if (entry == entries_.end()) {
             entries_.emplace(idx, payload);
             clear(idx);
-        } else {
+        }
+        else {
             if (dedup_.toReplace(entry->second, payload)) {
-                entry->second=payload;
+                entry->second = payload;
             }
         }
     }
@@ -73,6 +76,7 @@ public:
     }
 
 private:
+
     const Deduplicator<T>& dedup_;
     std::map<size_t, T> entries_;
 };

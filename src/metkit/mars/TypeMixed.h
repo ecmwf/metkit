@@ -25,24 +25,23 @@ namespace mars {
 
 class TypeMixed : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeMixed(const std::string &name, const eckit::Value& settings);
+    TypeMixed(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeMixed() override;
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
+    virtual void print(std::ostream& out) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     std::vector<Type*> types_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

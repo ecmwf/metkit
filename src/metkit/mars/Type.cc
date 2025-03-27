@@ -77,6 +77,7 @@ void Context::print(std::ostream& out) const {
 
 class Include : public ContextRule {
 public:
+
     Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
 
     bool matches(MarsRequest req) const override {
@@ -90,16 +91,19 @@ public:
         }
         return false;
     }
+
 private:  // methods
-    void print(std::ostream& out) const override {
-        out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]";
-    }
+
+    void print(std::ostream& out) const override { out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]"; }
+
 private:
+
     std::set<std::string> vals_;
 };
 
 class Exclude : public ContextRule {
 public:
+
     Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
     bool matches(MarsRequest req) const override {
         if (!req.has(key_)) {
@@ -112,36 +116,36 @@ public:
         }
         return true;
     }
+
 private:  // methods
-    void print(std::ostream& out) const override {
-        out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]";
-    }
+
+    void print(std::ostream& out) const override { out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]"; }
+
 private:
+
     std::set<std::string> vals_;
 };
 
 class Undef : public ContextRule {
 public:
+
     Undef(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override {
-        return !req.has(key_);
-    }
+    bool matches(MarsRequest req) const override { return !req.has(key_); }
+
 private:  // methods
-    void print(std::ostream& out) const override {
-        out << "Undef[key=" << key_ << "]";
-    }
+
+    void print(std::ostream& out) const override { out << "Undef[key=" << key_ << "]"; }
 };
 
 class Def : public ContextRule {
 public:
+
     Def(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override {
-        return req.has(key_);
-    }
+    bool matches(MarsRequest req) const override { return req.has(key_); }
+
 private:  // methods
-    void print(std::ostream& out) const override {
-        out << "Def[key=" << key_ << "]";
-    }
+
+    void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -164,8 +168,10 @@ ContextRule* parseRule(std::string key, eckit::Value r) {
     std::string op = r["op"];
     ASSERT(op.size() == 1);
     switch (op[0]) {
-        case 'u': return new Undef(key);
-        case 'd': return new Def(key);
+        case 'u':
+            return new Undef(key);
+        case 'd':
+            return new Def(key);
         case '!':
             ASSERT(r.contains("vals"));
             eckit::Value vv = r["vals"];
@@ -236,7 +242,8 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                 Context* context = nullptr;
                 if (d.contains("context")) {
                     context = parseContext(d["context"]);
-                } else {
+                }
+                else {
                     context = new Context;
                 }
                 defaults_.emplace(context, vals);
@@ -284,6 +291,7 @@ class NotInSet {
     std::set<std::string> set_;
 
 public:
+
     NotInSet(const std::vector<std::string>& f) : set_(f.begin(), f.end()) {}
 
     bool operator()(const std::string& s) const { return set_.find(s) == set_.end(); }
@@ -301,13 +309,13 @@ class InSet {
     std::set<std::string> set_;
 
 public:
+
     InSet(const std::vector<std::string>& f) : set_(f.begin(), f.end()) {}
 
     bool operator()(const std::string& s) const { return set_.find(s) != set_.end(); }
 };
 
-bool Type::matches(const std::vector<std::string>& match,
-                   const std::vector<std::string>& values) const {
+bool Type::matches(const std::vector<std::string>& match, const std::vector<std::string>& values) const {
     InSet in_set(match);
     return std::find_if(values.begin(), values.end(), in_set) != values.end();
 }
@@ -337,8 +345,7 @@ std::vector<std::string> Type::tidy(const std::vector<std::string>& values) cons
     result.reserve(values.size());
 
     std::transform(values.begin(), values.end(), std::back_inserter(result),
-                   [this, ctx](const std::string& s) { return this->tidy(ctx, s); }
-                   );
+                   [this, ctx](const std::string& s) { return this->tidy(ctx, s); });
 
     return result;
 }
@@ -389,17 +396,18 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
 void Type::setDefaults(MarsRequest& request) {
     if (inheritance_) {
         request.setValuesTyped(this, inheritance_.value());
-    } else {
+    }
+    else {
         bool unset = false;
         for (const auto& unsetContext : unsets_) {
             if (unsetContext->matches(request)) {
-                unset=true;
+                unset = true;
                 break;
             }
         }
         if (!unset) {
             for (const auto& [defaultContext, values] : defaults_) {
-                if (defaultContext->matches(request)) {                    
+                if (defaultContext->matches(request)) {
                     request.setValuesTyped(this, values);
                     break;
                 }
@@ -452,7 +460,7 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
             }
         }
 
-        for (const auto& [context, value]: sets_) {
+        for (const auto& [context, value] : sets_) {
             if (context->matches(request)) {
                 if (strict && !request.has(name_)) {
                     std::ostringstream oss;
