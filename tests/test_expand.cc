@@ -27,9 +27,7 @@
 
 using namespace eckit::testing;
 
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
 
 namespace {
 using ExpectedOutput=std::map<std::string, std::vector<std::string>>;
@@ -44,6 +42,9 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
     std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
     EXPECT_EQUAL(verb, r.verb());
     for(const auto& e : expected) {
+        if (!r.has(e.first)) {
+            std::cerr << eckit::Colour::red << "Missing keyword: " << e.first << eckit::Colour::reset << std::endl;
+        }
         EXPECT(r.has(e.first));
         auto vv=r.values(e.first);
         if (e.first != "date") { // dates are verified at a later stage
@@ -73,14 +74,19 @@ void expand(const std::string& text, const std::string& verb, const ExpectedOutp
     expand(r, verb, expected, std::move(dates));
 }
 
-void expand(const std::string& text, const std::string& verb, const std::string& expected, bool strict = false, std::vector<long> dates = {}) {
+void expand(const std::string& text, const std::string& expected, bool strict = false, std::vector<long> dates = {}) {
     ExpectedOutput out;
     eckit::Tokenizer c(",");
     eckit::Tokenizer e("=");
     eckit::Tokenizer s("/");
     eckit::StringList tokens;
     c(expected, tokens);
+    std::string verb;
     for (const auto& t : tokens) {
+        if (verb.empty()) {
+            verb = eckit::StringTools::lower(t);
+            continue;
+        }
         auto tt = eckit::StringTools::trim(t);
         eckit::StringList kv;
         e(tt, kv);
@@ -135,9 +141,8 @@ CASE( "test_metkit_expand_1" ) {
     const char* text2 = "ret,date=-5/to/-1.";
     expand(text2, "retrieve", expected, {-5,-4,-3,-2,-1});
 
-    // const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,REPRES = SH,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 00,DOMAIN = G";
-    const char* expectedStr = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,LEVTYPE = PL,LEVELIST = 1000/850/700/500/400/300,PARAM = 129,TIME = 1200,STEP = 0,DOMAIN = G";
-    expand(text, "retrieve", expectedStr, true, {-5,-4,-3,-2,-1});
+    const char* expectedStr = "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=SH,LEVTYPE=PL,LEVELIST=1000/850/700/500/400/300,PARAM=129,TIME=1200,STEP=0,DOMAIN=G";
+    expand(text, expectedStr, true, {-5,-4,-3,-2,-1});
 }
 
 CASE( "test_metkit_expand_2" ) {
@@ -309,18 +314,14 @@ CASE( "test_metkit_expand_9_strict" ) {
     {
         const char* text = "retrieve,class=od,expver=1,date=20240304,time=0,type=fc,levtype=sfc,levelist=1/2/3,step=0,param=2t,target=out";
         expandException(text, true);
-        // const char* expected = "CLASS=OD,TYPE=FC,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
-        // TODO REPRES
-        const char* expected = "CLASS=OD,TYPE=FC,STREAM=OPER,EXPVER=0001,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
-        expand(text, "retrieve", expected, false);
+        const char* expected = "RETRIEVE,CLASS=OD,TYPE=FC,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
+        expand(text, expected, false);
     }
     {
         const char* text = "retrieve,class=od,expver=1,stream=enfo,date=20240304,time=0,type=cf,levtype=sfc,levelist=1/2/3,step=0,param=2t,number=1/2/3,target=out";
         expandException(text, true);
-        // const char* expected = "CLASS=OD,TYPE=CF,STREAM=ENFO,EXPVER=0001,REPRES=SH,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
-        // TODO REPRES
-        const char* expected = "CLASS=OD,TYPE=CF,STREAM=ENFO,EXPVER=0001,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
-        expand(text, "retrieve", expected, false);
+        const char* expected = "RETRIEVE,CLASS=OD,TYPE=CF,STREAM=ENFO,EXPVER=0001,REPRES=SH,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,STEP=0,DOMAIN=G,TARGET=out";
+        expand(text, expected, false);
     }
 }
 
@@ -858,42 +859,38 @@ CASE("test_metkit_expand_clmn") {
 
 CASE("test_metkit_expand_") {
     // issues from https://confluence.ecmwf.int/pages/viewpage.action?pageId=496866851
-    // not yet supported (thus the tests are disabled)
-    {
-        // https://jira.ecmwf.int/browse/MARS-962
-        const char* text = "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/235,stream=da,style=dissemination,time=00,type=an,target=\"reference.tzpUX7.data\"";
-        const char* expected = "CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=134/137/165/166/167/168/235,DATE=20240102,TIME=0000,STEP=00,DOMAIN=G,TARGET=\"reference.tzpUX7.data\",RESOL=AV,ACCURACY=12,STYLE=DISSEMINATION,AREA=90.0/0.0/-90.0/359.5,GRID=0.5/0.5,PADDING=0";
-        // expand(text, "retrieve", expected);
-    }
-    {
-        const char* text = "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/0.0,step=000,stream=oper,time=15:00:00,type=an,target=\"reference.1OEDK0.data\"";
-        const char* expected = "CLASS=EA,TYPE=AN,STREAM=OPER,EXPVER=0001,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,PARAM=133/130/131/132/152/129,TIME=1500,STEP=000,DOMAIN=G,TARGET=reference.1OEDK0.data,RESOL=AUTO,ACCURACY=16,AREA=60/-60/-60/60,ROTATION=0.0/0.0,GRID=.3/.3,DATE=20101029";
-        // expand(text, "retrieve", expected);
-    }
     {
         // https://jira.ecmwf.int/browse/MARS-959
         const char* text = "retrieve,accuracy=10,class=ea,date=1969-03-28,expver=11,grid=0.25/0.25,levtype=sfc,packing=si,param=142.128/143.128/151.128/165.128/166.128,step=0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,stream=oper,time=00:00:00,type=fc,target=\"reference.rFP7XB.data\"";
-        // const char* expected = "CLASS = EA, TYPE = FC, STREAM = OPER, EXPVER = 0011, LEVTYPE = SFC, PARAM = 142.128/143.128/151.128/165.128/166.128,DATE = 19690328,TIME = 0000,STEP = 0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240, DOMAIN = G, TARGET = reference.rFP7XB.data, RESOL = AUTO, ACCURACY = 10, GRID = 0.25/0.25, PACKING = SIMPLE";
-        /// TODO: RESOL
-        const char* expected = "CLASS=EA,TYPE=FC,STREAM=OPER,EXPVER=0011,LEVTYPE=SFC,PARAM=142.128/143.128/151.128/165.128/166.128,TIME=0000,STEP=0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,DOMAIN=G,TARGET=reference.rFP7XB.data,RESOL=AUTO,ACCURACY=10,GRID=0.25/0.25,PACKING=SIMPLE";
-        // expand(text, "retrieve", expected);
+        const char* expected = "RETRIEVE,CLASS=EA,TYPE=FC,STREAM=OPER,EXPVER=0011,LEVTYPE=SFC,PARAM=142/143/151/165/166,DATE=19690328,TIME=0000,STEP=0/6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/132/144/156/168/180/192/204/216/228/240,DOMAIN=G,TARGET=reference.rFP7XB.data,RESOL=AUTO,ACCURACY=10,GRID=.25/.25,PACKING=SIMPLE";
+        expand(text, expected);
+    }
+    {
+        // https://jira.ecmwf.int/browse/MARS-962
+        const char* text = "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/235,stream=da,style=dissemination,time=00,type=an,target=\"reference.tzpUX7.data\"";
+        const char* expected = "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=134/137/165/166/167/168/235,DATE=20240102,TIME=0000,STEP=0,DOMAIN=G,TARGET=reference.tzpUX7.data,RESOL=AV,ACCURACY=12,STYLE=DISSEMINATION,AREA=90/0/-90/359.5,GRID=.5/.5,PADDING=0";
+        expand(text, expected);
+    }
+    {
+        const char* text = "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/-61.0,step=000,stream=scda,time=18,type=an,target=\"reference.ect1qF.data\"";
+        const char* expected = "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=SCDA,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,PARAM=129,DATE=20230810,TIME=1800,STEP=0,DOMAIN=G,TARGET=reference.ect1qF.data,RESOL=AUTO,ACCURACY=16,AREA=14.8/-19.6/-14.5/19.8,ROTATION=-78.8/-61,GRID=.09/.09,PROCESS=LOCAL";
+        expand(text, expected);
+    }
+    {
+        const char* text = "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/0.0,step=000,stream=oper,time=15:00:00,type=an,target=\"reference.1OEDK0.data\"";
+        const char* expected = "RETRIEVE,CLASS=EA,TYPE=AN,STREAM=OPER,EXPVER=0001,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,PARAM=133/130/131/132/152/129,TIME=1500,STEP=0,DOMAIN=G,TARGET=reference.1OEDK0.data,RESOL=AUTO,ACCURACY=16,AREA=60/-60/-60/60,ROTATION=0/0,GRID=.3/.3,DATE=20101029";
+        expand(text, expected);
     }
     {
         const char* text = "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/235,stream=da,style=dissemination,time=00,type=an,target=\"reference.tzpUX7.data\"";
-        // const char* expected = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,REPRES = GG,LEVTYPE = SFC,PARAM = 134/137/165/166/167/168/235,DATE = 20240102,TIME = 0000,STEP = 0,DOMAIN = G,TARGET = \"reference.tzpUX7.data\",RESOL = AV,ACCURACY = 12,STYLE = DISSEMINATION,AREA = 90/0/-90/359.5,GRID = .5/.5,PADDING = 0";
-        /// TODO: RESOL
-        const char* expected = "CLASS = OD,TYPE = AN,STREAM = OPER,EXPVER = 0001,LEVTYPE = SFC,PARAM = 134/137/165/166/167/168/235,DATE = 20240102,TIME = 0000,STEP = 0,DOMAIN = G,TARGET = reference.tzpUX7.data,ACCURACY = 12,STYLE = DISSEMINATION,AREA = 90/0/-90/359.5,GRID = .5/.5,PADDING = 0";
-        // expand(text, "retrieve", expected);
-
+        const char* expected = "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=134/137/165/166/167/168/235,DATE=20240102,TIME=0000,STEP=0,DOMAIN=G,TARGET=reference.tzpUX7.data,RESOL=AV,ACCURACY=12,STYLE=DISSEMINATION,AREA=90/0/-90/359.5,GRID=.5/.5,PADDING=0";
+        expand(text, expected);
     }
-    
 }
 
 //-----------------------------------------------------------------------------
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
 
 int main(int argc, char **argv)
 {

@@ -41,14 +41,14 @@ CASE( "test_request_json" ) {
             eckit::JSON plain(ss);
             r.json(plain);
             std::cout << ss.str() << std::endl;
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":\"20240729\",\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":\"24\",\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
+            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":\"20240729\",\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":\"24\",\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\",\"repres\":\"sh\"}");
         }
         {
             std::stringstream ss;
             eckit::JSON array(ss);
             r.json(array, true);
             // std::cout << ss.str() << std::endl;
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":[\"20240729\"],\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
+            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":[\"20240729\"],\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\",\"repres\":\"sh\"}");
         }
     }
     {
@@ -58,13 +58,13 @@ CASE( "test_request_json" ) {
             std::stringstream ss;
             eckit::JSON plain(ss);
             r.json(plain);
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":\"20240729\",\"time\":\"0000\",\"type\":\"an\",\"levtype\":\"sfc\",\"step\":\"24\",\"param\":\"140251\",\"domain\":\"g\"}");
+            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":\"20240729\",\"time\":\"0000\",\"type\":\"an\",\"levtype\":\"sfc\",\"step\":\"24\",\"param\":\"140251\",\"domain\":\"g\",\"repres\":\"sh\"}");
         }
         {
             std::stringstream ss;
             eckit::JSON array(ss);
             r.json(array, true);
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":[\"20240729\"],\"time\":[\"0000\"],\"type\":\"an\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"param\":[\"140251\"],\"domain\":\"g\"}");
+            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":[\"20240729\"],\"time\":[\"0000\"],\"type\":\"an\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"param\":[\"140251\"],\"domain\":\"g\",\"repres\":\"sh\"}");
         }
     }
 }

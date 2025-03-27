@@ -412,8 +412,41 @@ _field: &_field
 
   repres:
     flatten: false
-    multiple: true
+    multiple: false
+    defaults:
+      - vals: [sh]
     type: enum
+    set:
+      - context:
+          stream:
+            op: '!'
+            vals: [ssmi]
+          type: [im, sim, oldim]
+        val: sv
+      - context:
+          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+        val: bu
+      - context:
+          stream: [ssmi]
+        val: bu
+      - context:
+          levtype: [sfc]
+          class: [od]
+          stream: [oper]
+        val: gg
+      - context:
+          levtype: [sfc]
+          class: [er]
+          stream: [oper]
+          type: [an, fc]
+        val: gg
+      - context:
+          type: [tu]
+        val: ll
+    unset:
+      - context:
+          class: [ep]
+          levtype: [o2d, o3d]
     values:
     - [bu, 'bufr']
     - [sh, 'spherical harmonics']
@@ -1084,6 +1117,13 @@ _field: &_field
     - [standard, Standard resolution model output with longer availability]
     - [high, High resolution model output with limited availability]
 
+    # - product
+    # - section
+    # - refdate
+    # - latitude
+    # - longitude
+    # - range
+
 #######################################################################
 
 _observation: &_observation
@@ -1092,6 +1132,14 @@ _observation: &_observation
     category: data
     type: any
     multiple: true
+
+  latitude:
+    category: data
+    type: any
+
+  longitude:
+    category: data
+    type: any
 
 # type: [im]
 # obstype: [=0 %and (ident=52 %or ident=53 %or ident=54))  %then
@@ -1246,8 +1294,7 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-    - - so
-      - second order
+    - [so, second order]
     - ['off', av]
     - [complex, co]
     - [simple, si]
@@ -1263,6 +1310,28 @@ _postproc: &_postproc
     - - 'off'
       - av
       - reduced gaussian 160
+    - auto
+    defaults:
+      - context:
+          accuracy:
+            op: 'd'
+        vals: [auto]
+    unset:
+      - context:
+          stream: [ssmi]
+          # type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+          type: [im, sim, oldim]
+    set:
+      - context:
+          style: [dissemination]
+        val: av
+        warn: "Force resol=av when style=dissemination"
+      - context:
+          style: [dissemination]
+          resol: [auto]
+        val: av
+        warn: "Force resol=av when style=dissemination"
+
 
   rotation:
     category: postproc
@@ -1309,6 +1378,15 @@ _postproc: &_postproc
     values:
     - auto
     - 'off'
+  
+  process:
+    category: postproc
+    flatten: false
+    type: enum
+    values:
+    - local
+    - server
+
 #######################################################################
 
 _obspproc: &_obspproc
@@ -1442,9 +1520,9 @@ retrieve:
 
   padding:
     flatten: false
-    type: [enum, integer]
+    type: enum
     values:
-    - [none, n, 0]
+    - [0, none, n]
     - [auto, automatic]
 
 ##############################################################
