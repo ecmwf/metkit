@@ -30,7 +30,7 @@ class GribMutatorBase;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void codes_call( int code, const char* msg, const eckit::CodeLocation& where );
+void codes_call(int code, const char* msg, const eckit::CodeLocation& where);
 
 #define CODES_CALL(a) metkit::grib::codes_call(a, #a, Here())
 
@@ -38,7 +38,7 @@ void codes_call( int code, const char* msg, const eckit::CodeLocation& where );
 
 class GribHandle : private eckit::NonCopyable {
 
-public: // types
+public:  // types
 
     /// constructor from file path, creates grib_handle and takes ownership
     /// @note currently this only handles local paths
@@ -59,7 +59,7 @@ public: // types
     /// destructor will delete the grib_handle if we own it
     ~GribHandle() noexcept(false);
 
-public: // methods
+public:  // methods
 
     size_t length() const;
 
@@ -73,16 +73,16 @@ public: // methods
 
     // size_t numberOfPoints() const;
 
-    size_t  getDataValuesSize() const;
+    size_t getDataValuesSize() const;
     double* getDataValues(size_t&) const;
-    void    getDataValues(double*, const size_t &) const;
+    void getDataValues(double*, const size_t&) const;
 
     void setDataValues(const double*, size_t);
 
-    size_t write( eckit::DataHandle& )  const;
-    size_t write( eckit::Buffer& ) const;
-    void   write( const eckit::PathName&, const char* mode = "w" ) const;
-    void   dump( const eckit::PathName&, const char* mode = "debug") const;
+    size_t write(eckit::DataHandle&) const;
+    size_t write(eckit::Buffer&) const;
+    void write(const eckit::PathName&, const char* mode = "w") const;
+    void dump(const eckit::PathName&, const char* mode = "debug") const;
 
     // double latitudeOfFirstGridPointInDegrees()  const;
     // double longitudeOfFirstGridPointInDegrees() const;
@@ -93,7 +93,7 @@ public: // methods
 
     operator const grib_handle*() const { return handle_; }
 
-protected: // methods
+protected:  // methods
 
     friend class GribAccessorBase;
     friend class GribMutatorBase;
@@ -108,16 +108,14 @@ protected: // methods
     /// Client code shouldn't care if GRIB edition
     long edition() const;
 
-private: // members
+private:  // members
 
     grib_handle* handle_;
 
     bool owned_;
-
 };
 
 //------------------------------------------------------------------------------------------------------
 
-} // namespace grib
-} // namespace metkit
-
+}  // namespace grib
+}  // namespace metkit

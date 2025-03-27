@@ -22,31 +22,34 @@ namespace metkit {
 
 class Quantile {
 public:
-    Quantile(const std::string &value);
+
+    Quantile(const std::string& value);
     Quantile(long num, long den);
 
-	long num() {return num_;}
-	long den() {return den_;}
+    long num() { return num_; }
+    long den() { return den_; }
 
-	operator std::string();
+    operator std::string();
 
 protected:
 
-	void print(std::ostream& s) const;
+    void print(std::ostream& s) const;
 
 private:
+
     void check() const;
 
-	friend std::ostream& operator<<(std::ostream& s,const Quantile& q)
-		{ q.print(s); return s; }
+    friend std::ostream& operator<<(std::ostream& s, const Quantile& q) {
+        q.print(s);
+        return s;
+    }
 
 private:
-    long num_;
-    long den_;    
 
+    long num_;
+    long den_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
-
+}  // namespace metkit

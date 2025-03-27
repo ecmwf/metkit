@@ -25,25 +25,23 @@ namespace mars {
 
 class TypeToByListFloat : public TypeFloat {
 
-public: // methods
+public:  // methods
 
-    TypeToByListFloat(const std::string &name, const eckit::Value& settings);
+    TypeToByListFloat(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeToByListFloat() override;
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const override;
+    virtual void print(std::ostream& out) const override;
+    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
 
     long by_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

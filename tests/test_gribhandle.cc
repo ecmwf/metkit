@@ -13,11 +13,11 @@
 
 #include "eccodes.h"
 
-#include "eckit/testing/Test.h"
 #include "eckit/io/FileHandle.h"
+#include "eckit/testing/Test.h"
 
-#include "metkit/codes/GribHandle.h"
 #include "metkit/codes/GribAccessor.h"
+#include "metkit/codes/GribHandle.h"
 
 using namespace eckit::testing;
 
@@ -28,15 +28,15 @@ namespace test {
 //-----------------------------------------------------------------------------
 
 // Test that a gribhandle will point to the correct message in a file, given an offset.
-CASE( "File with two messages" ) {
+CASE("File with two messages") {
 
     // The test file has two messages of different packing types, with some junk data in between.
     eckit::PathName path("synthetic_2msgs.grib");
-    
+
     off_t* offsets;
     grib_context* c = nullptr;
-    int n = 0;
-    int err = codes_extract_offsets_malloc(c, path.asString().c_str(), PRODUCT_GRIB, &offsets, &n, 1);
+    int n           = 0;
+    int err         = codes_extract_offsets_malloc(c, path.asString().c_str(), PRODUCT_GRIB, &offsets, &n, 1);
     EXPECT(!err);
     EXPECT(n == 2);
 
@@ -50,7 +50,7 @@ CASE( "File with two messages" ) {
         GribHandle h(dh, offsets[i]);
         EXPECT(packingType(h) == expected[i]);
     }
-        
+
     free(offsets);
     dh.close();
 }
@@ -61,7 +61,6 @@ CASE( "File with two messages" ) {
 }  // namespace grib
 }  // namespace metkit
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

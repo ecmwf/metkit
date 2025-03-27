@@ -11,8 +11,8 @@
 #include "TypeToByList.h"
 
 #include "eckit/exception/Exceptions.h"
-#include "eckit/utils/Translator.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Translator.h"
 
 #include "metkit/mars/TypesFactory.h"
 
@@ -21,18 +21,15 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeToByList::TypeToByList(const std::string &name, const eckit::Value& settings) :
-    TypeInteger(name, settings),
-    by_(settings["by"]) {
+TypeToByList::TypeToByList(const std::string& name, const eckit::Value& settings) :
+    TypeInteger(name, settings), by_(settings["by"]) {
 
     multiple_ = true;
-
 }
 
-TypeToByList::~TypeToByList() {
-}
+TypeToByList::~TypeToByList() {}
 
-void TypeToByList::print(std::ostream &out) const {
+void TypeToByList::print(std::ostream& out) const {
     out << "TypeToByList[name=" << name_ << "]";
 }
 
@@ -53,8 +50,8 @@ void TypeToByList::expand(const MarsExpandContext& ctx, std::vector<std::string>
             ASSERT(i + 1 < values.size());
 
             long from = s2l(tidy(ctx, newval.back()));
-            long to = s2l(tidy(ctx, values[i + 1]));
-            long by = by_;
+            long to   = s2l(tidy(ctx, values[i + 1]));
+            long by   = by_;
 
             if (i + 3 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
                 by = s2l(tidy(ctx, values[i + 3]));
@@ -68,7 +65,6 @@ void TypeToByList::expand(const MarsExpandContext& ctx, std::vector<std::string>
             }
 
             i++;
-
         }
         else {
             newval.push_back(s);
@@ -83,5 +79,5 @@ static TypeBuilder<TypeToByList> type("to-by-list");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

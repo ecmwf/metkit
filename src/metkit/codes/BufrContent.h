@@ -29,11 +29,10 @@ public:
     explicit BufrContent(const codes_handle* handle);
 
     ~BufrContent();
-    
+
 private:
 
     eckit::message::MessageContent* transform(const eckit::StringDict& dict) const override;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------

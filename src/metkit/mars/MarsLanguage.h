@@ -17,8 +17,8 @@
 #ifndef metkit_MarsLanguage_H
 #define metkit_MarsLanguage_H
 
-#include "metkit/mars/MarsRequest.h"
 #include "eckit/memory/NonCopyable.h"
+#include "metkit/mars/MarsRequest.h"
 
 
 namespace metkit {
@@ -35,7 +35,7 @@ class MarsLanguage : private eckit::NonCopyable {
 
     typedef std::map<std::string, std::string> StringMap;
 
-public: // methods
+public:  // methods
 
     MarsLanguage(const std::string& verb);
 
@@ -55,33 +55,26 @@ public: // methods
 
     bool isData(const std::string& keyword) const;
 
-public: // class methods
+public:  // class methods
 
     static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
 
-    static std::string bestMatch(const MarsExpandContext& ctx,
-                                 const std::string& what,
-                                 const std::vector<std::string>& values,
-                                 bool fail,
-                                 bool quiet,
-                                 bool fullMatch,
+    static std::string bestMatch(const MarsExpandContext& ctx, const std::string& what,
+                                 const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
                                  const StringMap& aliases = StringMap());
 
     static eckit::Value jsonFile(const std::string& name);
 
 
-private: // methods
+private:  // methods
 
-    void flatten(const MarsRequest& request,
-                 const std::vector<std::string>& params,
-                 size_t i,
-                 MarsRequest& result,
+    void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback);
 
-private: // members
+private:  // members
 
     std::string verb_;
-    std::map<std::string, Type* > types_;
+    std::map<std::string, Type*> types_;
     std::set<std::string> dataKeywords_;
     std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
     std::vector<std::string> keywords_;
@@ -89,12 +82,11 @@ private: // members
     StringMap aliases_;
 
     mutable StringMap cache_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

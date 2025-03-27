@@ -25,8 +25,7 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CodesSplitter::CodesSplitter(eckit::PeekHandle& handle) :
-    Splitter(handle) {}
+CodesSplitter::CodesSplitter(eckit::PeekHandle& handle) : Splitter(handle) {}
 
 CodesSplitter::~CodesSplitter() {}
 
@@ -44,7 +43,9 @@ static long readcb(void* data, void* buffer, long len) {
         return -2;
     }
     catch (...) {
-        eckit::Log::error() << "Unknown exception occured in CodesSplitter::readcb callback. This may cause unexpected behaviour. Returning -2 instead." << std::endl;
+        eckit::Log::error() << "Unknown exception occured in CodesSplitter::readcb callback. This may cause unexpected "
+                               "behaviour. Returning -2 instead."
+                            << std::endl;
         // Return negative other from -1 to signalize error.
         return -2;
     }
@@ -116,4 +117,3 @@ bool SplitterBuilder<metkit::codes::CodesSplitter>::match(eckit::PeekHandle& han
 }  // namespace eckit
 
 static eckit::message::SplitterBuilder<metkit::codes::CodesSplitter> splitter;
-

@@ -25,26 +25,25 @@ namespace mars {
 
 class TypeDate : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeDate(const std::string &name, const eckit::Value& settings);
+    TypeDate(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeDate() override;
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
+    virtual void print(std::ostream& out) const override;
     virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     long by_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

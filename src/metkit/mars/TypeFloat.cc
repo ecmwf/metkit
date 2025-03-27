@@ -12,49 +12,46 @@
 
 #include "metkit/mars/MarsRequest.h"
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeFloat.h"
+#include "metkit/mars/TypesFactory.h"
 
 namespace metkit {
 namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeFloat::TypeFloat(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
-}
+TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-TypeFloat::~TypeFloat() {
-}
+TypeFloat::~TypeFloat() {}
 
-bool TypeFloat::expand(const MarsExpandContext& ctx, std::string &value) const  {
+bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value) const {
 
     bool dot = false;
 
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case '-':
-            break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case '-':
+                break;
 
-        case '.':
-            dot = true;
-            break;
+            case '.':
+                dot = true;
+                break;
 
 
-        default:
-            return false;
-            // throw eckit::UserError(name_ + ": invalid float '" + value + "'");
-            break;
+            default:
+                return false;
+                // throw eckit::UserError(name_ + ": invalid float '" + value + "'");
+                break;
         }
     }
 
@@ -74,7 +71,7 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string &value) const  
         }
     }
 
-    if(value.empty()) {
+    if (value.empty()) {
         value = "0";
     }
 
@@ -85,7 +82,7 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string &value) const  
 }
 
 
-void TypeFloat::print(std::ostream &out) const {
+void TypeFloat::print(std::ostream& out) const {
     out << "TypeFloat[name=" << name_ << "]";
 }
 
@@ -93,5 +90,5 @@ static TypeBuilder<TypeFloat> type("float");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

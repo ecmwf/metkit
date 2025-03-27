@@ -15,8 +15,8 @@
 #ifndef mir_LibMetkit_H
 #define mir_LibMetkit_H
 
-#include "eckit/system/Library.h"
 #include "eckit/filesystem/PathName.h"
+#include "eckit/system/Library.h"
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ protected:
     virtual std::string gitsha1(unsigned int count) const;
 };
 
-} // namespace metkit
+}  // namespace metkit
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -18,7 +18,9 @@
 
 #include "eckit/persist/Bless.h"
 
-namespace eckit { class DumpLoad; }
+namespace eckit {
+class DumpLoad;
+}
 
 namespace metkit {
 
@@ -27,56 +29,56 @@ namespace metkit {
 class Param {
 public:
 
-	Param() : table_(-1),value_(-1) {}
+    Param() : table_(-1), value_(-1) {}
 
-	Param(const std::string&);
+    Param(const std::string&);
 
-	Param(long table,long value):
-		table_(table),value_(value) {}
+    Param(long table, long value) : table_(table), value_(value) {}
 
 #include "metkit/mars/Param.b"
 
-	~Param() {}
+    ~Param() {}
 
-	operator std::string() const;
+    operator std::string() const;
 
-	bool operator==(const Param& other) const
-		{ return value_ == other.value_ && table_ == other.table_; }
+    bool operator==(const Param& other) const { return value_ == other.value_ && table_ == other.table_; }
 
-	bool operator!=(const Param& other) const
-		{ return value_ != other.value_ || table_ != other.table_; }
+    bool operator!=(const Param& other) const { return value_ != other.value_ || table_ != other.table_; }
 
-	bool operator<(const Param& other) const
-		{ return (value_ == other.value_) ? (table_ < other.table_) : (value_ < other.value_); }
+    bool operator<(const Param& other) const {
+        return (value_ == other.value_) ? (table_ < other.table_) : (value_ < other.value_);
+    }
 
-	bool operator>(const Param& other) const
-		{ return (value_ == other.value_) ? (table_ > other.table_) : (value_ > other.value_); }
+    bool operator>(const Param& other) const {
+        return (value_ == other.value_) ? (table_ > other.table_) : (value_ > other.value_);
+    }
 
-	long table() const { return table_; }
-        long value()   const { return value_;   }
-        long grib1value()   const { return value_%1000;   }
+    long table() const { return table_; }
+    long value() const { return value_; }
+    long grib1value() const { return value_ % 1000; }
 
-	long paramId() const;
+    long paramId() const;
 
-	void dump(eckit::DumpLoad&) const;
-	void load(eckit::DumpLoad&);
+    void dump(eckit::DumpLoad&) const;
+    void load(eckit::DumpLoad&);
 
 protected:
 
-	void print(std::ostream& s) const;
+    void print(std::ostream& s) const;
 
 private:
 
-	long table_;
-	long value_;
+    long table_;
+    long value_;
 
-	friend std::ostream& operator<<(std::ostream& s,const Param& p)
-		{ p.print(s); return s; }
-
+    friend std::ostream& operator<<(std::ostream& s, const Param& p) {
+        p.print(s);
+        return s;
+    }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+}  // namespace metkit
 
 #endif

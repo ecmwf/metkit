@@ -17,23 +17,23 @@
 #ifndef metkit_MarsParsedRequest_H
 #define metkit_MarsParsedRequest_H
 
-#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsParserContext.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
 namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsParsedRequest : public MarsRequest, public  MarsParserContext {
+class MarsParsedRequest : public MarsRequest, public MarsParserContext {
 public:
-    MarsParsedRequest(const std::string& verb, size_t line, size_t column);
 
+    MarsParsedRequest(const std::string& verb, size_t line, size_t column);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

@@ -8,13 +8,13 @@
  * does it submit to any jurisdiction.
  */
 
-#include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
 
+#include "eckit/runtime/Main.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/thread/Mutex.h"
-#include "eckit/runtime/Main.h"
 
 #include "metkit/mars/RequestEnvironment.h"
 
@@ -24,16 +24,14 @@ namespace mars {
 
 static eckit::Mutex local_mutex;
 
-RequestEnvironment::RequestEnvironment():
-    request_("environ")
-{
+RequestEnvironment::RequestEnvironment() : request_("environ") {
     std::string host = eckit::Main::hostname();
     request_.setValue("host", host);
 
-    struct passwd *pw;
+    struct passwd* pw;
     setpwent();
 
-    if ((pw = getpwuid(getuid())) == NULL){
+    if ((pw = getpwuid(getuid())) == NULL) {
         throw eckit::SeriousBug("Cannot establish current user");
     }
 
@@ -44,20 +42,14 @@ RequestEnvironment::RequestEnvironment():
 
     request_.setValue("pid", long(::getpid()));
     request_.setValue("client", "cpp");
-
 }
 
-RequestEnvironment::~RequestEnvironment()
-{
-}
+RequestEnvironment::~RequestEnvironment() {}
 
 
-void RequestEnvironment::print(std::ostream&) const
-{
-}
+void RequestEnvironment::print(std::ostream&) const {}
 
-RequestEnvironment& RequestEnvironment::instance()
-{
+RequestEnvironment& RequestEnvironment::instance() {
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
     {
         static RequestEnvironment e;
@@ -65,5 +57,5 @@ RequestEnvironment& RequestEnvironment::instance()
     }
 }
 
-}
-}
+}  // namespace mars
+}  // namespace metkit

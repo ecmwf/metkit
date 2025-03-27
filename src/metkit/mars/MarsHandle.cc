@@ -26,9 +26,8 @@ class MarsHandleStream : public eckit::HandleStream {
     MarsHandle& handle_;
 
 public:
-    MarsHandleStream(MarsHandle& handle) : eckit::HandleStream(handle), handle_(handle) {
-        handle_.streamMode_ = true;
-    }
+
+    MarsHandleStream(MarsHandle& handle) : eckit::HandleStream(handle), handle_(handle) { handle_.streamMode_ = true; }
 
     ~MarsHandleStream() { handle_.streamMode_ = false; }
 };
@@ -40,13 +39,7 @@ void MarsHandle::encode(eckit::Stream& s) const {
 }
 
 MarsHandle::MarsHandle(eckit::Stream& s) :
-    TCPHandle(s),
-    length_(0),
-    total_(0),
-    receiving_(false),
-    streamMode_(false),
-    doCRC_(false),
-    crc_(startCRC) {
+    TCPHandle(s), length_(0), total_(0), receiving_(false), streamMode_(false), doCRC_(false), crc_(startCRC) {
     s >> clientID_;
 
     if (s.endObjectFound()) {
@@ -173,8 +166,7 @@ void MarsHandle::close() {
     if (length_ > 0 && total_ != length_) {
         TCPHandle::close();
 
-        eckit::Log::error() << "Recieved/Sent " << total_ << " bytes instead of " << length_
-                            << std::endl;
+        eckit::Log::error() << "Recieved/Sent " << total_ << " bytes instead of " << length_ << std::endl;
         if (eckit::Exception::throwing()) {
             eckit::Log::error() << "A expection is already active" << std::endl;
             return;

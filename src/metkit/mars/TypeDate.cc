@@ -13,9 +13,9 @@
 #include "eckit/types/Date.h"
 #include "metkit/mars/MarsRequest.h"
 
-#include "metkit/mars/TypesFactory.h"
-#include "metkit/mars/TypeDate.h"
 #include "eckit/utils/StringTools.h"
+#include "metkit/mars/TypeDate.h"
+#include "metkit/mars/TypesFactory.h"
 
 #include "metkit/mars/MarsExpandContext.h"
 
@@ -25,15 +25,12 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeDate::TypeDate(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings),
-    by_(1) {
+TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings), by_(1) {
 
     DummyContext ctx;
 }
 
-TypeDate::~TypeDate() {
-}
+TypeDate::~TypeDate() {}
 
 void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
@@ -41,7 +38,7 @@ void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
+bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
     if (!value.empty() && (value[0] == '0' || value[0] == '-')) {
         eckit::Translator<std::string, long> t;
         long n = t(value);
@@ -52,7 +49,6 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string &value) const {
         }
     }
     return true;
-
 }
 
 
@@ -64,8 +60,8 @@ void TypeDate::expand(const MarsExpandContext& ctx, std::vector<std::string>& va
     if (values.size() == 3) {
         if (eckit::StringTools::lower(values[1])[0] == 't') {
             eckit::Date from = tidy(ctx, values[0]);
-            eckit::Date to = tidy(ctx, values[2]);
-            long by = by_;
+            eckit::Date to   = tidy(ctx, values[2]);
+            long by          = by_;
             values.clear();
             values.reserve((to - from) / by + 1);
             for (eckit::Date i = from; i <= to; i += by) {
@@ -78,8 +74,8 @@ void TypeDate::expand(const MarsExpandContext& ctx, std::vector<std::string>& va
     if (values.size() == 5) {
         if (eckit::StringTools::lower(values[1])[0] == 't' && eckit::StringTools::lower((values[3])) == "by") {
             eckit::Date from = tidy(ctx, values[0]);
-            eckit::Date to = tidy(ctx, values[2]);
-            long by = s2l(tidy(ctx, values[4]));
+            eckit::Date to   = tidy(ctx, values[2]);
+            long by          = s2l(tidy(ctx, values[4]));
             values.clear();
             values.reserve((to - from) / by + 1);
 
@@ -93,7 +89,7 @@ void TypeDate::expand(const MarsExpandContext& ctx, std::vector<std::string>& va
     Type::expand(ctx, values);
 }
 
-void TypeDate::print(std::ostream & out) const {
+void TypeDate::print(std::ostream& out) const {
     out << "TypeDate[name=" << name_ << "]";
 }
 
@@ -101,5 +97,5 @@ static TypeBuilder<TypeDate> type("date");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

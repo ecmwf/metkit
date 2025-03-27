@@ -18,7 +18,7 @@
 struct grib_iterator;
 
 namespace eckit {
-    class DataHandle;
+class DataHandle;
 }
 
 namespace metkit {
@@ -31,20 +31,18 @@ class GribHandle;
 class GribIterator : private eckit::NonCopyable {
 public:
 
-  GribIterator(const GribHandle&);
-   ~GribIterator() noexcept(false);
+    GribIterator(const GribHandle&);
+    ~GribIterator() noexcept(false);
 
 
-   bool next(double& lat, double& lon, double& value);
+    bool next(double& lat, double& lon, double& value);
 
-private: // members
+private:  // members
 
-   grib_iterator* iterator_;
-
+    grib_iterator* iterator_;
 };
 
 //------------------------------------------------------------------------------------------------------
 
-} // namespace grib
-} // namespace metkit
-
+}  // namespace grib
+}  // namespace metkit

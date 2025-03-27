@@ -13,10 +13,10 @@
 #include <pthread.h>
 #include <fstream>
 
-#include "eckit/utils/Tokenizer.h"
 #include "eckit/config/Resource.h"
-#include "eckit/system/Library.h"
 #include "eckit/parser/YAMLParser.h"
+#include "eckit/system/Library.h"
+#include "eckit/utils/Tokenizer.h"
 
 #include "metkit/config/LibMetkit.h"
 
@@ -37,12 +37,12 @@ static bool fullTableDropping_;
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 
-static void readTable()
-{
-    eckit::PathName paramMatchingPath = eckit::Resource<eckit::PathName>("paramMatchingPath;$PARAM_MATCHING_PATH", LibMetkit::paramMatchingYamlFile());
+static void readTable() {
+    eckit::PathName paramMatchingPath =
+        eckit::Resource<eckit::PathName>("paramMatchingPath;$PARAM_MATCHING_PATH", LibMetkit::paramMatchingYamlFile());
 
     const eckit::Value paramMatching = eckit::YAMLParser::decodeFile(paramMatchingPath);
-    const eckit::Value wind = paramMatching["wind"];
+    const eckit::Value wind          = paramMatching["wind"];
     ASSERT(wind.isList());
     for (size_t i = 0; i < wind.size(); ++i) {
         const eckit::Value s = wind[i];
@@ -82,4 +82,4 @@ bool ParamID::fullTableDropping() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit
+}  // namespace metkit

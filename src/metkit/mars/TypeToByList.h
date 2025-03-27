@@ -25,25 +25,23 @@ namespace mars {
 
 class TypeToByList : public TypeInteger {
 
-public: // methods
+public:  // methods
 
-    TypeToByList(const std::string &name, const eckit::Value& settings);
+    TypeToByList(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeToByList() override;
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const override;
+    virtual void print(std::ostream& out) const override;
+    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
 
     long by_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

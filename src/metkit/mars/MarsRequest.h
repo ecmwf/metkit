@@ -25,7 +25,7 @@ class MD5;
 namespace message {
 class Message;
 }
-}
+}  // namespace eckit
 
 struct metkit_marsrequest_t;
 
@@ -56,7 +56,7 @@ public:  // methods
     bool operator<(const MarsRequest& other) const;
 
     // eckit::Value&        operator[](const std::string&);
-    const std::string&  operator[](const std::string&) const;
+    const std::string& operator[](const std::string&) const;
 
     operator eckit::Value() const;
 
@@ -103,7 +103,7 @@ public:  // methods
     /// Create a new MarsRequest from this one with only the given set of keys
     MarsRequest subset(const std::set<std::string>&) const;
 
-    void json(eckit::JSON&, bool array=false) const;
+    void json(eckit::JSON&, bool array = false) const;
 
     void md5(eckit::MD5&) const;
 
@@ -132,10 +132,12 @@ public:  // static methods
     static const MarsRequest& fromOpaque(const metkit_marsrequest_t* request);
 
 private:  // members
+
     std::string verb_;
     std::list<Parameter> params_;
 
 private:  // methods
+
     void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
 
