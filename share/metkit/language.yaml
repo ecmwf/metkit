@@ -1130,8 +1130,15 @@ _observation: &_observation
 
   obstype:
     category: data
-    type: any
-    multiple: true
+    type: enum
+    values:
+    - all
+    - [nsd, non satellite data all]
+    - [sd, satellite data all]
+
+#  ALL                = (NSD/SD)
+#                  CONVENTIONAL; NSD  = (LSD/SSD/VSNS/SLNS/SLS/OD/DD/CC/SF/GBGPS/OSTIA)
+#                  SD                 = (SDS/VSS/SSMI/SSMIS/SSBT/TRMM/QSCAT/REO3/IASI/ATMS/CRIS/VASS)
 
   latitude:
     category: data
@@ -1176,15 +1183,6 @@ _observation: &_observation
 # %if (type=im %and obstype=20 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
 #         %warning "replacing obstype=20 by channel=3, instrument=615"
 #         %unset obstype
-
-
-
-
-
-  obsgroup:
-    category: data
-    type: any
-    multiple: true
 
 #######################################################################
 
@@ -1243,9 +1241,10 @@ _postproc: &_postproc
     category: postproc
     flatten: false
     multiple: true
-    type: [enum, float, regex]
+    type: [enum, regex, float]
     values:
     - auto
+    - [av, archived value]
     - N16
     - N24
     - N32
@@ -1269,6 +1268,44 @@ _postproc: &_postproc
     - N2000
     - N4000
     - N8000
+    - [F16, 16]
+    - [F24, 24]
+    - [F32, 32]
+    - [F48, 48]
+    - [F64, 64]
+    - [F80, 80]
+    - [F96, 96]
+    - [F128, 128]
+    - [F160, 160]
+    - [F200, 200]
+    - [F256, 256]
+    - [F320, 320]
+    - [F400, 400]
+    - [F512, 512]
+    - [F576, 576]
+    - [F640, 640]
+    - [F800, 800]
+    - [F1024, 1024]
+    - [F1280, 1280]
+    - [F1600, 1600]
+    - [F2000, 2000]
+    - [F4000, 4000]
+    - [F8000, 8000]
+    - H1
+    - H2
+    - H4
+    - H8
+    - H16
+    - H32
+    - H64
+    - H128
+    - H256
+    - H512
+    - H1024
+    - H2048
+    - H4096
+    - H8192
+    - H16384
     regex:
     - '^[oOfF][1-9][0-9]+$'
     uppercase: true
@@ -1314,6 +1351,10 @@ _postproc: &_postproc
     defaults:
       - context:
           accuracy:
+            op: 'd'
+        vals: [auto]
+      - context:
+          grid:
             op: 'd'
         vals: [auto]
     unset:
@@ -1369,7 +1410,7 @@ _postproc: &_postproc
     - N1024
     - N1280
     regex:
-    - '^[oOfF][1-9][0-9]+$'
+    - '^[oOfFhH][1-9][0-9]+$'
 
   truncation:
     category: postproc
@@ -1398,7 +1439,6 @@ _obspproc: &_obspproc
   ident:
     type: any
     category: postproc
-
 
 #######################################################################
 
@@ -1479,7 +1519,9 @@ archive:
   expect:
     flatten: false
     multiple: false
-    type: integer
+    type: [enum, integer]
+    values:
+    - any
 
 ##############################################################
 
@@ -1498,7 +1540,9 @@ retrieve:
   expect:
     flatten: false
     multiple: false
-    type: integer
+    type: [enum, integer]
+    values:
+    - any
 
   fieldset:
     flatten: false
@@ -1517,6 +1561,19 @@ retrieve:
     - 'off'
     defaults:
       - vals: ["off"]
+
+
+  duplicates:
+    type: enum
+    defaults:
+      - context:
+          # type: [mfb, ofb, ai]
+          obsgroup:
+            op: 'd'
+        vals: [keep]
+    values:
+    - keep
+    - remove
 
   padding:
     flatten: false

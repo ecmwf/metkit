@@ -36,9 +36,8 @@ private:  // methods
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     StepRange parse(std::string& value) const;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars
