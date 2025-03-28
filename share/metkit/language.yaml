@@ -1187,9 +1187,10 @@ _postproc: &_postproc
     category: postproc
     flatten: false
     multiple: true
-    type: [enum, float, regex]
+    type: [enum, regex, float]
     values:
     - auto
+    - [av, archived value]
     - N16
     - N24
     - N32
@@ -1213,6 +1214,44 @@ _postproc: &_postproc
     - N2000
     - N4000
     - N8000
+    - [F16, 16]
+    - [F24, 24]
+    - [F32, 32]
+    - [F48, 48]
+    - [F64, 64]
+    - [F80, 80]
+    - [F96, 96]
+    - [F128, 128]
+    - [F160, 160]
+    - [F200, 200]
+    - [F256, 256]
+    - [F320, 320]
+    - [F400, 400]
+    - [F512, 512]
+    - [F576, 576]
+    - [F640, 640]
+    - [F800, 800]
+    - [F1024, 1024]
+    - [F1280, 1280]
+    - [F1600, 1600]
+    - [F2000, 2000]
+    - [F4000, 4000]
+    - [F8000, 8000]
+    - H1
+    - H2
+    - H4
+    - H8
+    - H16
+    - H32
+    - H64
+    - H128
+    - H256
+    - H512
+    - H1024
+    - H2048
+    - H4096
+    - H8192
+    - H16384
     regex:
     - '^[oOfF][1-9][0-9]+$'
     uppercase: true
