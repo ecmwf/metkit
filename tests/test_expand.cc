@@ -897,6 +897,16 @@ CASE("test_metkit_expand_") {
         // expand(text, expected);
     }
     {
+        // https://jira.ecmwf.int/browse/MARS-980
+        const char* text =
+            "retrieve,class=od,date=20230821,expect=any,expver=0001,levtype=sfc,param=70.228/71.228/72.228/73.228/"
+            "74.228,stream=da,time=12,type=gai,target=\"reference.1e7AY1.data\"";
+        const char* expected =
+            "RETRIEVE,CLASS=OD,TYPE=GAI,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=228070/228071/228072/"
+            "228073/228074,DATE=20230821,TIME=1200,STEP=0,DOMAIN=G,TARGET=reference.1e7AY1.data,EXPECT=ANY";
+        expand(text, expected);
+    }
+    {
         const char* text =
             "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
             "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/"
