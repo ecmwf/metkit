@@ -11,6 +11,6 @@
 # TODO we duplicate information -- pyproject.toml's `name` and `packages` are derivable from $NAME and must stay consistent
 
 NAME="metkit"
-CMAKE_PARAMS="-DECKIT_PATH=/tmp/target/eckit"
+CMAKE_PARAMS="-Deckit_ROOT=/tmp/metkit/prereqs/eckitlib -Deccodes_ROOT=/tmp/metkit/prereqs/eccodeslib -DENABLE_GRIB=1"
 PYPROJECT_DIR="python/metkitlib"
-DEPENDENCIES='["eckit"]'
+DEPENDENCIES='["eckitlib", "eccodeslib"]'
