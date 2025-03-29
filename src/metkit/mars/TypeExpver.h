@@ -13,18 +13,17 @@
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypeExpver_H
-#define metkit_TypeExpver_H
+#pragma once
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class TypeExpver : public Type {
 public:  // methods
+
     TypeExpver(const std::string& name, const eckit::Value& settings);
 
     virtual ~TypeExpver() override;
@@ -32,12 +31,10 @@ public:  // methods
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
 private:  // methods
+
     virtual void print(std::ostream& out) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

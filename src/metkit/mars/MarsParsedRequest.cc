@@ -13,13 +13,8 @@
 namespace metkit {
 namespace mars {
 
-MarsParsedRequest::MarsParsedRequest(const std::string& verb,
-                                     size_t line,
-                                     size_t column):
-    MarsRequest(verb),
-    MarsParserContext(line, column) {
+MarsParsedRequest::MarsParsedRequest(const std::string& verb, size_t line, size_t column) :
+    MarsRequest(verb), MarsParserContext(line, column) {}
 
-}
-
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

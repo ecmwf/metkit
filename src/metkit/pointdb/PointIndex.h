@@ -18,7 +18,6 @@
 // #include "eckit/filesystem/PathName.h"
 
 
-
 #include "eckit/container/KDTree.h"
 #include "eckit/geometry/Point3.h"
 
@@ -46,32 +45,28 @@ struct LLPoint2 : public eckit::geometry::Point3 {
     const LLPoint2& point() const { return *this; }
 
 
+    LLPoint2() : eckit::geometry::Point3() {}
 
-    LLPoint2(): eckit::geometry::Point3() {}
-
-    LLPoint2(double lat, double lon, size_t index):
-        eckit::geometry::Point3(),
-        lat_(lat), lon_(lon)
-    {
+    LLPoint2(double lat, double lon, size_t index) : eckit::geometry::Point3(), lat_(lat), lon_(lon) {
 
         // See http://en.wikipedia.org/wiki/Geodetic_system#From_geodetic_to_ECEF
-        payload_ = index;
+        payload_  = index;
         double& X = x_[0];
         double& Y = x_[1];
         double& Z = x_[2];
 
-        double h = 0; // Altitude
+        double h = 0;  // Altitude
 
         const double earthRadius = 6378137.0;
-        double a = earthRadius; //6378137.0 ; //  WGS84 semi-major axis
+        double a                 = earthRadius;  // 6378137.0 ; //  WGS84 semi-major axis
 
-        double e2 = 0;          //6.69437999014E-3; // WGS84 first numerical eccentricity sqared
+        double e2 = 0;  // 6.69437999014E-3; // WGS84 first numerical eccentricity sqared
 
-        double phi = lat / 180.0 * M_PI;
+        double phi    = lat / 180.0 * M_PI;
         double lambda = lon / 180.0 * M_PI;
 
-        double cos_phi = cos(phi);
-        double sin_phi = sin(phi);
+        double cos_phi    = cos(phi);
+        double sin_phi    = sin(phi);
         double cos_lambda = cos(lambda);
         double sin_lambda = sin(lambda);
 
@@ -82,15 +77,11 @@ struct LLPoint2 : public eckit::geometry::Point3 {
         Z = (N_phi * (1 - e2) + h) * sin_phi;
     }
 
-    friend std::ostream& operator<<(std::ostream& s, const LLPoint2& p)
-    {
+    friend std::ostream& operator<<(std::ostream& s, const LLPoint2& p) {
         s << '(' << p.lat_ << "," << p.lon_ << ' ' << p.payload_ << ')';
         return s;
     }
-
-
 };
-
 
 
 struct PointIndexTraits {
@@ -101,9 +92,9 @@ struct PointIndexTraits {
 class PointIndex {
 public:
 
-    typedef eckit::KDTreeMapped<PointIndexTraits>  Tree;
-    typedef Tree::Point       Point;
-    typedef Tree::NodeInfo    NodeInfo;
+    typedef eckit::KDTreeMapped<PointIndexTraits> Tree;
+    typedef Tree::Point Point;
+    typedef Tree::NodeInfo NodeInfo;
 
     NodeInfo nearestNeighbour(double lat, double lon);
 
@@ -122,10 +113,9 @@ private:
 
     std::map<Point, NodeInfo> last_;
     eckit::Mutex mutex_;
-
 };
 
-} // namespace pointdb
-} // namespace metkit
+}  // namespace pointdb
+}  // namespace metkit
 
 #endif

@@ -29,73 +29,66 @@ MarsParserCallback::~MarsParserCallback() {}
 //----------------------------------------------------------------------------------------------------------------------
 
 
-std::string MarsParser::parseString(char quote)
-{
+std::string MarsParser::parseString(char quote) {
     consume(quote);
     std::string s;
-    for (;;)
-    {
+    for (;;) {
         char c = next(true);
-        if (c == '\\')
-        {
+        if (c == '\\') {
             c = next(true);
             switch (c) {
 
-            case '"':
-                s += '"';
-                break;
+                case '"':
+                    s += '"';
+                    break;
 
-            case '\'':
-                s += '\'';
-                break;
+                case '\'':
+                    s += '\'';
+                    break;
 
-            case '\\':
-                s += '\\';
-                break;
+                case '\\':
+                    s += '\\';
+                    break;
 
-            case '/':
-                s += '/';
-                break;
+                case '/':
+                    s += '/';
+                    break;
 
-            case 'b':
-                s += '\b';
-                break;
+                case 'b':
+                    s += '\b';
+                    break;
 
-            case 'f':
-                s += '\f';
-                break;
+                case 'f':
+                    s += '\f';
+                    break;
 
-            case 'n':
-                s += '\n';
-                break;
+                case 'n':
+                    s += '\n';
+                    break;
 
-            case 'r':
-                s += '\r';
-                break;
+                case 'r':
+                    s += '\r';
+                    break;
 
-            case 't':
-                s += '\t';
-                break;
+                case 't':
+                    s += '\t';
+                    break;
 
-            case 'u':
-                throw StreamParser::Error(std::string("JSONTokenizer::parseString \\uXXXX format not supported"));
-                break;
-            default:
-                throw StreamParser::Error(std::string("JSONTokenizer::parseString invalid \\ char '") + c + "'");
-                break;
+                case 'u':
+                    throw StreamParser::Error(std::string("JSONTokenizer::parseString \\uXXXX format not supported"));
+                    break;
+                default:
+                    throw StreamParser::Error(std::string("JSONTokenizer::parseString invalid \\ char '") + c + "'");
+                    break;
             }
         }
-        else
-        {
-            if (c == quote)
-            {
-                return s; // void(s);
+        else {
+            if (c == quote) {
+                return s;  // void(s);
             }
             s += c;
         }
-
     }
-
 }
 
 static bool inindent(char c) {
@@ -145,12 +138,11 @@ std::string MarsParser::parseIndents() {
 std::string MarsParser::parseValue() {
     char c = peek();
 
-    if (c ==  '\"' || c == '\'') {
+    if (c == '\"' || c == '\'') {
         return parseString(c);
     }
 
     return parseIndents();
-
 }
 
 std::vector<std::string> MarsParser::parseValues() {
@@ -164,8 +156,7 @@ std::vector<std::string> MarsParser::parseValues() {
     return v;
 }
 
-std::string MarsParser::parseIndent()
-{
+std::string MarsParser::parseIndent() {
     char c = peek();
     std::string s;
     while (inindent(c)) {
@@ -178,7 +169,7 @@ std::string MarsParser::parseIndent()
 std::string MarsParser::parseVerb() {
     char c = peek();
     if (!isalpha(c) && c != '_') {
-        throw  StreamParser::Error(std::string("MarsParser::parseVerb invalid char '") + c + "'", line_ + 1);
+        throw StreamParser::Error(std::string("MarsParser::parseVerb invalid char '") + c + "'", line_ + 1);
     }
     return parseIndent();
 }
@@ -202,13 +193,9 @@ MarsParsedRequest MarsParser::parseRequest() {
     return r;
 }
 
-MarsParser::MarsParser(std::istream &in):
-    StreamParser(in, true, "#")
-{
-}
+MarsParser::MarsParser(std::istream& in) : StreamParser(in, true, "#") {}
 
-std::vector<MarsParsedRequest> MarsParser::parse()
-{
+std::vector<MarsParsedRequest> MarsParser::parse() {
     std::vector<MarsParsedRequest> result;
 
     char c;
@@ -228,5 +215,5 @@ void MarsParser::parse(MarsParserCallback& cb) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

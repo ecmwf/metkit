@@ -15,10 +15,12 @@
 #define metkit_StepRange_H
 
 #include "eckit/persist/Bless.h"
-#include "eckit/types/Types.h"
 #include "eckit/types/Time.h"
+#include "eckit/types/Types.h"
 
-namespace eckit { class DumpLoad; }
+namespace eckit {
+class DumpLoad;
+}
 
 namespace metkit::mars {
 
@@ -27,127 +29,133 @@ namespace metkit::mars {
 class StepRange {
 public:
 
-// -- Exceptions
-	// None
+    // -- Exceptions
+    // None
 
-// -- Contructors
+    // -- Contructors
 
-	StepRange(const std::string&);
+    StepRange(const std::string&);
 
-	explicit StepRange(eckit::Time from = eckit::Time(0), eckit::Time to = eckit::Time(0)) :
-		from_(from/3600.), to_(to/3600.) {
+    explicit StepRange(eckit::Time from = eckit::Time(0), eckit::Time to = eckit::Time(0)) :
+        from_(from / 3600.), to_(to / 3600.) {
 
-		if (from != eckit::Time(0) && to == eckit::Time(0)) {
-			to_ = from_;
-		}
-	}
+        if (from != eckit::Time(0) && to == eckit::Time(0)) {
+            to_ = from_;
+        }
+    }
 
-	explicit StepRange(double from, double to = 0):
-		StepRange(eckit::Time(from*3600, true), eckit::Time(to*3600, true)) {}
+    explicit StepRange(double from, double to = 0) :
+        StepRange(eckit::Time(from * 3600, true), eckit::Time(to * 3600, true)) {}
 
 
 #include "metkit/mars/StepRange.b"
 
-// -- Destructor
+    // -- Destructor
 
-	~StepRange() {}
+    ~StepRange() {}
 
-// -- Convertors
-	// None
+    // -- Convertors
+    // None
 
-// -- Operators
-	// None
+    // -- Operators
+    // None
 
-	operator std::string() const;
+    operator std::string() const;
 
-	StepRange& operator+=(const eckit::Time& step) {
-		from_ += step/3600.;
-		to_ += step/3600.;
-		return *this;
-	}
+    StepRange& operator+=(const eckit::Time& step) {
+        from_ += step / 3600.;
+        to_ += step / 3600.;
+        return *this;
+    }
 
-	bool operator==(const StepRange& other) const
-		{ return from_ == other.from_ && to_ == other.to_; }
+    StepRange& operator-=(const eckit::Time& step) {
+        from_ -= step / 3600.;
+        to_ -= step / 3600.;
+        return *this;
+    }
 
-	bool operator!=(const StepRange& other) const
-		{ return from_ != other.from_ || to_ != other.to_; }
+    bool operator==(const StepRange& other) const { return from_ == other.from_ && to_ == other.to_; }
 
-	bool operator<(const StepRange& other) const
-		{ return (from_ != other.from_)?(from_<other.from_):(to_<other.to_); }
+    bool operator!=(const StepRange& other) const { return from_ != other.from_ || to_ != other.to_; }
 
-	bool operator<=(const StepRange& other) const
-		{ return (from_ != other.from_)?(from_<=other.from_):(to_<=other.to_); }
+    bool operator<(const StepRange& other) const {
+        return (from_ != other.from_) ? (from_ < other.from_) : (to_ < other.to_);
+    }
 
-	bool operator>(const StepRange& other) const
-		{ return other < *this; }
+    bool operator<=(const StepRange& other) const {
+        return (from_ != other.from_) ? (from_ <= other.from_) : (to_ <= other.to_);
+    }
 
-// -- Methods
+    bool operator>(const StepRange& other) const { return other < *this; }
 
-	double from() const { return from_; }
-	double to()   const { return to_;   }
+    // -- Methods
 
-	void dump(eckit::DumpLoad&) const;
-	void load(eckit::DumpLoad&);
+    double from() const { return from_; }
+    double to() const { return to_; }
 
-// -- Overridden methods
-	// None
+    void dump(eckit::DumpLoad&) const;
+    void load(eckit::DumpLoad&);
 
-// -- Class members
-	// None
+    // -- Overridden methods
+    // None
 
-// -- Class methods
-	// None
+    // -- Class members
+    // None
 
-	// Uncomment for persistent, remove otherwise
+    // -- Class methods
+    // None
+
+    // Uncomment for persistent, remove otherwise
 
 protected:
 
-// -- Members
-	// None
+    // -- Members
+    // None
 
-// -- Methods
+    // -- Methods
 
-	void print(std::ostream& s) const;
+    void print(std::ostream& s) const;
 
-// -- Overridden methods
-	// None
+    // -- Overridden methods
+    // None
 
-// -- Class members
-	// None
+    // -- Class members
+    // None
 
-// -- Class methods
-	// None
+    // -- Class methods
+    // None
 
 private:
 
-// No copy allowed
+    // No copy allowed
 
-// -- Members
+    // -- Members
 
-	double from_;
-	double to_;
+    double from_;
+    double to_;
 
-// -- Methods
-	// None
+    // -- Methods
+    // None
 
-// -- Overridden methods
-	// None
+    // -- Overridden methods
+    // None
 
-// -- Class members
-	// None
+    // -- Class members
+    // None
 
-// -- Class methods
-	// None
+    // -- Class methods
+    // None
 
-// -- Friends
+    // -- Friends
 
-	friend std::ostream& operator<<(std::ostream& s,const StepRange& p)
-		{ p.print(s); return s; }
-
+    friend std::ostream& operator<<(std::ostream& s, const StepRange& p) {
+        p.print(s);
+        return s;
+    }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace metkit::mars
+}  // namespace metkit::mars
 
 #endif

@@ -11,16 +11,15 @@
 #include <set>
 
 #include "eckit/exception/Exceptions.h"
-#include "eckit/utils/StringTools.h"
 #include "eckit/message/Message.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/fields/FieldIndex.h"
 
 namespace metkit {
 namespace fields {
 
-FieldIndex::FieldIndex() {
-}
+FieldIndex::FieldIndex() {}
 
 FieldIndex::FieldIndex(eckit::Stream& s) {
     bool b, more;
@@ -30,8 +29,7 @@ FieldIndex::FieldIndex(eckit::Stream& s) {
     double dval;
 
     s >> more;
-    while (more)
-    {
+    while (more) {
         s >> key;
 
         s >> b;
@@ -104,36 +102,32 @@ void FieldIndex::encode(eckit::Stream& s) const {
     }
 
     s << bool(false);
-
 }
 
-FieldIndex::~FieldIndex()
-{
-}
+FieldIndex::~FieldIndex() {}
 
-std::string FieldIndex::substitute(const std::string& pattern) const
-{
+std::string FieldIndex::substitute(const std::string& pattern) const {
     return eckit::StringTools::substitute(pattern, stringValues_);
 }
 
-void FieldIndex::getValue(const std::string& key, double& value)
-{
+void FieldIndex::getValue(const std::string& key, double& value) {
     std::map<std::string, double>::iterator j = doubleValues_.find(key);
-    if (j == doubleValues_.end()) throw eckit::UserError(std::string("FieldIndex::getDouble failed for [") + key + "]");
+    if (j == doubleValues_.end())
+        throw eckit::UserError(std::string("FieldIndex::getDouble failed for [") + key + "]");
     value = (*j).second;
 }
 
-void FieldIndex::getValue(const std::string& key, long& value)
-{
+void FieldIndex::getValue(const std::string& key, long& value) {
     std::map<std::string, long>::iterator j = longValues_.find(key);
-    if (j == longValues_.end()) throw eckit::UserError(std::string("FieldIndex::getLong failed for [") + key + "]");
+    if (j == longValues_.end())
+        throw eckit::UserError(std::string("FieldIndex::getLong failed for [") + key + "]");
     value = (*j).second;
 }
 
-void FieldIndex::getValue(const std::string& key, std::string& value)
-{
+void FieldIndex::getValue(const std::string& key, std::string& value) {
     std::map<std::string, std::string>::iterator j = stringValues_.find(key);
-    if (j == stringValues_.end()) throw eckit::UserError(std::string("FieldIndex::getString failed for [") + key + "]");
+    if (j == stringValues_.end())
+        throw eckit::UserError(std::string("FieldIndex::getString failed for [") + key + "]");
     value = (*j).second;
 }
 
@@ -150,6 +144,5 @@ void FieldIndex::setValue(const std::string& name, const std::string& value) {
 }
 
 
-} // namespace fields
-} // namespace metkit
-
+}  // namespace fields
+}  // namespace metkit

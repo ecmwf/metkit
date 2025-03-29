@@ -20,9 +20,9 @@
 #include "metkit/mars/MarsRequest.h"
 
 namespace eckit {
-    class JSON;
-    class Stream;
-}
+class JSON;
+class Stream;
+}  // namespace eckit
 
 namespace metkit {
 namespace mars {
@@ -38,19 +38,19 @@ namespace mars {
 
 class MarsLocation {
 
-public: // methods
+public:  // methods
 
-// - Constructors
+    // - Constructors
 
     MarsLocation(const MarsRequest& r, const std::string& hostname, int port);
     MarsLocation(eckit::Stream&);
     MarsLocation(const eckit::Configuration&);
 
-// -- Destructor
+    // -- Destructor
 
     ~MarsLocation();
 
-// -- Operators
+    // -- Operators
 
     operator eckit::Value() const;
 
@@ -63,35 +63,38 @@ public: // methods
     int port() const;
 
 
-private: // members
+private:  // members
 
-    MarsRequest 	request_;
-    std::string     hostname_;
-    int             port_;
+    MarsRequest request_;
+    std::string hostname_;
+    int port_;
 
-private: // methods
+private:  // methods
 
-	void print(std::ostream&) const;
+    void print(std::ostream&) const;
     void encode(eckit::Stream&) const;
 
-// -- Class members
+    // -- Class members
 
 
     friend std::ostream& operator<<(std::ostream& s, const MarsLocation& r) {
-        r.print(s); return s;
+        r.print(s);
+        return s;
     }
 
     friend eckit::JSON& operator<<(eckit::JSON& s, const MarsLocation& r) {
-        r.json(s); return s;
+        r.json(s);
+        return s;
     }
 
     friend eckit::Stream& operator<<(eckit::Stream& s, const MarsLocation& r) {
-        r.encode(s); return s;
+        r.encode(s);
+        return s;
     }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

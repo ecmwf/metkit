@@ -23,37 +23,36 @@ namespace mars {
 class RequestEnvironment : private eckit::NonCopyable {
 public:
 
-// -- Contructors
+    // -- Contructors
 
-	RequestEnvironment();
+    RequestEnvironment();
 
-// -- Destructor
+    // -- Destructor
 
-	~RequestEnvironment();
+    ~RequestEnvironment();
 
-// -- Methods
+    // -- Methods
 
     const MarsRequest& request() const { return request_; }
 
-// -- Class members
+    // -- Class members
 
     static RequestEnvironment& instance();
 
 protected:
 
-// -- Methods
+    // -- Methods
 
-	void print(std::ostream&) const;
+    void print(std::ostream&) const;
 
 private:
 
-// -- Members
+    // -- Members
 
     MarsRequest request_;
-
 };
 
-}
-}
+}  // namespace mars
+}  // namespace metkit
 
 #endif

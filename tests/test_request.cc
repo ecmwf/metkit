@@ -12,13 +12,13 @@
 /// @date   Jul 2024
 /// @author Emanuele Danovaro
 
-#include "eckit/types/Date.h"
 #include "eckit/log/JSON.h"
+#include "eckit/types/Date.h"
 
-#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsExpension.h"
-#include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsParser.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
 #include "eckit/testing/Test.h"
@@ -32,39 +32,55 @@ namespace test {
 
 //-----------------------------------------------------------------------------
 
-CASE( "test_request_json" ) {
+CASE("test_request_json") {
     {
-        const char* text = "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
+        const char* text =
+            "retrieve,class=od,expver=0079,stream=enfh,date=20240729,time=00/"
+            "12,type=fcmean,levtype=sfc,step=24,number=1/to/2,param=mucin/mucape/tprate";
         MarsRequest r = MarsRequest::parse(text);
         {
             std::stringstream ss;
             eckit::JSON plain(ss);
             r.json(plain);
-            std::cout << ss.str() << std::endl;
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":\"20240729\",\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":\"24\",\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
+            EXPECT_EQUAL(ss.str(),
+                         "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":\"20240729\",\"time\":["
+                         "\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":\"24\",\"number\":[\"1\","
+                         "\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\",\"repres\":\"sh\"}");
         }
         {
             std::stringstream ss;
             eckit::JSON array(ss);
             r.json(array, true);
-            // std::cout << ss.str() << std::endl;
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":[\"20240729\"],\"time\":[\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"number\":[\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\"}");
+            EXPECT_EQUAL(
+                ss.str(),
+                "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":[\"20240729\"],\"time\":["
+                "\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"number\":["
+                "\"1\",\"2\"],\"param\":[\"228236\",\"228235\",\"172228\"],\"domain\":\"g\",\"repres\":\"sh\"}");
         }
     }
     {
-        const char* text = "retrieve,class=od,expver=1,stream=wave,date=20240729,time=00,type=an,levtype=sfc,step=24,param=2dfd ";
+        const char* text =
+            "retrieve,class=od,expver=1,stream=wave,date=20240729,time=00,type=an,levtype=sfc,step=24,param=2dfd ";
         MarsRequest r = MarsRequest::parse(text);
         {
             std::stringstream ss;
             eckit::JSON plain(ss);
             r.json(plain);
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":\"20240729\",\"time\":\"0000\",\"type\":\"an\",\"levtype\":\"sfc\",\"step\":\"24\",\"param\":\"140251\",\"domain\":\"g\"}");
+            EXPECT_EQUAL(
+                ss.str(),
+                "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":\"20240729\",\"time\":\"0000\","
+                "\"type\":\"an\",\"levtype\":\"sfc\",\"step\":\"24\",\"param\":\"140251\",\"domain\":\"g\",\"repres\":"
+                "\"sh\"}");
         }
         {
             std::stringstream ss;
             eckit::JSON array(ss);
             r.json(array, true);
-            EXPECT_EQUAL(ss.str(), "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":[\"20240729\"],\"time\":[\"0000\"],\"type\":\"an\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"param\":[\"140251\"],\"domain\":\"g\"}");
+            EXPECT_EQUAL(
+                ss.str(),
+                "{\"class\":\"od\",\"expver\":\"0001\",\"stream\":\"wave\",\"date\":[\"20240729\"],\"time\":[\"0000\"],"
+                "\"type\":\"an\",\"levtype\":\"sfc\",\"step\":[\"24\"],\"param\":[\"140251\"],\"domain\":\"g\","
+                "\"repres\":\"sh\"}");
         }
     }
 }
@@ -75,7 +91,6 @@ CASE( "test_request_json" ) {
 }  // namespace mars
 }  // namespace metkit
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

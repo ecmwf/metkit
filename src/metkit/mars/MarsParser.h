@@ -27,8 +27,11 @@ namespace mars {
 
 class MarsParserCallback {
 public:
+
     virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
+
 protected:
+
     ~MarsParserCallback();
 };
 
@@ -36,11 +39,9 @@ protected:
 //----------------------------------------------------------------------------------------------------------------------
 
 
-
-
 class MarsParser : public eckit::StreamParser {
 
-public: // methods
+public:  // methods
 
     MarsParser(std::istream& in);
 
@@ -50,7 +51,7 @@ public: // methods
 
     static void quoted(std::ostream& out, const std::string& value);
 
-private: // methods
+private:  // methods
 
     MarsParsedRequest parseRequest();
     std::string parseVerb();
@@ -61,12 +62,11 @@ private: // methods
     std::string parseIndents();
 
     std::string parseString(char c);
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

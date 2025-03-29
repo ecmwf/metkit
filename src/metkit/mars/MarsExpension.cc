@@ -9,21 +9,20 @@
  */
 
 #include <algorithm>
-#include <set>
 #include <list>
+#include <set>
 
-#include "eckit/types/Types.h"
+#include "eckit/config/Resource.h"
 #include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
-#include "eckit/config/Resource.h"
-#include "eckit/utils/Translator.h"
+#include "eckit/types/Types.h"
 #include "eckit/utils/MD5.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Translator.h"
 
 #include "metkit/mars/MarsExpension.h"
-#include "metkit/mars/Type.h"
 #include "metkit/mars/MarsLanguage.h"
-
+#include "metkit/mars/Type.h"
 
 
 namespace metkit {
@@ -37,19 +36,16 @@ ExpandCallback::~ExpandCallback() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-MarsExpension::MarsExpension(bool inherit, bool strict):
-    inherit_(inherit), strict_(strict) {
-
-}
+MarsExpension::MarsExpension(bool inherit, bool strict) : inherit_(inherit), strict_(strict) {}
 
 MarsExpension::~MarsExpension() {
-    for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {
+    for (std::map<std::string, MarsLanguage*>::iterator j = languages_.begin(); j != languages_.end(); ++j) {
         delete (*j).second;
     }
 }
 
 void MarsExpension::reset() {
-    for (std::map<std::string, MarsLanguage* >::iterator j = languages_.begin(); j != languages_.end(); ++j) {
+    for (std::map<std::string, MarsLanguage*>::iterator j = languages_.begin(); j != languages_.end(); ++j) {
         (*j).second->reset();
     }
 }
@@ -75,11 +71,10 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedReque
     for (auto j = requests.begin(); j != requests.end(); ++j) {
 
         MarsLanguage& lang = language((*j), (*j).verb());
-        MarsRequest r = lang.expand(*j, *j, inherit_, strict_);
+        MarsRequest r      = lang.expand(*j, *j, inherit_, strict_);
 
 
         result.push_back(r);
-
     }
 
     return result;
@@ -98,12 +93,10 @@ void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& requ
 }
 
 
-void MarsExpension::flatten(const MarsExpandContext& ctx,
-                            const MarsRequest& request,
-                            FlattenCallback& callback) {
+void MarsExpension::flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback) {
     language(ctx, request.verb()).flatten(ctx, request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

@@ -21,12 +21,12 @@ class MarsArchiveScript : public MetkitTool {
 
     using OverridesDict = std::map<std::string, std::map<std::string, std::vector<std::string>>>;
 
-public: // methods
+public:  // methods
 
     MarsArchiveScript(int argc, char** argv);
     ~MarsArchiveScript() override = default;
 
-private: // methods
+private:  // methods
 
     void init(const CmdArgs& args) override;
     void execute(const CmdArgs& args) override;
@@ -34,7 +34,7 @@ private: // methods
 
     OverridesDict extractOverrides(MarsRequest& request);
 
-    template <typename ...Args>
+    template <typename... Args>
     void setOverrides(MarsRequest& rq, const OverridesDict& overrides, const char* overrideName, Args... more);
 
     void setOverrides(MarsRequest& rq, const OverridesDict& overrides);
@@ -43,7 +43,7 @@ private: // methods
     std::string arcfile(int cnt) const;
     std::string cmpfile(int cnt) const;
 
-private: // members
+private:  // members
 
     std::string infile_;
     std::string outfile_;
@@ -84,60 +84,52 @@ MarsArchiveScript::MarsArchiveScript(int argc, char** argv) :
     compareComplete_("COMPARE_COMPLETE"),
     compareCommand_("COMPARE") {
 
-    options_.push_back(
-        new SimpleOption<std::string>("out", "Output filename (defaults output to stdout)"));
+    options_.push_back(new SimpleOption<std::string>("out", "Output filename (defaults output to stdout)"));
 
-    options_.push_back(
-        new SimpleOption<std::string>("in", "Input filename (defaults input to stdin)"));
+    options_.push_back(new SimpleOption<std::string>("in", "Input filename (defaults input to stdin)"));
 
-    options_.push_back(
-            new SimpleOption<bool>("obs", "Handle observations rather than output GRIBs"));
+    options_.push_back(new SimpleOption<bool>("obs", "Handle observations rather than output GRIBs"));
 
-    options_.push_back(
-            new SimpleOption<bool>("compare", "Re-retrieve and compare results"));
+    options_.push_back(new SimpleOption<bool>("compare", "Re-retrieve and compare results"));
 
     options_.push_back(
         new SimpleOption<bool>("legacy", "Use legacy environment variable names for old suite compatability"));
 
-    options_.push_back(
-        new SimpleOption<std::string>("prefix", "Prefix for the temporary files. Typically \"mars\""));
+    options_.push_back(new SimpleOption<std::string>("prefix", "Prefix for the temporary files. Typically \"mars\""));
 }
 
 void MarsArchiveScript::usage(const std::string& tool) const {
 
-    Log::info() << "Usage: " << tool << " [options]" << eckit::newl
-                << eckit::newl
+    Log::info() << "Usage: " << tool << " [options]" << eckit::newl << eckit::newl
                 << "Note: The output of this tool assumes that we are running in an ecflow suite with" << eckit::newl
                 << "      failure trapping enabled, as well as the following environment variables:" << eckit::newl
                 << "      RETRIEVE_MARS, ARCHIVE_MARS, COMPARE_MARS, UNBLOCK, RETRIEVE_COMPLETE" << eckit::newl
-                << "      ARCHIVE_COMPLETE, COMPARE_COMPLETE" << eckit::newl
-                << eckit::newl
+                << "      ARCHIVE_COMPLETE, COMPARE_COMPLETE" << eckit::newl << eckit::newl
 
-                << "Examples:" << eckit::newl
-                << "=========" << eckit::newl
-                << std::endl;
+                << "Examples:" << eckit::newl << "=========" << eckit::newl << std::endl;
 }
 
 void MarsArchiveScript::init(const CmdArgs& args) {
 
-    infile_ = args.getString("in", infile_);
+    infile_  = args.getString("in", infile_);
     outfile_ = args.getString("out", outfile_);
 
-    compare_ = args.getBool("compare", compare_);
+    compare_    = args.getBool("compare", compare_);
     tempPrefix_ = args.getString("prefix", tempPrefix_);
-    obs_ = args.getBool("obs", obs_);
+    obs_        = args.getBool("obs", obs_);
 
     if (args.getBool("legacy", false)) {
-        retrieveMars_ = "MARS_FROM_FDB";
-        archiveMars_ = "MARS_TO_IBM";
-        compareMars_ = "MARS_FROM_IBM";
-        unblockCommand_ = "UNBLOCK";
+        retrieveMars_     = "MARS_FROM_FDB";
+        archiveMars_      = "MARS_TO_IBM";
+        compareMars_      = "MARS_FROM_IBM";
+        unblockCommand_   = "UNBLOCK";
         retrieveComplete_ = "FDB_COMPLETE";
-        archiveComplete_ = "ARC_COMPLETE";
-        compareComplete_ = "CMP_COMPLETE";
+        archiveComplete_  = "ARC_COMPLETE";
+        compareComplete_  = "CMP_COMPLETE";
     }
 
-    if (obs_) compareCommand_ = "COMPOBS";
+    if (obs_)
+        compareCommand_ = "COMPOBS";
 }
 
 std::string MarsArchiveScript::srcfile(int cnt) const {
@@ -164,7 +156,7 @@ MarsArchiveScript::OverridesDict MarsArchiveScript::extractOverrides(MarsRequest
         if (pos != std::string::npos) {
             std::vector<std::string> vals;
             request.getValues(k, vals);
-            ret[k.substr(0, pos)][k.substr(pos+1)] = vals;
+            ret[k.substr(0, pos)][k.substr(pos + 1)] = vals;
             request.erase(k);
         }
     }
@@ -172,8 +164,9 @@ MarsArchiveScript::OverridesDict MarsArchiveScript::extractOverrides(MarsRequest
     return ret;
 }
 
-template <typename ...Args>
-void MarsArchiveScript::setOverrides(MarsRequest& rq, const OverridesDict& overrides, const char* overrideName, Args... more) {
+template <typename... Args>
+void MarsArchiveScript::setOverrides(MarsRequest& rq, const OverridesDict& overrides, const char* overrideName,
+                                     Args... more) {
 
     auto namedset = overrides.find(overrideName);
     if (namedset != overrides.end()) {
@@ -225,17 +218,16 @@ void MarsArchiveScript::execute(const CmdArgs& args) {
     if (obs_) {
 
         for (cnt = 0; cnt < requests.size(); ++cnt) {
-            out << "$" << preObs_ << " $header." << translate<std::string>(cnt+1)
-                                  << " $data." << translate<std::string>(cnt+1)
-                                  << " " << arcfile(cnt) << "\n\n";
+            out << "$" << preObs_ << " $header." << translate<std::string>(cnt + 1) << " $data."
+                << translate<std::string>(cnt + 1) << " " << arcfile(cnt) << "\n\n";
         }
-
-    } else {
+    }
+    else {
 
         out << "$" << retrieveMars_ << " << @\n\n";
 
         cnt = 0;
-        for (auto rq: requests) {
+        for (auto rq : requests) {
             rq.verb("retrieve");
             rq.setValue("target", srcfile(cnt));
             setOverrides(rq, overrides[cnt++], "default", "retrieve", "fdb_retrieve");
@@ -244,7 +236,8 @@ void MarsArchiveScript::execute(const CmdArgs& args) {
 
         out << "@\n\n$" << retrieveComplete_ << "\n\n";
 
-        // 1.a) Any intermediate step required. Typically ln -s (historically handle "blocked" data output by older Fortran
+        // 1.a) Any intermediate step required. Typically ln -s (historically handle "blocked" data output by older
+        // Fortran
         //      based systems)
 
         for (cnt = 0; cnt < requests.size(); ++cnt) {

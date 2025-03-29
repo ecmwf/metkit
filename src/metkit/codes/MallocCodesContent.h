@@ -23,16 +23,19 @@ namespace codes {
 
 class MallocCodesContent : public CodesContent {
 public:
+
     MallocCodesContent(void* data, size_t size, const eckit::Offset& offset);
     ~MallocCodesContent();
 
 private:  // methods
+
     void print(std::ostream& s) const override;
     eckit::Offset offset() const override;
     const void* data() const override;
     size_t length() const override;
 
 private:  // members
+
     void* buffer_;
     size_t length_;
     eckit::Offset offset_;

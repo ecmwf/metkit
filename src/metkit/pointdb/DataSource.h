@@ -19,7 +19,7 @@
 namespace eckit {
 class JSON;
 class Value;
-}
+}  // namespace eckit
 
 namespace metkit {
 
@@ -34,10 +34,7 @@ struct PointResult {
     double value_;
     double lat_;
     double lon_;
-    const DataSource* source_; // Warning, the source must have a longer life time as the result
-
-
-
+    const DataSource* source_;  // Warning, the source must have a longer life time as the result
 
 
     void print(std::ostream& s) const;
@@ -52,6 +49,7 @@ struct PointResult {
 
 class DataSourceHandler {
 public:
+
     virtual void handle(DataSource*) = 0;
 };
 
@@ -83,14 +81,11 @@ private:
         f.print(s);
         return s;
     }
-
 };
 
 
-
-} // namespace pointdb
-} // namespace metkit
-
+}  // namespace pointdb
+}  // namespace metkit
 
 
 #endif

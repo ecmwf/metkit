@@ -25,9 +25,7 @@ namespace metkit {
 namespace codes {
 
 OdbSplitter::OdbSplitter(eckit::PeekHandle& handle) :
-    Splitter(handle),
-    handleWrapper_(handle),
-    reader_(handleWrapper_, false) {}
+    Splitter(handle), handleWrapper_(handle), reader_(handleWrapper_, false) {}
 
 OdbSplitter::~OdbSplitter() {}
 
@@ -58,9 +56,8 @@ eckit::message::Message OdbSplitter::next() {
         if (span == reference) {
             buffers.append(frame.encodedData());
             handleWrapper_.clear();
-            LOG_DEBUG_LIB(LibMetkit)
-                << "ODB frame: " << buffers.count() << ", size: " << frame.length()
-                << ", total:" << buffers.size() << std::endl;
+            LOG_DEBUG_LIB(LibMetkit) << "ODB frame: " << buffers.count() << ", size: " << frame.length()
+                                     << ", total:" << buffers.size() << std::endl;
         }
         else {
             // remember last frame to reuse as reference on the following next()

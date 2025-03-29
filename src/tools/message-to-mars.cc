@@ -9,9 +9,9 @@
  */
 
 #include "eckit/config/Resource.h"
-#include "eckit/runtime/Tool.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
+#include "eckit/runtime/Tool.h"
 
 
 #include "metkit/codes/GribToRequest.h"
@@ -25,37 +25,33 @@ using metkit::grib::MetFile;
 class Grib2Request : public eckit::Tool {
 public:
 
-    Grib2Request(int argc,char **argv) :
-        Tool(argc,argv) {
+    Grib2Request(int argc, char** argv) : Tool(argc, argv) {
 
-        path_ = eckit::Resource<std::string>("-in","input.grib"); ///< @todo Move to use Option
-
+        path_ = eckit::Resource<std::string>("-in", "input.grib");  ///< @todo Move to use Option
     }
 
     virtual ~Grib2Request() {}
 
     virtual void run();
 
-private: // members
+private:  // members
 
-     eckit::PathName path_;
+    eckit::PathName path_;
 };
 
-void Grib2Request::run()
-{
+void Grib2Request::run() {
     eckit::Log::debug() << "Opening GRIB file : " << path_ << std::endl;
 
     eckit::Buffer buffer(MetFile::gribBufferSize());
 
     long len = 0;
 
-    grib::MetFile file( path_ );
+    grib::MetFile file(path_);
 
     metkit::mars::MarsRequest onereq("GRIB");
 
     size_t nMsg = 0;
-    while( (len = file.readSome(buffer)) != 0 )
-    {
+    while ((len = file.readSome(buffer)) != 0) {
         metkit::mars::MarsRequest req("GRIB");
 
         grib::GribToRequest::gribToRequest(buffer, len, req);
@@ -72,8 +68,7 @@ void Grib2Request::run()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int main(int argc,char **argv)
-{
-    Grib2Request tool(argc,argv);
+int main(int argc, char** argv) {
+    Grib2Request tool(argc, argv);
     return tool.start();
 }

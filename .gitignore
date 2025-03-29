@@ -8,3 +8,14 @@ doc/latex
 .*.sw*
 .*un~
 *.ccls-cache
+*.py[cod]
+*.swp
+**/__pycache__
+.vscode
+*.egg-info
+.pytest_cache
+*.prof
+*.idx
+.mypy_cache
+build/
+Testing/

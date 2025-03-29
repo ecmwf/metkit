@@ -19,17 +19,13 @@
 namespace metkit {
 namespace codes {
 
-UserDataContent::UserDataContent(const void* data, size_t size):
-    DataContent(data, size) {
-}
+UserDataContent::UserDataContent(const void* data, size_t size) : DataContent(data, size) {}
 
-UserDataContent::~UserDataContent() {
-}
+UserDataContent::~UserDataContent() {}
 
-void UserDataContent::print(std::ostream & s) const {
+void UserDataContent::print(std::ostream& s) const {
     s << "UserDataContent[]";
 }
 
-}  // namespace close
+}  // namespace codes
 }  // namespace metkit
-

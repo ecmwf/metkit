@@ -9,8 +9,8 @@
  */
 
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeLowercase.h"
+#include "metkit/mars/TypesFactory.h"
 
 #include <algorithm>
 #include <cctype>
@@ -20,20 +20,17 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeLowercase::TypeLowercase(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
-}
+TypeLowercase::TypeLowercase(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-TypeLowercase::~TypeLowercase() {
-}
+TypeLowercase::~TypeLowercase() {}
 
-void TypeLowercase::print(std::ostream &out) const {
+void TypeLowercase::print(std::ostream& out) const {
     out << "TypeLowercase[name=" << name_ << "]";
 }
 
-bool TypeLowercase::expand(const MarsExpandContext& ctx, std::string &value) const {
-    
-    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c){ return std::tolower(c); });
+bool TypeLowercase::expand(const MarsExpandContext& ctx, std::string& value) const {
+
+    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return std::tolower(c); });
     return true;
 }
 
@@ -41,4 +38,4 @@ bool TypeLowercase::expand(const MarsExpandContext& ctx, std::string &value) con
 static TypeBuilder<TypeLowercase> type("lowercase");
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace metkit::mars
+}  // namespace metkit::mars

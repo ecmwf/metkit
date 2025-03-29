@@ -39,6 +39,7 @@ class MarsRequest;
 
 class Parameter {
 public:  // methods
+
     Parameter();
     ~Parameter();
 
@@ -62,6 +63,7 @@ public:  // methods
     size_t count() const;
 
 private:  // methods
+
     void print(std::ostream&) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Parameter& p) {
@@ -70,6 +72,7 @@ private:  // methods
     }
 
 private:  // members
+
     Type* type_;
     std::vector<std::string> values_;
 };

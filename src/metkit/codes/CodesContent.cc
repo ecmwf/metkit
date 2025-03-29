@@ -28,16 +28,11 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CodesContent::CodesContent(codes_handle* handle, bool delete_handle):
-    handle_(handle),
-    delete_handle_(delete_handle) {
+CodesContent::CodesContent(codes_handle* handle, bool delete_handle) : handle_(handle), delete_handle_(delete_handle) {
     ASSERT(handle_);
 }
 
-CodesContent::CodesContent(const codes_handle* handle):
-    CodesContent(const_cast<codes_handle*>(handle), false) {
-
-}
+CodesContent::CodesContent(const codes_handle* handle) : CodesContent(const_cast<codes_handle*>(handle), false) {}
 
 
 CodesContent::~CodesContent() {
@@ -83,7 +78,7 @@ eckit::DataHandle* CodesContent::readHandle() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void CodesContent::print(std::ostream & s) const {
+void CodesContent::print(std::ostream& s) const {
     s << "CodesContent[]";
 }
 
@@ -170,7 +165,7 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
     try {
         CODES_CALL(codes_set_values(h, values.data(), values.size()));
     }
-    catch(...) {
+    catch (...) {
         codes_handle_delete(h);
         throw;
     }
@@ -192,7 +187,7 @@ eckit::Offset CodesContent::offset() const {
 const codes_handle* CodesContent::codesHandle() const {
     return handle_;
 }
- 
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -204,6 +199,5 @@ const void* CodesContent::data() const {
 }
 
 
-}  // namespace close
+}  // namespace codes
 }  // namespace metkit
-

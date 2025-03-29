@@ -16,16 +16,15 @@ namespace metkit {
 namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
-MarsParserContext::MarsParserContext(std::size_t line, std::size_t /* column */):
+MarsParserContext::MarsParserContext(std::size_t line, std::size_t /* column */) :
     line_(line)
-    //,column_(column) 
-    {
-}
+//,column_(column)
+{}
 
 void MarsParserContext::info(std::ostream& out) const {
     out << " Request starting line " << line_;
 }
 
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

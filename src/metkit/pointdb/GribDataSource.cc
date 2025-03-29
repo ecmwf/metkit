@@ -16,11 +16,7 @@ namespace metkit {
 namespace pointdb {
 
 
-PointResult GribDataSource::extract(double lat,
-                                double lon) const {
-
-
-
+PointResult GribDataSource::extract(double lat, double lon) const {
 
 
     PointResult result;
@@ -28,16 +24,15 @@ PointResult GribDataSource::extract(double lat,
     // ASSERT(!source.needInterpolation());
 
 
-    PointIndex& pi = PointIndex::lookUp(geographyHash());
+    PointIndex& pi         = PointIndex::lookUp(geographyHash());
     PointIndex::NodeInfo n = pi.nearestNeighbour(lat, lon);
 
-    result.lat_      = n.point().lat();
-    result.lon_      = n.point().lon();
-    result.value_    = value(n.point().payload_);
-    result.source_   = this;
+    result.lat_    = n.point().lat();
+    result.lon_    = n.point().lon();
+    result.value_  = value(n.point().payload_);
+    result.source_ = this;
 
     return result;
-
 }
 
 double GribDataSource::value(size_t index) const {
@@ -50,6 +45,6 @@ std::string GribDataSource::geographyHash() const {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace pointdb
+}  // namespace pointdb
 
-} // namespace metkit
+}  // namespace metkit
