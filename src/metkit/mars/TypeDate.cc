@@ -10,8 +10,8 @@
 
 #include "metkit/mars/TypeDate.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
