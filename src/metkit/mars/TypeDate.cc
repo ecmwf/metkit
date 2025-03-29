@@ -11,6 +11,7 @@
 #include "metkit/mars/TypeDate.h"
 
 #include <array>
+#include <algorithm>
 
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
