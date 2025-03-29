@@ -8,6 +8,10 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/TypeDate.h"
+
+#include <array>
+
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Tokenizer.h"
@@ -16,10 +20,8 @@
 #include "eckit/utils/StringTools.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/TypeDate.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
-
 
 #include "metkit/mars/MarsExpandContext.h"
 
@@ -28,18 +30,20 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static const char* months[] = {
-    "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec",
+static std::array<std::string, 12> months{
+    "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"
 };
 
 int month(const std::string& value) {
     if (value.size() == 3) {
-        std::string month = eckit::StringTools::lower(value).substr(0, 3);
-        for (size_t i = 0; i < 12; i++) {  // check month name
-            if (months[i] == month) {
-                return i + 1;
-            }
+        auto it = std::find(months.begin(), months.end(), eckit::StringTools::lower(value));
+        if (it == months.end()) {
+            std::ostringstream oss;
+            oss << value << " is not a valid month short name";
+            throw eckit::BadValue(oss.str());
+
         }
+        return it-months.begin()+1;
     }
 
     eckit::Translator<std::string, int> s2i;
@@ -49,7 +53,7 @@ int month(const std::string& value) {
 TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     DummyContext ctx;
-    toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(this, settings);
+    toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
 
     multiple_ = true;
 }
@@ -77,14 +81,14 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
             eckit::Tokenizer t("-");
             std::vector<std::string> tokens = t.tokenize(value);
 
-            if (tokens.size() == 2) {  // TypeClimateDaily
+            if (tokens.size() == 2) {  // month-day (i.e. TypeClimateDaily)
                 int m  = month(tokens[0]);
                 long d = s2l(tokens[1]);
 
                 value = l2s(100 * m + d);
             }
             else {
-                if (tokens[0].size() <= 3) {
+                if (tokens.size() == 1 && tokens[0].size() <= 3) { // month (i.e. TypeClimateMonthly)
                     int m = month(tokens[0]);
                     value = l2s(m);
                 }

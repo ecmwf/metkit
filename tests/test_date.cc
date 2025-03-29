@@ -29,11 +29,9 @@ namespace metkit::mars::test {
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    std::cout << "comparing " << values << " with " << expected;
     static MarsLanguage language("retrieve");
     language.type(name)->expand(DummyContext(), values);
-    std::cout << " ==> got " << values << std::endl;
-    ASSERT(values == expected);
+    EXPECT_EQUAL(expected, values);
 }
 
 CASE("Test TypeDate expansions") {
@@ -61,9 +59,12 @@ CASE("Test TypeDate expansions") {
         EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
     }
     {
-        std::string value = "-1";
-        td.expand(ctx, value);
-        // EXPECT(value == "0600");
+        std::string value = "abc";
+        EXPECT_THROWS_AS(td.expand(ctx, value), BadValue);
+    }
+    {
+        std::string value = "abc-01";
+        EXPECT_THROWS_AS(td.expand(ctx, value), BadValue);
     }
 }
 

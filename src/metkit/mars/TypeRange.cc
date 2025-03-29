@@ -38,7 +38,7 @@ public:
 
 TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
-    toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(this, settings);
+    toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, settings);
     multiple_ = true;
 }
 

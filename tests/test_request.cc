@@ -42,7 +42,6 @@ CASE("test_request_json") {
             std::stringstream ss;
             eckit::JSON plain(ss);
             r.json(plain);
-            std::cout << ss.str() << std::endl;
             EXPECT_EQUAL(ss.str(),
                          "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":\"20240729\",\"time\":["
                          "\"0000\",\"1200\"],\"type\":\"fcmean\",\"levtype\":\"sfc\",\"step\":\"24\",\"number\":[\"1\","
@@ -52,7 +51,6 @@ CASE("test_request_json") {
             std::stringstream ss;
             eckit::JSON array(ss);
             r.json(array, true);
-            // std::cout << ss.str() << std::endl;
             EXPECT_EQUAL(
                 ss.str(),
                 "{\"class\":\"od\",\"expver\":\"0079\",\"stream\":\"enfh\",\"date\":[\"20240729\"],\"time\":["

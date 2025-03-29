@@ -87,7 +87,7 @@ public:
 
     TypeToByListInt(const std::string& name, const eckit::Value& settings) : TypeInteger(name, settings) {
 
-        toByList_ = std::make_unique<TypeToByList<long, long>>(this, settings);
+        toByList_ = std::make_unique<TypeToByList<long, long>>(*this, settings);
         multiple_ = true;
     }
 

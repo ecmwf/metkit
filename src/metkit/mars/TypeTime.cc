@@ -22,7 +22,7 @@ namespace metkit::mars {
 
 TypeTime::TypeTime(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
-    toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(this, settings);
+    toByList_ = std::make_unique<TypeToByList<eckit::Time, eckit::Time>>(*this, settings);
     multiple_ = true;
 }
 
@@ -35,11 +35,11 @@ bool TypeTime::expand(const MarsExpandContext&, std::string& value) const {
     std::ostringstream oss;
     if (time.seconds() != 0) {
         oss << "Cannot normalise time '" << value << "' - seconds not supported";
-        throw eckit::SeriousBug(oss.str(), Here());
+        throw eckit::BadValue(oss.str(), Here());
     }
     if (time.hours() >= 24) {
         oss << "Cannot normalise time '" << value << "' - " << time.hours() << " hours > 24 not supported";
-        throw eckit::SeriousBug(oss.str(), Here());
+        throw eckit::BadValue(oss.str(), Here());
     }
 
     oss << std::setfill('0') << std::setw(2) << time.hours() << std::setfill('0') << std::setw(2) << time.minutes();

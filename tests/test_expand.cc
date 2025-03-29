@@ -38,9 +38,7 @@ using ExpectedOutput = std::map<std::string, std::vector<std::string>>;
 
 void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput& expected,
             const std::vector<long> dates) {
-    // MarsExpension exp(false);
-    // MarsRequest r=exp.expand(req);
-    std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
+    // std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
     EXPECT_EQUAL(verb, r.verb());
     for (const auto& e : expected) {
         if (!r.has(e.first)) {
@@ -123,10 +121,6 @@ void expand(const std::string& text, const std::string& expected, bool strict = 
     }
     MarsRequest r = MarsRequest::parse(text, strict);
     expand(r, verb, out, std::move(dates));
-}
-
-void expandException(const std::string& text, bool strict = false) {
-    EXPECT_THROWS(MarsRequest::parse(text, strict));
 }
 
 CASE("test_metkit_expand_1") {
@@ -252,7 +246,6 @@ CASE("test_metkit_expand_9_strict") {
         std::vector<MarsRequest> v = expand.expand(parser.parse());
 
         EXPECT_EQUAL(v.size(), 1);
-        v[0].dump(std::cout);
     }
     {
         std::istringstream in(text);
@@ -261,13 +254,12 @@ CASE("test_metkit_expand_9_strict") {
         std::vector<MarsRequest> v = expand.expand(parser.parse());
 
         EXPECT_EQUAL(v.size(), 1);
-        v[0].dump(std::cout);
     }
     {
         const char* text =
             "retrieve,class=od,expver=1,date=20240304,time=0,type=fc,levtype=sfc,levelist=1/2/"
             "3,step=0,param=2t,target=out";
-        expandException(text, true);
+        EXPECT_THROWS_AS(MarsRequest::parse(text, true), eckit::UserError);
         const char* expected =
             "RETRIEVE,CLASS=OD,TYPE=FC,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,"
             "STEP=0,DOMAIN=G,TARGET=out";
@@ -277,7 +269,7 @@ CASE("test_metkit_expand_9_strict") {
         const char* text =
             "retrieve,class=od,expver=1,stream=enfo,date=20240304,time=0,type=cf,levtype=sfc,levelist=1/2/"
             "3,step=0,param=2t,number=1/2/3,target=out";
-        expandException(text, true);
+        EXPECT_THROWS_AS(MarsRequest::parse(text, true), eckit::UserError);
         const char* expected =
             "RETRIEVE,CLASS=OD,TYPE=CF,STREAM=ENFO,EXPVER=0001,REPRES=SH,LEVTYPE=SFC,PARAM=167,DATE=20240304,TIME=0000,"
             "STEP=0,DOMAIN=G,TARGET=out";
@@ -294,7 +286,6 @@ CASE("test_metkit_expand_10_strict") {
         std::vector<MarsRequest> v = expand.expand(parser.parse());
 
         EXPECT_EQUAL(v.size(), 1);
-        v[0].dump(std::cout);
     }
 }
 
@@ -316,17 +307,14 @@ void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     DummyContext ctx;
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type(key);
-    std::cout << key << "Throws " << values << std::endl;
-    EXPECT_THROWS(t->expand(ctx, values));
+    EXPECT_THROWS_AS(t->expand(ctx, values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
     DummyContext ctx;
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type(key);
-    std::cout << key << " " << values;
     t->expand(ctx, values);
-    std::cout << " ==> " << values << " - expected " << expected << std::endl;
-    EXPECT_EQUAL(values, expected);
+    EXPECT_EQUAL(expected, values);
 }
 
 void quantileThrows(std::vector<std::string> values) {
@@ -348,7 +336,6 @@ CASE("test_metkit_expand_11_quantile") {
     quantileThrows({"to", "5:10"});
     quantileThrows({"3:5", "to"});
     quantileThrows({"3:5", "to", "5:10"});
-    quantileThrows({"3:5", "to", "2:5"});
     quantileThrows({"1:5", "to", "3:5", "by"});
 
     quantile({"0:5", "to", "0:5"}, {"0:5"});
@@ -363,6 +350,7 @@ CASE("test_metkit_expand_11_quantile") {
     quantile({"3:5", "to", "5:5", "by", "2"}, {"3:5", "5:5"});
     quantile({"4:5", "to", "5:5", "by", "2"}, {"4:5"});
     quantile({"0:10", "3:10", "to", "7:10", "by", "2", "10:10"}, {"0:10", "3:10", "5:10", "7:10", "10:10"});
+    quantile({"3:5", "to", "2:5"}, {"3:5", "2:5"});
 }
 
 
@@ -388,12 +376,13 @@ CASE("test_metkit_expand_12_time") {
 
     timeThrows({"to", "5"});
     timeThrows({"3", "to"});
-    timeThrows({"3", "to", "2"});
     timeThrows({"1", "to", "3", "by"});
 
     time({"0", "to", "0"}, {"0000"});
     time({"12", "to", "12"}, {"1200"});
     time({"0", "to", "12"}, {"0000", "0600", "1200"});
+    time({"3", "to", "2"}, {"0300"});
+    time({"12", "to", "4"}, {"1200", "0600"});
     time({"0", "to", "6", "by", "1"}, {"0000", "0100", "0200", "0300", "0400", "0500", "0600"});
     time({"0", "to", "6", "by", "2"}, {"0000", "0200", "0400", "0600"});
     time({"0", "to", "6", "by", "3"}, {"0000", "0300", "0600"});
@@ -547,7 +536,7 @@ CASE("test_metkit_expand_param") {
         const char* text =
             "retrieve,class=ai,expver=1,stream=oper,model=aifs-singlw,date=-1,time=00/"
             "12,type=pf,levtype=pl,step=24,param=t";
-        EXPECT_THROWS(MarsRequest::parse(text, true));
+        EXPECT_THROWS_AS(MarsRequest::parse(text, true), eckit::UserError);
     }
     {
         const char* text =

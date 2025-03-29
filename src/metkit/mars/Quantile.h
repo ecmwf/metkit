@@ -32,6 +32,7 @@ public:
     operator std::string();
 
     Quantile& operator+=(const long& rhs);
+    Quantile& operator-=(const long& rhs);
 
 protected:
 

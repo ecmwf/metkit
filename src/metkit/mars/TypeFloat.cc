@@ -50,7 +50,6 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value) const {
 
             default:
                 return false;
-                // throw eckit::UserError(name_ + ": invalid float '" + value + "'");
                 break;
         }
     }
@@ -95,7 +94,7 @@ public:
 
     TypeToByListFloat(const std::string& name, const eckit::Value& settings) : TypeFloat(name, settings) {
 
-        toByList_ = std::make_unique<TypeToByList<float, float>>(this, settings);
+        toByList_ = std::make_unique<TypeToByList<float, float>>(*this, settings);
         multiple_ = true;
     }
 

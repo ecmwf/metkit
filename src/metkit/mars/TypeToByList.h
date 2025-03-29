@@ -30,12 +30,12 @@ class TypeToByList : public ITypeToByList {
 
 private:  // members
 
-    const Type* type_;
+    const Type& type_;
     const std::string by_;
 
 public:  // methods
 
-    TypeToByList(const Type* type, const eckit::Value& settings) :
+    TypeToByList(const Type& type, const eckit::Value& settings) :
         type_(type), by_(settings.contains("by") ? settings["by"] : "1") {}
 
     virtual ~TypeToByList() = default;
@@ -57,23 +57,23 @@ public:  // methods
 
                 if (newval.size() == 0) {
                     std::ostringstream oss;
-                    oss << type_->name() << " list: 'to' must be preceeded by a starting value.";
+                    oss << type_.name() << " list: 'to' must be preceeded by a starting value.";
                     throw eckit::BadValue(oss.str());
                 }
                 if (values.size() <= i + 1) {
                     std::ostringstream oss;
-                    oss << type_->name() << " list: 'to' must be followed by an ending value.";
+                    oss << type_.name() << " list: 'to' must be followed by an ending value.";
                     throw eckit::BadValue(oss.str());
                 }
 
-                EL from = s2el(type_->tidy(ctx, values[i - 1]));
-                EL to   = s2el(type_->tidy(ctx, values[i + 1]));
+                EL from = s2el(type_.tidy(ctx, values[i - 1]));
+                EL to   = s2el(type_.tidy(ctx, values[i + 1]));
                 BY by   = s2by(by_);
 
                 if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
                     if (values.size() <= i + 3) {
                         std::ostringstream oss;
-                        oss << type_->name() << " list: 'by' must be followed by a step size.";
+                        oss << type_.name() << " list: 'by' must be followed by a step size.";
                         throw eckit::BadValue(oss.str());
                     }
 
@@ -83,56 +83,40 @@ public:  // methods
 
                 if (by == BY{0}) {
                     std::ostringstream oss;
-                    oss << type_->name() + ": 'by' value " << by << " cannot be zero";
+                    oss << type_.name() + ": 'by' value " << by << " cannot be zero";
+                    throw eckit::BadValue(oss.str());
+                }
+
+                if (from < to && by < BY{0}) {
+                    std::ostringstream oss;
+                    oss << type_.name() << ": impossible to define a sequence starting from " << from << " to " << to << " with step " << by;
                     throw eckit::BadValue(oss.str());
                 }
 
                 EL j = from;
 
-                if (by > BY{0}) {
-                    if (to < from) {
-                        std::ostringstream oss;
-                        oss << type_->name() + ": 'from' value " << from << " cannot be greater that 'to' value " << to
-                            << "";
-                        throw eckit::BadValue(oss.str());
-                    }
-                    while (true) {
-                        try {
+                while (j != to) {
+                    bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
+                    try {
+                        if (addBy) {
                             j += by;
-                            if (to < j) {
-                                break;
-                            }
-                            newval.emplace_back(type_->tidy(ctx, el2s(j)));
                         }
-                        catch (...) {
-                            break;  /// reached an invalid value
+                        else {
+                            j -= by;
                         }
                     }
-                }
-                else {
-                    if (from < to) {
-                        std::ostringstream oss;
-                        oss << type_->name() + ": 'from' value " << from << " cannot be lower that 'to' value " << to
-                            << "";
-                        throw eckit::BadValue(oss.str());
+                    catch (...) {
+                        break;  /// reached an invalid value
                     }
-                    while (true) {
-                        try {
-                            j += by;
-                            if (j < to) {
-                                break;
-                            }
-                            newval.emplace_back(type_->tidy(ctx, el2s(j)));
-                        }
-                        catch (...) {
-                            break;  /// reached an invalid value
-                        }
+                    if ((from < to && j > to) || (from > to && j < to)) {
+                        break;
                     }
+                    newval.emplace_back(type_.tidy(ctx, el2s(j)));
                 }
                 i++;
             }
             else {
-                newval.push_back(type_->tidy(ctx, s));
+                newval.push_back(type_.tidy(ctx, s));
             }
         }
 

@@ -32,11 +32,9 @@ namespace test {
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    std::cout << "comparing " << values << " with " << expected;
     static MarsLanguage language("retrieve");
     language.type(name)->expand(DummyContext(), values);
-    std::cout << " ==> got " << values << std::endl;
-    ASSERT(values == expected);
+    EXPECT_EQUAL(expected, values);
 }
 
 CASE("Test TypeTime expansions") {
@@ -125,7 +123,7 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "000012";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
     {
         std::string value = "001200";
@@ -150,7 +148,7 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "123456";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
     {
         // We don't support time > 24h
@@ -207,7 +205,7 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "00:00:12";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
     {
         std::string value = "00:12:00";
@@ -232,7 +230,7 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "12:34:56";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
 
     // times with units
@@ -241,7 +239,7 @@ CASE("Test TypeTime expansions") {
     assertTypeExpansion("time", {"60m"}, {"0100"});
     assertTypeExpansion("time", {"2h30m"}, {"0230"});
     assertTypeExpansion("time", {"60s"}, {"0001"});
-    EXPECT_THROWS_AS(assertTypeExpansion("time", {"6s"}, {"0000"}), SeriousBug);
+    EXPECT_THROWS_AS(assertTypeExpansion("time", {"6s"}, {"0000"}), BadValue);
     EXPECT_THROWS_AS(assertTypeExpansion("time", {"25"}, {"0000"}), BadValue);
 
     // from to by

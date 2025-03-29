@@ -82,6 +82,11 @@ Quantile& Quantile::operator+=(const long& rhs) {
     check();
     return *this;
 }
+Quantile& Quantile::operator-=(const long& rhs) {
+    num_ -= rhs;
+    check();
+    return *this;
+}
 
 bool operator==(const Quantile& lhs, const Quantile& rhs) {
 

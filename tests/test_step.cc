@@ -31,11 +31,9 @@ namespace test {
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    std::cout << "comparing " << values << " with " << expected;
     static MarsLanguage language("retrieve");
     language.type(name)->expand(DummyContext(), values);
-    std::cout << " ==> got " << values << std::endl;
-    ASSERT(values == expected);
+    EXPECT_EQUAL(expected, values);
 }
 
 CASE("Test TypeRange expansions") {
