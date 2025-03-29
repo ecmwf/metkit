@@ -1,6 +1,11 @@
 ---
 _field: &_field
 
+  style:
+    type: enum
+    values:
+    - [dissemination]
+
   class:
     category: data
     defaults:
@@ -373,11 +378,12 @@ _field: &_field
     - [kwbc]
     - [none]
     - [hrm]
-    - [lm]
     - [ifs, IFS, IFS with no ocean model]
     - [ifs-nemo, IFS-NEMO, IFS with NEMO ocean model]
     - [ifs-fesom, IFS-FESOM, IFS with FESOM ocean model]
     - [icon, ICON, ICON-A with ICON-O ocean model]
+    - [lisflood]
+    - [lm]
     - [aifs]
     - [aifs-single]
     - [aifs-single-mse]
@@ -406,8 +412,41 @@ _field: &_field
 
   repres:
     flatten: false
-    multiple: true
+    multiple: false
+    defaults:
+      - vals: [sh]
     type: enum
+    set:
+      - context:
+          stream:
+            op: '!'
+            vals: [ssmi]
+          type: [im, sim, oldim]
+        val: sv
+      - context:
+          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+        val: bu
+      - context:
+          stream: [ssmi]
+        val: bu
+      - context:
+          levtype: [sfc]
+          class: [od]
+          stream: [oper]
+        val: gg
+      - context:
+          levtype: [sfc]
+          class: [er]
+          stream: [oper]
+          type: [an, fc]
+        val: gg
+      - context:
+          type: [tu]
+        val: ll
+    unset:
+      - context:
+          class: [ep]
+          levtype: [o2d, o3d]
     values:
     - [bu, 'bufr']
     - [sh, 'spherical harmonics']
@@ -616,6 +655,7 @@ _field: &_field
     category: data
     multiple: true
     type: date
+    by: 1
     defaults:
       - vals: [-1]
     unset:
@@ -691,6 +731,7 @@ _field: &_field
     category: data
     multiple: true
     type: time
+    by: 6h
     defaults:
       - vals: ['1200']
     set:
@@ -1076,14 +1117,36 @@ _field: &_field
     - [standard, Standard resolution model output with longer availability]
     - [high, High resolution model output with limited availability]
 
+    # - product
+    # - section
+    # - refdate
+    # - latitude
+    # - longitude
+    # - range
+
 #######################################################################
 
 _observation: &_observation
 
   obstype:
     category: data
+    type: enum
+    values:
+    - all
+    - [nsd, non satellite data all]
+    - [sd, satellite data all]
+
+#  ALL                = (NSD/SD)
+#                  CONVENTIONAL; NSD  = (LSD/SSD/VSNS/SLNS/SLS/OD/DD/CC/SF/GBGPS/OSTIA)
+#                  SD                 = (SDS/VSS/SSMI/SSMIS/SSBT/TRMM/QSCAT/REO3/IASI/ATMS/CRIS/VASS)
+
+  latitude:
+    category: data
     type: any
-    multiple: true
+
+  longitude:
+    category: data
+    type: any
 
 # type: [im]
 # obstype: [=0 %and (ident=52 %or ident=53 %or ident=54))  %then
@@ -1120,15 +1183,6 @@ _observation: &_observation
 # %if (type=im %and obstype=20 %and (ident=252 %or ident=253 %or ident=254 %or ident=255 %or ident=256)) %then
 #         %warning "replacing obstype=20 by channel=3, instrument=615"
 #         %unset obstype
-
-
-
-
-
-  obsgroup:
-    category: data
-    type: any
-    multiple: true
 
 #######################################################################
 
@@ -1277,11 +1331,10 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-    - - so
-      - second order
+    - [so, second order]
     - ['off', av]
-    - [co, complex]
-    - simple
+    - [complex, co]
+    - [simple, si]
     - ccsds
 
   resol:
@@ -1294,6 +1347,32 @@ _postproc: &_postproc
     - - 'off'
       - av
       - reduced gaussian 160
+    - auto
+    defaults:
+      - context:
+          accuracy:
+            op: 'd'
+        vals: [auto]
+      - context:
+          grid:
+            op: 'd'
+        vals: [auto]
+    unset:
+      - context:
+          stream: [ssmi]
+          # type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+          type: [im, sim, oldim]
+    set:
+      - context:
+          style: [dissemination]
+        val: av
+        warn: "Force resol=av when style=dissemination"
+      - context:
+          style: [dissemination]
+          resol: [auto]
+        val: av
+        warn: "Force resol=av when style=dissemination"
+
 
   rotation:
     category: postproc
@@ -1331,7 +1410,7 @@ _postproc: &_postproc
     - N1024
     - N1280
     regex:
-    - '^[oOfF][1-9][0-9]+$'
+    - '^[oOfFhH][1-9][0-9]+$'
 
   truncation:
     category: postproc
@@ -1340,6 +1419,15 @@ _postproc: &_postproc
     values:
     - auto
     - 'off'
+  
+  process:
+    category: postproc
+    flatten: false
+    type: enum
+    values:
+    - local
+    - server
+
 #######################################################################
 
 _obspproc: &_obspproc
@@ -1351,7 +1439,6 @@ _obspproc: &_obspproc
   ident:
     type: any
     category: postproc
-
 
 #######################################################################
 
@@ -1432,7 +1519,9 @@ archive:
   expect:
     flatten: false
     multiple: false
-    type: integer
+    type: [enum, integer]
+    values:
+    - any
 
 ##############################################################
 
@@ -1451,7 +1540,9 @@ retrieve:
   expect:
     flatten: false
     multiple: false
-    type: integer
+    type: [enum, integer]
+    values:
+    - any
 
   fieldset:
     flatten: false
@@ -1471,11 +1562,24 @@ retrieve:
     defaults:
       - vals: ["off"]
 
+
+  duplicates:
+    type: enum
+    defaults:
+      - context:
+          # type: [mfb, ofb, ai]
+          obsgroup:
+            op: 'd'
+        vals: [keep]
+    values:
+    - keep
+    - remove
+
   padding:
     flatten: false
     type: enum
     values:
-    - [none, n, 0]
+    - [0, none, n]
     - [auto, automatic]
 
 ##############################################################

@@ -18,17 +18,15 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Quantile.h"
+#include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit::Value& settings) :
-    Type(name, settings), by_(settings["by"]) {
-
-    // LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " settings=" << settings << std::endl;
+    Type(name, settings) {
 
     eckit::Value values = settings["denominators"];
 
@@ -55,6 +53,7 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit:
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeToByListQuantile name=" << name << " denominators " << denominators_ << std::endl;
 
+    toByList_ = std::make_unique<TypeToByList<Quantile, long>>(*this, settings);
     multiple_ = true;
 }
 
@@ -74,92 +73,8 @@ bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::string& val
     return true;
 }
 
-void TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
-
-    std::vector<std::string> newval;
-
-    for (size_t i = 0; i < values.size(); ++i) {
-
-        const std::string& s = values[i];
-
-        if (eckit::StringTools::lower(s) == "to" || eckit::StringTools::lower(s) == "t0") {
-            if (newval.size() == 0) {
-                std::ostringstream oss;
-                oss << name_ << " list: 'to' must be preceeded by a starting value.";
-                throw eckit::BadValue(oss.str());
-            }
-            if (values.size() <= i + 1) {
-                std::ostringstream oss;
-                oss << name_ << " list: 'to' must be followed by an ending value.";
-                throw eckit::BadValue(oss.str());
-            }
-
-            Quantile from = Quantile(tidy(ctx, newval.back()));
-            Quantile to   = Quantile(tidy(ctx, values[i + 1]));
-            long by       = by_;
-
-            if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                if (values.size() <= i + 3) {
-                    std::ostringstream oss;
-                    oss << name_ << " list: 'by' must be followed by a step size.";
-                    throw eckit::BadValue(oss.str());
-                }
-
-                eckit::Tokenizer parse(":");
-                std::vector<std::string> result;
-
-                parse(values[i + 3], result);
-                if (result.size() != 1) {
-                    std::ostringstream oss;
-                    oss << "by step " << values[i + 3] << " must be a single integer";
-                    throw eckit::BadValue(oss.str());
-                }
-
-                try {
-                    by = std::stol(values[i + 3]);
-                }
-                catch (const std::invalid_argument& e) {
-                    std::ostringstream oss;
-                    oss << name_ << " list: 'by' must be followed by a single integer number.";
-                    throw eckit::BadValue(oss.str());
-                }
-                i += 2;
-            }
-
-            if (from.den() != to.den()) {
-                std::ostringstream oss;
-                oss << name_ + ": 'from' and 'to' value must belong to the same quantile group";
-                throw eckit::BadValue(oss.str());
-            }
-            if (from.num() > to.num()) {
-                std::ostringstream oss;
-                oss << name_ + ": 'from' value " << from << " cannot be greater that 'to' value " << to;
-                throw eckit::BadValue(oss.str());
-            }
-            if (by <= 0) {
-                std::ostringstream oss;
-                oss << name_ + ": 'by' value " << by << " must be a positive number";
-                throw eckit::BadValue(name_ + ": 'by' value must be a positive number");
-            }
-            for (long j = from.num() + by; j <= to.num(); j += by) {
-                newval.emplace_back(Quantile(j, from.den()));
-            }
-
-            i++;
-        }
-        else {
-            newval.push_back(tidy(ctx, s));
-        }
-    }
-
-    std::swap(values, newval);
-
-    Type::expand(ctx, values);
-}
-
 static TypeBuilder<TypeToByListQuantile> type("to-by-list-quantile");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

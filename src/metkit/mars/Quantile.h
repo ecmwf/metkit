@@ -26,10 +26,13 @@ public:
     Quantile(const std::string& value);
     Quantile(long num, long den);
 
-    long num() { return num_; }
-    long den() { return den_; }
+    long num() const { return num_; }
+    long den() const { return den_; }
 
     operator std::string();
+
+    Quantile& operator+=(const long& rhs);
+    Quantile& operator-=(const long& rhs);
 
 protected:
 
@@ -49,6 +52,21 @@ private:
     long num_;
     long den_;
 };
+
+bool operator==(const Quantile& lhs, const Quantile& rhs);
+inline bool operator!=(const Quantile& lhs, const Quantile& rhs) {
+    return !(rhs == lhs);
+}
+bool operator<(const Quantile& lhs, const Quantile& rhs);
+inline bool operator>(const Quantile& lhs, const Quantile& rhs) {
+    return rhs < lhs;
+}
+inline bool operator<=(const Quantile& lhs, const Quantile& rhs) {
+    return !(lhs > rhs);
+}
+inline bool operator>=(const Quantile& lhs, const Quantile& rhs) {
+    return !(lhs < rhs);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

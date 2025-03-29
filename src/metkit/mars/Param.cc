@@ -38,7 +38,7 @@ Param::Param(const std::string& s) {
             break;
 
         default:
-            throw eckit::UserError("Invalid param");
+            throw eckit::BadValue("Invalid param");
     }
 }
 

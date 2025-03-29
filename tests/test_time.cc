@@ -10,12 +10,15 @@
 
 /// @file   test_time.cc
 /// @author Simon Smart
+/// @author Emanuele Danovaro
 /// @date   April 2020
 
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/MarsParser.h"
 #include "metkit/mars/TypeTime.h"
 
 using namespace eckit;
@@ -26,6 +29,13 @@ namespace mars {
 namespace test {
 
 //-----------------------------------------------------------------------------
+
+void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
+                         const std::vector<std::string>& expected) {
+    static MarsLanguage language("retrieve");
+    language.type(name)->expand(DummyContext(), values);
+    EXPECT_EQUAL(expected, values);
+}
 
 CASE("Test TypeTime expansions") {
 
@@ -113,7 +123,7 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "000012";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
     {
         std::string value = "001200";
@@ -138,7 +148,12 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "123456";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
+    }
+    {
+        // We don't support time > 24h
+        std::string value = "283456";
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
 
     // times with colons
@@ -190,7 +205,7 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "00:00:12";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
     {
         std::string value = "00:12:00";
@@ -215,31 +230,22 @@ CASE("Test TypeTime expansions") {
     {
         // We don't support seconds yet.
         std::string value = "12:34:56";
-        EXPECT_THROWS_AS(tt.expand(ctx, value), SeriousBug);
+        EXPECT_THROWS_AS(tt.expand(ctx, value), BadValue);
     }
 
     // times with units
+    assertTypeExpansion("time", {"0h"}, {"0000"});
+    assertTypeExpansion("time", {"00H"}, {"0000"});
+    assertTypeExpansion("time", {"60m"}, {"0100"});
+    assertTypeExpansion("time", {"2h30m"}, {"0230"});
+    assertTypeExpansion("time", {"60s"}, {"0001"});
+    EXPECT_THROWS_AS(assertTypeExpansion("time", {"6s"}, {"0000"}), BadValue);
+    EXPECT_THROWS_AS(assertTypeExpansion("time", {"25"}, {"0000"}), BadValue);
 
-    {
-        std::string value = "0h";
-        tt.expand(ctx, value);
-        EXPECT(value == "0000");
-    }
-    {
-        std::string value = "00H";
-        tt.expand(ctx, value);
-        EXPECT(value == "0000");
-    }
-    {
-        std::string value = "60m";
-        tt.expand(ctx, value);
-        EXPECT(value == "0100");
-    }
-    {
-        std::string value = "2h30m";
-        tt.expand(ctx, value);
-        EXPECT(value == "0230");
-    }
+    // from to by
+    assertTypeExpansion("time", {"0", "to", "18"}, {"0000", "0600", "1200", "1800"});
+    assertTypeExpansion("time", {"0", "to", "6", "by", "1"}, {"0000", "0100", "0200", "0300", "0400", "0500", "0600"});
+    assertTypeExpansion("time", {"0", "to", "1h30m", "by", "30m"}, {"0000", "0030", "0100", "0130"});
 }
 
 

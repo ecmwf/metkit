@@ -317,13 +317,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
         return p;
     }
 
-    // std::cout << "--- [" << s << "]" << std::endl;
-    // std::cout << "--- [" << values_ << "]" << std::endl;
-
-    // for (auto j = mapping_.begin(); j != mapping_.end(); ++j) {
-    //     std::cout << "--- [" << (*j).first << " ===> " << (*j).second << std::endl;
-    // }
-
     ChainedContext c(ctx, *this);
 
     std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);

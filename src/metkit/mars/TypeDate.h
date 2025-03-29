@@ -11,15 +11,14 @@
 /// @file   TypeDate.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_TypeDate_H
-#define metkit_TypeDate_H
+#pragma once
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -35,15 +34,9 @@ private:  // methods
 
     virtual void print(std::ostream& out) const override;
     virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
-
-    long by_;
+    bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

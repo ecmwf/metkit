@@ -12,10 +12,10 @@
 /// @date   Dec 2024
 /// @author Christopher Bradley
 
-#include "metkit/api/metkit_c.h"
 #include <stdio.h>
+#include "metkit/api/metkit_c.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
 
     const char* version = metkit_version();
 

@@ -11,6 +11,7 @@
 /// @file   TypeTime.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
 #ifndef metkit_TypeTime_H
@@ -18,8 +19,7 @@
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -34,15 +34,11 @@ public:  // methods
 private:  // methods
 
     virtual void print(std::ostream& out) const override;
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
-
-    long by_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
 
 #endif

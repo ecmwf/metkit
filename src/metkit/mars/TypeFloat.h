@@ -11,15 +11,14 @@
 /// @file   TypeFloat.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_TypeFloat_H
-#define metkit_TypeFloat_H
+#pragma once
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -39,7 +38,4 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

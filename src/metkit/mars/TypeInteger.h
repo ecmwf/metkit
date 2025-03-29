@@ -11,10 +11,10 @@
 /// @file   TypeInteger.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_TypeInteger_H
-#define metkit_TypeInteger_H
+#pragma once
 
 #include <iosfwd>
 #include <optional>
@@ -34,7 +34,6 @@ public:  // methods
 protected:
 
     bool ok(const std::string& value, long& n) const;
-
     bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
 private:  // methods
@@ -54,5 +53,3 @@ private:  // members
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif

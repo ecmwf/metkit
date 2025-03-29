@@ -11,10 +11,10 @@
 /// @file   Type.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_Type_H
-#define metkit_Type_H
+#pragma once
 
 #include <iosfwd>
 #include <memory>
@@ -24,7 +24,6 @@
 
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
-
 
 namespace metkit::mars {
 
@@ -72,6 +71,15 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class ITypeToByList {
+public:
+
+    virtual ~ITypeToByList()                                                                        = default;
+    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class Type : public eckit::Counted {
 public:  // methods
 
@@ -82,9 +90,9 @@ public:  // methods
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 
-    virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
-    virtual std::string tidy(const std::string& value) const;
-    virtual std::vector<std::string> tidy(const std::vector<std::string>& values) const;
+    std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
+    std::string tidy(const std::string& value) const;
+    std::vector<std::string> tidy(const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
@@ -123,6 +131,8 @@ protected:  // members
     std::map<std::unique_ptr<Context>, std::string> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
 
+    std::unique_ptr<ITypeToByList> toByList_;
+
 private:  // methods
 
     virtual void print(std::ostream& out) const = 0;
@@ -131,5 +141,3 @@ private:  // methods
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif

@@ -73,8 +73,6 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h) {
             lon -= 360;
 
         // ASSERT(lat >= -90 && lat <= 90);
-        // std::cout << lat << ' ' << lon << std::endl;
-
 
         p.push_back(Point(lat, lon, j));
         j++;

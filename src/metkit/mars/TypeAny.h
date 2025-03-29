@@ -13,13 +13,11 @@
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypeAny_H
-#define metkit_TypeAny_H
+#pragma once
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -38,7 +36,4 @@ private:  // methods
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

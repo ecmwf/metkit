@@ -68,6 +68,12 @@ public:
         return *this;
     }
 
+    StepRange& operator-=(const eckit::Time& step) {
+        from_ -= step / 3600.;
+        to_ -= step / 3600.;
+        return *this;
+    }
+
     bool operator==(const StepRange& other) const { return from_ == other.from_ && to_ == other.to_; }
 
     bool operator!=(const StepRange& other) const { return from_ != other.from_ || to_ != other.to_; }

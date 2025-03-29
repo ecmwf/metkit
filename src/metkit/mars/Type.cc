@@ -27,6 +27,10 @@
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 
+#include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/TypeToByList.h"
+
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -353,6 +357,11 @@ bool Type::expand(const MarsExpandContext&, std::string& value) const {
 }
 
 void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
+
+    if (toByList_ && values.size() > 1) {
+        toByList_->expandRanges(ctx, values);
+    }
+
     std::vector<std::string> newvals;
 
     std::set<std::string> seen;

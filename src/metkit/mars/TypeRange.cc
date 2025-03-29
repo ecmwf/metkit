@@ -20,15 +20,25 @@
 #include "metkit/mars/Quantile.h"
 #include "metkit/mars/StepRange.h"
 #include "metkit/mars/TypeTime.h"
+#include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) :
-    Type(name, settings), by_((std::string)settings["by"]) {
+class ExtendedTime : public eckit::Time {
+public:
 
+    ExtendedTime(long seconds = 0) : Time(seconds, true) {}
+    ExtendedTime(const std::string& time) : Time(time, true) {}
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
+
+    toByList_ = std::make_unique<TypeToByList<StepRange, ExtendedTime>>(*this, settings);
     multiple_ = true;
 }
 
@@ -52,7 +62,6 @@ StepRange TypeRange::parse(std::string& value) const {
             eckit::Time end   = eckit::Time(result[1], true);
             if (start > end) {
                 std::ostringstream oss;
-                std::cout << result[0] << "  -  " << result[1] << std::endl;
                 oss << name_ + ": initial value " << start << " cannot be greater that final value " << end;
                 throw eckit::BadValue(oss.str());
             }
@@ -69,74 +78,6 @@ bool TypeRange::expand(const MarsExpandContext& ctx, std::string& value) const {
 
     value = parse(value);
     return true;
-}
-
-void TypeRange::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
-
-    std::vector<std::string> newval;
-
-    for (size_t i = 0; i < values.size(); ++i) {
-
-        const std::string& s = values[i];
-
-        if (eckit::StringTools::lower(s) == "to" || eckit::StringTools::lower(s) == "t0") {
-            // TimeUnit unit;
-
-            if (newval.size() == 0) {
-                std::ostringstream oss;
-                oss << name_ << " list: 'to' must be preceeded by a starting value.";
-                throw eckit::BadValue(oss.str());
-            }
-            if (values.size() <= i + 1) {
-                std::ostringstream oss;
-                oss << name_ << " list: 'to' must be followed by an ending value.";
-                throw eckit::BadValue(oss.str());
-            }
-
-            StepRange from = parse(values[i - 1]);
-            // unit = maxUnit(from);
-
-            StepRange to   = parse(values[i + 1]);
-            eckit::Time by = by_;
-
-            if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
-                if (values.size() <= i + 3) {
-                    std::ostringstream oss;
-                    oss << name_ << " list: 'by' must be followed by a step size.";
-                    throw eckit::BadValue(oss.str());
-                }
-
-                by = eckit::Time(values[i + 3], true);
-
-                i += 2;
-            }
-
-            if (from > to) {
-                std::ostringstream oss;
-                oss << name_ + ": 'from' value " << from << " cannot be greater that 'to' value " << to;
-                throw eckit::BadValue(oss.str());
-            }
-            if (by <= eckit::Time(0)) {
-                std::ostringstream oss;
-                oss << name_ + ": 'by' value " << by << " must be a positive number";
-                throw eckit::BadValue(name_ + ": 'by' value must be a positive number");
-            }
-            StepRange j = from;
-            j += by;
-            for (; j <= to; j += by) {
-                newval.emplace_back(StepRange(j));
-            }
-
-            i++;
-        }
-        else {
-            newval.push_back(tidy(ctx, s));
-        }
-    }
-
-    std::swap(values, newval);
-
-    Type::expand(ctx, values);
 }
 
 static TypeBuilder<TypeRange> type("range");
