@@ -22,8 +22,8 @@
 #include "eckit/runtime/Tool.h"
 #include "eckit/utils/StringTools.h"
 
-#include "metkit/tool/MetkitTool.h"
 #include "metkit/odb/OdbToRequest.h"
+#include "metkit/tool/MetkitTool.h"
 
 
 using namespace metkit;
@@ -34,26 +34,22 @@ using namespace eckit::option;
 
 class OdbToRequestTool : public MetkitTool {
 public:
+
     OdbToRequestTool(int argc, char** argv) : MetkitTool(argc, argv) {
+        options_.push_back(new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
         options_.push_back(
-            new SimpleOption<std::string>("verb", "Verb in the request, default = retrieve"));
-        options_.push_back(new SimpleOption<std::string>(
-            "database", "add database keyword to requests, default = none"));
-        options_.push_back(new SimpleOption<std::string>(
-            "source", "add source keyword to requests, default = none"));
-        options_.push_back(new SimpleOption<std::string>(
-            "target", "add target keyword to requests, default = none"));
-        options_.push_back(
-            new SimpleOption<bool>("one", "Merge into only one request, default = false"));
-        options_.push_back(
-            new SimpleOption<bool>("constant", "Only constant columns, default = true"));
-        options_.push_back(
-            new SimpleOption<bool>("json", "Format request in json, default = false"));
+            new SimpleOption<std::string>("database", "add database keyword to requests, default = none"));
+        options_.push_back(new SimpleOption<std::string>("source", "add source keyword to requests, default = none"));
+        options_.push_back(new SimpleOption<std::string>("target", "add target keyword to requests, default = none"));
+        options_.push_back(new SimpleOption<bool>("one", "Merge into only one request, default = false"));
+        options_.push_back(new SimpleOption<bool>("constant", "Only constant columns, default = true"));
+        options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
     }
 
     virtual ~OdbToRequestTool() {}
 
 private:  // methods
+
     int minimumPositionalArguments() const { return 1; }
 
     virtual void execute(const eckit::option::CmdArgs& args);
@@ -63,6 +59,7 @@ private:  // methods
     virtual void usage(const std::string& tool) const;
 
 private:  // members
+
     std::vector<PathName> paths_;
     std::string verb_     = "retrieve";
     std::string database_ = "";
@@ -91,8 +88,7 @@ void OdbToRequestTool::init(const CmdArgs& args) {
 
 
 void OdbToRequestTool::usage(const std::string& tool) const {
-    Log::info() << "Usage: " << tool << " [options] [request1] [request2] ..." << std::endl
-                << std::endl;
+    Log::info() << "Usage: " << tool << " [options] [request1] [request2] ..." << std::endl << std::endl;
 
     Log::info() << "Examples:" << std::endl
                 << "=========" << std::endl
@@ -116,11 +112,10 @@ static void toStdOut(const std::vector<MarsRequest>& requests) {
 }
 
 static void addKeyValue(std::vector<MarsRequest>& requests, const std::string& key, const std::string& value) {
-    std::transform(requests.begin(), requests.end(), requests.begin(),
-                   [key, value](MarsRequest& r) -> MarsRequest {
-                       r.setValue(key, value);
-                       return r;
-                   });
+    std::transform(requests.begin(), requests.end(), requests.begin(), [key, value](MarsRequest& r) -> MarsRequest {
+        r.setValue(key, value);
+        return r;
+    });
 }
 
 void OdbToRequestTool::execute(const eckit::option::CmdArgs& args) {

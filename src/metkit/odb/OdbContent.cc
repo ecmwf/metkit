@@ -21,17 +21,13 @@
 namespace metkit {
 namespace codes {
 
-OdbContent::OdbContent(eckit::Buffer&& buffer):
-    frame_(std::move(buffer)) {}
+OdbContent::OdbContent(eckit::Buffer&& buffer) : frame_(std::move(buffer)) {}
 
-OdbContent::OdbContent(eckit::DataHandle& handle, size_t size):
-    frame_(size) {
+OdbContent::OdbContent(eckit::DataHandle& handle, size_t size) : frame_(size) {
     ASSERT(handle.read(frame_, frame_.size()) == frame_.size());
 }
 
-OdbContent::~OdbContent() {
-
-}
+OdbContent::~OdbContent() {}
 
 const void* OdbContent::data() const {
     return frame_;
@@ -49,11 +45,10 @@ void OdbContent::write(eckit::DataHandle& handle) const {
     ASSERT(handle.write(frame_, frame_.size()) == frame_.size());
 }
 
-void OdbContent::print(std::ostream & s) const {
+void OdbContent::print(std::ostream& s) const {
     s << "OdbContent[]";
 }
 
 
-}  // namespace close
+}  // namespace codes
 }  // namespace metkit
-

@@ -17,8 +17,8 @@
 
 #include "eccodes.h"
 
-#include "metkit/codes/CodesSplitter.h"
 #include "metkit/codes/CodesDecoder.h"
+#include "metkit/codes/CodesSplitter.h"
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/io/MemoryHandle.h"
@@ -37,6 +37,7 @@ namespace test {
 
 class MetadataSetter : public eckit::LocalConfiguration {
 public:
+
     using eckit::LocalConfiguration::getDouble;
     using eckit::LocalConfiguration::getLong;
     using eckit::LocalConfiguration::getString;
@@ -58,28 +59,29 @@ public:
 };
 
 
-static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                       0x9f, 0x00, 0x00, 0x00, 0x15, 0x01, 0x00, 0x62, 0x00, 0xff, 0x19, 0x00, 0x00, 0x00, 0x01,
-                                       0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x02, 0x00, 0x01, 0x00,
-                                       0x01, 0x00, 0x02, 0x04, 0x01, 0x30, 0x30, 0x30, 0x31, 0x00, 0x00, 0x00, 0x23, 0x03, 0x00,
-                                       0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x65, 0x06, 0x00, 0x00, 0x0a, 0x01, 0x66, 0xa3,
-                                       0x41, 0xd2, 0x1d, 0xcf, 0x11, 0xb2, 0x88, 0x0c, 0x0f, 0x16, 0x45, 0xf3, 0xd1, 0xdc, 0x00,
-                                       0x00, 0x00, 0x22, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00,
-                                       0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xa8, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff,
-                                       0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x15, 0x05, 0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00,
-                                       0x00, 0x00, 0x00, 0x80, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06, 0xff,
-                                       0x00, 0x00, 0x00, 0x05, 0x07, 0x37, 0x37, 0x37, 0x37};
+static unsigned char unstr_latlon[] = {
+    0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x9f, 0x00, 0x00,
+    0x00, 0x15, 0x01, 0x00, 0x62, 0x00, 0xff, 0x19, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x11, 0x02, 0x00, 0x01, 0x00, 0x01, 0x00, 0x02, 0x04, 0x01, 0x30, 0x30, 0x30, 0x31,
+    0x00, 0x00, 0x00, 0x23, 0x03, 0x00, 0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x65, 0x06, 0x00, 0x00, 0x0a,
+    0x01, 0x66, 0xa3, 0x41, 0xd2, 0x1d, 0xcf, 0x11, 0xb2, 0x88, 0x0c, 0x0f, 0x16, 0x45, 0xf3, 0xd1, 0xdc, 0x00,
+    0x00, 0x00, 0x22, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x00, 0x00, 0x00, 0xa8, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00,
+    0x15, 0x05, 0x00, 0x00, 0x01, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x0f, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x06, 0x06, 0xff, 0x00, 0x00, 0x00, 0x05, 0x07, 0x37, 0x37, 0x37, 0x37};
 
 
-#define MD_EXPECT_STRING(md, name, eq)                                                                                     \
-    EXPECT(md.has(name));                                                                                                  \
-    std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" << std::endl; \
+#define MD_EXPECT_STRING(md, name, eq)                                                                       \
+    EXPECT(md.has(name));                                                                                    \
+    std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" \
+              << std::endl;                                                                                  \
     EXPECT(md.getString(name) == eq);
 
 // we accept two possible encodings, to enable testing with different versions of ecCodes (ECC-1704)
-#define MD_EXPECT_STRINGS(md, name, eq1, eq2)                                                                                     \
-    EXPECT(md.has(name));                                                                                                  \
-    std::cout << "expect string for " << name << " to equal " << eq1 << " or " << eq2 << " (got " << md.getString(name) << ")" << std::endl; \
+#define MD_EXPECT_STRINGS(md, name, eq1, eq2)                                                     \
+    EXPECT(md.has(name));                                                                         \
+    std::cout << "expect string for " << name << " to equal " << eq1 << " or " << eq2 << " (got " \
+              << md.getString(name) << ")" << std::endl;                                          \
     EXPECT(md.getString(name) == eq1 || md.getString(name) == eq2);
 
 #define MD_EXPECT_LONG(md, name, eq)                                                                                   \
@@ -87,14 +89,16 @@ static unsigned char unstr_latlon[] = {0x47, 0x52, 0x49, 0x42, 0xff, 0xff, 0x02,
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
     EXPECT(md.getLong(name) == eq);
 
-#define MD_EXPECT_GE_LONG(md, name, eq)                                                                                   \
-    EXPECT(md.has(name));                                                                                              \
-    std::cout << "expect long for " << name << " to be greater than or equal to " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
+#define MD_EXPECT_GE_LONG(md, name, eq)                                                             \
+    EXPECT(md.has(name));                                                                           \
+    std::cout << "expect long for " << name << " to be greater than or equal to " << eq << " (got " \
+              << md.getLong(name) << ")" << std::endl;                                              \
     EXPECT(md.getLong(name) >= eq);
 
-#define MD_EXPECT_DOUBLE(md, name, eq)                                                                                                                     \
-    EXPECT(md.has(name));                                                                                                                                  \
-    std::cout << "expect double for " << name << " to equal " << std::to_string(eq) << " (got " << std::to_string(md.getDouble(name)) << ")" << std::endl; \
+#define MD_EXPECT_DOUBLE(md, name, eq)                                                          \
+    EXPECT(md.has(name));                                                                       \
+    std::cout << "expect double for " << name << " to equal " << std::to_string(eq) << " (got " \
+              << std::to_string(md.getDouble(name)) << ")" << std::endl;                        \
     EXPECT(std::to_string(md.getDouble(name)) == std::to_string(eq));
 
 

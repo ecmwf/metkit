@@ -35,18 +35,17 @@ public:
     MarsParserContext(std::size_t, std::size_t);
 
 private:
+
     std::size_t line_;
     // size_t column_; // unused
 
     virtual void info(std::ostream& out) const;
-
 };
-
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

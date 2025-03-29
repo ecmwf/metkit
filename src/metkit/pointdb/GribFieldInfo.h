@@ -16,12 +16,13 @@
 #include "eckit/types/FixedString.h"
 
 
-namespace eckit { class PathName; }
+namespace eckit {
+class PathName;
+}
 namespace metkit {
 namespace grib {
 class GribHandle;
 }
-
 
 
 namespace pointdb {
@@ -48,17 +49,17 @@ public:
 
 private:
 
-    double        referenceValue_;
-    long          binaryScaleFactor_;
-    long          decimalScaleFactor_;
+    double referenceValue_;
+    long binaryScaleFactor_;
+    long decimalScaleFactor_;
     unsigned long bitsPerValue_;
     unsigned long offsetBeforeData_;
     unsigned long offsetBeforeBitmap_;
     unsigned long numberOfValues_;
     unsigned long numberOfDataPoints_;
-    long          sphericalHarmonics_;
+    long sphericalHarmonics_;
 
-    eckit::FixedString<32>   geographyHash_;
+    eckit::FixedString<32> geographyHash_;
 
     void print(std::ostream&) const;
 
@@ -66,12 +67,10 @@ private:
         f.print(s);
         return s;
     }
-
-
 };
 
-} // namespace pointdb
-} // namespace metkit
+}  // namespace pointdb
+}  // namespace metkit
 
 
 #endif

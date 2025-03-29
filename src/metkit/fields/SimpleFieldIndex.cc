@@ -14,15 +14,9 @@
 namespace metkit {
 namespace fields {
 
-SimpleFieldIndex::SimpleFieldIndex(eckit::Stream& s):
-    FieldIndex(s)
-{
-}
+SimpleFieldIndex::SimpleFieldIndex(eckit::Stream& s) : FieldIndex(s) {}
 
-SimpleFieldIndex::~SimpleFieldIndex()
-{
-}
+SimpleFieldIndex::~SimpleFieldIndex() {}
 
-} // namespace fields
-} // namespace metkit
-
+}  // namespace fields
+}  // namespace metkit

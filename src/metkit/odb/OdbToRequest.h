@@ -33,15 +33,17 @@ namespace odb {
 
 class OdbToRequest {
 public:  // methods
+
     OdbToRequest(const std::string& verb, bool one, bool constant);
     ~OdbToRequest();
 
     std::vector<MarsRequest> odbToRequest(eckit::DataHandle& dh) const;
 
 private:  // members
+
     std::string verb_ = "retrieve";
 
-    bool one_                 = false;
+    bool one_ = false;
     // bool mergeSimilarBlocks_  = false; // unused
     bool onlyConstantColumns_ = false;
 };

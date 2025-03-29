@@ -34,7 +34,9 @@ const LibMetkit& LibMetkit::instance() {
     return libmetkit;
 }
 
-const void* LibMetkit::addr() const { return this; }
+const void* LibMetkit::addr() const {
+    return this;
+}
 
 std::string LibMetkit::version() const {
     return metkit_version_str();
@@ -71,6 +73,6 @@ eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
     return "~metkit/share/metkit/bufr-subtypes.yaml";
 }
 
-} // namespace metkit
+}  // namespace metkit
 
 //----------------------------------------------------------------------------------------------------------------------

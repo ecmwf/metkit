@@ -17,9 +17,9 @@
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
 
-#include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsParser.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/tool/MetkitTool.h"
 
 
@@ -33,17 +33,15 @@ using namespace eckit::option;
 class ParseRequest : public MetkitTool {
 public:
 
-    ParseRequest(int argc, char **argv) : MetkitTool(argc, argv) {
-        options_.push_back(
-            new SimpleOption<bool>("json", "Format request in json, default = false"));
-        options_.push_back(
-            new SimpleOption<bool>("compact", "Compact output, default = false"));
-
+    ParseRequest(int argc, char** argv) : MetkitTool(argc, argv) {
+        options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
+        options_.push_back(new SimpleOption<bool>("compact", "Compact output, default = false"));
     }
 
     virtual ~ParseRequest() {}
 
 private:  // methods
+
     int minimumPositionalArguments() const { return 1; }
 
     void process(const eckit::PathName& path);
@@ -55,9 +53,9 @@ private:  // methods
     virtual void usage(const std::string& tool) const;
 
 private:  // members
-    bool json_            = false;
-    bool compact_          = false;
 
+    bool json_    = false;
+    bool compact_ = false;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -77,8 +75,7 @@ void ParseRequest::init(const CmdArgs& args) {
 }
 
 void ParseRequest::usage(const std::string& tool) const {
-    Log::info() << "Usage: " << tool << " [options] [request1] [request2] ..." << std::endl
-                << std::endl;
+    Log::info() << "Usage: " << tool << " [options] [request1] [request2] ..." << std::endl << std::endl;
 
     Log::info() << "Examples:" << std::endl
                 << "=========" << std::endl
@@ -88,8 +85,7 @@ void ParseRequest::usage(const std::string& tool) const {
                 << std::endl;
 }
 
-void ParseRequest::process(const eckit::PathName& path)
-{
+void ParseRequest::process(const eckit::PathName& path) {
 
     if (path.isDir()) {
         std::vector<eckit::PathName> files;
@@ -127,7 +123,8 @@ void ParseRequest::process(const eckit::PathName& path)
             if (compact_) {
                 j->dump(std::cout, "", "");
                 std::cout << std::endl;
-            } else {
+            }
+            else {
                 j->dump(std::cout);
             }
         }
@@ -143,26 +140,26 @@ void ParseRequest::process(const eckit::PathName& path)
             if (compact_) {
                 eckit::JSON jsonOut(std::cout);
                 j->json(jsonOut);
-            } else {
+            }
+            else {
                 eckit::JSON jsonOut(std::cout, eckit::JSON::Formatting(eckit::JSON::Formatting::BitFlags::INDENT_DICT));
                 j->json(jsonOut);
             }
             std::cout << std::endl;
-        } else {
+        }
+        else {
             if (compact_) {
                 j->dump(std::cout, "", "");
                 std::cout << std::endl;
-            } else {
+            }
+            else {
                 j->dump(std::cout);
             }
         }
     }
 
     class Print : public FlattenCallback {
-        virtual void operator()(const MarsRequest& request)  {
-            std::cout << request << std::endl;
-        }
-
+        virtual void operator()(const MarsRequest& request) { std::cout << request << std::endl; }
     };
 
 
@@ -171,13 +168,11 @@ void ParseRequest::process(const eckit::PathName& path)
     // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
     //     expand.flatten(*j, cb, filter);
     // }
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     ParseRequest tool(argc, argv);
     return tool.start();
 }

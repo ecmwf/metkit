@@ -27,16 +27,14 @@ public:
     CodesSplitter(eckit::PeekHandle&);
     ~CodesSplitter();
 
-private: // methods
+private:  // methods
 
     eckit::message::Message next() override;
     void print(std::ostream&) const override;
-
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
-} // namespace metkit
-
+}  // namespace codes
+}  // namespace metkit

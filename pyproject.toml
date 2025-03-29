@@ -1,0 +1,47 @@
+# pytest
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-vv -s"
+testpaths = [
+    "pymetkit/tests"
+]
+
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools", "wheel", "cffi"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymetkit"
+description = "Python interface for metkit"
+dynamic = ["version"]
+authors = [
+  { name = "European Centre for Medium-Range Weather Forecasts (ECMWF)", email = "software.support@ecmwf.int" },
+]
+license = { text = "Apache License Version 2.0" }
+requires-python = ">=3.10"
+dependencies = [
+    "cffi",
+    "metkitlib",
+    "findlibs"
+]
+
+[tool.setuptools.dynamic]
+version = { file = ["VERSION"] }
+
+[tool.setuptools]
+packages = ["pymetkit"]
+package-dir = { "pymetkit" = "./python/pymetkit/src/pymetkit" }
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.package-data]
+"pymetkit" = [
+    "VERSION", 
+    "metkit_c.h"
+]
+
+[project.optional-dependencies]
+tests = ["pytest"]
+

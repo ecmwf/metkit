@@ -11,16 +11,13 @@
 #include "metkit/pointdb/FieldIndexer.h"
 
 
-
 namespace metkit {
 namespace pointdb {
 
-FieldIndexer::~FieldIndexer() {
-
-}
+FieldIndexer::~FieldIndexer() {}
 
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace pointdb
+}  // namespace pointdb
 
-} // namespace metkit
+}  // namespace metkit

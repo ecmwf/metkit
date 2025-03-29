@@ -34,7 +34,6 @@ public:
 
     template <typename AXIS_T>
     static void normalise(std::vector<StepRange>& v, const AXIS_T& axis);
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -59,7 +58,7 @@ void StepRangeNormalise::normalise(std::vector<StepRange>& values, const AXIS_T&
             }
         }
 
-        bool matched = false;
+        bool matched       = false;
         double singleValue = values[i].from();
 
         if (values[i].from() != values[i].to()) {
@@ -77,9 +76,8 @@ void StepRangeNormalise::normalise(std::vector<StepRange>& values, const AXIS_T&
             if (j != axis.end()) {
 
                 if (matched) {
-                    eckit::Log::userWarning() << "Step " << values[i]
-                                              << " matches " << values[i]
-                                              << " and " << (*j) << std::endl;
+                    eckit::Log::userWarning()
+                        << "Step " << values[i] << " matches " << values[i] << " and " << (*j) << std::endl;
                 }
 
                 outputValues.push_back(*j);
@@ -91,7 +89,7 @@ void StepRangeNormalise::normalise(std::vector<StepRange>& values, const AXIS_T&
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

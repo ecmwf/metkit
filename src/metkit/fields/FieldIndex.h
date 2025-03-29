@@ -18,7 +18,7 @@ namespace eckit {
 namespace message {
 class Message;
 }
-}
+}  // namespace eckit
 
 namespace metkit {
 namespace fields {
@@ -31,13 +31,13 @@ public:
 
     FieldIndex(eckit::Stream&);
 
-	virtual ~FieldIndex();
+    virtual ~FieldIndex();
 
-	void getValue(const std::string& name,double& value);
-	void getValue(const std::string& name,long& value);
-	void getValue(const std::string& name,std::string& value);
+    void getValue(const std::string& name, double& value);
+    void getValue(const std::string& name, long& value);
+    void getValue(const std::string& name, std::string& value);
 
-	std::string substitute(const std::string& pattern) const;
+    std::string substitute(const std::string& pattern) const;
 
     void encode(eckit::Stream&) const;
 
@@ -45,15 +45,14 @@ public:
     void setValue(const std::string& name, long value);
     void setValue(const std::string& name, const std::string& value);
 
-protected: // members
+protected:  // members
 
-	std::map<std::string,std::string> stringValues_;
-	std::map<std::string,long>   longValues_;
-	std::map<std::string,double> doubleValues_;
-
+    std::map<std::string, std::string> stringValues_;
+    std::map<std::string, long> longValues_;
+    std::map<std::string, double> doubleValues_;
 };
 
-} // namespace fields
-} // namespace metkit
+}  // namespace fields
+}  // namespace metkit
 
 #endif

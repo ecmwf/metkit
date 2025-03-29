@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,17 +26,15 @@ typedef struct metkit_paramiterator_t metkit_paramiterator_t;
  * ERROR HANDLING
  * -------------- */
 
-typedef enum metkit_error_values_t
-{
-    METKIT_SUCCESS            = 0, /* Operation succeded. */
-    METKIT_ERROR              = 1, /* Operation failed. */
-    METKIT_ERROR_UNKNOWN      = 2, /* Failed with an unknown error. */
-    METKIT_ERROR_USER         = 3, /* Failed with an user error. */
-    METKIT_ERROR_ASSERT       = 4  /* Failed with an assert() */
+typedef enum metkit_error_values_t {
+    METKIT_SUCCESS       = 0, /* Operation succeded. */
+    METKIT_ERROR         = 1, /* Operation failed. */
+    METKIT_ERROR_UNKNOWN = 2, /* Failed with an unknown error. */
+    METKIT_ERROR_USER    = 3, /* Failed with an user error. */
+    METKIT_ERROR_ASSERT  = 4  /* Failed with an assert() */
 } metkit_error_t;
 
-typedef enum metkit_iterator_status_t
-{
+typedef enum metkit_iterator_status_t {
     METKIT_ITERATOR_SUCCESS  = 0, /* Operation succeded. */
     METKIT_ITERATOR_COMPLETE = 1, /* All elements have been returned */
     METKIT_ITERATOR_ERROR    = 2  /* Operation failed. */
@@ -117,7 +115,8 @@ metkit_error_t metkit_marsrequest_delete(const metkit_marsrequest_t* request);
  * @param numValues number of values
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[], int numValues);
+metkit_error_t metkit_marsrequest_set(metkit_marsrequest_t* request, const char* param, const char* values[],
+                                      int numValues);
 
 /** Add parameter and values to request
  * @param request Request instance
@@ -175,7 +174,8 @@ metkit_error_t metkit_marsrequest_count_values(const metkit_marsrequest_t* reque
  * @param[out] value retrieved value
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index, const char** value);
+metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, const char* param, int index,
+                                        const char** value);
 
 /** Populates empty Request object by expanding existing request
  * @param request Request instance to be expanded
@@ -184,7 +184,8 @@ metkit_error_t metkit_marsrequest_value(const metkit_marsrequest_t* request, con
  * @param[out] expandedRequest empty Request instance to be populated
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request,  bool inherit, bool strict, metkit_marsrequest_t* expandedRequest);
+metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request, bool inherit, bool strict,
+                                         metkit_marsrequest_t* expandedRequest);
 
 /** Merges other Request object into existing request
  * @param request Request instance to contain result of merge
@@ -201,7 +202,7 @@ metkit_error_t metkit_marsrequest_merge(metkit_marsrequest_t* request, const met
  * @param it RequestIterator instance
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_delete_requestiterator(const metkit_requestiterator_t* it);
+metkit_error_t metkit_requestiterator_delete(const metkit_requestiterator_t* it);
 
 /** Moves to the next Request element in RequestIterator
  * @param it RequestIterator instance
@@ -217,12 +218,12 @@ metkit_iterator_status_t metkit_requestiterator_next(metkit_requestiterator_t* i
  * @note must call metkit_requestiterator_next before calling metkit_requestiterator_current.
  *
  * Example usage:
-    * while (metkit_requestiterator_next(it) == METKIT_ITERATOR_SUCCESS) {
-    *     metkit_marsrequest_t* req{};
-    *     metkit_marsrequest_new(&req);
-    *     metkit_requestiterator_current(it, req);
-    *     // use req ...
-    * }
+ * while (metkit_requestiterator_next(it) == METKIT_ITERATOR_SUCCESS) {
+ *     metkit_marsrequest_t* req{};
+ *     metkit_marsrequest_new(&req);
+ *     metkit_requestiterator_current(it, req);
+ *     // use req ...
+ * }
  */
 metkit_iterator_status_t metkit_requestiterator_current(metkit_requestiterator_t* it, metkit_marsrequest_t* request);
 
@@ -248,7 +249,7 @@ metkit_iterator_status_t metkit_paramiterator_next(metkit_paramiterator_t* it);
  * @return metkit_iterator_status_t Status of iterator
  */
 metkit_iterator_status_t metkit_paramiterator_current(const metkit_paramiterator_t* it, const char** param);
-    
+
 #ifdef __cplusplus
 }
 #endif

@@ -8,10 +8,10 @@
  * nor does it submit to any jurisdiction.
  */
 
-#include "eckit/testing/Test.h"
+#include "eckit/io/BufferList.h"
 #include "eckit/io/FileHandle.h"
 #include "eckit/message/Reader.h"
-#include "eckit/io/BufferList.h"
+#include "eckit/testing/Test.h"
 
 #include <cstring>
 
@@ -33,7 +33,7 @@ class NonSeekFileHandle : public eckit::FileHandle {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CASE( "read multiple matched odb frames" ) {
+CASE("read multiple matched odb frames") {
 
     // This ODB is formed of two frames with matched metadata. We should read both frames into
     // one message.
@@ -78,7 +78,7 @@ CASE( "read multiple matched odb frames" ) {
     eckit::Log::info() << "odb size: " << msgdata.size() << std::endl;
 }
 
-CASE( "read multiple matched odb frames" ) {
+CASE("read multiple matched odb frames") {
 
     // This ODB file is formed of four frames. Two pairs of matched metadata. This should be deconstructed into
     // two messages.
@@ -133,7 +133,6 @@ CASE( "read multiple matched odb frames" ) {
 }  // namespace grib
 }  // namespace metkit
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

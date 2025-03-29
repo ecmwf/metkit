@@ -27,6 +27,7 @@ public:
     ~DataContent();
 
 protected:
+
     const void* data_;
     const size_t size_;
     mutable codes_handle* handle_;

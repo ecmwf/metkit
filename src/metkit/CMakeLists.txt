@@ -82,10 +82,7 @@ list( APPEND metkit_srcs
     mars/TypesFactory.h
     mars/TypeTime.cc
     mars/TypeTime.h
-    mars/TypeToByList.cc
     mars/TypeToByList.h
-    mars/TypeToByListFloat.cc
-    mars/TypeToByListFloat.h
     mars/TypeToByListQuantile.cc
     mars/TypeToByListQuantile.h
     tool/MetkitTool.cc

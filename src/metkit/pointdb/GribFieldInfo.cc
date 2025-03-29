@@ -9,32 +9,32 @@
  */
 
 #include "metkit/pointdb/GribFieldInfo.h"
+#include <bitset>
 #include "metkit/codes/GribAccessor.h"
 #include "metkit/pointdb/GribDataSource.h"
-#include <bitset>
 
 using namespace eckit;
 using namespace metkit::grib;
 
 
 extern "C" {
-    unsigned long grib_decode_unsigned_long(const unsigned char* p, long* offset, int bits);
-    double grib_power(long s, long n);
+unsigned long grib_decode_unsigned_long(const unsigned char* p, long* offset, int bits);
+double grib_power(long s, long n);
 }
 
 namespace metkit {
 namespace pointdb {
 
-static GribAccessor<long>          bitmapPresent("bitmapPresent");
-static GribAccessor<long>          binaryScaleFactor("binaryScaleFactor");
-static GribAccessor<long>          decimalScaleFactor("decimalScaleFactor");
+static GribAccessor<long> bitmapPresent("bitmapPresent");
+static GribAccessor<long> binaryScaleFactor("binaryScaleFactor");
+static GribAccessor<long> decimalScaleFactor("decimalScaleFactor");
 static GribAccessor<unsigned long> bitsPerValue("bitsPerValue");
-static GribAccessor<double>        referenceValue("referenceValue");
+static GribAccessor<double> referenceValue("referenceValue");
 static GribAccessor<unsigned long> offsetBeforeData("offsetBeforeData");
 static GribAccessor<unsigned long> offsetBeforeBitmap("offsetBeforeBitmap");
 static GribAccessor<unsigned long> numberOfValues("numberOfValues");
 static GribAccessor<unsigned long> numberOfDataPoints("numberOfDataPoints");
-static GribAccessor<long>          sphericalHarmonics("sphericalHarmonics");
+static GribAccessor<long> sphericalHarmonics("sphericalHarmonics");
 
 static Mutex mutex;
 
@@ -49,13 +49,10 @@ static uint64_t masks[64] = {
 };
 
 static inline int count_bits(unsigned long long n) {
-    return bits[n         & 0xffffu]
-           +  bits[(n >> 16) & 0xffffu]
-           +  bits[(n >> 32) & 0xffffu]
-           +  bits[(n >> 48) & 0xffffu];
+    return bits[n & 0xffffu] + bits[(n >> 16) & 0xffffu] + bits[(n >> 32) & 0xffffu] + bits[(n >> 48) & 0xffffu];
 }
 
-GribFieldInfo::GribFieldInfo():
+GribFieldInfo::GribFieldInfo() :
     referenceValue_(0),
     binaryScaleFactor_(0),
     decimalScaleFactor_(0),
@@ -64,8 +61,7 @@ GribFieldInfo::GribFieldInfo():
     offsetBeforeBitmap_(0),
     numberOfValues_(0),
     numberOfDataPoints_(0),
-    sphericalHarmonics_(0) {
-}
+    sphericalHarmonics_(0) {}
 
 void GribFieldInfo::update(const GribHandle& h) {
     binaryScaleFactor_  = binaryScaleFactor(h);
@@ -104,11 +100,11 @@ void GribFieldInfo::print(std::ostream& s) const {
 }
 
 
-double GribFieldInfo::interpolate(GribDataSource &f, double& lat, double& lon) const {
+double GribFieldInfo::interpolate(GribDataSource& f, double& lat, double& lon) const {
     NOTIMP;
 }
 
-double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
+double GribFieldInfo::value(const GribDataSource& f, size_t index) const {
     unsigned char buf[8];
 
     if (bitsPerValue_ == 0)
@@ -119,9 +115,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
     if (offsetBeforeBitmap_) {
         ASSERT(index < numberOfDataPoints_);
 
-        Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_
-                    << ",index " << index
-                    << std::endl;
+        Log::info() << "offsetBeforeBitmap_ " << offsetBeforeBitmap_ << ",index " << index << std::endl;
 
 
         Offset offset(offsetBeforeBitmap_);
@@ -133,7 +127,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
 
         size_t skip = index / (sizeof(n) * 8);
 
-        Log::info() << "Read " << skip  << " words" << std::endl;
+        Log::info() << "Read " << skip << " words" << std::endl;
         for (size_t i = 0; i < skip; ++i) {
             ASSERT(f.read(&n, sizeof(n)) == sizeof(n));
             count += count_bits(n);
@@ -150,10 +144,8 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
 
         n &= masks[pos];
 
-        Log::info() << "Read last bits, " << pos << ", after mask " << std::bitset<64>(n) << ", bits="
-                    << count_bits(n) <<
-                    std::endl;
-
+        Log::info() << "Read last bits, " << pos << ", after mask " << std::bitset<64>(n) << ", bits=" << count_bits(n)
+                    << std::endl;
 
 
         count += count_bits(n);
@@ -173,7 +165,7 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
     ASSERT(index < numberOfValues_);
 
     {
-        Offset offset = off_t(offsetBeforeData_)  + off_t(index * bitsPerValue_ / 8);
+        Offset offset = off_t(offsetBeforeData_) + off_t(index * bitsPerValue_ / 8);
         ASSERT(f.seek(offset) == offset);
 
 
@@ -181,17 +173,17 @@ double GribFieldInfo::value(const GribDataSource &f, size_t index) const {
         ASSERT(f.read(buf, len) == len);
     }
 
-    long bitp = (index * bitsPerValue_) % 8;
+    long bitp       = (index * bitsPerValue_) % 8;
     unsigned long p = grib_decode_unsigned_long(buf, &bitp, bitsPerValue_);
 
     // TODO: store the precomputed values
     double s = grib_power(binaryScaleFactor_, 2);
-    double d = grib_power(-decimalScaleFactor_, 10) ;
+    double d = grib_power(-decimalScaleFactor_, 10);
 
-    double v = (double) (((p * s) + referenceValue_) * d);
+    double v = (double)(((p * s) + referenceValue_) * d);
 
     return v;
 }
 
-} // namespace pointdb
-} // namespace metkit
+}  // namespace pointdb
+}  // namespace metkit

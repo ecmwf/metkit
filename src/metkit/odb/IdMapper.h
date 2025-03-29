@@ -1,9 +1,9 @@
 /*
  * (C) Copyright 1996-2012 ECMWF.
- * 
+ *
  * This software is licensed under the terms of the Apache Licence Version 2.0
- * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0. 
- * In applying this licence, ECMWF does not waive the privileges and immunities 
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
@@ -16,12 +16,14 @@
 #ifndef metkit_odb_IdMapper_H
 #define metkit_odb_IdMapper_H
 
-#include <string>
 #include <cstddef>
 #include <map>
 #include <set>
+#include <string>
 
-namespace eckit { class PathName; }
+namespace eckit {
+class PathName;
+}
 
 
 namespace metkit {
@@ -31,17 +33,15 @@ namespace odb {
 
 class IdMap {
 
-public: // methods
+public:  // methods
 
-    IdMap(const std::string& configFile,
-          const std::string& fieldDelimiter=" \t",
-          size_t numericIndex=0,
-          size_t alphanumericIndex=1);
+    IdMap(const std::string& configFile, const std::string& fieldDelimiter = " \t", size_t numericIndex = 0,
+          size_t alphanumericIndex = 1);
     ~IdMap();
 
     std::string alphanumeric(long numeric);
 
-private: // methods
+private:  // methods
 
     std::map<long, std::string> numeric2alpha_;
 };
@@ -51,7 +51,7 @@ private: // methods
 
 class IdMapper {
 
-public: // methods
+public:  // methods
 
     static IdMapper& instance();
 
@@ -59,12 +59,12 @@ public: // methods
     bool alphanumeric(const std::string& keyword, long numeric, std::string& output);
     bool alphanumeric(const std::string& keyword, const std::set<long>& numeric, std::set<std::string>& output);
 
-private: // methods
+private:  // methods
 
     IdMapper();
     ~IdMapper();
 
-private: // members
+private:  // members
 
     std::map<std::string, IdMap> maps_;
 };
@@ -72,8 +72,7 @@ private: // members
 //----------------------------------------------------------------------------------------------------------------------
 
 
-} // namespace odb
-} // metkit
+}  // namespace odb
+}  // namespace metkit
 
 #endif
-

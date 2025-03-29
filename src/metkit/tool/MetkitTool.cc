@@ -14,8 +14,8 @@
 #include "eckit/option/SimpleOption.h"
 #include "eckit/system/Library.h"
 
-#include "metkit/tool/MetkitTool.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/tool/MetkitTool.h"
 
 using namespace eckit;
 using namespace eckit::option;
@@ -31,8 +31,7 @@ MetkitTool::MetkitTool(int argc, char** argv) : eckit::Tool(argc, argv, "METKIT_
     instance_ = this;
 
     options_.push_back(new SimpleOption<bool>("version", "Prints the version and exits"));
-    options_.push_back(new SimpleOption<bool>(
-        "porcelain", "Stable output that can be used as input to other tools"));
+    options_.push_back(new SimpleOption<bool>("porcelain", "Stable output that can be used as input to other tools"));
 }
 
 static void usage(const std::string& tool) {
@@ -43,8 +42,7 @@ static void usage(const std::string& tool) {
 void MetkitTool::run() {
     LOG_DEBUG_LIB(LibMetkit) << "MetkitTool::run()" << std::endl;
 
-    CmdArgs args(&metkit::usage, options_, numberOfPositionalArguments(),
-                 minimumPositionalArguments());
+    CmdArgs args(&metkit::usage, options_, numberOfPositionalArguments(), minimumPositionalArguments());
 
     if (args.has("version")) {
         auto& log = eckit::Log::info();
@@ -52,8 +50,8 @@ void MetkitTool::run() {
         using eckit::system::Library;
         for (const auto& lib_name : Library::list()) {
             auto& lib = Library::lookup(lib_name);
-            log << lib.name() << " " << lib.version() << " git-sha1:" << lib.gitsha1(8)
-                << " home:" << lib.libraryHome() << std::endl;
+            log << lib.name() << " " << lib.version() << " git-sha1:" << lib.gitsha1(8) << " home:" << lib.libraryHome()
+                << std::endl;
         }
         return;  //< stops processing
     }
@@ -68,20 +66,19 @@ void MetkitTool::usage(const std::string& tool) const {
 }
 
 void MetkitTool::init(const eckit::option::CmdArgs& args) {
-    LOG_DEBUG_LIB(LibMetkit)  << "MetkitTool::init()" << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "MetkitTool::init()" << std::endl;
     args.get("porcelain", porcelain_);
 }
 
 void MetkitTool::finish(const eckit::option::CmdArgs& args) {
-    LOG_DEBUG_LIB(LibMetkit)  << "MetkitTool::finish()" << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "MetkitTool::finish()" << std::endl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 MetkitToolException::MetkitToolException(const std::string& w) : Exception(w) {}
 
-MetkitToolException::MetkitToolException(const std::string& w, const eckit::CodeLocation& l) :
-    Exception(w, l) {}
+MetkitToolException::MetkitToolException(const std::string& w, const eckit::CodeLocation& l) : Exception(w, l) {}
 
 
 //----------------------------------------------------------------------------------------------------------------------
