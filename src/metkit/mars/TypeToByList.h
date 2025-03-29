@@ -89,7 +89,8 @@ public:  // methods
 
                 if (from < to && by < BY{0}) {
                     std::ostringstream oss;
-                    oss << type_.name() << ": impossible to define a sequence starting from " << from << " to " << to << " with step " << by;
+                    oss << type_.name() << ": impossible to define a sequence starting from " << from << " to " << to
+                        << " with step " << by;
                     throw eckit::BadValue(oss.str());
                 }
 

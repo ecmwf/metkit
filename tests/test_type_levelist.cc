@@ -63,8 +63,11 @@ CASE("test_metkit_expand_levelist") {
     assertTypeExpansion("levelist", {"-2", "to", "-4", "by", "-0.5"}, {"-2", "-2.5", "-3", "-3.5", "-4"});
     assertTypeExpansion("levelist", {"0", "to", "-2", "by", "-0.5"}, {"0", "-0.5", "-1", "-1.5", "-2"});
     // by < 0 && from < to
-    EXPECT_THROWS_AS(assertTypeExpansion("levelist", {"4", "to", "10", "by", "-4"}, {"4", "8", "12", "16", "20"}), eckit::BadValue);
-    EXPECT_THROWS_AS(assertTypeExpansion("levelist", {"-4", "to", "2", "by", "-0.5"}, {"0", "-0.5", "-1", "-1.5", "-2"}), eckit::BadValue);
+    EXPECT_THROWS_AS(assertTypeExpansion("levelist", {"4", "to", "10", "by", "-4"}, {"4", "8", "12", "16", "20"}),
+                     eckit::BadValue);
+    EXPECT_THROWS_AS(
+        assertTypeExpansion("levelist", {"-4", "to", "2", "by", "-0.5"}, {"0", "-0.5", "-1", "-1.5", "-2"}),
+        eckit::BadValue);
 }
 
 }  // namespace test

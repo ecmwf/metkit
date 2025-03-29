@@ -358,7 +358,7 @@ bool Type::expand(const MarsExpandContext&, std::string& value) const {
 
 void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
 
-    if (toByList_ && values.size()>1) {
+    if (toByList_ && values.size() > 1) {
         toByList_->expandRanges(ctx, values);
     }
 

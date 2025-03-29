@@ -30,9 +30,8 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::array<std::string, 12> months{
-    "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"
-};
+static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun",
+                                          "jul", "aug", "sep", "oct", "nov", "dec"};
 
 int month(const std::string& value) {
     if (value.size() == 3) {
@@ -41,9 +40,8 @@ int month(const std::string& value) {
             std::ostringstream oss;
             oss << value << " is not a valid month short name";
             throw eckit::BadValue(oss.str());
-
         }
-        return it-months.begin()+1;
+        return it - months.begin() + 1;
     }
 
     eckit::Translator<std::string, int> s2i;
@@ -88,7 +86,7 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
                 value = l2s(100 * m + d);
             }
             else {
-                if (tokens.size() == 1 && tokens[0].size() <= 3) { // month (i.e. TypeClimateMonthly)
+                if (tokens.size() == 1 && tokens[0].size() <= 3) {  // month (i.e. TypeClimateMonthly)
                     int m = month(tokens[0]);
                     value = l2s(m);
                 }
