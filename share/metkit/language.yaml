@@ -401,14 +401,18 @@ _field: &_field
 
   georef:
     type: lowercase
-    unset:
+    only:
       - context:
-          class:
-            op: '!'
-            vals: [d1]
-          dataset:
-            op: '!'
-            vals: [on-demand-extremes-dt]
+          class: [d1]
+          type: [on-demand-extremes-dt]
+    # unset:
+    #   - context:
+    #       class:
+    #         op: '!'
+    #         vals: [d1]
+    #       dataset:
+    #         op: '!'
+    #         vals: [on-demand-extremes-dt]
 
   repres:
     flatten: false
@@ -943,8 +947,8 @@ _field: &_field
     multiple: true
     by: 1
     only:
-    - param:
-      - '140251'
+      - context:
+          param: ['140251']
     type: to-by-list
 
   direction:
@@ -952,8 +956,8 @@ _field: &_field
     multiple: true
     by: 1
     only:
-    - param:
-      - '140251'
+      - context:
+          param: ['140251']
     type: to-by-list
 
   diagnostic:
@@ -969,7 +973,8 @@ _field: &_field
   channel:
     category: data
     only:
-    - type: ssd
+      - context:
+          type: [ssd]
     type: integer
     multiple: true
 
@@ -988,7 +993,8 @@ _field: &_field
   instrument:
     category: data
     only:
-    - type: ssd
+      - context:
+          type: [ssd]
     type: integer
     multiple: true
 
