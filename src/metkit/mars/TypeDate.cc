@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <array>
-#include <functional>
 
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
