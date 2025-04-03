@@ -26,13 +26,9 @@
 
 #include "metkit/mars/MarsExpandContext.h"
 
-
-namespace metkit::mars {
-
-//----------------------------------------------------------------------------------------------------------------------
-
+namespace {
 static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun",
-                                          "jul", "aug", "sep", "oct", "nov", "dec"};
+                                            "jul", "aug", "sep", "oct", "nov", "dec"};
 
 int month(const std::string& value) {
     if (value.size() == 3) {
@@ -49,12 +45,75 @@ int month(const std::string& value) {
     return s2i(value);
 }
 
+long day(std::string& value) {
+    if (value.empty()) {
+        return -1;
+    }
+    eckit::Translator<std::string, long> s2l;
+    if (value[0] == '0' || value[0] == '-') {
+        long n = s2l(value);
+        if (n <= 0) {
+            eckit::Date now(n);
+            return now.day();
+        }
+    }
+    else {
+        eckit::Tokenizer t("-");
+        std::vector<std::string> tokens = t.tokenize(value);
+
+        if (tokens.size() == 2) {  // month-day (i.e. TypeClimateDaily)
+            int m  = month(tokens[0]);
+            return s2l(tokens[1]);
+        }
+        else {
+            if (tokens.size() == 1 && tokens[0].size() <= 3) {  // month (i.e. TypeClimateMonthly)
+                return -1;
+            }
+            else {
+                eckit::Date date(value);
+                return date.day();
+            }
+        }
+    }
+    return -1;
+}
+
+bool filterByDay(const std::vector<std::string>& filter, std::vector<std::string>& values) {
+
+    std::set<long> days;
+    eckit::Translator<std::string, long> s2l;
+    for (auto f : filter) {
+        days.emplace(s2l(f));
+    }
+
+    for (auto v=values.begin(); v != values.end();) {
+        long d = day(*v);
+        if (d != -1) {
+            auto it = days.find(d);
+            if (it != days.end()) {
+                v++;
+                continue;
+            }
+        }
+        v = values.erase(v);
+    }
+
+    return !values.empty();
+}
+}
+    
+namespace metkit::mars {
+
+//----------------------------------------------------------------------------------------------------------------------
+
 TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     DummyContext ctx;
     toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
 
     multiple_ = true;
+
+    filters_["day"] = &filterByDay;
 }
 
 TypeDate::~TypeDate() {}

@@ -316,6 +316,17 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     return !values.empty();
 }
 
+bool Type::filter(const std::string& keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
+    if (keyword == name_) {
+        return filter(f, values);
+    }
+    auto it = filters_.find(keyword);
+    if (it == filters_.end()) {
+        return false;
+    }
+    return it->second(f, values);
+}
+
 class InSet {
     std::set<std::string> set_;
 

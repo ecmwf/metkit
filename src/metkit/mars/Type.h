@@ -108,6 +108,7 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
+    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter, std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
@@ -133,6 +134,8 @@ protected:  // members
     std::set<std::unique_ptr<Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;
+
+    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 

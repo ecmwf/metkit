@@ -214,6 +214,15 @@ void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& val
 
 bool MarsRequest::filter(const MarsRequest& filter) {
     for (std::list<Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
+        if ((*i).name() == "date") {
+            std::list<Parameter>::const_iterator j = filter.find("day");
+            if (j != filter.params_.end()) {
+                if (!(*i).filter("day", (*j).values())) {
+                    return false;
+                }
+            }
+        }
+
         std::list<Parameter>::const_iterator j = filter.find((*i).name());
         if (j == filter.params_.end()) {
             continue;

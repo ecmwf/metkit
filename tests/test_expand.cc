@@ -11,6 +11,7 @@
 /// @file   test_expand.cc
 /// @date   Jan 2016
 /// @author Florian Rathgeber
+/// @author Emanuele Danovaro
 
 #include <utility>
 

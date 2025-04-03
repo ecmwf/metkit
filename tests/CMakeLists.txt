@@ -71,7 +71,7 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
                   NO_AS_NEEDED
                   ENVIRONMENT   "${metkit_env}")
 
-list(APPEND testFileSuffixes typesfactory expand request param_axis steprange_axis date time step hypercube type_levelist c_api integer_range )
+list(APPEND testFileSuffixes typesfactory expand filter request param_axis steprange_axis date time step hypercube type_levelist c_api integer_range )
 
 foreach(test IN LISTS testFileSuffixes)
     ecbuild_add_test( TARGET    "metkit_test_${test}"
