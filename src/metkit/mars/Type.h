@@ -16,12 +16,12 @@
 
 #pragma once
 
+#include <functional>
 #include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-#include <functional>
 
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
