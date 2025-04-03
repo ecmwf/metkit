@@ -24,8 +24,6 @@ namespace mars {
 
 TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-TypeExpver::~TypeExpver() {}
-
 bool TypeExpver::expand(const MarsExpandContext&, std::string& value) const {
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(4) << eckit::StringTools::trim(value);

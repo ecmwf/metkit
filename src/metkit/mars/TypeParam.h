@@ -29,7 +29,7 @@ public:  // methods
 
     TypeParam(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeParam() override;
+    ~TypeParam() noexcept override = default;;
 
 protected:
 

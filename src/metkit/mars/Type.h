@@ -85,7 +85,7 @@ public:  // methods
 
     Type(const std::string& name, const eckit::Value& settings);
 
-    ~Type() override = default;
+    ~Type() noexcept override = default;
 
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;

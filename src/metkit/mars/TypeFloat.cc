@@ -22,8 +22,6 @@ namespace metkit::mars {
 
 TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-TypeFloat::~TypeFloat() {}
-
 bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value) const {
 
     bool dot = false;

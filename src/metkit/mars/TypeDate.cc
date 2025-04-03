@@ -116,8 +116,6 @@ TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type
     filters_["day"] = &filterByDay;
 }
 
-TypeDate::~TypeDate() {}
-
 void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
     Type::expand(ctx, values);

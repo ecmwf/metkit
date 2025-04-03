@@ -27,7 +27,7 @@ public:  // methods
 
     TypeAny(const std::string& name, const eckit::Value& settings = eckit::Value());
 
-    virtual ~TypeAny() override;
+    ~TypeAny() noexcept override = default;
 
 private:  // methods
 

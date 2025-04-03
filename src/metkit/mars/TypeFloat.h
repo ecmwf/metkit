@@ -28,7 +28,7 @@ public:  // methods
 
     TypeFloat(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeFloat() override;
+    ~TypeFloat() noexcept override = default;
 
 private:  // methods
 

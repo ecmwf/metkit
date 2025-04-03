@@ -70,8 +70,6 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " mapping " << mapping_ << std::endl;
 }
 
-TypeEnum::~TypeEnum() {}
-
 void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
