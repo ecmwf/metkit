@@ -792,18 +792,20 @@ CASE("test_metkit_expand_clmn") {
     }
 }
 
-CASE("test_metkit_expand_only") {
+CASE("test_metkit_expand_frequency") {
     const char* text =
         "retrieve,class=od,date=20250401,direction=31,domain=g,expver=0001,frequency=7,levtype=sfc,param=140217,step=0,"
         "stream=wave,time=1200,type=an";
-    EXPECT_THROWS_AS(MarsRequest::parse(text, true), eckit::UserError);
-    EXPECT_THROWS_AS(MarsRequest::parse(text, false), eckit::UserError);
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=WAVE,EXPVER=0001,REPRES=SH,LEVTYPE=SFC,PARAM=140217,DATE=20250401,TIME=1200,"
+        "STEP=0,DOMAIN=G,FREQUENCY=7,DIRECTION=31";
+    expand(text, expected);
 }
 
 CASE("test_metkit_expand_") {
     // issues from https://confluence.ecmwf.int/pages/viewpage.action?pageId=496866851
     {
-        // https://jira.ecmwf.int/browse/MARS-959
+        // https://jira.ecmwf.int/browse/MARSC-218
         const char* text =
             "retrieve,accuracy=10,class=ea,date=1969-03-28,expver=11,grid=0.25/"
             "0.25,levtype=sfc,packing=si,param=142.128/143.128/151.128/165.128/166.128,step=0/6/12/18/24/30/36/42/48/"
@@ -817,7 +819,7 @@ CASE("test_metkit_expand_") {
         expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-962
+        // https://jira.ecmwf.int/browse/MARSC-221
         const char* text =
             "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/"
             "0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/"
@@ -829,7 +831,7 @@ CASE("test_metkit_expand_") {
         expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-963
+        // https://jira.ecmwf.int/browse/MARSC-212
         const char* text =
             "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
             "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/"
@@ -845,7 +847,7 @@ CASE("test_metkit_expand_") {
         expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-969
+        // https://jira.ecmwf.int/browse/MARSC-210
         const char* text =
             "retrieve,accuracy=24,area=90.0/-179.0/-90.0/180.0,class=od,dataset=none,date=20231231/to/"
             "20231231,expver=1,grid=off,levelist=1,levtype=ml,number=off,padding=0,param=152.128,resol=255,step=00,"
@@ -858,7 +860,7 @@ CASE("test_metkit_expand_") {
         // expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-970
+        // https://jira.ecmwf.int/browse/MARSC-220
         const char* text =
             "retrieve,an_offset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
             "128/165.128/166.128,step=15,stream=da,time=00,type=fc,target=\"reference.6Zr8N7.data\"";
@@ -868,7 +870,7 @@ CASE("test_metkit_expand_") {
         expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-971
+        // https://jira.ecmwf.int/browse/MARSC-214
         const char* text =
             "retrieve,anoffset=90,class=ce,database=marser,date=20240102,domain=g,expver=0001,level=3,levtype=sol,"
             "model=lisflood,origin=ecmf,param=260199,step=6/to/72/by/"
@@ -880,17 +882,18 @@ CASE("test_metkit_expand_") {
         expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-973
+        // https://jira.ecmwf.int/browse/MARSC-222
         const char* text =
             "retrieve,class=rd,date=20201204,expver=hk3a,obsgroup=22,reportype=21001,stream=lwda,time=1200,type=mfb,"
             "target=\"reference.vYyJf6.data\"";
+        /// @todo DUPLICATES
         const char* expected =
             "RETRIEVE,CLASS=RD,TYPE=MFB,STREAM=LWDA,EXPVER=hk3a,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,obstype=1,"
             "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
         // expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-978
+        // https://jira.ecmwf.int/browse/MARSC-219
         const char* text =
             "retrieve,class=od,date=20231205,expver=0001,obstype=gpsro,stream=lwda,time=18,type=ai,target=\"reference."
             "E2RRc8.data\"";
@@ -901,7 +904,7 @@ CASE("test_metkit_expand_") {
         // expand(text, expected);
     }
     {
-        // https://jira.ecmwf.int/browse/MARS-980
+        // https://jira.ecmwf.int/browse/MARSC-213
         const char* text =
             "retrieve,class=od,date=20230821,expect=any,expver=0001,levtype=sfc,param=70.228/71.228/72.228/73.228/"
             "74.228,stream=da,time=12,type=gai,target=\"reference.1e7AY1.data\"";
@@ -949,6 +952,19 @@ CASE("test_metkit_expand_") {
             "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=GG,LEVTYPE=SFC,PARAM=134/137/165/166/167/168/"
             "235,DATE=20240102,TIME=0000,STEP=0,DOMAIN=G,TARGET=reference.tzpUX7.data,RESOL=AV,ACCURACY=12,STYLE="
             "DISSEMINATION,AREA=90/0/-90/359.5,GRID=.5/.5,PADDING=0";
+        expand(text, expected);
+    }
+    {
+        // https://jira.ecmwf.int/browse/MARSC-211
+        const char* text =
+            "retrieve,class=ce,database=marser,date=20240102,domain=g,expver=0001,level=2,levtype=sol,model=lisflood,"
+            "origin=ecmf,param=260199,step=6/to/240/by/"
+            "6,stream=efas,time=0000,type=fc,target=\"reference.JkqWoW.data\"";
+        const char* expected =
+            "RETRIEVE,CLASS=CE,TYPE=FC,STREAM=EFAS,EXPVER=0001,MODEL=lisflood,REPRES=SH,LEVTYPE=SOL,LEVELIST=2,PARAM="
+            "260199,DATE=20240102,TIME=0000,STEP=6/12/18/24/30/36/42/48/54/60/66/72/78/84/90/96/102/108/114/120/126/"
+            "132/138/144/150/156/162/168/174/180/186/192/198/204/210/216/222/228/234/"
+            "240,DOMAIN=G,ORIGIN=ECMF,TARGET=reference.JkqWoW.data";
         expand(text, expected);
     }
 }

@@ -947,19 +947,24 @@ _field: &_field
     category: data
     multiple: true
     by: 1
-    only:
-      - context:
-          param: ['140251']
     type: to-by-list
+    unset:
+      - context:
+          stream:
+            op: '!'
+            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
+
 
   direction:
     category: data
     multiple: true
     by: 1
-    only:
-      - context:
-          param: ['140251']
     type: to-by-list
+    unset:
+      - context:
+          stream:
+            op: '!'
+            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
