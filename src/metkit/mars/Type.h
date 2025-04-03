@@ -108,7 +108,8 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
-    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter, std::vector<std::string>& values) const;
+    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
+                        std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;

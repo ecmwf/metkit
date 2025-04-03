@@ -28,7 +28,7 @@
 
 namespace {
 static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun",
-                                            "jul", "aug", "sep", "oct", "nov", "dec"};
+                                          "jul", "aug", "sep", "oct", "nov", "dec"};
 
 int month(const std::string& value) {
     if (value.size() == 3) {
@@ -62,7 +62,7 @@ long day(std::string& value) {
         std::vector<std::string> tokens = t.tokenize(value);
 
         if (tokens.size() == 2) {  // month-day (i.e. TypeClimateDaily)
-            int m  = month(tokens[0]);
+            int m = month(tokens[0]);
             return s2l(tokens[1]);
         }
         else {
@@ -86,7 +86,7 @@ bool filterByDay(const std::vector<std::string>& filter, std::vector<std::string
         days.emplace(s2l(f));
     }
 
-    for (auto v=values.begin(); v != values.end();) {
+    for (auto v = values.begin(); v != values.end();) {
         long d = day(*v);
         if (d != -1) {
             auto it = days.find(d);
@@ -100,8 +100,8 @@ bool filterByDay(const std::vector<std::string>& filter, std::vector<std::string
 
     return !values.empty();
 }
-}
-    
+}  // namespace
+
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------

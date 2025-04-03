@@ -316,7 +316,8 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     return !values.empty();
 }
 
-bool Type::filter(const std::string& keyword, const std::vector<std::string>& f, std::vector<std::string>& values) const {
+bool Type::filter(const std::string& keyword, const std::vector<std::string>& f,
+                  std::vector<std::string>& values) const {
     if (keyword == name_) {
         return filter(f, values);
     }
@@ -485,7 +486,6 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
                 oss << "    " << *context << std::endl;
             }
             throw eckit::UserError(oss.str());
-
         }
         for (const auto& context : unsets_) {
             if (context->matches(request)) {
