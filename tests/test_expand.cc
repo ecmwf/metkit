@@ -668,12 +668,18 @@ CASE("test_metkit_expand_d1") {
             "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model="
             "icon,realization=1,georef=acbdef,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,"
             "levtype=o3d,param=263500";
+        EXPECT_THROWS_AS(MarsRequest::parse(text, true), eckit::UserError); /// georef with dataset=climate-dt
+
+        const char* text2 =
+            "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model="
+            "icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,"
+            "levtype=o3d,param=263500";
         ExpectedOutput expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}}, {"activity", {"cmip6"}},
                                 {"experiment", {"hist"}}, {"model", {"icon"}},         {"generation", {"1"}},
                                 {"realization", {"1"}},   {"resolution", {"high"}},    {"expver", {"0001"}},
                                 {"time", {"0000"}},       {"stream", {"clte"}},        {"type", {"fc"}},
                                 {"levtype", {"o3d"}},     {"levelist", {"1"}},         {"param", {"263500"}}};
-        expand(text, "retrieve", expected, {20120515});
+        expand(text2, "retrieve", expected, {20120515});
     }
 }
 CASE("test_metkit_expand_ng") {
@@ -783,6 +789,12 @@ CASE("test_metkit_expand_clmn") {
                                 {"param", {"144"}}};
         expand(text, "retrieve", expected, {});
     }
+}
+
+CASE("test_metkit_expand_only") {
+    const char* text = "retrieve,class=od,date=20250401,direction=31,domain=g,expver=0001,frequency=7,levtype=sfc,param=140217,step=0,stream=wave,time=1200,type=an";
+    EXPECT_THROWS_AS(MarsRequest::parse(text, true), eckit::UserError);
+    EXPECT_THROWS_AS(MarsRequest::parse(text, false), eckit::UserError);
 }
 
 CASE("test_metkit_expand_") {

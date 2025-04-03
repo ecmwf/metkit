@@ -876,7 +876,8 @@ _field: &_field
             op: '!'
             vals: [mofc, wamf, mofm, wmfm]
     # only:
-    # - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
+    #   - context:
+    #       type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
     # never:
     # # This is to prevent number with type=fc and stream=oper
     # - stream: [oper, wave]

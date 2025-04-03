@@ -128,6 +128,7 @@ protected:  // members
 
     std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
+    std::set<std::unique_ptr<Context>> only_;
     std::map<std::unique_ptr<Context>, std::string> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
 
