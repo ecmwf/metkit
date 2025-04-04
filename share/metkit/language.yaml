@@ -367,9 +367,11 @@ _field: &_field
     - [extremes-dt, Weather and geophysical extremes digital twin]
     - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
     - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
-    only:
+    unset:
       - context:
-          class: [d1]
+          class:
+            op: '!'
+            vals: [d1]
 
   model:
     category: data
@@ -412,18 +414,18 @@ _field: &_field
 
   georef:
     type: lowercase
-    only:
-      - context:
-          class: [d1]
-          type: [on-demand-extremes-dt]
-    # unset:
+    # only:
     #   - context:
-    #       class:
-    #         op: '!'
-    #         vals: [d1]
-    #       dataset:
-    #         op: '!'
-    #         vals: [on-demand-extremes-dt]
+    #       class: [d1]
+    #       type: [on-demand-extremes-dt]
+    unset:
+      - context:
+          class:
+            op: '!'
+            vals: [d1]
+          dataset:
+            op: '!'
+            vals: [on-demand-extremes-dt]
 
   repres:
     flatten: false
@@ -1001,9 +1003,6 @@ _field: &_field
 
   channel:
     category: data
-    only:
-      - context:
-          type: [ssd]
     type: integer
     multiple: true
     # TODO : Migration from old images to new images
@@ -1022,9 +1021,6 @@ _field: &_field
 
   instrument:
     category: data
-    only:
-      - context:
-          type: [ssd]
     type: integer
     multiple: true
   # TODO : Migration from old images to new images
