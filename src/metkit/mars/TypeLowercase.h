@@ -26,7 +26,7 @@ public:  // methods
 
     TypeLowercase(const std::string& name, const eckit::Value& settings = eckit::Value());
 
-    virtual ~TypeLowercase() override;
+    ~TypeLowercase() noexcept override = default;
 
 private:  // methods
 

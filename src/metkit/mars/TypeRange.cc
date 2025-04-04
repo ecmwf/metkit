@@ -42,8 +42,6 @@ TypeRange::TypeRange(const std::string& name, const eckit::Value& settings) : Ty
     multiple_ = true;
 }
 
-TypeRange::~TypeRange() {}
-
 void TypeRange::print(std::ostream& out) const {
     out << "TypeRange[name=" << name_ << "]";
 }

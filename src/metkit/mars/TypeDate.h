@@ -28,7 +28,7 @@ public:  // methods
 
     TypeDate(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeDate() override;
+    ~TypeDate() noexcept override = default;
 
 private:  // methods
 

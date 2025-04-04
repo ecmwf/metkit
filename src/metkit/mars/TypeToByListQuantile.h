@@ -26,7 +26,7 @@ public:  // methods
 
     TypeToByListQuantile(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeToByListQuantile() override;
+    ~TypeToByListQuantile() noexcept override = default;
 
 private:  // methods
 

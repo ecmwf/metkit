@@ -53,6 +53,7 @@ public:  // methods
     void values(const std::vector<std::string>& values);
 
     bool filter(const std::vector<std::string>& filter);
+    bool filter(const std::string& keyword, const std::vector<std::string>& filter);
     bool matches(const std::vector<std::string>& matches) const;
 
     void merge(const Parameter& p);

@@ -64,7 +64,8 @@ public:
 protected:
 
     TypesFactory(const std::string&);
-    virtual ~TypesFactory();
+
+    ~TypesFactory();
 
     std::string name_;
 };

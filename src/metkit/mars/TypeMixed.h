@@ -29,7 +29,7 @@ public:  // methods
 
     TypeMixed(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeMixed() override;
+    ~TypeMixed() noexcept override;
 
 private:  // methods
 

@@ -26,7 +26,7 @@ public:  // methods
 
     TypeExpver(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeExpver() override;
+    ~TypeExpver() noexcept override = default;
 
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 

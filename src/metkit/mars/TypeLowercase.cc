@@ -22,8 +22,6 @@ namespace metkit::mars {
 
 TypeLowercase::TypeLowercase(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-TypeLowercase::~TypeLowercase() {}
-
 void TypeLowercase::print(std::ostream& out) const {
     out << "TypeLowercase[name=" << name_ << "]";
 }

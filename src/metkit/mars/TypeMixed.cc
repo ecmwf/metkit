@@ -33,7 +33,7 @@ TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Ty
     }
 }
 
-TypeMixed::~TypeMixed() {
+TypeMixed::~TypeMixed() noexcept {
     for (std::vector<Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
         (*j)->detach();
     }

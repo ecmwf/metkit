@@ -209,6 +209,10 @@ _field: &_field
           stream: [ssbt, e1, ssmi]
         val: oper
         warn: "Changed stream=oper"
+      - context:
+          class: [ti]
+          type: [fc]
+        val: oper
     flatten: false
     type: enum
     values:
@@ -363,9 +367,11 @@ _field: &_field
     - [extremes-dt, Weather and geophysical extremes digital twin]
     - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
     - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
-    only:
+    unset:
       - context:
-          class: [d1]
+          class:
+            op: '!'
+            vals: [d1]
 
   model:
     category: data
@@ -396,11 +402,22 @@ _field: &_field
     - [global, glob]
     unset:
       - context:
-          class: [ml]
+          class: [ml, ur, rr]
+    set:
+      - context:
+          _verb: [retrieve]
+          class: [ai]
+          model:
+            op: 'u'
+        val: aifs-single-mse
 
 
   georef:
     type: lowercase
+    # only:
+    #   - context:
+    #       class: [d1]
+    #       type: [on-demand-extremes-dt]
     unset:
       - context:
           class:
@@ -439,14 +456,21 @@ _field: &_field
           class: [er]
           stream: [oper]
           type: [an, fc]
+          repres:
+            op: 'u'
         val: gg
       - context:
+          _verb: [retrieve]
           type: [tu]
         val: ll
+# %if LEVTYPE = SFC %and CLASS = OD %and STREAM = OPER %and (TYPE = IA %or TYPE = AN) %and DATE < 19830420 %then
+#         %set REPRES = LL
     unset:
       - context:
           class: [ep]
           levtype: [o2d, o3d]
+      - context:
+          _verb: [read]
     values:
     - [bu, 'bufr']
     - [sh, 'spherical harmonics']
@@ -538,6 +562,11 @@ _field: &_field
     - [mwts3_as, 67,  MWTS3 All-sky ]
     - [giirs, 68,  GIIRS ]
     - [test, 99,  TEST ]
+    unset:
+      - context:
+          type:
+            op: '!'
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
 
   reportype:
     category: data
@@ -611,7 +640,7 @@ _field: &_field
       - context:
           type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
       - context:
-          levtype: [o2d, sfc, wave]
+          levtype: [o2d, sfc, wave, al]
       - context:
           class: [er]
           levtype: [o3d]
@@ -636,8 +665,6 @@ _field: &_field
             op: '!'
             vals: [ssmi]
           type: [im, sim, oldim]
-      - context:
-          stream: [ssmi]
       - context:
           stream: [ssmi]
       - context:
@@ -800,11 +827,13 @@ _field: &_field
             vals: [ssmi]
           type: [im, oldim]
       - context:
-          stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame]
+          stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
       - context:
           type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
       - context:
-          class: [er]
+          class:
+            op: '!'
+            vals: [er]
           stream: [moda, msda, edmo, ewmo, wamd]
       - context:
           class: [ed,ng]
@@ -872,7 +901,8 @@ _field: &_field
             op: '!'
             vals: [mofc, wamf, mofm, wmfm]
     # only:
-    # - type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
+    #   - context:
+    #       type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
     # never:
     # # This is to prevent number with type=fc and stream=oper
     # - stream: [oper, wave]
@@ -942,19 +972,24 @@ _field: &_field
     category: data
     multiple: true
     by: 1
-    only:
-    - param:
-      - '140251'
     type: to-by-list
+    unset:
+      - context:
+          stream:
+            op: '!'
+            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
+
 
   direction:
     category: data
     multiple: true
     by: 1
-    only:
-    - param:
-      - '140251'
     type: to-by-list
+    unset:
+      - context:
+          stream:
+            op: '!'
+            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
@@ -968,10 +1003,9 @@ _field: &_field
 
   channel:
     category: data
-    only:
-    - type: ssd
     type: integer
     multiple: true
+    # TODO : Migration from old images to new images
 
   ident:
     category: data
@@ -987,10 +1021,9 @@ _field: &_field
 
   instrument:
     category: data
-    only:
-    - type: ssd
     type: integer
     multiple: true
+  # TODO : Migration from old images to new images
 
   method:
     category: data
@@ -1135,6 +1168,12 @@ _observation: &_observation
     - all
     - [nsd, non satellite data all]
     - [sd, satellite data all]
+    unset:
+      - context:
+          type:
+            op: '!'
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+    # TODO : Migration from old images to new images
 
 #  ALL                = (NSD/SD)
 #                  CONVENTIONAL; NSD  = (LSD/SSD/VSNS/SLNS/SLS/OD/DD/CC/SF/GBGPS/OSTIA)
@@ -1193,8 +1232,18 @@ _postproc: &_postproc
     flatten: false
     type: [enum, integer]
     values:
-    - [av]
-    - ['off', normal, auto]
+    - [av, archived value]
+    - ['n', normal, auto]
+    - [r, reduced]
+    - [l, low]
+    unset:
+      - context:
+          accuracy: ['n']
+    set:
+      - context:
+          accuracy: [l, r]
+        val: 8
+        warn: "ACCURACY Low or Reduced force to 8 bits"
 
   bitmap:
     category: postproc
@@ -1206,17 +1255,19 @@ _postproc: &_postproc
     flatten: false
     type: enum
     values:
-    - - grib
-      - grib1
-      - gb
-    - - grib2
-    - - bufr
-      - bf
-    - - grid
-      - gd
-    - odb
-    - ascii
-
+    - [grib1, grib, gb, grib edition 1]
+    - [grib2, grib edition 2]
+    - [bufr, bf]
+    - [grid, gd]
+    - [netcdf]
+    - [odb]
+    - [ascii]
+    - [p, packed]
+    - [u, unpacked]
+    unset:
+      - context:
+          format: [p]
+          
   frame:
     category: postproc
     type: integer
@@ -1291,7 +1342,6 @@ _postproc: &_postproc
     - [F2000, 2000]
     - [F4000, 4000]
     - [F8000, 8000]
-    - H2
     - H4
     - H8
     - H16
@@ -1310,8 +1360,16 @@ _postproc: &_postproc
     uppercase: true
     unset:
       - context:
+          grid: [av]
+      - context:
           stream: [ssmi]
-          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+      - context:
+          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+      - context:
+          stream:
+            op: '!'
+            vals: [ssmi]
+          type: [im, sim, oldim]
 
   interpolation:
     category: postproc
@@ -1343,10 +1401,9 @@ _postproc: &_postproc
     - tra
     type: [enum, integer]
     values:
-    - - 'off'
-      - av
-      - reduced gaussian 160
-    - auto
+    - [av, archived value]
+    - [auto]
+      # - reduced gaussian 160
     defaults:
       - context:
           accuracy:
@@ -1358,8 +1415,9 @@ _postproc: &_postproc
         vals: [auto]
     unset:
       - context:
-          stream: [ssmi]
-          # type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+          stream:
+            op: '!'
+            vals: [ssmi]
           type: [im, sim, oldim]
     set:
       - context:
@@ -1381,7 +1439,13 @@ _postproc: &_postproc
     unset:
       - context:
           stream: [ssmi]
-          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+      - context:
+          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+      - context:
+          stream:
+            op: '!'
+            vals: [ssmi]
+          type: [im, sim, oldim]
 
   intgrid:
     category: postproc
@@ -1438,6 +1502,11 @@ _obspproc: &_obspproc
   ident:
     type: any
     category: postproc
+    unset:
+      - context:
+          type:
+            op: '!'
+            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb]
 
 #######################################################################
 
@@ -1509,6 +1578,7 @@ archive:
     flatten: false
     multiple: true
     type: any
+    # TODO set
 
   source:
     flatten: false
@@ -1570,6 +1640,16 @@ retrieve:
           obsgroup:
             op: 'd'
         vals: [keep]
+    unset:
+      - context:
+          stream:
+            op: '!'
+            vals: [ssmi]
+          type: [im, sim, oldim]
+      - context:
+          type:
+            op: '!'
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
     values:
     - keep
     - remove

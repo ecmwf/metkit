@@ -28,7 +28,7 @@ public:  // methods
 
     TypeRange(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeRange() override;
+    ~TypeRange() noexcept override = default;
 
 private:  // methods
 

@@ -30,8 +30,7 @@ public:  // methods
 
     TypeRegex(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeRegex() override;
-
+    ~TypeRegex() noexcept override = default;
 
 private:  // methods
 

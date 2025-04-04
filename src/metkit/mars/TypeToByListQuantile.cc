@@ -57,8 +57,6 @@ TypeToByListQuantile::TypeToByListQuantile(const std::string& name, const eckit:
     multiple_ = true;
 }
 
-TypeToByListQuantile::~TypeToByListQuantile() {}
-
 void TypeToByListQuantile::print(std::ostream& out) const {
     out << "TypeToByListQuantile[name=" << name_ << "]";
 }
