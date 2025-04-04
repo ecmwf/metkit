@@ -18,21 +18,21 @@
 #include "eckit/utils/Tokenizer.h"
 #include "eckit/utils/Translator.h"
 
-#include "eckit/utils/StringTools.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
 
-#include "metkit/mars/MarsExpandContext.h"
-
 namespace {
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun",
                                           "jul", "aug", "sep", "oct", "nov", "dec"};
 
 int month(const std::string& value) {
     if (value.size() == 3) {
-        auto it = std::find(months.begin(), months.end(), eckit::StringTools::lower(value));
+        const auto* it = std::find(months.begin(), months.end(), eckit::StringTools::lower(value));
         if (it == months.end()) {
             std::ostringstream oss;
             oss << value << " is not a valid month short name";
@@ -65,15 +65,11 @@ long day(std::string& value) {
             int m = month(tokens[0]);
             return s2l(tokens[1]);
         }
-        else {
-            if (tokens.size() == 1 && tokens[0].size() <= 3) {  // month (i.e. TypeClimateMonthly)
-                return -1;
-            }
-            else {
-                eckit::Date date(value);
-                return date.day();
-            }
+        if (tokens.size() == 1 && tokens[0].size() <= 3) {  // month (i.e. TypeClimateMonthly)
+            return -1;
         }
+        eckit::Date date(value);
+        return date.day();
     }
     return -1;
 }
@@ -100,6 +96,7 @@ bool filterByDay(const std::vector<std::string>& filter, std::vector<std::string
 
     return !values.empty();
 }
+
 }  // namespace
 
 namespace metkit::mars {
