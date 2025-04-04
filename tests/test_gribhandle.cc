@@ -11,19 +11,19 @@
 /// @date   Apr 2024
 /// @author Christopher Bradley
 
-#include "eccodes.h"
+#include <string>
+#include <vector>
 
+#include "eckit/filesystem/PathName.h"
 #include "eckit/io/FileHandle.h"
 #include "eckit/testing/Test.h"
+
+#include "eccodes.h"
 
 #include "metkit/codes/GribAccessor.h"
 #include "metkit/codes/GribHandle.h"
 
-using namespace eckit::testing;
-
-namespace metkit {
-namespace grib {
-namespace test {
+namespace metkit::grib::test {
 
 //-----------------------------------------------------------------------------
 
@@ -57,10 +57,9 @@ CASE("File with two messages") {
 
 //-----------------------------------------------------------------------------
 
-}  // namespace test
-}  // namespace grib
-}  // namespace metkit
+}  // namespace metkit::grib::test
+
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

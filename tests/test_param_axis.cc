@@ -12,19 +12,18 @@
 /// @author Baudouin Raoult
 /// @date   Mai 2019
 
-
-#include "eckit/exception/Exceptions.h"
-#include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/ParamID.h"
-
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #include "eckit/testing/Test.h"
 
-using namespace eckit::testing;
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Param.h"
+#include "metkit/mars/ParamID.h"
 
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 static std::ostream& operator<<(std::ostream& out, const std::vector<Param>& params) {
@@ -656,12 +655,10 @@ CASE("table15") {
     test_param_axis(user, axis, expect, false);
 }
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
 
 //-----------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

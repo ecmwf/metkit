@@ -13,20 +13,21 @@
 /// @author Emanuele Danovaro
 /// @date   April 2020
 
+#include <string>
+#include <vector>
+
 #include "eckit/testing/Test.h"
-#include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsParser.h"
+#include "metkit/mars/Type.h"
 #include "metkit/mars/TypeTime.h"
 
-using namespace eckit;
-using namespace eckit::testing;
+namespace metkit::mars::test {
 
-namespace metkit {
-namespace mars {
-namespace test {
+using ::eckit::BadTime;
+using ::eckit::BadValue;
+using ::eckit::Value;
 
 //-----------------------------------------------------------------------------
 
@@ -251,10 +252,9 @@ CASE("Test TypeTime expansions") {
 
 //-----------------------------------------------------------------------------
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
+
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }
