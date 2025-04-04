@@ -27,7 +27,7 @@ public:  // methods
 
     TypeEnum(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeEnum() override;
+    ~TypeEnum() noexcept override = default;
 
 
 private:  // methods

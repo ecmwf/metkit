@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <functional>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -85,7 +86,7 @@ public:  // methods
 
     Type(const std::string& name, const eckit::Value& settings);
 
-    ~Type() override = default;
+    ~Type() noexcept override = default;
 
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
@@ -108,6 +109,8 @@ public:  // methods
     virtual bool multiple() const;
 
     virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
+    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
+                        std::vector<std::string>& values) const;
     virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
@@ -128,10 +131,13 @@ protected:  // members
 
     std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
+    std::set<std::unique_ptr<Context>> only_;
     std::map<std::unique_ptr<Context>, std::string> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;
+
+    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
 

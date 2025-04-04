@@ -250,6 +250,17 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
+    if (settings.contains("only")) {
+        eckit::Value only = settings["only"];
+        if (!only.isNil() && only.isList()) {
+            for (size_t i = 0; i < only.size(); i++) {
+                eckit::Value o = only[i];
+                ASSERT(o.contains("context"));
+                Context* c = parseContext(o["context"]);
+                only_.emplace(c);
+            }
+        }
+    }
     if (settings.contains("set")) {
         eckit::Value sets = settings["set"];
         if (!sets.isNil() && sets.isList()) {
@@ -303,6 +314,18 @@ bool Type::filter(const std::vector<std::string>& filter, std::vector<std::strin
     values.erase(std::remove_if(values.begin(), values.end(), not_in_set), values.end());
 
     return !values.empty();
+}
+
+bool Type::filter(const std::string& keyword, const std::vector<std::string>& f,
+                  std::vector<std::string>& values) const {
+    if (keyword == name_) {
+        return filter(f, values);
+    }
+    auto it = filters_.find(keyword);
+    if (it == filters_.end()) {
+        return false;
+    }
+    return it->second(f, values);
 }
 
 class InSet {
@@ -449,11 +472,26 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
         request.unsetValues(name_);
     }
     else {
+        bool matches = (only_.size() == 0);
+        for (const auto& context : only_) {
+            if (context->matches(request)) {
+                matches = true;
+                break;
+            }
+        }
+        if (!matches) {
+            std::ostringstream oss;
+            oss << *this << ": Key [" << name_ << "] not acceptable with contextes: " << std::endl;
+            for (const auto& context : only_) {
+                oss << "    " << *context << std::endl;
+            }
+            throw eckit::UserError(oss.str());
+        }
         for (const auto& context : unsets_) {
             if (context->matches(request)) {
                 if (strict && request.has(name_)) {
                     std::ostringstream oss;
-                    oss << *this << ": " << name_ << " not supported with context: " << *context;
+                    oss << *this << ": Key [" << name_ << "] not acceptable with context: " << *context;
                     throw eckit::UserError(oss.str());
                 }
                 request.unsetValues(name_);
@@ -464,7 +502,7 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
             if (context->matches(request)) {
                 if (strict && !request.has(name_)) {
                     std::ostringstream oss;
-                    oss << *this << ": missing " << name_ << " - required with context: " << *context;
+                    oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
                     throw eckit::UserError(oss.str());
                 }
                 request.setValuesTyped(this, std::vector<std::string>{value});

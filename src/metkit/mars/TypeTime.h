@@ -29,7 +29,7 @@ public:  // methods
 
     TypeTime(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeTime() override;
+    ~TypeTime() noexcept override = default;
 
 private:  // methods
 

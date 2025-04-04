@@ -76,6 +76,10 @@ bool Parameter::filter(const std::vector<std::string>& filter) {
     return type_->filter(filter, values_);
 }
 
+bool Parameter::filter(const std::string& keyword, const std::vector<std::string>& filter) {
+    return type_->filter(keyword, filter, values_);
+}
+
 
 bool Parameter::matches(const std::vector<std::string>& match) const {
     return type_->matches(match, values_);

@@ -451,8 +451,6 @@ TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Ty
     }
 }
 
-TypeParam::~TypeParam() {}
-
 void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
