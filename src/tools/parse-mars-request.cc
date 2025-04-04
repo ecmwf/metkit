@@ -17,7 +17,7 @@
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
 
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/tool/MetkitTool.h"
@@ -115,7 +115,7 @@ void ParseRequest::process(const eckit::PathName& path) {
     MarsParser parser(in);
 
     bool inherit = true;
-    MarsExpension expand(inherit);
+    MarsExpansion expand(inherit);
 
     auto p = parser.parse();
     if (!porcelain_) {

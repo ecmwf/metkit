@@ -20,7 +20,7 @@
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Translator.h"
 
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
 
@@ -36,22 +36,22 @@ ExpandCallback::~ExpandCallback() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-MarsExpension::MarsExpension(bool inherit, bool strict) : inherit_(inherit), strict_(strict) {}
+MarsExpansion::MarsExpansion(bool inherit, bool strict) : inherit_(inherit), strict_(strict) {}
 
-MarsExpension::~MarsExpension() {
+MarsExpansion::~MarsExpansion() {
     for (std::map<std::string, MarsLanguage*>::iterator j = languages_.begin(); j != languages_.end(); ++j) {
         delete (*j).second;
     }
 }
 
-void MarsExpension::reset() {
+void MarsExpansion::reset() {
     for (std::map<std::string, MarsLanguage*>::iterator j = languages_.begin(); j != languages_.end(); ++j) {
         (*j).second->reset();
     }
 }
 
 
-MarsLanguage& MarsExpension::language(const MarsExpandContext& ctx, const std::string& verb) {
+MarsLanguage& MarsExpansion::language(const MarsExpandContext& ctx, const std::string& verb) {
 
     std::string v = MarsLanguage::expandVerb(ctx, verb);
 
@@ -64,7 +64,7 @@ MarsLanguage& MarsExpension::language(const MarsExpandContext& ctx, const std::s
 }
 
 
-std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedRequest>& requests) {
+std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
     std::vector<MarsRequest> result;
 
     // Implement inheritence
@@ -80,20 +80,20 @@ std::vector<MarsRequest> MarsExpension::expand(const std::vector<MarsParsedReque
     return result;
 }
 
-MarsRequest MarsExpension::expand(const MarsRequest& request) {
+MarsRequest MarsExpansion::expand(const MarsRequest& request) {
     DummyContext ctx;
     MarsLanguage& lang = language(ctx, request.verb());
     return lang.expand(ctx, request, inherit_, strict_);
 }
 
 
-void MarsExpension::expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
+void MarsExpansion::expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
     MarsRequest r = language(ctx, request.verb()).expand(ctx, request, inherit_, strict_);
     callback(ctx, r);
 }
 
 
-void MarsExpension::flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback) {
+void MarsExpansion::flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback) {
     language(ctx, request.verb()).flatten(ctx, request, callback);
 }
 

@@ -8,75 +8,20 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Manuel Fuentes
-/// @author Baudouin Raoult
-/// @author Tiago Quintino
-
-/// @date Sep 96
-
 #ifndef metkit_MarsExpension_H
 #define metkit_MarsExpension_H
 
-#include "eckit/memory/NonCopyable.h"
-#include "metkit/mars/MarsParsedRequest.h"
-#include "metkit/mars/MarsRequest.h"
 
-
-namespace metkit {
-namespace mars {
-
-class MarsLanguage;
-class MarsExpandContext;
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class FlattenCallback {
-public:
-
-    virtual ~FlattenCallback();
-    virtual void operator()(const MarsRequest&) = 0;
-};
-
-class ExpandCallback {
-public:
-
-    virtual ~ExpandCallback();
-    virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
+struct [[deprecated("Use MarsExpansion instead")]] MarsExpension : MarsExpansion {
+    using MarsExpansion::MarsExpansion;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpension : public eckit::NonCopyable {
-public:
-
-    // -- Contructors
-
-    MarsExpension(bool inherit, bool strict = false);
-    ~MarsExpension();
-
-    void reset();
-
-    MarsRequest expand(const MarsRequest&);
-    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
-
-    void expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& cb);
-
-
-    void flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback);
-
-
-private:  // members
-
-    MarsLanguage& language(const MarsExpandContext&, const std::string& verb);
-
-    std::map<std::string, MarsLanguage*> languages_;
-    bool inherit_;
-    bool strict_;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
 
 #endif
