@@ -12,6 +12,7 @@
 /// @date   Dec 2024
 /// @author Christopher Bradley
 
+#include <cstring>
 #include <set>
 #include <string>
 #include <vector>
@@ -36,8 +37,9 @@ void test_success(int e) {
 }
 
 void EXPECT_STR_EQUAL(const char* a, const char* b) {
-    if (strcmp(a, b) != 0)
+    if (std::strcmp(a, b) != 0) {
         throw TestException("Expected: " + std::string(a) + " == " + std::string(b), Here());
+    }
 }
 
 // Fairly minimal test coverage
