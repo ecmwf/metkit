@@ -71,15 +71,27 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
                   NO_AS_NEEDED
                   ENVIRONMENT   "${metkit_env}")
 
-list(APPEND testFileSuffixes typesfactory expand filter request param_axis steprange_axis date time step hypercube type_levelist c_api integer_range )
-
-foreach(test IN LISTS testFileSuffixes)
-    ecbuild_add_test( TARGET    "metkit_test_${test}"
-                      SOURCES   "test_${test}.cc"
-                      INCLUDES  "${ECKIT_INCLUDE_DIRS}"
-                      ENVIRONMENT   "${metkit_env}"
+foreach( test 
+        c_api
+        date
+        expand
+        filter
+        hypercube
+        integer_range
+        language
+        param_axis
+        request
+        step
+        steprange_axis
+        time
+        type_levelist
+        typesfactory )
+    ecbuild_add_test( TARGET       "metkit_test_${test}"
+                      SOURCES      "test_${test}.cc"
+                      INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                      ENVIRONMENT  "${metkit_env}"
                       NO_AS_NEEDED
-                      LIBS      metkit)
+                      LIBS         metkit)
 endforeach()
 
 # Compile C test
