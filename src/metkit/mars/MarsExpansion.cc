@@ -8,73 +8,56 @@
  * does it submit to any jurisdiction.
  */
 
-#include <algorithm>
-#include <list>
-#include <set>
-
-#include "eckit/config/Resource.h"
-#include "eckit/log/JSON.h"
-#include "eckit/log/Log.h"
-#include "eckit/types/Types.h"
-#include "eckit/utils/MD5.h"
-#include "eckit/utils/StringTools.h"
-#include "eckit/utils/Translator.h"
-
 #include "metkit/mars/MarsExpansion.h"
+
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/Type.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-FlattenCallback::~FlattenCallback() {}
+FlattenCallback::~FlattenCallback() = default;
 
-ExpandCallback::~ExpandCallback() {}
+ExpandCallback::~ExpandCallback() = default;
 
 //----------------------------------------------------------------------------------------------------------------------
 
 MarsExpansion::MarsExpansion(bool inherit, bool strict) : inherit_(inherit), strict_(strict) {}
 
 MarsExpansion::~MarsExpansion() {
-    for (std::map<std::string, MarsLanguage*>::iterator j = languages_.begin(); j != languages_.end(); ++j) {
-        delete (*j).second;
+    for (auto& language : languages_) {
+        delete language.second;
     }
 }
 
 void MarsExpansion::reset() {
-    for (std::map<std::string, MarsLanguage*>::iterator j = languages_.begin(); j != languages_.end(); ++j) {
-        (*j).second->reset();
+    for (auto& language : languages_) {
+        language.second->reset();
     }
 }
 
 
 MarsLanguage& MarsExpansion::language(const MarsExpandContext& ctx, const std::string& verb) {
+    auto v = MarsLanguage::expandVerb(ctx, verb);
 
-    std::string v = MarsLanguage::expandVerb(ctx, verb);
-
-    std::map<std::string, MarsLanguage*>::iterator j = languages_.find(v);
-    if (j == languages_.end()) {
-        languages_.insert(std::make_pair(v, new MarsLanguage(v)));
-        j = languages_.find(v);
+    if (auto j = languages_.find(v); j != languages_.end()) {
+        return *(*j).second;
     }
+
+    auto j = languages_.emplace(v, new MarsLanguage(v)).first;
     return *(*j).second;
 }
 
 
 std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) {
     std::vector<MarsRequest> result;
+    result.reserve(requests.size());
 
     // Implement inheritence
-    for (auto j = requests.begin(); j != requests.end(); ++j) {
-
-        MarsLanguage& lang = language((*j), (*j).verb());
-        MarsRequest r      = lang.expand(*j, *j, inherit_, strict_);
-
-
-        result.push_back(r);
+    for (const auto& request : requests) {
+        auto& lang = language(request, request.verb());
+        result.emplace_back(lang.expand(request, request, inherit_, strict_));
     }
 
     return result;
@@ -82,7 +65,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
     DummyContext ctx;
-    MarsLanguage& lang = language(ctx, request.verb());
+    auto& lang = language(ctx, request.verb());
     return lang.expand(ctx, request, inherit_, strict_);
 }
 
@@ -98,5 +81,5 @@ void MarsExpansion::flatten(const MarsExpandContext& ctx, const MarsRequest& req
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
+
+}  // namespace metkit::mars
