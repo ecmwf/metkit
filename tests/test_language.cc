@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-#include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
 
 #include "metkit/mars/MarsRequest.h"
@@ -25,7 +24,7 @@ namespace metkit::mars::test {
 
 struct Expected {
     const std::string verb;
-    const std::map<std::string, std::vector<std::string>> keyvalue;
+    std::map<std::string, std::vector<std::string>> keyvalue;
 };
 
 using Sequence = std::vector<unsigned long>;
@@ -66,12 +65,25 @@ void expect_mars(const std::string& text, const Expected& expected, bool strict 
 // -----------------------------------------------------------------------------
 
 CASE("grid: regular Gaussian grids") {
-    for (const auto& n : make_random_sequence(2, 8000, 20 /*reduced number of tests*/)) {
-        expect_mars("ret, date=-1, grid=" + std::to_string(n), Expected{"retrieve", {{"grid", {std::to_string(n)}}}});
+    const Sequence F{16,  24,  32,  48,  64,  80,  96,   128,  160,  192,  200,  256,  320,
+                     400, 512, 576, 640, 800, 912, 1024, 1280, 1600, 2000, 2560, 4000, 8000};
 
-        const Expected expected{"retrieve", {{"grid", {"F" + std::to_string(n)}}}};
+    const auto Fn = [](const auto& other) {
+        auto seq = make_random_sequence(2, 8000, 20);
+        seq.insert(seq.end(), other.begin(), other.end());
+        return seq;
+    }(F);
+
+    for (const auto& n : Fn) {
+        // known grids are expanded correctly (pattern matching doesn't work reliably here)
+        Expected expected{"retrieve", {{"grid", {"F" + std::to_string(n)}}}};
+        if (std::find(F.begin(), F.end(), n) == F.end()) {
+            expected.keyvalue.clear();
+        }
+
         expect_mars("ret, date=-1, grid=F" + std::to_string(n), expected);
         expect_mars("ret, date=-1, grid=f" + std::to_string(n), expected);
+        expect_mars("ret, date=-1, grid=" + std::to_string(n), expected);
     }
 }
 
