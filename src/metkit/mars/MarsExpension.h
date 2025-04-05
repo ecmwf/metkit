@@ -11,6 +11,7 @@
 #ifndef metkit_MarsExpension_H
 #define metkit_MarsExpension_H
 
+#include "metkit/mars/MarsExpansion.h"
 
 namespace metkit::mars {
 
