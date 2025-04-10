@@ -33,6 +33,9 @@ axes:
     - longitude
     - range
     - param
+    - chem
+    - wavelength
+    - timespan
     - ident
     - obstype
     - instrument

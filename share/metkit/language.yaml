@@ -672,6 +672,39 @@ _field: &_field
     # never:
     # - type: [tf, ob]
 
+  chem:
+    category: data
+    multiple: true
+    type: integer
+    default: none
+
+  wavelength:
+    category: data
+    multiple: true
+    type: integer
+    default: none
+
+  timespan:
+    category: data
+    type: enum
+    values:
+    - [from-start, fs,fromstart]
+    - [30m]
+    - [1h]
+    - [3h]
+    - [6h]
+    - [12h]
+    - [18h]
+    - [24h]
+    - [48h]
+    - [72h]
+    - [120h]
+    - [168h]
+    - [240h]
+    - [360h]
+    default: none
+    multiple: false
+
 #################################################################
 
   # year
