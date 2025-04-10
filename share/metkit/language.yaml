@@ -681,7 +681,7 @@ _field: &_field
   wavelength:
     category: data
     multiple: true
-    type: integer
+    type: range 
     default: none
 
   timespan:
@@ -702,6 +702,7 @@ _field: &_field
     - [168h]
     - [240h]
     - [360h]
+    - [none, inst, instantaneous, off]
     default: none
     multiple: false
 
@@ -1006,23 +1007,12 @@ _field: &_field
     multiple: true
     by: 1
     type: to-by-list
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
-
 
   direction:
     category: data
     multiple: true
     by: 1
     type: to-by-list
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
