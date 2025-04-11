@@ -10,25 +10,23 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "metkit/fields/SimpleFieldIndex.h"
 #include "metkit/fields/FieldIndexList.h"
+#include "metkit/fields/SimpleFieldIndex.h"
 
 namespace metkit {
 namespace fields {
 
 FieldIndexList::~FieldIndexList() {
-    for ( size_t i = 0; i < fields_.size(); ++i )
-    {
+    for (size_t i = 0; i < fields_.size(); ++i) {
         FieldIndex* h = fields_[i];
         delete h;
     }
 }
 
-void FieldIndexList::readFrom( eckit::Stream& s )
-{
-    ASSERT( length_.size() == 0);
-    ASSERT( offset_.size() == 0);
-    ASSERT( fields_.size() == 0);
+void FieldIndexList::readFrom(eckit::Stream& s) {
+    ASSERT(length_.size() == 0);
+    ASSERT(offset_.size() == 0);
+    ASSERT(fields_.size() == 0);
 
     unsigned long count;
 
@@ -38,25 +36,27 @@ void FieldIndexList::readFrom( eckit::Stream& s )
     offset_.resize(count);
     fields_.resize(count);
 
-    for ( size_t i = 0; i < count; ++i ) {
+    for (size_t i = 0; i < count; ++i) {
         unsigned long long x;
-        s >> x; offset_[i] = x;
-        s >> x; length_[i] = x;
+        s >> x;
+        offset_[i] = x;
+        s >> x;
+        length_[i] = x;
         fields_[i] = new SimpleFieldIndex(s);
     }
 }
 
-void FieldIndexList::sendTo( eckit::Stream& s ) const {
+void FieldIndexList::sendTo(eckit::Stream& s) const {
 
-    ASSERT( length_.size() == offset_.size());
-    ASSERT( offset_.size() == fields_.size());
+    ASSERT(length_.size() == offset_.size());
+    ASSERT(offset_.size() == fields_.size());
 
     unsigned long count = length_.size();
 
     s << count;
 
 
-    for ( size_t i = 0; i < count; ++i ) {
+    for (size_t i = 0; i < count; ++i) {
         unsigned long long o = offset_[i];
         unsigned long long l = length_[i];
 
@@ -67,5 +67,5 @@ void FieldIndexList::sendTo( eckit::Stream& s ) const {
     }
 }
 
-} // namespace fields
-} // namespace metkit
+}  // namespace fields
+}  // namespace metkit

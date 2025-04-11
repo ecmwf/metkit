@@ -39,6 +39,7 @@ class MarsRequest;
 
 class Parameter {
 public:  // methods
+
     Parameter();
     ~Parameter();
 
@@ -52,6 +53,7 @@ public:  // methods
     void values(const std::vector<std::string>& values);
 
     bool filter(const std::vector<std::string>& filter);
+    bool filter(const std::string& keyword, const std::vector<std::string>& filter);
     bool matches(const std::vector<std::string>& matches) const;
 
     void merge(const Parameter& p);
@@ -62,6 +64,7 @@ public:  // methods
     size_t count() const;
 
 private:  // methods
+
     void print(std::ostream&) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Parameter& p) {
@@ -70,6 +73,7 @@ private:  // methods
     }
 
 private:  // members
+
     Type* type_;
     std::vector<std::string> values_;
 };

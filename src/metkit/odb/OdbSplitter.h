@@ -14,8 +14,8 @@
 #ifndef metkit_OdbSplitter_h
 #define metkit_OdbSplitter_h
 
-#include "eckit/message/Splitter.h"
 #include "eckit/io/SeekableHandle.h"
+#include "eckit/message/Splitter.h"
 
 #include "odc/api/Odb.h"
 
@@ -35,23 +35,22 @@ public:
     explicit OdbSplitter(eckit::PeekHandle&);
     ~OdbSplitter() override;
 
-private: // members
+private:  // members
 
     eckit::SeekableHandle handleWrapper_;
     odc::api::Reader reader_;
     odc::api::Frame lastFrame_;
 
-private: // methods
+private:  // methods
 
     virtual eckit::message::Message next() override;
     virtual void print(std::ostream&) const override;
-
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
-} // namespace metkit
+}  // namespace codes
+}  // namespace metkit
 
 #endif

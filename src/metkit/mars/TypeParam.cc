@@ -11,13 +11,13 @@
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
-#include "eckit/utils/StringTools.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"
+#include "eckit/utils/StringTools.h"
 
-#include "metkit/mars/MarsLanguage.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypeParam.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -28,21 +28,20 @@ using metkit::LibMetkit;
 
 namespace {
 
-static eckit::Mutex *local_mutex = 0;
-static pthread_once_t once = PTHREAD_ONCE_INIT;
-
+static eckit::Mutex* local_mutex = 0;
+static pthread_once_t once       = PTHREAD_ONCE_INIT;
 
 
 class Matcher {
 
     std::string name_;
     eckit::Value values_;
+
 public:
 
-    Matcher(const std::string& name,
-            const eckit::Value values);
+    Matcher(const std::string& name, const eckit::Value values);
 
-    bool match(const metkit::mars::MarsRequest& request, bool partial=false) const ;
+    bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
 
     friend std::ostream& operator<<(std::ostream& out, const Matcher& matcher) {
         out << matcher.name_ << "=" << matcher.values_;
@@ -50,15 +49,11 @@ public:
     }
 };
 
-Matcher::Matcher(const std::string& name,
-                 const eckit::Value values):
-    name_(name),
-    values_(values) {
+Matcher::Matcher(const std::string& name, const eckit::Value values) : name_(name), values_(values) {
 
     if (!values_.isList()) {
         values_ = eckit::Value::makeList(values_);
     }
-
 }
 
 bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) const {
@@ -86,15 +81,15 @@ class Rule : public metkit::mars::MarsExpandContext {
     std::vector<Matcher> matchers_;
 
     std::vector<std::string> values_;
-    mutable std::map<std::string, std::string> mapping_; 
+    mutable std::map<std::string, std::string> mapping_;
 
     static std::vector<std::string> defaultValues_;
     static std::map<std::string, std::string> defaultMapping_;
 
 public:
 
-    bool match(const metkit::mars::MarsRequest& request, bool partial=false) const;
-    std::string lookup(const MarsExpandContext& ctx, const std::string & s, bool fail) const;
+    bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
+    std::string lookup(const MarsExpandContext& ctx, const std::string& s, bool fail) const;
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
@@ -119,7 +114,6 @@ public:
         rule.print(out);
         return out;
     }
-
 };
 
 std::vector<std::string> Rule::defaultValues_;
@@ -145,7 +139,6 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
         }
 
 
-
         for (size_t j = 0; j < aliases.size(); ++j) {
             std::string v = aliases[j];
 
@@ -153,30 +146,21 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
 
                 if (precedence[v] <= j) {
 
-                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param "
-                            << v
-                            << "='"
-                            << first
-                            << "', keeping previous value of '"
-                            << defaultMapping_[v]
-                            << "' "
-                            << std::endl;
+                    LOG_DEBUG_LIB(LibMetkit)
+                        << "Redefinition ignored: param " << v << "='" << first << "', keeping previous value of '"
+                        << defaultMapping_[v] << "' " << std::endl;
                     continue;
                 }
                 else {
 
-                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
-                            << v
-                            << "='"
-                            << first
-                            << "', overriding previous value of '"
-                            << defaultMapping_[v]
-                            << "' "
-                            << std::endl;
+                    LOG_DEBUG_LIB(LibMetkit)
+                        << "Redefinition of param " << v << "='" << first << "', overriding previous value of '"
+                        << defaultMapping_[v] << "' " << std::endl;
 
                     precedence[v] = j;
                 }
-            } else {
+            }
+            else {
                 precedence[v] = j;
             }
 
@@ -212,7 +196,6 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         }
 
 
-
         for (size_t j = 0; j < aliases.size(); ++j) {
             std::string v = aliases[j];
 
@@ -220,32 +203,21 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
 
                 if (precedence[v] <= j) {
 
-                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition ignored: param "
-                            << v
-                            << "='"
-                            << first
-                            << "', keeping previous value of '"
-                            << mapping_[v]
-                            << "' "
-                            << *this
-                            << std::endl;
+                    LOG_DEBUG_LIB(LibMetkit)
+                        << "Redefinition ignored: param " << v << "='" << first << "', keeping previous value of '"
+                        << mapping_[v] << "' " << *this << std::endl;
                     continue;
                 }
                 else {
 
-                    LOG_DEBUG_LIB(LibMetkit) << "Redefinition of param "
-                            << v
-                            << "='"
-                            << first
-                            << "', overriding previous value of '"
-                            << mapping_[v]
-                            << "' "
-                            << *this
-                            << std::endl;
+                    LOG_DEBUG_LIB(LibMetkit)
+                        << "Redefinition of param " << v << "='" << first << "', overriding previous value of '"
+                        << mapping_[v] << "' " << *this << std::endl;
 
                     precedence[v] = j;
                 }
-            } else {
+            }
+            else {
                 precedence[v] = j;
             }
 
@@ -254,7 +226,6 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         }
     }
 }
-
 
 
 bool Rule::match(const metkit::mars::MarsRequest& request, bool partial) const {
@@ -278,46 +249,46 @@ class ChainedContext : public metkit::mars::MarsExpandContext {
 
 
 public:
-    ChainedContext(const MarsExpandContext& ctx1, const MarsExpandContext& ctx2):
-        ctx1_(ctx1), ctx2_(ctx2) {}
+
+    ChainedContext(const MarsExpandContext& ctx1, const MarsExpandContext& ctx2) : ctx1_(ctx1), ctx2_(ctx2) {}
 };
 
 
-std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bool fail) const {
+std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, bool fail) const {
 
     size_t table = 0;
     size_t param = 0;
-    size_t *n = &param;
-    bool ok = true;
+    size_t* n    = &param;
+    bool ok      = true;
 
     for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            (*n) *= 10;
-            (*n) += (*k) - '0';
-            break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                (*n) *= 10;
+                (*n) += (*k) - '0';
+                break;
 
-        case '.':
-            if (n == &param) {
-                n = &table;
-            }
-            else {
+            case '.':
+                if (n == &param) {
+                    n = &table;
+                }
+                else {
+                    ok = false;
+                }
+                break;
+
+            default:
                 ok = false;
-            }
-            break;
-
-        default:
-            ok = false;
-            break;
+                break;
         }
     }
 
@@ -327,7 +298,7 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
             table = 0;
         }
 
-        oss <<  table * 1000 + param;
+        oss << table * 1000 + param;
 
         std::string p = oss.str();
         for (std::vector<std::string>::const_iterator j = values_.begin(); j != values_.end(); ++j) {
@@ -346,13 +317,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
         return p;
     }
 
-    // std::cout << "--- [" << s << "]" << std::endl;
-    // std::cout << "--- [" << values_ << "]" << std::endl;
-
-    // for (auto j = mapping_.begin(); j != mapping_.end(); ++j) {
-    //     std::cout << "--- [" << (*j).first << " ===> " << (*j).second << std::endl;
-    // }
-
     ChainedContext c(ctx, *this);
 
     std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
@@ -365,19 +329,20 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string & s, bo
 
 static std::vector<Rule>* rules = nullptr;
 
-}
+}  // namespace
 
 static void init() {
 
     local_mutex = new eckit::Mutex();
-    rules = new std::vector<Rule>();
+    rules       = new std::vector<Rule>();
 
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
 
     eckit::ValueMap merge;
 
-    static bool metkitLegacyParamCheck = eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
+    static bool metkitLegacyParamCheck =
+        eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
     static bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
 
     if (metkitLegacyParamCheck || (!metkitRawParam)) {
@@ -437,7 +402,7 @@ static void init() {
 
     std::set<std::string> shortnames;
     std::set<std::string> associatedIDs;
-    
+
     const eckit::Value pc = eckit::YAMLParser::decodeFile(LibMetkit::shortnameContextYamlFile());
     ASSERT(pc.isList());
 
@@ -445,9 +410,9 @@ static void init() {
         shortnames.emplace(pc[i]);
     }
 
-    for (size_t i=0; i < keys.size(); i++) {
+    for (size_t i = 0; i < keys.size(); i++) {
         auto el = ids.element(keys[i]);
-        for (size_t j=0; j < el.size(); j++) {
+        for (size_t j = 0; j < el.size(); j++) {
             if (shortnames.find(el[j]) != shortnames.end()) {
                 associatedIDs.emplace(keys[i]);
             }
@@ -457,7 +422,7 @@ static void init() {
     for (auto it = merge.begin(); it != merge.end(); it++) {
         auto listIDs = eckit::Value::makeList();
 
-        for (size_t j=0; j<it->second.size(); j++) {
+        for (size_t j = 0; j < it->second.size(); j++) {
             if (associatedIDs.find(it->second[j]) != associatedIDs.end()) {
                 listIDs.append(it->second[j]);
             }
@@ -475,9 +440,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings),
-    firstRule_(false) {
+TypeParam::TypeParam(const std::string& name, const eckit::Value& settings) : Type(name, settings), firstRule_(false) {
 
     if (settings.contains("expand_with")) {
         expandWith_ = settings["expand_with"];
@@ -488,14 +451,13 @@ TypeParam::TypeParam(const std::string &name, const eckit::Value& settings) :
     }
 }
 
-TypeParam::~TypeParam() {}
-
-void TypeParam::print(std::ostream &out) const {
+void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
 
-bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const {
+bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
+                       bool fail) const {
 
     pthread_once(&once, init);
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
@@ -511,21 +473,22 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
 
     if (!rule) {
 
-        Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;;
+        Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
+        ;
 
         if (firstRule_) {
             bool found = false;
-            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule ; ++j) {
+            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule; ++j) {
                 const Rule* r = &(*j);
                 if ((*j).match(request, true)) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s = r->lookup(ctx, s, fail);
+                            s    = r->lookup(ctx, s, fail);
                             rule = r;
                             Log::warning() << "TypeParam: using 'first matching rule' option " << *rule << std::endl;
-                        } catch (...) {
-
+                        }
+                        catch (...) {
                         }
                     }
                 }
@@ -545,7 +508,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
                     break;
                 }
             }
-
         }
         if (!rule) {
             std::ostringstream oss;
@@ -559,7 +521,8 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
         std::string& s = (*j);
         try {
             s = rule->lookup(ctx, s, fail);
-        } catch (...) {
+        }
+        catch (...) {
             Log::error() << *rule << std::endl;
             throw;
         }
@@ -577,7 +540,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
 
 void TypeParam::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
-// Work done on pass2()
+    // Work done on pass2()
 }
 
 void TypeParam::reset() {
@@ -589,5 +552,5 @@ static TypeBuilder<TypeParam> type("param");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

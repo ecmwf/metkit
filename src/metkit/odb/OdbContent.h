@@ -12,18 +12,18 @@
 /// @date   Jun 2020
 
 
-
 #ifndef metkit_codes_OdbContent_H
 #define metkit_codes_OdbContent_H
 
-#include "eckit/message/MessageContent.h"
 #include "eckit/io/Buffer.h"
+#include "eckit/message/MessageContent.h"
 
 namespace metkit {
 namespace codes {
 
 class OdbContent : public eckit::message::MessageContent {
 public:
+
     OdbContent(eckit::Buffer&&);
     OdbContent(eckit::DataHandle&, size_t size);
     ~OdbContent();
@@ -38,8 +38,7 @@ private:
 
     virtual void write(eckit::DataHandle& handle) const override;
 
-    virtual void print(std::ostream & s) const override;
-
+    virtual void print(std::ostream& s) const override;
 };
 
 

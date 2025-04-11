@@ -11,35 +11,31 @@
 /// @file   TypeFloat.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_TypeFloat_H
-#define metkit_TypeFloat_H
+#pragma once
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class TypeFloat : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeFloat(const std::string &name, const eckit::Value& settings);
+    TypeFloat(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeFloat() override;
+    ~TypeFloat() noexcept override = default;
 
-private: // methods
+private:  // methods
 
-    virtual void print( std::ostream &out ) const override;
+    virtual void print(std::ostream& out) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
-
-#endif
+}  // namespace metkit::mars

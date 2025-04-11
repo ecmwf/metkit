@@ -35,13 +35,13 @@ private:
 
 
     virtual eckit::Offset seek(const eckit::Offset&) const = 0;
-    virtual long read(void*, long) const = 0;
-    virtual const GribFieldInfo& info() const = 0;
+    virtual long read(void*, long) const                   = 0;
+    virtual const GribFieldInfo& info() const              = 0;
 
     friend class GribFieldInfo;
 };
 
-} // namespace pointdb
-} // namespace metkit
+}  // namespace pointdb
+}  // namespace metkit
 
 #endif

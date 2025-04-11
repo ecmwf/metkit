@@ -10,43 +10,29 @@
 
 #include <iomanip>
 
-#include "metkit/pointdb/GribHandleDataSource.h"
-#include "metkit/pointdb/GribFieldInfo.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/filesystem/PathName.h"
-#include "eckit/io/DataHandle.h"
 #include "eckit/io/Buffer.h"
+#include "eckit/io/DataHandle.h"
 #include "eckit/io/PooledHandle.h"
-#include "metkit/pointdb/PointIndex.h"
-#include "eckit/utils/MD5.h"
 #include "eckit/io/StdFile.h"
+#include "eckit/utils/MD5.h"
 #include "metkit/codes/GribHandle.h"
+#include "metkit/pointdb/GribFieldInfo.h"
+#include "metkit/pointdb/GribHandleDataSource.h"
+#include "metkit/pointdb/PointIndex.h"
 
 namespace metkit {
 namespace pointdb {
 
-GribHandleDataSource::GribHandleDataSource(const eckit::PathName& path,
-        const eckit::Offset& offset):
-    handle_(path.fileHandle()),
-    ownsHandle_(true),
-    opened_(false),
-    offset_(offset) {
-}
+GribHandleDataSource::GribHandleDataSource(const eckit::PathName& path, const eckit::Offset& offset) :
+    handle_(path.fileHandle()), ownsHandle_(true), opened_(false), offset_(offset) {}
 
-GribHandleDataSource::GribHandleDataSource(eckit::DataHandle& handle,
-        const eckit::Offset& offset):
-    handle_(&handle),
-    ownsHandle_(false),
-    opened_(false),
-    offset_(offset) {
-}
+GribHandleDataSource::GribHandleDataSource(eckit::DataHandle& handle, const eckit::Offset& offset) :
+    handle_(&handle), ownsHandle_(false), opened_(false), offset_(offset) {}
 
-GribHandleDataSource::GribHandleDataSource(eckit::DataHandle* handle,
-        const eckit::Offset& offset):
-    handle_(handle),
-    ownsHandle_(true),
-    opened_(false),
-    offset_(offset) {
+GribHandleDataSource::GribHandleDataSource(eckit::DataHandle* handle, const eckit::Offset& offset) :
+    handle_(handle), ownsHandle_(true), opened_(false), offset_(offset) {
     ASSERT(handle_);
 }
 
@@ -117,7 +103,7 @@ void GribHandleDataSource::print(std::ostream& s) const {
 }
 
 const std::map<std::string, eckit::Value>& GribHandleDataSource::request() const {
-    NOTIMP; // Implement a grib2request like function
+    NOTIMP;  // Implement a grib2request like function
 }
 
 std::string GribHandleDataSource::groupKey() const {
@@ -129,12 +115,12 @@ std::string GribHandleDataSource::groupKey() const {
 
 std::string GribHandleDataSource::sortKey() const {
     std::ostringstream oss;
-    oss << std::setfill ('0') << std::setw (20) << offset_;
+    oss << std::setfill('0') << std::setw(20) << offset_;
     return oss.str();
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace pointdb
+}  // namespace pointdb
 
-} // namespace metkit
+}  // namespace metkit

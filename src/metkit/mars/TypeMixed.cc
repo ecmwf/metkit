@@ -9,8 +9,8 @@
  */
 
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeMixed.h"
+#include "metkit/mars/TypesFactory.h"
 
 
 namespace metkit {
@@ -18,8 +18,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeMixed::TypeMixed(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings) {
+TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
     eckit::Value types = settings["type"];
 
     eckit::Value cfg = settings;
@@ -28,25 +27,24 @@ TypeMixed::TypeMixed(const std::string &name, const eckit::Value& settings) :
     for (size_t i = 0; i < types.size(); ++i) {
         cfg["type"] = types[i];
 
-        Type *k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
+        Type* k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
         k->attach();
         types_.push_back(k);
     }
-
 }
 
-TypeMixed::~TypeMixed() {
+TypeMixed::~TypeMixed() noexcept {
     for (std::vector<Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
         (*j)->detach();
     }
 }
 
-void TypeMixed::print(std::ostream &out) const {
+void TypeMixed::print(std::ostream& out) const {
     out << "TypeMixed[name=" << name_;
     for (std::vector<Type*>::const_iterator j = types_.begin(); j != types_.end(); ++j) {
         out << "," << *(*j);
     }
-    out  << "]";
+    out << "]";
 }
 
 
@@ -67,5 +65,5 @@ static TypeBuilder<TypeMixed> type("mixed");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

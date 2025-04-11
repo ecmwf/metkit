@@ -10,8 +10,8 @@
 
 #include <iomanip>
 
-#include "eckit/utils/Translator.h"
 #include "eckit/utils/StringTools.h"
+#include "eckit/utils/Translator.h"
 
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/TypeExpver.h"
@@ -22,10 +22,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) :
-    Type(name, settings) {}
-
-TypeExpver::~TypeExpver() {}
+TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
 bool TypeExpver::expand(const MarsExpandContext&, std::string& value) const {
     std::ostringstream oss;

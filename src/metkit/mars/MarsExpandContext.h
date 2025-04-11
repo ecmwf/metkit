@@ -42,13 +42,13 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class DummyContext: public MarsExpandContext {
+class DummyContext : public MarsExpandContext {
     virtual void info(std::ostream&) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

@@ -14,29 +14,28 @@
 #include <iostream>
 #include <memory>
 
-#include "eckit/message/MessageContent.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/message/MessageContent.h"
 
-#include "metkit/codes/MallocCodesContent.h"
 #include "metkit/codes/CodesContent.h"
+#include "metkit/codes/MallocCodesContent.h"
 
-#include "eccodes.h" /// @todo remove this depedency on eccodes fom here
+#include "eccodes.h"  /// @todo remove this depedency on eccodes fom here
 
 namespace metkit {
 namespace codes {
 
-MallocCodesContent::MallocCodesContent(void* data, size_t size, const eckit::Offset& offset):
+MallocCodesContent::MallocCodesContent(void* data, size_t size, const eckit::Offset& offset) :
     CodesContent(codes_handle_new_from_message(nullptr, data, size), true),
     buffer_(data),
     length_(size),
-    offset_(offset) {
-}
+    offset_(offset) {}
 
 MallocCodesContent::~MallocCodesContent() {
     ::free(buffer_);
 }
 
-void MallocCodesContent::print(std::ostream & s) const {
+void MallocCodesContent::print(std::ostream& s) const {
     s << "MallocCodesContent[]";
 }
 
@@ -50,6 +49,5 @@ size_t MallocCodesContent::length() const {
     return length_;
 }
 
-}  // namespace close
+}  // namespace codes
 }  // namespace metkit
-

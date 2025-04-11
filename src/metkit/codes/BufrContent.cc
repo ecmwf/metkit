@@ -24,11 +24,9 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BufrContent::BufrContent(codes_handle* handle, bool delete_handle): CodesContent(handle, delete_handle) {}
+BufrContent::BufrContent(codes_handle* handle, bool delete_handle) : CodesContent(handle, delete_handle) {}
 
-BufrContent::BufrContent(const codes_handle* handle):
-    BufrContent(const_cast<codes_handle*>(handle), false) {
-}
+BufrContent::BufrContent(const codes_handle* handle) : BufrContent(const_cast<codes_handle*>(handle), false) {}
 
 BufrContent::~BufrContent() {}
 
@@ -42,9 +40,9 @@ eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& 
 
     for (auto& kv : dict) {
         codes_values v;
-        v.name         = kv.first.c_str();
-        v.long_value   = std::stol(kv.second);
-        v.type         = GRIB_TYPE_LONG;
+        v.name       = kv.first.c_str();
+        v.long_value = std::stol(kv.second);
+        v.type       = GRIB_TYPE_LONG;
 
         values.push_back(v);
     }
@@ -52,7 +50,7 @@ eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& 
     try {
         CODES_CALL(codes_set_values(h, values.data(), values.size()));
     }
-    catch(...) {
+    catch (...) {
         codes_handle_delete(h);
         throw;
     }
@@ -63,6 +61,5 @@ eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace close
+}  // namespace codes
 }  // namespace metkit
-

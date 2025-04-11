@@ -16,8 +16,8 @@
 #ifndef metkit_TypeRegex_H
 #define metkit_TypeRegex_H
 
-#include "metkit/mars/Type.h"
 #include "eckit/utils/Regex.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit {
 namespace mars {
@@ -26,26 +26,24 @@ namespace mars {
 
 class TypeRegex : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeRegex(const std::string &name, const eckit::Value& settings);
+    TypeRegex(const std::string& name, const eckit::Value& settings);
 
-    virtual ~TypeRegex() override;
+    ~TypeRegex() noexcept override = default;
 
+private:  // methods
 
-private: // methods
-
-    virtual void print( std::ostream &out ) const override;
+    virtual void print(std::ostream& out) const override;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     std::vector<eckit::Regex> regex_;
     bool uppercase_;
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit
 
 #endif

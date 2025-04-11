@@ -21,14 +21,13 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 class UndefinedType : public Type {
-    virtual void print(std::ostream& out) const { out << "<undefined type>"; }
+    void print(std::ostream& out) const override { out << "<undefined type>"; }
 
-    virtual bool filter(const std::vector<std::string>&,
-                        std::vector<std::string>&) const {
-        NOTIMP;
-    }
+    bool filter(const std::vector<std::string>&, std::vector<std::string>&) const override { NOTIMP; }
+    bool expand(const MarsExpandContext&, std::string&) const override { NOTIMP; }
 
 public:
+
     UndefinedType() : Type("<undefined>", eckit::Value()) { attach(); }
 };
 
@@ -47,8 +46,7 @@ Parameter::~Parameter() {
     type_->detach();
 }
 
-Parameter::Parameter(const std::vector<std::string>& values, Type* type) :
-    type_(type), values_(values) {
+Parameter::Parameter(const std::vector<std::string>& values, Type* type) : type_(type), values_(values) {
     if (!type) {
         type_ = &undefined;
     }
@@ -78,6 +76,10 @@ bool Parameter::filter(const std::vector<std::string>& filter) {
     return type_->filter(filter, values_);
 }
 
+bool Parameter::filter(const std::string& keyword, const std::vector<std::string>& filter) {
+    return type_->filter(keyword, filter, values_);
+}
+
 
 bool Parameter::matches(const std::vector<std::string>& match) const {
     return type_->matches(match, values_);
@@ -101,8 +103,7 @@ void Parameter::merge(const Parameter& p) {
             diff.push_back(o);
     }
 
-    values_.insert(values_.end(), std::make_move_iterator(diff.begin()),
-                   std::make_move_iterator(diff.end()));
+    values_.insert(values_.end(), std::make_move_iterator(diff.begin()), std::make_move_iterator(diff.end()));
 }
 
 

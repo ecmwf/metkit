@@ -11,11 +11,12 @@
 /// @file   Type.h
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
+/// @author Emanuele Danovaro
 /// @date   April 2016
 
-#ifndef metkit_Type_H
-#define metkit_Type_H
+#pragma once
 
+#include <functional>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -25,22 +26,15 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
-
 namespace metkit::mars {
 
 class MarsRequest;
 class MarsExpandContext;
 
-//----------------------------------------------------------------------------------------------------------------------
-
 class ContextRule {
 public:
-    ContextRule(const ContextRule&)            = default;
-    ContextRule& operator=(const ContextRule&) = default;
-    ContextRule(ContextRule&&)                 = delete;
-    ContextRule& operator=(ContextRule&&)      = delete;
 
-    explicit ContextRule(const std::string& k);
+    ContextRule(const std::string& k);
 
     virtual ~ContextRule() = default;
 
@@ -49,40 +43,57 @@ public:
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
 
 protected:
+
     std::string key_;
 
 private:  // methods
+
     virtual void print(std::ostream& out) const = 0;
 };
 
-//----------------------------------------------------------------------------------------------------------------------
-
 class Context {
 public:
-    void add(std::unique_ptr<ContextRule> rule);
+
+    /// @note takes ownership of the rule
+    void add(ContextRule* rule);
+
     bool matches(MarsRequest req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
 
 private:  // methods
+
     void print(std::ostream& out) const;
+
 private:
+
     std::vector<std::unique_ptr<ContextRule>> rules_;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class ITypeToByList {
+public:
+
+    virtual ~ITypeToByList()                                                                        = default;
+    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class Type : public eckit::Counted {
 public:  // methods
+
     Type(const std::string& name, const eckit::Value& settings);
 
-    virtual void expand(const MarsExpandContext& ctx,
-                        std::vector<std::string>& values) const;
+    ~Type() noexcept override = default;
+
+    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
 
-    virtual std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
-    virtual std::string tidy(const std::string& value) const;
-    virtual std::vector<std::string> tidy(const std::vector<std::string>& values) const;
+    std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
+    std::string tidy(const std::string& value) const;
+    std::vector<std::string> tidy(const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
@@ -97,10 +108,10 @@ public:  // methods
     virtual bool flatten() const;
     virtual bool multiple() const;
 
-    virtual bool filter(const std::vector<std::string>& filter,
+    virtual bool filter(const std::vector<std::string>& filter, std::vector<std::string>& values) const;
+    virtual bool filter(const std::string& keyword, const std::vector<std::string>& filter,
                         std::vector<std::string>& values) const;
-    virtual bool matches(const std::vector<std::string>& filter,
-                         const std::vector<std::string>& values) const;
+    virtual bool matches(const std::vector<std::string>& filter, const std::vector<std::string>& values) const;
 
     const std::string& name() const;
     const std::string& category() const;
@@ -110,6 +121,7 @@ public:  // methods
     virtual size_t count(const std::vector<std::string>& values) const;
 
 protected:  // members
+
     std::string name_;
     std::string category_;
 
@@ -119,18 +131,19 @@ protected:  // members
 
     std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
+    std::set<std::unique_ptr<Context>> only_;
     std::map<std::unique_ptr<Context>, std::string> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
 
-protected:  // methods
-    virtual ~Type() override;
+    std::unique_ptr<ITypeToByList> toByList_;
+
+    std::map<std::string, std::function<bool(const std::vector<std::string>&, std::vector<std::string>&)>> filters_;
 
 private:  // methods
+
     virtual void print(std::ostream& out) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif

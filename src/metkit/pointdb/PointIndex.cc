@@ -14,9 +14,9 @@
 // #include "eckit/log/Timer.h"
 
 #include "metkit/pointdb/PointIndex.h"
+#include "eckit/thread/AutoLock.h"
 #include "metkit/codes/GribHandle.h"
 #include "metkit/codes/GribIterator.h"
-#include "eckit/thread/AutoLock.h"
 // #include "eckit/io/StdFile.h"
 #include "eckit/config/Resource.h"
 
@@ -27,7 +27,7 @@ using namespace eckit;
 namespace metkit {
 namespace pointdb {
 
-static Mutex  mutex;
+static Mutex mutex;
 static std::set<std::string> done_;
 static std::map<PathName, PointIndex*> cache_;
 
@@ -36,8 +36,7 @@ eckit::PathName PointIndex::cachePath(const std::string& dir, const std::string&
     return pointdbCachePath / dir / name;
 }
 
-std::string PointIndex::cache(const metkit::grib::GribHandle& h)
-{
+std::string PointIndex::cache(const metkit::grib::GribHandle& h) {
 
     double lat, lon, value;
 
@@ -59,7 +58,6 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
     size_t v = h.getDataValuesSize();
 
 
-
     std::vector<Point> p;
     p.reserve(v);
 
@@ -69,12 +67,12 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
 
     while (iter.next(lat, lon, value)) {
 
-        while (lon < 0)    lon += 360;
-        while (lon >= 360) lon -= 360;
+        while (lon < 0)
+            lon += 360;
+        while (lon >= 360)
+            lon -= 360;
 
         // ASSERT(lat >= -90 && lat <= 90);
-        // std::cout << lat << ' ' << lon << std::endl;
-
 
         p.push_back(Point(lat, lon, j));
         j++;
@@ -102,15 +100,13 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h)
     return md5;
 }
 
-PointIndex& PointIndex::lookUp(const std::string& md5)
-{
+PointIndex& PointIndex::lookUp(const std::string& md5) {
     AutoLock<Mutex> lock(mutex);
     std::map<PathName, PointIndex*>::iterator k = cache_.find(md5);
     if (k == cache_.end()) {
         eckit::PathName path = cachePath("grids", md5 + ".kdtree");
 
-        if (!path.exists())
-        {
+        if (!path.exists()) {
             Log::warning() << path << " does not exists" << std::endl;
             PathName grib = cachePath("grids", md5 + ".grib");
             if (grib.exists()) {
@@ -123,15 +119,13 @@ PointIndex& PointIndex::lookUp(const std::string& md5)
 
         Log::warning() << "Loading " << path << std::endl;
         PointIndex* p = new PointIndex(path);
-        cache_[md5] = p;
+        cache_[md5]   = p;
         return *p;
     }
     return *(*k).second;
 }
 
-PointIndex::PointIndex(const PathName& path, PointIndex::Tree* tree):
-    path_(path),
-    tree_(tree) {
+PointIndex::PointIndex(const PathName& path, PointIndex::Tree* tree) : path_(path), tree_(tree) {
 
     if (!tree) {
         Log::info() << "Load tree " << path << std::endl;
@@ -154,7 +148,7 @@ PointIndex::NodeInfo PointIndex::nearestNeighbour(double lat, double lon) {
 
         k = last_.find(p);
         if (k != last_.end())
-            return  (*k).second;
+            return (*k).second;
     }
 
     NodeInfo n;
@@ -176,5 +170,5 @@ PointIndex::NodeInfo PointIndex::nearestNeighbour(double lat, double lon) {
     return n;
 }
 
-} // namespace pointdb
-} // namespace metkit
+}  // namespace pointdb
+}  // namespace metkit

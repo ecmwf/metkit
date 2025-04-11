@@ -27,7 +27,7 @@ static metkit::mars::Type& type(const std::string& name) {
 }
 
 AxisOrder::AxisOrder() {
-    eckit::Value axis =  eckit::YAMLParser::decodeFile(axisYamlFile());
+    eckit::Value axis            = eckit::YAMLParser::decodeFile(axisYamlFile());
     const eckit::Value axesNames = axis["axes"];
 
     for (size_t i = 0; i < axesNames.size(); ++i) {
@@ -43,6 +43,7 @@ AxisOrder& AxisOrder::instance() {
 
 class Axis {
 public:
+
     Axis(const std::string& name, const std::vector<std::string>& values) :
         name_(name), values_(values), type_(type(name)) {}
 
@@ -68,13 +69,15 @@ public:
     }
 
 private:
+
     std::string name_;
     std::vector<std::string> values_;
     std::vector<bool> set_;
     metkit::mars::Type& type_;
 };
 
-HyperCube::HyperCube(const metkit::mars::MarsRequest& request) : verb_(request.verb()), cube_(std::vector<eckit::Ordinal>()) {
+HyperCube::HyperCube(const metkit::mars::MarsRequest& request) :
+    verb_(request.verb()), cube_(std::vector<eckit::Ordinal>()) {
 
     std::vector<eckit::Ordinal> dimensions;
 
@@ -154,7 +157,8 @@ enum requestRelation {
     DISJOINT
 };
 
-requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t& baseSize, const metkit::mars::MarsRequest& additional, const size_t additionalSize) {
+requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t& baseSize,
+                            const metkit::mars::MarsRequest& additional, const size_t additionalSize) {
 
     metkit::mars::MarsRequest tmp(base);
     tmp.merge(additional);
@@ -170,15 +174,16 @@ requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t&
 }
 
 bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& requests) {
-    size_t last = requests.size()-1;
+    size_t last = requests.size() - 1;
 
-    int candidateIdx = -1;
-    int candidateSize = -1;
+    int candidateIdx         = -1;
+    int candidateSize        = -1;
     requestRelation relation = requestRelation::DISJOINT;
 
     // check id the new request is embedded or adiacent to existing requests
-    for (size_t j = 0; j < requests.size()-1; j++) {
-        relation = std::min(relation, getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second));
+    for (size_t j = 0; j < requests.size() - 1; j++) {
+        relation = std::min(
+            relation, getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second));
         if (relation == requestRelation::EMBEDDED) {
             requests.pop_back();
             return false;
@@ -186,7 +191,7 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& reques
         if (relation == requestRelation::ADIACENT) {
             // try to merge in the largest request
             if (candidateSize == -1 || candidateSize < requests[j].second + requests[last].second) {
-                candidateIdx = j;
+                candidateIdx  = j;
                 candidateSize = requests[j].second + requests[last].second;
             }
         }
@@ -206,18 +211,18 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& reques
 
 
 std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std::set<size_t> idxs) const {
-    size_t min = 1;
+    size_t min  = 1;
     int minAxis = -1;
     std::vector<std::map<eckit::Ordinal, std::set<size_t>>> axes(axes_.size());
 
     if (idxs.size() > 1) {
         std::vector<eckit::Ordinal> coords(axes_.size());
-        for (size_t idx: idxs) {
+        for (size_t idx : idxs) {
             cube_.coordinates(idx, coords);
-            for(size_t j=0; j<axes_.size(); j++) {
+            for (size_t j = 0; j < axes_.size(); j++) {
                 axes[j][coords[j]].emplace(idx);
                 if (1 < axes[j].size() && (axes[j].size() < min || min == 1)) {
-                    min = axes[j].size();
+                    min     = axes[j].size();
                     minAxis = j;
                 }
             }
@@ -225,15 +230,17 @@ std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std
     }
     // all requests are identical, returning just the first
     if (min == 1)
-        return std::vector<std::pair<metkit::mars::MarsRequest, size_t>> {std::make_pair<metkit::mars::MarsRequest, size_t>(requestOf(*idxs.begin()), 1)};
+        return std::vector<std::pair<metkit::mars::MarsRequest, size_t>>{
+            std::make_pair<metkit::mars::MarsRequest, size_t>(requestOf(*idxs.begin()), 1)};
 
-    auto it = axes[minAxis].begin();
+    auto it                                                            = axes[minAxis].begin();
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(it->second);
-    for(; it != axes[minAxis].end(); it++) {
+    for (; it != axes[minAxis].end(); it++) {
         std::vector<std::pair<metkit::mars::MarsRequest, size_t>> toAdd = request(it->second);
-        for(auto r: toAdd) {
+        for (auto r : toAdd) {
             requests.push_back(r);
-            while (mergeLast(requests));
+            while (mergeLast(requests))
+                ;
         }
     }
     return requests;
@@ -245,7 +252,7 @@ std::vector<metkit::mars::MarsRequest> HyperCube::aggregatedRequests(bool remain
         return std::vector<metkit::mars::MarsRequest>{};
 
     std::set<size_t> idxs;
-    for(size_t i = 0; i < set_.size(); ++i) {
+    for (size_t i = 0; i < set_.size(); ++i) {
         if (set_[i] == remaining)
             idxs.emplace(i);
     }
@@ -253,7 +260,7 @@ std::vector<metkit::mars::MarsRequest> HyperCube::aggregatedRequests(bool remain
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(idxs);
 
     std::vector<metkit::mars::MarsRequest> out;
-    for (auto req: requests)
+    for (auto req : requests)
         out.push_back(req.first);
     return out;
 }
@@ -263,7 +270,7 @@ metkit::mars::MarsRequest HyperCube::requestOf(size_t index) const {
     std::vector<eckit::Ordinal> coords(axes_.size());
 
     cube_.coordinates(index, coords);
-    for (size_t i=0; i<axes_.size(); i++) {
+    for (size_t i = 0; i < axes_.size(); i++) {
         request.setValue(axes_[i]->name(), axes_[i]->valueOf(coords[i]));
     }
     return request;

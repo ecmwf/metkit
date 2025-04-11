@@ -11,8 +11,8 @@
 
 #include "eckit/parser/JSONParser.h"
 
-#include "metkit/mars/MarsLanguage.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypeEnum.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -23,7 +23,7 @@ namespace mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
-    
+
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["values"];
@@ -45,11 +45,10 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
 
             for (size_t j = 0; j < val.size(); ++j) {
                 std::string v = val[j];
-//                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
+                //                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
                 if (mapping_.find(v) != mapping_.end()) {
                     std::ostringstream oss;
-                    oss << "Redefined enum '" << v << "', '" << first << "' and '" << mapping_[v]
-                        << "'";
+                    oss << "Redefined enum '" << v << "', '" << first << "' and '" << mapping_[v] << "'";
                     throw eckit::SeriousBug(oss.str());
                 }
 
@@ -68,12 +67,8 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
             values_.push_back(v);
         }
     }
-    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name 
-                             << " mapping " << mapping_ 
-                             << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " mapping " << mapping_ << std::endl;
 }
-
-TypeEnum::~TypeEnum() {}
 
 void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";

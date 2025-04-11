@@ -11,9 +11,9 @@
 #ifndef metkit_FieldIndexList_H
 #define metkit_FieldIndexList_H
 
-#include "eckit/types/Types.h"
 #include "eckit/io/Offset.h"
 #include "eckit/serialisation/Stream.h"
+#include "eckit/types/Types.h"
 
 namespace metkit {
 namespace fields {
@@ -22,18 +22,19 @@ class FieldIndex;
 
 class FieldIndexList {
 public:
+
     ~FieldIndexList();
 
-    void readFrom( eckit::Stream& s );
-    void sendTo( eckit::Stream& s ) const;
+    void readFrom(eckit::Stream& s);
+    void sendTo(eckit::Stream& s) const;
 
-    eckit::OffsetList         offset_;
-    eckit::LengthList         length_;
-    std::vector<FieldIndex*>  fields_;
+    eckit::OffsetList offset_;
+    eckit::LengthList length_;
+    std::vector<FieldIndex*> fields_;
 };
 
-} // namespace fields
-} // namespace metkit
+}  // namespace fields
+}  // namespace metkit
 
 
 #endif

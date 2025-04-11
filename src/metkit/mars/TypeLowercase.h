@@ -22,19 +22,17 @@ namespace metkit::mars {
 
 class TypeLowercase : public Type {
 
-public: // methods
+public:  // methods
 
-    TypeLowercase(const std::string &name, const eckit::Value& settings = eckit::Value());
+    TypeLowercase(const std::string& name, const eckit::Value& settings = eckit::Value());
 
-    virtual ~TypeLowercase() override;
+    ~TypeLowercase() noexcept override = default;
 
-private: // methods
+private:  // methods
 
-    virtual void print(std::ostream &out) const override;
-    virtual bool expand(const MarsExpandContext& ctx, std::string &value) const override;
-
+    virtual void print(std::ostream& out) const override;
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace metkit::mars
-
+}  // namespace metkit::mars

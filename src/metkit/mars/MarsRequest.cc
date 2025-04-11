@@ -31,8 +31,7 @@ MarsRequest::MarsRequest() {}
 
 MarsRequest::MarsRequest(const std::string& s) : verb_(s) {}
 
-MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::string>& values) :
-    verb_(s) {
+MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::string>& values) : verb_(s) {
     for (auto j = values.begin(); j != values.end(); ++j) {
         const std::string& param = (*j).first;
         const std::string& value = (*j).second;
@@ -215,6 +214,15 @@ void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& val
 
 bool MarsRequest::filter(const MarsRequest& filter) {
     for (std::list<Parameter>::iterator i = params_.begin(); i != params_.end(); ++i) {
+        if ((*i).name() == "date") {
+            std::list<Parameter>::const_iterator j = filter.find("day");
+            if (j != filter.params_.end()) {
+                if (!(*i).filter("day", (*j).values())) {
+                    return false;
+                }
+            }
+        }
+
         std::list<Parameter>::const_iterator j = filter.find((*i).name());
         if (j == filter.params_.end()) {
             continue;
@@ -335,24 +343,22 @@ MarsRequest::operator eckit::Value() const {
 }
 
 // recursively expand along keys in expvalues
-void expand_along_keys(
-    const MarsRequest& prototype,
-    const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
-    std::vector<MarsRequest>& requests,
-    size_t i) {
+void expand_along_keys(const MarsRequest& prototype,
+                       const std::vector<std::pair<std::string, std::vector<std::string>>>& expvalues,
+                       std::vector<MarsRequest>& requests, size_t i) {
 
-    if(i == expvalues.size()) {
+    if (i == expvalues.size()) {
         requests.push_back(prototype);
         return;
     }
 
-    const std::string& key = expvalues[i].first;
+    const std::string& key                 = expvalues[i].first;
     const std::vector<std::string>& values = expvalues[i].second;
 
     MarsRequest req(prototype);
     for (auto& value : values) {
         req.setValue(key, value);
-        expand_along_keys(req, expvalues, requests, i+1);
+        expand_along_keys(req, expvalues, requests, i + 1);
     }
 }
 
@@ -364,9 +370,11 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
 
     std::vector<std::pair<std::string, std::vector<std::string>>> expvalues;
     for (auto& key : keys) {
-        std::vector<std::string> v = values(key, true); // ok to be empty
-        LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() <<  " values " << v << std::endl;
-        if (v.empty()) continue;
+        std::vector<std::string> v = values(key, true);  // ok to be empty
+        LOG_DEBUG_LIB(LibMetkit) << "splitting along key " << key << " n values " << v.size() << " values " << v
+                                 << std::endl;
+        if (v.empty())
+            continue;
         n *= v.size();
         expvalues.emplace_back(std::make_pair(key, v));
     }
@@ -374,7 +382,7 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
     std::vector<MarsRequest> requests;
     requests.reserve(n);
 
-    if(n == 1) {
+    if (n == 1) {
         requests.push_back(*this);
         return requests;
     }
@@ -385,8 +393,8 @@ std::vector<MarsRequest> MarsRequest::split(const std::vector<std::string>& keys
 }
 
 std::vector<MarsRequest> MarsRequest::split(const std::string& key) const {
-    std::vector<std::string> keys = { key };
-    return split( keys );
+    std::vector<std::string> keys = {key};
+    return split(keys);
 }
 
 void MarsRequest::merge(const MarsRequest& other) {

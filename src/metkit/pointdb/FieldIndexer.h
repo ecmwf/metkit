@@ -19,9 +19,9 @@
 
 
 namespace eckit {
-	class Value;
-	class JSON;
-}
+class Value;
+class JSON;
+}  // namespace eckit
 
 namespace metkit {
 
@@ -34,97 +34,95 @@ class DataSourceHandler;
 //----------------------------------------------------------------------------------------------------------------------
 
 struct FieldIndexerStatus {
-	size_t count_;
-	size_t batch_;
-	FieldIndexerStatus(size_t count, size_t batch):
-		count_(count), batch_(batch) {}
+    size_t count_;
+    size_t batch_;
+    FieldIndexerStatus(size_t count, size_t batch) : count_(count), batch_(batch) {}
 };
 
 
 class FieldIndexer {
 public:
 
-// -- Exceptions
-	// None
+    // -- Exceptions
+    // None
 
-// -- Contructors
+    // -- Contructors
 
 
+    // -- Destructor
 
-// -- Destructor
+    virtual ~FieldIndexer();
 
-	virtual ~FieldIndexer();
+    // -- Convertors
+    // None
 
-// -- Convertors
-	// None
+    // -- Operators
+    // None
 
-// -- Operators
-	// None
+    // -- Methods
 
-// -- Methods
+    virtual FieldIndexerStatus lookup(const eckit::Value&, DataSourceHandler&) const = 0;
 
-	virtual FieldIndexerStatus lookup(const eckit::Value&, DataSourceHandler&) const = 0;
+    // -- Overridden methods
+    // None
 
-// -- Overridden methods
-	// None
+    // -- Class members
+    // None
 
-// -- Class members
-	// None
+    // -- Class methods
+    // None
 
-// -- Class methods
-	// None
-
-	// Uncomment for persistent, remove otherwise
+    // Uncomment for persistent, remove otherwise
 
 protected:
 
-// -- Members
-	// None
+    // -- Members
+    // None
 
-// -- Methods
+    // -- Methods
 
-	virtual void print(std::ostream& s) const = 0;
+    virtual void print(std::ostream& s) const = 0;
 
-// -- Overridden methods
-	// None
+    // -- Overridden methods
+    // None
 
-// -- Class members
-	// None
+    // -- Class members
+    // None
 
-// -- Class methods
-	// None
+    // -- Class methods
+    // None
 
 private:
 
-// No copy allowed
+    // No copy allowed
 
-// -- Members
+    // -- Members
 
 
-// -- Methods
-	// None
+    // -- Methods
+    // None
 
-// -- Overridden methods
-	// None
+    // -- Overridden methods
+    // None
 
-// -- Class members
-	// None
+    // -- Class members
+    // None
 
-// -- Class methods
-	// None
+    // -- Class methods
+    // None
 
-// -- Friends
+    // -- Friends
 
-	friend std::ostream& operator<<(std::ostream& s,const FieldIndexer& p)
-		{ p.print(s); return s; }
-
+    friend std::ostream& operator<<(std::ostream& s, const FieldIndexer& p) {
+        p.print(s);
+        return s;
+    }
 };
 
 
-
 //----------------------------------------------------------------------------------------------------------------------
-} // namespace pointdb
+}  // namespace pointdb
 
-} // namespace metkit
+}  // namespace metkit
 
 #endif

@@ -9,11 +9,11 @@
  */
 
 
-#include "metkit/mars/TypesFactory.h"
 #include "metkit/mars/TypeRegex.h"
-#include "metkit/mars/MarsLanguage.h"
 #include "eckit/parser/JSONParser.h"
 #include "eckit/utils/StringTools.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/TypesFactory.h"
 
 
 namespace metkit {
@@ -21,9 +21,7 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TypeRegex::TypeRegex(const std::string &name, const eckit::Value& settings) :
-    Type(name, settings),
-    uppercase_(false) {
+TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Type(name, settings), uppercase_(false) {
 
     if (settings.contains("uppercase")) {
         uppercase_ = settings["uppercase"];
@@ -41,9 +39,6 @@ TypeRegex::TypeRegex(const std::string &name, const eckit::Value& settings) :
     }
 }
 
-TypeRegex::~TypeRegex() {
-}
-
 bool TypeRegex::expand(const MarsExpandContext& ctx, std::string& value) const {
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
 
@@ -58,11 +53,10 @@ bool TypeRegex::expand(const MarsExpandContext& ctx, std::string& value) const {
     }
 
     return false;
-
 }
 
 
-void TypeRegex::print(std::ostream &out) const {
+void TypeRegex::print(std::ostream& out) const {
     out << "TypeRegex[name=" << name_ << "]";
 }
 
@@ -71,5 +65,5 @@ static TypeBuilder<TypeRegex> type("regex");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace mars
-} // namespace metkit
+}  // namespace mars
+}  // namespace metkit

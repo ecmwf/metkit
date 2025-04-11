@@ -4,7 +4,6 @@ ecbuild_generate_config_headers( DESTINATION ${INSTALL_INCLUDE_DIR}/metkit )
 
 configure_file( metkit_config.h.in    metkit_config.h )
 configure_file( metkit_version.h.in   metkit_version.h )
-configure_file( metkit_version.cc.in  metkit_version.cc )
 
 install(FILES
             ${CMAKE_CURRENT_BINARY_DIR}/metkit_config.h
@@ -15,7 +14,7 @@ install(FILES
 ### metkit sources
 
 list( APPEND metkit_srcs
-    ${CMAKE_CURRENT_BINARY_DIR}/metkit_version.cc
+    metkit_version.c
     config/LibMetkit.cc
     config/LibMetkit.h
     mars/BaseProtocol.cc
@@ -83,10 +82,7 @@ list( APPEND metkit_srcs
     mars/TypesFactory.h
     mars/TypeTime.cc
     mars/TypeTime.h
-    mars/TypeToByList.cc
     mars/TypeToByList.h
-    mars/TypeToByListFloat.cc
-    mars/TypeToByListFloat.h
     mars/TypeToByListQuantile.cc
     mars/TypeToByListQuantile.h
     tool/MetkitTool.cc
@@ -100,6 +96,8 @@ list( APPEND metkit_srcs
     hypercube/HyperCube.cc
     hypercube/HyperCube.h
     hypercube/HyperCubePayloaded.h
+    api/metkit_c.cc 
+    api/metkit_c.h
 )
 
 list( APPEND metkit_persistent_srcs
@@ -198,6 +196,7 @@ ecbuild_add_library(
     PUBLIC_INCLUDES
        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src>
        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # for metkit_version.h
 
     PRIVATE_LIBS
         "${odc_libs}"

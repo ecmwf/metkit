@@ -39,6 +39,7 @@ class TypesRegistry : private eckit::NonCopyable {
     std::map<std::string, TypesFactory*> m_;
 
 public:
+
     static TypesRegistry& instance();
 
     void add(const std::string& name, TypesFactory* f);
@@ -53,6 +54,7 @@ public:
 
 class TypesFactory {
 public:
+
     virtual Type* make(const std::string& keyword, const eckit::Value& settings) const = 0;
 
     static Type* build(const std::string& keyword, const eckit::Value& settings);
@@ -60,8 +62,10 @@ public:
     static void list(std::ostream& s);
 
 protected:
+
     TypesFactory(const std::string&);
-    virtual ~TypesFactory();
+
+    ~TypesFactory();
 
     std::string name_;
 };
@@ -76,6 +80,7 @@ class TypeBuilder : public TypesFactory {
     }
 
 public:
+
     TypeBuilder(const std::string& name) : TypesFactory(name) {}
 };
 

@@ -21,11 +21,7 @@
 namespace metkit {
 namespace codes {
 
-DataContent::DataContent(const void* data, size_t size):
-    data_(data),
-    size_(size),
-    handle_(nullptr) {
-}
+DataContent::DataContent(const void* data, size_t size) : data_(data), size_(size), handle_(nullptr) {}
 
 DataContent::~DataContent() {
     if (handle_) {
@@ -62,6 +58,5 @@ const codes_handle* DataContent::codesHandle() const {
 }
 
 
-}  // namespace close
+}  // namespace codes
 }  // namespace metkit
-

@@ -151,10 +151,10 @@
 - solar duration
 47:
 - dsrp
-- direct solar radiation
+- surface direct normal short-wave (solar) radiation
 48:
 - magss
-- magnitude of turbulent surface stress
+- time-integrated magnitude of turbulent surface stress
 49:
 - 10fg
 - maximum 10 metre wind gust since previous post-processing
@@ -181,7 +181,7 @@
 - mean 2 metre dewpoint temperature in the last 24 hours
 57:
 - uvb
-- downward uv radiation at the surface
+- surface downward uv radiation
 58:
 - par
 - photosynthetically active radiation at the surface
@@ -446,13 +446,13 @@
 - snowfall
 145:
 - bld
-- boundary layer dissipation
+- time-integrated boundary layer dissipation
 146:
 - sshf
-- surface sensible heat flux
+- time-integrated surface sensible heat net flux
 147:
 - slhf
-- surface latent heat flux
+- time-integrated surface latent heat net flux
 148:
 - chnk
 - charnock
@@ -706,7 +706,7 @@
 - instantaneous northward turbulent surface stress
 231:
 - ishf
-- instantaneous surface sensible heat flux
+- instantaneous surface sensible heat net flux
 232:
 - ie
 - instantaneous moisture flux
@@ -2083,6 +2083,9 @@
 131255:
 - _param_131255
 - indicates a missing value
+131256:
+- 10cogug25
+- 10 metre convective gust of at least 25 m/s
 132044:
 - capesi
 - convective available potential energy shear index
@@ -2543,6 +2546,42 @@
 140134:
 - sthmax
 - space time maximum individual wave height
+140135:
+- pp1dw
+- peak wave period of wind waves
+140136:
+- pp1ds
+- peak wave period of total swell
+140137:
+- pp1d1
+- peak wave period of first swell partition
+140138:
+- pp1d2
+- peak wave period of second swell partition
+140139:
+- pp1d3
+- peak wave period of third swell partition
+140140:
+- pwd
+- peak wave direction (total)
+140141:
+- pwdw
+- peak wave direction of wind waves
+140142:
+- pwds
+- peak wave direction of total swell
+140143:
+- pwd1
+- peak wave direction of first swell partition
+140144:
+- pwd2
+- peak wave direction of second swell partition
+140145:
+- pwd3
+- peak wave direction of third swell partition
+140146:
+- wcfr
+- whitecap fraction
 140200:
 - maxswh
 - maximum of significant wave height
@@ -2693,18 +2732,1039 @@
 140255:
 - _param_140255
 - indicates a missing value
+141098:
+- avg_weta
+- time-mean wave induced mean sea level correction
+141099:
+- avg_wraf
+- time-mean ratio of wave angular and frequency width
+141100:
+- avg_wnslc
+- time-mean number of events in freak waves statistics
+141101:
+- avg_utaua
+- time-mean u-component of atmospheric surface momentum flux
+141102:
+- avg_vtaua
+- time-mean v-component of atmospheric surface momentum flux
+141103:
+- avg_utauo
+- time-mean u-component of surface momentum flux into ocean
+141104:
+- avg_vtauo
+- time-mean v-component of surface momentum flux into ocean
+141105:
+- avg_wphio
+- time-mean wave turbulent energy flux into ocean
+141106:
+- avg_wdw1
+- time-mean wave directional width of first swell partition
+141107:
+- avg_wfw1
+- time-mean wave frequency width of first swell partition
+141108:
+- avg_wdw2
+- time-mean wave directional width of second swell partition
+141109:
+- avg_wfw2
+- time-mean wave frequency width of second swell partition
+141110:
+- avg_wdw3
+- time-mean wave directional width of third swell partition
+141111:
+- avg_wfw3
+- time-mean wave frequency width of third swell partition
+141112:
+- avg_wefxm
+- time-mean wave energy flux magnitude
+141113:
+- avg_wefxd
+- time-mean wave energy flux mean direction
+141114:
+- avg_h1012
+- time-mean significant wave height of all waves with periods within the inclusive
+  range from 10 to 12 seconds
+141115:
+- avg_h1214
+- time-mean significant wave height of all waves with periods within the inclusive
+  range from 12 to 14 seconds
+141116:
+- avg_h1417
+- time-mean significant wave height of all waves with periods within the inclusive
+  range from 14 to 17 seconds
+141117:
+- avg_h1721
+- time-mean significant wave height of all waves with periods within the inclusive
+  range from 17 to 21 seconds
+141118:
+- avg_h2125
+- time-mean significant wave height of all waves with periods within the inclusive
+  range from 21 to 25 seconds
+141119:
+- avg_h2530
+- time-mean significant wave height of all waves with periods within the inclusive
+  range from 25 to 30 seconds
+141120:
+- avg_sh10
+- time-mean significant wave height of all waves with period larger than 10s
+141121:
+- avg_swh1
+- time-mean significant wave height of first swell partition
+141122:
+- avg_mwd1
+- time-mean mean wave direction of first swell partition
+141123:
+- avg_mwp1
+- time-mean mean wave period of first swell partition
+141124:
+- avg_swh2
+- time-mean significant wave height of second swell partition
+141125:
+- avg_mwd2
+- time-mean mean wave direction of second swell partition
+141126:
+- avg_mwp2
+- time-mean mean wave period of second swell partition
+141127:
+- avg_swh3
+- time-mean significant wave height of third swell partition
+141128:
+- avg_mwd3
+- time-mean mean wave direction of third swell partition
+141129:
+- avg_mwp3
+- time-mean mean wave period of third swell partition
+141131:
+- avg_tdcmax
+- time-mean time domain maximum individual crest height
+141132:
+- avg_tdhmax
+- time-mean time domain maximum individual wave height
+141133:
+- avg_stcmax
+- time-mean space time maximum individual crest height
+141134:
+- avg_sthmax
+- time-mean space time maximum individual wave height
+141135:
+- avg_pp1dw
+- time-mean peak wave period of wind waves
+141136:
+- avg_pp1ds
+- time-mean peak wave period of total swell
+141137:
+- avg_pp1d1
+- time-mean peak wave period of first swell partition
+141138:
+- avg_pp1d2
+- time-mean peak wave period of second swell partition
+141139:
+- avg_pp1d3
+- time-mean peak wave period of third swell partition
+141140:
+- avg_pwd
+- time-mean peak wave direction (total)
+141141:
+- avg_pwdw
+- time-mean peak wave direction of wind waves
+141142:
+- avg_pwds
+- time-mean peak wave direction of total swell
+141143:
+- avg_pwd1
+- time-mean peak wave direction of first swell partition
+141144:
+- avg_pwd2
+- time-mean peak wave direction of second swell partition
+141145:
+- avg_pwd3
+- time-mean peak wave direction of third swell partition
+141146:
+- avg_wcfr
+- time-mean whitecap fraction
+141207:
+- avg_wss
+- time-mean wave spectral skewness
+141208:
+- avg_wstar
+- time-mean free convective velocity over the oceans
+141209:
+- avg_rhoao
+- time-mean air density over the oceans
+141211:
+- avg_phiaw
+- time-mean normalized energy flux into waves
+141212:
+- avg_phioc
+- time-mean normalized energy flux into ocean
+141214:
+- avg_tauoc
+- time-mean normalized stress into ocean
+141215:
+- avg_ust
+- time-mean u-component surface stokes drift
+141216:
+- avg_vst
+- time-mean v-component surface stokes drift
+141217:
+- avg_tmax
+- time-mean period corresponding to maximum individual wave height
+141218:
+- avg_hmax
+- time-mean envelop-maximum individual wave height
+141220:
+- avg_mp1
+- time-mean mean wave period based on first moment
 141221:
 - avg_mp2
 - time-mean mean zero-crossing wave period
+141222:
+- avg_wdw
+- time-mean wave spectral directional width
+141223:
+- avg_p1ww
+- time-mean mean wave period based on first moment for wind waves
+141224:
+- avg_p2ww
+- time-mean mean wave period based on second moment for wind waves
+141225:
+- avg_dwww
+- time-mean wave spectral directional width for wind waves
+141226:
+- avg_p1ps
+- time-mean mean wave period based on first moment for swell
+141227:
+- avg_p2ps
+- time-mean mean wave period based on second moment for swell
+141228:
+- avg_dwps
+- time-mean wave spectral directional width for swell
 141229:
 - avg_swh
 - time-mean significant height of combined wind waves and swell
+141230:
+- avg_mwd
+- time-mean mean wave direction
 141231:
 - avg_pp1d
 - time-mean peak wave period
 141232:
 - avg_mwp
 - time-mean mean wave period
+141233:
+- avg_cdww
+- time-mean coefficient of drag with waves
+141234:
+- avg_shww
+- time-mean significant height of wind waves
+141235:
+- avg_mdww
+- time-mean mean direction of wind waves
+141236:
+- avg_mpww
+- time-mean mean period of wind waves
+141237:
+- avg_shts
+- time-mean significant height of total swell
+141238:
+- avg_mdts
+- time-mean mean direction of total swell
+141239:
+- avg_mpts
+- time-mean mean period of total swell
+141244:
+- avg_msqs
+- time-mean mean square slope of waves
+141245:
+- avg_wind
+- time-mean 10 metre wind speed
+141249:
+- avg_dwi
+- time-mean 10 metre wind direction
+141252:
+- avg_wsk
+- time-mean wave spectral kurtosis
+141253:
+- avg_bfi
+- time-mean benjamin-feir index
+141254:
+- avg_wsp
+- time-mean wave spectral peakedness
+143098:
+- max_weta
+- time-maximum wave induced mean sea level correction
+143099:
+- max_wraf
+- time-maximum ratio of wave angular and frequency width
+143100:
+- max_wnslc
+- time-maximum number of events in freak waves statistics
+143101:
+- max_utaua
+- time-maximum u-component of atmospheric surface momentum flux
+143102:
+- max_vtaua
+- time-maximum v-component of atmospheric surface momentum flux
+143103:
+- max_utauo
+- time-maximum u-component of surface momentum flux into ocean
+143104:
+- max_vtauo
+- time-maximum v-component of surface momentum flux into ocean
+143105:
+- max_wphio
+- time-maximum wave turbulent energy flux into ocean
+143106:
+- max_wdw1
+- time-maximum wave directional width of first swell partition
+143107:
+- max_wfw1
+- time-maximum wave frequency width of first swell partition
+143108:
+- max_wdw2
+- time-maximum wave directional width of second swell partition
+143109:
+- max_wfw2
+- time-maximum wave frequency width of second swell partition
+143110:
+- max_wdw3
+- time-maximum wave directional width of third swell partition
+143111:
+- max_wfw3
+- time-maximum wave frequency width of third swell partition
+143112:
+- max_wefxm
+- time-maximum wave energy flux magnitude
+143113:
+- max_wefxd
+- time-maximum wave energy flux mean direction
+143114:
+- max_h1012
+- time-maximum significant wave height of all waves with periods within the inclusive
+  range from 10 to 12 seconds
+143115:
+- max_h1214
+- time-maximum significant wave height of all waves with periods within the inclusive
+  range from 12 to 14 seconds
+143116:
+- max_h1417
+- time-maximum significant wave height of all waves with periods within the inclusive
+  range from 14 to 17 seconds
+143117:
+- max_h1721
+- time-maximum significant wave height of all waves with periods within the inclusive
+  range from 17 to 21 seconds
+143118:
+- max_h2125
+- time-maximum significant wave height of all waves with periods within the inclusive
+  range from 21 to 25 seconds
+143119:
+- max_h2530
+- time-maximum significant wave height of all waves with periods within the inclusive
+  range from 25 to 30 seconds
+143120:
+- max_sh10
+- time-maximum significant wave height of all waves with period larger than 10s
+143121:
+- max_swh1
+- time-maximum significant wave height of first swell partition
+143122:
+- max_mwd1
+- time-maximum mean wave direction of first swell partition
+143123:
+- max_mwp1
+- time-maximum mean wave period of first swell partition
+143124:
+- max_swh2
+- time-maximum significant wave height of second swell partition
+143125:
+- max_mwd2
+- time-maximum mean wave direction of second swell partition
+143126:
+- max_mwp2
+- time-maximum mean wave period of second swell partition
+143127:
+- max_swh3
+- time-maximum significant wave height of third swell partition
+143128:
+- max_mwd3
+- time-maximum mean wave direction of third swell partition
+143129:
+- max_mwp3
+- time-maximum mean wave period of third swell partition
+143131:
+- max_tdcmax
+- time-maximum time domain maximum individual crest height
+143132:
+- max_tdhmax
+- time-maximum time domain maximum individual wave height
+143133:
+- max_stcmax
+- time-maximum space time maximum individual crest height
+143134:
+- max_sthmax
+- time-maximum space time maximum individual wave height
+143135:
+- max_pp1dw
+- time-maximum peak wave period of wind waves
+143136:
+- max_pp1ds
+- time-maximum peak wave period of total swell
+143137:
+- max_pp1d1
+- time-maximum peak wave period of first swell partition
+143138:
+- max_pp1d2
+- time-maximum peak wave period of second swell partition
+143139:
+- max_pp1d3
+- time-maximum peak wave period of third swell partition
+143140:
+- max_pwd
+- time-maximum peak wave direction (total)
+143141:
+- max_pwdw
+- time-maximum peak wave direction of wind waves
+143142:
+- max_pwds
+- time-maximum peak wave direction of total swell
+143143:
+- max_pwd1
+- time-maximum peak wave direction of first swell partition
+143144:
+- max_pwd2
+- time-maximum peak wave direction of second swell partition
+143145:
+- max_pwd3
+- time-maximum peak wave direction of third swell partition
+143146:
+- max_wcfr
+- time-maximum whitecap fraction
+143207:
+- max_wss
+- time-maximum wave spectral skewness
+143208:
+- max_wstar
+- time-maximum free convective velocity over the oceans
+143209:
+- max_rhoao
+- time-maximum air density over the oceans
+143211:
+- max_phiaw
+- time-maximum normalized energy flux into waves
+143212:
+- max_phioc
+- time-maximum normalized energy flux into ocean
+143214:
+- max_tauoc
+- time-maximum normalized stress into ocean
+143215:
+- max_ust
+- time-maximum u-component surface stokes drift
+143216:
+- max_vst
+- time-maximum v-component surface stokes drift
+143217:
+- max_tmax
+- time-maximum period corresponding to maximum individual wave height
+143218:
+- max_hmax
+- time-maximum envelop-maximum individual wave height
+143220:
+- max_mp1
+- time-maximum mean wave period based on first moment
+143221:
+- max_mp2
+- time-maximum mean zero-crossing wave period
+143222:
+- max_wdw
+- time-maximum wave spectral directional width
+143223:
+- max_p1ww
+- time-maximum mean wave period based on first moment for wind waves
+143224:
+- max_p2ww
+- time-maximum mean wave period based on second moment for wind waves
+143225:
+- max_dwww
+- time-maximum wave spectral directional width for wind waves
+143226:
+- max_p1ps
+- time-maximum mean wave period based on first moment for swell
+143227:
+- max_p2ps
+- time-maximum mean wave period based on second moment for swell
+143228:
+- max_dwps
+- time-maximum wave spectral directional width for swell
+143229:
+- max_swh
+- time-maximum significant height of combined wind waves and swell
+143230:
+- max_mwd
+- time-maximum mean wave direction
+143231:
+- max_pp1d
+- time-maximum peak wave period
+143232:
+- max_mwp
+- time-maximum mean wave period
+143233:
+- max_cdww
+- time-maximum coefficient of drag with waves
+143234:
+- max_shww
+- time-maximum significant height of wind waves
+143235:
+- max_mdww
+- time-maximum mean direction of wind waves
+143236:
+- max_mpww
+- time-maximum mean period of wind waves
+143237:
+- max_shts
+- time-maximum significant height of total swell
+143238:
+- max_mdts
+- time-maximum mean direction of total swell
+143239:
+- max_mpts
+- time-maximum mean period of total swell
+143244:
+- max_msqs
+- time-maximum mean square slope of waves
+143245:
+- max_wind
+- time-maximum 10 metre wind speed
+143249:
+- max_dwi
+- time-maximum 10 metre wind direction
+143252:
+- max_wsk
+- time-maximum wave spectral kurtosis
+143253:
+- max_bfi
+- time-maximum benjamin-feir index
+143254:
+- max_wsp
+- time-maximum wave spectral peakedness
+144098:
+- min_weta
+- time-minimum wave induced mean sea level correction
+144099:
+- min_wraf
+- time-minimum ratio of wave angular and frequency width
+144100:
+- min_wnslc
+- time-minimum number of events in freak waves statistics
+144101:
+- min_utaua
+- time-minimum u-component of atmospheric surface momentum flux
+144102:
+- min_vtaua
+- time-minimum v-component of atmospheric surface momentum flux
+144103:
+- min_utauo
+- time-minimum u-component of surface momentum flux into ocean
+144104:
+- min_vtauo
+- time-minimum v-component of surface momentum flux into ocean
+144105:
+- min_wphio
+- time-minimum wave turbulent energy flux into ocean
+144106:
+- min_wdw1
+- time-minimum wave directional width of first swell partition
+144107:
+- min_wfw1
+- time-minimum wave frequency width of first swell partition
+144108:
+- min_wdw2
+- time-minimum wave directional width of second swell partition
+144109:
+- min_wfw2
+- time-minimum wave frequency width of second swell partition
+144110:
+- min_wdw3
+- time-minimum wave directional width of third swell partition
+144111:
+- min_wfw3
+- time-minimum wave frequency width of third swell partition
+144112:
+- min_wefxm
+- time-minimum wave energy flux magnitude
+144113:
+- min_wefxd
+- time-minimum wave energy flux mean direction
+144114:
+- min_h1012
+- time-minimum significant wave height of all waves with periods within the inclusive
+  range from 10 to 12 seconds
+144115:
+- min_h1214
+- time-minimum significant wave height of all waves with periods within the inclusive
+  range from 12 to 14 seconds
+144116:
+- min_h1417
+- time-minimum significant wave height of all waves with periods within the inclusive
+  range from 14 to 17 seconds
+144117:
+- min_h1721
+- time-minimum significant wave height of all waves with periods within the inclusive
+  range from 17 to 21 seconds
+144118:
+- min_h2125
+- time-minimum significant wave height of all waves with periods within the inclusive
+  range from 21 to 25 seconds
+144119:
+- min_h2530
+- time-minimum significant wave height of all waves with periods within the inclusive
+  range from 25 to 30 seconds
+144120:
+- min_sh10
+- time-minimum significant wave height of all waves with period larger than 10s
+144121:
+- min_swh1
+- time-minimum significant wave height of first swell partition
+144122:
+- min_mwd1
+- time-minimum mean wave direction of first swell partition
+144123:
+- min_mwp1
+- time-minimum mean wave period of first swell partition
+144124:
+- min_swh2
+- time-minimum significant wave height of second swell partition
+144125:
+- min_mwd2
+- time-minimum mean wave direction of second swell partition
+144126:
+- min_mwp2
+- time-minimum mean wave period of second swell partition
+144127:
+- min_swh3
+- time-minimum significant wave height of third swell partition
+144128:
+- min_mwd3
+- time-minimum mean wave direction of third swell partition
+144129:
+- min_mwp3
+- time-minimum mean wave period of third swell partition
+144131:
+- min_tdcmax
+- time-minimum time domain maximum individual crest height
+144132:
+- min_tdhmax
+- time-minimum time domain maximum individual wave height
+144133:
+- min_stcmax
+- time-minimum space time maximum individual crest height
+144134:
+- min_sthmax
+- time-minimum space time maximum individual wave height
+144135:
+- min_pp1dw
+- time-minimum peak wave period of wind waves
+144136:
+- min_pp1ds
+- time-minimum peak wave period of total swell
+144137:
+- min_pp1d1
+- time-minimum peak wave period of first swell partition
+144138:
+- min_pp1d2
+- time-minimum peak wave period of second swell partition
+144139:
+- min_pp1d3
+- time-minimum peak wave period of third swell partition
+144140:
+- min_pwd
+- time-minimum peak wave direction (total)
+144141:
+- min_pwdw
+- time-minimum peak wave direction of wind waves
+144142:
+- min_pwds
+- time-minimum peak wave direction of total swell
+144143:
+- min_pwd1
+- time-minimum peak wave direction of first swell partition
+144144:
+- min_pwd2
+- time-minimum peak wave direction of second swell partition
+144145:
+- min_pwd3
+- time-minimum peak wave direction of third swell partition
+144146:
+- min_wcfr
+- time-minimum whitecap fraction
+144207:
+- min_wss
+- time-minimum wave spectral skewness
+144208:
+- min_wstar
+- time-minimum free convective velocity over the oceans
+144209:
+- min_rhoao
+- time-minimum air density over the oceans
+144211:
+- min_phiaw
+- time-minimum normalized energy flux into waves
+144212:
+- min_phioc
+- time-minimum normalized energy flux into ocean
+144214:
+- min_tauoc
+- time-minimum normalized stress into ocean
+144215:
+- min_ust
+- time-minimum u-component surface stokes drift
+144216:
+- min_vst
+- time-minimum v-component surface stokes drift
+144217:
+- min_tmax
+- time-minimum period corresponding to maximum individual wave height
+144218:
+- min_hmax
+- time-minimum envelop-maximum individual wave height
+144220:
+- min_mp1
+- time-minimum mean wave period based on first moment
+144221:
+- min_mp2
+- time-minimum mean zero-crossing wave period
+144222:
+- min_wdw
+- time-minimum wave spectral directional width
+144223:
+- min_p1ww
+- time-minimum mean wave period based on first moment for wind waves
+144224:
+- min_p2ww
+- time-minimum mean wave period based on second moment for wind waves
+144225:
+- min_dwww
+- time-minimum wave spectral directional width for wind waves
+144226:
+- min_p1ps
+- time-minimum mean wave period based on first moment for swell
+144227:
+- min_p2ps
+- time-minimum mean wave period based on second moment for swell
+144228:
+- min_dwps
+- time-minimum wave spectral directional width for swell
+144229:
+- min_swh
+- time-minimum significant height of combined wind waves and swell
+144230:
+- min_mwd
+- time-minimum mean wave direction
+144231:
+- min_pp1d
+- time-minimum peak wave period
+144232:
+- min_mwp
+- time-minimum mean wave period
+144233:
+- min_cdww
+- time-minimum coefficient of drag with waves
+144234:
+- min_shww
+- time-minimum significant height of wind waves
+144235:
+- min_mdww
+- time-minimum mean direction of wind waves
+144236:
+- min_mpww
+- time-minimum mean period of wind waves
+144237:
+- min_shts
+- time-minimum significant height of total swell
+144238:
+- min_mdts
+- time-minimum mean direction of total swell
+144239:
+- min_mpts
+- time-minimum mean period of total swell
+144244:
+- min_msqs
+- time-minimum mean square slope of waves
+144245:
+- min_wind
+- time-minimum 10 metre wind speed
+144249:
+- min_dwi
+- time-minimum 10 metre wind direction
+144252:
+- min_wsk
+- time-minimum wave spectral kurtosis
+144253:
+- min_bfi
+- time-minimum benjamin-feir index
+144254:
+- min_wsp
+- time-minimum wave spectral peakedness
+145098:
+- std_weta
+- time-standard-deviation wave induced mean sea level correction
+145099:
+- std_wraf
+- time-standard-deviation ratio of wave angular and frequency width
+145100:
+- std_wnslc
+- time-standard-deviation number of events in freak waves statistics
+145101:
+- std_utaua
+- time-standard-deviation u-component of atmospheric surface momentum flux
+145102:
+- std_vtaua
+- time-standard-deviation v-component of atmospheric surface momentum flux
+145103:
+- std_utauo
+- time-standard-deviation u-component of surface momentum flux into ocean
+145104:
+- std_vtauo
+- time-standard-deviation v-component of surface momentum flux into ocean
+145105:
+- std_wphio
+- time-standard-deviation wave turbulent energy flux into ocean
+145106:
+- std_wdw1
+- time-standard-deviation wave directional width of first swell partition
+145107:
+- std_wfw1
+- time-standard-deviation wave frequency width of first swell partition
+145108:
+- std_wdw2
+- time-standard-deviation wave directional width of second swell partition
+145109:
+- std_wfw2
+- time-standard-deviation wave frequency width of second swell partition
+145110:
+- std_wdw3
+- time-standard-deviation wave directional width of third swell partition
+145111:
+- std_wfw3
+- time-standard-deviation wave frequency width of third swell partition
+145112:
+- std_wefxm
+- time-standard-deviation wave energy flux magnitude
+145113:
+- std_wefxd
+- time-standard-deviation wave energy flux mean direction
+145114:
+- std_h1012
+- time-standard-deviation significant wave height of all waves with periods within
+  the inclusive range from 10 to 12 seconds
+145115:
+- std_h1214
+- time-standard-deviation significant wave height of all waves with periods within
+  the inclusive range from 12 to 14 seconds
+145116:
+- std_h1417
+- time-standard-deviation significant wave height of all waves with periods within
+  the inclusive range from 14 to 17 seconds
+145117:
+- std_h1721
+- time-standard-deviation significant wave height of all waves with periods within
+  the inclusive range from 17 to 21 seconds
+145118:
+- std_h2125
+- time-standard-deviation significant wave height of all waves with periods within
+  the inclusive range from 21 to 25 seconds
+145119:
+- std_h2530
+- time-standard-deviation significant wave height of all waves with periods within
+  the inclusive range from 25 to 30 seconds
+145120:
+- std_sh10
+- time-standard-deviation significant wave height of all waves with period larger
+  than 10s
+145121:
+- std_swh1
+- time-standard-deviation significant wave height of first swell partition
+145122:
+- std_mwd1
+- time-standard-deviation mean wave direction of first swell partition
+145123:
+- std_mwp1
+- time-standard-deviation mean wave period of first swell partition
+145124:
+- std_swh2
+- time-standard-deviation significant wave height of second swell partition
+145125:
+- std_mwd2
+- time-standard-deviation mean wave direction of second swell partition
+145126:
+- std_mwp2
+- time-standard-deviation mean wave period of second swell partition
+145127:
+- std_swh3
+- time-standard-deviation significant wave height of third swell partition
+145128:
+- std_mwd3
+- time-standard-deviation mean wave direction of third swell partition
+145129:
+- std_mwp3
+- time-standard-deviation mean wave period of third swell partition
+145131:
+- std_tdcmax
+- time-standard-deviation time domain maximum individual crest height
+145132:
+- std_tdhmax
+- time-standard-deviation time domain maximum individual wave height
+145133:
+- std_stcmax
+- time-standard-deviation space time maximum individual crest height
+145134:
+- std_sthmax
+- time-standard-deviation space time maximum individual wave height
+145135:
+- std_pp1dw
+- time-standard-deviation peak wave period of wind waves
+145136:
+- std_pp1ds
+- time-standard-deviation peak wave period of total swell
+145137:
+- std_pp1d1
+- time-standard-deviation peak wave period of first swell partition
+145138:
+- std_pp1d2
+- time-standard-deviation peak wave period of second swell partition
+145139:
+- std_pp1d3
+- time-standard-deviation peak wave period of third swell partition
+145140:
+- std_pwd
+- time-standard-deviation peak wave direction (total)
+145141:
+- std_pwdw
+- time-standard-deviation peak wave direction of wind waves
+145142:
+- std_pwds
+- time-standard-deviation peak wave direction of total swell
+145143:
+- std_pwd1
+- time-standard-deviation peak wave direction of first swell partition
+145144:
+- std_pwd2
+- time-standard-deviation peak wave direction of second swell partition
+145145:
+- std_pwd3
+- time-standard-deviation peak wave direction of third swell partition
+145146:
+- std_wcfr
+- time-standard-deviation whitecap fraction
+145207:
+- std_wss
+- time-standard-deviation wave spectral skewness
+145208:
+- std_wstar
+- time-standard-deviation free convective velocity over the oceans
+145209:
+- std_rhoao
+- time-standard-deviation air density over the oceans
+145211:
+- std_phiaw
+- time-standard-deviation normalized energy flux into waves
+145212:
+- std_phioc
+- time-standard-deviation normalized energy flux into ocean
+145214:
+- std_tauoc
+- time-standard-deviation normalized stress into ocean
+145215:
+- std_ust
+- time-standard-deviation u-component surface stokes drift
+145216:
+- std_vst
+- time-standard-deviation v-component surface stokes drift
+145217:
+- std_tmax
+- time-standard-deviation period corresponding to maximum individual wave height
+145218:
+- std_hmax
+- time-standard-deviation envelop-maximum individual wave height
+145220:
+- std_mp1
+- time-standard-deviation mean wave period based on first moment
+145221:
+- std_mp2
+- time-standard-deviation mean zero-crossing wave period
+145222:
+- std_wdw
+- time-standard-deviation wave spectral directional width
+145223:
+- std_p1ww
+- time-standard-deviation mean wave period based on first moment for wind waves
+145224:
+- std_p2ww
+- time-standard-deviation mean wave period based on second moment for wind waves
+145225:
+- std_dwww
+- time-standard-deviation wave spectral directional width for wind waves
+145226:
+- std_p1ps
+- time-standard-deviation mean wave period based on first moment for swell
+145227:
+- std_p2ps
+- time-standard-deviation mean wave period based on second moment for swell
+145228:
+- std_dwps
+- time-standard-deviation wave spectral directional width for swell
+145229:
+- std_swh
+- time-standard-deviation significant height of combined wind waves and swell
+145230:
+- std_mwd
+- time-standard-deviation mean wave direction
+145231:
+- std_pp1d
+- time-standard-deviation peak wave period
+145232:
+- std_mwp
+- time-standard-deviation mean wave period
+145233:
+- std_cdww
+- time-standard-deviation coefficient of drag with waves
+145234:
+- std_shww
+- time-standard-deviation significant height of wind waves
+145235:
+- std_mdww
+- time-standard-deviation mean direction of wind waves
+145236:
+- std_mpww
+- time-standard-deviation mean period of wind waves
+145237:
+- std_shts
+- time-standard-deviation significant height of total swell
+145238:
+- std_mdts
+- time-standard-deviation mean direction of total swell
+145239:
+- std_mpts
+- time-standard-deviation mean period of total swell
+145244:
+- std_msqs
+- time-standard-deviation mean square slope of waves
+145245:
+- std_wind
+- time-standard-deviation 10 metre wind speed
+145249:
+- std_dwi
+- time-standard-deviation 10 metre wind direction
+145252:
+- std_wsk
+- time-standard-deviation wave spectral kurtosis
+145253:
+- std_bfi
+- time-standard-deviation benjamin-feir index
+145254:
+- std_wsp
+- time-standard-deviation wave spectral peakedness
 150129:
 - ocpt
 - ocean potential temperature
@@ -3201,7 +4261,7 @@
 - swl3rea
 - soil wetness level 3
 160198:
-- srcrea
+- srcon
 - skin reservoir content
 160199:
 - vegrea
@@ -3308,30 +4368,87 @@
 160254:
 - hsdrea
 - heaviside beta function
+162031:
+- viwgd
+- total column vertically-integrated divergence of water geopotential flux
+162032:
+- viee
+- total column vertically-integrated eastward enthalpy flux
+162033:
+- vien
+- total column vertically-integrated northward enthalpy flux
+162034:
+- vied
+- total column vertically-integrated divergence of enthalpy flux
+162035:
+- viwed
+- total column vertically-integrated divergence of water enthalpy flux
+162036:
+- viwvd
+- total column vertically-integrated divergence of water vapour flux
+162037:
+- viclwd
+- total column vertically-integrated divergence of cloud liquid water flux
+162038:
+- viciwd
+- total column vertically-integrated divergence of cloud ice water flux
+162039:
+- vird
+- total column vertically-integrated divergence of rain flux
+162040:
+- visd
+- total column vertically-integrated divergence of snow flux
+162041:
+- viclwe
+- total column vertically-integrated eastward cloud liquid water flux
+162042:
+- viclwn
+- total column vertically-integrated northward cloud liquid water flux
+162043:
+- viciwe
+- total column vertically-integrated eastward cloud ice water flux
+162044:
+- viciwn
+- total column vertically-integrated northward cloud ice water flux
 162045:
 - wvf
 - water vapour flux
+162046:
+- vire
+- total column vertically-integrated eastward rain flux
+162047:
+- virn
+- total column vertically-integrated northward rain flux
+162048:
+- vise
+- total column vertically-integrated eastward snow flux
+162049:
+- visn
+- total column vertically-integrated northward snow flux
+162050:
+- vions
+- total column vertically-integrated net source of ozone
 162051:
 - _param_162051
 - surface geopotential
 162053:
 - vima
-- vertical integral of mass of atmosphere
+- total column vertically-integrated mass of atmosphere
 162054:
 - vit
-- vertical integral of temperature
+- total column vertically-integrated temperature
 162055:
 - viwv
-- vertical integral of water vapour
+- total column vertically-integrated water vapour
 162056:
 - vilw
-- vertical integral of cloud liquid water
+- total column vertically-integrated cloud liquid water
 162057:
 - viiw
-- vertical integral of cloud frozen water
+- total column vertically-integrated cloud frozen water
 162058:
 - vioz
-- vertical integral of ozone
+- total column vertically-integrated ozone
 162059:
 - vike
 - total column vertically-integrated kinetic energy
@@ -3343,97 +4460,97 @@
 - total column vertically-integrated potential + internal energy
 162062:
 - vipile
-- vertical integral of potential+internal+latent energy
+- total column vertically-integrated potential+internal+latent energy
 162063:
 - vitoe
 - total column vertically-integrated total energy
 162064:
 - viec
-- vertical integral of energy conversion
+- total column vertically-integrated energy conversion
 162065:
 - vimae
-- vertical integral of eastward mass flux
+- total column vertically-integrated eastward mass flux
 162066:
 - viman
-- vertical integral of northward mass flux
+- total column vertically-integrated northward mass flux
 162067:
 - vikee
-- vertical integral of eastward kinetic energy flux
+- total column vertically-integrated eastward kinetic energy flux
 162068:
 - viken
-- vertical integral of northward kinetic energy flux
+- total column vertically-integrated northward kinetic energy flux
 162069:
 - vithee
-- vertical integral of eastward heat flux
+- total column vertically-integrated eastward heat flux
 162070:
 - vithen
-- vertical integral of northward heat flux
+- total column vertically-integrated northward heat flux
 162071:
 - viwve
-- vertical integral of eastward water vapour flux
+- total column vertically-integrated eastward water vapour flux
 162072:
 - viwvn
-- vertical integral of northward water vapour flux
+- total column vertically-integrated northward water vapour flux
 162073:
 - vige
-- vertical integral of eastward geopotential flux
+- total column vertically-integrated eastward geopotential flux
 162074:
 - vign
-- vertical integral of northward geopotential flux
+- total column vertically-integrated northward geopotential flux
 162075:
-- vitoee
-- vertical integral of eastward total energy flux
+- vitee
+- total column vertically-integrated eastward total energy flux
 162076:
-- vitoen
-- vertical integral of northward total energy flux
+- viten
+- total column vertically-integrated northward total energy flux
 162077:
 - vioze
-- vertical integral of eastward ozone flux
+- total column vertically-integrated eastward ozone flux
 162078:
 - viozn
-- vertical integral of northward ozone flux
+- total column vertically-integrated northward ozone flux
 162079:
 - vilwd
-- vertical integral of divergence of cloud liquid water flux
+- total column vertically-integrated divergence of cloud liquid water flux
 162080:
 - viiwd
-- vertical integral of divergence of cloud frozen water flux
+- total column vertically-integrated divergence of cloud frozen water flux
 162081:
 - vimad
-- vertical integral of divergence of mass flux
+- total column vertically-integrated divergence of mass flux
 162082:
 - viked
-- vertical integral of divergence of kinetic energy flux
+- total column vertically-integrated divergence of kinetic energy flux
 162083:
 - vithed
-- vertical integral of divergence of thermal energy flux
+- total column vertically-integrated divergence of thermal energy flux
 162084:
-- viwvd
-- vertically integrated moisture divergence flux
+- vimdf
+- total column vertically-integrated moisture divergence flux
 162085:
 - vigd
-- vertical integral of divergence of geopotential flux
+- total column vertically-integrated divergence of geopotential flux
 162086:
-- vitoed
-- vertical integral of divergence of total energy flux
+- vited
+- total column vertically-integrated divergence of total energy flux
 162087:
 - viozd
-- vertical integral of divergence of ozone flux
+- total column vertically-integrated divergence of ozone flux
 162088:
 - vilwe
-- vertical integral of eastward cloud liquid water flux
+- total column vertically-integrated eastward cloud liquid water flux
 162089:
 - vilwn
-- vertical integral of northward cloud liquid water flux
+- total column vertically-integrated northward cloud liquid water flux
 162090:
 - viiwe
-- vertical integral of eastward cloud frozen water flux
+- total column vertically-integrated eastward cloud frozen water flux
 162091:
 - viiwn
-- vertical integral of northward cloud frozen water flux
+- total column vertically-integrated northward cloud frozen water flux
 162092:
 - vimat
-- vertical integral of mass tendency
+- total column vertically-integrated mass tendency
 162093:
 - viwe
 - total column vertically-integrated water enthalpy
@@ -3563,6 +4680,48 @@
 162141:
 - qtendsc
 - q-tendency from shallow convection
+162150:
+- ttswr
+- temperature tendency due to short-wave radiation
+162151:
+- ttlwr
+- temperature tendency due to long-wave radiation
+162152:
+- ttswrcs
+- temperature tendency due to short-wave radiation, clear sky
+162153:
+- ttlwrcs
+- temperature tendency due to long-wave radiation, clear sky
+162154:
+- umf
+- updraught mass flux
+162155:
+- dmf
+- downdraught mass flux
+162156:
+- udr
+- updraught detrainment rate
+162157:
+- ddr
+- downdraught detrainment rate
+162158:
+- tpf
+- total precipitation flux
+162159:
+- tdch
+- turbulent diffusion coefficient for heat
+162160:
+- ttpm
+- temperature tendency due to parametrisations
+162161:
+- qtpm
+- specific humidity tendency due to parametrisations
+162162:
+- utpm
+- eastward wind tendency due to parametrisations
+162163:
+- vtpm
+- northward wind tendency due to parametrisations
 162206:
 - _param_162206
 - variance of geopotential
@@ -3686,6 +4845,9 @@
 171007:
 - 100va
 - 100 metre v wind component anomaly
+171008:
+- 100sia
+- 100 metre wind speed anomaly
 171011:
 - udwa
 - u component of divergent wind anomaly
@@ -4262,17 +5424,17 @@
 - indicates a missing value
 172008:
 - msror
-- mean surface runoff rate
+- time-mean surface runoff rate
 172009:
 - mssror
-- mean sub-surface runoff rate
+- time-mean sub-surface runoff rate
 172044:
 - esrate
-- snow evaporation
+- time-mean snow evaporation rate
 - es
 172045:
 - _param_172045
-- snowmelt
+- time-mean snowmelt rate
 172048:
 - _param_172048
 - magnitude of turbulent surface stress
@@ -4282,76 +5444,76 @@
 - lspf
 172142:
 - mlsprt
-- mean large-scale precipitation rate
+- time-mean large-scale precipitation rate
 - lsp
 172143:
 - cprate
-- mean convective precipitation rate
+- time-mean convective precipitation rate
 - cp
 172144:
 - mtsfr
-- mean total snowfall rate
+- time-mean total snowfall rate
 - sf
 172145:
 - bldrate
 - boundary layer dissipation
 172146:
 - msshfl
-- mean surface sensible heat flux
+- time-mean surface sensible heat flux
 - sshf
 - '146'
 172147:
 - mslhfl
-- mean surface latent heat flux
+- time-mean surface latent heat flux
 - slhf
 - '147'
 172149:
 - msnrf
-- time-mean surface net radiation flux (sw and lw)
+- mean surface net radiation flux
 - snr
 172153:
 - mswhr
-- mean short-wave heating rate
+- time-mean short-wave (solar) heating rate
 - swhr
 172154:
 - mlwhr
-- mean long-wave heating rate
+- time-mean long-wave (thermal) heating rate
 - lwhr
 172169:
 - msdsrf
-- mean surface downward solar radiation flux
+- time-mean surface downward short-wave (solar) radiation flux
 - ssrd
 172175:
 - msdtrf
-- mean surface downward thermal radiation flux
+- time-mean surface downward long-wave (thermal) radiation flux
 - strd
 172176:
 - msnsrf
-- mean surface net solar radiation flux
+- time-mean surface net short-wave (solar) radiation flux
 - ssr
 172177:
 - msntrf
-- mean surface net thermal radiation flux
+- time-mean surface net long-wave (thermal) radiation flux
 - str
 172178:
 - mtnsrf
-- mean top net solar radiation flux
+- time-mean top net short-wave (solar) radiation flux
 - tsr
 172179:
 - mtntrf
-- mean top net thermal radiation flux
+- time-mean top net long-wave (thermal) radiation flux
 - ttr
 172180:
 - ewssra
-- east-west surface stress rate of accumulation
+- time-mean eastward turbulent surface stress
 - ewss
 172181:
 - nsssra
-- north-south surface stress rate of accumulation
+- time-mean northward turbulent surface stress
 - nsss
 172182:
 - erate
-- evaporation
+- time-mean evaporation rate
 - e
 172189:
 - msdr
@@ -4368,33 +5530,33 @@
 - gravity wave dissipation
 172205:
 - mrort
-- mean runoff rate
+- time-mean runoff rate
 - ro
 172208:
 - _param_172208
-- top net solar radiation, clear sky
+- time-mean top net short-wave (solar) radiation flux, clear sky
 172209:
 - _param_172209
-- top net thermal radiation, clear sky
+- time-mean top net long-wave (thermal) radiation flux, clear sky
 172210:
 - _param_172210
-- surface net solar radiation, clear sky
+- time-mean surface net short-wave (solar) radiation flux, clear sky
 172211:
 - _param_172211
-- surface net thermal radiation, clear sky
+- time-mean surface net long-wave (thermal) radiation flux, clear sky
 172212:
 - soira
-- solar insolation rate of accumulation
+- time-mean short-wave (solar) insolation rate
 172228:
 - tprate
-- mean total precipitation rate
+- time-mean total precipitation rate
 - tp
 172239:
 - _param_172239
-- convective snowfall
+- time-mean convective snowfall rate
 172240:
 - _param_172240
-- large scale snowfall
+- time-mean large-scale snowfall rate
 172255:
 - _param_172255
 - indicates a missing value
@@ -4406,10 +5568,10 @@
 - mean sub-surface runoff rate anomaly
 173044:
 - _param_173044
-- snow evaporation anomaly
+- time-mean snow evaporation anomalous rate of accumulation
 173045:
 - _param_173045
-- snowmelt anomaly
+- time-mean snowmelt anomalous rate of accumulation
 173048:
 - _param_173048
 - magnitude of turbulent surface stress anomaly
@@ -4482,7 +5644,7 @@
 - north-south surface stress anomalous rate of accumulation
 173182:
 - evara
-- evaporation anomalous rate of accumulation
+- time-mean evaporation anomalous rate of accumulation
 - ea
 - e
 173189:
@@ -6651,6 +7813,9 @@
 211056:
 - _param_211056
 - experimental product
+211059:
+- h2odiff
+- water vapour (chemistry) difference
 211061:
 - co2diff
 - carbon dioxide
@@ -8158,7 +9323,7 @@
 - spp121
 - random pattern 121 for spp scheme
 214001:
-- uvcossza
+- cossza
 - cosine of solar zenith angle
 214002:
 - uvbed
@@ -8390,73 +9555,73 @@
 - source/gain of dust aerosol (0.03 - 0.55 um)
 215026:
 - aersrcdum
-- source/gain of dust aerosol (0.55 - 9 um)
+- source/gain of dust aerosol (0.55 - 0.9 um)
 215027:
 - aersrcdul
-- source/gain of dust aerosol (9 - 20 um)
+- source/gain of dust aerosol (0.9 - 20 um)
 215028:
 - aerddpdus
 - dry deposition of dust aerosol (0.03 - 0.55 um)
 215029:
 - aerddpdum
-- dry deposition of dust aerosol (0.55 - 9 um)
+- dry deposition of dust aerosol (0.55 - 0.9 um)
 215030:
 - aerddpdul
-- dry deposition of dust aerosol (9 - 20 um)
+- dry deposition of dust aerosol (0.9 - 20 um)
 215031:
 - aersdmdus
 - sedimentation of dust aerosol (0.03 - 0.55 um)
 215032:
 - aersdmdum
-- sedimentation of dust aerosol (0.55 - 9 um)
+- sedimentation of dust aerosol (0.55 - 0.9 um)
 215033:
 - aersdmdul
-- sedimentation of dust aerosol (9 - 20 um)
+- sedimentation of dust aerosol (0.9 - 20 um)
 215034:
 - aerwdlsdus
 - wet deposition of dust aerosol (0.03 - 0.55 um) by large-scale precipitation
 215035:
 - aerwdlsdum
-- wet deposition of dust aerosol (0.55 - 9 um) by large-scale precipitation
+- wet deposition of dust aerosol (0.55 - 0.9 um) by large-scale precipitation
 215036:
 - aerwdlsdul
-- wet deposition of dust aerosol (9 - 20 um) by large-scale precipitation
+- wet deposition of dust aerosol (0.9 - 20 um) by large-scale precipitation
 215037:
 - aerwdccdus
 - wet deposition of dust aerosol (0.03 - 0.55 um) by convective precipitation
 215038:
 - aerwdccdum
-- wet deposition of dust aerosol (0.55 - 9 um) by convective precipitation
+- wet deposition of dust aerosol (0.55 - 0.9 um) by convective precipitation
 215039:
 - aerwdccdul
-- wet deposition of dust aerosol (9 - 20 um) by convective precipitation
+- wet deposition of dust aerosol (0.9 - 20 um) by convective precipitation
 215040:
 - aerngtdus
 - negative fixer of dust aerosol (0.03 - 0.55 um)
 215041:
 - aerngtdum
-- negative fixer of dust aerosol (0.55 - 9 um)
+- negative fixer of dust aerosol (0.55 - 0.9 um)
 215042:
 - aerngtdul
-- negative fixer of dust aerosol (9 - 20 um)
+- negative fixer of dust aerosol (0.9 - 20 um)
 215043:
 - aermssdus
 - vertically integrated mass of dust aerosol (0.03 - 0.55 um)
 215044:
 - aermssdum
-- vertically integrated mass of dust aerosol (0.55 - 9 um)
+- vertically integrated mass of dust aerosol (0.55 - 0.9 um)
 215045:
 - aermssdul
-- vertically integrated mass of dust aerosol (9 - 20 um)
+- vertically integrated mass of dust aerosol (0.9 - 20 um)
 215046:
 - aeroddus
 - dust aerosol (0.03 - 0.55 um) optical depth
 215047:
 - aeroddum
-- dust aerosol (0.55 - 9 um) optical depth
+- dust aerosol (0.55 - 0.9 um) optical depth
 215048:
 - aeroddul
-- dust aerosol (9 - 20 um) optical depth
+- dust aerosol (0.9 - 20 um) optical depth
 215049:
 - aersrcomhphob
 - source/gain of hydrophobic organic matter aerosol
@@ -12667,11 +13832,11 @@
 - zust
 - friction velocity
 228004:
-- mean2t
-- mean 2 metre temperature
+- avg_2t
+- time-mean 2 metre temperature
 228005:
-- mean10ws
-- mean of 10 metre wind speed
+- avg_10ws
+- time-mean 10 metre wind speed
 228006:
 - meantcc
 - mean total cloud cover
@@ -12719,7 +13884,7 @@
 - -10 degrees c isothermal level (atm)
 228021:
 - fdir
-- total sky direct short-wave (solar) radiation at surface
+- surface direct short-wave (solar) radiation
 228022:
 - cdir
 - surface direct short-wave radiation, clear sky
@@ -12867,13 +14032,13 @@
 - accumulated carbon dioxide ecosystem respiration
 228083:
 - fco2nee
-- flux of carbon dioxide net ecosystem exchange
+- carbon dioxide net ecosystem exchange flux
 228084:
 - fco2gpp
-- flux of carbon dioxide gross primary production
+- carbon dioxide gross primary production flux
 228085:
 - fco2rec
-- flux of carbon dioxide ecosystem respiration
+- carbon dioxide ecosystem respiration flux
 228086:
 - sm20
 - soil moisture top 20 cm
@@ -12984,7 +14149,7 @@
 - accumulated freezing rain
 228217:
 - ilspf
-- instantaneous large-scale surface precipitation fraction
+- instantaneous large-scale precipitation fraction
 228218:
 - crr
 - convective rain rate
@@ -13442,10 +14607,10 @@
 - sdrd
 - snow depth water equivalent on road
 231055:
-- uct
+- urct
 - urban canyon temperature
 231056:
-- ucq
+- urcq
 - urban canyon specific humidity
 231057:
 - csfwe
@@ -13471,6 +14636,27 @@
 231064:
 - srmo
 - surface roughness for moisture
+231065:
+- esrwe
+- snow evaporation rate water equivalent
+231066:
+- rare
+- radar reflectivity
+231067:
+- pcdc
+- pressure at cloud ceiling
+231068:
+- visp
+- visibility through precipitation
+231069:
+- h0thg
+- geometric height of 0 degrees c theta level above ground
+231070:
+- h1thg
+- geometric height of 1 degree c theta level above ground
+231071:
+- h1p5thg
+- geometric height of 1.5 degrees c theta level above ground
 232000:
 - fba
 - burned area
@@ -13565,71 +14751,74 @@
 - time-integrated total column vertically-integrated divergence of water enthalpy
   flux
 233014:
-- tvimd
-- time integrated, vertically integrated divergence of mass flux
+- tvimad
+- time-integrated total column vertically-integrated divergence of mass flux
 233015:
-- tvime
-- time integrated, vertically integrated eastward mass flux
+- tvimae
+- time-integrated total column vertically-integrated eastward mass flux
 233016:
-- tvimn
-- time integrated, vertically integrated northward mass flux
+- tviman
+- time-integrated total column vertically-integrated northward mass flux
 233017:
 - tviwvd
-- time integrated, vertically integrated divergence of water vapour flux
+- time-integrated total column vertically-integrated divergence of water vapour flux
 233018:
 - tviclwd
-- time integrated, vertically integrated divergence of cloud liquid water flux
+- time-integrated total column vertically-integrated divergence of cloud liquid water
+  flux
 233019:
 - tviciwd
-- time integrated, vertically integrated divergence of cloud ice water flux
+- time-integrated total column vertically-integrated divergence of cloud ice water
+  flux
 233020:
 - tvird
-- time integrated, vertically integrated divergence of rain flux
+- time-integrated total column vertically-integrated divergence of rain flux
 233021:
 - tvisd
-- time integrated, vertically integrated divergence of snow flux
+- time-integrated total column vertically-integrated divergence of snow flux
 233022:
 - tviwve
-- time integrated, vertically integrated eastward water vapour flux
+- time-integrated total column vertically-integrated eastward water vapour flux
 233023:
 - tviwvn
-- time integrated, vertically integrated northward water vapour flux
+- time-integrated total column vertically-integrated northward water vapour flux
 233024:
 - tviclwe
-- time integrated, vertically integrated eastward cloud liquid water flux
+- time-integrated total column vertically-integrated eastward cloud liquid water flux
 233025:
 - tviclwn
-- time integrated, vertically integrated northward cloud liquid water flux
+- time-integrated total column vertically-integrated northward cloud liquid water
+  flux
 233026:
 - tviciwe
-- time integrated, vertically integrated eastward cloud ice water flux
+- time-integrated total column vertically-integrated eastward cloud ice water flux
 233027:
 - tviciwn
-- time integrated, vertically integrated northward cloud ice water flux
+- time-integrated total column vertically-integrated northward cloud ice water flux
 233028:
 - tvire
-- time integrated, vertically integrated eastward rain flux
+- time-integrated total column vertically-integrated eastward rain flux
 233029:
 - tvirn
-- time integrated, vertically integrated northward rain flux
+- time-integrated total column vertically-integrated northward rain flux
 233030:
 - tvise
-- time integrated, vertically integrated eastward snow flux
+- time-integrated total column vertically-integrated eastward snow flux
 233031:
 - tvisn
-- time integrated, vertically integrated northward snow flux
+- time-integrated total column vertically-integrated northward snow flux
 233032:
 - tvioze
-- time integrated, vertically integrated eastward ozone flux
+- time-integrated total column vertically-integrated eastward ozone flux
 233033:
 - tviozn
-- time integrated, vertically integrated northward ozone flux
+- time-integrated total column vertically-integrated northward ozone flux
 233034:
 - tviozd
-- time integrated, vertically integrated divergence of ozone flux
+- time-integrated total column vertically-integrated divergence of ozone flux
 233035:
 - tvions
-- time integrated, vertically integrated net source of ozone
+- time-integrated total column vertically-integrated net source of ozone
 234139:
 - sts
 - surface temperature significance
@@ -13643,47 +14832,47 @@
 - tps
 - total precipitation significance
 235001:
-- mttswr
-- mean temperature tendency due to short-wave radiation
+- avg_ttswr
+- time-mean temperature tendency due to short-wave radiation
 235002:
-- mttlwr
-- mean temperature tendency due to long-wave radiation
+- avg_ttlwr
+- time-mean temperature tendency due to long-wave radiation
 235003:
-- mttswrcs
-- mean temperature tendency due to short-wave radiation, clear sky
+- avg_ttswrcs
+- time-mean temperature tendency due to short wave radiation, clear sky
 235004:
-- mttlwrcs
-- mean temperature tendency due to long-wave radiation, clear sky
+- avg_ttlwrcs
+- time-mean temperature tendency due to long-wave radiation, clear sky
 235005:
-- mttpm
-- mean temperature tendency due to parametrisations
+- avg_ttpm
+- time-mean temperature tendency due to parametrisations
 235006:
-- mqtpm
-- mean specific humidity tendency due to parametrisations
+- avg_qtpm
+- time-mean specific humidity tendency due to parametrisations
 235007:
-- mutpm
-- mean eastward wind tendency due to parametrisations
+- avg_utpm
+- time-mean eastward wind tendency due to parametrisations
 235008:
-- mvtpm
-- mean northward wind tendency due to parametrisations
+- avg_vtpm
+- time-mean northward wind tendency due to parametrisations
 235009:
-- mumf
-- mean updraught mass flux
+- avg_umf
+- time-mean updraught mass flux
 235010:
-- mdmf
-- mean downdraught mass flux
+- avg_dmf
+- time-mean downdraught mass flux
 235011:
-- mudr
-- mean updraught detrainment rate
+- avg_udr
+- time-mean updraught detrainment rate
 235012:
-- mddr
-- mean downdraught detrainment rate
+- avg_ddr
+- time-mean downdraught detrainment rate
 235013:
-- mtpf
-- mean total precipitation flux
+- avg_tpf
+- time-mean total precipitation flux
 235014:
-- mtdch
-- mean turbulent diffusion coefficient for heat
+- avg_tdch
+- time-mean turbulent diffusion coefficient for heat
 235015:
 - tirf
 - time integral of rain flux
@@ -13697,140 +14886,140 @@
 - tislhef
 - time integral of surface latent heat evaporation flux
 235020:
-- msror
-- mean surface runoff rate
+- avg_surfror
+- time-mean surface runoff rate
 235021:
-- mssror
-- mean sub-surface runoff rate
+- avg_ssurfror
+- time-mean sub-surface runoff rate
 235022:
-- msparfcs
-- mean surface photosynthetically active radiation flux, clear sky
+- avg_parcsf
+- time-mean surface photosynthetically active radiation flux, clear sky
 235023:
-- mser
-- mean snow evaporation rate
+- avg_esrwe
+- time-mean snow evaporation rate water equivalent
 235024:
-- msmr
-- mean snowmelt rate
+- avg_smr
+- time-mean snow melt rate
 235025:
-- mmtss
-- mean magnitude of turbulent surface stress
+- avg_imagss
+- time-mean magnitude of turbulent surface stress
 235026:
-- mlspf
-- mean large-scale precipitation fraction
+- avg_ilspf
+- time-mean large-scale precipitation fraction
 235027:
-- msdwuvrf
-- mean surface downward uv radiation flux
+- avg_sduvrf
+- time-mean surface downward uv radiation flux
 235028:
-- msparf
-- mean surface photosynthetically active radiation flux
+- avg_sparf
+- time-mean surface photosynthetically active radiation flux
 235029:
-- mlspr
-- mean large-scale precipitation rate
+- avg_lsprate
+- time-mean large-scale precipitation rate
 235030:
-- mcpr
-- mean convective precipitation rate
+- avg_cpr
+- time-mean convective precipitation rate
 235031:
-- msr
-- mean snowfall rate
+- avg_tsrwe
+- time-mean total snowfall rate water equivalent
 235032:
-- mbld
-- mean boundary layer dissipation
+- avg_ibld
+- time-mean boundary layer dissipation
 235033:
-- msshf
-- mean surface sensible heat flux
+- avg_ishf
+- time-mean surface sensible heat flux
 235034:
-- mslhf
-- mean surface latent heat flux
+- avg_slhtf
+- time-mean surface latent heat flux
 235035:
-- msdwswrf
-- mean surface downward short-wave radiation flux
+- avg_sdswrf
+- time-mean surface downward short-wave radiation flux
 235036:
-- msdwlwrf
-- mean surface downward long-wave radiation flux
+- avg_sdlwrf
+- time-mean surface downward long-wave radiation flux
 235037:
-- msnswrf
-- mean surface net short-wave radiation flux
+- avg_snswrf
+- time-mean surface net short-wave radiation flux
 235038:
-- msnlwrf
-- mean surface net long-wave radiation flux
+- avg_snlwrf
+- time-mean surface net long-wave radiation flux
 235039:
-- mtnswrf
-- mean top net short-wave radiation flux
+- avg_tnswrf
+- time-mean top net short-wave radiation flux
 235040:
-- mtnlwrf
-- mean top net long-wave radiation flux
+- avg_tnlwrf
+- time-mean top net long-wave radiation flux
 235041:
-- metss
-- mean eastward turbulent surface stress
+- avg_iews
+- time-mean eastward turbulent surface stress
 235042:
-- mntss
-- mean northward turbulent surface stress
+- avg_inss
+- time-mean northward turbulent surface stress
 235043:
-- mer
-- mean evaporation rate
+- avg_ie
+- time-mean moisture flux
 235044:
-- sdf
-- sunshine duration fraction
+- avg_sdf
+- time-mean sunshine duration fraction
 235045:
-- megwss
-- mean eastward gravity wave surface stress
+- avg_iegwss
+- time-mean eastward gravity wave surface stress
 235046:
-- mngwss
-- mean northward gravity wave surface stress
+- avg_ingwss
+- time-mean northward gravity wave surface stress
 235047:
-- mgwd
-- mean gravity wave dissipation
+- avg_igwd
+- time-mean gravity wave dissipation
 235048:
-- mror
-- mean runoff rate
+- avg_rorwe
+- time-mean runoff rate water equivalent (surface plus subsurface)
 235049:
-- mtnswrfcs
-- mean top net short-wave radiation flux, clear sky
+- avg_tnswrfcs
+- time-mean top net short-wave radiation flux, clear sky
 235050:
-- mtnlwrfcs
-- mean top net long-wave radiation flux, clear sky
+- avg_tnlwrfcs
+- time-mean top net long-wave radiation flux, clear sky
 235051:
-- msnswrfcs
-- mean surface net short-wave radiation flux, clear sky
+- avg_snswrfcs
+- time-mean surface net short-wave radiation flux, clear sky
 235052:
-- msnlwrfcs
-- mean surface net long-wave radiation flux, clear sky
+- avg_snlwrfcs
+- time-mean surface net long-wave radiation flux, clear sky
 235053:
-- mtdwswrf
-- mean top downward short-wave radiation flux
+- avg_tdswrf
+- time mean top downward short-wave radiation flux
 235054:
-- mvimd
-- mean vertically integrated moisture divergence
+- avg_vimdf
+- time-mean total column vertically-integrated moisture divergence flux
 235055:
-- mtpr
-- mean total precipitation rate
+- avg_tprate
+- time-mean total precipitation rate
 235056:
-- mcsr
-- mean convective snowfall rate
+- avg_csfr
+- time-mean convective snowfall rate water equivalent
 235057:
-- mlssr
-- mean large-scale snowfall rate
+- avg_lssfr
+- time-mean large scale snowfall rate water equivalent
 235058:
-- msdrswrf
-- mean surface direct short-wave radiation flux
+- avg_sdirswrf
+- time-mean surface direct short-wave radiation flux
 235059:
-- msdrswrfcs
-- mean surface direct short-wave radiation flux, clear sky
+- avg_sdirswrfcs
+- time-mean surface direct short-wave radiation flux, clear sky
 235060:
 - msdfswrf
 - mean surface diffuse short-wave radiation flux
 235061:
-- msdfswrfcs
-- mean surface diffuse short-wave radiation flux, clear sky
+- avg_sdifswrfcs
+- time-mean surface diffuse short-wave radiation flux, clear sky
 235062:
-- mcdneef
-- mean carbon dioxide net ecosystem exchange flux
+- avg_fco2nee
+- time-mean carbon dioxide net ecosystem exchange flux
 235063:
-- mcdgppf
-- mean carbon dioxide gross primary production flux
+- avg_fco2gpp
+- time-mean carbon dioxide gross primary production flux
 235064:
-- mcderf
-- mean carbon dioxide ecosystem respiration flux
+- avg_fco2rec
+- time-mean carbon dioxide ecosystem respiration flux
 235065:
 - mrr
 - mean rain rate
@@ -13841,14 +15030,14 @@
 - mlsrr
 - mean large-scale rain rate
 235068:
-- msdwswrfcs
-- mean surface downward short-wave radiation flux, clear sky
+- avg_sdswrfcs
+- time-mean surface downward short-wave radiation flux, clear sky
 235069:
-- msdwlwrfcs
-- mean surface downward long-wave radiation flux, clear sky
+- avg_sdlwrfcs
+- time-mean surface downward long-wave radiation flux, clear sky
 235070:
-- mper
-- mean potential evaporation rate
+- avg_pevr
+- time-mean potential evaporation rate
 235071:
 - tislhsf
 - time integral of surface latent heat sublimation flux
@@ -13859,22 +15048,22 @@
 - tietrf
 - time integral of evapotranspiration flux
 235074:
-- metrf
-- time-mean evapotranspiration flux
+- avg_etr
+- time-mean evapotranspiration rate
 235075:
 - tipet
 - time integral of potential evapotranspiration rate
 235076:
-- mpet
+- avg_petr
 - time-mean potential evapotranspiration rate
 235077:
-- mvsw
+- avg_vsw
 - time-mean volumetric soil moisture
 235078:
-- msd
+- avg_sd
 - time-mean snow depth water equivalent
 235079:
-- mskt
+- avg_skt
 - time-mean skin temperature
 235080:
 - avg_rsn
@@ -13933,6 +15122,9 @@
 235098:
 - avg_pres
 - time-mean pressure
+235099:
+- avg_chnk
+- time-mean charnock
 235100:
 - avg_pv
 - time-mean potential vorticity
@@ -13945,9 +15137,51 @@
 235103:
 - avg_etadot
 - time-mean eta-coordinate vertical velocity
+235105:
+- avg_vis
+- time-mean visibility
+235106:
+- avg_wdir
+- time-mean wind direction
+235107:
+- avg_tcsw
+- time-mean total column snow water
+235108:
+- avg_lcc
+- time-mean low cloud cover
+235109:
+- avg_mcc
+- time-mean medium cloud cover
+235110:
+- avg_hcc
+- time-mean high cloud cover
+235111:
+- avg_tcrw
+- time-mean total column rain water
+235113:
+- avg_sm20
+- time-mean soil moisture top 20 cm
+235114:
+- avg_sm100
+- time-mean soil moisture top 100 cm
+235115:
+- avg_st20
+- time-mean soil temperature top 20 cm
+235116:
+- avg_st100
+- time-mean soil temperature top 100 cm
 235117:
 - avg_mucape
 - time-mean most-unstable cape
+235118:
+- avg_vsw20
+- time-mean volumetric soil moisture top 20 cm
+235119:
+- avg_vsw100
+- time-mean volumetric soil moisture top 100 cm
+235120:
+- avg_tcolg
+- time-mean total column vertically-integrated graupel (snow pellets)
 235129:
 - avg_z
 - time-mean geopotential
@@ -13981,6 +15215,12 @@
 235141:
 - avg_sd_m
 - time-mean snow depth
+235149:
+- avg_snrf
+- time-mean surface net radiation flux (sw and lw)
+235150:
+- avg_tnrf
+- time-mean top net radiation flux (sw and lw)
 235151:
 - avg_msl
 - time-mean mean sea level pressure
@@ -14014,6 +15254,9 @@
 235188:
 - avg_hcc_frac
 - time-mean high cloud cover
+235189:
+- avg_suns
+- time-mean sunshine
 235203:
 - avg_o3
 - time-mean ozone mass mixing ratio
@@ -14044,9 +15287,18 @@
 235258:
 - avg_totalx
 - time-mean total totals index
+235261:
+- avg_10wdir
+- time-mean 10 metre wind direction
 235262:
 - avg_cat
 - time-mean clear air turbulence (cat)
+235263:
+- avg_al
+- time-mean forecast albedo
+235269:
+- avg_pt
+- time-mean potential temperature
 235270:
 - avg_dis
 - time-mean discharge from rivers or streams
@@ -14080,24 +15332,2437 @@
 235280:
 - avg_rivcfar
 - time-mean area of river coverage plus river related flooding
+235281:
+- avg_aluvp_p
+- time-mean uv visible albedo for direct radiation (climatological)
+235282:
+- avg_aluvd_p
+- time-mean uv visible albedo for diffuse radiation (climatological)
+235283:
+- avg_alnip_p
+- time-mean near ir albedo for direct radiation (climatological)
+235284:
+- avg_alnid_p
+- time-mean near ir albedo for diffuse radiation (climatological)
+235285:
+- avg_asn
+- time-mean snow albedo
+235286:
+- avg_mont
+- time-mean montgomery potential
+235287:
+- avg_cape
+- time-mean convective available potential energy
+235288:
+- avg_tcc
+- time-mean total cloud cover
+235289:
+- avg_srcon
+- time-mean skin reservoir content
+235290:
+- avg_tcioz
+- time-mean total column integrated ozone
+235291:
+- avg_vike
+- time-mean total column vertically-integrated kinetic energy
+235292:
+- avg_vithe
+- time-mean total column vertically-integrated enthalpy
+235293:
+- avg_vipie
+- time-mean total column vertically-integrated potential + internal energy
+235294:
+- avg_vipile
+- time-mean total column vertically-integrated potential+internal+latent energy
+235295:
+- avg_vitoe
+- time-mean total column vertically-integrated total energy
+235296:
+- avg_viwe
+- time-mean total column vertically-integrated water enthalpy
+235297:
+- avg_aluvpi_p
+- time-mean uv visible albedo for direct radiation, isotropic component (climatological)
+235298:
+- avg_aluvpv_p
+- time-mean uv visible albedo for direct radiation, volumetric component (climatological)
+235299:
+- avg_aluvpg_p
+- time-mean uv visible albedo for direct radiation, geometric component (climatological)
+235300:
+- avg_alnipi_p
+- time-mean near ir albedo for direct radiation, isotropic component (climatological)
+235301:
+- avg_alnipv_p
+- time-mean near ir albedo for direct radiation, volumetric component (climatological)
+235302:
+- avg_alnipg_p
+- time-mean near ir albedo for direct radiation, geometric component (climatological)
+235303:
+- avg_cin
+- time-mean convective inhibition
+235304:
+- avg_zust
+- time-mean friction velocity
+235305:
+- avg_lblt
+- time-mean lake bottom temperature
+235306:
+- avg_ltlt
+- time-mean lake total layer temperature
+235307:
+- avg_lshf
+- time-mean lake shape factor
+235308:
+- avg_lict
+- time-mean lake ice surface temperature
+235309:
+- avg_licd
+- time-mean lake ice total depth
+235310:
+- avg_dndzn
+- time-mean minimum vertical gradient of refractivity inside trapping layer
+235311:
+- avg_dndza
+- time-mean mean vertical gradient of refractivity inside trapping layer
+235312:
+- avg_dctb
+- time-mean duct base height
+235313:
+- avg_tplb
+- time-mean trapping layer base height
+235314:
+- avg_tplt
+- time-mean trapping layer top height
+235315:
+- avg_degm10l
+- time-mean -10 degrees c isothermal level (atm)
+235316:
+- avg_cbh
+- time-mean cloud base height
+235317:
+- avg_deg0l
+- time-mean 0 degrees c isothermal level (atm)
+235318:
+- avg_i10fg
+- time-mean 10 metre wind gust
+235319:
+- avg_rhw
+- time-mean relative humidity with respect to water
+235320:
+- avg_2rhw
+- time-mean 2 metre relative humidity with respect to water
+235321:
+- avg_capes
+- time-mean convective available potential energy shear
+235322:
+- avg_trpp
+- time-mean tropopause pressure
+235323:
+- avg_hcct
+- time-mean height of convective cloud top
+235324:
+- avg_hwbt0
+- time-mean height of zero-degree wet-bulb temperature
+235325:
+- avg_hwbt1
+- time-mean height of one-degree wet-bulb temperature
+235327:
+- avg_tcslw
+- time-mean total column supercooled liquid water
+235328:
+- avg_u10n
+- time-mean 10 metre u-component of neutral wind
+235329:
+- avg_v10n
+- time-mean 10 metre v-component of neutral wind
+235330:
+- avg_crr
+- time-mean convective rain rate
+235331:
+- avg_lsrr
+- time-mean large scale rain rate
+235332:
+- avg_mlcape50
+- time-mean mixed-layer cape in the lowest 50 hpa
+235333:
+- avg_mlcin50
+- time-mean mixed-layer cin in the lowest 50 hpa
+235334:
+- avg_mlcape100
+- time-mean mixed-layer cape in the lowest 100 hpa
+235335:
+- avg_mlcin100
+- time-mean mixed-layer cin in the lowest 100 hpa
+235336:
+- avg_mudlp
+- time-mean departure level of the most unstable parcel expressed as pressure
+235337:
+- avg_ceil
+- time-mean ceiling
+235338:
+- avg_tcsqw
+- time-mean total column integrated saturation specific humidity with respect to water
+235339:
+- avg_sdirnswrf
+- time-mean surface direct normal short-wave radiation flux
+235340:
+- avg_cossza
+- time-mean cosine of solar zenith angle
+235341:
+- avg_fprate
+- time-mean freezing rain precipitation rate
+235342:
+- avg_vige
+- time-mean total column vertically-integrated eastward geopotential flux
+235343:
+- avg_vign
+- time-mean total column vertically-integrated northward geopotential flux
+235344:
+- avg_viwgd
+- time-mean total column vertically-integrated divergence of water geopotential flux
+235345:
+- avg_vigd
+- time-mean total column vertically-integrated divergence of geopotential flux
+235346:
+- avg_viee
+- time-mean total column vertically-integrated eastward enthalpy flux
+235347:
+- avg_vien
+- time-mean total column vertically-integrated northward enthalpy flux
+235348:
+- avg_vikee
+- time-mean total column vertically-integrated eastward kinetic energy flux
+235349:
+- avg_viken
+- time-mean total column vertically-integrated northward kinetic energy flux
+235350:
+- avg_vitee
+- time-mean total column vertically-integrated eastward total energy flux
+235351:
+- avg_viten
+- time-mean total column vertically-integrated northward total energy flux
+235352:
+- avg_vied
+- time-mean total column vertically-integrated divergence of enthalpy flux
+235353:
+- avg_viked
+- time-mean total column vertically-integrated divergence of kinetic energy flux
+235354:
+- avg_vited
+- time-mean total column vertically-integrated divergence of total energy flux
+235355:
+- avg_viwed
+- time-mean total column vertically-integrated divergence of water enthalpy flux
+235356:
+- avg_vimad
+- time-mean total column vertically-integrated divergence of mass flux
+235357:
+- avg_vimae
+- time-mean total column vertically-integrated eastward mass flux
+235358:
+- avg_viman
+- time-mean total column vertically-integrated northward mass flux
+235359:
+- avg_viwvd
+- time-mean total column vertically-integrated divergence of water vapour flux
+235360:
+- avg_viclwd
+- time-mean total column vertically-integrated divergence of cloud liquid water flux
+235361:
+- avg_viciwd
+- time-mean total column vertically-integrated divergence of cloud ice water flux
+235362:
+- avg_vird
+- time-mean total column vertically-integrated divergence of rain flux
+235363:
+- avg_visd
+- time-mean total column vertically-integrated divergence of snow flux
+235364:
+- avg_viwve
+- time-mean total column vertically-integrated eastward water vapour flux
+235365:
+- avg_viwvn
+- time-mean total column vertically-integrated northward water vapour flux
+235366:
+- avg_viclwe
+- time-mean total column vertically-integrated eastward cloud liquid water flux
+235367:
+- avg_viclwn
+- time-mean total column vertically-integrated northward cloud liquid water flux
+235368:
+- avg_viciwe
+- time-mean total column vertically-integrated eastward cloud ice water flux
+235369:
+- avg_viciwn
+- time-mean total column vertically-integrated northward cloud ice water flux
+235370:
+- avg_vire
+- time-mean total column vertically-integrated eastward rain flux
+235371:
+- avg_virn
+- time-mean total column vertically-integrated northward rain flux
+235372:
+- avg_vise
+- time-mean total column vertically-integrated eastward snow flux
+235373:
+- avg_visn
+- time-mean total column vertically-integrated northward snow flux
+235374:
+- avg_vioze
+- time-mean total column vertically-integrated eastward ozone flux
+235375:
+- avg_viozn
+- time-mean total column vertically-integrated northward ozone flux
+235376:
+- avg_viozd
+- time-mean total column vertically-integrated divergence of ozone flux
+235377:
+- avg_vions
+- time-mean total column vertically-integrated net source of ozone
+235378:
+- avg_ietssofd
+- time-mean eastward turbulent surface stress due to orographic form drag
+235379:
+- avg_intssofd
+- time-mean northward turbulent surface stress due to orographic form drag
+235380:
+- avg_ietsssr
+- time-mean eastward turbulent surface stress due to surface roughness
+235381:
+- avg_intsssr
+- time-mean northward turbulent surface stress due to surface roughness
+235382:
+- avg_visp
+- time-mean visibility through precipitation
+235386:
+- avg_lshnf
+- time-mean land surface heat net flux
+235387:
+- avg_sdirnswrfcs
+- time-mean surface direct normal short-wave radiation flux, clear sky
+235388:
+- avg_10cogu
+- time-mean 10 metre convective gust
+235389:
+- avg_10tugu
+- time-mean 10 metre turbulent gust
+235390:
+- avg_h0thg
+- time-mean geometric height of 0 degrees c theta level above ground
+235391:
+- avg_h1thg
+- time-mean geometric height of 1 degree c theta level above ground
+235392:
+- avg_h1p5thg
+- time-mean geometric height of 1.5 degrees c theta level above ground
+235393:
+- avg_veg
+- time-mean vegetation
+235394:
+- avg_lai
+- time-mean leaf area index
+235395:
+- avg_srhe
+- time-mean surface roughness for heat
+236386:
+- acc_lshnf
+- time-integrated land surface heat net flux
+236387:
+- acc_sdirnswrfcs
+- time-integrated surface direct normal short-wave radiation flux, clear sky
+237001:
+- max_ttswr
+- time-maximum temperature tendency due to short-wave radiation
+237002:
+- max_ttlwr
+- time-maximum temperature tendency due to long-wave radiation
+237003:
+- max_ttswrcs
+- time-maximum temperature tendency due to short wave radiation, clear sky
+237004:
+- max_ttlwrcs
+- time-maximum temperature tendency due to long-wave radiation, clear sky
+237005:
+- max_ttpm
+- time-maximum temperature tendency due to parametrisations
+237006:
+- max_qtpm
+- time-maximum specific humidity tendency due to parametrisations
+237007:
+- max_utpm
+- time-maximum eastward wind tendency due to parametrisations
+237008:
+- max_vtpm
+- time-maximum northward wind tendency due to parametrisations
+237009:
+- max_umf
+- time-maximum updraught mass flux
+237010:
+- max_dmf
+- time-maximum downdraught mass flux
+237011:
+- max_udr
+- time-maximum updraught detrainment rate
+237012:
+- max_ddr
+- time-maximum downdraught detrainment rate
+237013:
+- max_tpf
+- time-maximum total precipitation flux
+237014:
+- max_tdch
+- time-maximum turbulent diffusion coefficient for heat
+237022:
+- max_parcsf
+- time-maximum surface photosynthetically active radiation flux, clear sky
+237023:
+- max_esrwe
+- time-maximum snow evaporation rate water equivalent
+237024:
+- max_smr
+- time-maximum snow melt rate
+237025:
+- max_imagss
+- time-maximum magnitude of turbulent surface stress
+237026:
+- max_ilspf
+- time-maximum large-scale precipitation fraction
+237027:
+- max_sduvrf
+- time-maximum surface downward uv radiation flux
+237028:
+- max_sparf
+- time-maximum surface photosynthetically active radiation flux
+237029:
+- max_lsprate
+- time-maximum large-scale precipitation rate
+237030:
+- max_cpr
+- time-maximum convective precipitation rate
+237031:
+- max_tsrwe
+- time-maximum total snowfall rate water equivalent
+237032:
+- max_ibld
+- time-maximum boundary layer dissipation
+237033:
+- max_ishf
+- time-maximum surface sensible heat flux
+237034:
+- max_slhtf
+- time-maximum surface latent heat flux
+237035:
+- max_sdswrf
+- time-maximum surface downward short-wave radiation flux
+237036:
+- max_sdlwrf
+- time-maximum surface downward long-wave radiation flux
+237037:
+- max_snswrf
+- time-maximum surface net short-wave radiation flux
+237038:
+- max_snlwrf
+- time-maximum surface net long-wave radiation flux
+237039:
+- max_tnswrf
+- time-maximum top net short-wave radiation flux
+237040:
+- max_tnlwrf
+- time-maximum top net long-wave radiation flux
+237041:
+- max_iews
+- time-maximum eastward turbulent surface stress
+237042:
+- max_inss
+- time-maximum northward turbulent surface stress
+237043:
+- max_ie
+- time-maximum moisture flux
+237045:
+- max_iegwss
+- time-maximum eastward gravity wave surface stress
+237046:
+- max_ingwss
+- time-maximum northward gravity wave surface stress
+237047:
+- max_igwd
+- time-maximum gravity wave dissipation
+237048:
+- max_rorwe
+- time-maximum runoff rate water equivalent (surface plus subsurface)
+237049:
+- max_tnswrfcs
+- time-maximum top net short-wave radiation flux, clear sky
+237050:
+- max_tnlwrfcs
+- time-maximum top net long-wave radiation flux, clear sky
+237051:
+- max_snswrfcs
+- time-maximum surface net short-wave radiation flux, clear sky
+237052:
+- max_snlwrfcs
+- time-maximum surface net long-wave radiation flux, clear sky
+237053:
+- max_tdswrf
+- time mean top downward short-wave radiation flux
+237054:
+- max_vimdf
+- time-maximum total column vertically-integrated moisture divergence flux
+237056:
+- max_csfr
+- time-maximum convective snowfall rate water equivalent
+237057:
+- max_lssfr
+- time-maximum large scale snowfall rate water equivalent
+237058:
+- max_sdirswrf
+- time-maximum surface direct short-wave radiation flux
+237059:
+- max_sdirswrfcs
+- time-maximum surface direct short-wave radiation flux, clear sky
+237062:
+- max_fco2nee
+- time-maximum carbon dioxide net ecosystem exchange flux
+237063:
+- max_fco2gpp
+- time-maximum carbon dioxide gross primary production flux
+237064:
+- max_fco2rec
+- time-maximum carbon dioxide ecosystem respiration flux
+237068:
+- max_sdswrfcs
+- time-maximum surface downward short-wave radiation flux, clear sky
+237069:
+- max_sdlwrfcs
+- time-maximum surface downward long-wave radiation flux, clear sky
+237070:
+- max_pevr
+- time-maximum potential evaporation rate
 237077:
 - max_vsw
 - time-maximum volumetric soil moisture
+237078:
+- max_sd
+- time-maximum snow depth water equivalent
+237079:
+- max_skt
+- time-maximum skin temperature
+237080:
+- max_rsn
+- time-maximum snow density
+237083:
+- max_ci
+- time-maximum sea ice area fraction
+237084:
+- max_sst
+- time-maximum sea surface temperature
+237087:
+- max_tclw
+- time-maximum total column cloud liquid water
+237088:
+- max_tciw
+- time-maximum total column cloud ice water
+237089:
+- max_2sh
+- time-maximum 2 metre specific humidity
+237090:
+- max_lmlt
+- time-maximum lake mix-layer temperature
+237091:
+- max_lmld
+- time-maximum lake mix-layer depth
+237092:
+- max_2r
+- time-maximum 2 metre relative humidity
+237094:
+- max_sot
+- time-maximum soil temperature
+237097:
+- max_ws
+- time-maximum wind speed
+237098:
+- max_pres
+- time-maximum pressure
+237099:
+- max_chnk
+- time-maximum charnock
+237100:
+- max_pv
+- time-maximum potential vorticity
+237101:
+- max_crwc
+- time-maximum specific rain water content
+237102:
+- max_cswc
+- time-maximum specific snow water content
+237103:
+- max_etadot
+- time-maximum eta-coordinate vertical velocity
+237105:
+- max_vis
+- time-maximum visibility
+237106:
+- max_wdir
+- time-maximum wind direction
+237107:
+- max_tcsw
+- time-maximum total column snow water
+237108:
+- max_lcc
+- time-maximum low cloud cover
+237109:
+- max_mcc
+- time-maximum medium cloud cover
+237110:
+- max_hcc
+- time-maximum high cloud cover
+237111:
+- max_tcrw
+- time-maximum total column rain water
 237117:
 - max_mucape
 - time-maximum most-unstable cape
+237120:
+- max_tcolg
+- time-maximum total column vertically-integrated graupel (snow pellets)
+237129:
+- max_z
+- time-maximum geopotential
+237130:
+- max_t
+- time-maximum temperature
+237131:
+- max_u
+- time-maximum u component of wind
+237132:
+- max_v
+- time-maximum v component of wind
+237133:
+- max_q
+- time-maximum specific humidity
+237134:
+- max_sp
+- time-maximum surface pressure
+237135:
+- max_w
+- time-maximum vertical velocity
+237136:
+- max_tcw
+- time-maximum total column water
+237137:
+- max_tcwv
+- time-maximum total column vertically-integrated water vapour
+237138:
+- max_vo
+- time-maximum vorticity (relative)
+237151:
+- max_msl
+- time-maximum mean sea level pressure
+237152:
+- max_lnsp
+- time-maximum logarithm of surface pressure
+237155:
+- max_d
+- time-maximum divergence
+237157:
+- max_r
+- time-maximum relative humidity
+237159:
+- max_blh
+- time-maximum boundary layer height
+237165:
+- max_10u
+- time-maximum 10 metre u wind component
+237166:
+- max_10v
+- time-maximum 10 metre v wind component
+237168:
+- max_2d
+- time-maximum 2 metre dewpoint temperature
+237189:
+- max_suns
+- time-maximum sunshine
+237203:
+- max_o3
+- time-maximum ozone mass mixing ratio
+237207:
+- max_10si
+- time-maximum 10 metre wind speed
+237238:
+- max_tsn
+- time-maximum temperature of snow layer
+237244:
+- max_fsr
+- time-maximum forecast surface roughness
+237245:
+- max_flsr
+- time-maximum forecast logarithm of surface roughness for heat
+237246:
+- max_clwc
+- time-maximum specific cloud liquid water content
+237247:
+- max_ciwc
+- time-maximum specific cloud ice water content
+237248:
+- max_cc
+- time-maximum fraction of cloud cover
+237257:
+- max_kx
+- time-maximum k index
+237258:
+- max_totalx
+- time-maximum total totals index
+237261:
+- max_10wdir
+- time-maximum 10 metre wind direction
+237262:
+- max_cat
+- time-maximum clear air turbulence (cat)
+237263:
+- max_al
+- time-maximum forecast albedo
+237269:
+- max_pt
+- time-maximum potential temperature
+237281:
+- max_aluvp_p
+- time-maximum uv visible albedo for direct radiation (climatological)
+237282:
+- max_aluvd_p
+- time-maximum uv visible albedo for diffuse radiation (climatological)
+237283:
+- max_alnip_p
+- time-maximum near ir albedo for direct radiation (climatological)
+237284:
+- max_alnid_p
+- time-maximum near ir albedo for diffuse radiation (climatological)
+237285:
+- max_asn
+- time-maximum snow albedo
+237286:
+- max_mont
+- time-maximum montgomery potential
+237288:
+- max_tcc
+- time-maximum total cloud cover
+237289:
+- max_srcon
+- time-maximum skin reservoir content
+237290:
+- max_tcioz
+- time-maximum total column integrated ozone
+237291:
+- max_vike
+- time-maximum total column vertically-integrated kinetic energy
+237292:
+- max_vithe
+- time-maximum total column vertically-integrated enthalpy
+237293:
+- max_vipie
+- time-maximum total column vertically-integrated potential + internal energy
+237294:
+- max_vipile
+- time-maximum total column vertically-integrated potential+internal+latent energy
+237295:
+- max_vitoe
+- time-maximum total column vertically-integrated total energy
+237296:
+- max_viwe
+- time-maximum total column vertically-integrated water enthalpy
+237297:
+- max_aluvpi_p
+- time-maximum uv visible albedo for direct radiation, isotropic component (climatological)
+237298:
+- max_aluvpv_p
+- time-maximum uv visible albedo for direct radiation, volumetric component (climatological)
+237299:
+- max_aluvpg_p
+- time-maximum uv visible albedo for direct radiation, geometric component (climatological)
+237300:
+- max_alnipi_p
+- time-maximum near ir albedo for direct radiation, isotropic component (climatological)
+237301:
+- max_alnipv_p
+- time-maximum near ir albedo for direct radiation, volumetric component (climatological)
+237302:
+- max_alnipg_p
+- time-maximum near ir albedo for direct radiation, geometric component (climatological)
+237303:
+- max_cin
+- time-maximum convective inhibition
+237304:
+- max_zust
+- time-maximum friction velocity
+237305:
+- max_lblt
+- time-maximum lake bottom temperature
+237306:
+- max_ltlt
+- time-maximum lake total layer temperature
+237307:
+- max_lshf
+- time-maximum lake shape factor
+237308:
+- max_lict
+- time-maximum lake ice surface temperature
+237309:
+- max_licd
+- time-maximum lake ice total depth
+237310:
+- max_dndzn
+- time-maximum minimum vertical gradient of refractivity inside trapping layer
+237311:
+- max_dndza
+- time-maximum mean vertical gradient of refractivity inside trapping layer
+237312:
+- max_dctb
+- time-maximum duct base height
+237313:
+- max_tplb
+- time-maximum trapping layer base height
+237314:
+- max_tplt
+- time-maximum trapping layer top height
+237315:
+- max_degm10l
+- time-maximum -10 degrees c isothermal level (atm)
+237316:
+- max_cbh
+- time-maximum cloud base height
+237317:
+- max_deg0l
+- time-maximum 0 degrees c isothermal level (atm)
+237319:
+- max_rhw
+- time-maximum relative humidity with respect to water
+237320:
+- max_2rhw
+- time-maximum 2 metre relative humidity with respect to water
+237322:
+- max_trpp
+- time-maximum tropopause pressure
+237323:
+- max_hcct
+- time-maximum height of convective cloud top
+237324:
+- max_hwbt0
+- time-maximum height of zero-degree wet-bulb temperature
+237325:
+- max_hwbt1
+- time-maximum height of one-degree wet-bulb temperature
+237326:
+- max_litoti
+- time-maximum total lightning flash density
+237327:
+- max_tcslw
+- time-maximum total column supercooled liquid water
+237328:
+- max_u10n
+- time-maximum 10 metre u-component of neutral wind
+237329:
+- max_v10n
+- time-maximum 10 metre v-component of neutral wind
+237330:
+- max_crr
+- time-maximum convective rain rate
+237331:
+- max_lsrr
+- time-maximum large scale rain rate
+237332:
+- max_mlcape50
+- time-maximum mixed-layer cape in the lowest 50 hpa
+237333:
+- max_mlcin50
+- time-maximum mixed-layer cin in the lowest 50 hpa
+237334:
+- max_mlcape100
+- time-maximum mixed-layer cape in the lowest 100 hpa
+237335:
+- max_mlcin100
+- time-maximum mixed-layer cin in the lowest 100 hpa
+237336:
+- max_mudlp
+- time-maximum departure level of the most unstable parcel expressed as pressure
+237337:
+- max_ceil
+- time-maximum ceiling
+237338:
+- max_tcsqw
+- time-maximum total column integrated saturation specific humidity with respect to
+  water
+237339:
+- max_sdirnswrf
+- time-maximum surface direct normal short-wave radiation flux
+237340:
+- max_cossza
+- time-maximum cosine of solar zenith angle
+237341:
+- max_fprate
+- time-maximum freezing rain precipitation rate
+237342:
+- max_vige
+- time-maximum total column vertically-integrated eastward geopotential flux
+237343:
+- max_vign
+- time-maximum total column vertically-integrated northward geopotential flux
+237344:
+- max_viwgd
+- time-maximum total column vertically-integrated divergence of water geopotential
+  flux
+237345:
+- max_vigd
+- time-maximum total column vertically-integrated divergence of geopotential flux
+237346:
+- max_viee
+- time-maximum total column vertically-integrated eastward enthalpy flux
+237347:
+- max_vien
+- time-maximum total column vertically-integrated northward enthalpy flux
+237348:
+- max_vikee
+- time-maximum total column vertically-integrated eastward kinetic energy flux
+237349:
+- max_viken
+- time-maximum total column vertically-integrated northward kinetic energy flux
+237350:
+- max_vitee
+- time-maximum total column vertically-integrated eastward total energy flux
+237351:
+- max_viten
+- time-maximum total column vertically-integrated northward total energy flux
+237352:
+- max_vied
+- time-maximum total column vertically-integrated divergence of enthalpy flux
+237353:
+- max_viked
+- time-maximum total column vertically-integrated divergence of kinetic energy flux
+237354:
+- max_vited
+- time-maximum total column vertically-integrated divergence of total energy flux
+237355:
+- max_viwed
+- time-maximum total column vertically-integrated divergence of water enthalpy flux
+237356:
+- max_vimad
+- time-maximum total column vertically-integrated divergence of mass flux
+237357:
+- max_vimae
+- time-maximum total column vertically-integrated eastward mass flux
+237358:
+- max_viman
+- time-maximum total column vertically-integrated northward mass flux
+237359:
+- max_viwvd
+- time-maximum total column vertically-integrated divergence of water vapour flux
+237360:
+- max_viclwd
+- time-maximum total column vertically-integrated divergence of cloud liquid water
+  flux
+237361:
+- max_viciwd
+- time-maximum total column vertically-integrated divergence of cloud ice water flux
+237362:
+- max_vird
+- time-maximum total column vertically-integrated divergence of rain flux
+237363:
+- max_visd
+- time-maximum total column vertically-integrated divergence of snow flux
+237364:
+- max_viwve
+- time-maximum total column vertically-integrated eastward water vapour flux
+237365:
+- max_viwvn
+- time-maximum total column vertically-integrated northward water vapour flux
+237366:
+- max_viclwe
+- time-maximum total column vertically-integrated eastward cloud liquid water flux
+237367:
+- max_viclwn
+- time-maximum total column vertically-integrated northward cloud liquid water flux
+237368:
+- max_viciwe
+- time-maximum total column vertically-integrated eastward cloud ice water flux
+237369:
+- max_viciwn
+- time-maximum total column vertically-integrated northward cloud ice water flux
+237370:
+- max_vire
+- time-maximum total column vertically-integrated eastward rain flux
+237371:
+- max_virn
+- time-maximum total column vertically-integrated northward rain flux
+237372:
+- max_vise
+- time-maximum total column vertically-integrated eastward snow flux
+237373:
+- max_visn
+- time-maximum total column vertically-integrated northward snow flux
+237374:
+- max_vioze
+- time-maximum total column vertically-integrated eastward ozone flux
+237375:
+- max_viozn
+- time-maximum total column vertically-integrated northward ozone flux
+237376:
+- max_viozd
+- time-maximum total column vertically-integrated divergence of ozone flux
+237377:
+- max_vions
+- time-maximum total column vertically-integrated net source of ozone
+237378:
+- max_ietssofd
+- time-maximum eastward turbulent surface stress due to orographic form drag
+237379:
+- max_intssofd
+- time-maximum northward turbulent surface stress due to orographic form drag
+237380:
+- max_ietsssr
+- time-maximum eastward turbulent surface stress due to surface roughness
+237381:
+- max_intsssr
+- time-maximum northward turbulent surface stress due to surface roughness
+237382:
+- max_visp
+- time-maximum visibility through precipitation
+237386:
+- max_lshnf
+- time-maximum land surface heat net flux
+237387:
+- max_sdirnswrfcs
+- time-maximum surface direct normal short-wave radiation flux, clear sky
+237388:
+- max_10cogu
+- time-maximum 10 metre convective gust
+237389:
+- max_10tugu
+- time-maximum 10 metre turbulent gust
+237390:
+- max_h0thg
+- time-maximum geometric height of 0 degrees c theta level above ground
+237391:
+- max_h1thg
+- time-maximum geometric height of 1 degree c theta level above ground
+237392:
+- max_h1p5thg
+- time-maximum geometric height of 1.5 degrees c theta level above ground
+237393:
+- max_veg
+- time-maximum vegetation
+237394:
+- max_lai
+- time-maximum leaf area index
+237395:
+- max_srhe
+- time-maximum surface roughness for heat
+238001:
+- min_ttswr
+- time-minimum temperature tendency due to short-wave radiation
+238002:
+- min_ttlwr
+- time-minimum temperature tendency due to long-wave radiation
+238003:
+- min_ttswrcs
+- time-minimum temperature tendency due to short wave radiation, clear sky
+238004:
+- min_ttlwrcs
+- time-minimum temperature tendency due to long-wave radiation, clear sky
+238005:
+- min_ttpm
+- time-minimum temperature tendency due to parametrisations
+238006:
+- min_qtpm
+- time-minimum specific humidity tendency due to parametrisations
+238007:
+- min_utpm
+- time-minimum eastward wind tendency due to parametrisations
+238008:
+- min_vtpm
+- time-minimum northward wind tendency due to parametrisations
+238009:
+- min_umf
+- time-minimum updraught mass flux
+238010:
+- min_dmf
+- time-minimum downdraught mass flux
+238011:
+- min_udr
+- time-minimum updraught detrainment rate
+238012:
+- min_ddr
+- time-minimum downdraught detrainment rate
+238013:
+- min_tpf
+- time-minimum total precipitation flux
+238014:
+- min_tdch
+- time-minimum turbulent diffusion coefficient for heat
+238022:
+- min_parcsf
+- time-minimum surface photosynthetically active radiation flux, clear sky
+238023:
+- min_esrwe
+- time-minimum snow evaporation rate
+238024:
+- min_smr
+- time-minimum snowmelt rate
+238025:
+- min_imagss
+- time-minimum magnitude of turbulent surface stress
+238026:
+- min_ilspf
+- time-minimum large-scale precipitation fraction
+238027:
+- min_sduvrf
+- time-minimum surface downward uv radiation flux
+238028:
+- min_sparf
+- time-minimum surface photosynthetically active radiation flux
+238029:
+- min_lsprate
+- time-minimum large-scale precipitation rate
+238030:
+- min_cpr
+- time-minimum convective precipitation rate
+238031:
+- min_tsrwe
+- time-minimum snowfall rate
+238032:
+- min_ibld
+- time-minimum boundary layer dissipation
+238033:
+- min_ishf
+- time-minimum surface sensible heat flux
+238034:
+- min_slhtf
+- time-minimum surface latent heat flux
+238035:
+- min_sdswrf
+- time-minimum surface downward short-wave radiation flux
+238036:
+- min_sdlwrf
+- time-minimum surface downward long-wave radiation flux
+238037:
+- min_snswrf
+- time-minimum surface net short-wave radiation flux
+238038:
+- min_snlwrf
+- time-minimum surface net long-wave radiation flux
+238039:
+- min_tnswrf
+- time-minimum top net short-wave radiation flux
+238040:
+- min_tnlwrf
+- time-minimum top net long-wave radiation flux
+238041:
+- min_iews
+- time-minimum eastward turbulent surface stress
+238042:
+- min_inss
+- time-minimum northward turbulent surface stress
+238043:
+- min_ie
+- time-minimum evaporation rate
+238045:
+- min_iegwss
+- time-minimum eastward gravity wave surface stress
+238046:
+- min_ingwss
+- time-minimum northward gravity wave surface stress
+238047:
+- min_igwd
+- time-minimum gravity wave dissipation
+238048:
+- min_rorwe
+- time-minimum runoff rate
+238049:
+- min_tnswrfcs
+- time-minimum top net short-wave radiation flux, clear sky
+238050:
+- min_tnlwrfcs
+- time-minimum top net long-wave radiation flux, clear sky
+238051:
+- min_snswrfcs
+- time-minimum surface net short-wave radiation flux, clear sky
+238052:
+- min_snlwrfcs
+- time-minimum surface net long-wave radiation flux, clear sky
+238053:
+- min_tdswrf
+- time-minimum top downward short-wave radiation flux
+238054:
+- min_vimdf
+- time-minimum vertically integrated moisture divergence
+238056:
+- min_csfr
+- time-minimum convective snowfall rate water equivalent
+238057:
+- min_lssfr
+- time-minimum large scale snowfall rate water equivalent
+238058:
+- min_sdirswrf
+- time-minimum surface direct short-wave radiation flux
+238059:
+- min_sdirswrfcs
+- time-minimum surface direct short-wave radiation flux, clear sky
+238062:
+- min_fco2nee
+- time-minimum carbon dioxide net ecosystem exchange flux
+238063:
+- min_fco2gpp
+- time-minimum carbon dioxide gross primary production flux
+238064:
+- min_fco2rec
+- time-minimum carbon dioxide ecosystem respiration flux
+238068:
+- min_sdswrfcs
+- time-minimum surface downward short-wave radiation flux, clear sky
+238069:
+- min_sdlwrfcs
+- time-minimum surface downward long-wave radiation flux, clear sky
+238070:
+- min_pevr
+- time-minimum potential evaporation rate
 238077:
 - min_vsw
 - time-minimum volumetric soil moisture
+238078:
+- min_sd
+- time-minimum snow depth water equivalent
+238079:
+- min_skt
+- time-minimum skin temperature
+238080:
+- min_rsn
+- time-minimum snow density
+238083:
+- min_ci
+- time-minimum sea ice area fraction
+238084:
+- min_sst
+- time-minimum sea surface temperature
+238087:
+- min_tclw
+- time-minimum total column cloud liquid water
+238088:
+- min_tciw
+- time-minimum total column cloud ice water
+238089:
+- min_2sh
+- time-minimum 2 metre specific humidity
+238090:
+- min_lmlt
+- time-minimum lake mix-layer temperature
+238091:
+- min_lmld
+- time-minimum lake mix-layer depth
+238092:
+- min_2r
+- time-minimum 2 metre relative humidity
+238094:
+- min_sot
+- time-minimum soil temperature
+238097:
+- min_ws
+- time-minimum wind speed
+238098:
+- min_pres
+- time-minimum pressure
+238099:
+- min_chnk
+- time-minimum charnock
+238100:
+- min_pv
+- time-minimum potential vorticity
+238101:
+- min_crwc
+- time-minimum specific rain water content
+238102:
+- min_cswc
+- time-minimum specific snow water content
+238103:
+- min_etadot
+- time-minimum eta-coordinate vertical velocity
+238105:
+- min_vis
+- time-minimum visibility
+238106:
+- min_wdir
+- time-minimum wind direction
+238107:
+- min_tcsw
+- time-minimum total column snow water
+238108:
+- min_lcc
+- time-minimum low cloud cover
+238109:
+- min_mcc
+- time-minimum medium cloud cover
+238110:
+- min_hcc
+- time-minimum high cloud cover
+238111:
+- min_tcrw
+- time-minimum total column rain water
 238117:
 - min_mucape
 - time-minimum most-unstable cape
+238120:
+- min_tcolg
+- time-minimum total column vertically-integrated graupel (snow pellets)
+238129:
+- min_z
+- time-minimum geopotential
+238130:
+- min_t
+- time-minimum temperature
+238131:
+- min_u
+- time-minimum u component of wind
+238132:
+- min_v
+- time-minimum v component of wind
+238133:
+- min_q
+- time-minimum specific humidity
+238134:
+- min_sp
+- time-minimum surface pressure
+238135:
+- min_w
+- time-minimum vertical velocity
+238136:
+- min_tcw
+- time-minimum total column water
+238137:
+- min_tcwv
+- time-minimum total column vertically-integrated water vapour
+238138:
+- min_vo
+- time-minimum vorticity (relative)
+238151:
+- min_msl
+- time-minimum mean sea level pressure
+238152:
+- min_lnsp
+- time-minimum logarithm of surface pressure
+238155:
+- min_d
+- time-minimum divergence
+238157:
+- min_r
+- time-minimum relative humidity
+238159:
+- min_blh
+- time-minimum boundary layer height
+238165:
+- min_10u
+- time-minimum 10 metre u wind component
+238166:
+- min_10v
+- time-minimum 10 metre v wind component
+238168:
+- min_2d
+- time-minimum 2 metre dewpoint temperature
+238189:
+- min_suns
+- time-minimum sunshine
+238203:
+- min_o3
+- time-minimum ozone mass mixing ratio
+238207:
+- min_10si
+- time-minimum 10 metre wind speed
+238238:
+- min_tsn
+- time-minimum temperature of snow layer
+238244:
+- min_fsr
+- time-minimum forecast surface roughness
+238245:
+- min_flsr
+- time-minimum forecast logarithm of surface roughness for heat
+238246:
+- min_clwc
+- time-minimum specific cloud liquid water content
+238247:
+- min_ciwc
+- time-minimum specific cloud ice water content
+238248:
+- min_cc
+- time-minimum fraction of cloud cover
+238257:
+- min_kx
+- time-minimum k index
+238258:
+- min_totalx
+- time-minimum total totals index
+238261:
+- min_10wdir
+- time-minimum 10 metre wind direction
+238262:
+- min_cat
+- time-minimum clear air turbulence (cat)
+238263:
+- min_al
+- time-minimum forecast albedo
+238269:
+- min_pt
+- time-minimum potential temperature
+238281:
+- min_aluvp_p
+- time-minimum uv visible albedo for direct radiation (climatological)
+238282:
+- min_aluvd_p
+- time-minimum uv visible albedo for diffuse radiation (climatological)
+238283:
+- min_alnip_p
+- time-minimum near ir albedo for direct radiation (climatological)
+238284:
+- min_alnid_p
+- time-minimum near ir albedo for diffuse radiation (climatological)
+238285:
+- min_asn
+- time-minimum snow albedo
+238286:
+- min_mont
+- time-minimum montgomery potential
+238287:
+- min_cape
+- time-minimum convective available potential energy
+238288:
+- min_tcc
+- time-minimum total cloud cover
+238289:
+- min_srcon
+- time-minimum skin reservoir content
+238290:
+- min_tcioz
+- time-minimum total column integrated ozone
+238291:
+- min_vike
+- time-minimum total column vertically-integrated kinetic energy
+238292:
+- min_vithe
+- time-minimum total column vertically-integrated enthalpy
+238293:
+- min_vipie
+- time-minimum total column vertically-integrated potential + internal energy
+238294:
+- min_vipile
+- time-minimum vertical integral of potential+internal+latent energy
+238295:
+- min_vitoe
+- time-minimum total column vertically-integrated total energy
+238296:
+- min_viwe
+- time-minimum total column vertically-integrated water enthalpy
+238297:
+- min_aluvpi_p
+- time-minimum uv visible albedo for direct radiation, isotropic component (climatological)
+238298:
+- min_aluvpv_p
+- time-minimum uv visible albedo for direct radiation, volumetric component (climatological)
+238299:
+- min_aluvpg_p
+- time-minimum uv visible albedo for direct radiation, geometric component (climatological)
+238300:
+- min_alnipi_p
+- time-minimum near ir albedo for direct radiation, isotropic component (climatological)
+238301:
+- min_alnipv_p
+- time-minimum near ir albedo for direct radiation, volumetric component (climatological)
+238302:
+- min_alnipg_p
+- time-minimum near ir albedo for direct radiation, geometric component (climatological)
+238303:
+- min_cin
+- time-minimum convective inhibition
+238304:
+- min_zust
+- time-minimum friction velocity
+238305:
+- min_lblt
+- time-minimum lake bottom temperature
+238306:
+- min_ltlt
+- time-minimum lake total layer temperature
+238307:
+- min_lshf
+- time-minimum lake shape factor
+238308:
+- min_lict
+- time-minimum lake ice surface temperature
+238309:
+- min_licd
+- time-minimum lake ice total depth
+238310:
+- min_dndzn
+- time-minimum minimum vertical gradient of refractivity inside trapping layer
+238311:
+- min_dndza
+- time-minimum mean vertical gradient of refractivity inside trapping layer
+238312:
+- min_dctb
+- time-minimum duct base height
+238313:
+- min_tplb
+- time-minimum trapping layer base height
+238314:
+- min_tplt
+- time-minimum trapping layer top height
+238315:
+- min_degm10l
+- time-minimum -10 degrees c isothermal level (atm)
+238316:
+- min_cbh
+- time-minimum cloud base height
+238317:
+- min_deg0l
+- time-minimum 0 degrees c isothermal level (atm)
+238318:
+- min_i10fg
+- time-minimum 10 metre wind gust
+238319:
+- min_rhw
+- time-minimum relative humidity with respect to water
+238320:
+- min_2rhw
+- time-minimum 2 metre relative humidity with respect to water
+238321:
+- min_capes
+- time-minimum convective available potential energy shear
+238322:
+- min_trpp
+- time-minimum tropopause pressure
+238323:
+- min_hcct
+- time-minimum height of convective cloud top
+238324:
+- min_hwbt0
+- time-minimum height of zero-degree wet-bulb temperature
+238325:
+- min_hwbt1
+- time-minimum height of one-degree wet-bulb temperature
+238326:
+- min_litoti
+- time-minimum total lightning flash density
+238327:
+- min_tcslw
+- time-minimum total column supercooled liquid water
+238328:
+- min_u10n
+- time-minimum 10 metre u-component of neutral wind
+238329:
+- min_v10n
+- time-minimum 10 metre v-component of neutral wind
+238330:
+- min_crr
+- time-minimum convective rain rate
+238331:
+- min_lsrr
+- time-minimum large scale rain rate
+238332:
+- min_mlcape50
+- time-minimum mixed-layer cape in the lowest 50 hpa
+238333:
+- min_mlcin50
+- time-minimum mixed-layer cin in the lowest 50 hpa
+238334:
+- min_mlcape100
+- time-minimum mixed-layer cape in the lowest 100 hpa
+238335:
+- min_mlcin100
+- time-minimum mixed-layer cin in the lowest 100 hpa
+238336:
+- min_mudlp
+- time-minimum departure level of the most unstable parcel expressed as pressure
+238337:
+- min_ceil
+- time-minimum ceiling
+238338:
+- min_tcsqw
+- time-minimum total column integrated saturation specific humidity with respect to
+  water
+238339:
+- min_sdirnswrf
+- time-minimum direct solar radiation flux
+238340:
+- min_cossza
+- time-minimum cosine of solar zenith angle
+238341:
+- min_fprate
+- time-minimum freezing rain rate water equivalent
+238342:
+- min_vige
+- time-minimum total column vertically-integrated eastward geopotential flux
+238343:
+- min_vign
+- time-minimum total column vertically-integrated northward geopotential flux
+238344:
+- min_viwgd
+- time-minimum total column vertically-integrated divergence of water geopotential
+  flux
+238345:
+- min_vigd
+- time-minimum total column vertically-integrated divergence of geopotential flux
+238346:
+- min_viee
+- time-minimum total column vertically-integrated eastward enthalpy flux
+238347:
+- min_vien
+- time-minimum total column vertically-integrated northward enthalpy flux
+238348:
+- min_vikee
+- time-minimum total column vertically-integrated eastward kinetic energy flux
+238349:
+- min_viken
+- time-minimum total column vertically-integrated northward kinetic energy flux
+238350:
+- min_vitee
+- time-minimum total column vertically-integrated eastward total energy flux
+238351:
+- min_viten
+- time-minimum total column vertically-integrated northward total energy flux
+238352:
+- min_vied
+- time-minimum total column vertically-integrated divergence of enthalpy flux
+238353:
+- min_viked
+- time-minimum total column vertically-integrated divergence of kinetic energy flux
+238354:
+- min_vited
+- time-minimum total column vertically-integrated divergence of total energy flux
+238355:
+- min_viwed
+- time-minimum total column vertically-integrated divergence of water enthalpy flux
+238356:
+- min_vimad
+- time-minimum vertically integrated divergence of mass flux
+238357:
+- min_vimae
+- time-minimum vertically integrated eastward mass flux
+238358:
+- min_viman
+- time-minimum vertically integrated northward mass flux
+238359:
+- min_viwvd
+- time-minimum vertically integrated divergence of water vapour flux
+238360:
+- min_viclwd
+- time-minimum vertically integrated divergence of cloud liquid water flux
+238361:
+- min_viciwd
+- time-minimum vertically integrated divergence of cloud ice water flux
+238362:
+- min_vird
+- time-minimum vertically integrated divergence of rain flux
+238363:
+- min_visd
+- time-minimum vertically integrated divergence of snow flux
+238364:
+- min_viwve
+- time-minimum vertically integrated eastward water vapour flux
+238365:
+- min_viwvn
+- time-minimum vertically integrated northward water vapour flux
+238366:
+- min_viclwe
+- time-minimum vertically integrated eastward cloud liquid water flux
+238367:
+- min_viclwn
+- time-minimum vertically integrated northward cloud liquid water flux
+238368:
+- min_viciwe
+- time-minimum vertically integrated eastward cloud ice water flux
+238369:
+- min_viciwn
+- time-minimum vertically integrated northward cloud ice water flux
+238370:
+- min_vire
+- time-minimum vertically integrated eastward rain flux
+238371:
+- min_virn
+- time-minimum vertically integrated northward rain flux
+238372:
+- min_vise
+- time-minimum vertically integrated eastward snow flux
+238373:
+- min_visn
+- time-minimum vertically integrated northward snow flux
+238374:
+- min_vioze
+- time-minimum vertically integrated eastward ozone flux
+238375:
+- min_viozn
+- time-minimum vertically integrated northward ozone flux
+238376:
+- min_viozd
+- time-minimum vertically integrated divergence of ozone flux
+238377:
+- min_vions
+- time-minimum vertically integrated net source of ozone
+238378:
+- min_ietssofd
+- time-minimum eastward turbulent surface stress due to orographic form drag
+238379:
+- min_intssofd
+- time-minimum northward turbulent surface stress due to orographic form drag
+238380:
+- min_ietsssr
+- time-minimum eastward turbulent surface stress due to surface roughness
+238381:
+- min_intsssr
+- time-minimum northward turbulent surface stress due to surface roughness
+238382:
+- min_visp
+- time-minimum visibility through precipitation
+238386:
+- min_lshnf
+- time-minimum land surface heat net flux
+238387:
+- min_sdirnswrfcs
+- time-minimum surface direct normal short-wave radiation flux, clear sky
+238388:
+- min_10cogu
+- time-minimum 10 metre convective gust
+238389:
+- min_10tugu
+- time-minimum 10 metre turbulent gust
+238390:
+- min_h0thg
+- time-minimum geometric height of 0 degrees c theta level above ground
+238391:
+- min_h1thg
+- time-minimum geometric height of 1 degree c theta level above ground
+238392:
+- min_h1p5thg
+- time-minimum geometric height of 1.5 degrees c theta level above ground
+238393:
+- min_veg
+- time-minimum vegetation
+238394:
+- min_lai
+- time-minimum leaf area index
+238395:
+- min_srhe
+- time-minimum surface roughness for heat
+239001:
+- std_ttswr
+- time-standard-deviation temperature tendency due to short-wave radiation
+239002:
+- std_ttlwr
+- time-standard-deviation temperature tendency due to long-wave radiation
+239003:
+- std_ttswrcs
+- time-standard-deviation temperature tendency due to short wave radiation, clear
+  sky
+239004:
+- std_ttlwrcs
+- time-standard-deviation temperature tendency due to long-wave radiation, clear sky
+239005:
+- std_ttpm
+- time-standard-deviation temperature tendency due to parametrisations
+239006:
+- std_qtpm
+- time-standard-deviation specific humidity tendency due to parametrisations
+239007:
+- std_utpm
+- time-standard-deviation eastward wind tendency due to parametrisations
+239008:
+- std_vtpm
+- time-standard-deviation northward wind tendency due to parametrisations
+239009:
+- std_umf
+- time-standard-deviation updraught mass flux
+239010:
+- std_dmf
+- time-standard-deviation downdraught mass flux
+239011:
+- std_udr
+- time-standard-deviation updraught detrainment rate
+239012:
+- std_ddr
+- time-standard-deviation downdraught detrainment rate
+239013:
+- std_tpf
+- time-standard-deviation total precipitation flux
+239014:
+- std_tdch
+- time-standard-deviation turbulent diffusion coefficient for heat
+239022:
+- std_parcsf
+- time-standard-deviation surface photosynthetically active radiation flux, clear
+  sky
+239023:
+- std_esrwe
+- time-standard-deviation snow evaporation rate
+239024:
+- std_smr
+- time-standard-deviation snowmelt rate
+239025:
+- std_imagss
+- time-standard-deviation magnitude of turbulent surface stress
+239026:
+- std_ilspf
+- time-standard-deviation large-scale precipitation fraction
+239027:
+- std_sduvrf
+- time-standard-deviation surface downward uv radiation flux
+239028:
+- std_sparf
+- time-standard-deviation surface photosynthetically active radiation flux
+239029:
+- std_lsprate
+- time-standard-deviation large-scale precipitation rate
+239030:
+- std_cpr
+- time-standard-deviation convective precipitation rate
+239031:
+- std_tsrwe
+- time-standard-deviation snowfall rate
+239032:
+- std_ibld
+- time-standard-deviation boundary layer dissipation
+239033:
+- std_ishf
+- time-standard-deviation surface sensible heat flux
+239034:
+- std_slhtf
+- time-standard-deviation surface latent heat flux
+239035:
+- std_sdswrf
+- time-standard-deviation surface downward short-wave radiation flux
+239036:
+- std_sdlwrf
+- time-standard-deviation surface downward long-wave radiation flux
+239037:
+- std_snswrf
+- time-standard-deviation surface net short-wave radiation flux
+239038:
+- std_snlwrf
+- time-standard-deviation surface net long-wave radiation flux
+239039:
+- std_tnswrf
+- time-standard-deviation top net short-wave radiation flux
+239040:
+- std_tnlwrf
+- time-standard-deviation top net long-wave radiation flux
+239041:
+- std_iews
+- time-standard-deviation eastward turbulent surface stress
+239042:
+- std_inss
+- time-standard-deviation northward turbulent surface stress
+239043:
+- std_ie
+- time-standard-deviation evaporation rate
+239045:
+- std_iegwss
+- time-standard-deviation eastward gravity wave surface stress
+239046:
+- std_ingwss
+- time-standard-deviation northward gravity wave surface stress
+239047:
+- std_igwd
+- time-standard-deviation gravity wave dissipation
+239048:
+- std_rorwe
+- time-standard-deviation runoff rate
+239049:
+- std_tnswrfcs
+- time-standard-deviation top net short-wave radiation flux, clear sky
+239050:
+- std_tnlwrfcs
+- time-standard-deviation top net long-wave radiation flux, clear sky
+239051:
+- std_snswrfcs
+- time-standard-deviation surface net short-wave radiation flux, clear sky
+239052:
+- std_snlwrfcs
+- time-standard-deviation surface net long-wave radiation flux, clear sky
+239053:
+- std_tdswrf
+- time-standard-deviation top downward short-wave radiation flux
+239054:
+- std_vimdf
+- time-standard-deviation vertically integrated moisture divergence
+239055:
+- std_tprate
+- time-standard-deviation total precipitation rate
+239056:
+- std_csfr
+- time-standard-deviation convective snowfall rate water equivalent
+239057:
+- std_lssfr
+- time-standard-deviation large scale snowfall rate water equivalent
+239058:
+- std_sdirswrf
+- time-standard-deviation surface direct short-wave radiation flux
+239059:
+- std_sdirswrfcs
+- time-standard-deviation surface direct short-wave radiation flux, clear sky
+239062:
+- std_fco2nee
+- time-standard-deviation carbon dioxide net ecosystem exchange flux
+239063:
+- std_fco2gpp
+- time-standard-deviation carbon dioxide gross primary production flux
+239064:
+- std_fco2rec
+- time-standard-deviation carbon dioxide ecosystem respiration flux
+239068:
+- std_sdswrfcs
+- time-standard-deviation surface downward short-wave radiation flux, clear sky
+239069:
+- std_sdlwrfcs
+- time-standard-deviation surface downward long-wave radiation flux, clear sky
+239070:
+- std_pevr
+- time-standard-deviation potential evaporation rate
 239077:
 - std_vsw
 - time-standard-deviation volumetric soil moisture
+239078:
+- std_sd
+- time-standard-deviation snow depth water equivalent
+239079:
+- std_skt
+- time-standard-deviation skin temperature
+239080:
+- std_rsn
+- time-standard-deviation snow density
+239083:
+- std_ci
+- time-standard-deviation sea ice area fraction
+239084:
+- std_sst
+- time-standard-deviation sea surface temperature
+239087:
+- std_tclw
+- time-standard-deviation total column cloud liquid water
+239088:
+- std_tciw
+- time-standard-deviation total column cloud ice water
+239089:
+- std_2sh
+- time-standard-deviation 2 metre specific humidity
+239090:
+- std_lmlt
+- time-standard-deviation lake mix-layer temperature
+239091:
+- std_lmld
+- time-standard-deviation lake mix-layer depth
+239094:
+- std_sot
+- time-standard-deviation soil temperature
+239097:
+- std_ws
+- time-standard-deviation wind speed
+239098:
+- std_pres
+- time-standard-deviation pressure
+239099:
+- std_chnk
+- time-standard-deviation charnock
+239100:
+- std_pv
+- time-standard-deviation potential vorticity
+239101:
+- std_crwc
+- time-standard-deviation specific rain water content
+239102:
+- std_cswc
+- time-standard-deviation specific snow water content
+239103:
+- std_etadot
+- time-standard-deviation eta-coordinate vertical velocity
+239105:
+- std_vis
+- time-standard-deviation visibility
+239106:
+- std_wdir
+- time-standard-deviation wind direction
+239107:
+- std_tcsw
+- time-standard-deviation total column snow water
+239108:
+- std_lcc
+- time-standard-deviation low cloud cover
+239109:
+- std_mcc
+- time-standard-deviation medium cloud cover
+239110:
+- std_hcc
+- time-standard-deviation high cloud cover
+239111:
+- std_tcrw
+- time-standard-deviation total column rain water
 239117:
 - std_mucape
 - time-standard-deviation most-unstable cape
+239120:
+- std_tcolg
+- time-standard-deviation total column vertically-integrated graupel (snow pellets)
+239129:
+- std_z
+- time-standard-deviation geopotential
+239130:
+- std_t
+- time-standard-deviation temperature
+239131:
+- std_u
+- time-standard-deviation u component of wind
+239132:
+- std_v
+- time-standard-deviation v component of wind
+239133:
+- std_q
+- time-standard-deviation specific humidity
+239134:
+- std_sp
+- time-standard-deviation surface pressure
+239135:
+- std_w
+- time-standard-deviation vertical velocity
+239136:
+- std_tcw
+- time-standard-deviation total column water
+239137:
+- std_tcwv
+- time-standard-deviation total column vertically-integrated water vapour
+239138:
+- std_vo
+- time-standard-deviation vorticity (relative)
+239151:
+- std_msl
+- time-standard-deviation mean sea level pressure
+239152:
+- std_lnsp
+- time-standard-deviation logarithm of surface pressure
+239155:
+- std_d
+- time-standard-deviation divergence
+239157:
+- std_r
+- time-standard-deviation relative humidity
+239159:
+- std_blh
+- time-standard-deviation boundary layer height
+239165:
+- std_10u
+- time-standard-deviation 10 metre u wind component
+239166:
+- std_10v
+- time-standard-deviation 10 metre v wind component
+239167:
+- std_2t
+- time-standard-deviation 2 metre temperature
+239168:
+- std_2d
+- time-standard-deviation 2 metre dewpoint temperature
+239189:
+- std_suns
+- time-standard-deviation sunshine
+239203:
+- std_o3
+- time-standard-deviation ozone mass mixing ratio
+239207:
+- std_10si
+- time-standard-deviation 10 metre wind speed
+239238:
+- std_tsn
+- time-standard-deviation temperature of snow layer
+239244:
+- std_fsr
+- time-standard-deviation forecast surface roughness
+239245:
+- std_flsr
+- time-standard-deviation forecast logarithm of surface roughness for heat
+239246:
+- std_clwc
+- time-standard-deviation specific cloud liquid water content
+239247:
+- std_ciwc
+- time-standard-deviation specific cloud ice water content
+239248:
+- std_cc
+- time-standard-deviation fraction of cloud cover
+239257:
+- std_kx
+- time-standard-deviation k index
+239258:
+- std_totalx
+- time-standard-deviation total totals index
+239261:
+- std_10wdir
+- time-standard-deviation 10 metre wind direction
+239262:
+- std_cat
+- time-standard-deviation clear air turbulence (cat)
+239263:
+- std_al
+- time-standard-deviation forecast albedo
+239269:
+- std_pt
+- time-standard-deviation potential temperature
+239281:
+- std_aluvp_p
+- time-standard-deviation uv visible albedo for direct radiation (climatological)
+239282:
+- std_aluvd_p
+- time-standard-deviation uv visible albedo for diffuse radiation (climatological)
+239283:
+- std_alnip_p
+- time-standard-deviation near ir albedo for direct radiation (climatological)
+239284:
+- std_alnid_p
+- time-standard-deviation near ir albedo for diffuse radiation (climatological)
+239285:
+- std_asn
+- time-standard-deviation snow albedo
+239286:
+- std_mont
+- time-standard-deviation montgomery potential
+239287:
+- std_cape
+- time-standard-deviation convective available potential energy
+239288:
+- std_tcc
+- time-standard-deviation total cloud cover
+239289:
+- std_srcon
+- time-standard-deviation skin reservoir content
+239290:
+- std_tcioz
+- time-standard-deviation total column integrated ozone
+239291:
+- std_vike
+- time-standard-deviation total column vertically-integrated kinetic energy
+239292:
+- std_vithe
+- time-standard-deviation total column vertically-integrated enthalpy
+239293:
+- std_vipie
+- time-standard-deviation total column vertically-integrated potential + internal
+  energy
+239294:
+- std_vipile
+- time-standard-deviation vertical integral of potential+internal+latent energy
+239295:
+- std_vitoe
+- time-standard-deviation total column vertically-integrated total energy
+239296:
+- std_viwe
+- time-standard-deviation total column vertically-integrated water enthalpy
+239297:
+- std_aluvpi_p
+- time-standard-deviation uv visible albedo for direct radiation, isotropic component
+  (climatological)
+239298:
+- std_aluvpv_p
+- time-standard-deviation uv visible albedo for direct radiation, volumetric component
+  (climatological)
+239299:
+- std_aluvpg_p
+- time-standard-deviation uv visible albedo for direct radiation, geometric component
+  (climatological)
+239300:
+- std_alnipi_p
+- time-standard-deviation near ir albedo for direct radiation, isotropic component
+  (climatological)
+239301:
+- std_alnipv_p
+- time-standard-deviation near ir albedo for direct radiation, volumetric component
+  (climatological)
+239302:
+- std_alnipg_p
+- time-standard-deviation near ir albedo for direct radiation, geometric component
+  (climatological)
+239303:
+- std_cin
+- time-standard-deviation convective inhibition
+239304:
+- std_zust
+- time-standard-deviation friction velocity
+239305:
+- std_lblt
+- time-standard-deviation lake bottom temperature
+239306:
+- std_ltlt
+- time-standard-deviation lake total layer temperature
+239307:
+- std_lshf
+- time-standard-deviation lake shape factor
+239308:
+- std_lict
+- time-standard-deviation lake ice surface temperature
+239309:
+- std_licd
+- time-standard-deviation lake ice total depth
+239310:
+- std_dndzn
+- time-standard-deviation minimum vertical gradient of refractivity inside trapping
+  layer
+239311:
+- std_dndza
+- time-standard-deviation mean vertical gradient of refractivity inside trapping layer
+239312:
+- std_dctb
+- time-standard-deviation duct base height
+239313:
+- std_tplb
+- time-standard-deviation trapping layer base height
+239314:
+- std_tplt
+- time-standard-deviation trapping layer top height
+239315:
+- std_degm10l
+- time-standard-deviation -10 degrees c isothermal level (atm)
+239316:
+- std_cbh
+- time-standard-deviation cloud base height
+239317:
+- std_deg0l
+- time-standard-deviation 0 degrees c isothermal level (atm)
+239318:
+- std_i10fg
+- time-standard-deviation 10 metre wind gust
+239319:
+- std_rhw
+- time-standard-deviation relative humidity with respect to water
+239320:
+- std_2rhw
+- time-standard-deviation 2 metre relative humidity with respect to water
+239321:
+- std_capes
+- time-standard-deviation convective available potential energy shear
+239322:
+- std_trpp
+- time-standard-deviation tropopause pressure
+239323:
+- std_hcct
+- time-standard-deviation height of convective cloud top
+239324:
+- std_hwbt0
+- time-standard-deviation height of zero-degree wet-bulb temperature
+239325:
+- std_hwbt1
+- time-standard-deviation height of one-degree wet-bulb temperature
+239326:
+- std_litoti
+- time-standard-deviation total lightning flash density
+239327:
+- std_tcslw
+- time-standard-deviation total column supercooled liquid water
+239328:
+- std_u10n
+- time-standard-deviation 10 metre u-component of neutral wind
+239329:
+- std_v10n
+- time-standard-deviation 10 metre v-component of neutral wind
+239330:
+- std_crr
+- time-standard-deviation convective rain rate
+239331:
+- std_lsrr
+- time-standard-deviation large scale rain rate
+239332:
+- std_mlcape50
+- time-standard-deviation mixed-layer cape in the lowest 50 hpa
+239333:
+- std_mlcin50
+- time-standard-deviation mixed-layer cin in the lowest 50 hpa
+239334:
+- std_mlcape100
+- time-standard-deviation mixed-layer cape in the lowest 100 hpa
+239335:
+- std_mlcin100
+- time-standard-deviation mixed-layer cin in the lowest 100 hpa
+239336:
+- std_mudlp
+- time-standard-deviation departure level of the most unstable parcel expressed as
+  pressure
+239337:
+- std_ceil
+- time-standard-deviation ceiling
+239338:
+- std_tcsqw
+- time-standard-deviation total column integrated saturation specific humidity with
+  respect to water
+239339:
+- std_sdirnswrf
+- time-standard-deviation direct solar radiation flux
+239340:
+- std_cossza
+- time-standard-deviation cosine of solar zenith angle
+239341:
+- std_fprate
+- time-standard-deviation freezing rain rate water equivalent
+239342:
+- std_vige
+- time-standard-deviation total column vertically-integrated eastward geopotential
+  flux
+239343:
+- std_vign
+- time-standard-deviation total column vertically-integrated northward geopotential
+  flux
+239344:
+- std_viwgd
+- time-standard-deviation total column vertically-integrated divergence of water geopotential
+  flux
+239345:
+- std_vigd
+- time-standard-deviation total column vertically-integrated divergence of geopotential
+  flux
+239346:
+- std_viee
+- time-standard-deviation total column vertically-integrated eastward enthalpy flux
+239347:
+- std_vien
+- time-standard-deviation total column vertically-integrated northward enthalpy flux
+239348:
+- std_vikee
+- time-standard-deviation total column vertically-integrated eastward kinetic energy
+  flux
+239349:
+- std_viken
+- time-standard-deviation total column vertically-integrated northward kinetic energy
+  flux
+239350:
+- std_vitee
+- time-standard-deviation total column vertically-integrated eastward total energy
+  flux
+239351:
+- std_viten
+- time-standard-deviation total column vertically-integrated northward total energy
+  flux
+239352:
+- std_vied
+- time-standard-deviation total column vertically-integrated divergence of enthalpy
+  flux
+239353:
+- std_viked
+- time-standard-deviation total column vertically-integrated divergence of kinetic
+  energy flux
+239354:
+- std_vited
+- time-standard-deviation total column vertically-integrated divergence of total energy
+  flux
+239355:
+- std_viwed
+- time-standard-deviation total column vertically-integrated divergence of water enthalpy
+  flux
+239356:
+- std_vimad
+- time-standard-deviation vertically integrated divergence of mass flux
+239357:
+- std_vimae
+- time-standard-deviation vertically integrated eastward mass flux
+239358:
+- std_viman
+- time-standard-deviation vertically integrated northward mass flux
+239359:
+- std_viwvd
+- time-standard-deviation vertically integrated divergence of water vapour flux
+239360:
+- std_viclwd
+- time-standard-deviation vertically integrated divergence of cloud liquid water flux
+239361:
+- std_viciwd
+- time-standard-deviation vertically integrated divergence of cloud ice water flux
+239362:
+- std_vird
+- time-standard-deviation vertically integrated divergence of rain flux
+239363:
+- std_visd
+- time-standard-deviation vertically integrated divergence of snow flux
+239364:
+- std_viwve
+- time-standard-deviation vertically integrated eastward water vapour flux
+239365:
+- std_viwvn
+- time-standard-deviation vertically integrated northward water vapour flux
+239366:
+- std_viclwe
+- time-standard-deviation vertically integrated eastward cloud liquid water flux
+239367:
+- std_viclwn
+- time-standard-deviation vertically integrated northward cloud liquid water flux
+239368:
+- std_viciwe
+- time-standard-deviation vertically integrated eastward cloud ice water flux
+239369:
+- std_viciwn
+- time-standard-deviation vertically integrated northward cloud ice water flux
+239370:
+- std_vire
+- time-standard-deviation vertically integrated eastward rain flux
+239371:
+- std_virn
+- time-standard-deviation vertically integrated northward rain flux
+239372:
+- std_vise
+- time-standard-deviation vertically integrated eastward snow flux
+239373:
+- std_visn
+- time-standard-deviation vertically integrated northward snow flux
+239374:
+- std_vioze
+- time-standard-deviation vertically integrated eastward ozone flux
+239375:
+- std_viozn
+- time-standard-deviation vertically integrated northward ozone flux
+239376:
+- std_viozd
+- time-standard-deviation vertically integrated divergence of ozone flux
+239377:
+- std_vions
+- time-standard-deviation vertically integrated net source of ozone
+239378:
+- std_ietssofd
+- time-standard-deviation eastward turbulent surface stress due to orographic form
+  drag
+239379:
+- std_intssofd
+- time-standard-deviation northward turbulent surface stress due to orographic form
+  drag
+239380:
+- std_ietsssr
+- time-standard-deviation eastward turbulent surface stress due to surface roughness
+239381:
+- std_intsssr
+- time-standard-deviation northward turbulent surface stress due to surface roughness
+239386:
+- std_lshnf
+- time-standard-deviation land surface heat net flux
+239387:
+- std_sdirnswrfcs
+- time-standard-deviation surface direct normal short-wave radiation flux, clear sky
+239388:
+- std_10cogu
+- time-standard-deviation 10 metre convective gust
+239389:
+- std_10tugu
+- time-standard-deviation 10 metre turbulent gust
+239390:
+- std_h0thg
+- time-standard-deviation geometric height of 0 degrees c theta level above ground
+239391:
+- std_h1thg
+- time-standard-deviation geometric height of 1 degree c theta level above ground
+239392:
+- std_h1p5thg
+- time-standard-deviation geometric height of 1.5 degrees c theta level above ground
+239393:
+- std_veg
+- time-standard-deviation vegetation
+239394:
+- std_lai
+- time-standard-deviation leaf area index
+239395:
+- std_srhe
+- time-standard-deviation surface roughness for heat
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -14283,10 +17948,10 @@
 - covariance between 2-metre relative humidity and temperature of snow layer 3
 260001:
 - tcolg
-- total column graupel
+- total column vertically-integrated graupel (snow pellets)
 260002:
-- lhtfl
-- latent heat net flux
+- slhtf
+- surface latent heat net flux
 260003:
 - shtfl
 - sensible heat net flux
@@ -14378,7 +18043,7 @@
 - csnow
 - categorical snow
 260033:
-- cprat
+- cpr
 - convective precipitation rate
 260034:
 - mdiv
@@ -14522,11 +18187,11 @@
 - 5wavh
 - 5-wave geopotential height
 260081:
-- u_gwd
-- zonal flux of gravity wave stress
+- iegwss
+- instantaneous eastward gravity wave surface stress
 260082:
-- v_gwd
-- meridional flux of gravity wave stress
+- ingwss
+- instantaneous northward gravity wave surface stress
 260083:
 - hpbl
 - planetary boundary layer height
@@ -14540,23 +18205,23 @@
 - nswrt
 - net short-wave radiation flux (top of atmosphere)
 260087:
-- dswrf
-- downward short-wave radiation flux
+- sdswrf
+- surface downward short-wave radiation flux
 260088:
-- uswrf
-- upward short-wave radiation flux
+- suswrf
+- surface upward short-wave radiation flux
 260089:
-- nswrf
-- net short wave radiation flux
+- snswrf
+- surface net short-wave radiation flux
 260090:
-- photar
-- photosynthetically active radiation
+- sparf
+- surface photosynthetically active radiation flux
 260091:
-- nswrfcs
-- net short-wave radiation flux, clear sky
+- snswrfcs
+- surface net short-wave radiation flux, clear sky
 260092:
-- dwuvr
-- downward uv radiation
+- sduvrf
+- surface downward uv radiation flux
 260093:
 - uviucs
 - uv index (under clear sky)
@@ -14570,17 +18235,17 @@
 - nlwrt
 - net long wave radiation flux (top of atmosphere)
 260097:
-- dlwrf
-- downward long-wave radiation flux
+- sdlwrf
+- surface downward long-wave radiation flux
 260098:
-- ulwrf
-- upward long-wave radiation flux
+- sulwrf
+- surface upward long-wave radiation flux
 260099:
-- nlwrf
-- net long wave radiation flux
+- snlwrf
+- surface net long-wave radiation flux
 260100:
-- nlwrcs
-- net long-wave radiation flux, clear sky
+- snlwrfcs
+- surface net long-wave radiation flux, clear sky
 260101:
 - cice
 - cloud ice
@@ -15068,11 +18733,11 @@
 - minrh
 - minimum relative humidity
 260262:
-- dirswrf
-- direct short wave radiation flux
+- sdirswrf
+- surface direct short-wave radiation flux
 260263:
-- difswrf
-- diffuse short wave radiation flux
+- sdifswrf
+- surface diffuse short-wave radiation flux
 260264:
 - tidirswrf
 - time-integrated surface direct short wave radiation flux
@@ -15350,14 +19015,14 @@
 - sot
 - soil temperature
 260361:
-- dswrf_cs
-- downward short-wave radiation flux, clear sky
+- sdswrfcs
+- surface downward short-wave radiation flux, clear sky
 260362:
-- uswrf_cs
-- upward short-wave radiation flux, clear sky
+- suswrfcs
+- surface upward short-wave radiation flux, clear sky
 260363:
-- dlwrf_cs
-- downward long-wave radiation flux, clear sky
+- sdlwrfcs
+- surface downward long-wave radiation flux, clear sky
 260364:
 - sohf
 - soil heat flux
@@ -15554,7 +19219,7 @@
 - cwr
 - probability of wetting rain, exceeding in 0.10 in a given time period
 260433:
-- et
+- etr
 - evapotranspiration rate
 260434:
 - acc_et24
@@ -15563,7 +19228,7 @@
 - avg_et24
 - time-mean evapotranspiration rate in the last 24h
 260436:
-- pet
+- petr
 - potential evapotranspiration rate
 260437:
 - acc_pet24
@@ -15584,8 +19249,8 @@
 - wilt
 - wilting point
 260443:
-- rod
-- water runoff and drainage rate
+- rorwe
+- runoff rate water equivalent (surface plus subsurface)
 260444:
 - acc_rod24
 - time-integrated water runoff and drainage rate in the last 24h
@@ -16076,6 +19741,69 @@
 260664:
 - sdi
 - streamflow drought index (sdi)
+260665:
+- vsw20
+- volumetric soil moisture top 20 cm
+260666:
+- vsw100
+- volumetric soil moisture top 100 cm
+260667:
+- parcsf
+- surface photosynthetically active radiation flux, clear sky
+260668:
+- sdirnswrf
+- surface direct normal short-wave radiation flux
+260669:
+- imagss
+- instantaneous magnitude of turbulent surface stress
+260670:
+- ibld
+- instantaneous boundary layer dissipation
+260671:
+- tnswrf
+- top net short-wave radiation flux
+260672:
+- tnlwrf
+- top net long-wave radiation flux
+260673:
+- igwd
+- instantaneous gravity wave dissipation
+260674:
+- tnswrfcs
+- top net short-wave radiation flux, clear sky
+260675:
+- tnlwrfcs
+- top net long-wave radiation flux, clear sky
+260676:
+- tdswrf
+- top downward short-wave radiation flux
+260677:
+- sdirswrfcs
+- surface direct short-wave radiation flux, clear sky
+260678:
+- ietssofd
+- instantaneous eastward turbulent surface stress due to orographic form drag
+260679:
+- intssofd
+- instantaneous northward turbulent surface stress due to orographic form drag
+260680:
+- ietsssr
+- instantaneous eastward turbulent surface stress due to surface roughness
+260681:
+- intsssr
+- instantaneous northward turbulent surface stress due to surface roughness
+260684:
+- lshnf
+- land surface heat net flux
+260685:
+- sdirnswrfcs
+- surface direct normal short-wave radiation flux, clear sky
+260686:
+- 10cogu
+- 10 metre convective gust
+260687:
+- 10tugu
+- 10 metre turbulent gust
 261001:
 - utci
 - universal thermal climate index
@@ -16142,6 +19870,9 @@
 261022:
 - wbpt
 - wet-bulb potential temperature
+261023:
+- wbt
+- wet-bulb temperature
 262000:
 - sithick
 - sea ice thickness
@@ -16374,10 +20105,10 @@
 - sigmat
 - sea water sigma theta
 262503:
-- vo
+- voy
 - y-component of sea water velocity
 262504:
-- uo
+- uox
 - x-component of sea water velocity
 262505:
 - von
@@ -16415,6 +20146,15 @@
 262516:
 - salo
 - sea water salinity
+262517:
+- mtn
+- northward mass transport
+262518:
+- mte
+- eastward mass transport
+262519:
+- zo
+- sea water depth
 262900:
 - ssr_sea
 - net short wave radiation rate at sea surface
@@ -16677,10 +20417,10 @@
 - avg_sigmat
 - time-mean sea water sigma theta
 263503:
-- avg_vo
+- avg_voy
 - time-mean y-component of sea water velocity
 263504:
-- avg_uo
+- avg_uox
 - time-mean x-component of sea water velocity
 263505:
 - avg_von
@@ -16718,6 +20458,15 @@
 263516:
 - avg_salo
 - time-mean sea water salinity
+263517:
+- avg_mtn
+- time-mean northward mass transport
+263518:
+- avg_mte
+- time-mean eastward mass transport
+263519:
+- avg_zo
+- time-mean sea water depth
 263900:
 - avg_ssr_sea
 - time-mean net short wave radiation rate at sea surface
@@ -16757,6 +20506,24 @@
 264905:
 - sn_sea
 - time-accumulated snow precipitation at sea surface
+265024:
+- max_sit
+- time-maximum sea ice temperature
+265519:
+- max_zo
+- time-maximum sea water depth
+266024:
+- min_sit
+- time-minimum sea ice temperature
+266519:
+- min_zo
+- time-minimum sea water depth
+267024:
+- std_sit
+- time-standard-deviation sea ice temperature
+267519:
+- std_zo
+- time-standard-deviation sea water depth
 300001:
 - pres
 - pressure
@@ -17633,6 +21400,36 @@
 462000:
 - aerext
 - aerosol extinction coefficient
+463000:
+- emi_mflx_cbh
+- emission mass flux from commercial buildings heating
+464000:
+- emi_mflx_rh
+- emission mass flux from residential heating
+465000:
+- emi_mflx_oti
+- emission mass flux from oil refineries and transformation industry
+466000:
+- emi_mflx_gp
+- emission mass flux from gas production
+467000:
+- mass_mixrat_diff
+- mass mixing ratio difference
+468000:
+- mass_mixrat_vol_diff
+- mass mixing ratio from volcanoes difference
+469000:
+- emi_mflx_wfire
+- emission mass flux from wild fires
+470000:
+- snkmf
+- sink mass flux
+471000:
+- srcmf
+- source mass flux
+472000:
+- absaod
+- absorption aerosol optical thickness
 500000:
 - ps
 - pressure (s) (not reduced)

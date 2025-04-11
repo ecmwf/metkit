@@ -23,12 +23,11 @@ namespace codes {
 
 class OdbDecoder : public eckit::message::MessageDecoder {
 
-private: // methods
+private:  // methods
 
     bool match(const eckit::message::Message&) const override;
     void print(std::ostream&) const override;
-    void getMetadata(const eckit::message::Message& msg,
-                     eckit::message::MetadataGatherer&,
+    void getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer&,
                      const eckit::message::GetMetadataOptions&) const override;
 
     eckit::Buffer decode(const eckit::message::Message& msg) const override;
@@ -37,6 +36,5 @@ private: // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-} // namespace codes
-} // namespace metkit
-
+}  // namespace codes
+}  // namespace metkit

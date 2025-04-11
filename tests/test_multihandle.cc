@@ -15,8 +15,8 @@
 #include "eckit/filesystem/PathName.h"
 #include "eckit/io/Buffer.h"
 
-#include "eckit/io/MultiHandle.h"
 #include "eckit/io/FileHandle.h"
+#include "eckit/io/MultiHandle.h"
 
 
 #include "eccodes.h"
@@ -31,7 +31,7 @@ namespace test {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CASE( "openf filehandle" ) {
+CASE("openf filehandle") {
 
     eckit::FileHandle dh("latlon.grib");
 
@@ -39,9 +39,9 @@ CASE( "openf filehandle" ) {
 
     codes_handle* h;
 
-    int err = 0;
+    int err      = 0;
     size_t count = 0;
-    while( (h =  codes_handle_new_from_file(nullptr, f, PRODUCT_ANY, &err))) {
+    while ((h = codes_handle_new_from_file(nullptr, f, PRODUCT_ANY, &err))) {
         count++;
         codes_handle_delete(h);
     }
@@ -53,7 +53,7 @@ CASE( "openf filehandle" ) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CASE( "openf multihandle" ) {
+CASE("openf multihandle") {
 
     eckit::MultiHandle dh;
     dh += new eckit::FileHandle("latlon.grib");
@@ -63,9 +63,9 @@ CASE( "openf multihandle" ) {
 
     codes_handle* h;
 
-    int err = 0;
+    int err      = 0;
     size_t count = 0;
-    while( (h =  codes_handle_new_from_file(nullptr, f, PRODUCT_ANY, &err))) {
+    while ((h = codes_handle_new_from_file(nullptr, f, PRODUCT_ANY, &err))) {
         count++;
         codes_handle_delete(h);
     }
@@ -81,7 +81,6 @@ CASE( "openf multihandle" ) {
 }  // namespace grib
 }  // namespace metkit
 
-int main(int argc, char **argv)
-{
-    return run_tests ( argc, argv );
+int main(int argc, char** argv) {
+    return run_tests(argc, argv);
 }

@@ -14,29 +14,28 @@
 #include "metkit/fields/FieldIndex.h"
 namespace metkit {
 namespace fields {
-//struct grib_handle;
+// struct grib_handle;
 
 class SimpleFieldIndex : public FieldIndex {
 public:
 
-// -- Contructors
+    // -- Contructors
 
-    SimpleFieldIndex( eckit::Stream& );
+    SimpleFieldIndex(eckit::Stream&);
 
-// -- Destructor
+    // -- Destructor
 
-	virtual ~SimpleFieldIndex() override;
+    virtual ~SimpleFieldIndex() override;
 
-// -- Methods
+    // -- Methods
 
-private: // members
+private:  // members
 
-	//friend std::ostream& operator<<(std::ostream& s,const SimpleFieldIndex& p)
-	//	{ p.print(s); return s; }
-
+    // friend std::ostream& operator<<(std::ostream& s,const SimpleFieldIndex& p)
+    //	{ p.print(s); return s; }
 };
 
-} // namespace fields
-} // namespace metkit
+}  // namespace fields
+}  // namespace metkit
 
 #endif
