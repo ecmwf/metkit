@@ -31,17 +31,21 @@ using namespace eckit::testing;
 namespace metkit::mars::test {
 
 namespace {
-using ExpectedOutput = std::map<std::string, std::vector<std::string>>;
+using ExpectedVals = std::map<std::string, std::vector<std::string>>;
+struct ExpectedRequest {
+    std::string verb;
+    ExpectedVals vals;
+    std::vector<long> dates;
+};
 }
 
 //-----------------------------------------------------------------------------
 
 
-void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput& expected,
-            const std::vector<long> dates) {
+void expand(const MarsRequest& r, const ExpectedRequest& expected) {
     // std::cout << "comparing " << r << " with " << expected << " dates " << dates << std::endl;
-    EXPECT_EQUAL(verb, r.verb());
-    for (const auto& e : expected) {
+    EXPECT_EQUAL(expected.verb, r.verb());
+    for (const auto& e : expected.vals) {
         if (!r.has(e.first)) {
             std::cerr << eckit::Colour::red << "Missing keyword: " << e.first << eckit::Colour::reset << std::endl;
         }
@@ -59,12 +63,12 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
             }
         }
     }
-    if (dates.size() > 0) {
+    if (expected.dates.size() > 0) {
         EXPECT(r.has("date"));
         auto dd = r.values("date");
-        EXPECT_EQUAL(dates.size(), dd.size());
-        for (int i = 0; i < dates.size(); i++) {
-            long d = dates.at(i);
+        EXPECT_EQUAL(expected.dates.size(), dd.size());
+        for (int i = 0; i < expected.dates.size(); i++) {
+            long d = expected.dates.at(i);
             if (d < 0) {
                 eckit::Date day(d);
                 d = day.yyyymmdd();
@@ -74,23 +78,25 @@ void expand(const MarsRequest& r, const std::string& verb, const ExpectedOutput&
     }
 }
 
-void expand(const std::string& text, const std::string& verb, const ExpectedOutput& expected, std::vector<long> dates,
+void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& expected, std::vector<long>& dates) {
+    expand(r, {verb, expected, dates});
+}
+    
+void expand(const std::string& text, const std::string& verb, const ExpectedVals& expected, std::vector<long> dates,
             bool strict = false) {
     MarsRequest r = MarsRequest::parse(text, strict);
-    expand(r, verb, expected, std::move(dates));
+    expand(r, {verb, expected, dates});
 }
 
-void expand(const std::string& text, const std::string& expected, bool strict = false, std::vector<long> dates = {}) {
-    ExpectedOutput out;
+void parse(const std::string& req, ExpectedRequest& expected) {
     eckit::Tokenizer c(",");
     eckit::Tokenizer e("=");
     eckit::Tokenizer s("/");
     eckit::StringList tokens;
-    c(expected, tokens);
-    std::string verb;
+    c(req, tokens);
     for (const auto& t : tokens) {
-        if (verb.empty()) {
-            verb = eckit::StringTools::lower(t);
+        if (expected.verb.empty()) {
+            expected.verb = eckit::StringTools::lower(t);
             continue;
         }
         auto tt = eckit::StringTools::trim(t);
@@ -99,7 +105,7 @@ void expand(const std::string& text, const std::string& expected, bool strict = 
         EXPECT_EQUAL(2, kv.size());
         auto key = eckit::StringTools::lower(eckit::StringTools::trim(kv[0]));
         if (key == "date") {
-            EXPECT_EQUAL(0, dates.size());
+            EXPECT_EQUAL(0, expected.dates.size());
         }
         eckit::StringList vals;
         s(kv[1], vals);
@@ -110,23 +116,47 @@ void expand(const std::string& text, const std::string& expected, bool strict = 
                 val = eckit::StringTools::lower(val);
             }
             if (key == "date") {
-                dates.push_back(std::stol(val));
+                expected.dates.push_back(std::stol(val));
             }
             else {
                 vv.push_back(val);
             }
         }
         if (key != "date") {
-            out.emplace(key, vv);
+            expected.vals.emplace(key, vv);
         }
     }
+}
+void expand(const std::string& text, const std::string& expected, bool strict = false, std::vector<long> dates = {}) {
+    ExpectedRequest out;
+    out.dates = dates;
+    parse(expected, out);
     MarsRequest r = MarsRequest::parse(text, strict);
-    expand(r, verb, out, std::move(dates));
+    expand(r, out);
+}
+void expand(const std::string& text, const std::vector<std::string>& expected, bool strict = false, std::vector<std::vector<long>> dates = {}) {
+    ExpectedVals out;
+
+    std::istringstream in(text);
+    std::vector<MarsRequest> reqs = MarsRequest::parse(in, strict);
+
+    ASSERT(dates.size() == 0 || dates.size() == expected.size());
+
+    EXPECT_EQUAL(expected.size(), reqs.size());
+
+    for (size_t i = 0; i < expected.size(); i++) {
+        ExpectedRequest expectedReq;
+        if (dates.size() != 0) {
+            expectedReq.dates = dates.at(i);
+        }
+        parse(expected.at(i), expectedReq);
+        expand(reqs.at(i), expectedReq);
+    }
 }
 
 CASE("test_metkit_expand_1") {
     const char* text = "ret,date=-5/to/-1";
-    ExpectedOutput expected{{"class", {"od"}},    {"domain", {"g"}},
+    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                             {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                             {"levtype", {"pl"}},  {"param", {"129"}},
                             {"step", {"0"}},      {"stream", {"oper"}},
@@ -145,7 +175,7 @@ CASE("test_metkit_expand_1") {
 CASE("test_metkit_expand_2") {
     {
         const char* text = "ret,date=-1";
-        ExpectedOutput expected{{"class", {"od"}},    {"domain", {"g"}},
+        ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                                 {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                                 {"levtype", {"pl"}},  {"param", {"129"}},
                                 {"step", {"0"}},      {"stream", {"oper"}},
@@ -154,7 +184,7 @@ CASE("test_metkit_expand_2") {
     }
     {
         const char* text = "ret,levtype=ml";
-        ExpectedOutput expected{{"class", {"od"}},
+        ExpectedVals expected{{"class", {"od"}},
                                 {"domain", {"g"}},
                                 {"expver", {"0001"}},
                                 {"levelist", {"1000", "850", "700", "500", "400", "300"}},
@@ -171,7 +201,7 @@ CASE("test_metkit_expand_2") {
 
 CASE("test_metkit_expand_3") {
     const char* text = "ret,date=-5/to/-1,grid=n640";
-    ExpectedOutput expected{{"class", {"od"}},    {"domain", {"g"}},
+    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                             {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                             {"levtype", {"pl"}},  {"param", {"129"}},
                             {"step", {"0"}},      {"stream", {"oper"}},
@@ -182,7 +212,7 @@ CASE("test_metkit_expand_3") {
 
 CASE("test_metkit_expand_4") {
     const char* text = "ret,date=-5/to/-1,grid=o640";
-    ExpectedOutput expected{{"class", {"od"}},    {"domain", {"g"}},
+    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                             {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                             {"levtype", {"pl"}},  {"param", {"129"}},
                             {"step", {"0"}},      {"stream", {"oper"}},
@@ -195,7 +225,7 @@ CASE("test_metkit_expand_5") {
     const char* text =
         "retrieve,class=od,date=20050601,diagnostic=1,expver=1,iteration=0,levelist=1,levtype=ml,param=155.129,stream="
         "sens,time=1200,type=sg";
-    ExpectedOutput expected{{"class", {"od"}},    {"diagnostic", {"1"}}, {"domain", {"g"}},   {"expver", {"0001"}},
+    ExpectedVals expected{{"class", {"od"}},    {"diagnostic", {"1"}}, {"domain", {"g"}},   {"expver", {"0001"}},
                             {"iteration", {"0"}}, {"levelist", {"1"}},   {"levtype", {"ml"}}, {"param", {"129155"}},
                             {"step", {"0"}},      {"stream", {"sens"}},  {"time", {"1200"}},  {"type", {"sg"}}};
     expand(text, "retrieve", expected, {20050601});
@@ -205,7 +235,7 @@ CASE("test_metkit_expand_6") {
     const char* text =
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=1/to/31";
-    ExpectedOutput expected{{"class", {"rd"}},   {"expver", {"hl1m"}}, {"stream", {"oper"}},
+    ExpectedVals expected{{"class", {"rd"}},   {"expver", {"hl1m"}}, {"stream", {"oper"}},
                             {"time", {"0000"}},  {"domain", {"g"}},    {"type", {"fc"}},
                             {"levtype", {"pl"}}, {"step", {"24"}},     {"param", {"129"}}};
     std::vector<std::string> levelist;
@@ -220,7 +250,7 @@ CASE("test_metkit_expand_7") {
     const char* text =
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=0.01/0.7";
-    ExpectedOutput expected{{"class", {"rd"}},  {"expver", {"hl1m"}},       {"stream", {"oper"}}, {"time", {"0000"}},
+    ExpectedVals expected{{"class", {"rd"}},  {"expver", {"hl1m"}},       {"stream", {"oper"}}, {"time", {"0000"}},
                             {"domain", {"g"}},  {"type", {"fc"}},           {"levtype", {"pl"}},  {"step", {"24"}},
                             {"param", {"129"}}, {"levelist", {".01", ".7"}}};
     expand(text, "retrieve", expected, {20000801});
@@ -230,7 +260,7 @@ CASE("test_metkit_expand_8") {
     const char* text =
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=0.1/to/0.7/by/0.2";
-    ExpectedOutput expected{{"class", {"rd"}},    {"expver", {"hl1m"}},
+    ExpectedVals expected{{"class", {"rd"}},    {"expver", {"hl1m"}},
                             {"stream", {"oper"}}, {"time", {"0000"}},
                             {"domain", {"g"}},    {"type", {"fc"}},
                             {"levtype", {"pl"}},  {"step", {"24"}},
@@ -295,13 +325,45 @@ CASE("test_metkit_expand_multirequest-1") {
     std::istringstream in(text);
     std::vector<MarsRequest> reqs = MarsRequest::parse(in, true);
     EXPECT_EQUAL(reqs.size(), 2);
-    ExpectedOutput expected{{"class", {"od"}},    {"domain", {"g"}},
+    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                             {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                             {"levtype", {"pl"}},  {"param", {"129"}},
                             {"step", {"0"}},      {"stream", {"oper"}},
                             {"time", {"1200"}},   {"type", {"an"}}};
-    expand(reqs.at(0), "retrieve", expected, {-5, -4, -3, -2});
-    expand(reqs.at(1), "retrieve", expected, {-1});
+    expand(reqs.at(0), {"retrieve", expected, {-5, -4, -3, -2}});
+    expand(reqs.at(1), {"retrieve", expected, {-1}});
+}
+
+CASE("test_metkit_expand_multirequest-2") {
+    const std::string text = "ret,date=-5/to/-2.\nret,date=-1";
+    std::string expectedStr = "retrieve,class=od,domain=g,expver=0001,levelist=1000/850/700/500/400/300,levtype=pl,param=129,step=0,stream=oper,time=1200,type=an";
+    expand(text, {expectedStr, expectedStr}, false, {{-5, -4, -3, -2}, {-1}});
+}
+
+CASE("test_metkit_expand_multirequest-3") {
+    const char* text =
+        "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
+        "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/-61.0,step=000,stream=scda,time=18,"
+        "type=an,target=\"reference.ect1qF.data\"\n"
+        "ret,rotation=off,target=\"out\"";
+    const char* expected1 =
+        "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=SCDA,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/"
+        "12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/"
+        "47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/"
+        "82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/"
+        "113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,"
+        "PARAM=129,DATE=20230810,TIME=1800,STEP=0,DOMAIN=G,TARGET=reference.ect1qF.data,RESOL=AUTO,ACCURACY=16,"
+        "AREA=14.8/-19.6/-14.5/19.8,ROTATION=-78.8/-61,GRID=.09/.09,PROCESS=LOCAL";
+    const char* expected2 =
+        "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=SCDA,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/"
+        "12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/"
+        "47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/"
+        "82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/"
+        "113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,"
+        "PARAM=129,DATE=20230810,TIME=1800,STEP=0,DOMAIN=G,TARGET=out,RESOL=AUTO,ACCURACY=16,"
+        "AREA=14.8/-19.6/-14.5/19.8,GRID=.09/.09,PROCESS=LOCAL";
+
+    expand(text, std::vector<std::string>{expected1, expected2});
 }
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
@@ -634,7 +696,7 @@ CASE("test_metkit_expand_param") {
 CASE("test_metkit_expand_d1") {
     {
         const char* text = "retrieve,class=d1,dataset=extremes-dt,date=-1";
-        ExpectedOutput expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
+        ExpectedVals expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
                                 {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                                 {"levtype", {"pl"}},  {"param", {"129"}},
                                 {"step", {"0"}},      {"stream", {"oper"}},
@@ -643,7 +705,7 @@ CASE("test_metkit_expand_d1") {
     }
     {
         const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
-        ExpectedOutput expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
+        ExpectedVals expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
                                 {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                                 {"levtype", {"pl"}},  {"param", {"129"}},
                                 {"step", {"0"}},      {"stream", {"oper"}},
@@ -654,7 +716,7 @@ CASE("test_metkit_expand_d1") {
         const char* text =
             "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-"
             "NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,param=134/137";
-        ExpectedOutput expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}},
+        ExpectedVals expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}},
                                 {"activity", {"cmip6"}},  {"experiment", {"hist"}},
                                 {"model", {"ifs-nemo"}},  {"generation", {"1"}},
                                 {"realization", {"1"}},   {"resolution", {"high"}},
@@ -673,7 +735,7 @@ CASE("test_metkit_expand_d1") {
             "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model="
             "icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,"
             "levtype=o3d,param=263500";
-        ExpectedOutput expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}}, {"activity", {"cmip6"}},
+        ExpectedVals expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}}, {"activity", {"cmip6"}},
                                 {"experiment", {"hist"}}, {"model", {"icon"}},         {"generation", {"1"}},
                                 {"realization", {"1"}},   {"resolution", {"high"}},    {"expver", {"0001"}},
                                 {"time", {"0000"}},       {"stream", {"clte"}},        {"type", {"fc"}},
@@ -686,7 +748,7 @@ CASE("test_metkit_expand_ng") {
         const char* text =
             "retrieve,class=ng,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,"
             "resolution=high,stream=clte,type=fc,levtype=pl,param=134/137";
-        ExpectedOutput expected{{"class", {"ng"}},
+        ExpectedVals expected{{"class", {"ng"}},
                                 {"levtype", {"pl"}},
                                 {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                                 {"activity", {"cmip6"}},
@@ -708,7 +770,7 @@ CASE("test_metkit_expand_ai") {
     {
         const char* text =
             "retrieve,class=ai,date=20250208,time=1800,expver=9999,model=aifs-single,type=fc,levtype=sfc,param=169";
-        ExpectedOutput expected{{"class", {"ai"}},    {"domain", {"g"}}, {"expver", {"9999"}},
+        ExpectedVals expected{{"class", {"ai"}},    {"domain", {"g"}}, {"expver", {"9999"}},
                                 {"levtype", {"sfc"}}, {"step", {"0"}},   {"stream", {"oper"}},
                                 {"time", {"1800"}},   {"type", {"fc"}},  {"model", {"aifs-single"}},
                                 {"param", {"169"}}};
@@ -722,7 +784,7 @@ CASE("test_metkit_expand_list") {
             "list,date=20250105,domain=g,levtype=pl,expver="
             "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
             "300,time=1200,type=an,param=129";
-        ExpectedOutput expected{{"class", {"od"}},
+        ExpectedVals expected{{"class", {"od"}},
                                 {"date", {"20250105"}},
                                 {"domain", {"g"}},
                                 {"levtype", {"pl"}},
@@ -736,7 +798,7 @@ CASE("test_metkit_expand_list") {
     }
     {
         const char* text = "list,class=tr,date=20250105";
-        ExpectedOutput expected{{"class", {"tr"}}, {"date", {"20250105"}}};
+        ExpectedVals expected{{"class", {"tr"}}, {"date", {"20250105"}}};
         expand(text, "list", expected, {20250105});
     }
 }
@@ -746,7 +808,7 @@ CASE("test_metkit_expand_read") {
         const char* text =
             "read,class=tr,date=20250105,domain=g,levtype=pl,expver=0001,step=0,stream=oper,"
             "levelist=1000/850/700/500/400/300,time=1200,type=an,param=129";
-        ExpectedOutput expected{{"class", {"tr"}},
+        ExpectedVals expected{{"class", {"tr"}},
                                 {"date", {"20250105"}},
                                 {"domain", {"g"}},
                                 {"levtype", {"pl"}},
@@ -760,7 +822,7 @@ CASE("test_metkit_expand_read") {
     }
     {
         const char* text = "read,date=20250105,param=129";
-        ExpectedOutput expected{{"date", {"20250105"}}, {"param", {"129"}}};
+        ExpectedVals expected{{"date", {"20250105"}}, {"param", {"129"}}};
         expand(text, "read", expected, {20250105});
     }
 }
@@ -771,7 +833,7 @@ CASE("test_metkit_expand_clmn") {
             "retrieve,class=d1,expver=1,dataset=climate-dt,activity=story-nudging,experiment=Tplus2.0K,generation=1,"
             "model=IFS-FESOM,realization=1,stream=clmn,year=2024,month=october,resolution=standard,type=fc,levtype=sfc,"
             "param=144";
-        ExpectedOutput expected{{"class", {"d1"}},
+        ExpectedVals expected{{"class", {"d1"}},
                                 {"dataset", {"climate-dt"}},
                                 {"activity", {"story-nudging"}},
                                 {"experiment", {"tplus2.0k"}},
@@ -832,23 +894,23 @@ CASE("test_metkit_expand_") {
         // https://jira.ecmwf.int/browse/MARSC-212
         const char* text =
             "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
-            "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/"
-            "-61.0,step=000,stream=scda,time=18,type=an,target=\"reference.ect1qF.data\"";
+            "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/-61.0,step=000,stream=scda,time=18,"
+            "type=an,target=\"reference.ect1qF.data\"";
         const char* expected =
             "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=SCDA,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/"
             "12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/"
             "47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/"
             "82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/"
-            "113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/"
-            "137,PARAM=129,DATE=20230810,TIME=1800,STEP=0,DOMAIN=G,TARGET=reference.ect1qF.data,RESOL=AUTO,ACCURACY=16,"
+            "113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,"
+            "PARAM=129,DATE=20230810,TIME=1800,STEP=0,DOMAIN=G,TARGET=reference.ect1qF.data,RESOL=AUTO,ACCURACY=16,"
             "AREA=14.8/-19.6/-14.5/19.8,ROTATION=-78.8/-61,GRID=.09/.09,PROCESS=LOCAL";
         expand(text, expected);
     }
     {
         // https://jira.ecmwf.int/browse/MARSC-210
         const char* text =
-            "retrieve,accuracy=24,area=90.0/-179.0/-90.0/180.0,class=od,dataset=none,date=20231231/to/"
-            "20231231,expver=1,grid=off,levelist=1,levtype=ml,number=off,padding=0,param=152.128,resol=255,step=00,"
+            "retrieve,accuracy=24,area=90.0/-179.0/-90.0/180.0,class=od,dataset=none,date=20231231/to/20231231,"
+            "expver=1,grid=off,levelist=1,levtype=ml,number=off,padding=0,param=152.128,resol=255,step=00,"
             "stream=oper,time=00/12,type=an,target=\"reference.YYhupw.data\"";
         /// @todo DATASET
         const char* expected =
