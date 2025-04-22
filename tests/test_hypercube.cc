@@ -12,13 +12,10 @@
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
-#include "eckit/types/Date.h"
-#include "metkit/hypercube/HyperCube.h"
-#include "metkit/mars/MarsRequest.h"
-
 #include "eckit/testing/Test.h"
 
-using namespace eckit::testing;
+#include "metkit/hypercube/HyperCube.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars::test {
 
@@ -150,5 +147,5 @@ CASE("test_metkit_hypercube_request") {
 }  // namespace metkit::mars::test
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }
