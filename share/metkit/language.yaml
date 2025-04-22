@@ -337,6 +337,30 @@ _field: &_field
     - [wmfm, wave monthly forecast means]
     - [wvhc, wave hindcast]
 
+  product:
+    category: data
+    type: enum
+    values:
+    - [inst, instantaneous]
+    - [tims, time-series]
+    - [tavg, time-average]
+    - [tacc, time-accumulation]
+    - all
+
+  section:
+    category: data
+    type: enum
+    values:
+    - [h, horizontal]
+    - [v, vertical]
+    - [z, zonal]
+    - [m, meridional]
+    - all
+
+  range:
+    category: data
+    type: any
+
   # product:
   # %if LEVTYPE = DP
   #       %and TYPE = OR
@@ -344,6 +368,7 @@ _field: &_field
   #       %then
   #               %warning "Default PRODUCT for Ocean ReAnalysis set to Instantaneous"
   #               %set PRODUCT = INST
+
 
   expver:
     category: data
@@ -1046,12 +1071,15 @@ _field: &_field
     - [cmcc]
     - [cnmc, 80]
     - [consensus, 255]
+    - [cosmo]
     - [cosmodeeps-dwd-eu]
     - [cosmoleps-arpasimc-eu]
     - [crfc, 239, cerfacs]
     - [cwao, 54, montreal]
     - [dems]
     - [ecmf, 98, ecmwf]
+    - [ecmf_ea, ecmwf_ea]
+    - [ecmf_od, ecmwf_od]
     - [edzw, dwd, 78, offenbach]
     - [egrr, 74, exeter, bracknell]
     - [ekmi]
@@ -1529,7 +1557,14 @@ disseminate:
     multiple: true
     type: enum
     values:
-    - bc
+    - [f, frequent]
+    - [i, infrequent]
+    - [n, normal]
+    - compare
+    - [monthly run]
+    - intent
+    - disk
+    - [bc, boundary conditions]
     - monday
     - tuesday
     - wednesday
