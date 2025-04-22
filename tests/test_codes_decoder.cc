@@ -11,14 +11,9 @@
 /// @date   Nov 2022
 /// @author Philipp Geier
 
-#include <unistd.h>
-#include <cstring>
-#include <limits>
-
-#include "eccodes.h"
-
-#include "metkit/codes/CodesDecoder.h"
-#include "metkit/codes/CodesSplitter.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/io/MemoryHandle.h"
@@ -26,12 +21,10 @@
 #include "eckit/message/Reader.h"
 #include "eckit/testing/Test.h"
 
+// #include "metkit/codes/CodesDecoder.h"
+// #include "metkit/codes/CodesSplitter.h"
 
-using namespace eckit::testing;
-
-namespace metkit {
-namespace codes {
-namespace test {
+namespace metkit::codes::test {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -467,10 +460,9 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace test
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes::test
+
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

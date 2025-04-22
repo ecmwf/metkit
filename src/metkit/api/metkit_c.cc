@@ -1,7 +1,7 @@
 #include "metkit_c.h"
 #include <functional>
 #include "eckit/runtime/Main.h"
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/metkit_version.h"
 
@@ -274,7 +274,7 @@ metkit_error_t metkit_marsrequest_expand(const metkit_marsrequest_t* request, bo
         ASSERT(request);
         ASSERT(expandedRequest);
         ASSERT(expandedRequest->empty());
-        metkit::mars::MarsExpension expand(inherit, strict);
+        metkit::mars::MarsExpansion expand(inherit, strict);
         *expandedRequest = expand.expand(*request);
     });
 }
