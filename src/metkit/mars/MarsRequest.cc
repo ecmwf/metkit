@@ -16,7 +16,7 @@
 
 #include "eckit/message/Message.h"
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeAny.h"
@@ -483,7 +483,7 @@ std::string MarsRequest::asString() const {
 
 std::vector<MarsRequest> MarsRequest::parse(std::istream& in, bool strict) {
     MarsParser parser(in);
-    MarsExpension expand(true, strict);
+    MarsExpansion expand(true, strict);
     return expand.expand(parser.parse());
 }
 

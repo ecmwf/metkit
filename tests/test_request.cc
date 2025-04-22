@@ -15,7 +15,7 @@
 #include "eckit/log/JSON.h"
 #include "eckit/types/Date.h"
 
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
