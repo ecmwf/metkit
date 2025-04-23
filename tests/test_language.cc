@@ -9,11 +9,11 @@
  */
 
 
+#include <algorithm>
 #include <map>
 #include <random>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "eckit/testing/Test.h"
 
