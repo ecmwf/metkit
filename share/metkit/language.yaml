@@ -1554,6 +1554,11 @@ archive:
     multiple: true
     type: any
 
+  sourcebase:
+    flatten: false
+    multiple: true
+    type: any
+
   expect:
     flatten: false
     multiple: false
