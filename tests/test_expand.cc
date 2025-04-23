@@ -1077,20 +1077,26 @@ CASE("test_metkit_files") {
         }
 
         if (strstr(e->d_name, ".req")) {
-            // look for the corresponding .expected file
-            std::string reqFileName{testFolder / e->d_name};
-            eckit::PathName expFileName{reqFileName.substr(0, reqFileName.find_last_of('.')) + ".expected"};
-            ASSERT(expFileName.exists());
+            try {
+                    // look for the corresponding .expected file
+                std::string reqFileName{testFolder / e->d_name};
+                eckit::PathName expFileName{reqFileName.substr(0, reqFileName.find_last_of('.')) + ".expected"};
+                ASSERT(expFileName.exists());
 
-            std::ifstream reqFile(reqFileName);
-            std::stringstream req;
-            req << reqFile.rdbuf();
+                std::ifstream reqFile(reqFileName);
+                std::stringstream req;
+                req << reqFile.rdbuf();
 
-            std::ifstream expFile(expFileName);
-            std::stringstream exp;
-            exp << expFile.rdbuf();
+                std::ifstream expFile(expFileName);
+                std::stringstream exp;
+                exp << expFile.rdbuf();
 
-            expand(req.str(), exp.str());
+                expand(req.str(), exp.str());
+            }
+            catch (...) {
+                std::cerr << "ERROR processing file: " << e->d_name << std::endl;
+                throw;
+            }        
         }
     }
 }
