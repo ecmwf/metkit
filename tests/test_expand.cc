@@ -13,7 +13,7 @@
 /// @author Florian Rathgeber
 /// @author Emanuele Danovaro
 
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <utility>
 
@@ -1077,7 +1077,7 @@ CASE("test_metkit_files") {
             break;
         }
 
-        if (std::strstr(e->d_name, ".req")) {
+        if (::strstr(e->d_name, ".req")) {
             try {
                 // look for the corresponding .expected file
                 std::string reqFileName{testFolder / e->d_name};
