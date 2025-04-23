@@ -766,18 +766,18 @@ _field: &_field
     type: enum
     multiple: true
     values:
-    - [1, jan, January]
-    - [2, feb, February]
-    - [3, mar, March]
-    - [4, apr, April]
-    - [5, may, May]
-    - [6, jun, June]
-    - [7, jul, July]
-    - [8, aug, August]
-    - [9, sep, September]
-    - [10, oct, October]
-    - [11, nov, November]
-    - [12, dec, December]
+    - [1, jan, january]
+    - [2, feb, february]
+    - [3, mar, march]
+    - [4, apr, april]
+    - [5, may]
+    - [6, jun, june]
+    - [7, jul, july]
+    - [8, aug, august]
+    - [9, sep, september]
+    - [10, oct, october]
+    - [11, nov, november]
+    - [12, dec, december]
 
   # verify
   # refdate

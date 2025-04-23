@@ -52,9 +52,14 @@ CASE("Test TypeDate expansions") {
                         {"20140504", "20140506", "20140507", "20140508"});
     assertTypeExpansion("date", {"2"}, {"2"});
     assertTypeExpansion("date", {"jan"}, {"1"});
+    assertTypeExpansion("date", {"september"}, {"9"});
+    assertTypeExpansion("date", {"9"}, {"9"});
     assertTypeExpansion("date", {"1-01"}, {"101"});
     assertTypeExpansion("date", {"jan-01"}, {"101"});
+    assertTypeExpansion("date", {"january-01"}, {"101"});
     assertTypeExpansion("date", {"feb-23"}, {"223"});
+    assertTypeExpansion("date", {"2018-23"}, {"20180123"});
+    assertTypeExpansion("date", {"2018-41"}, {"20180210"});
 
     {
         std::string value = "20141506";
