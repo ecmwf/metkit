@@ -9,6 +9,7 @@
  */
 
 
+#include <algorithm>
 #include <map>
 #include <random>
 #include <string>
