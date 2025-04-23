@@ -1,0 +1,13 @@
+RETRIEVE,
+    CLASS      = CE,
+    TYPE       = FC,
+    STREAM     = EFAS,
+    EXPVER     = 0001,
+    MODEL      = LISFLOOD,
+    REPRES     = SH,
+    STEP       = 3,
+    NUMBER     = 1,
+    ORIGIN     = SRNWPPEPS-DWD-EUA,
+    TARGET     = reference.3YwXRI.data,
+    PADDING    = 0,
+    PROCESS    = LOCAL 

@@ -1,0 +1,3 @@
+retrieve,
+accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/235,stream=da,style=dissemination,time=00,type=an,
+target="data.reference"

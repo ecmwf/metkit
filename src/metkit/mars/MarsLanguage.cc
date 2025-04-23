@@ -346,19 +346,23 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             std::vector<std::string> values = r.values(*j);
 
             if (values.size() == 1) {
-                const std::string& s = values[0];
-                if (s == "off" || s == "OFF") {
+                const std::string& s = eckit::StringTools::lower(values[0]);
+                if (s == "off") {
                     result.unsetValues(p);
                     type(p)->clearDefaults();
                     continue;
                 }
+                if (s == "all" && type(p)->multiple()) {
+                    result.setValue(p, "all");
+                    continue;
+                }
             }
 
-            type(p)->expand(ctx, values);
-            result.setValuesTyped(type(p), values);
-            type(p)->check(ctx, values);
+            auto t = type(p);
+            t->expand(ctx, values);
+            result.setValuesTyped(t, values);
+            t->check(ctx, values);
         }
-
 
         if (inherit) {
             for (const auto& [k, t] : typesByAxisOrder_) {

@@ -42,6 +42,10 @@ public:  // methods
 
     void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const override {
 
+        if (values.size() == 1) {
+            return;
+        }
+
         static eckit::Translator<std::string, EL> s2el;
         static eckit::Translator<std::string, BY> s2by;
         static eckit::Translator<EL, std::string> el2s;

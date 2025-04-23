@@ -266,10 +266,19 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
         if (!sets.isNil() && sets.isList()) {
             for (size_t i = 0; i < sets.size(); i++) {
                 eckit::Value s = sets[i];
-                ASSERT(s.contains("val"));
-                eckit::Value val = s["val"];
+                std::vector<std::string> vals;
+                ASSERT(s.contains("vals"));
+                eckit::Value vv = s["vals"];
+                if (vv.isList()) {
+                    for (size_t k = 0; k < vv.size(); k++) {
+                        vals.push_back(vv[k]);
+                    }
+                }
+                else {
+                    vals.push_back(vv);
+                }
                 ASSERT(s.contains("context"));
-                sets_.emplace(parseContext(s["context"]), val);
+                sets_.emplace(parseContext(s["context"]), vals);
             }
         }
     }
@@ -498,14 +507,14 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
             }
         }
 
-        for (const auto& [context, value] : sets_) {
+        for (const auto& [context, values] : sets_) {
             if (context->matches(request)) {
                 if (strict && !request.has(name_)) {
                     std::ostringstream oss;
                     oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
                     throw eckit::UserError(oss.str());
                 }
-                request.setValuesTyped(this, std::vector<std::string>{value});
+                request.setValuesTyped(this, values);
             }
         }
     }

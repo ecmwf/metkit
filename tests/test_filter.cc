@@ -38,12 +38,7 @@ using ExpectedOutput = std::map<std::string, std::vector<std::string>>;
 
 void filter(MarsRequest& r, const MarsRequest& f, const ExpectedOutput& expected, const std::vector<long> dates) {
 
-    std::cout << r << std::endl;
-    std::cout << f << std::endl;
-
     r.filter(f);
-
-    std::cout << r << std::endl;
 
     for (const auto& e : expected) {
         if (!r.has(e.first)) {
