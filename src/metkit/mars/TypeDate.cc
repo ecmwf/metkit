@@ -33,11 +33,11 @@ static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "ju
 int month(const std::string& value) {
     if (std::isdigit(value[0])) {
         eckit::Translator<std::string, int> s2i;
-        return s2i(value);  
+        return s2i(value);
     }
 
-    ASSERT (value.size() >= 3);
-    const auto* it = std::find(months.begin(), months.end(), eckit::StringTools::lower(value.substr(0,3)));
+    ASSERT(value.size() >= 3);
+    const auto* it = std::find(months.begin(), months.end(), eckit::StringTools::lower(value.substr(0, 3)));
     if (it == months.end()) {
         std::ostringstream oss;
         oss << value << " is not a valid month name";
@@ -62,14 +62,14 @@ long day(std::string& value) {
         eckit::Tokenizer t("-");
         std::vector<std::string> tokens = t.tokenize(value);
 
-        if (tokens.size() == 2) {  
-            if (std::isdigit(tokens[0][0]) && tokens[0].size()>2) { // year-dayOfYear (e.g. 2018-23 ==> 20180123)
+        if (tokens.size() == 2) {
+            if (std::isdigit(tokens[0][0]) && tokens[0].size() > 2) {  // year-dayOfYear (e.g. 2018-23 ==> 20180123)
                 eckit::Date d(s2l(tokens[0]), s2l(tokens[1]));
                 return d.day();
             }
-            else {  // month-day (i.e. TypeClimateDaily)
-                month(tokens[0]); // parse the month, then discard it
-                return s2l(tokens[1]);                
+            else {                 // month-day (i.e. TypeClimateDaily)
+                month(tokens[0]);  // parse the month, then discard it
+                return s2l(tokens[1]);
             }
         }
         if (tokens.size() == 1 && (!std::isdigit(value[0]) || value.size() <= 2)) {  // month (i.e. TypeClimateMonthly)
@@ -141,8 +141,8 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
             eckit::Tokenizer t("-");
             std::vector<std::string> tokens = t.tokenize(value);
 
-            if (tokens.size() == 2) {  // month-day (i.e. TypeClimateDaily)
-                if (std::isdigit(tokens[0][0]) && tokens[0].size()>2) { // year-dayOfYear (e.g. 2018-23 ==> 20180123)
+            if (tokens.size() == 2) {                                      // month-day (i.e. TypeClimateDaily)
+                if (std::isdigit(tokens[0][0]) && tokens[0].size() > 2) {  // year-dayOfYear (e.g. 2018-23 ==> 20180123)
                     eckit::Date d(s2l(tokens[0]), s2l(tokens[1]));
                     value = l2s(d.yyyymmdd());
                 }
@@ -155,7 +155,8 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
                 }
             }
             else {
-                if (tokens.size() == 1 && (!std::isdigit(value[0]) || value.size() <= 2)) {  // month (i.e. TypeClimateMonthly)
+                if (tokens.size() == 1 &&
+                    (!std::isdigit(value[0]) || value.size() <= 2)) {  // month (i.e. TypeClimateMonthly)
                     int m = month(tokens[0]);
                     value = l2s(m);
                 }

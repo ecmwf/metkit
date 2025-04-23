@@ -13,6 +13,7 @@
 /// @author Florian Rathgeber
 /// @author Emanuele Danovaro
 
+#include <string.h>
 #include <fstream>
 #include <utility>
 
@@ -1076,9 +1077,9 @@ CASE("test_metkit_files") {
             break;
         }
 
-        if (strstr(e->d_name, ".req")) {
+        if (std::strstr(e->d_name, ".req")) {
             try {
-                    // look for the corresponding .expected file
+                // look for the corresponding .expected file
                 std::string reqFileName{testFolder / e->d_name};
                 eckit::PathName expFileName{reqFileName.substr(0, reqFileName.find_last_of('.')) + ".expected"};
                 ASSERT(expFileName.exists());
@@ -1096,7 +1097,7 @@ CASE("test_metkit_files") {
             catch (...) {
                 std::cerr << "ERROR processing file: " << e->d_name << std::endl;
                 throw;
-            }        
+            }
         }
     }
 }
