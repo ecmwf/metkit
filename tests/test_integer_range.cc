@@ -15,21 +15,17 @@
 #include <string>
 #include <vector>
 
-#include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
-#include "eckit/value/Content.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
-#include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/Type.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeInteger.h"
-#include "metkit/mars/TypesFactory.h"
-
-using namespace eckit;
-using namespace eckit::testing;
 
 namespace metkit::mars::test {
+
+using ::eckit::ValueList;
+using ::eckit::ValueMap;
 
 const DummyContext ctx;
 
@@ -206,5 +202,5 @@ CASE("Test disseminate day expansion fails outside range") {
 }  // namespace metkit::mars::test
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

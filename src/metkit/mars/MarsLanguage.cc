@@ -27,7 +27,7 @@
 
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpandContext.h"
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"

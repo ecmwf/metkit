@@ -12,20 +12,17 @@
 /// @author Simon Smart
 /// @date   April 2017
 
+#include <iostream>
+#include <sstream>
+#include <string>
+
+#include "eckit/testing/Test.h"
+#include "eckit/value/Value.h"
+
 #include "metkit/mars/TypeDate.h"
 #include "metkit/mars/TypesFactory.h"
 
-#include "eckit/exception/Exceptions.h"
-#include "eckit/runtime/Tool.h"
-#include "eckit/value/Value.h"
-
-#include "eckit/testing/Test.h"
-
-using namespace eckit::testing;
-
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 
@@ -57,12 +54,11 @@ CASE("test_build") {
     t1->detach();
 }
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
+
 
 //-----------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

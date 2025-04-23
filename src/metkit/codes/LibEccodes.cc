@@ -28,10 +28,6 @@ const LibEccodes& LibEccodes::instance() {
     return libeccodes;
 }
 
-const void* LibEccodes::addr() const {
-    return (const void*)&codes_get_api_version;
-}
-
 std::string LibEccodes::version() const {
     return ECCODES_VERSION_STR;
 }
