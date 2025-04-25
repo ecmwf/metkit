@@ -1,0 +1,13 @@
+RETRIEVE,
+    CLASS      = OD,
+    TYPE       = TF,
+    STREAM     = ENFO,
+    EXPVER     = 0001,
+    REPRES     = BU,
+    OBSTYPE    = 32,
+    DATE       = 20060112,
+    TIME       = 0000/1200,
+    STEP       = 0,
+    DOMAIN     = G,
+    TARGET     = data.reference,
+    DUPLICATES = KEEP 

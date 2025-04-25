@@ -1,0 +1,9 @@
+retrieve,
+    date=20250416,
+    area=75/60/10/-20,
+    grid=2.5/2.5,
+    levtype=ml,
+    levelist=50,
+    param=248,
+    interpolation=bilinear,
+    target=data.reference 

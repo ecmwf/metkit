@@ -16,6 +16,7 @@
 
 #include "eckit/message/Message.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/ParamID.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
@@ -326,8 +327,44 @@ void MarsRequest::getParams(std::vector<std::string>& p) const {
 
 size_t MarsRequest::count() const {
     size_t result = 1;
+
+    std::set<std::string> paramidsSingleLevel = ParamID::getMlParamsSingleLevel();
+
+    bool ml = false;
+    size_t levels = 1;
+    size_t params = 0;
+    size_t paramsSingleLevel = 0;
+
     for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-        result *= (*i).count();
+        if (i->name() == "levelist") {
+            levels = i->values().size();
+        }
+        else {
+            if (i->name() == "param") {
+                for (auto v: i->values()) {
+                    if (paramidsSingleLevel.find(v) != paramidsSingleLevel.end()) {
+                        paramsSingleLevel++;
+                    }
+                    else {
+                        params++;
+                    }
+                }
+            }
+            else {
+                if (i->name() == "levtype") {
+                    ml = std::find(i->values().begin(), i->values().end(), "ml") != i->values().end();
+                }
+                result *= (*i).count();
+            }
+        }
+    }
+    if ((params+paramsSingleLevel)>0) {
+        if (ml) {
+            result *= (levels * params + paramsSingleLevel);
+        }
+        else {
+            result *= (levels * (params + paramsSingleLevel));
+        }
     }
     return result;
 }

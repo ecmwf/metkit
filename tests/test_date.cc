@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "eckit/testing/Test.h"
+#include "eckit/types/Date.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
@@ -26,7 +27,7 @@ namespace metkit::mars::test {
 
 using ::eckit::BadValue;
 using ::eckit::Value;
-
+    
 //-----------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
@@ -50,19 +51,27 @@ CASE("Test TypeDate expansions") {
     assertTypeExpansion("date", {"20140506", "to", "20140508"}, {"20140506", "20140507", "20140508"});
     assertTypeExpansion("date", {"20140504", "20140506", "to", "20140508"},
                         {"20140504", "20140506", "20140507", "20140508"});
-    assertTypeExpansion("date", {"2"}, {"2"});
-    assertTypeExpansion("date", {"jan"}, {"1"});
-    assertTypeExpansion("date", {"september"}, {"9"});
-    assertTypeExpansion("date", {"9"}, {"9"});
-    assertTypeExpansion("date", {"1-01"}, {"101"});
-    assertTypeExpansion("date", {"jan-01"}, {"101"});
-    assertTypeExpansion("date", {"january-01"}, {"101"});
-    assertTypeExpansion("date", {"feb-23"}, {"223"});
+    assertTypeExpansion("date", {"2"}, {"feb"});
+    assertTypeExpansion("date", {"jan"}, {"jan"});
+    assertTypeExpansion("date", {"september"}, {"sep"});
+    assertTypeExpansion("date", {"9"}, {"sep"});
+    assertTypeExpansion("date", {"1-01"}, {"jan-1"});
+    assertTypeExpansion("date", {"jan-01"}, {"jan-1"});
+    assertTypeExpansion("date", {"january-01"}, {"jan-1"});
+    assertTypeExpansion("date", {"feb-23"}, {"feb-23"});
     assertTypeExpansion("date", {"2018-23"}, {"20180123"});
     assertTypeExpansion("date", {"2018-41"}, {"20180210"});
 
     {
         std::string value = "20141506";
+        EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
+    }
+    {
+        std::string value = "20180132";
+        EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
+    }
+    {
+        std::string value = "202401366";
         EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
     }
     {

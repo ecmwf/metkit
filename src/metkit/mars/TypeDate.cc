@@ -30,10 +30,16 @@ namespace {
 static std::array<std::string, 12> months{"jan", "feb", "mar", "apr", "may", "jun",
                                           "jul", "aug", "sep", "oct", "nov", "dec"};
 
-int month(const std::string& value) {
+std::string month(const std::string& value) {
     if (std::isdigit(value[0])) {
         eckit::Translator<std::string, int> s2i;
-        return s2i(value);
+        int m = s2i(value);
+        if (m > 12) {
+            std::ostringstream oss;
+            oss << value << " is not a valid month";
+            throw eckit::BadValue(oss.str());
+        }
+        return months[m - 1];
     }
 
     ASSERT(value.size() >= 3);
@@ -43,7 +49,7 @@ int month(const std::string& value) {
         oss << value << " is not a valid month name";
         throw eckit::BadValue(oss.str());
     }
-    return it - months.begin() + 1;
+    return *it;
 }
 
 long day(std::string& value) {
@@ -67,8 +73,7 @@ long day(std::string& value) {
                 eckit::Date d(s2l(tokens[0]), s2l(tokens[1]));
                 return d.day();
             }
-            else {                 // month-day (i.e. TypeClimateDaily)
-                month(tokens[0]);  // parse the month, then discard it
+            else {  // month-day (i.e. TypeClimateDaily)
                 return s2l(tokens[1]);
             }
         }
@@ -148,17 +153,16 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value) const {
                 }
                 else {  // month-day (i.e. TypeClimateDaily)
 
-                    int m  = month(tokens[0]);
-                    long d = s2l(tokens[1]);
+                    std::string m = month(tokens[0]);
+                    long d        = s2l(tokens[1]);
 
-                    value = l2s(100 * m + d);
+                    value = m + "-" + l2s(d);
                 }
             }
             else {
                 if (tokens.size() == 1 &&
                     (!std::isdigit(value[0]) || value.size() <= 2)) {  // month (i.e. TypeClimateMonthly)
-                    int m = month(tokens[0]);
-                    value = l2s(m);
+                    value = month(tokens[0]);
                 }
                 else {
                     eckit::Date date(value);

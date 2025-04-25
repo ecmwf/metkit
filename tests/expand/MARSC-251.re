@@ -1,0 +1,13 @@
+retrieve,
+    class=ti,
+    date=-3,
+    time=12,
+    origin=all,
+    expver=all,
+    type=cf,
+    stream=enfo,
+    levtype=sfc,
+    param=2t,
+    step=24,
+    expect=any,
+    target=data.reference 

@@ -81,6 +81,9 @@ public:
     Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
 
     bool matches(MarsRequest req) const override {
+        if (key_ == "_verb") {
+            return (vals_.find(req.verb()) != vals_.end());
+        }
         if (!req.has(key_)) {
             return false;
         }
