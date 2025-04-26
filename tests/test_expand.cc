@@ -36,10 +36,42 @@ namespace metkit::mars::test {
 
 namespace {
 using ExpectedVals = std::map<std::string, std::vector<std::string>>;
-struct ExpectedRequest {
+
+std::string date(long d) {
+    if (d <= 0) {
+        eckit::Date day(d);
+        d = day.yyyymmdd();
+    }
+    return std::to_string(d); 
+}
+
+std::string date(std::string d) {
+    if (d == "0" || d[0] == '-') {
+        long dd = std::stol(d);
+        eckit::Date day(dd);
+        return std::to_string(day.yyyymmdd());
+    }
+    return d;
+}
+
+struct ExpectedRequest {\
+
+    ExpectedRequest() = default;
+
+    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<std::string> dd) :
+        verb(vrb), vals(vv), dates(dd) {}
+
+    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<long> dd) :
+        verb(vrb), vals(vv) {
+        dates.reserve(dd.size());
+        for (long d : dd) {
+            dates.push_back(date(d));
+        }
+    }
+
     std::string verb;
     ExpectedVals vals;
-    std::vector<long> dates;
+    std::vector<std::string> dates;
 };
 }  // namespace
 
@@ -72,12 +104,7 @@ void expand(const MarsRequest& r, const ExpectedRequest& expected) {
             auto dd = r.values("date");
             EXPECT_EQUAL(expected.dates.size(), dd.size());
             for (int i = 0; i < expected.dates.size(); i++) {
-                long d = expected.dates.at(i);
-                if (d < 0) {
-                    eckit::Date day(d);
-                    d = day.yyyymmdd();
-                }
-                EXPECT_EQUAL(std::to_string(d), dd.at(i));
+                EXPECT_EQUAL(date(expected.dates.at(i)), dd.at(i));
             }
         }
     }
@@ -125,7 +152,8 @@ void parse(const std::string& req, ExpectedRequest& expected) {
                 val = eckit::StringTools::lower(val);
             }
             if (key == "date") {
-                expected.dates.push_back(std::stol(val));
+
+                expected.dates.push_back(date(val));
             }
             else {
                 vv.push_back(val);
@@ -138,7 +166,10 @@ void parse(const std::string& req, ExpectedRequest& expected) {
 }
 void expand(const std::string& text, const std::string& expected, bool strict = false, std::vector<long> dates = {}) {
     ExpectedRequest out;
-    out.dates = dates;
+    out.dates.reserve(dates.size());
+    for (long d : dates) {
+        out.dates.push_back(date(d));
+    }
     parse(expected, out);
     MarsRequest r = MarsRequest::parse(text, strict);
     expand(r, out);
@@ -157,7 +188,10 @@ void expand(const std::string& text, const std::vector<std::string>& expected, b
     for (size_t i = 0; i < expected.size(); i++) {
         ExpectedRequest expectedReq;
         if (dates.size() != 0) {
-            expectedReq.dates = dates.at(i);
+            expectedReq.dates.reserve(dates.at(i).size());
+            for (long d : dates.at(i)) {
+                expectedReq.dates.push_back(date(d));
+            }
         }
         parse(expected.at(i), expectedReq);
         expand(reqs.at(i), expectedReq);
