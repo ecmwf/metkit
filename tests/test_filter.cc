@@ -12,20 +12,20 @@
 /// @date   Apr 2025
 /// @author Emanuele Danovaro
 
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
 #include <utility>
-
-#include "eckit/types/Date.h"
-#include "eckit/utils/StringTools.h"
-#include "metkit/mars/MarsExpension.h"
-#include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsParser.h"
-#include "metkit/mars/MarsRequest.h"
-#include "metkit/mars/Type.h"
+#include <vector>
 
 #include "eckit/testing/Test.h"
+#include "eckit/types/Date.h"
+#include "eckit/utils/StringTools.h"
 #include "eckit/utils/Tokenizer.h"
 
-using namespace eckit::testing;
+#include "metkit/mars/MarsParser.h"
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars::test {
 
@@ -155,5 +155,5 @@ CASE("day") {
 }  // namespace metkit::mars::test
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

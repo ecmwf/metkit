@@ -12,28 +12,25 @@
 /// @author Baudouin Raoult
 /// @date   Mai 2019
 
-
-#include "eckit/exception/Exceptions.h"
-
-#include "metkit/mars/StepRange.h"
-#include "metkit/mars/StepRangeNormalise.h"
-
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #include "eckit/testing/Test.h"
 #include "eckit/types/FloatCompare.h"
 
-using namespace eckit::testing;
+#include "metkit/mars/StepRange.h"
+#include "metkit/mars/StepRangeNormalise.h"
 
 namespace eckit {
 template <>
 struct VectorPrintSelector<metkit::mars::StepRange> {
-    typedef VectorPrintSimple selector;
+    using selector = VectorPrintSimple;
 };
 }  // namespace eckit
 
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 
@@ -142,12 +139,10 @@ CASE("match range start") {
 }
 
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
 
 //-----------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }
