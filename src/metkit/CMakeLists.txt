@@ -25,7 +25,8 @@ list( APPEND metkit_srcs
     mars/DHSProtocol.h
     mars/MarsExpandContext.cc
     mars/MarsExpandContext.h
-    mars/MarsExpension.cc
+    mars/MarsExpansion.cc
+    mars/MarsExpansion.h
     mars/MarsExpension.h
     mars/MarsHandle.cc
     mars/MarsHandle.h

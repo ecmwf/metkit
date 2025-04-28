@@ -10,6 +10,8 @@
 
 #include "metkit/codes/CodesDecoder.h"
 
+#include <cstring>
+
 #include "eckit/config/Resource.h"
 #include "eckit/message/Message.h"
 #include "eckit/parser/YAMLParser.h"
@@ -80,8 +82,9 @@ struct BUFRMetadataIt {
         while (codes_bufr_keys_iterator_next(itCtx)) {
             const char* name = codes_bufr_keys_iterator_get_name(itCtx);
 
-            if (strcmp(name, "subsetNumber") == 0)
+            if (std::strcmp(name, "subsetNumber") == 0) {
                 continue;
+            }
 
             size_t klen = 0;
 
@@ -122,8 +125,9 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
     while (::codes_bufr_keys_iterator_next(itCtx.get())) {
         const char* name = ::codes_bufr_keys_iterator_get_name(itCtx.get());
 
-        if (strcmp(name, "subsetNumber") == 0)
+        if (std::strcmp(name, "subsetNumber") == 0) {
             continue;
+        }
 
         size_t klen = 0;
 
