@@ -1,0 +1,4 @@
+ retrieve,
+    class=rd,
+    expver=aaaa,
+    target=data.reference

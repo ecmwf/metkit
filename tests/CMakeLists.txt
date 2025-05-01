@@ -75,6 +75,7 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
 
 foreach( test 
         c_api
+        context
         date
         expand
         filter

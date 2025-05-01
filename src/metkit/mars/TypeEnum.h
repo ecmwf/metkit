@@ -37,7 +37,7 @@ private:  // methods
     virtual bool expand(const MarsExpandContext& ctx, std::string& value) const override;
 
     std::map<std::string, std::string> mapping_;
-    std::vector<std::string> values_;
+    std::map<std::unique_ptr<Context>, std::vector<std::string>> values_;
 
     mutable std::map<std::string, std::string> cache_;
 };

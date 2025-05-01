@@ -37,13 +37,22 @@
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
-static std::vector<std::string> verbs_;
+static std::set<std::string> verbs_;
+static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
     languages_               = eckit::YAMLParser::decodeFile(metkit::mars::MarsLanguage::languageYamlFile());
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
-        verbs_.push_back(verbs[i]);
+        verbs_.insert(verbs[i]);
+        eckit::Value lang = languages_[verbs[i]];
+        if (lang.contains("_aliases")) {
+            eckit::Value aliases = lang["_aliases"];
+            ASSERT(aliases.isList());
+            for (size_t j = 0; j < aliases.size(); ++j) {
+                verbAliases_.emplace(aliases[j], verbs[i]);
+            }
+        }
     }
 }
 
@@ -183,7 +192,9 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
-    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", false);
+
+
+    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", true);
 
 
     for (size_t i = 0; i < values.size(); ++i) {
@@ -296,7 +307,19 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
 
 std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
     pthread_once(&once, init);
-    return bestMatch(ctx, verb, verbs_, true, true, false);
+    std::string v = eckit::StringTools::lower(verb);
+    auto vv = verbs_.find(v);
+    if (vv != verbs_.end()) {
+        return v;
+    }
+    auto aa = verbAliases_.find(v);
+    if (aa != verbAliases_.end()) {
+        return aa->second;
+    }
+
+    std::ostringstream oss;
+    oss << "Verb " << v << " is not supported";
+    throw eckit::UserError(oss.str());
 }
 
 class TypeHidden : public Type {

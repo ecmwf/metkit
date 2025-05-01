@@ -3,5 +3,5 @@ retrieve,
     level=1000/500,
     date=20250416,
     param=t,
-    accurarcy=LOW,
+    accuracy=LOW,
     target=data.reference 

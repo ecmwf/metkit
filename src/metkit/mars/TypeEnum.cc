@@ -26,6 +26,7 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
+    // eckit::Value values = settings["contextes"];
     eckit::Value values = settings["values"];
 
     if (!values.isList()) {

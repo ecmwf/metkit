@@ -24,9 +24,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
-#include "metkit/mars/MarsRequest.h"
-
+#include "metkit/mars/ContextRule.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeToByList.h"
@@ -35,17 +33,8 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-ContextRule::ContextRule(const std::string& k) : key_(k) {}
-
-std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
-    r.print(s);
-    return s;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void Context::add(ContextRule* rule) {
-    rules_.emplace_back(rule);
+void Context::add(std::unique_ptr<ContextRule> rule) {
+    rules_.push_back(std::move(rule));
 }
 
 bool Context::matches(MarsRequest req) const {
@@ -74,89 +63,11 @@ void Context::print(std::ostream& out) const {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-
-class Include : public ContextRule {
-public:
-
-    Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-
-    bool matches(MarsRequest req) const override {
-        if (key_ == "_verb") {
-            return (vals_.find(req.verb()) != vals_.end());
-        }
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-private:  // methods
-
-    void print(std::ostream& out) const override { out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]"; }
-
-private:
-
-    std::set<std::string> vals_;
-};
-
-class Exclude : public ContextRule {
-public:
-
-    Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
-    bool matches(MarsRequest req) const override {
-        if (!req.has(key_)) {
-            return false;
-        }
-        for (const std::string& v : req.values(key_)) {
-            if (vals_.find(v) != vals_.end()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-private:  // methods
-
-    void print(std::ostream& out) const override { out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]"; }
-
-private:
-
-    std::set<std::string> vals_;
-};
-
-class Undef : public ContextRule {
-public:
-
-    Undef(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return !req.has(key_); }
-
-private:  // methods
-
-    void print(std::ostream& out) const override { out << "Undef[key=" << key_ << "]"; }
-};
-
-class Def : public ContextRule {
-public:
-
-    Def(const std::string& k) : ContextRule(k) {}
-    bool matches(MarsRequest req) const override { return req.has(key_); }
-
-private:  // methods
-
-    void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
-};
-
-//----------------------------------------------------------------------------------------------------------------------
 // HELPERS
 
 namespace {
 
-ContextRule* parseRule(std::string key, eckit::Value r) {
+std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
 
     std::set<std::string> vals;
 
@@ -164,7 +75,7 @@ ContextRule* parseRule(std::string key, eckit::Value r) {
         for (size_t k = 0; k < r.size(); k++) {
             vals.insert(r[k]);
         }
-        return new Include(key, vals);
+        return std::make_unique<Include>(key, vals);
     }
 
     ASSERT(r.contains("op"));
@@ -172,30 +83,29 @@ ContextRule* parseRule(std::string key, eckit::Value r) {
     ASSERT(op.size() == 1);
     switch (op[0]) {
         case 'u':
-            return new Undef(key);
+            return std::make_unique<Undef>(key);
         case 'd':
-            return new Def(key);
+            return std::make_unique<Def>(key);
         case '!':
             ASSERT(r.contains("vals"));
             eckit::Value vv = r["vals"];
             for (size_t k = 0; k < vv.size(); k++) {
                 vals.insert(vv[k]);
             }
-            return new Exclude(key, vals);
+            return std::make_unique<Exclude>(key, vals);
     }
     return nullptr;
 }
 
-Context* parseContext(eckit::Value c) {
+std::unique_ptr<Context> parseContext(eckit::Value c) {
 
-    Context* context = new Context{};
+    std::unique_ptr<Context> context = std::make_unique<Context>();
 
     eckit::Value keys = c.keys();
 
     for (size_t j = 0; j < keys.size(); j++) {
         std::string key = keys[j];
-        ContextRule* r  = parseRule(key, c[key]);
-        context->add(r);
+        context->add(parseRule(key, c[key]));
     }
     return context;
 }
@@ -242,14 +152,12 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                     vals.push_back(vv);
                 }
 
-                Context* context = nullptr;
                 if (d.contains("context")) {
-                    context = parseContext(d["context"]);
+                    defaults_.emplace(parseContext(d["context"]), vals);
                 }
                 else {
-                    context = new Context;
+                    defaults_.emplace(std::make_unique<Context>(), vals);
                 }
-                defaults_.emplace(context, vals);
             }
         }
     }
@@ -259,8 +167,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < only.size(); i++) {
                 eckit::Value o = only[i];
                 ASSERT(o.contains("context"));
-                Context* c = parseContext(o["context"]);
-                only_.emplace(c);
+                only_.insert(parseContext(o["context"]));
             }
         }
     }
@@ -291,8 +198,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < unsets.size(); i++) {
                 eckit::Value u = unsets[i];
                 ASSERT(u.contains("context"));
-                Context* c = parseContext(u["context"]);
-                unsets_.emplace(c);
+                unsets_.insert(parseContext(u["context"]));
             }
         }
     }

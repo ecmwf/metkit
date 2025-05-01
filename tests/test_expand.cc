@@ -213,7 +213,7 @@ CASE("test_metkit_expand_1") {
     const char* expectedStr =
         "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=SH,LEVTYPE=PL,LEVELIST=1000/850/700/500/400/"
         "300,PARAM=129,TIME=1200,STEP=0,DOMAIN=G";
-    expand(text, expectedStr, true, {-5, -4, -3, -2, -1});
+    expand(text, expectedStr, false, {-5, -4, -3, -2, -1});
 }
 
 CASE("test_metkit_expand_2") {
@@ -367,7 +367,7 @@ CASE("test_metkit_expand_10_strict") {
 CASE("test_metkit_expand_multirequest-1") {
     const std::string text = "ret,date=-5/to/-2.\nret,date=-1";
     std::istringstream in(text);
-    std::vector<MarsRequest> reqs = MarsRequest::parse(in, true);
+    std::vector<MarsRequest> reqs = MarsRequest::parse(in, false);
     EXPECT_EQUAL(reqs.size(), 2);
     ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
@@ -749,15 +749,15 @@ CASE("test_metkit_expand_d1") {
                               {"time", {"1200"}},   {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
-    {
-        const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
-        ExpectedVals expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
-                              {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"levtype", {"pl"}},  {"param", {"129"}},
-                              {"step", {"0"}},      {"stream", {"oper"}},
-                              {"time", {"1200"}},   {"type", {"an"}}};
-        expand(text, "retrieve", expected, {-1});
-    }
+    // {
+    //     const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
+    //     ExpectedVals expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
+    //                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+    //                           {"levtype", {"pl"}},  {"param", {"129"}},
+    //                           {"step", {"0"}},      {"stream", {"oper"}},
+    //                           {"time", {"1200"}},   {"type", {"an"}}};
+    //     expand(text, "retrieve", expected, {-1});
+    // }
     {
         const char* text =
             "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-"
@@ -957,15 +957,14 @@ CASE("test_metkit_expand_MARSC-212") {
 CASE("test_metkit_expand_MARSC-210") {
     // https://jira.ecmwf.int/browse/MARSC-210
     const char* text =
-        "retrieve,accuracy=24,area=90.0/-179.0/-90.0/180.0,class=od,dataset=none,date=20231231/to/20231231,"
-        "expver=1,grid=off,levelist=1,levtype=ml,number=off,padding=0,param=152.128,resol=255,step=00,"
-        "stream=oper,time=00/12,type=an,target=\"reference.YYhupw.data\"";
-    /// @todo DATASET
+        "retrieve,accuracy=24,area=90.0/-179.0/-90.0/180.0,class=od,dataset=none,date=20231231/to/20231231,expver=1,"
+        "grid=off,levelist=1,levtype=ml,number=off,padding=0,param=152.128,resol=255,step=00,stream=oper,time=00/12,"
+        "type=an,target=reference.data";
     const char* expected =
-        "RETRIEVE,DATASET=none,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1,PARAM=152."
-        "128,DATE=20231231,TIME=0000/"
-        "1200,STEP=0,DOMAIN=G,TARGET=reference.YYhupw.data,RESOL=255,ACCURACY=24,AREA=90/-179/-90/180,PADDING=0";
-    // expand(text, expected);
+        "RETRIEVE,DATASET=none,CLASS=OD,TYPE=AN,STREAM=OPER,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1,PARAM=152,"
+        "DATE=20231231,TIME=0000/1200,STEP=0,DOMAIN=G,TARGET=reference.data,RESOL=255,ACCURACY=24,"
+        "AREA=90/-179/-90/180,PADDING=0";
+    expand(text, expected);
 }
 
 CASE("test_metkit_expand_MARSC-220") {

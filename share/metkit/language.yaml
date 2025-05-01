@@ -411,17 +411,18 @@ _field: &_field
   dataset:
     category: data
     multiple: false
-    type: enum
-    values:
-    - [climate-dt, Climate change adaptation digital twin]
-    - [extremes-dt, Weather and geophysical extremes digital twin]
-    - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
-    - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
-    unset:
-      - context:
-          class:
-            op: '!'
-            vals: [d1]
+    type: lowercase
+    # type: enum
+    # values:
+    # - [climate-dt, Climate change adaptation digital twin]
+    # - [extremes-dt, Weather and geophysical extremes digital twin]
+    # - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
+    # - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
+    # unset:
+    #   - context:
+    #       class:
+    #         op: '!'
+    #         vals: [d1]
 
   model:
     category: data
@@ -644,7 +645,7 @@ _field: &_field
       - context:
           stream: [ssmi]
     flatten: false
-    type: enum
+    type: [enum, integer]
     values:
       - [cat, category]
       - [dp, depth]
@@ -663,6 +664,7 @@ _field: &_field
 
   levelist:
     category: data
+    aliases: [leve,level]
     multiple: true
     type: to-by-list-float
     by: 1
@@ -896,6 +898,7 @@ _field: &_field
 
   anoffset:
     category: data
+    aliases: [an_offset]
     multiple: true
     type: integer
     unset:
@@ -925,11 +928,10 @@ _field: &_field
   number:
     category: data
     multiple: true
-    aliases:
-    - ensemble
+    aliases: [ ensemble ]
     type: to-by-list
     by: 1
-    set:
+    defaults:
       - context:
           class: [ti, s2]
           type: [cf]
@@ -947,6 +949,9 @@ _field: &_field
             vals: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
       - context:
           _verb: [retrieve, archive]
+          class:
+            op: '!'
+            vals: [ti, s2]
           type: [cf, em, es, ses, taem, taes]
           stream:
             op: '!'
@@ -1648,6 +1653,7 @@ archive:
 ##############################################################
 
 retrieve:
+  _aliases: [ret]
 
   <<: *_field
   <<: *_observation
@@ -1721,7 +1727,7 @@ retrieve:
 
 ##############################################################
 
-read:
+read:   
   source:
     flatten: false
     multiple: true

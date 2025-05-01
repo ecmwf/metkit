@@ -31,6 +31,8 @@ namespace metkit::mars {
 class MarsRequest;
 class MarsExpandContext;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class ContextRule {
 public:
 
@@ -51,11 +53,12 @@ private:  // methods
     virtual void print(std::ostream& out) const = 0;
 };
 
+//----------------------------------------------------------------------------------------------------------------------
 class Context {
 public:
 
     /// @note takes ownership of the rule
-    void add(ContextRule* rule);
+    void add(std::unique_ptr<ContextRule> rule);
 
     bool matches(MarsRequest req) const;
 
