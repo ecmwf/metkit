@@ -1708,9 +1708,10 @@ disseminate:
 ##############################################################
 
 archive:
+  _aliases: [a]
+
   <<: *_field
   <<: *_observation
-
 
   database:
     flatten: false
@@ -1738,7 +1739,7 @@ archive:
 ##############################################################
 
 retrieve:
-  _aliases: [ret]
+  _aliases: [ret, retr]
 
   <<: *_field
   <<: *_observation
@@ -1763,6 +1764,7 @@ retrieve:
     - any
 
   fieldset:
+    aliases: [field]
     flatten: false
     multiple: false
     type: any
@@ -1825,7 +1827,8 @@ retrieve:
 
 ##############################################################
 
-read:   
+read:
+  _aliases: [r]
   source:
     flatten: false
     multiple: true
@@ -1842,6 +1845,7 @@ read:
     type: any
 
   fieldset:
+    aliases: [field]
     flatten: false
     multiple: false
     type: any
@@ -1858,6 +1862,7 @@ read:
 ##############################################################
 
 get:
+  _aliases: [g]
 
   tape:
     flatten: false
@@ -1877,6 +1882,7 @@ get:
 ##############################################################
 
 list:
+  _aliases: [l]
 
   <<: *_field
   <<: *_observation
@@ -1898,12 +1904,14 @@ list:
 ##############################################################
 
 compute:
+  _aliases: [c]
   formula:
     flatten: false
     multiple: false
     type: any
 
   fieldset:
+    aliases: [field]
     flatten: false
     multiple: false
     type: any
@@ -1911,8 +1919,10 @@ compute:
 ##############################################################
 
 write:
+  _aliases: [w]
 
   fieldset:
+    aliases: [field]
     flatten: false
     multiple: false
     type: any
