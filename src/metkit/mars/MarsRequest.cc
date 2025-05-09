@@ -336,6 +336,9 @@ size_t MarsRequest::count() const {
     size_t paramsSingleLevel = 0;
 
     for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
+        if (i->values().size() == 1 && (i->values().at(0) == "all" || i->values().at(0) == "any")) {
+            return 0;
+        }
         if (i->name() == "levelist") {
             levels = i->values().size();
         }
