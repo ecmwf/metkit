@@ -27,7 +27,7 @@ namespace metkit::mars::test {
 
 using ::eckit::BadValue;
 using ::eckit::Value;
-    
+
 //-----------------------------------------------------------------------------
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,

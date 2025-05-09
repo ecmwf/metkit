@@ -194,7 +194,6 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     std::vector<std::string> best;
 
 
-
     static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", true);
 
 
@@ -309,7 +308,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
 std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
     pthread_once(&once, init);
     std::string v = eckit::StringTools::lower(verb);
-    auto vv = verbs_.find(v);
+    auto vv       = verbs_.find(v);
     if (vv != verbs_.end()) {
         return v;
     }
@@ -326,7 +325,9 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const override { return true; }
+    bool expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const override {
+        return true;
+    }
 
 public:
 
@@ -354,7 +355,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
     try {
         std::vector<std::string> params = r.params();
 
-        {   // reorder the parameters, following the AxisOrder
+        {  // reorder the parameters, following the AxisOrder
             std::unordered_set<std::string> paramSet(params.begin(), params.end());
             params.clear();
 

@@ -42,7 +42,7 @@ std::string date(long d) {
         eckit::Date day(d);
         d = day.yyyymmdd();
     }
-    return std::to_string(d); 
+    return std::to_string(d);
 }
 
 std::string date(std::string d) {
@@ -54,15 +54,13 @@ std::string date(std::string d) {
     return d;
 }
 
-struct ExpectedRequest {\
+struct ExpectedRequest {
 
     ExpectedRequest() = default;
 
-    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<std::string> dd) :
-        verb(vrb), vals(vv), dates(dd) {}
+    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<std::string> dd) : verb(vrb), vals(vv), dates(dd) {}
 
-    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<long> dd) :
-        verb(vrb), vals(vv) {
+    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<long> dd) : verb(vrb), vals(vv) {
         dates.reserve(dd.size());
         for (long d : dd) {
             dates.push_back(date(d));

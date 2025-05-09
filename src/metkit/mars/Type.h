@@ -80,8 +80,9 @@ private:
 class ITypeToByList {
 public:
 
-    virtual ~ITypeToByList()                                                                        = default;
-    virtual void expandRanges(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values) const = 0;
+    virtual ~ITypeToByList()                                          = default;
+    virtual void expandRanges(const MarsExpandContext& ctx, const MarsRequest& request,
+                              std::vector<std::string>& values) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -93,7 +94,8 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
-    virtual void expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values) const;
+    virtual void expand(const MarsExpandContext& ctx, const MarsRequest& request,
+                        std::vector<std::string>& values) const;
     virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const;
 
     std::string tidy(const MarsExpandContext& ctx, const MarsRequest& request, const std::string& value) const;

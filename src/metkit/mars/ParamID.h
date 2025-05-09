@@ -56,7 +56,7 @@ public:  // methods
                           bool fullTableDropping = ParamID::fullTableDropping());
 
     static const std::vector<WindFamily>& getWindFamilies();
-    static const std::vector<size_t>& getDropTables();        
+    static const std::vector<size_t>& getDropTables();
     static bool fullTableDropping();
     static const std::set<std::string>& getMlParamsSingleLevel();
 };

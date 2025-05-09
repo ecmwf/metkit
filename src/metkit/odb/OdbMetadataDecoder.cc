@@ -19,8 +19,8 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/Type.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Type.h"
 #include "metkit/odb/IdMapper.h"
 
 

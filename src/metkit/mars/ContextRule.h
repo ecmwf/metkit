@@ -8,12 +8,12 @@
  * does it submit to any jurisdiction.
  */
 
- #include "metkit/mars/MarsRequest.h"
- #include "metkit/mars/Type.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit::mars {
 
-    //----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 ContextRule::ContextRule(const std::string& k) : key_(k) {}
 
@@ -99,7 +99,7 @@ private:  // methods
 
     void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
 };
-    
+
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars

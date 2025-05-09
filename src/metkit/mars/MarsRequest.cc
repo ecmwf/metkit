@@ -16,10 +16,10 @@
 
 #include "eckit/message/Message.h"
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/ParamID.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/ParamID.h"
 #include "metkit/mars/TypeAny.h"
 
 
@@ -330,9 +330,9 @@ size_t MarsRequest::count() const {
 
     std::set<std::string> paramidsSingleLevel = ParamID::getMlParamsSingleLevel();
 
-    bool ml = false;
-    size_t levels = 1;
-    size_t params = 0;
+    bool ml                  = false;
+    size_t levels            = 1;
+    size_t params            = 0;
     size_t paramsSingleLevel = 0;
 
     for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
@@ -341,7 +341,7 @@ size_t MarsRequest::count() const {
         }
         else {
             if (i->name() == "param") {
-                for (auto v: i->values()) {
+                for (auto v : i->values()) {
                     if (paramidsSingleLevel.find(v) != paramidsSingleLevel.end()) {
                         paramsSingleLevel++;
                     }
@@ -358,7 +358,7 @@ size_t MarsRequest::count() const {
             }
         }
     }
-    if ((params+paramsSingleLevel)>0) {
+    if ((params + paramsSingleLevel) > 0) {
         if (ml) {
             result *= (levels * params + paramsSingleLevel);
         }

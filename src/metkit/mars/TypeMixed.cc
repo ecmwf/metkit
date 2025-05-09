@@ -26,22 +26,22 @@ TypeMixed::TypeMixed(const std::string& name, const eckit::Value& settings) : Ty
 
     for (size_t i = 0; i < types.size(); ++i) {
         if (types[i].isString()) {
-            cfg = settings;
+            cfg         = settings;
             cfg["type"] = types[i];
 
             Type* k = TypesFactory::build(name + "." + std::string(types[i]), cfg);
             k->attach();
             types_.emplace_back(nullptr, k);
         }
-        else { // it is a subtype, potentially with a Context
-            cfg = types[i];
+        else {  // it is a subtype, potentially with a Context
+            cfg               = types[i];
             eckit::Value type = cfg["type"];
 
             std::unique_ptr<Context> c;
             if (cfg.contains("context")) {
                 c = Context::parseContext(cfg["context"]);
             }
-            
+
             Type* k = TypesFactory::build(name + "." + std::to_string(i) + "." + std::string(type), cfg);
             k->attach();
             types_.emplace_back(std::move(c), k);
