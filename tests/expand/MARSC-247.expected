@@ -9,6 +9,6 @@ RETRIEVE,
     PARAM      = 129,
     DATE       = 20250413,
     TIME       = 1200,
-    STEP       = 00,
+    STEP       = 0,
     DOMAIN     = G,
     TARGET     = data.reference 

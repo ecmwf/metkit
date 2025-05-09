@@ -57,6 +57,8 @@ private:  // methods
 class Context {
 public:
 
+    static std::unique_ptr<Context> parseContext(eckit::Value c);
+
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
@@ -79,7 +81,7 @@ class ITypeToByList {
 public:
 
     virtual ~ITypeToByList()                                                                        = default;
-    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
+    virtual void expandRanges(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -91,12 +93,12 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+    virtual void expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values) const;
+    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const;
 
-    std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
-    std::string tidy(const std::string& value) const;
-    std::vector<std::string> tidy(const std::vector<std::string>& values) const;
+    std::string tidy(const MarsExpandContext& ctx, const MarsRequest& request, const std::string& value) const;
+    std::string tidy(const MarsRequest& request, const std::string& value) const;
+    std::vector<std::string> tidy(const MarsRequest& request, const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);

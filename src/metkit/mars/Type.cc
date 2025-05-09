@@ -65,8 +65,6 @@ void Context::print(std::ostream& out) const {
 //----------------------------------------------------------------------------------------------------------------------
 // HELPERS
 
-namespace {
-
 std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
 
     std::set<std::string> vals;
@@ -97,7 +95,7 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
     return nullptr;
 }
 
-std::unique_ptr<Context> parseContext(eckit::Value c) {
+std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
 
     std::unique_ptr<Context> context = std::make_unique<Context>();
 
@@ -109,8 +107,6 @@ std::unique_ptr<Context> parseContext(eckit::Value c) {
     }
     return context;
 }
-
-}  // namespace
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -153,7 +149,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                 }
 
                 if (d.contains("context")) {
-                    defaults_.emplace(parseContext(d["context"]), vals);
+                    defaults_.emplace(Context::parseContext(d["context"]), vals);
                 }
                 else {
                     defaults_.emplace(std::make_unique<Context>(), vals);
@@ -167,7 +163,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < only.size(); i++) {
                 eckit::Value o = only[i];
                 ASSERT(o.contains("context"));
-                only_.insert(parseContext(o["context"]));
+                only_.insert(Context::parseContext(o["context"]));
             }
         }
     }
@@ -188,7 +184,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                     vals.push_back(vv);
                 }
                 ASSERT(s.contains("context"));
-                sets_.emplace(parseContext(s["context"]), vals);
+                sets_.emplace(Context::parseContext(s["context"]), vals);
             }
         }
     }
@@ -198,7 +194,7 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < unsets.size(); i++) {
                 eckit::Value u = unsets[i];
                 ASSERT(u.contains("context"));
-                unsets_.insert(parseContext(u["context"]));
+                unsets_.insert(Context::parseContext(u["context"]));
             }
         }
     }
@@ -268,39 +264,39 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
 }
 
 
-std::string Type::tidy(const MarsExpandContext& ctx, const std::string& value) const {
+std::string Type::tidy(const MarsExpandContext& ctx, const MarsRequest& request, const std::string& value) const {
     std::string result = value;
-    expand(ctx, result);
+    expand(ctx, request, result);
     return result;
 }
 
-std::string Type::tidy(const std::string& value) const {
+std::string Type::tidy(const MarsRequest& request, const std::string& value) const {
     DummyContext ctx;
-    return tidy(ctx, value);
+    return tidy(ctx, request, value);
 }
 
-std::vector<std::string> Type::tidy(const std::vector<std::string>& values) const {
+std::vector<std::string> Type::tidy(const MarsRequest& request, const std::vector<std::string>& values) const {
     DummyContext ctx;
 
     std::vector<std::string> result;
     result.reserve(values.size());
 
     std::transform(values.begin(), values.end(), std::back_inserter(result),
-                   [this, ctx](const std::string& s) { return this->tidy(ctx, s); });
+                   [this, ctx, request](const std::string& s) { return this->tidy(ctx, request, s); });
 
     return result;
 }
 
-bool Type::expand(const MarsExpandContext&, std::string& value) const {
+bool Type::expand(const MarsExpandContext&, const MarsRequest& request, std::string& value) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
 }
 
-void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const {
+void Type::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values) const {
 
     if (toByList_ && values.size() > 1) {
-        toByList_->expandRanges(ctx, values);
+        toByList_->expandRanges(ctx, request, values);
     }
 
     std::vector<std::string> newvals;
@@ -309,7 +305,7 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
 
     for (const std::string& val : values) {
         std::string value = val;
-        if (!expand(ctx, value)) {
+        if (!expand(ctx, request, value)) {
             std::ostringstream oss;
             oss << *this << ": cannot expand '" << val << "'" << ctx;
             throw eckit::UserError(oss.str());
@@ -390,40 +386,44 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
         request.unsetValues(name_);
     }
     else {
-        bool matches = (only_.size() == 0);
-        for (const auto& context : only_) {
-            if (context->matches(request)) {
-                matches = true;
-                break;
-            }
-        }
-        if (!matches) {
-            std::ostringstream oss;
-            oss << *this << ": Key [" << name_ << "] not acceptable with contextes: " << std::endl;
+        if (values.size() > 0) {
+            bool matches = (only_.size() == 0);
             for (const auto& context : only_) {
-                oss << "    " << *context << std::endl;
-            }
-            throw eckit::UserError(oss.str());
-        }
-        for (const auto& context : unsets_) {
-            if (context->matches(request)) {
-                if (strict && request.has(name_)) {
-                    std::ostringstream oss;
-                    oss << *this << ": Key [" << name_ << "] not acceptable with context: " << *context;
-                    throw eckit::UserError(oss.str());
+                if (context->matches(request)) {
+                    matches = true;
+                    break;
                 }
-                request.unsetValues(name_);
+            }
+            if (!matches) {
+                std::ostringstream oss;
+                oss << *this << ": Key [" << name_ << "] not acceptable with contextes: " << std::endl;
+                for (const auto& context : only_) {
+                    oss << "    " << *context << std::endl;
+                }
+                throw eckit::UserError(oss.str());
+            }
+            for (const auto& context : unsets_) {
+                if (context->matches(request)) {
+                    if (strict && request.has(name_)) {
+                        std::ostringstream oss;
+                        oss << *this << ": Key [" << name_ << "] not acceptable with context: " << *context;
+                        throw eckit::UserError(oss.str());
+                    }
+                    request.unsetValues(name_);
+                }
             }
         }
 
-        for (const auto& [context, values] : sets_) {
-            if (context->matches(request)) {
-                if (strict && !request.has(name_)) {
-                    std::ostringstream oss;
-                    oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
-                    throw eckit::UserError(oss.str());
+        if (request.verb() != "list") {
+            for (const auto& [context, values] : sets_) {
+                if (context->matches(request)) {
+                    if (strict && !request.has(name_)) {
+                        std::ostringstream oss;
+                        oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
+                        throw eckit::UserError(oss.str());
+                    }
+                    request.setValuesTyped(this, values);
                 }
-                request.setValuesTyped(this, values);
             }
         }
     }

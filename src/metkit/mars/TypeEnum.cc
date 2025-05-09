@@ -26,7 +26,6 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
-    // eckit::Value values = settings["contextes"];
     eckit::Value values = settings["values"];
 
     if (!values.isList()) {
@@ -75,7 +74,7 @@ void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value) const {
+bool TypeEnum::expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const {
     std::map<std::string, std::string>::iterator c = cache_.find(value);
     if (c != cache_.end()) {
         value = (*c).second;

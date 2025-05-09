@@ -12,6 +12,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <unordered_set>
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/JSON.h"
@@ -323,9 +324,9 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 }
 
 class TypeHidden : public Type {
-    virtual bool flatten() const { return false; }
-    virtual void print(std::ostream& out) const { out << "TypeHidden"; }
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const { return true; }
+    bool flatten() const override { return false; }
+    void print(std::ostream& out) const override { out << "TypeHidden"; }
+    bool expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const override { return true; }
 
 public:
 
@@ -352,11 +353,26 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 
     try {
         std::vector<std::string> params = r.params();
-        std::set<std::string> seen;
+
+        {   // reorder the parameters, following the AxisOrder
+            std::unordered_set<std::string> paramSet(params.begin(), params.end());
+            params.clear();
+
+            // sort params by axisOrder
+            for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
+                auto it = paramSet.find(k);
+                if (it != paramSet.end()) {
+                    params.push_back(k);
+                    paramSet.erase(it);
+                }
+            }
+            for (const auto& k : paramSet) {
+                params.push_back(k);
+            }
+        }
 
         for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
             std::string p;
-
 
             std::map<std::string, std::string>::iterator c = cache_.find(*j);
             if (c != cache_.end()) {
@@ -382,7 +398,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
 
             auto t = type(p);
-            t->expand(ctx, values);
+            t->expand(ctx, result, values);
             result.setValuesTyped(t, values);
             t->check(ctx, values);
         }
@@ -406,9 +422,13 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             type(*k)->pass2(ctx, result);
         }
 
-        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->finalise(ctx, result, strict);
+        for (const auto& [k, t] : typesByAxisOrder_) {
+            if (t != nullptr)
+                t->finalise(ctx, result, strict);
         }
+        // for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
+        //     type(*k)->finalise(ctx, result, strict);
+        // }
     }
     catch (std::exception& e) {
         std::ostringstream oss;

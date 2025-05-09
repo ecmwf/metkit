@@ -44,9 +44,14 @@ axes:
     - activity
     - experiment
     - generation
+    - country
     - model
     - realization
     - resolution
     - year
     - month
     - obsgroup
+    - bcmodel
+    - icmodel
+    - grib
+

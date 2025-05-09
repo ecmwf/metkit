@@ -411,58 +411,69 @@ _field: &_field
   dataset:
     category: data
     multiple: false
-    type: lowercase
-    # type: enum
-    # values:
-    # - [climate-dt, Climate change adaptation digital twin]
-    # - [extremes-dt, Weather and geophysical extremes digital twin]
-    # - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
-    # - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
-    # unset:
-    #   - context:
-    #       class:
-    #         op: '!'
-    #         vals: [d1]
+    type:
+      - context:
+          class: [d1]        
+        type: enum
+        values:
+        - [climate-dt, Climate change adaptation digital twin]
+        - [extremes-dt, Weather and geophysical extremes digital twin]
+        - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
+        - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
+        unset:
+          - context:
+              class:
+                op: '!'
+                vals: [d1]
+      - type: lowercase
 
   model:
     category: data
-    type: enum
-    values:
-      - [ecmf]
-      - [edzw]
-      - [egrr]
-      - [lfpw]
-      - [kwbc]
-      - [none]
-      - [hrm]
-      - [ifs, IFS, IFS with no ocean model]
-      - [ifs-nemo, IFS-NEMO, IFS with NEMO ocean model]
-      - [ifs-fesom, IFS-FESOM, IFS with FESOM ocean model]
-      - [icon, ICON, ICON-A with ICON-O ocean model]
-      - [lisflood]
-      - [lm]
-      - [lam]
-      - [aifs]
-      - [aifs-single]
-      - [aifs-single-mse]
-      - [aifs-ens]
-      - [aifs-ens-crps]
-      - [aifs-ens-diff]
-      - [alaro]
-      - [arome]
-      - [harmonie-arome]
-      - [global, glob]
-    unset:
+    type:
       - context:
-          class: [ml, ur, rr]
-    set:
-      - context:
-          _verb: [retrieve]
-          class: [ai]
-          model:
-            op: 'u'
-        vals: [aifs-single-mse]
-
+          class: [ms]
+          country: [it]
+        type: enum
+        values:
+          - [lm]
+          - [hrm]
+          - [wam]
+      - type: enum
+        values:
+          - [ecmf]
+          - [edzw]
+          - [egrr]
+          - [lfpw]
+          - [kwbc]
+          - [none]
+          - [hrm]
+          - [ifs, IFS, IFS with no ocean model]
+          - [ifs-nemo, IFS-NEMO, IFS with NEMO ocean model]
+          - [ifs-fesom, IFS-FESOM, IFS with FESOM ocean model]
+          - [icon, ICON, ICON-A with ICON-O ocean model]
+          - [lisflood]
+          - [lm]
+          - [lam]
+          - [aifs]
+          - [aifs-single]
+          - [aifs-single-mse]
+          - [aifs-ens]
+          - [aifs-ens-crps]
+          - [aifs-ens-diff]
+          - [alaro]
+          - [arome]
+          - [harmonie-arome]
+          - [global, glob]
+        unset:
+          - context:
+              class: [ml, ur, rr]
+        set:
+          - context:
+              _verb: [retrieve]
+              class: [ai]
+              model:
+                op: 'u'
+            vals: [aifs-single-mse]
 
   georef:
     type: lowercase
@@ -662,6 +673,7 @@ _field: &_field
       - [o2d, ocean surface]
       - [o3d, ocean model levels]
 
+
   levelist:
     category: data
     aliases: [leve,level]
@@ -784,7 +796,8 @@ _field: &_field
   hdate:
     category: data
     multiple: true
-    type: integer
+    # type: integer
+    type: date
     unset:
       - context:
           stream:
@@ -978,51 +991,123 @@ _field: &_field
   domain:
     category: data
     defaults:
-      - vals: [g]
-    set:
       - context:
-          class: [od]
-          type: [cm, cs, cr]
-          domain: [g]
-        vals: [e]
-      # - context:
-      #   - dataset: [climate-dt]
-      #   error: "domain not alowded with dataset {dataset}"
-    unset:
+          class:
+            op: '!'
+            vals: [ms]
+        vals: [g]
+    type:
       - context:
-          class: [ep]
-          levtype: [o2d, o3d]
+          class: [ms]
+          country: [it]
+        type: enum
+        values:
+          - [italy]
+          - [euroatl]
+          - [europe]
+          - [mediterranean]
+      - type: enum
+        set:
+          - context:
+              class: [od]
+              type: [cm, cs, cr]
+              domain: [g]
+            vals: [e]
+          # - context:
+          #   - dataset: [climate-dt]
+          #   error: "domain not alowded with dataset {dataset}"
+        unset:
+          - context:
+              class: [ep]
+              levtype: [o2d, o3d]
+          - context:
+              class: [d1, ng, ti, s2, ur, lw, rr, ed]
+        flatten: false
+        type: enum
+        values:
+          - [a, north west europe]
+          - [b, north east europe, baltic and black sea]
+          - [c, south west europe]
+          - [d, south east europe]
+          - [e, europe]
+          - [f, fastex]
+          - [g, globe, general european area]
+          - [h]
+          - [i]
+          - [j]
+          - [k]
+          - [l]
+          - [m, mediterranean]
+          - ['n', northern hemisphere]
+          - [o]
+          - [p]
+          - [q]
+          - [r]
+          - [s, southern hemisphere]
+          - [t, tropics]
+          - [u, tropics 2]
+          - [v]
+          - [w, western atlantic]
+          - [x]
+          - ['y']
+          - [z]
+
+
+  bcmodel:
+    category: data
+    type:
       - context:
-          class: [d1, ng, ti, s2, ur, lw, rr, ed]
-    flatten: false
+          class: [ms]
+          country: [it]
+        type: enum
+        values:
+          - [gme]
+          - [ifs]
+
+
+  icmodel:
+    category: data
     type: enum
     values:
-      - [a, north west europe]
-      - [b, north east europe, baltic and black sea]
-      - [c, south west europe]
-      - [d, south east europe]
-      - [e, europe]
-      - [f, fastex]
-      - [g, globe, general european area]
-      - [h]
-      - [i]
-      - [j]
-      - [k]
-      - [l]
-      - [m, mediterranean]
-      - ['n', northern hemisphere]
-      - [o]
-      - [p]
-      - [q]
-      - [r]
-      - [s, southern hemisphere]
-      - [t, tropics]
-      - [u, tropics 2]
-      - [v]
-      - [w, western atlantic]
-      - [x]
-      - ['y']
-      - [z]
+      - [gme, GME]
+      - [ifs, IFS]
+      - [mvoi, MVOI]
+      - [nudging, NUDGING]
+      - [3dvar, 3DVAR]
+    only:
+      - context:
+          class: [ms]
+          country: [it]
+
+  country:
+    category: data
+    multiple: false
+    type: enum
+    values:
+      - [it, IT]
+      - [de, DE]
+    only:
+      - context:
+          class: [ms]
+
+  
+  grib:
+    category: data
+    multiple: false
+    type: enum
+    defaults:
+      - context:
+          class: [ms]
+          country: [it]
+        vals: [ecmwf]
+    values:
+      - [original, ORIGINAL]
+      - [ecmwf, ECMWF]
+    only:
+      - context:
+          class: [ms]
+          country: [it]
+
 
   frequency:
     category: data
@@ -1221,7 +1306,7 @@ _observation: &_observation
 
   obstype:
     category: data
-    type: enum
+    type: [enum, integer]
     values:
       - all
       - [nsd, non satellite data all]
@@ -1665,6 +1750,11 @@ retrieve:
     multiple: true
     type: any
 
+  source:
+    flatten: false
+    multiple: true
+    type: any
+
   expect:
     flatten: false
     multiple: false
@@ -1681,6 +1771,14 @@ retrieve:
     flatten: false
     multiple: true
     type: any
+    set:
+      - context:
+          # _verb: [retrieve]
+          source:
+            op: 'd'
+          database:
+            op: 'u'
+        vals: [file]
 
   optimise:
     type: enum
