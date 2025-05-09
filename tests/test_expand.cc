@@ -374,8 +374,8 @@ CASE("test_metkit_expand_multirequest-1") {
                           {"levtype", {"pl"}},  {"param", {"129"}},
                           {"step", {"0"}},      {"stream", {"oper"}},
                           {"time", {"1200"}},   {"type", {"an"}}};
-    expand(reqs.at(0), {"retrieve", expected, {-5, -4, -3, -2}});
-    expand(reqs.at(1), {"retrieve", expected, {-1}});
+    expand(reqs.at(0), {"retrieve", expected, std::vector<long>{-5, -4, -3, -2}});
+    expand(reqs.at(1), {"retrieve", expected, std::vector<long>{-1}});
 }
 
 CASE("test_metkit_expand_multirequest-2") {
