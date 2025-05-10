@@ -1061,8 +1061,8 @@ _field: &_field
           country: [it]
         type: enum
         values:
-          - [gme]
-          - [ifs]
+          - [gme, GME]
+          - [ifs, IFS]
 
 
   icmodel:
