@@ -196,11 +196,9 @@ void MarsRequest::md5(eckit::MD5& md5) const {
 }
 
 void MarsRequest::unsetValues(const std::string& name) {
-    if (name != "_verb") {
-        std::list<Parameter>::iterator i = find(name);
-        if (i != params_.end()) {
-            params_.erase(i);
-        }
+    std::list<Parameter>::iterator i = find(name);
+    if (i != params_.end()) {
+        params_.erase(i);
     }
 }
 
@@ -284,13 +282,13 @@ bool MarsRequest::has(const std::string& name) const {
 
 
 bool MarsRequest::is(const std::string& name, const std::string& value) const {
-    if (name == "_verb") {
-        return verb_ == value;
-    }
     std::list<Parameter>::const_iterator i = find(name);
     if (i != params_.end()) {
         const std::vector<std::string>& v = (*i).values();
         return v.size() == 1 && v[0] == value;
+    }
+    if (name == "_verb") {
+        return verb_ == value;
     }
     return false;
 }
@@ -314,11 +312,11 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
 }
 
 const std::string& MarsRequest::operator[](const std::string& name) const {
-    if (name == "_verb") {
-        return verb_;
-    }
     std::list<Parameter>::const_iterator i = find(name);
     if (i == params_.end()) {
+        if (name == "_verb") {
+            return verb_;
+        }
         std::ostringstream oss;
         oss << "Parameter '" << name << "' is undefined";
         throw eckit::UserError(oss.str());
