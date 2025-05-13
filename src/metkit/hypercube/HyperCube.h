@@ -72,7 +72,7 @@ protected:
     int indexOf(const metkit::mars::MarsRequest&) const;
     bool clear(int index);
     metkit::mars::MarsRequest requestOf(size_t index) const;
-    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(std::set<size_t> idxs) const;
+    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(const std::set<size_t>& idxs) const;
 
 private:
 
