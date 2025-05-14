@@ -142,12 +142,10 @@ CASE("test_metkit_hypercube_request") {
     EXPECT(!(*cube.vacantRequests().begin() < r155));
 }
 
-//-----------------------------------------------------------------------------
 CASE("test_metkit_hypercube_request METK-132") {
     std::vector<std::string> keys = {"levelist", "param"};
-    
-    // MarsRequest r = MarsRequest::parse("retrieve,levelist=1/2/3/4/5,param=228038/235077/235078/235094");
-    MarsRequest r = MarsRequest::parse("retrieve,levelist=1/5/3,param=228038/235094/235077/235078");
+
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=2/4/1/3/5,param=228038/235094/235077/235078");
     metkit::hypercube::HyperCube cube{r};
 
     // unset levelist 5 for params 235077/235094
@@ -155,30 +153,29 @@ CASE("test_metkit_hypercube_request METK-132") {
     cube.clear(MarsRequest::parse("retrieve,levelist=5,param=235094"));
 
     std::vector<MarsRequest> expected_flat_requests = {
-        MarsRequest::parse("retrieve,levelist=1,param=228038"),
-        MarsRequest::parse("retrieve,levelist=3,param=228038"),
-        MarsRequest::parse("retrieve,levelist=5,param=228038"),
-        MarsRequest::parse("retrieve,levelist=1,param=235077"),
-        MarsRequest::parse("retrieve,levelist=3,param=235077"),
-        MarsRequest::parse("retrieve,levelist=1,param=235094"),
-        MarsRequest::parse("retrieve,levelist=3,param=235094"),
-        MarsRequest::parse("retrieve,levelist=1,param=235078"),
-        MarsRequest::parse("retrieve,levelist=3,param=235078"),
-        MarsRequest::parse("retrieve,levelist=5,param=235078"),
-
+        MarsRequest::parse("retrieve,levelist=1,param=228038"), MarsRequest::parse("retrieve,levelist=2,param=228038"),
+        MarsRequest::parse("retrieve,levelist=3,param=228038"), MarsRequest::parse("retrieve,levelist=4,param=228038"),
+        MarsRequest::parse("retrieve,levelist=5,param=228038"), MarsRequest::parse("retrieve,levelist=1,param=235077"),
+        MarsRequest::parse("retrieve,levelist=2,param=235077"), MarsRequest::parse("retrieve,levelist=3,param=235077"),
+        MarsRequest::parse("retrieve,levelist=4,param=235077"), MarsRequest::parse("retrieve,levelist=1,param=235094"),
+        MarsRequest::parse("retrieve,levelist=2,param=235094"), MarsRequest::parse("retrieve,levelist=3,param=235094"),
+        MarsRequest::parse("retrieve,levelist=4,param=235094"), MarsRequest::parse("retrieve,levelist=1,param=235078"),
+        MarsRequest::parse("retrieve,levelist=2,param=235078"), MarsRequest::parse("retrieve,levelist=3,param=235078"),
+        MarsRequest::parse("retrieve,levelist=4,param=235078"), MarsRequest::parse("retrieve,levelist=5,param=235078"),
         // These two requests we have removed from the cube:
         // MarsRequest::parse("retrieve,levelist=5,param=235077"),
         // MarsRequest::parse("retrieve,levelist=5,param=235094"),
     };
-    
+
     std::vector<MarsRequest> flattened_requests;
-    for (const auto& req : cube.vacantRequests()) { // surely this should be requests, not vacantRequests... anyway...
+    for (const auto& req : cube.vacantRequests()) {  // surely this should be requests, not vacantRequests... anyway...
         auto flattened = req.split(keys);
         for (const auto& f : flattened) {
             flattened_requests.push_back(f);
         }
     }
 
+    EXPECT_EQUAL(flattened_requests.size(), 18);
     EXPECT_EQUAL(flattened_requests.size(), expected_flat_requests.size());
 
     // compare both vectors

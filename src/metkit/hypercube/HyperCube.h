@@ -72,6 +72,10 @@ protected:
     int indexOf(const metkit::mars::MarsRequest&) const;
     bool clear(int index);
     metkit::mars::MarsRequest requestOf(size_t index) const;
+
+    // Given a set of indices, build the *minimal* collection of Mars requests that cover them.
+    // Each entry in the result vector is: { merged_request, number_of_points_covered_by_that_request }
+    /// @note: This does not take into account whether the point is "set" or not
     std::vector<std::pair<metkit::mars::MarsRequest, size_t>> request(const std::set<size_t>& idxs) const;
 
 private:
