@@ -1,6 +1,7 @@
 ---
 axes:
     - class
+    - country
     - type
     - stream
     - levtype
@@ -44,7 +45,6 @@ axes:
     - activity
     - experiment
     - generation
-    - country
     - model
     - realization
     - resolution

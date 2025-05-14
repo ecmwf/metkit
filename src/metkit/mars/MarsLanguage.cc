@@ -353,37 +353,38 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
     MarsRequest result(verb_);
 
     try {
-        std::vector<std::string> params = r.params();
+        std::vector<std::pair<std::string, std::string>> sortedParams;
+        std::unordered_map<std::string, std::string> paramSet;
+        std::vector<std::string> params;
+        
+        
+        for (const auto& PP : r.params()) {
+            auto c = cache_.find(PP);
+            if (c != cache_.end()) {
+                paramSet.emplace((*c).second, PP);
+            }
+            else {
+                std::string p = eckit::StringTools::lower(PP);
+                paramSet.emplace(cache_[p] = bestMatch(ctx, p, keywords_, true, false, true, aliases_), PP);
+            }
+        }
 
         {  // reorder the parameters, following the AxisOrder
-            std::unordered_set<std::string> paramSet(params.begin(), params.end());
-            params.clear();
-
             // sort params by axisOrder
             for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
                 auto it = paramSet.find(k);
                 if (it != paramSet.end()) {
-                    params.push_back(k);
+                    sortedParams.emplace_back(k, it->second);
                     paramSet.erase(it);
                 }
             }
-            for (const auto& k : paramSet) {
-                params.push_back(k);
+            for (const auto& [k, PP] : paramSet) {
+                sortedParams.emplace_back(k, PP);
             }
         }
 
-        for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-            std::string p;
-
-            std::map<std::string, std::string>::iterator c = cache_.find(*j);
-            if (c != cache_.end()) {
-                p = (*c).second;
-            }
-            else {
-                p = cache_[*j] = bestMatch(ctx, *j, keywords_, true, false, false, aliases_);
-            }
-
-            std::vector<std::string> values = r.values(*j);
+        for (const auto& [p, PP] : sortedParams) {
+            std::vector<std::string> values = r.values(PP);
 
             if (values.size() == 1) {
                 const std::string& s = eckit::StringTools::lower(values[0]);
