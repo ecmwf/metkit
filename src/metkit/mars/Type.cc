@@ -412,7 +412,7 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
     std::swap(newvals, values);
 
     if (!multiple_ && values.size() > 1) {
-        throw eckit::UserError("Only one value passible for '" + name_ + "'");
+        throw eckit::UserError("Only one value possible for '" + name_ + "'");
     }
 }
 
