@@ -28,7 +28,7 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["values"];
-    bool uppercase = false;
+    bool uppercase      = false;
     if (settings.contains("uppercase")) {
         uppercase = settings["uppercase"];
     }
@@ -53,7 +53,7 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
 
             for (size_t j = 0; j < val.size(); ++j) {
                 std::string VV = val[j];
-                std::string v = eckit::StringTools::lower(VV);
+                std::string v  = eckit::StringTools::lower(VV);
                 //                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
                 if (mapping_.find(v) != mapping_.end()) {
                     std::ostringstream oss;
@@ -88,7 +88,7 @@ void TypeEnum::print(std::ostream& out) const {
 }
 
 bool TypeEnum::expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const {
-    std::string val = eckit::StringTools::lower(value);
+    std::string val                                = eckit::StringTools::lower(value);
     std::map<std::string, std::string>::iterator c = cache_.find(val);
     if (c != cache_.end()) {
         value = (*c).second;
