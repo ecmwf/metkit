@@ -169,7 +169,7 @@ requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t&
     tmp.merge(additional);  // creates the bounding box request
 
     /// @todo: building a hypercube *JUST* to get the size? Seems like we can do better
-    size_t sizeAfter = HyperCube(tmp).size();
+    size_t sizeAfter = tmp.count();
 
     if (sizeAfter == baseSize)
         return requestRelation::EMBEDDED;
@@ -187,7 +187,7 @@ bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& reques
     size_t candidateIdx  = std::numeric_limits<size_t>::max();
     size_t candidateSize = 0;
 
-    // check id the new request is embedded or adjacent to existing requests
+    // check if the new request is embedded or adjacent to existing requests
     for (size_t j = 0; j < requests.size() - 1; j++) {
         requestRelation relation =
             getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second);
