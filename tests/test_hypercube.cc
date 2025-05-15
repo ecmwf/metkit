@@ -167,6 +167,9 @@ CASE("test_metkit_hypercube_request METK-132") {
         // MarsRequest::parse("retrieve,levelist=5,param=235094"),
     };
 
+    auto dense_requests = cube.vacantRequests();
+    EXPECT_EQUAL(dense_requests.size(), 2);
+
     std::vector<MarsRequest> flattened_requests;
     for (const auto& req : cube.vacantRequests()) {  // surely this should be requests, not vacantRequests... anyway...
         auto flattened = req.split(keys);
