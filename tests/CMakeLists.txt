@@ -34,6 +34,8 @@ ecbuild_get_test_multidata( TARGET metkit_get_odb_data
 #                   TEST_DEPENDS  grib_get_data
 # )
 
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/expand" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 
 ecbuild_add_test( TARGET        metkit_test_multihandle
                   CONDITION     HAVE_GRIB
@@ -73,6 +75,7 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
 
 foreach( test 
         c_api
+        context
         date
         expand
         filter

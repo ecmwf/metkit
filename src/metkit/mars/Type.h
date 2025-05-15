@@ -31,6 +31,8 @@ namespace metkit::mars {
 class MarsRequest;
 class MarsExpandContext;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class ContextRule {
 public:
 
@@ -51,11 +53,14 @@ private:  // methods
     virtual void print(std::ostream& out) const = 0;
 };
 
+//----------------------------------------------------------------------------------------------------------------------
 class Context {
 public:
 
+    static std::unique_ptr<Context> parseContext(eckit::Value c);
+
     /// @note takes ownership of the rule
-    void add(ContextRule* rule);
+    void add(std::unique_ptr<ContextRule> rule);
 
     bool matches(MarsRequest req) const;
 
@@ -75,8 +80,9 @@ private:
 class ITypeToByList {
 public:
 
-    virtual ~ITypeToByList()                                                                        = default;
-    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
+    virtual ~ITypeToByList()                                          = default;
+    virtual void expandRanges(const MarsExpandContext& ctx, const MarsRequest& request,
+                              std::vector<std::string>& values) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -88,12 +94,13 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+    virtual void expand(const MarsExpandContext& ctx, const MarsRequest& request,
+                        std::vector<std::string>& values) const;
+    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const;
 
-    std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
-    std::string tidy(const std::string& value) const;
-    std::vector<std::string> tidy(const std::vector<std::string>& values) const;
+    std::string tidy(const MarsExpandContext& ctx, const MarsRequest& request, const std::string& value) const;
+    std::string tidy(const MarsRequest& request, const std::string& value) const;
+    std::vector<std::string> tidy(const MarsRequest& request, const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
@@ -132,7 +139,7 @@ protected:  // members
     std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
     std::set<std::unique_ptr<Context>> only_;
-    std::map<std::unique_ptr<Context>, std::string> sets_;
+    std::map<std::unique_ptr<Context>, std::vector<std::string>> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;

@@ -1,0 +1,5 @@
+ retrieve,
+    class=rd,
+    date=20250413,
+    expver=aaaa,
+    target=data.reference

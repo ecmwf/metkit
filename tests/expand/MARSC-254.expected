@@ -1,0 +1,13 @@
+RETRIEVE,
+    CLASS      = OD,
+    TYPE       = OB,
+    STREAM     = OPER,
+    EXPVER     = 0001,
+    REPRES     = BU,
+    OBSTYPE    = 1,
+    DATE       = 20250414,
+    TIME       = 0000,
+    RANGE      = 1439,
+    DOMAIN     = G,
+    TARGET     = data.reference,
+    DUPLICATES = KEEP 

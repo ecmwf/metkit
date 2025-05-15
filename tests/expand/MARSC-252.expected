@@ -1,0 +1,13 @@
+RETRIEVE,
+    CLASS      = OD,
+    TYPE       = AN,
+    STREAM     = OPER,
+    EXPVER     = 0001,
+    REPRES     = GG,
+    LEVTYPE    = SFC,
+    PARAM      = 164,
+    DATE       = 20250416,
+    TIME       = 0000,
+    STEP       = 0,
+    DOMAIN     = G,
+    TARGET     = data.reference 

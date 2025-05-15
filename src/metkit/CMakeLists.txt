@@ -21,6 +21,7 @@ list( APPEND metkit_srcs
     mars/BaseProtocol.h
     mars/ClientTask.cc
     mars/ClientTask.h
+    mars/ContextRule.h
     mars/DHSProtocol.cc
     mars/DHSProtocol.h
     mars/MarsExpandContext.cc

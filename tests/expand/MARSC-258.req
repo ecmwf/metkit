@@ -1,0 +1,11 @@
+retrieve,
+    class=rd,
+    stream=lwda,
+    levtype=pl,
+    type=fc,
+    expver=h3f7,
+    step=all,
+    anoffset=9,
+    time=00,
+    date=20181101,
+    target=data.reference 
