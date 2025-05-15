@@ -356,8 +356,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
         std::vector<std::pair<std::string, std::string>> sortedParams;
         std::unordered_map<std::string, std::string> paramSet;
         std::vector<std::string> params;
-        
-        
+
         for (const auto& PP : r.params()) {
             auto c = cache_.find(PP);
             if (c != cache_.end()) {
