@@ -164,7 +164,7 @@ void MarsRequest::dump(std::ostream& s, const char* cr, const char* tab, bool ve
 
 void MarsRequest::json(eckit::JSON& s, bool array) const {
     s.startObject();
-    // s << "_verb" << verb_;
+
     std::list<Parameter>::const_iterator begin = params_.begin();
     std::list<Parameter>::const_iterator end   = params_.end();
 
@@ -252,6 +252,9 @@ bool MarsRequest::matches(const MarsRequest& matches) const {
 }
 
 void MarsRequest::values(const std::string& name, const std::vector<std::string>& v) {
+    if (name == "_verb") {
+        throw eckit::UserError("Parameter _verb cannot be modified");
+    }
     std::list<Parameter>::iterator i = find(name);
     if (i != params_.end()) {
         (*i).values(v);
@@ -271,6 +274,9 @@ size_t MarsRequest::countValues(const std::string& name) const {
 }
 
 bool MarsRequest::has(const std::string& name) const {
+    if (name == "_verb") {
+        return true;
+    }
     return find(name) != params_.end();
 }
 
@@ -281,10 +287,16 @@ bool MarsRequest::is(const std::string& name, const std::string& value) const {
         const std::vector<std::string>& v = (*i).values();
         return v.size() == 1 && v[0] == value;
     }
+    if (name == "_verb") {
+        return verb_ == value;
+    }
     return false;
 }
 
 const std::vector<std::string>& MarsRequest::values(const std::string& name, bool emptyOk) const {
+    if (name == "_verb") {
+        return std::vector<std::string>{verb_};
+    }
     std::list<Parameter>::const_iterator i = find(name);
     if (i == params_.end()) {
         if (emptyOk) {
@@ -302,6 +314,9 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
 const std::string& MarsRequest::operator[](const std::string& name) const {
     std::list<Parameter>::const_iterator i = find(name);
     if (i == params_.end()) {
+        if (name == "_verb") {
+            return verb_;
+        }
         std::ostringstream oss;
         oss << "Parameter '" << name << "' is undefined";
         throw eckit::UserError(oss.str());
@@ -440,6 +455,9 @@ bool MarsRequest::operator<(const MarsRequest& other) const {
 
 
 void MarsRequest::setValue(const std::string& name, const char* value) {
+    if (name == "_verb") {
+        throw eckit::UserError("Parameter _verb cannot be modified");
+    }
     std::string v(value);
     setValue(name, v);
 }
