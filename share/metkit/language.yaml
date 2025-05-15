@@ -164,6 +164,7 @@ _field: &_field
       - [oai, odb analysis input]
       - [ob, observations]
       - [of, ocean forward]
+      - [ofa, odb feedback from analysis]  
       - [ofb, odb feedback]
       - [oi, oi analysis]
       - [oldim, old format images]
@@ -505,7 +506,7 @@ _field: &_field
           type: [im, sim, oldim]
         vals: [sv]
       - context:
-          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
         vals: [bu]
       - context:
           stream: [ssmi]
@@ -630,7 +631,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
 
   reportype:
     category: data
@@ -653,7 +654,7 @@ _field: &_field
             vals: [ssmi]
           type: [im, sim, oldim]
       - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream: [ssmi]
     flatten: false
@@ -704,7 +705,7 @@ _field: &_field
       - context:
           stream: [ssmi]
       - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           levtype: [o2d, sfc, wave, al]
       - context:
@@ -734,7 +735,7 @@ _field: &_field
       - context:
           stream: [ssmi]
       - context:
-          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
     # never:
     # - type: [tf, ob]
 
@@ -896,7 +897,7 @@ _field: &_field
       - context:
           stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
       - context:
-          type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
+          type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl, ofa]
       - context:
           class:
             op: '!'
@@ -1157,7 +1158,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb]
+            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
     # only:
     # - type: ssd
 
@@ -1316,7 +1317,7 @@ _observation: &_observation
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     # TODO : Migration from old images to new images
 
 #  ALL                = (NSD/SD)
@@ -1481,7 +1482,7 @@ _postproc: &_postproc
       - context:
           stream: [ssmi]
       - context:
-          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream:
             op: '!'
@@ -1565,7 +1566,7 @@ _postproc: &_postproc
       - context:
           stream: [ssmi]
       - context:
-          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream:
             op: '!'
@@ -1638,7 +1639,7 @@ _obspproc: &_obspproc
       - context:
           type:
             op: '!'
-            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb]
+            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
 
 #######################################################################
 
@@ -1797,7 +1798,7 @@ retrieve:
     type: enum
     defaults:
       - context:
-          # type: [mfb, ofb, ai]
+          # type: [mfb, ofb, ai, ofa]
           obsgroup:
             op: 'd'
         vals: [keep]
@@ -1810,7 +1811,7 @@ retrieve:
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     values:
     - keep
     - remove
