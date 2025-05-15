@@ -476,6 +476,7 @@ _field: &_field
             vals: [aifs-single-mse]
 
   georef:
+    category: data
     type: lowercase
     # only:
     #   - context:
@@ -676,7 +677,7 @@ _field: &_field
 
   levelist:
     category: data
-    aliases: [leve,level]
+    aliases: [leve,level,levellist]
     multiple: true
     type: to-by-list-float
     by: 1
@@ -1708,7 +1709,7 @@ disseminate:
 ##############################################################
 
 archive:
-  _aliases: [a]
+  # _aliases: [a]
 
   <<: *_field
   <<: *_observation
@@ -1772,6 +1773,7 @@ retrieve:
   database:
     flatten: false
     multiple: true
+    aliases: [dbase]
     type: any
     set:
       - context:
@@ -1828,7 +1830,7 @@ retrieve:
 ##############################################################
 
 read:
-  _aliases: [r]
+  # _aliases: [r]
   source:
     flatten: false
     multiple: true
