@@ -796,7 +796,7 @@
 - icao standard atmosphere reference height
 3008:
 - h
-- geometrical height
+- geometrical height above ground
 3009:
 - hstdv
 - standard deviation of height
@@ -2582,6 +2582,18 @@
 140146:
 - wcfr
 - whitecap fraction
+140147:
+- bfi2d
+- benjamin-feir index 2d
+140148:
+- ctc
+- crest-trough correlation
+140149:
+- xwrs
+- x component of the wave radiative stress to sea ice
+140150:
+- ywrs
+- y component of the wave radiative stress to sea ice
 140200:
 - maxswh
 - maximum of significant wave height
@@ -2882,6 +2894,18 @@
 141146:
 - avg_wcfr
 - time-mean whitecap fraction
+141147:
+- avg_bfi2d
+- time-mean benjamin-feir index 2d
+141148:
+- avg_ctc
+- time-mean crest-trough correlation
+141149:
+- avg_xwrs
+- time-mean x component of the wave radiative stress to sea ice
+141150:
+- avg_ywrs
+- time-mean y component of the wave radiative stress to sea ice
 141207:
 - avg_wss
 - time-mean wave spectral skewness
@@ -3140,6 +3164,18 @@
 143146:
 - max_wcfr
 - time-maximum whitecap fraction
+143147:
+- max_bfi2d
+- time-maximum benjamin-feir index 2d
+143148:
+- max_ctc
+- time-maximum crest-trough correlation
+143149:
+- max_xwrs
+- time-maximum x component of the wave radiative stress to sea ice
+143150:
+- max_ywrs
+- time-maximum y component of the wave radiative stress to sea ice
 143207:
 - max_wss
 - time-maximum wave spectral skewness
@@ -3398,6 +3434,18 @@
 144146:
 - min_wcfr
 - time-minimum whitecap fraction
+144147:
+- min_bfi2d
+- time-minimum benjamin-feir index 2d
+144148:
+- min_ctc
+- time-minimum crest-trough correlation
+144149:
+- min_xwrs
+- time-minimum x component of the wave radiative stress to sea ice
+144150:
+- min_ywrs
+- time-minimum y component of the wave radiative stress to sea ice
 144207:
 - min_wss
 - time-minimum wave spectral skewness
@@ -3657,6 +3705,18 @@
 145146:
 - std_wcfr
 - time-standard-deviation whitecap fraction
+145147:
+- std_bfi2d
+- time-standard-deviation benjamin-feir index 2d
+145148:
+- std_ctc
+- time-standard-deviation crest-trough correlation
+145149:
+- std_xwrs
+- time-standard-deviation x component of the wave radiative stress to sea ice
+145150:
+- std_ywrs
+- time-standard-deviation y component of the wave radiative stress to sea ice
 145207:
 - std_wss
 - time-standard-deviation wave spectral skewness
@@ -13881,7 +13941,7 @@
 - trapping layer top height
 228020:
 - degm10l
-- -10 degrees c isothermal level (atm)
+- geometric height of -10 degrees c atmospheric isothermal level above ground
 228021:
 - fdir
 - surface direct short-wave (solar) radiation
@@ -13893,7 +13953,7 @@
 - cloud base height
 228024:
 - deg0l
-- 0 degrees c isothermal level (atm)
+- geometric height of 0 degrees c atmospheric isothermal level above ground
 - deg0
 228025:
 - hvis
@@ -14589,8 +14649,8 @@
 - hnbg
 - geometric height of neutral buoyancy level above ground
 231049:
-- haig
-- geometric height of atmospheric isothermal level above ground
+- deg3l
+- geometric height of 3 degrees c atmospheric isothermal level above ground
 231050:
 - rft
 - roof temperature
@@ -14657,6 +14717,33 @@
 231071:
 - h1p5thg
 - geometric height of 1.5 degrees c theta level above ground
+231500:
+- hits
+- thunderstorm hazard index
+231501:
+- hiswf
+- surface water flooding hazard index
+231502:
+- hipa
+- polluted air hazard index
+231503:
+- hiss
+- storm surge hazard index
+231504:
+- hicw
+- cold wave hazard index
+231505:
+- hihf
+- frost (hoar frost) hazard index
+231506:
+- hihw
+- heatwave hazard index
+231507:
+- hiw
+- wind hazard index
+231508:
+- hiwf
+- wildfires hazard index
 232000:
 - fba
 - burned area
@@ -14705,6 +14792,12 @@
 232015:
 - ddwmc
 - dense dead wood moisture content
+232016:
+- lfmclv
+- live fuel moisture content in low vegetation
+232017:
+- lfmchv
+- live fuel moisture content in high vegetation
 233000:
 - tvige
 - time-integrated total column vertically-integrated eastward geopotential flux
@@ -15436,13 +15529,13 @@
 - time-mean trapping layer top height
 235315:
 - avg_degm10l
-- time-mean -10 degrees c isothermal level (atm)
+- time-mean geometric height of -10 degrees c atmospheric isothermal level above ground
 235316:
 - avg_cbh
 - time-mean cloud base height
 235317:
 - avg_deg0l
-- time-mean 0 degrees c isothermal level (atm)
+- time-mean geometric height of 0 degrees c atmospheric isothermal level above ground
 235318:
 - avg_i10fg
 - time-mean 10 metre wind gust
@@ -15665,6 +15758,33 @@
 235395:
 - avg_srhe
 - time-mean surface roughness for heat
+235396:
+- avg_rol
+- time-mean reciprocal obukhov length
+235397:
+- avg_deg3l
+- time-mean geometric height of 3 degrees c atmospheric isothermal level above ground
+235398:
+- avg_rivsto
+- time-mean river storage of water
+235399:
+- avg_fldsto
+- time-mean floodplain storage of water
+235400:
+- avg_rivdph
+- time-mean river depth
+235401:
+- avg_rivout
+- time-mean river outflow of water
+235402:
+- avg_fldout
+- time-mean floodplain outflow of water
+235403:
+- avg_pthflw
+- time-mean floodpath outflow of water
+235404:
+- avg_sdifswrfcs
+- time-mean surface diffuse short-wave radiation flux, clear sky
 236386:
 - acc_lshnf
 - time-integrated land surface heat net flux
@@ -16126,13 +16246,15 @@
 - time-maximum trapping layer top height
 237315:
 - max_degm10l
-- time-maximum -10 degrees c isothermal level (atm)
+- time-maximum geometric height of -10 degrees c atmospheric isothermal level above
+  ground
 237316:
 - max_cbh
 - time-maximum cloud base height
 237317:
 - max_deg0l
-- time-maximum 0 degrees c isothermal level (atm)
+- time-maximum geometric height of 0 degrees c atmospheric isothermal level above
+  ground
 237319:
 - max_rhw
 - time-maximum relative humidity with respect to water
@@ -16355,6 +16477,16 @@
 237395:
 - max_srhe
 - time-maximum surface roughness for heat
+237396:
+- max_rol
+- time-maximum reciprocal obukhov length
+237397:
+- max_deg3l
+- time-maximum geometric height of 3 degrees c atmospheric isothermal level above
+  ground
+237404:
+- max_sdifswrfcs
+- time-mean surface diffuse short-wave radiation flux, clear sky
 238001:
 - min_ttswr
 - time-minimum temperature tendency due to short-wave radiation
@@ -16813,13 +16945,15 @@
 - time-minimum trapping layer top height
 238315:
 - min_degm10l
-- time-minimum -10 degrees c isothermal level (atm)
+- time-minimum geometric height of -10 degrees c atmospheric isothermal level above
+  ground
 238316:
 - min_cbh
 - time-minimum cloud base height
 238317:
 - min_deg0l
-- time-minimum 0 degrees c isothermal level (atm)
+- time-minimum geometric height of 0 degrees c atmospheric isothermal level above
+  ground
 238318:
 - min_i10fg
 - time-minimum 10 metre wind gust
@@ -17047,6 +17181,16 @@
 238395:
 - min_srhe
 - time-minimum surface roughness for heat
+238396:
+- min_rol
+- time-minimum reciprocal obukhov length
+238397:
+- min_deg3l
+- time-minimum geometric height of 3 degrees c atmospheric isothermal level above
+  ground
+238404:
+- min_sdifswrfcs
+- time-mean surface diffuse short-wave radiation flux, clear sky
 239001:
 - std_ttswr
 - time-standard-deviation temperature tendency due to short-wave radiation
@@ -17518,13 +17662,15 @@
 - time-standard-deviation trapping layer top height
 239315:
 - std_degm10l
-- time-standard-deviation -10 degrees c isothermal level (atm)
+- time-standard-deviation geometric height of -10 degrees c atmospheric isothermal
+  level above ground
 239316:
 - std_cbh
 - time-standard-deviation cloud base height
 239317:
 - std_deg0l
-- time-standard-deviation 0 degrees c isothermal level (atm)
+- time-standard-deviation geometric height of 0 degrees c atmospheric isothermal level
+  above ground
 239318:
 - std_i10fg
 - time-standard-deviation 10 metre wind gust
@@ -17763,6 +17909,16 @@
 239395:
 - std_srhe
 - time-standard-deviation surface roughness for heat
+239396:
+- std_rol
+- time-standard-deviation reciprocal obukhov length
+239397:
+- std_deg3l
+- time-standard-deviation geometric height of 3 degrees c atmospheric isothermal level
+  above ground
+239404:
+- std_sdifswrfcs
+- time-mean surface diffuse short-wave radiation flux, clear sky
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -18358,8 +18514,8 @@
 - lmaxbr
 - layer-maximum base reflectivity
 260138:
-- prec
-- precipitation
+- rdp
+- precipitation from radar
 260139:
 - acces
 - air concentration of caesium 137
@@ -19804,6 +19960,27 @@
 260687:
 - 10tugu
 - 10 metre turbulent gust
+260688:
+- rol
+- reciprocal obukhov length
+260689:
+- rdpr
+- precipitation rate from radar
+260690:
+- rdqi
+- radar data quality index
+260691:
+- rdqf
+- radar data quality flag
+260692:
+- frdpr
+- precipitation rate from forecasted radar imagery
+260693:
+- frdp
+- precipitation from forecasted radar imagery
+260694:
+- sdifswrfcs
+- surface diffuse short-wave radiation flux, clear sky
 261001:
 - utci
 - universal thermal climate index
@@ -19873,6 +20050,12 @@
 261023:
 - wbt
 - wet-bulb temperature
+261024:
+- exhf
+- excess heat factor
+261025:
+- excf
+- excess cold factor
 262000:
 - sithick
 - sea ice thickness
@@ -19948,6 +20131,9 @@
 262024:
 - sit
 - sea ice temperature
+262025:
+- sibm
+- sea ice breakup memory
 262100:
 - sos
 - sea surface practical salinity
@@ -20095,6 +20281,9 @@
 262148:
 - scbtv
 - total column vertically integrated sea water practical salinity
+262149:
+- rsdos
+- sea surface downward short-wave radiation flux
 262500:
 - so
 - sea water practical salinity
@@ -20155,6 +20344,15 @@
 262519:
 - zo
 - sea water depth
+262520:
+- mtup
+- sea water upward mass transport
+262521:
+- agessc
+- sea water age since surface contact
+262522:
+- rsdo
+- sea water downward short-wave radiation flux
 262900:
 - ssr_sea
 - net short wave radiation rate at sea surface
@@ -20260,6 +20458,9 @@
 263024:
 - avg_sit
 - time-mean sea ice temperature
+263025:
+- avg_sibm
+- time-mean sea ice breakup memory
 263100:
 - avg_sos
 - time-mean sea surface practical salinity
@@ -20407,6 +20608,9 @@
 263148:
 - avg_scbtv
 - time-mean total column vertically integrated sea water practical salinity
+263149:
+- avg_rsdos
+- time-mean sea surface downward short-wave radiation flux
 263500:
 - avg_so
 - time-mean sea water practical salinity
@@ -20467,6 +20671,15 @@
 263519:
 - avg_zo
 - time-mean sea water depth
+263520:
+- avg_mtup
+- time-mean sea water upward mass transport
+263521:
+- avg_agessc
+- time-mean sea water age since surface contact
+263522:
+- avg_rsdo
+- time-mean sea water downward short-wave radiation flux
 263900:
 - avg_ssr_sea
 - time-mean net short wave radiation rate at sea surface
@@ -21209,7 +21422,7 @@
 - mdens
 - mass density
 401000:
-- tc_mdens
+- tcvimd
 - total column vertically-integrated mass density
 402000:
 - mass_mixrat
@@ -21393,10 +21606,10 @@
 - asymmetry factor
 460000:
 - aerbscattoa
-- aerosol backscatter from top of atmosphere
+- attenuated aerosol backscatter from top of atmosphere
 461000:
 - aerbscatgnd
-- aerosol backscatter from ground
+- attenuated aerosol backscatter from ground
 462000:
 - aerext
 - aerosol extinction coefficient
@@ -21430,6 +21643,15 @@
 472000:
 - absaod
 - absorption aerosol optical thickness
+473000:
+- tropvimd
+- tropospheric column vertically-integrated mass density
+474000:
+- stratvimd
+- stratospheric column vertically-integrated mass density
+475000:
+- aerbscat
+- aerosol unattenuated backscatter coefficient
 500000:
 - ps
 - pressure (s) (not reduced)

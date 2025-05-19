@@ -12,6 +12,8 @@
 /// @date   Jan 2016
 /// @author Florian Rathgeber
 
+#include <algorithm>
+
 #include "eckit/testing/Test.h"
 
 #include "metkit/hypercube/HyperCube.h"
