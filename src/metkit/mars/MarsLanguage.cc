@@ -389,7 +389,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
                     result.unsetValues(p);
-                    type(p)->clearDefaults();
+                    type(p)->reset();
                     continue;
                 }
                 if (s == "all" && type(p)->multiple()) {
