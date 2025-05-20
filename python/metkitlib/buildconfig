@@ -13,4 +13,5 @@
 NAME="metkit"
 CMAKE_PARAMS="-Deckit_ROOT=/tmp/metkit/prereqs/eckitlib -Deccodes_ROOT=/tmp/metkit/prereqs/eccodeslib -DENABLE_GRIB=1"
 PYPROJECT_DIR="python/metkitlib"
-DEPENDENCIES='["eckitlib", "eccodeslib"]'
+# NOTE fckitlib is explicitly included just as a workaround for dependency resolver
+DEPENDENCIES='["eckitlib", "fckitlib", "eccodeslib"]'
