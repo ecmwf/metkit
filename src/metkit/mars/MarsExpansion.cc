@@ -58,10 +58,10 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
     MarsExpandContext& ctx = cc;
 
     // Implement inheritence
-    for (size_t i = 0; i < requests.size(); i++) {
-        auto& lang = language(ctx, requests.at(i).verb());
-        result.emplace_back(lang.expand(ctx, requests.at(i), inherit_, strict_));
-        ctx = requests.at(i);
+    for (const auto& request : requests) {
+        auto& lang = language(ctx, request.verb());
+        result.emplace_back(lang.expand(ctx, request, inherit_, strict_));
+        ctx = request;
     }
 
     return result;

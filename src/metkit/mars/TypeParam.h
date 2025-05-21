@@ -30,7 +30,6 @@ public:  // methods
     TypeParam(const std::string& name, const eckit::Value& settings);
 
     ~TypeParam() noexcept override = default;
-    ;
 
 protected:
 

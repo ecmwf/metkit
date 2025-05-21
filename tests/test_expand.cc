@@ -747,15 +747,6 @@ CASE("test_metkit_expand_d1") {
                               {"time", {"1200"}},   {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
-    // {
-    //     const char* text = "retrieve,class=d1,dataset=extreme-dt,date=-1";
-    //     ExpectedVals expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
-    //                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-    //                           {"levtype", {"pl"}},  {"param", {"129"}},
-    //                           {"step", {"0"}},      {"stream", {"oper"}},
-    //                           {"time", {"1200"}},   {"type", {"an"}}};
-    //     expand(text, "retrieve", expected, {-1});
-    // }
     {
         const char* text =
             "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-"
@@ -784,6 +775,7 @@ CASE("test_metkit_expand_d1") {
                               {"realization", {"1"}},   {"resolution", {"high"}},    {"expver", {"0001"}},
                               {"time", {"0000"}},       {"stream", {"clte"}},        {"type", {"fc"}},
                               {"levtype", {"o3d"}},     {"levelist", {"1"}},         {"param", {"263500"}}};
+        expand(text, "retrieve", expected, {20120515});
         expand(text2, "retrieve", expected, {20120515});
     }
 }
@@ -1097,21 +1089,22 @@ CASE("test_metkit_expand_2") {
 
 CASE("test_metkit_disseminate") {
     const char* text =
-        "disseminate,option=normal,target=NTI:HT,date=20250506,time=0/"
-        "12,stream=oper,levtype=sfc,type=an,param=lsm,step=0,direction=off,frequency=off,area=54.5/1.5/51/8,grid=.1/"
-        ".1,packing=simple\ndisseminate,stream=wave,param=2dfd,direction=1/to/36,frequency=1/to/"
-        "29,packing=off\ndisseminate,type=fc,step=3/to/144/by/"
-        "3\ndisseminate,stream=oper,type=an,param=lsm,step=0,direction=off,frequency=off,area=64/-15/43/13,grid=.25/"
-        ".25,packing=simple\ndisseminate,stream=wave,param=tmax/hmax/swh/mwd/pp1d/mwp/shww/mdww/mpww/shts/mdts/mpts/"
-        "sh10\ndisseminate,type=fc,step=3/to/72/by/3\ndisseminate,step=78/to/240/by/6";
+        "disseminate,option=normal,target=NTI:HT,date=20250506,time=0/12,stream=oper,levtype=sfc,type=an,param=lsm,"
+        "step=0,direction=off,frequency=off,area=54.5/1.5/51/8,grid=.1/.1,packing=simple\n"
+        "disseminate,stream=wave,param=2dfd,direction=1/to/36,frequency=1/to/29,packing=off\n"
+        "disseminate,type=fc,step=3/to/144/by/3\n"
+        "disseminate,stream=oper,type=an,param=lsm,step=0,direction=off,frequency=off,area=64/-15/43/13,"
+        "grid=.25/.25,packing=simple\n"
+        "disseminate,stream=wave,param=tmax/hmax/swh/mwd/pp1d/mwp/shww/mdww/mpww/shts/mdts/mpts/sh10\n"
+        "disseminate,type=fc,step=3/to/72/by/3\n"
+        "disseminate,step=78/to/240/by/6";
     std::vector<std::string> expected = {
-        "disseminate,stream=oper,type=an,param=172,step=0,area=54.5/1.5/51/8,grid=.1/"
-        ".1,packing=simple,class=od,date=20250506,domain=g,expver=0001,levtype=sfc,option=normal,target=NTI:HT,time="
-        "0000/1200",
+        "disseminate,stream=oper,type=an,param=172,step=0,area=54.5/1.5/51/8,grid=.1/.1,packing=simple,class=od,"
+        "date=20250506,domain=g,expver=0001,levtype=sfc,option=normal,target=NTI:HT,time=0000/1200",
         "disseminate,stream=wave,param=140251,direction=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/"
         "25/26/27/28/29/30/31/32/33/34/35/36,frequency=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/"
-        "25/26/27/28/29,area=54.5/1.5/51/8,class=od,date=20250506,domain=g,expver=0001,grid=.1/"
-        ".1,levtype=sfc,option=normal,step=0,target=NTI:HT,time=0000/1200,type=an",
+        "25/26/27/28/29,area=54.5/1.5/51/8,class=od,date=20250506,domain=g,expver=0001,grid=.1/.1,levtype=sfc,"
+        "option=normal,step=0,target=NTI:HT,time=0000/1200,type=an",
         "disseminate,type=fc,step=3/6/9/12/15/18/21/24/27/30/33/36/39/42/45/48/51/54/57/60/63/66/69/72/75/78/81/84/87/"
         "90/93/96/99/102/105/108/111/114/117/120/123/126/129/132/135/138/141/144,area=54.5/1.5/51/"
         "8,class=od,date=20250506,direction=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/"
@@ -1135,7 +1128,6 @@ CASE("test_metkit_disseminate") {
 
     expand(text, expected, false);
 }
-
 
 CASE("test_metkit_files") {
 

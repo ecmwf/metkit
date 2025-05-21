@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996- ECMWF.
+ * (C) Copyright 2025- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -18,7 +18,6 @@
 
 #include "eckit/testing/Test.h"
 
-#include "metkit/mars/ContextRule.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"

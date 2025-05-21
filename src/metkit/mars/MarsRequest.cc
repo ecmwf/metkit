@@ -328,36 +328,32 @@ void MarsRequest::getParams(std::vector<std::string>& p) const {
 size_t MarsRequest::count() const {
     size_t result = 1;
 
-    std::set<std::string> paramidsSingleLevel = ParamID::getMlParamsSingleLevel();
+    const std::set<std::string>& paramIdsSingleLevel = ParamID::getMlParamsSingleLevel();
 
     bool ml                  = false;
     size_t levels            = 1;
     size_t params            = 0;
     size_t paramsSingleLevel = 0;
 
-    for (std::list<Parameter>::const_iterator i = params_.begin(); i != params_.end(); ++i) {
-        if (i->values().size() == 1 && (i->values().at(0) == "all" || i->values().at(0) == "any")) {
+    for (const auto& p : params_) {
+        if (p.values().size() == 1 && (p.values().at(0) == "all" || p.values().at(0) == "any")) {
             return 0;
         }
-        if (i->name() == "levelist") {
-            levels = i->values().size();
+        if (p.name() == "levelist") {
+            levels = p.values().size();
         }
         else {
-            if (i->name() == "param") {
-                for (auto v : i->values()) {
-                    if (paramidsSingleLevel.find(v) != paramidsSingleLevel.end()) {
-                        paramsSingleLevel++;
-                    }
-                    else {
-                        params++;
-                    }
+            if (p.name() == "param") {
+                for (const auto& v : p.values()) {
+                    paramsSingleLevel += paramIdsSingleLevel.count(v);
                 }
+                params = p.values().size() - paramsSingleLevel;
             }
             else {
-                if (i->name() == "levtype") {
-                    ml = std::find(i->values().begin(), i->values().end(), "ml") != i->values().end();
+                if (p.name() == "levtype") {
+                    ml = std::find(p.values().begin(), p.values().end(), "ml") != p.values().end();
                 }
-                result *= (*i).count();
+                result *= p.count();
             }
         }
     }

@@ -427,9 +427,6 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             if (t != nullptr)
                 t->finalise(ctx, result, strict);
         }
-        // for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-        //     type(*k)->finalise(ctx, result, strict);
-        // }
     }
     catch (std::exception& e) {
         std::ostringstream oss;

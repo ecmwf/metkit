@@ -798,7 +798,6 @@ _field: &_field
   hdate:
     category: data
     multiple: true
-    # type: integer
     type: date
     unset:
       - context:
