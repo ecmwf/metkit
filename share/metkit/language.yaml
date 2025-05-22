@@ -1722,6 +1722,18 @@ archive:
   <<: *_field
   <<: *_observation
 
+  resol:
+    category: postproc
+    type: any
+
+  repres:
+    category: postproc
+    type: any
+
+  password:
+    aliases: [pass]
+    type: any
+
   database:
     flatten: false
     multiple: true
