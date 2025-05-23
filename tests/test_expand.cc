@@ -37,7 +37,12 @@ namespace metkit::mars::test {
 namespace {
 using ExpectedVals = std::map<std::string, std::vector<std::string>>;
 
-std::set<std::string> ignore_{"repres"};
+/**
+ * @brief We can specify a set of keys which should be ignored when not specified in the user request.
+ * In case the user requests defines them, check them regardless. This is mean to ignore auto-injected
+ * keys e.g. for resol.
+ */
+std::set<std::string> ignore_{"repres", "resol"};
 
 std::string date(long d) {
     if (d <= 0) {
@@ -117,7 +122,8 @@ void expand(const MarsRequest& r, const ExpectedRequest& expected, std::set<std:
     }
 }
 
-void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& expected, std::vector<long>& dates, std::set<std::string> ignore) {
+void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& expected, std::vector<long>& dates,
+            std::set<std::string> ignore) {
     expand(r, {verb, expected, dates}, ignore);
 }
 
@@ -1073,6 +1079,27 @@ CASE("test_metkit_expand_MARSC-246") {
         "TARGET=reference.t2APXu.data";
     expand(text, expected);
 }
+
+// https://jira.ecmwf.int/browse/MARSC-306
+CASE("test_metkit_expand_MARSC-306") {
+    const std::string text =
+        "retrieve,CLASS=OD,TYPE=PF,STREAM=EF,EXPVER=0001,REPRES=SH,LEVTYPE=SFC,PARAM=167/165/166/164/"
+        "228,DATE=20250523,TIME=0000,STEP=6/12,NUMBER=1/2,DOMAIN=G,RESOL=N128,AREA=70.5/-21.0/30.0/40.5,GRID=1.5/"
+        "1.5,target=\"target.vareps.test\",RESOL=N128";
+
+    // N128 needs to be forwarded and is therefore not manipulated
+    const std::string expected =
+        "retrieve,class=od,type=pf,stream=enfo,levtype=sfc,date=20250523,time=0000,step=6/"
+        "12,expver=0001,domain=g,number=1/2,param=167/165/166/164/228,target=target.vareps.test,grid=1.5/1.5,area=70.5/"
+        "-21/30/40.5,repres=sh,resol=N128";
+
+
+    MarsRequest r        = MarsRequest::parse(text);
+    std::string expanded = r.asString();
+
+    EXPECT_EQUAL(expanded, expected);
+}
+
 
 CASE("test_metkit_expand_0") {
     const char* text =
