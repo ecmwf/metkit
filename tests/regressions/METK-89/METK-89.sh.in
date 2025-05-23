@@ -68,11 +68,11 @@ EOF
 $parse req
 
 cat > req.porcelain <<EOF
-retrieve,class=od,type=sg,stream=sens,levtype=ml,date=20050601,time=1200,step=0,expver=0001,domain=g,diagnostic=1,iteration=0,levelist=1,param=129155,repres=sh
+retrieve,class=od,type=sg,stream=sens,levtype=ml,date=20050601,time=1200,step=0,expver=0001,domain=g,diagnostic=1,iteration=0,levelist=1,param=129155
 EOF
 
 cat > req.json <<EOF
-{"class":"od","type":"sg","stream":"sens","levtype":"ml","date":"20050601","time":"1200","step":"0","expver":"0001","domain":"g","diagnostic":"1","iteration":"0","levelist":"1","param":"129155","repres":"sh"}
+{"class":"od","type":"sg","stream":"sens","levtype":"ml","date":"20050601","time":"1200","step":"0","expver":"0001","domain":"g","diagnostic":"1","iteration":"0","levelist":"1","param":"129155"}
 EOF
 
 $parse --porcelain req | tee out

@@ -37,6 +37,8 @@ namespace metkit::mars::test {
 namespace {
 using ExpectedVals = std::map<std::string, std::vector<std::string>>;
 
+std::set<std::string> ignore_{"repres"};
+
 std::string date(long d) {
     if (d <= 0) {
         eckit::Date day(d);
@@ -76,11 +78,14 @@ struct ExpectedRequest {
 //-----------------------------------------------------------------------------
 
 
-void expand(const MarsRequest& r, const ExpectedRequest& expected) {
+void expand(const MarsRequest& r, const ExpectedRequest& expected, std::set<std::string> ignore) {
     try {
         EXPECT_EQUAL(expected.verb, r.verb());
         for (const auto& e : expected.vals) {
             if (!r.has(e.first)) {
+                if (ignore.find(e.first) != ignore.end()) {
+                    continue;
+                }
                 std::cerr << eckit::Colour::red << "Missing keyword: " << e.first << eckit::Colour::reset << std::endl;
             }
             EXPECT(r.has(e.first));
@@ -112,14 +117,22 @@ void expand(const MarsRequest& r, const ExpectedRequest& expected) {
     }
 }
 
-void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& expected, std::vector<long>& dates) {
-    expand(r, {verb, expected, dates});
+void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& expected, std::vector<long>& dates, std::set<std::string> ignore) {
+    expand(r, {verb, expected, dates}, ignore);
 }
 
 void expand(const std::string& text, const std::string& verb, const ExpectedVals& expected, std::vector<long> dates,
             bool strict = false) {
     MarsRequest r = MarsRequest::parse(text, strict);
-    expand(r, {verb, expected, dates});
+    std::set<std::string> ignore;
+    std::string tt = eckit::StringTools::lower(text);
+    for (const auto& i : ignore_) {
+        auto idx = tt.find(i);
+        if (idx == std::string::npos) {
+            ignore.insert(i);
+        }
+    }
+    expand(r, {verb, expected, dates}, ignore);
 }
 
 void parse(const std::string& req, ExpectedRequest& expected) {
@@ -170,7 +183,15 @@ void expand(const std::string& text, const std::string& expected, bool strict = 
     }
     parse(expected, out);
     MarsRequest r = MarsRequest::parse(text, strict);
-    expand(r, out);
+    std::set<std::string> ignore;
+    std::string tt = eckit::StringTools::lower(text);
+    for (const auto& i : ignore_) {
+        auto idx = tt.find(i);
+        if (idx == std::string::npos) {
+            ignore.insert(i);
+        }
+    }
+    expand(r, out, ignore);
 }
 void expand(const std::string& text, const std::vector<std::string>& expected, bool strict = false,
             std::vector<std::vector<long>> dates = {}) {
@@ -178,6 +199,15 @@ void expand(const std::string& text, const std::vector<std::string>& expected, b
 
     std::istringstream in(text);
     std::vector<MarsRequest> reqs = MarsRequest::parse(in, strict);
+
+    std::set<std::string> ignore;
+    std::string tt = eckit::StringTools::lower(text);
+    for (const auto& i : ignore_) {
+        auto idx = tt.find(i);
+        if (idx == std::string::npos) {
+            ignore.insert(i);
+        }
+    }
 
     ASSERT(dates.size() == 0 || dates.size() == expected.size());
 
@@ -192,7 +222,7 @@ void expand(const std::string& text, const std::vector<std::string>& expected, b
             }
         }
         parse(expected.at(i), expectedReq);
-        expand(reqs.at(i), expectedReq);
+        expand(reqs.at(i), expectedReq, ignore);
     }
 }
 
@@ -372,8 +402,9 @@ CASE("test_metkit_expand_multirequest-1") {
                           {"levtype", {"pl"}},  {"param", {"129"}},
                           {"step", {"0"}},      {"stream", {"oper"}},
                           {"time", {"1200"}},   {"type", {"an"}}};
-    expand(reqs.at(0), {"retrieve", expected, std::vector<long>{-5, -4, -3, -2}});
-    expand(reqs.at(1), {"retrieve", expected, std::vector<long>{-1}});
+
+    expand(reqs.at(0), {"retrieve", expected, std::vector<long>{-5, -4, -3, -2}}, ignore_);
+    expand(reqs.at(1), {"retrieve", expected, std::vector<long>{-1}}, ignore_);
 }
 
 CASE("test_metkit_expand_multirequest-2") {

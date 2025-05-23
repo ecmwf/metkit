@@ -495,47 +495,47 @@ _field: &_field
   repres:
     flatten: false
     multiple: false
-    defaults:
-      - vals: [sh]
+    # defaults:
+    #   - vals: [sh]
     type: enum
-    set:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
-        vals: [sv]
-      - context:
-          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-        vals: [bu]
-      - context:
-          stream: [ssmi]
-        vals: [bu]
-      - context:
-          levtype: [sfc]
-          class: [od]
-          stream: [oper]
-        vals: [gg]
-      - context:
-          levtype: [sfc]
-          class: [er]
-          stream: [oper]
-          type: [an, fc]
-          repres:
-            op: 'u'
-        vals: [gg]
-      - context:
-          _verb: [retrieve]
-          type: [tu]
-        vals: [ll]
+    # set:
+    #   - context:
+    #       stream:
+    #         op: '!'
+    #         vals: [ssmi]
+    #       type: [im, sim, oldim]
+    #     vals: [sv]
+    #   - context:
+    #       type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+    #     vals: [bu]
+    #   - context:
+    #       stream: [ssmi]
+    #     vals: [bu]
+    #   - context:
+    #       levtype: [sfc]
+    #       class: [od]
+    #       stream: [oper]
+    #     vals: [gg]
+    #   - context:
+    #       levtype: [sfc]
+    #       class: [er]
+    #       stream: [oper]
+    #       type: [an, fc]
+    #       repres:
+    #         op: 'u'
+    #     vals: [gg]
+    #   - context:
+    #       _verb: [retrieve]
+    #       type: [tu]
+    #     vals: [ll]
 # %if LEVTYPE = SFC %and CLASS = OD %and STREAM = OPER %and (TYPE = IA %or TYPE = AN) %and DATE < 19830420 %then
 #         %set REPRES = LL
-    unset:
-      - context:
-          class: [ep]
-          levtype: [o2d, o3d]
-      - context:
-          _verb: [read]
+    # unset:
+    #   - context:
+    #       class: [ep]
+    #       levtype: [o2d, o3d]
+    #   - context:
+    #       _verb: [read]
     values:
       - [bu, 'bufr']
       - [sh, 'spherical harmonics']
@@ -645,9 +645,6 @@ _field: &_field
     defaults:
       - vals: [pl]
     unset:
-      # - context:
-      #   - type: ssd
-      #   error: "levtype not alowded with type {type}"
       - context:
           stream:
             op: '!'
@@ -690,12 +687,6 @@ _field: &_field
       # - context:
       #     levtype: [pl]
       #   vals: [1000, 850, 700, 500, 400, 300]
-      # - context:
-      #   - levtype: [sfc, o2d]
-      #   error: "levelist not alowded with levtype {levtype}"
-      # - context:
-      #   - type: ssd
-      #   error: "levelist not alowded with type {type}"
     unset:
       - context:
           stream:
@@ -736,8 +727,6 @@ _field: &_field
           stream: [ssmi]
       - context:
           type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-    # never:
-    # - type: [tf, ob]
 
 #################################################################
 
@@ -791,9 +780,6 @@ _field: &_field
       - [10, oct, october]
       - [11, nov, november]
       - [12, dec, december]
-
-  # verify
-  # refdate
 
   hdate:
     category: data
@@ -878,8 +864,6 @@ _field: &_field
             op: '!'
             vals: [seap]
 
-  # range
-
   step:
     category: data
     multiple: true
@@ -942,7 +926,6 @@ _field: &_field
   number:
     category: data
     multiple: true
-    aliases: [ ensemble]
     type: to-by-list
     by: 1
     defaults:
@@ -970,12 +953,6 @@ _field: &_field
           stream:
             op: '!'
             vals: [mofc, wamf, mofm, wmfm]
-    # only:
-    #   - context:
-    #       type: [pf, cr, cm, fcmean, fcmin, fcmax, fcstdev, sot, fc, wp, 4i, 4v]
-    # never:
-    # # This is to prevent number with type=fc and stream=oper
-    # - stream: [oper, wave]
 
   quantile:
     category: data
@@ -1281,11 +1258,9 @@ _field: &_field
     category: data
     type: integer
 
-
   realization:
     category: data
     type: integer
-
 
   resolution:
     category: data
@@ -1547,12 +1522,12 @@ _postproc: &_postproc
     set:
       - context:
           style: [dissemination]
-        vals: av
+        vals: [av]
         warn: "Force resol=av when style=dissemination"
       - context:
           style: [dissemination]
           resol: [auto]
-        vals: av
+        vals: [av]
         warn: "Force resol=av when style=dissemination"
 
 
@@ -1653,9 +1628,9 @@ disseminate:
     category: postproc
     type: any
 
-  repres:
-    category: postproc
-    type: any
+  # repres:
+  #   category: postproc
+  #   type: any
 
   day:
     category: postproc
@@ -1726,9 +1701,9 @@ archive:
     category: postproc
     type: any
 
-  repres:
-    category: postproc
-    type: any
+  # repres:
+  #   category: postproc
+  #   type: any
 
   password:
     aliases: [pass]
@@ -1760,7 +1735,7 @@ archive:
 ##############################################################
 
 retrieve:
-  _aliases: [ret, retr]
+  _aliases: [r, ret, retr]
 
   <<: *_field
   <<: *_observation
