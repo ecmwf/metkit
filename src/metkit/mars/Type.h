@@ -26,21 +26,29 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsRequest.h"
+
 namespace metkit::mars {
 
-class MarsRequest;
 class MarsExpandContext;
 
+//----------------------------------------------------------------------------------------------------------------------
+
+/// @brief abstract class - ContextRule subclasses are used to define a context. A MarsRequest matches a context, if it
+/// matches all its ContextRules
 class ContextRule {
 public:
 
-    ContextRule(const std::string& k);
+    ContextRule(const std::string& k) : key_(k) {}
 
     virtual ~ContextRule() = default;
 
     virtual bool matches(MarsRequest req) const = 0;
 
-    friend std::ostream& operator<<(std::ostream& s, const ContextRule& x);
+    friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
+        r.print(s);
+        return s;
+    }
 
 protected:
 
@@ -51,11 +59,102 @@ private:  // methods
     virtual void print(std::ostream& out) const = 0;
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
+/// @brief A MarsRequest matches an Include ContextRule if at least one of the mars request values matches with the
+/// values associated with the Include rule
+class Include : public ContextRule {
+public:
+
+    Include(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+
+    bool matches(MarsRequest req) const override {
+        if (key_ == "_verb") {
+            return (vals_.find(req.verb()) != vals_.end());
+        }
+        if (!req.has(key_)) {
+            return false;
+        }
+        for (const std::string& v : req.values(key_)) {
+            if (vals_.find(v) != vals_.end()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:  // methods
+
+    void print(std::ostream& out) const override { out << "Include[key=" << key_ << ",vals=[" << vals_ << "]]"; }
+
+private:
+
+    std::set<std::string> vals_;
+};
+
+/// @brief A MarsRequest matches an Exclude ContextRule if none of the mars request values matches with the values
+/// associated with the Exclude rule
+class Exclude : public ContextRule {
+public:
+
+    Exclude(const std::string& k, const std::set<std::string>& vv) : ContextRule(k), vals_(vv) {}
+    bool matches(MarsRequest req) const override {
+        if (!req.has(key_)) {
+            return false;
+        }
+        for (const std::string& v : req.values(key_)) {
+            if (vals_.find(v) != vals_.end()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+private:  // methods
+
+    void print(std::ostream& out) const override { out << "Exclude[key=" << key_ << ",vals=[" << vals_ << "]]"; }
+
+private:
+
+    std::set<std::string> vals_;
+};
+
+/// @brief A MarsRequest matches an Undef ContextRule if the specified keyword is not defined in the mars request
+class Undef : public ContextRule {
+public:
+
+    Undef(const std::string& k) : ContextRule(k) {}
+    bool matches(MarsRequest req) const override { return !req.has(key_); }
+
+private:  // methods
+
+    void print(std::ostream& out) const override { out << "Undef[key=" << key_ << "]"; }
+};
+
+/// @brief A MarsRequest matches an Undef ContextRule if the specified keyword is defined in the mars request
+class Def : public ContextRule {
+public:
+
+    Def(const std::string& k) : ContextRule(k) {}
+    bool matches(MarsRequest req) const override { return req.has(key_); }
+
+private:  // methods
+
+    void print(std::ostream& out) const override { out << "Def[key=" << key_ << "]"; }
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/// @brief a Context contains a list of ContextRule. A MarsRequest matches a context, if it matches all the ContextRules
+/// associated
 class Context {
 public:
 
+    static std::unique_ptr<Context> parseContext(eckit::Value c);
+
     /// @note takes ownership of the rule
-    void add(ContextRule* rule);
+    void add(std::unique_ptr<ContextRule> rule);
 
     bool matches(MarsRequest req) const;
 
@@ -75,8 +174,9 @@ private:
 class ITypeToByList {
 public:
 
-    virtual ~ITypeToByList()                                                                        = default;
-    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values) const = 0;
+    virtual ~ITypeToByList()                                          = default;
+    virtual void expandRanges(const MarsExpandContext& ctx, const MarsRequest& request,
+                              std::vector<std::string>& values) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -88,12 +188,13 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const;
+    virtual void expand(const MarsExpandContext& ctx, const MarsRequest& request,
+                        std::vector<std::string>& values) const;
+    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const;
 
-    std::string tidy(const MarsExpandContext& ctx, const std::string& value) const;
-    std::string tidy(const std::string& value) const;
-    std::vector<std::string> tidy(const std::vector<std::string>& values) const;
+    std::string tidy(const MarsExpandContext& ctx, const MarsRequest& request, const std::string& value) const;
+    std::string tidy(const MarsRequest& request, const std::string& value) const;
+    std::vector<std::string> tidy(const MarsRequest& request, const std::vector<std::string>& values) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
@@ -132,7 +233,7 @@ protected:  // members
     std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
     std::set<std::unique_ptr<Context>> only_;
-    std::map<std::unique_ptr<Context>, std::string> sets_;
+    std::map<std::unique_ptr<Context>, std::vector<std::string>> sets_;
     std::set<std::unique_ptr<Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;

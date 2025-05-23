@@ -12,6 +12,7 @@
 #include <fstream>
 #include <list>
 #include <set>
+#include <unordered_set>
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/JSON.h"
@@ -37,13 +38,22 @@
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
-static std::vector<std::string> verbs_;
+static std::set<std::string> verbs_;
+static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
     languages_               = eckit::YAMLParser::decodeFile(metkit::mars::MarsLanguage::languageYamlFile());
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
-        verbs_.push_back(verbs[i]);
+        verbs_.insert(verbs[i]);
+        eckit::Value lang = languages_[verbs[i]];
+        if (lang.contains("_aliases")) {
+            eckit::Value aliases = lang["_aliases"];
+            ASSERT(aliases.isList());
+            for (size_t j = 0; j < aliases.size(); ++j) {
+                verbAliases_.emplace(aliases[j], verbs[i]);
+            }
+        }
     }
 }
 
@@ -183,7 +193,8 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
-    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", false);
+
+    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", true);
 
 
     for (size_t i = 0; i < values.size(); ++i) {
@@ -296,13 +307,27 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
 
 std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
     pthread_once(&once, init);
-    return bestMatch(ctx, verb, verbs_, true, true, false);
+    std::string v = eckit::StringTools::lower(verb);
+    auto vv       = verbs_.find(v);
+    if (vv != verbs_.end()) {
+        return v;
+    }
+    auto aa = verbAliases_.find(v);
+    if (aa != verbAliases_.end()) {
+        return aa->second;
+    }
+
+    std::ostringstream oss;
+    oss << "Verb " << v << " is not supported";
+    throw eckit::UserError(oss.str());
 }
 
 class TypeHidden : public Type {
-    virtual bool flatten() const { return false; }
-    virtual void print(std::ostream& out) const { out << "TypeHidden"; }
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value) const { return true; }
+    bool flatten() const override { return false; }
+    void print(std::ostream& out) const override { out << "TypeHidden"; }
+    bool expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const override {
+        return true;
+    }
 
 public:
 
@@ -328,37 +353,56 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
     MarsRequest result(verb_);
 
     try {
-        std::vector<std::string> params = r.params();
-        std::set<std::string> seen;
+        std::vector<std::pair<std::string, std::string>> sortedParams;
+        std::unordered_map<std::string, std::string> paramSet;
+        std::vector<std::string> params;
 
-        for (std::vector<std::string>::iterator j = params.begin(); j != params.end(); ++j) {
-            std::string p;
-
-
-            std::map<std::string, std::string>::iterator c = cache_.find(*j);
+        for (const auto& PP : r.params()) {
+            auto c = cache_.find(PP);
             if (c != cache_.end()) {
-                p = (*c).second;
+                paramSet.emplace((*c).second, PP);
             }
             else {
-                p = cache_[*j] = bestMatch(ctx, *j, keywords_, true, false, false, aliases_);
+                std::string p = eckit::StringTools::lower(PP);
+                paramSet.emplace(cache_[p] = bestMatch(ctx, p, keywords_, true, false, true, aliases_), PP);
             }
+        }
 
-            std::vector<std::string> values = r.values(*j);
+        {  // reorder the parameters, following the AxisOrder
+            // sort params by axisOrder
+            for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
+                auto it = paramSet.find(k);
+                if (it != paramSet.end()) {
+                    sortedParams.emplace_back(k, it->second);
+                    paramSet.erase(it);
+                }
+            }
+            for (const auto& [k, PP] : paramSet) {
+                sortedParams.emplace_back(k, PP);
+            }
+        }
+
+        for (const auto& [p, PP] : sortedParams) {
+            std::vector<std::string> values = r.values(PP);
 
             if (values.size() == 1) {
-                const std::string& s = values[0];
-                if (s == "off" || s == "OFF") {
+                const std::string& s = eckit::StringTools::lower(values[0]);
+                if (s == "off") {
                     result.unsetValues(p);
-                    type(p)->clearDefaults();
+                    type(p)->reset();
+                    continue;
+                }
+                if (s == "all" && type(p)->multiple()) {
+                    result.setValue(p, "all");
                     continue;
                 }
             }
 
-            type(p)->expand(ctx, values);
-            result.setValuesTyped(type(p), values);
-            type(p)->check(ctx, values);
+            auto t = type(p);
+            t->expand(ctx, result, values);
+            result.setValuesTyped(t, values);
+            t->check(ctx, values);
         }
-
 
         if (inherit) {
             for (const auto& [k, t] : typesByAxisOrder_) {
@@ -379,8 +423,9 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             type(*k)->pass2(ctx, result);
         }
 
-        for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->finalise(ctx, result, strict);
+        for (const auto& [k, t] : typesByAxisOrder_) {
+            if (t != nullptr)
+                t->finalise(ctx, result, strict);
         }
     }
     catch (std::exception& e) {

@@ -1,0 +1,3 @@
+retrieve,
+    area=85.000/-180.000/-60.000/180.000,class=od,date=20231003/to/20231003,expver=1,grid=0.100/0.100,levtype=sfc,padding=0,param=144.128,step=0/to/12/by/1,stream=oper,time=00/12,type=fc,dataset=mars,
+    target=reference.data 

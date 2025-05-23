@@ -61,7 +61,8 @@ void TypeToByListQuantile::print(std::ostream& out) const {
     out << "TypeToByListQuantile[name=" << name_ << "]";
 }
 
-bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::string& value) const {
+bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, const MarsRequest& /* request */,
+                                  std::string& value) const {
     Quantile q(value);
     if (denominators_.find(q.den()) == denominators_.end()) {
         std::ostringstream oss;

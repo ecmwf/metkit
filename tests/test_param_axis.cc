@@ -50,11 +50,9 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
 
     std::sort(index.begin(), index.end());
 
-
     std::cout << "Axis:" << index << std::endl;
     std::cout << "User:" << params << std::endl;
     std::cout << "Wind:" << false << std::endl;
-
 
     ParamID::normalise(ignore, params, index, windRequested, fullTableDropping);
 
