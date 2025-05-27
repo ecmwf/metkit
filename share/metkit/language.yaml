@@ -168,6 +168,7 @@ _field: &_field
     - [oai, odb analysis input]
     - [ob, observations]
     - [of, ocean forward]
+    - [ofa, odb feedback from analysis]  
     - [ofb, odb feedback]
     - [oi, oi analysis]
     - [oldim, old format images]
@@ -441,7 +442,7 @@ _field: &_field
           type: [im, sim, oldim]
         val: sv
       - context:
-          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
         val: bu
       - context:
           stream: [ssmi]
@@ -566,7 +567,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
 
   reportype:
     category: data
@@ -589,7 +590,7 @@ _field: &_field
             vals: [ssmi]
           type: [im, sim, oldim]
       - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream: [ssmi]
     flatten: false
@@ -638,7 +639,7 @@ _field: &_field
       - context:
           stream: [ssmi]
       - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           levtype: [o2d, sfc, wave, al]
       - context:
@@ -863,7 +864,7 @@ _field: &_field
       - context:
           stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
       - context:
-          type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl]
+          type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl, ofa]
       - context:
           class:
             op: '!'
@@ -1038,7 +1039,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb]
+            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
     # only:
     # - type: ssd
 
@@ -1195,7 +1196,7 @@ _observation: &_observation
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     # TODO : Migration from old images to new images
 
 #  ALL                = (NSD/SD)
@@ -1319,29 +1320,6 @@ _postproc: &_postproc
     values:
     - auto
     - [av, archived value]
-    - N16
-    - N24
-    - N32
-    - N48
-    - N64
-    - N80
-    - N96
-    - N128
-    - N160
-    - N200
-    - N256
-    - N320
-    - N400
-    - N512
-    - N576
-    - N640
-    - N800
-    - N1024
-    - N1280
-    - N1600
-    - N2000
-    - N4000
-    - N8000
     - [F16, 16]
     - [F24, 24]
     - [F32, 32]
@@ -1351,6 +1329,7 @@ _postproc: &_postproc
     - [F96, 96]
     - [F128, 128]
     - [F160, 160]
+    - [F192, 192]
     - [F200, 200]
     - [F256, 256]
     - [F320, 320]
@@ -1359,27 +1338,18 @@ _postproc: &_postproc
     - [F576, 576]
     - [F640, 640]
     - [F800, 800]
+    - [F912, 912]
     - [F1024, 1024]
     - [F1280, 1280]
     - [F1600, 1600]
     - [F2000, 2000]
+    - [F2560, 2560]
     - [F4000, 4000]
     - [F8000, 8000]
-    - H4
-    - H8
-    - H16
-    - H32
-    - H64
-    - H128
-    - H256
-    - H512
-    - H1024
-    - H2048
-    - H4096
-    - H8192
-    - H16384
     regex:
-    - '^[oOfF][1-9][0-9]+$'
+    - '^[oOfF][1-9][0-9]*$'
+    - '^[nN](32|48|64|80|96|128|160|200|256|320|400|512|640|800|1024|1280|8000)$'
+    - '^[hH][rRnN]?(2|4|8|16|32|64|128|256|512|1024|2048|4096|8192)$'
     uppercase: true
     unset:
       - context:
@@ -1387,7 +1357,7 @@ _postproc: &_postproc
       - context:
           stream: [ssmi]
       - context:
-          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream:
             op: '!'
@@ -1463,7 +1433,7 @@ _postproc: &_postproc
       - context:
           stream: [ssmi]
       - context:
-          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf]
+          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream:
             op: '!'
@@ -1529,7 +1499,7 @@ _obspproc: &_obspproc
       - context:
           type:
             op: '!'
-            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb]
+            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
 
 #######################################################################
 
@@ -1608,6 +1578,11 @@ archive:
     multiple: true
     type: any
 
+  sourcebase:
+    flatten: false
+    multiple: true
+    type: any
+
   expect:
     flatten: false
     multiple: false
@@ -1672,7 +1647,7 @@ retrieve:
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     values:
     - keep
     - remove

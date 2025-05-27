@@ -25,7 +25,8 @@ list( APPEND metkit_srcs
     mars/DHSProtocol.h
     mars/MarsExpandContext.cc
     mars/MarsExpandContext.h
-    mars/MarsExpension.cc
+    mars/MarsExpansion.cc
+    mars/MarsExpansion.h
     mars/MarsExpension.h
     mars/MarsHandle.cc
     mars/MarsHandle.h
@@ -96,7 +97,7 @@ list( APPEND metkit_srcs
     hypercube/HyperCube.cc
     hypercube/HyperCube.h
     hypercube/HyperCubePayloaded.h
-    api/metkit_c.cc 
+    api/metkit_c.cc
     api/metkit_c.h
 )
 
@@ -132,8 +133,6 @@ if ( HAVE_GRIB )
         codes/BUFRDecoder.h
         codes/GRIBDecoder.cc
         codes/GRIBDecoder.h
-        codes/LibEccodes.cc
-        codes/LibEccodes.h
         codes/CodesContent.cc
         codes/CodesContent.h
         codes/BufrContent.cc
@@ -153,7 +152,14 @@ if ( HAVE_GRIB )
         codes/GribIterator.cc
         codes/GribIterator.h
         codes/CodesHandleDeleter.h
+    )
+
+    if( NOT eccodes_HAVE_GEOGRAPHY OR NOT eccodes_HAVE_ECKIT_GEO )
+        list( APPEND metkit_srcs
+            codes/LibEccodes.cc
+            codes/LibEccodes.h
         )
+    endif()
 
     set( grib_libs eccodes )
 

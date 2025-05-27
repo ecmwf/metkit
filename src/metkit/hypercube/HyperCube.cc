@@ -44,8 +44,7 @@ AxisOrder& AxisOrder::instance() {
 class Axis {
 public:
 
-    Axis(const std::string& name, const std::vector<std::string>& values) :
-        name_(name), values_(values), type_(type(name)) {}
+    Axis(const std::string& name, const std::vector<std::string>& values) : name_(name), values_(values) {}
 
     size_t size() const { return values_.size(); }
 
@@ -68,12 +67,18 @@ public:
         return values_[index];
     }
 
+    friend std::ostream& operator<<(std::ostream& s, const Axis& a) {
+        s << "Axis[" << a.name_ << "]:";
+        for (size_t i = 0; i < a.values_.size(); ++i) {
+            s << " " << a.values_[i];
+        }
+        return s;
+    }
+
 private:
 
     std::string name_;
     std::vector<std::string> values_;
-    std::vector<bool> set_;
-    metkit::mars::Type& type_;
 };
 
 HyperCube::HyperCube(const metkit::mars::MarsRequest& request) :
@@ -153,7 +158,7 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
 
 enum requestRelation {
     EMBEDDED,
-    ADIACENT,
+    ADJACENT,
     DISJOINT
 };
 
@@ -161,89 +166,115 @@ requestRelation getRelation(const metkit::mars::MarsRequest& base, const size_t&
                             const metkit::mars::MarsRequest& additional, const size_t additionalSize) {
 
     metkit::mars::MarsRequest tmp(base);
-    tmp.merge(additional);
-    size_t sizeAfter = HyperCube(tmp).size();
+    tmp.merge(additional);  // creates the bounding box request
+
+    /// @todo: building a hypercube *JUST* to get the size? Seems like we can do better
+    size_t sizeAfter = tmp.count();
 
     if (sizeAfter == baseSize)
         return requestRelation::EMBEDDED;
 
     if (baseSize + additionalSize == sizeAfter)
-        return requestRelation::ADIACENT;
+        return requestRelation::ADJACENT;
 
     return requestRelation::DISJOINT;
 }
 
+// Returns true only if the last request was merged into an adjacent
 bool mergeLast(std::vector<std::pair<metkit::mars::MarsRequest, size_t>>& requests) {
     size_t last = requests.size() - 1;
 
-    int candidateIdx         = -1;
-    int candidateSize        = -1;
-    requestRelation relation = requestRelation::DISJOINT;
+    size_t candidateIdx  = std::numeric_limits<size_t>::max();
+    size_t candidateSize = 0;
 
-    // check id the new request is embedded or adiacent to existing requests
+    // check if the new request is embedded or adjacent to existing requests
     for (size_t j = 0; j < requests.size() - 1; j++) {
-        relation = std::min(
-            relation, getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second));
+        requestRelation relation =
+            getRelation(requests[j].first, requests[j].second, requests[last].first, requests[last].second);
         if (relation == requestRelation::EMBEDDED) {
             requests.pop_back();
             return false;
         }
-        if (relation == requestRelation::ADIACENT) {
-            // try to merge in the largest request
-            if (candidateSize == -1 || candidateSize < requests[j].second + requests[last].second) {
+        if (relation == requestRelation::ADJACENT) {
+            // We can merge the two requests
+            // Though we will only merge with the largest adjacent request, so dont merge yet.
+            size_t combinedSize = requests[j].second + requests[last].second;
+            if (candidateSize < combinedSize) {
                 candidateIdx  = j;
-                candidateSize = requests[j].second + requests[last].second;
+                candidateSize = combinedSize;
             }
         }
     }
-    if (relation == requestRelation::EMBEDDED) {
-        requests.pop_back();
-        return false;
-    }
-    if (relation == requestRelation::ADIACENT && candidateIdx != -1) {
+
+    // Merge with the largest adjacent request if one was found
+    if (candidateIdx != std::numeric_limits<size_t>::max()) {
         requests[candidateIdx].first.merge(requests[last].first);
         requests[candidateIdx].second += requests[last].second;
         requests.pop_back();
         return true;
     }
+
     return false;
 }
 
+std::vector<std::pair<mars::MarsRequest, std::size_t>> HyperCube::request(const std::set<std::size_t>& idxs) const {
 
-std::vector<std::pair<metkit::mars::MarsRequest, size_t>> HyperCube::request(std::set<size_t> idxs) const {
-    size_t min  = 1;
-    int minAxis = -1;
-    std::vector<std::map<eckit::Ordinal, std::set<size_t>>> axes(axes_.size());
+    using IndexSet = std::set<std::size_t>;
 
-    if (idxs.size() > 1) {
+    ASSERT(idxs.size() > 0);
+
+    if (idxs.size() <= 1) {
+        return {{requestOf(*idxs.begin()), 1}};
+    }
+
+    // -- helper lambdas --------------------------------------------
+
+    // Partition the cube into a set of slices along the given axis.
+    const auto sliceAlongAxis = [&](const IndexSet& set, std::size_t axis) {
+        std::map<eckit::Ordinal, IndexSet> slices;
         std::vector<eckit::Ordinal> coords(axes_.size());
-        for (size_t idx : idxs) {
+
+        for (std::size_t idx : set) {
             cube_.coordinates(idx, coords);
-            for (size_t j = 0; j < axes_.size(); j++) {
-                axes[j][coords[j]].emplace(idx);
-                if (1 < axes[j].size() && (axes[j].size() < min || min == 1)) {
-                    min     = axes[j].size();
-                    minAxis = j;
-                }
+            slices[coords[axis]].insert(idx);
+        }
+
+        return slices;
+    };
+
+    // Pick the axis which can be partitioned into the smallest number of slices (>1).
+    const auto pickBestAxis = [&](const IndexSet& set) -> std::size_t {
+        std::size_t bestAxis    = 0;
+        std::size_t bestNSlices = std::numeric_limits<std::size_t>::max();
+
+        for (std::size_t axis = 0; axis < axes_.size(); ++axis) {
+            const std::size_t nSlices = sliceAlongAxis(set, axis).size();
+            if (nSlices > 1 && nSlices < bestNSlices) {
+                bestAxis    = axis;
+                bestNSlices = nSlices;
             }
         }
-    }
-    // all requests are identical, returning just the first
-    if (min == 1)
-        return std::vector<std::pair<metkit::mars::MarsRequest, size_t>>{
-            std::make_pair<metkit::mars::MarsRequest, size_t>(requestOf(*idxs.begin()), 1)};
 
-    auto it                                                            = axes[minAxis].begin();
-    std::vector<std::pair<metkit::mars::MarsRequest, size_t>> requests = request(it->second);
-    for (; it != axes[minAxis].end(); it++) {
-        std::vector<std::pair<metkit::mars::MarsRequest, size_t>> toAdd = request(it->second);
-        for (auto r : toAdd) {
-            requests.push_back(r);
-            while (mergeLast(requests))
-                ;
-        }
+        ASSERT(bestNSlices != std::numeric_limits<std::size_t>::max());
+        return bestAxis;
+    };
+
+    // ---------------------------------------------------------------
+
+    const std::size_t axis = pickBestAxis(idxs);
+    const auto slices      = sliceAlongAxis(idxs, axis);
+
+    std::vector<std::pair<mars::MarsRequest, std::size_t>> result;
+
+    // Process each slice recursively, appending and merging on the fly.
+    for (const auto& [coord, subIdxs] : slices) {
+        auto subRequests = request(subIdxs);  // recursion
+
+        result.insert(result.end(), subRequests.begin(), subRequests.end());
+        while (mergeLast(result)) {}
     }
-    return requests;
+
+    return result;
 }
 
 std::vector<metkit::mars::MarsRequest> HyperCube::aggregatedRequests(bool remaining) const {
@@ -296,6 +327,10 @@ size_t HyperCube::fieldOrdinal(const metkit::mars::MarsRequest& r, bool noholes)
         return p;
     }
     return idx;
+}
+
+void HyperCube::print(std::ostream& s) const {
+    NOTIMP;  ///@todo
 }
 
 }  // namespace metkit::hypercube

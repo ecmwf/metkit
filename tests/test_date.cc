@@ -12,18 +12,20 @@
 /// @author Emanuele Danovaro
 /// @date   March 2025
 
+#include <string>
+#include <vector>
+
 #include "eckit/testing/Test.h"
-#include "eckit/types/Date.h"
 #include "eckit/value/Value.h"
 
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypeDate.h"
 
-using namespace eckit;
-using namespace eckit::testing;
-
 namespace metkit::mars::test {
+
+using ::eckit::BadValue;
+using ::eckit::Value;
 
 //-----------------------------------------------------------------------------
 
@@ -74,5 +76,5 @@ CASE("Test TypeDate expansions") {
 }  // namespace metkit::mars::test
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

@@ -13,19 +13,18 @@
 /// @author Emanuele Danovaro
 /// @date   November 2023
 
-#include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsParser.h"
-#include "metkit/mars/TypeFloat.h"
-#include "metkit/mars/TypesFactory.h"
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
 
-using namespace eckit::testing;
+#include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/Type.h"
+#include "metkit/mars/TypesFactory.h"
 
-namespace metkit {
-namespace mars {
-namespace test {
+namespace metkit::mars::test {
 
 //-----------------------------------------------------------------------------
 
@@ -70,12 +69,11 @@ CASE("test_metkit_expand_levelist") {
         eckit::BadValue);
 }
 
-}  // namespace test
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars::test
+
 
 //-----------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-    return run_tests(argc, argv);
+    return eckit::testing::run_tests(argc, argv);
 }

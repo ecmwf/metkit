@@ -17,7 +17,7 @@
 
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
-#include "metkit/mars/MarsExpension.h"
+#include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
@@ -243,7 +243,7 @@ CASE("test_metkit_expand_9_strict") {
     {
         std::istringstream in(text);
         MarsParser parser(in);
-        MarsExpension expand(false, false);
+        MarsExpansion expand(false, false);
         std::vector<MarsRequest> v = expand.expand(parser.parse());
 
         EXPECT_EQUAL(v.size(), 1);
@@ -251,7 +251,7 @@ CASE("test_metkit_expand_9_strict") {
     {
         std::istringstream in(text);
         MarsParser parser(in);
-        MarsExpension expand(false, true);
+        MarsExpansion expand(false, true);
         std::vector<MarsRequest> v = expand.expand(parser.parse());
 
         EXPECT_EQUAL(v.size(), 1);
@@ -283,7 +283,7 @@ CASE("test_metkit_expand_10_strict") {
     {
         std::istringstream in(text);
         MarsParser parser(in);
-        MarsExpension expand(false, false);
+        MarsExpansion expand(false, false);
         std::vector<MarsRequest> v = expand.expand(parser.parse());
 
         EXPECT_EQUAL(v.size(), 1);
