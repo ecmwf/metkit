@@ -1,0 +1,12 @@
+RETRIEVE,
+    CLASS      = E4,
+    TYPE       = CL,
+    STREAM     = MODA,
+    EXPVER     = 0001,
+    REPRES     = SH,
+    LEVTYPE    = ML,
+    LEVELIST   = 1,
+    PARAM      = 155,
+    DATE       = JAN,
+    DOMAIN     = G,
+    TARGET     = reference.data

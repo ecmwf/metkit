@@ -1,0 +1,12 @@
+retrieve,
+    class=od,
+    type=tf,
+    stream=enfo,
+    expver=0001,
+    repres=bu,
+    obstype=32,
+    date=20060112,
+    time=0000/1200,
+    domain=g,
+    duplicates=keep,
+    target=data.reference 

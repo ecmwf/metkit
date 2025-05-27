@@ -38,12 +38,7 @@ using ExpectedOutput = std::map<std::string, std::vector<std::string>>;
 
 void filter(MarsRequest& r, const MarsRequest& f, const ExpectedOutput& expected, const std::vector<long> dates) {
 
-    std::cout << r << std::endl;
-    std::cout << f << std::endl;
-
     r.filter(f);
-
-    std::cout << r << std::endl;
 
     for (const auto& e : expected) {
         if (!r.has(e.first)) {
@@ -79,7 +74,7 @@ void filter(MarsRequest& r, const MarsRequest& f, const ExpectedOutput& expected
 }
 
 void filter(const std::string& text, const std::string& filter_text, const ExpectedOutput& expected,
-            std::vector<long> dates, bool strict = false) {
+            std::vector<long> dates, bool strict = true) {
     MarsRequest r      = MarsRequest::parse(text, strict);
     std::string f_text = "filter," + filter_text;
     std::istringstream in(f_text);
@@ -89,7 +84,7 @@ void filter(const std::string& text, const std::string& filter_text, const Expec
     filter(r, f[0], expected, std::move(dates));
 }
 
-void expand(const std::string& text, const std::string& filter_text, const std::string& expected, bool strict = false,
+void expand(const std::string& text, const std::string& filter_text, const std::string& expected, bool strict = true,
             std::vector<long> dates = {}) {
     ExpectedOutput out;
     eckit::Tokenizer c(",");
