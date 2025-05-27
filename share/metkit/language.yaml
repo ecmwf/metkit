@@ -1487,38 +1487,12 @@ _postproc: &_postproc
   resol:
     category: postproc
     flatten: false
-    aliases:
-      - tra
     type: [enum, integer]
     values:
       - [av, archived value]
-      - [auto]
-      # - reduced gaussian 160
-    defaults:
-      - context:
-          style: [dissemination]
-          accuracy:
-            op: 'd'
-        vals: [av]
-      - context:
-          style: [dissemination]
-          grid:
-            op: 'd'
-        vals: [av]
-      - context:
-          accuracy:
-            op: 'd'
-        vals: [auto]
-      - context:
-          grid:
-            op: 'd'
-        vals: [auto]
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
+      - [auto, automatic resolution]
+      - [N128, reduced gaussian 128]
+      - [N200, reduced gaussian 200]
     set:
       - context:
           style: [dissemination]
