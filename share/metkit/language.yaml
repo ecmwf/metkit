@@ -1487,7 +1487,12 @@ _postproc: &_postproc
   resol:
     category: postproc
     flatten: false
-    type: any
+    type: [enum, integer]
+    values:
+      - [av, archived value]
+      - [auto, automatic resolution]
+      - [N128, reduced gaussian 128]
+      - [N200, reduced gaussian 200]
     set:
       - context:
           style: [dissemination]
