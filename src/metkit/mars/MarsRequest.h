@@ -123,6 +123,8 @@ public:  // methods
 
     std::string asString() const;
 
+    void encode(eckit::Stream&) const;
+
 public:  // static methods
 
     static MarsRequest parse(const std::string& s, bool strict = false);
@@ -139,8 +141,7 @@ private:  // members
 private:  // methods
 
     void print(std::ostream&) const;
-    void encode(eckit::Stream&) const;
-
+    
     std::list<Parameter>::const_iterator find(const std::string&) const;
     std::list<Parameter>::iterator find(const std::string&);
 
