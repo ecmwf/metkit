@@ -19,6 +19,8 @@ list( APPEND metkit_srcs
     config/LibMetkit.h
     mars/BaseProtocol.cc
     mars/BaseProtocol.h
+    mars/BufrEnvelopeSplitter.cc
+    mars/BufrEnvelopeSplitter.h
     mars/ClientTask.cc
     mars/ClientTask.h
     mars/DHSProtocol.cc
@@ -101,6 +103,9 @@ list( APPEND metkit_srcs
     hypercube/HyperCubePayloaded.h
     api/metkit_c.cc 
     api/metkit_c.h
+
+    
+    
 )
 
 list( APPEND metkit_persistent_srcs

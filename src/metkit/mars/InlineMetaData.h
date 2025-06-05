@@ -80,8 +80,6 @@ private:
     }
 };
 
-// metkit::mars::InlineMetaData:
-
 using InlineMetaData = InlineMetaDataImpl<MarsRequest>;
 
 } // namespace metkit::mars

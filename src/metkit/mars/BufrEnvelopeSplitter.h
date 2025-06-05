@@ -13,37 +13,41 @@
 
 #pragma once
 
+#include "eckit/io/Offset.h"
 #include "eckit/message/Splitter.h"
+#include "eckit/io/Length.h"
 
+#include "metkit/codes/CodesSplitter.h"
+#include "metkit/mars/InlineMetaData.h"
 
-namespace metkit {
-    
-namespace mars {
-    class BufrEnvelopeSplitter;
-} // namespace mars
-
-namespace codes {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class CodesSplitter : public eckit::message::Splitter {
+class BufrEnvelopeSplitter : public eckit::message::Splitter {
 public:
 
-    CodesSplitter(eckit::PeekHandle&);
-    ~CodesSplitter();
-
-private:  // friends
-
-    friend class metkit::mars::BufrEnvelopeSplitter;
+    BufrEnvelopeSplitter(eckit::PeekHandle&);
+    ~BufrEnvelopeSplitter();
 
 private:  // methods
 
     eckit::message::Message next() override;
     void print(std::ostream&) const override;
+
+    void consumeEnvelope();
+
+private: // members
+
+    // This splitter has state: it tracks the length of the current envelope
+    // This allows us to add checks that we have consumed the entire envelope
+    eckit::Offset envelopeEnd_ = 0;
+
+    metkit::codes::CodesSplitter codesSplitter_; // internal splitter for codes messages
+
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::mars
