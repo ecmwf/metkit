@@ -365,7 +365,6 @@ _field: &_field
     category: data
     type: any
 
-
   use:
     flatten: false
     multiple: true
@@ -378,14 +377,14 @@ _field: &_field
       - [monthly run]
       - intent
       - disk
-      - [bc, boundary conditions]
-      - monday
-      - tuesday
-      - wednesday
-      - thursday
-      - friday
-      - saturday
-      - sunday
+      # - [bc, boundary conditions]
+      # - [monday, mon]
+      # - [tuesday, tue]
+      # - [wednesday, wed]
+      # - [thursday, thu]
+      # - [friday, fri]
+      # - [saturday, sat]
+      # - [sunday, sun]
 
   # product:
   # %if LEVTYPE = DP
@@ -1618,21 +1617,21 @@ disseminate:
     multiple: true
     type: enum
     values:
-      - [frequent, f]
-      - [infrequent, i]
-      - [normal, n]
-      - compare
-      - [monthly run]
-      - intent
-      - disk
+      # - [frequent, f]
+      # - [infrequent, i]
+      # - [normal, n]
+      # - compare
+      # - [monthly run]
+      # - intent
+      # - disk
       - [bc, boundary conditions]
-      - monday
-      - tuesday
-      - wednesday
-      - thursday
-      - friday
-      - saturday
-      - sunday
+      - [monday, mon]
+      - [tuesday, tue]
+      - [wednesday, wed]
+      - [thursday, thu]
+      - [friday, fri]
+      - [saturday, sat]
+      - [sunday, sun]
 
   option:
     default: normal
