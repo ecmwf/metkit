@@ -1,0 +1,1 @@
+retrieve,area=40/-180/-40/180,class=s2,date=2024-01-11,expver=prod,levtype=pl,padding=0,param=130,step=0/to/1104/by/24,stream=enfh,time=00:00:00,type=pf,levelist=200/300/500/700/850/925/1000,number=1,origin=ecmf,hdate=2004-01-11,target=target.out

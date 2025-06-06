@@ -1,0 +1,2 @@
+retrieve,area=90.0/0.0/-90.0/359.75,class=ti,date=20231224,expver=prod,grid=0.25/0.25,levtype=pl,padding=0,param=156,step=0,time=0000/1200,type=fc,levelist=250/500/850,origin=rksl,dataset=tigge,
+    target=reference.data 
