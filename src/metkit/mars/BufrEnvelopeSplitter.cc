@@ -9,32 +9,53 @@
  */
 
 #include "metkit/mars/BufrEnvelopeSplitter.h"
+#include "metkit/config/LibMetkit.h"
 
 #include "eckit/io/Offset.h"
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/io/PeekHandle.h"
 #include "eckit/log/Log.h"
 #include "eckit/message/Message.h"
+#include "eckit/utils/Literals.h"
 
 #include "metkit/mars/InlineMetaData.h"
 
 //----------------------------------------------------------------------------------------------------------------------
 
+using namespace eckit::literals;
+
 namespace {
+
+/// @TODO: I think it would be better for eckit::stream to expose tag-checking functionality
+// but as is, the closest function s.next() always writes to stderr if no tag is found,
+// which is not acceptable.
+
+inline bool isTagStartObject(char c) {
+    return c == 1;
+}
+
+inline bool isTagStartString(char c) {
+    return c == 15;
+}
+
 
 // Check if the next object is an InlineMetaData
 bool isEnvelope(eckit::PeekHandle& ph) {
+
     eckit::Buffer buffer(32);
-    ph.peek(buffer.data(), buffer.size());
-    
-    eckit::MemoryStream s(buffer);
-    
-    if (!s.next()) {
+    size_t len = ph.peek(buffer.data(), buffer.size());
+
+    if (len < 16 || !isTagStartObject(buffer[0]) || !isTagStartString(buffer[1])) {
         return false;
     }
+
+    eckit::MemoryStream s(buffer);
+
+    s.next();
     
     std::string klsName;
     s >> klsName;
+
     return klsName == "InlineMetaData";
 }
 
@@ -44,24 +65,19 @@ bool isEnvelope(eckit::PeekHandle& ph) {
 
 namespace metkit::mars {
 
-
-// Hopefully wrapping a splitter does not mess things up...
-//@todo: It would be nice if I could give codesSplitter only the handle up to the next envelope.
-// But then again, my inability to do this is why I am doing it here.
 BufrEnvelopeSplitter::BufrEnvelopeSplitter(eckit::PeekHandle& handle) : Splitter(handle), codesSplitter_(handle) {}
 
 BufrEnvelopeSplitter::~BufrEnvelopeSplitter() {}
 
 void BufrEnvelopeSplitter::consumeEnvelope() {
 
-    /// @todo: hardcoded guess for maximum metadata request size. 1MB may be excessive.
-    eckit::Buffer buffer(1024 * 1024);  
+    /// @todo: hardcoded guess for maximum metadata request size. Sensible or too large?
+    eckit::Buffer buffer(1_MiB);  
     handle_.peek(buffer.data(), buffer.size());
 
-    // Deserialise the inline metadata
     eckit::MemoryStream ss(buffer);
     InlineMetaData metadata{ss};
-    eckit::Log::info() << "Received InlineMetaData: " << metadata << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Received InlineMetaData: " << metadata << std::endl;
 
     // Consume the envelope to advance the datahandle.
     handle_.read(buffer.data(), ss.position());

@@ -24,6 +24,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// This splitter is intended for splitting BUFR files which have an InlineMetaData header.
 class BufrEnvelopeSplitter : public eckit::message::Splitter {
 public:
 
@@ -32,6 +33,7 @@ public:
 
 private:  // methods
 
+    // Returns the next BUFR message, skipping over the InlineMetaData header if necessary.
     eckit::message::Message next() override;
     void print(std::ostream&) const override;
 
@@ -42,7 +44,6 @@ private: // members
     // This splitter has state: it tracks the length of the current envelope
     // This allows us to add checks that we have consumed the entire envelope
     eckit::Offset envelopeEnd_ = 0;
-
     metkit::codes::CodesSplitter codesSplitter_; // internal splitter for codes messages
 
 };
