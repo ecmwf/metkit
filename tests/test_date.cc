@@ -37,6 +37,14 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
     EXPECT_EQUAL(expected, values);
 }
 
+std::string date(long d) {
+    if (d <= 0) {
+        eckit::Date day(d);
+        d = day.yyyymmdd();
+    }
+    return std::to_string(d);
+}
+
 CASE("Test TypeDate expansions") {
 
     TypeDate tdate("date", Value());
@@ -52,6 +60,12 @@ CASE("Test TypeDate expansions") {
     assertTypeExpansion("date", {"20140506", "to", "20140508"}, {"20140506", "20140507", "20140508"});
     assertTypeExpansion("date", {"20140504", "20140506", "to", "20140508"},
                         {"20140504", "20140506", "20140507", "20140508"});
+
+    assertTypeExpansion("date", {"-1","0"}, {date(-1), date(0)});
+    assertTypeExpansion("date", {"-1","to","-3"}, {date(-1), date(-2), date(-3)});
+    assertTypeExpansion("date", {"-3","to","-1"}, {date(-3), date(-2), date(-1)});
+    assertTypeExpansion("date", {"-5","to","-1", "by", "2"}, {date(-5), date(-3), date(-1)});
+
     assertTypeExpansion("date", {"2"}, {"feb"});
     assertTypeExpansion("date", {"jan"}, {"jan"});
     assertTypeExpansion("date", {"september"}, {"sep"});
