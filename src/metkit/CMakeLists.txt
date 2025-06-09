@@ -58,8 +58,6 @@ list( APPEND metkit_srcs
     mars/TypeAny.cc
     mars/TypeAny.h
     mars/TypeDate.cc
-    mars/TypeDate.cc
-    mars/TypeDate.h
     mars/TypeDate.h
     mars/TypeEnum.cc
     mars/TypeEnum.h
