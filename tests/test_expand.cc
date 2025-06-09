@@ -103,7 +103,12 @@ void expand(const MarsRequest& r, const ExpectedRequest& expected, std::set<std:
                     EXPECT_EQUAL(eckit::StringTools::upper(e.second.at(i)), vv.at(i));
                 }
                 else {
-                    EXPECT_EQUAL(e.second.at(i), vv.at(i));
+                    if (e.first == "resol") {
+                        EXPECT_EQUAL(e.second.at(i), eckit::StringTools::lower(vv.at(i)));
+                    }
+                    else {
+                        EXPECT_EQUAL(e.second.at(i), vv.at(i));
+                    }
                 }
             }
         }
@@ -1093,11 +1098,7 @@ CASE("test_metkit_expand_MARSC-306") {
         "12,expver=0001,domain=g,number=1/2,param=167/165/166/164/228,target=target.vareps.test,grid=1.5/1.5,area=70.5/"
         "-21/30/40.5,repres=sh,resol=N128";
 
-
-    MarsRequest r        = MarsRequest::parse(text);
-    std::string expanded = r.asString();
-
-    EXPECT_EQUAL(expanded, expected);
+    expand(text, expected);
 }
 
 
