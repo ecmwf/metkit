@@ -1,0 +1,8 @@
+retrieve,
+    levtype=pl,
+    level=1000/500,
+    date=20250416,
+    param=t,
+    accuracy=REDUCED,
+    grid=5/5,
+    target=data.reference 
