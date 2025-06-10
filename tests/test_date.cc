@@ -61,10 +61,10 @@ CASE("Test TypeDate expansions") {
     assertTypeExpansion("date", {"20140504", "20140506", "to", "20140508"},
                         {"20140504", "20140506", "20140507", "20140508"});
 
-    assertTypeExpansion("date", {"-1","0"}, {date(-1), date(0)});
-    assertTypeExpansion("date", {"-1","to","-3"}, {date(-1), date(-2), date(-3)});
-    assertTypeExpansion("date", {"-3","to","-1"}, {date(-3), date(-2), date(-1)});
-    assertTypeExpansion("date", {"-5","to","-1", "by", "2"}, {date(-5), date(-3), date(-1)});
+    assertTypeExpansion("date", {"-1", "0"}, {date(-1), date(0)});
+    assertTypeExpansion("date", {"-1", "to", "-3"}, {date(-1), date(-2), date(-3)});
+    assertTypeExpansion("date", {"-3", "to", "-1"}, {date(-3), date(-2), date(-1)});
+    assertTypeExpansion("date", {"-5", "to", "-1", "by", "2"}, {date(-5), date(-3), date(-1)});
 
     assertTypeExpansion("date", {"2"}, {"feb"});
     assertTypeExpansion("date", {"jan"}, {"jan"});
