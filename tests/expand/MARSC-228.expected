@@ -1,0 +1,13 @@
+RETRIEVE,
+    CLASS      = OD,
+    TYPE       = OB,
+    STREAM     = OPER,
+    EXPVER     = 0001,
+    REPRES     = BU,
+    OBSTYPE    = 1,
+    DATE       = 20210501,
+    TIME       = 2101,
+    DOMAIN     = G,
+    TARGET     = reference.xoB8Cx.data,
+    DUPLICATES = KEEP,
+    RANGE      = 179

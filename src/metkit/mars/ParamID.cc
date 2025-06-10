@@ -32,6 +32,8 @@ static std::vector<size_t> dropTables_;
 
 static bool fullTableDropping_;
 
+static std::set<std::string> mlParamsSingleLevel_;
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -63,6 +65,12 @@ static void readTable() {
         ASSERT(fullTableDropping.isBool());
         fullTableDropping_ = fullTableDropping;
     }
+
+    const eckit::Value mlParamsSingleLevel = paramMatching["ml-params-single-level"];
+    ASSERT(mlParamsSingleLevel.isList());
+    for (size_t i = 0; i < mlParamsSingleLevel.size(); ++i) {
+        mlParamsSingleLevel_.insert(mlParamsSingleLevel[i]);
+    }
 }
 
 const std::vector<ParamID::WindFamily>& ParamID::getWindFamilies() {
@@ -72,6 +80,10 @@ const std::vector<ParamID::WindFamily>& ParamID::getWindFamilies() {
 const std::vector<size_t>& ParamID::getDropTables() {
     pthread_once(&once, readTable);
     return dropTables_;
+}
+const std::set<std::string>& ParamID::getMlParamsSingleLevel() {
+    pthread_once(&once, readTable);
+    return mlParamsSingleLevel_;
 }
 
 bool ParamID::fullTableDropping() {

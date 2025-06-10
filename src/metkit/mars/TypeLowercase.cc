@@ -26,7 +26,7 @@ void TypeLowercase::print(std::ostream& out) const {
     out << "TypeLowercase[name=" << name_ << "]";
 }
 
-bool TypeLowercase::expand(const MarsExpandContext& ctx, std::string& value) const {
+bool TypeLowercase::expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const {
 
     std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return std::tolower(c); });
     return true;

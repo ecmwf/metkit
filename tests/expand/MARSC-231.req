@@ -1,0 +1,3 @@
+retrieve,
+area=58./-10./35./80,class=od,date=20231231,expver=1,grid=0.1/0.1,levtype=surf,param=2t,step=0,stream=oper,time=00:00:00/12:00:00,type=fc,target=target.bbafa703-e7da-4383-8c34-d36a7cbee4f5,repres=gg,
+target="reference.vEDx0X.data"
