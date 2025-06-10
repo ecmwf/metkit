@@ -1665,7 +1665,6 @@ disseminate:
 ##############################################################
 
 archive:
-  # _aliases: [a]
 
   <<: *_field
   <<: *_observation
@@ -1798,7 +1797,7 @@ retrieve:
 ##############################################################
 
 read:
-  # _aliases: [r]
+
   source:
     flatten: false
     multiple: true
@@ -1832,7 +1831,6 @@ read:
 ##############################################################
 
 get:
-  _aliases: [g]
 
   tape:
     flatten: false
@@ -1852,7 +1850,6 @@ get:
 ##############################################################
 
 list:
-  _aliases: [l]
 
   <<: *_field
   <<: *_observation
@@ -1874,7 +1871,7 @@ list:
 ##############################################################
 
 compute:
-  _aliases: [c]
+
   formula:
     flatten: false
     multiple: false
@@ -1889,7 +1886,6 @@ compute:
 ##############################################################
 
 write:
-  _aliases: [w]
 
   fieldset:
     aliases: [field]
