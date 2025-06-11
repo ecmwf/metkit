@@ -33,19 +33,17 @@ public:  // methods
 
 protected:
 
-    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
-                        bool fail) const;
+    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values, bool fail) const;
 
 private:  // methods
 
     eckit::ValueMap expandWith_;
     bool firstRule_;
 
-    virtual void print(std::ostream& out) const override;
-    virtual void reset() override;
-    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
-    virtual void expand(const MarsExpandContext& ctx, const MarsRequest& request,
-                        std::vector<std::string>& values) const override;
+    void print(std::ostream& out) const override;
+    void reset() override;
+    void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
+    void expand(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

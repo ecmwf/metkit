@@ -28,11 +28,11 @@ public:  // methods
 
     ~TypeExpver() noexcept override = default;
 
-    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 
 private:  // methods
 
-    virtual void print(std::ostream& out) const override;
+    void print(std::ostream& out) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

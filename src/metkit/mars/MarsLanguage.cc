@@ -325,7 +325,7 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const override {
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const override {
         return true;
     }
 
@@ -399,7 +399,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
 
             auto t = type(p);
-            t->expand(ctx, result, values);
+            t->expand(ctx, values, result);
             result.setValuesTyped(t, values);
             t->check(ctx, values);
         }

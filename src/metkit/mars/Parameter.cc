@@ -24,7 +24,7 @@ class UndefinedType : public Type {
     void print(std::ostream& out) const override { out << "<undefined type>"; }
 
     bool filter(const std::vector<std::string>&, std::vector<std::string>&) const override { NOTIMP; }
-    bool expand(const MarsExpandContext&, const MarsRequest& request, std::string&) const override { NOTIMP; }
+    bool expand(const MarsExpandContext&, std::string&, const MarsRequest& request) const override { NOTIMP; }
 
 public:
 

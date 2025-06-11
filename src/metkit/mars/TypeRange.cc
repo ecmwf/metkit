@@ -72,7 +72,7 @@ StepRange TypeRange::parse(std::string& value) const {
     }
 }
 
-bool TypeRange::expand(const MarsExpandContext& /* ctx */, const MarsRequest& /* request */, std::string& value) const {
+bool TypeRange::expand(const MarsExpandContext& /* ctx */, std::string& value, const MarsRequest& /* request */) const {
 
     value = parse(value);
     return true;

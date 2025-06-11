@@ -37,14 +37,13 @@ CASE("Test TypeInteger expansion range=[1,100]") {
     settings["range"] = ValueList{1, 100};
     TypeInteger type("day", settings);
     Type& tday = type;
-    MarsRequest r;
 
     // in range
 
     for (int i = 1; i < 101; ++i) {
         auto num          = std::to_string(i);
         std::string value = num;
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, true);
         EXPECT_EQUAL(value, num);
     }
@@ -53,13 +52,13 @@ CASE("Test TypeInteger expansion range=[1,100]") {
 
     {
         std::string value = "0";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, false);
     }
 
     {
         std::string value = "101";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, false);
     }
 }
@@ -72,17 +71,16 @@ CASE("Test TypeInteger expansion range=[1,1]") {
     settings["range"] = ValueList{1, 1};
     TypeInteger type("day", settings);
     Type& tday = type;
-    MarsRequest r;
 
     {
         std::string value = "1";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, true);
     }
 
     {
         std::string value = "2";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, false);
     }
 }
@@ -95,35 +93,34 @@ CASE("Test TypeInteger day expansion range=[-1,1]") {
     settings["range"] = ValueList{-1, 1};
     TypeInteger type("day", settings);
     Type& tday = type;
-    MarsRequest r;
 
     {
         std::string value = "-2";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, false);
     }
 
     {
         std::string value = "-1";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, true);
     }
 
     {
         std::string value = "0";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, true);
     }
 
     {
         std::string value = "1";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, true);
     }
 
     {
         std::string value = "2";
-        auto ret          = tday.expand(ctx, r, value);
+        auto ret          = tday.expand(ctx, value);
         EXPECT_EQUAL(ret, false);
     }
 }
