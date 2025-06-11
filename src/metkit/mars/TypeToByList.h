@@ -40,7 +40,8 @@ public:  // methods
 
     virtual ~TypeToByList() = default;
 
-    void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request) const override {
+    void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values,
+                      const MarsRequest& request) const override {
 
         if (values.size() == 1) {
             return;
