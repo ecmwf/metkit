@@ -40,8 +40,8 @@ public:  // methods
 
     virtual ~TypeToByList() = default;
 
-    void expandRanges(const MarsExpandContext& ctx, const MarsRequest& request,
-                      std::vector<std::string>& values) const override {
+    void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values,
+                      const MarsRequest& request) const override {
 
         if (values.size() == 1) {
             return;
@@ -71,8 +71,8 @@ public:  // methods
                     throw eckit::BadValue(oss.str());
                 }
 
-                EL from = s2el(type_.tidy(ctx, request, values[i - 1]));
-                EL to   = s2el(type_.tidy(ctx, request, values[i + 1]));
+                EL from = s2el(type_.tidy(ctx, values[i - 1], request));
+                EL to   = s2el(type_.tidy(ctx, values[i + 1], request));
                 BY by   = s2by(by_);
 
                 if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
@@ -117,12 +117,12 @@ public:  // methods
                     if ((from < to && j > to) || (from > to && j < to)) {
                         break;
                     }
-                    newval.emplace_back(type_.tidy(ctx, request, el2s(j)));
+                    newval.emplace_back(type_.tidy(ctx, el2s(j), request));
                 }
                 i++;
             }
             else {
-                newval.push_back(type_.tidy(ctx, request, s));
+                newval.push_back(type_.tidy(ctx, s, request));
             }
         }
 

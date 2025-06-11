@@ -34,7 +34,7 @@ public:  // methods
 protected:
 
     bool ok(const std::string& value, long& n) const;
-    bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 
 private:  // methods
 

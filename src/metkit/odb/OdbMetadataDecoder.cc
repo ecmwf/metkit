@@ -83,7 +83,7 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
     for (auto val : vals) {
         std::string stringVal = eckit::Translator<T, std::string>()(val);
-        std::string tidyVal   = t->tidy(metkit::mars::MarsRequest{}, stringVal);
+        std::string tidyVal   = t->tidy(stringVal);
         if (stringVal == tidyVal)  // if t->tidy had no effect, set the original value
             gather_.setValue(keyword, val);
         else

@@ -539,8 +539,8 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 }
 
 
-void TypeParam::expand(const MarsExpandContext& /* ctx */, const MarsRequest& /* request */,
-                       std::vector<std::string>& /* values */) const {
+void TypeParam::expand(const MarsExpandContext& /* ctx */, std::vector<std::string>& /* values */,
+                       const MarsRequest& /* request */) const {
     // Work done on pass2()
 }
 
