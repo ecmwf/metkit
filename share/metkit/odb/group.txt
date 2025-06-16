@@ -16,6 +16,7 @@
 15  ; TMI All-sky  ; 2  ; TMI_AS  ;    ;    
 16  ; AMSRE All-sky  ; 2  ; AMSRE_AS  ;    ;    
 17  ; CONV  ; 1  ; CONV  ;    ;    
+18  ; STORM  ; 1  ; STORM  ;    ;    
 19  ; SMOS  ; 2  ; SMOS  ;    ;    
 20  ; WINDSAT All-sky  ; 2  ; WINDSAT_AS  ;    ;    
 21  ; SSMI  ; 2  ; SSMI  ;    ;    
