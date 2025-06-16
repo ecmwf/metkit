@@ -264,39 +264,39 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
 }
 
 
-std::string Type::tidy(const MarsExpandContext& ctx, const MarsRequest& request, const std::string& value) const {
+std::string Type::tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const {
     std::string result = value;
-    expand(ctx, request, result);
+    expand(ctx, result, request);
     return result;
 }
 
-std::string Type::tidy(const MarsRequest& request, const std::string& value) const {
+std::string Type::tidy(const std::string& value, const MarsRequest& request) const {
     DummyContext ctx;
-    return tidy(ctx, request, value);
+    return tidy(ctx, value, request);
 }
 
-std::vector<std::string> Type::tidy(const MarsRequest& request, const std::vector<std::string>& values) const {
+std::vector<std::string> Type::tidy(const std::vector<std::string>& values, const MarsRequest& request) const {
     DummyContext ctx;
 
     std::vector<std::string> result;
     result.reserve(values.size());
 
     std::transform(values.begin(), values.end(), std::back_inserter(result),
-                   [this, ctx, request](const std::string& s) { return this->tidy(ctx, request, s); });
+                   [this, ctx, request](const std::string& s) { return this->tidy(ctx, s, request); });
 
     return result;
 }
 
-bool Type::expand(const MarsExpandContext&, const MarsRequest& request, std::string& value) const {
+bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest& request) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
 }
 
-void Type::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values) const {
+void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request) const {
 
     if (toByList_ && values.size() > 1) {
-        toByList_->expandRanges(ctx, request, values);
+        toByList_->expandRanges(ctx, values, request);
     }
 
     std::vector<std::string> newvals;
@@ -305,7 +305,7 @@ void Type::expand(const MarsExpandContext& ctx, const MarsRequest& request, std:
 
     for (const std::string& val : values) {
         std::string value = val;
-        if (!expand(ctx, request, value)) {
+        if (!expand(ctx, value, request)) {
             std::ostringstream oss;
             oss << *this << ": cannot expand '" << val << "'" << ctx;
             throw eckit::UserError(oss.str());
