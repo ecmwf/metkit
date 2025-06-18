@@ -13,3 +13,4 @@ wind:
 # list of tables used by ParamID normalisation to limit the param-table expansion to wind, ocean and reanalysis
 drop-tables: [140,150,151,160,162,170,180,190]
 full-table-dropping: true
+ml-params-single-level: [22, 127, 128, 129, 152]

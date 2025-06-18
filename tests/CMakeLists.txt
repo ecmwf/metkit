@@ -24,16 +24,8 @@ ecbuild_get_test_multidata( TARGET metkit_get_odb_data
                             NAMES multiodb.odb
                                   multiodb2.odb )
 
-# ecbuild_add_test( TARGET        metkit_test_emosfile
-#                   ARGS          --log_level=message
-#                   CONDITION     HAVE_GRIB
-#                   INCLUDES      "${ECKIT_INCLUDE_DIRS}"
-#                   SOURCES       test_emosfile.cc
-#                   ENVIRONMENT   "${metkit_env}"
-#                   LIBS          metkit
-#                   TEST_DEPENDS  grib_get_data
-# )
-
+add_custom_target(soft_link_expand_test_data ALL
+                  COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_CURRENT_SOURCE_DIR}/expand" "${CMAKE_CURRENT_BINARY_DIR}/expand")
 
 ecbuild_add_test( TARGET        metkit_test_multihandle
                   CONDITION     HAVE_GRIB
@@ -73,6 +65,7 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
 
 foreach( test 
         c_api
+        context
         date
         expand
         filter

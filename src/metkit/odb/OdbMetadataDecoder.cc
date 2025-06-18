@@ -19,6 +19,7 @@
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 #include "metkit/odb/IdMapper.h"
 
@@ -61,8 +62,7 @@ private:  // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -122,5 +122,4 @@ void OdbMetadataDecoder::operator()(const std::string& columnName, const std::se
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes

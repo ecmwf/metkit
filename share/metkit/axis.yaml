@@ -1,6 +1,7 @@
 ---
 axes:
     - class
+    - country
     - type
     - stream
     - levtype
@@ -53,3 +54,7 @@ axes:
     - year
     - month
     - obsgroup
+    - bcmodel
+    - icmodel
+    - grib
+

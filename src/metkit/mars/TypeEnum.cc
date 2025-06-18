@@ -10,6 +10,7 @@
 
 
 #include "eckit/parser/JSONParser.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
@@ -27,6 +28,10 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["values"];
+    bool uppercase      = false;
+    if (settings.contains("uppercase")) {
+        uppercase = settings["uppercase"];
+    }
 
     if (!values.isList()) {
         values = MarsLanguage::jsonFile(values);
@@ -42,13 +47,17 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
             ASSERT(val.size() > 0);
 
             std::string first = val[0];
+            if (uppercase) {
+                first = eckit::StringTools::upper(first);
+            }
 
             for (size_t j = 0; j < val.size(); ++j) {
-                std::string v = val[j];
+                std::string VV = val[j];
+                std::string v  = eckit::StringTools::lower(VV);
                 //                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
                 if (mapping_.find(v) != mapping_.end()) {
                     std::ostringstream oss;
-                    oss << "Redefined enum '" << v << "', '" << first << "' and '" << mapping_[v] << "'";
+                    oss << "Redefined enum '" << VV << "', '" << first << "' and '" << mapping_[v] << "'";
                     throw eckit::SeriousBug(oss.str());
                 }
 
@@ -57,13 +66,17 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type
             }
         }
         else {
-            std::string v = val;
+            std::string VV = val;
+            if (uppercase) {
+                VV = eckit::StringTools::upper(VV);
+            }
+            std::string v = eckit::StringTools::lower(VV);
             if (mapping_.find(v) != mapping_.end()) {
                 std::ostringstream oss;
-                oss << "Redefined enum '" << v << "' and '" << mapping_[v] << "'";
+                oss << "Redefined enum '" << VV << "' and '" << mapping_[v] << "'";
                 throw eckit::SeriousBug(oss.str());
             }
-            mapping_[v] = v;
+            mapping_[v] = VV;
             values_.push_back(v);
         }
     }
@@ -74,21 +87,22 @@ void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value) const {
-    std::map<std::string, std::string>::iterator c = cache_.find(value);
+bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
+    std::string val                                = eckit::StringTools::lower(value);
+    std::map<std::string, std::string>::iterator c = cache_.find(val);
     if (c != cache_.end()) {
         value = (*c).second;
         return true;
     }
 
-    std::string v = MarsLanguage::bestMatch(ctx, value, values_, false, false, false, mapping_);
+    std::string v = MarsLanguage::bestMatch(ctx, val, values_, false, false, true, mapping_);
     if (v.empty()) {
         return false;
     }
 
-    std::map<std::string, std::string>::const_iterator k = mapping_.find(v);
+    std::map<std::string, std::string>::const_iterator k = mapping_.find(eckit::StringTools::lower(v));
     ASSERT(k != mapping_.end());
-    value = cache_[value] = (*k).second;
+    value = cache_[val] = (*k).second;
 
     return true;
 }

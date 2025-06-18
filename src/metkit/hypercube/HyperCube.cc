@@ -21,11 +21,6 @@
 
 namespace metkit::hypercube {
 
-static metkit::mars::Type& type(const std::string& name) {
-    static metkit::mars::MarsLanguage language("retrieve");
-    return *language.type(name);
-}
-
 AxisOrder::AxisOrder() {
     eckit::Value axis            = eckit::YAMLParser::decodeFile(axisYamlFile());
     const eckit::Value axesNames = axis["axes"];
