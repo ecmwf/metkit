@@ -101,6 +101,22 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
                 }
             }
         }
+        if (settings.contains("category") && settings["category"] == "postproc") {
+            postProcKeywords_.insert(keyword);
+            if (aliases) {
+                for (auto j = 0; j < aliases->size(); ++j) {
+                    postProcKeywords_.insert((*aliases)[j]);
+                }
+            }
+        }
+        if (settings.contains("category") && settings["category"] == "sink") {
+            sinkKeywords_.insert(keyword);
+            if (aliases) {
+                for (auto j = 0; j < aliases->size(); ++j) {
+                    sinkKeywords_.insert((*aliases)[j]);
+                }
+            }
+        }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
                 aliases_[(*aliases)[j]] = keyword;
@@ -135,6 +151,14 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
 
 bool MarsLanguage::isData(const std::string& keyword) const {
     return (dataKeywords_.find(keyword) != dataKeywords_.end());
+}
+
+bool MarsLanguage::isPostProc(const std::string& keyword) const {
+    return (postProcKeywords_.find(keyword) != postProcKeywords_.end());
+}
+
+bool MarsLanguage::isSink(const std::string& keyword) const {
+    return (sinkKeywords_.find(keyword) != sinkKeywords_.end());
 }
 
 
