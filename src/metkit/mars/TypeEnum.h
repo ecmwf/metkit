@@ -29,17 +29,20 @@ public:  // methods
 
     ~TypeEnum() noexcept override = default;
 
-
 private:  // methods
 
     void print(std::ostream& out) const override;
     void reset() override;
     bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 
-    std::map<std::string, std::string> mapping_;
+    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val, bool uppercase);
+
+private:  // members
+
+    std::map<std::string, std::vector<std::string>> mapping_;
     std::vector<std::string> values_;
 
-    mutable std::map<std::string, std::string> cache_;
+    mutable std::map<std::string, std::vector<std::string>> cache_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

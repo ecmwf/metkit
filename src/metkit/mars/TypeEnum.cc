@@ -23,63 +23,170 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val, bool uppercase) {
+
+        if (val.isMap()) { // this is a group
+            if (!val.contains("vals")) {
+                std::ostringstream oss;
+                oss << "Missing nested values in the definition of '" << name << "'";
+                throw eckit::SeriousBug(oss.str());
+            }
+            eckit::Value values = val["vals"];
+            ASSERT(values.isList());
+            std::set<std::string> outSet;
+            std::vector<std::string> out;
+            for (size_t i = 0; i < values.size(); ++i) {
+                const eckit::Value& v = values[i];
+                auto o = parseEnumValue(name, v, uppercase);
+                for (const auto& vv : o) {
+                    if (outSet.find(vv) == outSet.end()) {
+                        outSet.insert(vv);
+                        out.push_back(vv);
+                    }
+                }
+            }
+
+            // handle aliases
+            if (val.contains("alias")) {
+                eckit::Value aliases = val["alias"];
+                // if (aliases.isList()) {
+                //     for (size_t i = 0; i < aliases.size(); ++i) {
+                //         const eckit::Value& alias = aliases[i];
+                //         if (alias.isString()) {
+                //             std::string a = alias;
+                //             if (uppercase) {
+                //                 a = eckit::StringTools::upper(a);
+                //             }
+                //             if (outSet.find(a) == outSet.end()) {
+                //                 outSet.insert(a);
+                //                 out.push_back(a);
+                //             }
+                //         }
+                //     }
+                // }
+            }
+            return out;
+        }
+        else {
+            if (val.isList()) { // this is a list of aliases
+                ASSERT(val.size() > 0);
+
+                std::string first = val[0];
+                if (uppercase) {
+                    first = eckit::StringTools::upper(first);
+                }
+
+                for (size_t j = 0; j < val.size(); ++j) {
+                    std::string VV = val[j];
+                    std::string v  = eckit::StringTools::lower(VV);
+                    //                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
+                    if (mapping_.find(v) != mapping_.end()) {
+                        std::ostringstream oss;
+                        oss << "Redefined enum '" << VV << "', '" << first << "' and '" << mapping_[v] << "'";
+                        throw eckit::SeriousBug(oss.str());
+                    }
+
+                    mapping_[v] = first;
+                    values_.push_back(v);
+                }
+            }
+            else {
+                std::string VV = val;
+                if (uppercase) {
+                    VV = eckit::StringTools::upper(VV);
+                }
+                std::string v = eckit::StringTools::lower(VV);
+                if (mapping_.find(v) != mapping_.end()) {
+                    std::ostringstream oss;
+                    oss << "Redefined enum '" << VV << "' and '" << mapping_[v] << "'";
+                    throw eckit::SeriousBug(oss.str());
+                }
+                mapping_[v] = VV;
+                values_.push_back(v);
+            }
+        }
+
+
+}
+
 TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
     eckit::Value values = settings["values"];
-    bool uppercase      = false;
-    if (settings.contains("uppercase")) {
-        uppercase = settings["uppercase"];
-    }
+    bool uppercase      = settings.contains("uppercase") ? settings["uppercase"] : false;
 
     if (!values.isList()) {
         values = MarsLanguage::jsonFile(values);
         ASSERT(values.isList());
     }
+    std::map<std::string, std::set<std::string>> map2set;
 
     for (size_t i = 0; i < values.size(); ++i) {
-        const eckit::Value& val = values[i];
-
-        // LOG_DEBUG_LIB(LibMetkit) << "val : " << val << std::endl;
-
-        if (val.isList()) {
-            ASSERT(val.size() > 0);
-
-            std::string first = val[0];
-            if (uppercase) {
-                first = eckit::StringTools::upper(first);
-            }
-
-            for (size_t j = 0; j < val.size(); ++j) {
-                std::string VV = val[j];
-                std::string v  = eckit::StringTools::lower(VV);
-                //                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
-                if (mapping_.find(v) != mapping_.end()) {
-                    std::ostringstream oss;
-                    oss << "Redefined enum '" << VV << "', '" << first << "' and '" << mapping_[v] << "'";
-                    throw eckit::SeriousBug(oss.str());
-                }
-
-                mapping_[v] = first;
-                values_.push_back(v);
-            }
-        }
-        else {
-            std::string VV = val;
-            if (uppercase) {
-                VV = eckit::StringTools::upper(VV);
-            }
-            std::string v = eckit::StringTools::lower(VV);
-            if (mapping_.find(v) != mapping_.end()) {
-                std::ostringstream oss;
-                oss << "Redefined enum '" << VV << "' and '" << mapping_[v] << "'";
-                throw eckit::SeriousBug(oss.str());
-            }
-            mapping_[v] = VV;
-            values_.push_back(v);
-        }
+        parseEnumValue(name, values[i], uppercase);
     }
+
+    //     const eckit::Value& val = values[i];
+
+    //     // LOG_DEBUG_LIB(LibMetkit) << "val : " << val << std::endl;
+
+    //     if (val.isMap()) { // this is a group
+    //         if (!val.contains("vals")) {
+    //             std::ostringstream oss;
+    //             oss << "Missing nested values in the definition of '" << name << "', '" << first << "' and '" << mapping_[v] << "'";
+    //             throw eckit::SeriousBug(oss.str());
+
+
+    //         }
+    //         eckit::Value values = val["vals"]; 
+
+    //     }
+    //     else {
+    //         if (val.isList()) { // this is a list of aliases
+
+
+    //         } else { 
+
+    //         }
+    //     }
+
+    //     if (val.isList()) {
+    //         ASSERT(val.size() > 0);
+
+    //         std::string first = val[0];
+    //         if (uppercase) {
+    //             first = eckit::StringTools::upper(first);
+    //         }
+
+    //         for (size_t j = 0; j < val.size(); ++j) {
+    //             std::string VV = val[j];
+    //             std::string v  = eckit::StringTools::lower(VV);
+    //             //                LOG_DEBUG_LIB(LibMetkit) << "v[" << j << "] : " << v << std::endl;
+    //             if (mapping_.find(v) != mapping_.end()) {
+    //                 std::ostringstream oss;
+    //                 oss << "Redefined enum '" << VV << "', '" << first << "' and '" << mapping_[v] << "'";
+    //                 throw eckit::SeriousBug(oss.str());
+    //             }
+
+    //             mapping_[v] = first;
+    //             values_.push_back(v);
+    //         }
+    //     }
+    //     else {
+    //         std::string VV = val;
+    //         if (uppercase) {
+    //             VV = eckit::StringTools::upper(VV);
+    //         }
+    //         std::string v = eckit::StringTools::lower(VV);
+    //         if (mapping_.find(v) != mapping_.end()) {
+    //             std::ostringstream oss;
+    //             oss << "Redefined enum '" << VV << "' and '" << mapping_[v] << "'";
+    //             throw eckit::SeriousBug(oss.str());
+    //         }
+    //         mapping_[v] = VV;
+    //         values_.push_back(v);
+    //     }
+    // }
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " mapping " << mapping_ << std::endl;
 }
 
