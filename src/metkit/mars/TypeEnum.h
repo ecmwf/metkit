@@ -32,9 +32,9 @@ public:  // methods
 
 private:  // methods
 
-    virtual void print(std::ostream& out) const override;
-    virtual void reset() override;
-    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::string& value) const override;
+    void print(std::ostream& out) const override;
+    void reset() override;
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 
     std::map<std::string, std::string> mapping_;
     std::vector<std::string> values_;

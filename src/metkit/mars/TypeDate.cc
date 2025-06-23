@@ -127,11 +127,11 @@ TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type
 
 void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
-    Type::expand(ctx, request, values);
+    Type::expand(ctx, values, request);
     request.setValuesTyped(this, values);
 }
 
-bool TypeDate::expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const {
+bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
     if (!value.empty()) {
         eckit::Translator<std::string, long> s2l;
         eckit::Translator<long, std::string> l2s;

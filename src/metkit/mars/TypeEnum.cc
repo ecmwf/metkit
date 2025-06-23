@@ -87,7 +87,7 @@ void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(const MarsExpandContext& ctx, const MarsRequest& /* request */, std::string& value) const {
+bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
     std::string val                                = eckit::StringTools::lower(value);
     std::map<std::string, std::string>::iterator c = cache_.find(val);
     if (c != cache_.end()) {
