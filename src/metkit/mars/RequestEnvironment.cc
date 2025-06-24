@@ -9,53 +9,75 @@
  */
 
 #include <pwd.h>
-#include <sys/types.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstring>
+#include <map>
+#include <mutex>
+#include <sstream>
+#include <string>
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Main.h"
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
 
 #include "metkit/mars/RequestEnvironment.h"
 
+namespace {
+struct PwDbScope {
+    PwDbScope() { setpwent(); }
+    ~PwDbScope() { endpwent(); }
+};
 
-namespace metkit {
-namespace mars {
+std::string user() {
+    // TODO(kkratz): This is not a great solution because there still could be concurrent access
+    // to the pwdb. This stuff needs to move to eckit so that all calls to this are properly locked.
+    static std::mutex mtx{};
+    std::lock_guard lck{mtx};
+    PwDbScope scope{};
 
-static eckit::Mutex local_mutex;
+    const auto uid = getuid();
+    errno          = 0;
+    do {
+        const auto pw = getpwuid(uid);
+        if (pw != nullptr) {
+            return pw->pw_name;
+        }
+    } while (errno == EINTR);
+    const auto error = errno;
+    std::stringstream buf{};
+    if (error == 0) {
+        buf << "No user found for current uid " << uid << "!";
+    }
+    else {
+        buf << "Error reading user name: " << strerror(error) << "!";
+    }
+    throw eckit::SeriousBug(buf.str());
+}
+
+}  // namespace
+
+namespace metkit::mars {
 
 RequestEnvironment::RequestEnvironment() : request_("environ") {
-    std::string host = eckit::Main::hostname();
-    request_.setValue("host", host);
-
-    struct passwd* pw;
-    setpwent();
-
-    if ((pw = getpwuid(getuid())) == NULL) {
-        throw eckit::SeriousBug("Cannot establish current user");
-    }
-
-    request_.setValue("user", std::string(pw->pw_name));
-
-    endpwent();
-
-
-    request_.setValue("pid", long(::getpid()));
+    request_.setValue("host", eckit::Main::hostname());
+    request_.setValue("user", user());
+    request_.setValue("pid", getpid());
     request_.setValue("client", "cpp");
 }
 
-RequestEnvironment::~RequestEnvironment() {}
-
-
-void RequestEnvironment::print(std::ostream&) const {}
-
-RequestEnvironment& RequestEnvironment::instance() {
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    {
-        static RequestEnvironment e;
-        return e;
+void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
+    for (const auto& [k, v] : env) {
+        request_.setValue(k, v);
     }
 }
 
-}  // namespace mars
-}  // namespace metkit
+RequestEnvironment RequestEnvironment::make() {
+    static RequestEnvironment e;
+    return e;
+}
+
+RequestEnvironment RequestEnvironment::instance() {
+    return make();
+}
+
+}  // namespace metkit::mars
