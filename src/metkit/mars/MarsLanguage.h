@@ -55,6 +55,10 @@ public:  // methods
 
     bool isData(const std::string& keyword) const;
 
+    bool isPostProc(const std::string& keyword) const;
+
+    bool isSink(const std::string& keyword) const;
+
 public:  // class methods
 
     static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
@@ -76,6 +80,8 @@ private:  // members
     std::string verb_;
     std::map<std::string, Type*> types_;
     std::set<std::string> dataKeywords_;
+    std::set<std::string> sinkKeywords_;
+    std::set<std::string> postProcKeywords_;
     std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
     std::vector<std::string> keywords_;
 
