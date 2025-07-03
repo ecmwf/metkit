@@ -24,19 +24,18 @@ namespace mars {
 
 TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-bool TypeExpver::expand(const MarsExpandContext&, std::string& value, const MarsRequest& /* request */) const {
+std::vector<std::string> TypeExpver::expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const {
 
     std::string v = eckit::StringTools::lower(eckit::StringTools::trim(value));
 
     if (v == "all" || v == "any") {
-        value = v;
+        return {v};
     }
     else {
         std::ostringstream oss;
         oss << std::setfill('0') << std::setw(4) << eckit::StringTools::trim(value);
-        value = oss.str();
+        return {oss.str()};
     }
-    return true;
 }
 
 void TypeExpver::print(std::ostream& out) const {

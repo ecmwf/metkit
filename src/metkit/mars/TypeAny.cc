@@ -24,9 +24,8 @@ void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name_ << "]";
 }
 
-bool TypeAny::expand(const MarsExpandContext& /* ctx */, std::string& /* value */,
-                     const MarsRequest& /* request */) const {
-    return true;
+std::vector<std::string> TypeAny::expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const {
+    return {value};
 }
 
 

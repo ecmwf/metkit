@@ -22,9 +22,10 @@ namespace metkit::mars {
 
 TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
+std::vector<std::string> TypeFloat::expand(const MarsExpandContext&, const std::string& v, const MarsRequest&) const {
 
     bool dot = false;
+    std::string value{v};
 
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
@@ -40,14 +41,11 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const M
             case '9':
             case '-':
                 break;
-
             case '.':
                 dot = true;
                 break;
-
-
             default:
-                return false;
+                return {};
                 break;
         }
     }
@@ -62,20 +60,15 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const M
         while (value.size() && value[value.size() - 1] == '0') {
             value = value.substr(0, value.size() - 1);
         }
-
         if (value.size() && value[value.size() - 1] == '.') {
             value = value.substr(0, value.size() - 1);
         }
     }
 
     if (value.empty()) {
-        value = "0";
+        return {"0"};
     }
-
-    // static eckit::Translator<std::string, double> s2d;
-    // static eckit::Translator<double, std::string> d2s;
-    // value = d2s(s2d(value));
-    return true;
+    return {value};
 }
 
 void TypeFloat::print(std::ostream& out) const {

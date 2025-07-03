@@ -33,9 +33,9 @@ public:  // methods
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
+    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const override;
 
-    StepRange parse(std::string& value) const;
+    StepRange parse(const std::string& value) const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

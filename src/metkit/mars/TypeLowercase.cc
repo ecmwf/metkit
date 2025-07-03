@@ -8,6 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/mars/TypeLowercase.h"
 #include "metkit/mars/TypesFactory.h"
@@ -26,10 +27,8 @@ void TypeLowercase::print(std::ostream& out) const {
     out << "TypeLowercase[name=" << name_ << "]";
 }
 
-bool TypeLowercase::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
-
-    std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return std::tolower(c); });
-    return true;
+std::vector<std::string> TypeLowercase::expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const {
+    return {eckit::StringTools::lower(value)};
 }
 
 

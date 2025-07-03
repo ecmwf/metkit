@@ -131,7 +131,7 @@ void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
+std::vector<std::string> TypeDate::expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& /* request */) const {
     if (!value.empty()) {
         eckit::Translator<std::string, long> s2l;
         eckit::Translator<long, std::string> l2s;
@@ -139,7 +139,7 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value, const Ma
             long n = s2l(value);
             if (n <= 0) {
                 eckit::Date now(n);
-                value = l2s(now.yyyymmdd());
+                return {l2s(now.yyyymmdd())};
             }
         }
         else {
@@ -149,29 +149,27 @@ bool TypeDate::expand(const MarsExpandContext& ctx, std::string& value, const Ma
             if (tokens.size() == 2) {                                      // month-day (i.e. TypeClimateDaily)
                 if (std::isdigit(tokens[0][0]) && tokens[0].size() > 2) {  // year-dayOfYear (e.g. 2018-23 ==> 20180123)
                     eckit::Date d(s2l(tokens[0]), s2l(tokens[1]));
-                    value = l2s(d.yyyymmdd());
+                    return {l2s(d.yyyymmdd())};
                 }
                 else {  // month-day (i.e. TypeClimateDaily)
-
                     std::string m = month(tokens[0]);
                     long d        = s2l(tokens[1]);
-
-                    value = m + "-" + l2s(d);
+                    return {m + "-" + l2s(d)};
                 }
             }
             else {
                 if (tokens.size() == 1 &&
                     (!std::isdigit(value[0]) || value.size() <= 2)) {  // month (i.e. TypeClimateMonthly)
-                    value = month(tokens[0]);
+                    return {month(tokens[0])};
                 }
                 else {
                     eckit::Date date(value);
-                    value = l2s(date.yyyymmdd());
+                    return {l2s(date.yyyymmdd())};
                 }
             }
         }
     }
-    return true;
+    return {};
 }
 
 void TypeDate::print(std::ostream& out) const {

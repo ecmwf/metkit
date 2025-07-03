@@ -190,10 +190,10 @@ public:  // methods
 
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values,
                         const MarsRequest& request = {}) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
+    virtual std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
 
-    std::string tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
-    std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
+    std::vector<std::string> tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
+    std::vector<std::string> tidy(const std::string& value, const MarsRequest& request = {}) const;
     std::vector<std::string> tidy(const std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
     virtual void setDefaults(MarsRequest& request);

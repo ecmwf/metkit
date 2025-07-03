@@ -61,15 +61,15 @@ void TypeToByListQuantile::print(std::ostream& out) const {
     out << "TypeToByListQuantile[name=" << name_ << "]";
 }
 
-bool TypeToByListQuantile::expand(const MarsExpandContext& ctx, std::string& value,
-                                  const MarsRequest& /* request */) const {
+std::vector<std::string> TypeToByListQuantile::expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest&) const {
+
     Quantile q(value);
     if (denominators_.find(q.den()) == denominators_.end()) {
         std::ostringstream oss;
         oss << name_ << ": " << q.den() << "-quantile not supported.";
         throw eckit::BadValue(oss.str());
     }
-    return true;
+    return std::vector<std::string>{q};
 }
 
 static TypeBuilder<TypeToByListQuantile> type("to-by-list-quantile");

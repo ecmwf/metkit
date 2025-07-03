@@ -108,7 +108,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
-                aliases_[(*aliases)[j]] = keyword;
+                aliases_[(*aliases)[j]] = {keyword};
                 keywords_.push_back((*aliases)[j]);
             }
         }
@@ -187,9 +187,9 @@ static bool isnumeric(const std::string& s) {
     return s.length() > 0;
 }
 
-std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
+std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
                                     const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                    const std::map<std::string, std::string>& aliases) {
+                                    const StringManyMap& aliases) {
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
@@ -216,7 +216,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             if (aliases.find(value) != aliases.end()) {
                 return aliases.find(value)->second;
             }
-            return value;
+            return {value};
         }
 
         if (s >= score) {
@@ -248,14 +248,14 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             if (aliases.find(best[0]) != aliases.end()) {
                 return aliases.find(best[0])->second;
             }
-            return best[0];
+            return {best[0]};
         }
     }
 
     static std::string empty;
     if (best.empty()) {
         if (!fail) {
-            return empty;
+            return {empty};
         }
 
         std::ostringstream oss;
@@ -263,11 +263,11 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         throw eckit::UserError(oss.str());
     }
 
-    std::set<std::string> names;
+    std::set<std::vector<std::string>> names;
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
-        std::map<std::string, std::string>::const_iterator k = aliases.find(*j);
+        const auto k = aliases.find(*j);
         if (k == aliases.end()) {
-            names.insert(*j);
+            names.insert({*j});
         }
         else {
             names.insert((*k).second);
@@ -278,18 +278,18 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         if (aliases.find(best[0]) != aliases.end()) {
             return aliases.find(best[0])->second;
         }
-        return best[0];
+        return {best[0]};
     }
 
     if (!fail) {
-        return empty;
+        return {empty};
     }
 
     std::ostringstream oss;
     oss << "Ambiguous value '" << name << "' could be";
 
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
-        std::map<std::string, std::string>::const_iterator k = aliases.find(*j);
+        std::map<std::string, std::vector<std::string>>::const_iterator k = aliases.find(*j);
         if (k == aliases.end()) {
             oss << " '" << *j << "'";
         }
@@ -325,8 +325,8 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const override {
-        return true;
+    std::vector<std::string> expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const override{
+        return {value};
     }
 
 public:
@@ -364,7 +364,9 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(ctx, p, keywords_, true, false, true, aliases_), PP);
+                auto vals = bestMatch(ctx, p, keywords_, true, false, true, aliases_);
+                ASSERT(vals.size() == 1);
+                paramSet.emplace(cache_[p] = vals[0], PP);
             }
         }
 

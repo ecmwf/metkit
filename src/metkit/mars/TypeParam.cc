@@ -319,12 +319,16 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
 
     ChainedContext c(ctx, *this);
 
-    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
-    if (!paramid.empty()) {
-        return paramid;
+    auto paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
+    ASSERT(paramid.size() <= 1);
+
+    if (paramid.size() == 1 && !paramid[0].empty()) {
+        return paramid[0];
     }
 
-    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
+    paramid = metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
+    ASSERT(paramid.size() == 1);
+    return paramid[0];
 }
 
 static std::vector<Rule>* rules = nullptr;
@@ -455,15 +459,15 @@ void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-
-bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
-                       bool fail) const {
+void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
     pthread_once(&once, init);
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-
+    
+    bool fail = true;
     const Rule* rule = 0;
+    std::vector<std::string> values = request.values(name_, true);
 
+    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
     for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
         if ((*j).match(request)) {
             rule = &(*j);
@@ -472,9 +476,7 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
     }
 
     if (!rule) {
-
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
-        ;
 
         if (firstRule_) {
             bool found = false;
@@ -528,13 +530,6 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
         }
     }
 
-    return true;
-}
-
-
-void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
-    std::vector<std::string> values = request.values(name_, true);
-    expand(ctx, request, values, true);
     request.setValuesTyped(this, values);
 }
 

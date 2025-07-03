@@ -34,6 +34,7 @@ class MarsExpandContext;
 class MarsLanguage : private eckit::NonCopyable {
 
     typedef std::map<std::string, std::string> StringMap;
+    typedef std::map<std::string, std::vector<std::string>> StringManyMap;
 
 public:  // methods
 
@@ -59,9 +60,9 @@ public:  // class methods
 
     static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
 
-    static std::string bestMatch(const MarsExpandContext& ctx, const std::string& what,
+    static std::vector<std::string> bestMatch(const MarsExpandContext& ctx, const std::string& what,
                                  const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                 const StringMap& aliases = StringMap());
+                                 const StringManyMap& aliases = {});
 
     static eckit::Value jsonFile(const std::string& name);
 
@@ -79,7 +80,7 @@ private:  // members
     std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
     std::vector<std::string> keywords_;
 
-    StringMap aliases_;
+    StringManyMap aliases_;
 
     mutable StringMap cache_;
 };

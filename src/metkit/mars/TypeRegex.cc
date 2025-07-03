@@ -39,20 +39,18 @@ TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Ty
     }
 }
 
-bool TypeRegex::expand(const MarsExpandContext& /* ctx */, std::string& value, const MarsRequest& /* request */) const {
+std::vector<std::string> TypeRegex::expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const {
+    
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
-
         if ((*j).match(value)) {
-
             if (uppercase_) {
-                value = eckit::StringTools::upper(value);
+                return {eckit::StringTools::upper(value)};
             }
-
-            return true;
+            return {value};
         }
     }
 
-    return false;
+    return {};
 }
 
 
