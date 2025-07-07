@@ -166,7 +166,6 @@ void CodesContent::getFloatArray(const std::string& key, float* data, size_t len
 }
 
 
-
 //----------------------------------------------------------------------------------------------------------------------
 
 eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict& dict) const {
