@@ -1153,6 +1153,10 @@ _field: &_field
   origin:
     category: data
     multiple: true
+    defaults:
+      - context:
+          class: [ti, s2]
+        vals: [ecmf]
     type: enum
     values:
       - [aladinhuneps-omsz-eu]
@@ -1828,6 +1832,38 @@ read:
       #   stream: oper
       #   levtype: pl
       first_rule: true
+##############################################################
+
+
+flush:
+
+  <<: *_field
+  <<: *_observation
+  <<: *_postproc
+  <<: *_obspproc
+
+  password:
+    aliases: [pass]
+    type: any
+
+  wait:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [true, yes, y, on, 1]
+      - [false, no, n, off, 0]
+
+  decache:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [true, yes, y, on, 1]
+      - [false, no, n, off, 0]
+
+  _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
+
 ##############################################################
 
 get:
