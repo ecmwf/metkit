@@ -12,7 +12,6 @@
 #include <fstream>
 #include <list>
 #include <set>
-#include <unordered_set>
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/JSON.h"
@@ -354,7 +353,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 
     try {
         std::vector<std::pair<std::string, std::string>> sortedParams;
-        std::unordered_map<std::string, std::string> paramSet;
+        std::map<std::string, std::string> paramSet;
         std::vector<std::string> params;
 
         for (const auto& PP : r.params()) {
