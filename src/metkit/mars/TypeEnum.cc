@@ -23,9 +23,10 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val, std::set<std::string>& values, bool uppercase, bool allowDuplicates) {
+std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val,
+                                                  std::set<std::string>& values, bool uppercase, bool allowDuplicates) {
 
-    if(val.isMap()) {
+    if (val.isMap()) {
         deduplicate_ = true;
 
         std::vector<std::string> out;
@@ -53,8 +54,8 @@ std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const
         ASSERT(val.contains("group"));
         eckit::Value group = val["group"];
         ASSERT(group.isList());
-        for(size_t i = 0; i < group.size(); ++i) {
-            const eckit::Value& v = group[i];
+        for (size_t i = 0; i < group.size(); ++i) {
+            const eckit::Value& v              = group[i];
             std::vector<std::string> groupVals = parseEnumValue(firstName, v, values, uppercase, true);
             for (const auto& v : groupVals) {
                 if (outSet.find(v) == outSet.end()) {
@@ -69,7 +70,7 @@ std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const
         return out;
     }
 
-    if (val.isList()) { // this is a list of aliases
+    if (val.isList()) {  // this is a list of aliases
         ASSERT(val.size() > 0);
 
         std::string first = val[0];
@@ -144,9 +145,10 @@ void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-std::vector<std::string> TypeEnum::expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest&) const {
+std::vector<std::string> TypeEnum::expand(const MarsExpandContext& ctx, const std::string& value,
+                                          const MarsRequest&) const {
     std::string val = eckit::StringTools::lower(value);
-    auto c = cache_.find(val);
+    auto c          = cache_.find(val);
     if (c != cache_.end()) {
         return {(*c).second};
     }

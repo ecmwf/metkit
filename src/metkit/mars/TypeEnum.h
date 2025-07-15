@@ -33,9 +33,12 @@ private:  // methods
 
     void print(std::ostream& out) const override;
     void reset() override;
-    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const override;
+    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
+                                    const MarsRequest& request) const override;
 
-    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val, std::set<std::string>& values, bool uppercase, bool allowDuplicates = false);
+    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val,
+                                            std::set<std::string>& values, bool uppercase,
+                                            bool allowDuplicates = false);
 
 private:  // members
 

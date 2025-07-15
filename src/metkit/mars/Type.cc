@@ -263,7 +263,8 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
     return s;
 }
 
-std::vector<std::string> Type::tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const {
+std::vector<std::string> Type::tidy(const MarsExpandContext& ctx, const std::string& value,
+                                    const MarsRequest& request) const {
     return expand(ctx, value, request);
 }
 
@@ -276,14 +277,15 @@ std::vector<std::string> Type::tidy(const std::vector<std::string>& values, cons
     DummyContext ctx;
 
     std::vector<std::string> result;
-    for(auto& v : values) {
+    for (auto& v : values) {
         auto expanded = expand(ctx, v, request);
         result.insert(result.end(), expanded.begin(), expanded.end());
     }
     return result;
 }
 
-std::vector<std::string> Type::expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const {
+std::vector<std::string> Type::expand(const MarsExpandContext& ctx, const std::string& value,
+                                      const MarsRequest& request) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
@@ -313,12 +315,14 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
                         oss << *this << ": duplicated value '" << v << "'" << ctx;
                         throw eckit::UserError(oss.str());
                     }
-                } else {
+                }
+                else {
                     seen.insert(v);
                     newvals.push_back(v);
                 }
             }
-        } else {
+        }
+        else {
             newvals.insert(newvals.end(), vv.begin(), vv.end());
         }
     }

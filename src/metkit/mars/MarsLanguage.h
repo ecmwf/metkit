@@ -58,8 +58,8 @@ public:  // class methods
     static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
 
     static std::vector<std::string> bestMatch(const MarsExpandContext& ctx, const std::string& what,
-                                 const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                 const StringManyMap& aliases = {});
+                                              const std::vector<std::string>& values, bool fail, bool quiet,
+                                              bool fullMatch, const StringManyMap& aliases = {});
 
     static eckit::Value jsonFile(const std::string& name);
 

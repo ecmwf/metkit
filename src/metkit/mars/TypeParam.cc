@@ -461,9 +461,9 @@ void TypeParam::print(std::ostream& out) const {
 void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
     pthread_once(&once, init);
-    
-    bool fail = true;
-    const Rule* rule = 0;
+
+    bool fail                       = true;
+    const Rule* rule                = 0;
     std::vector<std::string> values = request.values(name_, true);
 
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
@@ -534,7 +534,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
 
 std::vector<std::string> TypeParam::expand(const MarsExpandContext& /* ctx */, const std::string& value,
-                       const MarsRequest& /* request */) const {
+                                           const MarsRequest& /* request */) const {
     // Work done on pass2()
     return {value};
 }

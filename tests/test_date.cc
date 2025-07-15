@@ -86,12 +86,8 @@ CASE("Test TypeDate expansions") {
     {
         EXPECT_THROWS(auto vv = td.expand(ctx, "202401366"));  // throws BadDate that is not exported
     }
-    {
-        EXPECT_THROWS_AS(auto vv = td.expand(ctx, "abc"), BadValue);
-    }
-    {
-        EXPECT_THROWS_AS(auto vv = td.expand(ctx, "abc-01"), BadValue);
-    }
+    { EXPECT_THROWS_AS(auto vv = td.expand(ctx, "abc"), BadValue); }
+    { EXPECT_THROWS_AS(auto vv = td.expand(ctx, "abc-01"), BadValue); }
 }
 
 

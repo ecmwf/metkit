@@ -82,8 +82,8 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
     ASSERT(options_.valueRepresentation == eckit::message::ValueRepresentation::String);
 
     for (auto val : vals) {
-        std::string stringVal = eckit::Translator<T, std::string>()(val);
-        std::vector<std::string> tidyVal   = t->tidy(stringVal);
+        std::string stringVal            = eckit::Translator<T, std::string>()(val);
+        std::vector<std::string> tidyVal = t->tidy(stringVal);
         if (tidyVal.size() == 1 && stringVal == tidyVal[0])  // if t->tidy had no effect, set the original value
             gather_.setValue(keyword, val);
         else

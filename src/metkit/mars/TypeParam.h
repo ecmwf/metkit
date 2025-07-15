@@ -31,10 +31,10 @@ public:  // methods
 
     ~TypeParam() noexcept override = default;
 
-// protected:
+    // protected:
 
-//     bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
-//                         bool fail) const;
+    //     bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
+    //                         bool fail) const;
 
 private:  // methods
 
@@ -44,7 +44,8 @@ private:  // methods
     void print(std::ostream& out) const override;
     void reset() override;
     void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
-    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const override;
+    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
+                                    const MarsRequest& request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -187,8 +187,8 @@ static bool isnumeric(const std::string& s) {
 }
 
 std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
-                                    const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                    const StringManyMap& aliases) {
+                                                 const std::vector<std::string>& values, bool fail, bool quiet,
+                                                 bool fullMatch, const StringManyMap& aliases) {
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
@@ -324,7 +324,8 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    std::vector<std::string> expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const override{
+    std::vector<std::string> expand(const MarsExpandContext&, const std::string& value,
+                                    const MarsRequest&) const override {
         return {value};
     }
 
@@ -363,7 +364,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                auto vals = bestMatch(ctx, p, keywords_, true, false, true, aliases_);
+                auto vals     = bestMatch(ctx, p, keywords_, true, false, true, aliases_);
                 ASSERT(vals.size() == 1);
                 paramSet.emplace(cache_[p] = vals[0], PP);
             }

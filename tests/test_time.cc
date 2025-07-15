@@ -66,9 +66,7 @@ CASE("Test TypeTime expansions") {
     checkExpansion(tt, "1234", "1234");
     checkExpansion(tt, "623", "0623");
     checkExpansion(tt, "0623", "0623");
-    {
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "675"), BadTime);
-    }
+    { EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "675"), BadTime); }
 
     // 5 and 6-digit times
     checkExpansion(tt, "00000", "0000");
@@ -102,9 +100,7 @@ CASE("Test TypeTime expansions") {
     checkExpansion(tt, "12:34:00", "1234");
     checkExpansion(tt, "06:23:00", "0623");
     checkExpansion(tt, "6:23:00", "0623");
-    {
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "00:62"), BadTime);
-    }
+    { EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "00:62"), BadTime); }
     {
         // We don't support seconds yet.
         EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "00:00:12"), BadValue);

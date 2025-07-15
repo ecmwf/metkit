@@ -239,10 +239,10 @@ void expand(const std::string& text, const std::vector<std::string>& expected, b
 CASE("test_metkit_expand_1") {
     const char* text = "ret,date=-5/to/-1";
     StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
-                          {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                          {"levtype", {"pl"}},  {"param", {"129"}},
-                          {"step", {"0"}},      {"stream", {"oper"}},
-                          {"time", {"1200"}},   {"type", {"an"}}};
+                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                           {"levtype", {"pl"}},  {"param", {"129"}},
+                           {"step", {"0"}},      {"stream", {"oper"}},
+                           {"time", {"1200"}},   {"type", {"an"}}};
     expand(text, "retrieve", expected, {-5, -4, -3, -2, -1});
 
     const char* text2 = "ret,date=-5/to/-1.";
@@ -258,25 +258,25 @@ CASE("test_metkit_expand_2") {
     {
         const char* text = "ret,date=-1";
         StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
-                              {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"levtype", {"pl"}},  {"param", {"129"}},
-                              {"step", {"0"}},      {"stream", {"oper"}},
-                              {"time", {"1200"}},   {"type", {"an"}}};
+                               {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               {"levtype", {"pl"}},  {"param", {"129"}},
+                               {"step", {"0"}},      {"stream", {"oper"}},
+                               {"time", {"1200"}},   {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
     {
         const char* text = "ret,levtype=ml";
         StringManyMap expected{{"class", {"od"}},
-                              {"domain", {"g"}},
-                              {"expver", {"0001"}},
-                              {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              // {"levelist", {"1","2"}}, // keeping the old default, for MARS client tests
-                              {"levtype", {"ml"}},
-                              {"param", {"129"}},
-                              {"step", {"0"}},
-                              {"stream", {"oper"}},
-                              {"time", {"1200"}},
-                              {"type", {"an"}}};
+                               {"domain", {"g"}},
+                               {"expver", {"0001"}},
+                               {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               // {"levelist", {"1","2"}}, // keeping the old default, for MARS client tests
+                               {"levtype", {"ml"}},
+                               {"param", {"129"}},
+                               {"step", {"0"}},
+                               {"stream", {"oper"}},
+                               {"time", {"1200"}},
+                               {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
 }
@@ -284,22 +284,22 @@ CASE("test_metkit_expand_2") {
 CASE("test_metkit_expand_3") {
     const char* text = "ret,date=-5/to/-1,grid=n640";
     StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
-                          {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                          {"levtype", {"pl"}},  {"param", {"129"}},
-                          {"step", {"0"}},      {"stream", {"oper"}},
-                          {"time", {"1200"}},   {"type", {"an"}},
-                          {"grid", {"N640"}}};
+                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                           {"levtype", {"pl"}},  {"param", {"129"}},
+                           {"step", {"0"}},      {"stream", {"oper"}},
+                           {"time", {"1200"}},   {"type", {"an"}},
+                           {"grid", {"N640"}}};
     expand(text, "retrieve", expected, {-5, -4, -3, -2, -1});
 }
 
 CASE("test_metkit_expand_4") {
     const char* text = "ret,date=-5/to/-1,grid=o640";
     StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
-                          {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                          {"levtype", {"pl"}},  {"param", {"129"}},
-                          {"step", {"0"}},      {"stream", {"oper"}},
-                          {"time", {"1200"}},   {"type", {"an"}},
-                          {"grid", {"O640"}}};
+                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                           {"levtype", {"pl"}},  {"param", {"129"}},
+                           {"step", {"0"}},      {"stream", {"oper"}},
+                           {"time", {"1200"}},   {"type", {"an"}},
+                           {"grid", {"O640"}}};
     expand(text, "retrieve", expected, {-5, -4, -3, -2, -1});
 }
 
@@ -308,8 +308,8 @@ CASE("test_metkit_expand_5") {
         "retrieve,class=od,date=20050601,diagnostic=1,expver=1,iteration=0,levelist=1,levtype=ml,param=155.129,stream="
         "sens,time=1200,type=sg";
     StringManyMap expected{{"class", {"od"}},    {"diagnostic", {"1"}}, {"domain", {"g"}},   {"expver", {"0001"}},
-                          {"iteration", {"0"}}, {"levelist", {"1"}},   {"levtype", {"ml"}}, {"param", {"129155"}},
-                          {"step", {"0"}},      {"stream", {"sens"}},  {"time", {"1200"}},  {"type", {"sg"}}};
+                           {"iteration", {"0"}}, {"levelist", {"1"}},   {"levtype", {"ml"}}, {"param", {"129155"}},
+                           {"step", {"0"}},      {"stream", {"sens"}},  {"time", {"1200"}},  {"type", {"sg"}}};
     expand(text, "retrieve", expected, {20050601});
 }
 
@@ -318,8 +318,8 @@ CASE("test_metkit_expand_6") {
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=1/to/31";
     StringManyMap expected{{"class", {"rd"}},   {"expver", {"hl1m"}}, {"stream", {"oper"}},
-                          {"time", {"0000"}},  {"domain", {"g"}},    {"type", {"fc"}},
-                          {"levtype", {"pl"}}, {"step", {"24"}},     {"param", {"129"}}};
+                           {"time", {"0000"}},  {"domain", {"g"}},    {"type", {"fc"}},
+                           {"levtype", {"pl"}}, {"step", {"24"}},     {"param", {"129"}}};
     std::vector<std::string> levelist;
     for (int i = 1; i <= 31; i++) {
         levelist.push_back(std::to_string(i));
@@ -333,8 +333,8 @@ CASE("test_metkit_expand_7") {
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=0.01/0.7";
     StringManyMap expected{{"class", {"rd"}},  {"expver", {"hl1m"}},       {"stream", {"oper"}}, {"time", {"0000"}},
-                          {"domain", {"g"}},  {"type", {"fc"}},           {"levtype", {"pl"}},  {"step", {"24"}},
-                          {"param", {"129"}}, {"levelist", {".01", ".7"}}};
+                           {"domain", {"g"}},  {"type", {"fc"}},           {"levtype", {"pl"}},  {"step", {"24"}},
+                           {"param", {"129"}}, {"levelist", {".01", ".7"}}};
     expand(text, "retrieve", expected, {20000801});
 }
 
@@ -343,10 +343,10 @@ CASE("test_metkit_expand_8") {
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=0.1/to/0.7/by/0.2";
     StringManyMap expected{{"class", {"rd"}},    {"expver", {"hl1m"}},
-                          {"stream", {"oper"}}, {"time", {"0000"}},
-                          {"domain", {"g"}},    {"type", {"fc"}},
-                          {"levtype", {"pl"}},  {"step", {"24"}},
-                          {"param", {"129"}},   {"levelist", {".1", ".3", ".5", ".7"}}};
+                           {"stream", {"oper"}}, {"time", {"0000"}},
+                           {"domain", {"g"}},    {"type", {"fc"}},
+                           {"levtype", {"pl"}},  {"step", {"24"}},
+                           {"param", {"129"}},   {"levelist", {".1", ".3", ".5", ".7"}}};
     expand(text, "retrieve", expected, {20000801});
 }
 
@@ -408,10 +408,10 @@ CASE("test_metkit_expand_multirequest-1") {
     std::vector<MarsRequest> reqs = MarsRequest::parse(in, false);
     EXPECT_EQUAL(reqs.size(), 2);
     StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
-                          {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                          {"levtype", {"pl"}},  {"param", {"129"}},
-                          {"step", {"0"}},      {"stream", {"oper"}},
-                          {"time", {"1200"}},   {"type", {"an"}}};
+                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                           {"levtype", {"pl"}},  {"param", {"129"}},
+                           {"step", {"0"}},      {"stream", {"oper"}},
+                           {"time", {"1200"}},   {"type", {"an"}}};
 
     expand(reqs.at(0), {"retrieve", expected, std::vector<long>{-5, -4, -3, -2}}, ignore_);
     expand(reqs.at(1), {"retrieve", expected, std::vector<long>{-1}}, ignore_);
@@ -782,10 +782,10 @@ CASE("test_metkit_expand_d1") {
     {
         const char* text = "retrieve,class=d1,dataset=extremes-dt,date=-1";
         StringManyMap expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
-                              {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"levtype", {"pl"}},  {"param", {"129"}},
-                              {"step", {"0"}},      {"stream", {"oper"}},
-                              {"time", {"1200"}},   {"type", {"an"}}};
+                               {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               {"levtype", {"pl"}},  {"param", {"129"}},
+                               {"step", {"0"}},      {"stream", {"oper"}},
+                               {"time", {"1200"}},   {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
     {
@@ -793,13 +793,13 @@ CASE("test_metkit_expand_d1") {
             "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-"
             "NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,param=134/137";
         StringManyMap expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}},
-                              {"activity", {"cmip6"}},  {"experiment", {"hist"}},
-                              {"model", {"ifs-nemo"}},  {"generation", {"1"}},
-                              {"realization", {"1"}},   {"resolution", {"high"}},
-                              {"expver", {"0001"}},     {"time", {"1200"}},
-                              {"stream", {"clte"}},     {"type", {"fc"}},
-                              {"levtype", {"pl"}},      {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"param", {"134", "137"}}};
+                               {"activity", {"cmip6"}},  {"experiment", {"hist"}},
+                               {"model", {"ifs-nemo"}},  {"generation", {"1"}},
+                               {"realization", {"1"}},   {"resolution", {"high"}},
+                               {"expver", {"0001"}},     {"time", {"1200"}},
+                               {"stream", {"clte"}},     {"type", {"fc"}},
+                               {"levtype", {"pl"}},      {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               {"param", {"134", "137"}}};
         expand(text, "retrieve", expected, {20000101});
     }
     {
@@ -812,10 +812,10 @@ CASE("test_metkit_expand_d1") {
             "icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,"
             "levtype=o3d,param=263500";
         StringManyMap expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}}, {"activity", {"cmip6"}},
-                              {"experiment", {"hist"}}, {"model", {"icon"}},         {"generation", {"1"}},
-                              {"realization", {"1"}},   {"resolution", {"high"}},    {"expver", {"0001"}},
-                              {"time", {"0000"}},       {"stream", {"clte"}},        {"type", {"fc"}},
-                              {"levtype", {"o3d"}},     {"levelist", {"1"}},         {"param", {"263500"}}};
+                               {"experiment", {"hist"}}, {"model", {"icon"}},         {"generation", {"1"}},
+                               {"realization", {"1"}},   {"resolution", {"high"}},    {"expver", {"0001"}},
+                               {"time", {"0000"}},       {"stream", {"clte"}},        {"type", {"fc"}},
+                               {"levtype", {"o3d"}},     {"levelist", {"1"}},         {"param", {"263500"}}};
         expand(text, "retrieve", expected, {20120515});
         expand(text2, "retrieve", expected, {20120515});
     }
@@ -826,20 +826,20 @@ CASE("test_metkit_expand_ng") {
             "retrieve,class=ng,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,"
             "resolution=high,stream=clte,type=fc,levtype=pl,param=134/137";
         StringManyMap expected{{"class", {"ng"}},
-                              {"levtype", {"pl"}},
-                              {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"activity", {"cmip6"}},
-                              {"experiment", {"hist"}},
-                              {"model", {"ifs-nemo"}},
-                              {"generation", {"1"}},
-                              {"realization", {"1"}},
-                              {"resolution", {"high"}},
-                              {"expver", {"0001"}},
-                              {"date", {"20000101"}},
-                              {"time", {"1200"}},
-                              {"stream", {"clte"}},
-                              {"type", {"fc"}},
-                              {"param", {"134", "137"}}};
+                               {"levtype", {"pl"}},
+                               {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               {"activity", {"cmip6"}},
+                               {"experiment", {"hist"}},
+                               {"model", {"ifs-nemo"}},
+                               {"generation", {"1"}},
+                               {"realization", {"1"}},
+                               {"resolution", {"high"}},
+                               {"expver", {"0001"}},
+                               {"date", {"20000101"}},
+                               {"time", {"1200"}},
+                               {"stream", {"clte"}},
+                               {"type", {"fc"}},
+                               {"param", {"134", "137"}}};
         expand(text, "retrieve", expected, {20000101});
     }
 }
@@ -848,9 +848,9 @@ CASE("test_metkit_expand_ai") {
         const char* text =
             "retrieve,class=ai,date=20250208,time=1800,expver=9999,model=aifs-single,type=fc,levtype=sfc,param=169";
         StringManyMap expected{{"class", {"ai"}},    {"domain", {"g"}}, {"expver", {"9999"}},
-                              {"levtype", {"sfc"}}, {"step", {"0"}},   {"stream", {"oper"}},
-                              {"time", {"1800"}},   {"type", {"fc"}},  {"model", {"aifs-single"}},
-                              {"param", {"169"}}};
+                               {"levtype", {"sfc"}}, {"step", {"0"}},   {"stream", {"oper"}},
+                               {"time", {"1800"}},   {"type", {"fc"}},  {"model", {"aifs-single"}},
+                               {"param", {"169"}}};
         expand(text, "retrieve", expected, {20250208});
     }
 }
@@ -862,15 +862,15 @@ CASE("test_metkit_expand_list") {
             "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
             "300,time=1200,type=an,param=129";
         StringManyMap expected{{"class", {"od"}},
-                              {"date", {"20250105"}},
-                              {"domain", {"g"}},
-                              {"levtype", {"pl"}},
-                              {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"expver", {"0001"}},
-                              {"time", {"1200"}},
-                              {"stream", {"oper"}},
-                              {"type", {"an"}},
-                              {"param", {"129"}}};
+                               {"date", {"20250105"}},
+                               {"domain", {"g"}},
+                               {"levtype", {"pl"}},
+                               {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               {"expver", {"0001"}},
+                               {"time", {"1200"}},
+                               {"stream", {"oper"}},
+                               {"type", {"an"}},
+                               {"param", {"129"}}};
         expand(text, "list", expected, {20250105});
     }
     {
@@ -886,15 +886,15 @@ CASE("test_metkit_expand_read") {
             "read,class=tr,date=20250105,domain=g,levtype=pl,expver=0001,step=0,stream=oper,"
             "levelist=1000/850/700/500/400/300,time=1200,type=an,param=129";
         StringManyMap expected{{"class", {"tr"}},
-                              {"date", {"20250105"}},
-                              {"domain", {"g"}},
-                              {"levtype", {"pl"}},
-                              {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              {"expver", {"0001"}},
-                              {"time", {"1200"}},
-                              {"stream", {"oper"}},
-                              {"type", {"an"}},
-                              {"param", {"129"}}};
+                               {"date", {"20250105"}},
+                               {"domain", {"g"}},
+                               {"levtype", {"pl"}},
+                               {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                               {"expver", {"0001"}},
+                               {"time", {"1200"}},
+                               {"stream", {"oper"}},
+                               {"type", {"an"}},
+                               {"param", {"129"}}};
         expand(text, "read", expected, {20250105});
     }
     {
@@ -911,20 +911,20 @@ CASE("test_metkit_expand_clmn") {
             "model=IFS-FESOM,realization=1,stream=clmn,year=2024,month=october,resolution=standard,type=fc,levtype=sfc,"
             "param=144";
         StringManyMap expected{{"class", {"d1"}},
-                              {"dataset", {"climate-dt"}},
-                              {"activity", {"story-nudging"}},
-                              {"experiment", {"tplus2.0k"}},
-                              {"generation", {"1"}},
-                              {"model", {"ifs-fesom"}},
-                              {"realization", {"1"}},
-                              {"expver", {"0001"}},
-                              {"stream", {"clmn"}},
-                              {"year", {"2024"}},
-                              {"month", {"10"}},
-                              {"resolution", {"standard"}},
-                              {"type", {"fc"}},
-                              {"levtype", {"sfc"}},
-                              {"param", {"144"}}};
+                               {"dataset", {"climate-dt"}},
+                               {"activity", {"story-nudging"}},
+                               {"experiment", {"tplus2.0k"}},
+                               {"generation", {"1"}},
+                               {"model", {"ifs-fesom"}},
+                               {"realization", {"1"}},
+                               {"expver", {"0001"}},
+                               {"stream", {"clmn"}},
+                               {"year", {"2024"}},
+                               {"month", {"10"}},
+                               {"resolution", {"standard"}},
+                               {"type", {"fc"}},
+                               {"levtype", {"sfc"}},
+                               {"param", {"144"}}};
         expand(text, "retrieve", expected, {});
     }
 }

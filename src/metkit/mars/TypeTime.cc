@@ -26,7 +26,8 @@ TypeTime::TypeTime(const std::string& name, const eckit::Value& settings) : Type
     multiple_ = true;
 }
 
-std::vector<std::string> TypeTime::expand(const MarsExpandContext&, const std::string& value, const MarsRequest&) const {
+std::vector<std::string> TypeTime::expand(const MarsExpandContext&, const std::string& value,
+                                          const MarsRequest&) const {
 
     eckit::Time time(value);
 

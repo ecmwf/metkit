@@ -135,10 +135,10 @@ CASE("day") {
     const char* text        = "ret,date=20250301/to/20250306";
     const char* filter_text = "day=1/3/5/7/9/11/13/15/17/19/21/23/25/27/29/31";
     StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
-                            {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                            {"levtype", {"pl"}},  {"param", {"129"}},
-                            {"step", {"0"}},      {"stream", {"oper"}},
-                            {"time", {"1200"}},   {"type", {"an"}}};
+                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
+                           {"levtype", {"pl"}},  {"param", {"129"}},
+                           {"step", {"0"}},      {"stream", {"oper"}},
+                           {"time", {"1200"}},   {"type", {"an"}}};
     filter(text, filter_text, expected, {20250301, 20250303, 20250305});
 }
 

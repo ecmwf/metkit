@@ -64,7 +64,8 @@ void TypeMixed::print(std::ostream& out) const {
 }
 
 
-std::vector<std::string> TypeMixed::expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const {
+std::vector<std::string> TypeMixed::expand(const MarsExpandContext& ctx, const std::string& value,
+                                           const MarsRequest& request) const {
 
     for (auto it = types_.begin(); it != types_.end(); it++) {
         if ((*it).first == nullptr || (*it).first->matches(request)) {
