@@ -34,7 +34,7 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
     EXPECT_EQUAL(expected, values);
 }
 
-CASE("Test TypeRange expansions") {
+CASE("Test Step expansions") {
 
     // times with units
     assertTypeExpansion("step", {"0"}, {"0"});

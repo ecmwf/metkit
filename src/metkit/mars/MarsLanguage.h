@@ -33,9 +33,6 @@ class MarsExpandContext;
 
 class MarsLanguage : private eckit::NonCopyable {
 
-    typedef std::map<std::string, std::string> StringMap;
-    typedef std::map<std::string, std::vector<std::string>> StringManyMap;
-
 public:  // methods
 
     MarsLanguage(const std::string& verb);
@@ -82,7 +79,7 @@ private:  // members
 
     StringManyMap aliases_;
 
-    mutable StringMap cache_;
+    mutable eckit::StringDict cache_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

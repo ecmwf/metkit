@@ -35,7 +35,7 @@ public:
     }
 
     const std::vector<std::string>& columnNames() { return columnNames_; }
-    const std::map<std::string, std::string>& table() { return mapping_; }
+    const eckit::StringDict& table() { return mapping_; }
 
 private:  // methods
 
@@ -55,7 +55,7 @@ private:  // methods
 
 private:  // members
 
-    std::map<std::string, std::string> mapping_;
+    eckit::StringDict mapping_;
     std::vector<std::string> columnNames_;
 };
 }  // namespace
@@ -83,11 +83,11 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
     for (auto val : vals) {
         std::string stringVal = eckit::Translator<T, std::string>()(val);
-        std::string<std::string> tidyVal   = t->tidy(stringVal);
+        std::vector<std::string> tidyVal   = t->tidy(stringVal);
         if (tidyVal.size() == 1 && stringVal == tidyVal[0])  // if t->tidy had no effect, set the original value
             gather_.setValue(keyword, val);
         else
-            gather_.setValue(keyword, tidyVal);
+            gather_.setValue(keyword, tidyVal[0]);
     }
 }
 

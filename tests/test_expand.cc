@@ -35,7 +35,6 @@ using namespace eckit::testing;
 namespace metkit::mars::test {
 
 namespace {
-using ExpectedVals = std::map<std::string, std::vector<std::string>>;
 
 /**
  * @brief We can specify a set of keys which should be ignored when not specified in the user request.
@@ -65,9 +64,9 @@ struct ExpectedRequest {
 
     ExpectedRequest() = default;
 
-    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<std::string> dd) : verb(vrb), vals(vv), dates(dd) {}
+    ExpectedRequest(std::string vrb, StringManyMap vv, std::vector<std::string> dd) : verb(vrb), vals(vv), dates(dd) {}
 
-    ExpectedRequest(std::string vrb, ExpectedVals vv, std::vector<long> dd) : verb(vrb), vals(vv) {
+    ExpectedRequest(std::string vrb, StringManyMap vv, std::vector<long> dd) : verb(vrb), vals(vv) {
         dates.reserve(dd.size());
         for (long d : dd) {
             dates.push_back(date(d));
@@ -75,7 +74,7 @@ struct ExpectedRequest {
     }
 
     std::string verb;
-    ExpectedVals vals;
+    StringManyMap vals;
     std::vector<std::string> dates;
 };
 }  // namespace
@@ -127,12 +126,12 @@ void expand(const MarsRequest& r, const ExpectedRequest& expected, std::set<std:
     }
 }
 
-void expand(const MarsRequest& r, const std::string& verb, const ExpectedVals& expected, std::vector<long>& dates,
+void expand(const MarsRequest& r, const std::string& verb, const StringManyMap& expected, std::vector<long>& dates,
             std::set<std::string> ignore) {
     expand(r, {verb, expected, dates}, ignore);
 }
 
-void expand(const std::string& text, const std::string& verb, const ExpectedVals& expected, std::vector<long> dates,
+void expand(const std::string& text, const std::string& verb, const StringManyMap& expected, std::vector<long> dates,
             bool strict = false) {
     MarsRequest r = MarsRequest::parse(text, strict);
     std::set<std::string> ignore;
@@ -206,7 +205,7 @@ void expand(const std::string& text, const std::string& expected, bool strict = 
 }
 void expand(const std::string& text, const std::vector<std::string>& expected, bool strict = false,
             std::vector<std::vector<long>> dates = {}) {
-    ExpectedVals out;
+    StringManyMap out;
 
     std::istringstream in(text);
     std::vector<MarsRequest> reqs = MarsRequest::parse(in, strict);
@@ -239,7 +238,7 @@ void expand(const std::string& text, const std::vector<std::string>& expected, b
 
 CASE("test_metkit_expand_1") {
     const char* text = "ret,date=-5/to/-1";
-    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
+    StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                           {"levtype", {"pl"}},  {"param", {"129"}},
                           {"step", {"0"}},      {"stream", {"oper"}},
@@ -258,7 +257,7 @@ CASE("test_metkit_expand_1") {
 CASE("test_metkit_expand_2") {
     {
         const char* text = "ret,date=-1";
-        ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
+        StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
                               {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                               {"levtype", {"pl"}},  {"param", {"129"}},
                               {"step", {"0"}},      {"stream", {"oper"}},
@@ -267,7 +266,7 @@ CASE("test_metkit_expand_2") {
     }
     {
         const char* text = "ret,levtype=ml";
-        ExpectedVals expected{{"class", {"od"}},
+        StringManyMap expected{{"class", {"od"}},
                               {"domain", {"g"}},
                               {"expver", {"0001"}},
                               {"levelist", {"1000", "850", "700", "500", "400", "300"}},
@@ -284,7 +283,7 @@ CASE("test_metkit_expand_2") {
 
 CASE("test_metkit_expand_3") {
     const char* text = "ret,date=-5/to/-1,grid=n640";
-    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
+    StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                           {"levtype", {"pl"}},  {"param", {"129"}},
                           {"step", {"0"}},      {"stream", {"oper"}},
@@ -295,7 +294,7 @@ CASE("test_metkit_expand_3") {
 
 CASE("test_metkit_expand_4") {
     const char* text = "ret,date=-5/to/-1,grid=o640";
-    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
+    StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                           {"levtype", {"pl"}},  {"param", {"129"}},
                           {"step", {"0"}},      {"stream", {"oper"}},
@@ -308,7 +307,7 @@ CASE("test_metkit_expand_5") {
     const char* text =
         "retrieve,class=od,date=20050601,diagnostic=1,expver=1,iteration=0,levelist=1,levtype=ml,param=155.129,stream="
         "sens,time=1200,type=sg";
-    ExpectedVals expected{{"class", {"od"}},    {"diagnostic", {"1"}}, {"domain", {"g"}},   {"expver", {"0001"}},
+    StringManyMap expected{{"class", {"od"}},    {"diagnostic", {"1"}}, {"domain", {"g"}},   {"expver", {"0001"}},
                           {"iteration", {"0"}}, {"levelist", {"1"}},   {"levtype", {"ml"}}, {"param", {"129155"}},
                           {"step", {"0"}},      {"stream", {"sens"}},  {"time", {"1200"}},  {"type", {"sg"}}};
     expand(text, "retrieve", expected, {20050601});
@@ -318,7 +317,7 @@ CASE("test_metkit_expand_6") {
     const char* text =
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=1/to/31";
-    ExpectedVals expected{{"class", {"rd"}},   {"expver", {"hl1m"}}, {"stream", {"oper"}},
+    StringManyMap expected{{"class", {"rd"}},   {"expver", {"hl1m"}}, {"stream", {"oper"}},
                           {"time", {"0000"}},  {"domain", {"g"}},    {"type", {"fc"}},
                           {"levtype", {"pl"}}, {"step", {"24"}},     {"param", {"129"}}};
     std::vector<std::string> levelist;
@@ -333,7 +332,7 @@ CASE("test_metkit_expand_7") {
     const char* text =
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=0.01/0.7";
-    ExpectedVals expected{{"class", {"rd"}},  {"expver", {"hl1m"}},       {"stream", {"oper"}}, {"time", {"0000"}},
+    StringManyMap expected{{"class", {"rd"}},  {"expver", {"hl1m"}},       {"stream", {"oper"}}, {"time", {"0000"}},
                           {"domain", {"g"}},  {"type", {"fc"}},           {"levtype", {"pl"}},  {"step", {"24"}},
                           {"param", {"129"}}, {"levelist", {".01", ".7"}}};
     expand(text, "retrieve", expected, {20000801});
@@ -343,7 +342,7 @@ CASE("test_metkit_expand_8") {
     const char* text =
         "retrieve,class=rd,expver=hl1m,stream=oper,date=20000801,time=0000,domain=g,type=fc,levtype=pl,step=24,param="
         "129,levelist=0.1/to/0.7/by/0.2";
-    ExpectedVals expected{{"class", {"rd"}},    {"expver", {"hl1m"}},
+    StringManyMap expected{{"class", {"rd"}},    {"expver", {"hl1m"}},
                           {"stream", {"oper"}}, {"time", {"0000"}},
                           {"domain", {"g"}},    {"type", {"fc"}},
                           {"levtype", {"pl"}},  {"step", {"24"}},
@@ -408,7 +407,7 @@ CASE("test_metkit_expand_multirequest-1") {
     std::istringstream in(text);
     std::vector<MarsRequest> reqs = MarsRequest::parse(in, false);
     EXPECT_EQUAL(reqs.size(), 2);
-    ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
+    StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
                           {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                           {"levtype", {"pl"}},  {"param", {"129"}},
                           {"step", {"0"}},      {"stream", {"oper"}},
@@ -782,7 +781,7 @@ CASE("test_metkit_expand_param") {
 CASE("test_metkit_expand_d1") {
     {
         const char* text = "retrieve,class=d1,dataset=extremes-dt,date=-1";
-        ExpectedVals expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
+        StringManyMap expected{{"class", {"d1"}},    {"dataset", {"extremes-dt"}},
                               {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                               {"levtype", {"pl"}},  {"param", {"129"}},
                               {"step", {"0"}},      {"stream", {"oper"}},
@@ -793,7 +792,7 @@ CASE("test_metkit_expand_d1") {
         const char* text =
             "retrieve,class=d1,dataset=climate-dt,levtype=pl,date=20000101,activity=CMIP6,experiment=hist,model=IFS-"
             "NEMO,generation=1,realization=1,resolution=high,stream=clte,type=fc,param=134/137";
-        ExpectedVals expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}},
+        StringManyMap expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}},
                               {"activity", {"cmip6"}},  {"experiment", {"hist"}},
                               {"model", {"ifs-nemo"}},  {"generation", {"1"}},
                               {"realization", {"1"}},   {"resolution", {"high"}},
@@ -812,7 +811,7 @@ CASE("test_metkit_expand_d1") {
             "retrieve,date=20120515,time=0000,dataset=climate-dt,activity=cmip6,experiment=hist,generation=1,model="
             "icon,realization=1,resolution=high,class=d1,expver=0001,type=fc,stream=clte,levelist=1,"
             "levtype=o3d,param=263500";
-        ExpectedVals expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}}, {"activity", {"cmip6"}},
+        StringManyMap expected{{"class", {"d1"}},        {"dataset", {"climate-dt"}}, {"activity", {"cmip6"}},
                               {"experiment", {"hist"}}, {"model", {"icon"}},         {"generation", {"1"}},
                               {"realization", {"1"}},   {"resolution", {"high"}},    {"expver", {"0001"}},
                               {"time", {"0000"}},       {"stream", {"clte"}},        {"type", {"fc"}},
@@ -826,7 +825,7 @@ CASE("test_metkit_expand_ng") {
         const char* text =
             "retrieve,class=ng,date=20000101,activity=CMIP6,experiment=hist,model=IFS-NEMO,generation=1,realization=1,"
             "resolution=high,stream=clte,type=fc,levtype=pl,param=134/137";
-        ExpectedVals expected{{"class", {"ng"}},
+        StringManyMap expected{{"class", {"ng"}},
                               {"levtype", {"pl"}},
                               {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                               {"activity", {"cmip6"}},
@@ -848,7 +847,7 @@ CASE("test_metkit_expand_ai") {
     {
         const char* text =
             "retrieve,class=ai,date=20250208,time=1800,expver=9999,model=aifs-single,type=fc,levtype=sfc,param=169";
-        ExpectedVals expected{{"class", {"ai"}},    {"domain", {"g"}}, {"expver", {"9999"}},
+        StringManyMap expected{{"class", {"ai"}},    {"domain", {"g"}}, {"expver", {"9999"}},
                               {"levtype", {"sfc"}}, {"step", {"0"}},   {"stream", {"oper"}},
                               {"time", {"1800"}},   {"type", {"fc"}},  {"model", {"aifs-single"}},
                               {"param", {"169"}}};
@@ -862,7 +861,7 @@ CASE("test_metkit_expand_list") {
             "list,date=20250105,domain=g,levtype=pl,expver="
             "0001,step=0,stream=oper,levelist=1000/850/700/500/400/"
             "300,time=1200,type=an,param=129";
-        ExpectedVals expected{{"class", {"od"}},
+        StringManyMap expected{{"class", {"od"}},
                               {"date", {"20250105"}},
                               {"domain", {"g"}},
                               {"levtype", {"pl"}},
@@ -876,7 +875,7 @@ CASE("test_metkit_expand_list") {
     }
     {
         const char* text = "list,class=tr,date=20250105";
-        ExpectedVals expected{{"class", {"tr"}}, {"date", {"20250105"}}};
+        StringManyMap expected{{"class", {"tr"}}, {"date", {"20250105"}}};
         expand(text, "list", expected, {20250105});
     }
 }
@@ -886,7 +885,7 @@ CASE("test_metkit_expand_read") {
         const char* text =
             "read,class=tr,date=20250105,domain=g,levtype=pl,expver=0001,step=0,stream=oper,"
             "levelist=1000/850/700/500/400/300,time=1200,type=an,param=129";
-        ExpectedVals expected{{"class", {"tr"}},
+        StringManyMap expected{{"class", {"tr"}},
                               {"date", {"20250105"}},
                               {"domain", {"g"}},
                               {"levtype", {"pl"}},
@@ -900,7 +899,7 @@ CASE("test_metkit_expand_read") {
     }
     {
         const char* text = "read,date=20250105,param=129";
-        ExpectedVals expected{{"date", {"20250105"}}, {"param", {"129"}}};
+        StringManyMap expected{{"date", {"20250105"}}, {"param", {"129"}}};
         expand(text, "read", expected, {20250105});
     }
 }
@@ -911,7 +910,7 @@ CASE("test_metkit_expand_clmn") {
             "retrieve,class=d1,expver=1,dataset=climate-dt,activity=story-nudging,experiment=Tplus2.0K,generation=1,"
             "model=IFS-FESOM,realization=1,stream=clmn,year=2024,month=october,resolution=standard,type=fc,levtype=sfc,"
             "param=144";
-        ExpectedVals expected{{"class", {"d1"}},
+        StringManyMap expected{{"class", {"d1"}},
                               {"dataset", {"climate-dt"}},
                               {"activity", {"story-nudging"}},
                               {"experiment", {"tplus2.0k"}},
@@ -1001,8 +1000,9 @@ CASE("test_metkit_expand_MARSC-210") {
 
 CASE("test_metkit_expand_MARSC-220") {
     // https://jira.ecmwf.int/browse/MARSC-220
+    // the original request contains an_offet which is not supported, and has been replaced by anoffset
     const char* text =
-        "retrieve,an_offset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
+        "retrieve,anoffset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
         "128/165.128/166.128,step=15,stream=da,time=00,type=fc,target=\"reference.6Zr8N7.data\"";
     const char* expected =
         "RETRIEVE,CLASS=RD,TYPE=FC,STREAM=OPER,EXPVER=i8k5,REPRES=SH,LEVTYPE=SFC,PARAM=151/165/"
@@ -1040,11 +1040,13 @@ CASE("test_metkit_expand_MARSC-219") {
     const char* text =
         "retrieve,class=od,date=20231205,expver=0001,obstype=gpsro,stream=lwda,time=18,type=ai,target=\"reference."
         "E2RRc8.data\"";
-    /// @todo OBSTYPE, OBSGROUP
+    /// @todo OBSTYPE
     const char* expected =
-        "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
+        // "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
+        // "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";
+        "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
         "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";
-    // expand(text, expected);
+    expand(text, expected);
 }
 
 CASE("test_metkit_expand_MARSC-213") {

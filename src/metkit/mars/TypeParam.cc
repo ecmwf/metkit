@@ -81,10 +81,10 @@ class Rule : public metkit::mars::MarsExpandContext {
     std::vector<Matcher> matchers_;
 
     std::vector<std::string> values_;
-    mutable std::map<std::string, std::string> mapping_;
+    mutable metkit::mars::StringManyMap mapping_;
 
     static std::vector<std::string> defaultValues_;
-    static std::map<std::string, std::string> defaultMapping_;
+    static metkit::mars::StringManyMap defaultMapping_;
 
 public:
 
@@ -117,7 +117,7 @@ public:
 };
 
 std::vector<std::string> Rule::defaultValues_;
-std::map<std::string, std::string> Rule::defaultMapping_;
+metkit::mars::StringManyMap Rule::defaultMapping_;
 
 void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
 
@@ -164,7 +164,7 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
                 precedence[v] = j;
             }
 
-            defaultMapping_[v] = first;
+            defaultMapping_[v] = {first};
             defaultValues_.push_back(v);
         }
     }
@@ -221,7 +221,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
                 precedence[v] = j;
             }
 
-            mapping_[v] = first;
+            mapping_[v] = {first};
             values_.push_back(v);
         }
     }
@@ -439,8 +439,7 @@ static void init() {
     (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()});
 }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -534,9 +533,10 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 }
 
 
-void TypeParam::expand(const MarsExpandContext& /* ctx */, std::vector<std::string>& /* values */,
+std::vector<std::string> TypeParam::expand(const MarsExpandContext& /* ctx */, const std::string& value,
                        const MarsRequest& /* request */) const {
     // Work done on pass2()
+    return {value};
 }
 
 void TypeParam::reset() {
@@ -548,5 +548,4 @@ static TypeBuilder<TypeParam> type("param");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

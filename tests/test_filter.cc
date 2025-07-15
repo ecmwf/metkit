@@ -26,17 +26,14 @@
 
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit::mars::test {
-
-namespace {
-using ExpectedOutput = std::map<std::string, std::vector<std::string>>;
-}
 
 //-----------------------------------------------------------------------------
 
 
-void filter(MarsRequest& r, const MarsRequest& f, const ExpectedOutput& expected, const std::vector<long> dates) {
+void filter(MarsRequest& r, const MarsRequest& f, const StringManyMap& expected, const std::vector<long> dates) {
 
     r.filter(f);
 
@@ -73,7 +70,7 @@ void filter(MarsRequest& r, const MarsRequest& f, const ExpectedOutput& expected
     }
 }
 
-void filter(const std::string& text, const std::string& filter_text, const ExpectedOutput& expected,
+void filter(const std::string& text, const std::string& filter_text, const StringManyMap& expected,
             std::vector<long> dates, bool strict = true) {
     MarsRequest r      = MarsRequest::parse(text, strict);
     std::string f_text = "filter," + filter_text;
@@ -86,7 +83,7 @@ void filter(const std::string& text, const std::string& filter_text, const Expec
 
 void expand(const std::string& text, const std::string& filter_text, const std::string& expected, bool strict = true,
             std::vector<long> dates = {}) {
-    ExpectedOutput out;
+    StringManyMap out;
     eckit::Tokenizer c(",");
     eckit::Tokenizer e("=");
     eckit::Tokenizer s("/");
@@ -137,7 +134,7 @@ void expand(const std::string& text, const std::string& filter_text, const std::
 CASE("day") {
     const char* text        = "ret,date=20250301/to/20250306";
     const char* filter_text = "day=1/3/5/7/9/11/13/15/17/19/21/23/25/27/29/31";
-    ExpectedOutput expected{{"class", {"od"}},    {"domain", {"g"}},
+    StringManyMap expected{{"class", {"od"}},    {"domain", {"g"}},
                             {"expver", {"0001"}}, {"levelist", {"1000", "850", "700", "500", "400", "300"}},
                             {"levtype", {"pl"}},  {"param", {"129"}},
                             {"step", {"0"}},      {"stream", {"oper"}},

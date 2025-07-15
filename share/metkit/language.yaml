@@ -9,7 +9,7 @@ _field: &_field
   class:
     category: data
     defaults:
-      - vals: [od]
+      - values: [od]
     flatten: false
     type: enum
     values:
@@ -92,12 +92,12 @@ _field: &_field
   type:
     category: data
     defaults:
-      - vals: [an]
+      - values: [an]
     set:
       - context:
           _verb: [retrieve]
           stream: [ssmi]
-        vals: [ob]
+        values: [ob]
         warn: "Changed type=ob"
     flatten: false
     type: enum
@@ -201,22 +201,22 @@ _field: &_field
     defaults:
       - context:
           class: [ti]
-        vals: [enfo]
+        values: [enfo]
       - context:
           class:
             op: '!'
-            vals: [ti]
-        vals: [oper]
+            values: [ti]
+        values: [oper]
     set:
       - context:
           _verb: [retrieve]
           stream: [ssbt, e1, ssmi]
-        vals: [oper]
+        values: [oper]
         warn: "Changed stream=oper"
       - context:
           class: [ti]
           type: [fc]
-        vals: [oper]
+        values: [oper]
     flatten: false
     type: enum
     values:
@@ -400,13 +400,13 @@ _field: &_field
     flatten: false
     type: expver
     defaults:
-      - vals: ['0001']
+      - values: ['0001']
     set:
       - context:
           class: [ti, s2, ur, rr, lw]
           expver:
             op: 'u'
-        vals: [prod]
+        values: [prod]
 
   dataset:
     category: data
@@ -424,7 +424,7 @@ _field: &_field
           - context:
               class:
                 op: '!'
-                vals: [d1]
+                values: [d1]
       - type: lowercase
 
   model:
@@ -473,7 +473,7 @@ _field: &_field
               class: [ai]
               model:
                 op: 'u'
-            vals: [aifs-single-mse]
+            values: [aifs-single-mse]
 
   georef:
     category: data
@@ -486,35 +486,35 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [d1]
+            values: [d1]
           dataset:
             op: '!'
-            vals: [on-demand-extremes-dt]
+            values: [on-demand-extremes-dt]
 
   repres:
     flatten: false
     multiple: false
     # defaults:
-    #   - vals: [sh]
+    #   - values: [sh]
     type: enum
     # set:
     #   - context:
     #       stream:
     #         op: '!'
-    #         vals: [ssmi]
+    #         values: [ssmi]
     #       type: [im, sim, oldim]
-    #     vals: [sv]
+    #     values: [sv]
     #   - context:
     #       type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-    #     vals: [bu]
+    #     values: [bu]
     #   - context:
     #       stream: [ssmi]
-    #     vals: [bu]
+    #     values: [bu]
     #   - context:
     #       levtype: [sfc]
     #       class: [od]
     #       stream: [oper]
-    #     vals: [gg]
+    #     values: [gg]
     #   - context:
     #       levtype: [sfc]
     #       class: [er]
@@ -522,11 +522,11 @@ _field: &_field
     #       type: [an, fc]
     #       repres:
     #         op: 'u'
-    #     vals: [gg]
+    #     values: [gg]
     #   - context:
     #       _verb: [retrieve]
     #       type: [tu]
-    #     vals: [ll]
+    #     values: [ll]
 # %if LEVTYPE = SFC %and CLASS = OD %and STREAM = OPER %and (TYPE = IA %or TYPE = AN) %and DATE < 19830420 %then
 #         %set REPRES = LL
     # unset:
@@ -630,7 +630,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+            values: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
 
   reportype:
     category: data
@@ -642,12 +642,12 @@ _field: &_field
   levtype:
     category: data
     defaults:
-      - vals: [pl]
+      - values: [pl]
     unset:
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, sim, oldim]
       - context:
           type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
@@ -679,18 +679,18 @@ _field: &_field
     type: to-by-list-float
     by: 1
     defaults:
-      - vals: [1000, 850, 700, 500, 400, 300]
+      - values: [1000, 850, 700, 500, 400, 300]
       # - context:
       #     levtype: [ml]
-      #   vals: [1, 2]
+      #   values: [1, 2]
       # - context:
       #     levtype: [pl]
-      #   vals: [1000, 850, 700, 500, 400, 300]
+      #   values: [1000, 850, 700, 500, 400, 300]
     unset:
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, sim, oldim]
       - context:
           stream: [ssmi]
@@ -715,12 +715,12 @@ _field: &_field
     multiple: true
     type: param
     defaults:
-      - vals: [129]
+      - values: [129]
     unset:
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, sim, oldim]
       - context:
           stream: [ssmi]
@@ -739,7 +739,7 @@ _field: &_field
     type: date
     by: 1
     defaults:
-      - vals: [-1]
+      - values: [-1]
     unset:
       - context:
           stream: [mfhm]
@@ -788,7 +788,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            vals: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
+            values: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
 
   offsetdate:
     category: data
@@ -812,12 +812,12 @@ _field: &_field
     type: time
     by: 6h
     defaults:
-      - vals: ['1200']
+      - values: ['1200']
     set:
       - context:
           class: [dm]
           type: [fc]
-        vals: [0]
+        values: [0]
     unset:
       - context:
           type: [ab]
@@ -826,7 +826,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [er]
+            values: [er]
           stream: [moda, msda, edmo, ewmo, wamd]
 
   offsettime:
@@ -842,11 +842,11 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [to, dt]
+            values: [to, dt]
       - context:
           stream:
             op: '!'
-            vals: [seap]
+            values: [seap]
 
 
   opttime:
@@ -857,11 +857,11 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [to, dt]
+            values: [to, dt]
       - context:
           stream:
             op: '!'
-            vals: [seap]
+            values: [seap]
 
   step:
     category: data
@@ -869,12 +869,12 @@ _field: &_field
     by: 12
     type: range
     defaults:
-      - vals: [0]
+      - values: [0]
     unset:
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, oldim]
       - context:
           stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
@@ -883,7 +883,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [er]
+            values: [er]
           stream: [moda, msda, edmo, ewmo, wamd]
       - context:
           class: [ed,ng]
@@ -901,12 +901,12 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            vals: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+            values: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
       - context:
           stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
           type:
             op: '!'
-            vals: [go, sfo, fu]
+            values: [go, sfo, fu]
 # ANOFFSET not valid unless Long window 4dvar or for EFAS/EFCL/EFSE/EFRF/EFSR/WFAS/WFCL/WFSE/WFRF/WFSR water balance/fillup
 
 
@@ -930,27 +930,27 @@ _field: &_field
       - context:
           class: [ti, s2]
           type: [cf]
-        vals: [0]
+        values: [0]
     unset:
       - context:
           type:
             op: '!'
-            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
+            values: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
           class:
             op: '!'
-            vals: [ti, lw, s2]
+            values: [ti, lw, s2]
           stream:
             op: '!'
-            vals: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
+            values: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
       - context:
           _verb: [retrieve, archive]
           class:
             op: '!'
-            vals: [ti, s2]
+            values: [ti, s2]
           type: [cf, em, es, ses, taem, taes]
           stream:
             op: '!'
-            vals: [mofc, wamf, mofm, wmfm]
+            values: [mofc, wamf, mofm, wmfm]
 
   quantile:
     category: data
@@ -962,7 +962,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [pd, cd, pb, taem]
+            values: [pd, cd, pb, taem]
 
   domain:
     category: data
@@ -970,8 +970,8 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [ms]
-        vals: [g]
+            values: [ms]
+        values: [g]
     type:
       - context:
           class: [ms]
@@ -988,7 +988,7 @@ _field: &_field
               class: [od]
               type: [cm, cs, cr]
               domain: [g]
-            vals: [e]
+            values: [e]
           # - context:
           #   - dataset: [climate-dt]
           #   error: "domain not alowded with dataset {dataset}"
@@ -1075,7 +1075,7 @@ _field: &_field
       - context:
           class: [ms]
           country: [it]
-        vals: [ecmwf]
+        values: [ecmwf]
     values:
       - [original]
       - [ecmwf]
@@ -1094,7 +1094,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
+            values: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
 
   direction:
@@ -1106,7 +1106,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
+            values: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
@@ -1132,7 +1132,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
+            values: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
     # only:
     # - type: ssd
 
@@ -1217,7 +1217,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [od, en, me, c3, ci]
+            values: [od, en, me, c3, ci]
 
 #######################################################################
 # DestinE ClimateDT related keywords
@@ -1280,206 +1280,195 @@ _observation: &_observation
 
   obstype:
     category: data
-    type: [enum]
+    multiple: true
+    type: enum
     values:
-      - all:
-          - nsd:
-              aliases: [conventional, non satellite data all]
-              vals:
-                - lsd:
-                    aliases: [land surface data]
-                    vals:
-                      - [1, s, synop land]
-                      - [2, s2, synop record 2 land]
-                      - [3, sa, synop auto land]
-                      - [4, sa2, synop auto record 2 land]
-                      - [7, set, soil and earth temperature]
-                      - [28, snowd, snow depth]
-                      - [140, metar]
-                      - [147, ametar, auto metar]
-                      - [165, snow, imssnow, snowcover, snow cover]
-                      - [170, bs, bufr land synop]
-                      - [172, bs2, bufr land synop 2]
-                      - [176, bsr6, bufr land synop wmo region 6]
-                      - [178, bs1h, bufr land synop 1 hourly]
-                - ssd:
-                    aliases: [sea surface data]
-                    vals:
-                      - [9, sab, synop abbreviated ship]
-                      - [11, ss, synop ship]
-                      - [12, ss2, synop record 2 ship]
-                      - [13,sas, synop auto ship]
-                      - [14, sas2, synop auto record 2 ship]
-                      - [19, sh, shred]
-                      - [21, dsu, dribu surface]
-                      - [22, bsu, bathy surface]
-                      - [23, tsu, tesac surface]
-                      - [26, ostia] # ????
-                      - [27, buoy] # ????
-                      - [180, bss, bufr ship synop]
-                      - [181, bmb, bufr moored buoys]
-                      - [182, bdb, bufr drifting buoys]
-                - vsns:
-                    aliases: [vertical soundings not satellite]
-                    vals:
-                      - [91, p, pilot land]
-                      - [92, ps, pilot ship]
-                      - [95, wp, wind profile]
-                      - [96, ewp, european wind profile]
-                      - [97, ewtp, european wind and temperature profile]
-                      - [101, t, temp land]
-                      - [102, ts, temp ship]
-                      - [103, td, temp drop]
-                      - [104, r, rocob land]
-                      - [105, rs, rocob ship]
-                      - [106, tm, temp mobile]
-                      - [107, ct, climate temp]
-                      - [109, hrt, high resolution temp land]
-                      - [111, hrts, high resolution temp ship]
-                      - [112, bp, bufr land pilot]
-                      - [113, bps, bufr ship pilot]
-                      - [230, btd, bufr temp drop]
-                      - [231, btdc, bufr temp descent]
-                - slns:
-                    aliases: [single level upper air not satellite]
-                    vals:
-                      - [141, cod, codar]
-                      - [142, air, airep]
-                      - [143, col, colba]
-                      - [144, am, amdar]
-                      - [145, ac, acars]
-                      - [146, eam, e-amdar]
-                      - [149, acmr, acars with mixing ratio]
-                - sls:
-                    aliases: [single level upper air satellite]
-                    vals:
-                      - [82, sat2, satob section 2]
-                      - [83, sat3, satob section 3]
-                      - [84, sat4, satob section 4]
-                      - [85, sat5, atob section 5]
-                      - [86, sat6, high resolution winds]
-                      - [87, sat7, high density unified format satellite winds]
-                      - [88, geor, geostationary radiances]
-                      - [89, gcsr, geostationary clear sky radiances]
-                      - [189, gmsgr, geostationary msg radiances]
-                      - [190, gasr, geostationary all sky radiances]
-                - od:
-                    aliases: [oceanographic data]
-                    vals:
-                      - [131, do, dribu oceanographic]
-                      - [132, bo, bathy oceanographic]
-                      - [133, to, tesac oceanographic]
-                      - [184, argo, bufr argo]
-                - dd:
-                    aliases: [derived data]
-                    vals:
-                      - [164, pa, paobs]
-                      - [237, bice, baltic_ci, baltic sea ice]
-                - cc:
-                    aliases: [chemical constituent]
-                    vals:
-                      # - [157, so, surface ozone]
-                      # - [158, soa, surface ozone averaged]
-                      - [162, ovs, ozone vertical sounding]
-                      - [159, op, ozone partial]
-                - sf:
-                    aliases: [synoptic features]
-                    vals:
-                      - [31, stor, storm]
-                      - [32, tc, tropical cyclone] # ????
-                - [110, pgps, gbgps, ground based gps]
-          - sd:
-              aliases: [satellite data all]
-              vals:
-                - sds:
-                    aliases: [ers1, surface data satellite]
-                    vals:
-                      - [121, was, wavescat, wave scatterometer]
-                      - [122, wis, scat, wind scatterometer]
-                      - [123, ral, ralt, radar altimeter]
-                      - [124, sst, sea surface temperature]
-                      - [210, esar, wavesar, envisat sar]
-                      - [212, emeris, envisat_meris, envisat meris]
-                      - [213, era, envisat radar altimeter]
-                      - [214, jra, jason radar altimeter]
-                      - [216, j2ra, jason2 radar altimeter]
-                      - [217, cryora, cryosat-2 radar altimeter]
-                      - [218, saral, saral radar altimeter]
-                - vss:
-                    aliases: [vertical soundings satellite]
-                    vals:
-                      - [51, hr, high resolution]
-                      - [53, rtov, fbtovs, tovh, rtovs]
-                      - [54, tovb, tovs1b]
-                      - [55, atov, atovs]
-                      - [56, atop, atovs products]
-                      - [57, airs, fbairs]
-                      - [59, amsre, fbamsre, advanced microwave scanning radiometer]
-                      - [60, amsr2, amsr2_gc, advanced microwave scanning radiometer 2] # ????
-                      - [61, smt, satem mean temperature]
-                      - [62, sw, satem water]
-                      - [63, shl, satem higher level]
-                      - [65, slm, satem levels merged]
-                      - [71, mt, mean temperature]
-                      - [72, w, water]
-                      - [73, hl, higher level]
-                      - [75, tlm, tovs levels merged]
-                      - [138, oscat]
-                      - [139, ascat]
-                      - [153, mwribt, micro wave radiation imager]
-                      - [155, ateu, amsu_ears, atovs eumetsat]
-                      - [211, saphir]
-                      - [240, iasi, fbiasi, iasi_screened] # ????
-                      - [250, gpsro, fbgpsro, gps radio occultation]
-                - [126, ssmi, microwave images]
-                - [49, ssmis, fbssmis,  special sensor microwave imager sounder]
-                - [127, ssbt, fbssmi, sea surface brigthness temperature]
-                - trmm:
-                    vals:
-                      - [129, tbt, fbtmi, tmi brightness temperatures]
-                      - [130, ti3r, tmi instantaneous 3-d rainfall structure]
-                - qscat:
-                    vals:
-                      - [137, qsca, quikscat]
-                      - [138, qssw, quikscat seawinds]
-                - reo3:
-                    vals:
-                      - [206, reo3, fbreo3, ozone]
-                      - [207, modis, modis aerosol]
-                      - [208, limd, layer integrated mass density]
-                      - [209, limd_ak, layer integrated mass density with averaging kernels]
-                - [156, wsat, fbwindsat, windsat]
-                - [154, vass, vertical atmospheric sounder system]
-                - [201, atms, advanced technology microwave sounder]
-                - [202, cris, cross-track infrared sounder ]
-                - [252, giirs]
-                - [245, hiras2]
-                - [246, aws]
-      - bufr:
-          vals: [1, 3, 9, 11, 13, 19, 21, 22, 23, 28, 61, 62, 63, 82, 83, 84, 85, 86, 87, 91, 92, 95, 96, 101, 102, 103, 106, 110, 109, 111, 112, 113, 140, 142, 143, 144, 145, 146, 147, 149, 164, 170, 172, 176, 178, 180, 230, 231]
-      - fbconv:
-          vals: [1, 3, 9, 11, 13, 19, 21, 22, 23, 28, 65, 82, 83, 86, 87, 91, 92, 95, 96, 101, 102, 103, 106, 110, 140, 142, 143, 144, 145, 164]
-      - fbscat:
-          vals: [122, 136, 137, 139]
-      - fbrad1c:
-          vals: [54, 55]
-      - fbgeos:
-          vals: [89, 189, 190]
+      - name: all
+        group:
+          - name: [nsd, conventional, non satellite data all]
+            group:
+              - name: [lsd, land surface data]
+                group:
+                  - [1, s, synop land]
+                  - [2, s2, synop record 2 land]
+                  - [3, sa, synop auto land]
+                  - [4, sa2, synop auto record 2 land]
+                  - [7, set, soil and earth temperature]
+                  - [28, snowd, snow depth]
+                  - [140, metar]
+                  - [147, ametar, auto metar]
+                  - [165, snow, imssnow, snowcover, snow cover]
+                  - [170, bs, bufr land synop]
+                  - [172, bs2, bufr land synop 2]
+                  - [176, bsr6, bufr land synop wmo region 6]
+                  - [178, bs1h, bufr land synop 1 hourly]
+              - name: [ssd, sea surface data]
+                group:
+                  - [9, sab, synop abbreviated ship]
+                  - [11, ss, synop ship]
+                  - [12, ss2, synop record 2 ship]
+                  - [13,sas, synop auto ship]
+                  - [14, sas2, synop auto record 2 ship]
+                  - [19, sh, shred]
+                  - [21, dsu, dribu surface]
+                  - [22, bsu, bathy surface]
+                  - [23, tsu, tesac surface]
+                  - [26, ostia] # ????
+                  - [27, buoy] # ????
+                  - [180, bss, bufr ship synop]
+                  - [181, bmb, bufr moored buoys]
+                  - [182, bdb, bufr drifting buoys]
+              - name: [vsns, vertical soundings not satellite]
+                group:
+                  - [91, p, pilot land]
+                  - [92, ps, pilot ship]
+                  - [95, wp, wind profile]
+                  - [96, ewp, european wind profile]
+                  - [97, ewtp, european wind and temperature profile]
+                  - [101, t, temp land]
+                  - [102, ts, temp ship]
+                  - [103, td, temp drop]
+                  - [104, r, rocob land]
+                  - [105, rs, rocob ship]
+                  - [106, tm, temp mobile]
+                  - [107, ct, climate temp]
+                  - [109, hrt, high resolution temp land]
+                  - [111, hrts, high resolution temp ship]
+                  - [112, bp, bufr land pilot]
+                  - [113, bps, bufr ship pilot]
+                  - [230, btd, bufr temp drop]
+                  - [231, btdc, bufr temp descent]
+              - name: [slns, single level upper air not satellite]
+                group:
+                  - [141, cod, codar]
+                  - [142, air, airep]
+                  - [143, col, colba]
+                  - [144, am, amdar]
+                  - [145, ac, acars]
+                  - [146, eam, e-amdar]
+                  - [149, acmr, acars with mixing ratio]
+              - name: [sls, single level upper air satellite]
+                group:
+                  - [82, sat2, satob section 2]
+                  - [83, sat3, satob section 3]
+                  - [84, sat4, satob section 4]
+                  - [85, sat5, atob section 5]
+                  - [86, sat6, high resolution winds]
+                  - [87, sat7, high density unified format satellite winds]
+                  - [88, geor, geostationary radiances]
+                  - [89, gcsr, geostationary clear sky radiances]
+                  - [189, gmsgr, geostationary msg radiances]
+                  - [190, gasr, geostationary all sky radiances]
+              - name: [od, oceanographic data]
+                group:
+                  - [131, do, dribu oceanographic]
+                  - [132, bo, bathy oceanographic]
+                  - [133, to, tesac oceanographic]
+                  - [184, argo, bufr argo]
+              - name: [dd, derived data]
+                group:
+                  - [164, pa, paobs]
+                  - [237, bice, baltic_ci, baltic sea ice]
+              - name: [cc, chemical constituent]
+                group:
+                  # - [157, so, surface ozone]
+                  # - [158, soa, surface ozone averaged]
+                  - [162, ovs, ozone vertical sounding]
+                  - [159, op, ozone partial]
+              - name: [sf, synoptic features]
+                group:
+                  - [31, stor, storm]
+                  - [32, tc, tropical cyclone] # ????
+              - [110, pgps, gbgps, ground based gps]
+          - name: [sd, satellite data all]
+            group:
+              - name: [sds, ers1, surface data satellite]
+                group:
+                  - [121, was, wavescat, wave scatterometer]
+                  - [122, wis, scat, wind scatterometer]
+                  - [123, ral, ralt, radar altimeter]
+                  - [124, sst, sea surface temperature]
+                  - [210, esar, wavesar, envisat sar]
+                  - [212, emeris, envisat_meris, envisat meris]
+                  - [213, era, envisat radar altimeter]
+                  - [214, jra, jason radar altimeter]
+                  - [216, j2ra, jason2 radar altimeter]
+                  - [217, cryora, cryosat-2 radar altimeter]
+                  - [218, saral, saral radar altimeter]
+              - name: [vss, vertical soundings satellite]
+                group:
+                  - [51, hr, high resolution]
+                  - [53, rtov, fbtovs, tovh, rtovs]
+                  - [54, tovb, tovs1b]
+                  - [55, atov, atovs]
+                  - [56, atop, atovs products]
+                  - [57, airs, fbairs]
+                  - [59, amsre, fbamsre, advanced microwave scanning radiometer]
+                  - [60, amsr2, amsr2_gc, advanced microwave scanning radiometer 2] # ????
+                  - [61, smt, satem mean temperature]
+                  - [62, sw, satem water]
+                  - [63, shl, satem higher level]
+                  - [65, slm, satem levels merged]
+                  - [71, mt, mean temperature]
+                  - [72, w, water]
+                  - [73, hl, higher level]
+                  - [75, tlm, tovs levels merged]
+                  - [138, oscat]
+                  - [139, ascat]
+                  - [153, mwribt, micro wave radiation imager]
+                  - [155, ateu, amsu_ears, atovs eumetsat]
+                  - [211, saphir]
+                  - [240, iasi, fbiasi, iasi_screened] # ????
+                  - [250, gpsro, fbgpsro, gps radio occultation]
+              - [126, ssmi, microwave images]
+              - [49, ssmis, fbssmis,  special sensor microwave imager sounder]
+              - [127, ssbt, fbssmi, sea surface brigthness temperature]
+              - name: trmm
+                group:
+                  - [129, tbt, fbtmi, tmi brightness temperatures]
+                  - [130, ti3r, tmi instantaneous 3-d rainfall structure]
+              - name: qscat
+                group:
+                  - [137, qsca, quikscat]
+                  - [138, qssw, quikscat seawinds]
+              - name: reo3
+                group:
+                  - [206, reo3, fbreo3, ozone]
+                  - [207, modis, modis aerosol]
+                  - [208, limd, layer integrated mass density]
+                  - [209, limd_ak, layer integrated mass density with averaging kernels]
+              - [156, wsat, fbwindsat, windsat]
+              - [154, vass, vertical atmospheric sounder system]
+              - [201, atms, advanced technology microwave sounder]
+              - [202, cris, cross-track infrared sounder ]
+              - [252, giirs]
+              - [245, hiras2]
+              - [246, aws]
+      - name: bufr
+        group: [1, 3, 9, 11, 13, 19, 21, 22, 23, 28, 61, 62, 63, 82, 83, 84, 85, 86, 87, 91, 92, 95, 96, 101, 102, 103, 106, 110, 109, 111, 112, 113, 140, 142, 143, 144, 145, 146, 147, 149, 164, 170, 172, 176, 178, 180, 230, 231]
+      - name: fbconv
+        group: [1, 3, 9, 11, 13, 19, 21, 22, 23, 28, 65, 82, 83, 86, 87, 91, 92, 95, 96, 101, 102, 103, 106, 110, 140, 142, 143, 144, 145, 164]
+      - name: fbscat
+        group: [122, 136, 137, 139]
+      - name: fbrad1c
+        group: [54, 55]
+      - name: fbgeos
+        group: [89, 189, 190]
       - [255, fbtrmr]
       - [125, rw, nexrad, nexrad_rr, reprocessed wind]
       - [224, gbt, gpm, gmi brightness temperatures]
-      - grad:
-          vals: [88, 89, 189, 190]
+      - name: grad
+        group: [88, 89, 189, 190]
       - [203, smos]
       - [204, smap]
-      - dmbo:
-          vals: [181, 182]
+      - name: dmbo
+        group: [181, 182]
       - [251, aeolus]
     unset:
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+            values: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     # TODO : Migration from old images to new images
 
 
@@ -1546,7 +1535,7 @@ _postproc: &_postproc
     set:
       - context:
           accuracy: [l, r]
-        vals: [8]
+        values: [8]
         warn: "ACCURACY Low or Reduced force to 8 bits"
 
   bitmap:
@@ -1594,7 +1583,7 @@ _postproc: &_postproc
     set:
       - context:
           area: [e]
-        vals: [73.5,-27,33,45]
+        values: [73.5,-27,33,45]
 
   grid:
     category: postproc
@@ -1645,7 +1634,7 @@ _postproc: &_postproc
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, sim, oldim]
 
   interpolation:
@@ -1681,12 +1670,12 @@ _postproc: &_postproc
     set:
       - context:
           style: [dissemination]
-        vals: [av]
+        values: [av]
         warn: "Force resol=av when style=dissemination"
       - context:
           style: [dissemination]
           resol: [auto]
-        vals: [av]
+        values: [av]
         warn: "Force resol=av when style=dissemination"
 
 
@@ -1703,7 +1692,7 @@ _postproc: &_postproc
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, sim, oldim]
 
   intgrid:
@@ -1750,7 +1739,7 @@ _postproc: &_postproc
       - context:
           _verb: [retrieve]
           class: [ti]
-        vals: [local]
+        values: [local]
     default:
     type: enum
     values:
@@ -1772,7 +1761,7 @@ _obspproc: &_obspproc
       - context:
           type:
             op: '!'
-            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
+            values: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
 
 #######################################################################
 
@@ -1935,7 +1924,7 @@ retrieve:
             op: 'd'
           database:
             op: 'u'
-        vals: [file]
+        values: [file]
 
   optimise:
     type: enum
@@ -1943,27 +1932,30 @@ retrieve:
     - 'on'
     - 'off'
     defaults:
-      - vals: ["off"]
+      - values: ["off"]
 
 
   duplicates:
     type: enum
     defaults:
       - context:
-          # type: [mfb, ofb, ai, ofa]
           obsgroup:
             op: 'd'
-        vals: [keep]
+        values: [keep]
+      - context:
+          obstype:
+            op: 'd'
+        values: [keep]
     unset:
       - context:
           stream:
             op: '!'
-            vals: [ssmi]
+            values: [ssmi]
           type: [im, sim, oldim]
       - context:
           type:
             op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+            values: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     values:
     - keep
     - remove
@@ -1975,7 +1967,7 @@ retrieve:
       - context:
           _verb: [retrieve]
           class: [ti]
-        vals: [0]
+        values: [0]
     values:
       - [0, none, n]
       - [auto, automatic]

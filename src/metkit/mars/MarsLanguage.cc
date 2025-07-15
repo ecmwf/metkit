@@ -38,7 +38,7 @@
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
 static std::set<std::string> verbs_;
-static std::map<std::string, std::string> verbAliases_;
+static eckit::StringDict verbAliases_;
 
 static void init() {
     languages_               = eckit::YAMLParser::decodeFile(metkit::mars::MarsLanguage::languageYamlFile());
@@ -288,7 +288,7 @@ std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, c
     oss << "Ambiguous value '" << name << "' could be";
 
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
-        std::map<std::string, std::vector<std::string>>::const_iterator k = aliases.find(*j);
+        StringManyMap::const_iterator k = aliases.find(*j);
         if (k == aliases.end()) {
             oss << " '" << *j << "'";
         }
@@ -353,7 +353,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 
     try {
         std::vector<std::pair<std::string, std::string>> sortedParams;
-        std::map<std::string, std::string> paramSet;
+        eckit::StringDict paramSet;
         std::vector<std::string> params;
 
         for (const auto& PP : r.params()) {

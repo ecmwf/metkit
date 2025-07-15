@@ -35,14 +35,14 @@ private:  // methods
     void reset() override;
     std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const override;
 
-    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val, bool uppercase);
+    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val, std::set<std::string>& values, bool uppercase, bool allowDuplicates = false);
 
 private:  // members
 
-    std::map<std::string, std::vector<std::string>> mapping_;
+    StringManyMap mapping_;
     std::vector<std::string> values_;
 
-    mutable std::map<std::string, std::vector<std::string>> cache_;
+    mutable StringManyMap cache_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

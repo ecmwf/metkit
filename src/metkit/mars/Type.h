@@ -190,7 +190,7 @@ public:  // methods
 
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values,
                         const MarsRequest& request = {}) const;
-    virtual std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
+    [[nodiscard]] virtual std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
 
     std::vector<std::string> tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
     std::vector<std::string> tidy(const std::string& value, const MarsRequest& request = {}) const;
@@ -229,6 +229,7 @@ protected:  // members
     bool flatten_;
     bool multiple_;
     bool duplicates_;
+    bool deduplicate_;
 
     std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
     std::optional<std::vector<std::string>> inheritance_;
