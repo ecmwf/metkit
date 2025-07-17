@@ -33,7 +33,7 @@ void TypeEnum::addValue(const std::string& value, int16_t idx, bool allowDuplica
 
 int16_t TypeEnum::parseValueNames(const eckit::Value& names, bool uppercase, bool allowDuplicates) {
     std::string firstName = eckit::StringTools::lower(names.isList() ? names[0] : names);
-    int16_t idx = groups_.size();
+    int16_t idx           = groups_.size();
     addValue(firstName, idx, allowDuplicates);
     if (names.isList()) {
         for (size_t i = 1; i < names.size(); ++i) {
@@ -47,7 +47,8 @@ int16_t TypeEnum::parseValueNames(const eckit::Value& names, bool uppercase, boo
     return idx;
 }
 
-std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val, bool uppercase, bool allowDuplicates) {
+std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val, bool uppercase,
+                                                  bool allowDuplicates) {
 
     if (val.isMap()) {
         hasGroups_ = true;
@@ -73,7 +74,7 @@ std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const
         return groups_.at(idx).second;
     }
     else {
-        int16_t idx = parseValueNames(val, uppercase, allowDuplicates);
+        int16_t idx    = parseValueNames(val, uppercase, allowDuplicates);
         std::string nn = groups_.at(idx).first;
         groups_.at(idx).second.push_back(nn);
         return {nn};
@@ -115,7 +116,7 @@ bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value, const Ma
 
 int16_t TypeEnum::find(std::string& value) const {
     std::string val = eckit::StringTools::lower(value);
-    auto it = values_.find(val);
+    auto it         = values_.find(val);
     if (it == values_.end()) {
         return -1;
     }

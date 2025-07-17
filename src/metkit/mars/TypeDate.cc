@@ -156,7 +156,7 @@ bool TypeDate::expand(const MarsExpandContext&, std::string& value, const MarsRe
                 else {  // month-day (i.e. TypeClimateDaily)
                     std::string m = month(tokens[0]);
                     long d        = s2l(tokens[1]);
-                    value = m + "-" + l2s(d);
+                    value         = m + "-" + l2s(d);
                 }
             }
             else {

@@ -191,7 +191,8 @@ public:  // methods
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values,
                         const MarsRequest& request = {}) const;
 
-    std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{}, const MarsRequest& request = {}) const;
+    std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{},
+                     const MarsRequest& request = {}) const;
     // std::vector<std::string> tidy(const std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
     virtual void setDefaults(MarsRequest& request);
