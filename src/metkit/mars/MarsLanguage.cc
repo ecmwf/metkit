@@ -38,7 +38,7 @@
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
 static std::set<std::string> verbs_;
-static eckit::StringDict verbAliases_;
+static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
     languages_               = eckit::YAMLParser::decodeFile(metkit::mars::MarsLanguage::languageYamlFile());
@@ -107,7 +107,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
-                aliases_[(*aliases)[j]] = {keyword};
+                aliases_[(*aliases)[j]] = keyword;
                 keywords_.push_back((*aliases)[j]);
             }
         }
@@ -186,9 +186,9 @@ static bool isnumeric(const std::string& s) {
     return s.length() > 0;
 }
 
-std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
-                                                 const std::vector<std::string>& values, bool fail, bool quiet,
-                                                 bool fullMatch, const StringManyMap& aliases) {
+std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
+                                    const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
+                                    const std::map<std::string, std::string>& aliases) {
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
@@ -215,7 +215,7 @@ std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, c
             if (aliases.find(value) != aliases.end()) {
                 return aliases.find(value)->second;
             }
-            return {value};
+            return value;
         }
 
         if (s >= score) {
@@ -247,14 +247,14 @@ std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, c
             if (aliases.find(best[0]) != aliases.end()) {
                 return aliases.find(best[0])->second;
             }
-            return {best[0]};
+            return best[0];
         }
     }
 
     static std::string empty;
     if (best.empty()) {
         if (!fail) {
-            return {empty};
+            return empty;
         }
 
         std::ostringstream oss;
@@ -262,11 +262,11 @@ std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, c
         throw eckit::UserError(oss.str());
     }
 
-    std::set<std::vector<std::string>> names;
+    std::set<std::string> names;
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
         const auto k = aliases.find(*j);
         if (k == aliases.end()) {
-            names.insert({*j});
+            names.insert(*j);
         }
         else {
             names.insert((*k).second);
@@ -277,18 +277,18 @@ std::vector<std::string> MarsLanguage::bestMatch(const MarsExpandContext& ctx, c
         if (aliases.find(best[0]) != aliases.end()) {
             return aliases.find(best[0])->second;
         }
-        return {best[0]};
+        return best[0];
     }
 
     if (!fail) {
-        return {empty};
+        return empty;
     }
 
     std::ostringstream oss;
     oss << "Ambiguous value '" << name << "' could be";
 
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
-        StringManyMap::const_iterator k = aliases.find(*j);
+        auto k = aliases.find(*j);
         if (k == aliases.end()) {
             oss << " '" << *j << "'";
         }
@@ -353,7 +353,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 
     try {
         std::vector<std::pair<std::string, std::string>> sortedParams;
-        eckit::StringDict paramSet;
+        std::map<std::string, std::string> paramSet;
         std::vector<std::string> params;
 
         for (const auto& PP : r.params()) {
@@ -363,9 +363,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                auto vals     = bestMatch(ctx, p, keywords_, true, false, true, aliases_);
-                ASSERT(vals.size() == 1);
-                paramSet.emplace(cache_[p] = vals[0], PP);
+                paramSet.emplace(cache_[p] = bestMatch(ctx, p, keywords_, true, false, true, aliases_), PP);
             }
         }
 

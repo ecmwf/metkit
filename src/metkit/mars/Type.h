@@ -31,8 +31,6 @@
 
 namespace metkit::mars {
 
-class MarsExpandContext;
-
 //----------------------------------------------------------------------------------------------------------------------
 
 /// @brief abstract class - ContextRule subclasses are used to define a context. A MarsRequest matches a context, if it
@@ -225,9 +223,6 @@ protected:  // members
 
     virtual bool hasGroups() const { return false; }
     virtual const std::vector<std::string>& group(const std::string&) const { NOTIMP; }
-
-    // [[nodiscard]] virtual std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
-    //                                                       const MarsRequest& request = {}) const;
 
 protected:  // members
 

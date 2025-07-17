@@ -269,17 +269,6 @@ std::string Type::tidy(const std::string& value, const MarsExpandContext& ctx, c
     return result;
 }
 
-// std::vector<std::string> Type::tidy(const std::vector<std::string>& values, const MarsRequest& request) const {
-//     DummyContext ctx;
-
-//     std::vector<std::string> result;
-//     for (auto& v : values) {
-//         auto expanded = expand(ctx, v, request);
-//         result.insert(result.end(), expanded.begin(), expanded.end());
-//     }
-//     return result;
-// }
-
 bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
