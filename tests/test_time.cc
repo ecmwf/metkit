@@ -40,16 +40,14 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
 }
 
 void checkExpansion(const Type& tt, const std::string& value, const std::string& expected) {
-    auto expanded = tt.expand(DummyContext(), value);
-    EXPECT_EQUAL(expanded.size(), 1);
-    EXPECT_EQUAL(expected, expanded[0]);
+    auto expanded = tt.tidy(value);
+    EXPECT_EQUAL(expected, expanded);
 }
 
 CASE("Test TypeTime expansions") {
 
     TypeTime ttime("time", Value());
     Type& tt(ttime);
-    DummyContext ctx;
 
     // 1 and 2-digit times
     checkExpansion(tt, "0", "0000");
@@ -66,7 +64,7 @@ CASE("Test TypeTime expansions") {
     checkExpansion(tt, "1234", "1234");
     checkExpansion(tt, "623", "0623");
     checkExpansion(tt, "0623", "0623");
-    { EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "675"), BadTime); }
+    { EXPECT_THROWS_AS(auto vv = tt.tidy("675"), BadTime); }
 
     // 5 and 6-digit times
     checkExpansion(tt, "00000", "0000");
@@ -76,15 +74,15 @@ CASE("Test TypeTime expansions") {
     checkExpansion(tt, "62300", "0623");
     {
         // We don't support seconds yet.
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "000012"), BadValue);
+        EXPECT_THROWS_AS(auto vv = tt.tidy("000012"), BadValue);
     }
     {
         // We don't support seconds yet.
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "123456"), BadValue);
+        EXPECT_THROWS_AS(auto vv = tt.tidy("123456"), BadValue);
     }
     {
         // We don't support time > 24h
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "283456"), BadValue);
+        EXPECT_THROWS_AS(auto vv = tt.tidy("283456"), BadValue);
     }
 
     // times with colons
@@ -100,14 +98,14 @@ CASE("Test TypeTime expansions") {
     checkExpansion(tt, "12:34:00", "1234");
     checkExpansion(tt, "06:23:00", "0623");
     checkExpansion(tt, "6:23:00", "0623");
-    { EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "00:62"), BadTime); }
+    { EXPECT_THROWS_AS(auto vv = tt.tidy("00:62"), BadTime); }
     {
         // We don't support seconds yet.
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "00:00:12"), BadValue);
+        EXPECT_THROWS_AS(auto vv = tt.tidy("00:00:12"), BadValue);
     }
     {
         // We don't support seconds yet.
-        EXPECT_THROWS_AS(auto vv = tt.expand(ctx, "12:34:56"), BadValue);
+        EXPECT_THROWS_AS(auto vv = tt.tidy("12:34:56"), BadValue);
     }
 
     // times with units

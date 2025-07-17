@@ -34,8 +34,7 @@ public:  // methods
 private:  // methods
 
     void print(std::ostream& out) const override;
-    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
-                                    const MarsRequest& request) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

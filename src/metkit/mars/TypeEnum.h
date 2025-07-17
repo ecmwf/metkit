@@ -31,21 +31,27 @@ public:  // methods
 
 private:  // methods
 
+    bool hasGroups() const override { return hasGroups_; }
+    const std::vector<std::string>& group(const std::string& value) const override;
+
     void print(std::ostream& out) const override;
     void reset() override;
-    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
-                                    const MarsRequest& request) const override;
+    
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
+    int16_t find(std::string& value) const;
 
     std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val,
-                                            std::set<std::string>& values, bool uppercase,
-                                            bool allowDuplicates = false);
+                                            bool uppercase, bool allowDuplicates = false);
+
+    void addValue(const std::string& value, int16_t idx, bool allowDuplicates);
+    int16_t parseValueNames(const eckit::Value& names, bool uppercase, bool allowDuplicates);
 
 private:  // members
 
-    StringManyMap mapping_;
-    std::vector<std::string> values_;
+    bool hasGroups_ = false;
 
-    mutable StringManyMap cache_;
+    std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
+    std::map<std::string, int16_t> values_; // map of acceptable values (included aliases)
 };
 
 //----------------------------------------------------------------------------------------------------------------------

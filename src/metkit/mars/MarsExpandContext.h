@@ -14,15 +14,13 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsExpandContext_H
-#define metkit_MarsExpandContext_H
+#pragma once
 
 #include "eckit/memory/NonCopyable.h"
 
 #include <iosfwd>
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -48,7 +46,4 @@ class DummyContext : public MarsExpandContext {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

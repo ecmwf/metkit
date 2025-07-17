@@ -44,8 +44,7 @@ private:  // methods
     void print(std::ostream& out) const override;
     void reset() override;
     void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
-    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
-                                    const MarsRequest& request) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

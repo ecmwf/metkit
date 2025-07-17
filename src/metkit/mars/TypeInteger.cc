@@ -68,14 +68,14 @@ bool TypeInteger::ok(const std::string& value, long& n) const {
     return !range_ || (n >= range_->lower_ && n <= range_->upper_);
 }
 
-std::vector<std::string> TypeInteger::expand(const MarsExpandContext& ctx, const std::string& value,
-                                             const MarsRequest&) const {
+bool TypeInteger::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest&) const {
     long n = 0;
     if (ok(value, n)) {
         static eckit::Translator<long, std::string> l2s;
-        return {l2s(n)};
+        value = l2s(n);
+        return true;
     }
-    return {};
+    return false;
 }
 
 static TypeBuilder<TypeInteger> type("integer");

@@ -50,7 +50,6 @@ CASE("Test TypeDate expansions") {
 
     TypeDate tdate("date", Value());
     Type& td(tdate);
-    DummyContext ctx;
 
     assertTypeExpansion("date", {"20140506"}, {"20140506"});
     assertTypeExpansion("date", {"2014-05-06"}, {"20140506"});
@@ -78,16 +77,16 @@ CASE("Test TypeDate expansions") {
     assertTypeExpansion("date", {"2018-41"}, {"20180210"});
 
     {
-        EXPECT_THROWS(auto vv = td.expand(ctx, "20141506"));  // throws BadDate that is not exported
+        EXPECT_THROWS(auto vv = td.tidy("20141506"));  // throws BadDate that is not exported
     }
     {
-        EXPECT_THROWS(auto vv = td.expand(ctx, "20180132"));  // throws BadDate that is not exported
+        EXPECT_THROWS(auto vv = td.tidy("20180132"));  // throws BadDate that is not exported
     }
     {
-        EXPECT_THROWS(auto vv = td.expand(ctx, "202401366"));  // throws BadDate that is not exported
+        EXPECT_THROWS(auto vv = td.tidy("202401366"));  // throws BadDate that is not exported
     }
-    { EXPECT_THROWS_AS(auto vv = td.expand(ctx, "abc"), BadValue); }
-    { EXPECT_THROWS_AS(auto vv = td.expand(ctx, "abc-01"), BadValue); }
+    { EXPECT_THROWS_AS(auto vv = td.tidy("abc"), BadValue); }
+    { EXPECT_THROWS_AS(auto vv = td.tidy("abc-01"), BadValue); }
 }
 
 
