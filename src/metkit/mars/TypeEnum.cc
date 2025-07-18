@@ -34,7 +34,7 @@ void TypeEnum::addValue(const std::string& vv, uint16_t idx, bool allowDuplicate
 
 uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicates) const {
     std::string firstName = names.isList() ? names[0] : names;
-    uint16_t idx           = groups_.size();
+    uint16_t idx          = groups_.size();
     addValue(firstName, idx, allowDuplicates);
     if (names.isList()) {
         for (size_t i = 1; i < names.size(); ++i) {
@@ -48,7 +48,8 @@ uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicat
     return idx;
 }
 
-std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val, bool allowDuplicates) const {
+std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val,
+                                                  bool allowDuplicates) const {
 
     if (val.isMap()) {
         hasGroups_ = true;
@@ -74,7 +75,7 @@ std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const
         return groups_.at(idx).second;
     }
     else {
-        uint16_t idx    = parseValueNames(val, allowDuplicates);
+        uint16_t idx   = parseValueNames(val, allowDuplicates);
         std::string nn = groups_.at(idx).first;
         groups_.at(idx).second.push_back(nn);
         return {nn};
@@ -92,7 +93,8 @@ void TypeEnum::readValuesFile() const {
     }
 }
 
-TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings), uppercase_(false), hasGroups_(false) {
+TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) :
+    Type(name, settings), uppercase_(false), hasGroups_(false) {
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 

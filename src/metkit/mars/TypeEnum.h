@@ -42,17 +42,19 @@ private:  // methods
     bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
     std::map<std::string, uint16_t>::const_iterator find(const std::string& value) const;
 
-    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val, bool allowDuplicates = false) const;
+    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val,
+                                            bool allowDuplicates = false) const;
 
     void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
     uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
 
     void readValuesFile() const;
+
 private:  // members
 
     std::string valuesFile_ = "";
 
-    bool uppercase_ = false;
+    bool uppercase_         = false;
     mutable bool hasGroups_ = false;
     mutable std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
     mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
