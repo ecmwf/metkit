@@ -85,8 +85,8 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
         case 'd':
             return std::make_unique<Def>(key);
         case '!':
-            ASSERT(r.contains("values"));
-            eckit::Value vv = r["values"];
+            ASSERT(r.contains("vals"));
+            eckit::Value vv = r["vals"];
             for (size_t k = 0; k < vv.size(); k++) {
                 vals.insert(vv[k]);
             }
@@ -136,8 +136,8 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < defaults.size(); i++) {
                 std::vector<std::string> vals;
                 eckit::Value d = defaults[i];
-                ASSERT(d.contains("values"));
-                eckit::Value vv = d["values"];
+                ASSERT(d.contains("vals"));
+                eckit::Value vv = d["vals"];
 
                 if (vv.isList()) {
                     for (size_t k = 0; k < vv.size(); k++) {
@@ -173,8 +173,8 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < sets.size(); i++) {
                 eckit::Value s = sets[i];
                 std::vector<std::string> vals;
-                ASSERT(s.contains("values"));
-                eckit::Value vv = s["values"];
+                ASSERT(s.contains("vals"));
+                eckit::Value vv = s["vals"];
                 if (vv.isList()) {
                     for (size_t k = 0; k < vv.size(); k++) {
                         vals.push_back(vv[k]);

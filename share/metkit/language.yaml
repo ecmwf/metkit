@@ -9,7 +9,7 @@ _field: &_field
   class:
     category: data
     defaults:
-      - values: [od]
+      - vals: [od]
     flatten: false
     type: enum
     values:
@@ -92,12 +92,12 @@ _field: &_field
   type:
     category: data
     defaults:
-      - values: [an]
+      - vals: [an]
     set:
       - context:
           _verb: [retrieve]
           stream: [ssmi]
-        values: [ob]
+        vals: [ob]
         warn: "Changed type=ob"
     flatten: false
     type: enum
@@ -201,22 +201,22 @@ _field: &_field
     defaults:
       - context:
           class: [ti]
-        values: [enfo]
+        vals: [enfo]
       - context:
           class:
             op: '!'
-            values: [ti]
-        values: [oper]
+            vals: [ti]
+        vals: [oper]
     set:
       - context:
           _verb: [retrieve]
           stream: [ssbt, e1, ssmi]
-        values: [oper]
+        vals: [oper]
         warn: "Changed stream=oper"
       - context:
           class: [ti]
           type: [fc]
-        values: [oper]
+        vals: [oper]
     flatten: false
     type: enum
     values:
@@ -400,13 +400,13 @@ _field: &_field
     flatten: false
     type: expver
     defaults:
-      - values: ['0001']
+      - vals: ['0001']
     set:
       - context:
           class: [ti, s2, ur, rr, lw]
           expver:
             op: 'u'
-        values: [prod]
+        vals: [prod]
 
   dataset:
     category: data
@@ -424,7 +424,7 @@ _field: &_field
           - context:
               class:
                 op: '!'
-                values: [d1]
+                vals: [d1]
       - type: lowercase
 
   model:
@@ -473,7 +473,7 @@ _field: &_field
               class: [ai]
               model:
                 op: 'u'
-            values: [aifs-single-mse]
+            vals: [aifs-single-mse]
 
   georef:
     category: data
@@ -486,55 +486,15 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [d1]
+            vals: [d1]
           dataset:
             op: '!'
-            values: [on-demand-extremes-dt]
+            vals: [on-demand-extremes-dt]
 
   repres:
     flatten: false
     multiple: false
-    # defaults:
-    #   - values: [sh]
     type: enum
-    # set:
-    #   - context:
-    #       stream:
-    #         op: '!'
-    #         values: [ssmi]
-    #       type: [im, sim, oldim]
-    #     values: [sv]
-    #   - context:
-    #       type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-    #     values: [bu]
-    #   - context:
-    #       stream: [ssmi]
-    #     values: [bu]
-    #   - context:
-    #       levtype: [sfc]
-    #       class: [od]
-    #       stream: [oper]
-    #     values: [gg]
-    #   - context:
-    #       levtype: [sfc]
-    #       class: [er]
-    #       stream: [oper]
-    #       type: [an, fc]
-    #       repres:
-    #         op: 'u'
-    #     values: [gg]
-    #   - context:
-    #       _verb: [retrieve]
-    #       type: [tu]
-    #     values: [ll]
-# %if LEVTYPE = SFC %and CLASS = OD %and STREAM = OPER %and (TYPE = IA %or TYPE = AN) %and DATE < 19830420 %then
-#         %set REPRES = LL
-    # unset:
-    #   - context:
-    #       class: [ep]
-    #       levtype: [o2d, o3d]
-    #   - context:
-    #       _verb: [read]
     values:
       - [bu, 'bufr']
       - [sh, 'spherical harmonics']
@@ -544,8 +504,6 @@ _field: &_field
       - [og, 'ocean grid']
       - [np]
       - [rl]
-
-
 
   obsgroup:
     category: data
@@ -630,7 +588,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            values: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
 
   reportype:
     category: data
@@ -642,12 +600,12 @@ _field: &_field
   levtype:
     category: data
     defaults:
-      - values: [pl]
+      - vals: [pl]
     unset:
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, sim, oldim]
       - context:
           type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
@@ -679,7 +637,7 @@ _field: &_field
     type: to-by-list-float
     by: 1
     defaults:
-      - values: [1000, 850, 700, 500, 400, 300]
+      - vals: [1000, 850, 700, 500, 400, 300]
       # - context:
       #     levtype: [ml]
       #   values: [1, 2]
@@ -690,7 +648,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, sim, oldim]
       - context:
           stream: [ssmi]
@@ -715,12 +673,12 @@ _field: &_field
     multiple: true
     type: param
     defaults:
-      - values: [129]
+      - vals: [129]
     unset:
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, sim, oldim]
       - context:
           stream: [ssmi]
@@ -739,7 +697,7 @@ _field: &_field
     type: date
     by: 1
     defaults:
-      - values: [-1]
+      - vals: [-1]
     unset:
       - context:
           stream: [mfhm]
@@ -788,7 +746,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            values: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
+            vals: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
 
   offsetdate:
     category: data
@@ -812,12 +770,12 @@ _field: &_field
     type: time
     by: 6h
     defaults:
-      - values: ['1200']
+      - vals: ['1200']
     set:
       - context:
           class: [dm]
           type: [fc]
-        values: [0]
+        vals: [0]
     unset:
       - context:
           type: [ab]
@@ -826,7 +784,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [er]
+            vals: [er]
           stream: [moda, msda, edmo, ewmo, wamd]
 
   offsettime:
@@ -842,11 +800,11 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [to, dt]
+            vals: [to, dt]
       - context:
           stream:
             op: '!'
-            values: [seap]
+            vals: [seap]
 
 
   opttime:
@@ -857,11 +815,11 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [to, dt]
+            vals: [to, dt]
       - context:
           stream:
             op: '!'
-            values: [seap]
+            vals: [seap]
 
   step:
     category: data
@@ -869,12 +827,12 @@ _field: &_field
     by: 12
     type: range
     defaults:
-      - values: [0]
+      - vals: [0]
     unset:
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, oldim]
       - context:
           stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
@@ -883,7 +841,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [er]
+            vals: [er]
           stream: [moda, msda, edmo, ewmo, wamd]
       - context:
           class: [ed,ng]
@@ -901,12 +859,12 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            values: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+            vals: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
       - context:
           stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
           type:
             op: '!'
-            values: [go, sfo, fu]
+            vals: [go, sfo, fu]
 # ANOFFSET not valid unless Long window 4dvar or for EFAS/EFCL/EFSE/EFRF/EFSR/WFAS/WFCL/WFSE/WFRF/WFSR water balance/fillup
 
 
@@ -930,27 +888,27 @@ _field: &_field
       - context:
           class: [ti, s2]
           type: [cf]
-        values: [0]
+        vals: [0]
     unset:
       - context:
           type:
             op: '!'
-            values: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
+            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
           class:
             op: '!'
-            values: [ti, lw, s2]
+            vals: [ti, lw, s2]
           stream:
             op: '!'
-            values: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
+            vals: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
       - context:
           _verb: [retrieve, archive]
           class:
             op: '!'
-            values: [ti, s2]
+            vals: [ti, s2]
           type: [cf, em, es, ses, taem, taes]
           stream:
             op: '!'
-            values: [mofc, wamf, mofm, wmfm]
+            vals: [mofc, wamf, mofm, wmfm]
 
   quantile:
     category: data
@@ -962,7 +920,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            values: [pd, cd, pb, taem]
+            vals: [pd, cd, pb, taem]
 
   domain:
     category: data
@@ -970,8 +928,8 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [ms]
-        values: [g]
+            vals: [ms]
+        vals: [g]
     type:
       - context:
           class: [ms]
@@ -988,7 +946,7 @@ _field: &_field
               class: [od]
               type: [cm, cs, cr]
               domain: [g]
-            values: [e]
+            vals: [e]
           # - context:
           #   - dataset: [climate-dt]
           #   error: "domain not alowded with dataset {dataset}"
@@ -1075,7 +1033,7 @@ _field: &_field
       - context:
           class: [ms]
           country: [it]
-        values: [ecmwf]
+        vals: [ecmwf]
     values:
       - [original]
       - [ecmwf]
@@ -1094,7 +1052,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            values: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
+            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
 
   direction:
@@ -1106,7 +1064,7 @@ _field: &_field
       - context:
           stream:
             op: '!'
-            values: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
+            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
@@ -1132,7 +1090,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            values: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
+            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
     # only:
     # - type: ssd
 
@@ -1217,7 +1175,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            values: [od, en, me, c3, ci]
+            vals: [od, en, me, c3, ci]
 
 #######################################################################
 # DestinE ClimateDT related keywords
@@ -1468,7 +1426,7 @@ _observation: &_observation
       - context:
           type:
             op: '!'
-            values: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     # TODO : Migration from old images to new images
 
 
@@ -1535,7 +1493,7 @@ _postproc: &_postproc
     set:
       - context:
           accuracy: [l, r]
-        values: [8]
+        vals: [8]
         warn: "ACCURACY Low or Reduced force to 8 bits"
 
   bitmap:
@@ -1583,7 +1541,7 @@ _postproc: &_postproc
     set:
       - context:
           area: [e]
-        values: [73.5,-27,33,45]
+        vals: [73.5,-27,33,45]
 
   grid:
     category: postproc
@@ -1634,7 +1592,7 @@ _postproc: &_postproc
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, sim, oldim]
 
   interpolation:
@@ -1670,12 +1628,12 @@ _postproc: &_postproc
     set:
       - context:
           style: [dissemination]
-        values: [av]
+        vals: [av]
         warn: "Force resol=av when style=dissemination"
       - context:
           style: [dissemination]
           resol: [auto]
-        values: [av]
+        vals: [av]
         warn: "Force resol=av when style=dissemination"
 
 
@@ -1692,7 +1650,7 @@ _postproc: &_postproc
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, sim, oldim]
 
   intgrid:
@@ -1739,7 +1697,7 @@ _postproc: &_postproc
       - context:
           _verb: [retrieve]
           class: [ti]
-        values: [local]
+        vals: [local]
     default:
     type: enum
     values:
@@ -1761,7 +1719,7 @@ _obspproc: &_obspproc
       - context:
           type:
             op: '!'
-            values: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
+            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
 
 #######################################################################
 
@@ -1924,7 +1882,7 @@ retrieve:
             op: 'd'
           database:
             op: 'u'
-        values: [file]
+        vals: [file]
 
   optimise:
     type: enum
@@ -1932,7 +1890,7 @@ retrieve:
     - 'on'
     - 'off'
     defaults:
-      - values: ["off"]
+      - vals: ["off"]
 
 
   duplicates:
@@ -1941,21 +1899,21 @@ retrieve:
       - context:
           obsgroup:
             op: 'd'
-        values: [keep]
+        vals: [keep]
       - context:
           obstype:
             op: 'd'
-        values: [keep]
+        vals: [keep]
     unset:
       - context:
           stream:
             op: '!'
-            values: [ssmi]
+            vals: [ssmi]
           type: [im, sim, oldim]
       - context:
           type:
             op: '!'
-            values: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     values:
     - keep
     - remove
@@ -1967,7 +1925,7 @@ retrieve:
       - context:
           _verb: [retrieve]
           class: [ti]
-        values: [0]
+        vals: [0]
     values:
       - [0, none, n]
       - [auto, automatic]

@@ -193,7 +193,6 @@ public:  // methods
 
     std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{},
                      const MarsRequest& request = {}) const;
-    // std::vector<std::string> tidy(const std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);

@@ -528,7 +528,6 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-
 bool TypeParam::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
     // Work done on pass2()
     return true;
