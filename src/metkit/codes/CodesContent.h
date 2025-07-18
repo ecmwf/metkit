@@ -49,8 +49,10 @@ private:
     long getLong(const std::string& key) const override;
     double getDouble(const std::string& key) const override;
     void getDoubleArray(const std::string& key, std::vector<double>& values) const override;
+    void getFloatArray(const std::string& key, std::vector<float>& values) const override;
     size_t getSize(const std::string& key) const override;
     void getDoubleArray(const std::string& key, double* data, size_t lenExpected) const override;
+    void getFloatArray(const std::string& key, float* data, size_t lenExpected) const override;
 
     eckit::Offset offset() const override;
     const codes_handle* codesHandle() const;
