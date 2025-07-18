@@ -47,6 +47,8 @@ public:  // methods
 
     void flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback);
 
+    static eckit::PathName languageYamlFile();
+
     Type* type(const std::string& name) const;
 
     bool isData(const std::string& keyword) const;

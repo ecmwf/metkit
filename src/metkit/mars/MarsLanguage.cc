@@ -148,6 +148,10 @@ MarsLanguage::~MarsLanguage() {
     }
 }
 
+eckit::PathName MarsLanguage::languageYamlFile() {
+    return metkit::LibMetkit::languageYamlFile();
+}
+
 void MarsLanguage::reset() {
     for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
         (*j).second->reset();
