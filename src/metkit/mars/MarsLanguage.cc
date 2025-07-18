@@ -41,7 +41,7 @@ static std::set<std::string> verbs_;
 static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
-    languages_               = eckit::YAMLParser::decodeFile(metkit::mars::MarsLanguage::languageYamlFile());
+    languages_               = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.insert(verbs[i]);
@@ -148,11 +148,6 @@ MarsLanguage::~MarsLanguage() {
     }
 }
 
-eckit::PathName MarsLanguage::languageYamlFile() {
-    return "~metkit/share/metkit/language.yaml";
-}
-
-
 void MarsLanguage::reset() {
     for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
         (*j).second->reset();
@@ -162,7 +157,7 @@ void MarsLanguage::reset() {
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
     // TODO: cache
 
-    eckit::PathName path = std::string("~metkit/share/metkit/" + name);
+    eckit::PathName path = metkit::LibMetkit::configFile(name);
 
     LOG_DEBUG_LIB(LibMetkit) << "MarsLanguage loading jsonFile " << path << std::endl;
 
