@@ -63,8 +63,8 @@ CASE("steprange") {
     }
     {
         StepRange sr{"40m-260m"};
-        EXPECT(eckit::types::is_approximately_equal(sr.from(), 2./3.));
-        EXPECT(eckit::types::is_approximately_equal(sr.to(), 4 + 1./3.));
+        EXPECT(eckit::types::is_approximately_equal(sr.from(), 2. / 3.));
+        EXPECT(eckit::types::is_approximately_equal(sr.to(), 4 + 1. / 3.));
     }
 }
 

@@ -96,7 +96,7 @@ void StepRange::print(std::ostream& s) const {
     }
     else {
         eckit::Time f{std::lround(from_ * 3600.), true};
-        eckit::Time t{std::lround(to_   * 3600.), true};
+        eckit::Time t{std::lround(to_ * 3600.), true};
 
         s << canonical(f) << '-' << canonical(t);
     }
