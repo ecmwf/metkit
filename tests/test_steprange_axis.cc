@@ -38,29 +38,33 @@ CASE("steprange") {
 
     {
         StepRange sr{0, 24};
-        EXPECT(sr.from() == 0);
-        std::cout << sr.to() << std::endl;
-        EXPECT(sr.to() == 24);
+        EXPECT_EQUAL(sr.from(), 0);
+        EXPECT_EQUAL(sr.to(), 24);
     }
     {
         StepRange sr{"0-24"};
-        EXPECT(sr.from() == 0);
-        EXPECT(sr.to() == 24);
+        EXPECT_EQUAL(sr.from(), 0);
+        EXPECT_EQUAL(sr.to(), 24);
     }
     {
         StepRange sr{0, .5};
-        EXPECT(sr.from() == 0);
+        EXPECT_EQUAL(sr.from(), 0);
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 0.5));
     }
     {
         StepRange sr{"0-30m"};
-        EXPECT(sr.from() == 0);
+        EXPECT_EQUAL(sr.from(), 0);
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 0.5));
     }
     {
         StepRange sr{"0-24s"};
-        EXPECT(sr.from() == 0);
+        EXPECT_EQUAL(sr.from(), 0);
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 24. / 3600.));
+    }
+    {
+        StepRange sr{"40m-260m"};
+        EXPECT(eckit::types::is_approximately_equal(sr.from(), 2./3.));
+        EXPECT(eckit::types::is_approximately_equal(sr.to(), 4 + 1./3.));
     }
 }
 
