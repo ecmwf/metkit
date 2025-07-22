@@ -39,6 +39,7 @@ CASE("Test Step expansions") {
     // times with units
     assertTypeExpansion("step", {"0"}, {"0"});
     assertTypeExpansion("step", {"12"}, {"12"});
+    assertTypeExpansion("step", {"260m"}, {"4h20m"});
     assertTypeExpansion("step", {"30m", "1h", "1h30m", "120m"}, {"30m", "1", "1h30m", "2"});
     assertTypeExpansion("step", {"0-1"}, {"0-1"});
     assertTypeExpansion("step", {"30m-60m"}, {"30m-1"});
