@@ -85,8 +85,8 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
         case 'd':
             return std::make_unique<Def>(key);
         case '!':
-            ASSERT(r.contains("values"));
-            eckit::Value vv = r["values"];
+            ASSERT(r.contains("vals"));
+            eckit::Value vv = r["vals"];
             for (size_t k = 0; k < vv.size(); k++) {
                 vals.insert(vv[k]);
             }
@@ -111,7 +111,7 @@ std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
 //----------------------------------------------------------------------------------------------------------------------
 
 Type::Type(const std::string& name, const eckit::Value& settings) :
-    name_(name), flatten_(true), multiple_(false), duplicates_(true), deduplicate_(false) {
+    name_(name), flatten_(true), multiple_(false), duplicates_(true) {
 
     if (settings.contains("multiple")) {
         multiple_ = settings["multiple"];
@@ -136,8 +136,8 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < defaults.size(); i++) {
                 std::vector<std::string> vals;
                 eckit::Value d = defaults[i];
-                ASSERT(d.contains("values"));
-                eckit::Value vv = d["values"];
+                ASSERT(d.contains("vals"));
+                eckit::Value vv = d["vals"];
 
                 if (vv.isList()) {
                     for (size_t k = 0; k < vv.size(); k++) {
@@ -173,8 +173,8 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < sets.size(); i++) {
                 eckit::Value s = sets[i];
                 std::vector<std::string> vals;
-                ASSERT(s.contains("values"));
-                eckit::Value vv = s["values"];
+                ASSERT(s.contains("vals"));
+                eckit::Value vv = s["vals"];
                 if (vv.isList()) {
                     for (size_t k = 0; k < vv.size(); k++) {
                         vals.push_back(vv[k]);
@@ -263,29 +263,13 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
     return s;
 }
 
-std::vector<std::string> Type::tidy(const MarsExpandContext& ctx, const std::string& value,
-                                    const MarsRequest& request) const {
-    return expand(ctx, value, request);
-}
-
-std::vector<std::string> Type::tidy(const std::string& value, const MarsRequest& request) const {
-    DummyContext ctx;
-    return expand(ctx, value, request);
-}
-
-std::vector<std::string> Type::tidy(const std::vector<std::string>& values, const MarsRequest& request) const {
-    DummyContext ctx;
-
-    std::vector<std::string> result;
-    for (auto& v : values) {
-        auto expanded = expand(ctx, v, request);
-        result.insert(result.end(), expanded.begin(), expanded.end());
-    }
+std::string Type::tidy(const std::string& value, const MarsExpandContext& ctx, const MarsRequest& request) const {
+    std::string result = value;
+    expand(ctx, result, request);
     return result;
 }
 
-std::vector<std::string> Type::expand(const MarsExpandContext& ctx, const std::string& value,
-                                      const MarsRequest& request) const {
+bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
@@ -300,30 +284,29 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
     std::vector<std::string> newvals;
     std::set<std::string> seen;
 
-    for (const std::string& val : values) {
-        auto vv = expand(ctx, val, request);
-        if (vv.empty()) {
+    for (std::string& val : values) {
+        std::string value = val;
+        if (!expand(ctx, value, request)) {
             std::ostringstream oss;
             oss << *this << ": cannot expand '" << val << "'" << ctx;
             throw eckit::UserError(oss.str());
         }
-        if (deduplicate_ || !duplicates_) {
-            for (const auto& v : vv) {
-                if ((deduplicate_ || !duplicates_) && seen.find(v) != seen.end()) {
-                    if (!duplicates_) {
-                        std::ostringstream oss;
-                        oss << *this << ": duplicated value '" << v << "'" << ctx;
-                        throw eckit::UserError(oss.str());
-                    }
-                }
-                else {
+        if (hasGroups()) {
+            const std::vector<std::string>& gg = group(value);
+            for (const auto& v : gg) {
+                if (seen.find(v) == seen.end()) {
                     seen.insert(v);
                     newvals.push_back(v);
                 }
             }
         }
         else {
-            newvals.insert(newvals.end(), vv.begin(), vv.end());
+            if (!duplicates_ && seen.find(value) != seen.end()) {
+                std::ostringstream oss;
+                oss << *this << ": duplicated value '" << value << "'" << ctx;
+                throw eckit::UserError(oss.str());
+            }
+            newvals.push_back(value);
         }
     }
 

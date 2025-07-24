@@ -81,10 +81,10 @@ class Rule : public metkit::mars::MarsExpandContext {
     std::vector<Matcher> matchers_;
 
     std::vector<std::string> values_;
-    mutable metkit::mars::StringManyMap mapping_;
+    mutable std::map<std::string, std::string> mapping_;
 
     static std::vector<std::string> defaultValues_;
-    static metkit::mars::StringManyMap defaultMapping_;
+    static std::map<std::string, std::string> defaultMapping_;
 
 public:
 
@@ -117,7 +117,7 @@ public:
 };
 
 std::vector<std::string> Rule::defaultValues_;
-metkit::mars::StringManyMap Rule::defaultMapping_;
+std::map<std::string, std::string> Rule::defaultMapping_;
 
 void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
 
@@ -164,7 +164,7 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
                 precedence[v] = j;
             }
 
-            defaultMapping_[v] = {first};
+            defaultMapping_[v] = first;
             defaultValues_.push_back(v);
         }
     }
@@ -319,16 +319,12 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
 
     ChainedContext c(ctx, *this);
 
-    auto paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
-    ASSERT(paramid.size() <= 1);
-
-    if (paramid.size() == 1 && !paramid[0].empty()) {
-        return paramid[0];
+    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
+    if (!paramid.empty()) {
+        return paramid;
     }
 
-    paramid = metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
-    ASSERT(paramid.size() == 1);
-    return paramid[0];
+    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
 static std::vector<Rule>* rules = nullptr;
@@ -532,11 +528,9 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-
-std::vector<std::string> TypeParam::expand(const MarsExpandContext& /* ctx */, const std::string& value,
-                                           const MarsRequest& /* request */) const {
+bool TypeParam::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
     // Work done on pass2()
-    return {value};
+    return true;
 }
 
 void TypeParam::reset() {

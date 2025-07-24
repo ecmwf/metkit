@@ -22,10 +22,9 @@ namespace metkit::mars {
 
 TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-std::vector<std::string> TypeFloat::expand(const MarsExpandContext&, const std::string& v, const MarsRequest&) const {
+bool TypeFloat::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
 
     bool dot = false;
-    std::string value{v};
 
     for (std::string::const_iterator j = value.begin(); j != value.end(); ++j) {
         switch (*j) {
@@ -45,7 +44,7 @@ std::vector<std::string> TypeFloat::expand(const MarsExpandContext&, const std::
                 dot = true;
                 break;
             default:
-                return {};
+                return false;
                 break;
         }
     }
@@ -66,9 +65,9 @@ std::vector<std::string> TypeFloat::expand(const MarsExpandContext&, const std::
     }
 
     if (value.empty()) {
-        return {"0"};
+        value = "0";
     }
-    return {value};
+    return true;
 }
 
 void TypeFloat::print(std::ostream& out) const {

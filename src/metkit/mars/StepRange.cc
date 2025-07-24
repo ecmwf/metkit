@@ -92,11 +92,11 @@ StepRange::operator std::string() const {
 
 void StepRange::print(std::ostream& s) const {
     if (from_ == to_) {
-        s << canonical(eckit::Time(from_ * 3600, true));
+        s << canonical(eckit::Time(std::lround(from_ * 3600.), true));
     }
     else {
-        eckit::Time f{static_cast<long>(from_ * 3600.), true};
-        eckit::Time t{static_cast<long>(to_ * 3600.), true};
+        eckit::Time f{std::lround(from_ * 3600.), true};
+        eckit::Time t{std::lround(to_ * 3600.), true};
 
         s << canonical(f) << '-' << canonical(t);
     }

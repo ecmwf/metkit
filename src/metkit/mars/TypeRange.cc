@@ -72,10 +72,10 @@ StepRange TypeRange::parse(const std::string& value) const {
     }
 }
 
-std::vector<std::string> TypeRange::expand(const MarsExpandContext&, const std::string& value,
-                                           const MarsRequest&) const {
+bool TypeRange::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
 
-    return {parse(value)};
+    value = parse(value);
+    return true;
 }
 
 static TypeBuilder<TypeRange> type("range");

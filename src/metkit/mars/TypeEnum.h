@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -31,21 +33,33 @@ public:  // methods
 
 private:  // methods
 
+    bool hasGroups() const override { return hasGroups_; }
+    const std::vector<std::string>& group(const std::string& value) const override;
+
     void print(std::ostream& out) const override;
     void reset() override;
-    std::vector<std::string> expand(const MarsExpandContext& ctx, const std::string& value,
-                                    const MarsRequest& request) const override;
+
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
+    std::map<std::string, uint16_t>::const_iterator find(const std::string& value) const;
 
     std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val,
-                                            std::set<std::string>& values, bool uppercase,
-                                            bool allowDuplicates = false);
+                                            bool allowDuplicates = false) const;
+
+    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
+    uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
+
+    void readValuesFile() const;
 
 private:  // members
 
-    StringManyMap mapping_;
-    std::vector<std::string> values_;
+    std::string valuesFile_ = "";
 
-    mutable StringManyMap cache_;
+    bool uppercase_         = false;
+    mutable bool hasGroups_ = false;
+    mutable std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
+    mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
+
+    mutable std::once_flag readValues_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

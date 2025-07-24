@@ -57,9 +57,9 @@ public:  // class methods
 
     static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
 
-    static std::vector<std::string> bestMatch(const MarsExpandContext& ctx, const std::string& what,
-                                              const std::vector<std::string>& values, bool fail, bool quiet,
-                                              bool fullMatch, const StringManyMap& aliases = {});
+    static std::string bestMatch(const MarsExpandContext& ctx, const std::string& name,
+                                 const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
+                                 const std::map<std::string, std::string>& aliases = {});
 
     static eckit::Value jsonFile(const std::string& name);
 
@@ -77,7 +77,7 @@ private:  // members
     std::vector<std::pair<std::string, Type*>> typesByAxisOrder_;
     std::vector<std::string> keywords_;
 
-    StringManyMap aliases_;
+    std::map<std::string, std::string> aliases_;
 
     mutable eckit::StringDict cache_;
 };

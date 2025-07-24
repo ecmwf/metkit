@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 
 #include "eckit/types/Date.h"
 #include "eckit/utils/StringTools.h"
@@ -127,12 +128,13 @@ TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type
 
 void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
-    Type::expand(ctx, values, request);
-    request.setValuesTyped(this, values);
+    if (values.size() == 1 && values[0] == "-1") {
+        Type::expand(ctx, values, request);
+        request.setValuesTyped(this, values);
+    }
 }
 
-std::vector<std::string> TypeDate::expand(const MarsExpandContext& ctx, const std::string& value,
-                                          const MarsRequest& /* request */) const {
+bool TypeDate::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
     if (!value.empty()) {
         eckit::Translator<std::string, long> s2l;
         eckit::Translator<long, std::string> l2s;
@@ -140,7 +142,7 @@ std::vector<std::string> TypeDate::expand(const MarsExpandContext& ctx, const st
             long n = s2l(value);
             if (n <= 0) {
                 eckit::Date now(n);
-                return {l2s(now.yyyymmdd())};
+                value = l2s(now.yyyymmdd());
             }
         }
         else {
@@ -150,27 +152,27 @@ std::vector<std::string> TypeDate::expand(const MarsExpandContext& ctx, const st
             if (tokens.size() == 2) {                                      // month-day (i.e. TypeClimateDaily)
                 if (std::isdigit(tokens[0][0]) && tokens[0].size() > 2) {  // year-dayOfYear (e.g. 2018-23 ==> 20180123)
                     eckit::Date d(s2l(tokens[0]), s2l(tokens[1]));
-                    return {l2s(d.yyyymmdd())};
+                    value = l2s(d.yyyymmdd());
                 }
                 else {  // month-day (i.e. TypeClimateDaily)
                     std::string m = month(tokens[0]);
                     long d        = s2l(tokens[1]);
-                    return {m + "-" + l2s(d)};
+                    value         = m + "-" + l2s(d);
                 }
             }
             else {
                 if (tokens.size() == 1 &&
                     (!std::isdigit(value[0]) || value.size() <= 2)) {  // month (i.e. TypeClimateMonthly)
-                    return {month(tokens[0])};
+                    value = month(tokens[0]);
                 }
                 else {
                     eckit::Date date(value);
-                    return {l2s(date.yyyymmdd())};
+                    value = l2s(date.yyyymmdd());
                 }
             }
         }
     }
-    return {};
+    return true;
 }
 
 void TypeDate::print(std::ostream& out) const {

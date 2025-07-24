@@ -34,8 +34,6 @@ namespace metkit::mars {
 class Type;
 class MarsRequest;
 
-typedef std::map<std::string, std::vector<std::string>> StringManyMap;
-
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsRequest {

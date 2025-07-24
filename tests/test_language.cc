@@ -39,7 +39,7 @@ namespace metkit::mars::test {
 
 struct Expected {
     const std::string verb;
-    StringManyMap keyvalue;
+    std::map<std::string, std::vector<std::string>> keyvalue;
 };
 
 using Sequence = std::vector<unsigned long>;
