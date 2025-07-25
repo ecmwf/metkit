@@ -184,6 +184,12 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
                     vals.push_back(vv);
                 }
                 ASSERT(s.contains("context"));
+                if (s.contains("warn")) {
+                    std::string warn = s["warn"];
+                    if (!warn.empty()) {
+                        // warnings_.insert(warn);
+                    }
+                }
                 sets_.emplace(Context::parseContext(s["context"]), vals);
             }
         }
@@ -194,6 +200,18 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             for (size_t i = 0; i < unsets.size(); i++) {
                 eckit::Value u = unsets[i];
                 ASSERT(u.contains("context"));
+                if (u.contains("warn")) {
+                    std::string warn = u["warn"];
+                    if (!warn.empty()) {
+                        // warnings_.insert(warn);
+                    }
+                }
+                if (u.contains("error")) {
+                    std::string error = u["error"];
+                    if (!error.empty()) {
+                        // warnings_.insert(error);
+                    }
+                }
                 unsets_.insert(Context::parseContext(u["context"]));
             }
         }

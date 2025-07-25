@@ -88,6 +88,16 @@ _field: &_field
       - [ur, uerra]
       - [yp, yopp]
       - [yt, yotc]
+    set:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: 'u'
+        vals: [od]
+        warn: "Missing class. Force to Operations"
 
   type:
     category: data
@@ -195,6 +205,19 @@ _field: &_field
       - [wem, weighted ensemble mean]
       - [wes, weighted ensemble standard deviation]
       - [wp, weather parameters]
+    set:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          type:
+            op: 'u'
+        vals: [an]
+        warn: "Missing type. Force to Analysis"
 
   stream:
     category: data
@@ -217,6 +240,18 @@ _field: &_field
           class: [ti]
           type: [fc]
         vals: [oper]
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          stream:
+            op: 'u'
+        vals: [oper]
+        warn: "Missing stream. Force to Daily archive"
     flatten: false
     type: enum
     values:
@@ -407,6 +442,28 @@ _field: &_field
           expver:
             op: 'u'
         vals: [prod]
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          expver:
+            op: 'u'
+        vals: [0001]
+        warn: "Missing expver. Force to 0001"
+    unset:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class: [rd]
+          expver:
+            op: 'u'
+        error: "Missing expver. Please, specify one"
 
   dataset:
     category: data
@@ -749,11 +806,23 @@ _field: &_field
           type: [em, es, ses, ed]
       - context:
           stream: [clmn]
+    set:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          date:
+            op: 'u'
+          pseudodate:
+            op: 'u'
+        vals: [-1]
+        warn: "Missing date. Force to yesterday"
 # %if _VERB = RETRIEVE %and (YEAR %or MONTH) %then
 #         %unset DATE
-# %if (_VERB = LIST %and OUTPUT <> BROWSER %and CLASS <> RD  %and (%not DATE) %and (%not PSEUDODATE) ) %then
-#         %warning "Missing DATE. Force to yesterday"
-#         %set DATE = -1
 
   year:
     category: data
@@ -1863,6 +1932,28 @@ list:
     flatten: false
     multiple: true
     type: any
+
+  pseudodate:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [latest]
+      - [earliest]
+
+  output:
+    flatten: false
+    multiple: false
+    defaults:
+      - vals: [table]
+    type: enum
+    values:
+      - [table]
+      - [browse]
+      - [cost]
+      - [search]
+      - [tree]
+      - [json]
 
   _clear_defaults: [date, domain, expver, levelist, levtype, param, step, stream, time, type]
   _multiple: [class, expver, stream, type]
