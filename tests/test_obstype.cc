@@ -8,9 +8,9 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file   test_step.cc
+/// @file   test_obstype.cc
 /// @author Emanuele Danovaro
-/// @date   March 2025
+/// @date   July 2025
 
 #include <string>
 #include <vector>
@@ -23,7 +23,7 @@
 
 namespace metkit::mars::test {
 
-using ::eckit::BadValue;
+using ::eckit::UserError;
 
 //-----------------------------------------------------------------------------
 
@@ -34,20 +34,21 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
     EXPECT_EQUAL(expected, values);
 }
 
-CASE("Test Step expansions") {
+CASE("Test Obstype expansions") {
 
     // times with units
-    assertTypeExpansion("step", {"0"}, {"0"});
-    assertTypeExpansion("step", {"12"}, {"12"});
-    assertTypeExpansion("step", {"260m"}, {"4h20m"});
-    assertTypeExpansion("step", {"30m", "1h", "1h30m", "120m"}, {"30m", "1", "1h30m", "2"});
-    assertTypeExpansion("step", {"0-1"}, {"0-1"});
-    assertTypeExpansion("step", {"30m-60m"}, {"30m-1"});
-    EXPECT_THROWS_AS(assertTypeExpansion("step", {"2-1"}, {""}), BadValue);
-
-    assertTypeExpansion("step", {"0-3", "to", "9-12", "by", "3h"}, {"0-3", "3-6", "6-9", "9-12"});
-    assertTypeExpansion("step", {"0-3", "to", "0-12", "by", "3"}, {"0-3"});
-    assertTypeExpansion("step", {"0-30m", "to", "1h30m-2h", "by", "30m"}, {"0-30m", "30m-1", "1-1h30m", "1h30m-2"});
+    assertTypeExpansion("obstype", {"1"}, {"1"});
+    assertTypeExpansion("obstype", {"ssmi"}, {"126"});
+    assertTypeExpansion("obstype", {"trmm"}, {"129", "130"});
+    assertTypeExpansion("obstype", {"ti3r", "trmm"}, {"130", "129"});
+    assertTypeExpansion("obstype", {"130", "trmm"}, {"130", "129"});
+    assertTypeExpansion("obstype", {"trmm", "qscat"}, {"129", "130", "137", "138"});
+    assertTypeExpansion("obstype", {"sd"},
+                        {"121", "122", "123", "124", "210", "212", "213", "214", "216", "217", "218", "51",  "53",
+                         "54",  "55",  "56",  "57",  "59",  "60",  "61",  "62",  "63",  "65",  "71",  "72",  "73",
+                         "75",  "138", "139", "153", "155", "211", "240", "250", "126", "49",  "127", "129", "130",
+                         "137", "206", "207", "208", "209", "156", "154", "201", "202", "252", "245", "246"});
+    EXPECT_THROWS_AS(assertTypeExpansion("obstype", {"foo"}, {""}), UserError);
 }
 
 
