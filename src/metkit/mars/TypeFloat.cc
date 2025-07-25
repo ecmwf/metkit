@@ -22,7 +22,7 @@ namespace metkit::mars {
 
 TypeFloat::TypeFloat(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& /* request */) const {
+bool TypeFloat::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
 
     bool dot = false;
 
@@ -40,12 +40,9 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const M
             case '9':
             case '-':
                 break;
-
             case '.':
                 dot = true;
                 break;
-
-
             default:
                 return false;
                 break;
@@ -62,7 +59,6 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const M
         while (value.size() && value[value.size() - 1] == '0') {
             value = value.substr(0, value.size() - 1);
         }
-
         if (value.size() && value[value.size() - 1] == '.') {
             value = value.substr(0, value.size() - 1);
         }
@@ -71,10 +67,6 @@ bool TypeFloat::expand(const MarsExpandContext& ctx, std::string& value, const M
     if (value.empty()) {
         value = "0";
     }
-
-    // static eckit::Translator<std::string, double> s2d;
-    // static eckit::Translator<double, std::string> d2s;
-    // value = d2s(s2d(value));
     return true;
 }
 

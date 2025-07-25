@@ -63,7 +63,6 @@ void TypeMixed::print(std::ostream& out) const {
     out << "]";
 }
 
-
 bool TypeMixed::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const {
 
     for (auto it = types_.begin(); it != types_.end(); it++) {

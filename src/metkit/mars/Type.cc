@@ -281,31 +281,13 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
     return s;
 }
 
-
-std::string Type::tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request) const {
+std::string Type::tidy(const std::string& value, const MarsExpandContext& ctx, const MarsRequest& request) const {
     std::string result = value;
     expand(ctx, result, request);
     return result;
 }
 
-std::string Type::tidy(const std::string& value, const MarsRequest& request) const {
-    DummyContext ctx;
-    return tidy(ctx, value, request);
-}
-
-std::vector<std::string> Type::tidy(const std::vector<std::string>& values, const MarsRequest& request) const {
-    DummyContext ctx;
-
-    std::vector<std::string> result;
-    result.reserve(values.size());
-
-    std::transform(values.begin(), values.end(), std::back_inserter(result),
-                   [this, ctx, request](const std::string& s) { return this->tidy(ctx, s, request); });
-
-    return result;
-}
-
-bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest& request) const {
+bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
@@ -318,27 +300,32 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
     }
 
     std::vector<std::string> newvals;
-
     std::set<std::string> seen;
 
-    for (const std::string& val : values) {
+    for (std::string& val : values) {
         std::string value = val;
         if (!expand(ctx, value, request)) {
             std::ostringstream oss;
             oss << *this << ": cannot expand '" << val << "'" << ctx;
             throw eckit::UserError(oss.str());
         }
-
-        if (!duplicates_) {
-            if (seen.find(value) != seen.end()) {
+        if (hasGroups()) {
+            const std::vector<std::string>& gg = group(value);
+            for (const auto& v : gg) {
+                if (seen.find(v) == seen.end()) {
+                    seen.insert(v);
+                    newvals.push_back(v);
+                }
+            }
+        }
+        else {
+            if (!duplicates_ && seen.find(value) != seen.end()) {
                 std::ostringstream oss;
-                oss << *this << ": duplicated value '" << val << "'" << ctx;
+                oss << *this << ": duplicated value '" << value << "'" << ctx;
                 throw eckit::UserError(oss.str());
             }
-            seen.insert(value);
+            newvals.push_back(value);
         }
-
-        newvals.push_back(value);
     }
 
     std::swap(newvals, values);
