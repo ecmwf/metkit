@@ -27,6 +27,9 @@ public:
 
     LibMetkit();
 
+    static eckit::PathName configFile(const std::string& filename);
+
+    static eckit::PathName languageYamlFile();
     static eckit::PathName paramYamlFile();
     static eckit::PathName paramStaticYamlFile();
     static eckit::PathName paramIDYamlFile();

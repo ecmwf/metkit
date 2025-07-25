@@ -71,8 +71,8 @@ public:  // methods
                     throw eckit::BadValue(oss.str());
                 }
 
-                EL from = s2el(type_.tidy(ctx, values[i - 1], request));
-                EL to   = s2el(type_.tidy(ctx, values[i + 1], request));
+                EL from = s2el(type_.tidy(values[i - 1], ctx, request));
+                EL to   = s2el(type_.tidy(values[i + 1], ctx, request));
                 BY by   = s2by(by_);
 
                 if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
@@ -117,12 +117,12 @@ public:  // methods
                     if ((from < to && j > to) || (from > to && j < to)) {
                         break;
                     }
-                    newval.emplace_back(type_.tidy(ctx, el2s(j), request));
+                    newval.emplace_back(type_.tidy(el2s(j), ctx, request));
                 }
                 i++;
             }
             else {
-                newval.push_back(type_.tidy(ctx, s, request));
+                newval.push_back(type_.tidy(s, ctx, request));
             }
         }
 

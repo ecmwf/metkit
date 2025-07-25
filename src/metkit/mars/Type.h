@@ -26,11 +26,10 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
-
-class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -188,13 +187,12 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
+    virtual bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
     virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values,
                         const MarsRequest& request = {}) const;
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
 
-    std::string tidy(const MarsExpandContext& ctx, const std::string& value, const MarsRequest& request = {}) const;
-    std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
-    std::vector<std::string> tidy(const std::vector<std::string>& values, const MarsRequest& request = {}) const;
+    std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{},
+                     const MarsRequest& request = {}) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
@@ -220,6 +218,11 @@ public:  // methods
     friend std::ostream& operator<<(std::ostream& s, const Type& x);
 
     virtual size_t count(const std::vector<std::string>& values) const;
+
+protected:  // methods
+
+    virtual bool hasGroups() const { return false; }
+    virtual const std::vector<std::string>& group(const std::string&) const { NOTIMP; }
 
 protected:  // members
 

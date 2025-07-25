@@ -1002,8 +1002,9 @@ CASE("test_metkit_expand_MARSC-210") {
 
 CASE("test_metkit_expand_MARSC-220") {
     // https://jira.ecmwf.int/browse/MARSC-220
+    // the original request contains an_offet which is not supported, and has been replaced by anoffset
     const char* text =
-        "retrieve,an_offset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
+        "retrieve,anoffset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
         "128/165.128/166.128,step=15,stream=da,time=00,type=fc,target=\"reference.6Zr8N7.data\"";
     const char* expected =
         "RETRIEVE,CLASS=RD,TYPE=FC,STREAM=OPER,EXPVER=i8k5,REPRES=SH,LEVTYPE=SFC,PARAM=151/165/"
@@ -1041,11 +1042,12 @@ CASE("test_metkit_expand_MARSC-219") {
     const char* text =
         "retrieve,class=od,date=20231205,expver=0001,obstype=gpsro,stream=lwda,time=18,type=ai,target=\"reference."
         "E2RRc8.data\"";
-    /// @todo OBSTYPE, OBSGROUP
     const char* expected =
-        "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
+        // "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
+        // "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";
+        "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
         "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";
-    // expand(text, expected);
+    expand(text, expected);
 }
 
 CASE("test_metkit_expand_MARSC-213") {
