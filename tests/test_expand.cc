@@ -1042,7 +1042,6 @@ CASE("test_metkit_expand_MARSC-219") {
     const char* text =
         "retrieve,class=od,date=20231205,expver=0001,obstype=gpsro,stream=lwda,time=18,type=ai,target=\"reference."
         "E2RRc8.data\"";
-    /// @todo OBSTYPE
     const char* expected =
         // "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
         // "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";

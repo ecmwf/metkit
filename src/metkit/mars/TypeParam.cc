@@ -8,20 +8,18 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/TypeParam.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"
-#include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/TypeParam.h"
-#include "metkit/mars/TypesFactory.h"
-
 #include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/TypesFactory.h"
 
 using eckit::Log;
 using metkit::LibMetkit;

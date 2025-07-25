@@ -42,8 +42,7 @@ private:  // methods
     bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
     std::map<std::string, uint16_t>::const_iterator find(const std::string& value) const;
 
-    std::vector<std::string> parseEnumValue(const std::string& name, const eckit::Value& val,
-                                            bool allowDuplicates = false) const;
+    std::vector<std::string> parseEnumValue(const eckit::Value& val, bool allowDuplicates = false) const;
 
     void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
     uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
@@ -52,7 +51,7 @@ private:  // methods
 
 private:  // members
 
-    std::string valuesFile_ = "";
+    std::string valuesFile_;
 
     bool uppercase_         = false;
     mutable bool hasGroups_ = false;

@@ -8,13 +8,12 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/TypeEnum.h"
 
-#include "eckit/parser/JSONParser.h"
 #include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/TypeEnum.h"
 #include "metkit/mars/TypesFactory.h"
 
 
@@ -48,8 +47,7 @@ uint16_t TypeEnum::parseValueNames(const eckit::Value& names, bool allowDuplicat
     return idx;
 }
 
-std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const eckit::Value& val,
-                                                  bool allowDuplicates) const {
+std::vector<std::string> TypeEnum::parseEnumValue(const eckit::Value& val, bool allowDuplicates) const {
 
     if (val.isMap()) {
         hasGroups_ = true;
@@ -63,8 +61,7 @@ std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const
 
         std::set<std::string> outSet;
         for (size_t i = 0; i < group.size(); ++i) {
-            const eckit::Value& v              = group[i];
-            std::vector<std::string> groupVals = parseEnumValue(groups_.at(idx).first, v, true);
+            std::vector<std::string> groupVals = parseEnumValue(group[i], true);
             for (const auto& v : groupVals) {
                 if (outSet.find(v) == outSet.end()) {
                     outSet.insert(v);
@@ -74,12 +71,11 @@ std::vector<std::string> TypeEnum::parseEnumValue(const std::string& name, const
         }
         return groups_.at(idx).second;
     }
-    else {
-        uint16_t idx   = parseValueNames(val, allowDuplicates);
-        std::string nn = groups_.at(idx).first;
-        groups_.at(idx).second.push_back(nn);
-        return {nn};
-    }
+
+    uint16_t idx   = parseValueNames(val, allowDuplicates);
+    std::string nn = groups_.at(idx).first;
+    groups_.at(idx).second.push_back(nn);
+    return {nn};
 }
 
 void TypeEnum::readValuesFile() const {
@@ -88,13 +84,12 @@ void TypeEnum::readValuesFile() const {
         ASSERT(values.isList());
 
         for (size_t i = 0; i < values.size(); ++i) {
-            parseEnumValue(name_, values[i]);
+            parseEnumValue(values[i]);
         }
     }
 }
 
-TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) :
-    Type(name, settings), uppercase_(false), hasGroups_(false) {
+TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
     LOG_DEBUG_LIB(LibMetkit) << "TypeEnum name=" << name << " settings=" << settings << std::endl;
 
@@ -108,7 +103,7 @@ TypeEnum::TypeEnum(const std::string& name, const eckit::Value& settings) :
     }
     else {
         for (size_t i = 0; i < values.size(); ++i) {
-            parseEnumValue(name, values[i]);
+            parseEnumValue(values[i]);
         }
     }
 }
@@ -140,6 +135,7 @@ const std::vector<std::string>& TypeEnum::group(const std::string& value) const 
     if (it != values_.end()) {
         return groups_.at(it->second).second;
     }
+    return {};
 }
 
 

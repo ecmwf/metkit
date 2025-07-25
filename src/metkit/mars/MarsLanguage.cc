@@ -14,14 +14,10 @@
 #include <set>
 
 #include "eckit/config/Resource.h"
-#include "eckit/log/JSON.h"
 #include "eckit/log/Log.h"
-#include "eckit/log/Timer.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/types/Types.h"
-#include "eckit/utils/MD5.h"
 #include "eckit/utils/StringTools.h"
-#include "eckit/utils/Translator.h"
 
 #include "metkit/config/LibMetkit.h"
 
@@ -323,7 +319,7 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const override { return true; }
+    bool expand(const MarsExpandContext&, std::string&, const MarsRequest&) const override { return true; }
 
 public:
 

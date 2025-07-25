@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "eckit/memory/NonCopyable.h"
-
 #include <iosfwd>
 
 namespace metkit::mars {

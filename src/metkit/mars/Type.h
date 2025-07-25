@@ -219,7 +219,7 @@ public:  // methods
 
     virtual size_t count(const std::vector<std::string>& values) const;
 
-protected:  // members
+protected:  // methods
 
     virtual bool hasGroups() const { return false; }
     virtual const std::vector<std::string>& group(const std::string&) const { NOTIMP; }

@@ -79,7 +79,7 @@ private:  // members
 
     std::map<std::string, std::string> aliases_;
 
-    mutable eckit::StringDict cache_;
+    mutable std::map<std::string, std::string> cache_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

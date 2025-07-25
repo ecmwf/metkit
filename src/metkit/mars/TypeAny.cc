@@ -12,9 +12,7 @@
 #include "metkit/mars/TypeAny.h"
 #include "metkit/mars/TypesFactory.h"
 
-
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -24,13 +22,11 @@ void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name_ << "]";
 }
 
-bool TypeAny::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
+bool TypeAny::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
     return true;
 }
-
 
 static TypeBuilder<TypeAny> type("any");
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

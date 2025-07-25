@@ -44,7 +44,7 @@ public:  // methods
     explicit MarsRequest(const std::string&);
     explicit MarsRequest(eckit::Stream&, bool lowercase = false);
 
-    MarsRequest(const std::string&, const eckit::StringDict&);
+    MarsRequest(const std::string&, const std::map<std::string, std::string>&);
     MarsRequest(const std::string&, const eckit::Value&);
 
     explicit MarsRequest(const eckit::message::Message&);
