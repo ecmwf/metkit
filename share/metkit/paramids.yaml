@@ -991,7 +991,7 @@
 - snowmelt
 3100:
 - swh
-- signific.height,combined wind waves+swell
+- significant height of combined wind waves and swell
 3101:
 - mdww
 - mean direction of wind waves
@@ -14717,6 +14717,9 @@
 231071:
 - h1p5thg
 - geometric height of 1.5 degrees c theta level above ground
+231072:
+- vswrz
+- volumetric soil moisture (root zone)
 231500:
 - hits
 - thunderstorm hazard index
@@ -15560,6 +15563,9 @@
 235325:
 - avg_hwbt1
 - time-mean height of one-degree wet-bulb temperature
+235326:
+- avg_litoti
+- time-mean total lightning flash density
 235327:
 - avg_tcslw
 - time-mean total column supercooled liquid water
@@ -15728,6 +15734,9 @@
 235382:
 - avg_visp
 - time-mean visibility through precipitation
+235383:
+- avg_licgi
+- time-mean cloud-to-ground lightning flash density
 235386:
 - avg_lshnf
 - time-mean land surface heat net flux
@@ -15785,6 +15794,9 @@
 235404:
 - avg_sdifswrfcs
 - time-mean surface diffuse short-wave radiation flux, clear sky
+235405:
+- avg_vswrz
+- time-mean volumetric soil moisture (root zone)
 236386:
 - acc_lshnf
 - time-integrated land surface heat net flux
@@ -15929,6 +15941,9 @@
 237054:
 - max_vimdf
 - time-maximum total column vertically-integrated moisture divergence flux
+237055:
+- max_tprate
+- time-maximum total precipitation rate
 237056:
 - max_csfr
 - time-maximum convective snowfall rate water equivalent
@@ -16097,6 +16112,9 @@
 237166:
 - max_10v
 - time-maximum 10 metre v wind component
+237167:
+- max_2t
+- time-maximum 2 metre temperature
 237168:
 - max_2d
 - time-maximum 2 metre dewpoint temperature
@@ -16163,6 +16181,9 @@
 237286:
 - max_mont
 - time-maximum montgomery potential
+237287:
+- max_cape
+- time-maximum convective available potential energy
 237288:
 - max_tcc
 - time-maximum total cloud cover
@@ -16255,12 +16276,18 @@
 - max_deg0l
 - time-maximum geometric height of 0 degrees c atmospheric isothermal level above
   ground
+237318:
+- max_i10fg
+- time-maximum 10 metre wind gust
 237319:
 - max_rhw
 - time-maximum relative humidity with respect to water
 237320:
 - max_2rhw
 - time-maximum 2 metre relative humidity with respect to water
+237321:
+- max_capes
+- time-maximum convective available potential energy shear
 237322:
 - max_trpp
 - time-maximum tropopause pressure
@@ -16447,6 +16474,12 @@
 237382:
 - max_visp
 - time-maximum visibility through precipitation
+237384:
+- max_10efg
+- time-maximum 10 metre eastward wind gust
+237385:
+- max_10nfg
+- time-maximum 10 metre northward wind gust
 237386:
 - max_lshnf
 - time-maximum land surface heat net flux
@@ -16486,7 +16519,10 @@
   ground
 237404:
 - max_sdifswrfcs
-- time-mean surface diffuse short-wave radiation flux, clear sky
+- time-maximum surface diffuse short-wave radiation flux, clear sky
+237405:
+- max_vswrz
+- time-maximum volumetric soil moisture (root zone)
 238001:
 - min_ttswr
 - time-minimum temperature tendency due to short-wave radiation
@@ -16625,6 +16661,9 @@
 238054:
 - min_vimdf
 - time-minimum vertically integrated moisture divergence
+238055:
+- min_tprate
+- time-minimum total precipitation rate
 238056:
 - min_csfr
 - time-minimum convective snowfall rate water equivalent
@@ -16793,6 +16832,9 @@
 238166:
 - min_10v
 - time-minimum 10 metre v wind component
+238167:
+- min_2t
+- time-minimum 2 metre temperature
 238168:
 - min_2d
 - time-minimum 2 metre dewpoint temperature
@@ -17190,7 +17232,10 @@
   ground
 238404:
 - min_sdifswrfcs
-- time-mean surface diffuse short-wave radiation flux, clear sky
+- time-minimum surface diffuse short-wave radiation flux, clear sky
+238405:
+- min_vswrz
+- time-minimum volumetric soil moisture (root zone)
 239001:
 - std_ttswr
 - time-standard-deviation temperature tendency due to short-wave radiation
@@ -17918,7 +17963,10 @@
   above ground
 239404:
 - std_sdifswrfcs
-- time-mean surface diffuse short-wave radiation flux, clear sky
+- time-standard-deviation surface diffuse short-wave radiation flux, clear sky
+239405:
+- std_vswrz
+- time-standard-deviation volumetric soil moisture (root zone)
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -18598,8 +18646,8 @@
 - rcat
 - relative clear air turbulence (rcat)
 260166:
-- _param_260166
-- supercooled large droplet probability (see note 4)
+- sldp
+- supercooled large droplet probability
 260167:
 - var190m0
 - arbitrary text string
@@ -18608,8 +18656,7 @@
 - seconds prior to initial reference time (defined in section 1)
 260169:
 - ffldg
-- flash flood guidance (encoded as an accumulation over a floating subinterval of
-  time between the ref
+- flash flood guidance
 260170:
 - ffldro
 - flash flood runoff (encoded as an accumulation over a floating subinterval of time)
@@ -18634,8 +18681,7 @@
   as an accumulation)
 260177:
 - pposp
-- percent precipitation in a sub-period of an overall period (encoded as per cent
-  accumulation over th
+- percent precipitation in a sub-period of an overall period
 260178:
 - pop
 - probability of 0.01 inch of precipitation (pop)
@@ -19948,6 +19994,12 @@
 260681:
 - intsssr
 - instantaneous northward turbulent surface stress due to surface roughness
+260682:
+- sev_ptype
+- time-severity precipitation type
+260683:
+- freq_ptype
+- time-mode precipitation type
 260684:
 - lshnf
 - land surface heat net flux
