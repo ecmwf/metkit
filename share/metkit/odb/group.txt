@@ -16,7 +16,7 @@
 15  ; TMI All-sky  ; 2  ; TMI_AS  ;    ;    
 16  ; AMSRE All-sky  ; 2  ; AMSRE_AS  ;    ;    
 17  ; CONV  ; 1  ; CONV  ;    ;    
-18  ; STORM  ; 1  ; STORM  ;    ;    
+18  ; STORM  ; 1  ; STORM  ; STORM  ;    
 19  ; SMOS  ; 2  ; SMOS  ;    ;    
 20  ; WINDSAT All-sky  ; 2  ; WINDSAT_AS  ;    ;    
 21  ; SSMI  ; 2  ; SSMI  ;    ;    
@@ -75,4 +75,14 @@
 74  ; MWIICI All-sky  ; 2  ; MWIICI_AS  ; MWIICI All-sky  ;    
 75  ; AWS All-sky  ; 2  ; AWS_AS  ; AWS All-sky  ;    
 76  ; LEOS VIS  ; 2  ; LEOS_VIS  ; LEOS visible reflectances  ;    
+77  ; SSH  ; 2  ; SSH  ; SSH  ;    
+78  ; SIRS  ; 2  ; SIRS  ; SIRS  ;    
+79  ; SCR  ; 2  ; SCR  ; SCR (Selective Chopper Radiometer)  ;    
+80  ; SCAMS All-sky  ; 2  ; SCAMS_AS  ; SCAMS All-sky  ;    
+81  ; NEMS All-sky  ; 2  ; NEMS_AS  ; NEMS All-sky  ;    
+82  ; AMSR-3 All-sky  ; 2  ; AMSR3_AS  ; AMSR-3 All-sky  ;    
+83  ; IRS  ; 2  ; IRS  ; IRS  ;    
+84  ; IASI-NG  ; 2  ; IASI_NG  ; IASI-NG  ;    
+85  ; SMAP All-sky  ; 2  ; SMAP_AS  ; SMAP All-sky  ;    
+86  ; SSMT2 All-sky  ; 2  ; SSMT2_AS  ; SSMT2 All-sky  ;    
 99  ; TEST  ; 4  ; TEST  ;    ;    
