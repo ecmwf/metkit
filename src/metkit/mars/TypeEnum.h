@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "metkit/mars/Type.h"
 
 namespace metkit::mars {
@@ -29,17 +31,34 @@ public:  // methods
 
     ~TypeEnum() noexcept override = default;
 
-
 private:  // methods
+
+    bool hasGroups() const override { return hasGroups_; }
+    const std::vector<std::string>& group(const std::string& value) const override;
 
     void print(std::ostream& out) const override;
     void reset() override;
+
     bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
+    std::map<std::string, uint16_t>::const_iterator find(const std::string& value) const;
 
-    std::map<std::string, std::string> mapping_;
-    std::vector<std::string> values_;
+    std::vector<std::string> parseEnumValue(const eckit::Value& val, bool allowDuplicates = false) const;
 
-    mutable std::map<std::string, std::string> cache_;
+    void addValue(const std::string& value, uint16_t idx, bool allowDuplicates) const;
+    uint16_t parseValueNames(const eckit::Value& names, bool allowDuplicates) const;
+
+    void readValuesFile() const;
+
+private:  // members
+
+    std::string valuesFile_;
+
+    bool uppercase_         = false;
+    mutable bool hasGroups_ = false;
+    mutable std::vector<std::pair<std::string, std::vector<std::string>>> groups_;
+    mutable std::map<std::string, uint16_t> values_;  // map of acceptable values (included aliases)
+
+    mutable std::once_flag readValues_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

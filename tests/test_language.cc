@@ -10,16 +10,30 @@
 
 
 #include <algorithm>
-#include <map>
 #include <random>
+#include <sstream>
 #include <string>
 #include <vector>
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/testing/Test.h"
+#include "eckit/types/Date.h"
+#include "eckit/value/Value.h"
 
+#include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
+#include "metkit/mars/TypeAny.h"
+#include "metkit/mars/TypeDate.h"
+#include "metkit/mars/TypeEnum.h"
+#include "metkit/mars/TypeExpver.h"
+#include "metkit/mars/TypeMixed.h"
+#include "metkit/mars/TypeParam.h"
+#include "metkit/mars/TypesFactory.h"
 
+#define EXPECT_EMPTY(request, key) EXPECT_EQUAL(request.values(key, true).size(), 0);
 
 namespace metkit::mars::test {
 
@@ -115,6 +129,191 @@ CASE("grid: HEALPix grids") {
         const Expected expected{"retrieve", {{"grid", {"H" + std::to_string(n)}}}};
         expect_mars("ret, date=-1, grid=H" + std::to_string(n), expected);
         expect_mars("ret, date=-1, grid=h" + std::to_string(n), expected);
+    }
+}
+
+// -----------------------------------------------------------------------------
+
+CASE("check language file") {
+
+    EXPECT_THROWS(MarsLanguage::jsonFile("langauge.yaml"));
+
+    eckit::Value file;
+
+    EXPECT_NO_THROW(file = MarsLanguage::jsonFile("language.yaml"));
+
+    EXPECT(file.contains("disseminate"));
+    EXPECT(file.contains("archive"));
+    EXPECT(file.contains("retrieve"));
+    EXPECT(file.contains("read"));
+    EXPECT(file.contains("get"));
+    EXPECT(file.contains("list"));
+    EXPECT(file.contains("compute"));
+    EXPECT(file.contains("write"));
+    EXPECT(file.contains("pointdb"));
+}
+
+CASE("check defaults and _clear_defaults") {
+
+    {
+        // check "retrieve" that _clear_defaults is not set
+        auto request = MarsRequest::parse("retrieve,param=2t,step=10/to/12/by/1", true);
+        EXPECT_EQUAL(request.values("class").size(), 1);
+        EXPECT_EQUAL(request.values("class")[0], "od");
+        // check date is yesterday
+        auto values = request.values("date");
+        EXPECT_EQUAL(values.size(), 1);
+        std::ostringstream yesterday;
+        yesterday << eckit::Date(-1).yyyymmdd();
+        EXPECT_EQUAL(values[0], yesterday.str());
+    }
+
+    {
+        // check "read" that _clear_defaults is set for class
+        auto request = MarsRequest::parse("read,param=2t", true);
+        EXPECT_EMPTY(request, "class");
+        EXPECT_EMPTY(request, "date");
+        EXPECT_EMPTY(request, "domain");
+        EXPECT_EMPTY(request, "expver");
+        EXPECT_EMPTY(request, "levelist");
+        EXPECT_EMPTY(request, "levtype");
+        EXPECT_EMPTY(request, "step");
+        EXPECT_EMPTY(request, "stream");
+        EXPECT_EMPTY(request, "time");
+        EXPECT_EMPTY(request, "type");
+    }
+
+    {
+        // check "list" that _clear_defaults is set for class
+        auto request = MarsRequest::parse("list,param=2t", true);
+        EXPECT_EQUAL(request.values("class").size(), 1);
+        EXPECT_EQUAL(request.values("class")[0], "od");
+        EXPECT_EMPTY(request, "date");
+        EXPECT_EMPTY(request, "domain");
+        EXPECT_EMPTY(request, "expver");
+        EXPECT_EMPTY(request, "levelist");
+        EXPECT_EMPTY(request, "levtype");
+        EXPECT_EMPTY(request, "step");
+        EXPECT_EMPTY(request, "stream");
+        EXPECT_EMPTY(request, "time");
+        EXPECT_EMPTY(request, "type");
+    }
+
+    {
+        // check "pointdb" that _clear_defaults is set for class
+        auto request = MarsRequest::parse("pointdb,param=2t", true);
+        EXPECT_EMPTY(request, "class");
+        EXPECT_EMPTY(request, "date");
+        EXPECT_EMPTY(request, "domain");
+        EXPECT_EMPTY(request, "expver");
+        EXPECT_EMPTY(request, "levelist");
+        EXPECT_EMPTY(request, "levtype");
+        EXPECT_EMPTY(request, "step");
+        EXPECT_EMPTY(request, "stream");
+        EXPECT_EMPTY(request, "time");
+        EXPECT_EMPTY(request, "type");
+    }
+}
+
+CASE("check method: isData()") {
+
+    EXPECT_EQUAL(MarsLanguage("retrieve").isData("class"), true);
+    EXPECT_EQUAL(MarsLanguage("retrieve").isData("date"), true);
+    EXPECT_EQUAL(MarsLanguage("retrieve").isData("time"), true);
+    EXPECT_EQUAL(MarsLanguage("retrieve").isData("step"), true);
+    EXPECT_EQUAL(MarsLanguage("retrieve").isData("number"), true);
+
+    EXPECT_EQUAL(MarsLanguage("disseminate").isData("accuracy"), false);
+    EXPECT_EQUAL(MarsLanguage("disseminate").isData("grid"), false);
+}
+
+CASE("check method: flatten()") {
+
+    struct Output : public FlattenCallback {
+        std::ostringstream oss;
+        void operator()(const MarsRequest& request) override { oss << request << '\n'; }
+    };
+
+    Output output;
+
+    auto request = MarsRequest::parse(
+        "retrieve,class=od,type=an,stream=oper,levtype=pl,time=1200,param=2t,step=10/to/14/by/2,levelist=300/400/"
+        "500,date=20250717",
+        true);
+
+    MarsLanguage("retrieve").flatten(DummyContext(), request, output);
+
+    EXPECT_EQUAL(output.oss.str(),
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=400,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=500,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=12,levelist=300,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=12,levelist=400,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=12,levelist=500,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=14,levelist=300,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=14,levelist=400,param="
+                 "167,expver=0001,domain=g\n"
+                 "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=14,levelist=500,param="
+                 "167,expver=0001,domain=g\n");
+}
+
+CASE("check some types") {
+
+    {
+        EXPECT_THROWS(MarsLanguage("read").type("unknown"));
+
+        EXPECT_THROWS(MarsLanguage("retrieve").type("unknown"));
+
+        EXPECT_NO_THROW(MarsLanguage("retrieve").type("_hidden"));
+    }
+
+    {
+        auto language = MarsLanguage("retrieve");
+
+        auto* type = language.type("class");
+        EXPECT(dynamic_cast<TypeEnum*>(type) != nullptr);
+
+        type = language.type("param");
+        EXPECT(dynamic_cast<TypeParam*>(type) != nullptr);
+
+        type = language.type("expver");
+        EXPECT(dynamic_cast<TypeExpver*>(type) != nullptr);
+
+        type = language.type("domain");
+        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+
+        type = language.type("date");
+        EXPECT(dynamic_cast<TypeDate*>(type) != nullptr);
+
+        type = language.type("grid");
+        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT_EQUAL(type->multiple(), true);
+
+        type = language.type("area");
+        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT_EQUAL(type->multiple(), true);
+
+        type = language.type("accuracy");
+        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+
+        type = language.type("resol");
+        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+    }
+    {
+        auto language = MarsLanguage("archive");
+
+        auto* type = language.type("resol");
+        EXPECT(dynamic_cast<TypeAny*>(type) != nullptr);
+
+        EXPECT_THROWS_AS(language.type("grid"), eckit::SeriousBug);
+        EXPECT_THROWS_AS(language.type("area"), eckit::SeriousBug);
     }
 }
 

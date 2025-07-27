@@ -125,17 +125,12 @@ void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const
             const Param windVO(windFamilies[w].vo_);
             const Param windD(windFamilies[w].d_);
 
-            // Log::userWarning() <<  "Trying uv " << windU << " " << windV << " " << windVO << " " << windD <<
-            // std::endl;
-
-
             bool wantU  = false;
             bool wantV  = false;
             bool wantVO = false;
             bool wantD  = false;
 
             // Check if wind is requested
-
             for (eckit::Ordinal i = 0; i < req.size(); i++) {
                 if (req[i] == windU)
                     wantU = true;
@@ -145,17 +140,9 @@ void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const
                     wantVO = true;
                 if (req[i] == windD)
                     wantD = true;
-                // Log::userWarning() << "req[i] = " << req[i] << std::endl;
             }
 
-            // Log::userWarning() <<  "wantU " << wantU << " wantV " << wantV << " wantVO " << wantVO << " wantD " <<
-            // wantD << std::endl;
-
-            // if (wantVO && wantD)  continue;
-            // if (!wantU && !wantV) continue;
-
             // Check if we have got it, axis should be sorted
-
             bool gotU = false;
             bool gotV = false;
 
@@ -196,13 +183,13 @@ void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const
         newreq.reserve(req.size());
 
         for (auto r : req) {
-            if (inAxis.find(r) != inAxis.end()) {  // Perfect match - not looking forward
+            if (inAxis.find(r) != inAxis.end()) {  // Perfect match - look no further
                 newreq.push_back(r);
             }
             else {  // r is normalised to ParamID
                 long paramid = r.paramId();
                 auto ap      = inAxisParamID.find(paramid);
-                if (ap != inAxisParamID.end()) {  // ParamID representation matching - not looking forward
+                if (ap != inAxisParamID.end()) {  // ParamID representation matching - look no further
                     newreq.push_back(ap->second);
                 }
                 else {  // Special case for U/V - exact match
@@ -231,7 +218,7 @@ void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const
                         const std::vector<size_t>& dropTables = ParamID::getDropTables();
                         for (auto t : dropTables) {
                             auto ap = inAxisParamID.find(replaceTable(t, paramid));
-                            if (ap != inAxisParamID.end()) {  // ParamID representation matching - not looking forward
+                            if (ap != inAxisParamID.end()) {  // ParamID representation matching - look no further
                                 newreq.push_back(ap->second);
                                 ok = true;
                                 break;

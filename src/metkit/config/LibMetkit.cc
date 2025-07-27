@@ -51,26 +51,30 @@ std::string LibMetkit::gitsha1(unsigned int count) const {
     return sha1.substr(0, std::min(count, 40u));
 }
 
+eckit::PathName LibMetkit::configFile(const std::string& filename) {
+    return eckit::PathName{"~metkit/share/metkit"} / filename;
+}
+
+eckit::PathName LibMetkit::languageYamlFile() {
+    return LibMetkit::configFile("language.yaml");
+}
 eckit::PathName LibMetkit::paramYamlFile() {
-    return "~metkit/share/metkit/params.yaml";
+    return LibMetkit::configFile("params.yaml");
 }
-
 eckit::PathName LibMetkit::paramStaticYamlFile() {
-    return "~metkit/share/metkit/params-static.yaml";
+    return LibMetkit::configFile("params-static.yaml");
 }
-
 eckit::PathName LibMetkit::shortnameContextYamlFile() {
-    return "~metkit/share/metkit/shortname-context.yaml";
+    return LibMetkit::configFile("shortname-context.yaml");
 }
-
 eckit::PathName LibMetkit::paramIDYamlFile() {
-    return "~metkit/share/metkit/paramids.yaml";
+    return LibMetkit::configFile("paramids.yaml");
 }
 eckit::PathName LibMetkit::paramMatchingYamlFile() {
-    return "~metkit/share/metkit/param-matching.yaml";
+    return LibMetkit::configFile("param-matching.yaml");
 }
 eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
-    return "~metkit/share/metkit/bufr-subtypes.yaml";
+    return LibMetkit::configFile("bufr-subtypes.yaml");
 }
 
 }  // namespace metkit

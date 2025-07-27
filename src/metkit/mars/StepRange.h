@@ -14,6 +14,8 @@
 #ifndef metkit_StepRange_H
 #define metkit_StepRange_H
 
+#include <cmath>
+
 #include "eckit/persist/Bless.h"
 #include "eckit/types/Time.h"
 #include "eckit/types/Types.h"
@@ -45,7 +47,7 @@ public:
     }
 
     explicit StepRange(double from, double to = 0) :
-        StepRange(eckit::Time(from * 3600, true), eckit::Time(to * 3600, true)) {}
+        StepRange(eckit::Time(std::lround(from * 3600.), true), eckit::Time(std::lround(to * 3600.), true)) {}
 
 
 #include "metkit/mars/StepRange.b"

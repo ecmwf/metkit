@@ -29,12 +29,10 @@ class Message;
 
 struct metkit_marsrequest_t;
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class Type;
 class MarsRequest;
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -191,7 +189,6 @@ void MarsRequest::setValue(const std::string& name, const T& value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
 
 #endif
