@@ -602,6 +602,7 @@ CASE("test_metkit_expand_13_step") {
     step("0/to/24/by/3", "0/3/6/9/12/15/18/21/24");
     step("12/to/48/by/12", "12/24/36/48");
     step("12/to/47/by/12", "12/24/36");
+    step("40m/to/2/by/10m", "40m/50m/1/1h10m/1h20m/1h30m/1h40m/1h50m/2");
     step("0/to/6/by/30m", "0/30m/1/1h30m/2/2h30m/3/3h30m/4/4h30m/5/5h30m/6");
     step("0-6/to/18-24/by/6", "0-6/6-12/12-18/18-24");
     step("0-24/to/48-72/by/24", "0-24/24-48/48-72");
@@ -1001,8 +1002,9 @@ CASE("test_metkit_expand_MARSC-210") {
 
 CASE("test_metkit_expand_MARSC-220") {
     // https://jira.ecmwf.int/browse/MARSC-220
+    // the original request contains an_offet which is not supported, and has been replaced by anoffset
     const char* text =
-        "retrieve,an_offset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
+        "retrieve,anoffset=9,class=rd,date=20210828,expver=i8k5,gaussian=regular,grid=4000,levtype=sfc,param=151."
         "128/165.128/166.128,step=15,stream=da,time=00,type=fc,target=\"reference.6Zr8N7.data\"";
     const char* expected =
         "RETRIEVE,CLASS=RD,TYPE=FC,STREAM=OPER,EXPVER=i8k5,REPRES=SH,LEVTYPE=SFC,PARAM=151/165/"
@@ -1040,11 +1042,12 @@ CASE("test_metkit_expand_MARSC-219") {
     const char* text =
         "retrieve,class=od,date=20231205,expver=0001,obstype=gpsro,stream=lwda,time=18,type=ai,target=\"reference."
         "E2RRc8.data\"";
-    /// @todo OBSTYPE, OBSGROUP
     const char* expected =
-        "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
+        // "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,REPRES=BU,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
+        // "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";
+        "RETRIEVE,CLASS=OD,TYPE=AI,STREAM=LWDA,EXPVER=0001,OBSTYPE=250,DATE=20231205,TIME=1800,DOMAIN=G,"
         "TARGET=reference.E2RRc8.data,DUPLICATES=KEEP";
-    // expand(text, expected);
+    expand(text, expected);
 }
 
 CASE("test_metkit_expand_MARSC-213") {

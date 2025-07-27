@@ -26,7 +26,7 @@ TypeTime::TypeTime(const std::string& name, const eckit::Value& settings) : Type
     multiple_ = true;
 }
 
-bool TypeTime::expand(const MarsExpandContext&, std::string& value, const MarsRequest& /* request */) const {
+bool TypeTime::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
 
     eckit::Time time(value);
 
@@ -42,7 +42,6 @@ bool TypeTime::expand(const MarsExpandContext&, std::string& value, const MarsRe
 
     oss << std::setfill('0') << std::setw(2) << time.hours() << std::setfill('0') << std::setw(2) << time.minutes();
     value = oss.str();
-
     return true;
 }
 
