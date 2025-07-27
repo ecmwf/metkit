@@ -164,7 +164,7 @@ _field: &_field
       - [oai, odb analysis input]
       - [ob, observations]
       - [of, ocean forward]
-      - [ofa, odb feedback from analysis]  
+      - [ofa, odb feedback from analysis]
       - [ofb, odb feedback]
       - [oi, oi analysis]
       - [oldim, old format images]
@@ -413,7 +413,7 @@ _field: &_field
     multiple: false
     type:
       - context:
-          class: [d1]        
+          class: [d1]
         type: enum
         values:
         - [climate-dt, Climate change adaptation digital twin]
@@ -1024,7 +1024,7 @@ _field: &_field
       - context:
           class: [ms]
 
-  
+
   grib:
     category: data
     multiple: false
@@ -1337,7 +1337,7 @@ _postproc: &_postproc
     unset:
       - context:
           format: [p]
-          
+
   frame:
     category: postproc
     type: integer
@@ -1507,7 +1507,7 @@ _postproc: &_postproc
     values:
       - auto
       - 'off'
-  
+
 
   process:
     category: postproc
@@ -1565,6 +1565,7 @@ disseminate:
     range: [1, 31]
 
   use:
+    category: sink
     flatten: false
     multiple: true
     type: enum
@@ -1586,6 +1587,7 @@ disseminate:
       - [sunday, sun]
 
   option:
+    category: sink
     default: normal
     flatten: false
     multiple: true
@@ -1607,10 +1609,12 @@ disseminate:
       - 'no-local-extension'
 
   priority:
+    category: sink
     flatten: false
     type: integer
 
   target:
+    category: sink
     flatten: false
     type: any
 
@@ -1640,6 +1644,7 @@ archive:
     # TODO set
 
   source:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1667,11 +1672,13 @@ retrieve:
   <<: *_obspproc
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
 
   source:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1754,6 +1761,7 @@ retrieve:
 read:
 
   source:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1764,6 +1772,7 @@ read:
   <<: *_obspproc
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1798,6 +1807,7 @@ get:
     type: any
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1815,6 +1825,7 @@ list:
     type: any
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1849,6 +1860,7 @@ write:
     type: any
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
