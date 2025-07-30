@@ -13,6 +13,7 @@ _field: &_field
     flatten: false
     type: enum
     values:
+      - [a5, ECMWF Atmospheric Composition reanalysis version 5]
       - [ai, operational aifs]
       - [at, austria]
       - [be, belgium]
@@ -316,6 +317,8 @@ _field: &_field
       - [sens, sf, sensitivity forecast]
       - [sfmm, seasonal forecast atmospheric monthly means]
       - [smma, seasonal monthly means anomalies]
+      - [sttd, Statistics of deterministic data]
+      - [stte, Statistics of ensemble data]
       - [supd, sd, deterministic supplementary data]
       - [swmm, seasonal forecast wave monthly means]
       - [toga, tg]
