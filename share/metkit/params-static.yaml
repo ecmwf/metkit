@@ -1,5 +1,66 @@
 - - levtype: sfc
     stream: oper
+    type: an
+    class: mc
+  - - 32
+    - 130
+    - 134
+    - 164  
+    - 187
+    - 188
+- - levtype: sfc
+    stream: oper
+    type: fc
+    class: mc
+  - - 32
+    - 58
+    - 134
+    - 142
+    - 143
+    - 164
+    - 176
+    - 177
+    - 178
+    - 179
+    - 187
+    - 188
+    - 228
+- - levtype: pl
+    stream: oper
+    type: an
+    class: mc
+  - - 130
+    - 135
+    - 152
+    - 210181
+    - 217009
+- - levtype: pl
+    stream: oper
+    type: fc
+    class: mc
+  - - 130
+    - 135
+    - 152
+    - 210181
+    - 217009
+- - levtype: ml
+    stream: oper
+    type: an
+    class: mc
+  - - 135
+    - 152
+    - 210181
+    - 217009
+- - levtype: ml
+    stream: oper
+    type: fc
+    class: mc
+  - - 135
+    - 152
+    - 210181
+    - 217009
+- - levtype: sfc
+    stream: oper
     type: fc
     class: ai
   - - 228143
