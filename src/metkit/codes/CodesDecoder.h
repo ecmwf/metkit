@@ -20,8 +20,6 @@
 #include "eckit/utils/Translator.h"
 
 
-
-
 namespace metkit {
 namespace codes {
 
