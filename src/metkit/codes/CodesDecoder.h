@@ -32,6 +32,14 @@ protected:
     void decodeKey(codes_handle* h, codes_keys_iterator* it, const char* name, eckit::message::MetadataGatherer& gather,
                    const eckit::message::GetMetadataOptions& options) const {
 
+        std::string keyword(name);
+
+        if (keyword == "levelist") {
+            std::ostringstream ss;
+            ss << static_cast<const DERIVED*>(this)->getDouble(h, it, name);
+            gather.setValue(name, ss.str());
+            return;
+        }
         if (options.valueRepresentation == eckit::message::ValueRepresentation::String) {
             decodeString(h, it, gather, name);
         }
