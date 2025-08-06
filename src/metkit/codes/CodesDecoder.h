@@ -13,10 +13,13 @@
 
 #pragma once
 
+#include <eccodes.h>
+
 #include "eckit/message/Decoder.h"
 #include "eckit/message/Message.h"
+#include "eckit/utils/Translator.h"
 
-#include <eccodes.h>
+
 
 
 namespace metkit {
@@ -35,9 +38,8 @@ protected:
         std::string keyword(name);
 
         if (keyword == "levelist") {
-            std::ostringstream ss;
-            ss << static_cast<const DERIVED*>(this)->getDouble(h, it, name);
-            gather.setValue(name, ss.str());
+            eckit::Translator<double, std::string> t;
+            gather.setValue(name, t(static_cast<const DERIVED*>(this)->getDouble(h, it, name)));
             return;
         }
         if (options.valueRepresentation == eckit::message::ValueRepresentation::String) {
