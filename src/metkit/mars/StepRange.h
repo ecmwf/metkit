@@ -63,6 +63,7 @@ public:
     // None
 
     operator std::string() const;
+    std::string toString(bool useDays=false) const;
 
     StepRange& operator+=(const eckit::Time& step) {
         from_ += step / 3600.;
@@ -116,7 +117,7 @@ protected:
 
     // -- Methods
 
-    void print(std::ostream& s) const;
+    void print(std::ostream& s, bool useDays=false) const;
 
     // -- Overridden methods
     // None
