@@ -210,3 +210,5 @@ ecbuild_add_library(
         eckit_option
         ${grib_libs}
 )
+
+add_subdirectory( mars )
