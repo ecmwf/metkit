@@ -43,7 +43,7 @@ namespace {
 //     return TimeUnit::Second;
 // }
 
-std::string canonical(const eckit::Time& time, bool useDays) {
+std::string canonical(const eckit::Time& time, bool useDays, bool alwaysUseHours) {
 
     long h = time.hours();
     long m = time.minutes();
@@ -61,7 +61,7 @@ std::string canonical(const eckit::Time& time, bool useDays) {
     }
     if (h != 0 || (m == 0 && s == 0 && d == 0)) {
         out += std::to_string(h);
-        if (useDays || m != 0 || s != 0 || d != 0) {
+        if (alwaysUseHours || m != 0 || s != 0 || d != 0) {
             out += "h";
         }
     }
@@ -97,21 +97,21 @@ StepRange::operator std::string() const {
     return toString();
 }
 
-std::string StepRange::toString(bool useDays) const {
+std::string StepRange::toString(bool useDays, bool alwaysUseHours) const {
     std::ostringstream os;
-    print(os, useDays);
+    print(os, useDays, alwaysUseHours);
     return os.str();
 }
 
-void StepRange::print(std::ostream& s, bool useDays) const {
+void StepRange::print(std::ostream& s, bool useDays, bool alwaysUseHours) const {
     if (from_ == to_) {
-        s << canonical(eckit::Time(std::lround(from_ * 3600.), true), useDays);
+        s << canonical(eckit::Time(std::lround(from_ * 3600.), true), useDays, alwaysUseHours);
     }
     else {
         eckit::Time f{std::lround(from_ * 3600.), true};
         eckit::Time t{std::lround(to_ * 3600.), true};
 
-        s << canonical(f, useDays) << '-' << canonical(t, useDays);
+        s << canonical(f, useDays, alwaysUseHours) << '-' << canonical(t, useDays, alwaysUseHours);
     }
 }
 
