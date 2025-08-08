@@ -1687,6 +1687,11 @@ disseminate:
     flatten: false
     type: any
 
+  filename:
+    category: sink
+    flatten: false
+    type: any
+
 ##############################################################
 
 archive:
