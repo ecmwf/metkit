@@ -74,17 +74,20 @@ CASE("steprange") {
     {
         StepRange sr{"60m"};
         EXPECT_EQUAL(sr.toString(), "1");
-        EXPECT_EQUAL(sr.toString(true), "1h");
+        EXPECT_EQUAL(sr.toString(true, false), "1");
+        EXPECT_EQUAL(sr.toString(true, true), "1h");
     }
     {
         StepRange sr{"1d"};
         EXPECT_EQUAL(sr.toString(), "24");
-        EXPECT_EQUAL(sr.toString(true), "1d");
+        EXPECT_EQUAL(sr.toString(true, false), "1d");
+        EXPECT_EQUAL(sr.toString(true, true), "1d");
     }
     {
         StepRange sr{"25"};
         EXPECT_EQUAL(sr.toString(), "25");
-        EXPECT_EQUAL(sr.toString(true), "1d1h");
+        EXPECT_EQUAL(sr.toString(true, false), "1d1h");
+        EXPECT_EQUAL(sr.toString(true, true), "1d1h");
     }
 }
 
