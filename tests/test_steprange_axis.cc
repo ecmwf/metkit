@@ -66,6 +66,26 @@ CASE("steprange") {
         EXPECT(eckit::types::is_approximately_equal(sr.from(), 2. / 3.));
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 4 + 1. / 3.));
     }
+    {
+        StepRange sr{"20m"};
+        EXPECT_EQUAL(sr.toString(), "20m");
+        EXPECT_EQUAL(sr.toString(true), "20m");
+    }
+    {
+        StepRange sr{"60m"};
+        EXPECT_EQUAL(sr.toString(), "1");
+        EXPECT_EQUAL(sr.toString(true), "1h");
+    }
+    {
+        StepRange sr{"1d"};
+        EXPECT_EQUAL(sr.toString(), "24");
+        EXPECT_EQUAL(sr.toString(true), "1d");
+    }
+    {
+        StepRange sr{"25"};
+        EXPECT_EQUAL(sr.toString(), "25");
+        EXPECT_EQUAL(sr.toString(true), "1d1h");
+    }
 }
 
 
