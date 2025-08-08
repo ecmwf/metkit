@@ -61,7 +61,7 @@ std::string canonical(const eckit::Time& time, bool useDays) {
     }
     if (h != 0 || (m == 0 && s == 0 && d == 0)) {
         out += std::to_string(h);
-        if (m != 0 || s != 0 || d != 0) {
+        if (useDays || m != 0 || s != 0 || d != 0) {
             out += "h";
         }
     }
