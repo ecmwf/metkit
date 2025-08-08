@@ -1894,6 +1894,7 @@ list:
   <<: *_observation
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1913,6 +1914,7 @@ list:
       - [earliest]
 
   output:
+    category: sink
     flatten: false
     multiple: false
     defaults:
