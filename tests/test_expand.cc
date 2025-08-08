@@ -1191,6 +1191,15 @@ CASE("test_metkit_disseminate") {
     expand(text, expected, false);
 }
 
+CASE("test_metkit_disseminate_params-static") {
+    const char* text =
+        "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,time=0000,type=an,step=0,levtype=sfc,param=asn/hcc/mcc/sp/t/tcc";
+    std::vector<std::string> expected = {
+        "disseminate,class=mc,type=an,stream=oper,levtype=sfc,time=0000,step=0,expver=0001,param=32/188/187/134/130/164,option=normal,target=CAM:TT,date=20250807,domain=g"};
+
+    expand(text, expected, false);
+}
+
 CASE("test_metkit_files") {
 
     eckit::LocalPathName testFolder{"expand"};
