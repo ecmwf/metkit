@@ -997,7 +997,11 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [ms]
+            vals: [d1, ms]
+        vals: [g]
+      - context:
+          class: [d1]
+          dataset: [extremes-dt]
         vals: [g]
     type:
       - context:
