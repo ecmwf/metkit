@@ -781,7 +781,6 @@ _field: &_field
     - [momn_damn]
     - [momx_damx]
     - [mosd_daav]
-    default: none
     multiple: false
 
 #################################################################
