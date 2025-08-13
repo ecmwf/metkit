@@ -37,6 +37,7 @@ axes:
     - chem
     - wavelength
     - timespan
+    - stattype
     - ident
     - obstype
     - instrument

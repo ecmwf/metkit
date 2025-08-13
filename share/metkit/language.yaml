@@ -764,6 +764,26 @@ _field: &_field
     default: none
     multiple: false
 
+  stattype:
+    category: data
+    type: enum
+    values:
+    - [moav]
+    - [momn]
+    - [momx]
+    - [mosd]
+    - [daav]
+    - [damn]
+    - [damx]
+    - [dasd]
+    - [moav_dasd]
+    - [moav_daav]
+    - [momn_damn]
+    - [momx_damx]
+    - [mosd_daav]
+    default: none
+    multiple: false
+
 #################################################################
 
   # year
