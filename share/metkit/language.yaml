@@ -997,7 +997,11 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [ms]
+            vals: [d1, ms]
+        vals: [g]
+      - context:
+          class: [d1]
+          dataset: [extremes-dt]
         vals: [g]
     type:
       - context:
@@ -1687,6 +1691,11 @@ disseminate:
     flatten: false
     type: any
 
+  filename:
+    category: sink
+    flatten: false
+    type: any
+
 ##############################################################
 
 archive:
@@ -1889,6 +1898,7 @@ list:
   <<: *_observation
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1908,6 +1918,7 @@ list:
       - [earliest]
 
   output:
+    category: sink
     flatten: false
     multiple: false
     defaults:

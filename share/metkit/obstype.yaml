@@ -1,7 +1,7 @@
 ---
 - name: all
   group:
-    - name: [nsd, conventional, non satellite data all]
+    - name: [nsd, conv, conventional, non satellite data all]
       group:
         - name: [lsd, land surface data]
           group:
