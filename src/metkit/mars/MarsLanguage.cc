@@ -323,7 +323,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     throw eckit::UserError(oss.str());
 }
 
-std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
+std::string MarsLanguage::expandVerb(const std::string& verb) {
     pthread_once(&once, init);
     std::string v = eckit::StringTools::lower(verb);
     auto vv       = verbs_.find(v);
@@ -343,7 +343,7 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(const MarsExpandContext&, std::string&, const MarsRequest&) const override { return true; }
+    bool expand(std::string&, const MarsRequest&) const override { return true; }
 
 public:
 
@@ -365,7 +365,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit, bool strict) {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
     MarsRequest result(verb_);
 
     try {
@@ -380,7 +380,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(ctx, p, keywords_, true, false, true, aliases_), PP);
+                paramSet.emplace(cache_[p] = bestMatch(DummyContext(), p, keywords_, true, false, true, aliases_), PP);
             }
         }
 
@@ -415,9 +415,9 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
 
             auto t = type(p);
-            t->expand(ctx, values, result);
+            t->expand(values, result);
             result.setValuesTyped(t, values);
-            t->check(ctx, values);
+            t->check(values);
         }
 
         if (inherit) {
@@ -436,12 +436,12 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
         result.getParams(params);
 
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->pass2(ctx, result);
+            type(*k)->pass2( result);
         }
 
         for (const auto& [k, t] : typesByAxisOrder_) {
             if (t != nullptr)
-                t->finalise(ctx, result, strict);
+                t->finalise(result, strict);
         }
     }
     catch (std::exception& e) {
@@ -481,7 +481,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
     }
 }
 
-void MarsLanguage::flatten(const MarsExpandContext&, const MarsRequest& request, FlattenCallback& callback) {
+void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
     std::vector<std::string> params;
     request.getParams(params);
 

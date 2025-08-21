@@ -63,12 +63,12 @@ void TypeMixed::print(std::ostream& out) const {
     out << "]";
 }
 
-bool TypeMixed::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const {
+bool TypeMixed::expand(std::string& value, const MarsRequest& request) const {
 
     for (auto it = types_.begin(); it != types_.end(); it++) {
         if ((*it).first == nullptr || (*it).first->matches(request)) {
             std::string tmp = value;
-            if ((*it).second->expand(ctx, tmp, request)) {
+            if ((*it).second->expand(tmp, request)) {
                 value = tmp;
                 return true;
             }

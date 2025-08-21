@@ -24,7 +24,7 @@ namespace mars {
 
 TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-bool TypeExpver::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
+bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 
     std::string v = eckit::StringTools::lower(eckit::StringTools::trim(value));
 

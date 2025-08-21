@@ -126,15 +126,15 @@ TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type
     filters_["day"] = &filterByDay;
 }
 
-void TypeDate::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
+void TypeDate::pass2(MarsRequest& request) {
     std::vector<std::string> values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "-1") {
-        Type::expand(ctx, values, request);
+        Type::expand(values, request);
         request.setValuesTyped(this, values);
     }
 }
 
-bool TypeDate::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
+bool TypeDate::expand(std::string& value, const MarsRequest&) const {
     if (!value.empty()) {
         eckit::Translator<std::string, long> s2l;
         eckit::Translator<long, std::string> l2s;

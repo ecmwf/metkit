@@ -45,7 +45,7 @@ class ExpandCallback {
 public:
 
     virtual ~ExpandCallback();
-    virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
+    virtual void operator()(const MarsRequest&) = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -61,12 +61,12 @@ public:
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
-    void expand(const MarsExpandContext&, const MarsRequest&, ExpandCallback&);
-    void flatten(const MarsExpandContext&, const MarsRequest&, FlattenCallback&);
+    void expand(const MarsRequest&, ExpandCallback&);
+    void flatten(const MarsRequest&, FlattenCallback&);
 
 private:
 
-    MarsLanguage& language(const MarsExpandContext&, const std::string& verb);
+    MarsLanguage& language(const std::string& verb);
 
     std::map<std::string, MarsLanguage*> languages_;
     bool inherit_;
