@@ -997,7 +997,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [ms]
+            vals: [d1, ed, ng, ms]
         vals: [g]
     type:
       - context:
