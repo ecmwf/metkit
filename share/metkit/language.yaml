@@ -1579,7 +1579,7 @@ _postproc: &_postproc
       - context:
           stream: [ssmi]
       - context:
-          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream:
             op: '!'
