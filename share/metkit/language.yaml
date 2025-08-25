@@ -668,7 +668,7 @@ _field: &_field
             vals: [ssmi]
           type: [im, sim, oldim]
       - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
       - context:
           stream: [ssmi]
     flatten: false
