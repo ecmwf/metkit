@@ -365,13 +365,10 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                     };
 
                     if (ok) {
-                        if (transformation.size() == 0) {
-                            msg.write(out);
+                        if (transformation.size() != 0) {
+                            msg.transform(transformation);
                         }
-                        else {
-                            eckit::message::Message m = msg.transform(transformation);
-                            m.write(out);
-                        }
+                        msg.write(out);
                     }
                 }
 

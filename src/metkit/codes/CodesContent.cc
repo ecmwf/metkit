@@ -168,8 +168,7 @@ void CodesContent::getFloatArray(const std::string& key, float* data, size_t len
 
 //----------------------------------------------------------------------------------------------------------------------
 
-eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict& dict) const {
-    codes_handle* h = codes_handle_clone(handle_);
+void CodesContent::transform(const eckit::StringDict& dict) {
 
     std::vector<codes_values> values;
 
@@ -182,15 +181,8 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
         values.push_back(v);
     }
 
-    try {
-        CODES_CALL(codes_set_values(h, values.data(), values.size()));
-    }
-    catch (...) {
-        codes_handle_delete(h);
-        throw;
-    }
+    CODES_CALL(codes_set_values(handle_, values.data(), values.size()));
 
-    return new CodesContent(h);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -33,8 +33,7 @@ BufrContent::~BufrContent() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& dict) const {
-    codes_handle* h = codes_handle_clone(handle_);
+void BufrContent::transform(const eckit::StringDict& dict) {
 
     std::vector<codes_values> values;
 
@@ -47,15 +46,8 @@ eckit::message::MessageContent* BufrContent::transform(const eckit::StringDict& 
         values.push_back(v);
     }
 
-    try {
-        CODES_CALL(codes_set_values(h, values.data(), values.size()));
-    }
-    catch (...) {
-        codes_handle_delete(h);
-        throw;
-    }
+    CODES_CALL(codes_set_values(handle_, values.data(), values.size()));
 
-    return new BufrContent(h);
 }
 
 
