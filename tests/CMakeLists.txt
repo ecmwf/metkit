@@ -72,6 +72,7 @@ foreach( test
         hypercube
         integer_range
         language
+        obstype
         param_axis
         request
         step

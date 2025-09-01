@@ -13,13 +13,11 @@
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypeParam_H
-#define metkit_TypeParam_H
+#pragma once
 
 #include "metkit/mars/Type.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -31,11 +29,6 @@ public:  // methods
 
     ~TypeParam() noexcept override = default;
 
-protected:
-
-    virtual bool expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
-                        bool fail) const;
-
 private:  // methods
 
     eckit::ValueMap expandWith_;
@@ -44,13 +37,9 @@ private:  // methods
     void print(std::ostream& out) const override;
     void reset() override;
     void pass2(const MarsExpandContext& ctx, MarsRequest& request) override;
-    void expand(const MarsExpandContext& ctx, std::vector<std::string>& values,
-                const MarsRequest& request) const override;
+    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

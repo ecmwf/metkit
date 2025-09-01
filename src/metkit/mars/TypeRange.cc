@@ -46,7 +46,7 @@ void TypeRange::print(std::ostream& out) const {
     out << "TypeRange[name=" << name_ << "]";
 }
 
-StepRange TypeRange::parse(std::string& value) const {
+StepRange TypeRange::parse(const std::string& value) const {
     eckit::Tokenizer parse("-");
     std::vector<std::string> result;
 
@@ -72,7 +72,7 @@ StepRange TypeRange::parse(std::string& value) const {
     }
 }
 
-bool TypeRange::expand(const MarsExpandContext& /* ctx */, std::string& value, const MarsRequest& /* request */) const {
+bool TypeRange::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
 
     value = parse(value);
     return true;

@@ -89,6 +89,16 @@ _field: &_field
       - [ur, uerra]
       - [yp, yopp]
       - [yt, yotc]
+    set:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: 'u'
+        vals: [od]
+        warn: "Missing class. Force to Operations"
 
   type:
     category: data
@@ -165,7 +175,7 @@ _field: &_field
       - [oai, odb analysis input]
       - [ob, observations]
       - [of, ocean forward]
-      - [ofa, odb feedback from analysis]  
+      - [ofa, odb feedback from analysis]
       - [ofb, odb feedback]
       - [oi, oi analysis]
       - [oldim, old format images]
@@ -196,6 +206,19 @@ _field: &_field
       - [wem, weighted ensemble mean]
       - [wes, weighted ensemble standard deviation]
       - [wp, weather parameters]
+    set:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          type:
+            op: 'u'
+        vals: [an]
+        warn: "Missing type. Force to Analysis"
 
   stream:
     category: data
@@ -218,6 +241,18 @@ _field: &_field
           class: [ti]
           type: [fc]
         vals: [oper]
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          stream:
+            op: 'u'
+        vals: [oper]
+        warn: "Missing stream. Force to Daily archive"
     flatten: false
     type: enum
     values:
@@ -410,13 +445,35 @@ _field: &_field
           expver:
             op: 'u'
         vals: [prod]
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          expver:
+            op: 'u'
+        vals: [0001]
+        warn: "Missing expver. Force to 0001"
+    unset:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class: [rd]
+          expver:
+            op: 'u'
+        error: "Missing expver. Please, specify one"
 
   dataset:
     category: data
     multiple: false
     type:
       - context:
-          class: [d1]        
+          class: [d1]
         type: enum
         values:
         - [climate-dt, Climate change adaptation digital twin]
@@ -497,47 +554,7 @@ _field: &_field
   repres:
     flatten: false
     multiple: false
-    # defaults:
-    #   - vals: [sh]
     type: enum
-    # set:
-    #   - context:
-    #       stream:
-    #         op: '!'
-    #         vals: [ssmi]
-    #       type: [im, sim, oldim]
-    #     vals: [sv]
-    #   - context:
-    #       type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-    #     vals: [bu]
-    #   - context:
-    #       stream: [ssmi]
-    #     vals: [bu]
-    #   - context:
-    #       levtype: [sfc]
-    #       class: [od]
-    #       stream: [oper]
-    #     vals: [gg]
-    #   - context:
-    #       levtype: [sfc]
-    #       class: [er]
-    #       stream: [oper]
-    #       type: [an, fc]
-    #       repres:
-    #         op: 'u'
-    #     vals: [gg]
-    #   - context:
-    #       _verb: [retrieve]
-    #       type: [tu]
-    #     vals: [ll]
-# %if LEVTYPE = SFC %and CLASS = OD %and STREAM = OPER %and (TYPE = IA %or TYPE = AN) %and DATE < 19830420 %then
-#         %set REPRES = LL
-    # unset:
-    #   - context:
-    #       class: [ep]
-    #       levtype: [o2d, o3d]
-    #   - context:
-    #       _verb: [read]
     values:
       - [bu, 'bufr']
       - [sh, 'spherical harmonics']
@@ -547,8 +564,6 @@ _field: &_field
       - [og, 'ocean grid']
       - [np]
       - [rl]
-
-
 
   obsgroup:
     category: data
@@ -805,11 +820,23 @@ _field: &_field
           type: [em, es, ses, ed]
       - context:
           stream: [clmn]
+    set:
+      - context:
+          _verb: [list]
+          output:
+            op: '!'
+            vals: [browser]
+          class:
+            op: '!'
+            vals: [rd]
+          date:
+            op: 'u'
+          pseudodate:
+            op: 'u'
+        vals: [-1]
+        warn: "Missing date. Force to yesterday"
 # %if _VERB = RETRIEVE %and (YEAR %or MONTH) %then
 #         %unset DATE
-# %if (_VERB = LIST %and OUTPUT <> BROWSER %and CLASS <> RD  %and (%not DATE) %and (%not PSEUDODATE) ) %then
-#         %warning "Missing DATE. Force to yesterday"
-#         %set DATE = -1
 
   year:
     category: data
@@ -951,7 +978,6 @@ _field: &_field
 
   anoffset:
     category: data
-    aliases: [an_offset]
     multiple: true
     type: integer
     unset:
@@ -1027,7 +1053,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [ms]
+            vals: [d1, ed, ng, ms]
         vals: [g]
     type:
       - context:
@@ -1123,7 +1149,7 @@ _field: &_field
       - context:
           class: [ms]
 
-  
+
   grib:
     category: data
     multiple: false
@@ -1326,11 +1352,9 @@ _observation: &_observation
 
   obstype:
     category: data
-    type: [enum, integer]
-    values:
-      - all
-      - [nsd, non satellite data all]
-      - [sd, satellite data all]
+    multiple: true
+    type: enum
+    values: "obstype.yaml"
     unset:
       - context:
           type:
@@ -1338,9 +1362,6 @@ _observation: &_observation
             vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     # TODO : Migration from old images to new images
 
-#  ALL                = (NSD/SD)
-#                  CONVENTIONAL; NSD  = (LSD/SSD/VSNS/SLNS/SLS/OD/DD/CC/SF/GBGPS/OSTIA)
-#                  SD                 = (SDS/VSS/SSMI/SSMIS/SSBT/TRMM/QSCAT/REO3/IASI/ATMS/CRIS/VASS)
 
   latitude:
     category: data
@@ -1430,7 +1451,7 @@ _postproc: &_postproc
     unset:
       - context:
           format: [p]
-          
+
   frame:
     category: postproc
     type: integer
@@ -1600,7 +1621,7 @@ _postproc: &_postproc
     values:
       - auto
       - 'off'
-  
+
 
   process:
     category: postproc
@@ -1658,6 +1679,7 @@ disseminate:
     range: [1, 31]
 
   use:
+    category: sink
     flatten: false
     multiple: true
     type: enum
@@ -1679,6 +1701,7 @@ disseminate:
       - [sunday, sun]
 
   option:
+    category: sink
     default: normal
     flatten: false
     multiple: true
@@ -1700,10 +1723,17 @@ disseminate:
       - 'no-local-extension'
 
   priority:
+    category: sink
     flatten: false
     type: integer
 
   target:
+    category: sink
+    flatten: false
+    type: any
+
+  filename:
+    category: sink
     flatten: false
     type: any
 
@@ -1733,6 +1763,7 @@ archive:
     # TODO set
 
   source:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1760,11 +1791,13 @@ retrieve:
   <<: *_obspproc
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
 
   source:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1809,8 +1842,11 @@ retrieve:
     type: enum
     defaults:
       - context:
-          # type: [mfb, ofb, ai, ofa]
           obsgroup:
+            op: 'd'
+        vals: [keep]
+      - context:
+          obstype:
             op: 'd'
         vals: [keep]
     unset:
@@ -1844,6 +1880,7 @@ retrieve:
 read:
 
   source:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1854,6 +1891,7 @@ read:
   <<: *_obspproc
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1888,6 +1926,7 @@ get:
     type: any
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1900,14 +1939,39 @@ list:
   <<: *_observation
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
+
+  pseudodate:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [latest]
+      - [earliest]
+
+  output:
+    category: sink
+    flatten: false
+    multiple: false
+    defaults:
+      - vals: [table]
+    type: enum
+    values:
+      - [table]
+      - [browse]
+      - [cost]
+      - [search]
+      - [tree]
+      - [json]
 
   _clear_defaults: [date, domain, expver, levelist, levtype, param, step, stream, time, type]
   _multiple: [class, expver, stream, type]
@@ -1939,6 +2003,7 @@ write:
     type: any
 
   target:
+    category: sink
     flatten: false
     multiple: true
     type: any
