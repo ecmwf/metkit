@@ -87,7 +87,7 @@ class Rule : public metkit::mars::MarsExpandContext {
 public:
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
-    std::string lookup(const MarsExpandContext& ctx, const std::string& s, bool fail) const;
+    std::string lookup(const std::string& s, bool fail) const;
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
@@ -252,7 +252,7 @@ public:
 };
 
 
-std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, bool fail) const {
+std::string Rule::lookup(const std::string& s, bool fail) const {
 
     size_t table = 0;
     size_t param = 0;
@@ -315,7 +315,7 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
         return p;
     }
 
-    ChainedContext c(ctx, *this);
+    ChainedContext c(metkit::mars::DummyContext(), *this);
 
     std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
     if (!paramid.empty()) {
@@ -452,7 +452,7 @@ void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
+void TypeParam::pass2(MarsRequest& request) {
 
     pthread_once(&once, init);
 
@@ -471,7 +471,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     if (!rule) {
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
 
-        if (firstRule_) {
+        if (firstRule_){
             bool found = false;
             for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule; ++j) {
                 const Rule* r = &(*j);
@@ -479,7 +479,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s    = r->lookup(ctx, s, fail);
+                            s    = r->lookup(s, fail);
                             rule = r;
                             Log::warning() << "TypeParam: using 'first matching rule' option " << *rule << std::endl;
                         }
@@ -515,7 +515,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
         try {
-            s = rule->lookup(ctx, s, fail);
+            s = rule->lookup(s, fail);
         }
         catch (...) {
             Log::error() << *rule << std::endl;
@@ -526,7 +526,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-bool TypeParam::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
+bool TypeParam::expand(std::string&, const MarsRequest&) const {
     // Work done on pass2()
     return true;
 }

@@ -31,7 +31,7 @@ public:  // methods
 private:  // methods
 
     void print(std::ostream& out) const override;
-    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, const MarsRequest& request) const override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
