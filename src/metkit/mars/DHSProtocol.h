@@ -54,6 +54,8 @@ class DHSProtocol : public BaseProtocol {
 public:
 
     DHSProtocol(const eckit::Configuration&);
+    
+    DHSProtocol(const eckit::Configuration&, const std::map<std::string, std::string>& env);
 
     DHSProtocol(const std::string& name, const std::string& host, int port, bool forewardMessages = false);
 
@@ -80,6 +82,7 @@ private:
     bool error_;
     bool sending_;
     bool forward_;
+    MarsRequest env_;
 
     // -- Methods
     bool wait(eckit::Length&);
