@@ -73,6 +73,9 @@ eckit::PathName LibMetkit::paramIDYamlFile() {
 eckit::PathName LibMetkit::paramMatchingYamlFile() {
     return LibMetkit::configFile("param-matching.yaml");
 }
+eckit::PathName LibMetkit::chemIDYamlFile() {
+    return LibMetkit::configFile("chemids.yaml");
+}
 eckit::PathName LibMetkit::bufrSubtypesYamlFile() {
     return LibMetkit::configFile("bufr-subtypes.yaml");
 }
