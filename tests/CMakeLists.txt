@@ -71,6 +71,7 @@ foreach( test
         filter
         hypercube
         integer_range
+        matcher
         language
         obstype
         param_axis

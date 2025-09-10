@@ -6,16 +6,16 @@
  * In applying this licence, ECMWF does not waive the privileges and immunities
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
-*/
+ */
 
 /// @author Chris Bradley
 
-#include <string>
 #include <map>
+#include <string>
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/utils/Regex.h"
 #include "eckit/utils/Tokenizer.h"
-#include "eckit/exception/Exceptions.h"
 #include "metkit/mars/MarsRequest.h"
 
 #include "metkit/mars/Matcher.h"
@@ -24,8 +24,7 @@ namespace metkit::mars {
 
 namespace {  // helpers
 
-using RegexMap  = std::map<std::string, eckit::Regex>;
-using ValuesMap = std::map<std::string, std::vector<std::string>>;
+using RegexMap = std::map<std::string, eckit::Regex>;
 
 RegexMap parseKeyRegexList(const std::string& expr) {
     RegexMap out;
@@ -56,23 +55,20 @@ RegexMap parseKeyRegexList(const std::string& expr) {
     return out;
 }
 
-} // namespace helpers
+}  // namespace
 
-Matcher::Matcher(const std::string& expr):
-    regexMap_{parseKeyRegexList(expr)} {
-}
+Matcher::Matcher(const std::string& expr) : regexMap_{parseKeyRegexList(expr)} {}
 
-bool Matcher::match(const MarsRequest& request, bool matchOnMissing, ValuePolicy policy) const {
+bool Matcher::match(const MarsRequest& request, Policy policy, bool matchOnMissing) const {
     ValuesMap vals;
     for (const auto& kv : regexMap_) {
         vals[kv.first] = request.values(kv.first, /*emptyOK*/ true);
     }
-    return match(vals, matchOnMissing, policy);
+    return match(vals, policy, matchOnMissing);
 }
 
-bool Matcher::match(const ValuesMap& request, bool matchOnMissing, ValuePolicy policy) const {
-    return std::all_of(regexMap_.begin(), regexMap_.end(),
-    [&](const auto& kv) {
+bool Matcher::match(const ValuesMap& request, Policy policy, bool matchOnMissing) const {
+    return std::all_of(regexMap_.begin(), regexMap_.end(), [&](const auto& kv) {
         const auto& keyword = kv.first;
         const auto& re      = kv.second;
 
@@ -83,15 +79,15 @@ bool Matcher::match(const ValuesMap& request, bool matchOnMissing, ValuePolicy p
             return matchOnMissing;
 
         const auto& vals = it->second;
-        auto pred = [&](const std::string& s){ return re.match(s); };
+        auto pred        = [&](const std::string& s) { return re.match(s); };
 
-        if (policy == ValuePolicy::Any)
+        if (policy == Policy::Any)
             return std::any_of(vals.begin(), vals.end(), pred);
-        else if (policy == ValuePolicy::All)
+        else if (policy == Policy::All)
             return std::all_of(vals.begin(), vals.end(), pred);
         else
             throw eckit::SeriousBug("Not implemented ValuePolicy in Matcher::match");
     });
 }
 
-} // namespace metkit::mars
+}  // namespace metkit::mars
