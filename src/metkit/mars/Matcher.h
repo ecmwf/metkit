@@ -8,41 +8,42 @@
  * does it submit to any jurisdiction.
  */
 
- /// @author Chris Bradley
+/// @author Chris Bradley
 
-#include <string>
 #include <map>
+#include <string>
 #include "eckit/utils/Regex.h"
 #include "metkit/mars/MarsRequest.h"
 namespace metkit::mars {
 
-// for handling things like:
-//  expr: expver=(0001|o[0-9a-z]{3}),dataset=^climate-dt$
-// the expr is a series of comma separated key=regex pairs
-// where the regex is used to match against the value(s) of the key in a mars request
-
-
 class Matcher {
+
+    using RegexMap = std::map<std::string, eckit::Regex>;
+    // keyword -> list of values
+    using ValuesMap = std::map<std::string, std::vector<std::string>>;
+
 public:
-    enum class ValuePolicy { Any, All };
-public:
+
     // mars key -> regex
-    using RegexMap  = std::map<std::string, eckit::Regex>;
-
-    using SelectMap = std::map<std::string, eckit::Regex>;
-    using ValuesMap = std::map<std::string, std::vector<std::string>>;  // keyword -> list of values
+    enum class Policy {
+        Any,
+        All
+    };
 
 public:
+
+    // expr is a series of comma separated key=regex pairs e.g.,
+    //     "expver=(0001|o[0-9a-z]{3}),dataset=^climate-dt$"
     Matcher(const std::string& expr);
 
-    bool match(const ValuesMap& request, bool matchOnMissing, ValuePolicy policy) const;
-    bool match(const MarsRequest& request, bool matchOnMissing, ValuePolicy policy) const;
+    bool match(const ValuesMap& request, Policy policy, bool matchOnMissing = true) const;
+    bool match(const MarsRequest& request, Policy policy, bool matchOnMissing = true) const;
 
     const RegexMap& regexMap() const { return regexMap_; }
 
 private:
-    
-    RegexMap regexMap_; // public for now...
+
+    RegexMap regexMap_;
 };
 
 }  // namespace metkit::mars
