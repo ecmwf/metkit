@@ -12,7 +12,7 @@
 
 #include <map>
 #include <string>
-
+#include <algorithm>
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/Regex.h"
 #include "eckit/utils/Tokenizer.h"
