@@ -21,7 +21,8 @@ namespace metkit::test {
 CASE("match") {
 
     // match any x***
-    Matcher m("expver=(x[0-9a-z]{3}),number=(1|2),stream=^enfo$");
+    Matcher match_any("expver=(x[0-9a-z]{3}),number=(1|2),stream=^enfo$", Matcher::Policy::Any);
+    Matcher match_all("expver=(x[0-9a-z]{3}),number=(1|2),stream=^enfo$", Matcher::Policy::All);
 
     MarsRequest req("retrieve");
     req.setValue("expver", "xxxx");
@@ -30,8 +31,8 @@ CASE("match") {
     req.setValue("step ", "0");  // step is not in the matcher
 
     EXPECT_EQUAL(req.count(), 2);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any), true);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All), true);
+    EXPECT_EQUAL(match_any.match(req), true);
+    EXPECT_EQUAL(match_all.match(req), true);
 
     // -- Test partially matching request
 
@@ -41,8 +42,8 @@ CASE("match") {
     req.setValue("stream", "enfo");
 
     EXPECT_EQUAL(req.count(), 3);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any), true);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All), false);
+    EXPECT_EQUAL(match_any.match(req), true);
+    EXPECT_EQUAL(match_all.match(req), false);
 
     // -- Test request entirely not matching
 
@@ -52,8 +53,8 @@ CASE("match") {
     req.setValue("stream", "enfo");
 
     EXPECT_EQUAL(req.count(), 2);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any), false);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All), false);
+    EXPECT_EQUAL(match_any.match(req), false);
+    EXPECT_EQUAL(match_all.match(req), false);
 
     // -- Test request missing keys
 
@@ -64,12 +65,12 @@ CASE("match") {
     EXPECT_EQUAL(req.count(), 2);
 
     bool matchMissing = false;
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any, matchMissing), false);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All, matchMissing), false);
+    EXPECT_EQUAL(match_any.match(req, matchMissing), false);
+    EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
     matchMissing = true;
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any, matchMissing), true);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All, matchMissing), true);
+    EXPECT_EQUAL(match_any.match(req, matchMissing), true);
+    EXPECT_EQUAL(match_all.match(req, matchMissing), true);
 
     // -- Combinations of the above some of the above
 
@@ -80,12 +81,12 @@ CASE("match") {
     EXPECT_EQUAL(req.count(), 3);
 
     matchMissing = false;
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any, matchMissing), false);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All, matchMissing), false);
+    EXPECT_EQUAL(match_any.match(req, matchMissing), false);
+    EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
     matchMissing = true;
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any, matchMissing), false);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All, matchMissing), false);
+    EXPECT_EQUAL(match_any.match(req, matchMissing), false);
+    EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
 
     // Missing key, but expver matches, number partially matches
@@ -94,12 +95,12 @@ CASE("match") {
     req.values("number", {"1", "2", "3"});
 
     matchMissing = false;
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any, matchMissing), false);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All, matchMissing), false);
+    EXPECT_EQUAL(match_any.match(req, matchMissing), false);
+    EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
     matchMissing = true;
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::Any, matchMissing), true);
-    EXPECT_EQUAL(m.match(req, Matcher::Policy::All, matchMissing), false);
+    EXPECT_EQUAL(match_any.match(req, matchMissing), true);
+    EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
