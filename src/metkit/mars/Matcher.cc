@@ -20,6 +20,17 @@
 
 #include "metkit/mars/Matcher.h"
 
+// ----------------------------------------------------------------------------------------------------------------------
+// Visitor pattern for std::variant
+template <class... Ts>
+struct overloaded : Ts... {
+    using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
+
+// ----------------------------------------------------------------------------------------------------------------------
 namespace metkit::mars {
 
 namespace {  // helpers
@@ -73,6 +84,7 @@ private:
 };
 
 }  // namespace
+// ----------------------------------------------------------------------------------------------------------------------
 
 Matcher::Matcher(const std::string& expr, Policy policy) : regexMap_{parseKeyRegexList(expr)}, policy_{policy} {}
 
@@ -88,32 +100,20 @@ bool Matcher::match(const RequestAccessor& request, bool matchOnMissing) const {
         if (!request.has(keyword))
             return matchOnMissing;
 
-        const auto& vals = request.get(keyword);
-        auto pred        = [&](const std::string& s) { return re.match(s); };
+        auto pred = [&](const std::string& s) { return re.match(s); };
 
-        return std::visit(
-            [&](auto arg) {
-                using T = std::decay_t<decltype(arg)>;
-
-                // Single value
-                if constexpr (std::is_same_v<T, std::reference_wrapper<const std::string>>) {
-                    const auto& v = arg.get();
-                    return pred(v);
-                }
-                // Multiple values
-                else {
-                    const auto& vec = arg.get();
-                    ASSERT(!vec.empty());
-                    if (policy_ == Policy::Any) {
-                        return std::any_of(vec.begin(), vec.end(), pred);
-                    }
-                    else {
-                        ASSERT(policy_ == Policy::All);
-                        return std::all_of(vec.begin(), vec.end(), pred);
-                    }
-                }
-            },
-            vals);
+        return std::visit(overloaded{[&](std::reference_wrapper<const std::string> value) { return pred(value.get()); },
+                                     [&](std::reference_wrapper<const std::vector<std::string>> values) {
+                                         const auto& vec = values.get();
+                                         if (policy_ == Policy::Any) {
+                                             return std::any_of(vec.begin(), vec.end(), pred);
+                                         }
+                                         else {
+                                             ASSERT(policy_ == Policy::All);
+                                             return std::all_of(vec.begin(), vec.end(), pred);
+                                         }
+                                     }},
+                          request.get(keyword));
     });
 }
 
