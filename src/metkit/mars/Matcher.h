@@ -10,16 +10,17 @@
 
 /// @author Chris Bradley
 
+#include <functional>
 #include <map>
 #include <string>
+#include <variant>
 #include "eckit/utils/Regex.h"
 #include "metkit/mars/MarsRequest.h"
 namespace metkit::mars {
 
 class RequestAccessor;
 
-/// Matcher class to match requests against a set of key=regex conditions,
-/// for constructing select/exclude filters.
+/// For matching requests against a set of key=regex conditions. For constructing select/exclude filters.
 class Matcher {
 
 public:
