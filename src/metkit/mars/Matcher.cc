@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996- ECMWF.
+ * (C) Copyright 2025- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -10,9 +10,9 @@
 
 /// @author Chris Bradley
 
+#include <algorithm>
 #include <map>
 #include <string>
-#include <algorithm>
 #include "eckit/exception/Exceptions.h"
 #include "eckit/utils/Regex.h"
 #include "eckit/utils/Tokenizer.h"
@@ -55,38 +55,65 @@ RegexMap parseKeyRegexList(const std::string& expr) {
     return out;
 }
 
+class MarsRequestAccessor : public RequestAccessor {
+public:
+
+    explicit MarsRequestAccessor(const metkit::mars::MarsRequest& request) : request_(request) {}
+
+    bool has(const std::string& keyword) const override { return request_.has(keyword); }
+
+    values_t get(const std::string& keyword) const override {
+        // returns reference_wrapper<vector<string>>
+        return std::cref(request_.values(keyword));
+    }
+
+private:
+
+    const metkit::mars::MarsRequest& request_;
+};
+
 }  // namespace
 
-Matcher::Matcher(const std::string& expr) : regexMap_{parseKeyRegexList(expr)} {}
+Matcher::Matcher(const std::string& expr, Policy policy) : regexMap_{parseKeyRegexList(expr)}, policy_{policy} {}
 
-bool Matcher::match(const MarsRequest& request, Policy policy, bool matchOnMissing) const {
-    ValuesMap vals;
-    for (const auto& kv : regexMap_) {
-        vals[kv.first] = request.values(kv.first, /*emptyOK*/ true);
-    }
-    return match(vals, policy, matchOnMissing);
+bool Matcher::match(const MarsRequest& request, bool matchOnMissing) const {
+    return match(MarsRequestAccessor(request), matchOnMissing);
 }
 
-bool Matcher::match(const ValuesMap& request, Policy policy, bool matchOnMissing) const {
+bool Matcher::match(const RequestAccessor& request, bool matchOnMissing) const {
     return std::all_of(regexMap_.begin(), regexMap_.end(), [&](const auto& kv) {
         const auto& keyword = kv.first;
         const auto& re      = kv.second;
 
-        auto it = request.find(keyword);
-
-        // If the key is missing or present with no values
-        if (it == request.end() || it->second.empty())
+        if (!request.has(keyword))
             return matchOnMissing;
 
-        const auto& vals = it->second;
+        const auto& vals = request.get(keyword);
         auto pred        = [&](const std::string& s) { return re.match(s); };
 
-        if (policy == Policy::Any)
-            return std::any_of(vals.begin(), vals.end(), pred);
-        else if (policy == Policy::All)
-            return std::all_of(vals.begin(), vals.end(), pred);
-        else
-            throw eckit::SeriousBug("Not implemented ValuePolicy in Matcher::match");
+        return std::visit(
+            [&](auto arg) {
+                using T = std::decay_t<decltype(arg)>;
+
+                // Single value
+                if constexpr (std::is_same_v<T, std::reference_wrapper<const std::string>>) {
+                    const auto& v = arg.get();
+                    return pred(v);
+                }
+                // Multiple values
+                else {
+                    const auto& vec = arg.get();
+                    ASSERT(!vec.empty());
+                    if (policy_ == Policy::Any) {
+                        return std::any_of(vec.begin(), vec.end(), pred);
+                    }
+                    else {
+                        ASSERT(policy_ == Policy::All);
+                        return std::all_of(vec.begin(), vec.end(), pred);
+                    }
+                }
+            },
+            vals);
     });
 }
 
