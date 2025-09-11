@@ -190,7 +190,7 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
         throw;
     }
 
-    return new CodesContent(h);
+    return new CodesContent(h, true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
