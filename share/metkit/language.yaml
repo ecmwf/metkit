@@ -1721,6 +1721,7 @@ disseminate:
     values:
       - 'off'
       - 'no-local-extension'
+      - 'adjust-spectral-packing'
 
   priority:
     category: sink
