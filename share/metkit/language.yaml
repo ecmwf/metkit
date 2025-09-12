@@ -384,7 +384,6 @@ _field: &_field
       - [tims, time-series]
       - [tavg, time-average]
       - [tacc, time-accumulation]
-      - all
 
   section:
     category: data
@@ -394,7 +393,6 @@ _field: &_field
       - [v, vertical]
       - [z, zonal]
       - [m, meridional]
-      - all
 
   range:
     category: data
@@ -656,6 +654,7 @@ _field: &_field
 
   levtype:
     category: data
+    aliases: [levtyp]
     defaults:
       - vals: [pl]
     unset:
@@ -727,6 +726,7 @@ _field: &_field
 
   param:
     category: data
+    aliases: [parameter,parameters]
     multiple: true
     type: param
     defaults:
