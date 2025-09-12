@@ -17,6 +17,7 @@
 
 #include "eckit/runtime/Main.h"
 #include "eckit/system/SystemInfo.h"
+#include "eckit/utils/Tokenizer.h"
 
 
 namespace metkit::mars {
@@ -29,8 +30,15 @@ RequestEnvironment::RequestEnvironment() : request_("environ") {
 }
 
 void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
+    // Split string on '/' and ignore empty splits
+    const auto split = [](const std::string& str) -> std::vector<std::string> {
+        std::vector<std::string> result;
+        eckit::Tokenizer parse("/");
+        parse(str, result);
+        return result;
+    };
     for (const auto& [k, v] : env) {
-        request_.setValue(k, v);
+        request_.values(k, split(v));
     }
 }
 
