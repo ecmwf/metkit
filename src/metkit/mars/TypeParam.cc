@@ -325,14 +325,14 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
     return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
-static std::vector<Rule>* rules = nullptr;
+static std::deque<Rule>* rules = nullptr;
 
 }  // namespace
 
 static void init() {
 
     local_mutex = new eckit::Mutex();
-    rules       = new std::vector<Rule>();
+    rules       = new std::deque<Rule>();
 
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
@@ -426,7 +426,7 @@ static void init() {
             }
         }
         if (listIDs.size() > 0) {
-            (*rules).push_back(Rule{it->first, listIDs, ids});
+            (*rules).push_front(Rule{it->first, listIDs, ids});
         }
     }
 
@@ -465,7 +465,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     }
 
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
+    for (std::deque<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
         if ((*j).match(request)) {
             rule = &(*j);
             break;
@@ -477,7 +477,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
         if (firstRule_) {
             bool found = false;
-            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule; ++j) {
+            for (std::deque<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule; ++j) {
                 const Rule* r = &(*j);
                 if ((*j).match(request, true)) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
@@ -500,7 +500,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
                     tmp.setValue((*j).first, (*j).second);
                 }
             }
-            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
+            for (std::deque<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
                 if ((*j).match(tmp)) {
                     rule = &(*j);
                     Log::warning() << "TypeParam using 'expand with' option " << *rule << std::endl;
