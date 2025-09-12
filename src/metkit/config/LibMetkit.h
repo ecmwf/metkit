@@ -33,7 +33,6 @@ public:
     static eckit::PathName paramYamlFile();
     static eckit::PathName paramStaticYamlFile();
     static eckit::PathName paramIDYamlFile();
-    static eckit::PathName chemIDYamlFile();
     static eckit::PathName paramMatchingYamlFile();
     static eckit::PathName shortnameContextYamlFile();
     static eckit::PathName bufrSubtypesYamlFile();

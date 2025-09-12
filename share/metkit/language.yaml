@@ -742,6 +742,12 @@ _field: &_field
       - context:
           type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
 
+  chem:
+    category: data
+    multiple: true
+    type: enum
+    values: "chemids.yaml"
+
 #################################################################
 
   # year

@@ -73,8 +73,6 @@ list( APPEND metkit_srcs
     mars/TypeMixed.h
     mars/TypeParam.cc
     mars/TypeParam.h
-    mars/TypeChem.cc
-    mars/TypeChem.h
     mars/TypeRange.cc
     mars/TypeRange.h
     mars/TypeRegex.cc
