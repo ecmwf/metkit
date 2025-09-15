@@ -1768,6 +1768,7 @@ retrieve:
     type: any
 
   expect:
+    category: sink
     flatten: false
     multiple: false
     type: [enum, integer]
@@ -1775,12 +1776,14 @@ retrieve:
     - any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
     type: any
 
   database:
+    category: sink
     flatten: false
     multiple: true
     aliases: [dbase]
@@ -1795,6 +1798,7 @@ retrieve:
         vals: [file]
 
   optimise:
+    category: sink
     type: enum
     values:
     - 'on'
@@ -1804,6 +1808,7 @@ retrieve:
 
 
   duplicates:
+    category: sink
     type: enum
     defaults:
       - context:
@@ -1829,6 +1834,7 @@ retrieve:
     - remove
 
   padding:
+    category: sink
     flatten: false
     type: enum
     defaults:
@@ -1862,6 +1868,7 @@ read:
     type: any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
@@ -1913,11 +1920,13 @@ flush:
 get:
 
   tape:
+    category: sink
     flatten: false
     multiple: false
     type: any
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1973,7 +1982,6 @@ list:
   _clear_defaults: [date, domain, expver, levelist, levtype, param, step, stream, time, type]
   _multiple: [class, expver, stream, type]
 
-
 ##############################################################
 
 compute:
@@ -1984,6 +1992,7 @@ compute:
     type: any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
@@ -1994,6 +2003,7 @@ compute:
 write:
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
