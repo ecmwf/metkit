@@ -34,6 +34,7 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
                          const std::vector<std::string>& expected) {
     static MarsLanguage language("retrieve");
     language.type(name)->expand(DummyContext{}, values);
+    EXPECT_EQUAL(values.size(), expected.size());
     EXPECT_EQUAL(expected, values);
 }
 
@@ -49,7 +50,6 @@ CASE("Test TypeDate expansions") {
 
     TypeDate tdate("date", Value());
     Type& td(tdate);
-    DummyContext ctx;
 
     assertTypeExpansion("date", {"20140506"}, {"20140506"});
     assertTypeExpansion("date", {"2014-05-06"}, {"20140506"});
@@ -77,25 +77,16 @@ CASE("Test TypeDate expansions") {
     assertTypeExpansion("date", {"2018-41"}, {"20180210"});
 
     {
-        std::string value = "20141506";
-        EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
+        EXPECT_THROWS(auto vv = td.tidy("20141506"));  // throws BadDate that is not exported
     }
     {
-        std::string value = "20180132";
-        EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
+        EXPECT_THROWS(auto vv = td.tidy("20180132"));  // throws BadDate that is not exported
     }
     {
-        std::string value = "202401366";
-        EXPECT_THROWS(td.expand(ctx, value));  // throws BadDate that is not exported
+        EXPECT_THROWS(auto vv = td.tidy("202401366"));  // throws BadDate that is not exported
     }
-    {
-        std::string value = "abc";
-        EXPECT_THROWS_AS(td.expand(ctx, value), BadValue);
-    }
-    {
-        std::string value = "abc-01";
-        EXPECT_THROWS_AS(td.expand(ctx, value), BadValue);
-    }
+    { EXPECT_THROWS_AS(auto vv = td.tidy("abc"), BadValue); }
+    { EXPECT_THROWS_AS(auto vv = td.tidy("abc-01"), BadValue); }
 }
 
 

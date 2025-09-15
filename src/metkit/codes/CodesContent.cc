@@ -127,6 +127,18 @@ void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& v
     ASSERT(count == size);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+void CodesContent::getFloatArray(const std::string& key, std::vector<float>& values) const {
+    size_t size = 0;
+    CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
+
+    size_t count = size;
+    values.resize(count);
+    CODES_CALL(codes_get_float_array(handle_, key.c_str(), &values[0], &count));
+    ASSERT(count == size);
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -142,6 +154,14 @@ size_t CodesContent::getSize(const std::string& key) const {
 void CodesContent::getDoubleArray(const std::string& key, double* data, size_t len) const {
     size_t count = len;
     CODES_CALL(codes_get_double_array(handle_, key.c_str(), data, &count));
+    ASSERT(count == len);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void CodesContent::getFloatArray(const std::string& key, float* data, size_t len) const {
+    size_t count = len;
+    CODES_CALL(codes_get_float_array(handle_, key.c_str(), data, &count));
     ASSERT(count == len);
 }
 
@@ -170,7 +190,7 @@ eckit::message::MessageContent* CodesContent::transform(const eckit::StringDict&
         throw;
     }
 
-    return new CodesContent(h);
+    return new CodesContent(h, true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

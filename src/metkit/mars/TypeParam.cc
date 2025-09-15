@@ -8,20 +8,18 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/TypeParam.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"
-#include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/TypeParam.h"
-#include "metkit/mars/TypesFactory.h"
-
 #include "metkit/mars/MarsExpandContext.h"
+#include "metkit/mars/MarsLanguage.h"
+#include "metkit/mars/TypesFactory.h"
 
 using eckit::Log;
 using metkit::LibMetkit;
@@ -221,7 +219,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
                 precedence[v] = j;
             }
 
-            mapping_[v] = first;
+            mapping_[v] = {first};
             values_.push_back(v);
         }
     }
@@ -435,8 +433,7 @@ static void init() {
     (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()});
 }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -455,15 +452,19 @@ void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-
-bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request, std::vector<std::string>& values,
-                       bool fail) const {
+void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
     pthread_once(&once, init);
+
+    bool fail                       = true;
+    const Rule* rule                = 0;
+    std::vector<std::string> values = request.values(name_, true);
+
+    if (values.size() == 1 && values[0] == "all") {
+        return;
+    }
+
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-
-    const Rule* rule = 0;
-
     for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
         if ((*j).match(request)) {
             rule = &(*j);
@@ -472,9 +473,7 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
     }
 
     if (!rule) {
-
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
-        ;
 
         if (firstRule_) {
             bool found = false;
@@ -528,20 +527,12 @@ bool TypeParam::expand(const MarsExpandContext& ctx, const MarsRequest& request,
         }
     }
 
-    return true;
-}
-
-
-void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
-    std::vector<std::string> values = request.values(name_, true);
-    expand(ctx, request, values, true);
     request.setValuesTyped(this, values);
 }
 
-
-void TypeParam::expand(const MarsExpandContext& /* ctx */, std::vector<std::string>& /* values */,
-                       const MarsRequest& /* request */) const {
+bool TypeParam::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
     // Work done on pass2()
+    return true;
 }
 
 void TypeParam::reset() {
@@ -553,5 +544,4 @@ static TypeBuilder<TypeParam> type("param");
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

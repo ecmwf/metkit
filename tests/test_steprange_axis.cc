@@ -38,29 +38,56 @@ CASE("steprange") {
 
     {
         StepRange sr{0, 24};
-        EXPECT(sr.from() == 0);
-        std::cout << sr.to() << std::endl;
-        EXPECT(sr.to() == 24);
+        EXPECT_EQUAL(sr.from(), 0);
+        EXPECT_EQUAL(sr.to(), 24);
     }
     {
         StepRange sr{"0-24"};
-        EXPECT(sr.from() == 0);
-        EXPECT(sr.to() == 24);
+        EXPECT_EQUAL(sr.from(), 0);
+        EXPECT_EQUAL(sr.to(), 24);
     }
     {
         StepRange sr{0, .5};
-        EXPECT(sr.from() == 0);
+        EXPECT_EQUAL(sr.from(), 0);
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 0.5));
     }
     {
         StepRange sr{"0-30m"};
-        EXPECT(sr.from() == 0);
+        EXPECT_EQUAL(sr.from(), 0);
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 0.5));
     }
     {
         StepRange sr{"0-24s"};
-        EXPECT(sr.from() == 0);
+        EXPECT_EQUAL(sr.from(), 0);
         EXPECT(eckit::types::is_approximately_equal(sr.to(), 24. / 3600.));
+    }
+    {
+        StepRange sr{"40m-260m"};
+        EXPECT(eckit::types::is_approximately_equal(sr.from(), 2. / 3.));
+        EXPECT(eckit::types::is_approximately_equal(sr.to(), 4 + 1. / 3.));
+    }
+    {
+        StepRange sr{"20m"};
+        EXPECT_EQUAL(sr.toString(), "20m");
+        EXPECT_EQUAL(sr.toString(true), "20m");
+    }
+    {
+        StepRange sr{"60m"};
+        EXPECT_EQUAL(sr.toString(), "1");
+        EXPECT_EQUAL(sr.toString(true, false), "1");
+        EXPECT_EQUAL(sr.toString(true, true), "1h");
+    }
+    {
+        StepRange sr{"1d"};
+        EXPECT_EQUAL(sr.toString(), "24");
+        EXPECT_EQUAL(sr.toString(true, false), "1d");
+        EXPECT_EQUAL(sr.toString(true, true), "1d");
+    }
+    {
+        StepRange sr{"25"};
+        EXPECT_EQUAL(sr.toString(), "25");
+        EXPECT_EQUAL(sr.toString(true, false), "1d1h");
+        EXPECT_EQUAL(sr.toString(true, true), "1d1h");
     }
 }
 
