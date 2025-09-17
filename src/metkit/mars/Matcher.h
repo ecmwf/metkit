@@ -18,51 +18,69 @@
 #include "metkit/mars/MarsRequest.h"
 namespace metkit::mars {
 
-class RequestAccessor;
+class RequestLike;
+using RegexMap = std::map<std::string, eckit::Regex>;
 
-/// For matching requests against a set of key=regex conditions. For constructing select/exclude filters.
+/// Parse a match expression into a map of key:regex pairs
+/// @param expr is a series of comma separated key:regex pairs e.g.
+///   "expver=(0001|o[0-9a-z]{3}),dataset=^climate-dt$"
+RegexMap parseMatchString(const std::string& expr);
+
+// -------------------------------------------------------------------------------------------------------------
+
+/// For matching requests against a set of key:regex conditions. For constructing select/exclude filters.
+
 class Matcher {
 
 public:
 
+    /// Policy for handling requests with multiple values for a given key.
     enum class Policy {
         All,  ///< Require all values to match
         Any   ///< Require at least one value to match
     };
 
+    /// Policy for handling keys in the matcher that are absent in the request.
+    enum class MatchMissingPolicy {
+        MatchOnMissing,
+        DontMatchOnMissing
+    };
+    static constexpr auto MatchOnMissing     = MatchMissingPolicy::MatchOnMissing;
+    static constexpr auto DontMatchOnMissing = MatchMissingPolicy::DontMatchOnMissing;  
+
 public:
 
-    /// @param expr is a series of comma separated key=regex pairs e.g.
-    ///   "expver=(0001|o[0-9a-z]{3}),dataset=^climate-dt$"
-    /// @param policy defines how we treat requests with multiple values for a given key.
+    /// Construct a matcher from a map of key:regex pairs
+    Matcher(RegexMap regexMap, Policy policy);
+
     Matcher(const std::string& expr, Policy policy);
 
-    /// @param matchOnMissing: if true, then keys in the matcher absent in the request match.
-    bool match(const RequestAccessor& request, bool matchOnMissing = true) const;
-    bool match(const MarsRequest& request, bool matchOnMissing = true) const;
+    bool match(const RequestLike& request, MatchMissingPolicy matchOnMissing = MatchOnMissing) const;
+    bool match(const MarsRequest& request, MatchMissingPolicy matchOnMissing = MatchOnMissing) const;
 
 private:
 
-    const std::map<std::string, eckit::Regex> regexMap_;
-    const Policy policy_;
+    RegexMap regexMap_;
+    Policy policy_;
 };
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-// Wrapper around a request (e.g., MarsRequest, fdb5::Key, etc) to provide access to its values
-class RequestAccessor {
+/// Interface to access keyword / value(s) pairs across similar types.
+/// Designed to allow uniform access to keywords / values for MarsRequest / fdb5::Key  
+class RequestLike {
 public:
 
-    using values_t = std::variant<std::reference_wrapper<const std::string>,              // single value
-                                  std::reference_wrapper<const std::vector<std::string>>  // multiple values
+    using values_t = std::variant<std::reference_wrapper<const std::string>,              ///< single value
+                                  std::reference_wrapper<const std::vector<std::string>>  ///< multiple values
                                   >;
 
-    virtual ~RequestAccessor() = default;
+    virtual ~RequestLike() = default;
 
-    // Returns true if the keyword exists in the request
+    /// Returns true if the keyword exists in the request
     virtual bool has(const std::string& keyword) const = 0;
 
-    // Get a reference_wrapper to the value(s) for the given keyword
+    /// Get a reference_wrapper to the value(s) for the given keyword
     virtual values_t get(const std::string& keyword) const = 0;
 };
 

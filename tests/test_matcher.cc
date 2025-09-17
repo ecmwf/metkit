@@ -64,11 +64,11 @@ CASE("match") {
     // stream is not set
     EXPECT_EQUAL(req.count(), 2);
 
-    bool matchMissing = false;
+    auto matchMissing = Matcher::DontMatchOnMissing;
     EXPECT_EQUAL(match_any.match(req, matchMissing), false);
     EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
-    matchMissing = true;
+    matchMissing = Matcher::MatchOnMissing;
     EXPECT_EQUAL(match_any.match(req, matchMissing), true);
     EXPECT_EQUAL(match_all.match(req, matchMissing), true);
 
@@ -80,11 +80,11 @@ CASE("match") {
     req.values("number", {"1", "2", "3"});  // number=3 does not match
     EXPECT_EQUAL(req.count(), 3);
 
-    matchMissing = false;
+    matchMissing = Matcher::DontMatchOnMissing;
     EXPECT_EQUAL(match_any.match(req, matchMissing), false);
     EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
-    matchMissing = true;
+    matchMissing = Matcher::MatchOnMissing;
     EXPECT_EQUAL(match_any.match(req, matchMissing), false);
     EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
@@ -94,11 +94,11 @@ CASE("match") {
     req.setValue("expver", "xxxx");
     req.values("number", {"1", "2", "3"});
 
-    matchMissing = false;
+    matchMissing = Matcher::DontMatchOnMissing;
     EXPECT_EQUAL(match_any.match(req, matchMissing), false);
     EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 
-    matchMissing = true;
+    matchMissing = Matcher::MatchOnMissing;
     EXPECT_EQUAL(match_any.match(req, matchMissing), true);
     EXPECT_EQUAL(match_all.match(req, matchMissing), false);
 }
