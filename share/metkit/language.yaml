@@ -384,7 +384,6 @@ _field: &_field
       - [tims, time-series]
       - [tavg, time-average]
       - [tacc, time-accumulation]
-      - all
 
   section:
     category: data
@@ -394,7 +393,6 @@ _field: &_field
       - [v, vertical]
       - [z, zonal]
       - [m, meridional]
-      - all
 
   range:
     category: data
@@ -656,6 +654,7 @@ _field: &_field
 
   levtype:
     category: data
+    aliases: [levtyp]
     defaults:
       - vals: [pl]
     unset:
@@ -727,6 +726,7 @@ _field: &_field
 
   param:
     category: data
+    aliases: [parameter,parameters]
     multiple: true
     type: param
     defaults:
@@ -741,6 +741,12 @@ _field: &_field
           stream: [ssmi]
       - context:
           type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+
+  chem:
+    category: data
+    multiple: true
+    type: enum
+    values: "chemids.yaml"
 
 #################################################################
 
@@ -1179,6 +1185,10 @@ _field: &_field
   origin:
     category: data
     multiple: true
+    defaults:
+      - context:
+          class: [ti, s2]
+        vals: [ecmf]
     type: enum
     values:
       - [aladinhuneps-omsz-eu]
@@ -1758,6 +1768,7 @@ retrieve:
     type: any
 
   expect:
+    category: sink
     flatten: false
     multiple: false
     type: [enum, integer]
@@ -1765,12 +1776,14 @@ retrieve:
     - any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
     type: any
 
   database:
+    category: sink
     flatten: false
     multiple: true
     aliases: [dbase]
@@ -1785,6 +1798,7 @@ retrieve:
         vals: [file]
 
   optimise:
+    category: sink
     type: enum
     values:
     - 'on'
@@ -1794,6 +1808,7 @@ retrieve:
 
 
   duplicates:
+    category: sink
     type: enum
     defaults:
       - context:
@@ -1819,6 +1834,7 @@ retrieve:
     - remove
 
   padding:
+    category: sink
     flatten: false
     type: enum
     defaults:
@@ -1852,6 +1868,7 @@ read:
     type: any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
@@ -1868,14 +1885,48 @@ read:
       first_rule: true
 ##############################################################
 
+
+flush:
+
+  <<: *_field
+  <<: *_observation
+  <<: *_postproc
+  <<: *_obspproc
+
+  password:
+    aliases: [pass]
+    type: any
+
+  wait:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [true, yes, y, on, 1]
+      - [false, no, n, off, 0]
+
+  decache:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [true, yes, y, on, 1]
+      - [false, no, n, off, 0]
+
+  _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
+
+##############################################################
+
 get:
 
   tape:
+    category: sink
     flatten: false
     multiple: false
     type: any
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1931,7 +1982,6 @@ list:
   _clear_defaults: [date, domain, expver, levelist, levtype, param, step, stream, time, type]
   _multiple: [class, expver, stream, type]
 
-
 ##############################################################
 
 compute:
@@ -1942,6 +1992,7 @@ compute:
     type: any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
@@ -1952,6 +2003,7 @@ compute:
 write:
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false

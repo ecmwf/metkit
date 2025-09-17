@@ -460,6 +460,10 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     const Rule* rule                = 0;
     std::vector<std::string> values = request.values(name_, true);
 
+    if (values.size() == 1 && values[0] == "all") {
+        return;
+    }
+
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
     for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
         if ((*j).match(request)) {

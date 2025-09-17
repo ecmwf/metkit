@@ -931,6 +931,16 @@ CASE("test_metkit_expand_clmn") {
     }
 }
 
+CASE("test_metkit_expand_chem") {
+    const char* text =
+        "retrieve,chem=co/no2/no/so2,class=mc,date=2006-12-18,expver=9001,levtype=sfc,param=402000,step=12,stream=oper,"
+        "time=00:00:00,type=fc,target=\"output\"";
+    const char* expected =
+        "RETRIEVE,CLASS=MC,TYPE=FC,STREAM=OPER,EXPVER=9001,LEVTYPE=SFC,PARAM=402000,CHEM=2/17/27/233,DATE=20061218,"
+        "TIME=0000,STEP=12,DOMAIN=G,TARGET=output";
+    expand(text, expected);
+}
+
 CASE("test_metkit_expand_frequency") {
     const char* text =
         "retrieve,class=od,date=20250401,direction=31,domain=g,expver=0001,frequency=7,levtype=sfc,param=140217,step=0,"
