@@ -160,7 +160,9 @@ bool MarsLanguage::isPostProc(const std::string& keyword) const {
 bool MarsLanguage::isSink(const std::string& keyword) const {
     return (sinkKeywords_.find(keyword) != sinkKeywords_.end());
 }
-
+const std::set<std::string>& MarsLanguage::sinkKeywords() const {
+    return sinkKeywords_;
+}
 
 MarsLanguage::~MarsLanguage() {
     for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
