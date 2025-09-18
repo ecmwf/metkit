@@ -300,6 +300,15 @@ const std::vector<std::string>& MarsRequest::values(const std::string& name, boo
     return (*i).values();
 }
 
+std::optional<std::reference_wrapper<const std::vector<std::string>>> MarsRequest::get(
+    const std::string& keyword) const {
+    std::list<Parameter>::const_iterator i = find(keyword);
+    if (i == params_.end()) {
+        return std::nullopt;
+    }
+    return std::cref((*i).values());
+}
+
 const std::string& MarsRequest::operator[](const std::string& name) const {
     std::list<Parameter>::const_iterator i = find(name);
     if (i == params_.end()) {
