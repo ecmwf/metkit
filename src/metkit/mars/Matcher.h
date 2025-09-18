@@ -46,7 +46,7 @@ public:
         DontMatchOnMissing
     };
     static constexpr auto MatchOnMissing     = MatchMissingPolicy::MatchOnMissing;
-    static constexpr auto DontMatchOnMissing = MatchMissingPolicy::DontMatchOnMissing;  
+    static constexpr auto DontMatchOnMissing = MatchMissingPolicy::DontMatchOnMissing;
 
 public:
 
@@ -67,7 +67,7 @@ private:
 // ----------------------------------------------------------------------------------------------------------------------
 
 /// Interface to access keyword / value(s) pairs across similar types.
-/// Designed to allow uniform access to keywords / values for MarsRequest / fdb5::Key  
+/// Designed to allow uniform access to keywords / values for MarsRequest / fdb5::Key
 class RequestLike {
 public:
 

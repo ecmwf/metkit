@@ -23,7 +23,7 @@
 
 // ----------------------------------------------------------------------------------------------------------------------
 namespace {
-    
+
 // Visitor pattern for std::variant
 template <class... Ts>
 struct Overloaded : Ts... {
@@ -33,7 +33,7 @@ struct Overloaded : Ts... {
 template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
-} //
+}  // namespace
 
 // ----------------------------------------------------------------------------------------------------------------------
 namespace metkit::mars {
@@ -87,7 +87,8 @@ RegexMap parseMatchString(const std::string& expr) {
 
 // ----------------------------------------------------------------------------------------------------------------------
 
-Matcher::Matcher(std::map<std::string, eckit::Regex> regexMap, Policy policy) : regexMap_{std::move(regexMap)}, policy_{policy} {}
+Matcher::Matcher(std::map<std::string, eckit::Regex> regexMap, Policy policy) :
+    regexMap_{std::move(regexMap)}, policy_{policy} {}
 
 Matcher::Matcher(const std::string& expr, Policy policy) : regexMap_{parseMatchString(expr)}, policy_{policy} {}
 
@@ -98,7 +99,7 @@ bool Matcher::match(const MarsRequest& request, MatchMissingPolicy matchOnMissin
 bool Matcher::match(const RequestLike& request, MatchMissingPolicy matchOnMissing) const {
     return std::all_of(regexMap_.begin(), regexMap_.end(), [&](const auto& kv) {
         const auto& keyword = kv.first;
-        const auto& regex      = kv.second;
+        const auto& regex   = kv.second;
 
         if (!request.has(keyword))
             return matchOnMissing == MatchOnMissing;
