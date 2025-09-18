@@ -9,6 +9,9 @@
  */
 
 /// @author Chris Bradley
+/// @date Sep 2025
+
+#pragma once
 
 #include <functional>
 #include <map>
@@ -16,15 +19,15 @@
 #include <variant>
 #include "eckit/utils/Regex.h"
 #include "metkit/mars/MarsRequest.h"
+
 namespace metkit::mars {
 
 class RequestLike;
-using RegexMap = std::map<std::string, eckit::Regex>;
 
 /// Parse a match expression into a map of key:regex pairs
 /// @param expr is a series of comma separated key:regex pairs e.g.
 ///   "expver=(0001|o[0-9a-z]{3}),dataset=^climate-dt$"
-RegexMap parseMatchString(const std::string& expr);
+std::map<std::string, eckit::Regex> parseMatchString(const std::string& expr);
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -48,10 +51,11 @@ public:
     static constexpr auto MatchOnMissing     = MatchMissingPolicy::MatchOnMissing;
     static constexpr auto DontMatchOnMissing = MatchMissingPolicy::DontMatchOnMissing;
 
+
 public:
 
     /// Construct a matcher from a map of key:regex pairs
-    Matcher(RegexMap regexMap, Policy policy);
+    Matcher(std::map<std::string, eckit::Regex> regexMap, Policy policy);
 
     Matcher(const std::string& expr, Policy policy);
 
@@ -60,7 +64,7 @@ public:
 
 private:
 
-    RegexMap regexMap_;
+    std::map<std::string, eckit::Regex> regexMap_;
     Policy policy_;
 };
 
@@ -77,11 +81,8 @@ public:
 
     virtual ~RequestLike() = default;
 
-    /// Returns true if the keyword exists in the request
-    virtual bool has(const std::string& keyword) const = 0;
-
-    /// Get a reference_wrapper to the value(s) for the given keyword
-    virtual values_t get(const std::string& keyword) const = 0;
+    /// Get a reference_wrapper to the value(s) for the given keyword, or nullopt if not found
+    virtual std::optional<values_t> get(const std::string& keyword) const = 0;
 };
 
 }  // namespace metkit::mars

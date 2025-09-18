@@ -15,73 +15,73 @@
 #include <map>
 #include <string>
 #include "eckit/exception/Exceptions.h"
+#include "eckit/utils/Overloaded.h"
 #include "eckit/utils/Regex.h"
 #include "eckit/utils/Tokenizer.h"
 #include "metkit/mars/MarsRequest.h"
 
 #include "metkit/mars/Matcher.h"
 
-// ----------------------------------------------------------------------------------------------------------------------
-namespace {
-
-// Visitor pattern for std::variant
-template <class... Ts>
-struct Overloaded : Ts... {
-    using Ts::operator()...;
-};
-// explicit deduction guide (not needed as of C++20)
-template <class... Ts>
-Overloaded(Ts...) -> Overloaded<Ts...>;
-
-}  // namespace
-
-// ----------------------------------------------------------------------------------------------------------------------
 namespace metkit::mars {
+
+// ----------------------------------------------------------------------------------------------------------------------
+
 namespace {  // helpers
+
 class MarsRequestAccessor : public RequestLike {
+
 public:
 
     explicit MarsRequestAccessor(const metkit::mars::MarsRequest& request) : request_(request) {}
 
-    bool has(const std::string& keyword) const override { return request_.has(keyword); }
-
-    values_t get(const std::string& keyword) const override {
-        // returns reference_wrapper<vector<string>>
-        return std::cref(request_.values(keyword));
-    }
+    std::optional<values_t> get(const std::string& keyword) const override { return request_.get(keyword); }
 
 private:
 
     const metkit::mars::MarsRequest& request_;
 };
+
+inline std::string trim(const std::string& s) {
+    auto start = std::find_if_not(s.begin(), s.end(), [](unsigned char ch) { return std::isspace(ch); });
+    auto end   = std::find_if_not(s.rbegin(), s.rend(), [](unsigned char ch) { return std::isspace(ch); }).base();
+
+    if (start >= end) {
+        return "";  // string is all whitespace
+    }
+    return std::string(start, end);
+}
+
 }  // namespace
 
-RegexMap parseMatchString(const std::string& expr) {
-    RegexMap out;
+// ----------------------------------------------------------------------------------------------------------------------
+
+std::map<std::string, eckit::Regex> parseMatchString(const std::string& expr) {
     if (expr.empty()) {
-        return out;
+        throw eckit::BadValue("Empty match expression", Here());
     }
 
     std::vector<std::string> key_vals;
     eckit::Tokenizer(',')(expr, key_vals);
-
     eckit::Tokenizer equals('=');
+
+    std::map<std::string, eckit::Regex> out;
     for (const std::string& item : key_vals) {
+
         std::vector<std::string> kv;
         equals(item, kv);
         if (kv.size() != 2) {
             throw eckit::BadValue("Invalid condition " + item + " in expression: " + expr, Here());
         }
 
-        const std::string& key = kv[0];
-        const std::string& val = kv[1];
+        const std::string& key = trim(kv[0]);
+        const std::string& val = trim(kv[1]);
+        auto [it, inserted]    = out.try_emplace(key, val);
 
-        if (out.find(key) != out.end()) {
+        if (!inserted) {
             throw eckit::BadValue("Duplicate key " + key + " in expression: " + expr, Here());
         }
-
-        out[key] = eckit::Regex(val);
     }
+
     return out;
 }
 
@@ -101,13 +101,15 @@ bool Matcher::match(const RequestLike& request, MatchMissingPolicy matchOnMissin
         const auto& keyword = kv.first;
         const auto& regex   = kv.second;
 
-        if (!request.has(keyword))
+        auto opt_values = request.get(keyword);
+
+        if (!opt_values)
             return matchOnMissing == MatchOnMissing;
 
         auto pred = [&regex](const std::string& s) { return regex.match(s); };
 
         // clang-format off
-        return std::visit(Overloaded {
+        return std::visit(eckit::Overloaded {
             [&](std::reference_wrapper<const std::string> value) {
                 return pred(value.get());
             },
@@ -119,7 +121,7 @@ bool Matcher::match(const RequestLike& request, MatchMissingPolicy matchOnMissin
                 ASSERT(policy_ == Policy::All);
                 return std::all_of(vec.begin(), vec.end(), pred);
             }
-        }, request.get(keyword));
+        },  *opt_values);
         // clang-format on
     });
 }
