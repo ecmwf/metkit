@@ -168,9 +168,10 @@ void CodesContent::getFloatArray(const std::string& key, float* data, size_t len
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void CodesContent::transform(const eckit::StringDict& dict) {
+void CodesContent::transform(const eckit::OrderedStringDict& dict) {
 
     std::vector<codes_values> values;
+    values.reserve(dict.size());
 
     for (auto& kv : dict) {
         codes_values v;

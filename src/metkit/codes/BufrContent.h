@@ -32,7 +32,7 @@ public:
 
 private:
 
-    void transform(const eckit::StringDict& dict) override;
+    void transform(const eckit::OrderedStringDict& dict) override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

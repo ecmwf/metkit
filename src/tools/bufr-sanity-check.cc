@@ -67,9 +67,9 @@ private:  // methods
 
     int minimumPositionalArguments() const { return 2; }
 
-    Status checkMessageLength(const message::Message& msg, int numMessage, eckit::StringDict& transformation);
+    Status checkMessageLength(const message::Message& msg, int numMessage, eckit::OrderedStringDict& transformation);
     Status checkSubType(const message::Message& msg, int numMessage);
-    Status checkDate(const message::Message& msg, int numMessage, eckit::StringDict& transformation);
+    Status checkDate(const message::Message& msg, int numMessage, eckit::OrderedStringDict& transformation);
 
     void process(const PathName& input, const PathName& output);
 
@@ -135,7 +135,7 @@ void BufrCheck::usage(const std::string& tool) const {
                 << std::endl;
 }
 
-Status BufrCheck::checkMessageLength(const message::Message& msg, int numMessage, eckit::StringDict& transformation) {
+Status BufrCheck::checkMessageLength(const message::Message& msg, int numMessage, eckit::OrderedStringDict& transformation) {
 
     long totalLength   = msg.getLong("totalLength");
     long messageLength = msg.getLong("messageLength");
@@ -149,7 +149,7 @@ Status BufrCheck::checkMessageLength(const message::Message& msg, int numMessage
             return Status::CORRUPTED;
         }
         else {
-            transformation.emplace("messageLength", std::to_string(totalLength));
+            transformation.emplace_back("messageLength", std::to_string(totalLength));
             return Status::FIXED;
         }
     }
@@ -182,7 +182,7 @@ Status BufrCheck::checkSubType(const message::Message& msg, int numMessage) {
     }
 }
 
-Status BufrCheck::checkDate(const message::Message& msg, int numMessage, eckit::StringDict& transformation) {
+Status BufrCheck::checkDate(const message::Message& msg, int numMessage, eckit::OrderedStringDict& transformation) {
 
     bool toFix = false;
 
@@ -270,16 +270,16 @@ Status BufrCheck::checkDate(const message::Message& msg, int numMessage, eckit::
 
     if (toFix) {
         if (msg.getLong("edition") == 3) {
-            transformation.emplace("typicalYearOfCentury", std::to_string(localYear - 2000));
+            transformation.emplace_back("typicalYearOfCentury", std::to_string(localYear - 2000));
         }
         else {
-            transformation.emplace("typicalYear", std::to_string(localYear));
-            transformation.emplace("typicalSecond", std::to_string(localSecond));
+            transformation.emplace_back("typicalYear", std::to_string(localYear));
+            transformation.emplace_back("typicalSecond", std::to_string(localSecond));
         }
-        transformation.emplace("typicalMonth", std::to_string(localMonth));
-        transformation.emplace("typicalDay", std::to_string(localDay));
-        transformation.emplace("typicalHour", std::to_string(localHour));
-        transformation.emplace("typicalMinute", std::to_string(localMinute));
+        transformation.emplace_back("typicalMonth", std::to_string(localMonth));
+        transformation.emplace_back("typicalDay", std::to_string(localDay));
+        transformation.emplace_back("typicalHour", std::to_string(localHour));
+        transformation.emplace_back("typicalMinute", std::to_string(localMinute));
         return Status::FIXED;
     }
     return Status::OK;
@@ -324,7 +324,7 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
                     missingKey++;
                 }
                 else {
-                    eckit::StringDict transformation;
+                    eckit::OrderedStringDict transformation;
 
                     switch (checkMessageLength(msg, numMessage, transformation)) {
                         case Status::CORRUPTED:

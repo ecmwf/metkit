@@ -33,7 +33,7 @@ BufrContent::~BufrContent() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void BufrContent::transform(const eckit::StringDict& dict) {
+void BufrContent::transform(const eckit::OrderedStringDict& dict) {
 
     std::vector<codes_values> values;
 
