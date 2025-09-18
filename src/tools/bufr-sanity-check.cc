@@ -135,7 +135,8 @@ void BufrCheck::usage(const std::string& tool) const {
                 << std::endl;
 }
 
-Status BufrCheck::checkMessageLength(const message::Message& msg, int numMessage, eckit::OrderedStringDict& transformation) {
+Status BufrCheck::checkMessageLength(const message::Message& msg, int numMessage,
+                                     eckit::OrderedStringDict& transformation) {
 
     long totalLength   = msg.getLong("totalLength");
     long messageLength = msg.getLong("messageLength");
