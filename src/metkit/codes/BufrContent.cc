@@ -47,7 +47,6 @@ void BufrContent::transform(const eckit::StringDict& dict) {
     }
 
     CODES_CALL(codes_set_values(handle_, values.data(), values.size()));
-
 }
 
 
