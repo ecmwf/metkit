@@ -1200,12 +1200,23 @@ CASE("test_metkit_disseminate") {
 
     expand(text, expected, false);
 }
+CASE("test_metkit_disseminate") {
+    const char* text =
+        "disseminate,stream=waef,levtype=sfc,param=131074,class=od,type=ep,date=20250918,time=1200,step=12,expver=0001,"
+        "domain=g,area=90/-180/-90/179.6,grid=.4/.4,target=OPN:DT";
+    std::vector<std::string> expected = {text};
+
+    expand(text, expected, false);
+}
+
 
 CASE("test_metkit_disseminate_params-static") {
     const char* text =
-        "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,time=0000,type=an,step=0,levtype=sfc,param=asn/hcc/mcc/sp/t/tcc";
+        "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,date=20250807,time=0000,type=an,step="
+        "0,levtype=sfc,param=asn/hcc/mcc/sp/t/tcc";
     std::vector<std::string> expected = {
-        "disseminate,class=mc,type=an,stream=oper,levtype=sfc,time=0000,step=0,expver=0001,param=32/188/187/134/130/164,option=normal,target=CAM:TT,date=20250807,domain=g"};
+        "disseminate,class=mc,type=an,stream=oper,levtype=sfc,time=0000,step=0,expver=0001,param=32/188/187/134/130/"
+        "164,option=normal,target=CAM:TT,date=20250807,domain=g"};
 
     expand(text, expected, false);
 }
