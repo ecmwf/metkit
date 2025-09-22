@@ -519,6 +519,7 @@ _field: &_field
           - [arome]
           - [harmonie-arome]
           - [global, glob]
+          - [ecpoint]
         unset:
           - context:
               class: [ml, ur, rr]
@@ -968,7 +969,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
+            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf]
           class:
             op: '!'
             vals: [ti, lw, s2]
