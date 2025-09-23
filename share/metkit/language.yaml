@@ -522,6 +522,7 @@ _field: &_field
           - [arome]
           - [harmonie-arome]
           - [global, glob]
+          - [ecpoint]
         unset:
           - context:
               class: [ml, ur, rr]
@@ -621,6 +622,7 @@ _field: &_field
       - [mhs_as, 45, MHS ALL-SKY]
       - [dwl, 46, DOPPLER WIND LIDAR]
       - [iris, 47]
+      - [alt, 48, Altimeter]
       - [aatsr, 49]
       - [atms_as, 50, ATMS ALL-SKY]
       - [gmi_as, 51, GMI ALL-SKY]
@@ -641,6 +643,24 @@ _field: &_field
       - [oconv, 66]
       - [mwts3_as, 67, MWTS3 All-sky]
       - [giirs, 68]
+      - [hiras, 69]
+      - [tropics_as, 70, TROPICS All-sky]
+      - [ssmt1, 71]
+      - [ssmt1_as, 72, SSMT1 All-sky]
+      - [mws_as, 73, MWS All-sky]
+      - [mwiici_as, 74, MWIICI All-sky]
+      - [aws_as, 75, AWS All-sky]
+      - [leos_vis, 76, LEOS VIS]
+      - [ssh, 77]
+      - [sirs, 78]
+      - [scr, 79]
+      - [scams_as, 80, SCAMS All-sky]
+      - [nems_as, 81, NEMS All-sky]
+      - [amsr3_as, 82, AMSR-3 All-sky]
+      - [irs, 83]
+      - [iasi_ng, 84, IASI-NG]
+      - [smap_as, 85, SMAP All-sky]
+      - [ssmt2_as, 86, SSMT2 All-sky]
       - [test, 99]
     unset:
       - context:
@@ -1018,7 +1038,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
+            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf]
           class:
             op: '!'
             vals: [ti, lw, s2]
