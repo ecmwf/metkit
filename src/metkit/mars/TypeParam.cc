@@ -325,14 +325,14 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
     return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
-static std::deque<Rule>* rules = nullptr;
+static std::vector<Rule>* rules = nullptr;
 
 }  // namespace
 
 static void init() {
 
     local_mutex = new eckit::Mutex();
-    rules       = new std::deque<Rule>();
+    rules       = new std::vector<Rule>();
 
     const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(ids.isOrderedMap());
@@ -426,7 +426,7 @@ static void init() {
             }
         }
         if (listIDs.size() > 0) {
-            (*rules).push_front(Rule{it->first, listIDs, ids});
+            (*rules).push_back(Rule{it->first, listIDs, ids});
         }
     }
 
@@ -465,9 +465,9 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     }
 
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    for (std::deque<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
-        if ((*j).match(request)) {
-            rule = &(*j);
+    for (const auto& r : *rules) {
+        if (r.match(request)) {
+            rule = &r;
             break;
         }
     }
@@ -477,15 +477,14 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
         if (firstRule_) {
             bool found = false;
-            for (std::deque<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule; ++j) {
-                const Rule* r = &(*j);
-                if ((*j).match(request, true)) {
+            for (const auto& r : *rules) {
+                if (r.match(request, true)) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s    = r->lookup(ctx, s, fail);
-                            rule = r;
-                            Log::warning() << "TypeParam: using 'first matching rule' option " << *rule << std::endl;
+                            s    = r.lookup(ctx, s, fail);
+                            rule = &r;
+                            Log::warning() << "TypeParam: using 'first matching rule' option " << r << std::endl;
                         }
                         catch (...) {
                         }
@@ -500,9 +499,9 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
                     tmp.setValue((*j).first, (*j).second);
                 }
             }
-            for (std::deque<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
-                if ((*j).match(tmp)) {
-                    rule = &(*j);
+            for (const auto& r : *rules) {
+                if (r.match(tmp)) {
+                    rule = &r;
                     Log::warning() << "TypeParam using 'expand with' option " << *rule << std::endl;
                     break;
                 }

@@ -1,17 +1,17 @@
-- - levtype: sfc
+- - class: mc
+    levtype: sfc
     stream: oper
     type: an
-    class: mc
   - - 32
     - 130
     - 134
     - 164  
     - 187
     - 188
-- - levtype: sfc
+- - class: mc
+    levtype: sfc
     stream: oper
     type: fc
-    class: mc
   - - 32
     - 58
     - 134
@@ -25,37 +25,37 @@
     - 187
     - 188
     - 228
-- - levtype: pl
+- - class: mc
+    levtype: pl
     stream: oper
     type: an
-    class: mc
   - - 130
     - 135
     - 152
     - 157
     - 210181
     - 217009
-- - levtype: pl
+- - class: mc
+    levtype: pl
     stream: oper
     type: fc
-    class: mc
   - - 130
     - 135
     - 152
     - 210181
     - 217009
-- - levtype: ml
+- - class: mc
+    levtype: ml
     stream: oper
     type: an
-    class: mc
   - - 135
     - 152
     - 210181
     - 217009
-- - levtype: ml
+- - class: mc
+    levtype: ml
     stream: oper
     type: fc
-    class: mc
   - - 129
     - 130
     - 131
@@ -67,10 +67,10 @@
     - 155
     - 210181
     - 217009
-- - levtype: sfc
+- - class: ai
+    levtype: sfc
     stream: oper
     type: fc
-    class: ai
   - - 228143
     - 228144
     - 228164
@@ -79,12 +79,10 @@
     - 3073
     - 3074
     - 3075
-- - levtype: sfc
+- - class: ai
+    levtype: sfc
     stream: enfo
-    type: 
-      - cf
-      - pf
-    class: ai
+    type: [cf, pf]
   - - 228143
     - 228144
     - 228164
@@ -92,17 +90,20 @@
     - 231002
     - 3073
     - 3074
-    - 3075    
-- - levtype: ml
+    - 3075
+- - class: od
+    levtype: ml
     stream: oper
     type: fc
   - - 210131
-- - levtype: pl
+- - class: od
+    levtype: pl
     stream: dacl
     type: pb
   - - 129
     - 130
-- - levtype: ml
+- - class: od
+    levtype: ml
     stream: sens
     type: sg
   - - 129
@@ -113,7 +114,8 @@
   - - 129
 - - type: ofb
   - - 129
-- - levtype: o2d
+- - class: od
+    levtype: o2d
     stream: oper
     type: fc
   - - 250001
@@ -165,7 +167,8 @@
     - 263126
     - 263127
     - 263128
-- - levtype: o3d
+- - class: od
+    levtype: o3d
     stream: oper
     type: fc
   - - 263500
@@ -176,7 +179,8 @@
     - 263505
     - 263506
     - 263507
-- - levtype: sfc
+- - class: od
+    levtype: sfc
     stream: oper
     type: fc
   - - 160
