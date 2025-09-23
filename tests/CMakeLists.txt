@@ -73,6 +73,8 @@ foreach( test
         integer_range
         matcher
         language
+        mars_language
+        mars_language_strict
         obstype
         param_axis
         request

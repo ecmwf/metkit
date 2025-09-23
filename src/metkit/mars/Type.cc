@@ -281,22 +281,22 @@ std::ostream& operator<<(std::ostream& s, const Type& x) {
     return s;
 }
 
-std::string Type::tidy(const std::string& value, const MarsExpandContext& ctx, const MarsRequest& request) const {
+std::string Type::tidy(const std::string& value, const MarsRequest& request) const {
     std::string result = value;
-    expand(ctx, result, request);
+    expand(result, request);
     return result;
 }
 
-bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
+bool Type::expand(std::string& value, const MarsRequest&) const {
     std::ostringstream oss;
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
 }
 
-void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request) const {
+void Type::expand(std::vector<std::string>& values, const MarsRequest& request) const {
 
     if (toByList_ && values.size() > 1) {
-        toByList_->expandRanges(ctx, values, request);
+        toByList_->expandRanges( values, request);
     }
 
     std::vector<std::string> newvals;
@@ -304,9 +304,9 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
 
     for (std::string& val : values) {
         std::string value = val;
-        if (!expand(ctx, value, request)) {
+        if (!expand(value, request)) {
             std::ostringstream oss;
-            oss << *this << ": cannot expand '" << val << "'" << ctx;
+            oss << *this << ": cannot expand '" << val << "'";
             throw eckit::UserError(oss.str());
         }
         if (hasGroups()) {
@@ -321,7 +321,7 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
         else {
             if (!duplicates_ && seen.find(value) != seen.end()) {
                 std::ostringstream oss;
-                oss << *this << ": duplicated value '" << value << "'" << ctx;
+                oss << *this << ": duplicated value '" << value << "'";
                 throw eckit::UserError(oss.str());
             }
             newvals.push_back(value);
@@ -382,9 +382,9 @@ const std::string& Type::category() const {
     return category_;
 }
 
-void Type::pass2(const MarsExpandContext& ctx, MarsRequest& request) {}
+void Type::pass2(MarsRequest& request) {}
 
-void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict) {
+void Type::finalise(MarsRequest& request, bool strict) {
 
     const std::vector<std::string>& values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "off") {
@@ -434,7 +434,7 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
     }
 }
 
-void Type::check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const {
+void Type::check(const std::vector<std::string>& values) const {
     if (flatten_) {
         std::set<std::string> s(values.begin(), values.end());
         if (values.size() != s.size()) {
