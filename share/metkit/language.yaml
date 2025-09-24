@@ -781,7 +781,7 @@ _field: &_field
     category: data
     type: enum
     values:
-    - [from-start, fs,fromstart]
+    - [fs, from-start, fromstart]
     - [30m]
     - [1h]
     - [3h]
