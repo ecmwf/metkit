@@ -13,6 +13,7 @@ _field: &_field
     flatten: false
     type: enum
     values:
+      - [a5, ECMWF Atmospheric Composition reanalysis version 5]
       - [ai, operational aifs]
       - [at, austria]
       - [be, belgium]
@@ -351,6 +352,8 @@ _field: &_field
       - [sens, sf, sensitivity forecast]
       - [sfmm, seasonal forecast atmospheric monthly means]
       - [smma, seasonal monthly means anomalies]
+      - [sttd, Statistics of deterministic data]
+      - [stte, Statistics of ensemble data]
       - [supd, sd, deterministic supplementary data]
       - [swmm, seasonal forecast wave monthly means]
       - [toga, tg]
@@ -768,6 +771,53 @@ _field: &_field
     type: enum
     values: "chemids.yaml"
 
+  wavelength:
+    category: data
+    multiple: true
+    type: range 
+    default: none
+
+  timespan:
+    category: data
+    type: enum
+    values:
+    - [fs, from-start, fromstart]
+    - [30m]
+    - [1h]
+    - [3h]
+    - [6h]
+    - [12h]
+    - [18h]
+    - [24h]
+    - [48h]
+    - [72h]
+    - [120h]
+    - [168h]
+    - [240h]
+    - [360h]
+    - [none, inst, instantaneous, off]
+    default: none
+    multiple: false
+
+  stattype:
+    category: data
+    type: enum
+    values:
+    - [moav]
+    - [momn]
+    - [momx]
+    - [mosd]
+    - [daav]
+    - [damn]
+    - [damx]
+    - [dasd]
+    - [moav_dasd]
+    - [moav_daav]
+    - [momn_damn]
+    - [momx_damx]
+    - [mosd_daav]
+    multiple: false
+
 #################################################################
 
   # year
@@ -1143,23 +1193,12 @@ _field: &_field
     multiple: true
     by: 1
     type: to-by-list
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
-
 
   direction:
     category: data
     multiple: true
     by: 1
     type: to-by-list
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
