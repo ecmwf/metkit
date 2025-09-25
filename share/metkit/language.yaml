@@ -795,7 +795,7 @@ _field: &_field
     - [168h]
     - [240h]
     - [360h]
-    - [none, inst, instantaneous, off]
+    - [none, inst, instantaneous]
     default: none
     multiple: false
 
@@ -1493,7 +1493,7 @@ _postproc: &_postproc
     multiple: true
     type: [float, enum]
     values:
-      - ['off', g, global]
+      - [g, global]
       - [e, europe]
     set:
       - context:
@@ -1560,7 +1560,7 @@ _postproc: &_postproc
       - [linear]
       - [bilinear]
       - [nearest-lsm, nearest lsm]
-      - ['off', default, any]
+      - [default, any]
 
   packing:
     category: postproc
@@ -1568,7 +1568,7 @@ _postproc: &_postproc
     type: enum
     values:
       - [so, second order]
-      - ['off', av]
+      - [av]
       - [complex, co]
       - [simple, si]
       - [ccsds]
@@ -1615,7 +1615,6 @@ _postproc: &_postproc
     flatten: false
     type: [enum, regex]
     values:
-      - 'off'
       - auto
       - N32
       - N48
@@ -1644,8 +1643,6 @@ _postproc: &_postproc
     type: [enum, integer]
     values:
       - auto
-      - 'off'
-
 
   process:
     category: postproc
@@ -1743,7 +1740,6 @@ disseminate:
     multiple: true
     type: enum
     values:
-      - 'off'
       - 'no-local-extension'
       - 'adjust-spectral-packing'
 
