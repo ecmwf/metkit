@@ -1773,10 +1773,6 @@ archive:
   #   category: postproc
   #   type: any
 
-  password:
-    aliases: [pass]
-    type: any
-
   database:
     flatten: false
     multiple: true
@@ -1790,16 +1786,29 @@ archive:
     type: any
 
   sourcebase:
+    category: sink
     flatten: false
     multiple: true
     type: any
 
   expect:
+    category: sink
     flatten: false
     multiple: false
     type: [enum, integer]
     values:
     - any
+
+  disp:
+    category: sink
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [n, new]
+      - [old]
+      - [remove]
+      - [fail]
 
 ##############################################################
 
@@ -1948,10 +1957,6 @@ flush:
   <<: *_observation
   <<: *_postproc
   <<: *_obspproc
-
-  password:
-    aliases: [pass]
-    type: any
 
   wait:
     flatten: false
