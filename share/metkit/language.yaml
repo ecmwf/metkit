@@ -807,19 +807,19 @@ _field: &_field
     category: data
     type: enum
     values:
-    - [moav]
-    - [momn]
-    - [momx]
-    - [mosd]
-    - [daav]
-    - [damn]
-    - [damx]
-    - [dasd]
-    - [moav_dasd]
-    - [moav_daav]
-    - [momn_damn]
-    - [momx_damx]
-    - [mosd_daav]
+    - [moav, monthly average]
+    - [momn, monthly minimum]
+    - [momx, monthly maximum]
+    - [mosd, monthly standard-deviation]
+    - [daav, daily average]
+    - [damn, daily minimum]
+    - [damx, daily maximum]
+    - [dasd, daily standard-deviation]
+    - [moav_dasd, monthly average of daily standard-deviation]
+    - [moav_daav, monthly average of daily average]
+    - [momn_damn, monthly minimum of daily minimum]
+    - [momx_damx, monthly maximum of daily maximum]
+    - [mosd_daav, monthly standard-deviation of daily average]
     multiple: false
 
 #################################################################
