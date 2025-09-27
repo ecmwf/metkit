@@ -931,6 +931,16 @@ CASE("test_metkit_expand_clmn") {
     }
 }
 
+CASE("test_metkit_expand_chem") {
+    const char* text =
+        "retrieve,chem=co/no2/no/so2,class=mc,date=2006-12-18,expver=9001,levtype=sfc,param=402000,step=12,stream=oper,"
+        "time=00:00:00,type=fc,target=\"output\"";
+    const char* expected =
+        "RETRIEVE,CLASS=MC,TYPE=FC,STREAM=OPER,EXPVER=9001,LEVTYPE=SFC,PARAM=402000,CHEM=2/17/27/233,DATE=20061218,"
+        "TIME=0000,STEP=12,DOMAIN=G,TARGET=output";
+    expand(text, expected);
+}
+
 CASE("test_metkit_expand_frequency") {
     const char* text =
         "retrieve,class=od,date=20250401,direction=31,domain=g,expver=0001,frequency=7,levtype=sfc,param=140217,step=0,"
@@ -1187,6 +1197,26 @@ CASE("test_metkit_disseminate") {
         "222/228/234/240,area=64/-15/43/13,class=od,date=20250506,domain=g,expver=0001,grid=.25/"
         ".25,levtype=sfc,option=normal,packing=simple,param=140217/140218/140229/140230/140231/140232/140234/140235/"
         "140236/140237/140238/140239/140120,stream=wave,target=NTI:HT,time=0000/1200,type=fc"};
+
+    expand(text, expected, false);
+}
+CASE("test_metkit_disseminate") {
+    const char* text =
+        "disseminate,stream=waef,levtype=sfc,param=131074,class=od,type=ep,date=20250918,time=1200,step=12,expver=0001,"
+        "domain=g,area=90/-180/-90/179.6,grid=.4/.4,target=OPN:DT";
+    std::vector<std::string> expected = {text};
+
+    expand(text, expected, false);
+}
+
+
+CASE("test_metkit_disseminate_params-static") {
+    const char* text =
+        "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,date=20250807,time=0000,type=an,step="
+        "0,levtype=sfc,param=asn/hcc/mcc/sp/t/tcc";
+    std::vector<std::string> expected = {
+        "disseminate,class=mc,type=an,stream=oper,levtype=sfc,time=0000,step=0,expver=0001,param=32/188/187/134/130/"
+        "164,option=normal,target=CAM:TT,date=20250807,domain=g"};
 
     expand(text, expected, false);
 }

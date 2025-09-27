@@ -460,10 +460,14 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     const Rule* rule                = 0;
     std::vector<std::string> values = request.values(name_, true);
 
+    if (values.size() == 1 && values[0] == "all") {
+        return;
+    }
+
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
-        if ((*j).match(request)) {
-            rule = &(*j);
+    for (const auto& r : *rules) {
+        if (r.match(request)) {
+            rule = &r;
             break;
         }
     }
@@ -473,15 +477,14 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
 
         if (firstRule_) {
             bool found = false;
-            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end() && !rule; ++j) {
-                const Rule* r = &(*j);
-                if ((*j).match(request, true)) {
+            for (const auto& r : *rules) {
+                if (r.match(request, true)) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s    = r->lookup(ctx, s, fail);
-                            rule = r;
-                            Log::warning() << "TypeParam: using 'first matching rule' option " << *rule << std::endl;
+                            s    = r.lookup(ctx, s, fail);
+                            rule = &r;
+                            Log::warning() << "TypeParam: using 'first matching rule' option " << r << std::endl;
                         }
                         catch (...) {
                         }
@@ -496,9 +499,9 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
                     tmp.setValue((*j).first, (*j).second);
                 }
             }
-            for (std::vector<Rule>::const_iterator j = rules->begin(); j != rules->end(); ++j) {
-                if ((*j).match(tmp)) {
-                    rule = &(*j);
+            for (const auto& r : *rules) {
+                if (r.match(tmp)) {
+                    rule = &r;
                     Log::warning() << "TypeParam using 'expand with' option " << *rule << std::endl;
                     break;
                 }
