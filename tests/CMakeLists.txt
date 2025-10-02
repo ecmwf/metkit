@@ -16,7 +16,7 @@ endif()
 
 
 ecbuild_get_test_multidata( TARGET grib_get_data
-                            DIRNAME grib_api/data
+                            DIRNAME grib-api/test-data/data
                             NAMES latlon.grib
                                   synthetic_2msgs.grib )
 

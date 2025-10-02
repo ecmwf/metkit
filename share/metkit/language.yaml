@@ -1042,7 +1042,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf]
+            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf, wp]
           class:
             op: '!'
             vals: [ti, lw, s2]
@@ -1647,6 +1647,7 @@ _postproc: &_postproc
     type: [enum, integer]
     values:
       - auto
+      - none
 
   process:
     category: postproc
