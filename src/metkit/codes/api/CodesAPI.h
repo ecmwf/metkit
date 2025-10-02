@@ -139,9 +139,9 @@ public:  // methods
 
 
     /// Iterate keys on an iterator with a range based for loop
-    virtual KeyIterator keys(KeyIteratorFlags flags         = KeyIteratorFlags::AllKeys,
-                             std::optional<AnyNamespace> ns = std::optional<AnyNamespace>{}) const = 0;
-    virtual KeyIterator keys(AnyNamespace ns) const                                                = 0;
+    virtual KeyIterator keys(KeyIteratorFlags flags      = KeyIteratorFlags::AllKeys,
+                             std::optional<Namespace> ns = std::optional<Namespace>{}) const = 0;
+    virtual KeyIterator keys(Namespace ns) const                                             = 0;
 
     /// Iterate values with longitude and latituted
     virtual GeoIterator values() const = 0;

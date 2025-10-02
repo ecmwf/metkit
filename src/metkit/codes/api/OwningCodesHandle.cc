@@ -136,10 +136,10 @@ CodesHandlePtr* OwningCodesHandle::clone() const {
 ByteArray OwningCodesHandle::copy() const {
     return delegate_.copy();
 }
-KeyIterator OwningCodesHandle::keys(KeyIteratorFlags flags, std::optional<AnyNamespace> ns) const {
+KeyIterator OwningCodesHandle::keys(KeyIteratorFlags flags, std::optional<Namespace> ns) const {
     return delegate_.keys(flags, ns);
 }
-KeyIterator OwningCodesHandle::keys(AnyNamespace ns) const {
+KeyIterator OwningCodesHandle::keys(Namespace ns) const {
     return delegate_.keys(ns);
 }
 

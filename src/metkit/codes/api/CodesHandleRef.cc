@@ -436,42 +436,14 @@ unsigned long mapFlags(KeyIteratorFlags flags) {
     return res;
 }
 
-std::string namespaceToString(Namespace ns) {
-    switch (ns) {
-        case Namespace::Ls:
-            return "ls";
-        case Namespace::Parameter:
-            return "parameter";
-        case Namespace::Statistics:
-            return "statistics";
-        case Namespace::Time:
-            return "time";
-        case Namespace::Geography:
-            return "geography";
-        case Namespace::Vertical:
-            return "vertical";
-        case Namespace::Mars:
-            return "mars";
-    }
-    throw CodesException("Unhandled namespace");
-}
-
-std::string namespaceToString(AnyNamespace ns) {
-    if (std::holds_alternative<std::string>(ns)) {
-        return std::get<std::string>(ns);
-    }
-    return namespaceToString(std::get<Namespace>(ns));
-};
-
-
 /// Iterate keys on an iterator with a range based for loop
-KeyIterator CodesHandleRef::keys(KeyIteratorFlags flags, std::optional<AnyNamespace> ns) const {
+KeyIterator CodesHandleRef::keys(KeyIteratorFlags flags, std::optional<Namespace> ns) const {
     return KeyIterator{std::make_unique<ConcreteIteratedKey>(
         *this,
-        codes_keys_iterator_new(castToCodes(handle_), mapFlags(flags), ns ? namespaceToString(*ns).c_str() : NULL))};
+        codes_keys_iterator_new(castToCodes(handle_), mapFlags(flags), ns ? ns->c_str() : NULL))};
 };
 
-KeyIterator CodesHandleRef::keys(AnyNamespace ns) const {
+KeyIterator CodesHandleRef::keys(Namespace ns) const {
     return keys(KeyIteratorFlags::AllKeys, ns);
 };
 
