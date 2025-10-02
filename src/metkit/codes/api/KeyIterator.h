@@ -20,18 +20,17 @@
 namespace metkit::codes {
 
 /// Common namespaces for key iteration
-enum class Namespace {
-    Ls,          /// "ls"
-    Parameter,   /// "parameter"
-    Statistics,  /// "statistics"
-    Time,        /// "time"
-    Geography,   /// "geography"
-    Vertical,    /// "vertical"
-    Mars,        /// "mars"
-};
+using Namespace = std::string;
 
-/// ECCODES allows defining custom namespaces (as string) through definition files.
-using AnyNamespace = std::variant<std::string, Namespace>;
+namespace namespaces {
+const Namespace ls{"ls"};
+const Namespace parameter{"parameter"};
+const Namespace statistics{"statistics"};
+const Namespace time{"time"};
+const Namespace geography{"geography"};
+const Namespace vertical{"vertical"};
+const Namespace mars{"mars"};
+};  // namespace namespaces
 
 enum class KeyIteratorFlags : unsigned int {
     AllKeys = 0,  // Default - Will iterate all keys in a namespace
