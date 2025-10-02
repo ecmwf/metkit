@@ -63,7 +63,7 @@ std::string info();
 CodesHandlePtr* newFromMessage(Span<const unsigned char> data);
 
 [[nodiscard]]
-CodesHandlePtr* newFromSample(std::string sampleName, std::optional<Product> product = std::optional<Product>{});
+CodesHandlePtr* newFromSample(const std::string& sampleName, std::optional<Product> product = std::optional<Product>{});
 
 [[nodiscard]]
 CodesHandlePtr* newFromFile(FILE*, Product);
