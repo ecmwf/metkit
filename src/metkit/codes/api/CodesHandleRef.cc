@@ -9,6 +9,7 @@
  */
 
 #include "metkit/codes/api/CodesHandleRef.h"
+#include <variant>
 
 #include "eccodes.h"
 #include "metkit/codes/api/CodesTypes.h"
@@ -455,15 +456,22 @@ std::string namespaceToString(Namespace ns) {
     throw CodesException("Unhandled namespace");
 }
 
+std::string namespaceToString(AnyNamespace ns) {
+    if (std::holds_alternative<std::string>(ns)) {
+        return std::get<std::string>(ns);
+    }
+    return namespaceToString(std::get<Namespace>(ns));
+};
+
 
 /// Iterate keys on an iterator with a range based for loop
-KeyIterator CodesHandleRef::keys(KeyIteratorFlags flags, std::optional<Namespace> ns) const {
+KeyIterator CodesHandleRef::keys(KeyIteratorFlags flags, std::optional<AnyNamespace> ns) const {
     return KeyIterator{std::make_unique<ConcreteIteratedKey>(
         *this,
         codes_keys_iterator_new(castToCodes(handle_), mapFlags(flags), ns ? namespaceToString(*ns).c_str() : NULL))};
 };
 
-KeyIterator CodesHandleRef::keys(Namespace ns) const {
+KeyIterator CodesHandleRef::keys(AnyNamespace ns) const {
     return keys(KeyIteratorFlags::AllKeys, ns);
 };
 
