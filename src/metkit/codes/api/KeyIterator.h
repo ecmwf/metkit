@@ -19,7 +19,7 @@
 
 namespace metkit::codes {
 
-/// Valid namespaces for key iteration
+/// Common namespaces for key iteration
 enum Namespace : std::size_t {
     Ls,          /// "ls"
     Parameter,   /// "parameter"
@@ -29,6 +29,9 @@ enum Namespace : std::size_t {
     Vertical,    /// "vertical"
     Mars,        /// "mars"
 };
+
+/// ECCODES allows defining custom namespaces (as string) through definition files.
+using AnyNamespace = std::variant<std::string, Namespace>;
 
 enum KeyIteratorFlags : unsigned int {
     AllKeys = 0,  // Default - Will iterate all keys in a namespace

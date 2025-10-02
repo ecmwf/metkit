@@ -100,9 +100,9 @@ public:  // methods
 
 
     /// Iterate keys on an iterator with a range based for loop
-    KeyIterator keys(KeyIteratorFlags flags      = KeyIteratorFlags::AllKeys,
-                     std::optional<Namespace> ns = std::optional<Namespace>{}) const override;
-    KeyIterator keys(Namespace ns) const override;
+    KeyIterator keys(KeyIteratorFlags flags         = KeyIteratorFlags::AllKeys,
+                     std::optional<AnyNamespace> ns = std::optional<AnyNamespace>{}) const override;
+    KeyIterator keys(AnyNamespace ns) const override;
 
     /// Iterate values with longitude and latituted
     GeoIterator values() const override;
