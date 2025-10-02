@@ -80,7 +80,7 @@ CodesHandlePtr* newFromMessage(Span<const unsigned char> data) {
 }
 
 [[nodiscard]]
-CodesHandlePtr* newFromSample(std::string sampleName, std::optional<Product> product) {
+CodesHandlePtr* newFromSample(const std::string& sampleName, std::optional<Product> product) {
     if (product) {
         switch (*product) {
             case Product::GRIB:
