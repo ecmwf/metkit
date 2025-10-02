@@ -32,13 +32,13 @@ private:
 };
 
 
-enum Product : std::size_t {
+enum class Product {
     GRIB,
     BUFR,
 };
 
 
-enum NativeType : std::size_t {
+enum class NativeType {
     Undefined,
     Long,
     Double,
