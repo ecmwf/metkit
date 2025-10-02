@@ -34,16 +34,13 @@ enum KeyIteratorFlags : unsigned int {
     AllKeys = 0,  // Default - Will iterate all keys in a namespace
 
     // Additional flags to filter on keys - to be combined with AllKeys
-    SkipReadOnly        = 1 << 1,
-    SkipOptional        = 1 << 2,
-    SkipEditionSpecific = 1 << 3,
-    SkipCoded           = 1 << 4,
-    SkipComputed        = 1 << 5,
-    SkipDuplicates      = 1 << 6,
-    SkipFunction        = 1 << 7,
-
-    // TODO(pgeier) ask & document what this is doing
-    DumpOnly = 1 << 8,
+    SkipReadOnly        = 1 << 0,
+    SkipOptional        = 1 << 1,
+    SkipEditionSpecific = 1 << 2,
+    SkipCoded           = 1 << 3,
+    SkipComputed        = 1 << 4,
+    SkipDuplicates      = 1 << 5,
+    SkipFunction        = 1 << 6,
 };
 
 // Overload bitwise operators
