@@ -432,10 +432,6 @@ unsigned long mapFlags(KeyIteratorFlags flags) {
         res |= CODES_KEYS_ITERATOR_SKIP_FUNCTION;
     }
 
-    if (hasFlag(flags, KeyIteratorFlags::DumpOnly)) {
-        res |= CODES_KEYS_ITERATOR_DUMP_ONLY;
-    }
-
     return res;
 }
 
