@@ -19,9 +19,11 @@
 
 namespace metkit::codes {
 
-/// Common namespaces for key iteration
+/// A namepspace is defined through the definition files and represented as a string.
 using Namespace = std::string;
 
+
+/// Namespace wrapping common eccodes namespaces that are defined in the default definition files
 namespace namespaces {
 const Namespace ls{"ls"};
 const Namespace parameter{"parameter"};
@@ -32,10 +34,11 @@ const Namespace vertical{"vertical"};
 const Namespace mars{"mars"};
 };  // namespace namespaces
 
+/// Enum flags that control/filter key iterator
 enum class KeyIteratorFlags : unsigned int {
-    AllKeys = 0,  // Default - Will iterate all keys in a namespace
+    AllKeys = 0,  /// Default - Will iterate all keys in a namespace.
 
-    // Additional flags to filter on keys - to be combined with AllKeys
+    /// Additional flags to filter on keys
     SkipReadOnly        = 1 << 0,
     SkipOptional        = 1 << 1,
     SkipEditionSpecific = 1 << 2,
@@ -45,7 +48,8 @@ enum class KeyIteratorFlags : unsigned int {
     SkipFunction        = 1 << 6,
 };
 
-// Overload bitwise operators
+/// Overload bitwise operators to manipulate KeyIteratorFlags.
+/// For the must use cases the logical OR (`|`) is enough.
 KeyIteratorFlags operator|(KeyIteratorFlags a, KeyIteratorFlags b);
 KeyIteratorFlags operator&(KeyIteratorFlags a, KeyIteratorFlags b);
 KeyIteratorFlags operator^(KeyIteratorFlags a, KeyIteratorFlags b);
@@ -57,37 +61,71 @@ bool hasFlag(KeyIteratorFlags value, KeyIteratorFlags flag);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class KeyIterator;
+class KeyRange;
 
 /// Abstract interface wrapping C API calls on on key_iterator
-class IteratedKey {
-    friend class KeyIterator;
+class KeyIterator {
+    friend class KeyRange;
 
 public:  // methods
 
-    /// Returns the name of the key
+    /// Get the name of the iterated key.
+    /// \return Name of the iterated key.
     virtual std::string name() const = 0;
 
-    /// Get the value of the key
+    /// Get the value of the key.
+    ///
+    /// High-level functionality:
+    /// Inspection on the contained valued is performed with `getType` and `getSize`.
+    /// Then the more specific `getXXX` call is performed.
+    /// \return Variant of all possible value types.
     virtual Value get() const = 0;
 
-    /// Get the type of the key
+    /// Get the type of the iterated key.
+    /// \return Type of the iterated key.
     virtual NativeType getType() const = 0;
 
     /// Explicit getters
-    virtual long getLong() const          = 0;
-    virtual double getDouble() const      = 0;
-    virtual float getFloat() const        = 0;
+
+    /// Get the contained value for a key as long.
+    /// \return Retrieved value contained for the iterated key.
+    virtual long getLong() const = 0;
+
+    /// Get the contained value for a key as double.
+    /// \return Retrieved value contained for the iterated key.
+    virtual double getDouble() const = 0;
+
+    /// Get the contained value for a key as float.
+    /// \return Retrieved value contained for the iterated key.
+    virtual float getFloat() const = 0;
+
+    /// Get the contained value for a key as string.
+    ///
+    /// This should be possible for all key types.
+    /// \return Retrieved value contained for the iterated key.
     virtual std::string getString() const = 0;
 
-    virtual std::vector<long> getLongArray() const          = 0;
-    virtual std::vector<double> getDoubleArray() const      = 0;
-    virtual std::vector<float> getFloatArray() const        = 0;
+    /// Get the contained values for a key as array of long.
+    /// \return Retrieved values contained for the iterated key.
+    virtual std::vector<long> getLongArray() const = 0;
+
+    /// Get the contained values for a key as array of double.
+    /// \return Retrieved values contained for the iterated key.
+    virtual std::vector<double> getDoubleArray() const = 0;
+
+    /// Get the contained values for a key as array of float.
+    /// \return Retrieved values contained for the iterated key.
+    virtual std::vector<float> getFloatArray() const = 0;
+
+    /// Get the contained values for a key as array of string.
+    /// \return Retrieved values contained for the iterated key.
     virtual std::vector<std::string> getStringArray() const = 0;
 
-    virtual std::vector<unsigned char> getBytes() const = 0;
+    /// Get the contained values for a key as array of uint8_t (bytes).
+    /// \return Retrieved values contained for the iterated key.
+    virtual std::vector<std::uint8_t> getBytes() const = 0;
 
-    virtual ~IteratedKey() {};
+    virtual ~KeyIterator() {};
 
 protected:
 
@@ -95,42 +133,49 @@ protected:
     virtual void next() = 0;
 
     /// Check if the iterator is valid
+    /// \return True if the iterator is still valid and holds a value. False indicates end of iteration.
     virtual bool isValid() const = 0;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Implements the key iterator based on a C++ range
-class KeyIterator {
+/// Implements the key iterator (codes_key_iterator) based on a C++ range
+class KeyRange {
 public:
 
-    struct Sentinel {};
+    struct EndIterator;
 
     struct Iterator {
+        friend struct EndIterator;
+
         Iterator& operator++() {
             state->next();
             return *this;
         };
-        const IteratedKey& operator*() const { return *state; };
-        const IteratedKey* operator->() const { return state; };
+        const KeyIterator& operator*() const { return *state; };
+        const KeyIterator* operator->() const { return state; };
 
-        inline bool operator!=(const KeyIterator::Sentinel&) { return state->isValid(); }
+        inline bool operator!=(const KeyRange::EndIterator&) { return state->isValid(); }
 
-        IteratedKey* state;
+        KeyIterator* state;
+    };
+
+    struct EndIterator {
+        inline bool operator!=(const KeyRange::Iterator& it) { return it.state->isValid(); }
     };
 
     Iterator begin() const { return Iterator{impl_.get()}; };
-    Sentinel end() const { return {}; };
+    EndIterator end() const { return {}; };
 
-    KeyIterator(std::unique_ptr<IteratedKey> impl) : impl_{std::move(impl)} {};
+    KeyRange(std::unique_ptr<KeyIterator> impl) : impl_{std::move(impl)} {};
 
 private:
 
-    std::unique_ptr<IteratedKey> impl_;
+    std::unique_ptr<KeyIterator> impl_;
 };
 
 
-//------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::codes

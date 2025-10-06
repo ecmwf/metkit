@@ -23,8 +23,9 @@ namespace metkit::codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class GeoIterator;
+class GeoRange;
 
+/// Aggregate that stores a value with lon/lat
 struct GeoData {
     double value;
     double longitude;
@@ -32,59 +33,67 @@ struct GeoData {
 };
 
 /// Abstract interface wrapping C API calls on on key_iterator
-class IteratedGeoData {
-    friend class GeoIterator;
+class GeoIterator {
+    friend class GeoRange;
 
 public:  // methods
 
-    /// Returns the name of the key
-    virtual GeoData data() const = 0;
+    /// Access to the iterated data
+    /// \return Reference to the iterated geo data object
+    virtual const GeoData& data() const = 0;
 
+    /// Check if there are follow up values.
+    /// \return True if there are more values to iterate on
     virtual bool hasNext() const = 0;
 
-    virtual ~IteratedGeoData() {};
+    virtual ~GeoIterator() {};
 
 protected:
 
     /// Iterates the next element.
-    /// \return `true` if a next element is given. If `false` is returned, the iterator is invalidated
     virtual void next() = 0;
 
     /// Check if the iterator is valid
+    /// \return True if the iterator is still valid and holds a value. False indicates end of iteration.
     virtual bool isValid() const = 0;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Implements the key iterator based on a C++ range
-class GeoIterator {
+/// Implements the geo iterator (codes_iterator) based on a C++ range
+class GeoRange {
 public:
 
-    struct Sentinel {};
+    struct EndIterator;
 
     struct Iterator {
+        friend struct EndIterator;
         Iterator& operator++() {
             state->next();
             return *this;
         }
-        const GeoData operator*() const { return state->data(); }
-        const GeoData operator->() const { return state->data(); }
+        const GeoData& operator*() const { return state->data(); }
+        const GeoData* operator->() const { return &state->data(); }
 
-        inline bool operator!=(const Sentinel&) { return state->isValid(); }
+        inline bool operator!=(const EndIterator&) { return state->isValid(); }
 
-        IteratedGeoData* state;
+        GeoIterator* state;
+    };
+
+    struct EndIterator {
+        inline bool operator!=(const Iterator& it) { return it.state->isValid(); }
     };
 
 
     Iterator begin() const { return Iterator{impl_.get()}; };
-    Sentinel end() const { return {}; }
+    EndIterator end() const { return {}; }
 
-    GeoIterator(std::unique_ptr<IteratedGeoData> impl) : impl_{std::move(impl)} {};
+    GeoRange(std::unique_ptr<GeoIterator> impl) : impl_{std::move(impl)} {};
 
 private:
 
-    std::unique_ptr<IteratedGeoData> impl_;
+    std::unique_ptr<GeoIterator> impl_;
 };
 
 

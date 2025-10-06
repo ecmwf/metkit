@@ -10,34 +10,32 @@
 
 #pragma once
 
-#include <memory>
+#include <array>
+#include <cstdint>
 #include <string>
 #include <variant>
 #include <vector>
+#include "eckit/exception/Exceptions.h"
 
 
 namespace metkit::codes {
 
-struct CodesHandlePtr;
-
-class CodesException : public std::exception {
+/// Exception that is thrown by the API to wrap eccodes errors
+class CodesException : public eckit::Exception {
 public:
 
-    explicit CodesException(std::string msg);
-    const char* what() const noexcept override;
-
-private:
-
-    std::string message_;
+    CodesException(const std::string& reason, const eckit::CodeLocation& l = eckit::CodeLocation());
 };
 
 
+/// Enum to classify types of handles
 enum class Product {
     GRIB,
     BUFR,
 };
 
 
+/// Enum that redefines eccodes specific key types
 enum class NativeType {
     Undefined,
     Long,
@@ -50,12 +48,12 @@ enum class NativeType {
 };
 
 
-/// Product type that can hold all types of values returned by the C API
+/// Co-producti (or sum type) that can hold all types of values returned by the C API
 using Value = std::variant<long, double, float, std::string, std::vector<long>, std::vector<double>, std::vector<float>,
-                           std::vector<std::string>, std::vector<unsigned char>>;
+                           std::vector<std::string>, std::vector<std::uint8_t>>;
 
 
-//------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /// To be replaced with std::span in C++20
 template <typename T>
@@ -91,25 +89,6 @@ struct Span {
     Span(const std::basic_string<CharT>& s) : data_(s.data()), size_(s.size()) {}
 };
 
-//------------------------------------------------------------------------------------------------------
-
-/// Lightweight container that holds an allocated array of bytes
-struct ByteArray {
-    std::unique_ptr<unsigned char[]> ptr;
-    std::size_t allocatedSize;
-
-    /// Contiguous array access
-    unsigned char* data();
-    const unsigned char* data() const;
-    std::size_t size() const;
-
-    operator Span<unsigned char>();
-    operator Span<const unsigned char>() const;
-
-    /// Initialization
-    static ByteArray makeForOverwrite(std::size_t size);
-};
-
-//------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::codes

@@ -12,37 +12,7 @@
 
 namespace metkit::codes {
 
-CodesException::CodesException(std::string msg) : message_(std::string("CodesException: ") + std::move(msg)) {}
-
-const char* CodesException::what() const noexcept {
-    return message_.c_str();
-}
-
-
-
-/// Contiguous array access
-unsigned char* ByteArray::data() {
-    return ptr.get();
-}
-const unsigned char* ByteArray::data() const {
-    return ptr.get();
-}
-std::size_t ByteArray::size() const {
-    return allocatedSize;
-};
-
-ByteArray ByteArray::makeForOverwrite(std::size_t size) {
-    /// To be replaced with make_unique_for_overwrite in C++20
-    return ByteArray{std::unique_ptr<unsigned char[]>(new unsigned char[size]), size};
-}
-
-ByteArray::operator Span<unsigned char>() {
-    return Span<unsigned char>{data(), size()};
-}
-ByteArray::operator Span<const unsigned char>() const {
-    return Span<const unsigned char>{data(), size()};
-}
-
-//------------------------------------------------------------------------------------------------------
+CodesException::CodesException(const std::string& reason, const eckit::CodeLocation& l) :
+    eckit::Exception(std::string("CodesException: ") + reason, l) {};
 
 }  // namespace metkit::codes
