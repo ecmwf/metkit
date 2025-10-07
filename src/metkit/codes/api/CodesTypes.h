@@ -48,14 +48,14 @@ enum class NativeType {
 };
 
 
-/// Co-producti (or sum type) that can hold all types of values returned by the C API
+/// Sum type of possible values returned by eccodes.
 using CodesValue = std::variant<long, double, float, std::string, std::vector<long>, std::vector<double>,
-                                std::vector<float>, std::vector<std::string>, std::vector<std::uint8_t>>;
+                                std::vector<float>, std::vector<std::string>, std::vector<uint8_t>>;
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// To be replaced with std::span in C++20
+/// To be replaced with std::span in C++20.
 template <typename T>
 struct Span {
     using element_type = T;
@@ -67,7 +67,6 @@ struct Span {
     const value_type* data() { return data_; }
     std::size_t size() { return size_; }
 
-    // constructors
     Span() = default;
 
     Span(const T* p, std::size_t n) : data_(p), size_(n) {}

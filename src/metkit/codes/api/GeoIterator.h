@@ -25,43 +25,45 @@ namespace metkit::codes {
 
 class GeoRange;
 
-/// Aggregate that stores a value with lon/lat
+/// Aggregate that stores a value with lon/lat.
 struct GeoData {
     double value;
     double longitude;
     double latitude;
 };
 
-/// Abstract interface wrapping C API calls on on key_iterator
+/// Abstract interface wrapping C API calls on on key_iterator.
 class GeoIterator {
     friend class GeoRange;
 
-public:  // methods
+public:
 
-    /// Access to the iterated data
-    /// \return Reference to the iterated geo data object
+    virtual ~GeoIterator() = default;
+
+    /// Access to the iterated data.
+    /// @return Reference to the iterated geo data object.
     virtual const GeoData& data() const = 0;
 
     /// Check if there are follow up values.
-    /// \return True if there are more values to iterate on
+    /// @return True if there are more values to iterate on.
     virtual bool hasNext() const = 0;
 
-    virtual ~GeoIterator() {};
 
 protected:
 
     /// Iterates the next element.
     virtual void next() = 0;
 
-    /// Check if the iterator is valid
-    /// \return True if the iterator is still valid and holds a value. False indicates end of iteration.
+    /// Check if the iterator is valid.
+    /// @return True if the iterator is still valid and holds a value. False indicates end of iteration.
     virtual bool isValid() const = 0;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// Implements the geo iterator (codes_iterator) based on a C++ range
+/// Implements the geo iterator (codes_iterator) based on a C++ range.
+/// Enables use of range-based for-loop.
 class GeoRange {
 public:
 
