@@ -93,13 +93,13 @@ public:  // methods
     void forceSet(const std::string& key, Span<const float> value) override;
 
     /// Returns size of the value contained for a given key (can be used to determine if an array is contained)
-    size_t getSize(const std::string& key) const override;
+    size_t size(const std::string& key) const override;
 
     /// Get the value of the key
-    Value get(const std::string& key) const override;
+    CodesValue get(const std::string& key) const override;
 
     /// Get the type of the key
-    NativeType getType(const std::string& key) const override;
+    NativeType type(const std::string& key) const override;
 
     /// Explicit getters
     long getLong(const std::string& key) const override;
@@ -114,7 +114,6 @@ public:  // methods
     std::vector<std::uint8_t> getBytes(const std::string& key) const override;
 
     /// Cloning the whole handle. Expected to be wrapped by the user explicitly
-    [[nodiscard]]
     std::unique_ptr<CodesHandle> clone() const override;
 
     /// Copy the message into a new allocated buffer
@@ -134,6 +133,21 @@ public:  // methods
     /// Access and release the raw `codes_handle*` - used to pass ownership out of C++ (e.g. python)
     void* release() override { return handle_.release(); };
 
+protected:
+
+    codes_handle* raw() {
+        if (!handle_) {
+            throw CodesException("CodesHandle has been released.", Here());
+        }
+        return handle_.get();
+    }
+    const codes_handle* raw() const {
+        if (!handle_) {
+            throw CodesException("CodesHandle has been released.", Here());
+        }
+        return handle_.get();
+    }
+
 private:
 
     std::unique_ptr<codes_handle> handle_;
@@ -146,17 +160,17 @@ private:
 
 size_t OwningCodesHandle::messageSize() const {
     size_t size;
-    throwOnError(codes_get_message_size(handle_.get(), &size), Here(), "CodesHandle::messageSize()");
+    throwOnError(codes_get_message_size(raw(), &size), Here(), "CodesHandle::messageSize()");
     return size;
 }
 
 bool OwningCodesHandle::isDefined(const std::string& key) const {
-    return codes_is_defined(handle_.get(), key.c_str()) == 1;
+    return codes_is_defined(raw(), key.c_str()) == 1;
 }
 
 bool OwningCodesHandle::isMissing(const std::string& key) const {
     int err  = 0;
-    bool res = codes_is_missing(handle_.get(), key.c_str(), &err) == 1;
+    bool res = codes_is_missing(raw(), key.c_str(), &err) == 1;
     throwOnError(err, Here(), "CodesHandle::isMissing()");
     return res;
 }
@@ -167,20 +181,20 @@ bool OwningCodesHandle::has(const std::string& key) const {
 
 /// Set a key to its missing value
 void OwningCodesHandle::setMissing(const std::string& key) {
-    throwOnError(codes_set_missing(handle_.get(), key.c_str()), Here(), "CodesHandle::setMissing()");
+    throwOnError(codes_set_missing(raw(), key.c_str()), Here(), "CodesHandle::setMissing()");
 }
 
 /// Set scalars
 void OwningCodesHandle::set(const std::string& key, const std::string& value) {
     size_t size = value.size();
-    throwOnError(codes_set_string(handle_.get(), key.c_str(), value.c_str(), &size), Here(),
+    throwOnError(codes_set_string(raw(), key.c_str(), value.c_str(), &size), Here(),
                  "CodesHandle::set(string, string)");
 }
 void OwningCodesHandle::set(const std::string& key, double value) {
-    throwOnError(codes_set_double(handle_.get(), key.c_str(), value), Here(), "CodesHandle::set(string, double)");
+    throwOnError(codes_set_double(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, double)");
 }
 void OwningCodesHandle::set(const std::string& key, long value) {
-    throwOnError(codes_set_long(handle_.get(), key.c_str(), value), Here(), "CodesHandle::set(string, long)");
+    throwOnError(codes_set_long(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, long)");
 }
 
 /// Set arrays
@@ -193,46 +207,45 @@ void OwningCodesHandle::set(const std::string& key, Span<const std::string> valu
     set(key, out);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const char*> value) {
-    throwOnError(
-        codes_set_string_array(handle_.get(), key.c_str(), const_cast<const char**>(value.data()), value.size()),
-        Here(), "CodesHandle::set(string, span<const char*>)");
+    throwOnError(codes_set_string_array(raw(), key.c_str(), const_cast<const char**>(value.data()), value.size()),
+                 Here(), "CodesHandle::set(string, span<const char*>)");
 }  /// set string array
 void OwningCodesHandle::set(const std::string& key, Span<const double> value) {
-    throwOnError(codes_set_double_array(handle_.get(), key.c_str(), value.data(), value.size()), Here(),
+    throwOnError(codes_set_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const double>)");
 }
 void OwningCodesHandle::set(const std::string& key, Span<const float> value) {
-    throwOnError(codes_set_float_array(handle_.get(), key.c_str(), value.data(), value.size()), Here(),
+    throwOnError(codes_set_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const float>)");
 }
 void OwningCodesHandle::set(const std::string& key, Span<const long> value) {
-    throwOnError(codes_set_long_array(handle_.get(), key.c_str(), value.data(), value.size()), Here(),
+    throwOnError(codes_set_long_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const long>)");
 }
 void OwningCodesHandle::set(const std::string& key, Span<const std::uint8_t> value) {
     size_t size = value.size();
-    throwOnError(codes_set_bytes(handle_.get(), key.c_str(), value.data(), &size), Here(),
+    throwOnError(codes_set_bytes(raw(), key.c_str(), value.data(), &size), Here(),
                  "CodesHandle::set(string, span<const uint8_t>)");
 }
 void OwningCodesHandle::forceSet(const std::string& key, Span<const double> value) {
-    throwOnError(codes_set_force_double_array(handle_.get(), key.c_str(), value.data(), value.size()), Here(),
+    throwOnError(codes_set_force_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const double>)");
 }
 void OwningCodesHandle::forceSet(const std::string& key, Span<const float> value) {
-    throwOnError(codes_set_force_float_array(handle_.get(), key.c_str(), value.data(), value.size()), Here(),
+    throwOnError(codes_set_force_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const float>)");
 }
 
-size_t OwningCodesHandle::getSize(const std::string& key) const {
+size_t OwningCodesHandle::size(const std::string& key) const {
     size_t size;
-    throwOnError(codes_get_size(handle_.get(), key.c_str(), &size), Here(), "CodesHandle::getSize(string)");
+    throwOnError(codes_get_size(raw(), key.c_str(), &size), Here(), "CodesHandle::size(string)");
     return size;
 }
 
 /// Get the value of the key
-Value OwningCodesHandle::get(const std::string& key) const {
-    NativeType type = getType(key);
-    bool isArray    = getSize(key) > 1;
+CodesValue OwningCodesHandle::get(const std::string& key) const {
+    NativeType type = type(key);
+    bool isArray    = size(key) > 1;
 
     switch (type) {
         case NativeType::Long:
@@ -270,9 +283,9 @@ Value OwningCodesHandle::get(const std::string& key) const {
 }
 
 /// Get the type of the key
-NativeType OwningCodesHandle::getType(const std::string& key) const {
+NativeType OwningCodesHandle::type(const std::string& key) const {
     int type;
-    throwOnError(codes_get_native_type(handle_.get(), key.c_str(), &type), Here(), "CodesHandle::getType(string)");
+    throwOnError(codes_get_native_type(raw(), key.c_str(), &type), Here(), "CodesHandle::type(string)");
 
     switch (type) {
         case CODES_TYPE_LONG:
@@ -297,56 +310,55 @@ NativeType OwningCodesHandle::getType(const std::string& key) const {
 /// Explicit getters
 long OwningCodesHandle::getLong(const std::string& key) const {
     long value;
-    throwOnError(codes_get_long(handle_.get(), key.c_str(), &value), Here(), "CodesHandle::getLong(string)");
+    throwOnError(codes_get_long(raw(), key.c_str(), &value), Here(), "CodesHandle::getLong(string)");
     return value;
 }
 double OwningCodesHandle::getDouble(const std::string& key) const {
     double value;
-    throwOnError(codes_get_double(handle_.get(), key.c_str(), &value), Here(), "CodesHandle::getDouble(string)");
+    throwOnError(codes_get_double(raw(), key.c_str(), &value), Here(), "CodesHandle::getDouble(string)");
     return value;
 }
 std::string OwningCodesHandle::getString(const std::string& key) const {
     std::string ret;
     std::size_t keylen = 1024;
     ret.resize(keylen);
-    throwOnError(codes_get_string(handle_.get(), key.c_str(), ret.data(), &keylen), Here(),
-                 "CodesHandle::getString(string)");
+    throwOnError(codes_get_string(raw(), key.c_str(), ret.data(), &keylen), Here(), "CodesHandle::getString(string)");
     ret.resize(strlen(ret.c_str()));
     return ret;
 }
 
 std::vector<long> OwningCodesHandle::getLongArray(const std::string& key) const {
     std::vector<long> ret;
-    std::size_t size = getSize(key);
+    std::size_t size = size(key);
     ret.resize(size);
-    throwOnError(codes_get_long_array(handle_.get(), key.c_str(), ret.data(), &size), Here(),
+    throwOnError(codes_get_long_array(raw(), key.c_str(), ret.data(), &size), Here(),
                  "CodesHandle::getLongArray(string)");
     ret.resize(size);
     return ret;
 }
 std::vector<double> OwningCodesHandle::getDoubleArray(const std::string& key) const {
     std::vector<double> ret;
-    std::size_t size = getSize(key);
+    std::size_t size = size(key);
     ret.resize(size);
-    throwOnError(codes_get_double_array(handle_.get(), key.c_str(), ret.data(), &size), Here(),
+    throwOnError(codes_get_double_array(raw(), key.c_str(), ret.data(), &size), Here(),
                  "CodesHandle::getDoubleArray(string)");
     ret.resize(size);
     return ret;
 }
 std::vector<float> OwningCodesHandle::getFloatArray(const std::string& key) const {
     std::vector<float> ret;
-    std::size_t size = getSize(key);
+    std::size_t size = size(key);
     ret.resize(size);
-    throwOnError(codes_get_float_array(handle_.get(), key.c_str(), ret.data(), &size), Here(),
+    throwOnError(codes_get_float_array(raw(), key.c_str(), ret.data(), &size), Here(),
                  "CodesHandle::getFloatArray(string)");
     ret.resize(size);
     return ret;
 }
 std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& key) const {
     std::vector<char*> cstrings;
-    std::size_t size = getSize(key);
+    std::size_t size = size(key);
     cstrings.resize(size);
-    throwOnError(codes_get_string_array(handle_.get(), key.c_str(), cstrings.data(), &size), Here(),
+    throwOnError(codes_get_string_array(raw(), key.c_str(), cstrings.data(), &size), Here(),
                  "CodesHandle::getStringArray(string)");
     cstrings.resize(size);
 
@@ -360,10 +372,9 @@ std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& ke
 
 std::vector<std::uint8_t> OwningCodesHandle::getBytes(const std::string& key) const {
     std::vector<std::uint8_t> ret;
-    std::size_t size = getSize(key);
+    std::size_t size = size(key);
     ret.resize(size);
-    throwOnError(codes_get_bytes(handle_.get(), key.c_str(), ret.data(), &size), Here(),
-                 "CodesHandle::getBytes(string)");
+    throwOnError(codes_get_bytes(raw(), key.c_str(), ret.data(), &size), Here(), "CodesHandle::getBytes(string)");
     ret.resize(size);
     return ret;
 }
@@ -371,7 +382,7 @@ std::vector<std::uint8_t> OwningCodesHandle::getBytes(const std::string& key) co
 /// Cloning the whole handle. Expected to be wrapped by the user explicitly
 [[nodiscard]]
 std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
-    std::unique_ptr<codes_handle> ret{codes_handle_clone(handle_.get())};
+    std::unique_ptr<codes_handle> ret{codes_handle_clone(raw())};
     if (!ret) {
         throw CodesException("CodesHandle::clone() failed", Here());
     }
@@ -381,7 +392,7 @@ std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
 /// Copy the message into a new allocated buffer
 void OwningCodesHandle::copyInto(std::uint8_t* data, size_t size) const {
     std::size_t s = size;
-    throwOnError(codes_get_message_copy(handle_.get(), data, &s), Here(), "CodesHandle::copy(uint8_t*, size_t*)");
+    throwOnError(codes_get_message_copy(raw(), data, &s), Here(), "CodesHandle::copy(uint8_t*, size_t*)");
 }
 
 
@@ -398,10 +409,10 @@ public:  // methods
     std::string name() const override { return codes_keys_iterator_get_name(it_.get()); };
 
     /// Get the value of the key
-    Value get() const override {
+    CodesValue get() const override {
         std::string key = name();
-        NativeType type = refHandle_.get().getType(key);
-        bool isArray    = refHandle_.get().getSize(key) > 1;
+        NativeType type = refHandle_.get().type(key);
+        bool isArray    = refHandle_.get().size(key) > 1;
 
         switch (type) {
             case NativeType::Long:
@@ -439,7 +450,7 @@ public:  // methods
     };
 
     /// Get the type of the key
-    NativeType getType() const override { return refHandle_.get().getType(name()); };
+    NativeType type() const override { return refHandle_.get().type(name()); };
 
     /// Explicit getters
     long getLong() const override {
@@ -473,7 +484,7 @@ public:  // methods
     std::vector<long> getLongArray() const override {
         std::vector<long> ret;
         std::string key  = name();
-        std::size_t size = refHandle_.get().getSize(key);
+        std::size_t size = refHandle_.get().size(key);
         ret.resize(size);
         throwOnError(codes_keys_iterator_get_long(it_.get(), ret.data(), &size), Here(), "KeyIterator::getLongArray()");
         ret.resize(size);
@@ -482,7 +493,7 @@ public:  // methods
     std::vector<double> getDoubleArray() const override {
         std::vector<double> ret;
         std::string key  = name();
-        std::size_t size = refHandle_.get().getSize(key);
+        std::size_t size = refHandle_.get().size(key);
         ret.resize(size);
         throwOnError(codes_keys_iterator_get_double(it_.get(), ret.data(), &size), Here(),
                      "KeyIterator::getDoubleArray");
@@ -492,7 +503,7 @@ public:  // methods
     std::vector<float> getFloatArray() const override {
         std::vector<float> ret;
         std::string key  = name();
-        std::size_t size = refHandle_.get().getSize(key);
+        std::size_t size = refHandle_.get().size(key);
         ret.resize(size);
         throwOnError(codes_keys_iterator_get_float(it_.get(), ret.data(), &size), Here(), "KeyIterator::getFloatArray");
         ret.resize(size);
@@ -506,7 +517,7 @@ public:  // methods
     std::vector<std::uint8_t> getBytes() const override {
         std::vector<std::uint8_t> ret;
         std::string key  = name();
-        std::size_t size = refHandle_.get().getSize(key);
+        std::size_t size = refHandle_.get().size(key);
         ret.resize(size);
         throwOnError(codes_keys_iterator_get_bytes(it_.get(), ret.data(), &size), Here(), "KeyIterator::getBytes()");
         ret.resize(size);
@@ -560,7 +571,7 @@ unsigned long mapFlags(KeyIteratorFlags flags) {
 KeyRange OwningCodesHandle::keys(KeyIteratorFlags flags, std::optional<Namespace> ns) const {
     return KeyRange{
         std::make_unique<ConcreteKeyIterator>(*this, std::unique_ptr<codes_keys_iterator>(codes_keys_iterator_new(
-                                                         handle_.get(), mapFlags(flags), ns ? ns->c_str() : NULL)))};
+                                                         raw(), mapFlags(flags), ns ? ns->c_str() : NULL)))};
 };
 
 KeyRange OwningCodesHandle::keys(Namespace ns) const {
@@ -606,7 +617,7 @@ private:
 GeoRange OwningCodesHandle::values() const {
     int err;
     GeoRange res{std::make_unique<ConcreteIteratedGeoData>(
-        *this, std::unique_ptr<codes_iterator>(codes_grib_iterator_new(handle_.get(), 0, &err)))};
+        *this, std::unique_ptr<codes_iterator>(codes_grib_iterator_new(raw(), 0, &err)))};
     throwOnError(err, Here(), "CodesHandle::values()");
     return res;
 };
@@ -661,20 +672,17 @@ std::string info() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromMessage(Span<const std::uint8_t> data) {
+std::unique_ptr<CodesHandle> codesHandleFromMessage(Span<const std::uint8_t> data) {
     return std::make_unique<OwningCodesHandle>(std::unique_ptr<codes_handle>(
         codes_handle_new_from_message(NULL, static_cast<const void*>(data.data()), data.size())));
 }
 
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromMessageCopy(Span<const std::uint8_t> data) {
+std::unique_ptr<CodesHandle> codesHandleFromMessageCopy(Span<const std::uint8_t> data) {
     return std::make_unique<OwningCodesHandle>(std::unique_ptr<codes_handle>(
         codes_handle_new_from_message_copy(NULL, static_cast<const void*>(data.data()), data.size())));
 }
 
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromSample(const std::string& sampleName, std::optional<Product> product) {
+std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName, std::optional<Product> product) {
     if (product) {
         switch (*product) {
             case Product::GRIB:
@@ -692,8 +700,7 @@ std::unique_ptr<CodesHandle> newFromSample(const std::string& sampleName, std::o
         std::unique_ptr<codes_handle>(codes_handle_new_from_samples(NULL, sampleName.c_str())));
 }
 
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromFile(FILE* file, Product product) {
+std::unique_ptr<CodesHandle> codesHandleFromFile(FILE* file, Product product) {
     int err = 0;
     std::unique_ptr<codes_handle> ret;
     switch (product) {
@@ -704,7 +711,7 @@ std::unique_ptr<CodesHandle> newFromFile(FILE* file, Product product) {
             ret = std::unique_ptr<codes_handle>(codes_bufr_handle_new_from_file(NULL, file, &err));
             break;
     };
-    throwOnError(err, Here(), "newFromFile(FILE*, Product): ");
+    throwOnError(err, Here(), "codesHandleFromFile(FILE*, Product): ");
     if (!ret) {
         throw CodesException("codes_handle_new_from_file returned NULL without an additional error");
     }

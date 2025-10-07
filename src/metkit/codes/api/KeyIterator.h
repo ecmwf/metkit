@@ -76,14 +76,14 @@ public:  // methods
     /// Get the value of the key.
     ///
     /// High-level functionality:
-    /// Inspection on the contained valued is performed with `getType` and `getSize`.
+    /// Inspection on the contained valued is performed with `type` and `size`.
     /// Then the more specific `getXXX` call is performed.
     /// \return Variant of all possible value types.
-    virtual Value get() const = 0;
+    virtual CodesValue get() const = 0;
 
     /// Get the type of the iterated key.
     /// \return Type of the iterated key.
-    virtual NativeType getType() const = 0;
+    virtual NativeType type() const = 0;
 
     /// Explicit getters
 

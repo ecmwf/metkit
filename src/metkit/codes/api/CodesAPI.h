@@ -23,8 +23,8 @@
 /// This file contains the important parts for an eccodes c api wrapper.
 /// It does not wrap the whole `eccodes.h`.
 /// The most important interface is the `CodesHandle` - it use to work on specific GRIB or BUFR messages.
-/// An addition to that, a few factory functions (`newFromMessage`, `newFromSample`, `newFromFile`) and iterators are
-/// wrapped.
+/// An addition to that, a few factory functions (`codesHandleFromMessage`, `codesHandleFromSample`,
+/// `codesHandleFromFile`) and iterators are wrapped.
 ///
 /// Missing components:
 ///  * codes_context
@@ -195,21 +195,21 @@ public:  // methods
     /// Can be used to determine if a field is storing a scalar or an array.
     /// \param key Name of the field that is supposed to be inspected.
     /// \return For given scalars 1 is returned. For given arrays the size of the array is returned..
-    virtual size_t getSize(const std::string& key) const = 0;
+    virtual size_t size(const std::string& key) const = 0;
 
     /// Get the value of the key.
     ///
     /// High-level functionality:
-    /// Inspection on the contained valued is performed with `getType` and `getSize`.
+    /// Inspection on the contained valued is performed with `type` and `size`.
     /// Then the more specific `getXXX` call is performed.
     /// \param key Name of the field that is supposed to be retrieved.
     /// \return Variant of all possible value types.
-    virtual Value get(const std::string& key) const = 0;
+    virtual CodesValue get(const std::string& key) const = 0;
 
     /// Get the type of the key
     /// \param key Name of the field that is supposed to be inspected.
     /// \return Enum of the native types ECCODES exposes.
-    virtual NativeType getType(const std::string& key) const = 0;
+    virtual NativeType type(const std::string& key) const = 0;
 
     /// Get the contained value for a key as long.
     /// \param key Name of the field that is supposed to be retrieved.
@@ -257,7 +257,6 @@ public:  // methods
 
     /// Clone the whole handle.
     /// \return Unique pointer to a cloned `CodesHandle` instance.
-    [[nodiscard]]
     virtual std::unique_ptr<CodesHandle> clone() const = 0;
 
     /// Copy the message into a new allocated buffer
@@ -306,18 +305,16 @@ public:  // methods
 /// \param data Array to an contiguous array of bytes.
 ///             Lifetime of the array need to be maintained till the first change is made on the handle.
 /// \return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-/// \see newFromMessageCopy
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromMessage(Span<const std::uint8_t> data);
+/// \see codesHandleFromMessageCopy
+std::unique_ptr<CodesHandle> codesHandleFromMessage(Span<const std::uint8_t> data);
 
 /// Create a new `CodesHandle` from a byte array.
 ///
 /// ECCODES copies the array. No lifetime requirements exist on `data`.
 /// \param data Array to an contiguous array of bytes the message is created from.
 /// \return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-/// \see newFromMessage
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromMessageCopy(Span<const std::uint8_t> data);
+/// \see codesHandleFromMessage
+std::unique_ptr<CodesHandle> codesHandleFromMessageCopy(Span<const std::uint8_t> data);
 
 /// Create a new `CodesHandle` from a sample existing in the configured samples path.
 ///
@@ -328,9 +325,8 @@ std::unique_ptr<CodesHandle> newFromMessageCopy(Span<const std::uint8_t> data);
 ///                Does not need to be specified.
 /// \return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
 /// \see samplesPath
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromSample(const std::string& sampleName,
-                                           std::optional<Product> product = std::optional<Product>{});
+std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName,
+                                                   std::optional<Product> product = std::optional<Product>{});
 
 /// Create a new `CodesHandle` from a file.
 ///
@@ -339,8 +335,7 @@ std::unique_ptr<CodesHandle> newFromSample(const std::string& sampleName,
 /// \param file Pointer to a implementation dependent file handle containing a BUFR or GRIB message.
 /// \param product The intented type of handle that is supposed to be loaded (BUFR or GRIB).
 /// \return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-[[nodiscard]]
-std::unique_ptr<CodesHandle> newFromFile(FILE*, Product);
+std::unique_ptr<CodesHandle> codesHandleFromFile(FILE*, Product);
 
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -49,8 +49,8 @@ enum class NativeType {
 
 
 /// Co-producti (or sum type) that can hold all types of values returned by the C API
-using Value = std::variant<long, double, float, std::string, std::vector<long>, std::vector<double>, std::vector<float>,
-                           std::vector<std::string>, std::vector<std::uint8_t>>;
+using CodesValue = std::variant<long, double, float, std::string, std::vector<long>, std::vector<double>,
+                                std::vector<float>, std::vector<std::string>, std::vector<std::uint8_t>>;
 
 
 //----------------------------------------------------------------------------------------------------------------------
