@@ -266,6 +266,7 @@ _field: &_field
       - [dacl, daily climatology]
       - [dacw, daily climatology wave]
       - [dahc, daily archive hindcast]
+      - [dame, daily means]
       - [dcda, atmospheric model (delayed cutoff)]
       - [dcwv, wave model (delayed cutoff)]
       - [edmm, ensemble data assimilation monthly means]
@@ -344,6 +345,7 @@ _field: &_field
       - [ocea, ocean]
       - [olda, ocean Long window data assimilation]
       - [oper, da, daily archive, atmospheric model]
+      - [rfsd, retrospective forcing and simulation data]
       - [rjtd, tokyo]
       - [scda, atmospheric model (short cutoff)]
       - [scwv, wave model (short cutoff)]
@@ -1563,8 +1565,12 @@ _postproc: &_postproc
     values:
       - [linear]
       - [bilinear]
-      - [nearest-lsm, nearest lsm]
-      - [default, any]
+      - [nearest-neighbour, nn, nearest neighbour]
+      - [nearest-lsm, nlsm, nearest lsm]
+      # - [linear fit, lfit]
+      - [cubic]
+      # - [average weighted]
+      - [grid-box-average, average]
 
   packing:
     category: postproc
