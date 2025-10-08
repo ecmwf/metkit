@@ -101,6 +101,7 @@ public:  // methods
 
                 EL j = from;
 
+                std::string toStr = el2s(to);
                 while (j != to) {
                     bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
                     try {
@@ -114,10 +115,11 @@ public:  // methods
                     catch (...) {
                         break;  /// reached an invalid value
                     }
-                    if ((from < to && j > to) || (from > to && j < to)) {
+                    std::string jStr = type_.tidy(el2s(j), ctx, request);
+                    if (jStr != toStr && ((from < to && j > to) || (from > to && j < to))) {
                         break;
                     }
-                    newval.emplace_back(type_.tidy(el2s(j), ctx, request));
+                    newval.emplace_back(jStr);
                 }
                 i++;
             }
