@@ -10,16 +10,17 @@
 
 
 // Include operator<< via LocalConfiguration
+#include <fstream>
+
+#include "eccodes.h"
+
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/io/Buffer.h"
 #include "eckit/testing/Test.h"
 
 #include "metkit/codes/api/CodesAPI.h"
-
-#include "eccodes.h"
 #include "metkit/codes/api/CodesTypes.h"
 #include "metkit/codes/api/KeyIterator.h"
-
-#include <fstream>
 
 namespace metkit::grib::test {
 
@@ -242,19 +243,19 @@ CASE("Test copyInto and clone") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    auto bytes  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size]);
-    EXPECT_NO_THROW(handle->copyInto(bytes.get(), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
     auto handle2 = handle->clone();
     EXPECT_EQUAL(handle2->messageSize(), size);
 
-    size_t size2 = handle->messageSize();
-    auto bytes2  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size2]);
-    EXPECT_NO_THROW(handle->copyInto(bytes2.get(), size2));
+    size_t size2 = handle2->messageSize();
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
-        EXPECT_EQUAL(bytes.get()[i], bytes2.get()[i]);
+        EXPECT_EQUAL(bytes[i], bytes2[i]);
     }
 }
 
@@ -265,20 +266,19 @@ CASE("Test copyInto and codesHandleFromMessage") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    auto bytes  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size]);
-    EXPECT_NO_THROW(handle->copyInto(bytes.get(), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
-
-    auto handle2 = codesHandleFromMessage({bytes.get(), size});
+    auto handle2 = codesHandleFromMessage({bytes.data(), size});
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    auto bytes2  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size2]);
-    EXPECT_NO_THROW(handle->copyInto(bytes2.get(), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
-        EXPECT_EQUAL(bytes.get()[i], bytes2.get()[i]);
+        EXPECT_EQUAL(bytes[i], bytes2[i]);
     }
 }
 
@@ -288,20 +288,20 @@ CASE("Test copyInto and codesHandleFromMessageCopy") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    auto bytes  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size]);
-    EXPECT_NO_THROW(handle->copyInto(bytes.get(), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
 
-    auto handle2 = codesHandleFromMessageCopy({bytes.get(), size});
+    auto handle2 = codesHandleFromMessageCopy({bytes.data(), size});
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    auto bytes2  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size2]);
-    EXPECT_NO_THROW(handle->copyInto(bytes2.get(), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
-        EXPECT_EQUAL(bytes.get()[i], bytes2.get()[i]);
+        EXPECT_EQUAL(bytes[i], bytes2[i]);
     }
 }
 
@@ -312,8 +312,8 @@ CASE("Test copyInto and codesHandleFromFile") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    auto bytes  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size]);
-    EXPECT_NO_THROW(handle->copyInto(bytes.get(), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
 
     std::string ofname{"GRIB2.tmpl"};
@@ -323,7 +323,7 @@ CASE("Test copyInto and codesHandleFromFile") {
             throw std::runtime_error("Failed to open file: " + ofname);
         }
 
-        of.write(reinterpret_cast<const char*>(bytes.get()), size);
+        of.write(reinterpret_cast<const char*>(bytes.data()), size);
         of.close();
     }
 
@@ -331,12 +331,12 @@ CASE("Test copyInto and codesHandleFromFile") {
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    auto bytes2  = std::unique_ptr<std::uint8_t>(new std::uint8_t[size2]);
-    EXPECT_NO_THROW(handle->copyInto(bytes2.get(), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
-        EXPECT_EQUAL(bytes.get()[i], bytes2.get()[i]);
+        EXPECT_EQUAL(bytes[i], bytes2[i]);
     }
 }
 }  // namespace metkit::grib::test

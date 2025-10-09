@@ -86,13 +86,13 @@ public:  // methods
                     by = s2by(values[i + 3]);
                     i += 2;
                 }
+                i++;
 
                 if (by == BY{0}) {
                     std::ostringstream oss;
                     oss << type_.name() + ": 'by' value " << by << " cannot be zero";
                     throw eckit::BadValue(oss.str());
                 }
-
                 if (from < to && by < BY{0}) {
                     std::ostringstream oss;
                     oss << type_.name() << ": impossible to define a sequence starting from " << from << " to " << to
@@ -100,10 +100,13 @@ public:  // methods
                     throw eckit::BadValue(oss.str());
                 }
                 bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
+                if (from == to) {
+                    continue;
+                }
 
-                EL j            = from;
-                std::string j_s = type_.tidy(el2s(j), ctx, request);
-                while (!(j == to || j_s == to_s)) {
+                EL j = from;
+                while (j != to) {
+                    std::string j_s;
                     try {
                         if (addBy) {
                             j += by;
@@ -117,17 +120,11 @@ public:  // methods
                         break;  /// reached an invalid value
                     }
 
-                    if (j == to || j_s == to_s) {  // reached the final value: add to the list, then stop
-                        newval.push_back(j_s);
-                        break;
-                    }
-                    if ((from < to && j > to) ||
-                        (from > to && j < to)) {  // exceeded the final value: do not add to the list, just stop
+                    if (((from < to && j > to) || (from > to && j < to)) && j != to && j_s != to_s) {
                         break;
                     }
                     newval.push_back(j_s);
                 }
-                i++;
             }
             else {
                 newval.push_back(type_.tidy(s, ctx, request));

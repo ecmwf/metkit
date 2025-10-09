@@ -68,7 +68,7 @@ static unsigned char unstr_latlon[] = {
     EXPECT(md.has(name));                                                                                    \
     std::cout << "expect string for " << name << " to equal " << eq << " (got " << md.getString(name) << ")" \
               << std::endl;                                                                                  \
-    EXPECT(md.getString(name) == eq);
+    EXPECT_EQUAL(eq, md.getString(name));
 
 // we accept two possible encodings, to enable testing with different versions of ecCodes (ECC-1704)
 #define MD_EXPECT_STRINGS(md, name, eq1, eq2)                                                     \
@@ -80,7 +80,7 @@ static unsigned char unstr_latlon[] = {
 #define MD_EXPECT_LONG(md, name, eq)                                                                                   \
     EXPECT(md.has(name));                                                                                              \
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
-    EXPECT(md.getLong(name) == eq);
+    EXPECT_EQUAL(eq, md.getLong(name));
 
 #define MD_EXPECT_GE_LONG(md, name, eq)                                                             \
     EXPECT(md.has(name));                                                                           \
@@ -92,7 +92,7 @@ static unsigned char unstr_latlon[] = {
     EXPECT(md.has(name));                                                                       \
     std::cout << "expect double for " << name << " to equal " << std::to_string(eq) << " (got " \
               << std::to_string(md.getDouble(name)) << ")" << std::endl;                        \
-    EXPECT(std::to_string(md.getDouble(name)) == std::to_string(eq));
+    EXPECT_EQUAL(std::to_string(eq), std::to_string(md.getDouble(name)));
 
 
 //----------------------------------------------------------------------------------------------------------------------

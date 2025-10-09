@@ -11,6 +11,7 @@
 #include "metkit/codes/CodesDecoder.h"
 
 #include "eckit/config/Resource.h"
+#include "eckit/io/Buffer.h"
 #include "eckit/message/Message.h"
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/utils/StringTools.h"
