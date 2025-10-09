@@ -71,9 +71,10 @@ public:  // methods
                     throw eckit::BadValue(oss.str());
                 }
 
-                EL from = s2el(type_.tidy(values[i - 1], ctx, request));
-                EL to   = s2el(type_.tidy(values[i + 1], ctx, request));
-                BY by   = s2by(by_);
+                EL from          = s2el(type_.tidy(values[i - 1], ctx, request));
+                std::string to_s = type_.tidy(values[i + 1], ctx, request);
+                EL to            = s2el(to_s);
+                BY by            = s2by(by_);
 
                 if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
                     if (values.size() <= i + 3) {
@@ -98,12 +99,11 @@ public:  // methods
                         << " with step " << by;
                     throw eckit::BadValue(oss.str());
                 }
+                bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
 
-                EL j = from;
-
-                std::string toStr = el2s(to);
-                while (j != to) {
-                    bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
+                EL j            = from;
+                std::string j_s = type_.tidy(el2s(j), ctx, request);
+                while (!(j == to || j_s == to_s)) {
                     try {
                         if (addBy) {
                             j += by;
@@ -111,15 +111,21 @@ public:  // methods
                         else {
                             j -= by;
                         }
+                        j_s = type_.tidy(el2s(j), ctx, request);
                     }
                     catch (...) {
                         break;  /// reached an invalid value
                     }
-                    std::string jStr = type_.tidy(el2s(j), ctx, request);
-                    if (jStr != toStr && ((from < to && j > to) || (from > to && j < to))) {
+
+                    if (j == to || j_s == to_s) {  // reached the final value: add to the list, then stop
+                        newval.push_back(j_s);
                         break;
                     }
-                    newval.emplace_back(jStr);
+                    if ((from < to && j > to) ||
+                        (from > to && j < to)) {  // exceeded the final value: do not add to the list, just stop
+                        break;
+                    }
+                    newval.push_back(j_s);
                 }
                 i++;
             }
