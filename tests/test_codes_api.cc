@@ -243,15 +243,15 @@ CASE("Test copyInto and clone") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    eckit::Buffer bytes(size);
-    EXPECT_NO_THROW(handle->copyInto(reinterpret_cast<uint8_t*>(bytes.data()), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
     auto handle2 = handle->clone();
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    eckit::Buffer bytes2(size2);
-    EXPECT_NO_THROW(handle2->copyInto(reinterpret_cast<uint8_t*>(bytes2.data()), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
@@ -266,15 +266,15 @@ CASE("Test copyInto and codesHandleFromMessage") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    eckit::Buffer bytes(size);
-    EXPECT_NO_THROW(handle->copyInto(reinterpret_cast<uint8_t*>(bytes.data()), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
-    auto handle2 = codesHandleFromMessage({reinterpret_cast<uint8_t*>(bytes.data()), size});
+    auto handle2 = codesHandleFromMessage({bytes.data(), size});
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    eckit::Buffer bytes2(size2);
-    EXPECT_NO_THROW(handle2->copyInto(reinterpret_cast<uint8_t*>(bytes2.data()), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
@@ -288,16 +288,16 @@ CASE("Test copyInto and codesHandleFromMessageCopy") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    eckit::Buffer bytes(size);
-    EXPECT_NO_THROW(handle->copyInto(reinterpret_cast<uint8_t*>(bytes.data()), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
 
-    auto handle2 = codesHandleFromMessageCopy({reinterpret_cast<uint8_t*>(bytes.data()), size});
+    auto handle2 = codesHandleFromMessageCopy({bytes.data(), size});
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    eckit::Buffer bytes2(size2);
-    EXPECT_NO_THROW(handle2->copyInto(reinterpret_cast<uint8_t*>(bytes2.data()), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
@@ -312,8 +312,8 @@ CASE("Test copyInto and codesHandleFromFile") {
     auto handle = codesHandleFromSample("GRIB2");
 
     size_t size = handle->messageSize();
-    eckit::Buffer bytes(size);
-    EXPECT_NO_THROW(handle->copyInto(reinterpret_cast<uint8_t*>(bytes.data()), size));
+    std::vector<uint8_t> bytes(size);
+    EXPECT_NO_THROW(handle->copyInto(bytes.data(), size));
 
 
     std::string ofname{"GRIB2.tmpl"};
@@ -331,8 +331,8 @@ CASE("Test copyInto and codesHandleFromFile") {
     EXPECT_EQUAL(handle2->messageSize(), size);
 
     size_t size2 = handle2->messageSize();
-    eckit::Buffer bytes2(size2);
-    EXPECT_NO_THROW(handle2->copyInto(reinterpret_cast<uint8_t*>(bytes2.data()), size2));
+    std::vector<uint8_t> bytes2(size2);
+    EXPECT_NO_THROW(handle2->copyInto(bytes2.data(), size2));
 
     EXPECT_EQUAL(size, size2);
     for (int i = 0; i < size; ++i) {
