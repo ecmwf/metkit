@@ -117,12 +117,7 @@ public:  // methods
                         break;  /// reached an invalid value
                     }
 
-                    if (j == to || j_s == to_s) {  // reached the final value: add to the list, then stop
-                        newval.push_back(j_s);
-                        break;
-                    }
-                    if ((from < to && j > to) ||
-                        (from > to && j < to)) {  // exceeded the final value: do not add to the list, just stop
+                    if (j != to && j_s != to_s && (from < to && j > to) || (from > to && j < to)) {
                         break;
                     }
                     newval.push_back(j_s);

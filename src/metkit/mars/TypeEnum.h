@@ -34,7 +34,8 @@ public:  // methods
 private:  // methods
 
     bool hasGroups() const override { return hasGroups_; }
-    std::optional<std::reference_wrapper<const std::vector<std::string>>> group(const std::string& value) const override;
+    std::optional<std::reference_wrapper<const std::vector<std::string>>> group(
+        const std::string& value) const override;
 
     void print(std::ostream& out) const override;
     void reset() override;
