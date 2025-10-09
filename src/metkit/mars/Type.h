@@ -222,7 +222,7 @@ public:  // methods
 protected:  // methods
 
     virtual bool hasGroups() const { return false; }
-    virtual const std::vector<std::string>& group(const std::string&) const { NOTIMP; }
+    virtual std::optional<std::reference_wrapper<const std::vector<std::string>>> group(const std::string&) const { NOTIMP; }
 
 protected:  // members
 
