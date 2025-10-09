@@ -16,6 +16,10 @@ project( metkit LANGUAGES CXX C )
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+add_compile_options(-fsanitize=address)
+# add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+add_link_options(-fsanitize=address)
 
 ########################################################################################################################
 ### dependencies and options
