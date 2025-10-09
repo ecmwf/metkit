@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include "eckit/exception/Exceptions.h"
 #include "eckit/message/Decoder.h"
 #include "eckit/message/Message.h"
 
