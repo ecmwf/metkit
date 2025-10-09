@@ -312,7 +312,6 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
         }
 
         throw eckit::UserError("Cannot match parameter " + p);
-        return p;
     }
 
     ChainedContext c(ctx, *this);

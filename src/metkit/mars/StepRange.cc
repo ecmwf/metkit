@@ -135,7 +135,6 @@ StepRange::StepRange(const std::string& s) : from_(0.), to_(0.) {
             std::ostringstream msg;
             msg << "Bad StepRange [" << s << "]";
             throw eckit::BadValue(msg.str(), Here());
-            break;
     }
 }
 
