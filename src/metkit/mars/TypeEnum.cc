@@ -128,14 +128,14 @@ std::map<std::string, uint16_t>::const_iterator TypeEnum::find(const std::string
     return values_.find(eckit::StringTools::lower(value));
 }
 
-const std::vector<std::string>& TypeEnum::group(const std::string& value) const {
+std::optional<std::reference_wrapper<const std::vector<std::string>>> TypeEnum::group(const std::string& value) const {
     ASSERT(hasGroups_);
 
     auto it = find(value);
     if (it != values_.end()) {
         return groups_.at(it->second).second;
     }
-    return {};
+    return std::nullopt;
 }
 
 

@@ -11,6 +11,7 @@
 #include "metkit/codes/CodesDecoder.h"
 
 #include "eckit/config/Resource.h"
+#include "eckit/io/Buffer.h"
 #include "eckit/message/Message.h"
 #include "eckit/serialisation/MemoryStream.h"
 #include "eckit/utils/StringTools.h"
@@ -81,10 +82,10 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
     if (::codes_get_long(h.get(), "localDefinitionNumber", &local) == 0 && local == 191) {
         /* TODO: Not grib2 compatible, but speed-up process */
         if (::codes_get_size(h.get(), "freeFormData", &size) == 0 && size != 0) {
-            unsigned char buffer[size];
-            ASSERT(::codes_get_bytes(h.get(), "freeFormData", buffer, &size) == 0);
+            std::vector<unsigned char> buffer(size);
+            ASSERT(::codes_get_bytes(h.get(), "freeFormData", buffer.data(), &size) == 0);
 
-            eckit::MemoryStream s(buffer, size);
+            eckit::MemoryStream s(buffer.data(), size);
 
             int count;
             s >> count;  // Number of requests
