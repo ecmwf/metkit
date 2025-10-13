@@ -188,8 +188,7 @@ public:  // methods
     ~Type() noexcept override = default;
 
     virtual bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
-    virtual void expand(const MarsExpandContext& ctx, std::vector<std::string>& values,
-                        const MarsRequest& request = {}) const;
+    void expand(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
     std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{},
                      const MarsRequest& request = {}) const;

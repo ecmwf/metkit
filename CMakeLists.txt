@@ -20,6 +20,8 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 # add_compile_options(-fsanitize=address)
 # add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
 # add_link_options(-fsanitize=address)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic")
+
 
 ########################################################################################################################
 ### dependencies and options
