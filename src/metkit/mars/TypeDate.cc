@@ -118,11 +118,8 @@ namespace metkit::mars {
 
 TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
-    DummyContext ctx;
     toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
-
     multiple_ = true;
-
     filters_["day"] = &filterByDay;
 }
 
