@@ -60,7 +60,6 @@ bool TypeInteger::ok(const std::string& value, long& n) const {
 
             default:
                 return false;
-                break;
         }
     }
     n *= sign;

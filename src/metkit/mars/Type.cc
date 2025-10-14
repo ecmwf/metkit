@@ -310,11 +310,13 @@ void Type::expand(const MarsExpandContext& ctx, std::vector<std::string>& values
             throw eckit::UserError(oss.str());
         }
         if (hasGroups()) {
-            const std::vector<std::string>& gg = group(value);
-            for (const auto& v : gg) {
-                if (seen.find(v) == seen.end()) {
-                    seen.insert(v);
-                    newvals.push_back(v);
+            auto gg = group(value);
+            if (gg) {
+                for (const auto& v : gg->get()) {
+                    if (seen.find(v) == seen.end()) {
+                        seen.insert(v);
+                        newvals.push_back(v);
+                    }
                 }
             }
         }

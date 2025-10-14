@@ -98,7 +98,7 @@ CASE("metkit_marsrequest") {
     // Check date expanded -1 -> yesterday
     test_success(metkit_marsrequest_count_values(expandedRequest, "date", &count));
     EXPECT_EQUAL(count, 3);
-    const char** dates_expanded = new const char*[count];
+    std::array<const char*, 3> dates_expanded;
     for (size_t i = 0; i < count; i++) {
         test_success(metkit_marsrequest_value(expandedRequest, "date", i, &dates_expanded[i]));
     }

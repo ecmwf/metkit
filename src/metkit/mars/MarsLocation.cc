@@ -33,10 +33,10 @@ MarsLocation::MarsLocation(const MarsRequest& r, const std::string& hostname, in
     request_(r), hostname_(hostname), port_(port) {}
 
 MarsLocation::MarsLocation(eckit::Stream& s) : request_(s) {
-    NOTIMP;  // FIXME: added this constructor just to get develop branches to compile
-
     s >> hostname_;
     s >> port_;
+
+    NOTIMP;  // FIXME: added this constructor just to get develop branches to compile
 }
 
 MarsLocation::MarsLocation(const eckit::Configuration& c) :
