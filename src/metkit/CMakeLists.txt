@@ -23,6 +23,8 @@ list( APPEND metkit_srcs
     mars/ClientTask.h
     mars/DHSProtocol.cc
     mars/DHSProtocol.h
+    mars/Matcher.cc
+    mars/Matcher.h
     mars/MarsExpandContext.cc
     mars/MarsExpandContext.h
     mars/MarsExpansion.cc
@@ -150,6 +152,14 @@ if ( HAVE_GRIB )
         codes/GribIterator.cc
         codes/GribIterator.h
         codes/CodesHandleDeleter.h
+
+        codes/api/CodesAPI.h
+        codes/api/CodesAPI.cc
+        codes/api/CodesTypes.h
+        codes/api/CodesTypes.cc
+        codes/api/KeyIterator.h
+        codes/api/KeyIterator.cc
+        codes/api/GeoIterator.h
     )
 
     if( NOT eccodes_HAVE_GEOGRAPHY OR NOT eccodes_HAVE_ECKIT_GEO )

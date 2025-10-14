@@ -43,16 +43,25 @@ namespace {
 //     return TimeUnit::Second;
 // }
 
-std::string canonical(const eckit::Time& time) {
+std::string canonical(const eckit::Time& time, bool useDays, bool alwaysUseHours) {
 
     long h = time.hours();
     long m = time.minutes();
     long s = time.seconds();
 
+    long d = 0;
+    if (useDays && h > 23) {
+        d = h / 24;
+        h = h % 24;
+    }
+
     std::string out = "";
-    if (h != 0 || (m == 0 && s == 0)) {
+    if (d != 0) {
+        out += std::to_string(d) + "d";
+    }
+    if (h != 0 || (m == 0 && s == 0 && d == 0)) {
         out += std::to_string(h);
-        if (m != 0 || s != 0) {
+        if (alwaysUseHours || m != 0 || s != 0 || d != 0) {
             out += "h";
         }
     }
@@ -85,20 +94,24 @@ namespace metkit::mars {
 //----------------------------------------------------------------------------------------------------------------------
 
 StepRange::operator std::string() const {
+    return toString();
+}
+
+std::string StepRange::toString(bool useDays, bool alwaysUseHours) const {
     std::ostringstream os;
-    os << *this;
+    print(os, useDays, alwaysUseHours);
     return os.str();
 }
 
-void StepRange::print(std::ostream& s) const {
+void StepRange::print(std::ostream& s, bool useDays, bool alwaysUseHours) const {
     if (from_ == to_) {
-        s << canonical(eckit::Time(std::lround(from_ * 3600.), true));
+        s << canonical(eckit::Time(std::lround(from_ * 3600.), true), useDays, alwaysUseHours);
     }
     else {
         eckit::Time f{std::lround(from_ * 3600.), true};
         eckit::Time t{std::lround(to_ * 3600.), true};
 
-        s << canonical(f) << '-' << canonical(t);
+        s << canonical(f, useDays, alwaysUseHours) << '-' << canonical(t, useDays, alwaysUseHours);
     }
 }
 
@@ -122,7 +135,6 @@ StepRange::StepRange(const std::string& s) : from_(0.), to_(0.) {
             std::ostringstream msg;
             msg << "Bad StepRange [" << s << "]";
             throw eckit::BadValue(msg.str(), Here());
-            break;
     }
 }
 

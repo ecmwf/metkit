@@ -24,31 +24,31 @@ def main():
     with psycopg2.connect(host=HOST, dbname=DB, user=USER, password=PASSWORD, port=PORT) as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT DISTINCT stream, type, levtype, param::INTEGER FROM fields WHERE param != '' ORDER BY stream, type, levtype, param::INTEGER"
+                "SELECT DISTINCT class, stream, type, levtype, param::INTEGER FROM fields WHERE param != '' ORDER BY class, stream, type, levtype, param::INTEGER"
             )
             rows = cur.fetchall()
 
     index = OrderedDict()
     for row in rows:
-        stream, type_, levtype, param = row
-        key = (stream, type_, levtype)
+        cl, stream, type_, levtype, param = row
+        key = (cl, stream, type_, levtype)
         if key not in index:
             index[key] = []
         index[key].append(param)
         
     # Manually add type=tf parameters for PGEN
-    index[("oper", "tf", "")] = [129, 999]
-    index[("scda", "tf", "")] = [129, 999]
-    index[("enfo", "tf", "")] = [129, 999]
+    index[("od", "oper", "tf", "")] = [129, 999]
+    index[("od", "scda", "tf", "")] = [129, 999]
+    index[("od", "enfo", "tf", "")] = [129, 999]
     
     yaml_dump_data = []
     for key, vals in sorted(index.items()):
-        if key[2]:
+        if key[3]:
             yaml_dump_data.append(
-                [dict(stream=key[0], type=key[1], levtype=key[2]), vals]
+                    [{"class":key[0], "stream":key[1], "type":key[2], "levtype":key[3]}, vals]
             )
         else:
-            yaml_dump_data.append([dict(stream=key[0], type=key[1]), vals])
+            yaml_dump_data.append([{"class":key[0], "stream":key[1], "type":key[2]}, vals])
 
     with open("params.yaml", "w") as f:
         f.write(

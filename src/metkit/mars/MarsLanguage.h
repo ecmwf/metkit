@@ -56,6 +56,7 @@ public:  // methods
     bool isPostProc(const std::string& keyword) const;
 
     bool isSink(const std::string& keyword) const;
+    const std::set<std::string>& sinkKeywords() const;
 
 public:  // class methods
 

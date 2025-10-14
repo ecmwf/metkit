@@ -13,6 +13,7 @@ _field: &_field
     flatten: false
     type: enum
     values:
+      - [a5, ECMWF Atmospheric Composition reanalysis version 5]
       - [ai, operational aifs]
       - [at, austria]
       - [be, belgium]
@@ -351,6 +352,8 @@ _field: &_field
       - [sens, sf, sensitivity forecast]
       - [sfmm, seasonal forecast atmospheric monthly means]
       - [smma, seasonal monthly means anomalies]
+      - [sttd, Statistics of deterministic data]
+      - [stte, Statistics of ensemble data]
       - [supd, sd, deterministic supplementary data]
       - [swmm, seasonal forecast wave monthly means]
       - [toga, tg]
@@ -384,7 +387,6 @@ _field: &_field
       - [tims, time-series]
       - [tavg, time-average]
       - [tacc, time-accumulation]
-      - all
 
   section:
     category: data
@@ -394,7 +396,6 @@ _field: &_field
       - [v, vertical]
       - [z, zonal]
       - [m, meridional]
-      - all
 
   range:
     category: data
@@ -517,10 +518,15 @@ _field: &_field
           - [aifs-ens]
           - [aifs-ens-crps]
           - [aifs-ens-diff]
+          - [aifs-compo-single]
+          - [aifs-compo-ens]
+          - [aifs-compo-single-mse]
+          - [aifs-compo-ens-crps]
           - [alaro]
           - [arome]
           - [harmonie-arome]
           - [global, glob]
+          - [ecpoint]
         unset:
           - context:
               class: [ml, ur, rr]
@@ -620,6 +626,7 @@ _field: &_field
       - [mhs_as, 45, MHS ALL-SKY]
       - [dwl, 46, DOPPLER WIND LIDAR]
       - [iris, 47]
+      - [alt, 48, Altimeter]
       - [aatsr, 49]
       - [atms_as, 50, ATMS ALL-SKY]
       - [gmi_as, 51, GMI ALL-SKY]
@@ -640,6 +647,24 @@ _field: &_field
       - [oconv, 66]
       - [mwts3_as, 67, MWTS3 All-sky]
       - [giirs, 68]
+      - [hiras, 69]
+      - [tropics_as, 70, TROPICS All-sky]
+      - [ssmt1, 71]
+      - [ssmt1_as, 72, SSMT1 All-sky]
+      - [mws_as, 73, MWS All-sky]
+      - [mwiici_as, 74, MWIICI All-sky]
+      - [aws_as, 75, AWS All-sky]
+      - [leos_vis, 76, LEOS VIS]
+      - [ssh, 77]
+      - [sirs, 78]
+      - [scr, 79]
+      - [scams_as, 80, SCAMS All-sky]
+      - [nems_as, 81, NEMS All-sky]
+      - [amsr3_as, 82, AMSR-3 All-sky]
+      - [irs, 83]
+      - [iasi_ng, 84, IASI-NG]
+      - [smap_as, 85, SMAP All-sky]
+      - [ssmt2_as, 86, SSMT2 All-sky]
       - [test, 99]
     unset:
       - context:
@@ -656,6 +681,7 @@ _field: &_field
 
   levtype:
     category: data
+    aliases: [levtyp]
     defaults:
       - vals: [pl]
     unset:
@@ -665,7 +691,7 @@ _field: &_field
             vals: [ssmi]
           type: [im, sim, oldim]
       - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
       - context:
           stream: [ssmi]
     flatten: false
@@ -727,6 +753,7 @@ _field: &_field
 
   param:
     category: data
+    aliases: [parameter,parameters]
     multiple: true
     type: param
     defaults:
@@ -741,6 +768,59 @@ _field: &_field
           stream: [ssmi]
       - context:
           type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+
+  chem:
+    category: data
+    multiple: true
+    type: enum
+    values: "chemids.yaml"
+
+  wavelength:
+    category: data
+    multiple: true
+    type: range 
+    default: none
+
+  timespan:
+    category: data
+    type: enum
+    values:
+    - [fs, from-start, fromstart]
+    - [30m]
+    - [1h]
+    - [3h]
+    - [6h]
+    - [12h]
+    - [18h]
+    - [24h]
+    - [48h]
+    - [72h]
+    - [120h]
+    - [168h]
+    - [240h]
+    - [360h]
+    - [none, inst, instantaneous]
+    default: none
+    multiple: false
+
+  stattype:
+    category: data
+    type: enum
+    values:
+    - [moav, monthly average]
+    - [momn, monthly minimum]
+    - [momx, monthly maximum]
+    - [mosd, monthly standard-deviation]
+    - [daav, daily average]
+    - [damn, daily minimum]
+    - [damx, daily maximum]
+    - [dasd, daily standard-deviation]
+    - [moav_dasd, monthly average of daily standard-deviation]
+    - [moav_daav, monthly average of daily average]
+    - [momn_damn, monthly minimum of daily minimum]
+    - [momx_damx, monthly maximum of daily maximum]
+    - [mosd_daav, monthly standard-deviation of daily average]
+    multiple: false
 
 #################################################################
 
@@ -962,7 +1042,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar]
+            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf, wp]
           class:
             op: '!'
             vals: [ti, lw, s2]
@@ -997,7 +1077,7 @@ _field: &_field
       - context:
           class:
             op: '!'
-            vals: [ms]
+            vals: [d1, ed, ng, ms]
         vals: [g]
     type:
       - context:
@@ -1117,23 +1197,12 @@ _field: &_field
     multiple: true
     by: 1
     type: to-by-list
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
-
 
   direction:
     category: data
     multiple: true
     by: 1
     type: to-by-list
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [wave,scwv,dcwv,mawv,wasf,waef,ewda,weov,weef,weeh,wees,mnfw,mfhw,mfaw,wvhc,ewhc,enwh,ewho,lwwv,ewla,wamd,wamf]
 
   diagnostic:
     category: data
@@ -1179,6 +1248,10 @@ _field: &_field
   origin:
     category: data
     multiple: true
+    defaults:
+      - context:
+          class: [ti, s2]
+        vals: [ecmf]
     type: enum
     values:
       - [aladinhuneps-omsz-eu]
@@ -1424,7 +1497,7 @@ _postproc: &_postproc
     multiple: true
     type: [float, enum]
     values:
-      - ['off', g, global]
+      - [g, global]
       - [e, europe]
     set:
       - context:
@@ -1491,7 +1564,7 @@ _postproc: &_postproc
       - [linear]
       - [bilinear]
       - [nearest-lsm, nearest lsm]
-      - ['off', default, any]
+      - [default, any]
 
   packing:
     category: postproc
@@ -1499,7 +1572,7 @@ _postproc: &_postproc
     type: enum
     values:
       - [so, second order]
-      - ['off', av]
+      - [av]
       - [complex, co]
       - [simple, si]
       - [ccsds]
@@ -1534,7 +1607,7 @@ _postproc: &_postproc
       - context:
           stream: [ssmi]
       - context:
-          type: [ssd, ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
       - context:
           stream:
             op: '!'
@@ -1546,7 +1619,6 @@ _postproc: &_postproc
     flatten: false
     type: [enum, regex]
     values:
-      - 'off'
       - auto
       - N32
       - N48
@@ -1575,8 +1647,7 @@ _postproc: &_postproc
     type: [enum, integer]
     values:
       - auto
-      - 'off'
-
+      - none
 
   process:
     category: postproc
@@ -1674,8 +1745,8 @@ disseminate:
     multiple: true
     type: enum
     values:
-      - 'off'
       - 'no-local-extension'
+      - 'adjust-spectral-packing'
 
   priority:
     category: sink
@@ -1683,6 +1754,11 @@ disseminate:
     type: integer
 
   target:
+    category: sink
+    flatten: false
+    type: any
+
+  filename:
     category: sink
     flatten: false
     type: any
@@ -1702,10 +1778,6 @@ archive:
   #   category: postproc
   #   type: any
 
-  password:
-    aliases: [pass]
-    type: any
-
   database:
     flatten: false
     multiple: true
@@ -1719,16 +1791,29 @@ archive:
     type: any
 
   sourcebase:
+    category: sink
     flatten: false
     multiple: true
     type: any
 
   expect:
+    category: sink
     flatten: false
     multiple: false
     type: [enum, integer]
     values:
     - any
+
+  disp:
+    category: sink
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [n, new]
+      - [old]
+      - [remove]
+      - [fail]
 
 ##############################################################
 
@@ -1753,6 +1838,7 @@ retrieve:
     type: any
 
   expect:
+    category: sink
     flatten: false
     multiple: false
     type: [enum, integer]
@@ -1760,12 +1846,14 @@ retrieve:
     - any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
     type: any
 
   database:
+    category: sink
     flatten: false
     multiple: true
     aliases: [dbase]
@@ -1780,6 +1868,7 @@ retrieve:
         vals: [file]
 
   optimise:
+    category: sink
     type: enum
     values:
     - 'on'
@@ -1789,6 +1878,7 @@ retrieve:
 
 
   duplicates:
+    category: sink
     type: enum
     defaults:
       - context:
@@ -1814,6 +1904,7 @@ retrieve:
     - remove
 
   padding:
+    category: sink
     flatten: false
     type: enum
     defaults:
@@ -1847,6 +1938,7 @@ read:
     type: any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
@@ -1863,14 +1955,44 @@ read:
       first_rule: true
 ##############################################################
 
+
+flush:
+
+  <<: *_field
+  <<: *_observation
+  <<: *_postproc
+  <<: *_obspproc
+
+  wait:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [true, yes, y, on, 1]
+      - [false, no, n, off, 0]
+
+  decache:
+    flatten: false
+    multiple: false
+    type: enum
+    values:
+      - [true, yes, y, on, 1]
+      - [false, no, n, off, 0]
+
+  _clear_defaults: [class, date, domain, expver, levelist, levtype, param, step, stream, time, type]
+
+##############################################################
+
 get:
 
   tape:
+    category: sink
     flatten: false
     multiple: false
     type: any
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1889,6 +2011,7 @@ list:
   <<: *_observation
 
   database:
+    category: sink
     flatten: false
     multiple: true
     type: any
@@ -1908,6 +2031,7 @@ list:
       - [earliest]
 
   output:
+    category: sink
     flatten: false
     multiple: false
     defaults:
@@ -1924,7 +2048,6 @@ list:
   _clear_defaults: [date, domain, expver, levelist, levtype, param, step, stream, time, type]
   _multiple: [class, expver, stream, type]
 
-
 ##############################################################
 
 compute:
@@ -1935,6 +2058,7 @@ compute:
     type: any
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false
@@ -1945,6 +2069,7 @@ compute:
 write:
 
   fieldset:
+    category: sink
     aliases: [field]
     flatten: false
     multiple: false

@@ -34,7 +34,7 @@ using ::eckit::Value;
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
     static MarsLanguage language("retrieve");
-    language.type(name)->expand(DummyContext(), values);
+    language.type(name)->expand(DummyContext{}, values);
     EXPECT_EQUAL(values.size(), expected.size());
     EXPECT_EQUAL(expected, values);
 }
