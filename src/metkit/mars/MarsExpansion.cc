@@ -54,8 +54,8 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
     std::vector<MarsRequest> result;
     result.reserve(requests.size());
 
-    DummyContext cc;
-    MarsExpandContext& ctx = cc;
+    DummyContext emptyCtx{};
+    MarsExpandContext& ctx = emptyCtx;
 
     // Implement inheritence
     for (const auto& request : requests) {
@@ -68,7 +68,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
 }
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
-    DummyContext ctx;
+    DummyContext ctx{};
     auto& lang = language(ctx, request.verb());
     return lang.expand(ctx, request, inherit_, strict_);
 }

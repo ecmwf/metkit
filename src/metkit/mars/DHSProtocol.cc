@@ -508,7 +508,6 @@ bool DHSProtocol::wait(Length& size) {
             /* get */
             case 'h':
                 NOTIMP;
-                break;
 
             case 'w':
                 s >> bytes;
@@ -518,11 +517,9 @@ bool DHSProtocol::wait(Length& size) {
 
             case 'm':
                 NOTIMP;
-                break;
 
             case 'X':
                 NOTIMP;
-                break;
 
             case 'e':
                 s >> msg_;
@@ -533,7 +530,6 @@ bool DHSProtocol::wait(Length& size) {
 
             case 'y': /* retry */
                 NOTIMP;
-                break;
 
             case 'I': /* info */
                 s >> msg;
@@ -587,15 +583,12 @@ bool DHSProtocol::wait(Length& size) {
 
             case 'S': /* notification start */
                 NOTIMP;
-                break;
 
             case 't': /* new timeout */
                 NOTIMP;
-                break;
 
             default:
                 throw Exception(std::string("Unknown code [") + code + "]");
-                break;
         }
     }
 }
