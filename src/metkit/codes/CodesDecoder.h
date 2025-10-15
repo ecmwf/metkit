@@ -13,14 +13,14 @@
 
 #pragma once
 
+#include <eccodes.h>
+
+#include "eckit/exception/Exceptions.h"
 #include "eckit/message/Decoder.h"
 #include "eckit/message/Message.h"
 
-#include <eccodes.h>
 
-
-namespace metkit {
-namespace codes {
+namespace metkit::codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -103,5 +103,4 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace codes
-}  // namespace metkit
+}  // namespace metkit::codes

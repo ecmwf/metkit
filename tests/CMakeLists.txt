@@ -16,7 +16,7 @@ endif()
 
 
 ecbuild_get_test_multidata( TARGET grib_get_data
-                            DIRNAME grib_api/data
+                            DIRNAME grib-api/test-data/data
                             NAMES latlon.grib
                                   synthetic_2msgs.grib )
 
@@ -65,12 +65,14 @@ ecbuild_add_test( TARGET        metkit_test_gribhandle
 
 foreach( test 
         c_api
+        codes_api
         context
         date
         expand
         filter
         hypercube
         integer_range
+        matcher
         language
         obstype
         param_axis

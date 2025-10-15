@@ -344,6 +344,13 @@ DHSProtocol::DHSProtocol(const Configuration& params) :
     callback_.reset(BaseCallbackConnection::build(params, host_));
 }
 
+DHSProtocol::DHSProtocol(const Configuration& params, const std::map<std::string, std::string>& env) :
+    DHSProtocol(params) {
+    auto requestEnv = RequestEnvironment::instance();
+    requestEnv.update(env);
+    env_ = requestEnv.request();
+}
+
 DHSProtocol::DHSProtocol(Stream& s) : BaseProtocol(s), callback_(Reanimator<BaseCallbackConnection>::reanimate(s)) {
     s >> name_;
     s >> host_;
@@ -352,6 +359,7 @@ DHSProtocol::DHSProtocol(Stream& s) : BaseProtocol(s), callback_(Reanimator<Base
     s >> error_;
     s >> sending_;
     s >> forward_;
+    env_ = MarsRequest(s);
 }
 
 DHSProtocol::~DHSProtocol() {
@@ -373,8 +381,8 @@ Length DHSProtocol::retrieve(const MarsRequest& request) {
 
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
-    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), callbackEndpoint.host(),
-                               callbackEndpoint.port()));
+
+    task_.reset(new ClientTask(request, env_, callbackEndpoint.host(), callbackEndpoint.port()));
 
     net::TCPStream s(net::TCPClient().connect(host_, port_));
 
@@ -395,8 +403,7 @@ void DHSProtocol::archive(const MarsRequest& request, const Length& size) {
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol::archive " << size << std::endl;
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
 
-    task_.reset(new ClientTask(request, RequestEnvironment::instance().request(), callbackEndpoint.host(),
-                               callbackEndpoint.port()));
+    task_.reset(new ClientTask(request, env_, callbackEndpoint.host(), callbackEndpoint.port()));
 
     net::TCPStream s(net::TCPClient().connect(host_, port_));
 
@@ -457,6 +464,7 @@ void DHSProtocol::encode(Stream& s) const {
     s << error_;
     s << sending_;
     s << forward_;
+    s << env_;
 }
 
 long DHSProtocol::read(void* buffer, long len) {
@@ -500,7 +508,6 @@ bool DHSProtocol::wait(Length& size) {
             /* get */
             case 'h':
                 NOTIMP;
-                break;
 
             case 'w':
                 s >> bytes;
@@ -510,11 +517,9 @@ bool DHSProtocol::wait(Length& size) {
 
             case 'm':
                 NOTIMP;
-                break;
 
             case 'X':
                 NOTIMP;
-                break;
 
             case 'e':
                 s >> msg_;
@@ -525,7 +530,6 @@ bool DHSProtocol::wait(Length& size) {
 
             case 'y': /* retry */
                 NOTIMP;
-                break;
 
             case 'I': /* info */
                 s >> msg;
@@ -579,15 +583,12 @@ bool DHSProtocol::wait(Length& size) {
 
             case 'S': /* notification start */
                 NOTIMP;
-                break;
 
             case 't': /* new timeout */
                 NOTIMP;
-                break;
 
             default:
                 throw Exception(std::string("Unknown code [") + code + "]");
-                break;
         }
     }
 }

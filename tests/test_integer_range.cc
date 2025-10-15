@@ -27,7 +27,7 @@ namespace metkit::mars::test {
 using ::eckit::ValueList;
 using ::eckit::ValueMap;
 
-const DummyContext ctx;
+const DummyContext ctx{};
 
 //----------------------------------------------------------------------------------------------------------------------
 

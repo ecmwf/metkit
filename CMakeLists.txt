@@ -8,9 +8,9 @@
 
 ########################################################################################################################
 
-cmake_minimum_required( VERSION 3.12 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.18 FATAL_ERROR )
 
-find_package( ecbuild 3.7.2 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
+find_package( ecbuild 3.12 REQUIRED HINTS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ecbuild)
 
 project( metkit LANGUAGES CXX C )
 
@@ -74,7 +74,7 @@ ecbuild_add_option( FEATURE FAIL_ON_CCSDS
 
 set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
 
-ecbuild_find_package( NAME eckit  VERSION  1.16 REQUIRED )
+ecbuild_find_package( NAME eckit  VERSION  1.32 REQUIRED )
 
 ############################################################################################
 # sources

@@ -213,6 +213,20 @@ CASE("check defaults and _clear_defaults") {
         EXPECT_EMPTY(request, "time");
         EXPECT_EMPTY(request, "type");
     }
+
+    {
+        // check "number" is not removed from the request for type=pf
+        auto request = MarsRequest::parse("disseminate,class=od,stream=enfo,type=pf,number=2", true);
+        EXPECT_EQUAL(request.values("number").size(), 1);
+        EXPECT_EQUAL(request.values("number")[0], "2");
+    }
+
+    {
+        // check "number" is not removed from the request for type=wp
+        auto request = MarsRequest::parse("disseminate,class=od,stream=enfo,type=wp,number=2", true);
+        EXPECT_EQUAL(request.values("number").size(), 1);
+        EXPECT_EQUAL(request.values("number")[0], "2");
+    }
 }
 
 CASE("check method: isData()") {
@@ -241,7 +255,7 @@ CASE("check method: flatten()") {
         "500,date=20250717",
         true);
 
-    MarsLanguage("retrieve").flatten(DummyContext(), request, output);
+    MarsLanguage("retrieve").flatten(DummyContext{}, request, output);
 
     EXPECT_EQUAL(output.oss.str(),
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="

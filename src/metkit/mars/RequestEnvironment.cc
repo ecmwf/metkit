@@ -7,55 +7,44 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
-
-#include <pwd.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include "eckit/runtime/Main.h"
-#include "eckit/thread/AutoLock.h"
-#include "eckit/thread/Mutex.h"
-
 #include "metkit/mars/RequestEnvironment.h"
 
+#include <unistd.h>
+#include <cerrno>
+#include <cstring>
+#include <map>
+#include <string>
 
-namespace metkit {
-namespace mars {
+#include "eckit/runtime/Main.h"
+#include "eckit/system/SystemInfo.h"
+#include "eckit/utils/Tokenizer.h"
 
-static eckit::Mutex local_mutex;
+
+namespace metkit::mars {
 
 RequestEnvironment::RequestEnvironment() : request_("environ") {
-    std::string host = eckit::Main::hostname();
-    request_.setValue("host", host);
-
-    struct passwd* pw;
-    setpwent();
-
-    if ((pw = getpwuid(getuid())) == NULL) {
-        throw eckit::SeriousBug("Cannot establish current user");
-    }
-
-    request_.setValue("user", std::string(pw->pw_name));
-
-    endpwent();
-
-
-    request_.setValue("pid", long(::getpid()));
+    request_.setValue("host", eckit::Main::hostname());
+    request_.setValue("user", eckit::system::SystemInfo::instance().userName());
+    request_.setValue("pid", getpid());
     request_.setValue("client", "cpp");
 }
 
-RequestEnvironment::~RequestEnvironment() {}
-
-
-void RequestEnvironment::print(std::ostream&) const {}
-
-RequestEnvironment& RequestEnvironment::instance() {
-    eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    {
-        static RequestEnvironment e;
-        return e;
+void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
+    // Split string on '/' and ignore empty splits
+    const auto split = [](const std::string& str) -> std::vector<std::string> {
+        std::vector<std::string> result;
+        eckit::Tokenizer parse("/");
+        parse(str, result);
+        return result;
+    };
+    for (const auto& [k, v] : env) {
+        request_.values(k, split(v));
     }
 }
 
-}  // namespace mars
-}  // namespace metkit
+const RequestEnvironment& RequestEnvironment::instance() {
+    static RequestEnvironment e;
+    return e;
+}
+
+}  // namespace metkit::mars

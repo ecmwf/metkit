@@ -35,7 +35,8 @@ protected:
 
     codes_handle* handle_;
 
-    eckit::message::MessageContent* transform(const eckit::StringDict&) const override;
+    using eckit::message::MessageContent::transform;
+    void transform(const eckit::OrderedStringDict&) override;
 
 private:
 

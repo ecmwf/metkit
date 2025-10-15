@@ -30,9 +30,10 @@ public:
 
     ~BufrContent();
 
-private:
+protected:
 
-    eckit::message::MessageContent* transform(const eckit::StringDict& dict) const override;
+    using CodesContent::transform;
+    void transform(const eckit::OrderedStringDict& dict) override;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
