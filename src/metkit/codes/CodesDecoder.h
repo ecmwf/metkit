@@ -18,7 +18,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/message/Decoder.h"
 #include "eckit/message/Message.h"
-
+#include "eckit/utils/Translator.h"
 
 namespace metkit::codes {
 
@@ -32,6 +32,13 @@ protected:
     void decodeKey(codes_handle* h, codes_keys_iterator* it, const char* name, eckit::message::MetadataGatherer& gather,
                    const eckit::message::GetMetadataOptions& options) const {
 
+        std::string keyword(name);
+
+        if (keyword == "levelist") {
+            eckit::Translator<double, std::string> t;
+            gather.setValue(name, t(static_cast<const DERIVED*>(this)->getDouble(h, it, name)));
+            return;
+        }
         if (options.valueRepresentation == eckit::message::ValueRepresentation::String) {
             decodeString(h, it, gather, name);
         }
