@@ -38,8 +38,6 @@ list( APPEND metkit_srcs
     mars/MarsParsedRequest.h
     mars/MarsParser.cc
     mars/MarsParser.h
-    mars/MarsParserContext.cc
-    mars/MarsParserContext.h
     mars/MarsRequest.cc
     mars/MarsRequest.h
     mars/MarsRequestHandle.cc

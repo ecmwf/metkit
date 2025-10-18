@@ -17,7 +17,6 @@
 #ifndef metkit_MarsParsedRequest_H
 #define metkit_MarsParsedRequest_H
 
-#include "metkit/mars/MarsParserContext.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit {
@@ -25,10 +24,20 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsParsedRequest : public MarsRequest, public MarsParserContext {
+class MarsParsedRequest : public MarsRequest {
 public:
 
     MarsParsedRequest(const std::string& verb, size_t line);
+
+    virtual void info(std::ostream&) const;
+    friend std::ostream& operator<<(std::ostream& s, const MarsParsedRequest& r) {
+        r.info(s);
+        return s;
+    }
+
+private:
+
+    std::size_t line_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
