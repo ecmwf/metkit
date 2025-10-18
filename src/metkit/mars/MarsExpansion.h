@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 
+#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
@@ -30,24 +31,6 @@
 namespace metkit::mars {
 
 class MarsLanguage;
-
-//----------------------------------------------------------------------------------------------------------------------
-
-class [[deprecated]] MarsExpandContext {
-
-    void info(std::ostream&) const {}
-
-public:
-
-    friend std::ostream& operator<<(std::ostream& s, const MarsExpandContext& r) { return s; }
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-class [[deprecated]] DummyContext : public MarsExpandContext {
-    using MarsExpandContext::MarsExpandContext;
-};
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
