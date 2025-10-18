@@ -172,9 +172,8 @@ private:
 class ITypeToByList {
 public:
 
-    virtual ~ITypeToByList()                                    = default;
-    virtual void expandRanges(std::vector<std::string>& values,
-                              const MarsRequest& request) const = 0;
+    virtual ~ITypeToByList()                                                                      = default;
+    virtual void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -219,9 +218,6 @@ public:  // methods
 protected:  // methods
 
     virtual bool hasGroups() const { return false; }
-    virtual std::optional<std::reference_wrapper<const std::vector<std::string>>> group(const std::string&) const {
-        NOTIMP;
-    }
     virtual std::optional<std::reference_wrapper<const std::vector<std::string>>> group(const std::string&) const {
         NOTIMP;
     }

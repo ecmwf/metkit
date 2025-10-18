@@ -84,7 +84,6 @@ public:  // methods
                     i += 2;
                 }
                 i++;
-                i++;
 
                 if (by == BY{0}) {
                     std::ostringstream oss;
@@ -101,14 +100,9 @@ public:  // methods
                 if (from == to) {
                     continue;
                 }
-                bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
-                if (from == to) {
-                    continue;
-                }
 
                 EL j = from;
                 while (j != to) {
-                    std::string j_s;
                     std::string j_s;
                     try {
                         if (addBy) {
@@ -124,11 +118,8 @@ public:  // methods
                     }
 
                     if (((from < to && j > to) || (from > to && j < to)) && j != to && j_s != to_s) {
-
-                    if (((from < to && j > to) || (from > to && j < to)) && j != to && j_s != to_s) {
                         break;
                     }
-                    newval.push_back(j_s);
                     newval.push_back(j_s);
                 }
             }

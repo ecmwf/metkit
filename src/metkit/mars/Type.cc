@@ -295,7 +295,7 @@ bool Type::expand(std::string& value, const MarsRequest&) const {
 void Type::expand(std::vector<std::string>& values, const MarsRequest& request) const {
 
     if (toByList_ && values.size() > 1) {
-        toByList_->expandRanges( values, request);
+        toByList_->expandRanges(values, request);
     }
 
     std::vector<std::string> newvals;

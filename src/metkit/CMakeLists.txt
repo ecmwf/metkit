@@ -158,14 +158,6 @@ if ( HAVE_GRIB )
         codes/api/KeyIterator.h
         codes/api/KeyIterator.cc
         codes/api/GeoIterator.h
-
-        codes/api/CodesAPI.h
-        codes/api/CodesAPI.cc
-        codes/api/CodesTypes.h
-        codes/api/CodesTypes.cc
-        codes/api/KeyIterator.h
-        codes/api/KeyIterator.cc
-        codes/api/GeoIterator.h
     )
 
     if( NOT eccodes_HAVE_GEOGRAPHY OR NOT eccodes_HAVE_ECKIT_GEO )

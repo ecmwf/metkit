@@ -207,7 +207,8 @@ static bool isnumeric(const std::string& s) {
 }
 
 
-std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
+std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail,
+                                    bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 

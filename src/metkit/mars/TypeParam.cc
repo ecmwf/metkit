@@ -18,7 +18,6 @@
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
-#include "metkit/mars/MarsParserContext.h"
 #include "metkit/mars/TypesFactory.h"
 
 using eckit::Log;
@@ -102,11 +101,6 @@ public:
         }
         out << "}";
     }
-
-    // void info(std::ostream& out) const {
-    //     out << " ";
-    //     print(out);
-    // }
 
     friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
         rule.print(out);
@@ -444,14 +438,7 @@ void TypeParam::pass2(MarsRequest& request) {
         return;
     }
 
-    if (values.size() == 1 && values[0] == "all") {
-        return;
-    }
-
     eckit::AutoLock<eckit::Mutex> lock(local_mutex);
-    for (const auto& r : *rules) {
-        if (r.match(request)) {
-            rule = &r;
     for (const auto& r : *rules) {
         if (r.match(request)) {
             rule = &r;
@@ -462,10 +449,8 @@ void TypeParam::pass2(MarsRequest& request) {
     if (!rule) {
         Log::warning() << "TypeParam: cannot find a context to expand 'param' in " << request << std::endl;
 
-        if (firstRule_){
+        if (firstRule_) {
             bool found = false;
-            for (const auto& r : *rules) {
-                if (r.match(request, true)) {
             for (const auto& r : *rules) {
                 if (r.match(request, true)) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
@@ -488,9 +473,6 @@ void TypeParam::pass2(MarsRequest& request) {
                     tmp.setValue((*j).first, (*j).second);
                 }
             }
-            for (const auto& r : *rules) {
-                if (r.match(tmp)) {
-                    rule = &r;
             for (const auto& r : *rules) {
                 if (r.match(tmp)) {
                     rule = &r;

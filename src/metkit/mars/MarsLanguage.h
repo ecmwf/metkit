@@ -61,7 +61,8 @@ public:  // class methods
 
     static std::string expandVerb(const std::string& verb);
 
-    static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases = {});
+    static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
+                                 bool fullMatch, const std::map<std::string, std::string>& aliases = {});
 
     static eckit::Value jsonFile(const std::string& name);
 

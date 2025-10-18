@@ -56,7 +56,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
 
     // Implement inheritence
     for (const auto& request : requests) {
-        auto& lang = language( request.verb());
+        auto& lang = language(request.verb());
         result.emplace_back(lang.expand(request, inherit_, strict_));
     }
 

@@ -25,7 +25,7 @@ CASE("retrieve_best_match_param_not_matching") {
     // TODO:(TKR) THIS IS MENTAL
     EXPECT(match == "parameter");
 
-    auto empty= language.bestMatch("param", {"car"}, false, false, false, {});
+    auto empty = language.bestMatch("param", {"car"}, false, false, false, {});
 
     EXPECT(empty == "");
 };

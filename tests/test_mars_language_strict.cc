@@ -10,7 +10,6 @@ CASE("retrieve_best_match_param_not_matching") {
 
     // Strict is defaulted to true and this is not matching
     EXPECT_THROWS(language.bestMatch("param", {"parameter"}, false, false, true, {}));
-
 };
 
 CASE("retrieve_best_match_param_matching") {

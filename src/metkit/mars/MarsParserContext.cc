@@ -15,9 +15,7 @@
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
-MarsParserContext::MarsParserContext(std::size_t line) :
-    line_(line)
-{}
+MarsParserContext::MarsParserContext(std::size_t line) : line_(line) {}
 
 void MarsParserContext::info(std::ostream& out) const {
     out << " Request starting line " << line_;
