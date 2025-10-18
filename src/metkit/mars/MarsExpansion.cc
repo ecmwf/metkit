@@ -79,6 +79,13 @@ void MarsExpansion::flatten(const MarsRequest& request, FlattenCallback& callbac
     language(request.verb()).flatten(request, callback);
 }
 
+void MarsExpansion::expand(const MarsExpandContext&, const MarsRequest& request, ExpandCallback& callback) {
+    expand(request, callback);
+}
+void MarsExpansion::flatten(const MarsExpandContext&, const MarsRequest& request, FlattenCallback& callback) {
+    flatten(request, callback);
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars

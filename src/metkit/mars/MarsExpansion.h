@@ -33,6 +33,26 @@ class MarsLanguage;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class [[deprecated]] MarsExpandContext {
+
+    void info(std::ostream&) const {}
+
+public:
+
+    friend std::ostream& operator<<(std::ostream& s, const MarsExpandContext& r) {
+        return s;
+    }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class [[deprecated]] DummyContext : public MarsExpandContext {
+    using MarsExpandContext::MarsExpandContext;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class FlattenCallback {
 public:
 
@@ -61,7 +81,9 @@ public:
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
     void expand(const MarsRequest&, ExpandCallback&);
+    void expand(const MarsExpandContext&, const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);
+    void flatten(const MarsExpandContext&, const MarsRequest&, FlattenCallback&);
 
 private:
 
