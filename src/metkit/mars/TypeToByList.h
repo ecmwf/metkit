@@ -22,8 +22,6 @@
 
 namespace metkit::mars {
 
-class MarsExpandContext;
-
 //----------------------------------------------------------------------------------------------------------------------
 template <typename EL, typename BY>
 class TypeToByList : public ITypeToByList {
@@ -70,9 +68,10 @@ public:  // methods
                     throw eckit::BadValue(oss.str());
                 }
 
-                EL from = s2el(type_.tidy(values[i - 1], request));
-                EL to   = s2el(type_.tidy(values[i + 1], request));
-                BY by   = s2by(by_);
+                EL from          = s2el(type_.tidy(values[i - 1], request));
+                std::string to_s = type_.tidy(values[i + 1], request);
+                EL to            = s2el(to_s);
+                BY by            = s2by(by_);
 
                 if (i + 2 < values.size() && eckit::StringTools::lower(values[i + 2]) == "by") {
                     if (values.size() <= i + 3) {
@@ -84,24 +83,27 @@ public:  // methods
                     by = s2by(values[i + 3]);
                     i += 2;
                 }
+                i++;
 
                 if (by == BY{0}) {
                     std::ostringstream oss;
                     oss << type_.name() + ": 'by' value " << by << " cannot be zero";
                     throw eckit::BadValue(oss.str());
                 }
-
                 if (from < to && by < BY{0}) {
                     std::ostringstream oss;
                     oss << type_.name() << ": impossible to define a sequence starting from " << from << " to " << to
                         << " with step " << by;
                     throw eckit::BadValue(oss.str());
                 }
+                bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
+                if (from == to) {
+                    continue;
+                }
 
                 EL j = from;
-
                 while (j != to) {
-                    bool addBy = (from < to && by > BY{0}) || (from > to && by < BY{0});
+                    std::string j_s;
                     try {
                         if (addBy) {
                             j += by;
@@ -109,16 +111,17 @@ public:  // methods
                         else {
                             j -= by;
                         }
+                        j_s = type_.tidy(el2s(j), request);
                     }
                     catch (...) {
                         break;  /// reached an invalid value
                     }
-                    if ((from < to && j > to) || (from > to && j < to)) {
+
+                    if (((from < to && j > to) || (from > to && j < to)) && j != to && j_s != to_s) {
                         break;
                     }
-                    newval.emplace_back(type_.tidy(el2s(j), request));
+                    newval.push_back(j_s);
                 }
-                i++;
             }
             else {
                 newval.push_back(type_.tidy(s, request));

@@ -19,7 +19,6 @@
 #include "eckit/utils/Tokenizer.h"
 #include "eckit/utils/Translator.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeToByList.h"
 #include "metkit/mars/TypesFactory.h"
@@ -118,11 +117,8 @@ namespace metkit::mars {
 
 TypeDate::TypeDate(const std::string& name, const eckit::Value& settings) : Type(name, settings) {
 
-    DummyContext ctx;
-    toByList_ = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
-
-    multiple_ = true;
-
+    toByList_       = std::make_unique<TypeToByList<eckit::Date, long>>(*this, settings);
+    multiple_       = true;
     filters_["day"] = &filterByDay;
 }
 

@@ -14,38 +14,35 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsParserContext_H
-#define metkit_MarsParserContext_H
+#pragma once
 
 #include <stddef.h>
-
-#include "metkit/mars/MarsExpandContext.h"
-
 #include <cstddef>
+#include <iostream>
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsParserContext : public MarsExpandContext {
+class MarsParserContext {
 
 public:
 
-    MarsParserContext(std::size_t, std::size_t);
+    MarsParserContext(std::size_t);
+    virtual ~MarsParserContext() = default;
+
+    virtual void info(std::ostream&) const;
+    friend std::ostream& operator<<(std::ostream& s, const MarsParserContext& r) {
+        r.info(s);
+        return s;
+    }
 
 private:
 
     std::size_t line_;
-    // size_t column_; // unused
-
-    virtual void info(std::ostream& out) const;
 };
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

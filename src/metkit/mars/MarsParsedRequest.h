@@ -28,7 +28,7 @@ namespace mars {
 class MarsParsedRequest : public MarsRequest, public MarsParserContext {
 public:
 
-    MarsParsedRequest(const std::string& verb, size_t line, size_t column);
+    MarsParsedRequest(const std::string& verb, size_t line);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

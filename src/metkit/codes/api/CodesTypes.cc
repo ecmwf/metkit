@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 1996- ECMWF.
+ * (C) Copyright 2025- ECMWF.
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -8,16 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/mars/MarsExpandContext.h"
-#include "metkit/mars/Type.h"
+#include "metkit/codes/api/CodesTypes.h"
 
+namespace metkit::codes {
 
-namespace metkit {
-namespace mars {
+CodesException::CodesException(const std::string& reason, const eckit::CodeLocation& l) :
+    eckit::Exception(std::string("CodesException: ") + reason, l) {};
 
-MarsExpandContext::~MarsExpandContext() {}
-
-void DummyContext::info(std::ostream&) const {}
-
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::codes

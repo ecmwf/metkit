@@ -20,7 +20,6 @@
 #include "eckit/types/Date.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -212,6 +211,20 @@ CASE("check defaults and _clear_defaults") {
         EXPECT_EMPTY(request, "stream");
         EXPECT_EMPTY(request, "time");
         EXPECT_EMPTY(request, "type");
+    }
+
+    {
+        // check "number" is not removed from the request for type=pf
+        auto request = MarsRequest::parse("disseminate,class=od,stream=enfo,type=pf,number=2", true);
+        EXPECT_EQUAL(request.values("number").size(), 1);
+        EXPECT_EQUAL(request.values("number")[0], "2");
+    }
+
+    {
+        // check "number" is not removed from the request for type=wp
+        auto request = MarsRequest::parse("disseminate,class=od,stream=enfo,type=wp,number=2", true);
+        EXPECT_EQUAL(request.values("number").size(), 1);
+        EXPECT_EQUAL(request.values("number")[0], "2");
     }
 }
 

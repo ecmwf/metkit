@@ -24,21 +24,6 @@ namespace mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
-class MarsParserCallback {
-public:
-
-    virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
-
-protected:
-
-    ~MarsParserCallback();
-};
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
 class MarsParser : public eckit::StreamParser {
 
 public:  // methods
@@ -46,8 +31,6 @@ public:  // methods
     MarsParser(std::istream& in);
 
     std::vector<MarsParsedRequest> parse();
-
-    void parse(MarsParserCallback& cb);
 
     static void quoted(std::ostream& out, const std::string& value);
 

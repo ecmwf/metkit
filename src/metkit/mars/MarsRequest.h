@@ -17,6 +17,7 @@
 #ifndef metkit_MarsRequest_H
 #define metkit_MarsRequest_H
 
+#include <optional>
 #include "eckit/value/Value.h"
 #include "metkit/mars/Parameter.h"
 
@@ -66,6 +67,9 @@ public:  // methods
     bool is(const std::string& param, const std::string& value) const;
 
     const std::vector<std::string>& values(const std::string&, bool emptyOk = false) const;
+
+    // Returns reference to values or nullopt if not found
+    std::optional<std::reference_wrapper<const std::vector<std::string>>> get(const std::string& keyword) const;
 
     template <class T>
     size_t getValues(const std::string& name, std::vector<T>& v, bool emptyOk = false) const;

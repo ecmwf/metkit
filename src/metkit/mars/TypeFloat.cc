@@ -45,7 +45,6 @@ bool TypeFloat::expand(std::string& value, const MarsRequest&) const {
                 break;
             default:
                 return false;
-                break;
         }
     }
 

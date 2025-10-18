@@ -18,7 +18,6 @@
 #include "eckit/testing/Test.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/TypeInteger.h"
 

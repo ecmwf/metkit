@@ -187,8 +187,7 @@ public:  // methods
     ~Type() noexcept override = default;
 
     virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
-    virtual void expand(std::vector<std::string>& values,
-                        const MarsRequest& request = {}) const;
+    void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
     std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
 
@@ -220,7 +219,9 @@ public:  // methods
 protected:  // methods
 
     virtual bool hasGroups() const { return false; }
-    virtual const std::vector<std::string>& group(const std::string&) const { NOTIMP; }
+    virtual std::optional<std::reference_wrapper<const std::vector<std::string>>> group(const std::string&) const {
+        NOTIMP;
+    }
 
 protected:  // members
 

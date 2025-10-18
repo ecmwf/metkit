@@ -12,19 +12,15 @@
 
 #include <iostream>
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
-MarsParserContext::MarsParserContext(std::size_t line, std::size_t /* column */) :
+MarsParserContext::MarsParserContext(std::size_t line) :
     line_(line)
-//,column_(column)
 {}
 
 void MarsParserContext::info(std::ostream& out) const {
     out << " Request starting line " << line_;
 }
 
-
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

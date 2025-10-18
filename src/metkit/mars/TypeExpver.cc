@@ -13,7 +13,6 @@
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Translator.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/TypeExpver.h"
 #include "metkit/mars/TypesFactory.h"
 

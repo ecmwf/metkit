@@ -22,7 +22,6 @@
 #include "metkit/config/LibMetkit.h"
 
 #include "metkit/hypercube/HyperCube.h"
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
@@ -160,7 +159,9 @@ bool MarsLanguage::isPostProc(const std::string& keyword) const {
 bool MarsLanguage::isSink(const std::string& keyword) const {
     return (sinkKeywords_.find(keyword) != sinkKeywords_.end());
 }
-
+const std::set<std::string>& MarsLanguage::sinkKeywords() const {
+    return sinkKeywords_;
+}
 
 MarsLanguage::~MarsLanguage() {
     for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
@@ -206,7 +207,7 @@ static bool isnumeric(const std::string& s) {
 }
 
 
-std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
+std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
 
@@ -252,7 +253,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     }
 
     if (!quiet && best.size() > 0) {
-        std::cerr << "Matching '" << name << "' with " << best << ctx << std::endl;
+        std::cerr << "Matching '" << name << "' with " << best << std::endl;
     }
 
     static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", true);
@@ -265,7 +266,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             if (strict) {
                 if (best[0] != name) {
                     std::ostringstream oss;
-                    oss << "Cannot match [" << name << "] in " << values << ctx;
+                    oss << "Cannot match [" << name << "] in " << values;
                     throw eckit::UserError(oss.str());
                 }
             }
@@ -285,7 +286,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         }
 
         std::ostringstream oss;
-        oss << "Cannot match [" << name << "] in " << values << ctx;
+        oss << "Cannot match [" << name << "] in " << values;
         throw eckit::UserError(oss.str());
     }
 
@@ -329,8 +330,6 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             oss << ")";
         }
     }
-
-    oss << ctx;
 
     throw eckit::UserError(oss.str());
 }
@@ -392,7 +391,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(DummyContext(), p, keywords_, true, false, true, aliases_), PP);
+                paramSet.emplace(cache_[p] = bestMatch(p, keywords_, true, false, true, aliases_), PP);
             }
         }
 

@@ -19,7 +19,6 @@
 #include "eckit/types/Date.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypeDate.h"
 
@@ -34,7 +33,6 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
                          const std::vector<std::string>& expected) {
     static MarsLanguage language("retrieve");
     language.type(name)->expand(values);
-    EXPECT_EQUAL(values.size(), expected.size());
     EXPECT_EQUAL(expected, values);
 }
 
