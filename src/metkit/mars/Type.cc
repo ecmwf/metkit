@@ -291,6 +291,9 @@ bool Type::expand(std::string& value, const MarsRequest&) const {
     oss << *this << ":  expand not implemented (" << value << ")";
     throw eckit::SeriousBug(oss.str());
 }
+bool Type::expand(const MarsExpandContext&, std::string& value, const MarsRequest& request) const {
+    return expand(value, request);
+}
 
 void Type::expand(std::vector<std::string>& values, const MarsRequest& request) const {
 
