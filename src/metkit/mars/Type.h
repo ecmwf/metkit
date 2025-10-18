@@ -26,10 +26,11 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
+
+class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -173,9 +174,8 @@ private:
 class ITypeToByList {
 public:
 
-    virtual ~ITypeToByList()                                    = default;
-    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values,
-                              const MarsRequest& request) const = 0;
+    virtual ~ITypeToByList()                                                                      = default;
+    virtual void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -187,20 +187,20 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
-    void expand(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request = {}) const;
+    virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
+    [[deprecated]] bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
+    void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
-    std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{},
-                     const MarsRequest& request = {}) const;
+    std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
-    virtual void check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const;
+    virtual void check(const std::vector<std::string>& values) const;
     virtual void clearDefaults();
     virtual void reset();
 
-    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
-    virtual void finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict);
+    virtual void pass2(MarsRequest& request);
+    virtual void finalise(MarsRequest& request, bool strict);
 
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;

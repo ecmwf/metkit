@@ -23,7 +23,7 @@ namespace mars {
 class UndefinedType : public Type {
     void print(std::ostream& out) const override { out << "<undefined type>"; }
 
-    bool expand(const MarsExpandContext&, std::string&, const MarsRequest&) const override { NOTIMP; }
+    bool expand(std::string&, const MarsRequest&) const override { NOTIMP; }
 
 public:
 

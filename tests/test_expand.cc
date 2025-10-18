@@ -455,12 +455,12 @@ CASE("test_metkit_expand_multirequest-3") {
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type(key);
-    EXPECT_THROWS_AS(t->expand(DummyContext{}, values), eckit::BadValue);
+    EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type(key);
-    t->expand(DummyContext{}, values);
+    t->expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -1206,8 +1206,6 @@ CASE("test_metkit_disseminate") {
 
     expand(text, expected, false);
 }
-
-
 CASE("test_metkit_disseminate_params-static") {
     const char* text =
         "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,date=20250807,time=0000,type=an,step="

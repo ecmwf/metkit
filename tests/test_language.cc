@@ -20,7 +20,6 @@
 #include "eckit/types/Date.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -255,7 +254,7 @@ CASE("check method: flatten()") {
         "500,date=20250717",
         true);
 
-    MarsLanguage("retrieve").flatten(DummyContext{}, request, output);
+    MarsLanguage("retrieve").flatten(request, output);
 
     EXPECT_EQUAL(output.oss.str(),
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="

@@ -38,8 +38,8 @@ void MarsExpansion::reset() {
 }
 
 
-MarsLanguage& MarsExpansion::language(const MarsExpandContext& ctx, const std::string& verb) {
-    auto v = MarsLanguage::expandVerb(ctx, verb);
+MarsLanguage& MarsExpansion::language(const std::string& verb) {
+    auto v = MarsLanguage::expandVerb(verb);
 
     if (auto j = languages_.find(v); j != languages_.end()) {
         return *(*j).second;
@@ -54,34 +54,36 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
     std::vector<MarsRequest> result;
     result.reserve(requests.size());
 
-    DummyContext emptyCtx{};
-    MarsExpandContext& ctx = emptyCtx;
-
     // Implement inheritence
     for (const auto& request : requests) {
-        auto& lang = language(ctx, request.verb());
-        result.emplace_back(lang.expand(ctx, request, inherit_, strict_));
-        ctx = request;
+        auto& lang = language(request.verb());
+        result.emplace_back(lang.expand(request, inherit_, strict_));
     }
 
     return result;
 }
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
-    DummyContext ctx{};
-    auto& lang = language(ctx, request.verb());
-    return lang.expand(ctx, request, inherit_, strict_);
+    auto& lang = language(request.verb());
+    return lang.expand(request, inherit_, strict_);
 }
 
 
-void MarsExpansion::expand(const MarsExpandContext& ctx, const MarsRequest& request, ExpandCallback& callback) {
-    MarsRequest r = language(ctx, request.verb()).expand(ctx, request, inherit_, strict_);
-    callback(ctx, r);
+void MarsExpansion::expand(const MarsRequest& request, ExpandCallback& callback) {
+    MarsRequest r = language(request.verb()).expand(request, inherit_, strict_);
+    callback(r);
 }
 
 
-void MarsExpansion::flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback) {
-    language(ctx, request.verb()).flatten(ctx, request, callback);
+void MarsExpansion::flatten(const MarsRequest& request, FlattenCallback& callback) {
+    language(request.verb()).flatten(request, callback);
+}
+
+void MarsExpansion::expand(const MarsExpandContext&, const MarsRequest& request, ExpandCallback& callback) {
+    expand(request, callback);
+}
+void MarsExpansion::flatten(const MarsExpandContext&, const MarsRequest& request, FlattenCallback& callback) {
+    flatten(request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

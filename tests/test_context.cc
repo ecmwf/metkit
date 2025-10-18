@@ -18,7 +18,6 @@
 
 #include "eckit/testing/Test.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
 

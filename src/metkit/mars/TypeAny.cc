@@ -22,7 +22,7 @@ void TypeAny::print(std::ostream& out) const {
     out << "TypeAny[name=" << name_ << "]";
 }
 
-bool TypeAny::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
+bool TypeAny::expand(std::string&, const MarsRequest&) const {
     return true;
 }
 

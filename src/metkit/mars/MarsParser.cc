@@ -14,20 +14,12 @@
 /// @date   Jun 2012
 
 #include "metkit/mars/MarsParser.h"
-#include "metkit/mars/MarsParserContext.h"
 
+#include "metkit/mars/MarsExpandContext.h"
 
-namespace metkit {
-namespace mars {
-
-//----------------------------------------------------------------------------------------------------------------------
-
-MarsParserCallback::~MarsParserCallback() {}
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------------------------------------------------
-
 
 std::string MarsParser::parseString(char quote) {
     consume(quote);
@@ -175,7 +167,7 @@ std::string MarsParser::parseVerb() {
 
 MarsParsedRequest MarsParser::parseRequest() {
 
-    MarsParsedRequest r(parseVerb(), line_ + 1, pos_ + 1);
+    MarsParsedRequest r(parseVerb(), line_ + 1);
 
     char c = peek();
     while (c == ',') {
@@ -208,10 +200,9 @@ void MarsParser::parse(MarsParserCallback& cb) {
 
     while (peek() != 0) {
         auto r = parseRequest();
-        cb(r, r);
+        cb(DummyContext{}, r);
     }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

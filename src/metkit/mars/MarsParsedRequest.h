@@ -14,26 +14,31 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsParsedRequest_H
-#define metkit_MarsParsedRequest_H
+#pragma once
 
-#include "metkit/mars/MarsParserContext.h"
 #include "metkit/mars/MarsRequest.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsParsedRequest : public MarsRequest, public MarsParserContext {
+class MarsParsedRequest : public MarsRequest {
 public:
 
-    MarsParsedRequest(const std::string& verb, size_t line, size_t column);
+    MarsParsedRequest(const std::string& verb, size_t line);
+    virtual ~MarsParsedRequest() = default;
+
+    virtual void info(std::ostream&) const;
+    friend std::ostream& operator<<(std::ostream& s, const MarsParsedRequest& r) {
+        r.info(s);
+        return s;
+    }
+
+private:
+
+    std::size_t line_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars
