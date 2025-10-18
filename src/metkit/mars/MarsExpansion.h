@@ -45,7 +45,8 @@ class ExpandCallback {
 public:
 
     virtual ~ExpandCallback();
-    virtual void operator()(const MarsRequest&) = 0;
+    virtual void operator()(const MarsRequest& request) { this->operator()(DummyContext{}, request); }
+    virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
