@@ -39,9 +39,7 @@ class [[deprecated]] MarsExpandContext {
 
 public:
 
-    friend std::ostream& operator<<(std::ostream& s, const MarsExpandContext& r) {
-        return s;
-    }
+    friend std::ostream& operator<<(std::ostream& s, const MarsExpandContext& r) { return s; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
