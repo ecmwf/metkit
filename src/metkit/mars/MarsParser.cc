@@ -70,6 +70,7 @@ std::string MarsParser::parseString(char quote) {
                 case 'u':
                     throw StreamParser::Error(std::string("JSONTokenizer::parseString \\uXXXX format not supported"));
 
+
                 default:
                     throw StreamParser::Error(std::string("JSONTokenizer::parseString invalid \\ char '") + c + "'");
             }
@@ -190,6 +191,7 @@ MarsParser::MarsParser(std::istream& in) : StreamParser(in, true, "#") {}
 std::vector<MarsParsedRequest> MarsParser::parse() {
     std::vector<MarsParsedRequest> result;
 
+    while (peek() != 0) {
     while (peek() != 0) {
         result.push_back(parseRequest());
     }
