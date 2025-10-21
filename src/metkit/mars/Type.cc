@@ -70,27 +70,24 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
     std::set<std::string> vals;
 
     if (r.isList()) {
-        for (size_t k = 0; k < r.size(); k++) {
+        if (r.size() == 0) {
+            throw eckit::UserError("Empty list for context rule '" + key + "'");
+        }
+        bool exclude = (r[0] == "!");
+        for (size_t k = exclude ? 1 : 0; k < r.size(); k++) {
             vals.insert(r[k]);
         }
-        return std::make_unique<Include>(key, vals);
+        return exclude ? std::make_unique<Exclude>(key, vals) : std::make_unique<Include>(key, vals);
     }
-
-    ASSERT(r.contains("op"));
-    std::string op = r["op"];
-    ASSERT(op.size() == 1);
-    switch (op[0]) {
-        case 'u':
+    else {
+        ASSERT(r.isString());
+        std::string v = r;
+        if (v == "undefined") {
             return std::make_unique<Undef>(key);
-        case 'd':
+        }
+        else if (v == "defined") {
             return std::make_unique<Def>(key);
-        case '!':
-            ASSERT(r.contains("vals"));
-            eckit::Value vv = r["vals"];
-            for (size_t k = 0; k < vv.size(); k++) {
-                vals.insert(vv[k]);
-            }
-            return std::make_unique<Exclude>(key, vals);
+        }
     }
     return nullptr;
 }
