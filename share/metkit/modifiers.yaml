@@ -37,6 +37,15 @@
   error: "Missing expver. Please, specify one"
 
 - context:
+    class: [ti]
+  defaults:
+    stream: [enfo]
+- context:
+    class: ['!', ti]
+  defaults:
+    stream: [oper]
+
+- context:
     _verb: [retrieve]
     stream: [ssbt, e1, ssmi]
   set:
@@ -307,3 +316,9 @@
     class: [ti]
   defaults:
     padding: [0]
+
+- context:
+    class: [ms]
+    country: [it]
+  defaults:
+    grib: [ecmwf]
