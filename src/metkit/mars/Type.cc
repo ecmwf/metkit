@@ -77,7 +77,9 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
         for (size_t k = exclude ? 1 : 0; k < r.size(); k++) {
             vals.insert(r[k]);
         }
-        return exclude ? std::make_unique<Exclude>(key, vals) : std::make_unique<Include>(key, vals);
+        if (exclude)
+            return std::make_unique<Exclude>(key, vals);
+        return std::make_unique<Include>(key, vals);
     }
     else {
         ASSERT(r.isString());
@@ -164,55 +166,17 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
-    if (settings.contains("set")) {
-        eckit::Value sets = settings["set"];
-        if (!sets.isNil() && sets.isList()) {
-            for (size_t i = 0; i < sets.size(); i++) {
-                eckit::Value s = sets[i];
-                std::vector<std::string> vals;
-                ASSERT(s.contains("vals"));
-                eckit::Value vv = s["vals"];
-                if (vv.isList()) {
-                    for (size_t k = 0; k < vv.size(); k++) {
-                        vals.push_back(vv[k]);
-                    }
-                }
-                else {
-                    vals.push_back(vv);
-                }
-                ASSERT(s.contains("context"));
-                if (s.contains("warn")) {
-                    std::string warn = s["warn"];
-                    if (!warn.empty()) {
-                        // warnings_.insert(warn);
-                    }
-                }
-                sets_.emplace(Context::parseContext(s["context"]), vals);
-            }
-        }
-    }
-    if (settings.contains("unset")) {
-        eckit::Value unsets = settings["unset"];
-        if (!unsets.isNil() && unsets.isList()) {
-            for (size_t i = 0; i < unsets.size(); i++) {
-                eckit::Value u = unsets[i];
-                ASSERT(u.contains("context"));
-                if (u.contains("warn")) {
-                    std::string warn = u["warn"];
-                    if (!warn.empty()) {
-                        // warnings_.insert(warn);
-                    }
-                }
-                if (u.contains("error")) {
-                    std::string error = u["error"];
-                    if (!error.empty()) {
-                        // warnings_.insert(error);
-                    }
-                }
-                unsets_.insert(Context::parseContext(u["context"]));
-            }
-        }
-    }
+
+}
+
+void Type::defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
+    defaults_.emplace(std::move(context), values);
+}
+void Type::set(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
+    sets_.emplace(std::move(context), values);
+}
+void Type::unset(std::shared_ptr<Context> context) {
+    unsets_.insert(std::move(context));
 }
 
 bool Type::flatten() const {

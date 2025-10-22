@@ -33,11 +33,15 @@
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
+static std::vector<eckit::Value> modifiers_{};
 static std::set<std::string> verbs_;
 static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
-    languages_               = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+    languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+    for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
+        modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+    }
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.insert(verbs[i]);
@@ -85,8 +89,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             }
         }
 
-        types_[keyword] = TypesFactory::build(keyword, settings);
-        types_[keyword]->attach();
+        auto [it, success] = types_.emplace(keyword, TypesFactory::build(keyword, settings));
+        it->second->attach();
         keywords_.push_back(keyword);
 
         std::optional<eckit::Value> aliases;
@@ -121,6 +125,75 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             for (size_t j = 0; j < aliases->size(); ++j) {
                 aliases_[(*aliases)[j]] = keyword;
                 keywords_.push_back((*aliases)[j]);
+            }
+        }
+    }
+
+    // load modifiers and associate to types
+    for (const auto& modifierFile : modifiers_) {
+        ASSERT(modifierFile.isList());
+        for (size_t i = 0; i < modifierFile.size(); ++i) {
+            eckit::Value mod = modifierFile[i];
+            ASSERT(mod.isMap());
+            ASSERT(mod.contains("context"));
+            std::shared_ptr<Context> ctx = Context::parseContext(mod["context"]);
+            if (mod.contains("defaults")) {
+                eckit::Value def = mod["defaults"];
+                ASSERT(def.isMap());
+                auto keys = def.keys();
+                for( size_t j = 0; j < keys.size(); ++j) {
+                    std::string key = keys[j];
+
+                    auto it = types_.find(key);
+                    if (it != types_.end()) {
+                        eckit::Value vv = def[key];
+                        std::vector<std::string> vals;
+                        if (vv.isList()) {
+                            for (size_t k = 0; k < vv.size(); ++k) {
+                                vals.push_back(vv[k]);
+                            }
+                        }
+                        else {
+                            vals.push_back(vv);
+                        }
+                        it->second->defaults(ctx, vals);
+                    }
+                }
+            }
+            if (mod.contains("set")) {
+                eckit::Value set = mod["set"];
+                ASSERT(set.isMap());
+                auto keys = set.keys();
+                for( size_t j = 0; j < keys.size(); ++j) {
+                    std::string key = keys[j];
+
+                    auto it = types_.find(key);
+                    if (it != types_.end()) {
+                        eckit::Value vv = set[key];
+                        std::vector<std::string> vals;
+                        if (vv.isList()) {
+                            for (size_t k = 0; k < vv.size(); ++k) {
+                                vals.push_back(vv[k]);
+                            }
+                        }
+                        else {
+                            vals.push_back(vv);
+                        }
+                        it->second->set(ctx, vals);
+                    }
+                }
+            }
+            if (mod.contains("unset")) {
+                eckit::Value unset = mod["unset"];
+                ASSERT(unset.isList());
+                for( size_t j = 0; j < unset.size(); ++j) {
+                    std::string key = unset[j];
+
+                    auto it = types_.find(key);
+                    if (it != types_.end()) {
+                        it->second->unset(ctx);
+                    }
+                }
             }
         }
     }

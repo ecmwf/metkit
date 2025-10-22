@@ -227,9 +227,7 @@ _field: &_field
           class: [ti]
         vals: [enfo]
       - context:
-          class:
-            op: '!'
-            vals: [ti]
+          class: ['!', ti]
         vals: [oper]
     set:
       - context:
@@ -1075,9 +1073,7 @@ _field: &_field
     category: data
     defaults:
       - context:
-          class:
-            op: '!'
-            vals: [d1, ed, ng, ms]
+          class: ['!', d1, ed, ng, ms]
         vals: [g]
     type:
       - context:
@@ -1882,12 +1878,10 @@ retrieve:
     type: enum
     defaults:
       - context:
-          obsgroup:
-            op: 'd'
+          obsgroup: 'defined'
         vals: [keep]
       - context:
-          obstype:
-            op: 'd'
+          obstype: 'defined'
         vals: [keep]
     unset:
       - context:

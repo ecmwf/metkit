@@ -1,7 +1,7 @@
 ---
 - context:
     _verb: [list]
-    output: ['!', 'browser']
+    output: ['!', browser]
     class: 'undefined'
   set:
     class: [od]
@@ -14,8 +14,8 @@
 
 - context:
     _verb: [list]
-    output: ['!', 'browser']
-    class: ['!', 'rd']
+    output: ['!', browser]
+    class: ['!', rd']
   defaults:
     type: [an]
     stream: [oper]
@@ -23,15 +23,15 @@
 
 - context:
     _verb: [list]
-    output: ['!', 'browser']
-    class: ['!', 'rd']
+    output: ['!', browser]
+    class: ['!', rd]
     pseudodate: 'undefined'
   defaults:
     date: [-1]
 
 - context:
     _verb: [list]
-    output: ['!', 'browser']
+    output: ['!', browser]
     class: [rd]
     expver: 'undefined'
   error: "Missing expver. Please, specify one"
@@ -64,16 +64,16 @@
     model: [aifs-single-mse]
 
 - context:
-    class: ['!', 'd1']
-    dataset: ['!', 'on-demand-extremes-dt']
+    class: ['!', d1]
+    dataset: ['!', on-demand-extremes-dt]
   unset: [georef]
 
 - context:
-    type: ['!', 'oldim', ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+    type: ['!', oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
   unset: [obsgroup, obstype, duplicates]
 
 - context:
-    stream: ['!', 'ssmi']
+    stream: ['!', ssmi]
     type: [im, sim, oldim]
   unset: [levtype, levelist, param, grid, rotation, duplicates]
 
@@ -87,10 +87,12 @@
 
 - context:
     levtype: [ml]
-  defaults: [1, 2]
+  defaults:
+    levelist: [1, 2]
 - context:
     levtype: [pl]
-  defaults: [1000, 850, 700, 500, 400, 300]
+  defaults:
+    levelist: [1000, 850, 700, 500, 400, 300]
 
 - context:
     type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
@@ -130,7 +132,7 @@
   unset: [date]
 
 - context:
-    stream: ['!', 'enfh', enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
+    stream: ['!', enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
   unset: [hdate]
 
 - context:
@@ -145,19 +147,19 @@
     stream: [clmn, dame, mdfa]
   unset: [time]
 - context:
-    class: ['!', 'er']
+    class: ['!', er]
     stream: [moda, msda, edmo, ewmo, wamd]
   unset: [time]
 
 - context:
-    class: ['!', 'to', dt]
+    class: ['!', to, dt]
   unset: [leadtim, opttime]
 - context:
-    stream: ['!', 'seap']
+    stream: ['!', seap]
   unset: [leadtime, opttime]
 
 - context:
-    stream: ['!', 'ssmi]
+    stream: ['!', ssmi]
     type: [im, oldim]
   unset: [step]
 - context:
@@ -167,7 +169,7 @@
     type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl, ofa]
   unset: [step]
 - context:
-    class: ['!', 'er']
+    class: ['!', er]
     stream: [moda, msda, edmo, ewmo, wamd]
   unset: [step]
 - context:
@@ -179,11 +181,11 @@
   unset: [step]
 
 - context:
-    stream: ['!', 'lwda', lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+    stream: ['!', lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
   unset: [anoffset]
 - context:
     stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
-    type: ['!', 'go', sfo, fu]
+    type: ['!', go, sfo, fu]
   unset: [anoffset]
 
 - context:
@@ -192,23 +194,23 @@
   defaults:
     number: [0]
 - context:
-    type: ['!', 'pf', cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf, wp]
-    class: ['!', 'ti', lw, s2]
-    stream: ['!', 'mofc', wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
+    type: ['!', pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf, wp]
+    class: ['!', ti, lw, s2]
+    stream: ['!', mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
   unset: [number]
 - context:
     _verb: [retrieve, archive]
-    class: ['!', 'ti', s2]
+    class: ['!', ti, s2]
     type: [cf, em, es, ses, taem, taes]
-    stream: ['!', 'mofc', wamf, mofm, wmfm]
+    stream: ['!', mofc, wamf, mofm, wmfm]
   unset: [number]
 
 - context:
-    type: ['!', 'pd', cd, pb, taem]
+    type: ['!', pd, cd, pb, taem]
     unset: [quantile]
 
 - context:
-    class: ['!', 'd1', ed, ng, ms]
+    class: ['!', d1, ed, ng, ms]
   defaults:
     domain: [g]
 - context:
@@ -226,7 +228,7 @@
   unset: [domain]
 
 - context:
-    type: ['!', 'im', sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
+    type: ['!', im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
   unset: [ident]
 
 - context:
@@ -239,7 +241,7 @@
     origin: [ecmf]
 
 - context:
-    class: ['!', 'od', en, me, c3, ci]
+    class: ['!', od, en, me, c3, ci]
   unset: [system]
 
 - context:
