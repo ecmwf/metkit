@@ -141,7 +141,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
                 eckit::Value def = mod["defaults"];
                 ASSERT(def.isMap());
                 auto keys = def.keys();
-                for( size_t j = 0; j < keys.size(); ++j) {
+                for (size_t j = 0; j < keys.size(); ++j) {
                     std::string key = keys[j];
 
                     auto it = types_.find(key);
@@ -164,7 +164,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
                 eckit::Value set = mod["set"];
                 ASSERT(set.isMap());
                 auto keys = set.keys();
-                for( size_t j = 0; j < keys.size(); ++j) {
+                for (size_t j = 0; j < keys.size(); ++j) {
                     std::string key = keys[j];
 
                     auto it = types_.find(key);
@@ -186,7 +186,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             if (mod.contains("unset")) {
                 eckit::Value unset = mod["unset"];
                 ASSERT(unset.isList());
-                for( size_t j = 0; j < unset.size(); ++j) {
+                for (size_t j = 0; j < unset.size(); ++j) {
                     std::string key = unset[j];
 
                     auto it = types_.find(key);

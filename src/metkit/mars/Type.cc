@@ -166,7 +166,6 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
-
 }
 
 void Type::defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
