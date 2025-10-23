@@ -26,8 +26,17 @@ AxisOrder::AxisOrder() {
     const eckit::Value axesNames = axis["axes"];
 
     for (size_t i = 0; i < axesNames.size(); ++i) {
+        axisIndex_[axesNames[i]] = i + 1;
         axes_.push_back(axesNames[i]);
     }
+}
+
+size_t AxisOrder::index(const std::string& axis) const {
+    auto it = axisIndex_.find(axis);
+    if (it == axisIndex_.end()) {
+        return 0;
+    }
+    return it->second;
 }
 
 AxisOrder& AxisOrder::instance() {

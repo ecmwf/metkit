@@ -137,6 +137,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             ASSERT(mod.isMap());
             ASSERT(mod.contains("context"));
             std::shared_ptr<Context> ctx = Context::parseContext(mod["context"]);
+            size_t maxIndex              = ctx->maxAxisIndex();
             if (mod.contains("defaults")) {
                 eckit::Value def = mod["defaults"];
                 ASSERT(def.isMap());
@@ -146,6 +147,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
 
                     auto it = types_.find(key);
                     if (it != types_.end()) {
+                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
                         eckit::Value vv = def[key];
                         std::vector<std::string> vals;
                         if (vv.isList()) {
@@ -169,6 +172,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
 
                     auto it = types_.find(key);
                     if (it != types_.end()) {
+                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
                         eckit::Value vv = set[key];
                         std::vector<std::string> vals;
                         if (vv.isList()) {
@@ -191,6 +196,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
 
                     auto it = types_.find(key);
                     if (it != types_.end()) {
+                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
                         it->second->unset(ctx);
                     }
                 }
@@ -211,11 +218,11 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         Type* t = nullptr;
         auto it = types_.find(a);
         if (it != types_.end()) {
-            t = (*it).second;
+            t = it->second;
         }
         typesByAxisOrder_.emplace_back(a, t);
     }
-    for (const auto& [k, t] : types_) {
+    for (auto& [k, t] : types_) {
         if (dataKeywords_.find(k) == dataKeywords_.end()) {
             typesByAxisOrder_.emplace_back(k, t);
         }
@@ -238,8 +245,8 @@ const std::set<std::string>& MarsLanguage::sinkKeywords() const {
 }
 
 MarsLanguage::~MarsLanguage() {
-    for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        (*j).second->detach();
+    for (auto& [k, t] : types_) {
+        t->detach();
     }
 }
 
@@ -248,8 +255,8 @@ eckit::PathName MarsLanguage::languageYamlFile() {
 }
 
 void MarsLanguage::reset() {
-    for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        (*j).second->reset();
+    for (auto& [k, t] : types_) {
+        t->reset();
     }
 }
 
@@ -427,7 +434,7 @@ public:
 
 
 Type* MarsLanguage::type(const std::string& name) const {
-    std::map<std::string, Type*>::const_iterator k = types_.find(name);
+    auto k = types_.find(name);
     if (k == types_.end()) {
         if (name[0] == '_') {
             static TypeHidden hidden;
@@ -436,7 +443,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
-    return (*k).second;
+    return k->second;
 }
 
 
@@ -531,7 +538,6 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 const std::string& MarsLanguage::verb() const {
     return verb_;
 }
-
 
 void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
                            MarsRequest& result, FlattenCallback& callback) {

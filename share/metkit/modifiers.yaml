@@ -6,11 +6,12 @@
   set:
     class: [od]
 
-- context:
-    _verb: [retrieve]
-    stream: [ssmi]
-  set:
-    type: [ob]
+# type = ob is already the default && stream comes after type in axis order
+# - context:
+#     _verb: [retrieve]
+#     stream: [ssmi]
+#   set:
+#     type: [ob]
 
 - context:
     _verb: [list]

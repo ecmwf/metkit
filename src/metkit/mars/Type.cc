@@ -24,6 +24,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/ContextRule.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
@@ -105,6 +106,20 @@ std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
         context->add(parseRule(key, c[key]));
     }
     return context;
+}
+
+size_t Context::maxAxisIndex() const {
+    size_t maxIndex = 0;
+    for (const auto& r : rules_) {
+        size_t idx = 0;
+        if (!r->key().empty() && r->key()[0] != '_') {
+            idx = metkit::hypercube::AxisOrder::instance().index(r->key());
+            if (idx > maxIndex) {
+                maxIndex = idx;
+            }
+        }
+    }
+    return maxIndex;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

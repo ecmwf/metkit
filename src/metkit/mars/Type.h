@@ -42,6 +42,8 @@ public:
 
     virtual ~ContextRule() = default;
 
+    const std::string& key() const { return key_; }
+
     virtual bool matches(MarsRequest req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
@@ -154,6 +156,8 @@ public:
 
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
+
+    size_t maxAxisIndex() const;
 
     bool matches(MarsRequest req) const;
 
