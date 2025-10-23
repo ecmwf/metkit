@@ -89,27 +89,11 @@ _field: &_field
       - [ur, uerra]
       - [yp, yopp]
       - [yt, yotc]
-    set:
-      - context:
-          _verb: [list]
-          output:
-            op: '!'
-            vals: [browser]
-          class:
-            op: 'u'
-        vals: [od]
-        warn: "Missing class. Force to Operations"
 
   type:
     category: data
     defaults:
       - vals: [an]
-    set:
-      - context:
-          _verb: [retrieve]
-          stream: [ssmi]
-        vals: [ob]
-        warn: "Changed type=ob"
     flatten: false
     type: enum
     values:
@@ -206,53 +190,9 @@ _field: &_field
       - [wem, weighted ensemble mean]
       - [wes, weighted ensemble standard deviation]
       - [wp, weather parameters]
-    set:
-      - context:
-          _verb: [list]
-          output:
-            op: '!'
-            vals: [browser]
-          class:
-            op: '!'
-            vals: [rd]
-          type:
-            op: 'u'
-        vals: [an]
-        warn: "Missing type. Force to Analysis"
 
   stream:
     category: data
-    defaults:
-      - context:
-          class: [ti]
-        vals: [enfo]
-      - context:
-          class:
-            op: '!'
-            vals: [ti]
-        vals: [oper]
-    set:
-      - context:
-          _verb: [retrieve]
-          stream: [ssbt, e1, ssmi]
-        vals: [oper]
-        warn: "Changed stream=oper"
-      - context:
-          class: [ti]
-          type: [fc]
-        vals: [oper]
-      - context:
-          _verb: [list]
-          output:
-            op: '!'
-            vals: [browser]
-          class:
-            op: '!'
-            vals: [rd]
-          stream:
-            op: 'u'
-        vals: [oper]
-        warn: "Missing stream. Force to Daily archive"
     flatten: false
     type: enum
     values:
@@ -437,34 +377,6 @@ _field: &_field
     type: expver
     defaults:
       - vals: ['0001']
-    set:
-      - context:
-          class: [ti, s2, ur, rr, lw]
-          expver:
-            op: 'u'
-        vals: [prod]
-      - context:
-          _verb: [list]
-          output:
-            op: '!'
-            vals: [browser]
-          class:
-            op: '!'
-            vals: [rd]
-          expver:
-            op: 'u'
-        vals: [0001]
-        warn: "Missing expver. Force to 0001"
-    unset:
-      - context:
-          _verb: [list]
-          output:
-            op: '!'
-            vals: [browser]
-          class: [rd]
-          expver:
-            op: 'u'
-        error: "Missing expver. Please, specify one"
 
   dataset:
     category: data
@@ -478,11 +390,6 @@ _field: &_field
         - [extremes-dt, Weather and geophysical extremes digital twin]
         - [on-demand-climate-dt, On-demand climate change adaptation digital twin]
         - [on-demand-extremes-dt, On-demand weather and geophysical extremes digital twin]
-        unset:
-          - context:
-              class:
-                op: '!'
-                vals: [d1]
       - type: lowercase
 
   model:
@@ -527,32 +434,10 @@ _field: &_field
           - [harmonie-arome]
           - [global, glob]
           - [ecpoint]
-        unset:
-          - context:
-              class: [ml, ur, rr]
-        set:
-          - context:
-              _verb: [retrieve]
-              class: [ai]
-              model:
-                op: 'u'
-            vals: [aifs-single-mse]
 
   georef:
     category: data
     type: lowercase
-    # only:
-    #   - context:
-    #       class: [d1]
-    #       type: [on-demand-extremes-dt]
-    unset:
-      - context:
-          class:
-            op: '!'
-            vals: [d1]
-          dataset:
-            op: '!'
-            vals: [on-demand-extremes-dt]
 
   repres:
     flatten: false
@@ -666,11 +551,6 @@ _field: &_field
       - [smap_as, 85, SMAP All-sky]
       - [ssmt2_as, 86, SSMT2 All-sky]
       - [test, 99]
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
 
   reportype:
     category: data
@@ -684,16 +564,6 @@ _field: &_field
     aliases: [levtyp]
     defaults:
       - vals: [pl]
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
-      - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
-      - context:
-          stream: [ssmi]
     flatten: false
     type: [enum, integer]
     values:
@@ -719,37 +589,6 @@ _field: &_field
     multiple: true
     type: to-by-list-float
     by: 1
-    defaults:
-      - vals: [1000, 850, 700, 500, 400, 300]
-      # - context:
-      #     levtype: [ml]
-      #   vals: [1, 2]
-      # - context:
-      #     levtype: [pl]
-      #   vals: [1000, 850, 700, 500, 400, 300]
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
-      - context:
-          stream: [ssmi]
-      - context:
-          type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-      - context:
-          levtype: [o2d, sfc, wave, al]
-      - context:
-          class: [er]
-          levtype: [o3d]
-      - context:
-          section: [m, z]
-          product: [inst, tacc, tavg]
-          levtype: [dp]
-      - context:
-          section: [v]
-          product: [tims]
-          levtype: [dp]
 
   param:
     category: data
@@ -758,16 +597,6 @@ _field: &_field
     type: param
     defaults:
       - vals: [129]
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
-      - context:
-          stream: [ssmi]
-      - context:
-          type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
 
   chem:
     category: data
@@ -835,32 +664,6 @@ _field: &_field
     by: 1
     defaults:
       - vals: [-1]
-    unset:
-      - context:
-          stream: [mfhm]
-          type: [em, es, ses]
-      - context:
-          stream: [mnfh]
-          type: [em, es, ses, ed]
-      - context:
-          stream: [clmn]
-    set:
-      - context:
-          _verb: [list]
-          output:
-            op: '!'
-            vals: [browser]
-          class:
-            op: '!'
-            vals: [rd]
-          date:
-            op: 'u'
-          pseudodate:
-            op: 'u'
-        vals: [-1]
-        warn: "Missing date. Force to yesterday"
-# %if _VERB = RETRIEVE %and (YEAR %or MONTH) %then
-#         %unset DATE
 
   year:
     category: data
@@ -891,11 +694,6 @@ _field: &_field
     category: data
     multiple: true
     type: date
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
 
   offsetdate:
     category: data
@@ -920,21 +718,6 @@ _field: &_field
     by: 6h
     defaults:
       - vals: ['1200']
-    set:
-      - context:
-          class: [dm]
-          type: [fc]
-        vals: [0]
-    unset:
-      - context:
-          type: [ab]
-      - context:
-          stream: [clmn, dame, mdfa]
-      - context:
-          class:
-            op: '!'
-            vals: [er]
-          stream: [moda, msda, edmo, ewmo, wamd]
 
   offsettime:
     category: data
@@ -945,30 +728,11 @@ _field: &_field
     category: data
     multiple: true
     type: any
-    unset:
-      - context:
-          class:
-            op: '!'
-            vals: [to, dt]
-      - context:
-          stream:
-            op: '!'
-            vals: [seap]
-
 
   opttime:
     category: data
     multiple: true
     type: any
-    unset:
-      - context:
-          class:
-            op: '!'
-            vals: [to, dt]
-      - context:
-          stream:
-            op: '!'
-            vals: [seap]
 
   step:
     category: data
@@ -977,46 +741,11 @@ _field: &_field
     type: range
     defaults:
       - vals: [0]
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, oldim]
-      - context:
-          stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
-      - context:
-          type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl, ofa]
-      - context:
-          class:
-            op: '!'
-            vals: [er]
-          stream: [moda, msda, edmo, ewmo, wamd]
-      - context:
-          class: [ed,ng]
-      - context:
-          class: [d1]
-          dataset: [climate-dt]
-    # %if (FCMONTH %or FCPERIOD)  %and (_APPL = mars %or _APPL = marsG2 %or _APPL = msserver %or _APPL = uniserver) %then
-    #     %unset STEP
 
   anoffset:
     category: data
     multiple: true
     type: integer
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
-      - context:
-          stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
-          type:
-            op: '!'
-            vals: [go, sfo, fu]
-# ANOFFSET not valid unless Long window 4dvar or for EFAS/EFCL/EFSE/EFRF/EFSR/WFAS/WFCL/WFSE/WFRF/WFSR water balance/fillup
-
-
 
   reference:
     category: data
@@ -1033,31 +762,6 @@ _field: &_field
     multiple: true
     type: to-by-list
     by: 1
-    defaults:
-      - context:
-          class: [ti, s2]
-          type: [cf]
-        vals: [0]
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, gbf, wp]
-          class:
-            op: '!'
-            vals: [ti, lw, s2]
-          stream:
-            op: '!'
-            vals: [mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
-      - context:
-          _verb: [retrieve, archive]
-          class:
-            op: '!'
-            vals: [ti, s2]
-          type: [cf, em, es, ses, taem, taes]
-          stream:
-            op: '!'
-            vals: [mofc, wamf, mofm, wmfm]
 
   quantile:
     category: data
@@ -1065,20 +769,9 @@ _field: &_field
     type: to-by-list-quantile
     denominators: [2,3,4,5,10,100,1000]
     by: 1
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [pd, cd, pb, taem]
 
   domain:
     category: data
-    defaults:
-      - context:
-          class:
-            op: '!'
-            vals: [d1, ed, ng, ms]
-        vals: [g]
     type:
       - context:
           class: [ms]
@@ -1090,21 +783,6 @@ _field: &_field
           - [europe]
           - [mediterranean]
       - type: enum
-        set:
-          - context:
-              class: [od]
-              type: [cm, cs, cr]
-              domain: [g]
-            vals: [e]
-          # - context:
-          #   - dataset: [climate-dt]
-          #   error: "domain not alowded with dataset {dataset}"
-        unset:
-          - context:
-              class: [ep]
-              levtype: [o2d, o3d]
-          - context:
-              class: [d1, ng, ti, s2, ur, lw, rr, ed]
         flatten: false
         type: enum
         values:
@@ -1147,50 +825,42 @@ _field: &_field
           - [gme]
           - [ifs]
 
-
   icmodel:
     category: data
-    type: enum
-    values:
-      - [gme]
-      - [ifs]
-      - [mvoi]
-      - [nudging]
-      - [3dvar]
-    only:
+    type:
       - context:
           class: [ms]
           country: [it]
+        type: enum
+        values:
+          - [gme]
+          - [ifs]
+          - [mvoi]
+          - [nudging]
+          - [3dvar]
 
   country:
     category: data
     multiple: false
-    type: enum
-    values:
-      - [it]
-      - [de]
-    only:
+    type:
       - context:
           class: [ms]
-
+        type: enum
+        values:
+          - [it]
+          - [de]
 
   grib:
     category: data
     multiple: false
-    type: enum
-    defaults:
+    type:
       - context:
           class: [ms]
           country: [it]
-        vals: [ecmwf]
-    values:
-      - [original]
-      - [ecmwf]
-    only:
-      - context:
-          class: [ms]
-          country: [it]
-
+        type: enum
+        values:
+          - [original]
+          - [ecmwf]
 
   frequency:
     category: data
@@ -1224,13 +894,6 @@ _field: &_field
     category: data
     type: integer
     multiple: true
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
-    # only:
-    # - type: ssd
 
   instrument:
     category: data
@@ -1241,17 +904,10 @@ _field: &_field
   method:
     category: data
     type: integer
-    unset:
-      - context:
-          class: [ci, dt]
 
   origin:
     category: data
     multiple: true
-    defaults:
-      - context:
-          class: [ti, s2]
-        vals: [ecmf]
     type: enum
     values:
       - [aladinhuneps-omsz-eu]
@@ -1313,11 +969,6 @@ _field: &_field
   system:
     category: data
     type: integer
-    unset:
-      - context:
-          class:
-            op: '!'
-            vals: [od, en, me, c3, ci]
 
 #######################################################################
 # DestinE ClimateDT related keywords
@@ -1383,11 +1034,6 @@ _observation: &_observation
     multiple: true
     type: enum
     values: "obstype.yaml"
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     # TODO : Migration from old images to new images
 
 
@@ -1448,14 +1094,6 @@ _postproc: &_postproc
       - ['n', normal, auto]
       - [r, reduced]
       - [l, low]
-    unset:
-      - context:
-          accuracy: ['n']
-    set:
-      - context:
-          accuracy: [l, r]
-        vals: [8]
-        warn: "ACCURACY Low or Reduced force to 8 bits"
 
   bitmap:
     category: postproc
@@ -1476,9 +1114,6 @@ _postproc: &_postproc
       - [ascii]
       - [p, packed]
       - [u, unpacked]
-    unset:
-      - context:
-          format: [p]
 
   frame:
     category: postproc
@@ -1499,10 +1134,6 @@ _postproc: &_postproc
     values:
       - [g, global]
       - [e, europe]
-    set:
-      - context:
-          area: [e]
-        vals: [73.5,-27,33,45]
 
   grid:
     category: postproc
@@ -1543,18 +1174,6 @@ _postproc: &_postproc
       - '^[nN](32|48|64|80|96|128|160|200|256|320|400|512|640|800|1024|1280|8000)$'
       - '^[hH][rRnN]?(2|4|8|16|32|64|128|256|512|1024|2048|4096|8192)$'
     uppercase: true
-    unset:
-      - context:
-          grid: [av]
-      - context:
-          stream: [ssmi]
-      - context:
-          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
 
   interpolation:
     category: postproc
@@ -1586,33 +1205,12 @@ _postproc: &_postproc
       - [auto, automatic resolution]
       - [N128, reduced gaussian 128]
       - [N200, reduced gaussian 200]
-    set:
-      - context:
-          style: [dissemination]
-        vals: [av]
-        warn: "Force resol=av when style=dissemination"
-      - context:
-          style: [dissemination]
-          resol: [auto]
-        vals: [av]
-        warn: "Force resol=av when style=dissemination"
-
 
   rotation:
     category: postproc
     flatten: false
     multiple: true
     type: float
-    unset:
-      - context:
-          stream: [ssmi]
-      - context:
-          type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
 
   intgrid:
     category: postproc
@@ -1652,12 +1250,6 @@ _postproc: &_postproc
   process:
     category: postproc
     flatten: false
-    defaults:
-      - context:
-          _verb: [retrieve]
-          class: [ti]
-        vals: [local]
-    default:
     type: enum
     values:
       - local
@@ -1674,11 +1266,6 @@ _obspproc: &_obspproc
   ident:
     type: any
     category: postproc
-    unset:
-      - context:
-          type:
-            op: '!'
-            vals: [im,oldim,sim,ob,fb,ai,af,ab,tf,ofb,mfb,ssd,oai,gsd,sfb,fsoifb,fcdfb, ofa]
 
 #######################################################################
 
@@ -1858,14 +1445,6 @@ retrieve:
     multiple: true
     aliases: [dbase]
     type: any
-    set:
-      - context:
-          # _verb: [retrieve]
-          source:
-            op: 'd'
-          database:
-            op: 'u'
-        vals: [file]
 
   optimise:
     category: sink
@@ -1880,25 +1459,6 @@ retrieve:
   duplicates:
     category: sink
     type: enum
-    defaults:
-      - context:
-          obsgroup:
-            op: 'd'
-        vals: [keep]
-      - context:
-          obstype:
-            op: 'd'
-        vals: [keep]
-    unset:
-      - context:
-          stream:
-            op: '!'
-            vals: [ssmi]
-          type: [im, sim, oldim]
-      - context:
-          type:
-            op: '!'
-            vals: [oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
     values:
     - keep
     - remove

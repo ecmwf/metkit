@@ -1,4 +1,4 @@
-list( APPEND files language.yaml obstype.yaml paramids.yaml params.yaml params-static.yaml param-matching.yaml chemids.yaml bufr-subtypes.yaml axis.yaml shortname-context.yaml )
+list( APPEND files language.yaml modifiers.yaml reportype.yaml obstype.yaml paramids.yaml params.yaml params-static.yaml param-matching.yaml chemids.yaml bufr-subtypes.yaml axis.yaml shortname-context.yaml )
 
 foreach( _file ${files} )
 

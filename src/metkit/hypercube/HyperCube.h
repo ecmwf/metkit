@@ -37,6 +37,7 @@ public:  // methods
     static AxisOrder& instance();
 
     const std::vector<std::string>& axes() { return axes_; }
+    size_t index(const std::string& axis) const;
 
 private:  // methods
 
@@ -47,6 +48,7 @@ private:  // methods
 private:  // members
 
     std::vector<std::string> axes_;
+    std::map<std::string, size_t> axisIndex_;
 };
 
 class HyperCube {

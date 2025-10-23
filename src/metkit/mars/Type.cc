@@ -24,6 +24,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/value/Value.h"
 
+#include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/ContextRule.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
@@ -70,27 +71,26 @@ std::unique_ptr<ContextRule> parseRule(std::string key, eckit::Value r) {
     std::set<std::string> vals;
 
     if (r.isList()) {
-        for (size_t k = 0; k < r.size(); k++) {
+        if (r.size() == 0) {
+            throw eckit::UserError("Empty list for context rule '" + key + "'");
+        }
+        bool exclude = (r[0] == "!");
+        for (size_t k = exclude ? 1 : 0; k < r.size(); k++) {
             vals.insert(r[k]);
         }
+        if (exclude)
+            return std::make_unique<Exclude>(key, vals);
         return std::make_unique<Include>(key, vals);
     }
-
-    ASSERT(r.contains("op"));
-    std::string op = r["op"];
-    ASSERT(op.size() == 1);
-    switch (op[0]) {
-        case 'u':
+    else {
+        ASSERT(r.isString());
+        std::string v = r;
+        if (v == "undefined") {
             return std::make_unique<Undef>(key);
-        case 'd':
+        }
+        else if (v == "defined") {
             return std::make_unique<Def>(key);
-        case '!':
-            ASSERT(r.contains("vals"));
-            eckit::Value vv = r["vals"];
-            for (size_t k = 0; k < vv.size(); k++) {
-                vals.insert(vv[k]);
-            }
-            return std::make_unique<Exclude>(key, vals);
+        }
     }
     return nullptr;
 }
@@ -106,6 +106,20 @@ std::unique_ptr<Context> Context::parseContext(eckit::Value c) {
         context->add(parseRule(key, c[key]));
     }
     return context;
+}
+
+size_t Context::maxAxisIndex() const {
+    size_t maxIndex = 0;
+    for (const auto& r : rules_) {
+        size_t idx = 0;
+        if (!r->key().empty() && r->key()[0] != '_') {
+            idx = metkit::hypercube::AxisOrder::instance().index(r->key());
+            if (idx > maxIndex) {
+                maxIndex = idx;
+            }
+        }
+    }
+    return maxIndex;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -167,55 +181,16 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
-    if (settings.contains("set")) {
-        eckit::Value sets = settings["set"];
-        if (!sets.isNil() && sets.isList()) {
-            for (size_t i = 0; i < sets.size(); i++) {
-                eckit::Value s = sets[i];
-                std::vector<std::string> vals;
-                ASSERT(s.contains("vals"));
-                eckit::Value vv = s["vals"];
-                if (vv.isList()) {
-                    for (size_t k = 0; k < vv.size(); k++) {
-                        vals.push_back(vv[k]);
-                    }
-                }
-                else {
-                    vals.push_back(vv);
-                }
-                ASSERT(s.contains("context"));
-                if (s.contains("warn")) {
-                    std::string warn = s["warn"];
-                    if (!warn.empty()) {
-                        // warnings_.insert(warn);
-                    }
-                }
-                sets_.emplace(Context::parseContext(s["context"]), vals);
-            }
-        }
-    }
-    if (settings.contains("unset")) {
-        eckit::Value unsets = settings["unset"];
-        if (!unsets.isNil() && unsets.isList()) {
-            for (size_t i = 0; i < unsets.size(); i++) {
-                eckit::Value u = unsets[i];
-                ASSERT(u.contains("context"));
-                if (u.contains("warn")) {
-                    std::string warn = u["warn"];
-                    if (!warn.empty()) {
-                        // warnings_.insert(warn);
-                    }
-                }
-                if (u.contains("error")) {
-                    std::string error = u["error"];
-                    if (!error.empty()) {
-                        // warnings_.insert(error);
-                    }
-                }
-                unsets_.insert(Context::parseContext(u["context"]));
-            }
-        }
-    }
+}
+
+void Type::defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
+    defaults_.emplace(std::move(context), values);
+}
+void Type::set(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
+    sets_.emplace(std::move(context), values);
+}
+void Type::unset(std::shared_ptr<Context> context) {
+    unsets_.insert(std::move(context));
 }
 
 bool Type::flatten() const {

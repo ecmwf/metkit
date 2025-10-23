@@ -33,11 +33,15 @@
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
+static std::vector<eckit::Value> modifiers_{};
 static std::set<std::string> verbs_;
 static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
-    languages_               = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+    languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+    for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
+        modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+    }
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.insert(verbs[i]);
@@ -85,8 +89,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             }
         }
 
-        types_[keyword] = TypesFactory::build(keyword, settings);
-        types_[keyword]->attach();
+        auto [it, success] = types_.emplace(keyword, TypesFactory::build(keyword, settings));
+        it->second->attach();
         keywords_.push_back(keyword);
 
         std::optional<eckit::Value> aliases;
@@ -125,6 +129,82 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
     }
 
+    // load modifiers and associate to types
+    for (const auto& modifierFile : modifiers_) {
+        ASSERT(modifierFile.isList());
+        for (size_t i = 0; i < modifierFile.size(); ++i) {
+            eckit::Value mod = modifierFile[i];
+            ASSERT(mod.isMap());
+            ASSERT(mod.contains("context"));
+            std::shared_ptr<Context> ctx = Context::parseContext(mod["context"]);
+            size_t maxIndex              = ctx->maxAxisIndex();
+            if (mod.contains("defaults")) {
+                eckit::Value def = mod["defaults"];
+                ASSERT(def.isMap());
+                auto keys = def.keys();
+                for (size_t j = 0; j < keys.size(); ++j) {
+                    std::string key = keys[j];
+
+                    auto it = types_.find(key);
+                    if (it != types_.end()) {
+                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
+                        eckit::Value vv = def[key];
+                        std::vector<std::string> vals;
+                        if (vv.isList()) {
+                            for (size_t k = 0; k < vv.size(); ++k) {
+                                vals.push_back(vv[k]);
+                            }
+                        }
+                        else {
+                            vals.push_back(vv);
+                        }
+                        it->second->defaults(ctx, vals);
+                    }
+                }
+            }
+            if (mod.contains("set")) {
+                eckit::Value set = mod["set"];
+                ASSERT(set.isMap());
+                auto keys = set.keys();
+                for (size_t j = 0; j < keys.size(); ++j) {
+                    std::string key = keys[j];
+
+                    auto it = types_.find(key);
+                    if (it != types_.end()) {
+                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
+                        eckit::Value vv = set[key];
+                        std::vector<std::string> vals;
+                        if (vv.isList()) {
+                            for (size_t k = 0; k < vv.size(); ++k) {
+                                vals.push_back(vv[k]);
+                            }
+                        }
+                        else {
+                            vals.push_back(vv);
+                        }
+                        it->second->set(ctx, vals);
+                    }
+                }
+            }
+            if (mod.contains("unset")) {
+                eckit::Value unset = mod["unset"];
+                ASSERT(unset.isList());
+                for (size_t j = 0; j < unset.size(); ++j) {
+                    std::string key = unset[j];
+
+                    auto it = types_.find(key);
+                    if (it != types_.end()) {
+                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
+                        it->second->unset(ctx);
+                    }
+                }
+            }
+        }
+    }
+
     if (lang.contains("_clear_defaults")) {
         const auto& keywords = lang["_clear_defaults"];
         for (auto i = 0; i < keywords.size(); ++i) {
@@ -138,11 +218,11 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         Type* t = nullptr;
         auto it = types_.find(a);
         if (it != types_.end()) {
-            t = (*it).second;
+            t = it->second;
         }
         typesByAxisOrder_.emplace_back(a, t);
     }
-    for (const auto& [k, t] : types_) {
+    for (auto& [k, t] : types_) {
         if (dataKeywords_.find(k) == dataKeywords_.end()) {
             typesByAxisOrder_.emplace_back(k, t);
         }
@@ -165,8 +245,8 @@ const std::set<std::string>& MarsLanguage::sinkKeywords() const {
 }
 
 MarsLanguage::~MarsLanguage() {
-    for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        (*j).second->detach();
+    for (auto& [k, t] : types_) {
+        t->detach();
     }
 }
 
@@ -175,8 +255,8 @@ eckit::PathName MarsLanguage::languageYamlFile() {
 }
 
 void MarsLanguage::reset() {
-    for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        (*j).second->reset();
+    for (auto& [k, t] : types_) {
+        t->reset();
     }
 }
 
@@ -354,7 +434,7 @@ public:
 
 
 Type* MarsLanguage::type(const std::string& name) const {
-    std::map<std::string, Type*>::const_iterator k = types_.find(name);
+    auto k = types_.find(name);
     if (k == types_.end()) {
         if (name[0] == '_') {
             static TypeHidden hidden;
@@ -363,7 +443,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
-    return (*k).second;
+    return k->second;
 }
 
 
@@ -458,7 +538,6 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
 const std::string& MarsLanguage::verb() const {
     return verb_;
 }
-
 
 void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
                            MarsRequest& result, FlattenCallback& callback) {

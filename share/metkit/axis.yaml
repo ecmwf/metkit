@@ -18,6 +18,7 @@ axes:
     - offsettime
     - anoffset
     - reference
+    - dataset
     - step
     - fcmonth
     - fcperiod
@@ -44,8 +45,8 @@ axes:
     - frequency
     - direction
     - channel
+    - obsgroup
     - reportype
-    - dataset
     - activity
     - experiment
     - generation
@@ -54,8 +55,8 @@ axes:
     - resolution
     - year
     - month
-    - obsgroup
     - bcmodel
     - icmodel
     - grib
+    - georef
 
