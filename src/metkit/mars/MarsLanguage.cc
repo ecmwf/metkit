@@ -62,7 +62,45 @@ namespace mars {
 
 
 //----------------------------------------------------------------------------------------------------------------------
+void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod) {
+    eckit::Value keys;
+    if (typ == ModifierType::UNSET) {
+        ASSERT(mod.isList());
+        keys = mod;
+    } else {
+        ASSERT(mod.isMap());
+        keys = mod.keys();
+    }
+    for (size_t j = 0; j < keys.size(); ++j) {
+        std::string key = keys[j];
 
+        auto it = types_.find(key);
+        if (it != types_.end()) {
+            ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
+            if (typ == ModifierType::UNSET) {
+                it->second->unset(ctx);
+            } else {
+                eckit::Value vv = mod[key];
+                std::vector<std::string> vals;
+                if (vv.isList()) {
+                    for (size_t k = 0; k < vv.size(); ++k) {
+                        vals.push_back(vv[k]);
+                    }
+                }
+                else {
+                    vals.push_back(vv);
+                }
+                
+                switch (typ) {
+                    case ModifierType::DEFAULT: it->second->defaults(ctx, vals); break;
+                    case ModifierType::SET: it->second->set(ctx, vals); break;
+                    default: break;
+                }
+            }
+        }
+    }
+}
 
 MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
     pthread_once(&once, init);
@@ -139,68 +177,13 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             std::shared_ptr<Context> ctx = Context::parseContext(mod["context"]);
             size_t maxIndex              = ctx->maxAxisIndex();
             if (mod.contains("defaults")) {
-                eckit::Value def = mod["defaults"];
-                ASSERT(def.isMap());
-                auto keys = def.keys();
-                for (size_t j = 0; j < keys.size(); ++j) {
-                    std::string key = keys[j];
-
-                    auto it = types_.find(key);
-                    if (it != types_.end()) {
-                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
-
-                        eckit::Value vv = def[key];
-                        std::vector<std::string> vals;
-                        if (vv.isList()) {
-                            for (size_t k = 0; k < vv.size(); ++k) {
-                                vals.push_back(vv[k]);
-                            }
-                        }
-                        else {
-                            vals.push_back(vv);
-                        }
-                        it->second->defaults(ctx, vals);
-                    }
-                }
+                parseModifier(ModifierType::DEFAULT, ctx, maxIndex, mod["defaults"]);
             }
             if (mod.contains("set")) {
-                eckit::Value set = mod["set"];
-                ASSERT(set.isMap());
-                auto keys = set.keys();
-                for (size_t j = 0; j < keys.size(); ++j) {
-                    std::string key = keys[j];
-
-                    auto it = types_.find(key);
-                    if (it != types_.end()) {
-                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
-
-                        eckit::Value vv = set[key];
-                        std::vector<std::string> vals;
-                        if (vv.isList()) {
-                            for (size_t k = 0; k < vv.size(); ++k) {
-                                vals.push_back(vv[k]);
-                            }
-                        }
-                        else {
-                            vals.push_back(vv);
-                        }
-                        it->second->set(ctx, vals);
-                    }
-                }
+                parseModifier(ModifierType::SET, ctx, maxIndex, mod["set"]);
             }
             if (mod.contains("unset")) {
-                eckit::Value unset = mod["unset"];
-                ASSERT(unset.isList());
-                for (size_t j = 0; j < unset.size(); ++j) {
-                    std::string key = unset[j];
-
-                    auto it = types_.find(key);
-                    if (it != types_.end()) {
-                        ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
-
-                        it->second->unset(ctx);
-                    }
-                }
+                parseModifier(ModifierType::UNSET, ctx, maxIndex, mod["unset"]);
             }
         }
     }

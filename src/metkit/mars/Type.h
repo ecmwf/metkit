@@ -247,7 +247,6 @@ protected:  // members
     std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
     std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
     std::set<std::shared_ptr<Context>> unsets_;
-    std::set<std::shared_ptr<Context>> only_;
 
     std::optional<std::vector<std::string>> inheritance_;
 

@@ -171,16 +171,6 @@ Type::Type(const std::string& name, const eckit::Value& settings) :
             }
         }
     }
-    if (settings.contains("only")) {
-        eckit::Value only = settings["only"];
-        if (!only.isNil() && only.isList()) {
-            for (size_t i = 0; i < only.size(); i++) {
-                eckit::Value o = only[i];
-                ASSERT(o.contains("context"));
-                only_.insert(Context::parseContext(o["context"]));
-            }
-        }
-    }
 }
 
 void Type::defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values) {
@@ -369,21 +359,6 @@ void Type::finalise(const MarsExpandContext& ctx, MarsRequest& request, bool str
     }
     else {
         if (values.size() > 0) {
-            bool matches = (only_.size() == 0);
-            for (const auto& context : only_) {
-                if (context->matches(request)) {
-                    matches = true;
-                    break;
-                }
-            }
-            if (!matches) {
-                std::ostringstream oss;
-                oss << *this << ": Key [" << name_ << "] not acceptable with contextes: " << std::endl;
-                for (const auto& context : only_) {
-                    oss << "    " << *context << std::endl;
-                }
-                throw eckit::UserError(oss.str());
-            }
             for (const auto& context : unsets_) {
                 if (context->matches(request)) {
                     if (strict && request.has(name_)) {

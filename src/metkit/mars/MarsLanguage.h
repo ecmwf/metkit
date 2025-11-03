@@ -24,12 +24,19 @@
 namespace metkit {
 namespace mars {
 
-class Type;
+class Context;
 class FlattenCallback;
 class MarsExpandContext;
+class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class ModifierType {
+    DEFAULT,
+    SET,
+    UNSET
+};
+//----------------------------------------------------------------------------------------------------------------------
 
 class MarsLanguage : private eckit::NonCopyable {
 
@@ -73,6 +80,7 @@ private:  // methods
 
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback);
+    void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
 
 private:  // members
 
