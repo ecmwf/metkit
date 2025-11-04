@@ -62,12 +62,14 @@ namespace mars {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod) {
+void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
+                                 const eckit::Value& mod) {
     eckit::Value keys;
     if (typ == ModifierType::UNSET) {
         ASSERT(mod.isList());
         keys = mod;
-    } else {
+    }
+    else {
         ASSERT(mod.isMap());
         keys = mod.keys();
     }
@@ -80,7 +82,8 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
 
             if (typ == ModifierType::UNSET) {
                 it->second->unset(ctx);
-            } else {
+            }
+            else {
                 eckit::Value vv = mod[key];
                 std::vector<std::string> vals;
                 if (vv.isList()) {
@@ -91,12 +94,11 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
                 else {
                     vals.push_back(vv);
                 }
-                
-                switch (typ) {
-                    case ModifierType::DEFAULT: it->second->defaults(ctx, vals); break;
-                    case ModifierType::SET: it->second->set(ctx, vals); break;
-                    default: break;
-                }
+
+                if (ModifierType::DEFAULT)
+                    it->second->defaults(ctx, vals);
+                else if (ModifierType::SET)
+                    it->second->set(ctx, vals);
             }
         }
     }
