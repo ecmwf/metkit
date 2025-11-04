@@ -4,10 +4,7 @@ import yaml
 import re
 import os
 
-# import json
 db = MySQLdb.connect("webapps-db-prod", "ecmwf_ro", "ecmwf_ro", "param")
-# db = MySQLdb.connect("bol-db-products-prod-01.ecmwf.int", "ecmwf_ro", "ecmwf_ro", "param")
-# db = MySQLdb.connect("k8s-bol-webapps-test-worker-016.ecmwf.int", "products", "products", "param", port=30544)
                      
 PRODGEN = {}
 if os.path.exists("prodgen-paramids.yaml"):
@@ -63,7 +60,6 @@ for data in cursor.fetchall():
 
 cursor.close()
 db.close()
-
 
 for paramid, entry in PRODGEN.items():
     if paramid not in PARAMSIDS:
