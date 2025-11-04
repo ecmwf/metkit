@@ -92,9 +92,9 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
                     vals.push_back(vv);
                 }
 
-                if (ModifierType::DEFAULT)
+                if (typ == ModifierType::DEFAULT)
                     it->second->defaults(ctx, vals);
-                else if (ModifierType::SET)
+                else if (typ == ModifierType::SET)
                     it->second->set(ctx, vals);
             }
         }

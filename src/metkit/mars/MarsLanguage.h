@@ -27,8 +27,7 @@
 #include "metkit/mars/MarsRequest.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class Context;
 class FlattenCallback;
@@ -42,6 +41,7 @@ enum class ModifierType {
     SET,
     UNSET
 };
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsLanguage : private eckit::NonCopyable {
@@ -105,7 +105,4 @@ private:  // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars
