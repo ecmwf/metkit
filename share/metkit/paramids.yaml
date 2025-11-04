@@ -15797,6 +15797,24 @@
 235405:
 - avg_vswrz
 - time-mean volumetric soil moisture (root zone)
+235406:
+- avg_lwcs
+- time-mean liquid water content in snow pack
+235407:
+- avg_mucin
+- time-mean most-unstable cin
+235408:
+- avg_crwc_conv
+- time-mean specific rain water content (convective)
+235409:
+- avg_cswc_conv
+- time-mean specific snow water content (convective)
+235410:
+- avg_mld
+- time-mean mixed layer depth
+235411:
+- avg_cur
+- time-mean urban cover
 236386:
 - acc_lshnf
 - time-integrated land surface heat net flux
@@ -15992,6 +16010,12 @@
 237084:
 - max_sst
 - time-maximum sea surface temperature
+237085:
+- max_lai_lv
+- time-maximum leaf area index, low vegetation
+237086:
+- max_lai_hv
+- time-maximum leaf area index, high vegetation
 237087:
 - max_tclw
 - time-maximum total column cloud liquid water
@@ -16010,6 +16034,9 @@
 237092:
 - max_2r
 - time-maximum 2 metre relative humidity
+237093:
+- max_fscov
+- time-maximum fraction of snow cover
 237094:
 - max_sot
 - time-maximum soil temperature
@@ -16474,6 +16501,9 @@
 237382:
 - max_visp
 - time-maximum visibility through precipitation
+237383:
+- max_licgi
+- time-maximum cloud-to-ground lightning flash density
 237384:
 - max_10efg
 - time-maximum 10 metre eastward wind gust
@@ -16523,6 +16553,24 @@
 237405:
 - max_vswrz
 - time-maximum volumetric soil moisture (root zone)
+237406:
+- max_lwcs
+- time-maximum liquid water content in snow pack
+237407:
+- max_mucin
+- time-maximum most-unstable cin
+237408:
+- max_crwc_conv
+- time-maximum specific rain water content (convective)
+237409:
+- max_cswc_conv
+- time-maximum specific snow water content (convective)
+237410:
+- max_mld
+- time-maximum mixed layer depth
+237411:
+- max_cur
+- time-maximum urban cover
 238001:
 - min_ttswr
 - time-minimum temperature tendency due to short-wave radiation
@@ -16712,6 +16760,12 @@
 238084:
 - min_sst
 - time-minimum sea surface temperature
+238085:
+- min_lai_lv
+- time-minimum leaf area index, low vegetation
+238086:
+- min_lai_hv
+- time-minimum leaf area index, high vegetation
 238087:
 - min_tclw
 - time-minimum total column cloud liquid water
@@ -16730,6 +16784,9 @@
 238092:
 - min_2r
 - time-minimum 2 metre relative humidity
+238093:
+- min_fscov
+- time-minimum fraction of snow cover
 238094:
 - min_sot
 - time-minimum soil temperature
@@ -17193,6 +17250,9 @@
 238382:
 - min_visp
 - time-minimum visibility through precipitation
+238383:
+- min_licgi
+- time-minimum cloud-to-ground lightning flash density
 238386:
 - min_lshnf
 - time-minimum land surface heat net flux
@@ -17236,6 +17296,24 @@
 238405:
 - min_vswrz
 - time-minimum volumetric soil moisture (root zone)
+238406:
+- min_lwcs
+- time-minimum liquid water content in snow pack
+238407:
+- min_mucin
+- time-minimum most-unstable cin
+238408:
+- min_crwc_conv
+- time-minimum specific rain water content (convective)
+238409:
+- min_cswc_conv
+- time-minimum specific snow water content (convective)
+238410:
+- min_mld
+- time-minimum mixed layer depth
+238411:
+- min_cur
+- time-minimum urban cover
 239001:
 - std_ttswr
 - time-standard-deviation temperature tendency due to short-wave radiation
@@ -17427,6 +17505,12 @@
 239084:
 - std_sst
 - time-standard-deviation sea surface temperature
+239085:
+- std_lai_lv
+- time-standard-deviation leaf area index, low vegetation
+239086:
+- std_lai_hv
+- time-standard-deviation leaf area index, high vegetation
 239087:
 - std_tclw
 - time-standard-deviation total column cloud liquid water
@@ -17442,6 +17526,9 @@
 239091:
 - std_lmld
 - time-standard-deviation lake mix-layer depth
+239093:
+- std_fscov
+- time-standard-deviation fraction of snow cover
 239094:
 - std_sot
 - time-standard-deviation soil temperature
@@ -17924,6 +18011,9 @@
 239381:
 - std_intsssr
 - time-standard-deviation northward turbulent surface stress due to surface roughness
+239383:
+- std_licgi
+- time-standard-deviation cloud-to-ground lightning flash density
 239386:
 - std_lshnf
 - time-standard-deviation land surface heat net flux
@@ -17967,6 +18057,24 @@
 239405:
 - std_vswrz
 - time-standard-deviation volumetric soil moisture (root zone)
+239406:
+- std_lwcs
+- time-standard-deviation liquid water content in snow pack
+239407:
+- std_mucin
+- time-standard-deviation most-unstable cin
+239408:
+- std_crwc_conv
+- time-standard-deviation specific rain water content (convective)
+239409:
+- std_cswc_conv
+- time-standard-deviation specific snow water content (convective)
+239410:
+- std_mld
+- time-standard-deviation mixed layer depth
+239411:
+- std_cur
+- time-standard-deviation urban cover
 240011:
 - chcross
 - cross sectional area of flow in channel
@@ -20425,10 +20533,10 @@
 - snow precipitation rate at sea surface
 262906:
 - ewst_sea
-- eastward of wind stress over sea ice
+- eastward component of wind stress over sea ice
 262907:
 - nwst_sea
-- northward of wind stress over sea ice
+- northward component of wind stress over sea ice
 262908:
 - uwst_sea
 - u-component of wind stress over sea ice
@@ -20752,10 +20860,10 @@
 - time-mean snow precipitation rate at sea surface
 263906:
 - avg_ewst_sea
-- time-mean eastward of wind stress over sea ice
+- time-mean eastward component of wind stress over sea ice
 263907:
 - avg_nwst_sea
-- time-mean northward of wind stress over sea ice
+- time-mean northward component of wind stress over sea ice
 263908:
 - avg_uwst_sea
 - time-mean u-component of wind stress over sea ice
@@ -20771,24 +20879,995 @@
 264905:
 - sn_sea
 - time-accumulated snow precipitation at sea surface
+265000:
+- max_sithick
+- time-maximum sea ice thickness
+265001:
+- max_siconc
+- time-maximum sea ice area fraction
+265002:
+- max_sisnthick
+- time-maximum snow thickness over sea ice
+265003:
+- max_siue
+- time-maximum eastward sea ice velocity
+265004:
+- max_sivn
+- time-maximum northward sea ice velocity
+265005:
+- max_sialb
+- time-maximum sea ice albedo
+265006:
+- max_sitemptop
+- time-maximum sea ice surface temperature
+265007:
+- max_sigrowth
+- time-maximum sea ice growth
+265008:
+- max_sivol
+- time-maximum sea ice volume per unit area
+265009:
+- max_snvol
+- time-maximum snow volume over sea ice per unit area
+265010:
+- max_vasit
+- time-maximum vertically averaged sea ice temperature
+265011:
+- max_sntemp
+- time-maximum snow temperature over sea ice
+265012:
+- max_sisntemp
+- time-maximum sea ice temperature at the sea ice and snow interface
+265013:
+- max_usitemp
+- time-maximum underside ice temperature
+265014:
+- max_sihc
+- time-maximum sea ice heat content
+265015:
+- max_snhc
+- time-maximum snow heat content over sea ice
+265016:
+- max_sifbr
+- time-maximum sea ice freeboard thickness
+265017:
+- max_sipf
+- time-maximum sea ice melt pond fraction
+265018:
+- max_sipd
+- time-maximum sea ice melt pond depth
+265019:
+- max_sipvol
+- time-maximum sea ice melt pond volume per unit area
+265020:
+- max_bckinsic
+- time-maximum sea ice fraction tendency due to parameterization
+265021:
+- max_six
+- time-maximum x-component of sea ice velocity
+265022:
+- max_siy
+- time-maximum y-component of sea ice velocity
+265023:
+- max_icesalt
+- time-maximum sea ice salinity
 265024:
 - max_sit
 - time-maximum sea ice temperature
+265025:
+- max_sibm
+- time-maximum sea ice breakup memory
+265100:
+- max_sos
+- time-maximum sea surface practical salinity
+265101:
+- max_tos
+- time-maximum sea surface temperature
+265102:
+- max_t14d
+- time-maximum depth of 14 c isotherm
+265103:
+- max_t17d
+- time-maximum depth of 17 c isotherm
+265104:
+- max_t20d
+- time-maximum depth of 20 c isotherm
+265105:
+- max_t26d
+- time-maximum depth of 26 c isotherm
+265106:
+- max_t28d
+- time-maximum depth of 28 c isotherm
+265107:
+- max_stfbarot
+- time-maximum barotropic stream function
+265108:
+- max_hfds
+- time-maximum surface downward heat flux
+265109:
+- max_tauvon
+- time-maximum northward surface stress
+265110:
+- max_tauuoe
+- time-maximum eastward surface stress
+265111:
+- max_tauvo
+- time-maximum y-component of surface stress
+265112:
+- max_tauuo
+- time-maximum x-component of surface stress
+265113:
+- max_mlotst010
+- time-maximum ocean mixed layer depth defined by sigma theta 0.01 kg m-3
+265114:
+- max_mlotst030
+- time-maximum ocean mixed layer depth defined by sigma theta 0.03 kg m-3
+265115:
+- max_mlotst125
+- time-maximum ocean mixed layer depth defined by sigma theta 0.125 kg m-3
+265116:
+- max_mlott02
+- time-maximum ocean mixed layer depth defined by temperature 0.2 c
+265117:
+- max_mlott05
+- time-maximum ocean mixed layer depth defined by temperature 0.5 c
+265118:
+- max_sc300m
+- time-maximum average sea water practical salinity in the upper 300 m
+265119:
+- max_sc700m
+- time-maximum average sea water practical salinity in the upper 700 m
+265120:
+- max_scbtm
+- time-maximum total column average sea water practical salinity
+265121:
+- max_hc300m
+- time-maximum vertically-integrated heat content in the upper 300 m
+265122:
+- max_hc700m
+- time-maximum vertically-integrated heat content in the upper 700 m
+265123:
+- max_hcbtm
+- time-maximum total column of heat content
+265124:
+- max_zos
+- time-maximum sea surface height
+265125:
+- max_stheig
+- time-maximum steric change in sea surface height
+265126:
+- max_hstheig
+- time-maximum halosteric change in sea surface height
+265127:
+- max_tstheig
+- time-maximum thermosteric change in sea surface height
+265128:
+- max_thcline
+- time-maximum thermocline depth
+265129:
+- max_btp
+- time-maximum bottom pressure equivalent height
+265130:
+- max_swfup
+- time-maximum net surface upward water flux
+265131:
+- max_fw2sw
+- time-maximum fresh water flux into sea water (from rivers)
+265132:
+- max_vsf2sw
+- time-maximum virtual salt flux into sea water
+265133:
+- max_hfcorr
+- time-maximum heat flux correction
+265134:
+- max_fwcorr
+- time-maximum fresh water flux correction
+265135:
+- max_vsfcorr
+- time-maximum virtual salt flux correction
+265136:
+- max_turbocl
+- time-maximum turbocline depth (kz=5e-4)
+265137:
+- max_svy
+- time-maximum y-component of surface sea water velocity
+265138:
+- max_svx
+- time-maximum x-component of surface sea water velocity
+265139:
+- max_svn
+- time-maximum northward surface sea water velocity
+265140:
+- max_sve
+- time-maximum eastward surface sea water velocity
+265141:
+- max_hct26
+- time-maximum heat content surface to 26c isotherm
+265142:
+- max_bckineta
+- time-maximum sea surface height tendency due to parameterization
+265143:
+- max_zosib
+- time-maximum sea surface height with inverse barometer correction
+265144:
+- max_pt300m
+- time-maximum average sea water potential temperature in the upper 300m
+265145:
+- max_sss
+- time-maximum sea surface salinity
+265146:
+- max_sc300v
+- time-maximum vertically integrated sea water practical salinity in the upper 300
+  m
+265147:
+- max_sc700v
+- time-maximum vertically integrated sea water practical salinity in the upper 700
+  m
+265148:
+- max_scbtv
+- time-maximum total column vertically integrated sea water practical salinity
+265149:
+- max_rsdos
+- time-maximum sea surface downward short-wave radiation flux
+265500:
+- max_so
+- time-maximum sea water practical salinity
+265501:
+- max_thetao
+- time-maximum sea water potential temperature
+265502:
+- max_sigmat
+- time-maximum sea water sigma theta
+265503:
+- max_voy
+- time-maximum y-component of sea water velocity
+265504:
+- max_uox
+- time-maximum x-component of sea water velocity
+265505:
+- max_von
+- time-maximum northward sea water velocity
+265506:
+- max_uoe
+- time-maximum eastward sea water velocity
+265507:
+- max_wo
+- time-maximum upward sea water velocity
+265508:
+- max_thetaodmp
+- time-maximum sea water potential temperature tendency due to newtonian relaxation
+265509:
+- max_sodmp
+- time-maximum sea water salinity tendency due to newtonian relaxation
+265510:
+- max_bckint
+- time-maximum sea water temperature tendency due to parameterization
+265511:
+- max_bckins
+- time-maximum sea water salinity tendency due to parameterization
+265512:
+- max_bckine
+- time-maximum eastward sea water velocity tendency due to parameterization
+265513:
+- max_bckinn
+- time-maximum northward sea water velocity tendency due to parameterization
+265514:
+- max_tdbiascorr
+- time-maximum sea water temperature tendency due to direct bias correction
+265515:
+- max_sdbiascorr
+- time-maximum sea water salinity tendency due to direct bias correction
+265516:
+- max_salo
+- time-maximum sea water salinity
+265517:
+- max_mtn
+- time-maximum northward mass transport
+265518:
+- max_mte
+- time-maximum eastward mass transport
 265519:
 - max_zo
 - time-maximum sea water depth
+265520:
+- max_mtup
+- time-maximum sea water upward mass transport
+265521:
+- max_agessc
+- time-maximum sea water age since surface contact
+265522:
+- max_rsdo
+- time-maximum sea water downward short-wave radiation flux
+265900:
+- max_ssr_sea
+- time-maximum net short wave radiation rate at sea surface
+265901:
+- max_wst_sea
+- time-maximum wind stress at sea surface
+265902:
+- max_10ws_sea
+- time-maximum wind speed at 10m above sea surface
+265903:
+- max_10nd_sea
+- time-maximum neutral drag coefficient at 10m above sea surface
+265904:
+- max_tprate_sea
+- time-maximum total precipitation rate at sea surface
+265905:
+- max_snrate_sea
+- time-maximum snow precipitation rate at sea surface
+265906:
+- max_ewst_sea
+- time-maximum eastward component of wind stress over sea ice
+265907:
+- max_nwst_sea
+- time-maximum northward component of wind stress over sea ice
+265908:
+- max_uwst_sea
+- time-maximum u-component of wind stress over sea ice
+265909:
+- max_vwst_sea
+- time-maximum v-component of wind stress over sea ice
+266000:
+- min_sithick
+- time-minimum sea ice thickness
+266001:
+- min_siconc
+- time-minimum sea ice area fraction
+266002:
+- min_sisnthick
+- time-minimum snow thickness over sea ice
+266003:
+- min_siue
+- time-minimum eastward sea ice velocity
+266004:
+- min_sivn
+- time-minimum northward sea ice velocity
+266005:
+- min_sialb
+- time-minimum sea ice albedo
+266006:
+- min_sitemptop
+- time-minimum sea ice surface temperature
+266007:
+- min_sigrowth
+- time-minimum sea ice growth
+266008:
+- min_sivol
+- time-minimum sea ice volume per unit area
+266009:
+- min_snvol
+- time-minimum snow volume over sea ice per unit area
+266010:
+- min_vasit
+- time-minimum vertically averaged sea ice temperature
+266011:
+- min_sntemp
+- time-minimum snow temperature over sea ice
+266012:
+- min_sisntemp
+- time-minimum sea ice temperature at the sea ice and snow interface
+266013:
+- min_usitemp
+- time-minimum underside ice temperature
+266014:
+- min_sihc
+- time-minimum sea ice heat content
+266015:
+- min_snhc
+- time-minimum snow heat content over sea ice
+266016:
+- min_sifbr
+- time-minimum sea ice freeboard thickness
+266017:
+- min_sipf
+- time-minimum sea ice melt pond fraction
+266018:
+- min_sipd
+- time-minimum sea ice melt pond depth
+266019:
+- min_sipvol
+- time-minimum sea ice melt pond volume per unit area
+266020:
+- min_bckinsic
+- time-minimum sea ice fraction tendency due to parameterization
+266021:
+- min_six
+- time-minimum x-component of sea ice velocity
+266022:
+- min_siy
+- time-minimum y-component of sea ice velocity
+266023:
+- min_icesalt
+- time-minimum  sea ice salinity
 266024:
 - min_sit
 - time-minimum sea ice temperature
+266025:
+- min_sibm
+- time-minimum sea ice breakup memory
+266100:
+- min_sos
+- time-minimum sea surface practical salinity
+266101:
+- min_tos
+- time-minimum sea surface temperature
+266102:
+- min_t14d
+- time-minimum depth of 14 c isotherm
+266103:
+- min_t17d
+- time-minimum depth of 17 c isotherm
+266104:
+- min_t20d
+- time-minimum depth of 20 c isotherm
+266105:
+- min_t26d
+- time-minimum depth of 26 c isotherm
+266106:
+- min_t28d
+- time-minimum depth of 28 c isotherm
+266107:
+- min_stfbarot
+- time-minimum barotropic stream function
+266108:
+- min_hfds
+- time-minimum surface downward heat flux
+266109:
+- min_tauvon
+- time-minimum northward surface stress
+266110:
+- min_tauuoe
+- time-minimum eastward surface stress
+266111:
+- min_tauvo
+- time-minimum y-component of surface stress
+266112:
+- min_tauuo
+- time-minimum x-component of surface stress
+266113:
+- min_mlotst010
+- time-minimum ocean mixed layer depth defined by sigma theta 0.01 kg m-3
+266114:
+- min_mlotst030
+- time-minimum ocean mixed layer depth defined by sigma theta 0.03 kg m-3
+266115:
+- min_mlotst125
+- time-minimum ocean mixed layer depth defined by sigma theta 0.125 kg m-3
+266116:
+- min_mlott02
+- time-minimum ocean mixed layer depth defined by temperature 0.2 c
+266117:
+- min_mlott05
+- time-minimum ocean mixed layer depth defined by temperature 0.5 c
+266118:
+- min_sc300m
+- time-minimum average sea water practical salinity in the upper 300 m
+266119:
+- min_sc700m
+- time-minimum average sea water practical salinity in the upper 700 m
+266120:
+- min_scbtm
+- time-minimum total column average sea water practical salinity
+266121:
+- min_hc300m
+- time-minimum vertically-integrated heat content in the upper 300 m
+266122:
+- min_hc700m
+- time-minimum vertically-integrated heat content in the upper 700 m
+266123:
+- min_hcbtm
+- time-minimum total column of heat content
+266124:
+- min_zos
+- time-minimum sea surface height
+266125:
+- min_stheig
+- time-minimum steric change in sea surface height
+266126:
+- min_hstheig
+- time-minimum halosteric change in sea surface height
+266127:
+- min_tstheig
+- time-minimum thermosteric change in sea surface height
+266128:
+- min_thcline
+- time-minimum thermocline depth
+266129:
+- min_btp
+- time-minimum bottom pressure equivalent height
+266130:
+- min_swfup
+- time-minimum net surface upward water flux
+266131:
+- min_fw2sw
+- time-minimum fresh water flux into sea water (from rivers)
+266132:
+- min_vsf2sw
+- time-minimum virtual salt flux into sea water
+266133:
+- min_hfcorr
+- time-minimum heat flux correction
+266134:
+- min_fwcorr
+- time-minimum fresh water flux correction
+266135:
+- min_vsfcorr
+- time-minimum virtual salt flux correction
+266136:
+- min_turbocl
+- time-minimum turbocline depth (kz=5e-4)
+266137:
+- min_svy
+- time-minimum y-component of surface sea water velocity
+266138:
+- min_svx
+- time-minimum x-component of surface sea water velocity
+266139:
+- min_svn
+- time-minimum northward surface sea water velocity
+266140:
+- min_sve
+- time-minimum eastward surface sea water velocity
+266141:
+- min_hct26
+- time-minimum heat content surface to 26c isotherm
+266142:
+- min_bckineta
+- time-minimum sea surface height tendency due to parameterization
+266143:
+- min_zosib
+- time-minimum sea surface height with inverse barometer correction
+266144:
+- min_pt300m
+- time-minimum average sea water potential temperature in the upper 300m
+266145:
+- min_sss
+- time-minimum sea surface salinity
+266146:
+- min_sc300v
+- time-minimum vertically integrated sea water practical salinity in the upper 300
+  m
+266147:
+- min_sc700v
+- time-minimum vertically integrated sea water practical salinity in the upper 700
+  m
+266148:
+- min_scbtv
+- time-minimum total column vertically integrated sea water practical salinity
+266149:
+- min_rsdos
+- time-minimum sea surface downward short-wave radiation flux
+266500:
+- min_so
+- time-minimum sea water practical salinity
+266501:
+- min_thetao
+- time-minimum sea water potential temperature
+266502:
+- min_sigmat
+- time-minimum sea water sigma theta
+266503:
+- min_voy
+- time-minimum y-component of sea water velocity
+266504:
+- min_uox
+- time-minimum x-component of sea water velocity
+266505:
+- min_von
+- time-minimum northward sea water velocity
+266506:
+- min_uoe
+- time-minimum eastward sea water velocity
+266507:
+- min_wo
+- time-minimum upward sea water velocity
+266508:
+- min_thetaodmp
+- time-minimum sea water potential temperature tendency due to newtonian relaxation
+266509:
+- min_sodmp
+- time-minimum sea water salinity tendency due to newtonian relaxation
+266510:
+- min_bckint
+- time-minimum sea water temperature tendency due to parameterization
+266511:
+- min_bckins
+- time-minimum sea water salinity tendency due to parameterization
+266512:
+- min_bckine
+- time-minimum eastward sea water velocity tendency due to parameterization
+266513:
+- min_bckinn
+- time-minimum northward sea water velocity tendency due to parameterization
+266514:
+- min_tdbiascorr
+- time-minimum sea water temperature tendency due to direct bias correction
+266515:
+- min_sdbiascorr
+- time-minimum sea water salinity tendency due to direct bias correction
+266516:
+- min_salo
+- time-minimum sea water salinity
+266517:
+- min_mtn
+- time-minimum northward mass transport
+266518:
+- min_mte
+- time-minimum eastward mass transport
 266519:
 - min_zo
 - time-minimum sea water depth
+266520:
+- min_mtup
+- time-minimum sea water upward mass transport
+266521:
+- min_agessc
+- time-minimum sea water age since surface contact
+266522:
+- min_rsdo
+- time-minimum sea water downward short-wave radiation flux
+266900:
+- min_ssr_sea
+- time-minimum net short wave radiation rate at sea surface
+266901:
+- min_wst_sea
+- time-minimum wind stress at sea surface
+266902:
+- min_10ws_sea
+- time-minimum wind speed at 10m above sea surface
+266903:
+- min_10nd_sea
+- time-minimum neutral drag coefficient at 10m above sea surface
+266904:
+- min_tprate_sea
+- time-minimum total precipitation rate at sea surface
+266905:
+- min_snrate_sea
+- time-minimum snow precipitation rate at sea surface
+266906:
+- min_ewst_sea
+- time-minimum eastward component of wind stress over sea ice
+266907:
+- min_nwst_sea
+- time-minimum northward component of wind stress over sea ice
+266908:
+- min_uwst_sea
+- time-minimum u-component of wind stress over sea ice
+266909:
+- min_vwst_sea
+- time-minimum v-component of wind stress over sea ice
+267000:
+- std_sithick
+- time-standard-deviation sea ice thickness
+267001:
+- std_siconc
+- time-standard-deviation sea ice area fraction
+267002:
+- std_sisnthick
+- time-standard-deviation snow thickness over sea ice
+267003:
+- std_siue
+- time-standard-deviation eastward sea ice velocity
+267004:
+- std_sivn
+- time-standard-deviation northward sea ice velocity
+267005:
+- std_sialb
+- time-standard-deviation sea ice albedo
+267006:
+- std_sitemptop
+- time-standard-deviation sea ice surface temperature
+267007:
+- std_sigrowth
+- time-standard-deviation sea ice growth
+267008:
+- std_sivol
+- time-standard-deviation sea ice volume per unit area
+267009:
+- std_snvol
+- time-standard-deviation snow volume over sea ice per unit area
+267010:
+- std_vasit
+- time-standard-deviation vertically averaged sea ice temperature
+267011:
+- std_sntemp
+- time-standard-deviation snow temperature over sea ice
+267012:
+- std_sisntemp
+- time-standard-deviation sea ice temperature at the sea ice and snow interface
+267013:
+- std_usitemp
+- time-standard-deviation underside ice temperature
+267014:
+- std_sihc
+- time-standard-deviation sea ice heat content
+267015:
+- std_snhc
+- time-standard-deviation snow heat content over sea ice
+267016:
+- std_sifbr
+- time-standard-deviation sea ice freeboard thickness
+267017:
+- std_sipf
+- time-standard-deviation sea ice melt pond fraction
+267018:
+- std_sipd
+- time-standard-deviation sea ice melt pond depth
+267019:
+- std_sipvol
+- time-standard-deviation sea ice melt pond volume per unit area
+267020:
+- std_bckinsic
+- time-standard-deviation sea ice fraction tendency due to parameterization
+267021:
+- std_six
+- time-standard-deviation x-component of sea ice velocity
+267022:
+- std_siy
+- time-standard-deviation y-component of sea ice velocity
+267023:
+- std_icesalt
+- time-standard-deviation sea ice salinity
 267024:
 - std_sit
 - time-standard-deviation sea ice temperature
+267025:
+- std_sibm
+- time-standard-deviation sea ice breakup memory
+267100:
+- std_sos
+- time-standard-deviation sea surface practical salinity
+267101:
+- std_tos
+- time-standard-deviation sea surface temperature
+267102:
+- std_t14d
+- time-standard-deviation depth of 14 c isotherm
+267103:
+- std_t17d
+- time-standard-deviation depth of 17 c isotherm
+267104:
+- std_t20d
+- time-standard-deviation depth of 20 c isotherm
+267105:
+- std_t26d
+- time-standard-deviation depth of 26 c isotherm
+267106:
+- std_t28d
+- time-standard-deviation depth of 28 c isotherm
+267107:
+- std_stfbarot
+- time-standard-deviation barotropic stream function
+267108:
+- std_hfds
+- time-standard-deviation surface downward heat flux
+267109:
+- std_tauvon
+- time-standard-deviation northward surface stress
+267110:
+- std_tauuoe
+- time-standard-deviation eastward surface stress
+267111:
+- std_tauvo
+- time-standard-deviation y-component of surface stress
+267112:
+- std_tauuo
+- time-standard-deviation x-component of surface stress
+267113:
+- std_mlotst010
+- time-standard-deviation ocean mixed layer depth defined by sigma theta 0.01 kg m-3
+267114:
+- std_mlotst030
+- time-standard-deviation ocean mixed layer depth defined by sigma theta 0.03 kg m-3
+267115:
+- std_mlotst125
+- time-standard-deviation ocean mixed layer depth defined by sigma theta 0.125 kg
+  m-3
+267116:
+- std_mlott02
+- time-standard-deviation ocean mixed layer depth defined by temperature 0.2 c
+267117:
+- std_mlott05
+- time-standard-deviation ocean mixed layer depth defined by temperature 0.5 c
+267118:
+- std_sc300m
+- time-standard-deviation average sea water practical salinity in the upper 300 m
+267119:
+- std_sc700m
+- time-standard-deviation average sea water practical salinity in the upper 700 m
+267120:
+- std_scbtm
+- time-standard-deviation total column average sea water practical salinity
+267121:
+- std_hc300m
+- time-standard-deviation vertically-integrated heat content in the upper 300 m
+267122:
+- std_hc700m
+- time-standard-deviation vertically-integrated heat content in the upper 700 m
+267123:
+- std_hcbtm
+- time-standard-deviation total column of heat content
+267124:
+- std_zos
+- time-standard-deviation sea surface height
+267125:
+- std_stheig
+- time-standard-deviation steric change in sea surface height
+267126:
+- std_hstheig
+- time-standard-deviation halosteric change in sea surface height
+267127:
+- std_tstheig
+- time-standard-deviation thermosteric change in sea surface height
+267128:
+- std_thcline
+- time-standard-deviation thermocline depth
+267129:
+- std_btp
+- time-standard-deviation bottom pressure equivalent height
+267130:
+- std_swfup
+- time-standard-deviation net surface upward water flux
+267131:
+- std_fw2sw
+- time-standard-deviation fresh water flux into sea water (from rivers)
+267132:
+- std_vsf2sw
+- time-standard-deviation virtual salt flux into sea water
+267133:
+- std_hfcorr
+- time-standard-deviation heat flux correction
+267134:
+- std_fwcorr
+- time-standard-deviation fresh water flux correction
+267135:
+- std_vsfcorr
+- time-standard-deviation virtual salt flux correction
+267136:
+- std_turbocl
+- time-standard-deviation turbocline depth (kz=5e-4)
+267137:
+- std_svy
+- time-standard-deviation y-component of surface sea water velocity
+267138:
+- std_svx
+- time-standard-deviation x-component of surface sea water velocity
+267139:
+- std_svn
+- time-standard-deviation northward surface sea water velocity
+267140:
+- std_sve
+- time-standard-deviation eastward surface sea water velocity
+267141:
+- std_hct26
+- time-standard-deviation heat content surface to 26c isotherm
+267142:
+- std_bckineta
+- time-standard-deviation sea surface height tendency due to parameterization
+267143:
+- std_zosib
+- time-standard-deviation sea surface height with inverse barometer correction
+267144:
+- std_pt300m
+- time-standard-deviation average sea water potential temperature in the upper 300m
+267145:
+- std_sss
+- time-standard-deviation sea surface salinity
+267146:
+- std_sc300v
+- time-standard-deviation vertically integrated sea water practical salinity in the
+  upper 300 m
+267147:
+- std_sc700v
+- time-standard-deviation vertically integrated sea water practical salinity in the
+  upper 700 m
+267148:
+- std_scbtv
+- time-standard-deviation total column vertically integrated sea water practical salinity
+267149:
+- std_rsdos
+- time-standard-deviation sea surface downward short-wave radiation flux
+267500:
+- std_so
+- time-standard-deviation sea water practical salinity
+267501:
+- std_thetao
+- time-standard-deviation sea water potential temperature
+267502:
+- std_sigmat
+- time-standard-deviation sea water sigma theta
+267503:
+- std_voy
+- time-standard-deviation y-component of sea water velocity
+267504:
+- std_uox
+- time-standard-deviation x-component of sea water velocity
+267505:
+- std_von
+- time-standard-deviation northward sea water velocity
+267506:
+- std_uoe
+- time-standard-deviation eastward sea water velocity
+267507:
+- std_wo
+- time-standard-deviation upward sea water velocity
+267508:
+- std_thetaodmp
+- time-standard-deviation sea water potential temperature tendency due to newtonian
+  relaxation
+267509:
+- std_sodmp
+- time-standard-deviation sea water salinity tendency due to newtonian relaxation
+267510:
+- std_bckint
+- time-standard-deviation sea water temperature tendency due to parameterization
+267511:
+- std_bckins
+- time-standard-deviation sea water salinity tendency due to parameterization
+267512:
+- std_bckine
+- time-standard-deviation eastward sea water velocity tendency due to parameterization
+267513:
+- std_bckinn
+- time-standard-deviation northward sea water velocity tendency due to parameterization
+267514:
+- std_tdbiascorr
+- time-standard-deviation sea water temperature tendency due to direct bias correction
+267515:
+- std_sdbiascorr
+- time-standard-deviation sea water salinity tendency due to direct bias correction
+267516:
+- std_salo
+- time-standard-deviation sea water salinity
+267517:
+- std_mtn
+- time-standard-deviation northward mass transport
+267518:
+- std_mte
+- time-standard-deviation eastward mass transport
 267519:
 - std_zo
 - time-standard-deviation sea water depth
+267520:
+- std_mtup
+- time-standard-deviation sea water upward mass transport
+267521:
+- std_agessc
+- time-standard-deviation sea water age since surface contact
+267522:
+- std_rsdo
+- time-standard-deviation sea water downward short-wave radiation flux
+267900:
+- std_ssr_sea
+- time-standard-deviation net short wave radiation rate at sea surface
+267901:
+- std_wst_sea
+- time-standard-deviation wind stress at sea surface
+267902:
+- std_10ws_sea
+- time-standard-deviation wind speed at 10m above sea surface
+267903:
+- std_10nd_sea
+- time-standard-deviation neutral drag coefficient at 10m above sea surface
+267904:
+- std_tprate_sea
+- time-standard-deviation total precipitation rate at sea surface
+267905:
+- std_snrate_sea
+- time-standard-deviation snow precipitation rate at sea surface
+267906:
+- std_ewst_sea
+- time-standard-deviation eastward component of wind stress over sea ice
+267907:
+- std_nwst_sea
+- time-standard-deviation northward component of wind stress over sea ice
+267908:
+- std_uwst_sea
+- time-standard-deviation u-component of wind stress over sea ice
+267909:
+- std_vwst_sea
+- time-standard-deviation v-component of wind stress over sea ice
 300001:
 - pres
 - pressure

@@ -47,8 +47,14 @@ for data in cursor.fetchall():
 cursor.close()
 db.close()
 
-# Convert to list of lists
-chemid_list = [[k] + v for k, v in CHEMSIDS.items()]
+# Convert to list of lists and remove duplicates
+chemid_list = []
+for k, v in CHEMSIDS.items():
+    ll = [k]
+    for item in v:
+        if item not in ll:
+            ll.append(item)
+    chemid_list.append(ll)
 
 with open("chemids.yaml", "w") as f:
     f.write(
