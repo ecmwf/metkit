@@ -8,10 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/MarsLanguage.h"
+
 #include <algorithm>
 #include <fstream>
 #include <optional>
-#include <set>
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
@@ -24,7 +25,6 @@
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpansion.h"
-#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -56,10 +56,7 @@ static void init() {
     }
 }
 
-
-namespace metkit {
-namespace mars {
-
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
@@ -557,5 +554,4 @@ void MarsLanguage::flatten(const MarsExpandContext&, const MarsRequest& request,
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

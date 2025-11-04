@@ -14,10 +14,16 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsLanguage_H
-#define metkit_MarsLanguage_H
+#pragma once
+
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "eckit/memory/NonCopyable.h"
+
 #include "metkit/mars/MarsRequest.h"
 
 
