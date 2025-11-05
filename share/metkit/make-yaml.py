@@ -20,7 +20,7 @@ def execute(database, fun, prefix=None, asList=False):
 	connection = mysql.connector.connect(**connectionDetails)
 	cursor = connection.cursor()
 	cursor.execute("USE " + database)
-	r = fun(cursor, prefix, asList) if (prefix and asList) else fun(cursor)
+	r = fun(cursor, prefix, asList) if (prefix) else fun(cursor)
 	cursor.close()
 	connection.close()
 	return r
@@ -141,7 +141,7 @@ def main():
 			with open(o + "ids.yaml", "w") as f:
 				header(f, o)
 				yaml.safe_dump(content, f, default_flow_style=None)
-		case 'paramids':
+		case 'param':
 			content = execute("param", ids, o)
 			with open(o + "ids.yaml", "w") as f:
 				header(f, o)
