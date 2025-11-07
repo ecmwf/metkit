@@ -43,6 +43,8 @@ public:
 
     virtual ~ContextRule() = default;
 
+    const std::string& key() const { return key_; }
+
     virtual bool matches(MarsRequest req) const = 0;
 
     friend std::ostream& operator<<(std::ostream& s, const ContextRule& r) {
@@ -156,6 +158,8 @@ public:
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
+    size_t maxAxisIndex() const;
+
     bool matches(MarsRequest req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
@@ -225,6 +229,12 @@ protected:  // methods
         NOTIMP;
     }
 
+    friend class MarsLanguage;
+
+    void defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values);
+    void set(std::shared_ptr<Context> context, const std::vector<std::string>& values);
+    void unset(std::shared_ptr<Context> context);
+
 protected:  // members
 
     std::string name_;
@@ -234,11 +244,11 @@ protected:  // members
     bool multiple_;
     bool duplicates_;
 
-    std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
+    std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
+    std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
+    std::set<std::shared_ptr<Context>> unsets_;
+
     std::optional<std::vector<std::string>> inheritance_;
-    std::set<std::unique_ptr<Context>> only_;
-    std::map<std::unique_ptr<Context>, std::vector<std::string>> sets_;
-    std::set<std::unique_ptr<Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;
 

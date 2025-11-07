@@ -5,7 +5,11 @@ import re
 import os
 
 
-db = MySQLdb.connect("grib-param-db-prod.ecmwf.int", "ecmwf_ro", "ecmwf_ro", "param")
+db = MySQLdb.connect(
+    "grib-param-db-prod.ecmwf.int",
+    os.environ['PARAM_DB_USER'],
+    os.environ['PARAM_DB_PASSWORD'],
+    "param")
 
 
 cursor = db.cursor()

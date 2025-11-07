@@ -8,10 +8,11 @@
  * does it submit to any jurisdiction.
  */
 
+#include "metkit/mars/MarsLanguage.h"
+
 #include <algorithm>
 #include <fstream>
 #include <optional>
-#include <set>
 
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
@@ -23,7 +24,6 @@
 
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpansion.h"
-#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -32,11 +32,15 @@
 
 static pthread_once_t once = PTHREAD_ONCE_INIT;
 static eckit::Value languages_;
+static std::vector<eckit::Value> modifiers_{};
 static std::set<std::string> verbs_;
 static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
-    languages_               = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+    languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+    for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
+        modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+    }
     const eckit::Value verbs = languages_.keys();
     for (size_t i = 0; i < verbs.size(); ++i) {
         verbs_.insert(verbs[i]);
@@ -51,13 +55,50 @@ static void init() {
     }
 }
 
-
-namespace metkit {
-namespace mars {
-
+namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
+void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
+                                 const eckit::Value& mod) {
+    eckit::Value keys;
+    if (typ == ModifierType::UNSET) {
+        ASSERT(mod.isList());
+        keys = mod;
+    }
+    else {
+        ASSERT(mod.isMap());
+        keys = mod.keys();
+    }
+    for (size_t j = 0; j < keys.size(); ++j) {
+        std::string key = keys[j];
 
+        auto it = types_.find(key);
+        if (it != types_.end()) {
+            ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
+
+            if (typ == ModifierType::UNSET) {
+                it->second->unset(ctx);
+            }
+            else {
+                eckit::Value vv = mod[key];
+                std::vector<std::string> vals;
+                if (vv.isList()) {
+                    for (size_t k = 0; k < vv.size(); ++k) {
+                        vals.push_back(vv[k]);
+                    }
+                }
+                else {
+                    vals.push_back(vv);
+                }
+
+                if (typ == ModifierType::DEFAULT)
+                    it->second->defaults(ctx, vals);
+                else if (typ == ModifierType::SET)
+                    it->second->set(ctx, vals);
+            }
+        }
+    }
+}
 
 MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
     pthread_once(&once, init);
@@ -84,8 +125,8 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
             }
         }
 
-        types_[keyword] = TypesFactory::build(keyword, settings);
-        types_[keyword]->attach();
+        auto [it, success] = types_.emplace(keyword, TypesFactory::build(keyword, settings));
+        it->second->attach();
         keywords_.push_back(keyword);
 
         std::optional<eckit::Value> aliases;
@@ -124,6 +165,27 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         }
     }
 
+    // load modifiers and associate to types
+    for (const auto& modifierFile : modifiers_) {
+        ASSERT(modifierFile.isList());
+        for (size_t i = 0; i < modifierFile.size(); ++i) {
+            eckit::Value mod = modifierFile[i];
+            ASSERT(mod.isMap());
+            ASSERT(mod.contains("context"));
+            std::shared_ptr<Context> ctx = Context::parseContext(mod["context"]);
+            size_t maxIndex              = ctx->maxAxisIndex();
+            if (mod.contains("defaults")) {
+                parseModifier(ModifierType::DEFAULT, ctx, maxIndex, mod["defaults"]);
+            }
+            if (mod.contains("set")) {
+                parseModifier(ModifierType::SET, ctx, maxIndex, mod["set"]);
+            }
+            if (mod.contains("unset")) {
+                parseModifier(ModifierType::UNSET, ctx, maxIndex, mod["unset"]);
+            }
+        }
+    }
+
     if (lang.contains("_clear_defaults")) {
         const auto& keywords = lang["_clear_defaults"];
         for (auto i = 0; i < keywords.size(); ++i) {
@@ -137,11 +199,11 @@ MarsLanguage::MarsLanguage(const std::string& verb) : verb_(verb) {
         Type* t = nullptr;
         auto it = types_.find(a);
         if (it != types_.end()) {
-            t = (*it).second;
+            t = it->second;
         }
         typesByAxisOrder_.emplace_back(a, t);
     }
-    for (const auto& [k, t] : types_) {
+    for (auto& [k, t] : types_) {
         if (dataKeywords_.find(k) == dataKeywords_.end()) {
             typesByAxisOrder_.emplace_back(k, t);
         }
@@ -164,8 +226,8 @@ const std::set<std::string>& MarsLanguage::sinkKeywords() const {
 }
 
 MarsLanguage::~MarsLanguage() {
-    for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        (*j).second->detach();
+    for (auto& [k, t] : types_) {
+        t->detach();
     }
 }
 
@@ -174,8 +236,8 @@ eckit::PathName MarsLanguage::languageYamlFile() {
 }
 
 void MarsLanguage::reset() {
-    for (std::map<std::string, Type*>::iterator j = types_.begin(); j != types_.end(); ++j) {
-        (*j).second->reset();
+    for (auto& [k, t] : types_) {
+        t->reset();
     }
 }
 
@@ -364,7 +426,7 @@ public:
 
 
 Type* MarsLanguage::type(const std::string& name) const {
-    std::map<std::string, Type*>::const_iterator k = types_.find(name);
+    auto k = types_.find(name);
     if (k == types_.end()) {
         if (name[0] == '_') {
             static TypeHidden hidden;
@@ -373,7 +435,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
-    return (*k).second;
+    return k->second;
 }
 
 
@@ -469,7 +531,6 @@ const std::string& MarsLanguage::verb() const {
     return verb_;
 }
 
-
 void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
                            MarsRequest& result, FlattenCallback& callback) {
     if (i == params.size()) {
@@ -503,5 +564,4 @@ void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars

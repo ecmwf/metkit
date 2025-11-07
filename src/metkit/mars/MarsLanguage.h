@@ -14,21 +14,34 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsLanguage_H
-#define metkit_MarsLanguage_H
+#pragma once
+
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "eckit/memory/NonCopyable.h"
+
 #include "metkit/mars/MarsRequest.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
-class Type;
+class Context;
 class FlattenCallback;
+class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class ModifierType {
+    DEFAULT,
+    SET,
+    UNSET
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class MarsLanguage : private eckit::NonCopyable {
 
@@ -71,6 +84,7 @@ private:  // methods
 
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback);
+    void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
 
 private:  // members
 
@@ -89,7 +103,4 @@ private:  // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

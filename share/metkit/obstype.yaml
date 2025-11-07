@@ -29,8 +29,8 @@
             - [21, dsu, dribu surface]
             - [22, bsu, bathy surface]
             - [23, tsu, tesac surface]
-            - [26, ostia] # ????
-            - [27, buoy] # ????
+            - [26, ostia]
+            - [27, buoy]
             - [180, bss, bufr ship synop]
             - [181, bmb, bufr moored buoys]
             - [182, bdb, bufr drifting buoys]
