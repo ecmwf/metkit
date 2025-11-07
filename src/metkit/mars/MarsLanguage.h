@@ -31,7 +31,6 @@ namespace metkit::mars {
 
 class Context;
 class FlattenCallback;
-class MarsExpandContext;
 class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -52,13 +51,13 @@ public:  // methods
 
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit, bool strict);
+    MarsRequest expand(const MarsRequest& r, bool inherit, bool strict);
 
     void reset();
 
     const std::string& verb() const;
 
-    void flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback);
+    void flatten(const MarsRequest& request, FlattenCallback& callback);
 
     static eckit::PathName languageYamlFile();
 
@@ -73,11 +72,10 @@ public:  // methods
 
 public:  // class methods
 
-    static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
+    static std::string expandVerb(const std::string& verb);
 
-    static std::string bestMatch(const MarsExpandContext& ctx, const std::string& name,
-                                 const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                 const std::map<std::string, std::string>& aliases = {});
+    static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
+                                 bool fullMatch, const std::map<std::string, std::string>& aliases = {});
 
     static eckit::Value jsonFile(const std::string& name);
 

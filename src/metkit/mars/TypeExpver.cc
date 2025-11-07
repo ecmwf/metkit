@@ -13,7 +13,6 @@
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Translator.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/TypeExpver.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -24,7 +23,7 @@ namespace mars {
 
 TypeExpver::TypeExpver(const std::string& name, const eckit::Value& settings) : Type(name, settings) {}
 
-bool TypeExpver::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
+bool TypeExpver::expand(std::string& value, const MarsRequest&) const {
 
     std::string v = eckit::StringTools::lower(eckit::StringTools::trim(value));
 

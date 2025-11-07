@@ -39,7 +39,7 @@ TypeRegex::TypeRegex(const std::string& name, const eckit::Value& settings) : Ty
     }
 }
 
-bool TypeRegex::expand(const MarsExpandContext&, std::string& value, const MarsRequest&) const {
+bool TypeRegex::expand(std::string& value, const MarsRequest&) const {
 
     for (std::vector<eckit::Regex>::const_iterator j = regex_.begin(); j != regex_.end(); ++j) {
         if ((*j).match(value)) {

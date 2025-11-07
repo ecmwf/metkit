@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 
+#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
@@ -30,7 +31,6 @@
 namespace metkit::mars {
 
 class MarsLanguage;
-class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -45,6 +45,7 @@ class ExpandCallback {
 public:
 
     virtual ~ExpandCallback();
+    virtual void operator()(const MarsRequest& request) { this->operator()(DummyContext{}, request); }
     virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
 };
 
@@ -61,12 +62,14 @@ public:
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
+    void expand(const MarsRequest&, ExpandCallback&);
     void expand(const MarsExpandContext&, const MarsRequest&, ExpandCallback&);
+    void flatten(const MarsRequest&, FlattenCallback&);
     void flatten(const MarsExpandContext&, const MarsRequest&, FlattenCallback&);
 
 private:
 
-    MarsLanguage& language(const MarsExpandContext&, const std::string& verb);
+    MarsLanguage& language(const std::string& verb);
 
     std::map<std::string, MarsLanguage*> languages_;
     bool inherit_;

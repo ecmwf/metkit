@@ -23,7 +23,6 @@
 #include "metkit/config/LibMetkit.h"
 
 #include "metkit/hypercube/HyperCube.h"
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/Type.h"
 #include "metkit/mars/TypesFactory.h"
@@ -269,15 +268,11 @@ static bool isnumeric(const std::string& s) {
     return s.length() > 0;
 }
 
-std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::string& name,
-                                    const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                    const std::map<std::string, std::string>& aliases) {
+
+std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail,
+                                    bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
     size_t score = (fullMatch ? name.length() : 1);
     std::vector<std::string> best;
-
-
-    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", true);
-
 
     for (size_t i = 0; i < values.size(); ++i) {
         const std::string& value = values[i];
@@ -285,6 +280,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         size_t len = std::min(name.length(), value.length());
         size_t s   = 0;
 
+        // Prefix comparison, break if there is a difference
         for (size_t j = 0; j < len; ++j) {
             if (::tolower(name[j]) == ::tolower(value[j])) {
                 s++;
@@ -294,6 +290,8 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             }
         }
 
+        // if value and name are the same (in lowercase), look up aliases and return the alias
+        // otherwise return the value (which is name)
         if (s == value.length() && s == name.length()) {
             if (aliases.find(value) != aliases.end()) {
                 return aliases.find(value)->second;
@@ -301,6 +299,13 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             return value;
         }
 
+        // If fullmatch == true:
+        // only option is s==score, otherwise the break above would have triggered
+        // so best is only filled with exact matches
+        // If fullmatch == false:
+        // score keeps track of the best value found, if a better value (in terms of matching prefixes)
+        // is found, clear the best vector and push the new best. If all matches are equally good, keep them in the best
+        // vector
         if (s >= score) {
             if (s > score) {
                 best.clear();
@@ -311,10 +316,12 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
     }
 
     if (!quiet && best.size() > 0) {
-        std::cerr << "Matching '" << name << "' with " << best << ctx << std::endl;
+        std::cerr << "Matching '" << name << "' with " << best << std::endl;
     }
 
+    static bool strict = eckit::Resource<bool>("$METKIT_LANGUAGE_STRICT_MODE", true);
     if (best.size() == 1) {
+        // If the best entry is a number or not name (why is this even needed)
         if (isnumeric(best[0]) && (best[0] != name)) {
             best.clear();
         }
@@ -322,7 +329,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
             if (strict) {
                 if (best[0] != name) {
                     std::ostringstream oss;
-                    oss << "Cannot match [" << name << "] in " << values << ctx;
+                    oss << "Cannot match [" << name << "] in " << values;
                     throw eckit::UserError(oss.str());
                 }
             }
@@ -334,6 +341,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         }
     }
 
+    // In case the match is empty, return or fail, depending on the fail flag
     static std::string empty;
     if (best.empty()) {
         if (!fail) {
@@ -341,10 +349,12 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         }
 
         std::ostringstream oss;
-        oss << "Cannot match [" << name << "] in " << values << ctx;
+        oss << "Cannot match [" << name << "] in " << values;
         throw eckit::UserError(oss.str());
     }
 
+    // Check the existing aliases for mappings of the matches to the canonical parameter name
+    // A set is used to de-duplicate the findings
     std::set<std::string> names;
     for (std::vector<std::string>::const_iterator j = best.begin(); j != best.end(); ++j) {
         const auto k = aliases.find(*j);
@@ -356,6 +366,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         }
     }
 
+    // If there is only on match return the given one
     if (names.size() == 1) {
         if (aliases.find(best[0]) != aliases.end()) {
             return aliases.find(best[0])->second;
@@ -363,6 +374,7 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         return best[0];
     }
 
+    // Otherwise there is an ambiguity and we want to return or fail (depending on the fail flag)
     if (!fail) {
         return empty;
     }
@@ -382,12 +394,10 @@ std::string MarsLanguage::bestMatch(const MarsExpandContext& ctx, const std::str
         }
     }
 
-    oss << ctx;
-
     throw eckit::UserError(oss.str());
 }
 
-std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::string& verb) {
+std::string MarsLanguage::expandVerb(const std::string& verb) {
     pthread_once(&once, init);
     std::string v = eckit::StringTools::lower(verb);
     auto vv       = verbs_.find(v);
@@ -407,7 +417,7 @@ std::string MarsLanguage::expandVerb(const MarsExpandContext& ctx, const std::st
 class TypeHidden : public Type {
     bool flatten() const override { return false; }
     void print(std::ostream& out) const override { out << "TypeHidden"; }
-    bool expand(const MarsExpandContext&, std::string&, const MarsRequest&) const override { return true; }
+    bool expand(std::string&, const MarsRequest&) const override { return true; }
 
 public:
 
@@ -429,7 +439,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit, bool strict) {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
     MarsRequest result(verb_);
 
     try {
@@ -444,7 +454,7 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(ctx, p, keywords_, true, false, true, aliases_), PP);
+                paramSet.emplace(cache_[p] = bestMatch(p, keywords_, true, false, true, aliases_), PP);
             }
         }
 
@@ -479,9 +489,9 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
             }
 
             auto t = type(p);
-            t->expand(ctx, values, result);
+            t->expand(values, result);
             result.setValuesTyped(t, values);
-            t->check(ctx, values);
+            t->check(values);
         }
 
         if (inherit) {
@@ -500,12 +510,12 @@ MarsRequest MarsLanguage::expand(const MarsExpandContext& ctx, const MarsRequest
         result.getParams(params);
 
         for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-            type(*k)->pass2(ctx, result);
+            type(*k)->pass2(result);
         }
 
         for (const auto& [k, t] : typesByAxisOrder_) {
             if (t != nullptr)
-                t->finalise(ctx, result, strict);
+                t->finalise(result, strict);
         }
     }
     catch (std::exception& e) {
@@ -544,7 +554,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
     }
 }
 
-void MarsLanguage::flatten(const MarsExpandContext&, const MarsRequest& request, FlattenCallback& callback) {
+void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
     std::vector<std::string> params;
     request.getParams(params);
 
