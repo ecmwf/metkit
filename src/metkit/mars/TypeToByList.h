@@ -22,8 +22,6 @@
 
 namespace metkit::mars {
 
-class MarsExpandContext;
-
 //----------------------------------------------------------------------------------------------------------------------
 template <typename EL, typename BY>
 class TypeToByList : public ITypeToByList {
@@ -40,8 +38,7 @@ public:  // methods
 
     virtual ~TypeToByList() = default;
 
-    void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values,
-                      const MarsRequest& request) const override {
+    void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const override {
 
         if (values.size() == 1) {
             return;
@@ -71,8 +68,8 @@ public:  // methods
                     throw eckit::BadValue(oss.str());
                 }
 
-                EL from          = s2el(type_.tidy(values[i - 1], ctx, request));
-                std::string to_s = type_.tidy(values[i + 1], ctx, request);
+                EL from          = s2el(type_.tidy(values[i - 1], request));
+                std::string to_s = type_.tidy(values[i + 1], request);
                 EL to            = s2el(to_s);
                 BY by            = s2by(by_);
 
@@ -114,7 +111,7 @@ public:  // methods
                         else {
                             j -= by;
                         }
-                        j_s = type_.tidy(el2s(j), ctx, request);
+                        j_s = type_.tidy(el2s(j), request);
                     }
                     catch (...) {
                         break;  /// reached an invalid value
@@ -127,7 +124,7 @@ public:  // methods
                 }
             }
             else {
-                newval.push_back(type_.tidy(s, ctx, request));
+                newval.push_back(type_.tidy(s, request));
             }
         }
 

@@ -11,15 +11,16 @@
 /// @author Baudouin Raoult
 /// @date Jun 2012
 
-#ifndef metkit_MARSParser_h
-#define metkit_MARSParser_h
+#pragma once
 
 #include "eckit/parser/StreamParser.h"
 #include "eckit/types/Types.h"
 #include "metkit/mars/MarsParsedRequest.h"
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
+
+class MarsExpandContext;
+class MarsRequest;
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -32,7 +33,7 @@ public:
 
 protected:
 
-    ~MarsParserCallback();
+    virtual ~MarsParserCallback() = default;
 };
 
 
@@ -66,7 +67,4 @@ private:  // methods
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars
