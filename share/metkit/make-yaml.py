@@ -22,18 +22,18 @@ connectionDetails = dict(
 	user = os.environ['PARAM_DB_USER'],
 	passwd = os.environ['PARAM_DB_PASSWORD'])
 
-def execute(database, fun, prefix=None, asList=False):
+def execute(database, fun, prefix=None, asList=False, lowercase=True):
 	connection = mysql.connector.connect(**connectionDetails)
 	cursor = connection.cursor()
 	cursor.execute("USE " + database)
-	r = fun(cursor, prefix, asList) if (prefix) else fun(cursor)
+	r = fun(cursor, prefix, asList, lowercase) if (prefix) else fun(cursor)
 	cursor.close()
 	connection.close()
 	return r
 
 ################################################################################################
 
-def ids(cursor, prefix, asList):
+def ids(cursor, prefix, asList, lowercase):
 
 	PRODGEN = {}
 	if os.path.exists("prodgen-" + prefix + "ids.yaml"):
@@ -51,7 +51,9 @@ def ids(cursor, prefix, asList):
 	cursor.execute("select * from " + prefix)
 
 	for data in cursor.fetchall():
-		paramid, abbr, longname = int(data[0]), data[1].lower(), data[2].lower()
+		paramid, abbr, longname = int(data[0]), data[1], data[2]
+		if lowercase:
+			abbr = abbr.lower()
 
 		abbr = re.sub(r"\W", "_", abbr)
 		abbr = re.sub(r"_+", "_", abbr)
@@ -75,7 +77,7 @@ def ids(cursor, prefix, asList):
 
 		entry = tuple(entry)
 
-		if entry[0] == entry[1]:
+		if entry[0].lower() == entry[1].lower():
 			entry = tuple([entry[0]])
 		else:
 			entry = tuple(entry)
@@ -143,7 +145,7 @@ def main():
 	o = opts[0].lstrip('-')
 	match o:
 		case 'chem':
-			content = execute("param", ids, o, True)
+			content = execute("param", ids, o, True, False)
 			with open(o + "ids.yaml", "w") as f:
 				header(f, o)
 				yaml.safe_dump(content, f, default_flow_style=None)
