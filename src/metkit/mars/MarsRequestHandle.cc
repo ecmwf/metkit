@@ -47,7 +47,7 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* p
     request_(eckit::StringTools::upper(request.verb())), protocol_(protocol), opened_(false) {
 
     for (const auto& p : request.parameters()) {
-        request_.setValue(eckit::StringTools::upper(p.name()), p.values());
+        request_.values(p.name(), p.values());
     }
     LOG_DEBUG_LIB(LibMetkit) << "MarsRequestHandle::MarsRequestHandle: request: " << request_
                              << " protocol: " << protocol << std::endl;
@@ -58,7 +58,7 @@ MarsRequestHandle::MarsRequestHandle(const metkit::mars::MarsRequest& request, c
     request_(eckit::StringTools::upper(request.verb())), protocol_(ProtocolFactory::build(database)), opened_(false) {
 
     for (const auto& p : request.parameters()) {
-        request_.setValue(eckit::StringTools::upper(p.name()), p.values());
+        request_.values(eckit::StringTools::upper(p.name()), p.values());
     }
 }
 
