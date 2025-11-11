@@ -44,12 +44,8 @@ MarsRequestHandle::MarsRequestHandle(eckit::Stream& s) :
     eckit::DataHandle(s), request_(s), protocol_(eckit::Reanimator<BaseProtocol>::reanimate(s)), opened_(false) {}
 
 MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* protocol) :
-    request_(eckit::StringTools::upper(request.verb())), protocol_(protocol), opened_(false) {
-
-    for (const auto& p : request.parameters()) {
-        request_.values(p.name(), p.values());
-    }
-    LOG_DEBUG_LIB(LibMetkit) << "MarsRequestHandle::MarsRequestHandle: request: " << request_
+    request_(request), protocol_(protocol), opened_(false) {
+    LOG_DEBUG_LIB(LibMetkit) << "MarsRequestHandle::MarsRequestHandle: request: " << request
                              << " protocol: " << protocol << std::endl;
     ASSERT(protocol);
 }
