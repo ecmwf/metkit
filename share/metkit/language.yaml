@@ -709,7 +709,7 @@ _field: &_field
   fcperiod:
     category: data
     multiple: true
-    type: integer
+    type: any
 
   time:
     category: data
@@ -1032,10 +1032,18 @@ _observation: &_observation
   obstype:
     category: data
     multiple: true
+    defaults:
+      - context:
+          _verb: [retrieve]
+          type: [ob]
+        vals: [1]
     type: enum
     values: "obstype.yaml"
     # TODO : Migration from old images to new images
 
+  range:
+    category: data
+    type: any
 
   latitude:
     category: data
@@ -1455,9 +1463,13 @@ retrieve:
     defaults:
       - vals: ["off"]
 
-
   duplicates:
     category: sink
+    defaults:
+      - context:
+          _verb: [retrieve]
+          type: [ob]
+        vals: [keep]
     type: enum
     values:
     - keep

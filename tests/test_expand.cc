@@ -1083,6 +1083,17 @@ CASE("test_metkit_expand_MARSC-211") {
     expand(text, expected);
 }
 
+CASE("test_metkit_expand_MARSC-243") {
+    // https://jira.ecmwf.int/browse/MARSC-243
+    const char* text =
+        "retrieve,DOMAIN=G,LEVTYPE=PL,LEVELIST=200,DATE=20040114,TIME=0000,PARAM=155.128,CLASS=OD,TYPE=FCMEAN,STREAM="
+        "MOFM,EXPVER=0001,NUMBER=0,SYSTEM=2,METHOD=1,FCPERIOD=5-11,target=\"reference.GP8yZ1.data\"";
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=FCMEAN,STREAM=MOFM,EXPVER=0001,REPRES=SH,LEVTYPE=PL,LEVELIST=200,PARAM=155,DATE="
+        "20040114,FCPERIOD=5-11,TIME=0000,NUMBER=0,DOMAIN=G,SYSTEM=2,METHOD=1,TARGET=reference.GP8yZ1.data";
+    expand(text, expected);
+}
+
 CASE("test_metkit_expand_MARSC-246") {
     // https://jira.ecmwf.int/browse/MARSC-246
     const char* text =
@@ -1093,6 +1104,26 @@ CASE("test_metkit_expand_MARSC-246") {
         "RETRIEVE,CLASS=OD,TYPE=OF,STREAM=OCEA,EXPVER=0001,REPRES=SH,LEVTYPE=DP,LEVELIST=0,PARAM=151175,DATE=20120201,"
         "TIME=0000,RANGE=264,STEP=288,NUMBER=0,DOMAIN=G,SYSTEM=3,METHOD=1,PRODUCT=TIMS,SECTION=Z,LATITUDE=-9.967,"
         "TARGET=reference.t2APXu.data";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_MARSC-253") {
+    // https://jira.ecmwf.int/browse/MARSC-253
+    const char* text =
+        "retrieve,class=od,type=tf,stream=enfo,expver=0001,repres=bu,obstype=32,date=20060112,time=0000/"
+        "1200,domain=g,duplicates=keep,target=\"data.reference\"";
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=TF,STREAM=ENFO,EXPVER=0001,REPRES=BU,OBSTYPE=32,DATE=20060112,TIME=0000/"
+        "1200,STEP=0,DOMAIN=G,TARGET=data.reference,DUPLICATES=KEEP";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_MARSC-254") {
+    // https://jira.ecmwf.int/browse/MARSC-254
+    const char* text = "retrieve,type=ob,date=20250414,time=00,range=1439,target=\"data.reference\"";
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=OB,STREAM=OPER,EXPVER=0001,REPRES=BU,OBSTYPE=1,DATE=20250414,TIME=0000,RANGE=1439,"
+        "DOMAIN=G,TARGET=data.reference,DUPLICATES=KEEP";
     expand(text, expected);
 }
 

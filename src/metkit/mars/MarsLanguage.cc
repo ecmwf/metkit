@@ -458,8 +458,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
             }
         }
 
-        {  // reorder the parameters, following the AxisOrder
-            // sort params by axisOrder
+        {  // sort the parameters, following the AxisOrder
             for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
                 auto it = paramSet.find(k);
                 if (it != paramSet.end()) {
