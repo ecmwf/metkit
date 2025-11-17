@@ -96,10 +96,7 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
             continue;
         }
 
-        size_t klen = 0;
-
         /* get key size to see if it is an array */
-        ;
         if (h->size(name) != 1) {
             continue;
         }
