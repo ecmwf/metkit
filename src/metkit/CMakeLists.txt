@@ -137,8 +137,6 @@ if ( HAVE_GRIB )
         codes/UserDataContent.h
         codes/DataContent.cc
         codes/DataContent.h
-        codes/MallocCodesContent.cc
-        codes/MallocCodesContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
         codes/GribAccessor.cc

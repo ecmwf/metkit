@@ -25,10 +25,9 @@ namespace codes {
 class BufrContent : public CodesContent {
 public:
 
-    BufrContent(codes_handle* handle, bool delete_handle);
-    explicit BufrContent(const codes_handle* handle);
+    BufrContent(std::unique_ptr<CodesHandle> handle);
 
-    ~BufrContent();
+    virtual ~BufrContent() = default;
 
 protected:
 

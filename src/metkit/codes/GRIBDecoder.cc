@@ -9,6 +9,7 @@
  */
 
 #include "eckit/config/Resource.h"
+#include "eckit/exception/Exceptions.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/message/Message.h"
 #include "eckit/serialisation/MemoryStream.h"
@@ -24,6 +25,7 @@
 
 namespace metkit {
 namespace codes {
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -43,13 +45,14 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
     auto h = codesHandleFromMessage({static_cast<const uint8_t*>(msg.data()), msg.length()});
 
-    for (auto& k : h->keys(nameSpace)) {
+    for (const auto& k : h->keys(nameSpace)) {
         auto name = k.name();
 
         if (name[0] == '_')
             continue;  // skip silly underscores in GRIB
 
-        /* get key size to see if it is an array */
+        // Get key size to see if it is an array
+        // Only continue for scalar values
         if (h->size(name) != 1) {
             continue;
         }
@@ -71,6 +74,14 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
                             using Type = std::decay_t<decltype(v)>;
                             if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
                                 gather.setValue(name, std::forward<decltype(v)>(v));
+                            }
+                            else {
+                                // Unhandled types are all array types - the prior call checking `size != 1` only allows
+                                // for scalars.
+                                throw eckit::Exception(
+                                    std::string("Unexpected type when accessing GRIB message metadata ") +
+                                        typeid(v).name(),
+                                    Here());
                             }
                         },
                         k.get());

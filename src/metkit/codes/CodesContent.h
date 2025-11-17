@@ -13,34 +13,30 @@
 
 #pragma once
 
-#include "eckit/message/MessageContent.h"
+#include "metkit/codes/api/CodesAPI.h"
 
-typedef struct grib_handle codes_handle;
+#include "eckit/message/MessageContent.h"
 
 namespace metkit {
 namespace codes {
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class CodesContent : public eckit::message::MessageContent {
 public:
 
-    CodesContent(codes_handle* handle, bool delete_handle);
-    explicit CodesContent(const codes_handle* handle);
+    CodesContent(std::unique_ptr<CodesHandle> handle);
 
-    ~CodesContent();
+    virtual ~CodesContent() = default;
 
 protected:
 
-    codes_handle* handle_;
+    std::unique_ptr<CodesHandle> handle_;
 
     using eckit::message::MessageContent::transform;
     void transform(const eckit::OrderedStringDict&) override;
 
 private:
-
-    bool delete_handle_;
 
     size_t length() const override;
     void write(eckit::DataHandle& handle) const override;
@@ -56,7 +52,6 @@ private:
     void getFloatArray(const std::string& key, float* data, size_t lenExpected) const override;
 
     eckit::Offset offset() const override;
-    const codes_handle* codesHandle() const;
     const void* data() const override;
 };
 
