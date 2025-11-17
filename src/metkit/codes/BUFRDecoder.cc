@@ -8,18 +8,20 @@
  * does it submit to any jurisdiction.
  */
 
-#include "metkit/codes/CodesDecoder.h"
-
 #include <cstring>
+#include <type_traits>
 
 #include "eckit/config/Resource.h"
 #include "eckit/message/Message.h"
 #include "eckit/parser/YAMLParser.h"
 
 #include "metkit/codes/BUFRDecoder.h"
-#include "metkit/codes/CodesHandleDeleter.h"
+#include "metkit/codes/api/CodesAPI.h"
+#include "metkit/codes/api/CodesTypes.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsRequest.h"
+
+#include "eckit/exception/Exceptions.h"
 
 #include "eccodes.h"
 
@@ -69,43 +71,11 @@ bool BUFRDecoder::match(const eckit::message::Message& msg) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-namespace {
-
-// TODO In C++14: move to lambda with auto
-struct BUFRMetadataIt {
-    codes_handle* h;
-    codes_bufr_keys_iterator* itCtx;
-    eckit::message::MetadataGatherer& gather;
-
-    template <typename DecFunc>
-    void operator()(DecFunc&& decode) {
-        while (codes_bufr_keys_iterator_next(itCtx)) {
-            const char* name = codes_bufr_keys_iterator_get_name(itCtx);
-
-            if (std::strcmp(name, "subsetNumber") == 0) {
-                continue;
-            }
-
-            size_t klen = 0;
-
-            /* get key size to see if it is an array */
-            ASSERT(codes_get_size(h, name, &klen) == 0);
-            if (klen != 1) {
-                continue;
-            }
-            decode(h, gather, name);
-        }
-    }
-};
-
-}  // namespace
-
 
 void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer& gather,
                               const eckit::message::GetMetadataOptions& options) const {
 
-    std::unique_ptr<codes_handle> h(::codes_handle_new_from_message(nullptr, msg.data(), msg.length()));
-    ASSERT(h);
+    auto h(codesHandleFromMessage({static_cast<const uint8_t*>(msg.data()), msg.length()}));
 
     /*
     // BUFR Performance improvement:
@@ -117,27 +87,40 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
     // we need to instruct ecCodes to unpack the data values:
     // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
-    CODES_CHECK(codes_set_long(h.get(), "unpack", 1), 0);
+    h->set("unpack", 1);
 
-    std::unique_ptr<codes_bufr_keys_iterator> itCtx(::codes_bufr_keys_iterator_new(h.get(), 0));
-    ASSERT(itCtx);
+    for (auto& k : h->keys()) {
+        auto name = k.name();
 
-    while (::codes_bufr_keys_iterator_next(itCtx.get())) {
-        const char* name = ::codes_bufr_keys_iterator_get_name(itCtx.get());
-
-        if (std::strcmp(name, "subsetNumber") == 0) {
+        if (name == "subsetNumber") {
             continue;
         }
 
         size_t klen = 0;
 
         /* get key size to see if it is an array */
-        ASSERT(::codes_get_size(h.get(), name, &klen) == 0);
-        if (klen != 1) {
+        ;
+        if (h->size(name) != 1) {
             continue;
         }
 
-        decodeKey(h.get(), nullptr, name, gather, options);
+        switch (options.valueRepresentation) {
+            case eckit::message::ValueRepresentation::String: {
+                gather.setValue(name, k.getString());
+                break;
+            }
+            case eckit::message::ValueRepresentation::Native: {
+                std::visit(
+                    [&](auto&& v) {
+                        using Type = std::decay_t<decltype(v)>;
+                        if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
+                            gather.setValue(name, std::forward<decltype(v)>(v));
+                        }
+                    },
+                    k.get());
+                break;
+            }
+        }
     }
 }
 
@@ -152,28 +135,6 @@ eckit::Buffer BUFRDecoder::decode(const eckit::message::Message& msg) const {
     return buf;
 }
 
-std::string BUFRDecoder::getString(codes_handle* h, codes_keys_iterator*, const char* name) {
-    char val[1024];
-    size_t len = sizeof(val);
-    ASSERT(::codes_get_string(h, name, val, &len) == 0);
-    return {val, len};
-}
-
-long BUFRDecoder::getLong(codes_handle* h, codes_keys_iterator*, const char* name) {
-    long val;
-    ASSERT(::codes_get_long(h, name, &val) == 0);
-    return val;
-}
-
-double BUFRDecoder::getDouble(codes_handle* h, codes_keys_iterator*, const char* name) {
-    double val;
-    ASSERT(::codes_get_double(h, name, &val) == 0);
-    return val;
-}
-
-bool BUFRDecoder::getBytes(codes_handle* h, codes_keys_iterator*, const char* name, unsigned char* vals, size_t* len) {
-    return ::codes_get_bytes(h, name, vals, len) == 0;
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 

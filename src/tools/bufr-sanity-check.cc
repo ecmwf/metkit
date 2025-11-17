@@ -8,6 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
+#include "eccodes.h"
 
 #include "eckit/config/Resource.h"
 #include "eckit/exception/Exceptions.h"
