@@ -82,10 +82,6 @@ public:
 
     virtual ~CodesHandle() = default;
 
-    /// Retrieve binary size of the handled message.
-    /// @return Size of the message in bytes.
-    virtual size_t messageSize() const = 0;
-
     /// Check if a key is defined.
     /// @param key Name of the field that is checked to be defined.
     /// @return True if the field is defined.
@@ -271,6 +267,21 @@ public:
     /// @param size Size of the allocated array.
     ///        Should be containing at least the size returned by `messageSize`.
     virtual void copyInto(uint8_t* data, size_t size) const = 0;
+
+
+    /// Retrieve binary size of the handled message.
+    /// @return Size in bytes of the message.
+    virtual size_t messageSize() const = 0;
+
+    /// Return the pointer to the underlying buffer.
+    /// @return Contiguous array to the underlying buffer as a span.
+    ///         No data is copied or owned, lifetime is bound to this handle.
+    /// @see    messageSize()
+    virtual Span<const uint8_t> messageData() const = 0;
+
+    /// Retrieve offset of the handled message.
+    /// @return Offset in bytes of the message in the underlying buffer.
+    virtual int64_t messageOffset() const = 0;
 
 
     /// Iterate keys in a GRIB2 or BUFR handle.
