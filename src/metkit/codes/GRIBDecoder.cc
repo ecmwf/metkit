@@ -83,15 +83,8 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
     }
 
     // Explicit override for param (kludge for paramID handling)
-    {
-        char value[1024];
-        size_t len = sizeof(value);
-        if (h->has("paramId")) {
-            long paramId = h->getLong("paramId");
-            if (paramId != 0) {
-                gather.setValue("param", paramId);
-            }
-        }
+    if (h->has("paramId")) {
+        gather.setValue("param", h->getString("paramId"));
     }
 
     // Look for request embbeded in GRIB message
