@@ -13,7 +13,8 @@
 
 #pragma once
 
-#include "metkit/codes/CodesDecoder.h"
+#include "eckit/message/Decoder.h"
+#include "eckit/message/Message.h"
 
 #include "eckit/io/Buffer.h"
 
@@ -23,7 +24,7 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class BUFRDecoder : public metkit::codes::CodesDecoder<BUFRDecoder> {
+class BUFRDecoder : public eckit::message::MessageDecoder {
 
 public:  // methods
 
@@ -38,13 +39,6 @@ private:  // methods
                      const eckit::message::GetMetadataOptions&) const override;
 
     eckit::Buffer decode(const eckit::message::Message& msg) const override;
-
-public:  // methods for decoding the metadata
-
-    static std::string getString(codes_handle* h, codes_keys_iterator* it, const char* name);
-    static long getLong(codes_handle* h, codes_keys_iterator* it, const char* name);
-    static double getDouble(codes_handle* h, codes_keys_iterator* it, const char* name);
-    static bool getBytes(codes_handle* h, codes_keys_iterator* it, const char* name, unsigned char* vals, size_t* len);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
