@@ -15,6 +15,7 @@
 
 #include "eccodes.h"
 
+
 namespace std {
 template <>
 struct default_delete<codes_handle> {
@@ -85,6 +86,7 @@ public:
     void forceSet(const std::string& key, Span<const double> value) override;
     void forceSet(const std::string& key, Span<const float> value) override;
     size_t size(const std::string& key) const override;
+    size_t length(const std::string& key) const override;
     CodesValue get(const std::string& key) const override;
     NativeType type(const std::string& key) const override;
     long getLong(const std::string& key) const override;
@@ -212,6 +214,12 @@ size_t OwningCodesHandle::size(const std::string& key) const {
     size_t size;
     throwOnError(codes_get_size(raw(), key.c_str(), &size), Here(), "CodesHandle::size(string)", key);
     return size;
+}
+
+size_t OwningCodesHandle::length(const std::string& key) const {
+    size_t length;
+    throwOnError(codes_get_length(raw(), key.c_str(), &length), Here(), "CodesHandle::length(string)", key);
+    return length;
 }
 
 /// Get the value of the key
@@ -345,7 +353,7 @@ std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& ke
 
 std::vector<uint8_t> OwningCodesHandle::getBytes(const std::string& key) const {
     std::vector<uint8_t> ret;
-    std::size_t ksize = size(key);
+    std::size_t ksize = length(key) / 2;
     ret.resize(ksize);
     throwOnError(codes_get_bytes(raw(), key.c_str(), ret.data(), &ksize), Here(), "CodesHandle::getBytes(string)", key);
     ret.resize(ksize);
@@ -489,7 +497,7 @@ public:  // methods
     std::vector<uint8_t> getBytes() const override {
         std::vector<uint8_t> ret;
         std::string key  = name();
-        std::size_t size = refHandle_.get().size(key);
+        std::size_t size = refHandle_.get().length(key) / 2;
         ret.resize(size);
         throwOnError(codes_keys_iterator_get_bytes(it_.get(), ret.data(), &size), Here(), "KeyIterator::getBytes()");
         ret.resize(size);
