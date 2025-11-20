@@ -47,29 +47,7 @@ void TypeRange::print(std::ostream& out) const {
 }
 
 StepRange TypeRange::parse(const std::string& value) const {
-    eckit::Tokenizer parse("-");
-    std::vector<std::string> result;
-
-    parse(value, result);
-    switch (result.size()) {
-        case 1: {
-            return StepRange(eckit::Time(result[0], true));
-        }
-        case 2: {
-            eckit::Time start = eckit::Time(result[0], true);
-            eckit::Time end   = eckit::Time(result[1], true);
-            if (start > end) {
-                std::ostringstream oss;
-                oss << name_ + ": initial value " << start << " cannot be greater that final value " << end;
-                throw eckit::BadValue(oss.str());
-            }
-            return StepRange(start, end);
-        }
-        default:
-            std::ostringstream oss;
-            oss << name_ + ": invalid value " << value << " " << result.size();
-            throw eckit::BadValue(oss.str());
-    }
+    return StepRange{value};
 }
 
 bool TypeRange::expand(std::string& value, const MarsRequest&) const {
