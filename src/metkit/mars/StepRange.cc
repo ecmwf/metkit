@@ -119,7 +119,9 @@ StepRange::StepRange(const std::string& s) : from_(0.), to_(0.) {
     Tokenizer parse("-");
     std::vector<std::string> result;
 
-    parse(s, result);
+    // negative steps are not supported
+    if (s[0] != '-')
+        parse(s, result);
 
     switch (result.size()) {
         case 1:
@@ -129,6 +131,11 @@ StepRange::StepRange(const std::string& s) : from_(0.), to_(0.) {
         case 2:
             from_ = eckit::Time(result[0], true) / 3600.;
             to_   = eckit::Time(result[1], true) / 3600.;
+            if (from_ > to_) {
+                std::ostringstream oss;
+                oss << "initial value " << from_ << " cannot be greater that final value " << to_;
+                throw eckit::BadValue(oss.str(), Here());
+            }
             break;
 
         default:
