@@ -95,7 +95,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=dependencies \
             -DCMAKE_PREFIX_PATH=dependencies \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DENABLE_TOOLS=ON \
+            -DENABLE_TOOLS=ON
           cmake --build metkit-build -j -t install
           cd metkit-build
           ctest -j $(nproc) --output-on-failure
