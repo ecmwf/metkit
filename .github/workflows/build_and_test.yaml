@@ -21,6 +21,14 @@ jobs:
           - [self-hosted, platform-builder-fedora-37]
     runs-on: ${{ matrix.runner }}
     steps:
+      - name: Get specified recent CMake
+        run: |
+          CMAKE_VERSION=4.2.0
+          CMAKE_ROOT="cmake-${CMAKE_VERSION}"
+          mkdir -p "${CMAKE_ROOT}"
+          curl -L "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" -o cmake.tar.gz
+          tar -xzf cmake.tar.gz --strip-components=1 -C "${CMAKE_ROOT}"
+          echo "${CMAKE_ROOT}/bin" >> "$GITHUB_PATH"
       - name: Get ecbuild
         uses: actions/checkout@v5
         with:
