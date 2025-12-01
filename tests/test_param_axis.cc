@@ -111,6 +111,7 @@ CASE("228") {
     assertTypeExpansion("param", {"129.228"}, {"228129"});
     assertTypeExpansion("param", {"228129"}, {"228129"});
     EXPECT_THROWS_AS(assertTypeExpansion("param", {".228"}, {""}), eckit::UserError);
+    EXPECT_THROWS_AS(assertTypeExpansion("param", {"9999"}, {""}), eckit::UserError);
     EXPECT_THROWS_AS(assertTypeExpansion("param", {"228003.228"}, {""}), eckit::UserError);
 }
 
