@@ -273,6 +273,9 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
             table = 0;
         }
 
+        if (table > 0 && param > 1000) {
+            throw eckit::UserError("Unrecognised format of param " + s, Here());
+        }
         oss << table * 1000 + param;
 
         std::string p = oss.str();
@@ -288,7 +291,7 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
             }
         }
 
-        throw eckit::UserError("Cannot match parameter " + p);
+        throw eckit::UserError("Cannot match parameter " + p, Here());
     }
 
     std::string paramid = metkit::mars::MarsLanguage::bestMatch(s, values_, false, false, true, mapping_);

@@ -19,9 +19,11 @@
 
 #include "eckit/testing/Test.h"
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Param.h"
 #include "metkit/mars/ParamID.h"
+#include "metkit/mars/Type.h"
 
 namespace metkit::mars::test {
 
@@ -61,8 +63,8 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
     std::cout << "Expected Wind:" << expectWind << std::endl;
     std::cout << "Returned Wind:" << windRequested << std::endl;
 
-    EXPECT(expectWind == windRequested);
-    EXPECT(params == expected);
+    EXPECT_EQUAL(expectWind, windRequested);
+    EXPECT_EQUAL(params, expected);
 }
 
 
@@ -92,10 +94,24 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
     std::cout << "Expected Wind:" << expectWind << std::endl;
     std::cout << "Returned Wind:" << windRequested << std::endl;
 
-    EXPECT(expectWind == windRequested);
-    EXPECT(params == expected);
+    EXPECT_EQUAL(expectWind, windRequested);
+    EXPECT_EQUAL(params, expected);
 }
 
+void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
+                         const std::vector<std::string>& expected) {
+    static MarsLanguage language("retrieve");
+    MarsRequest req;
+    req.setValuesTyped(language.type(name), values);
+    req = language.expand(req, false, true);
+    EXPECT_EQUAL(expected, req.values(name));
+}
+
+CASE("228") {
+    assertTypeExpansion("param", {"129.228"}, {"228129"});
+    assertTypeExpansion("param", {"228129"}, {"228129"});
+    EXPECT_THROWS_AS(assertTypeExpansion("param", { "228003.228" }, {""}), eckit::UserError);
+}
 
 CASE("trivial") {
 
