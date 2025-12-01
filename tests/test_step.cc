@@ -42,6 +42,7 @@ CASE("Test Step expansions") {
     assertTypeExpansion("step", {"30m", "1h", "1h30m", "120m"}, {"30m", "1", "1h30m", "2"});
     assertTypeExpansion("step", {"0-1"}, {"0-1"});
     assertTypeExpansion("step", {"30m-60m"}, {"30m-1"});
+    EXPECT_THROWS_AS(assertTypeExpansion("step", {"-1"}, {""}), BadValue);
     EXPECT_THROWS_AS(assertTypeExpansion("step", {"2-1"}, {""}), BadValue);
 
     assertTypeExpansion("step", {"0-3", "to", "9-12", "by", "3h"}, {"0-3", "3-6", "6-9", "9-12"});
