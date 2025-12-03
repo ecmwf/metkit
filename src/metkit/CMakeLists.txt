@@ -133,6 +133,10 @@ if ( HAVE_GRIB )
         codes/CodesContent.h
         codes/BufrContent.cc
         codes/BufrContent.h
+        codes/UserDataContent.cc
+        codes/UserDataContent.h
+        codes/DataContent.cc
+        codes/DataContent.h
         codes/MallocCodesContent.cc
         codes/MallocCodesContent.h
         codes/CodesSplitter.cc
