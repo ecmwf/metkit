@@ -341,6 +341,7 @@ DHSProtocol::DHSProtocol(const Configuration& params) :
         ASSERT(params.has("host"));
         host_ = params.getString("host");
     }
+    env_ = RequestEnvironment::instance().request();
     callback_.reset(BaseCallbackConnection::build(params, host_));
 }
 
@@ -380,7 +381,6 @@ Length DHSProtocol::retrieve(const MarsRequest& request) {
     Endpoint callbackEndpoint = callback_->endpoint();
 
     LOG_DEBUG_LIB(LibMetkit) << "DHSProtocol: call back on " << callbackEndpoint << std::endl;
-
 
     task_.reset(new ClientTask(request, env_, callbackEndpoint.host(), callbackEndpoint.port()));
 
