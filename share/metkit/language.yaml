@@ -1190,8 +1190,9 @@ _postproc: &_postproc
     values:
       - [linear]
       - [bilinear]
-      - [nearest-lsm, nearest lsm]
-      - [default, any]
+      - [nearest-lsm, nlsm, nearest lsm]
+      - [nearest-neighbour, nn, nearest neighbour]
+      - [grid-box-average, average]
 
   packing:
     category: postproc
@@ -1409,6 +1410,8 @@ archive:
       - [old]
       - [remove]
       - [fail]
+
+  _clear_defaults: [step]
 
 ##############################################################
 
