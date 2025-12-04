@@ -35,7 +35,7 @@ public:
 
     /// Access instance of RequestEnvironment
     /// @return RequestEnvironment
-    static const RequestEnvironment& instance();
+    static RequestEnvironment& instance();
 
 private:
 
