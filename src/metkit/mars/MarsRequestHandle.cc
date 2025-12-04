@@ -51,10 +51,12 @@ MarsRequestHandle::MarsRequestHandle(const MarsRequest& request, BaseProtocol* p
 }
 
 MarsRequestHandle::MarsRequestHandle(const metkit::mars::MarsRequest& request, const eckit::Configuration& database) :
-    request_(eckit::StringTools::upper(request.verb())), protocol_(ProtocolFactory::build(database)), opened_(false) {
+    // request_(eckit::StringTools::upper(request.verb())), protocol_(ProtocolFactory::build(database)), opened_(false) {
+    request_(request.verb()), protocol_(ProtocolFactory::build(database)), opened_(false) {
 
     for (const auto& p : request.parameters()) {
-        request_.values(eckit::StringTools::upper(p.name()), p.values());
+        // request_.values(eckit::StringTools::upper(p.name()), p.values());
+        request_.values(p.name(), p.values());
     }
 }
 

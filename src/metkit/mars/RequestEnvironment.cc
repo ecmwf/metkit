@@ -26,7 +26,7 @@ RequestEnvironment::RequestEnvironment() : request_("environ") {
     request_.setValue("host", eckit::Main::hostname());
     request_.setValue("user", eckit::system::SystemInfo::instance().userName());
     request_.setValue("pid", getpid());
-    request_.setValue("client", "cpp");
+    request_.setValue("client", "unknown");
 }
 
 void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
@@ -42,7 +42,7 @@ void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
     }
 }
 
-const RequestEnvironment& RequestEnvironment::instance() {
+RequestEnvironment& RequestEnvironment::instance() {
     static RequestEnvironment e;
     return e;
 }
