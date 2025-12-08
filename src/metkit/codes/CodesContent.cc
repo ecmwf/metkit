@@ -8,9 +8,6 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @date   Jun 2020
-
 #include "metkit/codes/CodesContent.h"
 
 #include "eccodes.h"
@@ -19,8 +16,6 @@
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
 
-#include "eckit/memory/Zero.h"
-
 #include "metkit/codes/GribHandle.h"
 
 namespace metkit {
@@ -28,37 +23,21 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CodesContent::CodesContent(codes_handle* handle, bool delete_handle) : handle_(handle), delete_handle_(delete_handle) {
-    ASSERT(handle_);
-}
-
-CodesContent::CodesContent(const codes_handle* handle) : CodesContent(const_cast<codes_handle*>(handle), false) {}
-
-
-CodesContent::~CodesContent() {
-    if (delete_handle_) {
-        codes_handle_delete(handle_);
-    }
-}
+CodesContent::CodesContent(std::unique_ptr<CodesHandle> handle) : handle_(std::move(handle)) {}
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 size_t CodesContent::length() const {
-    size_t size;
-    const void* data;
-    CODES_CALL(codes_get_message(handle_, &data, &size));
-    return size;
+    return handle_->messageSize();
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::write(eckit::DataHandle& handle) const {
-    size_t size;
-    const void* data;
-    CODES_CALL(codes_get_message(handle_, &data, &size));
-    if (handle.write(data, size) != size) {
+    auto data = handle_->messageData();
+    if (handle.write(data.data(), data.size()) != data.size()) {
         std::ostringstream oss;
         oss << "Write error to data handle " << handle;
         throw eckit::WriteError(oss.str(), Here());
@@ -69,10 +48,8 @@ void CodesContent::write(eckit::DataHandle& handle) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 eckit::DataHandle* CodesContent::readHandle() const {
-    size_t size;
-    const void* data;
-    CODES_CALL(codes_get_message(handle_, &data, &size));
-    return new eckit::MemoryHandle(data, size);
+    auto data = handle_->messageData();
+    return new eckit::MemoryHandle(data.data(), data.size());
 }
 
 
@@ -86,128 +63,79 @@ void CodesContent::print(std::ostream& s) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string CodesContent::getString(const std::string& key) const {
-    char values[10240];
-    size_t len = sizeof(values);
-
-    values[0] = 0;
-
-    CODES_CALL(codes_get_string(handle_, key.c_str(), values, &len));
-    // ASSERT(err)
-
-    return values;
+    return handle_->getString(key);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 long CodesContent::getLong(const std::string& key) const {
-    long v = 0;
-    CODES_CALL(codes_get_long(handle_, key.c_str(), &v));
-    return v;
+    return handle_->getLong(key);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 double CodesContent::getDouble(const std::string& key) const {
-    double v = 0;
-    CODES_CALL(codes_get_double(handle_, key.c_str(), &v));
-    return v;
+    return handle_->getDouble(key);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::getDoubleArray(const std::string& key, std::vector<double>& values) const {
-    size_t size = 0;
-    CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
-
-    size_t count = size;
-    values.resize(count);
-    CODES_CALL(codes_get_double_array(handle_, key.c_str(), &values[0], &count));
-    ASSERT(count == size);
+    values = handle_->getDoubleArray(key);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::getFloatArray(const std::string& key, std::vector<float>& values) const {
-    size_t size = 0;
-    CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
-
-    size_t count = size;
-    values.resize(count);
-    CODES_CALL(codes_get_float_array(handle_, key.c_str(), &values[0], &count));
-    ASSERT(count == size);
+    values = handle_->getFloatArray(key);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 size_t CodesContent::getSize(const std::string& key) const {
-    size_t size = 0;
-    CODES_CALL(codes_get_size(handle_, key.c_str(), &size));
-    return size;
+    return handle_->size(key);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::getDoubleArray(const std::string& key, double* data, size_t len) const {
-    size_t count = len;
-    CODES_CALL(codes_get_double_array(handle_, key.c_str(), data, &count));
-    ASSERT(count == len);
+    auto arr = handle_->getDoubleArray(key);
+    ASSERT(len == arr.size());
+    std::copy(arr.begin(), arr.end(), data);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::getFloatArray(const std::string& key, float* data, size_t len) const {
-    size_t count = len;
-    CODES_CALL(codes_get_float_array(handle_, key.c_str(), data, &count));
-    ASSERT(count == len);
+    auto arr = handle_->getFloatArray(key);
+    ASSERT(len == arr.size());
+    std::copy(arr.begin(), arr.end(), data);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void CodesContent::transform(const eckit::OrderedStringDict& dict) {
-
-    std::vector<codes_values> values;
-    values.reserve(dict.size());
-
-    for (auto& kv : dict) {
-        codes_values v;
-        v.name         = kv.first.c_str();
-        v.string_value = kv.second.c_str();
-        v.type         = GRIB_TYPE_STRING;
-
-        values.push_back(v);
+    for (auto& [key, value] : dict) {
+        handle_->set(key, value);
     }
-
-    CODES_CALL(codes_set_values(handle_, values.data(), values.size()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 eckit::Offset CodesContent::offset() const {
-    long pos;
-    CODES_CALL(codes_get_long(handle_, "offset", &pos));
-    return pos;
-}
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
-const codes_handle* CodesContent::codesHandle() const {
-    return handle_;
+    return handle_->getLong("offset");
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 const void* CodesContent::data() const {
-    size_t size;
-    const void* data;
-    CODES_CALL(codes_get_message(handle_, &data, &size));
-    return data;
+    return handle_->messageData().data();
 }
 
 
