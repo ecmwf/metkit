@@ -1143,6 +1143,19 @@ CASE("test_metkit_expand_MARSC-306") {
     expand(text, expected);
 }
 
+// https://jira.ecmwf.int/browse/MARSC-433
+CASE("test_metkit_expand_MARSC-433") {
+    const std::string text =
+        "retrieve,CLASS=EA,DATE=20061212,DOMAIN=G,EXPVER=0001,LEVELIST=1/2/"
+        "3,LEVTYPE=ML,PARAM=152,REPRES=SH,RESOL=199,STREAM=DA,TIME=00/06/12/18,TYPE=AN";
+
+    // N128 needs to be forwarded and is therefore not manipulated
+    const std::string expected =
+        "retrieve,CLASS=EA,DATE=20061212,DOMAIN=G,EXPVER=0001,LEVELIST=1/2/"
+        "3,LEVTYPE=ML,PARAM=152,REPRES=SH,RESOL=199,truncation=199,STREAM=oper,TIME=0000/0600/1200/1800,TYPE=AN";
+
+    expand(text, expected);
+}
 
 CASE("test_metkit_expand_0") {
     const char* text =

@@ -292,6 +292,23 @@
   warn: "Force resol=av when style=dissemination"
 
 - context:
+    resol: [av]
+  unset: [resol]
+  set:
+    intgrid: [source]
+    truncation: [none]
+
+- context:
+    resol: [N128, N200]
+  set:
+    intgrid: _resol
+
+- context:
+    resol: ['!',av,auto,N128, N200]
+  set:
+    truncation: _resol
+
+- context:
     _verb: [retrieve]
     class: [ti]
   defaults:

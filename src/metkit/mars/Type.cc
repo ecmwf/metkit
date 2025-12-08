@@ -181,6 +181,16 @@ void Type::set(std::shared_ptr<Context> context, const std::vector<std::string>&
 void Type::unset(std::shared_ptr<Context> context) {
     unsets_.insert(std::move(context));
 }
+void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) {
+    if (values.size() == 1 && values[0][0] == '_') {
+        std::string key = values[0].substr(1);
+        if (request.has(key)) {
+            request.setValuesTyped(this, request.values(key));
+        }
+    } else {
+        request.setValuesTyped(this, values);
+    }
+}
 
 bool Type::flatten() const {
     return flatten_;
@@ -319,7 +329,7 @@ void Type::setDefaults(MarsRequest& request) {
         if (!unset) {
             for (const auto& [defaultContext, values] : defaults_) {
                 if (defaultContext->matches(request)) {
-                    request.setValuesTyped(this, values);
+                    patchRequest(request, values);
                     break;
                 }
             }
@@ -381,7 +391,7 @@ void Type::finalise(MarsRequest& request, bool strict) {
                         oss << *this << ": missing Key [" << name_ << "] - required with context: " << *context;
                         throw eckit::UserError(oss.str());
                     }
-                    request.setValuesTyped(this, values);
+                    patchRequest(request, values);
                 }
             }
         }
