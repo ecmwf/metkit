@@ -9,6 +9,7 @@
  */
 
 #include "eckit/config/Resource.h"
+#include "eckit/exception/Exceptions.h"
 #include "eckit/io/Buffer.h"
 #include "eckit/message/Message.h"
 #include "eckit/serialisation/MemoryStream.h"
@@ -16,14 +17,15 @@
 #include "metkit/codes/GRIBDecoder.h"
 #include "metkit/codes/api/CodesAPI.h"
 
+#include "eccodes.h"
+
 #include <algorithm>
 #include <iostream>
-
-#include "eccodes.h"
 
 
 namespace metkit {
 namespace codes {
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -43,13 +45,14 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
     auto h = codesHandleFromMessage({static_cast<const uint8_t*>(msg.data()), msg.length()});
 
-    for (auto& k : h->keys(nameSpace)) {
+    for (const auto& k : h->keys(nameSpace)) {
         auto name = k.name();
 
         if (name[0] == '_')
             continue;  // skip silly underscores in GRIB
 
-        /* get key size to see if it is an array */
+        // Get key size to see if it is an array
+        // Only continue for scalar values
         if (h->size(name) != 1) {
             continue;
         }
@@ -60,21 +63,33 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
                 break;
             }
             case eckit::message::ValueRepresentation::Native: {
-                // https://jira.ecmwf.int/browse/ECC-2166
-                if (name == "uuidOfHGrid") {
-                    // uuidOfHGrid returns size 1 although it contains 16 bytes
-                    gather.setValue(name, k.getString());
-                }
-                else {
-                    std::visit(
-                        [&](auto&& v) {
-                            using Type = std::decay_t<decltype(v)>;
-                            if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
-                                gather.setValue(name, std::forward<decltype(v)>(v));
+                std::visit(
+                    [&](auto&& v) {
+                        using Type = std::decay_t<decltype(v)>;
+                        if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
+                            gather.setValue(name, std::forward<decltype(v)>(v));
+                        }
+                        if constexpr (std::is_same_v<Type, std::vector<uint8_t>>) {
+                            static const char hex_digits[] = "0123456789abcdef";
+                            std::string out;
+                            out.resize(v.size() * 2);
+
+                            for (size_t i = 0; i < v.size(); i++) {
+                                uint8_t b      = v[i];
+                                out[2 * i]     = hex_digits[b >> 4];
+                                out[2 * i + 1] = hex_digits[b & 0x0F];
                             }
-                        },
-                        k.get());
-                }
+                            gather.setValue(name, out);
+                        }
+                        else {
+                            // Unhandled types are all array types - the prior call checking `size != 1` only allows
+                            // for scalars.
+                            throw eckit::Exception(
+                                std::string("Unexpected type when accessing GRIB message metadata ") + typeid(v).name(),
+                                Here());
+                        }
+                    },
+                    k.get());
                 break;
             }
         }
