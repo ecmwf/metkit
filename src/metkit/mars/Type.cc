@@ -187,7 +187,8 @@ void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& va
         if (request.has(key)) {
             request.setValuesTyped(this, request.values(key));
         }
-    } else {
+    }
+    else {
         request.setValuesTyped(this, values);
     }
 }

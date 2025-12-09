@@ -258,7 +258,6 @@ private:  // methods
 
     virtual void print(std::ostream& out) const = 0;
     void patchRequest(MarsRequest& request, const std::vector<std::string>& values);
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------
