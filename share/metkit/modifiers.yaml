@@ -299,12 +299,12 @@
     truncation: [none]
 
 - context:
-    resol: [N128, N200]
+    resol: [N128,N200]
   set:
     intgrid: _resol
 
 - context:
-    resol: ['!',av,auto,N128, N200]
+    resol: ['!',av,auto,N128,N200]
   set:
     truncation: _resol
 
