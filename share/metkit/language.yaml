@@ -568,6 +568,17 @@ _field: &_field
       - [np]
       - [rl]
 
+  coeffindex:
+    category: data
+    multiple: true
+    type: to-by-list
+    by: 1
+    unset:
+      - context:
+          type:
+            op: '!'
+            vals: [me, eme]
+
   obsgroup:
     category: data
     multiple: true
