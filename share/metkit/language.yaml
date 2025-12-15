@@ -206,6 +206,7 @@ _field: &_field
       - [dacl, daily climatology]
       - [dacw, daily climatology wave]
       - [dahc, daily archive hindcast]
+      - [dame]
       - [dcda, atmospheric model (delayed cutoff)]
       - [dcwv, wave model (delayed cutoff)]
       - [edmm, ensemble data assimilation monthly means]
@@ -432,7 +433,7 @@ _field: &_field
           - [alaro]
           - [arome]
           - [harmonie-arome]
-          - [global, glob]
+          - [glob, global]
           - [ecpoint]
 
   georef:
