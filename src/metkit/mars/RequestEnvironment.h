@@ -11,10 +11,13 @@
 /// @author Baudouin Raoult
 /// @author Tiago Quintino
 #pragma once
-#include "metkit/mars/MarsRequest.h"
 
 #include <map>
+#include <mutex>
+#include <optional>
 #include <string>
+
+#include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
 
@@ -24,24 +27,32 @@ namespace metkit::mars {
 class RequestEnvironment {
 public:
 
+    RequestEnvironment(const RequestEnvironment& other);
+
     /// Create the actual "mars-request"
     /// @return the request
-    const MarsRequest& request() const { return request_; }
+    const MarsRequest& request() const { return *env_; }
 
-    /// Update with a map of VARIABLE:VALUE.
-    /// Already know keys will be overwritten.
-    /// @param env, map of VARIABLE:VALUE to add to the request.
+    /// @brief Initialize the RequestEnvironment with a map of KEYWORD:VALUE(s).
+    /// @param env, map of KEYWORD:VALUE (or KEYWORD:VALUE1/VALUE2/.../VALUEn) to add to the environment.
+    static void initialize(const std::map<std::string, std::string>& env);
+
+    /// @brief Update the RequestEnvironment with a map of KEYWORD:VALUE(s).
+    /// @param env, map of KEYWORD:VALUE (or KEYWORD:VALUE1/VALUE2/.../VALUEn) to add to the environment.
     void update(const std::map<std::string, std::string>& env);
 
     /// Access instance of RequestEnvironment
     /// @return RequestEnvironment
-    static RequestEnvironment& instance();
+    static const RequestEnvironment& instance();
 
 private:
 
-    RequestEnvironment();
+    RequestEnvironment() = default;
 
-    MarsRequest request_;
+    static RequestEnvironment& inst();
+
+    std::optional<MarsRequest> env_ = std::nullopt;
+    std::recursive_mutex init_;
 };
 
 }  // namespace metkit::mars

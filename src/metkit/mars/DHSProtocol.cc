@@ -347,7 +347,7 @@ DHSProtocol::DHSProtocol(const Configuration& params) :
 
 DHSProtocol::DHSProtocol(const Configuration& params, const std::map<std::string, std::string>& env) :
     DHSProtocol(params) {
-    auto requestEnv = RequestEnvironment::instance();
+    RequestEnvironment requestEnv{RequestEnvironment::instance()};
     requestEnv.update(env);
     env_ = requestEnv.request();
 }
