@@ -1156,6 +1156,27 @@ CASE("test_metkit_expand_MARSC-433") {
     expand(text, expected);
 }
 
+CASE("test_metkit_expand_coeffindex") {
+    {
+        const char* text =
+            "retrieve,class=rd,coeffindex=1/to/3,date=2026-01-01,expver=1,levelist=1,levtype=ml,param=130/131/132/138/"
+            "139/152/155,step=0,number=1,stream=oper,time=09:00:00,type=me,target=output";
+        const char* expected =
+            "retrieve,class=rd,coeffindex=1/2/3,date=20260101,expver=0001,levelist=1,levtype=ml,param=130/131/132/138/"
+            "139/152/155,step=0,number=1,stream=oper,time=0900,type=me,target=output";
+        expand(text, expected);
+    }
+    {
+        const char* text =
+            "retrieve,class=od,coeffindex=1/to/3,date=2026-01-01,expver=1,levelist=1,levtype=ml,param=130/131/132/138/"
+            "139/152/155,step=0,number=1,stream=oper,time=09:00:00,type=pf,target=output";
+        const char* expected =
+            "retrieve,class=od,date=20260101,expver=0001,levelist=1,levtype=ml,param=130/131/132/138/139/152/"
+            "155,step=0,number=1,stream=oper,time=0900,type=pf,target=output";
+        expand(text, expected);
+    }
+}
+
 CASE("test_metkit_expand_0") {
     const char* text =
         "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
