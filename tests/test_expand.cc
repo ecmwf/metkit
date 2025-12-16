@@ -170,7 +170,7 @@ void parse(const std::string& req, ExpectedRequest& expected) {
         std::vector<std::string> vv;
         for (auto v : vals) {
             auto val = eckit::StringTools::trim(v);
-            if (key != "source" && key != "target") {
+            if (key != "source" && key != "target" && key != "intgrid" && key != "grid") {
                 val = eckit::StringTools::lower(val);
             }
             if (key == "date") {
@@ -1141,6 +1141,41 @@ CASE("test_metkit_expand_MARSC-306") {
         "-21/30/40.5,repres=sh,resol=N128";
 
     expand(text, expected);
+}
+
+// https://jira.ecmwf.int/browse/MARSC-433
+CASE("test_metkit_expand_MARSC-433") {
+    const std::string text =
+        "retrieve,CLASS=EA,DATE=20061212,DOMAIN=G,EXPVER=0001,LEVELIST=1/2/"
+        "3,LEVTYPE=ML,PARAM=152,REPRES=SH,RESOL=199,STREAM=DA,TIME=00/06/12/18,TYPE=AN";
+
+    const std::string expected =
+        "retrieve,CLASS=EA,DATE=20061212,DOMAIN=G,EXPVER=0001,LEVELIST=1/2/"
+        "3,LEVTYPE=ML,PARAM=152,REPRES=SH,truncation=199,STREAM=oper,TIME=0000/0600/1200/1800,TYPE=AN";
+
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_resol") {
+    {
+        const std::string text =
+            "retrieve,class=ea,date=20061212,domain=g,expver=1,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,resol=av,stream=da,time=00/06/12/18,type=an";
+        const std::string expected =
+            "retrieve,class=ea,date=20061212,domain=g,expver=0001,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,intgrid=source,truncation=none,stream=oper,time=0000/0600/1200/"
+            "1800,type=an";
+        expand(text, expected);
+    }
+    {
+        const std::string text =
+            "retrieve,class=ea,date=20061213,domain=g,expver=1,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,resol=N128,stream=da,time=00/06/12/18,type=an";
+        const std::string expected =
+            "retrieve,class=ea,date=20061213,domain=g,expver=0001,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,intgrid=N128,stream=oper,time=0000/0600/1200/1800,type=an";
+        expand(text, expected);
+    }
 }
 
 CASE("test_metkit_expand_coeffindex") {
