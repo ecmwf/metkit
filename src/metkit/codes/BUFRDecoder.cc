@@ -89,14 +89,15 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
     // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
     h->set("unpack", 1);
 
-    for (auto& k : h->keys()) {
+    for (const auto& k : h->keys()) {
         auto name = k.name();
 
         if (name == "subsetNumber") {
             continue;
         }
 
-        /* get key size to see if it is an array */
+        // Get key size to see if it is an array
+        // Only continue for scalar values
         if (h->size(name) != 1) {
             continue;
         }
@@ -112,6 +113,26 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
                         using Type = std::decay_t<decltype(v)>;
                         if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
                             gather.setValue(name, std::forward<decltype(v)>(v));
+                        }
+                        else if constexpr (std::is_same_v<Type, std::vector<uint8_t>>) {
+                            static const char hex_digits[] = "0123456789abcdef";
+                            std::string out;
+                            out.resize(v.size() * 2);
+
+                            for (size_t i = 0; i < v.size(); i++) {
+                                uint8_t b      = v[i];
+                                out[2 * i]     = hex_digits[b >> 4];
+                                out[2 * i + 1] = hex_digits[b & 0x0F];
+                            }
+
+                            gather.setValue(name, out);
+                        }
+                        else {
+                            // Unhandled types are all array types - the prior call checking `size != 1` only allows for
+                            // scalars.
+                            throw eckit::Exception(
+                                std::string("Unexpected type when accessing BURF message metadata ") + typeid(v).name(),
+                                Here());
                         }
                     },
                     k.get());
