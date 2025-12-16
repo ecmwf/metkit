@@ -1158,13 +1158,22 @@ CASE("test_metkit_expand_MARSC-433") {
 
 CASE("test_metkit_expand_resol") {
     {
-        const std::string text = "retrieve,class=ea,date=20061212,domain=g,expver=1,levelist=1/2/3,levtype=ml,param=152,repres=sh,resol=av,stream=da,time=00/06/12/18,type=an";
-        const std::string expected = "retrieve,class=ea,date=20061212,domain=g,expver=0001,levelist=1/2/3,levtype=ml,param=152,repres=sh,intgrid=source,truncation=none,stream=oper,time=0000/0600/1200/1800,type=an";
+        const std::string text =
+            "retrieve,class=ea,date=20061212,domain=g,expver=1,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,resol=av,stream=da,time=00/06/12/18,type=an";
+        const std::string expected =
+            "retrieve,class=ea,date=20061212,domain=g,expver=0001,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,intgrid=source,truncation=none,stream=oper,time=0000/0600/1200/"
+            "1800,type=an";
         expand(text, expected);
     }
     {
-        const std::string text = "retrieve,class=ea,date=20061213,domain=g,expver=1,levelist=1/2/3,levtype=ml,param=152,repres=sh,resol=N128,stream=da,time=00/06/12/18,type=an";
-        const std::string expected = "retrieve,class=ea,date=20061213,domain=g,expver=0001,levelist=1/2/3,levtype=ml,param=152,repres=sh,intgrid=N128,stream=oper,time=0000/0600/1200/1800,type=an";
+        const std::string text =
+            "retrieve,class=ea,date=20061213,domain=g,expver=1,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,resol=N128,stream=da,time=00/06/12/18,type=an";
+        const std::string expected =
+            "retrieve,class=ea,date=20061213,domain=g,expver=0001,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,intgrid=N128,stream=oper,time=0000/0600/1200/1800,type=an";
         expand(text, expected);
     }
 }
