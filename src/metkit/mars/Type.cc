@@ -182,6 +182,8 @@ void Type::unset(std::shared_ptr<Context> context) {
     unsets_.insert(std::move(context));
 }
 void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) {
+    // Special case: inheritance from another key.
+    // If the value is of the form _key, then copy values from that key
     if (values.size() == 1 && values[0][0] == '_') {
         std::string key = values[0].substr(1);
         if (request.has(key)) {

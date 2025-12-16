@@ -293,7 +293,6 @@
 
 - context:
     resol: [av]
-  unset: [resol]
   set:
     intgrid: [source]
     truncation: [none]
