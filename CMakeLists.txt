@@ -60,6 +60,12 @@ ecbuild_add_option( FEATURE ODB
                     DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
+# MARS2GRIB encoder
+
+ecbuild_add_option( FEATURE MARS2GRIB
+                    DEFAULT ON
+                    DESCRIPTION "Build the MARS2GRIB encoder" )
+
 # METKIT config files support
 
 ecbuild_add_option( FEATURE METKIT_CONFIG
