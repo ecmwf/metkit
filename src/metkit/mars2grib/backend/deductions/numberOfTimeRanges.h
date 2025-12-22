@@ -12,7 +12,7 @@
 #include "eckit/log/Log.h"
 
 // Utils
-#include "metkit/mars2grib/utils/timeUtils.h"
+#include "metkit/mars2grib/backend/deductions/detail/timeUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -22,10 +22,10 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t>
 long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
 
+    using metkit::mars2grib::backend::deductions::detail::countBlocks;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
-    using metkit::mars2grib::utils::time::countBlocks;
 
     try {
 

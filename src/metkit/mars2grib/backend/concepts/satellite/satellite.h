@@ -1,5 +1,6 @@
 #pragma once
 
-#include "metkit/mars2grib/backend/concepts/satellite/satellite_encoding.h"
-#include "metkit/mars2grib/backend/concepts/satellite/satellite_enum.h"
-#include "metkit/mars2grib/backend/concepts/satellite/satellite_info.h"
+// Core concept includes
+#include "metkit/mars2grib/backend/concepts/satellite/satelliteEncoding.h"
+#include "metkit/mars2grib/backend/concepts/satellite/satelliteEnum.h"
+#include "metkit/mars2grib/backend/concepts/satellite/satelliteInfo.h"

@@ -1,5 +1,6 @@
 #pragma once
 
-#include "metkit/mars2grib/backend/concepts/tables/tables_encoding.h"
-#include "metkit/mars2grib/backend/concepts/tables/tables_enum.h"
-#include "metkit/mars2grib/backend/concepts/tables/tables_info.h"
+// Core concept includes
+#include "metkit/mars2grib/backend/concepts/tables/tablesEncoding.h"
+#include "metkit/mars2grib/backend/concepts/tables/tablesEnum.h"
+#include "metkit/mars2grib/backend/concepts/tables/tablesInfo.h"
