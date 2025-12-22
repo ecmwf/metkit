@@ -42,6 +42,28 @@ public:
 
 
 // ==========================================================
+// Validation Layer Exception (empty for now)
+// ==========================================================
+class Mars2GribValidationException : public Mars2GribGenericException {
+public:
+
+    Mars2GribValidationException(std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc) {}
+};
+
+
+// ==========================================================
+// Tables Layer Exception (empty for now)
+// ==========================================================
+class Mars2GribTableException : public Mars2GribGenericException {
+public:
+
+    Mars2GribTableException(std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc) {}
+};
+
+
+// ==========================================================
 // Deduction Layer Exception (empty for now)
 // ==========================================================
 class Mars2GribDeductionException : public Mars2GribGenericException {
@@ -131,5 +153,41 @@ inline void printExceptionStack(const std::exception& e, std::ostream& os, std::
         os << indent << "  - [unknown non-std exception]\n";
     }
 };
+
+inline std::string joinNumbers(const std::vector<long>& vec) {
+    std::string s{"{"};
+    for (size_t i = 0; i < vec.size(); ++i) {
+        s += std::to_string(vec[i]);
+        if (i + 1 < vec.size()) {
+            s += ", ";
+        }
+    }
+    s += "}";
+    return s;
+}
+
+inline std::string joinNumbersDouble(const std::vector<double>& vec) {
+    std::string s{"{"};
+    for (size_t i = 0; i < vec.size(); ++i) {
+        s += std::to_string(vec[i]);
+        if (i + 1 < vec.size()) {
+            s += ", ";
+        }
+    }
+    s += "}";
+    return s;
+}
+
+#define MARS2GRIB_CONCEPT_RETHROW(CONCEPTNAME, MESSAGE)                                             \
+    std::throw_with_nested(Mars2GribConceptException(std::string(CONCEPTNAME##Name),                \
+                                                     std::string(CONCEPTNAME##TypeName<Variant>()), \
+                                                     std::to_string(Stage), std::to_string(Section), MESSAGE, Here()))
+
+
+#define MARS2GRIB_CONCEPT_THROW(CONCEPTNAME, MESSAGE)                                                                  \
+    do {                                                                                                               \
+        throw Mars2GribConceptException(std::string(CONCEPTNAME##Name), std::string(CONCEPTNAME##TypeName<Variant>()), \
+                                        std::to_string(Stage), std::to_string(Section), MESSAGE, Here());              \
+    } while (0)
 
 }  // namespace metkit::mars2grib::utils::exceptions

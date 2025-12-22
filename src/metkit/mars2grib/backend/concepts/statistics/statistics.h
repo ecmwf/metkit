@@ -1,5 +1,6 @@
 #pragma once
 
-#include "metkit/mars2grib/backend/concepts/statistics/statistics_encoding.h"
-#include "metkit/mars2grib/backend/concepts/statistics/statistics_enum.h"
-#include "metkit/mars2grib/backend/concepts/statistics/statistics_info.h"
+// Core concept includes
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsEncoding.h"
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsInfo.h"

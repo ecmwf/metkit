@@ -1,5 +1,6 @@
 #pragma once
 
-#include "metkit/mars2grib/backend/concepts/nil/nil_encoding.h"
-#include "metkit/mars2grib/backend/concepts/nil/nil_enum.h"
-#include "metkit/mars2grib/backend/concepts/nil/nil_info.h"
+// Core concept includes
+#include "metkit/mars2grib/backend/concepts/nil/nilEncoding.h"
+#include "metkit/mars2grib/backend/concepts/nil/nilEnum.h"
+#include "metkit/mars2grib/backend/concepts/nil/nilInfo.h"

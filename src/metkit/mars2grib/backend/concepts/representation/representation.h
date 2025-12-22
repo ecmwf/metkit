@@ -1,5 +1,6 @@
 #pragma once
 
-#include "metkit/mars2grib/backend/concepts/representation/representation_encoding.h"
-#include "metkit/mars2grib/backend/concepts/representation/representation_enum.h"
-#include "metkit/mars2grib/backend/concepts/representation/representation_info.h"
+// Core concept includes
+#include "metkit/mars2grib/backend/concepts/representation/representationEncoding.h"
+#include "metkit/mars2grib/backend/concepts/representation/representationEnum.h"
+#include "metkit/mars2grib/backend/concepts/representation/representationInfo.h"

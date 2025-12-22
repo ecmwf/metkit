@@ -11,13 +11,13 @@
 #include "eckit/log/Log.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/forecastDateTime.h"
-#include "metkit/mars2grib/backend/deductions/marsTimeSpanInSeconds.h"
+#include "metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h"
 #include "metkit/mars2grib/backend/deductions/numberOfTimeRanges.h"
+#include "metkit/mars2grib/backend/deductions/timeSpanInSeconds.h"
 
 // Utils
+#include "metkit/mars2grib/backend/deductions/detail/timeUtils.h"
 #include "metkit/mars2grib/backend/deductions/timeIncrementInSeconds.h"
-#include "metkit/mars2grib/utils/timeUtils.h"
 
 // Exceptions
 #include "metkit/config/LibMetkit.h"
@@ -38,19 +38,19 @@ struct StatisticalProcessing {
     std::vector<long> lengthOfTimeIncrement;
 };
 
-template <class MarsDict, class ParDict>
+template <class MarsDict_t, class ParDict_t, class OptDict_t>
 inline StatisticalProcessing getTimeDescriptorFromMars_orThrow(
-    const MarsDict& mars, const ParDict& par,
+    const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
     long outerStatOp  // typeOfStatisticalProcessing for inner loop
 ) {
 
+    using metkit::mars2grib::backend::deductions::detail::parseStatType_or_throw;
+    using metkit::mars2grib::backend::deductions::detail::Period;
+    using metkit::mars2grib::backend::deductions::detail::previousMonthLengthHours;
+    using metkit::mars2grib::backend::deductions::detail::StatOp;
+    using metkit::mars2grib::backend::deductions::detail::StatTypeBlock;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
-    using metkit::mars2grib::utils::time::parseStatType_or_throw;
-    using metkit::mars2grib::utils::time::Period;
-    using metkit::mars2grib::utils::time::previousMonthLengthHours;
-    using metkit::mars2grib::utils::time::StatOp;
-    using metkit::mars2grib::utils::time::StatTypeBlock;
 
     try {
         StatisticalProcessing out{};
@@ -90,14 +90,14 @@ inline StatisticalProcessing getTimeDescriptorFromMars_orThrow(
         // ---------------------------------------------------------------------
         // End date (needed for monthly length)
         // ---------------------------------------------------------------------
-        eckit::DateTime forecastTime = forecastDateTime_or_throw(mars, par);
+        eckit::DateTime forecastTime = resolve_ForecastTimeInSeconds_or_throw(mars, par, opt);
 
         long endYear  = forecastTime.date().year();
         long endMonth = forecastTime.date().month();
 
         const long timeStepSeconds = timeIncrementInSeconds_or_throw(mars, par);
 
-        const long timeSpanInSeconds = marsTimeSpanInSeconds_or_throw(mars, par);
+        const long timeSpanInSeconds = resolve_TimeSpanInSeconds_or_throw(mars, par, opt);
 
         if (timeSpanInSeconds % 3600 != 0) {
             throw Mars2GribDeductionException("`timespan` must be multiple of 3600 seconds", Here());
