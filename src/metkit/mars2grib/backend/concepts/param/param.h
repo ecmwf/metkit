@@ -1,5 +1,6 @@
 #pragma once
 
-#include "param_encoding.h"
-#include "param_enum.h"
-#include "param_info.h"
+// Core concept includes
+#include "metkit/mars2grib/backend/concepts/param/paramEncoding.h"
+#include "metkit/mars2grib/backend/concepts/param/paramEnum.h"
+#include "metkit/mars2grib/backend/concepts/param/paramInfo.h"

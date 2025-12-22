@@ -10,8 +10,8 @@
 
 #include "eckit/config/LocalConfiguration.h"
 
-#include "metkit/mars2grib/backend/concepts/concept_registry.h"
-#include "metkit/mars2grib/backend/sections/initializers/section_registry.h"
+#include "metkit/mars2grib/backend/concepts/conceptRegistry.h"
+#include "metkit/mars2grib/backend/sections/initializers/sectionRegistry.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
 // Ordered recipes (vector-based)
@@ -23,7 +23,7 @@ namespace metkit::mars2grib::backend::config {
 // Public data model
 // =================================================================================================
 
-using metkit::mars2grib::backend::cnpts::NUM_SECTIONS;
+using metkit::mars2grib::backend::concepts_::NUM_SECTIONS;
 using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
 struct ConceptCfg {
@@ -335,13 +335,13 @@ inline auto makeEncoderCallbacks(const EncoderCfg& cfg) {
     // ---------------------------------------------------------------------------------------------
     // Type aliases (readability)
     // ---------------------------------------------------------------------------------------------
-    using Fn_t = metkit::mars2grib::backend::cnpts::Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
-    using metkit::mars2grib::backend::cnpts::NUM_SECTIONS;
-    using metkit::mars2grib::backend::cnpts::NUM_STAGES;
+    using Fn_t = metkit::mars2grib::backend::concepts_::Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+    using metkit::mars2grib::backend::concepts_::NUM_SECTIONS;
+    using metkit::mars2grib::backend::concepts_::NUM_STAGES;
     using StageTable  = std::array<std::vector<Fn_t>, NUM_SECTIONS>;
     using CallbackTbl = std::array<StageTable, NUM_STAGES + 1>;
 
-    using metkit::mars2grib::backend::cnpts::concept_registry_instance;
+    using metkit::mars2grib::backend::concepts_::concept_registry_instance;
     using metkit::mars2grib::backend::sections::initializers::getSectionInitializerFn;
 
     try {
