@@ -224,3 +224,7 @@ ecbuild_add_library(
         eckit_option
         ${grib_libs}
 )
+
+if( HAVE_MARS2GRIB_PYTHON )
+    add_subdirectory(mars2grib/api/python)
+endif()
