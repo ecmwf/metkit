@@ -84,27 +84,27 @@ inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::str
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (value == "analysis")
+    if (value == "an")
         return TypeOfProcessedData::AnalysisProducts;
-    if (value == "forecast")
+    if (value == "fc")
         return TypeOfProcessedData::ForecastProducts;
-    if (value == "analysis+forecast")
+    if (value == "af")
         return TypeOfProcessedData::AnalysisAndForecastProducts;
-    if (value == "control-forecast")
+    if (value == "cf")
         return TypeOfProcessedData::ControlForecastProducts;
-    if (value == "perturbed-forecast")
+    if (value == "pf")
         return TypeOfProcessedData::PerturbedForecastProducts;
-    if (value == "control+perturbed-forecast")
+    if (value == "cp")
         return TypeOfProcessedData::ControlAndPerturbedForecastProducts;
-    if (value == "satellite-observations")
+    if (value == "sa")
         return TypeOfProcessedData::ProcessedSatelliteObservations;
-    if (value == "radar-observations")
+    if (value == "ra")
         return TypeOfProcessedData::ProcessedRadarObservations;
-    if (value == "event-probability")
+    if (value == "ep")
         return TypeOfProcessedData::EventProbability;
-    if (value == "experimental")
+    if (value == "9")
         return TypeOfProcessedData::ExperimentalData;
-    if (value == "ml-based-forecast")
+    if (value == "10")
         return TypeOfProcessedData::MlBasedForecast;
     if (value == "missing")
         return TypeOfProcessedData::Missing;
@@ -229,27 +229,27 @@ inline std::string enum2name_TypeOfProcessedData_or_throw(TypeOfProcessedData va
 
     switch (value) {
         case TypeOfProcessedData::AnalysisProducts:
-            return "analysis";
+            return "an";
         case TypeOfProcessedData::ForecastProducts:
-            return "forecast";
+            return "fc";
         case TypeOfProcessedData::AnalysisAndForecastProducts:
-            return "analysis+forecast";
+            return "af";
         case TypeOfProcessedData::ControlForecastProducts:
-            return "control-forecast";
+            return "cf";
         case TypeOfProcessedData::PerturbedForecastProducts:
-            return "perturbed-forecast";
+            return "pf";
         case TypeOfProcessedData::ControlAndPerturbedForecastProducts:
-            return "control+perturbed-forecast";
+            return "cp";
         case TypeOfProcessedData::ProcessedSatelliteObservations:
-            return "satellite-observations";
+            return "sa";
         case TypeOfProcessedData::ProcessedRadarObservations:
-            return "radar-observations";
+            return "ra";
         case TypeOfProcessedData::EventProbability:
-            return "event-probability";
+            return "ep";
         case TypeOfProcessedData::ExperimentalData:
-            return "experimental";
+            return "9";
         case TypeOfProcessedData::MlBasedForecast:
-            return "ml-based-forecast";
+            return "10";
         case TypeOfProcessedData::Missing:
             return "missing";
     }
