@@ -29,12 +29,23 @@ tables::TypeOfProcessedData resolve_TypeOfProcessed_or_throw(const MarsDict_t& m
         tables::TypeOfProcessedData result = tables::TypeOfProcessedData::Missing;
 
         if (has(par, "typeOfProcessedData")) {
-
             // User override from par dictionary
-            long typeOfProcessedDataVal = get_or_throw<long>(par, "typeOfProcessedData");
+            if (has<long>(par, "typeOfProcessedData")) {
+                long typeOfProcessedDataVal = get_or_throw<long>(par, "typeOfProcessedData");
 
-            // Convert long to enum (validate)
-            result = tables::long2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal);
+                // Convert long to enum (validate)
+                result = tables::long2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal);
+            }
+            else if (has<std::string>(par, "typeOfProcessedData")) {
+                std::string typeOfProcessedDataVal = get_or_throw<std::string>(par, "typeOfProcessedData");
+
+                // Convert string to enum (validate)
+                result = tables::name2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal);
+            }
+            else {
+                throw Mars2GribDeductionException(
+                    "Key `typeOfProcessedData` is not of expected type `long` or `string`", Here());
+            }
         }
         else {
             // Deduce typeOfProcessedData from mars type
