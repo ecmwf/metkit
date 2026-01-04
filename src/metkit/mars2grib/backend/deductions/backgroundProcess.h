@@ -7,75 +7,113 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file backgroundProcess.h
+ * @brief Deduction of the GRIB `backgroundProcess` attribute.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **GRIB Background Process** from input dictionaries.
+ *
+ * The deduction maps the MARS model identifier to a GRIB-compliant
+ * `BackgroundProcess` value according to predefined, authoritative
+ * mapping rules.
+ *
+ * Deductions are responsible for:
+ * - extracting values from MARS, parameter, and option dictionaries
+ * - applying deterministic deduction logic
+ * - returning strongly typed values to concept operations
+ *
+ * Deductions:
+ * - do NOT encode GRIB keys directly
+ * - do NOT apply semantic defaults beyond explicit rules
+ * - do NOT perform GRIB table validation
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or unsupported inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value resolved via deduction logic from input dictionaries
+ * - OVERRIDE: value provided by parameter dictionary overriding deduction logic
+ *
+ * @section References
+ * Concept:
+ *   - @ref generatingProcessEncoding.h
+ *
+ * Related deductions:
+ *   - @ref generatingProcessIdentifier.h
+ *   - @ref typeOfGeneratingProcess.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
-
-#include "eckit/log/Log.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/backgroundProcess.h"
 
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
-
 /**
- * @brief Resolve the GRIB `backgroundProcess` key from the MARS model identifier.
+ * @brief Resolve the GRIB `backgroundProcess` value from input dictionaries.
  *
- * This deduction resolves the value of the GRIB `backgroundProcess` key
- * by mapping the MARS model identifier (`mars::model`) to the corresponding
- * GRIB Background Process code.
+ * @section Deduction contract
+ * - Reads: `mars["model"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The mapping is explicit and strict: only a well-defined subset of
- * `mars::model` values is supported. Any unsupported or unknown value
- * results in a deduction error.
+ * This deduction resolves the GRIB `backgroundProcess` by mapping the
+ * MARS model identifier to the corresponding
+ * `tables::BackgroundProcess` enumeration value.
  *
- * @important
- * This function is the **single authoritative deduction** for
- * `backgroundProcess` in the encoder.
- * All semantic validation, mapping rules, and consistency checks
- * associated with this GRIB key **must be implemented here**.
+ * The mapping is explicit and strict: only supported model identifiers
+ * are accepted. Unsupported or unknown values result in an immediate
+ * deduction failure.
  *
- * @section Source of truth
- * The authoritative definition of valid model identifiers and their
- * corresponding GRIB background process codes is maintained in:
+ * This function acts as the single authoritative deduction point for
+ * `backgroundProcess`. All mapping rules and consistency checks for
+ * this GRIB key must be implemented here.
  *
- *   `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
+ * @tparam MarsDict_t
+ *   Type of the MARS dictionary. Must support keyed access to `model`
+ *   and conversion to `std::string`.
  *
- * Any changes to supported values **must** be reflected in that file
- * and mirrored here (preferably via automated code generation).
+ * @tparam ParDict_t
+ *   Type of the parameter dictionary (unused by this deduction).
  *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (unused in this deduction)
- * @tparam OptDict_t  Type of the options dictionary (unused in this deduction)
+ * @tparam OptDict_t
+ *   Type of the options dictionary (unused by this deduction).
  *
- * @param[in] mars MARS dictionary; must contain the key `model`
- * @param[in] par  Parameter dictionary (currently unused)
- * @param[in] opt  Options dictionary (currently unused)
+ * @param[in] mars
+ *   MARS dictionary from which the model identifier is read.
  *
- * @return The resolved `BackgroundProcess` enumeration value corresponding
- *         to the provided `mars::model`.
+ * @param[in] par
+ *   Parameter dictionary (unused).
+ *
+ * @param[in] opt
+ *   Options dictionary (unused).
+ *
+ * @return
+ *   The resolved GRIB `BackgroundProcess` enumeration value.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the key `model` is missing from the MARS dictionary
- *         - the `mars::model` value is not supported
- *         - mapping to a GRIB-compliant Background Process fails
- *         - any unexpected error occurs during deduction
+ *   If the key `model` is missing, unsupported, cannot be mapped to a
+ *   valid GRIB background process, or if any unexpected error occurs
+ *   during deduction.
  *
  * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - The result is fully deterministic and reproducible.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
- * - Replace the hard-coded mapping with code generated directly from
- *   ecCodes GRIB code tables to guarantee long-term consistency.
- * - Validate mars::model value before using it for mapping.
+ *   This deduction is deterministic and does not rely on any
+ *   pre-existing GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& mars,
@@ -87,24 +125,27 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
 
     try {
 
-        // Get backgroundProcess from mars dictionary
+        // Retrieve mandatory MARS model identifier
         std::string marsModelVal = get_or_throw<std::string>(mars, "model");
 
-        // Logging of the mars::model
+        // Apply BackgroundProcess mapping logic
+        tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
+
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`backgroundProcess`: mapped from `mars::model`: actual='";
-            logMsg += marsModelVal + "'";
+            std::string logMsg = "`backgroundProcess` resolved from input dictionaries: value=";
+            logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
             return logMsg;
         }());
 
-        // Return the mapped value if valid
-        return tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
+        // Success exit point
+        return backgroundProcess;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException(
-            "Unable to resolve `backgroundProcess` from Mars and Par dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `backgroundProcess` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

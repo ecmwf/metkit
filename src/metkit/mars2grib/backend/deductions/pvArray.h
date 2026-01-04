@@ -7,8 +7,60 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file pvArray.h
+ * @brief Deduction of the GRIB vertical coordinate PV array (`pv`).
+ *
+ * This file defines the deduction responsible for resolving the
+ * **GRIB PV array** (`pv`), which encodes the vertical coordinate
+ * transformation parameters used by hybrid vertical level definitions.
+ *
+ * The deduction supports two mutually exclusive input mechanisms:
+ *
+ * 1. **Explicit override**
+ *    - The full PV array is provided directly via the parameter
+ *      dictionary (`par["pv"]`).
+ *
+ * 2. **Table-based construction**
+ *    - The PV array is constructed from a declared size
+ *      (`par["pvSize"]`) using a predefined lookup table.
+ *
+ * Exactly one of these inputs must be provided.
+ *
+ * ### Responsibilities
+ * Deductions in this file are responsible for:
+ * - extracting PV-related metadata from input dictionaries
+ * - applying deterministic construction rules
+ * - validating presence and structural consistency
+ * - returning a fully constructed PV array to the encoder
+ *
+ * Deductions:
+ * - do NOT infer PV values from GRIB templates
+ * - do NOT modify or validate physical meaning of PV coefficients
+ * - do NOT depend on pre-existing GRIB header state
+ *
+ * Error handling follows a strict fail-fast policy:
+ * - missing or ambiguous inputs cause immediate failure
+ * - errors are reported using Mars2Grib deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - OVERRIDE: PV array explicitly provided by the parameter dictionary
+ * - RESOLVE:  PV array constructed via deterministic lookup
+ *
+ * @section References
+ * Concept:
+ *   - @ref levelEncoding.h
+ *
+ * Related deductions:
+ *   - @ref level.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -18,8 +70,7 @@
 #include <string>
 #include <vector>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -42,54 +93,9 @@ namespace pv_detail {
 using HexDouble = std::array<uint8_t, 8>;
 
 namespace data {
-/**
- * @brief Demonstration PV table for a single PV coefficient.
- *
- * This table contains a minimal, hard-coded set of PV coefficients intended
- * solely for demonstration and development purposes.
- *
- * @warning
- *   The values stored in this table are NOT representative of real production
- *   PV data. Proper, scientifically validated PV tables must be provided
- *   before this code is used in a production environment.
- *
- * @note
- *   Real PV tables are expected to be significantly larger. For this reason,
- *   production-ready tables should be defined in a dedicated header file
- *   (or set of headers) that can be generated, maintained, and updated
- *   independently of the decoding logic.
- *
- * @note
- *   This table is encoded using big-endian IEEE754 double-precision format.
- */
-static constexpr std::array<HexDouble, 1> pv_1_be = {{
-    {0x40, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}  // 10.0
-}};
 
-/**
- * @brief Demonstration PV table for three PV coefficients.
- *
- * This table contains a small, illustrative set of PV coefficients used only
- * to exercise and validate the PV lookup and decoding infrastructure.
- *
- * @warning
- *   The data contained here is purely demonstrative. Real PV coefficient
- *   tables must be supplied separately and are expected to be much larger
- *   and derived from authoritative sources.
- *
- * @note
- *   Due to the expected size of real PV tables, the final implementation
- *   should place such data in a separate include file, keeping the core
- *   lookup and decoding logic independent from the bulk data definitions.
- *
- * @note
- *   All coefficients are encoded as big-endian IEEE754 double-precision values.
- */
-static constexpr std::array<HexDouble, 3> pv_3_be = {{
-    {0x40, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 10.0
-    {0x40, 0x34, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},  // 20.0
-    {0x40, 0x3E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}   // 30.0
-}};
+// This is pure data hence I just put the include here
+#include "metkit/mars2grib/backend/deductions/detail/pv_137_be.h"
 
 }  // namespace data
 
@@ -154,7 +160,7 @@ struct PvEntry {
  *   Data that are currently injected in the table are for demonstration and
  *   testing purposes only.
  */
-constexpr std::array<PvEntry, 2> pv_tables = {{{1, 1, data::pv_1_be.data()}, {3, 3, data::pv_3_be.data()}}};
+constexpr std::array<PvEntry, 1> pv_tables = {{{137, 1002, data::pv_137_1002_be.data()}}};
 
 /**
  * @brief Decode a double value from an 8-byte sequence in native byte order.
@@ -182,7 +188,7 @@ constexpr std::array<PvEntry, 2> pv_tables = {{{1, 1, data::pv_1_be.data()}, {3,
  *   The caller is responsible for ensuring that `p` points to at least
  *   `sizeof(double)` valid bytes.
  */
-inline double bytes_to_double(const uint8_t* p) {
+inline double bytesToDouble(const uint8_t* p) {
     double v;
     std::memcpy(&v, p, sizeof(double));
     return v;
@@ -197,7 +203,7 @@ inline double bytes_to_double(const uint8_t* p) {
  * differs from the host representation.
  *
  * The input byte sequence is copied into a temporary buffer with its byte
- * order reversed, after which it is decoded using `bytes_to_double()`.
+ * order reversed, after which it is decoded using `bytesToDouble()`.
  *
  * @param[in] p
  *   Pointer to an array of 8 bytes representing an IEEE754 double-precision
@@ -215,10 +221,10 @@ inline double bytes_to_double(const uint8_t* p) {
  *   No validation of the input byte sequence is performed. The caller is
  *   responsible for ensuring that `p` points to at least 8 valid bytes.
  */
-inline double bytes_to_double_swapped(const uint8_t* p) {
+inline double bytesToDoubleSwapped(const uint8_t* p) {
     uint8_t tmp[8];
     std::reverse_copy(p, p + 8, tmp);
-    return bytes_to_double(tmp);
+    return bytesToDouble(tmp);
 }
 
 
@@ -253,18 +259,18 @@ inline double bytes_to_double_swapped(const uint8_t* p) {
  *   The detection is runtime-based and should typically be executed once and
  *   cached, as the result is invariant for the lifetime of the process.
  */
-inline bool host_is_little_endian_or_throw() {
+inline bool hostIsLittleEndian_or_throw() {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     constexpr double sentinel                    = 1.23456789;
     constexpr std::array<uint8_t, 8> sentinel_be = {0x3F, 0xF3, 0xC0, 0xCA, 0x42, 0x83, 0xDE, 0x1B};
 
-    const double v0 = bytes_to_double(sentinel_be.data());
+    const double v0 = bytesToDouble(sentinel_be.data());
     if (v0 == sentinel)
         return false;  // host BE
 
-    const double v1 = bytes_to_double_swapped(sentinel_be.data());
+    const double v1 = bytesToDoubleSwapped(sentinel_be.data());
     if (v1 == sentinel)
         return true;  // host LE
 
@@ -304,8 +310,8 @@ inline bool host_is_little_endian_or_throw() {
  *   No validation of the floating-point representation is performed here; the
  *   correctness of the input bytes is assumed.
  */
-inline double read_double_maybe_swapped(const std::array<uint8_t, 8>& p, bool swap) {
-    return swap ? bytes_to_double_swapped(p.data()) : bytes_to_double(p.data());
+inline double readDoubleMaybeSwapped(const std::array<uint8_t, 8>& p, bool swap) {
+    return swap ? bytesToDoubleSwapped(p.data()) : bytesToDouble(p.data());
 }
 
 /**
@@ -350,7 +356,7 @@ inline double read_double_maybe_swapped(const std::array<uint8_t, 8>& p, bool sw
  *   This function is intended for use at API or backend boundaries and follows
  *   a fail-fast strategy with rich error context propagation.
  */
-std::vector<double> loopUp_PvArrayFromSize_or_throw(long pvArraySize) {
+std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -367,19 +373,19 @@ std::vector<double> loopUp_PvArrayFromSize_or_throw(long pvArraySize) {
         // Not found
         if (!entry) {
             std::string errMsg = "No PV array found for size: " + std::to_string(pvArraySize);
-            errMsg += ". Supported sizes are: {1,3} only for debug reasons.";
+            errMsg += ". Supported sizes is: {137}";
             throw Mars2GribDeductionException(errMsg, Here());
         }
 
         // 2) Sentinel endian detection (need to be done only once, hence `static`)
-        static const bool swap = host_is_little_endian_or_throw();
+        static const bool swap = hostIsLittleEndian_or_throw();
 
         // 3) Decode
         std::vector<double> out;
         out.reserve(entry->size);
 
         for (long i = 0; i < entry->size; ++i) {
-            out.push_back(read_double_maybe_swapped(entry->data[i], swap));
+            out.push_back(readDoubleMaybeSwapped(entry->data[i], swap));
         }
 
         // RReturn decoded sentinel
@@ -409,12 +415,12 @@ std::vector<double> loopUp_PvArrayFromSize_or_throw(long pvArraySize) {
  * @throws Mars2GribDeductionException
  *   If the host floating-point representation is unsupported.
  */
-inline std::vector<HexDouble> to_hex_double_be(const std::vector<double>& values) {
+inline std::vector<HexDouble> toHexDoubleBE(const std::vector<double>& values) {
 
     static_assert(sizeof(double) == 8, "Unsupported double size");
 
     // Determine host endian once
-    static const bool host_is_le = host_is_little_endian_or_throw();
+    static const bool host_is_le = hostIsLittleEndian_or_throw();
 
     std::vector<HexDouble> out;
     out.reserve(values.size());
@@ -465,8 +471,8 @@ inline std::vector<HexDouble> to_hex_double_be(const std::vector<double>& values
  * @throws std::runtime_error
  *   If the output file cannot be created or written.
  */
-inline void write_hex_table_include(const std::vector<HexDouble>& hex_data, const std::string& array_name,
-                                    const std::string& filename) {
+inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const std::string& array_name,
+                                 const std::string& filename) {
 
     std::ofstream os(filename);
     if (!os) {
@@ -498,51 +504,68 @@ inline void write_hex_table_include(const std::vector<HexDouble>& hex_data, cons
 
 
 /**
- * @brief Resolve the GRIB `pv` (vertical coordinate parameters) array.
+ * @brief Resolve the GRIB vertical coordinate PV array (`pv`).
  *
- * This deduction resolves the GRIB `pv` array, which contains the vertical
- * coordinate parameters associated with hybrid or generalized vertical
- * coordinate systems.
+ * @section Deduction contract
+ * - Reads:
+ *   - `par["pv"]` (explicit override), OR
+ *   - `par["pvSize"]` (table-based construction)
+ * - Writes: none
+ * - Side effects: logging (OVERRIDE or RESOLVE)
+ * - Failure mode: throws
  *
- * The array is obtained **exclusively** from the parameter dictionary (`par`)
- * under the key `pv`.
+ * This deduction resolves the PV array defining the vertical
+ * coordinate transformation used for hybrid vertical levels.
  *
- * Currently, only the direct provision of the full `pv` array is supported.
- * Resolution based on a declared size (`pvSize`) or indirect reconstruction
- * is **not implemented** and results in an error.
+ * Resolution follows a strict precedence order:
  *
- * @important
- * This function does not attempt to infer, generate, or validate the
- * contents of the PV array. It assumes that the provided values are already
- * consistent with the chosen vertical coordinate definition.
+ * 1. **Explicit override**
+ *    If `par["pv"]` is present, the PV array is taken verbatim
+ *    from the parameter dictionary and treated as authoritative.
  *
- * @tparam MarsDict_t Type of the MARS dictionary (unused)
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (unused)
+ * 2. **Deterministic construction**
+ *    If `par["pv"]` is absent and `par["pvSize"]` is present,
+ *    the PV array is constructed using a predefined lookup
+ *    based solely on the requested size.
  *
- * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary; must contain the key `pv`
- * @param[in] opt  Options dictionary (unused)
+ * Exactly one of these inputs must be provided.
+ * Supplying neither results in a deduction error.
  *
- * @return A vector of doubles representing the GRIB `pv` array
+ * No attempt is made to validate the physical meaning,
+ * monotonicity, or numerical consistency of the PV values.
+ *
+ * @tparam MarsDict_t
+ *   Type of the MARS dictionary (unused by this deduction).
+ *
+ * @tparam ParDict_t
+ *   Type of the parameter dictionary providing `pv` or `pvSize`.
+ *
+ * @tparam OptDict_t
+ *   Type of the options dictionary (unused by this deduction).
+ *
+ * @param[in] mars
+ *   MARS dictionary (unused).
+ *
+ * @param[in] par
+ *   Parameter dictionary providing PV configuration.
+ *
+ * @param[in] opt
+ *   Options dictionary (unused).
+ *
+ * @return
+ *   Fully resolved PV array as a vector of double-precision values.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the key `pv` is missing from the parameter dictionary
- *         - `pvSize` is provided without a corresponding `pv` array
- *         - reconstruction of the PV array from size metadata is requested
- *         - any unexpected error occurs during deduction
+ *   If:
+ *   - neither `pv` nor `pvSize` is provided
+ *   - the PV array cannot be retrieved or constructed
+ *   - any unexpected error occurs during deduction
  *
  * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - No validation is performed on the size or semantic correctness of
- *   the returned PV array.
- *
- * @todo [owner: mival,dgov][scope: deduction][reason: completeness][prio: medium]
- * - Implement reconstruction or lookup of the PV array when only
- *   `pvSize` is provided.
- * - Add optional consistency checks between the PV array size and
- *   the associated vertical coordinate definition.
+ * - This deduction is deterministic for a given parameter dictionary.
+ * - The returned PV array is passed verbatim to GRIB encoding logic.
+ * - No defaulting or inference beyond the two supported mechanisms
+ *   is permitted.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -562,10 +585,12 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
         if (hasPV) {
             // Get the pv array directly
             pvArrayVal = get_or_throw<std::vector<double>>(par, "pv");
-            // Logging of the par::lengthOfTimeWindow
+
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "pvArray: looked up from Par dictionary with size: ";
+                std::string logMsg = "`pvArray` resolved from input dictionaries: size='";
                 logMsg += std::to_string(pvArrayVal.size());
+                logMsg += "'";
                 return logMsg;
             }());
         }
@@ -575,17 +600,17 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             long pvArraySize = get_or_throw<long>(par, "pvSize");
 
             // Lookup of the pv array from size not implemented
-            pvArrayVal = pv_detail::loopUp_PvArrayFromSize_or_throw(pvArraySize);
+            pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize);
 
-            // Logging of the par::lengthOfTimeWindow
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "pvArray: look up of Pv array from a map still not supported: ";
+                std::string logMsg = "`pvArray` resolved from input dictionaries: size='";
                 logMsg += std::to_string(pvArrayVal.size());
                 return logMsg;
             }());
         }
         else {
-            throw Mars2GribDeductionException("Unable to lookup pv array", Here());
+            throw Mars2GribDeductionException("Invalid `pvArray`: neither `pv` nor `pvSize` provided", Here());
         }
 
         // Exit with success
@@ -594,7 +619,8 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to deduce `pvArray`", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `pvArray` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

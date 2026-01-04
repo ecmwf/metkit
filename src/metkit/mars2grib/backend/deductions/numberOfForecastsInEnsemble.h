@@ -7,6 +7,38 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file numberOfForecastsInEnsemble.h
+ * @brief Deduction of the GRIB `numberOfForecastsInEnsemble` key.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **total number of forecasts in an ensemble**.
+ *
+ * The value cannot be inferred from the MARS request alone and must be
+ * provided explicitly via the parameter dictionary.
+ *
+ * The MARS key `number` (perturbation number) is used exclusively for
+ * consistency validation and does not affect the returned value.
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or invalid inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value resolved from one or more input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref ensembleEncoding.h
+ *
+ * Related deductions:
+ *   - @ref perturbationNumber.h
+ *   - @ref typeOfEnsembleForecast.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
 #include <string>
@@ -22,59 +54,49 @@ namespace metkit::mars2grib::backend::deductions {
 /**
  * @brief Resolve the GRIB `numberOfForecastsInEnsemble` key.
  *
- * This deduction determines the value of the GRIB
- * `numberOfForecastsInEnsemble` key, which specifies the total number
- * of ensemble members in the forecast system.
+ * @section Deduction contract
+ * - Reads: `par["numberOfForecastsInEnsemble"]`, `mars["number"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * @details
- * The value is **not inferable** from the MARS request alone and must
- * therefore be provided explicitly via the parametrization dictionary
- * (`par`).
+ * This deduction resolves the total number of ensemble forecasts.
  *
- * The MARS key `number` (perturbation number) is used only for
- * **consistency validation** and does not influence the returned value.
+ * The value is taken verbatim from the parameter dictionary.
+ * No inference, defaulting, or heuristic logic is applied.
  *
- * ### Validation performed
- * - `numberOfForecastsInEnsemble` must be present in the parameter
- *   dictionary.
- * - `mars::number` (perturbation number) must satisfy:
+ * The MARS perturbation number (`mars["number"]`) is used only for
+ * consistency validation.
  *
- *   ```
- *   0 ≤ perturbationNumber ≤ numberOfForecastsInEnsemble
- *   ```
+ * @tparam MarsDict_t
+ *   Type of the MARS dictionary. Must provide `number`.
  *
- * Any violation results in a deduction error.
+ * @tparam ParDict_t
+ *   Type of the parameter dictionary. Must provide
+ *   `numberOfForecastsInEnsemble`.
  *
- * @important
- * This function is the **single authoritative deduction** for
- * `numberOfForecastsInEnsemble`.
- * No defaulting or implicit inference is performed.
+ * @tparam OptDict_t
+ *   Type of the options dictionary (unused).
  *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (unused)
+ * @param[in] mars
+ *   MARS dictionary providing the perturbation number.
  *
- * @param[in] mars MARS dictionary; must contain the key `number`
- * @param[in] par  Parameter dictionary; must contain
- *                 `numberOfForecastsInEnsemble`
- * @param[in] opt  Options dictionary (unused)
+ * @param[in] par
+ *   Parameter dictionary providing the ensemble size.
  *
- * @return The total number of forecasts in the ensemble.
+ * @param[in] opt
+ *   Options dictionary (unused).
+ *
+ * @return
+ *   The total number of forecasts in the ensemble.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - `numberOfForecastsInEnsemble` is missing from the parameter dictionary
- *         - `mars::number` is missing
- *         - the perturbation number is outside the valid range
- *         - any unexpected error occurs during deduction
+ *   If required keys are missing, if the perturbation number is outside
+ *   the valid range, or if any unexpected error occurs during deduction.
  *
  * @note
- * - This deduction is fully deterministic.
- * - No reliance on pre-existing GRIB header state is allowed.
- *
- * @todo [owner: mival,dgov][scope: deduction][reason: policy][prio: medium]
- * - Define whether `mars::number == 0` always corresponds to the
- *   control member or whether this must be explicitly encoded.
+ *   This deduction is fully deterministic and does not depend on
+ *   pre-existing GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -90,14 +112,19 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
 
         // Basic validation
         if (perturbationNumber < 0 || perturbationNumber > numberOfForecastsInEnsemble) {
-            throw Mars2GribDeductionException("`perturbationNumber` must be in range [0, numberOfForecastsInEnsemble)",
-                                              Here());
+            std::string errMsg = "`perturbationNumber` (";
+            errMsg += std::to_string(perturbationNumber);
+            errMsg += ") is out of valid range [0, ";
+            errMsg += std::to_string(numberOfForecastsInEnsemble);
+            errMsg += "];";
+            throw Mars2GribDeductionException(errMsg, Here());
         }
 
         // Logging of the par::lengthOfTimeWindow
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "numberOfForecastsInEnsemble: looked up from Par dictionary with value: ";
+            std::string logMsg = "`numberOfForecastsInEnsemble` resolved from input dictionaries: value='";
             logMsg += std::to_string(numberOfForecastsInEnsemble);
+            logMsg += "'";
             return logMsg;
         }());
 
@@ -106,8 +133,8 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `numberOfForecastsInEnsemble` from Par dictionary", Here()));
+        std::throw_with_nested(Mars2GribDeductionException(
+            "Failed to resolve `numberOfForecastsInEnsemble` from input dictionaries", Here()));
     };
 
     // Remove compiler warning
