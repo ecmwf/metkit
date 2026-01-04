@@ -7,12 +7,55 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file expver.h
+ * @brief Deduction of the MARS `expver` (experiment version) identifier.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **experiment version identifier (expver)** from
+ * MARS metadata.
+ *
+ * The deduction retrieves the expver identifier directly from the
+ * MARS dictionary and exposes it to the encoding layer without
+ * transformation or interpretation.
+ *
+ * Deductions are responsible for:
+ * - extracting values from MARS, parameter, and option dictionaries
+ * - applying minimal, explicit deduction logic
+ * - returning strongly typed values to concept operations
+ *
+ * Deductions:
+ * - do NOT encode GRIB keys directly
+ * - do NOT apply inference, normalization, or defaulting
+ * - do NOT perform GRIB table validation
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or malformed inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value derived via deduction logic from input dictionaries
+ * - OVERRIDE: value provided by parameter dictionary overriding deduction logic
+ *
+ * @section References
+ * Concept:
+ *   - @ref marsEncoding.h
+ *
+ * Related deductions:
+ *   - @ref class.h
+ *   - @ref stream.h
+ *   - @ref type.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,28 +63,25 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the experiment version (expver) from the MARS dictionary.
+ * @brief Resolve the experiment version (expver) identifier from input dictionaries.
  *
- * This deduction retrieves the value associated with the key `expver`
- * from the MARS dictionary (`mars`). The value is expected to be a
- * string and is treated as mandatory.
+ * @section Deduction contract
+ * - Reads: `mars["expver"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The resolved value represents the experiment version identifier
- * (commonly referred to as *expver*) used within MARS to distinguish
- * different experiments, production streams, or test configurations.
- * Its exact semantics are defined by upstream MARS conventions and
- * are not interpreted by this deduction.
+ * This deduction resolves the experiment version identifier by retrieving
+ * the mandatory MARS key `expver` and returning its value as a
+ * `std::string`.
  *
- * The resolved value is logged for diagnostic and traceability
- * purposes.
- *
- * If the key is missing or the value cannot be converted to the
- * expected type, a domain-specific exception is thrown. Any underlying
- * error is propagated using nested exceptions to preserve full
- * diagnostic context.
+ * No semantic interpretation, normalization, or validation is applied.
+ * The meaning and allowed values of the experiment version identifier
+ * are defined by upstream MARS conventions.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `expver`.
+ *   Type of the MARS dictionary. Must support keyed access to `expver`
+ *   and conversion to `std::string`.
  *
  * @tparam ParDict_t
  *   Type of the parameter dictionary (unused by this deduction).
@@ -50,8 +90,7 @@ namespace metkit::mars2grib::backend::deductions {
  *   Type of the options dictionary (unused by this deduction).
  *
  * @param[in] mars
- *   MARS dictionary from which the experiment version identifier
- *   is retrieved.
+ *   MARS dictionary from which the experiment version identifier is resolved.
  *
  * @param[in] par
  *   Parameter dictionary (unused).
@@ -60,24 +99,15 @@ namespace metkit::mars2grib::backend::deductions {
  *   Options dictionary (unused).
  *
  * @return
- *   The experiment version identifier resolved from the MARS
- *   dictionary, returned as a `std::string`.
+ *   The resolved experiment version identifier.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `expver` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `std::string`,
- *   - any unexpected error occurs during dictionary access.
+ *   If the key `expver` is missing, cannot be retrieved as a string,
+ *   or if any unexpected error occurs during deduction.
  *
  * @note
- *   This deduction assumes that the experiment version is explicitly
- *   provided by the MARS dictionary and does not attempt any
- *   inference, defaulting, or validation of the returned value.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested
- *   exception propagation to ensure that error provenance is
- *   preserved across API boundaries.
+ *   This deduction performs presence-only validation and does not
+ *   consult experiment registries or GRIB tables.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Expver_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -87,21 +117,23 @@ std::string resolve_Expver_or_throw(const MarsDict_t& mars, const ParDict_t& par
 
     try {
 
-        // Get the mars.expver
+        // Retrieve mandatory MARS expver
         std::string marsExpverVal = get_or_throw<std::string>(mars, "expver");
 
-        // Logging of the channel
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "expver: deduced from mars dictionary with value: " + marsExpverVal;
+            std::string logMsg = "`expver` resolved from input dictionaries: value='" + marsExpverVal + "'";
             return logMsg;
         }());
 
+        // Success exit point
         return marsExpverVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `expver` from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `expver` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

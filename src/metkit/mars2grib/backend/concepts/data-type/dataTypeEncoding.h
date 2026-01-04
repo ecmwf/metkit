@@ -163,9 +163,9 @@ void DataTypeOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& p
 
             // Deductions
             tables::TypeOfProcessedData typeOfProcessedData =
-                deductions::resolve_TypeOfProcessed_or_throw(mars, par, opt);
+                deductions::resolve_TypeOfProcessedData_or_throw(mars, par, opt);
             tables::ProductionStatusOfProcessedData productionStatusOfProcessedData =
-                deductions::resolve_ProductionStatusOfProcessed_or_throw(mars, par, opt);
+                deductions::resolve_ProductionStatusOfProcessedData_or_throw(mars, par, opt);
 
             // Encoding
             set_or_throw<long>(out, "typeOfProcessedData", static_cast<long>(typeOfProcessedData));

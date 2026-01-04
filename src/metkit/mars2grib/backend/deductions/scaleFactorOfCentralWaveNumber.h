@@ -7,13 +7,44 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file scaleFactorOfCentralWaveNumber.h
+ * @brief Deduction of the GRIB `scaleFactorOfCentralWaveNumber` key.
+ *
+ * This file defines the deduction responsible for resolving the GRIB
+ * `scaleFactorOfCentralWaveNumber` key used in satellite-based products.
+ *
+ * Together with `scaledValueOfCentralWaveNumber`, this value is used
+ * to encode the central wave number according to the GRIB specification.
+ *
+ * The deduction:
+ * - reads exclusively from the parameter dictionary
+ * - performs no inference or defaulting
+ * - emits structured diagnostic logging
+ *
+ * Error handling follows a fail-fast strategy with nested exception
+ * propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained directly from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref satelliteEncoding.h
+ *
+ * Related deductions:
+ *   - @ref scaledValueOfCentralWaveNumber.h
+ *   - @ref channel.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/exception/Exceptions.h"
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -21,45 +52,49 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the GRIB `scaleFactorOfCentralWaveNumber` key.
+ * @brief Resolve the GRIB `scaleFactorOfCentralWaveNumber` identifier.
  *
- * This deduction resolves the value of the GRIB
- * `scaleFactorOfCentralWaveNumber` key, which is used in satellite products
- * representations to scale the central wave number.
+ * @section Deduction contract
+ * - Reads: `par["scaleFactorOfCentralWaveNumber"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The value is obtained **exclusively** from the parameter dictionary
- * (`par`). No automatic deduction from MARS metadata is attempted.
+ * This deduction retrieves the scale factor applied to the central wave
+ * number in satellite products.
  *
- * @important
- * This function assumes that `scaleFactorOfCentralWaveNumber` is
- * explicitly provided via parametrization.
- * There is currently no defaulting or inference logic.
+ * The value is retrieved verbatim from the parameter dictionary.
+ * No inference from MARS metadata and no validation of the numerical
+ * range is performed.
  *
- * @tparam MarsDict_t Type of the MARS dictionary (unused)
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (unused)
+ * @tparam MarsDict_t
+ *   Type of the MARS dictionary (unused).
  *
- * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary; must contain the key
- *                 `scaleFactorOfCentralWaveNumber`
- * @param[in] opt  Options dictionary (unused)
+ * @tparam ParDict_t
+ *   Type of the parameter dictionary. Must provide
+ *   `scaleFactorOfCentralWaveNumber`.
  *
- * @return The resolved scale factor of the central wave number
+ * @tparam OptDict_t
+ *   Type of the options dictionary (unused).
+ *
+ * @param[in] mars
+ *   MARS dictionary (unused).
+ *
+ * @param[in] par
+ *   Parameter dictionary containing the scale factor.
+ *
+ * @param[in] opt
+ *   Options dictionary (unused).
+ *
+ * @return
+ *   Scale factor of the central wave number.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the key `scaleFactorOfCentralWaveNumber` is missing from
- *           the parameter dictionary
- *         - the value cannot be retrieved or converted to `long`
- *         - any unexpected error occurs during deduction
+ *   If the key `scaleFactorOfCentralWaveNumber` is missing, cannot be
+ *   retrieved as a `long`, or if any unexpected error occurs.
  *
  * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - No validation of the numerical range is currently performed.
- *
- * @todo [owner: mival,dgov][scope: deduction][reason: validation][prio: low]
- * - Introduce validation of the scale factor range once formal
- *   constraints are defined in the GRIB specification or ECMWF policy.
+ *   This deduction is deterministic and independent of GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_ScaleFactorOfCentralWaveNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
@@ -70,24 +105,25 @@ long resolve_ScaleFactorOfCentralWaveNumber_or_throw(const MarsDict_t& mars, con
 
     try {
 
-        // Get the par.scalefactorofcentralwavenumber
+        // Retrieve scale factor of central wave number from parameter dictionary
         auto scaleFactorOfCentralWaveNumberVal = get_or_throw<long>(par, "scaleFactorOfCentralWaveNumber");
 
-        // Logging of the par::lengthOfTimeWindow
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "scaleFactorOfCentralWaveNumber: looked up from Par dictionary with value: ";
+            std::string logMsg = "`scaleFactorOfCentralWaveNumber` resolved from parameter dictionary: value='";
             logMsg += std::to_string(scaleFactorOfCentralWaveNumberVal);
+            logMsg += "'";
             return logMsg;
         }());
 
-        // Return value
+        // Success exit point
         return scaleFactorOfCentralWaveNumberVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `scaleFactorOfCentralWaveNumber` from PAr dictionary", Here()));
+        std::throw_with_nested(Mars2GribDeductionException(
+            "Failed to resolve `scaleFactorOfCentralWaveNumber` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

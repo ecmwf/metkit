@@ -7,12 +7,52 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file centre.h
+ * @brief Deduction of the GRIB `centre` identifier.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **GRIB centre identifier** from MARS metadata.
+ *
+ * The deduction retrieves the originating centre identifier directly
+ * from the MARS dictionary and exposes it to the encoding layer without
+ * transformation.
+ *
+ * Deductions are responsible for:
+ * - extracting values from MARS, parameter, and option dictionaries
+ * - applying minimal, explicit deduction logic
+ * - returning strongly typed values to concept operations
+ *
+ * Deductions:
+ * - do NOT encode GRIB keys directly
+ * - do NOT apply normalization or defaulting unless explicitly defined
+ * - do NOT perform GRIB table validation
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or malformed inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value derived via deduction logic from input dictionaries
+ * - OVERRIDE: value provided by parameter dictionary overriding deduction logic
+ *
+ * @section References
+ * Concept:
+ *   - @ref originEncoding.h
+ *
+ * Related deductions:
+ *   - @ref subCentre.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -22,51 +62,48 @@ namespace metkit::mars2grib::backend::deductions {
 /**
  * @brief Resolve the GRIB `centre` identifier from MARS metadata.
  *
- * This deduction resolves the value of the GRIB key `centre` by retrieving
- * the originating centre identifier from the MARS dictionary.
+ * @section Deduction contract
+ * - Reads: `mars["origin"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The value is obtained directly from the MARS key `origin` and returned
- * verbatim. No normalization, translation, or defaulting is applied at
- * this stage.
+ * This deduction resolves the GRIB `centre` identifier by retrieving the
+ * mandatory MARS key `origin` and returning its value verbatim.
  *
- * @important
- * This function is the **single authoritative deduction** for the GRIB
- * `centre` key.
- * Any future validation, normalization, or mapping to numeric GRIB centre
- * codes **must be implemented here**.
+ * No normalization, translation, or defaulting is applied at this stage.
+ * Any semantic interpretation or mapping to numeric GRIB centre codes
+ * must be handled by downstream encoding logic.
  *
- * @section Semantics
- * - Input source: MARS dictionary (`mars::origin`)
- * - Resolution type: mandatory
- * - Defaulting: none
- * - Validation: presence only (string semantics assumed)
+ * @tparam MarsDict_t
+ *   Type of the MARS dictionary. Must support keyed access to `origin`
+ *   and conversion to `std::string`.
  *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam OptDict_t  Type of the options dictionary (unused)
+ * @tparam ParDict_t
+ *   Type of the parameter dictionary (unused by this deduction).
  *
- * @param[in] mars MARS dictionary; must contain the key `origin`
- * @param[in] par  Parameter dictionary (unused)
- * @param[in] opt  Options dictionary (unused)
+ * @tparam OptDict_t
+ *   Type of the options dictionary (unused by this deduction).
  *
- * @return The originating centre identifier as provided by MARS.
+ * @param[in] mars
+ *   MARS dictionary from which the originating centre identifier is read.
+ *
+ * @param[in] par
+ *   Parameter dictionary (unused).
+ *
+ * @param[in] opt
+ *   Options dictionary (unused).
+ *
+ * @return
+ *   The originating centre identifier as provided by MARS.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the key `origin` is missing from the MARS dictionary
- *         - the value cannot be retrieved as a string
- *         - any unexpected error occurs during deduction
+ *   If the key `origin` is missing, cannot be retrieved as a string,
+ *   or if any unexpected error occurs during deduction.
  *
  * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - The returned value is expected to be further interpreted or mapped
- *   by downstream encoding logic if a numeric GRIB centre code is required.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
- * - Introduce explicit validation or mapping against official GRIB centre
- *   code tables.
- * - Decide whether this deduction should return a numeric centre identifier
- *   instead of a string.
+ *   This deduction enforces presence-only validation and does not
+ *   consult GRIB centre code tables.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -76,24 +113,24 @@ std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par
 
     try {
 
-        // Lookup origin from the mars dictionary
-        auto origin = get_or_throw<std::string>(mars, "origin");
+        // Retrieve mandatory MARS origin
+        std::string origin = get_or_throw<std::string>(mars, "origin");
 
-        // Logging of the mars::model
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`centre`: mapped from `mars::origin`: actual='";
+            std::string logMsg = "`centre` resolved from input dictionaries: value='";
             logMsg += origin + "'";
             return logMsg;
         }());
 
-        // Return validated origin
+        // Success exit point
         return origin;
     }
     catch (...) {
 
         // Rethrow nested exceptions
         std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `origin` as string from Mars dictionary", Here()));
+            Mars2GribDeductionException("Failed to resolve `origin` from input dictionaries", Here()));
     }
 };
 
