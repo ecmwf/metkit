@@ -7,15 +7,59 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file waveDirectionGrid.h
+ * @brief Deduction of the GRIB wave direction grid.
+ *
+ * This header defines the deduction responsible for resolving the
+ * wave direction grid used in spectral wave products.
+ *
+ * The deduction supports two equivalent input representations:
+ * - an explicit vector of wave directions (in radians)
+ * - a reconstruction from the number of wave directions
+ *
+ * The resulting grid is converted into a scaled integer
+ * representation suitable for GRIB encoding.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - reconstruct physical wave directions deterministically
+ * - apply logarithmic scaling
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing wave direction metadata
+ * - apply implicit defaults beyond documented rules
+ * - validate physical consistency of wave directions
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: wave direction grid obtained or reconstructed from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref waveEncoding.h
+ *
+ * Related deductions:
+ *   - @ref periodItMin.h
+ *   - @ref periodItMax.h
+ *   - @ref waveDirectionNumber.h
+ *   - @ref waveFrequencyGrid.h
+ *   - @ref waveFrequencyNumber.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
-#include <algorithm>
+// System includes
 #include <cmath>
 #include <string>
 #include <vector>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -217,6 +261,48 @@ WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<double>& wav
 
 }  // namespace wave_direction_detail
 
+
+/**
+ * @brief Resolve the wave direction grid.
+ *
+ * This deduction resolves the wave direction grid using the parameter
+ * dictionary (`par`) and returns a scaled integer representation suitable
+ * for GRIB encoding.
+ *
+ * Resolution follows a strict precedence order:
+ *
+ * 1. **Explicit wave directions**
+ *    If `par::waveDirections` is present, it is interpreted as a vector
+ *    of physical wave directions expressed in radians.
+ *
+ * 2. **Reconstruction from direction count**
+ *    If `par::numberOfWaveDirections` is present, the wave direction
+ *    grid is reconstructed deterministically using a uniform midpoint
+ *    discretization over the interval \f$[0, 2\pi)\f$.
+ *
+ * The scaling factor applied to wave directions is taken from
+ * `par::scaleFactorOfWaveDirections` and defaults explicitly to `2`
+ * if not provided.
+ *
+ * @tparam OptDict_t  Type of the options dictionary (unused)
+ * @tparam MarsDict_t Type of the MARS dictionary (unused)
+ * @tparam ParDict_t  Type of the parameter dictionary
+ *
+ * @param[in] opt  Options dictionary (unused)
+ * @param[in] mars MARS dictionary (unused)
+ * @param[in] par  Parameter dictionary providing wave direction metadata
+ *
+ * @return A `WaveDirectionGrid` containing:
+ *         - number of directions
+ *         - scaling factor
+ *         - scaled integer direction values
+ *
+ * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+ *         If:
+ *         - neither `waveDirections` nor `numberOfWaveDirections` is present
+ *         - dictionary access fails
+ *         - any unexpected error occurs during deduction
+ */
 template <class OptDict_t, class MarsDict_t, class ParDict_t>
 WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const OptDict_t& opt, const MarsDict_t& mars,
                                                      const ParDict_t& par) {
@@ -231,55 +317,57 @@ WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const OptDict_t& opt, const
         WaveDirectionGrid out{};
         std::vector<double> waveDirectionsInRadians;
 
-        // Must always be present (or defaulted to 2)
+        // Retrieve optional scale factor from parameter dictionary
         long scaleFactorOfWaveDirections = get_opt<long>(par, "scaleFactorOfWaveDirections").value_or(2L);
 
-        // Wave directions can be passed as full array in par dictionary
+        // Check presence of explicit wave directions
         bool hasWaveDirections = has(par, "waveDirections");
 
-        // Or the information to reconstruct it must be present in par dictionary
+        // Check presence of number of wave directions
         bool hasNumberOfWaveDirections = has(par, "numberOfWaveDirections");
 
         if (hasWaveDirections) {
+
+            // Retrieve mandatory wave directions from parameter dictionary
             waveDirectionsInRadians = get_or_throw<std::vector<double>>(par, "waveDirections");
 
-            // Logging of the waveDirectionGrid
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "waveDirectionGrid: look up from Par dictionary as vector";
+                std::string logMsg = "`waveDirectionGrid` resolved from input dictionaries";
                 return logMsg;
             }());
         }
         else if (hasNumberOfWaveDirections) {
+
+            // Retrieve mandatory number of wave directions from parameter dictionary
             long numberOfWaveDirections = get_or_throw<long>(par, "numberOfWaveDirections");
 
             waveDirectionsInRadians =
                 wave_direction_detail::compute_WaveDirectionGrid(static_cast<std::size_t>(numberOfWaveDirections));
 
-            // Logging of the waveDirectionGrid
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "waveDirectionGrid: reconstruct from Par dictionary with numberOfWaveDirections=";
-                logMsg += std::to_string(numberOfWaveDirections);
+                std::string logMsg = "`waveDirectionGrid` reconstructed from input dictionaries with parameters={";
+                logMsg += "numberOfWaveDirections=" + std::to_string(numberOfWaveDirections) + "}";
                 return logMsg;
             }());
         }
         else {
-            throw Mars2GribDeductionException(
-                "Insufficient wave direction information in Par dictionary: "
-                "neither waveDirections nor numberOfWaveDirections is present",
-                Here());
+            throw Mars2GribDeductionException("Failed to resolve `waveDirectionGrid` from input dictionaries", Here());
         }
 
         // Build the scaled direction grid
         out = wave_direction_detail::compute_WaveScaledDirectionGrid(waveDirectionsInRadians,
                                                                      scaleFactorOfWaveDirections);
 
+        // Success exit point
         return out;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException(
-            "Unable to get wave direction information from Mars and Par dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `waveDirectionGrid` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

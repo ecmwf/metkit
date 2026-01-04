@@ -7,15 +7,54 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file typeOfEnsembleForecast.h
+ * @brief Deduction of the GRIB `typeOfEnsembleForecast` identifier.
+ *
+ * This header defines the deduction responsible for resolving the
+ * GRIB `typeOfEnsembleForecast` key (Code Table 4.6), which describes
+ * the nature of ensemble perturbations.
+ *
+ * The value may be provided explicitly via parametrization or
+ * deduced deterministically from MARS metadata.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing values beyond defined rules
+ * - apply silent fallbacks
+ * - rely on pre-existing GRIB header state
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value deduced from input dictionaries
+ * - OVERRIDE: explicit user override via parameter dictionary
+ *
+ * @section References
+ * Concept:
+ *   - @ref ensembleEncoding.h
+ *
+ * Related deductions:
+ *   - @ref perturbationNumber.h
+ *   - @ref numberOfForecastsInEnsemble.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
-// Tables
+// Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfEnsembleForecast.h"
 
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -25,61 +64,35 @@ namespace metkit::mars2grib::backend::deductions {
 /**
  * @brief Resolve the GRIB `typeOfEnsembleForecast` key.
  *
- * This deduction determines the value of the GRIB
- * `typeOfEnsembleForecast` key (GRIB2 Code Table 4.6) used to describe
- * the nature of ensemble perturbations.
- *
  * Resolution follows a strict precedence order:
  *
- * 1. **User override (Par dictionary)**
- *    If the key `typeOfEnsembleForecast` is present in the parameter
- *    dictionary (`par`), its numeric value is taken as authoritative.
- *    The value is validated by converting it to the corresponding
- *    `TypeOfEnsembleForecast` enumeration via the GRIB table mapping.
+ * 1. **Explicit override**
+ *    If `par::typeOfEnsembleForecast` is present, its value is taken
+ *    as authoritative and validated against GRIB Code Table 4.6.
  *
- * 2. **Automatic deduction (MARS dictionary)**
- *    If no override is provided, the value is deduced from the MARS
- *    key `type`:
+ * 2. **Automatic deduction**
+ *    If no override is provided, the value is deduced from `mars::type`:
  *    - `"cf"` → `Unperturbed`
  *    - `"pf"` → `Perturbed`
  *
- * Any unsupported `mars::type` value results in a deduction error.
- *
- * @important
- * This function is the **single authoritative deduction** for
- * `typeOfEnsembleForecast`.
- * All validation and mapping logic for this GRIB key must be implemented
- * here.
+ * Any unsupported input results in a deduction failure.
  *
  * @tparam MarsDict_t Type of the MARS dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (currently unused)
+ * @tparam OptDict_t  Type of the options dictionary (unused)
  *
- * @param[in] mars MARS dictionary; must contain the key `type` when no
- *                 override is provided
- * @param[in] par  Parameter dictionary; may contain the key
- *                 `typeOfEnsembleForecast` as a numeric override
- * @param[in] opt  Options dictionary (currently unused)
+ * @param[in] mars MARS dictionary
+ * @param[in] par  Parameter dictionary
+ * @param[in] opt  Options dictionary (unused)
  *
  * @return The resolved `TypeOfEnsembleForecast` enumeration value
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - an override value is provided but is not a valid GRIB code
- *         - the MARS key `type` is missing
- *         - the MARS `type` value is not mapped to a known ensemble
- *           forecast type
- *         - any unexpected error occurs during deduction
+ *         If the value cannot be resolved
  *
  * @note
- * - This deduction does **not** rely on any pre-existing GRIB header state.
- * - The result is deterministic and reproducible.
- *
- * @todo [owner: mival,dgov][scope: deduction][reason: completeness][prio: medium]
- * - Extend automatic deduction logic when additional MARS `type`
- *   values are officially mapped to GRIB `typeOfEnsembleForecast`.
- * - Consider validating consistency with other ensemble-related keys
- *   (e.g. `numberOfForecastsInEnsemble`).
+ * This deduction is deterministic and authoritative for
+ * `typeOfEnsembleForecast`.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const MarsDict_t& mars, const ParDict_t& par,
@@ -94,25 +107,27 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
 
         if (has(par, "typeOfEnsembleForecast")) {
 
-            // User override from par dictionary
+            // Retrieve mandatory typeOfEnsembleForecast from parameter dictionary
             long typeOfEnsembleForecastVal = get_or_throw<long>(par, "typeOfEnsembleForecast");
 
             // Get the enum value
             tables::TypeOfEnsembleForecast typeOfEnsembleForecast =
                 tables::long2enum_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecastVal);
 
-            // Logging of the par::typeOfEnsembleForecast
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "typeOfEnsembleForecast: override from par dictionary with value: ";
+                std::string logMsg = "`typeOfEnsembleForecast` overridden from parameter dictionary: value='";
                 logMsg += tables::enum2name_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecast);
+                logMsg += "'";
                 return logMsg;
             }());
 
+            // Success exit point
             return typeOfEnsembleForecast;
         }
         else {
 
-            // Deduce from mars.type
+            // Retrieve mandatory type from MARS dictionary
             std::string marsType = get_or_throw<std::string>(mars, "type");
 
             tables::TypeOfEnsembleForecast typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Missing;
@@ -128,21 +143,23 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
                     "`type` value '" + marsType + "' is not mapped to any known `typeOfEnsembleForecast`", Here());
             }
 
-            // Logging of the par::typeOfEnsembleForecast
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "typeOfEnsembleForecast: deduced from mars.type with value: ";
+                std::string logMsg = "`typeOfEnsembleForecast` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecast);
+                logMsg += "'";
                 return logMsg;
             }());
 
+            // Success exit point
             return typeOfEnsembleForecast;
         }
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException(
-            "Unable to deduce `typeOfEnsembleForecast` from Mars or Par dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `typeOfEnsembleForecast` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

@@ -7,12 +7,45 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file scaledValueOfCentralWaveNumber.h
+ * @brief Deduction of the GRIB `scaledValueOfCentralWaveNumber` key.
+ *
+ * This file defines the deduction responsible for resolving the GRIB
+ * `scaledValueOfCentralWaveNumber` key used in satellite-based products.
+ *
+ * The value is provided explicitly via the parameter dictionary and is
+ * combined at encoding time with `scaleFactorOfCentralWaveNumber` to
+ * represent the central wave number.
+ *
+ * This deduction:
+ * - reads exclusively from the parameter dictionary
+ * - applies no inference, defaulting, or validation
+ * - emits structured diagnostic logging
+ *
+ * Error handling follows a fail-fast strategy with nested exception
+ * propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained directly from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref satelliteEncoding.h
+ *
+ * Related deductions:
+ *   - @ref scaleFactorOfCentralWaveNumber.h
+ *   - @ref channel.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,50 +53,49 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the GRIB `scaledValueOfCentralWaveNumber` key.
+ * @brief Resolve the GRIB `scaledValueOfCentralWaveNumber` identifier.
  *
- * This deduction resolves the value of the GRIB
- * `scaledValueOfCentralWaveNumber` key, which is used in satellite products
- * representations together with `scaleFactorOfCentralWaveNumber`
- * to encode the central wave number.
+ * @section Deduction contract
+ * - Reads: `par["scaledValueOfCentralWaveNumber"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The value is obtained **exclusively** from the parameter dictionary
- * (`par`). No deduction from MARS metadata or GRIB header state
- * is attempted.
+ * This deduction retrieves the scaled value used to encode the central
+ * wave number in satellite products.
  *
- * @important
- * This function assumes that `scaledValueOfCentralWaveNumber` is
- * explicitly provided via parametrization.
- * There is currently no defaulting or inference logic.
+ * The value is retrieved verbatim from the parameter dictionary.
+ * No inference from MARS metadata and no consistency validation with
+ * `scaleFactorOfCentralWaveNumber` is performed.
  *
- * @tparam MarsDict_t Type of the MARS dictionary (unused)
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (unused)
+ * @tparam MarsDict_t
+ *   Type of the MARS dictionary (unused).
  *
- * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary; must contain the key
- *                 `scaledValueOfCentralWaveNumber`
- * @param[in] opt  Options dictionary (unused)
+ * @tparam ParDict_t
+ *   Type of the parameter dictionary. Must provide
+ *   `scaledValueOfCentralWaveNumber`.
  *
- * @return The resolved scaled value of the central wave number
+ * @tparam OptDict_t
+ *   Type of the options dictionary (unused).
+ *
+ * @param[in] mars
+ *   MARS dictionary (unused).
+ *
+ * @param[in] par
+ *   Parameter dictionary containing the scaled value.
+ *
+ * @param[in] opt
+ *   Options dictionary (unused).
+ *
+ * @return
+ *   Scaled value of the central wave number.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the key `scaledValueOfCentralWaveNumber` is missing from
- *           the parameter dictionary
- *         - the value cannot be retrieved or converted to `long`
- *         - any unexpected error occurs during deduction
+ *   If the key `scaledValueOfCentralWaveNumber` is missing, cannot be
+ *   retrieved as a `long`, or if any unexpected error occurs.
  *
  * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - Numerical consistency between `scaledValueOfCentralWaveNumber`
- *   and `scaleFactorOfCentralWaveNumber` is not validated here.
- *
- * @todo [owner: mival,dgov][scope: deduction][reason: validation][prio: low]
- * - Introduce cross-validation between
- *   `scaledValueOfCentralWaveNumber` and
- *   `scaleFactorOfCentralWaveNumber` once formal constraints are
- *   defined by the GRIB specification or ECMWF policy.
+ *   This deduction is deterministic and independent of GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_ScaledValueOfCentralWaveNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
@@ -74,24 +106,25 @@ long resolve_ScaledValueOfCentralWaveNumber_or_throw(const MarsDict_t& mars, con
 
     try {
 
-        // Get the par.scaledvalueofcentralwavenumber
+        // Retrieve scaled value of central wave number from parameter dictionary
         auto scaledValueOfCentralWaveNumberVal = get_or_throw<long>(par, "scaledValueOfCentralWaveNumber");
 
-        // Logging of the par::lengthOfTimeWindow
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "scaledValueOfCentralWaveNumber: looked up from Par dictionary with value: ";
+            std::string logMsg = "`scaledValueOfCentralWaveNumber` resolved from parameter dictionary: value='";
             logMsg += std::to_string(scaledValueOfCentralWaveNumberVal);
+            logMsg += "'";
             return logMsg;
         }());
 
-        // Return value
+        // Success exit point
         return scaledValueOfCentralWaveNumberVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `scaledValueOfCentralWaveNumber` from PAr dictionary", Here()));
+        std::throw_with_nested(Mars2GribDeductionException(
+            "Failed to resolve `scaledValueOfCentralWaveNumber` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

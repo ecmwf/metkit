@@ -7,12 +7,51 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file tablesVersion.h
+ * @brief Deduction of the GRIB tables version identifiers.
+ *
+ * This header defines the deductions responsible for resolving the
+ * GRIB tables version identifiers used during GRIB encoding.
+ *
+ * Two resolution strategies are provided:
+ * - automatic resolution of the latest tables version supported by ecCodes
+ * - explicit user override via the parameter dictionary
+ *
+ * Deductions:
+ * - extract values from input dictionaries or runtime environment
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing values
+ * - apply silent fallbacks
+ * - validate semantic correctness against GRIB specifications
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained directly from input dictionaries or runtime
+ * - OVERRIDE: value explicitly provided by the user
+ *
+ * @section References
+ * Concept:
+ *   - @ref tablesEncoding.h
+ *
+ * Related deductions:
+ *   - @ref localTablesVersion.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
+#include "metkit/codes/api/CodesAPI.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,21 +59,15 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the latest available GRIB tables version supported by ecCodes.
+ * @brief Resolve the latest GRIB tables version supported by ecCodes.
  *
- * This deduction determines the value of the GRIB
- * `tablesVersionLatest` key by querying the ecCodes library directly.
+ * This deduction resolves the GRIB `tablesVersionLatest` identifier by
+ * querying the ecCodes runtime environment.
  *
- * The value is obtained by creating a GRIB2 sample handle and reading
- * the `tablesVersionLatest` key, which represents the most recent GRIB
- * tables version known to the ecCodes installation used at runtime.
- *
- * @important
- * This function is the **single authoritative deduction** for
- * `tablesVersionLatest` in the encoder.
- * The value returned reflects the ecCodes runtime environment and
- * therefore defines the maximum GRIB tables version that the encoder
- * may safely reference.
+ * Resolution rules:
+ * - the value is obtained directly from an ecCodes GRIB2 sample
+ * - no MARS or parameter input is used
+ * - no defaulting or inference is applied
  *
  * @tparam MarsDict_t Type of the MARS dictionary (unused)
  * @tparam ParDict_t  Type of the parameter dictionary (unused)
@@ -44,29 +77,13 @@ namespace metkit::mars2grib::backend::deductions {
  * @param[in] par  Parameter dictionary (unused)
  * @param[in] opt  Options dictionary (unused)
  *
- * @return The latest GRIB tables version number supported by ecCodes.
+ * @return The latest GRIB tables version supported by ecCodes
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - a GRIB2 sample cannot be created
- *         - the key `tablesVersionLatest` cannot be read
- *         - any unexpected ecCodes error occurs
+ *         If the value cannot be resolved from the runtime environment
  *
  * @note
- * - The returned value depends on the ecCodes version available at runtime.
- * - This deduction does not rely on any MARS or parameter input.
- * - The result is deterministic for a given ecCodes installation.
- *
- * @warning
- * Mixing GRIB messages produced with different ecCodes versions may lead
- * to inconsistent metadata if downstream consumers assume a fixed tables
- * version.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: robustness][prio: low]
- * - Cache the value to avoid repeated GRIB2 sample creation.
- * - Consider validating consistency between `tablesVersionLatest` and
- *   `tablesVersion` deductions.
- * - Optionally allow overriding this value for controlled regression tests.
+ * The returned value is deterministic for a given ecCodes installation.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -75,72 +92,53 @@ long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_
 
     try {
 
-        // Extract the latest tables version from eccodes.
+        // Retrieve mandatory tablesVersionLatest from ecCodes runtime
         long tablesVersionLatestVal = metkit::codes::codesHandleFromSample("GRIB2")->getLong("tablesVersionLatest");
 
-        // Logging of the par::lengthOfTimeWindow
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "tablesVersion: looked up from eccodes sample as `tablesVersionLatest` with value: ";
+            std::string logMsg = "`tablesVersionLatest` resolved from input dictionaries: value='";
             logMsg += std::to_string(tablesVersionLatestVal);
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return tablesVersionLatestVal;
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribDeductionException(
-            "Could not deduce `tablesVersion` from GRIB2 sample as `tablesVersionLatest`", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `tablesVersionLatest` from input dictionaries", Here()));
     }
 };
 
 /**
- * @brief Resolve a custom GRIB tables version from user parameters.
+ * @brief Resolve a user-defined GRIB tables version.
  *
- * This deduction resolves the GRIB `tablesVersion` key using an explicit
- * user-provided value supplied via the parameter dictionary (`par`).
+ * This deduction resolves the GRIB `tablesVersion` identifier from the
+ * parameter dictionary.
  *
- * The value is read directly from the key `tablesVersion` and is assumed
- * to represent a GRIB tables version compatible with the ecCodes
- * installation used at runtime.
- *
- * @important
- * This function represents an **explicit user override** of the GRIB
- * tables version. It bypasses automatic detection mechanisms (e.g.
- * `tablesVersionLatest`) and therefore must be used with care.
- *
- * Incorrect or unsupported values may lead to invalid, non-portable,
- * or non-reproducible GRIB messages.
+ * Resolution rules:
+ * - `par::tablesVersion` MUST be present
+ * - the value is treated as an explicit user override
+ * - no validation against ecCodes capabilities is performed
  *
  * @tparam MarsDict_t Type of the MARS dictionary (unused)
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary (unused)
  *
  * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary; must contain the key `tablesVersion`
+ * @param[in] par  Parameter dictionary; must contain `tablesVersion`
  * @param[in] opt  Options dictionary (unused)
  *
- * @return The GRIB tables version explicitly specified by the user.
+ * @return The GRIB tables version explicitly requested by the user
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the key `tablesVersion` is missing from the parameter dictionary
- *         - the value cannot be converted to a numeric GRIB tables version
- *         - any unexpected error occurs during deduction
+ *         If the value cannot be resolved
  *
  * @note
- * - No validation is performed against the ecCodes-supported tables
- *   available at runtime.
- * - Callers requiring strict reproducibility should validate this value
- *   against `tablesVersionLatest`.
- *
- * @warning
- * Using a custom tables version may cause silent divergence between
- * GRIB producers and consumers if software stacks evolve independently.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: robustness][prio: low]
- * - Add optional validation against `tablesVersionLatest`.
- * - Define clear precedence rules when both automatic and custom
- *   tables version deductions are available.
+ * Callers requiring strict reproducibility must ensure compatibility
+ * with the ecCodes runtime environment.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -150,21 +148,23 @@ long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_
 
     try {
 
-        // Extract the latest tables version from par dictionary.
+        // Retrieve mandatory tablesVersion from parameter dictionary
         long tablesVersionCustomVal = get_or_throw<long>(par, "tablesVersion");
 
-        // Logging of the par::lengthOfTimeWindow
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "tablesVersion: override from par dictionary with value: ";
+            std::string logMsg = "`tablesVersion` overridden from parameter dictionary: value='";
             logMsg += std::to_string(tablesVersionCustomVal);
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return tablesVersionCustomVal;
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribDeductionException("Could not deduce `tablesVersion` from par dictionary", Here()));
+            Mars2GribDeductionException("Failed to resolve `tablesVersion` from input dictionaries", Here()));
     }
 };
 
