@@ -7,94 +7,94 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file typeOfGeneratingProcess.h
+ * @brief Optional deduction of the GRIB `typeOfGeneratingProcess` identifier.
+ *
+ * This header defines the deduction responsible for *optionally* resolving
+ * the GRIB `typeOfGeneratingProcess` key (Code Table 3) from MARS metadata.
+ *
+ * The deduction is intentionally conservative and returns a value only when
+ * a formally defined and unambiguous mapping applies.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - apply deterministic and explicitly defined mappings
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing values
+ * - apply defaults or fallbacks
+ * - guess or approximate generating process semantics
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: supported mapping applied
+ * - RESOLVE (skip): deduction intentionally not applied
+ *
+ * @section References
+ * Concept:
+ *   - @ref generatingProcessEncoding.h
+ *
+ * Related deductions:
+ *   - @ref generatingProcessIdentifier.h
+ *   - @ref backgroundProcess.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
-#include <algorithm>
-#include <array>
+// System includes
 #include <optional>
 #include <string>
-#include <string_view>
 
-
-#include "eckit/exception/Exceptions.h"
-#include "eckit/log/Log.h"
-
-// Tables
+// Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfGeneratingProcess.h"
 
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Optionally deduce the GRIB `typeOfGeneratingProcess` from MARS metadata.
+ * @brief Optionally resolve the GRIB `typeOfGeneratingProcess` key.
  *
- * This deduction attempts to infer the GRIB *Type of Generating Process*
- * (GRIB2 Section 4, Code Table 3) based on a limited set of MARS keys.
+ * This deduction attempts to infer the GRIB
+ * `typeOfGeneratingProcess` value from MARS metadata.
  *
- * The deduction is **non-mandatory** and returns a value only when a
- * well-defined and explicitly supported mapping applies. If no supported
- * mapping is identified, the function returns `std::nullopt`.
- *
- * @important
- * This function is intentionally conservative. It must **not** guess or
- * approximate a generating process. If the deduction is not unambiguous,
- * it returns `std::nullopt` and leaves the responsibility to:
- * - a higher-level deduction, or
- * - an explicit default / missing value, or
- * - a hard failure (`or_throw`) depending on encoder policy.
+ * The deduction is **non-mandatory** and applies only when a formally
+ * specified and explicitly supported mapping is identified.
+ * If no such mapping exists, the deduction returns `std::nullopt`
+ * without raising an error.
  *
  * @section Current deduction logic
- * At present, the deduction applies only to the following case:
- *
- * - If `mars::type == "4i"`, the generating process is deduced as:
- *   `TypeOfGeneratingProcess::analysis_increment`
- *
- * All other cases result in `std::nullopt`.
- *
- * @section Inputs used
- * The following MARS keys are accessed:
- * - `type`
- * - `stream`
- * - `class`
- * - `param`
- *
- * Some of these keys are currently unused in the logic but are retrieved
- * explicitly to:
- * - document the intended deduction context
- * - ensure availability for future extensions
- * - fail early if required metadata is missing
+ * - If `mars::type == "4i"`, the generating process is resolved as
+ *   `AnalysisIncrement`.
+ * - All other cases result in `std::nullopt`.
  *
  * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (currently unused)
- * @tparam OptDict_t  Type of the options dictionary (currently unused)
+ * @tparam ParDict_t  Type of the parameter dictionary (unused)
+ * @tparam OptDict_t  Type of the options dictionary (unused)
  *
  * @param[in] mars MARS dictionary providing metadata used for deduction
  * @param[in] par  Parameter dictionary (unused)
  * @param[in] opt  Options dictionary (unused)
  *
- * @return An optional `tables::TypeOfGeneratingProcess`:
- * - a value if the deduction applies
+ * @return
+ * - `tables::TypeOfGeneratingProcess` if the deduction applies
  * - `std::nullopt` if no supported deduction is identified
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - required MARS keys are missing
- *         - any unexpected error occurs while accessing the MARS dictionary
+ *         If required MARS keys are missing or dictionary access fails
  *
  * @note
- * - This function does **not** rely on pre-existing GRIB header state.
- * - No defaulting or fallback is performed here.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: completeness][prio: medium]
- * - Extend the deduction logic to cover additional MARS combinations
- *   once formally specified.
- * - Re-evaluate whether this deduction should remain optional or be
- *   promoted to a mandatory `or_throw` deduction.
- * - Improve logging to document deduction decisions.
- *
- * @see tables::TypeOfGeneratingProcess
+ * This deduction does not rely on pre-existing GRIB header state and
+ * does not apply defaults.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_opt(
@@ -107,7 +107,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
     // N.B. Sometimes this is overwritten by eccodes as a side effect of setting `param`
     try {
 
-        // Get the mars records that are useful to deduce the typeOfGeneratingProcess
+        // Retrieve mandatory type from MARS dictionary
         std::string marsTypeVal = get_or_throw<std::string>(mars, "type");
         // std::string marsStreamVal = get_or_throw<std::string>(mars, "stream");
         // std::string marsClassVal = get_or_throw<std::string>(mars, "class");
@@ -116,29 +116,37 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         // Deduce the typeOfGeneratingProcess
         if (marsTypeVal == "4i") {
 
-            // Logging of the mars::model
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::AnalysisIncrement;
+
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`typeOfGeneratingProcess`: mapped from `mars::type`";
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "'";
                 return logMsg;
             }());
 
-            return {TypeOfGeneratingProcess::AnalysisIncrement};
+            // Success exit point
+            return {result};
         }
         else {
 
-            // Logging of the mars::model
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`typeOfGeneratingProcess`: unable to map, return std::nullopt to skip deduction";
+                std::string logMsg =
+                    "`typeOfGeneratingProcess` not resolved from input dictionaries: no supported mapping";
                 return logMsg;
             }());
 
+            // Success exit point
             return std::nullopt;
         }
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get entries from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `typeOfGeneratingProcess` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

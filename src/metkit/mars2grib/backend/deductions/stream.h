@@ -1,9 +1,57 @@
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+/**
+ * @file stream.h
+ * @brief Deduction of the GRIB `stream` identifier.
+ *
+ * This header defines the deduction responsible for resolving the
+ * GRIB `stream` key used to describe the MARS data stream associated
+ * with the encoded product.
+ *
+ * The value is not inferred or transformed and must be provided
+ * explicitly by the MARS dictionary.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing values
+ * - apply defaults or fallbacks
+ * - validate stream values against controlled vocabularies
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained directly from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref marsEncoding.h
+ *
+ * Related deductions:
+ *   - @ref class.h
+ *   - @ref expver.h
+ *   - @ref type.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -11,63 +59,34 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the MARS data stream from the MARS dictionary.
+ * @brief Resolve the GRIB `stream` key.
  *
- * This deduction retrieves the value associated with the key `stream`
- * from the MARS dictionary (`mars`). The value is expected to be a
- * string and is treated as mandatory.
+ * This deduction retrieves the value of the MARS key `stream`
+ * from the input MARS dictionary and exposes it directly
+ * as the GRIB `stream` identifier.
  *
- * The resolved value typically represents the MARS data stream
- * identifier (e.g. operational stream, ensemble stream, or other
- * production streams) as defined by upstream MARS conventions.
- * The semantic interpretation of the stream value is not performed
- * by this deduction.
+ * The value is treated as mandatory and no inference,
+ * defaulting, or validation is performed.
  *
- * The resolved value is logged for diagnostic and traceability
- * purposes.
+ * @tparam MarsDict_t Type of the MARS dictionary
+ * @tparam ParDict_t  Type of the parameter dictionary (unused)
+ * @tparam OptDict_t  Type of the options dictionary (unused)
  *
- * If the key is missing or the value cannot be converted to the
- * expected type, a domain-specific exception is thrown. Any
- * underlying error is propagated using nested exceptions to
- * preserve full diagnostic context.
+ * @param[in] mars MARS dictionary; must contain the key `stream`
+ * @param[in] par  Parameter dictionary (unused)
+ * @param[in] opt  Options dictionary (unused)
  *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `stream`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary from which the data stream identifier is retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The data stream identifier resolved from the MARS dictionary,
- *   returned as a `std::string`.
+ * @return The resolved MARS stream identifier
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `stream` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `std::string`,
- *   - any unexpected error occurs during dictionary access.
+ *         If:
+ *         - `stream` is missing from the MARS dictionary
+ *         - the value cannot be retrieved as `std::string`
+ *         - any unexpected error occurs during deduction
  *
  * @note
- *   This deduction assumes that the MARS data stream is explicitly
- *   provided by the MARS dictionary and does not attempt any
- *   inference, defaulting, or validation of the returned value.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested
- *   exception propagation to ensure that error provenance is
- *   preserved across API boundaries.
+ * This deduction is fully deterministic and does not depend on
+ * any pre-existing GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Stream_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -77,21 +96,25 @@ std::string resolve_Stream_or_throw(const MarsDict_t& mars, const ParDict_t& par
 
     try {
 
-        // Get the mars.stream
+        // Retrieve mandatory stream from Mars dictionary
         std::string marsStreamVal = get_or_throw<std::string>(mars, "stream");
 
-        // Logging of the channel
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "stream: deduced from mars dictionary with value: " + marsStreamVal;
+            std::string logMsg = "`stream` resolved from input dictionaries: value='";
+            logMsg += marsStreamVal;
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return marsStreamVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `stream` from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `stream` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

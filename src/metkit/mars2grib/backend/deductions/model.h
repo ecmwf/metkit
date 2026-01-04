@@ -7,12 +7,53 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file model.h
+ * @brief Deduction of the MARS model identifier.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **model identifier** from MARS metadata.
+ *
+ * The deduction retrieves the model identifier explicitly from the
+ * MARS dictionary and returns it verbatim. No inference, defaulting,
+ * normalization, or validation against GRIB tables is performed.
+ *
+ * Deductions are responsible for:
+ * - extracting values from MARS, parameter, and option dictionaries
+ * - applying deterministic deduction logic
+ * - returning strongly typed values to concept operations
+ *
+ * Deductions:
+ * - do NOT encode GRIB keys directly
+ * - do NOT infer defaults
+ * - do NOT perform GRIB table validation
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or invalid inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value resolved directly from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref destineEncoding.h
+ *
+ * Related deductions:
+ *   - @ref experiment.h
+ *   - @ref expver.h
+ *   - @ref generation.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -22,32 +63,25 @@ namespace metkit::mars2grib::backend::deductions {
 /**
  * @brief Resolve the model identifier from the MARS dictionary.
  *
- * This deduction retrieves the value associated with the key `model`
- * from the MARS dictionary (`mars`). The value is expected to be a
- * string and is treated as mandatory.
+ * @section Deduction contract
+ * - Reads: `mars["model"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The resolved value typically identifies the numerical model or model
- * configuration used to generate the data (e.g. IFS, coupled system,
- * experimental model variant). The semantics and allowed values of the
- * model identifier are defined by upstream MARS conventions and are not
- * interpreted by this deduction.
+ * This deduction retrieves the model identifier from the MARS dictionary.
  *
- * The resolved value is logged for diagnostic and traceability
- * purposes.
- *
- * If the key is missing or the value cannot be converted to the
- * expected type, a domain-specific exception is thrown. Any underlying
- * error is propagated using nested exceptions to preserve full
- * diagnostic context.
+ * The value is treated as mandatory and is returned verbatim as a string.
+ * No semantic interpretation, validation, or normalization is applied.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `model`.
+ *   Type of the MARS dictionary. Must provide the key `model`.
  *
  * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
+ *   Type of the parameter dictionary (unused).
  *
  * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
+ *   Type of the options dictionary (unused).
  *
  * @param[in] mars
  *   MARS dictionary from which the model identifier is retrieved.
@@ -59,24 +93,15 @@ namespace metkit::mars2grib::backend::deductions {
  *   Options dictionary (unused).
  *
  * @return
- *   The model identifier resolved from the MARS dictionary,
- *   returned as a `std::string`.
+ *   The model identifier as provided by the MARS dictionary.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `model` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `std::string`,
- *   - any unexpected error occurs during dictionary access.
+ *   If the key `model` is missing, cannot be converted to `std::string`,
+ *   or if any unexpected error occurs during deduction.
  *
  * @note
  *   This deduction assumes that the model identifier is explicitly
- *   provided by the MARS dictionary and does not attempt any inference,
- *   defaulting, or validation of the returned value.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested
- *   exception propagation to ensure that error provenance is
- *   preserved across API boundaries.
+ *   provided by MARS and does not attempt any inference or defaulting.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Model_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -86,21 +111,23 @@ std::string resolve_Model_or_throw(const MarsDict_t& mars, const ParDict_t& par,
 
     try {
 
-        // Get the mars.model
+        // Retrieve mandatory MARS model
         std::string marsModelVal = get_or_throw<std::string>(mars, "model");
 
-        // Logging of the model
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "model: deduced from mars dictionary with value: " + marsModelVal;
+            std::string logMsg = "`model` resolved from input dictionaries: value='" + marsModelVal + "'";
             return logMsg;
         }());
 
+        // Success exit point
         return marsModelVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `model` from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `model` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

@@ -162,7 +162,7 @@ void PackingOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& pa
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0});
 
                 // Get bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValue_or_throw(mars, par, opt);
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
 
                 // Set bits per value
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
@@ -174,7 +174,7 @@ void PackingOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& pa
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42});
 
                 // Get bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValue_or_throw(mars, par, opt);
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
 
                 // Set bits per value
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
@@ -186,7 +186,7 @@ void PackingOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& pa
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51});
 
                 // Get bits per value
-                long bitsPerValue        = deductions::resolve_BitsPerValue_or_throw(mars, par, opt);
+                long bitsPerValue        = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
                 double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
                 long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
 

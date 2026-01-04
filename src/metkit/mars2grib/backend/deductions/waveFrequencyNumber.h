@@ -7,76 +7,82 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file waveFrequencyNumber.h
+ * @brief Deduction of the GRIB wave frequency number.
+ *
+ * This header defines the deduction responsible for resolving the
+ * wave frequency index used in spectral wave products.
+ *
+ * The deduction extracts the frequency index directly from the
+ * MARS dictionary and exposes it for use in GRIB encoding.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing values
+ * - apply defaults or fallbacks
+ * - validate semantic correctness of indices
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained directly from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref waveEncoding.h
+ *
+ * Related deductions:
+ *   - @ref periodItMin.h
+ *   - @ref periodItMax.h
+ *   - @ref waveDirectionNumber.h
+ *   - @ref waveFrequencyGrid.h
+ *   - @ref waveFrequencyGrid.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
-#include <algorithm>
-#include <array>
-#include <optional>
+// System includes
 #include <string>
-#include <string_view>
 
-
-#include "eckit/exception/Exceptions.h"
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the wave frequency number from the MARS dictionary.
+ * @brief Resolve the GRIB wave frequency number.
  *
- * This deduction retrieves the value associated with the key `frequency`
- * from the MARS dictionary (`mars`). The value is expected to be convertible
- * to a `long` and is treated as mandatory.
+ * This deduction resolves the wave frequency index required for
+ * spectral wave encoding by retrieving it from the MARS dictionary.
  *
- * The resolved value typically represents the wave frequency number or
- * frequency index used in wave spectral processing and GRIB encoding.
+ * The value is treated as mandatory and must be provided explicitly
+ * via the MARS key `frequency`.
  *
- * If the key is missing or the value cannot be converted to the expected
- * type, a domain-specific exception is thrown. Any underlying error is
- * propagated using nested exceptions to preserve full diagnostic context.
+ * @tparam MarsDict_t Type of the MARS dictionary
+ * @tparam ParDict_t  Type of the parameter dictionary (unused)
+ * @tparam OptDict_t  Type of the options dictionary (unused)
  *
- * The resolved value is logged for diagnostic and traceability purposes.
+ * @param[in] mars MARS dictionary; must contain the key `frequency`
+ * @param[in] par  Parameter dictionary (unused)
+ * @param[in] opt  Options dictionary (unused)
  *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `frequency`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary from which the wave frequency number is retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The wave frequency number resolved from the MARS dictionary, returned
- *   as a `long`.
+ * @return The resolved wave frequency number
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `frequency` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `long`,
- *   - any unexpected error occurs during dictionary access.
- *
- * @note
- *   This deduction assumes that the wave frequency number is explicitly
- *   provided by the MARS dictionary and does not attempt any inference
- *   or defaulting.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested exception
- *   propagation to ensure that error provenance is preserved across API
- *   boundaries.
+ *         If:
+ *         - the key `frequency` is missing from the MARS dictionary
+ *         - the value cannot be converted to `long`
+ *         - any unexpected error occurs during deduction
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_WaveFrequencyNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -86,22 +92,25 @@ long resolve_WaveFrequencyNumber_or_throw(const MarsDict_t& mars, const ParDict_
 
     try {
 
-        // Get the mars.freq
+        // Retrieve mandatory wave frequency number from MARS dictionary
         auto waveFrequencyNumber = get_or_throw<long>(mars, "frequency");
 
-        // Logging of the paramId
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "waveFrequencyNumber: looked up from Mars dictionary with value: ";
+            std::string logMsg = "`waveFrequencyNumber` resolved from input dictionaries: value='";
             logMsg += std::to_string(waveFrequencyNumber);
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return waveFrequencyNumber;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `freq` from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `waveFrequencyNumber` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

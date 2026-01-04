@@ -7,11 +7,42 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file paramId.h
+ * @brief Deduction of the GRIB `paramId` identifier.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **GRIB parameter identifier** (`paramId`) from input
+ * dictionaries.
+ *
+ * The deduction retrieves the parameter identifier explicitly from the
+ * MARS dictionary and returns it verbatim as a numeric value.
+ * No inference, defaulting, normalization, or GRIB table validation is
+ * performed at this stage.
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or invalid inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value resolved from one or more input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref paramEncoding.h
+ *
+ * Related deductions:
+ *   - @ref level.h
+ *   - @ref pvArray.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
-
-#include "eckit/log/Log.h"
 
 // exception and logging
 #include "metkit/config/LibMetkit.h"
@@ -21,28 +52,32 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the GRIB parameter identifier (`paramId`) from the MARS dictionary.
+ * @brief Resolve the GRIB parameter identifier (`paramId`).
  *
- * This deduction retrieves the parameter identifier associated with the field
- * being encoded by accessing the key `param` in the MARS dictionary (`mars`).
- * The value is expected to be convertible to a `long` and is treated as
- * mandatory.
+ * @section Deduction contract
+ * - Reads: `mars["param"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * If the key is missing or the value cannot be converted to the expected type,
- * a domain-specific exception is thrown. Any underlying error is propagated
- * using nested exceptions to preserve full diagnostic context.
+ * This deduction resolves the GRIB parameter identifier associated with
+ * the field being encoded.
+ *
+ * The value is treated as mandatory and is returned verbatim as a
+ * numeric identifier. No semantic interpretation or validation against
+ * GRIB parameter tables is performed.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `param`.
+ *   Type of the MARS dictionary. Must provide the key `param`.
  *
  * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
+ *   Type of the parameter dictionary (unused).
  *
  * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
+ *   Type of the options dictionary (unused).
  *
  * @param[in] mars
- *   MARS dictionary from which the parameter identifier is retrieved.
+ *   MARS dictionary from which the parameter identifier is resolved.
  *
  * @param[in] par
  *   Parameter dictionary (unused).
@@ -51,24 +86,15 @@ namespace metkit::mars2grib::backend::deductions {
  *   Options dictionary (unused).
  *
  * @return
- *   The parameter identifier resolved from the MARS dictionary, returned as
- *   a `long`.
+ *   The resolved GRIB parameter identifier.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `param` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `long`,
- *   - any unexpected error occurs during dictionary access.
+ *   If the key `param` is missing, cannot be converted to `long`,
+ *   or if any unexpected error occurs during deduction.
  *
  * @note
- *   This deduction assumes that the GRIB parameter identifier is provided
- *   explicitly by the MARS dictionary and does not attempt any inference
- *   or defaulting.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested exception
- *   propagation to ensure that error provenance is preserved across API
- *   boundaries.
+ *   This deduction assumes that the parameter identifier is explicitly
+ *   provided by MARS and does not attempt any inference or defaulting.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_ParamId_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -77,22 +103,25 @@ long resolve_ParamId_or_throw(const MarsDict_t& mars, const ParDict_t& par, cons
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
+
+        // Retrieve mandatory MARS param
         long paramId = get_or_throw<long>(mars, "param");
 
-        // Logging of the paramId
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "paramID: looked up from Mars dictionary with value: ";
-            logMsg += std::to_string(paramId);
+            std::string logMsg = "`paramId` resolved from input dictionaries: value='";
+            logMsg += std::to_string(paramId) + "'";
             return logMsg;
         }());
 
+        // Success exit point
         return paramId;
     }
     catch (...) {
 
         // Rethrow nested exceptions
         std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `paramId` as long from Mars dictionary", Here()));
+            Mars2GribDeductionException("Failed to resolve `paramId` from input dictionaries", Here()));
     }
 };
 

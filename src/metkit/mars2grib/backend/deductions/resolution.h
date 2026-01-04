@@ -7,12 +7,52 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file resolution.h
+ * @brief Deduction of the MARS spatial resolution identifier.
+ *
+ * This header defines the deduction responsible for resolving the
+ * spatial resolution identifier from the MARS dictionary.
+ *
+ * The resolved value is passed unchanged to downstream concept
+ * encoders and is not interpreted or validated at this stage.
+ *
+ * Deductions:
+ * - extract values from MARS, parameter, or option dictionaries
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - perform semantic interpretation
+ * - apply defaults or inference
+ * - validate GRIB table correctness
+ *
+ * Error handling follows a fail-fast strategy with nested exception
+ * propagation to preserve diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained through deduction logic from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref destineEncoding.h
+ *
+ * Related deductions:
+ *   - @ref activity.h
+ *   - @ref experiment.h
+ *   - @ref generation.h
+ *   - @ref model.h
+ *   - @ref realization.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -22,35 +62,29 @@ namespace metkit::mars2grib::backend::deductions {
 /**
  * @brief Resolve the spatial resolution identifier from the MARS dictionary.
  *
- * This deduction retrieves the value associated with the key `resolution`
- * from the MARS dictionary (`mars`). The value is expected to be a
- * string and is treated as mandatory.
+ * @section Deduction contract
+ * - Reads: `mars["resolution"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The resolved value typically represents the spatial resolution of the
- * data (e.g. grid spacing, spectral truncation label, or predefined
- * resolution class) as defined by upstream MARS conventions. The exact
- * semantics and allowed values of the resolution identifier are not
- * interpreted by this deduction.
+ * This deduction retrieves the mandatory `resolution` entry from the
+ * MARS dictionary and returns it verbatim.
  *
- * The resolved value is logged for diagnostic and traceability
- * purposes.
- *
- * If the key is missing or the value cannot be converted to the
- * expected type, a domain-specific exception is thrown. Any underlying
- * error is propagated using nested exceptions to preserve full
- * diagnostic context.
+ * No inference, defaulting, normalization, or validation of the
+ * resolution semantics is performed.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `resolution`.
+ *   Type of the MARS dictionary. Must provide the key `resolution`.
  *
  * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
+ *   Type of the parameter dictionary (unused).
  *
  * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
+ *   Type of the options dictionary (unused).
  *
  * @param[in] mars
- *   MARS dictionary from which the resolution identifier is retrieved.
+ *   MARS dictionary providing the spatial resolution identifier.
  *
  * @param[in] par
  *   Parameter dictionary (unused).
@@ -59,24 +93,15 @@ namespace metkit::mars2grib::backend::deductions {
  *   Options dictionary (unused).
  *
  * @return
- *   The spatial resolution identifier resolved from the MARS dictionary,
- *   returned as a `std::string`.
+ *   Spatial resolution identifier as provided by the MARS dictionary.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `resolution` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `std::string`,
- *   - any unexpected error occurs during dictionary access.
+ *   If the key `resolution` is missing, cannot be retrieved as a string,
+ *   or if any unexpected error occurs.
  *
  * @note
- *   This deduction assumes that the spatial resolution identifier is
- *   explicitly provided by the MARS dictionary and does not attempt
- *   any inference, defaulting, or validation of the returned value.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested
- *   exception propagation to ensure that error provenance is
- *   preserved across API boundaries.
+ *   This deduction is deterministic and does not depend on any
+ *   pre-existing GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -86,21 +111,25 @@ std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t&
 
     try {
 
-        // Get the mars.resolution
+        // Retrieve mandatory resolution identifier from MARS dictionary
         std::string marsResolutionVal = get_or_throw<std::string>(mars, "resolution");
 
-        // Logging of the resolution
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "resolution: deduced from mars dictionary with value: " + marsResolutionVal;
+            std::string logMsg = "`resolution` resolved from MARS dictionary: value='";
+            logMsg += marsResolutionVal;
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return marsResolutionVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `resolution` from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `resolution` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

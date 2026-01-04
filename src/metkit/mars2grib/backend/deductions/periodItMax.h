@@ -7,14 +7,50 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file periodItMax.h
+ * @brief Deduction of the maximum wave period index (`iTmax`).
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to retrieve the **maximum wave period index** (`iTmax`) from input
+ * dictionaries.
+ *
+ * The deduction treats `iTmax` as an optional parameter:
+ * - if present in the parameter dictionary, the value is returned
+ * - if absent, no default is applied and an empty optional is returned
+ *
+ * No semantic validation or consistency checking is performed at this
+ * level.
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - unexpected access errors cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value presence or absence resolved from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref waveEncoding.h
+ *
+ * Related deductions:
+ *   - @ref periodItMin.h
+ *   - @ref waveFrequencyGrid.h
+ *   - @ref waveFrequencyNumber.h
+ *   - @ref waveDirectionGrid.h
+ *   - @ref waveDirectionNumber.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <optional>
 #include <string>
 
-#include "eckit/exception/Exceptions.h"
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -22,63 +58,49 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Retrieve the maximum wave period index (`iTmax`) from the parameter dictionary.
+ * @brief Resolve the optional maximum wave period index (`iTmax`).
  *
- * This deduction attempts to extract the optional parameter `iTmax` from the
- * parameter dictionary (`par`). The value represents the maximum wave period
- * index used in wave spectral configurations.
+ * @section Deduction contract
+ * - Reads: `par["iTmax"]` (optional)
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws on unexpected errors
  *
- * The parameter is treated as optional:
- * - if the key `iTmax` is present in the parameter dictionary, its value is
- *   returned wrapped in a `std::optional` and a diagnostic log message is emitted;
- * - if the key is not present, an empty `std::optional` is returned and this
- *   condition is explicitly logged.
+ * This deduction retrieves the optional wave period index `iTmax`
+ * from the parameter dictionary.
  *
- * No validation of the retrieved value is currently performed. Any semantic
- * or physical validation (e.g. consistency with the frequency or period grid,
- * bounds checking, or monotonicity constraints) is expected to be handled at
- * a higher level.
- *
- * Any error encountered during dictionary access is propagated using nested
- * exceptions in order to preserve full diagnostic context.
+ * If the key is present, the value is returned wrapped in a
+ * `std::optional`. If the key is absent, an empty optional is returned.
+ * No defaulting or inference is applied.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary (unused by this deduction).
+ *   Type of the MARS dictionary (unused).
  *
  * @tparam ParDict_t
- *   Type of the parameter dictionary, potentially containing the key `iTmax`.
+ *   Type of the parameter dictionary. May contain `iTmax`.
  *
  * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
+ *   Type of the options dictionary (unused).
  *
  * @param[in] mars
  *   MARS dictionary (unused).
  *
  * @param[in] par
- *   Parameter dictionary from which the optional key `iTmax` is retrieved.
+ *   Parameter dictionary from which `iTmax` may be retrieved.
  *
  * @param[in] opt
  *   Options dictionary (unused).
  *
  * @return
- *   An optional containing the value of `iTmax` if present in the parameter
- *   dictionary; otherwise, an empty `std::optional`.
+ *   An optional containing `iTmax` if present; otherwise an empty
+ *   optional.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If an unexpected error occurs while accessing the parameter dictionary;
- *   the original exception is preserved via nested exceptions.
+ *   If any unexpected error occurs during dictionary access.
  *
  * @note
- *   Diagnostic logging is emitted in both cases (value present or absent)
- *   to make the resolution behavior explicit in debug traces.
- *
- * @note
- *   This function follows a fail-fast strategy with nested exception
- *   propagation and is intended for use at API or deduction boundaries.
- *
- * @todo
- *   Add validation of the retrieved `iTmax` value once the expected semantic
- *   constraints are fully specified.
+ *   This deduction performs no semantic validation of the retrieved
+ *   value.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -88,30 +110,36 @@ std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDic
 
     try {
 
-        // Get the min frequency for wave period from par dictionary
+        // Retrieve optional maximum wave period index from parameter dictionary
         std::optional<long> itMaxOpt = get_opt<long>(par, "iTmax");
 
         if (itMaxOpt.has_value()) {
-            // Logging of the waveDirectionGrid
+
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "itmax: looked up from Par dictionary with value: ";
+                std::string logMsg = "`iTmax` resolved from input dictionaries: value='";
                 logMsg += std::to_string(itMaxOpt.value());
+                logMsg += "'";
                 return logMsg;
             }());
         }
         else {
+
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "itmax: not present in Par dictionary, no value retrieved";
+                std::string logMsg = "`iTmax` resolved from input dictionaries: value not present";
                 return logMsg;
             }());
         }
 
+        // Success exit point
         return itMaxOpt;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get period `iTmax` from Par dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `iTmax` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

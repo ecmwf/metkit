@@ -7,12 +7,50 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file subSetTrunc.h
+ * @brief Deduction of the spectral subset truncation parameter.
+ *
+ * This header defines the deduction responsible for resolving the
+ * spectral subset truncation parameter used in spectral packing
+ * configurations.
+ *
+ * The value is obtained from the parameter dictionary when provided.
+ * If absent, a deterministic default is applied.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer values from MARS metadata
+ * - apply implicit or hidden defaults
+ * - validate against spectral grid constraints
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained or defaulted from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref packingEncoding.h
+ *
+ * Related deductions:
+ *   - @ref bitsPerValue.h
+ *   - @ref laplacianOperator.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,58 +58,34 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the spectral subset truncation parameter (`subSetTrunc`).
+ * @brief Resolve the GRIB spectral subset truncation parameter.
  *
- * This deduction retrieves the optional parameter `subSetTrunc` from the
- * parameter dictionary (`par`). The value represents a truncation parameter
- * used to define a subset of spectral components to be retained or processed.
+ * This deduction resolves the spectral subset truncation parameter
+ * used to define a reduced set of spectral coefficients.
  *
- * If the key `subSetTrunc` is present in the parameter dictionary, its value
- * is retrieved and returned. If the key is not present, a default value of
- * `20` is used.
+ * Resolution rules:
+ * - If `par::subSetTruncation` is present, its value is used directly.
+ * - If `par::subSetTruncation` is absent, the value defaults explicitly
+ *   to `20`.
  *
- * The resolved value is always logged for diagnostic and traceability
- * purposes, regardless of whether it was provided explicitly or defaulted.
+ * No inference from MARS metadata is performed.
  *
- * Any error encountered during dictionary access is propagated using nested
- * exceptions to preserve full diagnostic context.
+ * @tparam MarsDict_t Type of the MARS dictionary (unused)
+ * @tparam ParDict_t  Type of the parameter dictionary
+ * @tparam OptDict_t  Type of the options dictionary (unused)
  *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary (unused by this deduction).
+ * @param[in] mars MARS dictionary (unused)
+ * @param[in] par  Parameter dictionary; may contain `subSetTruncation`
+ * @param[in] opt  Options dictionary (unused)
  *
- * @tparam ParDict_t
- *   Type of the parameter dictionary, potentially containing the key
- *   `subSetTrunc`.
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary (unused).
- *
- * @param[in] par
- *   Parameter dictionary from which `subSetTrunc` is retrieved.
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The resolved value of `subSetTrunc`. If not explicitly provided, the
- *   default value `20` is returned.
+ * @return The resolved spectral subset truncation value
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If an unexpected error occurs while accessing the parameter dictionary;
- *   the original exception is preserved via nested exceptions.
+ *         If an unexpected error occurs during dictionary access
  *
  * @note
- *   No validation is currently performed on the resolved truncation value
- *   (e.g. range checks or consistency with the spectral grid). Such validation
- *   is expected to be handled at a higher level.
- *
- * @note
- *   This function follows a fail-fast strategy and uses nested exception
- *   propagation to ensure that error provenance is preserved across API
- *   boundaries.
+ * This deduction is fully deterministic and does not depend on
+ * any pre-existing GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -81,20 +95,25 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
 
     try {
 
+        // Retrieve optional subSetTruncation from parameter dictionary
         long subSetTrunc = get_opt<long>(par, "subSetTruncation").value_or(20);
 
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "subSetTrunc: looked up from Par dictionary with value: ";
+            std::string logMsg = "`subSetTruncation` resolved from input dictionaries: value='";
             logMsg += std::to_string(subSetTrunc);
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return subSetTrunc;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `subSetTrunc` from Par dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `subSetTruncation` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

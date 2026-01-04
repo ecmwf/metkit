@@ -7,12 +7,53 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file constituentType.h
+ * @brief Deduction of the constituent (chemical species) type identifier.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **constituent / chemical species identifier** from
+ * MARS metadata.
+ *
+ * The deduction retrieves the identifier directly from the MARS
+ * dictionary and performs basic numeric validation before exposing
+ * the value to the encoding layer.
+ *
+ * Deductions are responsible for:
+ * - extracting values from MARS, parameter, and option dictionaries
+ * - applying explicit and minimal validation logic
+ * - returning strongly typed values to concept operations
+ *
+ * Deductions:
+ * - do NOT encode GRIB keys directly
+ * - do NOT apply semantic inference or defaulting
+ * - do NOT perform GRIB table validation
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or invalid inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value derived via deduction logic from input dictionaries
+ * - OVERRIDE: value provided by parameter dictionary overriding deduction logic
+ *
+ * @section References
+ * Concept:
+ *   - @ref compositionEncoding.h
+ *
+ * Related deductions:
+ *   - @ref paramId.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,26 +61,29 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the constituent (chemical species) type identifier from the MARS dictionary.
+ * @brief Resolve the constituent (chemical species) type identifier from input dictionaries.
  *
- * This deduction retrieves the value associated with the key `chem`
- * from the MARS dictionary (`mars`). The value is expected to be convertible
- * to a `long` and is treated as mandatory.
+ * @section Deduction contract
+ * - Reads: `mars["chem"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The resolved value represents a constituent or chemical species identifier
- * (e.g. aerosol, trace gas, or chemical component) used in atmospheric or
- * wave-related products. The numerical meaning of this identifier follows
- * upstream MARS/GRIB conventions and is not interpreted further by this
- * deduction.
+ * This deduction resolves the constituent (chemical species) type
+ * identifier by retrieving the mandatory MARS key `chem` and returning
+ * its value as a `long`.
  *
- * A basic validity check is performed on the retrieved value. Currently,
- * only values in the inclusive range `[0, 900]` are accepted. Values outside
- * this range are considered invalid and result in a domain-specific exception.
+ * A basic numeric validity check is applied. Only values in the
+ * inclusive range `[0, 900]` are accepted. Values outside this range
+ * result in a deduction failure.
  *
- * The resolved value is logged for diagnostic and traceability purposes.
+ * No semantic interpretation, normalization, or defaulting is applied.
+ * The meaning of the identifier is defined by upstream MARS/GRIB
+ * conventions.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `chem`.
+ *   Type of the MARS dictionary. Must support keyed access to `chem`
+ *   and conversion to `long`.
  *
  * @tparam ParDict_t
  *   Type of the parameter dictionary (unused by this deduction).
@@ -48,7 +92,7 @@ namespace metkit::mars2grib::backend::deductions {
  *   Type of the options dictionary (unused by this deduction).
  *
  * @param[in] mars
- *   MARS dictionary from which the constituent type identifier is retrieved.
+ *   MARS dictionary from which the constituent type identifier is resolved.
  *
  * @param[in] par
  *   Parameter dictionary (unused).
@@ -57,30 +101,16 @@ namespace metkit::mars2grib::backend::deductions {
  *   Options dictionary (unused).
  *
  * @return
- *   The constituent (chemical species) type identifier resolved from the
- *   MARS dictionary, returned as a `long`.
+ *   The resolved constituent (chemical species) type identifier.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `chem` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `long`,
- *   - the value is outside the accepted range `[0, 900]`,
- *   - any unexpected error occurs during dictionary access.
+ *   If the key `chem` is missing, cannot be converted to `long`, if the
+ *   value is outside the accepted range, or if any unexpected error
+ *   occurs during deduction.
  *
  * @note
- *   The current validity range check is intentionally conservative and may
- *   be refined or extended once the full set of supported constituent
- *   identifiers is formally specified.
- *
- * @note
- *   This deduction assumes that the constituent type identifier is explicitly
- *   provided by the MARS dictionary and does not attempt any inference or
- *   defaulting beyond basic validation.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested exception
- *   propagation to ensure that error provenance is preserved across API
- *   boundaries.
+ *   This deduction enforces conservative numeric validation and does
+ *   not consult chemical metadata tables or GRIB code tables.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_ConstituentType_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -90,30 +120,31 @@ long resolve_ConstituentType_or_throw(const MarsDict_t& mars, const ParDict_t& p
 
     try {
 
-        // Get the mars.chem
-        auto constituentType = get_or_throw<long>(mars, "chem");
+        // Retrieve mandatory MARS constituent type
+        long constituentType = get_or_throw<long>(mars, "chem");
 
-        // TODO MIVAL: Validate
+        // Validate
         if (constituentType < 0 || constituentType > 900) {
             throw Mars2GribDeductionException(
-                "Invalid value for `constituentType` in Mars dictionary: " + std::to_string(constituentType), Here());
+                "Invalid `constituentType`: value='" + std::to_string(constituentType) + "'", Here());
         }
 
-        // Logging of the channel
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "constituentType: looked up from Mars dictionary with value: ";
+            std::string logMsg = "`constituentType` resolved from input dictionaries: value='";
             logMsg += std::to_string(constituentType);
+            logMsg += "'";
             return logMsg;
         }());
 
-        // Return value
+        // Success exit point
         return constituentType;
     }
     catch (...) {
 
         // Rethrow nested exceptions
         std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `constituentType` from Mars dictionary", Here()));
+            Mars2GribDeductionException("Failed to resolve `constituentType` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

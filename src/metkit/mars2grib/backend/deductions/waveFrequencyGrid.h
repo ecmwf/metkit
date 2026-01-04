@@ -7,15 +7,55 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file waveFrequencyGrid.h
+ * @brief Deduction of the GRIB wave frequency grid.
+ *
+ * This header defines the deduction responsible for resolving the
+ * wave frequency discretization used in spectral wave products.
+ *
+ * The deduction produces a frequency grid together with its scaled
+ * integer representation, suitable for GRIB encoding.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - reconstruct frequency grids deterministically when required
+ * - apply fixed scaling rules
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing reconstruction parameters
+ * - apply heuristic defaults beyond explicitly defined ones
+ * - validate physical correctness of frequency values
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: grid obtained directly or deterministically reconstructed
+ *
+ * @section References
+ * Concept:
+ *   - @ref waveEncoding.h
+ *
+ * Related deductions:
+ *   - @ref periodItMin.h
+ *   - @ref periodItMax.h
+ *   - @ref waveDirectionGrid.h
+ *   - @ref waveDirectionNumber.h
+ *   - @ref waveFrequencyNumber.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
-#include <algorithm>
+// System includes
 #include <cmath>
 #include <string>
 #include <vector>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -228,90 +268,44 @@ WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<double>& wav
 
 
 /**
- * @brief Resolve and construct the wave frequency grid with scaled representation.
+ * @brief Resolve the GRIB wave frequency grid.
  *
- * This deduction resolves the wave frequency grid required for wave spectral
- * encoding, producing a `WaveFrequencyGrid` structure containing both the
- * discretization metadata and the scaled integer representation of frequencies.
+ * This deduction resolves the wave frequency discretization required
+ * for spectral wave encoding and produces a scaled integer
+ * representation suitable for GRIB.
  *
- * The wave frequency grid can be obtained in two alternative ways from the
- * parameter dictionary (`par`):
+ * Resolution follows a strict precedence:
  *
- * 1. **Direct specification**
- *    If the key `waveFrequencies` is present, it is interpreted as the full
- *    frequency grid expressed in Hertz and used directly.
+ * 1. **Explicit grid**
+ *    If `par::waveFrequencies` is present, it is interpreted as the
+ *    full frequency grid expressed in Hz.
  *
- * 2. **Reconstruction from spacing parameters**
- *    If `waveFrequencies` is not present, the grid is reconstructed provided
- *    that all of the following keys are available:
+ * 2. **Deterministic reconstruction**
+ *    If the explicit grid is not present, the grid is reconstructed
+ *    provided that all of the following keys exist:
  *    - `numberOfWaveFrequencies`
  *    - `indexOfReferenceWaveFrequency`
  *    - `referenceWaveFrequency`
  *    - `waveFrequencySpacingRatio`
  *
- *    In this case, the frequency grid is reconstructed using a geometric
- *    spacing centered around the reference frequency, following the same
- *    discretization logic as the legacy Fortran implementation.
+ * The resulting grid is scaled using:
+ * - `scaleFactorOfWaveFrequencies` (optional, defaults to `6`)
  *
- * In both cases, the resulting frequency grid (in Hz) is converted to a
- * scaled integer representation using a base-10 logarithmic scaling factor.
- * The scaling factor is obtained from:
- *   - `scaleFactorOfWaveFrequencies` (optional, defaults to 6 if not provided).
+ * @tparam OptDict_t  Type of the options dictionary (unused)
+ * @tparam MarsDict_t Type of the MARS dictionary (unused)
+ * @tparam ParDict_t  Type of the parameter dictionary
  *
- * The scaled representation is built according to:
- * \f[
- *   \text{scaledValue}_i =
- *     \mathrm{round}\!\left( f_i \times 10^{\text{scaleFactorOfWaveFrequencies}} \right)
- * \f]
+ * @param[in] opt  Options dictionary (unused)
+ * @param[in] mars MARS dictionary (unused)
+ * @param[in] par  Parameter dictionary providing frequency information
  *
- * All errors encountered during lookup, reconstruction, or scaling are
- * propagated using nested exceptions to preserve full diagnostic context.
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (currently unused).
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary (currently unused).
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary providing wave frequency information.
- *
- * @param[in] opt
- *   Options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary (unused by this deduction).
- *
- * @param[in] par
- *   Parameter dictionary containing wave frequency information, either as
- *   a full array or as reconstruction parameters.
- *
- * @return
- *   A fully populated `WaveFrequencyGrid` structure containing:
- *   - the number of wave frequencies,
- *   - the logarithmic scaling factor,
- *   - the vector of scaled integer frequency values.
+ * @return A fully populated `WaveFrequencyGrid`
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - neither `waveFrequencies` nor the full set of reconstruction parameters
- *     is present in the parameter dictionary,
- *   - any required key is missing or has an invalid type,
- *   - reconstruction or scaling of the frequency grid fails,
- *   - any unexpected error occurs during deduction.
- *
- * @note
- *   If both `waveFrequencies` and reconstruction parameters are present,
- *   the explicit `waveFrequencies` vector takes precedence.
- *
- * @note
- *   This deduction does not validate the physical correctness of the
- *   frequency grid (e.g. positivity, monotonicity). Such validation is
- *   expected to be handled at a higher level.
- *
- * @note
- *   The implementation follows a fail-fast strategy and uses nested
- *   exceptions to preserve detailed error context across API boundaries.
+ *         If:
+ *         - neither explicit frequencies nor reconstruction parameters exist
+ *         - a required key is missing or has an invalid type
+ *         - reconstruction or scaling fails
  */
 template <class OptDict_t, class MarsDict_t, class ParDict_t>
 WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, const ParDict_t& par,
@@ -327,13 +321,13 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
         WaveFrequencyGrid out{};
         std::vector<double> waveFrequenciesInHz;
 
-        // Must always be present (or defaulted to 6)
+        // Retrieve optional scaling factor from parameter dictionary
         long scaleFactorOfWaveFrequencies = get_opt<long>(par, "scaleFactorOfWaveFrequencies").value_or(6L);
 
-        // Wave frequencies can be passed as full array in par dictionary
+        // Check for explicit frequency grid
         bool hasWaveFrequencies = has(par, "waveFrequencies");
 
-        // Or the information to reconstruct it must be present in par dictionary
+        // Check for reconstruction parameters
         bool hasNumberOfWaveFrequencies       = has(par, "numberOfWaveFrequencies");
         bool hasIndexOfReferenceWaveFrequency = has(par, "indexOfReferenceWaveFrequency");
         bool hasReferenceWaveFrequency        = has(par, "referenceWaveFrequency");
@@ -341,30 +335,32 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
 
         bool canReconstructWaveFrequencies = hasNumberOfWaveFrequencies && hasIndexOfReferenceWaveFrequency &&
                                              hasReferenceWaveFrequency && hasWaveFrequencySpacingRatio;
+
         if (hasWaveFrequencies) {
-            // Get the wave frequency grid in Hz directly
+            // Retrieve mandatory wave frequencies from parameter dictionary
             waveFrequenciesInHz = get_or_throw<std::vector<double>>(par, "waveFrequencies");
 
-            // Logging of the waveFrequencyGrid
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "waveFrequencyGrid: look up from Par dictionary as vector";
+                std::string logMsg = "`waveFrequencyGrid` resolved from input dictionaries";
                 return logMsg;
             }());
         }
         else if (canReconstructWaveFrequencies && !hasWaveFrequencies) {
-            // Reconstruct the wave frequency grid in Hz
+            // Retrieve mandatory reconstruction parameters from parameter dictionary
             long numberOfWaveFrequencies       = get_or_throw<long>(par, "numberOfWaveFrequencies");
             long indexOfReferenceWaveFrequency = get_or_throw<long>(par, "indexOfReferenceWaveFrequency");
             double referenceWaveFrequency      = get_or_throw<double>(par, "referenceWaveFrequency");
             double waveFrequencySpacingRatio   = get_or_throw<double>(par, "waveFrequencySpacingRatio");
 
+            // Reconstruct frequency grid deterministically
             waveFrequenciesInHz =
                 wave_frequency_detail::compute_WaveFrequencyGrid(numberOfWaveFrequencies, indexOfReferenceWaveFrequency,
                                                                  referenceWaveFrequency, waveFrequencySpacingRatio);
 
-            // Logging of the waveFrequencyGrid
+            // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "waveFrequencyGrid: reconstruct from Par dictionary with params={";
+                std::string logMsg = "`waveFrequencyGrid` reconstructed from input dictionaries with params={";
                 logMsg += std::to_string(numberOfWaveFrequencies) + ", ";
                 logMsg += std::to_string(indexOfReferenceWaveFrequency) + ", ";
                 logMsg += std::to_string(referenceWaveFrequency) + ", ";
@@ -373,21 +369,20 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
             }());
         }
         else {
-            throw Mars2GribDeductionException(
-                "Insufficient Mars/Par dictionaries: neither numberOfWaveFrequencies nor waveFrequencies are present",
-                Here());
+            throw Mars2GribDeductionException("Failed to resolve `waveFrequencyGrid` from input dictionaries", Here());
         }
 
         // Build the scaled frequency grid
         out = wave_frequency_detail::compute_WaveScaledFrequencyGrid(waveFrequenciesInHz, scaleFactorOfWaveFrequencies);
 
+        // Success exit point
         return out;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException(
-            "Unable to get wave frequency information from Mars and Par dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `waveFrequencyGrid` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

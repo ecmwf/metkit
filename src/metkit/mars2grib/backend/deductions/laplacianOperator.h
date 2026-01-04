@@ -7,12 +7,54 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file laplacianOperator.h
+ * @brief Deduction of the Laplacian operator coefficient.
+ *
+ * This header defines deduction utilities used by the mars2grib backend
+ * to resolve the **Laplacian operator coefficient** from the parameter
+ * dictionary.
+ *
+ * The deduction retrieves the coefficient explicitly from user-provided
+ * parameters and exposes it to the encoding layer without transformation
+ * or interpretation.
+ *
+ * Deductions are responsible for:
+ * - extracting values from MARS, parameter, and option dictionaries
+ * - applying minimal, explicit deduction logic
+ * - returning strongly typed values to concept operations
+ *
+ * Deductions:
+ * - do NOT encode GRIB keys directly
+ * - do NOT apply inference or defaulting
+ * - do NOT perform GRIB table validation
+ *
+ * Error handling follows a strict fail-fast strategy:
+ * - missing or malformed inputs cause immediate failure
+ * - errors are reported using domain-specific deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value derived via deduction logic from input dictionaries
+ * - OVERRIDE: value provided by parameter dictionary overriding deduction logic
+ *
+ * @section References
+ * Concept:
+ *   - @ref packingEncoding.h
+ *
+ * Related deductions:
+ *   - @ref bitsPerValue.h
+ *   - @ref subSetTrunc.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,26 +62,28 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the Laplacian operator coefficient from the parameter dictionary.
+ * @brief Resolve the Laplacian operator coefficient from input dictionaries.
  *
- * This deduction retrieves the value associated with the key
- * `laplacianOperator` from the parameter dictionary (`par`). The value is
- * expected to be convertible to a `double` and is treated as mandatory.
+ * @section Deduction contract
+ * - Reads: `par["laplacianOperator"]`
+ * - Writes: none
+ * - Side effects: none (no logging)
+ * - Failure mode: throws
  *
- * The Laplacian operator coefficient is typically used in spectral or
- * wave-model formulations to represent the action or scaling of the
- * Laplacian operator in a given physical or numerical context.
+ * This deduction resolves the Laplacian operator coefficient by retrieving
+ * the mandatory parameter dictionary key `laplacianOperator` and returning
+ * its value as a `double`.
  *
- * If the key is missing or the value cannot be converted to the expected
- * type, a domain-specific exception is thrown. Any underlying error is
- * propagated using nested exceptions to preserve full diagnostic context.
+ * The value is taken verbatim from the parameter dictionary and overrides
+ * any implicit or default behavior. No validation beyond type conversion
+ * is performed.
  *
  * @tparam MarsDict_t
  *   Type of the MARS dictionary (unused by this deduction).
  *
  * @tparam ParDict_t
- *   Type of the parameter dictionary, expected to contain the key
- *   `laplacianOperator`.
+ *   Type of the parameter dictionary. Must support keyed access to
+ *   `laplacianOperator` and conversion to `double`.
  *
  * @tparam OptDict_t
  *   Type of the options dictionary (unused by this deduction).
@@ -49,45 +93,49 @@ namespace metkit::mars2grib::backend::deductions {
  *
  * @param[in] par
  *   Parameter dictionary from which the Laplacian operator coefficient
- *   is retrieved.
+ *   is resolved.
  *
  * @param[in] opt
  *   Options dictionary (unused).
  *
  * @return
- *   The value of the Laplacian operator coefficient, returned as a `double`.
+ *   The resolved Laplacian operator coefficient.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `laplacianOperator` is not present in the parameter dictionary,
- *   - the associated value cannot be converted to `double`,
- *   - any unexpected error occurs during dictionary access.
+ *   If the key `laplacianOperator` is missing, cannot be converted to
+ *   `double`, or if any unexpected error occurs during deduction.
  *
  * @note
- *   This deduction assumes that the Laplacian operator coefficient is
- *   explicitly provided in the parameter dictionary and does not attempt
- *   to infer or default its value.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested exception
- *   propagation to ensure that error provenance is preserved across API
- *   boundaries.
+ *   This deduction performs presence-only validation and does not
+ *   attempt to infer or normalize the coefficient value.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-auto resolve_LaplacianOperator_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+double resolve_LaplacianOperator_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
-        return get_or_throw<double>(par, "laplacianOperator");
+        // Retrieve mandatory Laplacian operator coefficient
+        double laplacianOperator = get_or_throw<double>(par, "laplacianOperator");
+
+        // Emit RESOLVE log entry
+        MARS2GRIB_LOG_RESOLVE([&]() {
+            std::string logMsg = "`laplacianOperator` resolved from input dictionaries: value='";
+            logMsg += std::to_string(laplacianOperator);
+            logMsg += "'";
+            return logMsg;
+        }());
+
+        // Success exit point
+        return laplacianOperator;
     }
     catch (...) {
 
         // Rethrow nested exceptions
         std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `laplacianOperator` from Par dictionary", Here()));
+            Mars2GribDeductionException("Failed to resolve `laplacianOperator` from input dictionaries", Here()));
     };
 
     // Remove compiler warning

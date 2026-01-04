@@ -7,12 +7,50 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file subCentre.h
+ * @brief Deduction of the GRIB `subCentre` identifier.
+ *
+ * This header defines the deduction responsible for resolving the
+ * GRIB `subCentre` key, which identifies the originating sub-centre
+ * within a GRIB-producing centre.
+ *
+ * The value is obtained from the parameter dictionary when provided.
+ * If absent, the deduction applies an explicit and deterministic
+ * default according to GRIB conventions.
+ *
+ * Deductions:
+ * - extract values from input dictionaries
+ * - apply deterministic resolution logic
+ * - emit structured diagnostic logging
+ *
+ * Deductions do NOT:
+ * - infer missing values from MARS metadata
+ * - apply implicit or hidden defaults
+ * - validate against official GRIB code tables
+ *
+ * Error handling follows a strict fail-fast strategy with nested
+ * exception propagation to preserve full diagnostic context.
+ *
+ * Logging policy:
+ * - RESOLVE: value obtained or defaulted from input dictionaries
+ *
+ * @section References
+ * Concept:
+ *   - @ref originEncoding.h
+ *
+ * Related deductions:
+ *   - @ref centre.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -20,27 +58,17 @@
 namespace metkit::mars2grib::backend::deductions {
 
 /**
- * @brief Resolve the GRIB `subCentre` identifier.
+ * @brief Resolve the GRIB `subCentre` key.
  *
- * This deduction resolves the value of the GRIB key `subCentre` using the
+ * This deduction resolves the GRIB `subCentre` identifier using the
  * parameter dictionary.
  *
- * The value is retrieved from the parameter dictionary key `par::subCentre`.
- * If the key is not present, the deduction **defaults explicitly to `0`**,
- * which corresponds to the GRIB convention for an unspecified or default
- * sub-centre.
+ * Resolution rules:
+ * - If `par::subCentre` is present, its value is used directly.
+ * - If `par::subCentre` is absent, the value defaults explicitly to `0`,
+ *   corresponding to the GRIB convention for an unspecified sub-centre.
  *
- * @important
- * This function is the **single authoritative deduction** for the GRIB
- * `subCentre` key.
- * Any future validation, policy decision, or mapping against official
- * GRIB sub-centre tables **must be implemented here**.
- *
- * @section Semantics
- * - Input source: parameter dictionary (`par::subCentre`)
- * - Resolution type: mandatory
- * - Defaulting: explicit (`0`)
- * - Validation: numeric presence only
+ * No inference from MARS metadata is performed.
  *
  * @tparam MarsDict_t Type of the MARS dictionary (unused)
  * @tparam ParDict_t  Type of the parameter dictionary
@@ -50,23 +78,14 @@ namespace metkit::mars2grib::backend::deductions {
  * @param[in] par  Parameter dictionary; may contain `subCentre`
  * @param[in] opt  Options dictionary (unused)
  *
- * @return The resolved GRIB `subCentre` value. If not explicitly provided,
- *         `0` is returned.
+ * @return The resolved GRIB `subCentre` value
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - the parameter dictionary access fails
- *         - any unexpected error occurs during deduction
+ *         If an unexpected error occurs during dictionary access
  *
  * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - The default value `0` is applied intentionally and explicitly to ensure
- *   deterministic and reproducible encoding behavior.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
- * - Validate the returned value against official GRIB sub-centre code tables.
- * - Decide whether defaulting to `0` should remain unconditional or become
- *   policy-driven.
+ * This deduction is fully deterministic and does not depend on
+ * any pre-existing GRIB header state.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubCentre_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -76,24 +95,25 @@ long resolve_SubCentre_or_throw(const MarsDict_t& mars, const ParDict_t& par, co
 
     try {
 
-        // Get subCentre from par dictionary, defaulting to 0 if missing
+        // Retrieve optional subCentre from parameter dictionary
         long subCentre = get_opt<long>(par, "subCentre").value_or(0L);
 
-        // Logging of the centre deduction
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`subCentre`: mapped from `par::subCentre`: actual='";
-            logMsg += std::to_string(subCentre) + "'";
+            std::string logMsg = "`subCentre` resolved from input dictionaries: value='";
+            logMsg += std::to_string(subCentre);
+            logMsg += "'";
             return logMsg;
         }());
 
-        // Return validated origin
+        // Success exit point
         return subCentre;
     }
     catch (...) {
 
         // Rethrow nested exceptions
         std::throw_with_nested(
-            Mars2GribDeductionException("Unable to get `subCentre` as string from Par dictionary", Here()));
+            Mars2GribDeductionException("Failed to resolve `subCentre` from input dictionaries", Here()));
     }
 };
 

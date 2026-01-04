@@ -7,12 +7,56 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+/**
+ * @file realization.h
+ * @brief Deduction of the GRIB realization identifier.
+ *
+ * This file defines the deduction responsible for resolving the
+ * **realization identifier**, which distinguishes individual realizations
+ * (members) within an ensemble, stochastic system, or DestinE workflow.
+ *
+ * The realization identifier is retrieved explicitly from the MARS
+ * dictionary and passed verbatim to the encoder. No inference, defaulting,
+ * or normalization is performed.
+ *
+ * Deductions in this file are responsible for:
+ * - extracting realization metadata from the MARS dictionary
+ * - applying deterministic, fail-fast resolution rules
+ * - returning a strongly typed value to the encoding layer
+ *
+ * Deductions:
+ * - do NOT infer realization semantics
+ * - do NOT validate ensemble consistency
+ * - do NOT depend on pre-existing GRIB header state
+ *
+ * Error handling follows a strict fail-fast policy:
+ * - missing or invalid inputs cause immediate failure
+ * - errors are reported using Mars2Grib deduction exceptions
+ * - original errors are preserved via nested exception propagation
+ *
+ * Logging follows the mars2grib deduction policy:
+ * - RESOLVE: value retrieved directly from the MARS dictionary
+ *
+ * @section References
+ * Concept:
+ *   - @ref destineEncoding.h
+ *
+ * Related deductions:
+ *   - @ref activity.h
+ *   - @ref experiment.h
+ *   - @ref generation.h
+ *   - @ref model.h
+ *   - @ref resolution.h
+ *
+ * @ingroup mars2grib_backend_deductions
+ */
 #pragma once
 
+// System includes
 #include <string>
 
-#include "eckit/log/Log.h"
-
+// Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -22,26 +66,25 @@ namespace metkit::mars2grib::backend::deductions {
 /**
  * @brief Resolve the realization identifier from the MARS dictionary.
  *
- * This deduction retrieves the value associated with the key `realization`
- * from the MARS dictionary (`mars`). The value is expected to be
- * convertible to a `long` and is treated as mandatory.
+ * @section Deduction contract
+ * - Reads: `mars["realization"]`
+ * - Writes: none
+ * - Side effects: logging (RESOLVE)
+ * - Failure mode: throws
  *
- * The resolved value typically represents a realization or ensemble
- * member identifier, used to distinguish individual realizations within
- * an ensemble forecast, reanalysis, or stochastic system. The precise
- * semantics of the realization number are defined by upstream MARS and
- * GRIB conventions and are not interpreted by this deduction.
+ * This deduction retrieves the mandatory `realization` key from the
+ * MARS dictionary and returns it as a numeric identifier.
  *
- * The resolved value is logged for diagnostic and traceability
- * purposes.
+ * The realization identifier is used to distinguish individual
+ * realizations within ensemble or DestinE products. Its numerical
+ * semantics are defined by upstream MARS and encoding conventions
+ * and are not interpreted here.
  *
- * If the key is missing or the value cannot be converted to the
- * expected type, a domain-specific exception is thrown. Any underlying
- * error is propagated using nested exceptions to preserve full
- * diagnostic context.
+ * No inference, defaulting, or validation of the realization value
+ * is performed.
  *
  * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `realization`.
+ *   Type of the MARS dictionary. Must provide the key `realization`.
  *
  * @tparam ParDict_t
  *   Type of the parameter dictionary (unused by this deduction).
@@ -50,7 +93,7 @@ namespace metkit::mars2grib::backend::deductions {
  *   Type of the options dictionary (unused by this deduction).
  *
  * @param[in] mars
- *   MARS dictionary from which the realization identifier is retrieved.
+ *   MARS dictionary providing the realization identifier.
  *
  * @param[in] par
  *   Parameter dictionary (unused).
@@ -59,24 +102,17 @@ namespace metkit::mars2grib::backend::deductions {
  *   Options dictionary (unused).
  *
  * @return
- *   The realization identifier resolved from the MARS dictionary,
- *   returned as a `long`.
+ *   The realization identifier as provided by the MARS dictionary.
  *
  * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
  *   If:
- *   - the key `realization` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `long`,
- *   - any unexpected error occurs during dictionary access.
+ *   - the key `realization` is missing from the MARS dictionary
+ *   - the value cannot be converted to `long`
+ *   - any unexpected error occurs during deduction
  *
  * @note
- *   This deduction assumes that the realization identifier is explicitly
- *   provided by the MARS dictionary and does not attempt any inference,
- *   defaulting, or validation of the returned value.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested
- *   exception propagation to ensure that error provenance is
- *   preserved across API boundaries.
+ * - This deduction is fully deterministic.
+ * - The returned value is passed verbatim to downstream encoding logic.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_Realization_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -86,22 +122,25 @@ long resolve_Realization_or_throw(const MarsDict_t& mars, const ParDict_t& par, 
 
     try {
 
-        // Get the mars.realization
+        // Retrieve mandatory MARS realization
         long marsRealizationVal = get_or_throw<long>(mars, "realization");
 
-        // Logging of the realization
+        // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg =
-                "realization: deduced from mars dictionary with value: " + std::to_string(marsRealizationVal);
+            std::string logMsg = "`realization` resolved from MARS dictionary: value='";
+            logMsg += std::to_string(marsRealizationVal);
+            logMsg += "'";
             return logMsg;
         }());
 
+        // Success exit point
         return marsRealizationVal;
     }
     catch (...) {
 
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `realization` from Mars dictionary", Here()));
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `realization` from input dictionaries", Here()));
     };
 
     // Remove compiler warning
