@@ -186,7 +186,7 @@ long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool e
  * @section Deduction contract
  * - Reads:
  *   - `par["bitsPerValue"]` (if present),
- *   - otherwise `mars["paramId"]`, `mars["levtype"]`,
+ *   - otherwise `mars["param"]`, `mars["levtype"]`,
  *     and `opt["enableBitsPerValueCompression"]`
  * - Writes: none
  * - Side effects: logging (RESOLVE or OVERRIDE)
@@ -263,7 +263,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
         else {
 
             // Retrive auxiliary values for default lookup
-            long paramId          = get_or_throw<long>(mars, "paramId");
+            long paramId          = get_or_throw<long>(mars, "param");
             std::string levtype   = get_or_throw<std::string>(mars, "levtype");
             bool applyCompression = get_opt<bool>(opt, "enableBitsPerValueCompression").value_or(false);
 
