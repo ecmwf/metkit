@@ -19,7 +19,7 @@
 #include "eckit/log/Log.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/runtime/Tool.h"
-#include "metkit/mars2grib/api/Grib2Encoder.h"
+#include "metkit/mars2grib/api/Mars2Grib.h"
 
 
 bool toBeSkipped(const eckit::PathName& fname, size_t caseNumber) {
@@ -78,7 +78,7 @@ public:
 
                 try {
                     std::vector<double> values(1639680, 0.0);
-                    const auto& grib = metkit::mars2grib::Grib2Encoder{}.encode(mars, misc, geom, values);
+                    const auto& grib = metkit::mars2grib::Mars2Grib{}.encode(mars, misc, geom, values);
                 }
                 catch (std::exception e) {
                     eckit::Log::error() << "Failure occured when API was called in test case " << count << std::endl;
