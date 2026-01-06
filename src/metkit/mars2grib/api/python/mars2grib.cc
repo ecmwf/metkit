@@ -12,7 +12,6 @@
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 
 #include "eckit/config/LocalConfiguration.h"
@@ -84,16 +83,17 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     return config;
 }
 
-void encode(Mars2Grib& encoder, const py::dict& mars, const py::dict& misc, const py::dict& geom,
-            const std::vector<double>& values, const std::string& filepath) {
+py::bytes encode(Mars2Grib& encoder, const py::dict& mars, const py::dict& misc, const py::dict& geom,
+                 const std::vector<double>& values) {
     const auto message =
         encoder.encode(dictToLocalConfig(mars), dictToLocalConfig(misc), dictToLocalConfig(geom), values);
+
+    const auto size = message->messageSize();
 
     std::vector<uint8_t> buffer(message->messageSize());
     message->copyInto(buffer.data(), buffer.size());
 
-    std::ofstream file(filepath, std::ios::binary);
-    file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
 }
 
 PYBIND11_MODULE(mars2grib, m) {
@@ -102,5 +102,5 @@ PYBIND11_MODULE(mars2grib, m) {
             .def(py::init<>())
             .def(py::init([](py::dict dict) { return std::make_unique<Mars2Grib>(dictToLocalConfig(dict)); }))
             .def("encode", &encode, py::arg("mars"), py::arg("misc"), py::arg("geom"), py::arg("values"),
-                 py::arg("filepath"), "Encode in GRIB2 using double precision values");
+                 "Encode in GRIB2 using double precision values");
 }
