@@ -8,7 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#include "Grib2Encoder.h"
+#include "Mars2Grib.h"
 #include <iostream>
 #include <limits>
 #include "eckit/config/LocalConfiguration.h"
@@ -53,13 +53,13 @@ std::unique_ptr<metkit::codes::CodesHandle> setValues(const eckit::LocalConfigur
 }  // namespace impl
 
 
-Grib2Encoder::Grib2Encoder() : opts_{} {}
-Grib2Encoder::Grib2Encoder(const eckit::LocalConfiguration& opts) : opts_{opts} {}
+Mars2Grib::Mars2Grib() : opts_{} {}
+Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{opts} {}
 
-std::unique_ptr<metkit::codes::CodesHandle> Grib2Encoder::encode(const eckit::LocalConfiguration& mars,
-                                                                 const eckit::LocalConfiguration& misc,
-                                                                 const eckit::LocalConfiguration& geom,
-                                                                 const std::vector<double>& values) {
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const eckit::LocalConfiguration& misc,
+                                                              const eckit::LocalConfiguration& geom,
+                                                              const std::vector<double>& values) {
 
     // The encoder is fully specialized here in place
     using encoder = metkit::mars2grib::backend::SpecializedEncoder<eckit::LocalConfiguration, eckit::LocalConfiguration,
@@ -91,25 +91,25 @@ std::unique_ptr<metkit::codes::CodesHandle> Grib2Encoder::encode(const eckit::Lo
     // }
 }
 
-std::unique_ptr<metkit::codes::CodesHandle> Grib2Encoder::encode(const eckit::LocalConfiguration& mars,
-                                                                 const eckit::LocalConfiguration& misc,
-                                                                 const eckit::LocalConfiguration& geom,
-                                                                 const std::vector<float>& values) {
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const eckit::LocalConfiguration& misc,
+                                                              const eckit::LocalConfiguration& geom,
+                                                              const std::vector<float>& values) {
     // ecCodes does not support setting float values (yet), we have to set them as doubles for now!
     return encode(mars, misc, geom, std::vector<double>{values.begin(), values.end()});
 }
 
-std::unique_ptr<metkit::codes::CodesHandle> Grib2Encoder::encode(const eckit::LocalConfiguration& mars,
-                                                                 const eckit::LocalConfiguration& misc,
-                                                                 const eckit::LocalConfiguration& geom,
-                                                                 const double* values, size_t length) {
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const eckit::LocalConfiguration& misc,
+                                                              const eckit::LocalConfiguration& geom,
+                                                              const double* values, size_t length) {
     return encode(mars, misc, geom, std::vector<double>{values, values + length});
 }
 
-std::unique_ptr<metkit::codes::CodesHandle> Grib2Encoder::encode(const eckit::LocalConfiguration& mars,
-                                                                 const eckit::LocalConfiguration& misc,
-                                                                 const eckit::LocalConfiguration& geom,
-                                                                 const float* values, size_t length) {
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const eckit::LocalConfiguration& misc,
+                                                              const eckit::LocalConfiguration& geom,
+                                                              const float* values, size_t length) {
     return encode(mars, misc, geom, std::vector<float>{values, values + length});
 }
 
