@@ -17,11 +17,11 @@
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
-#include "metkit/mars2grib/api/Grib2Encoder.h"
+#include "metkit/mars2grib/api/Mars2Grib.h"
 
 namespace py = pybind11;
 
-using metkit::mars2grib::Grib2Encoder;
+using metkit::mars2grib::Mars2Grib;
 
 static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     eckit::LocalConfiguration config;
@@ -84,7 +84,7 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     return config;
 }
 
-void encode(Grib2Encoder& encoder, const py::dict& mars, const py::dict& misc, const py::dict& geom,
+void encode(Mars2Grib& encoder, const py::dict& mars, const py::dict& misc, const py::dict& geom,
             const std::vector<double>& values, const std::string& filepath) {
     const auto message =
         encoder.encode(dictToLocalConfig(mars), dictToLocalConfig(misc), dictToLocalConfig(geom), values);
@@ -98,9 +98,9 @@ void encode(Grib2Encoder& encoder, const py::dict& mars, const py::dict& misc, c
 
 PYBIND11_MODULE(mars2grib, m) {
     auto mars2grib =
-        py::class_<Grib2Encoder>(m, "Grib2Encoder")
+        py::class_<Mars2Grib>(m, "Mars2Grib")
             .def(py::init<>())
-            .def(py::init([](py::dict dict) { return std::make_unique<Grib2Encoder>(dictToLocalConfig(dict)); }))
+            .def(py::init([](py::dict dict) { return std::make_unique<Mars2Grib>(dictToLocalConfig(dict)); }))
             .def("encode", &encode, py::arg("mars"), py::arg("misc"), py::arg("geom"), py::arg("values"),
                  py::arg("filepath"), "Encode in GRIB2 using double precision values");
 }

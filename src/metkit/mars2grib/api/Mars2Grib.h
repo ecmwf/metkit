@@ -16,18 +16,18 @@
 
 namespace metkit::mars2grib {
 
-class Grib2Encoder {
+class Mars2Grib {
 public:
 
-    Grib2Encoder();
-    Grib2Encoder(const eckit::LocalConfiguration& opts);
+    Mars2Grib();
+    Mars2Grib(const eckit::LocalConfiguration& opts);
 
-    Grib2Encoder(const Grib2Encoder&)           = delete;
-    Grib2Encoder(Grib2Encoder&&)                = delete;
-    Grib2Encoder operator=(const Grib2Encoder&) = delete;
-    Grib2Encoder operator=(Grib2Encoder&&)      = delete;
+    Mars2Grib(const Mars2Grib&)           = delete;
+    Mars2Grib(Mars2Grib&&)                = delete;
+    Mars2Grib operator=(const Mars2Grib&) = delete;
+    Mars2Grib operator=(Mars2Grib&&)      = delete;
 
-    ~Grib2Encoder() = default;
+    ~Mars2Grib() = default;
 
     std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
                                                        const eckit::LocalConfiguration& misc,
