@@ -11,9 +11,13 @@
 #ifndef FieldInfoData_H
 #define FieldInfoData_H
 
+
+#include "metkit/codes/api/CodesAPI.h"
+
 #include "eckit/io/Length.h"
 #include "eckit/io/Offset.h"
 #include "eckit/types/FixedString.h"
+
 
 
 namespace eckit {
@@ -40,7 +44,7 @@ public:
 
     bool ready() const { return numberOfValues_ > 0; }
 
-    void update(const grib::GribHandle& h);
+    void update(const codes::CodesHandle& h);
 
     double value(const GribDataSource&, size_t index) const;
 
