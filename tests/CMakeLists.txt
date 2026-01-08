@@ -22,7 +22,8 @@ ecbuild_get_test_multidata( TARGET grib_get_data
 
 ecbuild_get_test_multidata( TARGET metkit_get_odb_data
                             NAMES multiodb.odb
-                                  multiodb2.odb )
+                                  multiodb2.odb
+                            NOCHECK )
 
 add_custom_target(soft_link_expand_test_data ALL
                   COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_CURRENT_SOURCE_DIR}/expand" "${CMAKE_CURRENT_BINARY_DIR}/expand")
