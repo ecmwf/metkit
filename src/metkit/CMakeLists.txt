@@ -141,8 +141,6 @@ if ( HAVE_GRIB )
         codes/MallocCodesContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
-        codes/GribAccessor.cc
-        codes/GribAccessor.h
         codes/GribHandle.cc
         codes/GribHandle.h
         codes/GribIterator.cc
