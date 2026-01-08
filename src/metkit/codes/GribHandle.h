@@ -25,7 +25,6 @@ namespace metkit {
 namespace grib {
 
 class GribMetaData;
-class GribAccessorBase;
 class GribMutatorBase;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -95,7 +94,6 @@ public:  // methods
 
 protected:  // methods
 
-    friend class GribAccessorBase;
     friend class GribMutatorBase;
     friend class GribIterator;
 
