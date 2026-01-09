@@ -123,7 +123,7 @@ constexpr bool packingApplicable() {
  * @tparam OutDict_t  Type of the GRIB output dictionary
  *
  * @param[in]  mars MARS input dictionary
- * @param[in]  geo  Geometry dictionary (currently unused)
+ * @param[in]  geo  Geometry dictionary
  * @param[in]  par  Parameter dictionary
  * @param[in]  opt  Options dictionary
  * @param[out] out  Output GRIB dictionary to be populated
@@ -188,8 +188,7 @@ void PackingOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& pa
                 // Get bits per value
                 long bitsPerValue        = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
                 double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
-                long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
-
+                long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, geo, par, opt);
 
                 // Set bits per value
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
