@@ -317,8 +317,8 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                         get_or_throw<double>(geo, "latitudeOfLastGridPointInDegrees");
                     const auto longitudeOfLastGridPointInDegrees =
                         get_or_throw<double>(geo, "longitudeOfLastGridPointInDegrees");
-                    long iDirectionIncrementInDegrees = get_or_throw<long>(geo, "iDirectionIncrementInDegrees");
-                    long jDirectionIncrementInDegrees = get_or_throw<long>(geo, "jDirectionIncrementInDegrees");
+                    const auto iDirectionIncrementInDegrees = get_or_throw<double>(geo, "iDirectionIncrementInDegrees");
+                    const auto jDirectionIncrementInDegrees = get_or_throw<double>(geo, "jDirectionIncrementInDegrees");
 
                     // Encoding
                     set_or_throw<long>(out, "Ni", Ni);
@@ -327,8 +327,8 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
-                    set_or_throw<long>(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
-                    set_or_throw<long>(out, "jDirectionIncrementInDegrees", jDirectionIncrementInDegrees);
+                    set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
+                    set_or_throw(out, "jDirectionIncrementInDegrees", jDirectionIncrementInDegrees);
                 }
                 else if constexpr (Variant == RepresentationType::RegularGaussian) {
 
@@ -347,7 +347,7 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                         get_or_throw<double>(geo, "longitudeOfLastGridPointInDegrees");
                     long numberOfParallelsBetweenAPoleAndTheEquator =
                         get_or_throw<long>(geo, "numberOfParallelsBetweenAPoleAndTheEquator");
-                    long iDirectionIncrementInDegrees = get_or_throw<long>(geo, "iDirectionIncrementInDegrees");
+                    const auto iDirectionIncrementInDegrees = get_or_throw<double>(geo, "iDirectionIncrementInDegrees");
 
                     // Encoding
                     set_or_throw(out, "truncateDegrees", truncateDegrees);
@@ -358,7 +358,7 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
-                    set_or_throw<long>(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
+                    set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
                 }
                 else if constexpr (Variant == RepresentationType::ReducedGaussian) {
 
