@@ -25,7 +25,7 @@ public:
     CodesDataContent(std::unique_ptr<CodesHandle> handle);
 
     virtual ~CodesDataContent() = default;
-    
+
     const CodesHandle& codesHandle() const;
     CodesHandle& codesHandle();
 
