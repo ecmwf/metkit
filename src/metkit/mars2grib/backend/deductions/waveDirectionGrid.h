@@ -303,9 +303,9 @@ WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<double>& wav
  *         - dictionary access fails
  *         - any unexpected error occurs during deduction
  */
-template <class OptDict_t, class MarsDict_t, class ParDict_t>
-WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const OptDict_t& opt, const MarsDict_t& mars,
-                                                     const ParDict_t& par) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t>
+WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, const ParDict_t& par,
+                                                     const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
