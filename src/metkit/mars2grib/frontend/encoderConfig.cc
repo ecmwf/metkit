@@ -14,6 +14,8 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/CodeLocation.h"
+#include "eckit/log/Log.h"
+#include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 
@@ -309,9 +311,15 @@ void setAll(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& se
 }
 
 eckit::LocalConfiguration buildEncoderConfig(const eckit::LocalConfiguration& mars) {
-    eckit::LocalConfiguration sections;
-    setAll(mars, sections);
-    return sections;
+    try {
+        eckit::LocalConfiguration sections;
+        setAll(mars, sections);
+        return sections;
+    }
+    catch (...) {
+        std::cerr << "mars: " << mars << std::endl;
+        throw;
+    }
 }
 
 }  // namespace metkit::mars2grib::frontend

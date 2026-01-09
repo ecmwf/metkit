@@ -247,6 +247,11 @@ public:
             LOG_DEBUG_LIB(LibMetkit) << "=========================================================================="
                                      << std::endl;
 
+            std::cout << "mars: " << dict_to_json<MarsDict_t>(mars) << std::endl;     // marsDict_json_
+            std::cout << "geo: " << dict_to_json<GeoDict_t>(geo) << std::endl;        // geoDict_json_
+            std::cout << "par: " << dict_to_json<ParDict_t>(par) << std::endl;        // parDict_json_
+            std::cout << "cfg: " << encoderConfiguration_to_json(cfg_) << std::endl;  // encoderCfg_json_
+
             std::throw_with_nested(Mars2GribEncoderException("Error during SpecializedEncoder::encode",
                                                              dict_to_json<MarsDict_t>(mars),      // marsDict_json_
                                                              dict_to_json<GeoDict_t>(geo),        // geoDict_json_
