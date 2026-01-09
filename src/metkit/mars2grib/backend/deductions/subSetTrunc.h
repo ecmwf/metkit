@@ -48,6 +48,7 @@
 #pragma once
 
 // System includes
+#include <algorithm>
 #include <string>
 
 // Core deduction includes
@@ -75,6 +76,7 @@ namespace metkit::mars2grib::backend::deductions {
  * @tparam OptDict_t  Type of the options dictionary (unused)
  *
  * @param[in] mars MARS dictionary (unused)
+ * @param[in] geo  Geometry dictionary
  * @param[in] par  Parameter dictionary; may contain `subSetTruncation`
  * @param[in] opt  Options dictionary (unused)
  *
@@ -87,16 +89,25 @@ namespace metkit::mars2grib::backend::deductions {
  * This deduction is fully deterministic and does not depend on
  * any pre-existing GRIB header state.
  */
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t>
+long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par,
+                                       const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
+        // subSetTruncation must not be larger than any pentagonalResolutionParameter
+        long pentagonalResolutionParameterJ = get_or_throw<long>(geo, "pentagonalResolutionParameterJ");
+        long pentagonalResolutionParameterK = get_or_throw<long>(geo, "pentagonalResolutionParameterK");
+        long pentagonalResolutionParameterM = get_or_throw<long>(geo, "pentagonalResolutionParameterM");
+        long defaultSubSetTrunc             = std::min(
+            {20L, pentagonalResolutionParameterJ, pentagonalResolutionParameterK, pentagonalResolutionParameterM});
+
         // Retrieve optional subSetTruncation from parameter dictionary
-        long subSetTrunc = get_opt<long>(par, "subSetTruncation").value_or(20);
+        long subSetTrunc = get_opt<long>(par, "subSetTruncation").value_or(defaultSubSetTrunc);
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
