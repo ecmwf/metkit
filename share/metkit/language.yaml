@@ -573,7 +573,6 @@ _field: &_field
 
   levtype:
     category: data
-    aliases: [levtyp]
     defaults:
       - vals: [pl]
     flatten: false
@@ -597,7 +596,7 @@ _field: &_field
 
   levelist:
     category: data
-    aliases: [leve,level,levellist]
+    aliases: [level,levellist]
     multiple: true
     type: to-by-list-float
     by: 1
@@ -783,6 +782,7 @@ _field: &_field
 
   number:
     category: data
+    aliases: [ensemble]
     multiple: true
     type: to-by-list
     by: 1
