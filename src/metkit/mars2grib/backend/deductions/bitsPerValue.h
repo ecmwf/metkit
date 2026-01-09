@@ -279,7 +279,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
         }
 
         // Validate bits per value
-        if (bitsPerValue <= 0 || bitsPerValue > 64) {
+        if (bitsPerValue < 0 || bitsPerValue > 64) {
             std::string errMsg = "Invalid `bitsPerValue`: value='";
             errMsg += std::to_string(bitsPerValue) + "'";
             throw Mars2GribDeductionException(errMsg, Here());
@@ -384,7 +384,7 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
         }
 
         // Validate bits per value
-        if (bitsPerValue <= 0 || bitsPerValue > 64) {
+        if (bitsPerValue < 0 || bitsPerValue > 64) {
             std::string errMsg = "Invalid `bitsPerValue`: value='";
             errMsg += std::to_string(bitsPerValue) + "'";
             throw Mars2GribDeductionException(errMsg, Here());
