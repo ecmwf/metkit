@@ -307,7 +307,7 @@ WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<double>& wav
  *         - a required key is missing or has an invalid type
  *         - reconstruction or scaling fails
  */
-template <class OptDict_t, class MarsDict_t, class ParDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t>
 WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, const ParDict_t& par,
                                                      const OptDict_t& opt) {
 
