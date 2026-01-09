@@ -673,7 +673,8 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
         std::unique_ptr<codes_handle>(codes_handle_new_from_samples(NULL, sampleName.c_str())));
 }
 
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product) {
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product,
+                                                 std::optional<int64_t> offset) {
     int err = 0;
     std::unique_ptr<codes_handle> ret;
 
@@ -681,6 +682,10 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
     if (file == nullptr) {
         throw CodesException(std::string("Error opening file ") + fpath, Here());
+    }
+
+    if (offset) {
+        fseek(file, *offset, SEEK_SET);
     }
 
     switch (product) {

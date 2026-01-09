@@ -371,8 +371,10 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
 /// The user needs to maintain the lifetime of the passed array.
 /// @param file Pointer to a implementation dependent file handle containing a BUFR or GRIB message.
 /// @param product The intented type of handle that is supposed to be loaded (BUFR or GRIB).
+/// @param offset  Optional: An offset in bytes within the file where the actual message starts.
 /// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product);
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product,
+                                                 std::optional<int64_t> offset = std::optional<int64_t>{});
 
 
 //----------------------------------------------------------------------------------------------------------------------
