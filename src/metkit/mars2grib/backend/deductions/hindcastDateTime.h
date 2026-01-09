@@ -19,6 +19,7 @@
 #include "metkit/mars2grib/backend/deductions/detail/timeUtils.h"
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
@@ -89,6 +90,7 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 eckit::DateTime resolve_HindcastDateTime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -98,7 +100,7 @@ eckit::DateTime resolve_HindcastDateTime_or_throw(const MarsDict_t& mars, const 
 
         // Get the mars.date and mars.time
         long marsDate = get_or_throw<long>(mars, "hdate");
-        long marsTime = get_or_throw<long>(mars, "htime");
+        long marsTime = get_opt<long>(mars, "htime").value_or(0);
 
         // Convert to canonical format
         eckit::Date date = detail::convert_YYYYMMDD2Date_or_throw(marsDate);
