@@ -68,27 +68,24 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::printExceptionStack;
 
+    try {
+        // Frontend
+        const auto conf = frontend::buildEncoderConfig(mars);
 
-    // try {
-    // Frontend
-    const auto conf = frontend::buildEncoderConfig(mars);
+        // Backend
+        auto sample = encoder{conf}.encode(mars, geom, misc, opts_);
 
-    // Backend
-    auto sample = encoder{conf}.encode(mars, geom, misc, opts_);
-
-    // Values
-    return impl::setValues(misc, values, std::move(sample));
-
-    // }
-    // catch ( const std::exception& e ){
-    //     // TODO: do not rethrow through the API boundaries
-    //     printExceptionStack(e, std::cerr);
-    //     return nullptr;
-    // }
-    // catch ( ... ) {
-    //     std::cerr << "Unknown exception caught!" << std::endl;
-    //     return nullptr;
-    // }
+        // Values
+        return impl::setValues(misc, values, std::move(sample));
+    }
+    catch (const std::exception& e){
+        printExceptionStack(e, std::cerr);
+        throw;  // TODO: do not rethrow through the API boundaries
+    }
+    catch (...) {
+        std::cerr << "Unknown exception was caught!" << std::endl;
+        throw;  // TODO: do not rethrow through the API boundaries
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
