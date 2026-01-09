@@ -12,13 +12,13 @@
 
 #include "eccodes.h"
 
-#include "eckit/config/Resource.h"
 #include "eckit/io/PeekHandle.h"
 #include "eckit/log/Log.h"
 #include "eckit/message/Message.h"
 
+#include "metkit/codes/CodesDataContent.h"
 #include "metkit/codes/GribHandle.h"
-#include "metkit/codes/MallocCodesContent.h"
+#include "metkit/codes/api/CodesAPI.h"
 
 namespace metkit {
 namespace codes {
@@ -53,25 +53,27 @@ static long readcb(void* data, void* buffer, long len) {
 
 eckit::message::Message CodesSplitter::next() {
     size_t size;
-    int err    = 0;
-    void* data = wmo_read_any_from_stream_malloc(&handle_, &readcb, &size, &err);
+    int err      = 0;
+    auto deleter = [](uint8_t* ptr) { ::free(ptr); };
+    auto data    = std::unique_ptr<uint8_t, decltype(deleter)>{
+        reinterpret_cast<uint8_t*>(wmo_read_any_from_stream_malloc(&handle_, &readcb, &size, &err)), deleter};
 
     if (err != 0 and err != GRIB_END_OF_FILE) {
-        if (data) {
-            ::free(data);
-        }
         if (err == GRIB_WRONG_LENGTH && handle_.canSeek()) {
             eckit::Offset off = handle_.position() - eckit::Length(size);
             handle_.seek((off < eckit::Offset(0) ? eckit::Offset(0) : off) + eckit::Offset(4));
         }
-        CODES_CALL(err);
+        std::string msg = std::string("CodesSplitter::next() - wmo_read_any_from_stream_malloc failed: ") +
+                          std::string(codes_get_error_message(err));
+        throw CodesException(msg, Here());
     }
 
     if (!data) {
         return eckit::message::Message();
     }
 
-    return eckit::message::Message(new MallocCodesContent(data, size, 0));
+    return eckit::message::Message(
+        new CodesDataContent(codesHandleFromMessageCopy({static_cast<const uint8_t*>(data.get()), size})));
 }
 
 void CodesSplitter::print(std::ostream& s) const {

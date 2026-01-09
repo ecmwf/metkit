@@ -129,12 +129,12 @@ if ( HAVE_GRIB )
         codes/BUFRDecoder.h
         codes/GRIBDecoder.cc
         codes/GRIBDecoder.h
+        codes/CodesDataContent.cc
+        codes/CodesDataContent.h
         codes/CodesContent.cc
         codes/CodesContent.h
         codes/BufrContent.cc
         codes/BufrContent.h
-        codes/MallocCodesContent.cc
-        codes/MallocCodesContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
         codes/GribAccessor.cc
