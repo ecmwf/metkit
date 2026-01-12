@@ -257,6 +257,11 @@ void LevelOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par,
                     set_or_throw<std::string>(out, "typeOfLevel", "heightAboveSea");
                     set_or_throw<long>(out, "level", 10L);
                 }
+                else if constexpr (Variant == LevelType::IsobaricInHpa) {
+                    long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
+                    set_or_throw<std::string>(out, "typeOfLevel", "isobaricInhPa");
+                    set_or_throw<long>(out, "level", levelVal / 100);
+                }
                 else {
                     set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()));
                     if constexpr (needLevel<Variant>()) {
