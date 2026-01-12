@@ -24,7 +24,7 @@ using metkit::mars2grib::utils::dict_traits::get_or_throw;
 namespace metkit::mars2grib::frontend {
 
 void setTime(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, range(1, 3), 10, range(15, 18), range(21, 23), range(26, 43), 53, 54, 59, 60, 66, 67,
                  range(74, 79), range(129, 139), 141, 148, 151, 152, range(155, 157), range(159, 168), 170,
                  range(172, 174), 183, range(186, 188), 198, 203, 206, 207, range(229, 232), range(234, 236), 238,

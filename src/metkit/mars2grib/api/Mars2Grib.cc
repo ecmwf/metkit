@@ -41,7 +41,7 @@ std::unique_ptr<metkit::codes::CodesHandle> setValues(const eckit::LocalConfigur
         handle->set("missingValue", missingValue);
     }
 
-    if (get_opt<std::int64_t>(misc, "values-scale-factor").value_or(1.0) != 1.0) {
+    if (get_opt<long>(misc, "values-scale-factor").value_or(1.0) != 1.0) {
         throw eckit::NotImplemented{"Handling scale factor is not implemented!", Here()};
     }
 
