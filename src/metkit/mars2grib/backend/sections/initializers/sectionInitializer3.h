@@ -110,6 +110,7 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const GeoDict_t& geo, const
             // Standard grid definition template
             long drt = static_cast<long>(TemplateNumber);
             set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt);
+            set_or_throw<long>(out, "resolutionAndComponentFlags", 0L);
         }
 
         return;
