@@ -95,7 +95,9 @@ namespace metkit::mars2grib::backend::concepts_ {
  */
 template <std::size_t Stage, std::size_t Section, GeneratingProcessType Variant>
 constexpr bool generatingProcessApplicable() {
-    return (Section == SecIdentificationSection) && (Stage == StagePreset || Variant == GeneratingProcessType::Default);
+    return ((Section == SecProductDefinitionSection) &&
+            (Stage == StagePreset) &&
+            (Variant == GeneratingProcessType::Default));
 }
 
 
