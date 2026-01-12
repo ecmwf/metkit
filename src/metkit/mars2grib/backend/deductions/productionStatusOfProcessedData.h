@@ -134,10 +134,10 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
             return pspd;
         }
         else {
-            // TODO MIVAL: Here I set the default to missing, but need to clarify with DGOV team,
-            // This need to be inferred from "type", "class", "stream"
+            // TODO: Here we set the default to operational product; will need to clarify exact logic with DGOV
+            // It will probably need to be inferred from "type", "class", "stream"
 
-            tables::ProductionStatusOfProcessedData pspd = tables::ProductionStatusOfProcessedData::Missing;
+            tables::ProductionStatusOfProcessedData pspd = tables::ProductionStatusOfProcessedData::OperationalProducts;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {

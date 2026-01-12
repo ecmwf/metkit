@@ -147,24 +147,29 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
         }
         else {
 
-            // Deduce typeOfProcessedData from mars type
-            if (marsType == "an") {
-                result = tables::TypeOfProcessedData::AnalysisProducts;
+            // Deduce typeOfProcessedData from mars class and type
+            if (marsClass == "ai") {  // Mars class only for AI output
+                result = tables::TypeOfProcessedData::MlBasedForecast;
             }
-            else if (marsType == "fc") {
-                result = tables::TypeOfProcessedData::ForecastProducts;
-            }
-            else if (marsType == "pf") {
-                result = tables::TypeOfProcessedData::PerturbedForecastProducts;
-            }
-            else if (marsType == "cf") {
-                result = tables::TypeOfProcessedData::ControlForecastProducts;
-            }
-            else if (marsType == "ssd" || marsType == "gsd") {
-                result = tables::TypeOfProcessedData::ProcessedSatelliteObservations;
-            }
-            else {
-                result = tables::TypeOfProcessedData::Missing;
+            else {  // Mars type for everything else
+                if (marsType == "an") {
+                    result = tables::TypeOfProcessedData::AnalysisProducts;
+                }
+                else if (marsType == "fc") {
+                    result = tables::TypeOfProcessedData::ForecastProducts;
+                }
+                else if (marsType == "pf") {
+                    result = tables::TypeOfProcessedData::PerturbedForecastProducts;
+                }
+                else if (marsType == "cf") {
+                    result = tables::TypeOfProcessedData::ControlForecastProducts;
+                }
+                else if (marsType == "ssd" || marsType == "gsd") {
+                    result = tables::TypeOfProcessedData::ProcessedSatelliteObservations;
+                }
+                else {
+                    result = tables::TypeOfProcessedData::Missing;
+                }
             }
 
             // Emit OVERRIDE log entry
