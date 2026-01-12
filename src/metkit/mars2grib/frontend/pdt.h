@@ -15,6 +15,6 @@
 
 namespace metkit::mars2grib::frontend {
 
-std::int64_t templateNumberFromPDT(const eckit::LocalConfiguration& pdt);
+long templateNumberFromPDT(const eckit::LocalConfiguration& pdt);
 
 }  // namespace metkit::mars2grib::frontend
