@@ -309,7 +309,7 @@ PDTCat parsePDTCat(const eckit::LocalConfiguration& pdt) {
             parseProductSubCategory(get_or_throw<std::string>(pdt, "productSubCategory"))};
 }
 
-using DecisionMap = std::unordered_map<PDTCat, std::int64_t>;
+using DecisionMap = std::unordered_map<PDTCat, long>;
 
 static const DecisionMap map{
     {{PDTCat{TimeExtent::None, TimeFormat::None, SpatialExtent::None, ProcessType::None, ProcessSubType::None,
@@ -619,14 +619,14 @@ static const DecisionMap map{
              ProcessSubType::Ensemble, ProductCategory::PostProcess, ProductSubCategory::None},
       94}}};
 
-std::int64_t templateNumberFromPDT(const PDTCat& pdt) {
+long templateNumberFromPDT(const PDTCat& pdt) {
     if (auto search = map.find(pdt); search != map.end()) {
         return search->second;
     }
     throw eckit::Exception{"PDT categories can not be mapped to a pdt number!", Here()};
 }
 
-std::int64_t templateNumberFromPDT(const eckit::LocalConfiguration& pdt) {
+long templateNumberFromPDT(const eckit::LocalConfiguration& pdt) {
     return templateNumberFromPDT(parsePDTCat(pdt));
 }
 

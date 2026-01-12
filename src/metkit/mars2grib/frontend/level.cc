@@ -24,7 +24,7 @@ using metkit::mars2grib::utils::dict_traits::get_or_throw;
 namespace metkit::mars2grib::frontend {
 
 void setSFC(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, 228023)) {
         setTypeOfLevel(sections, "cloudBase");
     }
@@ -133,7 +133,7 @@ void setSFC(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& se
 }
 
 void setHL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, 10, 54, range(130, 132), 157, 246, 247, 3031, 235097, 235131, 235132, 237097, 237131, 237132,
                  238097, 238131, 238132, 239097, 239131, 239132)) {
         setTypeOfLevel(sections, "heightAboveGround");
@@ -144,7 +144,7 @@ void setHL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sec
 }
 
 void setML(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, range(21, 23), range(75, 77), range(129, 133), 135, 138, 152, range(155, 157), 203,
                  range(246, 248), range(162100, 162113), 260290, 260292, 260293)) {
         setTypeOfLevel(sections, "hybrid");
@@ -155,8 +155,8 @@ void setML(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sec
 }
 
 void setPL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
-    const auto level = get_or_throw<std::int64_t>(mars, "levelist");
+    const auto param = get_or_throw<long>(mars, "param");
+    const auto level = get_or_throw<long>(mars, "levelist");
 
     if (matchAny(param, 1, 2, 10, 60, 75, 76, range(129, 135), 138, 152, 155, 157, 203, range(246, 248), 235100,
                  range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290, 263107)) {
@@ -172,7 +172,7 @@ void setPL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sec
     }
 }
 void setPT(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, 53, 54, 60, range(131, 133), 138, 155, 203, 235100, 235203, 237203, 238203, 239203)) {
         setTypeOfLevel(sections, "theta");
     }
@@ -182,7 +182,7 @@ void setPT(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sec
 }
 
 void setPV(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, 3, 54, 129, range(131, 133), 203, 235098, 235269)) {
         setTypeOfLevel(sections, "potentialVorticity");
     }
@@ -192,7 +192,7 @@ void setPV(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sec
 }
 
 void setSOL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, 262000, 262024)) {
         setTypeOfLevel(sections, "seaIceLayer");
     }
@@ -208,7 +208,7 @@ void setSOL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& se
 }
 
 void setAL(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, range(213101, 213160))) {
         setTypeOfLevel(sections, "abstractSingleLevel");
     }

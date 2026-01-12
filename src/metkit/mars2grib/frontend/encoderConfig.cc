@@ -186,7 +186,7 @@ void setProcessType(const eckit::LocalConfiguration& mars, eckit::LocalConfigura
 //================================ Horizontal ================================//
 
 bool matchChemical(const eckit::LocalConfiguration& mars) {
-    return (has(mars, "chem") && !has(mars, "wavelength") && get_or_throw<std::int64_t>(mars, "chem") < 900);
+    return (has(mars, "chem") && !has(mars, "wavelength") && get_or_throw<long>(mars, "chem") < 900);
 }
 
 void setChemical(eckit::LocalConfiguration& sections) {
@@ -196,7 +196,7 @@ void setChemical(eckit::LocalConfiguration& sections) {
 
 // These rules had to be ported manually as they don't follow the same pattern as most level/time/statistical rules
 bool setMiscHorizontal(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
 
     if (get_or_throw<std::string>(mars, "levtype") == "sfc") {
         if (matchChemical(mars)) {
@@ -245,7 +245,7 @@ bool setMiscHorizontal(const eckit::LocalConfiguration& mars, eckit::LocalConfig
 
     if (const auto& type = get_opt<std::string>(mars, "type"); type && (*type == "em" || *type == "es")) {
         // Derived ensemble forecast satellite
-        if (const auto param = get_or_throw<std::int64_t>(mars, "param"); matchAny(param, 194)) {
+        if (const auto param = get_or_throw<long>(mars, "param"); matchAny(param, 194)) {
             setTypeOfLevel(sections, "surface");
             setPointInTime(sections);
             return true;
@@ -253,7 +253,7 @@ bool setMiscHorizontal(const eckit::LocalConfiguration& mars, eckit::LocalConfig
     }
     else {
         // Single satellite
-        if (const auto param = get_or_throw<std::int64_t>(mars, "param"); matchAny(param, range(260510, 260512))) {
+        if (const auto param = get_or_throw<long>(mars, "param"); matchAny(param, range(260510, 260512))) {
             setPointInTime(sections);
             setRecursiveDefault(sections, "product-definition-section.satellite-configurator.type", "default");
             setPDT(sections, "productCategory", "satellite");

@@ -23,7 +23,7 @@ using metkit::mars2grib::utils::dict_traits::get_or_throw;
 namespace metkit::mars2grib::frontend {
 
 void setStatistical(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    const auto param = get_or_throw<std::int64_t>(mars, "param");
+    const auto param = get_or_throw<long>(mars, "param");
     if (matchAny(param, 8, 9, 20, 44, 45, 47, 50, 57, 58, range(142, 147), 169, range(175, 182), 189, range(195, 197),
                  205, range(208, 213), 228, 239, 240, 3062, 3099, range(162100, 162113), range(222001, 222256), 228021,
                  228022, 228129, 228130, 228143, 228144, 228216, 228228, 228251, range(231001, 231003), 231005, 231010,

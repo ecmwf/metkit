@@ -125,7 +125,7 @@ inline void setTypeOfLevel(eckit::LocalConfiguration& sections, const std::strin
     setRecursive(sections, "product-definition-section.level-configurator.type", type);
 }
 
-inline void setFixedLevel(eckit::LocalConfiguration& sections, const std::int64_t level) {
+inline void setFixedLevel(eckit::LocalConfiguration& sections, const long level) {
     // TODO : Make sure level-configurator.type is set?
     setRecursive(sections, "product-definition-section.level-configurator.fixed-level", level);
 }
