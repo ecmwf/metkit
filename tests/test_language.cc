@@ -124,10 +124,18 @@ CASE("grid: reduced classical Gaussian grids") {
 // -----------------------------------------------------------------------------
 
 CASE("grid: HEALPix grids") {
-    for (const auto& n : make_power_sequence(2, 8192)) {
+    for (const auto& n : make_power_sequence(1, 8192)) {
         const Expected expected{"retrieve", {{"grid", {"H" + std::to_string(n)}}}};
         expect_mars("ret, date=-1, grid=H" + std::to_string(n), expected);
         expect_mars("ret, date=-1, grid=h" + std::to_string(n), expected);
+
+        const Expected expected_ring{"retrieve", {{"grid", {"HR" + std::to_string(n)}}}};
+        expect_mars("ret, date=-1, grid=Hr" + std::to_string(n), expected_ring);
+        expect_mars("ret, date=-1, grid=hR" + std::to_string(n), expected_ring);
+
+        const Expected expected_nested{"retrieve", {{"grid", {"HN" + std::to_string(n)}}}};
+        expect_mars("ret, date=-1, grid=Hn" + std::to_string(n), expected_nested);
+        expect_mars("ret, date=-1, grid=hN" + std::to_string(n), expected_nested);
     }
 }
 
