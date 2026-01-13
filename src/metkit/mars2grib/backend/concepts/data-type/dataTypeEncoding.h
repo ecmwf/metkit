@@ -96,7 +96,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, DataTypeType Variant>
 constexpr bool data_typeApplicable() {
 
-    return ((Variant == DataTypeType::Default) && (Stage == StagePreset) && (Section == SecIdentificationSection));
+    return ((Variant == DataTypeType::Default) && (Stage == StageOverride) && (Section == SecIdentificationSection));
 }
 
 
@@ -168,6 +168,8 @@ void DataTypeOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& p
                 deductions::resolve_ProductionStatusOfProcessedData_or_throw(mars, par, opt);
 
             // Encoding
+            // @todo -> set_or_throw<std::string>(out, "typeOfProcessedData",
+            // enum2name_TypeOfProcessedData_or_throw(typeOfProcessedData));
             set_or_throw<long>(out, "typeOfProcessedData", static_cast<long>(typeOfProcessedData));
             set_or_throw<long>(out, "productionStatusOfProcessedData",
                                static_cast<long>(productionStatusOfProcessedData));

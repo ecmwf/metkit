@@ -51,7 +51,7 @@ namespace metkit::mars2grib::backend::concepts_ {
  * - the size of all generated dispatch tables,
  * - the number of compile-time instantiations.
  */
-inline constexpr std::size_t NUM_STAGES   = 3;
+inline constexpr std::size_t NUM_STAGES   = 4;
 inline constexpr std::size_t NUM_SECTIONS = 6;
 /** @} */
 
@@ -67,7 +67,8 @@ inline constexpr std::size_t NUM_SECTIONS = 6;
  */
 inline constexpr std::size_t StageAllocate = 0;  ///< Structure allocation stage
 inline constexpr std::size_t StagePreset   = 1;  ///< Metadata preset stage
-inline constexpr std::size_t StageRuntime  = 2;  ///< Runtime-dependent encoding
+inline constexpr std::size_t StageOverride = 2;  ///< Metadata override stage
+inline constexpr std::size_t StageRuntime  = 3;  ///< Runtime-dependent encoding
 /** @} */
 
 
