@@ -27,7 +27,6 @@ inline bool checksEnabled(const OptDict& opt) {
 
     // Remove compiler warning
     __builtin_unreachable();
-
 }
 
 template <typename OptDict>

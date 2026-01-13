@@ -78,8 +78,8 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
         // Values
         return impl::setValues(misc, values, std::move(sample));
     }
-    catch (const std::exception& e){
-        printExtendedStack( e );
+    catch (const std::exception& e) {
+        printExtendedStack(e);
         throw;  // TODO: do not rethrow through the API boundaries
     }
     catch (...) {
