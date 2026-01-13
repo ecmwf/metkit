@@ -20,8 +20,7 @@ public:
 
     virtual ~Mars2GribGenericException() = default;
 
-    virtual void printFrame(std::ostream& os,
-                            const std::string& pad) const {
+    virtual void printFrame(std::ostream& os, const std::string& pad) const {
 
         const auto& loc = location();
 
@@ -31,7 +30,6 @@ public:
            << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
            << pad << "+ message:  " << what() << "\n";
     }
-
 };
 
 
@@ -108,19 +106,18 @@ public:
     const std::optional<std::string>& stage() const { return stage_; }
     const std::optional<std::string>& section() const { return section_; }
 
-    void printFrame(std::ostream& os,
-                    const std::string& pad) const override {
+    void printFrame(std::ostream& os, const std::string& pad) const override {
 
         Mars2GribGenericException::printFrame(os, pad);
 
-        auto print_opt = [&](const char* k,
-                             const std::optional<std::string>& v) {
-            if (v) os << pad << "+ " << k << ": " << *v << "\n";
+        auto print_opt = [&](const char* k, const std::optional<std::string>& v) {
+            if (v)
+                os << pad << "+ " << k << ": " << *v << "\n";
         };
 
         print_opt("concept", conceptName_);
         print_opt("variant", conceptVariant_);
-        print_opt("stage",   stage_);
+        print_opt("stage", stage_);
         print_opt("section", section_);
     }
 
@@ -155,8 +152,7 @@ public:
     const std::string& optDict_json() const { return optDict_json_; }
     const std::string& encoderCfg_json() const { return encoderCfg_json_; }
 
-    void printFrame(std::ostream& os,
-                    const std::string& pad) const override {
+    void printFrame(std::ostream& os, const std::string& pad) const override {
 
         Mars2GribGenericException::printFrame(os, pad);
 
@@ -197,34 +193,29 @@ inline void printExceptionStack(const std::exception& e, std::ostream& os, std::
     }
 };
 
-inline constexpr int tabSize=4;
-inline constexpr int lineSize=120;
+inline constexpr int tabSize  = 4;
+inline constexpr int lineSize = 120;
 
 inline std::string indent(std::size_t level) {
     return std::string(level * tabSize, ' ');
 }
 
-inline void printExtendedStack(const std::exception& e,
-                           std::size_t level = 0,
-                           std::size_t frame = 1) {
+inline void printExtendedStack(const std::exception& e, std::size_t level = 0, std::size_t frame = 1) {
 
     const std::string pad = indent(level);
 
-    std::cerr
-        << pad << "+ " << std::string(lineSize,'=')  << std::endl
-        << pad << "+ frame " << frame << std::endl
-        << pad << "+ " << std::string(lineSize,'-')  << std::endl;
+    std::cerr << pad << "+ " << std::string(lineSize, '=') << std::endl
+              << pad << "+ frame " << frame << std::endl
+              << pad << "+ " << std::string(lineSize, '-') << std::endl;
 
-    if (const auto* me =
-            dynamic_cast<const Mars2GribGenericException*>(&e)) {
+    if (const auto* me = dynamic_cast<const Mars2GribGenericException*>(&e)) {
         me->printFrame(std::cerr, pad);
     }
     else {
         std::cerr << pad << "+ message: " << e.what() << std::endl;
     }
 
-    std::cerr
-        << pad << "+ " << std::string(lineSize,'+')  << std::endl;
+    std::cerr << pad << "+ " << std::string(lineSize, '+') << std::endl;
 
     try {
         std::rethrow_if_nested(e);
@@ -233,7 +224,6 @@ inline void printExtendedStack(const std::exception& e,
         printExtendedStack(nested, level + 1, frame + 1);
     }
 }
-
 
 
 inline std::string joinNumbers(const std::vector<long>& vec) {
