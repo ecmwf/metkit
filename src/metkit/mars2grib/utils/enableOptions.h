@@ -23,6 +23,11 @@ inline bool checksEnabled(const OptDict& opt) {
     else {
         return get_opt<bool>(opt, "applyChecks").value_or(false);
     }
+
+
+    // Remove compiler warning
+    __builtin_unreachable();
+
 }
 
 template <typename OptDict>
