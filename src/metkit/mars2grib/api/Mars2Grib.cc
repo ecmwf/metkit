@@ -66,7 +66,7 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
                                                                    eckit::LocalConfiguration, eckit::LocalConfiguration,
                                                                    metkit::codes::CodesHandle>;
     using metkit::mars2grib::utils::dict_traits::get_opt;
-    using metkit::mars2grib::utils::exceptions::printExceptionStack;
+    using metkit::mars2grib::utils::exceptions::printExtendedStack;
 
     try {
         // Frontend
@@ -79,7 +79,7 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
         return impl::setValues(misc, values, std::move(sample));
     }
     catch (const std::exception& e){
-        printExceptionStack(e, std::cerr);
+        printExtendedStack( e );
         throw;  // TODO: do not rethrow through the API boundaries
     }
     catch (...) {

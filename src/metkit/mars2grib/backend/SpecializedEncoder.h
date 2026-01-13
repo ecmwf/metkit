@@ -163,14 +163,6 @@ public:
         try {
 
 
-            LOG_DEBUG_LIB(LibMetkit) << std::endl
-                                     << std::endl
-                                     << std::endl
-                                     << std::endl
-                                     << std::endl
-                                     << std::endl
-                                     << std::endl
-                                     << std::endl;
             LOG_DEBUG_LIB(LibMetkit)
                 << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
                 << std::endl;
@@ -178,15 +170,12 @@ public:
             // Create an initial sample
             std::unique_ptr<OutDict_t> samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
             for (const auto& stage : settersTable_) {
-                LOG_DEBUG_LIB(LibMetkit) << std::endl << std::endl << std::endl;
                 LOG_DEBUG_LIB(LibMetkit) << "STAGE :: ****************************************************************"
                                          << std::endl;
                 for (const auto& section : stage) {
-                    LOG_DEBUG_LIB(LibMetkit) << std::endl << std::endl << std::endl;
                     LOG_DEBUG_LIB(LibMetkit)
                         << "  SECTION :: ****************************************************************" << std::endl;
                     for (const auto& conceptSetter : section) {
-                        LOG_DEBUG_LIB(LibMetkit) << std::endl << std::endl << std::endl;
                         LOG_DEBUG_LIB(LibMetkit)
                             << "      CONCEPT :: ****************************************************************"
                             << std::endl;
@@ -222,7 +211,6 @@ public:
                 // The clone is required to force materialization and commit
                 // in-memory modifications that may still be deferred due to
                 // internal ecCodes optimizations.
-                LOG_DEBUG_LIB(LibMetkit) << std::endl << std::endl << std::endl;
                 LOG_DEBUG_LIB(LibMetkit) << "End of stage, cloning the sample to force materialization." << std::endl;
                 samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
             }
