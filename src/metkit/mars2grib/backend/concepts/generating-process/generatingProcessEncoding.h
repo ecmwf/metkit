@@ -43,8 +43,8 @@
 #pragma once
 
 // System includes
-#include <string>
 #include <optional>
+#include <string>
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/conceptCore.h"
@@ -96,8 +96,7 @@ namespace metkit::mars2grib::backend::concepts_ {
  */
 template <std::size_t Stage, std::size_t Section, GeneratingProcessType Variant>
 constexpr bool generatingProcessApplicable() {
-    return ((Section == SecProductDefinitionSection) &&
-            (Stage == StagePreset) &&
+    return ((Section == SecProductDefinitionSection) && (Stage == StagePreset) &&
             (Variant == GeneratingProcessType::Default));
 }
 
