@@ -1092,7 +1092,7 @@ _field: &_field
       - context:
           type:
             op: '!'
-            vals: [pd, cd, pb, taem]
+            vals: [pd, cd, pb, taem, pfc]
 
   domain:
     category: data
