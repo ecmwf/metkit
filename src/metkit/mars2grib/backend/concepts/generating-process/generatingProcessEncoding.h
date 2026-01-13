@@ -44,6 +44,7 @@
 
 // System includes
 #include <string>
+#include <optional>
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/conceptCore.h"
@@ -186,7 +187,7 @@ void GeneratingProcessOp(const MarsDict_t& mars, const GeoDict_t& geo, const Par
             /// relies on ecCodes implicitly setting `backgroundProcess` from
             /// `mars::model`.
             if (bool useModel = get_opt<bool>(opt, "useModelForBackgroundProcess").value_or(true); useModel) {
-                std::string modelVal = get_or_throw<std::string>(mars, "model");
+                std::string modelVal = get_opt<std::string>(mars, "model").value_or("ifs");
                 set_or_throw<std::string>(out, "model", modelVal);
             }
             else {
