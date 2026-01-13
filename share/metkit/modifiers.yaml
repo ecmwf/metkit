@@ -217,7 +217,7 @@
   unset: [number]
 
 - context:
-    type: ['!', pd, cd, pb, taem]
+    type: ['!', pd, cd, pb, taem, pfc]
     unset: [quantile]
 
 - context:
