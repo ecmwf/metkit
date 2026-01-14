@@ -143,12 +143,26 @@ constexpr bool marsApplicable() {
  *   (concept name, variant, stage, section).
  * - This concept does not rely on pre-existing GRIB header state.
  *
+ * @note
+ * The keywords [marsClass, marsType, marsStream] correspond to *raw GRIB keys*
+ * and are written directly without triggering additional logic.
+ *
+ * In contrast, the high-level keywords [class, type, stream] are **ecCodes
+ * concepts**. Setting them may implicitly modify multiple underlying GRIB
+ * keys in order to maintain internal consistency.
+ *
+ * As a consequence, assigning high-level keywords can have side effects.
+ * Examples (non-exhaustive) include:
+ *   - setting "type" may implicitly update "typeOfProcessedData"
+ *   - setting "stream" may implicitly change the product definition template number
+ *
  * @see marsApplicable
  */
 template <std::size_t Stage, std::size_t Section, MarsType Variant, class MarsDict_t, class GeoDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void MarsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -170,9 +184,19 @@ void MarsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, 
             std::string marsExpverVal = deductions::resolve_Expver_or_throw(mars, par, opt);
 
             // Encoding
-            set_or_throw<std::string>(out, "class", marsClassVal);
-            set_or_throw<std::string>(out, "type", marsTypeVal);
-            set_or_throw<std::string>(out, "stream", marsStreamVal);
+            if (bool enableSideEffects = get_opt<bool>(opt, "enableSideEffects").value_or(false); enableSideEffects) {
+                // Enabling this can lead to very hard-to-track side effects and/or failures of the whole encoding
+                // chain, because setting high-level keys may implicitly modify multiple underlying GRIB keys.
+                // Use with extreme caution and only when you fully understand the implications.
+                set_or_throw<std::string>(out, "class", marsClassVal);
+                set_or_throw<std::string>(out, "type", marsTypeVal);
+                set_or_throw<std::string>(out, "stream", marsStreamVal);
+            }
+            else {
+                set_or_throw<std::string>(out, "marsClass", marsClassVal);
+                set_or_throw<std::string>(out, "marsType", marsTypeVal);
+                set_or_throw<std::string>(out, "marsStream", marsStreamVal);
+            }
             set_or_throw<std::string>(out, "expver", marsExpverVal);
         }
         catch (...) {
