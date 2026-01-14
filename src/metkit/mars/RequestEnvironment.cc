@@ -22,12 +22,7 @@
 
 namespace metkit::mars {
 
-RequestEnvironment::RequestEnvironment() : request_("environ") {
-    request_.setValue("host", eckit::Main::hostname());
-    request_.setValue("user", eckit::system::SystemInfo::instance().userName());
-    request_.setValue("pid", getpid());
-    request_.setValue("client", "cpp");
-}
+RequestEnvironment::RequestEnvironment(const RequestEnvironment& other) : env_(other.env_) {}
 
 void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
     // Split string on '/' and ignore empty splits
@@ -38,13 +33,36 @@ void RequestEnvironment::update(const std::map<std::string, std::string>& env) {
         return result;
     };
     for (const auto& [k, v] : env) {
-        request_.values(k, split(v));
+        env_->values(k, split(v));
     }
 }
 
-const RequestEnvironment& RequestEnvironment::instance() {
+void RequestEnvironment::initialize(const std::map<std::string, std::string>& env) {
+
+    RequestEnvironment& re = inst();
+    std::lock_guard<std::recursive_mutex> lock(re.init_);
+
+    re.env_.emplace("environ");
+    re.env_->setValue("host", eckit::Main::hostname());
+    re.env_->setValue("user", eckit::system::SystemInfo::instance().userName());
+    re.env_->setValue("pid", getpid());
+    re.env_->setValue("client", "unknown");
+
+    re.update(env);
+}
+
+RequestEnvironment& RequestEnvironment::inst() {
     static RequestEnvironment e;
     return e;
+}
+
+const RequestEnvironment& RequestEnvironment::instance() {
+    auto& re = RequestEnvironment::inst();
+    std::lock_guard<std::recursive_mutex> lock(re.init_);
+    if (!re.env_) {
+        throw eckit::SeriousBug("RequestEnvironment not initialized");
+    }
+    return re;
 }
 
 }  // namespace metkit::mars

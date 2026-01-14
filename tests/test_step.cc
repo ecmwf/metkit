@@ -17,7 +17,6 @@
 
 #include "eckit/testing/Test.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/Type.h"
 
@@ -30,7 +29,7 @@ using ::eckit::BadValue;
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
     static MarsLanguage language("retrieve");
-    language.type(name)->expand(DummyContext{}, values);
+    language.type(name)->expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -43,6 +42,7 @@ CASE("Test Step expansions") {
     assertTypeExpansion("step", {"30m", "1h", "1h30m", "120m"}, {"30m", "1", "1h30m", "2"});
     assertTypeExpansion("step", {"0-1"}, {"0-1"});
     assertTypeExpansion("step", {"30m-60m"}, {"30m-1"});
+    EXPECT_THROWS_AS(assertTypeExpansion("step", {"-1"}, {""}), BadValue);
     EXPECT_THROWS_AS(assertTypeExpansion("step", {"2-1"}, {""}), BadValue);
 
     assertTypeExpansion("step", {"0-3", "to", "9-12", "by", "3h"}, {"0-3", "3-6", "6-9", "9-12"});

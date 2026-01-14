@@ -21,9 +21,6 @@
 #include "eckit/message/Reader.h"
 #include "eckit/testing/Test.h"
 
-// #include "metkit/codes/CodesDecoder.h"
-// #include "metkit/codes/CodesSplitter.h"
-
 namespace metkit::codes::test {
 
 //----------------------------------------------------------------------------------------------------------------------

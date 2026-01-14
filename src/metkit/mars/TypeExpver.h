@@ -28,7 +28,7 @@ public:  // methods
 
     ~TypeExpver() noexcept override = default;
 
-    bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const override;
+    bool expand(std::string& value, const MarsRequest& request) const override;
 
 private:  // methods
 

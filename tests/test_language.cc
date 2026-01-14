@@ -20,7 +20,6 @@
 #include "eckit/types/Date.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -125,10 +124,18 @@ CASE("grid: reduced classical Gaussian grids") {
 // -----------------------------------------------------------------------------
 
 CASE("grid: HEALPix grids") {
-    for (const auto& n : make_power_sequence(2, 8192)) {
+    for (const auto& n : make_power_sequence(1, 8192)) {
         const Expected expected{"retrieve", {{"grid", {"H" + std::to_string(n)}}}};
         expect_mars("ret, date=-1, grid=H" + std::to_string(n), expected);
         expect_mars("ret, date=-1, grid=h" + std::to_string(n), expected);
+
+        const Expected expected_ring{"retrieve", {{"grid", {"HR" + std::to_string(n)}}}};
+        expect_mars("ret, date=-1, grid=Hr" + std::to_string(n), expected_ring);
+        expect_mars("ret, date=-1, grid=hR" + std::to_string(n), expected_ring);
+
+        const Expected expected_nested{"retrieve", {{"grid", {"HN" + std::to_string(n)}}}};
+        expect_mars("ret, date=-1, grid=Hn" + std::to_string(n), expected_nested);
+        expect_mars("ret, date=-1, grid=hN" + std::to_string(n), expected_nested);
     }
 }
 
@@ -255,7 +262,7 @@ CASE("check method: flatten()") {
         "500,date=20250717",
         true);
 
-    MarsLanguage("retrieve").flatten(DummyContext{}, request, output);
+    MarsLanguage("retrieve").flatten(request, output);
 
     EXPECT_EQUAL(output.oss.str(),
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="

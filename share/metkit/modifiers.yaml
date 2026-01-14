@@ -1,0 +1,341 @@
+---
+- context:
+    _verb: [list]
+    output: ['!', browser]
+    class: 'undefined'
+  set:
+    class: [od]
+
+# type = ob is already the default && stream comes after type in axis order
+# - context:
+#     _verb: [retrieve]
+#     stream: [ssmi]
+#   set:
+#     type: [ob]
+
+- context:
+    _verb: [list]
+    output: ['!', browser]
+    class: ['!', rd']
+  defaults:
+    type: [an]
+    stream: [oper]
+    expver: [0001]
+
+- context:
+    _verb: [list]
+    output: ['!', browser]
+    class: ['!', rd]
+    pseudodate: 'undefined'
+  defaults:
+    date: [-1]
+
+- context:
+    _verb: [list]
+    output: ['!', browser]
+    class: [rd]
+    expver: 'undefined'
+  error: "Missing expver. Please, specify one"
+
+- context:
+    class: [ti]
+  defaults:
+    stream: [enfo]
+- context:
+    class: ['!', ti]
+  defaults:
+    stream: [oper]
+
+- context:
+    _verb: [retrieve]
+    stream: [ssbt, e1, ssmi]
+  set:
+    stream: [oper]
+  warn: "Changed stream=oper"
+- context:
+    class: [ti]
+    type: [fc]
+  set:
+    stream: [oper]
+
+- context:
+    class: [ti, s2, ur, rr, lw]
+    expver: 'undefined'
+  set:
+    expver: [prod]
+
+- context:
+    class: [ml, ur, rr]
+  unset: [model]
+- context:
+    _verb: [retrieve]
+    class: [ai]
+  defaults:
+    model: [aifs-single-mse]
+
+- context:
+    class: ['!', d1]
+    dataset: ['!', on-demand-extremes-dt]
+  unset: [georef]
+
+- context:
+    type: ['!', oldim, ob, fb, ai, af, ab, tf, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+  unset: [obsgroup, obstype, duplicates]
+
+- context:
+    stream: ['!', ssmi]
+    type: [im, sim, oldim]
+  unset: [levtype, levelist, param, grid, rotation, duplicates]
+
+- context:
+    type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, ofa]
+  unset: [levtype]
+
+- context:
+    stream: [ssmi]
+  unset: [levtype, levelist, param, grid, rotation]
+
+# new default for levtype=ml, to be enabled later
+# - context:
+#     levtype: [ml]
+#   defaults:
+#     levelist: [1, 2]
+- context:
+    levtype: [ml, pl]
+  defaults:
+    levelist: [1000, 850, 700, 500, 400, 300]
+
+- context:
+    type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+  unset: [levelist]
+- context:
+    levtype: [o2d, sfc, wave, al]
+  unset: [levelist]
+- context:
+    class: [er]
+    levtype: [o3d]
+  unset: [levelist]
+- context:
+    section: [m, z]
+    product: [inst, tacc, tavg]
+    levtype: [dp]
+  unset: [levelist]
+- context:
+    section: [v]
+    product: [tims]
+    levtype: [dp]
+  unset: [levelist]
+
+- context:
+    type: [ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+  unset: [param]
+
+- context:
+    stream: [mfhm]
+    type: [em, es, ses]
+  unset: [date]
+- context:
+    stream: [mnfh]
+    type: [em, es, ses, ed]
+  unset: [date]
+- context:
+    stream: [clmn]
+  unset: [date]
+
+- context:
+    stream: ['!', enfh, enwh, efho, ehmm, ewho, eefh, weeh, efrf, wfrf, efsr, wfsr, wfcl, efcl]
+  unset: [hdate]
+
+- context:
+    class: [dm]
+    type: [fc]
+  set:
+    time: [0]
+- context:
+    type: [ab]
+  unset: [time]
+- context:
+    stream: [clmn, dame, mdfa]
+  unset: [time]
+- context:
+    class: ['!', er]
+    stream: [moda, msda, edmo, ewmo, wamd]
+  unset: [time]
+
+- context:
+    class: ['!', to, dt]
+  unset: [leadtim, opttime]
+- context:
+    stream: ['!', seap]
+  unset: [leadtime, opttime]
+
+- context:
+    stream: ['!', ssmi]
+    type: [im, oldim]
+  unset: [step]
+- context:
+    stream: [ssmi, mnfm, mfhm, mfam, mfwm, mhwm, esmm, ehmm, mawm, dame, sfmm, swmm, smma, mmsa]
+  unset: [step]
+- context:
+    type: [gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, cl, ofa]
+  unset: [step]
+- context:
+    class: ['!', er]
+    stream: [moda, msda, edmo, ewmo, wamd]
+  unset: [step]
+- context:
+    class: [ed,ng]
+  unset: [step]
+- context:
+    class: [d1]
+    dataset: [climate-dt]
+  unset: [step]
+
+- context:
+    stream: ['!', lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+  unset: [anoffset]
+- context:
+    stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
+    type: ['!', go, sfo, fu]
+  unset: [anoffset]
+
+- context:
+    class: [ti, s2]
+    type: [cf]
+  defaults:
+    number: [0]
+- context:
+    type: ['!', pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf, wp]
+    class: ['!', ti, lw, s2]
+    stream: ['!', mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
+  unset: [number]
+- context:
+    _verb: [retrieve, archive]
+    class: ['!', ti, s2]
+    type: [cf, em, es, ses, taem, taes]
+    stream: ['!', mofc, wamf, mofm, wmfm]
+  unset: [number]
+
+- context:
+    type: ['!', pd, cd, pb, taem, pfc]
+    unset: [quantile]
+
+- context:
+    class: ['!', d1, ed, ng, ms]
+  defaults:
+    domain: [g]
+- context:
+    class: [od]
+    type: [cm, cs, cr]
+    domain: [g]
+  set:
+    domain: [e]
+- context:
+    class: [ep]
+    levtype: [o2d, o3d]
+  unset: [domain]
+- context:
+    class: [d1, ng, ti, s2, ur, lw, rr, ed]
+  unset: [domain]
+
+- context:
+    type: ['!', im, sim, oldim, ob, fb, ai, af, ab, tf, ofb, mfb, ssd, oai, gsd, sfb, fsoifb, fcdfb, ofa]
+  unset: [ident]
+
+- context:
+    class: [ci, dt]
+  unset: [method]
+
+- context:
+    class: [ti, s2]
+  defaults:
+    origin: [ecmf]
+
+- context:
+    class: ['!', od, en, me, c3, ci]
+  unset: [system]
+
+- context:
+    accuracy: ['n']
+  unset: [accuracy]
+- context:
+    accuracy: [l, r]
+  set:
+    accuracy: [8]
+
+- context:
+    format: [p]
+  unset: [format]
+
+- context:
+    area: [e]
+  set:
+    area: [73.5,-27,33,45]
+
+- context:
+    grid: [av]
+  unset: [grid]
+- context:
+    type: [ai, ob, fb, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
+  unset: [grid, rotation]
+
+- context:
+    style: [dissemination]
+  set:
+    resol: [av]
+  warn: "Force resol=av when style=dissemination"
+- context:
+    style: [dissemination]
+    resol: [auto]
+  set:
+    resol: [av]
+  warn: "Force resol=av when style=dissemination"
+
+- context:
+    resol: [av]
+  set:
+    intgrid: [source]
+    truncation: [none]
+
+- context:
+    resol: [N128,N200]
+  set:
+    intgrid: _resol
+
+- context:
+    resol: ['!',av,auto,N128,N200]
+  set:
+    truncation: _resol
+
+- context:
+    _verb: [retrieve]
+    class: [ti]
+  defaults:
+    process: [local]
+
+- context:
+    _verb: [retrieve]
+    source: 'defined'
+  defaults:
+    database: [file]
+
+- context:
+    obsgroup: 'defined'
+  defaults:
+    duplicates: [keep]
+- context:
+    obstype: 'defined'
+  defaults:
+    duplicates: [keep]
+
+- context:
+    _verb: [retrieve]
+    class: [ti]
+  defaults:
+    padding: [0]
+
+- context:
+    class: [ms]
+    country: [it]
+  defaults:
+    grib: [ecmwf]

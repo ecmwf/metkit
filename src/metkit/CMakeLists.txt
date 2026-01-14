@@ -25,7 +25,6 @@ list( APPEND metkit_srcs
     mars/DHSProtocol.h
     mars/Matcher.cc
     mars/Matcher.h
-    mars/MarsExpandContext.cc
     mars/MarsExpandContext.h
     mars/MarsExpansion.cc
     mars/MarsExpansion.h
@@ -40,8 +39,6 @@ list( APPEND metkit_srcs
     mars/MarsParsedRequest.h
     mars/MarsParser.cc
     mars/MarsParser.h
-    mars/MarsParserContext.cc
-    mars/MarsParserContext.h
     mars/MarsRequest.cc
     mars/MarsRequest.h
     mars/MarsRequestHandle.cc
@@ -128,7 +125,6 @@ if ( HAVE_GRIB )
         pointdb/masks.h
         pointdb/PointIndex.cc
         pointdb/PointIndex.h
-        codes/CodesDecoder.h
         codes/BUFRDecoder.cc
         codes/BUFRDecoder.h
         codes/GRIBDecoder.cc
@@ -137,10 +133,6 @@ if ( HAVE_GRIB )
         codes/CodesContent.h
         codes/BufrContent.cc
         codes/BufrContent.h
-        codes/UserDataContent.cc
-        codes/UserDataContent.h
-        codes/DataContent.cc
-        codes/DataContent.h
         codes/MallocCodesContent.cc
         codes/MallocCodesContent.h
         codes/CodesSplitter.cc

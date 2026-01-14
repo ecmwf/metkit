@@ -26,10 +26,11 @@
 #include "eckit/memory/Counted.h"
 #include "eckit/value/Value.h"
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
+
+class MarsExpandContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -41,6 +42,8 @@ public:
     ContextRule(const std::string& k) : key_(k) {}
 
     virtual ~ContextRule() = default;
+
+    const std::string& key() const { return key_; }
 
     virtual bool matches(MarsRequest req) const = 0;
 
@@ -155,6 +158,8 @@ public:
     /// @note takes ownership of the rule
     void add(std::unique_ptr<ContextRule> rule);
 
+    size_t maxAxisIndex() const;
+
     bool matches(MarsRequest req) const;
 
     friend std::ostream& operator<<(std::ostream& s, const Context& x);
@@ -173,9 +178,8 @@ private:
 class ITypeToByList {
 public:
 
-    virtual ~ITypeToByList()                                    = default;
-    virtual void expandRanges(const MarsExpandContext& ctx, std::vector<std::string>& values,
-                              const MarsRequest& request) const = 0;
+    virtual ~ITypeToByList()                                                                      = default;
+    virtual void expandRanges(std::vector<std::string>& values, const MarsRequest& request) const = 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -187,20 +191,20 @@ public:  // methods
 
     ~Type() noexcept override = default;
 
-    virtual bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
-    void expand(const MarsExpandContext& ctx, std::vector<std::string>& values, const MarsRequest& request = {}) const;
+    virtual bool expand(std::string& value, const MarsRequest& request = {}) const;
+    [[deprecated]] bool expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request = {}) const;
+    void expand(std::vector<std::string>& values, const MarsRequest& request = {}) const;
 
-    std::string tidy(const std::string& value, const MarsExpandContext& ctx = DummyContext{},
-                     const MarsRequest& request = {}) const;
+    std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
 
     virtual void setDefaults(MarsRequest& request);
     virtual void setInheritance(const std::vector<std::string>& inheritance);
-    virtual void check(const MarsExpandContext& ctx, const std::vector<std::string>& values) const;
+    virtual void check(const std::vector<std::string>& values) const;
     virtual void clearDefaults();
     virtual void reset();
 
-    virtual void pass2(const MarsExpandContext& ctx, MarsRequest& request);
-    virtual void finalise(const MarsExpandContext& ctx, MarsRequest& request, bool strict);
+    virtual void pass2(MarsRequest& request);
+    virtual void finalise(MarsRequest& request, bool strict);
 
     virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
     virtual bool flatten() const;
@@ -225,6 +229,12 @@ protected:  // methods
         NOTIMP;
     }
 
+    friend class MarsLanguage;
+
+    void defaults(std::shared_ptr<Context> context, const std::vector<std::string>& values);
+    void set(std::shared_ptr<Context> context, const std::vector<std::string>& values);
+    void unset(std::shared_ptr<Context> context);
+
 protected:  // members
 
     std::string name_;
@@ -234,11 +244,11 @@ protected:  // members
     bool multiple_;
     bool duplicates_;
 
-    std::map<std::unique_ptr<Context>, std::vector<std::string>> defaults_;
+    std::map<std::shared_ptr<Context>, std::vector<std::string>> defaults_;
+    std::map<std::shared_ptr<Context>, std::vector<std::string>> sets_;
+    std::set<std::shared_ptr<Context>> unsets_;
+
     std::optional<std::vector<std::string>> inheritance_;
-    std::set<std::unique_ptr<Context>> only_;
-    std::map<std::unique_ptr<Context>, std::vector<std::string>> sets_;
-    std::set<std::unique_ptr<Context>> unsets_;
 
     std::unique_ptr<ITypeToByList> toByList_;
 
@@ -247,6 +257,7 @@ protected:  // members
 private:  // methods
 
     virtual void print(std::ostream& out) const = 0;
+    void patchRequest(MarsRequest& request, const std::vector<std::string>& values);
 };
 
 //----------------------------------------------------------------------------------------------------------------------

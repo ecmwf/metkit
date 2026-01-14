@@ -170,7 +170,7 @@ void parse(const std::string& req, ExpectedRequest& expected) {
         std::vector<std::string> vv;
         for (auto v : vals) {
             auto val = eckit::StringTools::trim(v);
-            if (key != "source" && key != "target") {
+            if (key != "source" && key != "target" && key != "intgrid" && key != "grid") {
                 val = eckit::StringTools::lower(val);
             }
             if (key == "date") {
@@ -455,12 +455,12 @@ CASE("test_metkit_expand_multirequest-3") {
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type(key);
-    EXPECT_THROWS_AS(t->expand(DummyContext{}, values), eckit::BadValue);
+    EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
     static metkit::mars::MarsLanguage language("retrieve");
     metkit::mars::Type* t = language.type(key);
-    t->expand(DummyContext{}, values);
+    t->expand(values);
     EXPECT_EQUAL(expected, values);
 }
 
@@ -1083,6 +1083,17 @@ CASE("test_metkit_expand_MARSC-211") {
     expand(text, expected);
 }
 
+CASE("test_metkit_expand_MARSC-243") {
+    // https://jira.ecmwf.int/browse/MARSC-243
+    const char* text =
+        "retrieve,DOMAIN=G,LEVTYPE=PL,LEVELIST=200,DATE=20040114,TIME=0000,PARAM=155.128,CLASS=OD,TYPE=FCMEAN,STREAM="
+        "MOFM,EXPVER=0001,NUMBER=0,SYSTEM=2,METHOD=1,FCPERIOD=5-11,target=\"reference.GP8yZ1.data\"";
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=FCMEAN,STREAM=MOFM,EXPVER=0001,REPRES=SH,LEVTYPE=PL,LEVELIST=200,PARAM=155,DATE="
+        "20040114,FCPERIOD=5-11,TIME=0000,NUMBER=0,DOMAIN=G,SYSTEM=2,METHOD=1,TARGET=reference.GP8yZ1.data";
+    expand(text, expected);
+}
+
 CASE("test_metkit_expand_MARSC-246") {
     // https://jira.ecmwf.int/browse/MARSC-246
     const char* text =
@@ -1093,6 +1104,26 @@ CASE("test_metkit_expand_MARSC-246") {
         "RETRIEVE,CLASS=OD,TYPE=OF,STREAM=OCEA,EXPVER=0001,REPRES=SH,LEVTYPE=DP,LEVELIST=0,PARAM=151175,DATE=20120201,"
         "TIME=0000,RANGE=264,STEP=288,NUMBER=0,DOMAIN=G,SYSTEM=3,METHOD=1,PRODUCT=TIMS,SECTION=Z,LATITUDE=-9.967,"
         "TARGET=reference.t2APXu.data";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_MARSC-253") {
+    // https://jira.ecmwf.int/browse/MARSC-253
+    const char* text =
+        "retrieve,class=od,type=tf,stream=enfo,expver=0001,repres=bu,obstype=32,date=20060112,time=0000/"
+        "1200,domain=g,duplicates=keep,target=\"data.reference\"";
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=TF,STREAM=ENFO,EXPVER=0001,REPRES=BU,OBSTYPE=32,DATE=20060112,TIME=0000/"
+        "1200,STEP=0,DOMAIN=G,TARGET=data.reference,DUPLICATES=KEEP";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_MARSC-254") {
+    // https://jira.ecmwf.int/browse/MARSC-254
+    const char* text = "retrieve,type=ob,date=20250414,time=00,range=1439,target=\"data.reference\"";
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=OB,STREAM=OPER,EXPVER=0001,REPRES=BU,OBSTYPE=1,DATE=20250414,TIME=0000,RANGE=1439,"
+        "DOMAIN=G,TARGET=data.reference,DUPLICATES=KEEP";
     expand(text, expected);
 }
 
@@ -1110,6 +1141,41 @@ CASE("test_metkit_expand_MARSC-306") {
         "-21/30/40.5,repres=sh,resol=N128";
 
     expand(text, expected);
+}
+
+// https://jira.ecmwf.int/browse/MARSC-433
+CASE("test_metkit_expand_MARSC-433") {
+    const std::string text =
+        "retrieve,CLASS=EA,DATE=20061212,DOMAIN=G,EXPVER=0001,LEVELIST=1/2/"
+        "3,LEVTYPE=ML,PARAM=152,REPRES=SH,RESOL=199,STREAM=DA,TIME=00/06/12/18,TYPE=AN";
+
+    const std::string expected =
+        "retrieve,CLASS=EA,DATE=20061212,DOMAIN=G,EXPVER=0001,LEVELIST=1/2/"
+        "3,LEVTYPE=ML,PARAM=152,REPRES=SH,truncation=199,STREAM=oper,TIME=0000/0600/1200/1800,TYPE=AN";
+
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_resol") {
+    {
+        const std::string text =
+            "retrieve,class=ea,date=20061212,domain=g,expver=1,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,resol=av,stream=da,time=00/06/12/18,type=an";
+        const std::string expected =
+            "retrieve,class=ea,date=20061212,domain=g,expver=0001,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,intgrid=source,truncation=none,stream=oper,time=0000/0600/1200/"
+            "1800,type=an";
+        expand(text, expected);
+    }
+    {
+        const std::string text =
+            "retrieve,class=ea,date=20061213,domain=g,expver=1,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,resol=N128,stream=da,time=00/06/12/18,type=an";
+        const std::string expected =
+            "retrieve,class=ea,date=20061213,domain=g,expver=0001,levelist=1/2/"
+            "3,levtype=ml,param=152,repres=sh,intgrid=N128,stream=oper,time=0000/0600/1200/1800,type=an";
+        expand(text, expected);
+    }
 }
 
 CASE("test_metkit_expand_coeffindex") {
@@ -1226,8 +1292,6 @@ CASE("test_metkit_disseminate") {
 
     expand(text, expected, false);
 }
-
-
 CASE("test_metkit_disseminate_params-static") {
     const char* text =
         "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,date=20250807,time=0000,type=an,step="

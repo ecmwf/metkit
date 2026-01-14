@@ -17,7 +17,6 @@
 #include "eckit/types/Types.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypesFactory.h"
 
@@ -74,7 +73,7 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class Rule : public metkit::mars::MarsExpandContext {
+class Rule {
 
     std::vector<Matcher> matchers_;
 
@@ -87,7 +86,7 @@ class Rule : public metkit::mars::MarsExpandContext {
 public:
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
-    std::string lookup(const MarsExpandContext& ctx, const std::string& s, bool fail) const;
+    std::string lookup(const std::string& s, bool fail) const;
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
@@ -101,11 +100,6 @@ public:
             sep = ",";
         }
         out << "}";
-    }
-
-    void info(std::ostream& out) const {
-        out << " ";
-        print(out);
     }
 
     friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
@@ -235,24 +229,7 @@ bool Rule::match(const metkit::mars::MarsRequest& request, bool partial) const {
     return true;
 }
 
-class ChainedContext : public metkit::mars::MarsExpandContext {
-    const MarsExpandContext& ctx1_;
-    const MarsExpandContext& ctx2_;
-
-    void info(std::ostream& out) const {
-        out << ctx1_;
-        out << ctx2_;
-        // out << ctx1_ << ctx2_;
-    }
-
-
-public:
-
-    ChainedContext(const MarsExpandContext& ctx1, const MarsExpandContext& ctx2) : ctx1_(ctx1), ctx2_(ctx2) {}
-};
-
-
-std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, bool fail) const {
+std::string Rule::lookup(const std::string& s, bool fail) const {
 
     size_t table = 0;
     size_t param = 0;
@@ -296,6 +273,9 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
             table = 0;
         }
 
+        if (table > 0 && param >= 1000) {
+            throw eckit::UserError("Unrecognised format for parameter " + s, Here());
+        }
         oss << table * 1000 + param;
 
         std::string p = oss.str();
@@ -311,17 +291,15 @@ std::string Rule::lookup(const MarsExpandContext& ctx, const std::string& s, boo
             }
         }
 
-        throw eckit::UserError("Cannot match parameter " + p);
+        throw eckit::UserError("Cannot match parameter " + p, Here());
     }
 
-    ChainedContext c(ctx, *this);
-
-    std::string paramid = metkit::mars::MarsLanguage::bestMatch(c, s, values_, false, false, true, mapping_);
+    std::string paramid = metkit::mars::MarsLanguage::bestMatch(s, values_, false, false, true, mapping_);
     if (!paramid.empty()) {
         return paramid;
     }
 
-    return metkit::mars::MarsLanguage::bestMatch(c, s, defaultValues_, fail, false, false, defaultMapping_);
+    return metkit::mars::MarsLanguage::bestMatch(s, defaultValues_, fail, false, false, defaultMapping_);
 }
 
 static std::vector<Rule>* rules = nullptr;
@@ -451,7 +429,7 @@ void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
+void TypeParam::pass2(MarsRequest& request) {
 
     pthread_once(&once, init);
 
@@ -481,7 +459,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s    = r.lookup(ctx, s, fail);
+                            s    = r.lookup(s, fail);
                             rule = &r;
                             Log::warning() << "TypeParam: using 'first matching rule' option " << r << std::endl;
                         }
@@ -517,7 +495,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
         try {
-            s = rule->lookup(ctx, s, fail);
+            s = rule->lookup(s, fail);
         }
         catch (...) {
             Log::error() << *rule << std::endl;
@@ -528,7 +506,7 @@ void TypeParam::pass2(const MarsExpandContext& ctx, MarsRequest& request) {
     request.setValuesTyped(this, values);
 }
 
-bool TypeParam::expand(const MarsExpandContext&, std::string&, const MarsRequest&) const {
+bool TypeParam::expand(std::string&, const MarsRequest&) const {
     // Work done on pass2()
     return true;
 }

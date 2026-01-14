@@ -112,7 +112,7 @@ void TypeEnum::print(std::ostream& out) const {
     out << "TypeEnum[name=" << name_ << "]";
 }
 
-bool TypeEnum::expand(const MarsExpandContext& ctx, std::string& value, const MarsRequest& request) const {
+bool TypeEnum::expand(std::string& value, const MarsRequest& request) const {
     auto it = find(value);
     if (it == values_.end()) {
         return false;

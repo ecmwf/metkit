@@ -14,22 +14,34 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsLanguage_H
-#define metkit_MarsLanguage_H
+#pragma once
+
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "eckit/memory/NonCopyable.h"
+
 #include "metkit/mars/MarsRequest.h"
 
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
-class Type;
+class Context;
 class FlattenCallback;
-class MarsExpandContext;
+class Type;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class ModifierType {
+    DEFAULT,
+    SET,
+    UNSET
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class MarsLanguage : private eckit::NonCopyable {
 
@@ -39,13 +51,13 @@ public:  // methods
 
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsExpandContext& ctx, const MarsRequest& r, bool inherit, bool strict);
+    MarsRequest expand(const MarsRequest& r, bool inherit, bool strict);
 
     void reset();
 
     const std::string& verb() const;
 
-    void flatten(const MarsExpandContext& ctx, const MarsRequest& request, FlattenCallback& callback);
+    void flatten(const MarsRequest& request, FlattenCallback& callback);
 
     static eckit::PathName languageYamlFile();
 
@@ -60,11 +72,10 @@ public:  // methods
 
 public:  // class methods
 
-    static std::string expandVerb(const MarsExpandContext&, const std::string& verb);
+    static std::string expandVerb(const std::string& verb);
 
-    static std::string bestMatch(const MarsExpandContext& ctx, const std::string& name,
-                                 const std::vector<std::string>& values, bool fail, bool quiet, bool fullMatch,
-                                 const std::map<std::string, std::string>& aliases = {});
+    static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
+                                 bool fullMatch, const std::map<std::string, std::string>& aliases = {});
 
     static eckit::Value jsonFile(const std::string& name);
 
@@ -73,6 +84,7 @@ private:  // methods
 
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
                  FlattenCallback& callback);
+    void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
 
 private:  // members
 
@@ -91,7 +103,4 @@ private:  // members
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars
