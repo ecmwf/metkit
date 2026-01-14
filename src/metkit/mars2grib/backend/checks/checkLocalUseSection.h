@@ -66,7 +66,7 @@ void check_LocalUseSection_or_throw(const OptDict_t& opt, const OutDict_t& out) 
 
         if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
 
-            long localUsePresent = get_or_throw<long>(out, "LocalUsePresent");
+            long localUsePresent = get_or_throw<long>(out, "localUsePresent");
 
             if (localUsePresent == 0) {
                 throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
