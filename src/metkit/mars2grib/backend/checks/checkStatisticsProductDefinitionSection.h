@@ -68,10 +68,11 @@ void check_StatisticsProductDefinitionSection_or_throw(const OptDict_t& opt, con
 
         if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
 
-            bool hasNumberOfTimeRanges = has(out, "numberOfTimeRanges");
+            bool hasNumberOfTimeRanges          = has(out, "numberOfTimeRanges");
+            bool hasTypeOfStatisticalProcessing = has(out, "typeOfStatisticalProcessing");
 
             // Statistics product needs to have numberOfTimeRanges defined in the Product Definition Section
-            if (!hasNumberOfTimeRanges) {
+            if (!hasNumberOfTimeRanges || !hasTypeOfStatisticalProcessing) {
                 throw Mars2GribValidationException("Product Definition Section is not of Statistics type", Here());
             }
 
