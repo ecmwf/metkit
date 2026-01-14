@@ -170,9 +170,9 @@ void MarsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, 
             std::string marsExpverVal = deductions::resolve_Expver_or_throw(mars, par, opt);
 
             // Encoding
-            set_or_throw<std::string>(out, "class", marsClassVal);
-            set_or_throw<std::string>(out, "type", marsTypeVal);
-            set_or_throw<std::string>(out, "stream", marsStreamVal);
+            set_or_throw<std::string>(out, "marsClass", marsClassVal);
+            set_or_throw<std::string>(out, "marsType", marsTypeVal);
+            set_or_throw<std::string>(out, "marsStream", marsStreamVal);
             set_or_throw<std::string>(out, "expver", marsExpverVal);
         }
         catch (...) {
