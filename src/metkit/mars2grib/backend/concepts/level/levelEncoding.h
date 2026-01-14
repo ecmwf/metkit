@@ -105,8 +105,32 @@ constexpr bool needLevel() {
                   Variant == LevelType::HeightAboveSeaAt2M || Variant == LevelType::HeightAboveSea ||
                   Variant == LevelType::Hybrid || Variant == LevelType::IsobaricInHpa ||
                   Variant == LevelType::IsobaricInPa || Variant == LevelType::Isothermal ||
-                  Variant == LevelType::PotentialVorticity || Variant == LevelType::SeaIceLayer ||
-                  Variant == LevelType::SnowLayer || Variant == LevelType::SoilLayer || Variant == LevelType::Theta) {
+                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta) {
+        return true;
+    }
+    else {
+        return false;
+    }
+
+    // Remove compiler warning
+    __builtin_unreachable();
+}
+
+/**
+ * @brief Compile-time predicate indicating whether a numeric `topLevel` and `bottomLevel` value is required.
+ *
+ * Some level types require two associated numeric levels (e.g. soilLayer),
+ * while others encode only the level type and/or level.
+ *
+ * @tparam Variant Level concept variant
+ *
+ * @return `true` if a numeric `topLevel` and `bottomLevel` value must be set,
+ *         `false` otherwise.
+ */
+template <LevelType Variant>
+constexpr bool needTopBottomLevel() {
+    if constexpr (Variant == LevelType::SoilLayer || Variant == LevelType::SeaIceLayer ||
+                  Variant == LevelType::SnowLayer) {
         return true;
     }
     else {
@@ -267,6 +291,17 @@ void LevelOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par,
                     if constexpr (needLevel<Variant>()) {
                         long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
                         set_or_throw<long>(out, "level", levelVal);
+                    }
+                    if constexpr (needLevel<Variant>()) {
+                        long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
+                        set_or_throw<long>(out, "level", levelVal);
+                    }
+                    if constexpr (needTopBottomLevel<Variant>()) {
+                        long levelVal    = deductions::resolve_Level_or_throw(mars, par, opt);
+                        long topLevel    = levelVal - 1;
+                        long bottomLevel = levelVal;
+                        set_or_throw<long>(out, "topLevel", topLevel);
+                        set_or_throw<long>(out, "bottomLevel", bottomLevel);
                     }
                 }
             }
