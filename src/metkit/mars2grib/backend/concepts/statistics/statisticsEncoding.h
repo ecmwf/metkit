@@ -163,6 +163,7 @@ void StatisticsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t&
 
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
+    using metkit::mars2grib::utils::dict_traits::setMissing_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
 
@@ -184,6 +185,8 @@ void StatisticsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t&
                 validation::check_StatisticsProductDefinitionSection_or_throw(opt, out);
 
                 // Encoding
+                setMissing_or_throw(out, "hoursAfterDataCutoff");
+                setMissing_or_throw(out, "minutesAfterDataCutoff");
                 set_or_throw<long>(out, "numberOfTimeRanges", numberOfTimeRangesVal);
             }
 
