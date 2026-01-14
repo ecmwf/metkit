@@ -85,13 +85,12 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
     try {
 
         // Default value in hours
-        constexpr long defaultLengthOfTimeWindowHours = 12;
+        constexpr long defaultLengthOfTimeWindowHours = 0xFFFF;  // Missing
 
-        // Two big assumptions here:
+        // Big assumption here:
         // - lengthOfTimeWindow is in hours
-        // - lengthOfTimeWindow default value is 12 hours
-        if (has(mars, "lengthOfTimeWindow")) {
-            long lengthOfTimeWindowVal = get_or_throw<long>(mars, "lengthOfTimeWindow");
+        if (has(par, "lengthOfTimeWindow")) {
+            long lengthOfTimeWindowVal = get_or_throw<long>(par, "lengthOfTimeWindow");
 
             // Logging of the par::lengthOfTimeWindow
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -109,11 +108,11 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
             // Logging of the par::lengthOfTimeWindow
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "WARNING: ";
-                logMsg += "`lengthOfTimeWindow` assume to be 12hours as default value.";
+                logMsg += "`lengthOfTimeWindow` is missing!";
                 return logMsg;
             }());
 
-            return defaultLengthOfTimeWindowHours * 3600;  // Default to 12 hours in seconds
+            return defaultLengthOfTimeWindowHours * 3600;  // Convert hours to seconds
         }
     }
     catch (...) {
