@@ -21,7 +21,7 @@ inline bool checksEnabled(const OptDict& opt) {
         return false;
     }
     else {
-        return get_opt<bool>(opt, "applyChecks").value_or(false);
+        return get_opt<bool>(opt, "applyChecks").value_or(true);
     }
 
 
