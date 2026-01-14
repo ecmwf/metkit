@@ -120,13 +120,13 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
                                                              [[maybe_unused]] const ParDict_t& par,
                                                              [[maybe_unused]] const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
         // Retrieve mandatory MARS model identifier
-        std::string marsModelVal = get_or_throw<std::string>(mars, "model");
+        std::string marsModelVal = get_opt<std::string>(mars, "model").value_or("ifs");
 
         // Apply BackgroundProcess mapping logic
         tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);

@@ -185,7 +185,7 @@ void GeneratingProcessOp(const MarsDict_t& mars, const GeoDict_t& geo, const Par
             /// This is a legacy artifact of the previous encoder implementation and
             /// relies on ecCodes implicitly setting `backgroundProcess` from
             /// `mars::model`.
-            if (bool useModel = get_opt<bool>(opt, "useModelForBackgroundProcess").value_or(true); useModel) {
+            if (bool useModel = get_opt<bool>(opt, "useModelForBackgroundProcess").value_or(false); useModel) {
                 std::string modelVal = get_opt<std::string>(mars, "model").value_or("ifs");
                 set_or_throw<std::string>(out, "model", modelVal);
             }
