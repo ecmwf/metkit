@@ -129,6 +129,21 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
+        else if (marsTypeVal == "pf" || marsTypeVal == "cf") {
+
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
         else {
 
             // Emit RESOLVE log entry
