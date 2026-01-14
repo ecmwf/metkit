@@ -82,10 +82,6 @@ public:
 
     virtual ~CodesHandle() = default;
 
-    /// Retrieve binary size of the handled message.
-    /// @return Size of the message in bytes.
-    virtual size_t messageSize() const = 0;
-
     /// Check if a key is defined.
     /// @param key Name of the field that is checked to be defined.
     /// @return True if the field is defined.
@@ -273,6 +269,21 @@ public:
     virtual void copyInto(uint8_t* data, size_t size) const = 0;
 
 
+    /// Retrieve binary size of the handled message.
+    /// @return Size in bytes of the message.
+    virtual size_t messageSize() const = 0;
+
+    /// Return the pointer to the underlying buffer.
+    /// @return Contiguous array to the underlying buffer as a span.
+    ///         No data is copied or owned, lifetime is bound to this handle.
+    /// @see    messageSize()
+    virtual Span<const uint8_t> messageData() const = 0;
+
+    /// Retrieve offset of the handled message.
+    /// @return Offset in bytes of the message in the underlying buffer.
+    virtual int64_t messageOffset() const = 0;
+
+
     /// Iterate keys in a GRIB2 or BUFR handle.
     ///
     /// @param flags Iterator flags to filter keys
@@ -356,8 +367,10 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
 /// The user needs to maintain the lifetime of the passed array.
 /// @param file Pointer to a implementation dependent file handle containing a BUFR or GRIB message.
 /// @param product The intented type of handle that is supposed to be loaded (BUFR or GRIB).
+/// @param offset  Optional: An offset in bytes within the file where the actual message starts.
 /// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product);
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product,
+                                                 std::optional<int64_t> offset = std::optional<int64_t>{});
 
 
 //----------------------------------------------------------------------------------------------------------------------

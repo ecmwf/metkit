@@ -69,6 +69,8 @@ public:
 
 
     size_t messageSize() const override;
+    int64_t messageOffset() const override;
+    Span<const uint8_t> messageData() const override;
     bool isDefined(const std::string& key) const override;
     bool isMissing(const std::string& key) const override;
     bool has(const std::string& key) const override;
@@ -135,6 +137,12 @@ size_t OwningCodesHandle::messageSize() const {
     size_t size;
     throwOnError(codes_get_message_size(raw(), &size), Here(), "CodesHandle::messageSize()");
     return size;
+}
+
+int64_t OwningCodesHandle::messageOffset() const {
+    int64_t offset;
+    throwOnError(codes_get_message_offset(raw(), &offset), Here(), "CodesHandle::messageOffset()");
+    return offset;
 }
 
 bool OwningCodesHandle::isDefined(const std::string& key) const {
@@ -365,6 +373,15 @@ std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
 void OwningCodesHandle::copyInto(uint8_t* data, size_t size) const {
     std::size_t s = size;
     throwOnError(codes_get_message_copy(raw(), data, &s), Here(), "CodesHandle::copy(uint8_t*, size_t*)");
+}
+
+/// Copy the message into a new allocated buffer
+Span<const uint8_t> OwningCodesHandle::messageData() const {
+    size_t s;
+    const uint8_t* data;
+    throwOnError(codes_get_message(raw(), reinterpret_cast<const void**>(&data), &s), Here(),
+                 "CodesHandle::messageData()");
+    return {data, s};
 }
 
 
@@ -654,7 +671,8 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
         std::unique_ptr<codes_handle>(codes_handle_new_from_samples(NULL, sampleName.c_str())));
 }
 
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product) {
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product,
+                                                 std::optional<int64_t> offset) {
     int err = 0;
     std::unique_ptr<codes_handle> ret;
 
@@ -662,6 +680,10 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
     if (file == nullptr) {
         throw CodesException(std::string("Error opening file ") + fpath, Here());
+    }
+
+    if (offset) {
+        fseek(file, *offset, SEEK_SET);
     }
 
     switch (product) {
