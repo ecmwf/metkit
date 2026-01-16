@@ -67,6 +67,15 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
+namespace math {
+
+constexpr long double pi = 3.141592653589793238462643383279502884L;
+
+constexpr long double deg2rad = pi / 180.0L;
+constexpr long double rad2deg = 180.0L / pi;
+
+}  // namespace math
+
 /**
  * @brief Metadata and scaled representation of a wave direction grid.
  *
@@ -252,8 +261,8 @@ WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<double>& wav
     out.scaleFactorDirections = scaleFactorOfWaveDirections;
     out.scaledValuesDirections.resize(waveDirectionsInRadians.size());
     for (long i = 0; i < static_cast<long>(waveDirectionsInRadians.size()); ++i) {
-        out.scaledValuesDirections[i] =
-            static_cast<long>(std::round(waveDirectionsInRadians[i] * std::pow(10.0, scaleFactorOfWaveDirections)));
+        out.scaledValuesDirections[i] = static_cast<long>(
+            std::round(waveDirectionsInRadians[i] * std::pow(10.0, scaleFactorOfWaveDirections) * math::rad2deg));
     }
 
     return out;
