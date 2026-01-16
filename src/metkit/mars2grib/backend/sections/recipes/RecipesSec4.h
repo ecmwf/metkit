@@ -109,9 +109,13 @@ inline const std::vector<SectionRecipe> Sec4Recipes = {
      {C("generatingProcess"), C("statistics"), C("level"), C("composition", "aerosolOptical"), C("param"),
       C("ensemble", "individual")}},
 
-    {60, {C("generatingProcess"), C("referenceTime", "reforecast"), C("pointInTime"), C("level"), C("param"), C("ensemble", "individual")}},
+    {60,
+     {C("generatingProcess"), C("referenceTime", "reforecast"), C("pointInTime"), C("level"), C("param"),
+      C("ensemble", "individual")}},
 
-    {61, {C("generatingProcess"), C("referenceTime", "reforecast"), C("statistics"), C("level"), C("param"), C("ensemble", "individual")}},
+    {61,
+     {C("generatingProcess"), C("referenceTime", "reforecast"), C("statistics"), C("level"), C("param"),
+      C("ensemble", "individual")}},
 
     {76, {C("generatingProcess"), C("pointInTime"), C("level"), C("composition", "chemicalSource"), C("param")}},
 
