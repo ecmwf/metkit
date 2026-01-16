@@ -204,6 +204,11 @@ ConceptRegistry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> make_con
     RegisterVariants<TablesConceptInfo, TablesList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
 
+
+    RegisterVariants<DerivedConceptInfo, DerivedList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
+        registry);
+
+
     RegisterVariants<DataTypeConceptInfo, DataTypeList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
 
