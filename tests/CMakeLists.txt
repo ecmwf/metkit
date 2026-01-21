@@ -14,11 +14,12 @@ elseif( IS_DIRECTORY "${CMAKE_BINARY_DIR}/share/eccodes/definitions" )
   list(APPEND metkit_env "ECCODES_DEFINITION_PATH=${CMAKE_BINARY_DIR}/share/eccodes/definitions")
 endif()
 
-
+if ( HAVE_GRIB )
 ecbuild_get_test_multidata( TARGET grib_get_data
                             DIRNAME grib_api/data
                             NAMES latlon.grib
                                   synthetic_2msgs.grib )
+endif()
 
 ecbuild_get_test_multidata( TARGET metkit_get_odb_data
                             NAMES multiodb.odb
