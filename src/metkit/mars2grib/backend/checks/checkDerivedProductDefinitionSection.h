@@ -1,0 +1,98 @@
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+#pragma once
+
+#include <string>
+
+#include "eckit/log/Log.h"
+
+#include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/enableOptions.h"
+#include "metkit/mars2grib/utils/logUtils.h"
+#include "metkit/mars2grib/utils/mars2grib-exception.h"
+
+namespace metkit::mars2grib::backend::validation {
+
+/**
+ * @brief Check that the GRIB Product Definition Section corresponds to an Derived forecast,
+ *        when validation is enabled.
+ *
+ * This function verifies that the GRIB *Product Definition Section* indicates an
+ * Derived forecast based on the runtime configuration provided in the options dictionary.
+ *
+ * The check is performed **only if** the option `applyChecks` is present in
+ * the options dictionary (`opt`) and evaluates to `true`.
+ *
+ * When enabled, the function checks for the presence of the following keys
+ * in the output dictionary (`out`):
+ * - `derivedForecast`
+ * - `numberOfForecastsInEnsemble`
+ *
+ * If any of these keys are missing, an exception is raised indicating that
+ * the Product Definition Section is not of Derived type.
+ *
+ * Any failure occurring during dictionary access or validation is caught and
+ * rethrown as a nested `Mars2GribValidationException` with additional context.
+ *
+ * @tparam OptDict_t Type of the options dictionary
+ * @tparam OutDict_t Type of the output dictionary
+ *
+ * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+ * @param[in] out Output dictionary; must contain the keys required for Derived check
+ *                when checks are enabled
+ *
+ * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+ *         If:
+ *         - `applyChecks` is `true` and any of the required keys are missing
+ *         - any error occurs while accessing the dictionaries
+ *
+ * @note
+ * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+ * - The function returns normally on success and does not produce any output.
+ */
+template <class OptDict_t, class OutDict_t>
+void check_DerivedProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
+
+    using metkit::mars2grib::utils::checksEnabled;
+    using metkit::mars2grib::utils::dict_traits::has;
+    using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
+
+    try {
+
+        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+
+            bool hasDerivedForecast             = has(out, "derivedForecast");
+            bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
+
+            // Derived forecast needs to have all 2 fields defined in the Product Definition Section
+            if (!(hasDerivedForecast && hasNumberOfForecastsInEnsemble)) {
+                throw Mars2GribValidationException("Product Definition Section does not represent a Derived forecast",
+                                                   Here());
+            }
+
+            // Useful for debugging
+            MARS2GRIB_LOG_CHECK("Validated Derived Product Definition Section");
+        }
+
+        // Exit point with success
+        return;
+    }
+    catch (...) {
+
+        // Rethrow nested exceptions
+        std::throw_with_nested(
+            Mars2GribValidationException("Unable to validate Derived Product Definition Section", Here()));
+    };
+
+    // Remove compiler warning
+    __builtin_unreachable();
+};
+
+}  // namespace metkit::mars2grib::backend::validation

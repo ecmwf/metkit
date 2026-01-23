@@ -184,6 +184,18 @@ if ( HAVE_ODB )
     set( odc_libs odccore )
 endif()
 
+if ( HAVE_MARS2GRIB )
+    list( APPEND metkit_srcs
+        mars2grib/api/Mars2Grib.cc
+        mars2grib/api/Mars2Grib.h
+        mars2grib/frontend/encoderConfig.cc
+        mars2grib/frontend/level.cc
+        mars2grib/frontend/pdt.cc
+        mars2grib/frontend/statistical.cc
+        mars2grib/frontend/time.cc
+    )
+endif()
+
 ecbuild_add_library(
 
     TARGET metkit
@@ -212,3 +224,7 @@ ecbuild_add_library(
         eckit_option
         ${grib_libs}
 )
+
+if( HAVE_MARS2GRIB_PYTHON )
+    add_subdirectory(mars2grib/api/python)
+endif()
