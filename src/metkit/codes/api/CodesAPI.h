@@ -192,12 +192,19 @@ public:
     /// @param value Value the field is supposed to be set on.
     virtual void forceSet(const std::string& key, Span<const float> value) = 0;
 
-    /// Returns the number of elements contained for a given key
+    /// Returns the number of elements contained for a given key.
     ///
     /// Can be used to determine if a field is storing a scalar or an array.
     /// @param key Name of the field that is supposed to be inspected.
-    /// @return For given scalars 1 is returned. For given arrays the size of the array is returned..
+    /// @return For given scalars 1 is returned. For given arrays the size of the array is returned.
     virtual size_t size(const std::string& key) const = 0;
+
+    /// Calls `string_length` on the accessor of a field and returns its value.
+    ///
+    /// @param key Name of the field that is supposed to be inspected.
+    /// @return Value of the `string_length` method of the underlying accessor of the key.
+    /// @see ecCodes documentation for more information.
+    virtual size_t length(const std::string& key) const = 0;
 
     /// Get the value of the key.
     ///
