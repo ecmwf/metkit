@@ -70,6 +70,7 @@ public:
 
 
     size_t messageSize() const override;
+    Span<const uint8_t> messageData() const override;
     bool isDefined(const std::string& key) const override;
     bool isMissing(const std::string& key) const override;
     bool has(const std::string& key) const override;
@@ -138,6 +139,7 @@ size_t OwningCodesHandle::messageSize() const {
     throwOnError(codes_get_message_size(raw(), &size), Here(), "CodesHandle::messageSize()");
     return size;
 }
+
 
 bool OwningCodesHandle::isDefined(const std::string& key) const {
     return codes_is_defined(raw(), key.c_str()) == 1;
@@ -373,6 +375,15 @@ std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
 void OwningCodesHandle::copyInto(uint8_t* data, size_t size) const {
     std::size_t s = size;
     throwOnError(codes_get_message_copy(raw(), data, &s), Here(), "CodesHandle::copy(uint8_t*, size_t*)");
+}
+
+/// Copy the message into a new allocated buffer
+Span<const uint8_t> OwningCodesHandle::messageData() const {
+    size_t s;
+    const uint8_t* data;
+    throwOnError(codes_get_message(raw(), reinterpret_cast<const void**>(&data), &s), Here(),
+                 "CodesHandle::messageData()");
+    return {data, s};
 }
 
 
