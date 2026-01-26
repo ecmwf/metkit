@@ -585,6 +585,7 @@ _field: &_field
       - [al, abstract levels]
       - [ml, model levels]
       - [pl, pressure levels]
+      - [fl, flight levels]
       - [hl, height levels]
       - [pt, potential temperature]
       - [pv, potential vorticity]
