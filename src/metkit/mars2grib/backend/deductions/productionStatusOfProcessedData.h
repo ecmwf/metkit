@@ -109,47 +109,33 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
 
     try {
 
-        // Get mars type from dictionary
-        std::string marsClass  = get_or_throw<std::string>(mars, "class");
-        std::string marsType   = get_or_throw<std::string>(mars, "type");
-        std::string marsStream = get_or_throw<std::string>(mars, "stream");
+        // TODO: Here we set the default to operational product; will need to clarify exact logic with DGOV
+        // It will probably need to be inferred from "type", "class", "stream"
+        auto productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::OperationalProducts;
 
-        // Deduce typeOfProcessedData from mars type
+        const auto marsClass = get_or_throw<std::string>(mars, "class");
+
+        // Deduce typeOfProcessedData from mars class
         if (marsClass == "d1") {
-            // This is mandatory for DestinE because it is used inside eccodes
-            // to allocate the proper "localUseSection" template.
-            // Setting this keyword reallocate the local use section.
-
-            tables::ProductionStatusOfProcessedData pspd = tables::ProductionStatusOfProcessedData::DestinationEarth;
-
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`productionStatusOfProcessedData` resolved from input dictionaries: value='";
-                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(pspd);
-                logMsg += "'";
-                return logMsg;
-            }());
-
-            // Success exit point
-            return pspd;
+            // This is mandatory for DestinE because it is used inside eccodes to allocate the proper "localUseSection"
+            // template. Setting this keyword reallocate the local use section.
+            productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::DestinationEarth;
         }
-        else {
-            // TODO: Here we set the default to operational product; will need to clarify exact logic with DGOV
-            // It will probably need to be inferred from "type", "class", "stream"
+        else if (marsClass == "e6") {
+            // Special handling for ERA6
+            productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::ReanalysisProducts;
+        }
 
-            tables::ProductionStatusOfProcessedData pspd = tables::ProductionStatusOfProcessedData::OperationalProducts;
+        // Emit RESOLVE log entry
+        MARS2GRIB_LOG_RESOLVE([&]() {
+            std::string logMsg = "`productionStatusOfProcessedData` resolved from input dictionaries: value='";
+            logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData);
+            logMsg += "'";
+            return logMsg;
+        }());
 
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`productionStatusOfProcessedData` resolved from input dictionaries: value='";
-                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(pspd);
-                logMsg += "'";
-                return logMsg;
-            }());
-
-            // Success exit point
-            return pspd;
-        };
+        // Success exit point
+        return productionStatusOfProcessedData;
 
         // Remove compiler warning
         __builtin_unreachable();
