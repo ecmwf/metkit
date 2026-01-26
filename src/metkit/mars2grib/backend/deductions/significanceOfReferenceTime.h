@@ -49,6 +49,7 @@
 #pragma once
 
 // System includes
+#include <algorithm>
 #include <string>
 
 // Tables includes
@@ -107,26 +108,31 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
 
     try {
 
-        tables::SignificanceOfReferenceTime result = tables::SignificanceOfReferenceTime::Missing;
+        auto significanceOfReferenceTime = tables::SignificanceOfReferenceTime::Missing;
 
         // Retrieve mandatory type from Mars dictionary
         auto marsType = get_or_throw<std::string>(mars, "type");
 
-        constexpr std::array<std::string_view, 19> analysisTypes = {{"an", "ia", "oi", "3v", "4v", "3g", "4g", "ea",
-                                                                     "4i", "pa", "tpa", "ga", "gai", "ai", "af", "ab",
-                                                                     "oai", "ga", "gai"}};
+        constexpr std::array<std::string_view, 17> analysisTypes = {
+            {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
 
-        constexpr std::array<std::string_view, 33> forecastTypes = {
-            {"fc",     "cf",    "pf",    "cm",      "fp",  "em",  "es",   "fa",   "efi",    "efic", "bf",
-             "cd",     "me",    "wem",   "wes",     "cr",  "ses", "taem", "taes", "sg",     "sf",   "if",
-             "fcmean", "fcmax", "fcmin", "fcstdev", "ssd", "tf",  "bf",   "cd",   "hcmean", "s3",   "si"}};
+        constexpr std::array<std::string_view, 32> forecastTypes = {
+            {"fc",    "cf",    "pf",      "cm",  "fp",  "em",   "es",   "fa",     "efi", "efic", "bf",
+             "cd",    "wem",   "wes",     "cr",  "ses", "taem", "taes", "sg",     "sf",  "if",   "fcmean",
+             "fcmax", "fcmin", "fcstdev", "ssd", "tf",  "bf",   "cd",   "hcmean", "s3",  "si"}};
+
+        constexpr std::array<std::string_view, 4> startOfDataAssimilationTypes = {{"4i", "4v", "me", "eme"}};
 
         if (std::any_of(analysisTypes.begin(), analysisTypes.end(), [&marsType](auto v) { return marsType == v; })) {
-            result = tables::SignificanceOfReferenceTime::Analysis;
+            significanceOfReferenceTime = tables::SignificanceOfReferenceTime::Analysis;
         }
         else if (std::any_of(forecastTypes.begin(), forecastTypes.end(),
                              [&marsType](auto v) { return marsType == v; })) {
-            result = tables::SignificanceOfReferenceTime::ForecastStart;
+            significanceOfReferenceTime = tables::SignificanceOfReferenceTime::ForecastStart;
+        }
+        else if (std::any_of(startOfDataAssimilationTypes.begin(), startOfDataAssimilationTypes.end(),
+                             [&marsType](auto v) { return marsType == v; })) {
+            significanceOfReferenceTime = tables::SignificanceOfReferenceTime::AssimilationStart;
         }
         else {
             // Unhandled cases
@@ -137,13 +143,13 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
             std::string logMsg = "`significanceOfReferenceTime` resolved from input dictionaries: value='";
-            logMsg += tables::enum2name_SignificanceOfReferenceTime_or_throw(result);
+            logMsg += tables::enum2name_SignificanceOfReferenceTime_or_throw(significanceOfReferenceTime);
             logMsg += "'";
             return logMsg;
         }());
 
         /// Success exit point
-        return result;
+        return significanceOfReferenceTime;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribDeductionException(
