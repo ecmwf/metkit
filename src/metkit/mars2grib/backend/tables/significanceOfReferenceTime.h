@@ -57,6 +57,7 @@ enum class SignificanceOfReferenceTime : long {
     ObservationTime      = 3,
     LocalTime            = 4,
     SimulationStart      = 5,
+    AssimilationStart    = 6,
     Missing              = 255
 };
 
@@ -108,6 +109,8 @@ inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_thro
         return SignificanceOfReferenceTime::LocalTime;
     else if (value == "simulationStart")
         return SignificanceOfReferenceTime::SimulationStart;
+    else if (value == "assimilationStart")
+        return SignificanceOfReferenceTime::SimulationStart;
     else if (value == "missing")
         return SignificanceOfReferenceTime::Missing;
     else {
@@ -157,6 +160,8 @@ inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOf
             return "localTime";
         case SignificanceOfReferenceTime::SimulationStart:
             return "simulationStart";
+        case SignificanceOfReferenceTime::AssimilationStart:
+            return "assimilationStart";
         case SignificanceOfReferenceTime::Missing:
             return "missing";
         default: {
