@@ -126,37 +126,35 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
         tables::DerivedForecast derivedForecast = tables::DerivedForecast::Missing;
 
         if (has(par, "derivedForecast")) {
-
             // Retrieve override from parameter dictionary
-            long derivedForecastVal = get_or_throw<long>(par, "derivedForecast");
+            const auto derivedForecastVal = get_or_throw<long>(par, "derivedForecast");
 
             // Lookup and validate enum value
             derivedForecast = tables::long2enum_DerivedForecast_or_throw(derivedForecastVal);
-
-            // Emit OVERRIDE log entry
-            MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`derivedForecast` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast);
-                logMsg += "'";
-                return logMsg;
-            }());
         }
         else {
+            const auto marsType = get_or_throw<std::string>(mars, "type");
 
-            // Retrieve type from mars dictionary
-            std::string marsType = get_or_throw<std::string>(mars, "type");
-
-            // TODO MIVAL: Implement automatic deduction from mars.type --- IGNORE ---
-            throw Mars2GribDeductionException("Not implemented", Here());
-
-            // // Emit RESOLVE log entry
-            // MARS2GRIB_LOG_RESOLVE([&]() {
-            //     std::string logMsg = "`derivedForecast` resolved from input dictionaries: value='";
-            //     logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast);
-            //     logMsg += "'";
-            //     return logMsg;
-            // }());
+            if (marsType == "em" || marsType == "taem") {
+                derivedForecast = tables::DerivedForecast::UnweightedMeanAllMembers;
+            }
+            else if (marsType == "es" || marsType == "taes") {
+                derivedForecast = tables::DerivedForecast::SpreadAllMembers;
+            }
+            else {
+                throw Mars2GribDeductionException(
+                    "Mapping from mars type " + marsType + " to derivedForecast is not implemented", Here());
+            }
         }
+
+
+        // Emit OVERRIDE log entry
+        MARS2GRIB_LOG_OVERRIDE([&]() {
+            std::string logMsg = "`derivedForecast` resolved from input dictionaries: value='";
+            logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast);
+            logMsg += "'";
+            return logMsg;
+        }());
 
         // Success exit point
         return derivedForecast;
