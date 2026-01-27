@@ -70,6 +70,7 @@ public:
 
 
     size_t messageSize() const override;
+    int64_t messageOffset() const override;
     Span<const uint8_t> messageData() const override;
     bool isDefined(const std::string& key) const override;
     bool isMissing(const std::string& key) const override;
@@ -138,6 +139,13 @@ size_t OwningCodesHandle::messageSize() const {
     size_t size;
     throwOnError(codes_get_message_size(raw(), &size), Here(), "CodesHandle::messageSize()");
     return size;
+}
+
+
+int64_t OwningCodesHandle::messageOffset() const {
+    int64_t offset;
+    throwOnError(codes_get_message_offset(raw(), &offset), Here(), "CodesHandle::messageOffset()");
+    return offset;
 }
 
 
@@ -673,7 +681,8 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
         std::unique_ptr<codes_handle>(codes_handle_new_from_samples(NULL, sampleName.c_str())));
 }
 
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product) {
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product,
+                                                 std::optional<int64_t> offset) {
     int err = 0;
     std::unique_ptr<codes_handle> ret;
 
@@ -681,6 +690,10 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
     if (file == nullptr) {
         throw CodesException(std::string("Error opening file ") + fpath, Here());
+    }
+
+    if (offset) {
+        fseek(file, *offset, SEEK_SET);
     }
 
     switch (product) {

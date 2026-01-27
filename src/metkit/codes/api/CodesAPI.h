@@ -287,6 +287,10 @@ public:
     /// @throws CodesException on any error returned from eccodes
     virtual Span<const uint8_t> messageData() const = 0;
 
+    /// Retrieve offset of the handled message.
+    /// @return Offset in bytes of the message in the underlying buffer.
+    virtual int64_t messageOffset() const = 0;
+
 
     /// Iterate keys in a GRIB2 or BUFR handle.
     ///
@@ -371,8 +375,10 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
 /// The user needs to maintain the lifetime of the passed array.
 /// @param file Pointer to a implementation dependent file handle containing a BUFR or GRIB message.
 /// @param product The intented type of handle that is supposed to be loaded (BUFR or GRIB).
+/// @param offset  Optional: An offset in bytes within the file where the actual message starts.
 /// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product);
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product,
+                                                 std::optional<int64_t> offset = std::optional<int64_t>{});
 
 
 //----------------------------------------------------------------------------------------------------------------------
