@@ -114,6 +114,9 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
                         if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
                             gather.setValue(name, std::forward<decltype(v)>(v));
                         }
+                        else if constexpr (std::is_same_v<Type, std::vector<uint8_t>>) {
+                            gather.setValue(name, k.getString());
+                        }
                         else {
                             // Unhandled types are all array types - the prior call checking `size != 1` only allows for
                             // scalars.
