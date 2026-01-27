@@ -128,6 +128,9 @@
 // Checks
 #include "metkit/mars2grib/backend/checks/matchGridDefinitionTemplateNumber.h"
 
+// Deductions
+#include "metkit/mars2grib/backend/deductions/allowedReferenceValue.h"
+
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
@@ -304,6 +307,10 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
 
             // Preset data representation
             if constexpr (Stage == StagePreset) {
+
+                // Resolve allowed reference value deduction
+                double allowedReferenceValue = deductions::resolve_AllowedReferenceValue_or_throw(mars, par, opt);
+
                 if constexpr (Variant == RepresentationType::Latlon) {
 
                     // Deductions
