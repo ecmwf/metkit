@@ -267,16 +267,9 @@ CASE("test_metkit_expand_2") {
     }
     {
         const char* text = "ret,levtype=ml";
-        ExpectedVals expected{{"class", {"od"}},
-                              {"domain", {"g"}},
-                              {"expver", {"0001"}},
-                              {"levelist", {"1"}},
-                              {"levtype", {"ml"}},
-                              {"param", {"129"}},
-                              {"step", {"0"}},
-                              {"stream", {"oper"}},
-                              {"time", {"1200"}},
-                              {"type", {"an"}}};
+        ExpectedVals expected{{"class", {"od"}},   {"domain", {"g"}},  {"expver", {"0001"}}, {"levelist", {"1"}},
+                              {"levtype", {"ml"}}, {"param", {"129"}}, {"step", {"0"}},      {"stream", {"oper"}},
+                              {"time", {"1200"}},  {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
 }
