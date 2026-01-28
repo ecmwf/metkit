@@ -60,4 +60,5 @@ axes:
     - grib
     - georef
     - coeffindex
+    - obscutoff
 
