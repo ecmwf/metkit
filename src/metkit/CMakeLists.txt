@@ -194,6 +194,7 @@ if ( HAVE_MARS2GRIB )
         mars2grib/frontend/statistical.cc
         mars2grib/frontend/time.cc
     )
+    set( mars2grib_libs eckit_geo )
 endif()
 
 ecbuild_add_library(
@@ -223,6 +224,7 @@ ecbuild_add_library(
         eckit
         eckit_option
         ${grib_libs}
+        ${mars2grib_libs}
 )
 
 if( HAVE_MARS2GRIB_PYTHON )

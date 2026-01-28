@@ -100,11 +100,10 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const GeoDict_t& 
     try {
 
         // subSetTruncation must not be larger than any pentagonalResolutionParameter
-        long pentagonalResolutionParameterJ = get_or_throw<long>(geo, "pentagonalResolutionParameterJ");
-        long pentagonalResolutionParameterK = get_or_throw<long>(geo, "pentagonalResolutionParameterK");
-        long pentagonalResolutionParameterM = get_or_throw<long>(geo, "pentagonalResolutionParameterM");
-        long defaultSubSetTrunc             = std::min(
-            {20L, pentagonalResolutionParameterJ, pentagonalResolutionParameterK, pentagonalResolutionParameterM});
+        // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
+        //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
+        const auto marsTruncation = get_or_throw<long>(mars, "truncation");
+        long defaultSubSetTrunc   = std::min(20L, marsTruncation);
 
         // Retrieve optional subSetTruncation from parameter dictionary
         long subSetTrunc = get_opt<long>(par, "subSetTruncation").value_or(defaultSubSetTrunc);
