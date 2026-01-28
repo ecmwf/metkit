@@ -119,9 +119,19 @@
 #pragma once
 
 // System includes
+#include <cstddef>
+#include <memory>
+#include <regex>
 #include <string>
 
 // Core concept includes
+#include "eckit/geo/Grid.h"
+#include "eckit/geo/PointLonLat.h"
+#include "eckit/geo/grid/reduced/HEALPix.h"
+#include "eckit/geo/grid/reduced/ReducedGaussian.h"
+#include "eckit/geo/grid/regular/RegularGaussian.h"
+#include "eckit/geo/grid/regular/RegularLL.h"
+#include "eckit/spec/Custom.h"
 #include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/representation/representationEnum.h"
 
@@ -133,6 +143,7 @@
 
 // Utils
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
@@ -255,17 +266,23 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                     validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {40});
 
                     // Deductions
-                    std::vector<long> PlArray = get_or_throw<std::vector<long>>(geo, "pl");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid =
+                        dynamic_cast<const eckit::geo::grid::reduced::ReducedGaussian*>(genericGrid.get());
 
-                    long numberOfParallelsBetweenAPoleAndTheEquator =
-                        get_or_throw<long>(geo, "numberOfParallelsBetweenAPoleAndTheEquator");
+                    const std::vector<long> plArray                       = grid->pl();
+                    const long numberOfParallelsBetweenAPoleAndTheEquator = grid->ny() / 2;
 
                     // Encoding
                     set_or_throw<std::string>(out, "gridType", "reduced_gg");
                     set_or_throw<long>(out, "interpretationOfNumberOfPoints", 1L);
+
+                    // Set already, because it is the size of the PL array!
                     set_or_throw<long>(out, "numberOfParallelsBetweenAPoleAndTheEquator",
                                        numberOfParallelsBetweenAPoleAndTheEquator);
-                    set_or_throw<std::vector<long>>(out, "pl", PlArray);
+                    set_or_throw<std::vector<long>>(out, "pl", plArray);
                 }
                 else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
 
@@ -314,18 +331,38 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                 if constexpr (Variant == RepresentationType::Latlon) {
 
                     // Deductions
-                    long Ni = get_or_throw<long>(geo, "numberOfPointsAlongAParallel");
-                    long Nj = get_or_throw<long>(geo, "numberOfPointsAlongAMeridian");
-                    const auto latitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "latitudeOfFirstGridPointInDegrees");
-                    const auto longitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfFirstGridPointInDegrees");
-                    const auto latitudeOfLastGridPointInDegrees =
-                        get_or_throw<double>(geo, "latitudeOfLastGridPointInDegrees");
-                    const auto longitudeOfLastGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfLastGridPointInDegrees");
-                    const auto iDirectionIncrementInDegrees = get_or_throw<double>(geo, "iDirectionIncrementInDegrees");
-                    const auto jDirectionIncrementInDegrees = get_or_throw<double>(geo, "jDirectionIncrementInDegrees");
+                    auto marsGrid = get_or_throw<std::string>(mars, "grid");
+                    {
+                        // NOTE: IN THE TOOL, THE MARS KEYWORD GRID IS NOT CORRECTLY SET
+                        //       IT WILL BE IN THE FORMAT "L\d+x\d+" AND WE CONVERT IT HERE
+                        // TODO: FIX THE ISSUE IN THE TOOL AND REMOVE THIS CODE!
+                        static const std::regex pattern{R"(L(\d+)x(\d+))"};
+                        std::smatch match;
+                        if (std::regex_match(marsGrid, match, pattern)) {
+                            const long ni         = std::stol(match[1].str());
+                            const long nj         = std::stol(match[2].str());
+                            const double deltaLon = 360.0 / static_cast<double>(ni);
+                            const double deltaLat = 180.0 / static_cast<double>(nj - 1);
+                            marsGrid              = std::to_string(deltaLon) + "/" + std::to_string(deltaLat);
+                        }
+                    }
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid = dynamic_cast<const eckit::geo::grid::regular::RegularLL*>(genericGrid.get());
+
+                    const long Ni = grid->nlon();
+                    const long Nj = grid->nlat();
+
+                    const auto firstPoint = std::get<eckit::geo::PointLonLat>(grid->first_point());
+                    const auto lastPoint  = std::get<eckit::geo::PointLonLat>(grid->last_point());
+
+                    const auto latitudeOfFirstGridPointInDegrees  = firstPoint.lat();
+                    const auto longitudeOfFirstGridPointInDegrees = firstPoint.lon();
+                    const auto latitudeOfLastGridPointInDegrees   = lastPoint.lat();
+                    const auto longitudeOfLastGridPointInDegrees  = lastPoint.lon();
+
+                    const auto iDirectionIncrementInDegrees = std::abs(grid->dlon());
+                    const auto jDirectionIncrementInDegrees = std::abs(grid->dlat());
 
                     // Encoding
                     set_or_throw<long>(out, "Ni", Ni);
@@ -340,27 +377,25 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                 else if constexpr (Variant == RepresentationType::RegularGaussian) {
 
                     // Deductions
-                    const auto truncateDegrees = get_opt<long>(geo, "truncateDegrees").value_or(0);
-                    // long numberOfPointsAlongAMeridian = get_or_throw<long>( geo, "numberOfPointsAlongAMeridian" ); //
-                    // TODO (knobel) long numberOfPointsAlongAParallel = get_or_throw<long>( geo,
-                    // "numberOfPointsAlongAParallel" );  // TODO (knobel)
-                    const auto latitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "latitudeOfFirstGridPointInDegrees");
-                    const auto longitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfFirstGridPointInDegrees");
-                    const auto latitudeOfLastGridPointInDegrees =
-                        get_or_throw<double>(geo, "latitudeOfLastGridPointInDegrees");
-                    const auto longitudeOfLastGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfLastGridPointInDegrees");
-                    long numberOfParallelsBetweenAPoleAndTheEquator =
-                        get_or_throw<long>(geo, "numberOfParallelsBetweenAPoleAndTheEquator");
-                    const auto iDirectionIncrementInDegrees = get_or_throw<double>(geo, "iDirectionIncrementInDegrees");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid =
+                        dynamic_cast<const eckit::geo::grid::regular::RegularGaussian*>(genericGrid.get());
+
+                    const auto firstPoint = std::get<eckit::geo::PointLonLat>(grid->first_point());
+                    const auto lastPoint  = std::get<eckit::geo::PointLonLat>(grid->last_point());
+
+                    const auto latitudeOfFirstGridPointInDegrees  = firstPoint.lat();
+                    const auto longitudeOfFirstGridPointInDegrees = firstPoint.lon();
+                    const auto latitudeOfLastGridPointInDegrees   = lastPoint.lat();
+                    const auto longitudeOfLastGridPointInDegrees  = lastPoint.lon();
+
+                    const auto iDirectionIncrementInDegrees = std::abs(grid->dx());
+
+                    // TODO (GEOM): numberOfParallelsBetweenAPoleAndTheEquator, and numberOfPointsAlongAMeridian ?
 
                     // Encoding
-                    set_or_throw(out, "truncateDegrees", truncateDegrees);
-                    // set_or_throw<long>( out, "numberOfPointsAlongAMeridian", numberOfPointsAlongAMeridian );  // TODO
-                    // (knobel) set_or_throw<long>( out, "numberOfPointsAlongAParallel", numberOfPointsAlongAParallel );
-                    // // TODO (knobel)
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
@@ -370,38 +405,39 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                 else if constexpr (Variant == RepresentationType::ReducedGaussian) {
 
                     // Deductions
-                    const auto truncateDegrees = get_opt<long>(geo, "truncateDegrees").value_or(0);
-                    // long numberOfPointsAlongAMeridian = get_or_throw<long>( geo, "numberOfPointsAlongAMeridian" ); //
-                    // TODO (knobel)
-                    const auto latitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "latitudeOfFirstGridPointInDegrees");
-                    const auto longitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfFirstGridPointInDegrees");
-                    const auto latitudeOfLastGridPointInDegrees =
-                        get_or_throw<double>(geo, "latitudeOfLastGridPointInDegrees");
-                    const auto longitudeOfLastGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfLastGridPointInDegrees");
-                    // long numberOfParallelsBetweenAPoleAndTheEquator = get_or_throw<long>( geo,
-                    // "numberOfParallelsBetweenAPoleAndTheEquator" );
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid =
+                        dynamic_cast<const eckit::geo::grid::reduced::ReducedGaussian*>(genericGrid.get());
+
+                    const auto& latitudes  = grid->latitudes();
+                    const auto& longitudes = grid->longitudes(grid->ny() / 2);  // at the equator
+
+                    // NOTE: We actually need to describe the extreme latitudes and longitudes!
+                    //       These 4 values have to be seen as independent, and not as two points.
+                    const auto latitudeOfFirstGridPointInDegrees  = latitudes.front();
+                    const auto longitudeOfFirstGridPointInDegrees = longitudes.front();
+                    const auto latitudeOfLastGridPointInDegrees   = latitudes.back();
+                    const auto longitudeOfLastGridPointInDegrees  = longitudes.back();
+
+                    // TODO (GEOM): numberOfPointsAlongAMeridian ?
 
                     // Encoding
-                    set_or_throw<long>(out, "truncateDegrees", truncateDegrees);
-                    // set_or_throw<long>( out, "numberOfPointsAlongAMeridian", numberOfPointsAlongAMeridian );  // TODO
-                    // (knobel)
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
                     set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
-                    // set_or_throw<long>( out, "numberOfParallelsBetweenAPoleAndTheEquator",
-                    // numberOfParallelsBetweenAPoleAndTheEquator );
                     setMissing_or_throw(out, "iDirectionIncrement");
                 }
                 else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
 
                     // Deductions
-                    long pentagonalResolutionParameterJ = get_or_throw<long>(geo, "pentagonalResolutionParameterJ");
-                    long pentagonalResolutionParameterK = get_or_throw<long>(geo, "pentagonalResolutionParameterK");
-                    long pentagonalResolutionParameterM = get_or_throw<long>(geo, "pentagonalResolutionParameterM");
+                    const auto marsTruncation = get_or_throw<long>(mars, "truncation");
+
+                    const auto pentagonalResolutionParameterJ = marsTruncation;
+                    const auto pentagonalResolutionParameterK = marsTruncation;
+                    const auto pentagonalResolutionParameterM = marsTruncation;
 
                     // Encoding
                     set_or_throw<long>(out, "pentagonalResolutionParameterJ", pentagonalResolutionParameterJ);
@@ -411,14 +447,19 @@ void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDic
                 else if constexpr (Variant == RepresentationType::Healpix) {
 
                     // Deductions
-                    long nside              = get_or_throw<long>(geo, "nside");
-                    long orderingConvention = get_or_throw<long>(geo, "orderingConvention");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid = dynamic_cast<const eckit::geo::grid::reduced::HEALPix*>(genericGrid.get());
+
+                    const auto nside              = static_cast<long>(grid->Nside());
+                    const auto orderingConvention = grid->order() == eckit::geo::order::HEALPix::RING ? 0L : 1L;
                     const auto longitudeOfFirstGridPointInDegrees =
-                        get_or_throw<double>(geo, "longitudeOfFirstGridPointInDegrees");
+                        std::get<eckit::geo::PointLonLat>(grid->first_point()).lon();
 
                     // Encoding
-                    set_or_throw<long>(out, "nside", nside);
-                    set_or_throw<long>(out, "orderingConvention", orderingConvention);
+                    set_or_throw(out, "nside", nside);
+                    set_or_throw(out, "orderingConvention", orderingConvention);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
