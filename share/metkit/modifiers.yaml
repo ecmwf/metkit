@@ -99,7 +99,7 @@
 - context:
     levtype: [ml]
   defaults:
-    levelist: [1, to, 137, by, 1]
+    levelist: [1]
 - context:
     levtype: [pl]
   defaults:
@@ -107,7 +107,7 @@
 - context:
     levtype: [fl]
   defaults:
-    levelist: [300, 390]
+    levelist: [100, 140, 180, 240, 300, 340, 390, 450]
 
 - context:
     type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]

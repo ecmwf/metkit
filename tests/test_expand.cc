@@ -270,8 +270,7 @@ CASE("test_metkit_expand_2") {
         ExpectedVals expected{{"class", {"od"}},
                               {"domain", {"g"}},
                               {"expver", {"0001"}},
-                              {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              // {"levelist", {"1","2"}}, // keeping the old default, for MARS client tests
+                              {"levelist", {"1"}},
                               {"levtype", {"ml"}},
                               {"param", {"129"}},
                               {"step", {"0"}},
@@ -1199,7 +1198,7 @@ CASE("test_metkit_expand_coeffindex") {
     }
 }
 
-CASE("test_metkit_expand_0") {
+CASE("test_metkit_expand_A") {
     const char* text =
         "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
         "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/"
@@ -1215,7 +1214,7 @@ CASE("test_metkit_expand_0") {
     expand(text, expected);
 }
 
-CASE("test_metkit_expand_1") {
+CASE("test_metkit_expand_B") {
     const char* text =
         "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/"
         "to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/"
@@ -1231,7 +1230,7 @@ CASE("test_metkit_expand_1") {
     expand(text, expected);
 }
 
-CASE("test_metkit_expand_2") {
+CASE("test_metkit_expand_C") {
     const char* text =
         "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/"
         "0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/"
