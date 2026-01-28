@@ -96,14 +96,18 @@
   unset: [levtype, levelist, param, grid, rotation]
 
 # new default for levtype=ml, to be enabled later
-# - context:
-#     levtype: [ml]
-#   defaults:
-#     levelist: [1, 2]
 - context:
-    levtype: [ml, pl]
+    levtype: [ml]
+  defaults:
+    levelist: [1]
+- context:
+    levtype: [pl]
   defaults:
     levelist: [1000, 850, 700, 500, 400, 300]
+- context:
+    levtype: [fl]
+  defaults:
+    levelist: [100, 140, 180, 240, 300, 340, 390, 450]
 
 - context:
     type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
