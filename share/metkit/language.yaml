@@ -452,9 +452,12 @@ _field: &_field
     type: enum
     values:
       - [ecmf-ifs]
+      - [ecmf-aifs]
+      - [ecmf-era5]
       - [ecmf-seas]
       - [edzw-icon]
       - [cosmo-cosmo]
+      - [cmcc-sps]
       - [obs]
 
   configuration:
