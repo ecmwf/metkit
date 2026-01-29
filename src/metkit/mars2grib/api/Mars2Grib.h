@@ -33,20 +33,16 @@ public:
 
     std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
                                                        const eckit::LocalConfiguration& misc,
-                                                       const eckit::LocalConfiguration& geom,
                                                        const std::vector<double>& values);
     std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
                                                        const eckit::LocalConfiguration& misc,
-                                                       const eckit::LocalConfiguration& geom,
                                                        const std::vector<float>& values);
 
     std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc,
-                                                       const eckit::LocalConfiguration& geom, const double* values,
+                                                       const eckit::LocalConfiguration& misc, const double* values,
                                                        size_t length);
     std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc,
-                                                       const eckit::LocalConfiguration& geom, const float* values,
+                                                       const eckit::LocalConfiguration& misc, const float* values,
                                                        size_t length);
 
 private:
