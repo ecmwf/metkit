@@ -116,6 +116,18 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const std::vector<double>& values) {
+    const eckit::LocalConfiguration misc{};
+    return encode(mars, misc, values);
+}
+
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const std::vector<float>& values) {
+    const eckit::LocalConfiguration misc{};
+    return encode(mars, misc, values);
+}
+
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc,
                                                               const double* values, size_t length) {
     return encode(mars, misc, std::vector<double>{values, values + length});
@@ -125,6 +137,18 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
                                                               const eckit::LocalConfiguration& misc,
                                                               const float* values, size_t length) {
     return encode(mars, misc, std::vector<float>{values, values + length});
+}
+
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const double* values, size_t length) {
+    const eckit::LocalConfiguration misc{};
+    return encode(mars, misc, values, length);
+}
+
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
+                                                              const float* values, size_t length) {
+    const eckit::LocalConfiguration misc{};
+    return encode(mars, misc, values, length);
 }
 
 }  // namespace metkit::mars2grib
