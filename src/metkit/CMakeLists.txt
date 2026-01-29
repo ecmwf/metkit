@@ -188,6 +188,7 @@ if ( HAVE_MARS2GRIB )
     list( APPEND metkit_srcs
         mars2grib/api/Mars2Grib.cc
         mars2grib/api/Mars2Grib.h
+        mars2grib/api/Options.h
         mars2grib/frontend/encoderConfig.cc
         mars2grib/frontend/level.cc
         mars2grib/frontend/pdt.cc
