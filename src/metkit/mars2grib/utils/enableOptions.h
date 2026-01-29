@@ -9,32 +9,26 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/api/Options.h"
+
 namespace metkit::mars2grib::utils {
 
-template <typename OptDict, typename OutDict>
-inline bool checksEnabled(const OptDict& opt) {
-
+template <typename OutDict>
+inline bool checksEnabled(const Options& opt) {
     using metkit::mars2grib::utils::dict_traits::dict_supports_checks_v;
-    using metkit::mars2grib::utils::dict_traits::get_opt;
 
     if constexpr (!dict_supports_checks_v<OutDict>) {
         return false;
     }
-    else {
-        return get_opt<bool>(opt, "applyChecks").value_or(true);
-    }
-
-
-    // Remove compiler warning
-    __builtin_unreachable();
+    return opt.applyChecks;
 }
 
-template <typename OptDict>
-inline bool overrideEnabled(const OptDict& opt) {
+inline bool overrideEnabled(const Options& opt) {
+    return opt.enableOverride;
+}
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
-
-    return get_opt<bool>(opt, "enableOverride").value_or(false);
+inline bool bitsPerValueCompressionEnabled(const Options& opt) {
+    return opt.enableBitsPerValueCompression;
 }
 
 }  // namespace metkit::mars2grib::utils

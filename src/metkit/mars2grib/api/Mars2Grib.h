@@ -13,6 +13,7 @@
 #include <vector>
 #include "eckit/config/LocalConfiguration.h"
 #include "metkit/codes/api/CodesAPI.h"
+#include "metkit/mars2grib/api/Options.h"
 
 namespace metkit::mars2grib {
 
@@ -20,6 +21,7 @@ class Mars2Grib {
 public:
 
     Mars2Grib();
+    Mars2Grib(const Options& opts);
     Mars2Grib(const eckit::LocalConfiguration& opts);
 
     Mars2Grib(const Mars2Grib&)           = delete;
@@ -47,12 +49,9 @@ public:
                                                        const eckit::LocalConfiguration& geom, const float* values,
                                                        size_t length);
 
-    // TODO : variants of encode without geom?
-    // TODO : variants of encode without values?
-
 private:
 
-    eckit::LocalConfiguration opts_;
+    const Options opts_;
 };
 
 }  // namespace metkit::mars2grib

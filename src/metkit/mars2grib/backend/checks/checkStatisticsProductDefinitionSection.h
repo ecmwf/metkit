@@ -66,7 +66,7 @@ void check_StatisticsProductDefinitionSection_or_throw(const OptDict_t& opt, con
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             bool hasNumberOfTimeRanges          = has(out, "numberOfTimeRanges");
             bool hasTypeOfStatisticalProcessing = has(out, "typeOfStatisticalProcessing");

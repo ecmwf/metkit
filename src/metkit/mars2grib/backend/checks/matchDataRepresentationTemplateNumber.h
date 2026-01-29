@@ -72,7 +72,7 @@ void match_DataRepresentationTemplateNumber_or_throw(
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             // Get the dataRepresentationTemplateNumber
             long actualDataRepresentationTemplateNumber = get_or_throw<long>(out, "dataRepresentationTemplateNumber");

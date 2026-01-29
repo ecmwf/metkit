@@ -67,7 +67,7 @@ void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             bool hasTypeOfEnsembleForecast      = has(out, "typeOfEnsembleForecast");
             bool hasPerturbationNumber          = has(out, "perturbationNumber");
