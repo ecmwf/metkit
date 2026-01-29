@@ -64,7 +64,7 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             // Get the `dataset` entry (expected in DestinE local use sections)
             std::string actualDataset = get_or_throw<std::string>(out, "dataset");

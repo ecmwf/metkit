@@ -66,7 +66,7 @@ void check_DerivedProductDefinitionSection_or_throw(const OptDict_t& opt, const 
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             bool hasDerivedForecast             = has(out, "derivedForecast");
             bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");

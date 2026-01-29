@@ -189,7 +189,7 @@ void DestineOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& pa
             if constexpr (Variant == DestineType::ExtremesDT) {
 
                 // Enforce dataset consistency
-                validation::match_Dataset_or_throw(mars, par, "extremes-dt");
+                validation::match_Dataset_or_throw(opt, out, "extremes-dt");
 
                 // Encode dataset identifier
                 set_or_throw<std::string>(out, "dataset", "extremes-dt");
@@ -197,7 +197,7 @@ void DestineOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& pa
             else if constexpr (Variant == DestineType::ClimateDT) {
 
                 // Enforce dataset consistency
-                validation::match_Dataset_or_throw(mars, par, "climate-dt");
+                validation::match_Dataset_or_throw(opt, out, "climate-dt");
 
                 // Encode dataset identifier
                 set_or_throw<std::string>(out, "dataset", "climate-dt");

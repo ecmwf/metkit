@@ -178,22 +178,9 @@ void GeneratingProcessOp(const MarsDict_t& mars, const GeoDict_t& geo, const Par
             std::optional<TypeOfGeneratingProcess> typeOfGeneratingProcess =
                 deductions::resolve_TypeOfGeneratingProcess_opt(mars, par, opt);
 
-
-            /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
-            /// Remove this logic.
-            ///
-            /// This is a legacy artifact of the previous encoder implementation and
-            /// relies on ecCodes implicitly setting `backgroundProcess` from
-            /// `mars::model`.
-            if (bool useModel = get_opt<bool>(opt, "useModelForBackgroundProcess").value_or(false); useModel) {
-                std::string modelVal = get_opt<std::string>(mars, "model").value_or("ifs");
-                set_or_throw<std::string>(out, "model", modelVal);
-            }
-            else {
-                tables::BackgroundProcess backgroundProcess =
-                    deductions::resolve_BackgroundProcess_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
-            }
+            tables::BackgroundProcess backgroundProcess =
+                deductions::resolve_BackgroundProcess_or_throw(mars, par, opt);
+            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
 
             /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
             /// Remove this logic.

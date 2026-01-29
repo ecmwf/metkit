@@ -73,7 +73,7 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             // Get the productDefinitionTemplateNumber
             long actualProductDefinitionTemplateNumber = get_or_throw<long>(out, "productDefinitionTemplateNumber");

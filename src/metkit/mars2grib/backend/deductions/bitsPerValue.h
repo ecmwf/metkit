@@ -63,6 +63,7 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
@@ -265,7 +266,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
             // Retrive auxiliary values for default lookup
             long paramId          = get_or_throw<long>(mars, "param");
             std::string levtype   = get_or_throw<std::string>(mars, "levtype");
-            bool applyCompression = get_opt<bool>(opt, "enableBitsPerValueCompression").value_or(false);
+            bool applyCompression = utils::bitsPerValueCompressionEnabled(opt);
 
             // Resolve bitsPerValue from default mapping
             bitsPerValue = details::lookup_bitsPerValueGridded_default(paramId, levtype, applyCompression);

@@ -72,7 +72,7 @@ void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const Out
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             // Get the gridDefinitionTemplateNumber
             long actualGridDefinitionTemplateNumber = get_or_throw<long>(out, "gridDefinitionTemplateNumber");

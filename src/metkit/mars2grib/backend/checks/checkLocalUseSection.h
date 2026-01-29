@@ -64,7 +64,7 @@ void check_LocalUseSection_or_throw(const OptDict_t& opt, const OutDict_t& out) 
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             long localUsePresent = get_or_throw<long>(out, "localUsePresent");
 

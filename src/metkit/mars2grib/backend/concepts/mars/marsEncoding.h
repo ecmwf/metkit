@@ -184,19 +184,9 @@ void MarsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, 
             std::string marsExpverVal = deductions::resolve_Expver_or_throw(mars, par, opt);
 
             // Encoding
-            if (bool enableSideEffects = get_opt<bool>(opt, "enableSideEffects").value_or(false); enableSideEffects) {
-                // Enabling this can lead to very hard-to-track side effects and/or failures of the whole encoding
-                // chain, because setting high-level keys may implicitly modify multiple underlying GRIB keys.
-                // Use with extreme caution and only when you fully understand the implications.
-                set_or_throw<std::string>(out, "class", marsClassVal);
-                set_or_throw<std::string>(out, "type", marsTypeVal);
-                set_or_throw<std::string>(out, "stream", marsStreamVal);
-            }
-            else {
-                set_or_throw<std::string>(out, "marsClass", marsClassVal);
-                set_or_throw<std::string>(out, "marsType", marsTypeVal);
-                set_or_throw<std::string>(out, "marsStream", marsStreamVal);
-            }
+            set_or_throw<std::string>(out, "marsClass", marsClassVal);
+            set_or_throw<std::string>(out, "marsType", marsTypeVal);
+            set_or_throw<std::string>(out, "marsStream", marsStreamVal);
             set_or_throw<std::string>(out, "expver", marsExpverVal);
         }
         catch (...) {

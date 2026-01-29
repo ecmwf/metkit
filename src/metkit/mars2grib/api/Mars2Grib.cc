@@ -11,6 +11,7 @@
 #include "Mars2Grib.h"
 #include <iostream>
 #include <limits>
+#include <utility>
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/codes/api/CodesAPI.h"
@@ -20,6 +21,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 
 #include "metkit/mars2grib/backend/SpecializedEncoder.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
 
@@ -50,11 +52,29 @@ std::unique_ptr<metkit::codes::CodesHandle> setValues(const eckit::LocalConfigur
     return handle;
 };
 
+Options readOptions(const eckit::LocalConfiguration& conf) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    Options opts;
+    if (has<bool>(conf, "applyChecks")) {
+        opts.applyChecks = get_or_throw<bool>(conf, "applyChecks");
+    }
+    if (has<bool>(conf, "enableOverride")) {
+        opts.enableOverride = get_or_throw<bool>(conf, "enableOverride");
+    }
+    if (has<bool>(conf, "enableBitsPerValueCompression")) {
+        opts.enableBitsPerValueCompression = get_or_throw<bool>(conf, "enableBitsPerValueCompression");
+    }
+    return opts;
+}
+
 }  // namespace impl
 
 
 Mars2Grib::Mars2Grib() : opts_{} {}
-Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{opts} {}
+Mars2Grib::Mars2Grib(const Options& opts) : opts_{opts} {}
+Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{impl::readOptions(opts)} {}
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc,
@@ -62,9 +82,9 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
                                                               const std::vector<double>& values) {
 
     // The encoder is fully specialized here in place
-    using encoder = metkit::mars2grib::backend::SpecializedEncoder<eckit::LocalConfiguration, eckit::LocalConfiguration,
-                                                                   eckit::LocalConfiguration, eckit::LocalConfiguration,
-                                                                   metkit::codes::CodesHandle>;
+    using encoder =
+        metkit::mars2grib::backend::SpecializedEncoder<eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                       eckit::LocalConfiguration, Options, metkit::codes::CodesHandle>;
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::printExtendedStack;
 

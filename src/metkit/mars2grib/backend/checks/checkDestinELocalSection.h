@@ -67,7 +67,7 @@ void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& o
 
     try {
 
-        if (checksEnabled<OptDict_t, OutDict_t>(opt)) {
+        if (checksEnabled<OutDict_t>(opt)) {
 
             // If Local Use Section is present, validate production status
             if (long hasLocalUseSection = get_or_throw<long>(out, "LocalUsePresent"); hasLocalUseSection != 0) {
