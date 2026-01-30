@@ -15,4 +15,7 @@ namespace metkit::codes {
 CodesException::CodesException(const std::string& reason, const eckit::CodeLocation& l) :
     eckit::Exception(std::string("CodesException: ") + reason, l) {};
 
+CodesWrongLength::CodesWrongLength(const std::string& reason, const eckit::CodeLocation& l) :
+    CodesException(reason, l) {};
+
 }  // namespace metkit::codes
