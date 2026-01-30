@@ -60,4 +60,7 @@ axes:
     - grib
     - georef
     - coeffindex
+    - forcing
+    - configuration
+    - obscutoff
 
