@@ -19,6 +19,7 @@
 #include "metkit/codes/CodesDataContent.h"
 #include "metkit/codes/GribHandle.h"
 #include "metkit/codes/api/CodesAPI.h"
+#include "metkit/codes/api/CodesTypes.h"
 
 namespace metkit {
 namespace codes {
@@ -31,11 +32,18 @@ CodesSplitter::~CodesSplitter() {}
 
 eckit::message::Message CodesSplitter::next() {
     eckit::Offset off = handle_.position();
-    auto codesHandle  = codesHandleFromStream([&](uint8_t* buffer, int64_t len) -> int64_t {
-        long r = handle_.read(buffer, len);
-        // DataHandle is returning 0 on EOF. Codes expects -1 for EOF.
-        return (r == 0) ? -1 : r;
-    });
+    std::unique_ptr<CodesHandle> codesHandle;
+    try {
+        codesHandle =
+            codesHandleFromStream([&](uint8_t* buffer, int64_t len) -> int64_t { return handle_.read(buffer, len); });
+    }
+    catch (const CodesWrongLength& e) {
+        // METK-103 - used in bufr-sanity-check tool
+        // Resetting handle and skipping header (ie. GRIB or BUFR)
+        // Allows ignoring messages inbetween and continuing
+        handle_.seek(off + eckit::Offset(4));
+        throw e;
+    }
 
     // Handle EOF
     if (!codesHandle) {

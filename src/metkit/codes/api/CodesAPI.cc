@@ -42,7 +42,12 @@ namespace {
 void throwOnError(int code, const eckit::CodeLocation& l, const char* details) {
     if (code != 0) {
         std::string msg = std::string(details) + std::string(": ") + std::string(codes_get_error_message(code));
-        throw CodesException(msg, l);
+        if (code == GRIB_WRONG_LENGTH) {
+            throw CodesWrongLength(msg, l);
+        }
+        else {
+            throw CodesException(msg, l);
+        }
     }
 };
 
@@ -50,7 +55,12 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details, c
     if (code != 0) {
         std::string msg = std::string(details) + std::string(": ") + std::string(codes_get_error_message(code)) +
                           std::string(" for key ") + key;
-        throw CodesException(msg, l);
+        if (code == GRIB_WRONG_LENGTH) {
+            throw CodesWrongLength(msg, l);
+        }
+        else {
+            throw CodesException(msg, l);
+        }
     }
 };
 
@@ -730,7 +740,7 @@ std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t
     if (ctx.second) {
         std::rethrow_exception(ctx.second);
     }
-    throwOnError(err, Here(), "codesHandleFromStream(readFunc): ");
+    throwOnError(err, Here(), "codesHandleFromStream(readFunc)");
     if (ret) {
         return std::make_unique<OwningCodesHandle>(std::move(ret));
     }

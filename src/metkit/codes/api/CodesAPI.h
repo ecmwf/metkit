@@ -386,7 +386,8 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 ///        A return value of 0 indicates an stream end (EOF) and will result in a nullptr without an error.
 ///        A negative return value indicates an error - in that case it is smarter to throw an exception.
 /// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`. Nullptr on stream end.
-/// @throws CodesException on any error returned from eccodes or when propagated from the function.
+/// @throws CodesWrongLength if the message is corrupted, CodesException on any other error
+///         returned from eccodes, any expected propagated from readFunc.
 std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc);
 
 
