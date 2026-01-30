@@ -339,3 +339,12 @@
     country: [it]
   defaults:
     grib: [ecmwf]
+
+- context:
+    _verb: [disseminate]
+    stream: [oper,wave]
+    levtype: [ml]
+    packing: [simple]
+    # compatibility: 'undefined'
+  defaults:
+    compatibility: [adjust-spectral-packing]

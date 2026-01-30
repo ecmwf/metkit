@@ -1284,7 +1284,7 @@ CASE("test_metkit_disseminate") {
 
     expand(text, expected, false);
 }
-CASE("test_metkit_disseminate") {
+CASE("test_metkit_disseminate2") {
     const char* text =
         "disseminate,stream=waef,levtype=sfc,param=131074,class=od,type=ep,date=20250918,time=1200,step=12,expver=0001,"
         "domain=g,area=90/-180/-90/179.6,grid=.4/.4,target=OPN:DT";
@@ -1292,6 +1292,24 @@ CASE("test_metkit_disseminate") {
 
     expand(text, expected, false);
 }
+CASE("test_metkit_disseminate_spectral") {
+    const char* text =
+        "disseminate,stream=oper,levtype=ml,param=t,class=od,type=fc,date=20250918,time=1200,step=12,expver=0001,"
+        "domain=g,area=90/-180/-90/179.6,grid=.4/.4,target=OPN:DT,packing=simple";
+    std::vector<std::string> expected = {"disseminate,stream=oper,levtype=ml,param=130,class=od,type=fc,date=20250918,time=1200,step=12,expver=0001,"
+        "domain=g,area=90/-180/-90/179.6,grid=.4/.4,target=OPN:DT,packing=simple,compatibility=adjust-spectral-packing"};
+
+    expand(text, expected, false);
+}
+CASE("test_metkit_disseminate_spectral") {
+    const char* text =
+        "disseminate,type=an,time=1200,step=0,class=od,stream=oper,levtype=ml,date=20260118,expver=0001,domain=g,levelist=1/to/137,param=130/131/132/133/135,area=90/-180/-90/179,filename=legacy,grid=.1/.1,option=normal,packing=simple,priority=99,target=ITD:JU,requirements=\"/ec/ws4/tc/emos/products/pgen_49r1/epgen_49r1/requirements/0001/20260118_12_od_ctrlfc/ITD/JU.req\"";
+    std::vector<std::string> expected = {"disseminate,type=an,time=1200,step=0,class=od,stream=oper,levtype=ml,date=20260118,expver=0001,domain=g,levelist=1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,param=130/131/132/133/135,area=90/-180/-90/179,filename=legacy,grid=.1/.1,option=normal,packing=simple,priority=99,target=ITD:JU,requirements=\"/ec/ws4/tc/emos/products/pgen_49r1/epgen_49r1/requirements/0001/20260118_12_od_ctrlfc/ITD/JU.req\",compatibility=adjust-spectral-packing"};
+
+    expand(text, expected, false);
+}
+
+
 CASE("test_metkit_disseminate_params-static") {
     const char* text =
         "disseminate,target=CAM:TT,option=normal,expver=0001,class=mc,stream=oper,date=20250807,time=0000,type=an,step="
