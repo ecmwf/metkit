@@ -247,7 +247,7 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<
         throw;
     }
     catch (...) {
-        std::cerr << "Unknown exception was caught!" << std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << "Unknown exception was caught!" << std::endl;
         throw;
     }
 }

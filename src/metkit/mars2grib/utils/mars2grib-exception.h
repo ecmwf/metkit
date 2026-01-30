@@ -6,6 +6,7 @@
 #include <typeinfo>
 
 #include "eckit/exception/Exceptions.h"
+#include "metkit/config/LibMetkit.h"
 
 namespace metkit::mars2grib::utils::exceptions {
 
@@ -20,15 +21,15 @@ public:
 
     virtual ~Mars2GribGenericException() = default;
 
-    virtual void printFrame(std::ostream& os, const std::string& pad) const {
+    virtual void printFrame(const std::string& pad) const {
 
         const auto& loc = location();
 
-        os << pad << "+ file:     " << loc.file() << "\n"
-           << pad << "+ function: " << loc.func() << "\n"
-           << pad << "+ line:     " << loc.line() << "\n"
-           << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
-           << pad << "+ message:  " << what() << "\n";
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ file:     " << loc.file() << "\n"
+                                 << pad << "+ function: " << loc.func() << "\n"
+                                 << pad << "+ line:     " << loc.line() << "\n"
+                                 << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
+                                 << pad << "+ message:  " << what() << "\n";
     }
 };
 
@@ -106,13 +107,13 @@ public:
     const std::optional<std::string>& stage() const { return stage_; }
     const std::optional<std::string>& section() const { return section_; }
 
-    void printFrame(std::ostream& os, const std::string& pad) const override {
+    void printFrame(const std::string& pad) const override {
 
-        Mars2GribGenericException::printFrame(os, pad);
+        Mars2GribGenericException::printFrame(pad);
 
         auto print_opt = [&](const char* k, const std::optional<std::string>& v) {
             if (v)
-                os << pad << "+ " << k << ": " << *v << "\n";
+                LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << k << ": " << *v << "\n";
         };
 
         print_opt("concept", conceptName_);
@@ -152,15 +153,15 @@ public:
     const std::string& optDict_json() const { return optDict_json_; }
     const std::string& encoderCfg_json() const { return encoderCfg_json_; }
 
-    void printFrame(std::ostream& os, const std::string& pad) const override {
+    void printFrame(const std::string& pad) const override {
 
-        Mars2GribGenericException::printFrame(os, pad);
+        Mars2GribGenericException::printFrame(pad);
 
-        os << pad << "+ marsDict:   " << marsDict_json_ << "\n"
-           << pad << "+ geoDict:    " << geoDict_json_ << "\n"
-           << pad << "+ parDict:    " << parDict_json_ << "\n"
-           << pad << "+ optDict:    " << optDict_json_ << "\n"
-           << pad << "+ encoderCfg: " << encoderCfg_json_ << "\n";
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ marsDict:   " << marsDict_json_ << "\n"
+                                 << pad << "+ geoDict:    " << geoDict_json_ << "\n"
+                                 << pad << "+ parDict:    " << parDict_json_ << "\n"
+                                 << pad << "+ optDict:    " << optDict_json_ << "\n"
+                                 << pad << "+ encoderCfg: " << encoderCfg_json_ << "\n";
     }
 
 private:
@@ -204,18 +205,18 @@ inline void printExtendedStack(const std::exception& e, std::size_t level = 0, s
 
     const std::string pad = indent(level);
 
-    std::cerr << pad << "+ " << std::string(lineSize, '=') << std::endl
-              << pad << "+ frame " << frame << std::endl
-              << pad << "+ " << std::string(lineSize, '-') << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << std::string(lineSize, '=') << std::endl
+                             << pad << "+ frame " << frame << std::endl
+                             << pad << "+ " << std::string(lineSize, '-') << std::endl;
 
     if (const auto* me = dynamic_cast<const Mars2GribGenericException*>(&e)) {
-        me->printFrame(std::cerr, pad);
+        me->printFrame(pad);
     }
     else {
-        std::cerr << pad << "+ message: " << e.what() << std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ message: " << e.what() << std::endl;
     }
 
-    std::cerr << pad << "+ " << std::string(lineSize, '+') << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << std::string(lineSize, '+') << std::endl;
 
     try {
         std::rethrow_if_nested(e);

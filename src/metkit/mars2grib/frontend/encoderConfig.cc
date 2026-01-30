@@ -311,7 +311,7 @@ eckit::LocalConfiguration buildEncoderConfig(const eckit::LocalConfiguration& ma
         return sections;
     }
     catch (...) {
-        std::cerr << "mars: " << mars << std::endl;
+        LOG_DEBUG_LIB(LibMetkit) << "Could not create encoder configuration from mars: " << mars << std::endl;
         throw;
     }
 }
