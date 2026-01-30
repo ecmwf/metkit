@@ -319,6 +319,7 @@ _field: &_field
       - [wfsr, global flood awareness system (glofas) seasonal reforecasts]
       - [wmfm, wave monthly forecast means]
       - [wvhc, wave hindcast]
+      - [xwda, extended window data assimilation]
 
   product:
     category: data
@@ -464,6 +465,11 @@ _field: &_field
           type:
             op: '!'
             vals: [me, eme]
+
+  obscutoff:
+    category: data
+    multiple: true
+    type: time
 
   obsgroup:
     category: data
