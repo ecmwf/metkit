@@ -1,0 +1,86 @@
+digraph concept_model {
+    rankdir=TB;
+    fontsize=10;
+    nodesep=0.6;
+    ranksep=1.0;
+
+    // =========================================================
+    // Concept (canonical representation)
+    // =========================================================
+    concept [
+        shape=box,
+        style=rounded,
+        label="Concept\n\nCanonical, orthogonal\nrepresentation of\none semantic aspect"
+    ];
+
+    // =========================================================
+    // Abstract expansion: stages x sections
+    // =========================================================
+    expansion [
+        shape=box,
+        style=rounded,
+        label="Concept materialization\n\nSparse expansion across:\n- multiple sections\n- multiple priority slots\n\n(not compact in space nor priority)"
+    ];
+
+    // =========================================================
+    // Abstract priority slots
+    // =========================================================
+    subgraph cluster_stages {
+        label="Abstract priority slots";
+        style=rounded;
+
+        allocate [label="allocate"];
+        preset   [label="preset"];
+        override [label="override"];
+        runtime  [label="runtime"];
+
+        { rank=same; allocate; preset; override; runtime; }
+    }
+
+    // =========================================================
+    // Abstract GRIB header sections
+    // =========================================================
+    subgraph cluster_sections {
+        label="GRIB header (abstract sections)";
+        style=rounded;
+
+        secA [label="Section A"];
+        secB [label="Section B"];
+        secC [label="Section C"];
+        secD [label="Section D"];
+
+        { rank=same; secA; secB; secC; secD; }
+    }
+
+    // =========================================================
+    // Relationships
+    // =========================================================
+    concept -> expansion [label="logical definition"];
+
+    expansion -> allocate [style=dashed];
+    expansion -> preset   [style=dashed];
+    expansion -> override [style=dashed];
+    expansion -> runtime  [style=dashed];
+
+    // Sparse, non-uniform contributions
+    allocate -> secA [label="key/value"];
+    allocate -> secC [label="key/value"];
+
+    preset   -> secB [label="key/value"];
+
+    override -> secA [label="key/value"];
+    override -> secD [label="key/value"];
+
+    runtime  -> secC [label="key/value"];
+
+    // =========================================================
+    // Conceptual note (design intent)
+    // =========================================================
+    note [
+        shape=note,
+        label="A Concept is logically compact\nbut expands into a sparse,\ndistributed set of key/value\nassignments in the GRIB header"
+    ];
+
+    concept -> note [style=dotted, arrowhead=none];
+}
+
