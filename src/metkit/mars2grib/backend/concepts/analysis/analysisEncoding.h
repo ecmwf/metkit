@@ -109,13 +109,11 @@ constexpr bool analysisApplicable() {
  * @tparam Section  GRIB section index (compile-time constant)
  * @tparam Variant  Analysis concept variant
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
  *
  * @param[in]  mars MARS input dictionary
- * @param[in]  geo  Geometry dictionary (currently unused)
  * @param[in]  par  Parameter dictionary
  * @param[in]  opt  Options dictionary
  * @param[out] out  Output GRIB dictionary to be populated
@@ -133,10 +131,9 @@ constexpr bool analysisApplicable() {
  *
  * @see analysisApplicable
  */
-template <std::size_t Stage, std::size_t Section, AnalysisType Variant, class MarsDict_t, class GeoDict_t,
-          class ParDict_t, class OptDict_t, class OutDict_t>
-void AnalysisOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt,
-                OutDict_t& out) {
+template <std::size_t Stage, std::size_t Section, AnalysisType Variant, class MarsDict_t, class ParDict_t,
+          class OptDict_t, class OutDict_t>
+void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;

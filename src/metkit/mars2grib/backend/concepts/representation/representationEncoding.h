@@ -68,15 +68,15 @@
  *
  * ## Geometry handling
  *
- * Geometry parameters are currently retrieved **directly** from the
- * geometry dictionary (`geo`) using `get_or_throw`.
+ * Geometry parameters are in most cases retrieved from eckit::geo, based on the MARS key `grid`.
+ * For spherical harmonics, the geometry is based on the MARS key `truncation`.
  *
  * @warning
  * This is a transitional design.
  *
  * A dedicated grid/geometry deduction layer does not exist yet.
  * As a consequence:
- * - The concept performs direct access to geometry keys
+ * - The concept creates an eckit::geo::Grid object and retreives the relevant keys
  * - Validation of geometry consistency is minimal
  * - Responsibilities between geometry handling and encoding are not
  *   fully separated
@@ -190,7 +190,7 @@ constexpr bool representationApplicable() {
  *
  * - validation of the Grid Definition Template
  * - selection of the GRIB grid type
- * - extraction of geometry parameters
+ * - extraction of geometry parameters from eckit::geo::Grid object
  * - encoding of grid topology and resolution metadata
  *
  * The logic is entirely **variant-specific** and selected at compile time
@@ -200,13 +200,11 @@ constexpr bool representationApplicable() {
  * @tparam Section    GRIB section index
  * @tparam Variant    Representation variant
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
  *
  * @param[in]  mars MARS input dictionary (currently unused)
- * @param[in]  geo  Geometry dictionary providing grid parameters
  * @param[in]  par  Parameter dictionary (currently unused)
  * @param[in]  opt  Options dictionary
  * @param[out] out  Output GRIB dictionary to be populated
@@ -217,15 +215,10 @@ constexpr bool representationApplicable() {
  *         - the GRIB Grid Definition Template does not match expectations
  *         - required geometry information is missing or inconsistent
  *         - the representation variant is unsupported
- *
- * @note
- * This concept currently performs direct access to geometry parameters.
- * A dedicated grid deduction layer will be introduced in the future.
  */
-template <std::size_t Stage, std::size_t Section, RepresentationType Variant, class MarsDict_t, class GeoDict_t,
-          class ParDict_t, class OptDict_t, class OutDict_t>
-void RepresentationOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt,
-                      OutDict_t& out) {
+template <std::size_t Stage, std::size_t Section, RepresentationType Variant, class MarsDict_t, class ParDict_t,
+          class OptDict_t, class OutDict_t>
+void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;

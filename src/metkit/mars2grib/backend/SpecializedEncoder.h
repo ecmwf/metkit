@@ -77,17 +77,16 @@ using metkit::mars2grib::backend::config::makeEncoderConfiguration;
  * the ordered list of concept setter callbacks to execute.
  *
  * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the output GRIB dictionary
  */
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 class SpecializedEncoder {
 public:
 
     /// Type of a single concept setter callback
-    using Setter_t = Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+    using Setter_t = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
 
     /**
      * @brief Concept setters dispatch table.
@@ -113,10 +112,10 @@ public:
      * @param cfg Fully resolved encoder configuration
      */
     explicit SpecializedEncoder(const config::EncoderCfg& cfg) :
-        cfg_{cfg}, settersTable_{makeEncoderCallbacks<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>(cfg)} {}
+        cfg_{cfg}, settersTable_{makeEncoderCallbacks<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(cfg)} {}
 
     explicit SpecializedEncoder(const eckit::LocalConfiguration& cfg) :
-        SpecializedEncoder<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>(makeEncoderConfiguration(cfg)) {}
+        SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(makeEncoderConfiguration(cfg)) {}
 
     SpecializedEncoder(const SpecializedEncoder&)            = delete;
     SpecializedEncoder& operator=(const SpecializedEncoder&) = delete;
@@ -138,7 +137,6 @@ public:
      * The returned dictionary represents a fully populated GRIB message.
      *
      * @param mars MARS dictionary
-     * @param geo  Geometry dictionary
      * @param par  Parameter dictionary
      * @param opt  Options dictionary
      *
@@ -149,8 +147,7 @@ public:
      *         - input dictionaries (JSON)
      *         - encoder configuration (JSON)
      */
-    std::unique_ptr<OutDict_t> encode(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par,
-                                      const OptDict_t& opt) const {
+    std::unique_ptr<OutDict_t> encode(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) const {
 
         using metkit::mars2grib::backend::config::encoderConfiguration_to_json;
         using metkit::mars2grib::utils::dict_traits::clone_or_throw;
@@ -180,7 +177,7 @@ public:
                             << "      CONCEPT :: ****************************************************************"
                             << std::endl;
                         if (conceptSetter != nullptr) {
-                            conceptSetter(mars, geo, par, opt, *samplePtr);
+                            conceptSetter(mars, par, opt, *samplePtr);
                         }
                         // long isValid = samplePtr->getLong( "isMessageValid" );
                         // if ( isValid == 0 ) {
@@ -236,13 +233,11 @@ public:
                                      << std::endl;
 
             std::cout << "mars: " << dict_to_json<MarsDict_t>(mars) << std::endl;     // marsDict_json_
-            std::cout << "geo: " << dict_to_json<GeoDict_t>(geo) << std::endl;        // geoDict_json_
             std::cout << "par: " << dict_to_json<ParDict_t>(par) << std::endl;        // parDict_json_
             std::cout << "cfg: " << encoderConfiguration_to_json(cfg_) << std::endl;  // encoderCfg_json_
 
             std::throw_with_nested(Mars2GribEncoderException("Error during SpecializedEncoder::encode",
                                                              dict_to_json<MarsDict_t>(mars),      // marsDict_json_
-                                                             dict_to_json<GeoDict_t>(geo),        // geoDict_json_
                                                              dict_to_json<ParDict_t>(par),        // parDict_json_
                                                              dict_to_json<OptDict_t>(opt),        // optDict_json_
                                                              encoderConfiguration_to_json(cfg_),  // encoderCfg_json_

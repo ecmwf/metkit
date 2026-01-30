@@ -87,7 +87,6 @@ struct StatisticsConceptInfo {
      * @tparam Sec          GRIB section index
      * @tparam Variant      Statistics concept variant
      * @tparam MarsDict_t   Type of the MARS dictionary
-     * @tparam GeoDict_t    Type of the geometry dictionary
      * @tparam ParDict_t    Type of the parameter dictionary
      * @tparam OptDict_t    Type of the options dictionary
      * @tparam OutDict_t    Type of the output GRIB dictionary
@@ -99,11 +98,11 @@ struct StatisticsConceptInfo {
      * Applicability is determined by
      * `statisticsApplicable<Stage, Sec, Variant>()`.
      */
-    template <std::size_t Stage, std::size_t Sec, StatisticsType Variant, class MarsDict_t, class GeoDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> entry() {
+    template <std::size_t Stage, std::size_t Sec, StatisticsType Variant, class MarsDict_t, class ParDict_t,
+              class OptDict_t, class OutDict_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> entry() {
         if constexpr (statisticsApplicable<Stage, Sec, Variant>()) {
-            return &StatisticsOp<Stage, Sec, Variant, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+            return &StatisticsOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
         }
         else {
             return nullptr;

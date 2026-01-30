@@ -105,7 +105,6 @@ namespace metkit::mars2grib::backend::concepts_ {
  * the corresponding concept operation.
  *
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
@@ -115,7 +114,7 @@ namespace metkit::mars2grib::backend::concepts_ {
  * - All applicability decisions are resolved at compile time.
  * - The map is populated once and then treated as read-only.
  */
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 struct ConceptRegistry {
 
     /**
@@ -123,7 +122,7 @@ struct ConceptRegistry {
      *
      * This is the uniform callable signature for all concept operations.
      */
-    using FnPtr = Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+    using FnPtr = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
 
     /**
      * @brief Execution table type.
@@ -176,7 +175,6 @@ struct ConceptRegistry {
  * - inserts it into the registry
  *
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
@@ -187,76 +185,63 @@ struct ConceptRegistry {
  * - This function is intentionally **not** a singleton.
  * - It allows controlled instantiation for testing or alternative pipelines.
  */
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-ConceptRegistry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> make_concept_registry() {
-    using Registry = ConceptRegistry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+ConceptRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> make_concept_registry() {
+    using Registry = ConceptRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
 
     Registry registry;
 
-    RegisterVariants<NilConceptInfo, NilList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+    RegisterVariants<NilConceptInfo, NilList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
 
-    RegisterVariants<OriginConceptInfo, OriginList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
+    RegisterVariants<OriginConceptInfo, OriginList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<ParamConceptInfo, ParamList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<TablesConceptInfo, TablesList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+
+    RegisterVariants<DerivedConceptInfo, DerivedList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+
+    RegisterVariants<DataTypeConceptInfo, DataTypeList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<ReferenceTimeConceptInfo, ReferenceTimeList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
 
-    RegisterVariants<ParamConceptInfo, ParamList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
+    RegisterVariants<MarsConceptInfo, MarsList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<LongrangeConceptInfo, LongrangeList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<AnalysisConceptInfo, AnalysisList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<DestineConceptInfo, DestineList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<EnsembleConceptInfo, EnsembleList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<LevelConceptInfo, LevelList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<StatisticsConceptInfo, StatisticsList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<WaveConceptInfo, WaveList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<PointInTimeConceptInfo, PointInTimeList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
 
-    RegisterVariants<TablesConceptInfo, TablesList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
+    RegisterVariants<RepresentationConceptInfo, RepresentationList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
 
-
-    RegisterVariants<DerivedConceptInfo, DerivedList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-
-    RegisterVariants<DataTypeConceptInfo, DataTypeList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-    RegisterVariants<ReferenceTimeConceptInfo, ReferenceTimeList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
+    RegisterVariants<GeneratingProcessConceptInfo, GeneratingProcessList, MarsDict_t, ParDict_t, OptDict_t,
                      OutDict_t>::run(registry);
 
-    RegisterVariants<MarsConceptInfo, MarsList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
-
-    RegisterVariants<LongrangeConceptInfo, LongrangeList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
+    RegisterVariants<ShapeOfTheEarthConceptInfo, ShapeOfTheEarthList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
 
-    RegisterVariants<AnalysisConceptInfo, AnalysisList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
+    RegisterVariants<PackingConceptInfo, PackingList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<SatelliteConceptInfo, SatelliteList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
+
+    RegisterVariants<CompositionConceptInfo, CompositionList, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
         registry);
-
-    RegisterVariants<DestineConceptInfo, DestineList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-    RegisterVariants<EnsembleConceptInfo, EnsembleList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-    RegisterVariants<LevelConceptInfo, LevelList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-    RegisterVariants<StatisticsConceptInfo, StatisticsList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
-                     OutDict_t>::run(registry);
-
-    RegisterVariants<WaveConceptInfo, WaveList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(registry);
-
-    RegisterVariants<PointInTimeConceptInfo, PointInTimeList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
-                     OutDict_t>::run(registry);
-
-    RegisterVariants<RepresentationConceptInfo, RepresentationList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
-                     OutDict_t>::run(registry);
-
-    RegisterVariants<GeneratingProcessConceptInfo, GeneratingProcessList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
-                     OutDict_t>::run(registry);
-
-    RegisterVariants<ShapeOfTheEarthConceptInfo, ShapeOfTheEarthList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
-                     OutDict_t>::run(registry);
-
-    RegisterVariants<PackingConceptInfo, PackingList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-    RegisterVariants<SatelliteConceptInfo, SatelliteList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>::run(
-        registry);
-
-    RegisterVariants<CompositionConceptInfo, CompositionList, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t,
-                     OutDict_t>::run(registry);
 
     return registry;
 }
@@ -272,7 +257,6 @@ ConceptRegistry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> make_con
  * and reused for all subsequent accesses.
  *
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
@@ -283,9 +267,9 @@ ConceptRegistry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> make_con
  * - Thread-safe since C++11 (static local initialization).
  * - Registry contents are immutable after construction.
  */
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-ConceptRegistry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>& concept_registry_instance() {
-    static auto instance = make_concept_registry<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>();
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+ConceptRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>& concept_registry_instance() {
+    static auto instance = make_concept_registry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>();
 
     return instance;
 }

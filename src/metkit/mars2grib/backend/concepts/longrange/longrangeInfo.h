@@ -86,7 +86,6 @@ struct LongrangeConceptInfo {
      * @tparam Sec        GRIB section index
      * @tparam Variant    Longrange concept variant
      * @tparam MarsDict_t Type of the MARS dictionary
-     * @tparam GeoDict_t  Type of the geometry dictionary
      * @tparam ParDict_t  Type of the parameter dictionary
      * @tparam OptDict_t  Type of the options dictionary
      * @tparam OutDict_t  Type of the output GRIB dictionary
@@ -97,11 +96,11 @@ struct LongrangeConceptInfo {
      * @note
      * Applicability is determined by `longrangeApplicable<Stage, Sec, Variant>()`.
      */
-    template <std::size_t Stage, std::size_t Sec, LongrangeType Variant, class MarsDict_t, class GeoDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> entry() {
+    template <std::size_t Stage, std::size_t Sec, LongrangeType Variant, class MarsDict_t, class ParDict_t,
+              class OptDict_t, class OutDict_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> entry() {
         if constexpr (longrangeApplicable<Stage, Sec, Variant>()) {
-            return &LongrangeOp<Stage, Sec, Variant, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+            return &LongrangeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
         }
         else {
             return nullptr;

@@ -72,17 +72,14 @@ namespace metkit::mars2grib::backend::deductions {
  * applying a fixed, deterministic value corresponding to
  * a spherical Earth with radius 6371229 m.
  *
- * No inference from MARS, geometry, or options dictionaries
- * is currently performed.
+ * No inference from MARS, or options dictionaries  is currently performed.
  *
  * @tparam MarsDict_t Type of the MARS dictionary (unused)
  * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam GeomDict_t Type of the geometry dictionary (unused)
  * @tparam OptDict_t  Type of the options dictionary (unused)
  *
  * @param[in] mars MARS dictionary (unused)
  * @param[in] par  Parameter dictionary (unused)
- * @param[in] geom Geometry dictionary (unused)
  * @param[in] opt  Options dictionary (unused)
  *
  * @return
@@ -96,9 +93,9 @@ namespace metkit::mars2grib::backend::deductions {
  * - Introduce inference or configuration-based selection when
  *   non-spherical Earth representations are required.
  */
-template <class MarsDict_t, class ParDict_t, class GeomDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                                   const GeomDict_t& geom, const OptDict_t& opt) {
+                                                                   const OptDict_t& opt) {
     // Default value
     tables::ShapeOfTheReferenceSystem shapeOfTheEarth = tables::ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
 

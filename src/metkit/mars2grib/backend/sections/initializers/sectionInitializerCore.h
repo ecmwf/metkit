@@ -46,20 +46,19 @@ namespace metkit::mars2grib::backend::sections::initializers {
  * functions used by the mars2grib backend.
  *
  * A section initializer:
- * - consumes read-only frontend dictionaries (`Mars`, `Geo`, `Param`, `Options`)
+ * - consumes read-only frontend dictionaries (`Mars`, `Param`, `Options`)
  * - mutates the output GRIB dictionary corresponding to a specific section
  *
  * Initializers are invoked by the encoder once the appropriate GRIB
  * template has been selected.
  *
  * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the output GRIB dictionary
  */
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using Fn = void (*)(const MarsDict_t&, const GeoDict_t&, const ParDict_t&, const OptDict_t&, OutDict_t&);
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+using Fn = void (*)(const MarsDict_t&, const ParDict_t&, const OptDict_t&, OutDict_t&);
 
 /**
  * @brief Registry entry associating a GRIB template number with an initializer.
@@ -74,12 +73,11 @@ using Fn = void (*)(const MarsDict_t&, const GeoDict_t&, const ParDict_t&, const
  * - dispatch section initialization at runtime with zero dynamic allocation
  *
  * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the output GRIB dictionary
  */
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using Entry = std::pair<std::size_t, Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> >;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+using Entry = std::pair<std::size_t, Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> >;
 
 }  // namespace metkit::mars2grib::backend::sections::initializers

@@ -58,13 +58,11 @@ namespace metkit::mars2grib::backend::sections::initializers {
  * @tparam SectionNumber   GRIB section number (expected to be 3)
  * @tparam TemplateNumber  Grid definition template number
  * @tparam MarsDict_t      Type of the MARS dictionary
- * @tparam GeoDict_t       Type of the geometry dictionary
  * @tparam ParDict_t       Type of the parameter dictionary
  * @tparam OptDict_t       Type of the options dictionary
  * @tparam OutDict_t       Type of the output GRIB dictionary
  *
  * @param mars Read-only MARS dictionary
- * @param geo  Read-only geometry dictionary
  * @param par  Read-only parameter dictionary
  * @param opt  Read-only options dictionary
  * @param out  Output GRIB dictionary to be populated
@@ -77,10 +75,9 @@ namespace metkit::mars2grib::backend::sections::initializers {
  * spectral GRIB messages:
  * https://confluence.ecmwf.int/display/ECC/ecCodes+developer+FAQ+-+GRIB#ecCodesdeveloperFAQGRIB-GRIB:HowcanIconvertthesampleGRIB2.tmpltosphericalharmonics?
  */
-template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class GeoDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void allocateTemplateNumber3(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt,
-                             OutDict_t& out) {
+template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
+          class OutDict_t>
+void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
     // Dictionary traits
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
