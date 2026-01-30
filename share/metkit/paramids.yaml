@@ -14642,6 +14642,12 @@
 231072:
 - vswrz
 - Volumetric soil moisture (root zone)
+231073:
+- tcvmrpr
+- Total column vertical-maximum radar precipitation rate
+231074:
+- tcvmrr
+- Total column vertical-maximum radar reflectivity
 231500:
 - hits
 - Thunderstorm hazard index
@@ -15737,6 +15743,18 @@
 235411:
 - avg_cur
 - Time-mean urban cover
+235412:
+- avg_wse
+- Time-mean water surface elevation
+235413:
+- avg_grfr
+- Time-mean groundwater return flow rate
+235414:
+- avg_rivfldsto
+- Time-mean river and floodplain storage
+235415:
+- avg_darv
+- Time-mean depth-averaged river velocity
 236386:
 - acc_lshnf
 - Time-integrated land surface heat net flux
@@ -18081,6 +18099,18 @@
 240041:
 - rivcfar
 - Area of river coverage plus river related flooding
+240042:
+- wse
+- Water surface elevation
+240043:
+- grfr
+- Groundwater return flow rate
+240044:
+- rivfldsto
+- River and floodplain storage
+240045:
+- darv
+- Depth-averaged river velocity
 250001:
 - lat
 - Latitude
@@ -19759,6 +19789,12 @@
 - ercnfdr
 - Energy release component (as defined by the U.S Forest Service National Fire-Danger
   Rating System)
+260565:
+- pof
+- Probability of fire detection
+260566:
+- pil
+- Probability of ignition from lightning
 260600:
 - evpsfc
 - Mean evaporation
@@ -22441,108 +22477,529 @@
 400000:
 - mdens
 - Mass density
+400001:
+- avg_mdens
+- Time-mean mass density
+400003:
+- max_mdens
+- Time-maximum mass density
+400004:
+- min_mdens
+- Time-minimum mass density
+400005:
+- std_mdens
+- Time-standard-deviation mass density
 401000:
 - tcvimd
 - Total column vertically-integrated mass density
+401001:
+- avg_tcvimd
+- Time-mean total column vertically-integrated mass density
+401003:
+- max_tcvimd
+- Time-maximum total column vertically-integrated mass density
+401004:
+- min_tcvimd
+- Time-minimum total column vertically-integrated mass density
+401005:
+- std_tcvimd
+- Time-standard-deviation total column vertically-integrated mass density
 402000:
 - mass_mixrat
 - Mass mixing ratio
+402001:
+- avg_mass_mixrat
+- Time-mean mass mixing ratio
+402003:
+- max_mass_mixrat
+- Time-maximum mass mixing ratio
+402004:
+- min_mass_mixrat
+- Time-minimum mass mixing ratio
+402005:
+- std_mass_mixrat
+- Time-standard-deviation mass mixing ratio
 403000:
 - emi_mflx
 - Emission mass flux
+403001:
+- avg_emi_mflx
+- Time-mean emission mass flux
+403003:
+- max_emi_mflx
+- Time-maximum emission mass flux
+403004:
+- min_emi_mflx
+- Time-minimum emission mass flux
+403005:
+- std_emi_mflx
+- Time-standard-deviation emission mass flux
 404000:
 - drydep_vel
 - Dry deposition velocity
+404001:
+- avg_drydep_vel
+- Time-mean dry deposition velocity
+404003:
+- max_drydep_vel
+- Time-maximum dry deposition velocity
+404004:
+- min_drydep_vel
+- Time-minimum dry deposition velocity
+404005:
+- std_drydep_vel
+- Time-standard-deviation dry deposition velocity
 405000:
 - wetdep_mflx
 - Wet deposition mass flux
+405001:
+- avg_wetdep_mflx
+- Time-mean wet deposition mass flux
+405003:
+- max_wetdep_mflx
+- Time-maximum wet deposition mass flux
+405004:
+- min_wetdep_mflx
+- Time-minimum wet deposition mass flux
+405005:
+- std_wetdep_mflx
+- Time-standard-deviation wet deposition mass flux
 406000:
 - drydep_mflx
 - Dry deposition mass flux
+406001:
+- avg_drydep_mflx
+- Time-mean dry deposition mass flux
+406003:
+- max_drydep_mflx
+- Time-maximum dry deposition mass flux
+406004:
+- min_drydep_mflx
+- Time-minimum dry deposition mass flux
+406005:
+- std_drydep_mflx
+- Time-standard-deviation dry deposition mass flux
 407000:
 - sed_mflx
 - Sedimentation mass flux
+407001:
+- avg_sed_mflx
+- Time-mean sedimentation mass flux
+407003:
+- max_sed_mflx
+- Time-maximum sedimentation mass flux
+407004:
+- min_sed_mflx
+- Time-minimum sedimentation mass flux
+407005:
+- std_sed_mflx
+- Time-standard-deviation sedimentation mass flux
 408000:
 - vol_mixrat
 - Volume mixing ratio
+408001:
+- avg_vol_mixrat
+- Time-mean volume mixing ratio
+408003:
+- max_vol_mixrat
+- Time-maximum volume mixing ratio
+408004:
+- min_vol_mixrat
+- Time-minimum volume mixing ratio
+408005:
+- std_vol_mixrat
+- Time-standard-deviation volume mixing ratio
 409000:
 - vm_tc_vol_mixrat
 - Volume-mean total column mixing ratio
+409001:
+- avg_vm_tc_vol_mixrat
+- Time-mean volume-mean total column mixing ratio
+409003:
+- max_vm_tc_vol_mixrat
+- Time-maximum volume-mean total column mixing ratio
+409004:
+- min_vm_tc_vol_mixrat
+- Time-minimum volume-mean total column mixing ratio
+409005:
+- std_vm_tc_vol_mixrat
+- Time-standard-deviation volume-mean total column mixing ratio
 410000:
 - wetdep_mflx_lsp
 - Wet deposition mass flux by large-scale precipitation
+410001:
+- avg_wetdep_mflx_lsp
+- Time-mean wet deposition mass flux by large-scale precipitation
+410003:
+- max_wetdep_mflx_lsp
+- Time-maximum wet deposition mass flux by large-scale precipitation
+410004:
+- min_wetdep_mflx_lsp
+- Time-minimum wet deposition mass flux by large-scale precipitation
+410005:
+- std_wetdep_mflx_lsp
+- Time-standard-deviation wet deposition mass flux by large-scale precipitation
 411000:
 - wetdep_mflx_cp
 - Wet deposition mass flux by convective precipitation
+411001:
+- avg_wetdep_mflx_cp
+- Time-mean wet deposition mass flux by convective precipitation
+411003:
+- max_wetdep_mflx_cp
+- Time-maximum wet deposition mass flux by convective precipitation
+411004:
+- min_wetdep_mflx_cp
+- Time-minimum wet deposition mass flux by convective precipitation
+411005:
+- std_wetdep_mflx_cp
+- Time-standard-deviation wet deposition mass flux by convective precipitation
 412000:
 - emi_mflx_veg
 - Emission mass flux from vegetation
+412001:
+- avg_emi_mflx_veg
+- Time-mean emission mass flux from vegetation
+412003:
+- max_emi_mflx_veg
+- Time-maximum emission mass flux from vegetation
+412004:
+- min_emi_mflx_veg
+- Time-minimum emission mass flux from vegetation
+412005:
+- std_emi_mflx_veg
+- Time-standard-deviation emission mass flux from vegetation
 413000:
 - emi_mflx_natsrc
 - Emission mass flux from natural sources
+413001:
+- avg_emi_mflx_natsrc
+- Time-mean emission mass flux from natural sources
+413003:
+- max_emi_mflx_natsrc
+- Time-maximum emission mass flux from natural sources
+413004:
+- min_emi_mflx_natsrc
+- Time-minimum emission mass flux from natural sources
+413005:
+- std_emi_mflx_natsrc
+- Time-standard-deviation emission mass flux from natural sources
 414000:
 - emi_mflx_antsrc
 - Emission mass flux from anthropogenic sources
+414001:
+- avg_emi_mflx_antsrc
+- Time-mean emission mass flux from anthropogenic sources
+414003:
+- max_emi_mflx_antsrc
+- Time-maximum emission mass flux from anthropogenic sources
+414004:
+- min_emi_mflx_antsrc
+- Time-minimum emission mass flux from anthropogenic sources
+414005:
+- std_emi_mflx_antsrc
+- Time-standard-deviation emission mass flux from anthropogenic sources
 415000:
 - emi_mflx_elevantsrc
 - Emission mass flux from elevated anthropogenic sources
+415001:
+- avg_emi_mflx_elevantsrc
+- Time-mean emission mass flux from elevated anthropogenic sources
+415003:
+- max_emi_mflx_elevantsrc
+- Time-maximum emission mass flux from elevated anthropogenic sources
+415004:
+- min_emi_mflx_elevantsrc
+- Time-minimum emission mass flux from elevated anthropogenic sources
+415005:
+- std_emi_mflx_elevantsrc
+- Time-standard-deviation emission mass flux from elevated anthropogenic sources
 416000:
 - emi_mflx_sfcantsrc
 - Emission mass flux from surface anthropogenic sources
+416001:
+- avg_emi_mflx_sfcantsrc
+- Time-mean emission mass flux from surface anthropogenic sources
+416003:
+- max_emi_mflx_sfcantsrc
+- Time-maximum emission mass flux from surface anthropogenic sources
+416004:
+- min_emi_mflx_sfcantsrc
+- Time-minimum emission mass flux from surface anthropogenic sources
+416005:
+- std_emi_mflx_sfcantsrc
+- Time-standard-deviation emission mass flux from surface anthropogenic sources
 417000:
 - emi_mflx_biomburn
 - Emission mass flux from biomass burning
+417001:
+- avg_emi_mflx_biomburn
+- Time-mean emission mass flux from biomass burning
+417003:
+- max_emi_mflx_biomburn
+- Time-maximum emission mass flux from biomass burning
+417004:
+- min_emi_mflx_biomburn
+- Time-minimum emission mass flux from biomass burning
+417005:
+- std_emi_mflx_biomburn
+- Time-standard-deviation emission mass flux from biomass burning
 418000:
 - emi_mflx_aviation
 - Emission from aviation
+418001:
+- avg_emi_mflx_aviation
+- Time-mean emission from aviation
+418003:
+- max_emi_mflx_aviation
+- Time-maximum emission from aviation
+418004:
+- min_emi_mflx_aviation
+- Time-minimum emission from aviation
+418005:
+- std_emi_mflx_aviation
+- Time-standard-deviation emission from aviation
 419000:
 - emi_mflx_agriliv
 - Emission mass flux from agriculture livestock
+419001:
+- avg_emi_mflx_agriliv
+- Time-mean emission mass flux from agriculture livestock
+419003:
+- max_emi_mflx_agriliv
+- Time-maximum emission mass flux from agriculture livestock
+419004:
+- min_emi_mflx_agriliv
+- Time-minimum emission mass flux from agriculture livestock
+419005:
+- std_emi_mflx_agriliv
+- Time-standard-deviation emission mass flux from agriculture livestock
 420000:
 - emi_mflx_agrisol
 - Emission mass flux from agriculture soils
+420001:
+- avg_emi_mflx_agrisol
+- Time-mean emission mass flux from agriculture soils
+420003:
+- max_emi_mflx_agrisol
+- Time-maximum emission mass flux from agriculture soils
+420004:
+- min_emi_mflx_agrisol
+- Time-minimum emission mass flux from agriculture soils
+420005:
+- std_emi_mflx_agrisol
+- Time-standard-deviation emission mass flux from agriculture soils
 421000:
 - emi_mflx_agriwasburn
 - Emission mass flux from agricultural waste burning
+421001:
+- avg_emi_mflx_agriwasburn
+- Time-mean emission mass flux from agricultural waste burning
+421003:
+- max_emi_mflx_agriwasburn
+- Time-maximum emission mass flux from agricultural waste burning
+421004:
+- min_emi_mflx_agriwasburn
+- Time-minimum emission mass flux from agricultural waste burning
+421005:
+- std_emi_mflx_agriwasburn
+- Time-standard-deviation emission mass flux from agricultural waste burning
 422000:
 - emi_mflx_rescomb
 - Emission mass flux from residential, commercial and other combustion
+422001:
+- avg_emi_mflx_rescomb
+- Time-mean emission mass flux from residential, commercial and other combustion
+422003:
+- max_emi_mflx_rescomb
+- Time-maximum emission mass flux from residential, commercial and other combustion
+422004:
+- min_emi_mflx_rescomb
+- Time-minimum emission mass flux from residential, commercial and other combustion
+422005:
+- std_emi_mflx_rescomb
+- Time-standard-deviation emission mass flux from residential, commercial and other
+  combustion
 423000:
 - emi_mflx_powgen
 - Emission mass flux from power generation
+423001:
+- avg_emi_mflx_powgen
+- Time-mean emission mass flux from power generation
+423003:
+- max_emi_mflx_powgen
+- Time-maximum emission mass flux from power generation
+423004:
+- min_emi_mflx_powgen
+- Time-minimum emission mass flux from power generation
+423005:
+- std_emi_mflx_powgen
+- Time-standard-deviation emission mass flux from power generation
 424000:
 - emi_mflx_fug
 - Emission mass flux from fugitives
+424001:
+- avg_emi_mflx_fug
+- Time-mean emission mass flux from fugitives
+424003:
+- max_emi_mflx_fug
+- Time-maximum emission mass flux from fugitives
+424004:
+- min_emi_mflx_fug
+- Time-minimum emission mass flux from fugitives
+424005:
+- std_emi_mflx_fug
+- Time-standard-deviation emission mass flux from fugitives
 425000:
 - emi_mflx_indproc
 - Emission mass flux from industrial process
+425001:
+- avg_emi_mflx_indproc
+- Time-mean emission mass flux from industrial process
+425003:
+- max_emi_mflx_indproc
+- Time-maximum emission mass flux from industrial process
+425004:
+- min_emi_mflx_indproc
+- Time-minimum emission mass flux from industrial process
+425005:
+- std_emi_mflx_indproc
+- Time-standard-deviation emission mass flux from industrial process
 426000:
 - emi_mflx_solv
 - Emission mass flux from solvents
+426001:
+- avg_emi_mflx_solv
+- Time-mean emission mass flux from solvents
+426003:
+- max_emi_mflx_solv
+- Time-maximum emission mass flux from solvents
+426004:
+- min_emi_mflx_solv
+- Time-minimum emission mass flux from solvents
+426005:
+- std_emi_mflx_solv
+- Time-standard-deviation emission mass flux from solvents
 427000:
 - emi_mflx_shp
 - Emission mass flux from ships
+427001:
+- avg_emi_mflx_shp
+- Time-mean emission mass flux from ships
+427003:
+- max_emi_mflx_shp
+- Time-maximum emission mass flux from ships
+427004:
+- min_emi_mflx_shp
+- Time-minimum emission mass flux from ships
+427005:
+- std_emi_mflx_shp
+- Time-standard-deviation emission mass flux from ships
 428000:
 - emi_mflx_wastes
 - Emission mass flux from wastes (solid and water)
+428001:
+- avg_emi_mflx_wastes
+- Time-mean emission mass flux from wastes (solid and water)
+428003:
+- max_emi_mflx_wastes
+- Time-maximum emission mass flux from wastes (solid and water)
+428004:
+- min_emi_mflx_wastes
+- Time-minimum emission mass flux from wastes (solid and water)
+428005:
+- std_emi_mflx_wastes
+- Time-standard-deviation emission mass flux from wastes (solid and water)
 429000:
 - emi_mflx_offrdtrans
 - Emission mass flux from off-road transportation
+429001:
+- avg_emi_mflx_offrdtrans
+- Time-mean emission mass flux from off-road transportation
+429003:
+- max_emi_mflx_offrdtrans
+- Time-maximum emission mass flux from off-road transportation
+429004:
+- min_emi_mflx_offrdtrans
+- Time-minimum emission mass flux from off-road transportation
+429005:
+- std_emi_mflx_offrdtrans
+- Time-standard-deviation emission mass flux from off-road transportation
 430000:
 - emi_mflx_rdtrans
 - Emission mass flux from road transportation
+430001:
+- avg_emi_mflx_rdtrans
+- Time-mean emission mass flux from road transportation
+430003:
+- max_emi_mflx_rdtrans
+- Time-maximum emission mass flux from road transportation
+430004:
+- min_emi_mflx_rdtrans
+- Time-minimum emission mass flux from road transportation
+430005:
+- std_emi_mflx_rdtrans
+- Time-standard-deviation emission mass flux from road transportation
 431000:
 - emi_mflx_suppowstn
 - Emission mass flux from super power stations
+431001:
+- avg_emi_mflx_suppowstn
+- Time-mean emission mass flux from super power stations
+431003:
+- max_emi_mflx_suppowstn
+- Time-maximum emission mass flux from super power stations
+431004:
+- min_emi_mflx_suppowstn
+- Time-minimum emission mass flux from super power stations
+431005:
+- std_emi_mflx_suppowstn
+- Time-standard-deviation emission mass flux from super power stations
 432000:
 - emi_mflx_settl
 - Emission mass flux from settlements
+432001:
+- avg_emi_mflx_settl
+- Time-mean emission mass flux from settlements
+432003:
+- max_emi_mflx_settl
+- Time-maximum emission mass flux from settlements
+432004:
+- min_emi_mflx_settl
+- Time-minimum emission mass flux from settlements
+432005:
+- std_emi_mflx_settl
+- Time-standard-deviation emission mass flux from settlements
 433000:
 - emi_mflx_vol
 - Emission mass flux from volcanoes
+433001:
+- avg_emi_mflx_vol
+- Time-mean emission mass flux from volcanoes
+433003:
+- max_emi_mflx_vol
+- Time-maximum emission mass flux from volcanoes
+433004:
+- min_emi_mflx_vol
+- Time-minimum emission mass flux from volcanoes
+433005:
+- std_emi_mflx_vol
+- Time-standard-deviation emission mass flux from volcanoes
 434000:
 - emi_mflx_wetl
 - Emission mass flux from wetlands
+434001:
+- avg_emi_mflx_wetl
+- Time-mean emission mass flux from wetlands
+434003:
+- max_emi_mflx_wetl
+- Time-maximum emission mass flux from wetlands
+434004:
+- min_emi_mflx_wetl
+- Time-minimum emission mass flux from wetlands
+434005:
+- std_emi_mflx_wetl
+- Time-standard-deviation emission mass flux from wetlands
 435000:
 - neef
 - Net ecosystem exchange flux
@@ -22552,6 +23009,15 @@
 435002:
 - aneef
 - Accumulated net ecosystem exchange flux
+435003:
+- max_neef
+- Time-maximum net ecosystem exchange flux
+435004:
+- min_neef
+- Time-minimum net ecosystem exchange flux
+435005:
+- std_neef
+- Time-standard-deviation net ecosystem exchange flux
 436000:
 - gppf
 - Gross primary production flux
@@ -22561,6 +23027,15 @@
 436002:
 - agppf
 - Accumulated gross primary production flux
+436003:
+- max_gppf
+- Time-maximum gross primary production flux
+436004:
+- min_gppf
+- Time-minimum gross primary production flux
+436005:
+- std_gppf
+- Time-standard-deviation gross primary production flux
 437000:
 - erf
 - Ecosystem respiration flux
@@ -22570,24 +23045,105 @@
 437002:
 - aerf
 - Accumulated ecosystem respiration flux
+437003:
+- max_erf
+- Time-maximum ecosystem respiration flux
+437004:
+- min_erf
+- Time-minimum ecosystem respiration flux
+437005:
+- std_erf
+- Time-standard-deviation ecosystem respiration flux
 438000:
 - emi_mflx_biofuel
 - Emission mass flux from bio fuel
+438001:
+- avg_emi_mflx_biofuel
+- Time-mean emission mass flux from bio fuel
+438003:
+- max_emi_mflx_biofuel
+- Time-maximum emission mass flux from bio fuel
+438004:
+- min_emi_mflx_biofuel
+- Time-minimum emission mass flux from bio fuel
+438005:
+- std_emi_mflx_biofuel
+- Time-standard-deviation emission mass flux from bio fuel
 439000:
 - emi_mflx_fossilfuel
 - Emission mass flux from fossil fuel
+439001:
+- avg_emi_mflx_fossilfuel
+- Time-mean emission mass flux from fossil fuel
+439003:
+- max_emi_mflx_fossilfuel
+- Time-maximum emission mass flux from fossil fuel
+439004:
+- min_emi_mflx_fossilfuel
+- Time-minimum emission mass flux from fossil fuel
+439005:
+- std_emi_mflx_fossilfuel
+- Time-standard-deviation emission mass flux from fossil fuel
 440000:
 - emi_mflx_other
 - Emission mass flux from other
+440001:
+- avg_emi_mflx_other
+- Time-mean emission mass flux from other
+440003:
+- max_emi_mflx_other
+- Time-maximum emission mass flux from other
+440004:
+- min_emi_mflx_other
+- Time-minimum emission mass flux from other
+440005:
+- std_emi_mflx_other
+- Time-standard-deviation emission mass flux from other
 441000:
 - emi_mflx_ocean
 - Emission mass flux from oceans
+441001:
+- avg_emi_mflx_ocean
+- Time-mean emission mass flux from oceans
+441003:
+- max_emi_mflx_ocean
+- Time-maximum emission mass flux from oceans
+441004:
+- min_emi_mflx_ocean
+- Time-minimum emission mass flux from oceans
+441005:
+- std_emi_mflx_ocean
+- Time-standard-deviation emission mass flux from oceans
 442000:
 - emi_mflx_soil
 - Emission mass flux from soil
+442001:
+- avg_emi_mflx_soil
+- Time-mean emission mass flux from soil
+442003:
+- max_emi_mflx_soil
+- Time-maximum emission mass flux from soil
+442004:
+- min_emi_mflx_soil
+- Time-minimum emission mass flux from soil
+442005:
+- std_emi_mflx_soil
+- Time-standard-deviation emission mass flux from soil
 443000:
 - emi_mflx_wildanim
 - Emission mass flux from wild animals
+443001:
+- avg_emi_mflx_wildanim
+- Time-mean emission mass flux from wild animals
+443003:
+- max_emi_mflx_wildanim
+- Time-maximum emission mass flux from wild animals
+443004:
+- min_emi_mflx_wildanim
+- Time-minimum emission mass flux from wild animals
+443005:
+- std_emi_mflx_wildanim
+- Time-standard-deviation emission mass flux from wild animals
 444000:
 - acc_wetdep_mflx
 - Accumulated wet deposition mass flux
@@ -22597,81 +23153,406 @@
 450000:
 - aer_ndens
 - Aerosol number density
+450001:
+- avg_aer_ndens
+- Time-mean aerosol number density
+450003:
+- max_aer_ndens
+- Time-maximum aerosol number density
+450004:
+- min_aer_ndens
+- Time-minimum aerosol number density
+450005:
+- std_aer_ndens
+- Time-standard-deviation aerosol number density
 451000:
 - aer_negfix_mflx
 - Aerosol negative fixer mass flux
+451001:
+- avg_aer_negfix_mflx
+- Time-mean aerosol negative fixer mass flux
+451003:
+- max_aer_negfix_mflx
+- Time-maximum aerosol negative fixer mass flux
+451004:
+- min_aer_negfix_mflx
+- Time-minimum aerosol negative fixer mass flux
+451005:
+- std_aer_negfix_mflx
+- Time-standard-deviation aerosol negative fixer mass flux
 452000:
 - aer_sink_mflx
 - Aerosol sink/loss mass flux
+452001:
+- avg_aer_sink_mflx
+- Time-mean aerosol sink/loss mass flux
+452003:
+- max_aer_sink_mflx
+- Time-maximum aerosol sink/loss mass flux
+452004:
+- min_aer_sink_mflx
+- Time-minimum aerosol sink/loss mass flux
+452005:
+- std_aer_sink_mflx
+- Time-standard-deviation aerosol sink/loss mass flux
 453000:
 - aer_src_mflx
 - Aerosol source/gain mass flux
+453001:
+- avg_aer_src_mflx
+- Time-mean aerosol source/gain mass flux
+453003:
+- max_aer_src_mflx
+- Time-maximum aerosol source/gain mass flux
+453004:
+- min_aer_src_mflx
+- Time-minimum aerosol source/gain mass flux
+453005:
+- std_aer_src_mflx
+- Time-standard-deviation aerosol source/gain mass flux
 454000:
 - mass_mixrat_vol
 - Mass mixing ratio from volcanoes
+454001:
+- avg_mass_mixrat_vol
+- Time-mean mass mixing ratio from volcanoes
+454003:
+- max_mass_mixrat_vol
+- Time-maximum mass mixing ratio from volcanoes
+454004:
+- min_mass_mixrat_vol
+- Time-minimum mass mixing ratio from volcanoes
+454005:
+- std_mass_mixrat_vol
+- Time-standard-deviation mass mixing ratio from volcanoes
 455000:
 - tc_mdens_vol
 - Total column vertically-integrated mass density from volcanoes
+455001:
+- avg_tc_mdens_vol
+- Time-mean total column vertically-integrated mass density from volcanoes
+455003:
+- max_tc_mdens_vol
+- Time-maximum total column vertically-integrated mass density from volcanoes
+455004:
+- min_tc_mdens_vol
+- Time-minimum total column vertically-integrated mass density from volcanoes
+455005:
+- std_tc_mdens_vol
+- Time-standard-deviation total column vertically-integrated mass density from volcanoes
 456000:
 - drydep_vel_vol
 - Dry deposition velocity from volcanoes
+456001:
+- avg_drydep_vel_vol
+- Time-mean dry deposition velocity from volcanoes
+456003:
+- max_drydep_vel_vol
+- Time-maximum dry deposition velocity from volcanoes
+456004:
+- min_drydep_vel_vol
+- Time-minimum dry deposition velocity from volcanoes
+456005:
+- std_drydep_vel_vol
+- Time-standard-deviation dry deposition velocity from volcanoes
 457000:
 - aod
 - Aerosol optical depth
+457001:
+- avg_aod
+- Time-mean aerosol optical depth
+457003:
+- max_aod
+- Time-maximum aerosol optical depth
+457004:
+- min_aod
+- Time-minimum aerosol optical depth
+457005:
+- std_aod
+- Time-standard-deviation aerosol optical depth
 458000:
 - ssa
 - Single scattering albedo
+458001:
+- avg_ssa
+- Time-mean single scattering albedo
+458003:
+- max_ssa
+- Time-maximum single scattering albedo
+458004:
+- min_ssa
+- Time-minimum single scattering albedo
+458005:
+- std_ssa
+- Time-standard-deviation single scattering albedo
 459000:
 - asymf
 - Asymmetry Factor
+459001:
+- avg_asymf
+- Time-mean asymmetry Factor
+459003:
+- max_asymf
+- Time-maximum asymmetry Factor
+459004:
+- min_asymf
+- Time-minimum asymmetry Factor
+459005:
+- std_asymf
+- Time-standard-deviation asymmetry Factor
 460000:
 - aerbscattoa
 - Attenuated aerosol backscatter from top of atmosphere
+460001:
+- avg_aerbscattoa
+- Time-mean attenuated aerosol backscatter from top of atmosphere
+460003:
+- max_aerbscattoa
+- Time-maximum attenuated aerosol backscatter from top of atmosphere
+460004:
+- min_aerbscattoa
+- Time-minimum attenuated aerosol backscatter from top of atmosphere
+460005:
+- std_aerbscattoa
+- Time-standard-deviation attenuated aerosol backscatter from top of atmosphere
 461000:
 - aerbscatgnd
 - Attenuated aerosol backscatter from ground
+461001:
+- avg_aerbscatgnd
+- Time-mean attenuated aerosol backscatter from ground
+461003:
+- max_aerbscatgnd
+- Time-maximum attenuated aerosol backscatter from ground
+461004:
+- min_aerbscatgnd
+- Time-minimum attenuated aerosol backscatter from ground
+461005:
+- std_aerbscatgnd
+- Time-standard-deviation attenuated aerosol backscatter from ground
 462000:
 - aerext
 - Aerosol extinction coefficient
+462001:
+- avg_aerext
+- Time-mean aerosol extinction coefficient
+462003:
+- max_aerext
+- Time-maximum aerosol extinction coefficient
+462004:
+- min_aerext
+- Time-minimum aerosol extinction coefficient
+462005:
+- std_aerext
+- Time-standard-deviation aerosol extinction coefficient
 463000:
 - emi_mflx_cbh
 - Emission mass flux from commercial buildings heating
+463001:
+- avg_emi_mflx_cbh
+- Time-mean emission mass flux from commercial buildings heating
+463003:
+- max_emi_mflx_cbh
+- Time-maximum emission mass flux from commercial buildings heating
+463004:
+- min_emi_mflx_cbh
+- Time-minimum emission mass flux from commercial buildings heating
+463005:
+- std_emi_mflx_cbh
+- Time-standard-deviation emission mass flux from commercial buildings heating
 464000:
 - emi_mflx_rh
 - Emission mass flux from residential heating
+464001:
+- avg_emi_mflx_rh
+- Time-mean emission mass flux from residential heating
+464003:
+- max_emi_mflx_rh
+- Time-maximum emission mass flux from residential heating
+464004:
+- min_emi_mflx_rh
+- Time-minimum emission mass flux from residential heating
+464005:
+- std_emi_mflx_rh
+- Time-standard-deviation emission mass flux from residential heating
 465000:
 - emi_mflx_oti
 - Emission mass flux from oil refineries and transformation industry
+465001:
+- avg_emi_mflx_oti
+- Time-mean emission mass flux from oil refineries and transformation industry
+465003:
+- max_emi_mflx_oti
+- Time-maximum emission mass flux from oil refineries and transformation industry
+465004:
+- min_emi_mflx_oti
+- Time-minimum emission mass flux from oil refineries and transformation industry
+465005:
+- std_emi_mflx_oti
+- Time-standard-deviation emission mass flux from oil refineries and transformation
+  industry
 466000:
 - emi_mflx_gp
 - Emission mass flux from gas production
+466001:
+- avg_emi_mflx_gp
+- Time-mean emission mass flux from gas production
+466003:
+- max_emi_mflx_gp
+- Time-maximum emission mass flux from gas production
+466004:
+- min_emi_mflx_gp
+- Time-minimum emission mass flux from gas production
+466005:
+- std_emi_mflx_gp
+- Time-standard-deviation emission mass flux from gas production
 467000:
 - mass_mixrat_diff
 - Mass mixing ratio difference
+467001:
+- avg_mass_mixrat_diff
+- Time-mean mass mixing ratio difference
+467003:
+- max_mass_mixrat_diff
+- Time-maximum mass mixing ratio difference
+467004:
+- min_mass_mixrat_diff
+- Time-minimum mass mixing ratio difference
+467005:
+- std_mass_mixrat_diff
+- Time-standard-deviation mass mixing ratio difference
 468000:
 - mass_mixrat_vol_diff
 - Mass mixing ratio from volcanoes difference
+468001:
+- avg_mass_mixrat_vol_diff
+- Time-mean mass mixing ratio from volcanoes difference
+468003:
+- max_mass_mixrat_vol_diff
+- Time-maximum mass mixing ratio from volcanoes difference
+468004:
+- min_mass_mixrat_vol_diff
+- Time-minimum mass mixing ratio from volcanoes difference
+468005:
+- std_mass_mixrat_vol_diff
+- Time-standard-deviation mass mixing ratio from volcanoes difference
 469000:
 - emi_mflx_wfire
 - Emission mass flux from wild fires
+469001:
+- avg_emi_mflx_wfire
+- Time-mean emission mass flux from wild fires
+469003:
+- max_emi_mflx_wfire
+- Time-maximum emission mass flux from wild fires
+469004:
+- min_emi_mflx_wfire
+- Time-minimum emission mass flux from wild fires
+469005:
+- std_emi_mflx_wfire
+- Time-standard-deviation emission mass flux from wild fires
 470000:
 - snkmf
 - Sink mass flux
+470001:
+- avg_snkmf
+- Time-mean sink mass flux
+470003:
+- max_snkmf
+- Time-maximum sink mass flux
+470004:
+- min_snkmf
+- Time-minimum sink mass flux
+470005:
+- std_snkmf
+- Time-standard-deviation sink mass flux
 471000:
 - srcmf
 - Source mass flux
+471001:
+- avg_srcmf
+- Time-mean source mass flux
+471003:
+- max_srcmf
+- Time-maximum source mass flux
+471004:
+- min_srcmf
+- Time-minimum source mass flux
+471005:
+- std_srcmf
+- Time-standard-deviation source mass flux
 472000:
 - absaod
 - Absorption aerosol optical thickness
+472001:
+- avg_absaod
+- Time-mean absorption aerosol optical thickness
+472003:
+- max_absaod
+- Time-maximum absorption aerosol optical thickness
+472004:
+- min_absaod
+- Time-minimum absorption aerosol optical thickness
+472005:
+- std_absaod
+- Time-standard-deviation absorption aerosol optical thickness
 473000:
 - tropvimd
 - Tropospheric column vertically-integrated mass density
+473001:
+- avg_tropvimd
+- Time-mean tropospheric column vertically-integrated mass density
+473003:
+- max_tropvimd
+- Time-maximum tropospheric column vertically-integrated mass density
+473004:
+- min_tropvimd
+- Time-minimum tropospheric column vertically-integrated mass density
+473005:
+- std_tropvimd
+- Time-standard-deviation tropospheric column vertically-integrated mass density
 474000:
 - stratvimd
 - Stratospheric column vertically-integrated mass density
+474001:
+- avg_stratvimd
+- Time-mean stratospheric column vertically-integrated mass density
+474003:
+- max_stratvimd
+- Time-maximum stratospheric column vertically-integrated mass density
+474004:
+- min_stratvimd
+- Time-minimum stratospheric column vertically-integrated mass density
+474005:
+- std_stratvimd
+- Time-standard-deviation stratospheric column vertically-integrated mass density
 475000:
 - aerbscat
 - Aerosol unattenuated backscatter coefficient
+475001:
+- avg_aerbscat
+- Time-mean aerosol unattenuated backscatter coefficient
+475003:
+- max_aerbscat
+- Time-maximum aerosol unattenuated backscatter coefficient
+475004:
+- min_aerbscat
+- Time-minimum aerosol unattenuated backscatter coefficient
+475005:
+- std_aerbscat
+- Time-standard-deviation aerosol unattenuated backscatter coefficient
+476000:
+- ph
+- Potential of hydrogen
+477000:
+- strataod
+- Stratospheric aerosol optical thickness
+478000:
+- emi_mflx_lightn
+- Emission mass flux from lightning
+479000:
+- lsroh
+- Loss rate due to OH
 500000:
 - ps
 - Pressure (S) (not reduced)
