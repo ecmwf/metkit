@@ -15,6 +15,7 @@
 
 #include "eccodes.h"
 
+
 namespace std {
 template <>
 struct default_delete<codes_handle> {
@@ -69,6 +70,7 @@ public:
 
 
     size_t messageSize() const override;
+    Span<const uint8_t> messageData() const override;
     bool isDefined(const std::string& key) const override;
     bool isMissing(const std::string& key) const override;
     bool has(const std::string& key) const override;
@@ -85,6 +87,7 @@ public:
     void forceSet(const std::string& key, Span<const double> value) override;
     void forceSet(const std::string& key, Span<const float> value) override;
     size_t size(const std::string& key) const override;
+    size_t length(const std::string& key) const override;
     CodesValue get(const std::string& key) const override;
     NativeType type(const std::string& key) const override;
     long getLong(const std::string& key) const override;
@@ -136,6 +139,7 @@ size_t OwningCodesHandle::messageSize() const {
     throwOnError(codes_get_message_size(raw(), &size), Here(), "CodesHandle::messageSize()");
     return size;
 }
+
 
 bool OwningCodesHandle::isDefined(const std::string& key) const {
     return codes_is_defined(raw(), key.c_str()) == 1;
@@ -212,6 +216,12 @@ size_t OwningCodesHandle::size(const std::string& key) const {
     size_t size;
     throwOnError(codes_get_size(raw(), key.c_str(), &size), Here(), "CodesHandle::size(string)", key);
     return size;
+}
+
+size_t OwningCodesHandle::length(const std::string& key) const {
+    size_t length;
+    throwOnError(codes_get_length(raw(), key.c_str(), &length), Here(), "CodesHandle::length(string)", key);
+    return length;
 }
 
 /// Get the value of the key
@@ -345,7 +355,7 @@ std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& ke
 
 std::vector<uint8_t> OwningCodesHandle::getBytes(const std::string& key) const {
     std::vector<uint8_t> ret;
-    std::size_t ksize = size(key);
+    std::size_t ksize = length(key) / 2;
     ret.resize(ksize);
     throwOnError(codes_get_bytes(raw(), key.c_str(), ret.data(), &ksize), Here(), "CodesHandle::getBytes(string)", key);
     ret.resize(ksize);
@@ -365,6 +375,15 @@ std::unique_ptr<CodesHandle> OwningCodesHandle::clone() const {
 void OwningCodesHandle::copyInto(uint8_t* data, size_t size) const {
     std::size_t s = size;
     throwOnError(codes_get_message_copy(raw(), data, &s), Here(), "CodesHandle::copy(uint8_t*, size_t*)");
+}
+
+/// Copy the message into a new allocated buffer
+Span<const uint8_t> OwningCodesHandle::messageData() const {
+    size_t s;
+    const uint8_t* data;
+    throwOnError(codes_get_message(raw(), reinterpret_cast<const void**>(&data), &s), Here(),
+                 "CodesHandle::messageData()");
+    return {data, s};
 }
 
 
@@ -489,7 +508,7 @@ public:  // methods
     std::vector<uint8_t> getBytes() const override {
         std::vector<uint8_t> ret;
         std::string key  = name();
-        std::size_t size = refHandle_.get().size(key);
+        std::size_t size = refHandle_.get().length(key) / 2;
         ret.resize(size);
         throwOnError(codes_keys_iterator_get_bytes(it_.get(), ret.data(), &size), Here(), "KeyIterator::getBytes()");
         ret.resize(size);
