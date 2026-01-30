@@ -51,6 +51,7 @@
 // System includes
 #include <iostream>
 #include <limits>
+#include <regex>
 #include <utility>
 
 // eckit
@@ -162,6 +163,38 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
     return opts;
 }
 
+/**
+ * @brief Fix key `grid` in `mars` if it contains a known incorrect grid
+ *
+ * This function only exists to support grids which are not supported by eckit::geo, but have been supported by this
+ * encoder in the past.
+ *
+ * @param[in] mars
+ *   MARS dictionary, potentially containing a wrong `grid` value
+ *
+ * @return
+ *   The corrected MARS dictionary
+ */
+eckit::LocalConfiguration fixMarsGrid(eckit::LocalConfiguration mars) {
+    using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::has;
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
+
+    if (auto marsGrid = get_opt<std::string>(mars, "grid"); marsGrid.has_value()) {
+        static const std::regex pattern{R"(L(\d+)x(\d+))"};
+        std::smatch match;
+        if (std::regex_match(*marsGrid, match, pattern)) {
+            const long ni         = std::stol(match[1].str());
+            const long nj         = std::stol(match[2].str());
+            const double deltaLon = 360.0 / static_cast<double>(ni);
+            const double deltaLat = 180.0 / static_cast<double>(nj - 1);
+            marsGrid              = std::to_string(deltaLon) + "/" + std::to_string(deltaLat);
+            set_or_throw(mars, "grid", *marsGrid);
+        }
+    }
+    return mars;
+}
+
 }  // namespace impl
 
 
@@ -184,6 +217,8 @@ Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{impl::readOp
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
+    // Fix a potentially incorrect MARS grid keyword
+    const auto fixedMars = impl::fixMarsGrid(mars);
 
     /**
      * The encoder is fully specialized at this point:
@@ -198,10 +233,10 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<
 
     try {
         // Frontend: derive encoder configuration from MARS dictionary
-        const auto headerLayout = frontend::buildEncoderConfig(mars);
+        const auto headerLayout = frontend::buildEncoderConfig(fixedMars);
 
         // Backend: construct GRIB header
-        auto gribHeader = encoder{headerLayout}.encode(mars, misc, opts_);
+        auto gribHeader = encoder{headerLayout}.encode(fixedMars, misc, opts_);
 
         // Inject values and return final GRIB handle
         return impl::encodeValues(misc, values, std::move(gribHeader));

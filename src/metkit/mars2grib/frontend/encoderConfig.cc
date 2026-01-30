@@ -13,8 +13,10 @@
 #include <string>
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/geo/Grid.h"
 #include "eckit/log/CodeLocation.h"
 #include "eckit/log/Log.h"
+#include "eckit/spec/Custom.h"
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
@@ -74,30 +76,22 @@ void setDefaults(eckit::LocalConfiguration& sections) {
 //========================= Grid Definition Section ==========================//
 
 void setGridDefinitionSection(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
-    if (const auto& grid = get_opt<std::string>(mars, "grid"); grid.has_value()) {
-        switch ((*grid)[0]) {
-            case 'F':
-                setRecursive(sections, "grid-definition-section.template-number", 40);  // Gaussian grid (GG)
-                setRecursive(sections, "grid-definition-section.representation.type", "regularGaussian");
-                break;
-            case 'O':
-                setRecursive(sections, "grid-definition-section.template-number", 40);  // Gaussian grid (GG)
-                setRecursive(sections, "grid-definition-section.representation.type", "reducedGaussian");
-                break;
-            case 'N':
-                if ((*grid).rfind("x") == std::string::npos) {
-                    setRecursive(sections, "grid-definition-section.template-number", 40);  // Gaussian grid (GG)
-                    setRecursive(sections, "grid-definition-section.representation.type", "reducedGaussian");
-                }
-                else {
-                    setRecursive(sections, "grid-definition-section.template-number", 0);  // Lat-long grid (LL)
-                }
-                break;
-            case 'L':
-                setRecursive(sections, "grid-definition-section.template-number", 0);  // Lat-long grid (LL)
-                break;
-            default:
-                throw eckit::Exception{"Unknown grid \"" + *grid + "\"!", Here()};
+    if (const auto& marsGrid = get_opt<std::string>(mars, "grid"); marsGrid.has_value()) {
+        const auto gridType = eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", *marsGrid}})->type();
+        if (gridType == "regular-gg") {
+            setRecursive(sections, "grid-definition-section.template-number", 40);  // Gaussian grid (GG)
+            setRecursive(sections, "grid-definition-section.representation.type", "regularGaussian");
+        }
+        else if (gridType == "reduced-gg") {
+            setRecursive(sections, "grid-definition-section.template-number", 40);  // Gaussian grid (GG)
+            setRecursive(sections, "grid-definition-section.representation.type", "reducedGaussian");
+        }
+        else if (gridType == "regular-ll") {
+            setRecursive(sections, "grid-definition-section.template-number", 0);  // Lat-long grid (LL)
+        }
+        else {
+            throw eckit::Exception{"Cannot encode grid \"" + *marsGrid + "\" with grid type \"" + gridType + "\"! ",
+                                   Here()};
         }
     }
     else if (has(mars, "truncation")) {

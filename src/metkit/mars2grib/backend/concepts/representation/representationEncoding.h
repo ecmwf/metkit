@@ -324,21 +324,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                 if constexpr (Variant == RepresentationType::Latlon) {
 
                     // Deductions
-                    auto marsGrid = get_or_throw<std::string>(mars, "grid");
-                    {
-                        // NOTE: IN THE TOOL, THE MARS KEYWORD GRID IS NOT CORRECTLY SET
-                        //       IT WILL BE IN THE FORMAT "L\d+x\d+" AND WE CONVERT IT HERE
-                        // TODO: FIX THE ISSUE IN THE TOOL AND REMOVE THIS CODE!
-                        static const std::regex pattern{R"(L(\d+)x(\d+))"};
-                        std::smatch match;
-                        if (std::regex_match(marsGrid, match, pattern)) {
-                            const long ni         = std::stol(match[1].str());
-                            const long nj         = std::stol(match[2].str());
-                            const double deltaLon = 360.0 / static_cast<double>(ni);
-                            const double deltaLat = 180.0 / static_cast<double>(nj - 1);
-                            marsGrid              = std::to_string(deltaLon) + "/" + std::to_string(deltaLat);
-                        }
-                    }
+                    auto marsGrid                      = get_or_throw<std::string>(mars, "grid");
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid = dynamic_cast<const eckit::geo::grid::regular::RegularLL*>(genericGrid.get());
