@@ -469,11 +469,7 @@ _field: &_field
   obscutoff:
     category: data
     multiple: true
-    type:
-      - context:
-          stream: [xwda]
-        type: time
-
+    type: time
 
   obsgroup:
     category: data
