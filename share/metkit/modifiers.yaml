@@ -110,6 +110,10 @@
     levelist: [100, 140, 180, 240, 300, 340, 390, 450]
 
 - context:
+    stream: ['!', xwda]
+  unset: [obscutoff]
+
+- context:
     type: [ssd, mpp, gsd, ob, fb, ai, af, ab, ofb, mfb, oai, sfb, fsoifb, fcdfb, tf, ofa]
   unset: [levelist]
 - context:
