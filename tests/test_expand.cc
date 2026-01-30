@@ -943,7 +943,8 @@ CASE("test_metkit_expand_frequency") {
 
 CASE("test_metkit_expand_obscutoff1") {
     const char* text =
-        "retrieve,class=rd,date=20201204,expver=hk3a,obsgroup=22,reportype=21001,obstype=1,stream=lwda,obscutoff=2,time=1200,type=mfb,"
+        "retrieve,class=rd,date=20201204,expver=hk3a,obsgroup=22,reportype=21001,obstype=1,stream=lwda,obscutoff=2,"
+        "time=1200,type=mfb,"
         "target=\"reference.vYyJf6.data\"";
     /// @todo DUPLICATES
     const char* expected =
@@ -954,33 +955,39 @@ CASE("test_metkit_expand_obscutoff1") {
 
 CASE("test_metkit_expand_obscutoff2") {
     const char* text =
-        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=2,time=1200,type=mfb,"
+        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=2,time="
+        "1200,type=mfb,"
         "target=\"reference.vYyJf6.data\"";
     /// @todo DUPLICATES
     const char* expected =
-        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,obstype=1,"
+        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,"
+        "obstype=1,"
         "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
     expand(text, expected);
 }
 
 CASE("test_metkit_expand_obscutoff3") {
     const char* text =
-        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=2h,time=1200,type=mfb,"
+        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=2h,time="
+        "1200,type=mfb,"
         "target=\"reference.vYyJf6.data\"";
     /// @todo DUPLICATES
     const char* expected =
-        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,obstype=1,"
+        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,"
+        "obstype=1,"
         "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
     expand(text, expected);
 }
 
 CASE("test_metkit_expand_obscutoff4") {
     const char* text =
-        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=120m,time=1200,type=mfb,"
+        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=120m,"
+        "time=1200,type=mfb,"
         "target=\"reference.vYyJf6.data\"";
     /// @todo DUPLICATES
     const char* expected =
-        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,obstype=1,"
+        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,"
+        "obstype=1,"
         "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
     expand(text, expected);
 }
