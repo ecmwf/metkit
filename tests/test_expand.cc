@@ -267,17 +267,9 @@ CASE("test_metkit_expand_2") {
     }
     {
         const char* text = "ret,levtype=ml";
-        ExpectedVals expected{{"class", {"od"}},
-                              {"domain", {"g"}},
-                              {"expver", {"0001"}},
-                              {"levelist", {"1000", "850", "700", "500", "400", "300"}},
-                              // {"levelist", {"1","2"}}, // keeping the old default, for MARS client tests
-                              {"levtype", {"ml"}},
-                              {"param", {"129"}},
-                              {"step", {"0"}},
-                              {"stream", {"oper"}},
-                              {"time", {"1200"}},
-                              {"type", {"an"}}};
+        ExpectedVals expected{{"class", {"od"}},   {"domain", {"g"}},  {"expver", {"0001"}}, {"levelist", {"1"}},
+                              {"levtype", {"ml"}}, {"param", {"129"}}, {"step", {"0"}},      {"stream", {"oper"}},
+                              {"time", {"1200"}},  {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
 }
@@ -949,6 +941,57 @@ CASE("test_metkit_expand_frequency") {
     expand(text, expected);
 }
 
+CASE("test_metkit_expand_obscutoff1") {
+    const char* text =
+        "retrieve,class=rd,date=20201204,expver=hk3a,obsgroup=22,reportype=21001,obstype=1,stream=lwda,obscutoff=2,"
+        "time=1200,type=mfb,"
+        "target=\"reference.vYyJf6.data\"";
+    /// @todo DUPLICATES
+    const char* expected =
+        "RETRIEVE,CLASS=RD,TYPE=MFB,STREAM=LWDA,EXPVER=hk3a,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,obstype=1,"
+        "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_obscutoff2") {
+    const char* text =
+        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=2,time="
+        "1200,type=mfb,"
+        "target=\"reference.vYyJf6.data\"";
+    /// @todo DUPLICATES
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,"
+        "obstype=1,"
+        "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_obscutoff3") {
+    const char* text =
+        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=2h,time="
+        "1200,type=mfb,"
+        "target=\"reference.vYyJf6.data\"";
+    /// @todo DUPLICATES
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,"
+        "obstype=1,"
+        "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
+    expand(text, expected);
+}
+
+CASE("test_metkit_expand_obscutoff4") {
+    const char* text =
+        "retrieve,class=od,date=20201204,expver=1,obsgroup=22,reportype=21001,obstype=1,stream=xwda,obscutoff=120m,"
+        "time=1200,type=mfb,"
+        "target=\"reference.vYyJf6.data\"";
+    /// @todo DUPLICATES
+    const char* expected =
+        "RETRIEVE,CLASS=OD,TYPE=MFB,STREAM=XWDA,obscutoff=0200,EXPVER=0001,REPRES=BU,OBSGROUP=AMSUA_AS,REPORTYPE=21001,"
+        "obstype=1,"
+        "DATE=20201204,TIME=1200,DOMAIN=G,TARGET=reference.vYyJf6.data,DUPLICATES=KEEP";
+    expand(text, expected);
+}
+
 // issues from https://confluence.ecmwf.int/pages/viewpage.action?pageId=496866851
 CASE("test_metkit_expand_MARSC-218") {
     // https://jira.ecmwf.int/browse/MARSC-218
@@ -1199,7 +1242,7 @@ CASE("test_metkit_expand_coeffindex") {
     }
 }
 
-CASE("test_metkit_expand_0") {
+CASE("test_metkit_expand_A") {
     const char* text =
         "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
         "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/"
@@ -1215,7 +1258,7 @@ CASE("test_metkit_expand_0") {
     expand(text, expected);
 }
 
-CASE("test_metkit_expand_1") {
+CASE("test_metkit_expand_B") {
     const char* text =
         "retrieve,accuracy=16,area=60.0/-60.0/-60.0/60.0,class=ea,date=20101029,expver=1,grid=0.30/0.30,levelist=1/"
         "to/137,levtype=ml,number=-1,param=q/t/u/v/lnsp/z,rotation=0.0/"
@@ -1231,7 +1274,7 @@ CASE("test_metkit_expand_1") {
     expand(text, expected);
 }
 
-CASE("test_metkit_expand_2") {
+CASE("test_metkit_expand_C") {
     const char* text =
         "retrieve,accuracy=12,area=90.0/0.0/-90.0/359.5,date=20240102,domain=g,grid=0.5/"
         "0.5,leve=off,levtype=sfc,padding=0,param=134/137/165/166/167/168/"

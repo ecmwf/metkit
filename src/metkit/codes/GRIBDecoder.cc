@@ -16,10 +16,10 @@
 #include "metkit/codes/GRIBDecoder.h"
 #include "metkit/codes/api/CodesAPI.h"
 
+#include "eccodes.h"
+
 #include <algorithm>
 #include <iostream>
-
-#include "eccodes.h"
 
 
 namespace metkit {
@@ -60,21 +60,24 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
                 break;
             }
             case eckit::message::ValueRepresentation::Native: {
-                // https://jira.ecmwf.int/browse/ECC-2166
-                if (name == "uuidOfHGrid") {
-                    // uuidOfHGrid returns size 1 although it contains 16 bytes
-                    gather.setValue(name, k.getString());
-                }
-                else {
-                    std::visit(
-                        [&](auto&& v) {
-                            using Type = std::decay_t<decltype(v)>;
-                            if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
-                                gather.setValue(name, std::forward<decltype(v)>(v));
-                            }
-                        },
-                        k.get());
-                }
+                std::visit(
+                    [&](auto&& v) {
+                        using Type = std::decay_t<decltype(v)>;
+                        if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
+                            gather.setValue(name, std::forward<decltype(v)>(v));
+                        }
+                        else if constexpr (std::is_same_v<Type, std::vector<uint8_t>>) {
+                            gather.setValue(name, k.getString());
+                        }
+                        else {
+                            // Unhandled types are all array types - the prior call checking `size != 1` only allows
+                            // for scalars.
+                            throw eckit::Exception(
+                                std::string("Unexpected type when accessing GRIB message metadata ") + typeid(v).name(),
+                                Here());
+                        }
+                    },
+                    k.get());
                 break;
             }
         }
