@@ -77,7 +77,7 @@ public:
 
                 try {
                     std::vector<double> values(1639680, 0.0);
-                    const auto& grib = metkit::mars2grib::Mars2Grib{}.encode(mars, misc, values);
+                    const auto& grib = metkit::mars2grib::Mars2Grib{}.encode(values, mars, misc);
                 }
                 catch (std::exception e) {
                     eckit::Log::error() << "Failure occured when API was called in test case " << count << std::endl;

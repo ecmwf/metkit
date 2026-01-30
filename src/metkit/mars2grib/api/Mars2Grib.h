@@ -153,68 +153,73 @@ public:
     /**
      * @brief Encode a field into a GRIB message.
      *
+     * @param[in] values
+     *   Field values to encode as double.
+     *
      * @param[in] mars
      *   MARS dictionary describing the field metadata.
      *
      * @param[in] misc
      *   Auxiliary metadata dictionary.
      *
-     * @param[in] values
-     *   Field values to encode as double.
-     *
      * @return
      *   A unique pointer to a GRIB handle containing the encoded message.
      */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc,
-                                                       const std::vector<double>& values);
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const std::vector<double>& values,
+                                                       const eckit::LocalConfiguration& mars,
+                                                       const eckit::LocalConfiguration& misc);
 
     /**
      * @brief Encode a field into a GRIB message.
      *
+     * @param[in] values
+     *   Field values to encode as float.
+     *
      * @param[in] mars
      *   MARS dictionary describing the field metadata.
      *
      * @param[in] misc
      *   Auxiliary metadata dictionary.
      *
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
+     */
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const std::vector<float>& values,
+                                                       const eckit::LocalConfiguration& mars,
+                                                       const eckit::LocalConfiguration& misc);
+
+    /**
+     * @brief Encode a field using only a MARS dictionary.
+     *
+     * This overload omits the `misc` dictionary.
+     *
+     * @param[in] values
+     *   Field values to encode as double.
+     *
+     * @param[in] mars
+     *   MARS dictionary describing the field metadata.
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
+     */
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const std::vector<double>& values,
+                                                       const eckit::LocalConfiguration& mars);
+
+    /**
+     * @brief Encode a field using only a MARS dictionary.
+     *
+     * This overload omits the `misc` dictionary.
+     *
      * @param[in] values
      *   Field values to encode as float.
+     *
+     * @param[in] mars
+     *   MARS dictionary describing the field metadata.
      *
      * @return
      *   A unique pointer to a GRIB handle containing the encoded message.
      */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc,
-                                                       const std::vector<float>& values);
-
-    /**
-     * @brief Encode a field using only a MARS dictionary.
-     *
-     * This overload omits the `misc` dictionary.
-     *
-     * @param[in] mars
-     *   MARS dictionary describing the field metadata.
-     *
-     * @param[in] values
-     *   Field values to encode as double.
-     */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const std::vector<double>& values);
-
-    /**
-     * @brief Encode a field using only a MARS dictionary.
-     *
-     * This overload omits the `misc` dictionary.
-     *
-     * @param[in] mars
-     *   MARS dictionary describing the field metadata.
-     *
-     * @param[in] values
-     *   Field values to encode as float.
-     */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const std::vector<float>& values);
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const std::vector<float>& values,
+                                                       const eckit::LocalConfiguration& mars);
 
 
     // ------------------------------------------------------------------
@@ -224,24 +229,11 @@ public:
     /**
      * @brief Encode a field from a raw value buffer.
      *
-     * @param[in] mars
-     *   MARS dictionary describing the field metadata.
-     *
-     * @param[in] misc
-     *   Auxiliary metadata dictionary.
-     *
      * @param[in] values
      *   Pointer to the field values as double.
      *
      * @param[in] length
      *   Number of values in the buffer.
-     */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc, const double* values,
-                                                       size_t length);
-
-    /**
-     * @brief Encode a field from a raw value buffer.
      *
      * @param[in] mars
      *   MARS dictionary describing the field metadata.
@@ -249,45 +241,70 @@ public:
      * @param[in] misc
      *   Auxiliary metadata dictionary.
      *
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
+     */
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const double* values, size_t length,
+                                                       const eckit::LocalConfiguration& mars,
+                                                       const eckit::LocalConfiguration& misc);
+
+    /**
+     * @brief Encode a field from a raw value buffer.
+     *
      * @param[in] values
      *   Pointer to the field values as float.
      *
      * @param[in] length
      *   Number of values in the buffer.
-     */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc, const float* values,
-                                                       size_t length);
-
-    /**
-     * @brief Encode a field from a raw value buffer.
      *
      * @param[in] mars
      *   MARS dictionary describing the field metadata.
+     *
+     * @param[in] misc
+     *   Auxiliary metadata dictionary.
+     *
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
+     */
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const float* values, size_t length,
+                                                       const eckit::LocalConfiguration& mars,
+                                                       const eckit::LocalConfiguration& misc);
+
+    /**
+     * @brief Encode a field from a raw value buffer.
      *
      * @param[in] values
      *   Pointer to the field values as double.
      *
      * @param[in] length
      *   Number of values in the buffer.
-     */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars, const double* values,
-                                                       size_t length);
-
-    /**
-     * @brief Encode a field from a raw value buffer.
      *
      * @param[in] mars
      *   MARS dictionary describing the field metadata.
+     *
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
+     */
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const double* values, size_t length,
+                                                       const eckit::LocalConfiguration& mars);
+
+    /**
+     * @brief Encode a field from a raw value buffer.
      *
      * @param[in] values
      *   Pointer to the field values as float.
      *
      * @param[in] length
      *   Number of values in the buffer.
+     *
+     * @param[in] mars
+     *   MARS dictionary describing the field metadata.
+     *
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
      */
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const eckit::LocalConfiguration& mars, const float* values,
-                                                       size_t length);
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const float* values, size_t length,
+                                                       const eckit::LocalConfiguration& mars);
 
 private:
 
