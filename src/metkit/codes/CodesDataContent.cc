@@ -23,7 +23,12 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-CodesDataContent::CodesDataContent(std::unique_ptr<CodesHandle> handle) : handle_(std::move(handle)) {}
+CodesDataContent::CodesDataContent(std::unique_ptr<CodesHandle> handle) :
+    handle_(std::move(handle)), offset_(handle_->getLong("offset")) {}
+
+
+CodesDataContent::CodesDataContent(std::unique_ptr<CodesHandle> handle, eckit::Offset offset) :
+    handle_(std::move(handle)), offset_(std::move(offset)) {}
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -128,9 +133,8 @@ void CodesDataContent::transform(const eckit::OrderedStringDict& dict) {
 //----------------------------------------------------------------------------------------------------------------------
 
 eckit::Offset CodesDataContent::offset() const {
-    return handle_->getLong("offset");
+    return offset_;
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 

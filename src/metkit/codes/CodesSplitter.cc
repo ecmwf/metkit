@@ -29,51 +29,20 @@ CodesSplitter::CodesSplitter(eckit::PeekHandle& handle) : Splitter(handle) {}
 
 CodesSplitter::~CodesSplitter() {}
 
-static long readcb(void* data, void* buffer, long len) {
-    eckit::DataHandle* handle = reinterpret_cast<eckit::DataHandle*>(data);
-    try {
-        long r = handle->read(buffer, len);
+eckit::message::Message CodesSplitter::next() {
+    eckit::Offset off = handle_.position();
+    auto codesHandle  = codesHandleFromStream([&](uint8_t* buffer, int64_t len) -> int64_t {
+        long r = handle_.read(buffer, len);
         // DataHandle is returning 0 on EOF. Codes expects -1 for EOF.
         return (r == 0) ? -1 : r;
-    }
-    catch (const std::exception& e) {
-        eckit::Log::error() << "Exception thrown in CodesSplitter::readcb callback: " << e.what() << "." << std::endl
-                            << " This may cause unexpected behaviour. Returning -2 instead." << std::endl;
-        // Return negative other from -1 to signalize error.
-        return -2;
-    }
-    catch (...) {
-        eckit::Log::error() << "Unknown exception occured in CodesSplitter::readcb callback. This may cause unexpected "
-                               "behaviour. Returning -2 instead."
-                            << std::endl;
-        // Return negative other from -1 to signalize error.
-        return -2;
-    }
-}
+    });
 
-eckit::message::Message CodesSplitter::next() {
-    size_t size;
-    int err      = 0;
-    auto deleter = [](uint8_t* ptr) { ::free(ptr); };
-    auto data    = std::unique_ptr<uint8_t, decltype(deleter)>{
-        reinterpret_cast<uint8_t*>(wmo_read_any_from_stream_malloc(&handle_, &readcb, &size, &err)), deleter};
-
-    if (err != 0 and err != GRIB_END_OF_FILE) {
-        if (err == GRIB_WRONG_LENGTH && handle_.canSeek()) {
-            eckit::Offset off = handle_.position() - eckit::Length(size);
-            handle_.seek((off < eckit::Offset(0) ? eckit::Offset(0) : off) + eckit::Offset(4));
-        }
-        std::string msg = std::string("CodesSplitter::next() - wmo_read_any_from_stream_malloc failed: ") +
-                          std::string(codes_get_error_message(err));
-        throw CodesException(msg, Here());
-    }
-
-    if (!data) {
+    // Handle EOF
+    if (!codesHandle) {
         return eckit::message::Message();
     }
 
-    return eckit::message::Message(
-        new CodesDataContent(codesHandleFromMessageCopy({static_cast<const uint8_t*>(data.get()), size})));
+    return eckit::message::Message(new CodesDataContent(std::move(codesHandle), off));
 }
 
 void CodesSplitter::print(std::ostream& s) const {

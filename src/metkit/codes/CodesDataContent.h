@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "eckit/io/Offset.h"
 #include "metkit/codes/api/CodesAPI.h"
 
 #include "eckit/message/MessageContent.h"
@@ -22,6 +23,7 @@ namespace codes {
 class CodesDataContent : public eckit::message::MessageContent {
 public:
 
+    CodesDataContent(std::unique_ptr<CodesHandle> handle, eckit::Offset offset);
     CodesDataContent(std::unique_ptr<CodesHandle> handle);
 
     virtual ~CodesDataContent() = default;
@@ -32,6 +34,7 @@ public:
 protected:
 
     std::unique_ptr<CodesHandle> handle_;
+    eckit::Offset offset_;
 
     using eckit::message::MessageContent::transform;
     void transform(const eckit::OrderedStringDict&) override;
