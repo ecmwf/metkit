@@ -81,9 +81,8 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
                                                               const std::vector<double>& values) {
 
     // The encoder is fully specialized here in place
-    using encoder =
-        metkit::mars2grib::backend::SpecializedEncoder<eckit::LocalConfiguration, eckit::LocalConfiguration,
-                                                       eckit::LocalConfiguration, Options, metkit::codes::CodesHandle>;
+    using encoder = metkit::mars2grib::backend::SpecializedEncoder<eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                                   Options, metkit::codes::CodesHandle>;
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::printExtendedStack;
 
@@ -92,8 +91,7 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const eckit::Local
         const auto conf = frontend::buildEncoderConfig(mars);
 
         // Backend
-        const eckit::LocalConfiguration emptyGeom{};
-        auto sample = encoder{conf}.encode(mars, emptyGeom, misc, opts_);
+        auto sample = encoder{conf}.encode(mars, misc, opts_);
 
         // Values
         return impl::setValues(misc, values, std::move(sample));

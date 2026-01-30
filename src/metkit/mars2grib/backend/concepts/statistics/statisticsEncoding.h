@@ -130,13 +130,11 @@ constexpr bool statisticsApplicable() {
  * @tparam Section   GRIB section index
  * @tparam Variant   Statistics concept variant
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary (unused)
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
  *
  * @param[in]  mars MARS input dictionary
- * @param[in]  geo  Geometry dictionary (currently unused)
  * @param[in]  par  Parameter dictionary
  * @param[in]  opt  Options dictionary
  * @param[out] out  Output GRIB dictionary to be populated
@@ -156,10 +154,9 @@ constexpr bool statisticsApplicable() {
  * @see deductions::numberOfTimeRanges
  * @see deductions::getTimeDescriptorFromMars_orThrow
  */
-template <std::size_t Stage, std::size_t Section, StatisticsType Variant, class MarsDict_t, class GeoDict_t,
-          class ParDict_t, class OptDict_t, class OutDict_t>
-void StatisticsOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt,
-                  OutDict_t& out) {
+template <std::size_t Stage, std::size_t Section, StatisticsType Variant, class MarsDict_t, class ParDict_t,
+          class OptDict_t, class OutDict_t>
+void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;

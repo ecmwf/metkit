@@ -88,7 +88,6 @@ struct RepresentationConceptInfo {
      * @tparam Section      GRIB section index
      * @tparam Variant      Representation concept variant
      * @tparam MarsDict_t   Type of the MARS dictionary
-     * @tparam GeoDict_t    Type of the geometry dictionary
      * @tparam ParDict_t    Type of the parameter dictionary
      * @tparam OptDict_t    Type of the options dictionary
      * @tparam OutDict_t    Type of the output GRIB dictionary
@@ -100,11 +99,11 @@ struct RepresentationConceptInfo {
      * Applicability is determined by
      * `representationApplicable<Stage, Section, Variant>()`.
      */
-    template <std::size_t Stage, std::size_t Section, RepresentationType Variant, class MarsDict_t, class GeoDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t> entry() {
+    template <std::size_t Stage, std::size_t Section, RepresentationType Variant, class MarsDict_t, class ParDict_t,
+              class OptDict_t, class OutDict_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> entry() {
         if constexpr (representationApplicable<Stage, Section, Variant>()) {
-            return &RepresentationOp<Stage, Section, Variant, MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+            return &RepresentationOp<Stage, Section, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
         }
         else {
             return nullptr;

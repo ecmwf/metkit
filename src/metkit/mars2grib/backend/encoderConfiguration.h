@@ -330,12 +330,12 @@ inline EncoderCfg makeEncoderConfiguration(const eckit::LocalConfiguration& cfg)
     __builtin_unreachable();
 }
 
-template <class MarsDict_t, class GeoDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline auto makeEncoderCallbacks(const EncoderCfg& cfg) {
     // ---------------------------------------------------------------------------------------------
     // Type aliases (readability)
     // ---------------------------------------------------------------------------------------------
-    using Fn_t = metkit::mars2grib::backend::concepts_::Fn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>;
+    using Fn_t = metkit::mars2grib::backend::concepts_::Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
     using metkit::mars2grib::backend::concepts_::NUM_SECTIONS;
     using metkit::mars2grib::backend::concepts_::NUM_STAGES;
     using StageTable  = std::array<std::vector<Fn_t>, NUM_SECTIONS>;
@@ -349,7 +349,7 @@ inline auto makeEncoderCallbacks(const EncoderCfg& cfg) {
         // -----------------------------------------------------------------------------------------
         // Registry
         // -----------------------------------------------------------------------------------------
-        const auto& registry = concept_registry_instance<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>();
+        const auto& registry = concept_registry_instance<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>();
 
         CallbackTbl callbacks;
 
@@ -362,7 +362,7 @@ inline auto makeEncoderCallbacks(const EncoderCfg& cfg) {
             try {
                 const long tmpl = cfg.sections_[sid].templateNumber;
                 callbacks[0][sid].push_back(
-                    getSectionInitializerFn<MarsDict_t, GeoDict_t, ParDict_t, OptDict_t, OutDict_t>(sid, tmpl));
+                    getSectionInitializerFn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(sid, tmpl));
             }
             catch (...) {
                 std::throw_with_nested(Mars2GribGenericException("Error getting section initializer for section " +

@@ -52,13 +52,11 @@ namespace metkit::mars2grib::backend::sections::initializers {
  * @tparam SectionNumber   GRIB section number (expected to be 1)
  * @tparam TemplateNumber  GRIB template number (expected to be 1)
  * @tparam MarsDict_t      Type of the MARS dictionary
- * @tparam GeoDict_t       Type of the geometry dictionary
  * @tparam ParDict_t       Type of the parameter dictionary
  * @tparam OptDict_t       Type of the options dictionary
  * @tparam OutDict_t       Type of the output GRIB dictionary
  *
  * @param mars Read-only MARS dictionary (unused)
- * @param geo  Read-only geometry dictionary (unused)
  * @param par  Read-only parameter dictionary (unused)
  * @param opt  Read-only options dictionary (unused)
  * @param out  Output GRIB dictionary (unused)
@@ -68,10 +66,9 @@ namespace metkit::mars2grib::backend::sections::initializers {
  * removed or specialized once Section 1 initialization is
  * handled explicitly.
  */
-template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class GeoDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void allocateTemplateNumber1(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt,
-                             OutDict_t& out) {
+template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
+          class OutDict_t>
+void allocateTemplateNumber1(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
     // No-op for Section 1 — placeholder initializer
 }
 

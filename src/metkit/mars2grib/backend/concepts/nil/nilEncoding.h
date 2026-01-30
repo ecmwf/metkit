@@ -84,13 +84,11 @@ constexpr bool nilApplicable() {
  * @tparam Section    GRIB section index (compile-time constant)
  * @tparam Variant    Nil concept variant
  * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam GeoDict_t  Type of the geometry dictionary
  * @tparam ParDict_t  Type of the parameter dictionary
  * @tparam OptDict_t  Type of the options dictionary
  * @tparam OutDict_t  Type of the GRIB output dictionary
  *
  * @param[in]  mars MARS input dictionary (unused)
- * @param[in]  geo  Geometry dictionary (unused)
  * @param[in]  par  Parameter dictionary (unused)
  * @param[in]  opt  Options dictionary (unused)
  * @param[out] out  Output GRIB dictionary (unused)
@@ -102,10 +100,9 @@ constexpr bool nilApplicable() {
  * This function intentionally does not provide a silent no-op.
  * Any invocation is treated as a programming error.
  */
-template <std::size_t Stage, std::size_t Section, NilType Variant, class MarsDict_t, class GeoDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void NilOp(const MarsDict_t& mars, const GeoDict_t& geo, const ParDict_t& par, const OptDict_t& opt,
-           OutDict_t& out) noexcept(false) {
+template <std::size_t Stage, std::size_t Section, NilType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
+          class OutDict_t>
+void NilOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) noexcept(false) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
