@@ -37,8 +37,8 @@
 #pragma once
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/nil/nilEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"

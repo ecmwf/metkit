@@ -46,8 +46,8 @@
 #include <string>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchDataRepresentationTemplateNumber.h"

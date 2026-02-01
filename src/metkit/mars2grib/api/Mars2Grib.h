@@ -74,15 +74,29 @@
 
 // System includes
 #include <vector>
+#include <tuple>
+#include <memory>
+#include <utility>
 
 // eckit
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/parser/YAMLParser.h"
+#include "eckit/value/Value.h"
 
 // ecCodes API wrapper
 #include "metkit/codes/api/CodesAPI.h"
 
+// Codes wrapper types
+#include "metkit/codes/api/CodesTypes.h"
+
+// dictionary access traits
+#include "metkit/mars2grib/utils/dictionary_traits/dictaccess_codes_handle.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
+
 // mars2grib public options
 #include "metkit/mars2grib/api/Options.h"
+#include "metkit/mars2grib/CoreOperations.h"
 
 namespace metkit::mars2grib {
 
@@ -110,6 +124,9 @@ namespace metkit::mars2grib {
  */
 class Mars2Grib {
 public:
+
+    template<typename T>
+    using Span = metkit::codes::Span<T>;
 
     /**
      * @brief Construct a Mars2Grib encoder with default options.
@@ -308,6 +325,64 @@ public:
 
 private:
 
+    /**
+     * @brief Encode a field into a GRIB message.
+     *
+     * @param[in] values
+     *   Field values to encode as double.
+     *
+     * @param[in] mars
+     *   MARS dictionary describing the field metadata.
+     *
+     * @param[in] misc
+     *   Auxiliary metadata dictionary.
+     *
+     * @return
+     *   A unique pointer to a GRIB handle containing the encoded message.
+     */
+    template<typename Val_t>
+    std::unique_ptr<metkit::codes::CodesHandle> encode_impl(
+        const Span<const Val_t>& values,
+        const eckit::LocalConfiguration& mars,
+        const eckit::LocalConfiguration& misc) {
+
+        using metkit::mars2grib::utils::exceptions::printExtendedStack;
+
+        // 1. Prepare Scratches for Sanitization
+        eckit::LocalConfiguration mScratch;
+        eckit::LocalConfiguration pScratch;
+
+        try {
+            // 2. Sanitize (returns references to either input or scratch)
+            // aMars and aPar -> a means "active" I use this terminology because
+            // there is the sanitization layer in the middle
+            auto [aMars, aPar] = CoreOperations::sanitize(
+                mars, misc, opts_, language_, mScratch, pScratch
+            );
+
+            // 3. Encode Header (SpecializedEncoder creates the CodesHandle here)
+            auto handle = CoreOperations::encodeHeader<
+                eckit::LocalConfiguration,
+                eckit::LocalConfiguration,
+                Options,
+                metkit::codes::CodesHandle
+            >(aMars, aPar, opts_);
+
+            // 4. Inject Values
+            return CoreOperations::encodeValues( values, aPar, opts_, std::move(handle));
+        }
+        catch (const std::exception& e) {
+            printExtendedStack(e);
+            throw;
+        }
+        catch (...) {
+            // Fallback for non-standard exceptions
+            throw metkit::mars2grib::utils::exceptions::Mars2GribGenericException(
+                "Unknown error during encoding", Here());
+        }
+    }
+
+    const eckit::Value language_;
     const Options opts_;
 };
 

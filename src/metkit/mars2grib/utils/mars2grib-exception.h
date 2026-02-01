@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <typeinfo>
+#include <optional>
 
 #include "eckit/exception/Exceptions.h"
 #include "metkit/config/LibMetkit.h"
@@ -31,6 +32,48 @@ public:
                                  << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
                                  << pad << "+ message:  " << what() << "\n";
     }
+};
+
+
+// ==========================================================
+// Matcher exception (no metadata)
+// ==========================================================
+class Mars2GribMatcherException : public Mars2GribGenericException {
+public:
+
+    Mars2GribMatcherException(long param, const std::string& levtype, std::string reason,
+                              const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), param_{std::to_string(param)}, levtype_{levtype} {}
+
+    Mars2GribMatcherException(const std::string& levtype, std::string reason,
+                              const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), param_{std::nullopt}, levtype_{levtype} {}
+
+    Mars2GribMatcherException(std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), param_{std::nullopt}, levtype_{std::nullopt} {}
+
+    Mars2GribMatcherException(long param, std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), param_{std::to_string(param)}, levtype_{std::nullopt} {}
+
+    const std::string levtype() const { return levtype_.has_value() ? levtype_.value() : "undefined"; }
+    const std::string param() const { return param_.has_value() ? param_.value() : "undefined"; }
+
+    void printFrame( const std::string& pad) const override {
+
+        Mars2GribGenericException::printFrame(pad);
+        if (param_) {
+            LOG_DEBUG_LIB(LibMetkit) << pad << "+ param:   " << param() << std::endl;
+        }
+        if (levtype_) {
+            LOG_DEBUG_LIB(LibMetkit) << pad << "+ levtype:    " << levtype() << std::endl;
+        }
+    };
+
+
+private:
+
+    std::optional<std::string> param_;
+    std::optional<std::string> levtype_;
 };
 
 
@@ -137,12 +180,11 @@ private:
 class Mars2GribEncoderException : public Mars2GribGenericException {
 public:
 
-    Mars2GribEncoderException(std::string reason, std::string marsDict_json, std::string geoDict_json,
+    Mars2GribEncoderException(std::string reason, std::string marsDict_json,
                               std::string parDict_json, std::string optDict_json, std::string encoderCfg_json,
                               const eckit::CodeLocation& loc = eckit::CodeLocation()) :
         Mars2GribGenericException(reason, loc),
         marsDict_json_(std::move(marsDict_json)),
-        geoDict_json_(std::move(geoDict_json)),
         parDict_json_(std::move(parDict_json)),
         optDict_json_(std::move(optDict_json)),
         encoderCfg_json_(std::move(encoderCfg_json)) {}
@@ -158,7 +200,6 @@ public:
         Mars2GribGenericException::printFrame(pad);
 
         LOG_DEBUG_LIB(LibMetkit) << pad << "+ marsDict:   " << marsDict_json_ << "\n"
-                                 << pad << "+ geoDict:    " << geoDict_json_ << "\n"
                                  << pad << "+ parDict:    " << parDict_json_ << "\n"
                                  << pad << "+ optDict:    " << optDict_json_ << "\n"
                                  << pad << "+ encoderCfg: " << encoderCfg_json_ << "\n";

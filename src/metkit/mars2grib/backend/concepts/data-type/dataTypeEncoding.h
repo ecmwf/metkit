@@ -47,8 +47,8 @@
 #include <string>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/data-type/dataTypeEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/productionStatusOfProcessedData.h"
@@ -94,7 +94,7 @@ namespace metkit::mars2grib::backend::concepts_ {
  * Users may override or specialize this predicate to alter applicability.
  */
 template <std::size_t Stage, std::size_t Section, DataTypeType Variant>
-constexpr bool data_typeApplicable() {
+constexpr bool dataTypeApplicable() {
 
     return ((Variant == DataTypeType::Default) && (Stage == StageOverride) && (Section == SecIdentificationSection));
 }
@@ -142,7 +142,7 @@ constexpr bool data_typeApplicable() {
  * - This concept does not perform validation beyond what is enforced
  *   by the deduction and table layers.
  *
- * @see data_typeApplicable
+ * @see dataTypeApplicable
  */
 template <std::size_t Stage, std::size_t Section, DataTypeType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
@@ -152,7 +152,7 @@ void DataTypeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
-    if constexpr (data_typeApplicable<Stage, Section, Variant>()) {
+    if constexpr (dataTypeApplicable<Stage, Section, Variant>()) {
 
         try {
 

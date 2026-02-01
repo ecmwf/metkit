@@ -124,7 +124,7 @@
 #include <regex>
 #include <string>
 
-// Core concept includes
+// Eckit::geo includes
 #include "eckit/geo/Grid.h"
 #include "eckit/geo/PointLonLat.h"
 #include "eckit/geo/grid/reduced/HEALPix.h"
@@ -132,8 +132,11 @@
 #include "eckit/geo/grid/regular/RegularGaussian.h"
 #include "eckit/geo/grid/regular/RegularLL.h"
 #include "eckit/spec/Custom.h"
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
+
+
+// Core concept includes
 #include "metkit/mars2grib/backend/concepts/representation/representationEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchGridDefinitionTemplateNumber.h"
