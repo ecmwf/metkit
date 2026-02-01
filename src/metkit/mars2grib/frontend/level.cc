@@ -74,7 +74,7 @@ void setSFC(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& se
     else if (matchAny(param, 186, 3073, 235108, 237108, 238108, 239108)) {
         setTypeOfLevel(sections, "lowCloudLayer");
     }
-    else if (matchAny(param, 151, 235151, 237151, 238151, 239151)) {
+    else if (matchAny(param, 151, range(131074, 131077), 235151, 237151, 238151, 239151)) {
         setTypeOfLevel(sections, "meanSea");
     }
     else if (matchAny(param, 187, 3074)) {
