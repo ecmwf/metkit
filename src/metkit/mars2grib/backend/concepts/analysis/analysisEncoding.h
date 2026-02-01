@@ -40,7 +40,7 @@
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/analysis/analysisEnum.h"
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/lengthOfTimeWindow.h"
@@ -55,6 +55,8 @@
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
+
+using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 
 /**
  * @brief Compile-time applicability predicate for the `analysis` concept.
@@ -86,6 +88,7 @@ namespace metkit::mars2grib::backend::concepts_ {
  */
 template <std::size_t Stage, std::size_t Section, AnalysisType Variant>
 constexpr bool analysisApplicable() {
+
 
     // Conditions to apply concept
     return ((Variant == AnalysisType::Default) && (Stage == StagePreset) && (Section == SecLocalUseSection));

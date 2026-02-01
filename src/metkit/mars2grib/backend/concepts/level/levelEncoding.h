@@ -49,8 +49,8 @@
 #include <vector>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/level.h"

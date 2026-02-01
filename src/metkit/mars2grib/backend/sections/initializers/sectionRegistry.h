@@ -154,10 +154,10 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec5Reg[] = 
  * @return Initializer function pointer, or `nullptr` if not found.
  */
 template <class EntryT, std::size_t N>
-constexpr auto lookup(const EntryT (&table)[N], std::size_t templ) -> decltype(table[0].second) {
+constexpr auto lookup(const EntryT (&table)[N], std::size_t templ) -> decltype(table[0].callback) {
     for (std::size_t i = 0; i < N; ++i) {
-        if (table[i].first == templ)
-            return table[i].second;
+        if (table[i].templateNumber == templ)
+            return table[i].callback;
     }
     return nullptr;
 }
@@ -183,7 +183,8 @@ constexpr auto lookup(const EntryT (&table)[N], std::size_t templ) -> decltype(t
  *         If an error occurs during dispatch.
  */
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> getSectionInitializerFn(std::size_t section, std::size_t templ) {
+Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> sectionRegistry(std::size_t section, std::size_t templ) {
+
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {

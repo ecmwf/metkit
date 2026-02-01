@@ -45,12 +45,9 @@
 // System includes
 #include <string>
 
-// dictionary traits
-#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
-
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/tables/tablesEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/localTablesVersion.h"

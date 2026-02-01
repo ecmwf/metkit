@@ -86,6 +86,44 @@ struct Options {
      * @default false
      */
     bool enableBitsPerValueCompression = false;
+
+
+    /**
+     * @brief Enable semantic normalization of the MARS dictionary.
+     *
+     * When active, the MARS request is sanitized against the library
+     * language definition to ensure key-value consistency and
+     * case-insensitivity before resolution.
+     *
+     * @default false
+     */
+    bool sanitizeMars = false;
+
+    /**
+     * @brief Enable semantic normalization of the auxiliary metadata.
+     *
+     * When active, the auxiliary (Misc) dictionary is sanitized against
+     * the library language definition. This is recommended when
+     * parameters are provided as raw strings.
+     *
+     * @default false
+     */
+    bool sanitizeMisc = false;
+
+    /**
+     * @brief Automatically normalize MARS 'grid' syntax.
+     *
+     * If enabled, the encoder detects and converts legacy MARS grid
+     * specifications (e.g., 'L640x320') into standard GRIB-compliant
+     * increment strings ('deltaLon/deltaLat').
+     *
+     * This is a **procedural normalization** that ensures resolution
+     * compatibility for Gaussian or reduced grids.
+     *
+     * @default true
+     */
+    bool fixMarsGrid = true;
+
 };
 
 }  // namespace metkit::mars2grib

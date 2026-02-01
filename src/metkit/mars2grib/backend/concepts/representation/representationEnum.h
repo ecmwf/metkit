@@ -42,10 +42,14 @@
 #include <string_view>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 
 namespace metkit::mars2grib::backend::concepts_ {
+
+template<auto... Vals>
+using ValueList =
+    metkit::mars2grib::backend::compile_time_registry_engine::ValueList<Vals...>;
 
 
 /**

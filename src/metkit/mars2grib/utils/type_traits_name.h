@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "metkit/codes/api/CodesTypes.h"
+
 namespace metkit::mars2grib::utils {
 
 // ============================================================
@@ -143,6 +145,14 @@ constexpr std::string_view type_name<std::vector<double>>() {
 template <>
 constexpr std::string_view type_name<std::vector<long double>>() {
     return "vector<long double>";
+}
+template <>
+constexpr std::string_view type_name<metkit::codes::Span<const float>>() {
+    return "vector_view<float>";
+}
+template <>
+constexpr std::string_view type_name<metkit::codes::Span<const double>>() {
+    return "vector_view<double>";
 }
 
 }  // namespace metkit::mars2grib::utils

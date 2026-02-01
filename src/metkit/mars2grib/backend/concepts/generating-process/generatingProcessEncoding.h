@@ -47,8 +47,8 @@
 #include <string>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessEnum.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/backgroundProcess.h"

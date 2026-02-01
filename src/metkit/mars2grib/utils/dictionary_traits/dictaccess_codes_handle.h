@@ -343,7 +343,11 @@ M2G_DEFINE_CODESHANDLE_DICT_GET_OR_THROW(std::vector<double>, (t == metkit::code
 
 M2G_DEFINE_CODESHANDLE_DICT_GET_OPT(std::vector<double>, (t == metkit::codes::NativeType::Double), getDoubleArray)
 
+
+M2G_DEFINE_CODESHANDLE_DICT_SET_OR_THROW(metkit::codes::Span<const double>, set)
 M2G_DEFINE_CODESHANDLE_DICT_SET_OR_THROW(std::vector<double>, set)
+
+M2G_DEFINE_CODESHANDLE_DICT_SET_OR_IGNORE(metkit::codes::Span<const double>, set)
 M2G_DEFINE_CODESHANDLE_DICT_SET_OR_IGNORE(std::vector<double>, set)
 
 
