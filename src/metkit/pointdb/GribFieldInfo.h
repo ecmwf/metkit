@@ -19,17 +19,10 @@
 #include "eckit/types/FixedString.h"
 
 
-
 namespace eckit {
 class PathName;
 }
-namespace metkit {
-namespace grib {
-class GribHandle;
-}
-
-
-namespace pointdb {
+namespace metkit::pointdb {
 
 
 class GribDataSource;
@@ -73,8 +66,7 @@ private:
     }
 };
 
-}  // namespace pointdb
-}  // namespace metkit
+}  // namespace metkit::pointdb
 
 
 #endif
