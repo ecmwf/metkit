@@ -22,6 +22,7 @@
 
 #include "metkit/codes/BUFRDecoder.h"
 #include "metkit/codes/BufrContent.h"
+#include "metkit/codes/api/CodesAPI.h"
 #include "metkit/tool/MetkitTool.h"
 
 #define WRONG_KEY_LENGTH 65535
@@ -311,12 +312,13 @@ void BufrCheck::process(const PathName& input, const PathName& output) {
         try {
             pos = reader.position();
             if ((rawMsg = reader.next())) {
-                codes_handle* h = codes_handle_new_from_message(nullptr, rawMsg.data(), rawMsg.length());
+                auto h =
+                    codes::codesHandleFromMessage({reinterpret_cast<const uint8_t*>(rawMsg.data()), rawMsg.length()});
                 if (!h) {
                     throw FailedLibraryCall("eccodes", "codes_handle_new_from_message", "failed to create handle",
                                             Here());
                 }
-                codes::BufrContent* c = new codes::BufrContent(h, true);
+                codes::BufrContent* c = new codes::BufrContent(std::move(h));
                 message::Message msg(c);
 
                 // verify the presence of section 2 (to store the MARS key)

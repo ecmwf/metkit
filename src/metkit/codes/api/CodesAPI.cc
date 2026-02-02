@@ -43,7 +43,12 @@ namespace {
 void throwOnError(int code, const eckit::CodeLocation& l, const char* details) {
     if (code != 0) {
         std::string msg = std::string(details) + std::string(": ") + std::string(codes_get_error_message(code));
-        throw CodesException(msg, l);
+        if (code == GRIB_WRONG_LENGTH) {
+            throw CodesWrongLength(msg, l);
+        }
+        else {
+            throw CodesException(msg, l);
+        }
     }
 };
 
@@ -51,7 +56,12 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details, c
     if (code != 0) {
         std::string msg = std::string(details) + std::string(": ") + std::string(codes_get_error_message(code)) +
                           std::string(" for key ") + key;
-        throw CodesException(msg, l);
+        if (code == GRIB_WRONG_LENGTH) {
+            throw CodesWrongLength(msg, l);
+        }
+        else {
+            throw CodesException(msg, l);
+        }
     }
 };
 
@@ -715,7 +725,8 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
         std::unique_ptr<codes_handle>(codes_handle_new_from_samples(NULL, sampleName.c_str())));
 }
 
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product) {
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product,
+                                                 std::optional<int64_t> offset) {
     int err = 0;
     std::unique_ptr<codes_handle> ret;
 
@@ -723,6 +734,10 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
     if (file == nullptr) {
         throw CodesException(std::string("Error opening file ") + fpath, Here());
+    }
+
+    if (offset) {
+        fseek(file, *offset, SEEK_SET);
     }
 
     switch (product) {
@@ -740,6 +755,38 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
     }
 
     return std::make_unique<OwningCodesHandle>(std::move(ret));
+}
+
+
+using ReadCBCtx = std::pair<std::reference_wrapper<std::function<int64_t(uint8_t*, int64_t)>>, std::exception_ptr>;
+
+long readCallBack(void* ctx, void* buffer, long len) {
+    auto& [func, eptr] = *static_cast<ReadCBCtx*>(ctx);
+    try {
+        auto r = func.get()(static_cast<uint8_t*>(buffer), len);
+        // API indicates EOF with 0. Codes expects -1 for EOF.
+        return (r == 0) ? -1 : r;
+    }
+    catch (...) {
+        // Capture exception for propagation and indicate error
+        eptr = std::current_exception();
+        return -2;
+    }
+}
+
+std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc) {
+    int err = 0;
+    ReadCBCtx ctx{readFunc, {}};
+    std::unique_ptr<codes_handle> ret =
+        std::unique_ptr<codes_handle>(codes_handle_new_from_stream(NULL, &ctx, &readCallBack, &err));
+    if (ctx.second) {
+        std::rethrow_exception(ctx.second);
+    }
+    throwOnError(err, Here(), "codesHandleFromStream(readFunc)");
+    if (ret) {
+        return std::make_unique<OwningCodesHandle>(std::move(ret));
+    }
+    return {};
 }
 
 
