@@ -13,11 +13,9 @@
 #include "eccodes.h"
 
 #include "eckit/io/PeekHandle.h"
-#include "eckit/log/Log.h"
 #include "eckit/message/Message.h"
 
 #include "metkit/codes/CodesDataContent.h"
-#include "metkit/codes/GribHandle.h"
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/codes/api/CodesTypes.h"
 

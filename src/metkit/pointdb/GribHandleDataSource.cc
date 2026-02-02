@@ -81,9 +81,12 @@ const GribFieldInfo& GribHandleDataSource::info() const {
             open();
 
             handle_->seek(offset_);
+            auto codesHandle = codes::codesHandleFromStream(
+                [&](uint8_t* buffer, int64_t len) -> int64_t { return handle_->read(buffer, len); });
 
-            grib::GribHandle h(*handle_);
-            info_.update(h);
+            ASSERT(codesHandle);
+
+            info_.update(*codesHandle.get());
 
             cache.dirName().mkdir();
 
@@ -92,7 +95,7 @@ const GribFieldInfo& GribHandleDataSource::info() const {
             f.close();
 
 
-            PointIndex::cache(h);
+            PointIndex::cache(*codesHandle.get());
         }
     }
     return info_;
