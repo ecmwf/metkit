@@ -9,13 +9,12 @@
  */
 
 #include "metkit/pointdb/GribFieldInfo.h"
-#include "metkit/pointdb/GribDataSource.h"
 #include "metkit/codes/api/CodesAPI.h"
+#include "metkit/pointdb/GribDataSource.h"
 
 #include <bitset>
 
 using namespace eckit;
-using namespace metkit::grib;
 
 
 extern "C" {

@@ -14,11 +14,11 @@
 // #include "eckit/log/Timer.h"
 
 #include "metkit/pointdb/PointIndex.h"
+#include "eckit/io/FileHandle.h"
 #include "eckit/thread/AutoLock.h"
-#include "metkit/codes/GribHandle.h"
-#include "metkit/codes/GribIterator.h"
 // #include "eckit/io/StdFile.h"
 #include "eckit/config/Resource.h"
+#include "metkit/codes/api/CodesAPI.h"
 
 // #include "eccodes.h"
 
@@ -36,11 +36,9 @@ eckit::PathName PointIndex::cachePath(const std::string& dir, const std::string&
     return pointdbCachePath / dir / name;
 }
 
-std::string PointIndex::cache(const metkit::grib::GribHandle& h) {
+std::string PointIndex::cache(const metkit::codes::CodesHandle& h) {
 
-    double lat, lon, value;
-
-    std::string md5 = h.geographyHash();
+    std::string md5 = h.getString("md5GridSection");
 
 
     AutoLock<Mutex> lock(mutex);
@@ -55,26 +53,20 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h) {
     }
     path.dirName().mkdir();
 
-    size_t v = h.getDataValuesSize();
+    size_t v = h.size("values");
 
 
     std::vector<Point> p;
     p.reserve(v);
 
-
-    metkit::grib::GribIterator iter(h);
     size_t j = 0;
+    for (auto data : h.values()) {
+        while (data.longitude < 0)
+            data.longitude += 360;
+        while (data.longitude >= 360)
+            data.longitude -= 360;
 
-    while (iter.next(lat, lon, value)) {
-
-        while (lon < 0)
-            lon += 360;
-        while (lon >= 360)
-            lon -= 360;
-
-        // ASSERT(lat >= -90 && lat <= 90);
-
-        p.push_back(Point(lat, lon, j));
+        p.push_back(Point(data.latitude, data.longitude, j));
         j++;
     }
 
@@ -90,8 +82,13 @@ std::string PointIndex::cache(const metkit::grib::GribHandle& h) {
     // codes_dump_content(h, f, "debug", 0, 0);
     // f.close();
 
+    // Write handle to file
     PathName grib = cachePath("grids", md5 + ".grib");
-    h.write(grib);
+    eckit::FileHandle fh(grib.localPath());
+    auto data = h.messageData();
+    fh.openForWrite(data.size());
+    fh.write(data.data(), data.size());
+    fh.close();
 
     PathName::rename(tmp, path);
 
@@ -111,9 +108,9 @@ PointIndex& PointIndex::lookUp(const std::string& md5) {
             PathName grib = cachePath("grids", md5 + ".grib");
             if (grib.exists()) {
                 Log::warning() << "Rebuilding index from " << grib << std::endl;
-                metkit::grib::GribHandle h(grib);
+                auto codesHandle = codes::codesHandleFromFile(grib.localPath(), codes::Product::GRIB);
 
-                ASSERT(cache(h) == md5);
+                ASSERT(cache(*codesHandle.get()) == md5);
             }
         }
 

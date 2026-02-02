@@ -131,16 +131,10 @@ if ( HAVE_GRIB )
         codes/GRIBDecoder.h
         codes/CodesDataContent.cc
         codes/CodesDataContent.h
-        codes/CodesContent.cc
-        codes/CodesContent.h
         codes/BufrContent.cc
         codes/BufrContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
-        codes/GribHandle.cc
-        codes/GribHandle.h
-        codes/GribIterator.cc
-        codes/GribIterator.h
         codes/CodesHandleDeleter.h
 
         codes/api/CodesAPI.h
