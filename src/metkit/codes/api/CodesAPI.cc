@@ -15,6 +15,7 @@
 
 #include "eccodes.h"
 
+#include "metkit/config/LibMetkit.h"
 
 namespace std {
 template <>
@@ -172,19 +173,32 @@ void OwningCodesHandle::setMissing(const std::string& key) {
 }
 
 void OwningCodesHandle::set(const std::string& key, const std::string& value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<string>: " + key << " = '" << value << "'" << std::endl;
     size_t size = value.size();
     throwOnError(codes_set_string(raw(), key.c_str(), value.c_str(), &size), Here(), "CodesHandle::set(string, string)",
                  key);
 }
 void OwningCodesHandle::set(const std::string& key, double value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<double>: " + key << " = " << std::to_string(value) << std::endl;
     throwOnError(codes_set_double(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, double)", key);
 }
 void OwningCodesHandle::set(const std::string& key, long value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<long>: " + key << " = " << std::to_string(value) << std::endl;
     throwOnError(codes_set_long(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, long)", key);
 }
 
 /// Set arrays
 void OwningCodesHandle::set(const std::string& key, Span<const std::string> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<string>>: " + key << std::endl;
+
     std::vector<const char*> out;
     out.reserve(value.size());
     for (auto it = value.data(); it != value.data() + value.size(); ++it) {
@@ -193,31 +207,59 @@ void OwningCodesHandle::set(const std::string& key, Span<const std::string> valu
     set(key, out);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const char*> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<const char*>>: " + key << std::endl;
+
     throwOnError(codes_set_string_array(raw(), key.c_str(), const_cast<const char**>(value.data()), value.size()),
                  Here(), "CodesHandle::set(string, span<const char*>)", key);
 }  /// set string array
 void OwningCodesHandle::set(const std::string& key, Span<const double> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<double>>: " + key << std::endl;
+
     throwOnError(codes_set_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const double>)", key);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const float> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<float>>: " + key << std::endl;
+
     throwOnError(codes_set_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const float>)", key);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const long> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<long>>: " + key << std::endl;
+
     throwOnError(codes_set_long_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const long>)", key);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const uint8_t> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<uint8_t>>: " + key << std::endl;
+
     size_t size = value.size();
     throwOnError(codes_set_bytes(raw(), key.c_str(), value.data(), &size), Here(),
                  "CodesHandle::set(string, span<const uint8_t>)", key);
 }
 void OwningCodesHandle::forceSet(const std::string& key, Span<const double> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<force array<double>>: " + key << std::endl;
+
     throwOnError(codes_set_force_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const double>)", key);
 }
 void OwningCodesHandle::forceSet(const std::string& key, Span<const float> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<force array<float>>: " + key << std::endl;
+
     throwOnError(codes_set_force_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const float>)", key);
 }

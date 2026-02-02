@@ -1,0 +1,34 @@
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+#pragma once
+
+#include "metkit/mars2grib/api/Options.h"
+
+namespace metkit::mars2grib::utils {
+
+template <typename OutDict>
+inline bool checksEnabled(const Options& opt) {
+    using metkit::mars2grib::utils::dict_traits::dict_supports_checks_v;
+
+    if constexpr (!dict_supports_checks_v<OutDict>) {
+        return false;
+    }
+    return opt.applyChecks;
+}
+
+inline bool overrideEnabled(const Options& opt) {
+    return opt.enableOverride;
+}
+
+inline bool bitsPerValueCompressionEnabled(const Options& opt) {
+    return opt.enableBitsPerValueCompression;
+}
+
+}  // namespace metkit::mars2grib::utils
