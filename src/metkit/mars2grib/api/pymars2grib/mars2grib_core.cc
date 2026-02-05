@@ -86,7 +86,7 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
 }
 
 py::bytes encode(Mars2Grib& encoder, const std::vector<double>& values, const py::dict& mars, const py::dict& misc) {
-    const auto message = encoder.encode(dictToLocalConfig(mars), dictToLocalConfig(misc), values);
+    const auto message = encoder.encode(values, dictToLocalConfig(mars), dictToLocalConfig(misc));
 
     const auto size = message->messageSize();
 
