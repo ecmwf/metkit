@@ -69,13 +69,12 @@ ecbuild_add_option( FEATURE MARS2GRIB
 # Python bindings for mars2grib encoder
 
 ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
-                    DEFAULT ON
+                    DEFAULT OFF
                     CONDITION HAVE_MARS2GRIB
                     DESCRIPTION "Build mars2grib python library"
-                    REQUIRED_PACKAGES "NAME pybind11 VERSION 3.0.1" )
-if( HAVE_MARS2GRIB_PYTHON )
-    find_package(Python 3.11 COMPONENTS Interpreter Development REQUIRED)
-endif()
+                    REQUIRED_PACKAGES
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development REQUIRED"
+                        "NAME pybind11 VERSION 3.0.1 REQUIRED" )
 
 # METKIT config files support
 
