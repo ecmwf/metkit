@@ -124,8 +124,8 @@ void setLocalUseSection(const eckit::LocalConfiguration& mars, eckit::LocalConfi
             else {  // method missing
                 if (has(mars, "channel")) {
                     const auto& type = get_opt<std::string>(mars, "type").value_or("None");
-                    if (type == "em" || type == "es") {
-                        setRecursive(sections, "local-use-section.template-number", 14);
+                    if (type == "em" || type == "es" || type == "ssd") {
+                        setRecursive(sections, "local-use-section.template-number", 24);
                     }
                     else {
                         throw eckit::Exception("Unsupported type \"" + type + "\"!", Here());
@@ -142,6 +142,10 @@ void setLocalUseSection(const eckit::LocalConfiguration& mars, eckit::LocalConfi
 //=============================== Process Type ===============================//
 
 void setProcessType(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
+    if (has(mars, "channel")) {
+        return;  // Satellite field
+    }
+
     if (get_or_throw<std::string>(mars, "levtype") == "al") {
         // Large ensemble
         if (!has(mars, "number")) {
@@ -192,6 +196,29 @@ void setChemical(eckit::LocalConfiguration& sections) {
 bool setMiscHorizontal(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
     const auto param = get_or_throw<long>(mars, "param");
 
+    if (has(mars, "channel")) {
+        // Satellite field
+        if (const auto& type = get_opt<std::string>(mars, "type"); type && (*type == "em" || *type == "es")) {
+            // Derived ensemble forecast satellite
+            if (const auto param = get_or_throw<long>(mars, "param"); matchAny(param, 194)) {
+                setTypeOfLevel(sections, "surface");
+                setPointInTime(sections);
+                return true;
+            }
+        }
+        else {
+            // Single satellite
+            if (const auto param = get_or_throw<long>(mars, "param"); matchAny(param, range(260510, 260512))) {
+                setPointInTime(sections);
+                setRecursiveDefault(sections, "product-definition-section.satellite-configurator.type", "default");
+                setPDT(sections, "productCategory", "satellite");
+                return true;
+            }
+        }
+        throw eckit::Exception{"Unhandled satellite field!", Here()};
+    }
+
+    // Not a satellite field
     if (get_or_throw<std::string>(mars, "levtype") == "sfc") {
         if (matchChemical(mars)) {
             if (matchAny(param, range(228080, 228082), range(233032, 233035), range(235062, 235064))) {
@@ -232,29 +259,7 @@ bool setMiscHorizontal(const eckit::LocalConfiguration& mars, eckit::LocalConfig
             return true;
         }
     }
-
-    if (!has(mars, "channel")) {
-        return false;  // Not a satellite field
-    }
-
-    if (const auto& type = get_opt<std::string>(mars, "type"); type && (*type == "em" || *type == "es")) {
-        // Derived ensemble forecast satellite
-        if (const auto param = get_or_throw<long>(mars, "param"); matchAny(param, 194)) {
-            setTypeOfLevel(sections, "surface");
-            setPointInTime(sections);
-            return true;
-        }
-    }
-    else {
-        // Single satellite
-        if (const auto param = get_or_throw<long>(mars, "param"); matchAny(param, range(260510, 260512))) {
-            setPointInTime(sections);
-            setRecursiveDefault(sections, "product-definition-section.satellite-configurator.type", "default");
-            setPDT(sections, "productCategory", "satellite");
-            return true;
-        }
-    }
-    throw eckit::Exception{"Unhandled satellite field!", Here()};
+    return false;
 }
 
 void setHorizontal(const eckit::LocalConfiguration& mars, eckit::LocalConfiguration& sections) {
