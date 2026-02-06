@@ -101,19 +101,20 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
         // The only way to infer this is from parametrization
-        long numberOfForecastsInEnsemble = get_or_throw<long>(par, "numberOfForecastsInEnsemble");
-        long perturbationNumber          = get_or_throw<long>(mars, "number");
+        const auto numberOfForecastsInEnsemble = get_or_throw<long>(par, "numberOfForecastsInEnsemble");
+        const auto perturbationNumber          = get_opt<long>(mars, "number");
 
         // Basic validation
-        if (perturbationNumber < 0 || perturbationNumber > numberOfForecastsInEnsemble) {
+        if (perturbationNumber && (*perturbationNumber < 0 || *perturbationNumber > numberOfForecastsInEnsemble)) {
             std::string errMsg = "`perturbationNumber` (";
-            errMsg += std::to_string(perturbationNumber);
+            errMsg += std::to_string(*perturbationNumber);
             errMsg += ") is out of valid range [0, ";
             errMsg += std::to_string(numberOfForecastsInEnsemble);
             errMsg += "];";
