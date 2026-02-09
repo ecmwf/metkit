@@ -214,7 +214,7 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {14});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24});
 
                 // Deductions
                 long channel = deductions::resolve_Channel_or_throw(mars, par, opt);
