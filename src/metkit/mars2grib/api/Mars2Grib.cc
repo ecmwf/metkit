@@ -102,14 +102,14 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
     if (has<bool>(conf, "enableBitsPerValueCompression")) {
         opts.enableBitsPerValueCompression = get_or_throw<bool>(conf, "enableBitsPerValueCompression");
     }
-    if (has<bool>(conf, "sanitizeMars")) {
-        opts.enableBitsPerValueCompression = get_or_throw<bool>(conf, "sanitizeMars");
+    if (has<bool>(conf, "normalizeMars")) {
+        opts.normalizeMars = get_or_throw<bool>(conf, "normalizeMars");
     }
-    if (has<bool>(conf, "sanitizeMisc")) {
-        opts.enableBitsPerValueCompression = get_or_throw<bool>(conf, "sanitizeMisc");
+    if (has<bool>(conf, "normalizeMisc")) {
+        opts.normalizeMisc = get_or_throw<bool>(conf, "normalizeMisc");
     }
     if (has<bool>(conf, "fixMarsGrid")) {
-        opts.enableBitsPerValueCompression = get_or_throw<bool>(conf, "fixMarsGrid");
+        opts.fixMarsGrid = get_or_throw<bool>(conf, "fixMarsGrid");
     }
     return opts;
 }

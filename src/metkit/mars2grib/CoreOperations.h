@@ -32,6 +32,7 @@
 #include <utility>
 
 // Project includes
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/frontend/make_HeaderLayout.h"
 #include "metkit/mars2grib/frontend/header/EncodingPlan.h"
@@ -59,28 +60,28 @@ struct CoreOperations {
      * @tparam ParDict_t  Parameter dictionary type
      * @tparam OptDict_t  Encoding options dictionary type
      *
-     * @param[in]  mars     Original MARS request
-     * @param[in]  par      Original Parameter metadata
-     * @param[in]  opt      Encoding options
-     * @param[in]  lang     Language definition (eckit::Value)
-     * @param[out] mScratch Scratch buffer for MARS sanitization
-     * @param[out] pScratch Scratch buffer for Parameter sanitization
+     * @param[in]  inputMars   Original MARS request
+     * @param[in]  inputMisc   Original Parameter metadata
+     * @param[in]  opt         Encoding options
+     * @param[in]  lang        Language definition (eckit::Value)
+     * @param[out] scratchMars Scratch buffer for MARS sanitization
+     * @param[out] scratchMisc Scratch buffer for Parameter sanitization
      *
      * @return A tuple containing const references to the active (sanitized) data
      */
     template <class MarsDict_t, class ParDict_t, class OptDict_t>
-    static std::tuple<const MarsDict_t&, const ParDict_t&> sanitize(
-        const MarsDict_t& mars,
-        const ParDict_t& par,
+    static std::tuple<const MarsDict_t&, const ParDict_t&> normalize_if_enabled(
+        const MarsDict_t& inputMars,
+        const ParDict_t& inputMisc,
         const OptDict_t& opt,
         const eckit::Value& lang,
-        MarsDict_t& mScratch,
-        ParDict_t& pScratch) {
+        MarsDict_t& scratchMars,
+        ParDict_t& scratchMisc) {
 
-        const MarsDict_t& aMars = frontend::normalization::sanitize_MiscDict_if_enabled(mars, opt, lang, mScratch);
-        const ParDict_t& aPar  = frontend::normalization::sanitize_MiscDict_if_enabled(par, opt, lang, pScratch);
+        const MarsDict_t& activeMars = frontend::normalization::normalize_MarsDict_if_enabled(inputMars, opt, lang, scratchMars);
+        const ParDict_t& activePar  = frontend::normalization::normalize_MiscDict_if_enabled(inputMisc, opt, lang, scratchMisc);
 
-        return {aMars, aPar};
+        return {activeMars, activePar};
     }
 
     /**
@@ -97,16 +98,16 @@ struct CoreOperations {
      */
     template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     static std::unique_ptr<OutDict_t> encodeHeader(
-        const MarsDict_t& aMars,
-        const ParDict_t& aPar,
+        const MarsDict_t& mars,
+        const ParDict_t& misc,
         const OptDict_t& opt ) {
 
         using  metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
         using  metkit::mars2grib::frontend::header::SpecializedEncoder;
 
-        auto layout = make_HeaderLayout_or_throw(aMars, opt);
+        auto layout = make_HeaderLayout_or_throw(mars, opt);
 
-        return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(aMars, aPar, opt);
+        return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc, opt);
 
     }
 
@@ -142,17 +143,16 @@ struct CoreOperations {
      * @tparam OptDict_t  Encoding options dictionary type
      */
     template <class MarsDict_t, class OptDict_t>
-    static void dumpHeaderTest(
-        const MarsDict_t& aMars,
-        const OptDict_t& opt,
-        std::ostream& os) {
+    static std::string dumpHeaderTest(
+        const MarsDict_t& mars,
+        const OptDict_t& opt) {
 
         using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
 
-        auto layout = make_HeaderLayout_or_throw(aMars, opt);
+        auto layout = make_HeaderLayout_or_throw(mars, opt);
 
-        os << debug_convert_GribHeaderLayoutData_to_json(layout);
+        return debug_convert_GribHeaderLayoutData_to_json(layout);
     }
 };
 

@@ -1,3 +1,3 @@
 // Project includes
-#include "metkit/mars2grib/frontend/normalization/sanitizeMarsDict.h"
-#include "metkit/mars2grib/frontend/normalization/sanitizeMiscDict.h"
+#include "metkit/mars2grib/frontend/normalization/normalizeMarsDict.h"
+#include "metkit/mars2grib/frontend/normalization/normalizeMiscDict.h"

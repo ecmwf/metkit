@@ -92,6 +92,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/makePhaseCallbacksRegistry.h"
 #include "metkit/mars2grib/backend/concepts/AllConcepts.h"
+#include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -147,6 +148,44 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 struct EncodingCallbacksRegistry {
 
     /**
+     * @brief Size of the registry along the variant dimension.
+     *
+     * This corresponds to the total number of flattened concept variants
+     * defined by `GeneralRegistry`.
+     *
+     * It defines the first (outermost) dimension of the encoding callback
+     * dispatch table.
+     */
+    static constexpr std::size_t registry_size_along_dim0 =
+        GeneralRegistry::NVariants;
+
+    /**
+     * @brief Size of the registry along the encoding stage dimension.
+     *
+     * This corresponds to the number of logical encoding stages
+     * (e.g. allocation, preset, override, runtime) defined by
+     * `GeneralRegistry`.
+     *
+     * It defines the second dimension of the encoding callback
+     * dispatch table.
+     */
+    static constexpr std::size_t registry_size_along_dim1 =
+        GeneralRegistry::NStages;
+
+    /**
+     * @brief Size of the registry along the GRIB section dimension.
+     *
+     * This corresponds to the number of GRIB sections handled by the
+     * encoding pipeline, as defined by `GeneralRegistry`.
+     *
+     * It defines the third (innermost) dimension of the encoding callback
+     * dispatch table.
+     */
+    static constexpr std::size_t registry_size_along_dim2 =
+        GeneralRegistry::NSections;
+
+
+    /**
      * @brief Canonical encoding function pointer type.
      *
      * This alias exposes the exact function signature used for all encoding
@@ -190,6 +229,31 @@ struct EncodingCallbacksRegistry {
             detail::AllConcepts, 0,
             MarsDict_t, ParDict_t, OptDict_t, OutDict_t
         >();
+
+
+    /**
+     * @brief Compile-time structural verification.
+     *
+     * These static assertions ensure that the dimensions of the generated
+     * encoding callback table exactly match the canonical sizes defined by
+     * `GeneralRegistry`.
+     *
+     * Any mismatch indicates a structural inconsistency between the
+     * registry engine and the concept universe.
+     */
+    static_assert(
+        encodingCallbacks.size() == registry_size_along_dim0,
+        "EncodingCallbacksRegistry: size along dimension 0 does not match GeneralRegistry"
+    );
+    static_assert(
+        encodingCallbacks[0].size() == registry_size_along_dim1,
+        "EncodingCallbacksRegistry: size along dimension 1 does not match GeneralRegistry"
+    );
+    static_assert(
+        encodingCallbacks[0][0].size() == registry_size_along_dim2,
+        "EncodingCallbacksRegistry: size along dimension 2 does not match GeneralRegistry"
+    );
+
 };
 
 }

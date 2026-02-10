@@ -7,13 +7,15 @@
 #include "eckit/log/JSON.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/runtime/Tool.h"
-#include "metkit/mars2grib/frontend/make_HeaderLayout.h"
+
+
+
+#include "metkit/mars2grib/CoreOperations.h"
 
 
 eckit::LocalConfiguration mars2conf(const eckit::LocalConfiguration& mars) {
     eckit::LocalConfiguration opts;
-    const auto newConf = metkit::mars2grib::frontend::make_HeaderLayout_or_throw(mars, opts);
-    const std::string confJson = metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json(newConf);
+    const std::string confJson = metkit::mars2grib::CoreOperations::dumpHeaderTest(mars, opts);
     return eckit::LocalConfiguration{eckit::YAMLConfiguration{confJson}};
 }
 

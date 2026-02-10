@@ -59,6 +59,20 @@ ecbuild_add_test(
 
 ecbuild_add_test(
     TARGET
+        mars2grib-test-concept-index02
+
+    SOURCES
+        mars2grib-test-concept-index02.cc
+
+    NO_AS_NEEDED
+
+    LIBS
+        eckit
+        metkit
+)
+
+ecbuild_add_test(
+    TARGET
         mars2grib-test-selector
 
     SOURCES

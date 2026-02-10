@@ -435,6 +435,32 @@ struct BuildConceptNames<TypeList<Head, Tail...>> {
     }
 };
 
+
+template <typename List>
+struct BuildConceptOffsetsTable;
+
+template <>
+struct BuildConceptOffsetsTable<TypeList<>> {
+    static constexpr std::array<std::size_t, 1> value() {
+        return {{0}};
+    }
+};
+
+template <typename Head, typename... Tail>
+struct BuildConceptOffsetsTable<TypeList<Head, Tail...>> {
+    static constexpr auto value() {
+        constexpr auto tail = BuildConceptOffsetsTable<TypeList<Tail...>>::value();
+
+        std::array<std::size_t, tail.size() + 1> result{};
+        result[0] = 0;
+
+        for (std::size_t i = 0; i < tail.size(); ++i) {
+            result[i + 1] = tail[i] + Head::variant_count;
+        }
+        return result;
+    }
+};
+
 }  // namespace detail
 
 
@@ -528,6 +554,7 @@ struct EntryVariantRegistry {
         return (li == missing) ? missing : (offset<Concept>() + li);
     }
 
+
     // ---- STAGE 2 ----
 
     /**
@@ -536,10 +563,11 @@ struct EntryVariantRegistry {
      * These arrays are indexed by **global variant index** and provide
      * O(1) access to:
      *
-     *  - concept identifiers
-     *  - local variant indices
-     *  - concept names
-     *  - variant names
+     *  - concept identifiers (variantId -> conceptId)
+     *  - local variant indices (variantId -> localIndex)
+     *  - concept names (variantId -> conceptName)
+     *  - variant names (variantId -> variantName)
+     *  - concept name lookup (conceptId -> conceptName)
      *
      * They are safe to expose as `inline constexpr` objects.
      */
@@ -549,11 +577,28 @@ struct EntryVariantRegistry {
     static constexpr auto variantNameTable() { return detail::BuildVariantNameTable<Concepts>::value(); }
     static constexpr auto conceptNamesTable(){ return detail::BuildConceptNames<Concepts>::value(); }
 
+    /**
+     * @brief Concept offset table (CSR-style).
+     *
+     * This array has size `NConcepts + 1` and defines half-open
+     * global variant index ranges for each concept:
+     *
+     * \code
+     * concept i → [ offsets[i], offsets[i+1] )
+     * \endcode
+     *
+     * The last entry equals `NVariants`.
+     */
+    static constexpr auto conceptOffsetsTable() {
+        return detail::BuildConceptOffsetsTable<Concepts>::value();
+    }
+
     static inline constexpr auto conceptIdArr   = conceptIdTable();
     static inline constexpr auto variantIdArr   = variantIdTable();
     static inline constexpr auto conceptNameArr = conceptNameTable();
     static inline constexpr auto variantNameArr = variantNameTable();
     static inline constexpr auto conceptNames = conceptNamesTable();
+    static inline constexpr auto conceptOffsets = conceptOffsetsTable();
 
 private:
     template <typename Concept, std::size_t... Is>
