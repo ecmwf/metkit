@@ -31,4 +31,16 @@ inline bool bitsPerValueCompressionEnabled(const Options& opt) {
     return opt.enableBitsPerValueCompression;
 }
 
+inline bool normalizeMarsEnabled(const Options& opt) {
+    return opt.normalizeMars;
+}
+
+inline bool normalizeMiscEnabled(const Options& opt) {
+    return opt.normalizeMisc;
+}
+
+inline bool fixMarsGridEnabled(const Options& opt) {
+    return opt.fixMarsGrid;
+}
+
 }  // namespace metkit::mars2grib::utils

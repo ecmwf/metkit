@@ -96,6 +96,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/makeEntryCallbacksRegistry.h"
 #include "metkit/mars2grib/backend/concepts/AllConcepts.h"
+#include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -108,8 +109,8 @@ namespace metkit::mars2grib::backend::concepts_ {
  * @tparam MarsDict_t
  *   Type of the MARS request dictionary.
  *
- * @tparam ParDict_t
- *   Type of the parameter dictionary.
+ * @tparam OptDict_t
+ *   Type of the options dictionary.
  *
  * -----------------------------------------------------------------------------
  * Lifetime and usage
@@ -142,8 +143,32 @@ namespace metkit::mars2grib::backend::concepts_ {
  * Any change to the concept list or its ordering constitutes a breaking
  * structural change.
  */
-template <class MarsDict_t, class ParDict_t>
+template <class MarsDict_t, class OptDict_t>
 struct MatchingCallbacksRegistry {
+
+    /**
+     * @brief Number of concepts exposed by the registry.
+     *
+     * This constant anchors the dependency on `GeneralRegistry` and
+     * defines the expected size of the matching callback table.
+     */
+    static constexpr std::size_t registry_size =
+        GeneralRegistry::NConcepts;
+
+    /**
+     * @brief Canonical encoding function pointer type.
+     *
+     * This alias exposes the exact function signature used for all encoding
+     * callbacks stored in the registry.
+     *
+     * It is provided primarily for:
+     * - readability,
+     * - consistency with higher-level abstractions,
+     * - avoiding repetition of long qualified names.
+     */
+    using Fm_t =
+        metkit::mars2grib::backend::compile_time_registry_engine::
+            Fm<MarsDict_t, OptDict_t>;
 
    /**
      * @brief Fully materialized matching dispatch table.
@@ -171,8 +196,20 @@ struct MatchingCallbacksRegistry {
     static constexpr auto matchingCallbacks =
         metkit::mars2grib::backend::compile_time_registry_engine::makeEntryCallbacksRegistry<
             detail::AllConcepts, 0,
-            MarsDict_t, ParDict_t
+            MarsDict_t, OptDict_t
         >();
+
+    /**
+     * @brief Compile-time structural verification.
+     *
+     * Ensures that the generated callback table size matches the number
+     * of concepts defined by `GeneralRegistry`.
+     */
+    static_assert(
+        matchingCallbacks.size() == registry_size,
+        "MatchingCallbacksRegistry: callback table size does not match GeneralRegistry"
+    );
+
 };
 
 }

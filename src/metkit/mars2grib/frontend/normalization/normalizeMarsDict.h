@@ -20,6 +20,7 @@
 
 // Project includes
 #include "eckit/value/Value.h"
+#include "metkit/mars2grib/utils/enableOptions.h"
 
 namespace metkit::mars2grib::frontend::normalization {
 
@@ -86,19 +87,21 @@ bool fixMarsGrid(MarsDict_t& mars) {
  * @return A const reference to the sanitized or original dictionary
  */
 template <class MarsDict_t, class OptDict_t>
-const MarsDict_t& sanitize_MarsDict_if_enabled(
+const MarsDict_t& normalize_MarsDict_if_enabled(
     const MarsDict_t& mars,
     const OptDict_t& opt,
     const eckit::Value& language,
     MarsDict_t& scratch) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::normalizeMarsEnabled;
+    using metkit::mars2grib::utils::fixMarsGridEnabled;
 
     // Track if we have moved data into scratch yet
     bool modified = false;
 
-    bool needsFix = get_opt<bool>(opt, "fixMarsGrid").value_or(true) && hack::needFixMarsGrid(mars);
-    bool needsSanitize = get_opt<bool>(opt, "sanitizeMars").value_or(false);
+    bool needsFix = fixMarsGridEnabled(opt) && hack::needFixMarsGrid(mars);
+    bool needsSanitize = normalizeMarsEnabled(opt);
 
     if (needsFix || needsSanitize) {
         // We pay the performance debt here for the user's convenience

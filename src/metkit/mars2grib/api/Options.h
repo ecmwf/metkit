@@ -97,7 +97,7 @@ struct Options {
      *
      * @default false
      */
-    bool sanitizeMars = false;
+    bool normalizeMars = false;
 
     /**
      * @brief Enable semantic normalization of the auxiliary metadata.
@@ -108,7 +108,7 @@ struct Options {
      *
      * @default false
      */
-    bool sanitizeMisc = false;
+    bool normalizeMisc = false;
 
     /**
      * @brief Automatically normalize MARS 'grid' syntax.
