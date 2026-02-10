@@ -6,6 +6,7 @@
 
 // Utils
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/backend/concepts/analysis/analysisEnum.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
 
@@ -16,7 +17,11 @@ std::size_t analysisMatcher( const MarsDict_t& mars, const OptDict_t& opt ){
 
     std::cout << " - analysis matcher" << std::endl;
 
-    return 9999999;
+    // This doesn't compile because the compiler cannot find GeneralRegistry
+    // If we include the header, we will have a circular dependency error
+    return GeneralRegistry::globalIndex(AnalysisType::Default);
+
+    // return 9999999;
 }
 
 }
