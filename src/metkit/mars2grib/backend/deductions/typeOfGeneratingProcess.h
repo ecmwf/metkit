@@ -8,43 +8,43 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file typeOfGeneratingProcess.h
- * @brief Optional deduction of the GRIB `typeOfGeneratingProcess` identifier.
- *
- * This header defines the deduction responsible for *optionally* resolving
- * the GRIB `typeOfGeneratingProcess` key (Code Table 3) from MARS metadata.
- *
- * The deduction is intentionally conservative and returns a value only when
- * a formally defined and unambiguous mapping applies.
- *
- * Deductions:
- * - extract values from input dictionaries
- * - apply deterministic and explicitly defined mappings
- * - emit structured diagnostic logging
- *
- * Deductions do NOT:
- * - infer missing values
- * - apply defaults or fallbacks
- * - guess or approximate generating process semantics
- *
- * Error handling follows a strict fail-fast strategy with nested
- * exception propagation to preserve full diagnostic context.
- *
- * Logging policy:
- * - RESOLVE: supported mapping applied
- * - RESOLVE (skip): deduction intentionally not applied
- *
- * @section References
- * Concept:
- *   - @ref generatingProcessEncoding.h
- *
- * Related deductions:
- *   - @ref generatingProcessIdentifier.h
- *   - @ref backgroundProcess.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file typeOfGeneratingProcess.h
+/// @brief Optional deduction of the GRIB `typeOfGeneratingProcess` identifier.
+///
+/// This header defines the deduction responsible for *optionally* resolving
+/// the GRIB `typeOfGeneratingProcess` key (Code Table 3) from MARS metadata.
+///
+/// The deduction is intentionally conservative and returns a value only when
+/// a formally defined and unambiguous mapping applies.
+///
+/// Deductions:
+/// - extract values from input dictionaries
+/// - apply deterministic and explicitly defined mappings
+/// - emit structured diagnostic logging
+///
+/// Deductions do NOT:
+/// - infer missing values
+/// - apply defaults or fallbacks
+/// - guess or approximate generating process semantics
+///
+/// Error handling follows a strict fail-fast strategy with nested
+/// exception propagation to preserve full diagnostic context.
+///
+/// Logging policy:
+/// - RESOLVE: supported mapping applied
+/// - RESOLVE (skip): deduction intentionally not applied
+///
+/// @section References
+/// Concept:
+/// - @ref generatingProcessEncoding.h
+///
+/// Related deductions:
+/// - @ref generatingProcessIdentifier.h
+/// - @ref backgroundProcess.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -61,41 +61,41 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Optionally resolve the GRIB `typeOfGeneratingProcess` key.
- *
- * This deduction attempts to infer the GRIB
- * `typeOfGeneratingProcess` value from MARS metadata.
- *
- * The deduction is **non-mandatory** and applies only when a formally
- * specified and explicitly supported mapping is identified.
- * If no such mapping exists, the deduction returns `std::nullopt`
- * without raising an error.
- *
- * @section Current deduction logic
- * - If `mars::type == "4i"`, the generating process is resolved as
- *   `AnalysisIncrement`.
- * - All other cases result in `std::nullopt`.
- *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary providing metadata used for deduction
- * @param[in] par  Parameter dictionary (unused)
- * @param[in] opt  Options dictionary (unused)
- *
- * @return
- * - `tables::TypeOfGeneratingProcess` if the deduction applies
- * - `std::nullopt` if no supported deduction is identified
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If required MARS keys are missing or dictionary access fails
- *
- * @note
- * This deduction does not rely on pre-existing GRIB header state and
- * does not apply defaults.
- */
+///
+/// @brief Optionally resolve the GRIB `typeOfGeneratingProcess` key.
+///
+/// This deduction attempts to infer the GRIB
+/// `typeOfGeneratingProcess` value from MARS metadata.
+///
+/// The deduction is **non-mandatory** and applies only when a formally
+/// specified and explicitly supported mapping is identified.
+/// If no such mapping exists, the deduction returns `std::nullopt`
+/// without raising an error.
+///
+/// @section Current deduction logic
+/// - If `mars::type == "4i"`, the generating process is resolved as
+/// `AnalysisIncrement`.
+/// - All other cases result in `std::nullopt`.
+///
+/// @tparam MarsDict_t Type of the MARS dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary (unused)
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary providing metadata used for deduction
+/// @param[in] par  Parameter dictionary (unused)
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return
+/// - `tables::TypeOfGeneratingProcess` if the deduction applies
+/// - `std::nullopt` if no supported deduction is identified
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If required MARS keys are missing or dictionary access fails
+///
+/// @note
+/// This deduction does not rely on pre-existing GRIB header state and
+/// does not apply defaults.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_opt(
     const MarsDict_t& mars, [[maybe_unused]] const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {

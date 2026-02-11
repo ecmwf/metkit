@@ -8,12 +8,12 @@
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 
-/**
- * @brief Individual sanitization check for the GRIB key: expver.
- */
+///
+/// @brief Individual sanitization check for the GRIB key: expver.
+///
 template <typename MarsDict_t>
-void sanitise_expver_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language ) {
+void sanitise_expver_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language) {
     // TODO: Implement specific validation logic for expver
 }
 
-} // namespace metkit::mars2grib::frontend::normalization::per_key
+}  // namespace metkit::mars2grib::frontend::normalization::per_key

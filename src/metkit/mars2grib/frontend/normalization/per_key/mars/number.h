@@ -8,12 +8,12 @@
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 
-/**
- * @brief Individual sanitization check for the GRIB key: number.
- */
+///
+/// @brief Individual sanitization check for the GRIB key: number.
+///
 template <typename MarsDict_t>
-void sanitise_number_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language ) {
+void sanitise_number_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language) {
     // TODO: Implement specific validation logic for number
 }
 
-} // namespace metkit::mars2grib::frontend::normalization::per_key
+}  // namespace metkit::mars2grib::frontend::normalization::per_key

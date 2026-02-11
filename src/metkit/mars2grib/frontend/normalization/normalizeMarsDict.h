@@ -8,10 +8,10 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file normalization.h
- * @brief Orchestration of input dictionary sanitization.
- */
+///
+/// @file normalization.h
+/// @brief Orchestration of input dictionary sanitization.
+///
 #pragma once
 
 // System includes
@@ -27,28 +27,30 @@ namespace metkit::mars2grib::frontend::normalization {
 
 namespace hack {
 
-/**
- * @brief Normalizes legacy MARS grid strings in-place.
- * @return true if the dictionary was actually modified.
- */
-template<class MarsDict_t>
+///
+/// @brief Normalizes legacy MARS grid strings in-place.
+/// @return true if the dictionary was actually modified.
+///
+template <class MarsDict_t>
 bool needFixMarsGrid(const MarsDict_t& mars) {
     using metkit::mars2grib::utils::dict_traits::get_opt;
 
     auto marsGrid = get_opt<std::string>(mars, "grid");
-    if (!marsGrid) return false;
+    if (!marsGrid)
+        return false;
 
     static const std::regex pattern{R"(L(\d+)x(\d+))"};
     return std::regex_match(*marsGrid, pattern);
 }
 
 
-template<class MarsDict_t>
+template <class MarsDict_t>
 bool fixMarsGrid(MarsDict_t& mars) {
     using metkit::mars2grib::utils::dict_traits::get_opt;
 
     auto marsGrid = get_opt<std::string>(mars, "grid");
-    if (!marsGrid) return false;
+    if (!marsGrid)
+        return false;
 
     // Matches legacy LxN format (e.g., L640x320)
     static const std::regex pattern{R"(L(\d+)x(\d+))"};
@@ -67,40 +69,37 @@ bool fixMarsGrid(MarsDict_t& mars) {
     return false;
 }
 
-} // namespace metkit::mars2grib::hack
+}  // namespace hack
 
-/**
- * @brief Conditionally sanitizes a dictionary by running a suite of atomic key checks.
- *
- * This function iterates through specific keys (truncation, grid, etc.) and
- * applies the normalization rules defined in the @ref per_key directory.
- *
- * @tparam MiscDict_t Type of the dictionary to be sanitized
- * @tparam OptDict_t  Type of the options dictionary
- *
- * @param[in]  mars     Original dictionary
- * @param[in]  opt      Options driving the sanitization policy
- * @param[out] scratch  Buffer to store results if a transformation occurs
- *
- * @todo build structure around tests
- *
- * @return A const reference to the sanitized or original dictionary
- */
+///
+/// @brief Conditionally sanitizes a dictionary by running a suite of atomic key checks.
+///
+/// This function iterates through specific keys (truncation, grid, etc.) and
+/// applies the normalization rules defined in the @ref per_key directory.
+///
+/// @tparam MiscDict_t Type of the dictionary to be sanitized
+/// @tparam OptDict_t  Type of the options dictionary
+///
+/// @param[in]  mars     Original dictionary
+/// @param[in]  opt      Options driving the sanitization policy
+/// @param[out] scratch  Buffer to store results if a transformation occurs
+///
+/// @todo build structure around tests
+///
+/// @return A const reference to the sanitized or original dictionary
+///
 template <class MarsDict_t, class OptDict_t>
-const MarsDict_t& normalize_MarsDict_if_enabled(
-    const MarsDict_t& mars,
-    const OptDict_t& opt,
-    const eckit::Value& language,
-    MarsDict_t& scratch) {
+const MarsDict_t& normalize_MarsDict_if_enabled(const MarsDict_t& mars, const OptDict_t& opt,
+                                                const eckit::Value& language, MarsDict_t& scratch) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
-    using metkit::mars2grib::utils::normalizeMarsEnabled;
     using metkit::mars2grib::utils::fixMarsGridEnabled;
+    using metkit::mars2grib::utils::normalizeMarsEnabled;
+    using metkit::mars2grib::utils::dict_traits::get_opt;
 
     // Track if we have moved data into scratch yet
     bool modified = false;
 
-    bool needsFix = fixMarsGridEnabled(opt) && hack::needFixMarsGrid(mars);
+    bool needsFix      = fixMarsGridEnabled(opt) && hack::needFixMarsGrid(mars);
     bool needsSanitize = normalizeMarsEnabled(opt);
 
     if (needsFix || needsSanitize) {
@@ -122,4 +121,4 @@ const MarsDict_t& normalize_MarsDict_if_enabled(
     return mars;
 }
 
-} // namespace metkit::mars2grib::frontend::normalization
+}  // namespace metkit::mars2grib::frontend::normalization

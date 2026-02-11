@@ -22,45 +22,45 @@
 
 namespace metkit::mars2grib::backend::validation {
 
-/**
- * @brief Validate the Grid Definition Template Number against a set of expected values.
- *
- * This function verifies that the GRIB *Grid Definition Template Number*
- * matches one of the expected template numbers provided by the caller.
- *
- * The validation is performed **only if** the option `applyChecks` is present
- * in the options dictionary (`opt`) and evaluates to `true`.
- *
- * When enabled, the function reads the key `gridDefinitionTemplateNumber`
- * from the output dictionary (`out`) and compares it against the list of
- * expected values supplied in `expectedProductDefinitionTemplateNumber`.
- *
- * If the actual template number does not match any of the expected values,
- * an exception is thrown.
- *
- * Any failure occurring during dictionary access or validation is caught and
- * rethrown as a nested `Mars2GribValidationException` with additional context.
- *
- * @tparam OptDict_t Type of the options dictionary
- * @tparam OutDict_t Type of the output dictionary
- *
- * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
- * @param[in] out Output dictionary expected to contain the key
- *                `gridDefinitionTemplateNumber` when checks are enabled
- * @param[in] expectedGridDefinitionTemplateNumber
- *                List of acceptable Grid Definition Template Numbers
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
- *         If:
- *         - `applyChecks` is `true` and the template number does not match
- *           any of the expected values
- *         - required keys are missing
- *         - any error occurs while accessing the dictionaries
- *
- * @note
- * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
- * - The function returns normally on success and does not produce any output.
- */
+///
+/// @brief Validate the Grid Definition Template Number against a set of expected values.
+///
+/// This function verifies that the GRIB *Grid Definition Template Number*
+/// matches one of the expected template numbers provided by the caller.
+///
+/// The validation is performed **only if** the option `applyChecks` is present
+/// in the options dictionary (`opt`) and evaluates to `true`.
+///
+/// When enabled, the function reads the key `gridDefinitionTemplateNumber`
+/// from the output dictionary (`out`) and compares it against the list of
+/// expected values supplied in `expectedProductDefinitionTemplateNumber`.
+///
+/// If the actual template number does not match any of the expected values,
+/// an exception is thrown.
+///
+/// Any failure occurring during dictionary access or validation is caught and
+/// rethrown as a nested `Mars2GribValidationException` with additional context.
+///
+/// @tparam OptDict_t Type of the options dictionary
+/// @tparam OutDict_t Type of the output dictionary
+///
+/// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+/// @param[in] out Output dictionary expected to contain the key
+/// `gridDefinitionTemplateNumber` when checks are enabled
+/// @param[in] expectedGridDefinitionTemplateNumber
+/// List of acceptable Grid Definition Template Numbers
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+/// If:
+/// - `applyChecks` is `true` and the template number does not match
+/// any of the expected values
+/// - required keys are missing
+/// - any error occurs while accessing the dictionaries
+///
+/// @note
+/// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+/// - The function returns normally on success and does not produce any output.
+///
 template <class OptDict_t, class OutDict_t>
 void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,
                                                  const std::vector<long>& expectedGridDefinitionTemplateNumber) {

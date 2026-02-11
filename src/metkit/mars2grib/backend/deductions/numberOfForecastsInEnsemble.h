@@ -8,37 +8,37 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file numberOfForecastsInEnsemble.h
- * @brief Deduction of the GRIB `numberOfForecastsInEnsemble` key.
- *
- * This header defines deduction utilities used by the mars2grib backend
- * to resolve the **total number of forecasts in an ensemble**.
- *
- * The value cannot be inferred from the MARS request alone and must be
- * provided explicitly via the parameter dictionary.
- *
- * The MARS key `number` (perturbation number) is used exclusively for
- * consistency validation and does not affect the returned value.
- *
- * Error handling follows a strict fail-fast strategy:
- * - missing or invalid inputs cause immediate failure
- * - errors are reported using domain-specific deduction exceptions
- * - original errors are preserved via nested exception propagation
- *
- * Logging follows the mars2grib deduction policy:
- * - RESOLVE: value resolved from one or more input dictionaries
- *
- * @section References
- * Concept:
- *   - @ref ensembleEncoding.h
- *
- * Related deductions:
- *   - @ref perturbationNumber.h
- *   - @ref typeOfEnsembleForecast.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file numberOfForecastsInEnsemble.h
+/// @brief Deduction of the GRIB `numberOfForecastsInEnsemble` key.
+///
+/// This header defines deduction utilities used by the mars2grib backend
+/// to resolve the **total number of forecasts in an ensemble**.
+///
+/// The value cannot be inferred from the MARS request alone and must be
+/// provided explicitly via the parameter dictionary.
+///
+/// The MARS key `number` (perturbation number) is used exclusively for
+/// consistency validation and does not affect the returned value.
+///
+/// Error handling follows a strict fail-fast strategy:
+/// - missing or invalid inputs cause immediate failure
+/// - errors are reported using domain-specific deduction exceptions
+/// - original errors are preserved via nested exception propagation
+///
+/// Logging follows the mars2grib deduction policy:
+/// - RESOLVE: value resolved from one or more input dictionaries
+///
+/// @section References
+/// Concept:
+/// - @ref ensembleEncoding.h
+///
+/// Related deductions:
+/// - @ref perturbationNumber.h
+/// - @ref typeOfEnsembleForecast.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 #include <string>
@@ -51,53 +51,53 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the GRIB `numberOfForecastsInEnsemble` key.
- *
- * @section Deduction contract
- * - Reads: `par["numberOfForecastsInEnsemble"]`, `mars["number"]`
- * - Writes: none
- * - Side effects: logging (RESOLVE)
- * - Failure mode: throws
- *
- * This deduction resolves the total number of ensemble forecasts.
- *
- * The value is taken verbatim from the parameter dictionary.
- * No inference, defaulting, or heuristic logic is applied.
- *
- * The MARS perturbation number (`mars["number"]`) is used only for
- * consistency validation.
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary. Must provide `number`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary. Must provide
- *   `numberOfForecastsInEnsemble`.
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused).
- *
- * @param[in] mars
- *   MARS dictionary providing the perturbation number.
- *
- * @param[in] par
- *   Parameter dictionary providing the ensemble size.
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The total number of forecasts in the ensemble.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If required keys are missing, if the perturbation number is outside
- *   the valid range, or if any unexpected error occurs during deduction.
- *
- * @note
- *   This deduction is fully deterministic and does not depend on
- *   pre-existing GRIB header state.
- */
+///
+/// @brief Resolve the GRIB `numberOfForecastsInEnsemble` key.
+///
+/// @section Deduction contract
+/// - Reads: `par["numberOfForecastsInEnsemble"]`, `mars["number"]`
+/// - Writes: none
+/// - Side effects: logging (RESOLVE)
+/// - Failure mode: throws
+///
+/// This deduction resolves the total number of ensemble forecasts.
+///
+/// The value is taken verbatim from the parameter dictionary.
+/// No inference, defaulting, or heuristic logic is applied.
+///
+/// The MARS perturbation number (`mars["number"]`) is used only for
+/// consistency validation.
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary. Must provide `number`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary. Must provide
+/// `numberOfForecastsInEnsemble`.
+///
+/// @tparam OptDict_t
+/// Type of the options dictionary (unused).
+///
+/// @param[in] mars
+/// MARS dictionary providing the perturbation number.
+///
+/// @param[in] par
+/// Parameter dictionary providing the ensemble size.
+///
+/// @param[in] opt
+/// Options dictionary (unused).
+///
+/// @return
+/// The total number of forecasts in the ensemble.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If required keys are missing, if the perturbation number is outside
+/// the valid range, or if any unexpected error occurs during deduction.
+///
+/// @note
+/// This deduction is fully deterministic and does not depend on
+/// pre-existing GRIB header state.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

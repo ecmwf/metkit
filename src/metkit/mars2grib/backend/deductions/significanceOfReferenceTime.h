@@ -8,44 +8,44 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file significanceOfReferenceTime.h
- * @brief Deduction of the GRIB `significanceOfReferenceTime` identifier.
- *
- * This header defines the deduction responsible for resolving the
- * GRIB `significanceOfReferenceTime` key, which describes the semantic
- * meaning of the GRIB reference time.
- *
- * The value is deterministically deduced from the MARS request,
- * specifically from the `mars::type` key, according to established
- * ECMWF/MARS conventions.
- *
- * Deductions:
- * - extract values from input dictionaries
- * - apply deterministic resolution logic
- * - emit structured diagnostic logging
- *
- * Deductions do NOT:
- * - infer missing values
- * - apply defaults or fallbacks
- * - validate against external GRIB code tables beyond explicit mappings
- *
- * Error handling follows a strict fail-fast strategy with nested
- * exception propagation to preserve full diagnostic context.
- *
- * Logging policy:
- * - RESOLVE: value deduced deterministically from input dictionaries
- *
- * @section References
- * Concept:
- *   - @ref referenceTimeEncoding.h
- *
- * Related deductions:
- *   - @ref standardReferenceDateTime.h
- *   - @ref hindcastReferenceDateTime.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file significanceOfReferenceTime.h
+/// @brief Deduction of the GRIB `significanceOfReferenceTime` identifier.
+///
+/// This header defines the deduction responsible for resolving the
+/// GRIB `significanceOfReferenceTime` key, which describes the semantic
+/// meaning of the GRIB reference time.
+///
+/// The value is deterministically deduced from the MARS request,
+/// specifically from the `mars::type` key, according to established
+/// ECMWF/MARS conventions.
+///
+/// Deductions:
+/// - extract values from input dictionaries
+/// - apply deterministic resolution logic
+/// - emit structured diagnostic logging
+///
+/// Deductions do NOT:
+/// - infer missing values
+/// - apply defaults or fallbacks
+/// - validate against external GRIB code tables beyond explicit mappings
+///
+/// Error handling follows a strict fail-fast strategy with nested
+/// exception propagation to preserve full diagnostic context.
+///
+/// Logging policy:
+/// - RESOLVE: value deduced deterministically from input dictionaries
+///
+/// @section References
+/// Concept:
+/// - @ref referenceTimeEncoding.h
+///
+/// Related deductions:
+/// - @ref standardReferenceDateTime.h
+/// - @ref hindcastReferenceDateTime.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -63,41 +63,41 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the GRIB `significanceOfReferenceTime` key.
- *
- * This deduction resolves the GRIB `significanceOfReferenceTime`
- * identifier based on the value of the MARS key `type`.
- *
- * Resolution rules:
- * - Analysis-like MARS types map to
- *   `SignificanceOfReferenceTime::Analysis`
- * - Forecast-like MARS types map to
- *   `SignificanceOfReferenceTime::ForecastStart`
- *
- * The mapping is explicit and exhaustive. Any unsupported MARS
- * `type` value results in a deduction error.
- *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary; must contain the key `type`
- * @param[in] par  Parameter dictionary (unused)
- * @param[in] opt  Options dictionary (unused)
- *
- * @return The resolved `SignificanceOfReferenceTime` enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - `mars::type` is missing
- *         - `mars::type` cannot be mapped to a supported significance
- *         - any unexpected error occurs during deduction
- *
- * @note
- * This deduction is fully deterministic and does not rely on any
- * pre-existing GRIB header state.
- */
+///
+/// @brief Resolve the GRIB `significanceOfReferenceTime` key.
+///
+/// This deduction resolves the GRIB `significanceOfReferenceTime`
+/// identifier based on the value of the MARS key `type`.
+///
+/// Resolution rules:
+/// - Analysis-like MARS types map to
+/// `SignificanceOfReferenceTime::Analysis`
+/// - Forecast-like MARS types map to
+/// `SignificanceOfReferenceTime::ForecastStart`
+///
+/// The mapping is explicit and exhaustive. Any unsupported MARS
+/// `type` value results in a deduction error.
+///
+/// @tparam MarsDict_t Type of the MARS dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary (unused)
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary; must contain the key `type`
+/// @param[in] par  Parameter dictionary (unused)
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return The resolved `SignificanceOfReferenceTime` enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If:
+/// - `mars::type` is missing
+/// - `mars::type` cannot be mapped to a supported significance
+/// - any unexpected error occurs during deduction
+///
+/// @note
+/// This deduction is fully deterministic and does not rely on any
+/// pre-existing GRIB header state.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw(const MarsDict_t& mars,
                                                                                  const ParDict_t& par,

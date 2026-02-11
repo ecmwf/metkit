@@ -8,31 +8,31 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file TemplateSignatureKey.h
- * @brief Compact key representing an active concept-variant signature.
- *
- * This header defines `TemplateSignatureKey`, an **internal, fixed-size key**
- * used by the section resolver to represent the *active concept-variant
- * signature* of an encoding request.
- *
- * A signature key is constructed from the runtime active concept state and
- * encodes, in a compact and ordered form, the set of **global variant
- * identifiers** that characterize the request.
- *
- * The key is used for:
- * - Efficient comparison
- * - Ordered lookup
- * - Hash-based indexing
- *
- * It is designed for hot-path usage and introduces no dynamic allocation.
- *
- * @note
- * This type is an internal implementation detail of the resolver and is not
- * part of the public API.
- *
- * @ingroup mars2grib_backend_section_resolver
- */
+///
+/// @file TemplateSignatureKey.h
+/// @brief Compact key representing an active concept-variant signature.
+///
+/// This header defines `TemplateSignatureKey`, an **internal, fixed-size key**
+/// used by the section resolver to represent the *active concept-variant
+/// signature* of an encoding request.
+///
+/// A signature key is constructed from the runtime active concept state and
+/// encodes, in a compact and ordered form, the set of **global variant
+/// identifiers** that characterize the request.
+///
+/// The key is used for:
+/// - Efficient comparison
+/// - Ordered lookup
+/// - Hash-based indexing
+///
+/// It is designed for hot-path usage and introduces no dynamic allocation.
+///
+/// @note
+/// This type is an internal implementation detail of the resolver and is not
+/// part of the public API.
+///
+/// @ingroup mars2grib_backend_section_resolver
+///
 #pragma once
 
 // System includes
@@ -49,52 +49,52 @@
 
 namespace metkit::mars2grib::backend::sections::resolver::detail {
 
-/**
- * @brief Fixed-size signature key for concept-variant combinations.
- *
- * `TemplateSignatureKey` represents an **ordered sequence of global
- * variant identifiers** describing the active concept state.
- *
- * The key is:
- * - Dense and contiguous
- * - Order-sensitive
- * - Free of dynamic allocation
- *
- * The `size` field indicates how many entries in @ref data are valid.
- *
- * Ordering and equality are defined lexicographically and are consistent
- * with the semantics of concept-variant matching.
- */
+///
+/// @brief Fixed-size signature key for concept-variant combinations.
+///
+/// `TemplateSignatureKey` represents an **ordered sequence of global
+/// variant identifiers** describing the active concept state.
+///
+/// The key is:
+/// - Dense and contiguous
+/// - Order-sensitive
+/// - Free of dynamic allocation
+///
+/// The `size` field indicates how many entries in @ref data are valid.
+///
+/// Ordering and equality are defined lexicographically and are consistent
+/// with the semantics of concept-variant matching.
+///
 struct TemplateSignatureKey {
 
     /// Registry providing global concept and variant identifiers
     using GeneralRegistry = metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
-    /**
-     * @brief Maximum number of variant identifiers that can be stored.
-     *
-     * This corresponds to the total number of registered variants.
-     */
+    ///
+    /// @brief Maximum number of variant identifiers that can be stored.
+    ///
+    /// This corresponds to the total number of registered variants.
+    ///
     static constexpr std::size_t maxSize = GeneralRegistry::NVariants;
 
-    /**
-     * @brief Ordered list of global variant identifiers.
-     *
-     * Only the first @ref size entries are valid.
-     */
+    ///
+    /// @brief Ordered list of global variant identifiers.
+    ///
+    /// Only the first @ref size entries are valid.
+    ///
     std::array<std::size_t, maxSize> data{};
 
-    /**
-     * @brief Number of active entries in @ref data.
-     */
+    ///
+    /// @brief Number of active entries in @ref data.
+    ///
     std::uint16_t size{0};
 
-    /**
-     * @brief Equality comparison.
-     *
-     * Two keys are equal if they have the same size and identical
-     * variant identifiers in the same order.
-     */
+    ///
+    /// @brief Equality comparison.
+    ///
+    /// Two keys are equal if they have the same size and identical
+    /// variant identifiers in the same order.
+    ///
     bool operator==(const TemplateSignatureKey& other) const noexcept {
         if (size != other.size) {
             return false;
@@ -107,12 +107,12 @@ struct TemplateSignatureKey {
         return true;
     }
 
-    /**
-     * @brief Strict weak ordering.
-     *
-     * Lexicographical comparison on the stored variant identifiers,
-     * with shorter keys ordered before longer ones when prefixes match.
-     */
+    ///
+    /// @brief Strict weak ordering.
+    ///
+    /// Lexicographical comparison on the stored variant identifiers,
+    /// with shorter keys ordered before longer ones when prefixes match.
+    ///
     bool operator<(const TemplateSignatureKey& other) const noexcept {
         const std::size_t n = std::min(size, other.size);
         for (std::size_t i = 0; i < n; ++i) {
@@ -127,12 +127,12 @@ struct TemplateSignatureKey {
     }
 };
 
-/**
- * @brief Hash functor for `TemplateSignatureKey`.
- *
- * This hash combines the variant identifiers using a standard
- * hash-mixing scheme suitable for unordered containers.
- */
+///
+/// @brief Hash functor for `TemplateSignatureKey`.
+///
+/// This hash combines the variant identifiers using a standard
+/// hash-mixing scheme suitable for unordered containers.
+///
 struct TemplateSignatureKeyHash {
 
     std::size_t operator()(const TemplateSignatureKey& key) const noexcept {
@@ -145,23 +145,23 @@ struct TemplateSignatureKeyHash {
     }
 };
 
-/**
- * @namespace metkit::mars2grib::backend::sections::resolver::detail::debug
- *
- * @brief Debug and introspection utilities for template signature keys.
- *
- * These utilities are intended exclusively for diagnostics and debugging.
- * They must not be used in performance-critical code paths.
- */
+///
+/// @namespace metkit::mars2grib::backend::sections::resolver::detail::debug
+///
+/// @brief Debug and introspection utilities for template signature keys.
+///
+/// These utilities are intended exclusively for diagnostics and debugging.
+/// They must not be used in performance-critical code paths.
+///
 namespace debug {
 
-/**
- * @brief Print a human-readable representation of a template signature key.
- *
- * @param[in]  key    Signature key
- * @param[in]  prefix Line prefix used for indentation
- * @param[out] os     Output stream
- */
+///
+/// @brief Print a human-readable representation of a template signature key.
+///
+/// @param[in]  key    Signature key
+/// @param[in]  prefix Line prefix used for indentation
+/// @param[out] os     Output stream
+///
 inline void debug_print_Key(const TemplateSignatureKey& key, std::string_view prefix, std::ostream& os) {
 
     using GeneralRegistry = TemplateSignatureKey::GeneralRegistry;
@@ -196,15 +196,15 @@ inline void debug_print_Key(const TemplateSignatureKey& key, std::string_view pr
     os << " ]\n";
 }
 
-/**
- * @brief Convert a template signature key to a JSON-like string.
- *
- * Intended exclusively for debugging and diagnostics.
- *
- * @param[in] key Signature key
- *
- * @return JSON-style string representation
- */
+///
+/// @brief Convert a template signature key to a JSON-like string.
+///
+/// Intended exclusively for debugging and diagnostics.
+///
+/// @param[in] key Signature key
+///
+/// @return JSON-style string representation
+///
 inline std::string debug_convert_Key_to_json(const TemplateSignatureKey& key) {
 
     using GeneralRegistry = TemplateSignatureKey::GeneralRegistry;

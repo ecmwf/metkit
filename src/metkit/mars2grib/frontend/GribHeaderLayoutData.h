@@ -8,14 +8,14 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file GribHeaderLayoutData.h
- * @brief Structural blueprint of a resolved GRIB message.
- *
- * This header defines the data structures used to represent the resolved
- * structural state of a GRIB message. It acts as a bridge between the
- * frontend (Resolution) and the backend (Encoding).
- */
+///
+/// @file GribHeaderLayoutData.h
+/// @brief Structural blueprint of a resolved GRIB message.
+///
+/// This header defines the data structures used to represent the resolved
+/// structural state of a GRIB message. It acts as a bridge between the
+/// frontend (Resolution) and the backend (Encoding).
+///
 #pragma once
 
 // System includes
@@ -32,47 +32,47 @@
 
 namespace metkit::mars2grib::frontend {
 
-/**
- * @brief Aggregated layout metadata for a complete GRIB message.
- *
- * `GribHeaderLayoutData` serves as a **blueprint** or **manifest**. It contains
- * the resolved templates and specific variants for every GRIB section (0-7).
- *
- * This structure is strictly "data-only" and is intended to be passed to
- * specialized encoders which use these indices to perform lookups in the
- * `GeneralRegistry`.
- */
+///
+/// @brief Aggregated layout metadata for a complete GRIB message.
+///
+/// `GribHeaderLayoutData` serves as a **blueprint** or **manifest**. It contains
+/// the resolved templates and specific variants for every GRIB section (0-7).
+///
+/// This structure is strictly "data-only" and is intended to be passed to
+/// specialized encoders which use these indices to perform lookups in the
+/// `GeneralRegistry`.
+///
 struct GribHeaderLayoutData {
-    using GeneralRegistry = metkit::mars2grib::backend::concepts_::GeneralRegistry;
+    using GeneralRegistry   = metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using SectionLayoutData = metkit::mars2grib::backend::sections::resolver::SectionLayoutData;
 
-    /** @brief Number of sections defined by the GRIB registry (typically 8)
-     * we use 5 because section from 6 to 8 are pure data
-     */
+    /// @brief Number of sections defined by the GRIB registry (typically 8)
+    /// we use 5 because section from 6 to 8 are pure data
+    ///
     static constexpr std::size_t nSections = GeneralRegistry::NSections;
 
-    /** @brief Array of layout definitions, indexed by GRIB section number. */
+    /// @brief Array of layout definitions, indexed by GRIB section number.
     std::array<SectionLayoutData, nSections> sectionLayouts{};
 };
 
 
-/**
- * @namespace metkit::mars2grib::frontend::debug
- * @brief Diagnostic and serialization utilities for header layout data.
- */
+///
+/// @namespace metkit::mars2grib::frontend::debug
+/// @brief Diagnostic and serialization utilities for header layout data.
+///
 namespace debug {
 
-/**
- * @brief Serialize the header layout to a JSON-like diagnostic string.
- *
- * Produces a machine-readable representation of the resolved layout. This is
- * primarily used for regression testing (dumping "GRIB blueprints") to
- * ensure that changes in metadata resolution do not unexpectedly alter
- * the resulting GRIB structure.
- *
- * @param data The layout data to serialize.
- * @return A JSON formatted string containing the section-variant map.
- */
+///
+/// @brief Serialize the header layout to a JSON-like diagnostic string.
+///
+/// Produces a machine-readable representation of the resolved layout. This is
+/// primarily used for regression testing (dumping "GRIB blueprints") to
+/// ensure that changes in metadata resolution do not unexpectedly alter
+/// the resulting GRIB structure.
+///
+/// @param data The layout data to serialize.
+/// @return A JSON formatted string containing the section-variant map.
+///
 inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLayoutData& data) {
 
     using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_SectionLayoutData_to_json;
@@ -93,18 +93,19 @@ inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLa
     return oss.str();
 }
 
-/**
- * @brief Detailed print to ostream for human-readable logging.
- *
- * Formats the layout into a hierarchical tree view, showing which GRIB
- * Template is used for each section and listing the specific Concept/Variant
- * pairs that will be encoded.
- *
- * @param data   The layout data to print.
- * @param prefix Leading string for each line (used for indentation/log headers).
- * @param os     The output stream.
- */
-inline void debug_print_GribHeaderLayoutData(const GribHeaderLayoutData& data, std::string_view prefix, std::ostream& os) {
+///
+/// @brief Detailed print to ostream for human-readable logging.
+///
+/// Formats the layout into a hierarchical tree view, showing which GRIB
+/// Template is used for each section and listing the specific Concept/Variant
+/// pairs that will be encoded.
+///
+/// @param data   The layout data to print.
+/// @param prefix Leading string for each line (used for indentation/log headers).
+/// @param os     The output stream.
+///
+inline void debug_print_GribHeaderLayoutData(const GribHeaderLayoutData& data, std::string_view prefix,
+                                             std::ostream& os) {
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
     os << prefix << " :: GribHeaderLayoutData Summary\n";
@@ -121,4 +122,4 @@ inline void debug_print_GribHeaderLayoutData(const GribHeaderLayoutData& data, s
 }
 
 }  // namespace debug
-} // namespace metkit::mars2grib::frontend
+}  // namespace metkit::mars2grib::frontend

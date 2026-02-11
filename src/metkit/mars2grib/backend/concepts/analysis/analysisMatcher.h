@@ -14,7 +14,7 @@
 namespace metkit::mars2grib::backend::concepts_ {
 
 template <class MarsDict_t, class OptDict_t>
-std::size_t analysisMatcher( const MarsDict_t& mars, const OptDict_t& opt ){
+std::size_t analysisMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
     using metkit::mars2grib::backend::compile_time_registry_engine::NOT_APPLICABLE;
 
@@ -26,4 +26,4 @@ std::size_t analysisMatcher( const MarsDict_t& mars, const OptDict_t& opt ){
     return NOT_APPLICABLE;
 }
 
-}
+}  // namespace metkit::mars2grib::backend::concepts_

@@ -16,38 +16,38 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB Type of Ensemble Forecast.
- *
- * This enumeration represents the GRIB code values defined in
- * **GRIB2 Code Table 4.6 – Type of ensemble forecast**.
- *
- * The values describe how a forecast member relates to the ensemble
- * generation strategy (control, perturbation type, multi-model, etc.).
- *
- * The numeric values of the enumerators map **directly** to the GRIB
- * code table and must not be modified manually.
- *
- * @note
- * The value `255` corresponds to the GRIB *missing* value.
- *
- * @important
- * This enum is a **GRIB-level representation** only.
- * No policy, deduction, or defaulting logic must be embedded here.
- * All semantic decisions must be implemented in the corresponding
- * deduction functions.
- *
- * @section Source of truth
- * The authoritative definition of this table is:
- *
- *   GRIB2 Code Table 4.6 – Type of ensemble forecast
- *
- * as implemented in ecCodes.
- *
- * @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
- * - Generate this enum and its conversion helpers automatically from
- *   ecCodes GRIB code tables at build or configure time to avoid drift.
- */
+///
+/// @brief GRIB Type of Ensemble Forecast.
+///
+/// This enumeration represents the GRIB code values defined in
+/// **GRIB2 Code Table 4.6 – Type of ensemble forecast**.
+///
+/// The values describe how a forecast member relates to the ensemble
+/// generation strategy (control, perturbation type, multi-model, etc.).
+///
+/// The numeric values of the enumerators map **directly** to the GRIB
+/// code table and must not be modified manually.
+///
+/// @note
+/// The value `255` corresponds to the GRIB *missing* value.
+///
+/// @important
+/// This enum is a **GRIB-level representation** only.
+/// No policy, deduction, or defaulting logic must be embedded here.
+/// All semantic decisions must be implemented in the corresponding
+/// deduction functions.
+///
+/// @section Source of truth
+/// The authoritative definition of this table is:
+///
+/// GRIB2 Code Table 4.6 – Type of ensemble forecast
+///
+/// as implemented in ecCodes.
+///
+/// @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Generate this enum and its conversion helpers automatically from
+/// ecCodes GRIB code tables at build or configure time to avoid drift.
+///
 enum class TypeOfEnsembleForecast : long {
     UnperturbedHighResControl           = 0,
     UnperturbedLowResControl            = 1,
@@ -63,19 +63,19 @@ enum class TypeOfEnsembleForecast : long {
 };
 
 
-/**
- * @brief Convert `TypeOfEnsembleForecast` to its canonical string name.
- *
- * The returned string corresponds to the symbolic GRIB meaning of the
- * enumerator and is intended for logging, diagnostics, and validation.
- *
- * @param[in] value Enumeration value
- *
- * @return Canonical string representation
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enum value is not recognized.
- */
+///
+/// @brief Convert `TypeOfEnsembleForecast` to its canonical string name.
+///
+/// The returned string corresponds to the symbolic GRIB meaning of the
+/// enumerator and is intended for logging, diagnostics, and validation.
+///
+/// @param[in] value Enumeration value
+///
+/// @return Canonical string representation
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enum value is not recognized.
+///
 inline std::string enum2name_TypeOfEnsembleForecast_or_throw(TypeOfEnsembleForecast value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -109,19 +109,19 @@ inline std::string enum2name_TypeOfEnsembleForecast_or_throw(TypeOfEnsembleForec
 }
 
 
-/**
- * @brief Convert a canonical string name to `TypeOfEnsembleForecast`.
- *
- * This function performs a strict mapping from a string identifier
- * to the corresponding GRIB enumeration value.
- *
- * @param[in] name Canonical string name
- *
- * @return Corresponding `TypeOfEnsembleForecast` value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the provided name is not supported.
- */
+///
+/// @brief Convert a canonical string name to `TypeOfEnsembleForecast`.
+///
+/// This function performs a strict mapping from a string identifier
+/// to the corresponding GRIB enumeration value.
+///
+/// @param[in] name Canonical string name
+///
+/// @return Corresponding `TypeOfEnsembleForecast` value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the provided name is not supported.
+///
 inline TypeOfEnsembleForecast name2enum_TypeOfEnsembleForecast_or_throw(const std::string& name) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -164,36 +164,36 @@ inline TypeOfEnsembleForecast name2enum_TypeOfEnsembleForecast_or_throw(const st
     }
 }
 
-/**
- * @brief Convert a numeric GRIB code to `TypeOfEnsembleForecast`.
- *
- * This function validates and converts a raw numeric value associated
- * with **GRIB2 Code Table 4.6 – Type of ensemble forecast** into the
- * corresponding `TypeOfEnsembleForecast` enumeration.
- *
- * Only officially defined GRIB values are accepted. Any other value
- * is considered invalid and results in an exception.
- *
- * @param[in] value Numeric GRIB code
- *
- * @return Corresponding `TypeOfEnsembleForecast` enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the provided value does not correspond to a valid
- *         GRIB Code Table 4.6 entry.
- *
- * @note
- * - The value `255` corresponds to the GRIB *missing* value.
- * - No implicit normalization, fallback, or defaulting is performed.
- *
- * @important
- * This function performs **pure table validation**.
- * Any semantic interpretation must be handled by the calling deduction.
- *
- * @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes GRIB code tables.
- */
+///
+/// @brief Convert a numeric GRIB code to `TypeOfEnsembleForecast`.
+///
+/// This function validates and converts a raw numeric value associated
+/// with **GRIB2 Code Table 4.6 – Type of ensemble forecast** into the
+/// corresponding `TypeOfEnsembleForecast` enumeration.
+///
+/// Only officially defined GRIB values are accepted. Any other value
+/// is considered invalid and results in an exception.
+///
+/// @param[in] value Numeric GRIB code
+///
+/// @return Corresponding `TypeOfEnsembleForecast` enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the provided value does not correspond to a valid
+/// GRIB Code Table 4.6 entry.
+///
+/// @note
+/// - The value `255` corresponds to the GRIB *missing* value.
+/// - No implicit normalization, fallback, or defaulting is performed.
+///
+/// @important
+/// This function performs **pure table validation**.
+/// Any semantic interpretation must be handled by the calling deduction.
+///
+/// @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes GRIB code tables.
+///
 inline TypeOfEnsembleForecast long2enum_TypeOfEnsembleForecast_or_throw(long value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

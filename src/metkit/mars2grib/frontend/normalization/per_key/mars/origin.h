@@ -8,12 +8,12 @@
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 
-/**
- * @brief Individual sanitization check for the GRIB key: origin.
- */
+///
+/// @brief Individual sanitization check for the GRIB key: origin.
+///
 template <typename MarsDict_t>
-void sanitise_origin_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language ) {
+void sanitise_origin_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language) {
     // TODO: Implement specific validation logic for origin
 }
 
-} // namespace metkit::mars2grib::frontend::normalization::per_key
+}  // namespace metkit::mars2grib::frontend::normalization::per_key

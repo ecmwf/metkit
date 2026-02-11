@@ -8,114 +8,114 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file representationOp.h
- * @brief Implementation of the GRIB `representation` concept operation.
- *
- * This header defines the applicability rules and execution logic for the
- * **representation concept**, which is responsible for configuring the
- * GRIB *Grid Definition Section (Section 3)*.
- *
- * The representation concept controls how the spatial grid of a field
- * is described in GRIB, including:
- * - grid type selection (lat/lon, Gaussian, spectral, HEALPix, …)
- * - grid topology and resolution parameters
- * - allocation and population of grid-related metadata
- *
- * The concept operates in multiple encoding stages and performs
- * **variant-specific logic** depending on the selected
- * `RepresentationType`.
- *
- * ---
- *
- * ## Encoding stages
- *
- * The concept is active in the following stages:
- *
- * - **StageAllocate**
- *   - Selection of the GRIB grid type
- *   - Structural validation against the Grid Definition Template
- *   - Allocation of representation-specific data (e.g. PL arrays)
- *
- * - **StagePreset**
- *   - Population of grid geometry parameters
- *   - Encoding of resolution, truncation, and coordinate metadata
- *
- * The exact operations performed depend on the selected representation
- * variant.
- *
- * ---
- *
- * ## Supported representation variants
- *
- * The following `RepresentationType` variants are currently handled:
- *
- * - `Latlon`
- * - `RegularGaussian`
- * - `ReducedGaussian`
- * - `SphericalHarmonics`
- * - `Healpix`
- *
- * The following variants are recognized but **not implemented**:
- *
- * - `Orca`
- * - `Fesom`
- *
- * Attempting to use unsupported variants results in a concept-level
- * exception.
- *
- * ---
- *
- * ## Geometry handling
- *
- * Geometry parameters are in most cases retrieved from eckit::geo, based on the MARS key `grid`.
- * For spherical harmonics, the geometry is based on the MARS key `truncation`.
- *
- * @warning
- * This is a transitional design.
- *
- * A dedicated grid/geometry deduction layer does not exist yet.
- * As a consequence:
- * - The concept creates an eckit::geo::Grid object and retreives the relevant keys
- * - Validation of geometry consistency is minimal
- * - Responsibilities between geometry handling and encoding are not
- *   fully separated
- *
- * This will be refactored in a future iteration.
- *
- * ---
- *
- * ## Applicability model
- *
- * All representation variants are considered applicable in:
- *
- * - `StageAllocate`
- * - `StagePreset`
- *
- * for `SecGridDefinitionSection`.
- *
- * Variant-specific behavior is implemented entirely inside the
- * operation body using `if constexpr`.
- *
- * ---
- *
- * ## Error handling
- *
- * - Structural mismatches with GRIB templates are detected via
- *   validation helpers.
- * - Unsupported or unknown representation variants result in
- *   concept-level exceptions.
- * - All failures are rethrown with full concept context.
- *
- * ---
- *
- * @note
- * The namespace name `concepts_` is intentionally used instead of
- * `concepts` to avoid conflicts with the C++20 `concept` language
- * feature.
- *
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file representationOp.h
+/// @brief Implementation of the GRIB `representation` concept operation.
+///
+/// This header defines the applicability rules and execution logic for the
+/// **representation concept**, which is responsible for configuring the
+/// GRIB *Grid Definition Section (Section 3)*.
+///
+/// The representation concept controls how the spatial grid of a field
+/// is described in GRIB, including:
+/// - grid type selection (lat/lon, Gaussian, spectral, HEALPix, …)
+/// - grid topology and resolution parameters
+/// - allocation and population of grid-related metadata
+///
+/// The concept operates in multiple encoding stages and performs
+/// **variant-specific logic** depending on the selected
+/// `RepresentationType`.
+///
+/// ---
+///
+/// ## Encoding stages
+///
+/// The concept is active in the following stages:
+///
+/// - **StageAllocate**
+/// - Selection of the GRIB grid type
+/// - Structural validation against the Grid Definition Template
+/// - Allocation of representation-specific data (e.g. PL arrays)
+///
+/// - **StagePreset**
+/// - Population of grid geometry parameters
+/// - Encoding of resolution, truncation, and coordinate metadata
+///
+/// The exact operations performed depend on the selected representation
+/// variant.
+///
+/// ---
+///
+/// ## Supported representation variants
+///
+/// The following `RepresentationType` variants are currently handled:
+///
+/// - `Latlon`
+/// - `RegularGaussian`
+/// - `ReducedGaussian`
+/// - `SphericalHarmonics`
+/// - `Healpix`
+///
+/// The following variants are recognized but **not implemented**:
+///
+/// - `Orca`
+/// - `Fesom`
+///
+/// Attempting to use unsupported variants results in a concept-level
+/// exception.
+///
+/// ---
+///
+/// ## Geometry handling
+///
+/// Geometry parameters are in most cases retrieved from eckit::geo, based on the MARS key `grid`.
+/// For spherical harmonics, the geometry is based on the MARS key `truncation`.
+///
+/// @warning
+/// This is a transitional design.
+///
+/// A dedicated grid/geometry deduction layer does not exist yet.
+/// As a consequence:
+/// - The concept creates an eckit::geo::Grid object and retreives the relevant keys
+/// - Validation of geometry consistency is minimal
+/// - Responsibilities between geometry handling and encoding are not
+/// fully separated
+///
+/// This will be refactored in a future iteration.
+///
+/// ---
+///
+/// ## Applicability model
+///
+/// All representation variants are considered applicable in:
+///
+/// - `StageAllocate`
+/// - `StagePreset`
+///
+/// for `SecGridDefinitionSection`.
+///
+/// Variant-specific behavior is implemented entirely inside the
+/// operation body using `if constexpr`.
+///
+/// ---
+///
+/// ## Error handling
+///
+/// - Structural mismatches with GRIB templates are detected via
+/// validation helpers.
+/// - Unsupported or unknown representation variants result in
+/// concept-level exceptions.
+/// - All failures are rethrown with full concept context.
+///
+/// ---
+///
+/// @note
+/// The namespace name `concepts_` is intentionally used instead of
+/// `concepts` to avoid conflicts with the C++20 `concept` language
+/// feature.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System includes
@@ -135,8 +135,8 @@
 
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/representation/representationEnum.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/backend/concepts/representation/representationEnum.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchGridDefinitionTemplateNumber.h"
@@ -152,26 +152,26 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/**
- * @brief Compile-time applicability predicate for the `representation` concept.
- *
- * This predicate determines whether the `representation` concept is
- * instantiated for a given encoding stage and GRIB section.
- *
- * All representation variants are applicable during:
- * - `StageAllocate`
- * - `StagePreset`
- *
- * when operating on the *Grid Definition Section*.
- *
- * Variant-specific behavior is handled inside the concept operation.
- *
- * @tparam Stage   Encoding stage (compile-time constant)
- * @tparam Section GRIB section index (compile-time constant)
- * @tparam Variant Representation variant
- *
- * @return `true` if the concept is applicable, `false` otherwise.
- */
+///
+/// @brief Compile-time applicability predicate for the `representation` concept.
+///
+/// This predicate determines whether the `representation` concept is
+/// instantiated for a given encoding stage and GRIB section.
+///
+/// All representation variants are applicable during:
+/// - `StageAllocate`
+/// - `StagePreset`
+///
+/// when operating on the *Grid Definition Section*.
+///
+/// Variant-specific behavior is handled inside the concept operation.
+///
+/// @tparam Stage   Encoding stage (compile-time constant)
+/// @tparam Section GRIB section index (compile-time constant)
+/// @tparam Variant Representation variant
+///
+/// @return `true` if the concept is applicable, `false` otherwise.
+///
 template <std::size_t Stage, std::size_t Section, RepresentationType Variant>
 constexpr bool representationApplicable() {
 
@@ -182,43 +182,43 @@ constexpr bool representationApplicable() {
 }
 
 
-/**
- * @brief Execute the `representation` concept operation.
- *
- * This function implements the runtime logic of the GRIB `representation`
- * concept.
- *
- * Depending on the encoding stage and the selected `RepresentationType`,
- * it performs:
- *
- * - validation of the Grid Definition Template
- * - selection of the GRIB grid type
- * - extraction of geometry parameters from eckit::geo::Grid object
- * - encoding of grid topology and resolution metadata
- *
- * The logic is entirely **variant-specific** and selected at compile time
- * using `if constexpr`.
- *
- * @tparam Stage      Encoding stage
- * @tparam Section    GRIB section index
- * @tparam Variant    Representation variant
- * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the GRIB output dictionary
- *
- * @param[in]  mars MARS input dictionary (currently unused)
- * @param[in]  par  Parameter dictionary (currently unused)
- * @param[in]  opt  Options dictionary
- * @param[out] out  Output GRIB dictionary to be populated
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
- *         If:
- *         - the concept is called when not applicable
- *         - the GRIB Grid Definition Template does not match expectations
- *         - required geometry information is missing or inconsistent
- *         - the representation variant is unsupported
- */
+///
+/// @brief Execute the `representation` concept operation.
+///
+/// This function implements the runtime logic of the GRIB `representation`
+/// concept.
+///
+/// Depending on the encoding stage and the selected `RepresentationType`,
+/// it performs:
+///
+/// - validation of the Grid Definition Template
+/// - selection of the GRIB grid type
+/// - extraction of geometry parameters from eckit::geo::Grid object
+/// - encoding of grid topology and resolution metadata
+///
+/// The logic is entirely **variant-specific** and selected at compile time
+/// using `if constexpr`.
+///
+/// @tparam Stage      Encoding stage
+/// @tparam Section    GRIB section index
+/// @tparam Variant    Representation variant
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the GRIB output dictionary
+///
+/// @param[in]  mars MARS input dictionary (currently unused)
+/// @param[in]  par  Parameter dictionary (currently unused)
+/// @param[in]  opt  Options dictionary
+/// @param[out] out  Output GRIB dictionary to be populated
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
+/// If:
+/// - the concept is called when not applicable
+/// - the GRIB Grid Definition Template does not match expectations
+/// - required geometry information is missing or inconsistent
+/// - the representation variant is unsupported
+///
 template <std::size_t Stage, std::size_t Section, RepresentationType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {

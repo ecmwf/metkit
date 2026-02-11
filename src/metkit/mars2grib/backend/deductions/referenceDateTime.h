@@ -24,61 +24,61 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the reference date and time from the MARS dictionary.
- *
- * This deduction constructs an `eckit::DateTime` object from the MARS
- * dictionary entries `date` and `time`. Both values are treated as
- * mandatory and are expected to be provided in the conventional MARS
- * integer formats:
- *
- * - `date`: calendar date encoded as `YYYYMMDD`
- * - `time`: clock time encoded as `HHMMSS`
- *
- * The raw integer values are first converted into canonical `eckit::Date`
- * and `eckit::Time` objects using dedicated conversion utilities, and are
- * then combined into a single `eckit::DateTime` instance.
- *
- * The resolved date and time are logged for diagnostic and traceability
- * purposes.
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the keys `date` and `time`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary from which the reference date and time are retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @return
- *   The reference date and time resolved from the MARS dictionary, returned
- *   as an `eckit::DateTime` object.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - either `date` or `time` is missing from the MARS dictionary,
- *   - the associated values cannot be converted to `long`,
- *   - the integer values do not represent a valid calendar date or time,
- *   - any unexpected error occurs during conversion or dictionary access.
- *
- * @note
- *   The conversion assumes standard MARS integer encodings for date
- *   (`YYYYMMDD`) and time (`HHMMSS`). Validation and normalization are
- *   delegated to the underlying conversion utilities.
- *
- * @note
- *   A future enhancement may retrieve date and time as strings and rely
- *   on higher-level Metkit parsing utilities for normalization and
- *   validation.
- *
- * @note
- *   This deduction follows a fail-fast strategy and uses nested exception
- *   propagation to preserve full error provenance across API boundaries.
- */
+///
+/// @brief Resolve the reference date and time from the MARS dictionary.
+///
+/// This deduction constructs an `eckit::DateTime` object from the MARS
+/// dictionary entries `date` and `time`. Both values are treated as
+/// mandatory and are expected to be provided in the conventional MARS
+/// integer formats:
+///
+/// - `date`: calendar date encoded as `YYYYMMDD`
+/// - `time`: clock time encoded as `HHMMSS`
+///
+/// The raw integer values are first converted into canonical `eckit::Date`
+/// and `eckit::Time` objects using dedicated conversion utilities, and are
+/// then combined into a single `eckit::DateTime` instance.
+///
+/// The resolved date and time are logged for diagnostic and traceability
+/// purposes.
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary, expected to contain the keys `date` and `time`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (unused by this deduction).
+///
+/// @param[in] mars
+/// MARS dictionary from which the reference date and time are retrieved.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @return
+/// The reference date and time resolved from the MARS dictionary, returned
+/// as an `eckit::DateTime` object.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If:
+/// - either `date` or `time` is missing from the MARS dictionary,
+/// - the associated values cannot be converted to `long`,
+/// - the integer values do not represent a valid calendar date or time,
+/// - any unexpected error occurs during conversion or dictionary access.
+///
+/// @note
+/// The conversion assumes standard MARS integer encodings for date
+/// (`YYYYMMDD`) and time (`HHMMSS`). Validation and normalization are
+/// delegated to the underlying conversion utilities.
+///
+/// @note
+/// A future enhancement may retrieve date and time as strings and rely
+/// on higher-level Metkit parsing utilities for normalization and
+/// validation.
+///
+/// @note
+/// This deduction follows a fail-fast strategy and uses nested exception
+/// propagation to preserve full error provenance across API boundaries.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 eckit::DateTime resolve_ReferenceDateTime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

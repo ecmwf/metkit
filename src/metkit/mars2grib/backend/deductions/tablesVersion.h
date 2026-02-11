@@ -8,43 +8,43 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file tablesVersion.h
- * @brief Deduction of the GRIB tables version identifiers.
- *
- * This header defines the deductions responsible for resolving the
- * GRIB tables version identifiers used during GRIB encoding.
- *
- * Two resolution strategies are provided:
- * - automatic resolution of the latest tables version supported by ecCodes
- * - explicit user override via the parameter dictionary
- *
- * Deductions:
- * - extract values from input dictionaries or runtime environment
- * - apply deterministic resolution logic
- * - emit structured diagnostic logging
- *
- * Deductions do NOT:
- * - infer missing values
- * - apply silent fallbacks
- * - validate semantic correctness against GRIB specifications
- *
- * Error handling follows a strict fail-fast strategy with nested
- * exception propagation to preserve full diagnostic context.
- *
- * Logging policy:
- * - RESOLVE: value obtained directly from input dictionaries or runtime
- * - OVERRIDE: value explicitly provided by the user
- *
- * @section References
- * Concept:
- *   - @ref tablesEncoding.h
- *
- * Related deductions:
- *   - @ref localTablesVersion.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file tablesVersion.h
+/// @brief Deduction of the GRIB tables version identifiers.
+///
+/// This header defines the deductions responsible for resolving the
+/// GRIB tables version identifiers used during GRIB encoding.
+///
+/// Two resolution strategies are provided:
+/// - automatic resolution of the latest tables version supported by ecCodes
+/// - explicit user override via the parameter dictionary
+///
+/// Deductions:
+/// - extract values from input dictionaries or runtime environment
+/// - apply deterministic resolution logic
+/// - emit structured diagnostic logging
+///
+/// Deductions do NOT:
+/// - infer missing values
+/// - apply silent fallbacks
+/// - validate semantic correctness against GRIB specifications
+///
+/// Error handling follows a strict fail-fast strategy with nested
+/// exception propagation to preserve full diagnostic context.
+///
+/// Logging policy:
+/// - RESOLVE: value obtained directly from input dictionaries or runtime
+/// - OVERRIDE: value explicitly provided by the user
+///
+/// @section References
+/// Concept:
+/// - @ref tablesEncoding.h
+///
+/// Related deductions:
+/// - @ref localTablesVersion.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -58,33 +58,33 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the latest GRIB tables version supported by ecCodes.
- *
- * This deduction resolves the GRIB `tablesVersionLatest` identifier by
- * querying the ecCodes runtime environment.
- *
- * Resolution rules:
- * - the value is obtained directly from an ecCodes GRIB2 sample
- * - no MARS or parameter input is used
- * - no defaulting or inference is applied
- *
- * @tparam MarsDict_t Type of the MARS dictionary (unused)
- * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary (unused)
- * @param[in] opt  Options dictionary (unused)
- *
- * @return The latest GRIB tables version supported by ecCodes
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If the value cannot be resolved from the runtime environment
- *
- * @note
- * The returned value is deterministic for a given ecCodes installation.
- */
+///
+/// @brief Resolve the latest GRIB tables version supported by ecCodes.
+///
+/// This deduction resolves the GRIB `tablesVersionLatest` identifier by
+/// querying the ecCodes runtime environment.
+///
+/// Resolution rules:
+/// - the value is obtained directly from an ecCodes GRIB2 sample
+/// - no MARS or parameter input is used
+/// - no defaulting or inference is applied
+///
+/// @tparam MarsDict_t Type of the MARS dictionary (unused)
+/// @tparam ParDict_t  Type of the parameter dictionary (unused)
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary (unused)
+/// @param[in] par  Parameter dictionary (unused)
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return The latest GRIB tables version supported by ecCodes
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If the value cannot be resolved from the runtime environment
+///
+/// @note
+/// The returned value is deterministic for a given ecCodes installation.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
@@ -112,34 +112,34 @@ long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_
     }
 };
 
-/**
- * @brief Resolve a user-defined GRIB tables version.
- *
- * This deduction resolves the GRIB `tablesVersion` identifier from the
- * parameter dictionary.
- *
- * Resolution rules:
- * - `par::tablesVersion` MUST be present
- * - the value is treated as an explicit user override
- * - no validation against ecCodes capabilities is performed
- *
- * @tparam MarsDict_t Type of the MARS dictionary (unused)
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary; must contain `tablesVersion`
- * @param[in] opt  Options dictionary (unused)
- *
- * @return The GRIB tables version explicitly requested by the user
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If the value cannot be resolved
- *
- * @note
- * Callers requiring strict reproducibility must ensure compatibility
- * with the ecCodes runtime environment.
- */
+///
+/// @brief Resolve a user-defined GRIB tables version.
+///
+/// This deduction resolves the GRIB `tablesVersion` identifier from the
+/// parameter dictionary.
+///
+/// Resolution rules:
+/// - `par::tablesVersion` MUST be present
+/// - the value is treated as an explicit user override
+/// - no validation against ecCodes capabilities is performed
+///
+/// @tparam MarsDict_t Type of the MARS dictionary (unused)
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary (unused)
+/// @param[in] par  Parameter dictionary; must contain `tablesVersion`
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return The GRIB tables version explicitly requested by the user
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If the value cannot be resolved
+///
+/// @note
+/// Callers requiring strict reproducibility must ensure compatibility
+/// with the ecCodes runtime environment.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

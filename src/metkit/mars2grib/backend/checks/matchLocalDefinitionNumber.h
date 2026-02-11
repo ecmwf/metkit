@@ -22,48 +22,48 @@
 
 namespace metkit::mars2grib::backend::validation {
 
-/**
- * @brief Validate the Local Definition Number in the Local Use Section.
- *
- * This function verifies that, when a GRIB *Local Use Section* is present,
- * its `localDefinitionNumber` matches one of the expected values provided
- * by the caller.
- *
- * The validation is performed **only if** the option `applyChecks` is present
- * in the options dictionary (`opt`) and evaluates to `true`.
- *
- * When enabled, the function:
- * - checks that the Local Use Section is present (`LocalUsePresent != 0`);
- * - reads the key `localDefinitionNumber` from the output dictionary (`out`);
- * - compares it against the list of expected local definition numbers.
- *
- * If the Local Use Section is missing, or if the local definition number does
- * not match any of the expected values, an exception is thrown.
- *
- * Any failure occurring during dictionary access or validation is caught and
- * rethrown as a nested `Mars2GribValidationException` with additional context.
- *
- * @tparam OptDict_t Type of the options dictionary
- * @tparam OutDict_t Type of the output dictionary
- *
- * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
- * @param[in] out Output dictionary expected to contain the keys
- *                `LocalUsePresent` and `localDefinitionNumber`
- *                when checks are enabled
- * @param[in] expectedLocalDefinitionNumber
- *                List of acceptable Local Definition Numbers
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
- *         If:
- *         - checks are enabled and the Local Use Section is not present
- *         - the local definition number does not match any expected value
- *         - required keys are missing
- *         - any error occurs while accessing the dictionaries
- *
- * @note
- * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
- * - The function returns normally on success and does not produce any output.
- */
+///
+/// @brief Validate the Local Definition Number in the Local Use Section.
+///
+/// This function verifies that, when a GRIB *Local Use Section* is present,
+/// its `localDefinitionNumber` matches one of the expected values provided
+/// by the caller.
+///
+/// The validation is performed **only if** the option `applyChecks` is present
+/// in the options dictionary (`opt`) and evaluates to `true`.
+///
+/// When enabled, the function:
+/// - checks that the Local Use Section is present (`LocalUsePresent != 0`);
+/// - reads the key `localDefinitionNumber` from the output dictionary (`out`);
+/// - compares it against the list of expected local definition numbers.
+///
+/// If the Local Use Section is missing, or if the local definition number does
+/// not match any of the expected values, an exception is thrown.
+///
+/// Any failure occurring during dictionary access or validation is caught and
+/// rethrown as a nested `Mars2GribValidationException` with additional context.
+///
+/// @tparam OptDict_t Type of the options dictionary
+/// @tparam OutDict_t Type of the output dictionary
+///
+/// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+/// @param[in] out Output dictionary expected to contain the keys
+/// `LocalUsePresent` and `localDefinitionNumber`
+/// when checks are enabled
+/// @param[in] expectedLocalDefinitionNumber
+/// List of acceptable Local Definition Numbers
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+/// If:
+/// - checks are enabled and the Local Use Section is not present
+/// - the local definition number does not match any expected value
+/// - required keys are missing
+/// - any error occurs while accessing the dictionaries
+///
+/// @note
+/// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+/// - The function returns normally on success and does not produce any output.
+///
 
 template <class OptDict_t, class OutDict_t>
 void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,

@@ -8,35 +8,35 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file ResolvedTemplateData.h
- * @brief Runtime container for parsed and resolved section recipes.
- *
- * This header defines `ResolvedTemplateData`, the **primary in-memory container**
- * used by the section-recipe resolution subsystem to store the outcome of
- * recipe parsing and template selection.
- *
- * A `ResolvedTemplateData` instance represents a fully resolved recipe entry
- * and encodes, in a compact and cache-friendly form:
- * - The GRIB **template number** to be applied
- * - The ordered list of **global concept-variant identifiers** that define
- *   the exact encoding logic for that template
- *
- * This structure is designed to be:
- * - Traversed frequently
- * - Compared and searched efficiently
- * - Passed through hot execution paths during encoding
- *
- * For this reason, the type is intentionally minimal, flat, and free of
- * ownership or dynamic allocation.
- *
- * Debug and introspection functionality is provided externally and granted
- * access via explicit friendship, ensuring that:
- * - The public interface remains minimal
- * - No debug-related code or symbols interfere with the hot path
- *
- * @ingroup mars2grib_backend_section_recipes
- */
+///
+/// @file ResolvedTemplateData.h
+/// @brief Runtime container for parsed and resolved section recipes.
+///
+/// This header defines `ResolvedTemplateData`, the **primary in-memory container**
+/// used by the section-recipe resolution subsystem to store the outcome of
+/// recipe parsing and template selection.
+///
+/// A `ResolvedTemplateData` instance represents a fully resolved recipe entry
+/// and encodes, in a compact and cache-friendly form:
+/// - The GRIB **template number** to be applied
+/// - The ordered list of **global concept-variant identifiers** that define
+/// the exact encoding logic for that template
+///
+/// This structure is designed to be:
+/// - Traversed frequently
+/// - Compared and searched efficiently
+/// - Passed through hot execution paths during encoding
+///
+/// For this reason, the type is intentionally minimal, flat, and free of
+/// ownership or dynamic allocation.
+///
+/// Debug and introspection functionality is provided externally and granted
+/// access via explicit friendship, ensuring that:
+/// - The public interface remains minimal
+/// - No debug-related code or symbols interfere with the hot path
+///
+/// @ingroup mars2grib_backend_section_recipes
+///
 #pragma once
 
 // System includes
@@ -53,61 +53,61 @@
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 
 
-/**
- * @brief Main container for parsed and resolved section recipes.
- *
- * This structure is the **central storage unit** produced by the recipe
- * parsing and resolution pipeline.
- *
- * Each instance corresponds to a single resolved recipe and captures all
- * information required to:
- * - Identify the GRIB template to be used
- * - Drive the ordered execution of concept operations during encoding
- *
- * The container is explicitly optimized for **hot-path usage**:
- * - Fixed-capacity storage
- * - No dynamic memory allocation
- * - Trivial data layout
- *
- * Instances of this type are frequently accessed during recipe lookup
- * and encoding plan construction. As a consequence, no runtime validation
- * or defensive checks are performed inside the structure itself.
- *
- * Debug and introspection facilities are intentionally implemented as
- * external friend functions to avoid polluting the public API and to
- * ensure that debug-related code does not impact performance-critical
- * execution paths.
- *
- * The layout and semantics of this structure are considered part of a
- * **stable internal contract** for the section-recipe subsystem.
- */
+///
+/// @brief Main container for parsed and resolved section recipes.
+///
+/// This structure is the **central storage unit** produced by the recipe
+/// parsing and resolution pipeline.
+///
+/// Each instance corresponds to a single resolved recipe and captures all
+/// information required to:
+/// - Identify the GRIB template to be used
+/// - Drive the ordered execution of concept operations during encoding
+///
+/// The container is explicitly optimized for **hot-path usage**:
+/// - Fixed-capacity storage
+/// - No dynamic memory allocation
+/// - Trivial data layout
+///
+/// Instances of this type are frequently accessed during recipe lookup
+/// and encoding plan construction. As a consequence, no runtime validation
+/// or defensive checks are performed inside the structure itself.
+///
+/// Debug and introspection facilities are intentionally implemented as
+/// external friend functions to avoid polluting the public API and to
+/// ensure that debug-related code does not impact performance-critical
+/// execution paths.
+///
+/// The layout and semantics of this structure are considered part of a
+/// **stable internal contract** for the section-recipe subsystem.
+///
 struct ResolvedTemplateData {
 
     using GeneralRegistry = metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
-    /**
-     * @brief Maximum number of concept variants that can be stored.
-     *
-     * This corresponds to the total number of registered concepts and
-     * defines the fixed capacity of the container.
-     */
+    ///
+    /// @brief Maximum number of concept variants that can be stored.
+    ///
+    /// This corresponds to the total number of registered concepts and
+    /// defines the fixed capacity of the container.
+    ///
     static constexpr std::size_t maxCapacity = GeneralRegistry::NConcepts;
 
-    /**
-     * @brief Ordered list of global concept-variant identifiers.
-     *
-     * Only the first @ref count entries are valid.
-     */
+    ///
+    /// @brief Ordered list of global concept-variant identifiers.
+    ///
+    /// Only the first @ref count entries are valid.
+    ///
     std::array<std::size_t, maxCapacity> variantIndices{};
 
-    /**
-     * @brief Number of active entries in @ref variantIndices.
-     */
+    ///
+    /// @brief Number of active entries in @ref variantIndices.
+    ///
     std::size_t count{0};
 
-    /**
-     * @brief GRIB template number associated with this resolved recipe.
-     */
+    ///
+    /// @brief GRIB template number associated with this resolved recipe.
+    ///
     std::size_t templateNumber{0};
 };
 

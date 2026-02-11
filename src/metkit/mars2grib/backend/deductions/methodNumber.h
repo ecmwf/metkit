@@ -8,45 +8,45 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file methodNumber.h
- * @brief Deduction of the wave processing method identifier.
- *
- * This header defines deduction utilities used by the mars2grib backend
- * to resolve the **wave processing method identifier** (`methodNumber`)
- * from MARS metadata.
- *
- * The deduction retrieves the method identifier explicitly from the
- * MARS dictionary and returns it verbatim, without applying inference,
- * defaulting, or semantic interpretation.
- *
- * Deductions are responsible for:
- * - extracting values from MARS, parameter, and option dictionaries
- * - enforcing deterministic resolution rules
- * - returning strongly typed values to concept operations
- *
- * Deductions:
- * - do NOT encode GRIB keys directly
- * - do NOT apply heuristic or data-driven inference
- * - do NOT validate against GRIB code tables unless explicitly required
- *
- * Error handling follows a strict fail-fast strategy:
- * - missing or invalid inputs cause immediate failure
- * - errors are reported using domain-specific deduction exceptions
- * - original errors are preserved via nested exception propagation
- *
- * Logging follows the mars2grib deduction policy:
- * - RESOLVE: value resolved directly from input dictionaries
- *
- * @section References
- * Concept:
- *   - @ref longrangeEncoding.h
- *
- * Related deductions:
- *   - @ref systemNumber.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file methodNumber.h
+/// @brief Deduction of the wave processing method identifier.
+///
+/// This header defines deduction utilities used by the mars2grib backend
+/// to resolve the **wave processing method identifier** (`methodNumber`)
+/// from MARS metadata.
+///
+/// The deduction retrieves the method identifier explicitly from the
+/// MARS dictionary and returns it verbatim, without applying inference,
+/// defaulting, or semantic interpretation.
+///
+/// Deductions are responsible for:
+/// - extracting values from MARS, parameter, and option dictionaries
+/// - enforcing deterministic resolution rules
+/// - returning strongly typed values to concept operations
+///
+/// Deductions:
+/// - do NOT encode GRIB keys directly
+/// - do NOT apply heuristic or data-driven inference
+/// - do NOT validate against GRIB code tables unless explicitly required
+///
+/// Error handling follows a strict fail-fast strategy:
+/// - missing or invalid inputs cause immediate failure
+/// - errors are reported using domain-specific deduction exceptions
+/// - original errors are preserved via nested exception propagation
+///
+/// Logging follows the mars2grib deduction policy:
+/// - RESOLVE: value resolved directly from input dictionaries
+///
+/// @section References
+/// Concept:
+/// - @ref longrangeEncoding.h
+///
+/// Related deductions:
+/// - @ref systemNumber.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 
 #pragma once
 
@@ -60,52 +60,52 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the wave processing method identifier.
- *
- * @section Deduction contract
- * - Reads: `mars["method"]`
- * - Writes: none
- * - Side effects: logging (RESOLVE)
- * - Failure mode: throws
- *
- * This deduction retrieves the wave processing method identifier
- * from the MARS dictionary.
- *
- * The value is treated as mandatory and is returned verbatim as a
- * numeric identifier. No inference, defaulting, or validation against
- * GRIB code tables is performed.
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary. Must provide the key `method`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused).
- *
- * @param[in] mars
- *   MARS dictionary from which the method identifier is retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The wave processing method identifier.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If the key `method` is missing, cannot be converted to `long`,
- *   or if any unexpected error occurs during deduction.
- *
- * @note
- *   This deduction assumes that the method identifier is explicitly
- *   provided by the MARS dictionary and does not attempt any semantic
- *   interpretation or consistency checking.
- */
+///
+/// @brief Resolve the wave processing method identifier.
+///
+/// @section Deduction contract
+/// - Reads: `mars["method"]`
+/// - Writes: none
+/// - Side effects: logging (RESOLVE)
+/// - Failure mode: throws
+///
+/// This deduction retrieves the wave processing method identifier
+/// from the MARS dictionary.
+///
+/// The value is treated as mandatory and is returned verbatim as a
+/// numeric identifier. No inference, defaulting, or validation against
+/// GRIB code tables is performed.
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary. Must provide the key `method`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (unused).
+///
+/// @tparam OptDict_t
+/// Type of the options dictionary (unused).
+///
+/// @param[in] mars
+/// MARS dictionary from which the method identifier is retrieved.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @param[in] opt
+/// Options dictionary (unused).
+///
+/// @return
+/// The wave processing method identifier.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If the key `method` is missing, cannot be converted to `long`,
+/// or if any unexpected error occurs during deduction.
+///
+/// @note
+/// This deduction assumes that the method identifier is explicitly
+/// provided by the MARS dictionary and does not attempt any semantic
+/// interpretation or consistency checking.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_MethodNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

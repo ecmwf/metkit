@@ -8,46 +8,46 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file referenceTimeOp.h
- * @brief Implementation of the GRIB `referenceTime` concept operation.
- *
- * This header defines the applicability rules and execution logic for the
- * **referenceTime concept** within the mars2grib backend.
- *
- * The referenceTime concept is responsible for encoding the temporal
- * *reference instant* of a GRIB product, including:
- *
- * - the **significance of the reference time**
- * - the **actual reference date/time**
- * - optional **model version date/time** metadata for reforecasts
- *
- * The behavior depends on both the **concept variant** and the **GRIB section**
- * in which the concept is applied.
- *
- * Supported variants:
- * - `ReferenceTimeType::Standard`
- * - `ReferenceTimeType::Reforecast`
- *
- * Supported sections:
- * - Identification Section
- * - Product Definition Section (reforecast only)
- *
- * The implementation follows the standard mars2grib concept model:
- * - Compile-time applicability via `referenceTimeApplicable`
- * - Variant- and section-specific deduction logic
- * - Strict validation of GRIB template compatibility
- * - Context-rich error handling
- *
- * @note
- * The namespace name `concepts_` is intentionally used instead of `concepts`
- * to avoid ambiguity and potential conflicts with the C++20 `concept` language
- * feature and related standard headers.
- *
- * This is a deliberate design choice and must not be changed.
- *
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file referenceTimeOp.h
+/// @brief Implementation of the GRIB `referenceTime` concept operation.
+///
+/// This header defines the applicability rules and execution logic for the
+/// **referenceTime concept** within the mars2grib backend.
+///
+/// The referenceTime concept is responsible for encoding the temporal
+/// *reference instant* of a GRIB product, including:
+///
+/// - the **significance of the reference time**
+/// - the **actual reference date/time**
+/// - optional **model version date/time** metadata for reforecasts
+///
+/// The behavior depends on both the **concept variant** and the **GRIB section**
+/// in which the concept is applied.
+///
+/// Supported variants:
+/// - `ReferenceTimeType::Standard`
+/// - `ReferenceTimeType::Reforecast`
+///
+/// Supported sections:
+/// - Identification Section
+/// - Product Definition Section (reforecast only)
+///
+/// The implementation follows the standard mars2grib concept model:
+/// - Compile-time applicability via `referenceTimeApplicable`
+/// - Variant- and section-specific deduction logic
+/// - Strict validation of GRIB template compatibility
+/// - Context-rich error handling
+///
+/// @note
+/// The namespace name `concepts_` is intentionally used instead of `concepts`
+/// to avoid ambiguity and potential conflicts with the C++20 `concept` language
+/// feature and related standard headers.
+///
+/// This is a deliberate design choice and must not be changed.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System includes
@@ -57,8 +57,8 @@
 #include <eckit/types/DateTime.h>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeEnum.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeEnum.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/hindcastDateTime.h"
@@ -78,32 +78,32 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/**
- * @brief Compile-time applicability predicate for the `referenceTime` concept.
- *
- * This predicate determines whether the referenceTime concept is applicable
- * for a given combination of:
- * - encoding stage
- * - GRIB section
- * - reference time variant
- *
- * The default rules enable:
- *
- * - **Standard reference time**
- *   - Identification Section
- *   - Preset stage
- *
- * - **Reforecast reference time**
- *   - Identification Section (Preset stage)
- *   - Product Definition Section (Preset stage)
- *
- * @tparam Stage   Encoding stage (compile-time constant)
- * @tparam Section GRIB section index (compile-time constant)
- * @tparam Variant Reference time concept variant
- *
- * @return `true` if the concept is applicable for the given parameters,
- *         `false` otherwise.
- */
+///
+/// @brief Compile-time applicability predicate for the `referenceTime` concept.
+///
+/// This predicate determines whether the referenceTime concept is applicable
+/// for a given combination of:
+/// - encoding stage
+/// - GRIB section
+/// - reference time variant
+///
+/// The default rules enable:
+///
+/// - **Standard reference time**
+/// - Identification Section
+/// - Preset stage
+///
+/// - **Reforecast reference time**
+/// - Identification Section (Preset stage)
+/// - Product Definition Section (Preset stage)
+///
+/// @tparam Stage   Encoding stage (compile-time constant)
+/// @tparam Section GRIB section index (compile-time constant)
+/// @tparam Variant Reference time concept variant
+///
+/// @return `true` if the concept is applicable for the given parameters,
+/// `false` otherwise.
+///
 template <std::size_t Stage, std::size_t Section, ReferenceTimeType Variant>
 constexpr bool referenceTimeApplicable() {
 
@@ -119,51 +119,51 @@ constexpr bool referenceTimeApplicable() {
 }
 
 
-/**
- * @brief Execute the `referenceTime` concept operation.
- *
- * This function implements the runtime logic of the GRIB `referenceTime` concept.
- * When applicable, it:
- *
- * - Encodes the significance of the reference time
- * - Sets the reference date and time fields
- * - Optionally encodes model version date/time metadata for reforecasts
- *
- * The behavior is driven by:
- * - the concept variant (`Standard` vs `Reforecast`)
- * - the target GRIB section
- *
- * Section-specific behavior:
- *
- * - **Identification Section**
- *   - Sets `significanceOfReferenceTime`
- *   - Sets reference date/time fields
- *
- * - **Product Definition Section (Reforecast only)**
- *   - Validates template compatibility
- *   - Sets model version date/time fields
- *
- * @tparam Stage      Encoding stage (compile-time constant)
- * @tparam Section    GRIB section index (compile-time constant)
- * @tparam Variant    Reference time concept variant
- * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the GRIB output dictionary
- *
- * @param[in]  mars MARS input dictionary
- * @param[in]  par  Parameter dictionary
- * @param[in]  opt  Options dictionary
- * @param[out] out  Output GRIB dictionary to be populated
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
- *         If:
- *         - the concept is invoked outside its applicability domain
- *         - GRIB template constraints are violated
- *         - any deduction or encoding step fails
- *
- * @see referenceTimeApplicable
- */
+///
+/// @brief Execute the `referenceTime` concept operation.
+///
+/// This function implements the runtime logic of the GRIB `referenceTime` concept.
+/// When applicable, it:
+///
+/// - Encodes the significance of the reference time
+/// - Sets the reference date and time fields
+/// - Optionally encodes model version date/time metadata for reforecasts
+///
+/// The behavior is driven by:
+/// - the concept variant (`Standard` vs `Reforecast`)
+/// - the target GRIB section
+///
+/// Section-specific behavior:
+///
+/// - **Identification Section**
+/// - Sets `significanceOfReferenceTime`
+/// - Sets reference date/time fields
+///
+/// - **Product Definition Section (Reforecast only)**
+/// - Validates template compatibility
+/// - Sets model version date/time fields
+///
+/// @tparam Stage      Encoding stage (compile-time constant)
+/// @tparam Section    GRIB section index (compile-time constant)
+/// @tparam Variant    Reference time concept variant
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the GRIB output dictionary
+///
+/// @param[in]  mars MARS input dictionary
+/// @param[in]  par  Parameter dictionary
+/// @param[in]  opt  Options dictionary
+/// @param[out] out  Output GRIB dictionary to be populated
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
+/// If:
+/// - the concept is invoked outside its applicability domain
+/// - GRIB template constraints are violated
+/// - any deduction or encoding step fails
+///
+/// @see referenceTimeApplicable
+///
 template <std::size_t Stage, std::size_t Section, ReferenceTimeType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {

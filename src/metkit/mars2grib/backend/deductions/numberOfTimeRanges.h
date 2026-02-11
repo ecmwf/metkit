@@ -8,40 +8,40 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file numberOfTimeRanges.h
- * @brief Deduction of the GRIB `numberOfTimeRanges` key.
- *
- * This header defines deduction utilities used by the mars2grib backend
- * to resolve the **number of time ranges** associated with statistical
- * processing.
- *
- * The deduction determines the number of time ranges based on the
- * presence and structure of MARS statistical metadata.
- *
- * In particular:
- * - the MARS key `timespan` is mandatory
- * - the MARS key `stattype` is used to determine the number of
- *   statistical blocks when present
- *
- * Error handling follows a strict fail-fast strategy:
- * - missing or invalid inputs cause immediate failure
- * - errors are reported using domain-specific deduction exceptions
- * - original errors are preserved via nested exception propagation
- *
- * Logging follows the mars2grib deduction policy:
- * - this deduction performs no logging
- *
- * @section References
- * Concept:
- *   - @ref statisticsEncoding.h
- *
- * Related deductions:
- *   - @ref timeSpanInSeconds.h
- *   - @ref timeIncrementInSeconds.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file numberOfTimeRanges.h
+/// @brief Deduction of the GRIB `numberOfTimeRanges` key.
+///
+/// This header defines deduction utilities used by the mars2grib backend
+/// to resolve the **number of time ranges** associated with statistical
+/// processing.
+///
+/// The deduction determines the number of time ranges based on the
+/// presence and structure of MARS statistical metadata.
+///
+/// In particular:
+/// - the MARS key `timespan` is mandatory
+/// - the MARS key `stattype` is used to determine the number of
+/// statistical blocks when present
+///
+/// Error handling follows a strict fail-fast strategy:
+/// - missing or invalid inputs cause immediate failure
+/// - errors are reported using domain-specific deduction exceptions
+/// - original errors are preserved via nested exception propagation
+///
+/// Logging follows the mars2grib deduction policy:
+/// - this deduction performs no logging
+///
+/// @section References
+/// Concept:
+/// - @ref statisticsEncoding.h
+///
+/// Related deductions:
+/// - @ref timeSpanInSeconds.h
+/// - @ref timeIncrementInSeconds.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -57,49 +57,49 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the number of time ranges for statistical processing.
- *
- * @section Deduction contract
- * - Reads: `mars["timespan"]`, optionally `mars["stattype"]`
- * - Writes: none
- * - Side effects: none
- * - Failure mode: throws
- *
- * This deduction computes the number of time ranges required by GRIB
- * statistical processing templates.
- *
- * Resolution rules:
- * - if `timespan` is missing → failure
- * - if `stattype` is missing → returns `1`
- * - otherwise:
- *   - the number of time ranges is computed as
- *     `countBlocks(stattype) + 1`
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary. Must support access to `timespan`
- *   and optionally `stattype`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary providing statistical metadata.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @return
- *   The number of time ranges.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If `timespan` is missing or if any unexpected error occurs during
- *   deduction.
- *
- * @note
- *   This deduction is deterministic and does not rely on pre-existing
- *   GRIB header state.
- */
+///
+/// @brief Resolve the number of time ranges for statistical processing.
+///
+/// @section Deduction contract
+/// - Reads: `mars["timespan"]`, optionally `mars["stattype"]`
+/// - Writes: none
+/// - Side effects: none
+/// - Failure mode: throws
+///
+/// This deduction computes the number of time ranges required by GRIB
+/// statistical processing templates.
+///
+/// Resolution rules:
+/// - if `timespan` is missing → failure
+/// - if `stattype` is missing → returns `1`
+/// - otherwise:
+/// - the number of time ranges is computed as
+/// `countBlocks(stattype) + 1`
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary. Must support access to `timespan`
+/// and optionally `stattype`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (unused by this deduction).
+///
+/// @param[in] mars
+/// MARS dictionary providing statistical metadata.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @return
+/// The number of time ranges.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If `timespan` is missing or if any unexpected error occurs during
+/// deduction.
+///
+/// @note
+/// This deduction is deterministic and does not rely on pre-existing
+/// GRIB header state.
+///
 template <class MarsDict_t, class ParDict_t>
 long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
 

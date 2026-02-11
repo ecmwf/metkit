@@ -20,41 +20,41 @@
 
 namespace metkit::mars2grib::backend::validation {
 
-/**
- * @brief Check that the GRIB message contains a Local Use Section.
- *
- * This function verifies the presence of the GRIB *Local Use Section* based on
- * the runtime configuration provided in the options dictionary.
- *
- * The check is performed **only if** the option `applyChecks` is present in
- * the options dictionary (`opt`) and evaluates to `true`.
- *
- * When enabled, the function reads the key `LocalUsePresent` from the output
- * dictionary (`out`):
- * - a value of `0` indicates that the Local Use Section is missing and results
- *   in an exception;
- * - a non-zero value indicates that the section is present and the check succeeds.
- *
- * Any failure occurring during dictionary access or validation is caught and
- * rethrown as a nested `Mars2GribValidationException` with additional context.
- *
- * @tparam OptDict_t Type of the options dictionary
- * @tparam OutDict_t Type of the output dictionary
- *
- * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
- * @param[in] out Output dictionary; must contain the key `LocalUsePresent`
- *                when checks are enabled
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
- *         If:
- *         - `applyChecks` is `true` and `LocalUsePresent == 0`
- *         - required keys are missing
- *         - any error occurs while accessing the dictionaries
- *
- * @note
- * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
- * - The function returns normally on success and does not produce any output.
- */
+///
+/// @brief Check that the GRIB message contains a Local Use Section.
+///
+/// This function verifies the presence of the GRIB *Local Use Section* based on
+/// the runtime configuration provided in the options dictionary.
+///
+/// The check is performed **only if** the option `applyChecks` is present in
+/// the options dictionary (`opt`) and evaluates to `true`.
+///
+/// When enabled, the function reads the key `LocalUsePresent` from the output
+/// dictionary (`out`):
+/// - a value of `0` indicates that the Local Use Section is missing and results
+/// in an exception;
+/// - a non-zero value indicates that the section is present and the check succeeds.
+///
+/// Any failure occurring during dictionary access or validation is caught and
+/// rethrown as a nested `Mars2GribValidationException` with additional context.
+///
+/// @tparam OptDict_t Type of the options dictionary
+/// @tparam OutDict_t Type of the output dictionary
+///
+/// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+/// @param[in] out Output dictionary; must contain the key `LocalUsePresent`
+/// when checks are enabled
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+/// If:
+/// - `applyChecks` is `true` and `LocalUsePresent == 0`
+/// - required keys are missing
+/// - any error occurs while accessing the dictionaries
+///
+/// @note
+/// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+/// - The function returns normally on success and does not produce any output.
+///
 template <class OptDict_t, class OutDict_t>
 void check_LocalUseSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 

@@ -2,56 +2,56 @@
 
 // namespace metkit::mars2grib::backend::deductions::pv_detail::data {
 
-/**
- * @brief Predefined PV coefficient table extracted from IFS binary output.
- *
- * This file contains a statically defined table of PV coefficients used by
- * the PV lookup and decoding infrastructure in the mars2grib backend.
- *
- * The values in this table have been obtained by performing a **binary dump
- * in the IFS** of the PV array associated
- * with a specific hybrid vertical coordinate configuration.
- *
- * The dumped binary values were:
- * - captured verbatim from IFS runtime memory,
- * - interpreted as IEEE754 double-precision floating-point values,
- * - serialized into a C++ source representation without any numerical
- *   transformation or rounding.
- *
- * ## Encoding format
- * - Each coefficient is stored as an **8-byte IEEE754 binary64 value**
- * - Byte order is **big-endian**, independent of the host architecture
- * - The table is therefore **endianness-neutral** and requires explicit
- *   decoding at runtime
- *
- * Endianness handling is performed explicitly by the PV decoding utilities
- * in the mars2grib backend, which:
- * - detect the host byte order at runtime,
- * - apply byte swapping when required,
- * - reconstruct native `double` values in a portable and deterministic way
- *
- * ## Design constraints
- * - This file contains **data only**
- * - No logic, validation, or interpretation is performed here
- * - The numerical meaning of the PV coefficients is **not validated**
- * - The data are assumed to be physically correct as provided by IFS
- *
- * ## Usage
- * This table is intended to be:
- * - included verbatim into the PV lookup infrastructure,
- * - accessed via compile-time lookup tables,
- * - decoded into native floating-point values only at the point of use
- *
- * @note
- *   The content of this file is tightly coupled to the IFS binary format
- *   and the specific PV configuration from which it was extracted.
- *   Any change in IFS vertical coordinate definitions requires regenerating
- *   this table from a fresh binary dump.
- *
- * @note
- *   No attempt must be made to modify, regenerate, or reinterpret the
- *   coefficients manually.
- */
+///
+/// @brief Predefined PV coefficient table extracted from IFS binary output.
+///
+/// This file contains a statically defined table of PV coefficients used by
+/// the PV lookup and decoding infrastructure in the mars2grib backend.
+///
+/// The values in this table have been obtained by performing a **binary dump
+/// in the IFS** of the PV array associated
+/// with a specific hybrid vertical coordinate configuration.
+///
+/// The dumped binary values were:
+/// - captured verbatim from IFS runtime memory,
+/// - interpreted as IEEE754 double-precision floating-point values,
+/// - serialized into a C++ source representation without any numerical
+/// transformation or rounding.
+///
+/// ## Encoding format
+/// - Each coefficient is stored as an **8-byte IEEE754 binary64 value**
+/// - Byte order is **big-endian**, independent of the host architecture
+/// - The table is therefore **endianness-neutral** and requires explicit
+/// decoding at runtime
+///
+/// Endianness handling is performed explicitly by the PV decoding utilities
+/// in the mars2grib backend, which:
+/// - detect the host byte order at runtime,
+/// - apply byte swapping when required,
+/// - reconstruct native `double` values in a portable and deterministic way
+///
+/// ## Design constraints
+/// - This file contains **data only**
+/// - No logic, validation, or interpretation is performed here
+/// - The numerical meaning of the PV coefficients is **not validated**
+/// - The data are assumed to be physically correct as provided by IFS
+///
+/// ## Usage
+/// This table is intended to be:
+/// - included verbatim into the PV lookup infrastructure,
+/// - accessed via compile-time lookup tables,
+/// - decoded into native floating-point values only at the point of use
+///
+/// @note
+/// The content of this file is tightly coupled to the IFS binary format
+/// and the specific PV configuration from which it was extracted.
+/// Any change in IFS vertical coordinate definitions requires regenerating
+/// this table from a fresh binary dump.
+///
+/// @note
+/// No attempt must be made to modify, regenerate, or reinterpret the
+/// coefficients manually.
+///
 static constexpr std::array<HexDouble, 1002> pv_137_1002_be = {
     {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, {0x40, 0x00, 0x00, 0xbf, 0x60, 0x00, 0x00, 0x00},
      {0x40, 0x08, 0xd1, 0x63, 0xc0, 0x00, 0x00, 0x00}, {0x40, 0x12, 0xaa, 0x11, 0xe0, 0x00, 0x00, 0x00},

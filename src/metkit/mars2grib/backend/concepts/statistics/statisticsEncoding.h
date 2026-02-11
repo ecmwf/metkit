@@ -8,51 +8,51 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file statisticsOp.h
- * @brief Implementation of the GRIB `statistics` concept operation.
- *
- * This header defines the applicability rules and execution logic for the
- * **statistics concept** within the mars2grib backend.
- *
- * The `statistics` concept is responsible for encoding GRIB metadata
- * related to statistical processing over time, including:
- * - type of statistical processing (e.g. mean, accumulation, extremes),
- * - time range structure,
- * - time increment and span,
- * - start and end steps for statistical intervals.
- *
- * The concept operates exclusively in the *Product Definition Section*
- * (Section 4) and is executed across multiple encoding stages
- * (`Allocate`, `Preset`, `Runtime`), each contributing a well-defined
- * subset of the GRIB keys.
- *
- * The implementation follows the standard mars2grib concept model:
- * - Compile-time applicability via `statisticsApplicable`
- * - Stage-dependent encoding logic
- * - Centralized deduction of time descriptors from MARS metadata
- * - Strict validation of GRIB structural constraints
- * - Context-rich error handling
- *
- * @note
- * Support for multiple time ranges is currently **incomplete** and
- * explicitly rejected at both preset and runtime stages.
- * This limitation is documented and enforced at runtime.
- *
- * @note
- * The namespace name `concepts_` is intentionally used instead of
- * `concepts` to avoid conflicts with the C++20 `concepts` language feature.
- *
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file statisticsOp.h
+/// @brief Implementation of the GRIB `statistics` concept operation.
+///
+/// This header defines the applicability rules and execution logic for the
+/// **statistics concept** within the mars2grib backend.
+///
+/// The `statistics` concept is responsible for encoding GRIB metadata
+/// related to statistical processing over time, including:
+/// - type of statistical processing (e.g. mean, accumulation, extremes),
+/// - time range structure,
+/// - time increment and span,
+/// - start and end steps for statistical intervals.
+///
+/// The concept operates exclusively in the *Product Definition Section*
+/// (Section 4) and is executed across multiple encoding stages
+/// (`Allocate`, `Preset`, `Runtime`), each contributing a well-defined
+/// subset of the GRIB keys.
+///
+/// The implementation follows the standard mars2grib concept model:
+/// - Compile-time applicability via `statisticsApplicable`
+/// - Stage-dependent encoding logic
+/// - Centralized deduction of time descriptors from MARS metadata
+/// - Strict validation of GRIB structural constraints
+/// - Context-rich error handling
+///
+/// @note
+/// Support for multiple time ranges is currently **incomplete** and
+/// explicitly rejected at both preset and runtime stages.
+/// This limitation is documented and enforced at runtime.
+///
+/// @note
+/// The namespace name `concepts_` is intentionally used instead of
+/// `concepts` to avoid conflicts with the C++20 `concepts` language feature.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System includes
 #include <string>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h"
@@ -79,81 +79,81 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/**
- * @brief Compile-time applicability predicate for the `statistics` concept.
- *
- * This predicate determines whether the `statistics` concept is applicable
- * for a given encoding stage, GRIB section, and concept variant.
- *
- * The concept is applicable for:
- * - any encoding stage
- * - the *Product Definition Section* (Section 4)
- *
- * @tparam Stage   Encoding stage (compile-time constant)
- * @tparam Section GRIB section index
- * @tparam Variant Statistics concept variant
- *
- * @return `true` if the concept is applicable, `false` otherwise.
- */
+///
+/// @brief Compile-time applicability predicate for the `statistics` concept.
+///
+/// This predicate determines whether the `statistics` concept is applicable
+/// for a given encoding stage, GRIB section, and concept variant.
+///
+/// The concept is applicable for:
+/// - any encoding stage
+/// - the *Product Definition Section* (Section 4)
+///
+/// @tparam Stage   Encoding stage (compile-time constant)
+/// @tparam Section GRIB section index
+/// @tparam Variant Statistics concept variant
+///
+/// @return `true` if the concept is applicable, `false` otherwise.
+///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant>
 constexpr bool statisticsApplicable() {
     return (Section == SecProductDefinitionSection);
 }
 
 
-/**
- * @brief Execute the `statistics` concept operation.
- *
- * This function implements the runtime logic of the GRIB `statistics` concept.
- * Depending on the encoding stage, it performs the following actions:
- *
- * ### StageAllocate
- * - Validates that the Product Definition Section supports statistics.
- * - Encodes the number of statistical time ranges.
- *
- * ### StagePreset
- * - Encodes the statistical processing type.
- * - Encodes time unit metadata for ranges and increments.
- * - Handles special cases where the time increment is missing
- *   (legacy AIFS behavior).
- * - Rejects unsupported multi-range configurations.
- *
- * ### StageRuntime
- * - Computes and encodes `startStep` and `endStep`.
- * - Resolves time span and forecast step from MARS metadata.
- * - Explicitly rejects multiple time ranges.
- *
- * The concept relies on multiple time-related deductions and helper
- * utilities to interpret MARS time semantics consistently.
- *
- * @tparam Stage     Encoding stage (compile-time constant)
- * @tparam Section   GRIB section index
- * @tparam Variant   Statistics concept variant
- * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the GRIB output dictionary
- *
- * @param[in]  mars MARS input dictionary
- * @param[in]  par  Parameter dictionary
- * @param[in]  opt  Options dictionary
- * @param[out] out  Output GRIB dictionary to be populated
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
- *         If:
- *         - the Product Definition Section is incompatible with statistics
- *         - unsupported multi-range configurations are detected
- *         - any deduction or encoding step fails
- *
- * @note
- * - Time units are currently normalized to **hours** at GRIB level.
- * - Time increment handling contains legacy logic and known hacks.
- * - Multiple time ranges are not yet supported.
- *
- * @see statisticsApplicable
- * @see deductions::numberOfTimeRanges
- * @see deductions::getTimeDescriptorFromMars_orThrow
- */
+///
+/// @brief Execute the `statistics` concept operation.
+///
+/// This function implements the runtime logic of the GRIB `statistics` concept.
+/// Depending on the encoding stage, it performs the following actions:
+///
+/// ### StageAllocate
+/// - Validates that the Product Definition Section supports statistics.
+/// - Encodes the number of statistical time ranges.
+///
+/// ### StagePreset
+/// - Encodes the statistical processing type.
+/// - Encodes time unit metadata for ranges and increments.
+/// - Handles special cases where the time increment is missing
+/// (legacy AIFS behavior).
+/// - Rejects unsupported multi-range configurations.
+///
+/// ### StageRuntime
+/// - Computes and encodes `startStep` and `endStep`.
+/// - Resolves time span and forecast step from MARS metadata.
+/// - Explicitly rejects multiple time ranges.
+///
+/// The concept relies on multiple time-related deductions and helper
+/// utilities to interpret MARS time semantics consistently.
+///
+/// @tparam Stage     Encoding stage (compile-time constant)
+/// @tparam Section   GRIB section index
+/// @tparam Variant   Statistics concept variant
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the GRIB output dictionary
+///
+/// @param[in]  mars MARS input dictionary
+/// @param[in]  par  Parameter dictionary
+/// @param[in]  opt  Options dictionary
+/// @param[out] out  Output GRIB dictionary to be populated
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
+/// If:
+/// - the Product Definition Section is incompatible with statistics
+/// - unsupported multi-range configurations are detected
+/// - any deduction or encoding step fails
+///
+/// @note
+/// - Time units are currently normalized to **hours** at GRIB level.
+/// - Time increment handling contains legacy logic and known hacks.
+/// - Multiple time ranges are not yet supported.
+///
+/// @see statisticsApplicable
+/// @see deductions::numberOfTimeRanges
+/// @see deductions::getTimeDescriptorFromMars_orThrow
+///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {

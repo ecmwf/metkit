@@ -8,30 +8,30 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file section3Initializer.h
- * @brief Initializer for GRIB Section 3 (Grid Definition Section).
- *
- * This header defines a **section initializer** for GRIB **Section 3**,
- * responsible for configuring the *Grid Definition Section* according to
- * the selected grid definition template.
- *
- * The initializer supports:
- * - standard grid definition templates, mapped directly from the template number
- * - special-case handling for selected templates that require explicit
- *   preconditioning of the GRIB handle prior to encoding
- *
- * In particular, Template **50** (spectral representation) requires
- * explicit initialization of several keys (values, truncation parameters,
- * spectral mode, etc.) to satisfy ecCodes constraints and enable correct
- * conversion to spherical harmonics.
- *
- * All dictionary mutations are performed via checked dictionary traits,
- * and failures are wrapped in a mars2grib-specific exception with
- * preserved exception nesting.
- *
- * @ingroup mars2grib_backend_sections
- */
+///
+/// @file section3Initializer.h
+/// @brief Initializer for GRIB Section 3 (Grid Definition Section).
+///
+/// This header defines a **section initializer** for GRIB **Section 3**,
+/// responsible for configuring the *Grid Definition Section* according to
+/// the selected grid definition template.
+///
+/// The initializer supports:
+/// - standard grid definition templates, mapped directly from the template number
+/// - special-case handling for selected templates that require explicit
+/// preconditioning of the GRIB handle prior to encoding
+///
+/// In particular, Template **50** (spectral representation) requires
+/// explicit initialization of several keys (values, truncation parameters,
+/// spectral mode, etc.) to satisfy ecCodes constraints and enable correct
+/// conversion to spherical harmonics.
+///
+/// All dictionary mutations are performed via checked dictionary traits,
+/// and failures are wrapped in a mars2grib-specific exception with
+/// preserved exception nesting.
+///
+/// @ingroup mars2grib_backend_sections
+///
 #pragma once
 
 // System includes
@@ -42,39 +42,39 @@
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
-/**
- * @brief Initializer for GRIB Section 3 (Grid Definition Section).
- *
- * This function prepares Section 3 by selecting and configuring the
- * appropriate *Grid Definition Template*.
- *
- * Behaviour depends on the template number:
- * - **Template 50** (spectral grid): requires explicit initialization of
- *   grid size, spectral truncation parameters, representation mode, and
- *   placeholder values, following ecCodes recommendations
- * - **All other templates**: the grid definition template number is set
- *   directly with no additional preprocessing
- *
- * @tparam SectionNumber   GRIB section number (expected to be 3)
- * @tparam TemplateNumber  Grid definition template number
- * @tparam MarsDict_t      Type of the MARS dictionary
- * @tparam ParDict_t       Type of the parameter dictionary
- * @tparam OptDict_t       Type of the options dictionary
- * @tparam OutDict_t       Type of the output GRIB dictionary
- *
- * @param mars Read-only MARS dictionary
- * @param par  Read-only parameter dictionary
- * @param opt  Read-only options dictionary
- * @param out  Output GRIB dictionary to be populated
- *
- * @throws Mars2GribGenericException
- *         If any dictionary operation fails while preparing Section 3.
- *
- * @note
- * The special handling for Template 50 follows ecCodes guidance for
- * spectral GRIB messages:
- * https://confluence.ecmwf.int/display/ECC/ecCodes+developer+FAQ+-+GRIB#ecCodesdeveloperFAQGRIB-GRIB:HowcanIconvertthesampleGRIB2.tmpltosphericalharmonics?
- */
+///
+/// @brief Initializer for GRIB Section 3 (Grid Definition Section).
+///
+/// This function prepares Section 3 by selecting and configuring the
+/// appropriate *Grid Definition Template*.
+///
+/// Behaviour depends on the template number:
+/// - **Template 50** (spectral grid): requires explicit initialization of
+/// grid size, spectral truncation parameters, representation mode, and
+/// placeholder values, following ecCodes recommendations
+/// - **All other templates**: the grid definition template number is set
+/// directly with no additional preprocessing
+///
+/// @tparam SectionNumber   GRIB section number (expected to be 3)
+/// @tparam TemplateNumber  Grid definition template number
+/// @tparam MarsDict_t      Type of the MARS dictionary
+/// @tparam ParDict_t       Type of the parameter dictionary
+/// @tparam OptDict_t       Type of the options dictionary
+/// @tparam OutDict_t       Type of the output GRIB dictionary
+///
+/// @param mars Read-only MARS dictionary
+/// @param par  Read-only parameter dictionary
+/// @param opt  Read-only options dictionary
+/// @param out  Output GRIB dictionary to be populated
+///
+/// @throws Mars2GribGenericException
+/// If any dictionary operation fails while preparing Section 3.
+///
+/// @note
+/// The special handling for Template 50 follows ecCodes guidance for
+/// spectral GRIB messages:
+/// https://confluence.ecmwf.int/display/ECC/ecCodes+developer+FAQ+-+GRIB#ecCodesdeveloperFAQGRIB-GRIB:HowcanIconvertthesampleGRIB2.tmpltosphericalharmonics?
+///
 template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
           class OutDict_t>
 void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {

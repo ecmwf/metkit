@@ -16,27 +16,27 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB Code Table 4.3 – Type of generating process.
- *
- * This enumeration represents the GRIB2 *Type of Generating Process*
- * as defined in Section 4, Code Table 3.
- *
- * The numeric values map **directly** to the official GRIB code table
- * and must not be changed manually.
- *
- * @section Source of truth
- * GRIB2 Code Table 4.3:
- *   Type of generating process
- *
- * @note
- * This enum is a pure GRIB table representation.
- * No semantic interpretation or policy decisions are encoded here.
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: critical]
- * - Generate this enum automatically from ecCodes GRIB tables
- *   to guarantee alignment with the runtime ecCodes version.
- */
+///
+/// @brief GRIB Code Table 4.3 – Type of generating process.
+///
+/// This enumeration represents the GRIB2 *Type of Generating Process*
+/// as defined in Section 4, Code Table 3.
+///
+/// The numeric values map **directly** to the official GRIB code table
+/// and must not be changed manually.
+///
+/// @section Source of truth
+/// GRIB2 Code Table 4.3:
+/// Type of generating process
+///
+/// @note
+/// This enum is a pure GRIB table representation.
+/// No semantic interpretation or policy decisions are encoded here.
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: critical]
+/// - Generate this enum automatically from ecCodes GRIB tables
+/// to guarantee alignment with the runtime ecCodes version.
+///
 enum class TypeOfGeneratingProcess : long {
     Analysis                           = 0,
     Initialization                     = 1,
@@ -64,31 +64,31 @@ enum class TypeOfGeneratingProcess : long {
     Missing                            = 255
 };
 
-/**
- * @brief Map a canonical string identifier to a GRIB `TypeOfGeneratingProcess`.
- *
- * This function converts a string-based identifier into the corresponding
- * GRIB `TypeOfGeneratingProcess` enumeration value.
- *
- * The mapping is explicit and strict. Only officially supported identifiers
- * are accepted.
- *
- * @param[in] value Canonical string identifier
- *
- * @return Corresponding `TypeOfGeneratingProcess` enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the provided string does not correspond to a supported
- *         generating process type.
- *
- * @note
- * - This is a **pure table mapping**.
- * - No normalization, fallback, or defaulting is performed.
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes GRIB code tables.
- */
+///
+/// @brief Map a canonical string identifier to a GRIB `TypeOfGeneratingProcess`.
+///
+/// This function converts a string-based identifier into the corresponding
+/// GRIB `TypeOfGeneratingProcess` enumeration value.
+///
+/// The mapping is explicit and strict. Only officially supported identifiers
+/// are accepted.
+///
+/// @param[in] value Canonical string identifier
+///
+/// @return Corresponding `TypeOfGeneratingProcess` enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the provided string does not correspond to a supported
+/// generating process type.
+///
+/// @note
+/// - This is a **pure table mapping**.
+/// - No normalization, fallback, or defaulting is performed.
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes GRIB code tables.
+///
 inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const std::string& value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -150,28 +150,28 @@ inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const 
     __builtin_unreachable();
 }
 
-/**
- * @brief Map a GRIB `TypeOfGeneratingProcess` enumeration to its canonical string identifier.
- *
- * This function converts a GRIB-level `TypeOfGeneratingProcess` enumeration
- * value into its canonical string representation.
- *
- * @param[in] value GRIB `TypeOfGeneratingProcess` enumeration value
- *
- * @return Canonical string identifier corresponding to the enumeration
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enumeration value is not supported.
- *
- * @note
- * - This function is the strict inverse of
- *   `mapto_TypeOfGeneratingProcess_or_throw(const std::string&)`.
- * - No fallback or defaulting is performed.
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes GRIB code tables.
- */
+///
+/// @brief Map a GRIB `TypeOfGeneratingProcess` enumeration to its canonical string identifier.
+///
+/// This function converts a GRIB-level `TypeOfGeneratingProcess` enumeration
+/// value into its canonical string representation.
+///
+/// @param[in] value GRIB `TypeOfGeneratingProcess` enumeration value
+///
+/// @return Canonical string identifier corresponding to the enumeration
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enumeration value is not supported.
+///
+/// @note
+/// - This function is the strict inverse of
+/// `mapto_TypeOfGeneratingProcess_or_throw(const std::string&)`.
+/// - No fallback or defaulting is performed.
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes GRIB code tables.
+///
 inline std::string enum2name_TypeOfGeneratingProcess_or_throw(TypeOfGeneratingProcess value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

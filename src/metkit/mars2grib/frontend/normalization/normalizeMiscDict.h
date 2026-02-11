@@ -8,16 +8,16 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file normalization.h
- * @brief Utilities for input dictionary sanitization and normalization.
- *
- * This header provides "just-in-time" sanitization routines used to ensure
- * input dictionaries conform to backend expectations before the resolution
- * phase begins.
- *
- * @ingroup mars2grib_frontend_normalization
- */
+///
+/// @file normalization.h
+/// @brief Utilities for input dictionary sanitization and normalization.
+///
+/// This header provides "just-in-time" sanitization routines used to ensure
+/// input dictionaries conform to backend expectations before the resolution
+/// phase begins.
+///
+/// @ingroup mars2grib_frontend_normalization
+///
 #pragma once
 
 // Project includes
@@ -26,26 +26,27 @@
 
 namespace metkit::mars2grib::frontend::normalization {
 
-/**
- * @brief Conditionally sanitizes a dictionary based on runtime options.
- *
- * This function implements a **pass-through or transform** pattern designed
- * to minimize unnecessary copies. If sanitization is required by the provided
- * options, the transformed data is stored in a caller-provided scratch
- * buffer, and a reference to that buffer is returned. Otherwise, the
- * original dictionary is returned as-is.
- *
- * @tparam MiscDict_t Type of the dictionary to be sanitized
- * @tparam OptDict_t  Type of the options dictionary driving the logic
- *
- * @param[in]  miscDict Original dictionary to evaluate
- * @param[in]  optDict  Configuration/Options dict used to determine policy
- * @param[out] scratch  Buffer used to store the sanitized result if needed
- *
- * @return A const reference to either the original or the sanitized dictionary
- */
+///
+/// @brief Conditionally sanitizes a dictionary based on runtime options.
+///
+/// This function implements a **pass-through or transform** pattern designed
+/// to minimize unnecessary copies. If sanitization is required by the provided
+/// options, the transformed data is stored in a caller-provided scratch
+/// buffer, and a reference to that buffer is returned. Otherwise, the
+/// original dictionary is returned as-is.
+///
+/// @tparam MiscDict_t Type of the dictionary to be sanitized
+/// @tparam OptDict_t  Type of the options dictionary driving the logic
+///
+/// @param[in]  miscDict Original dictionary to evaluate
+/// @param[in]  optDict  Configuration/Options dict used to determine policy
+/// @param[out] scratch  Buffer used to store the sanitized result if needed
+///
+/// @return A const reference to either the original or the sanitized dictionary
+///
 template <class MiscDict_t, class OptDict_t>
-const MiscDict_t& normalize_MiscDict_if_enabled(const MiscDict_t& miscDict, const OptDict_t& optDict, const eckit::Value& language, MiscDict_t& scratch) {
+const MiscDict_t& normalize_MiscDict_if_enabled(const MiscDict_t& miscDict, const OptDict_t& optDict,
+                                                const eckit::Value& language, MiscDict_t& scratch) {
 
     using metkit::mars2grib::utils::normalizeMiscEnabled;
 
@@ -63,4 +64,4 @@ const MiscDict_t& normalize_MiscDict_if_enabled(const MiscDict_t& miscDict, cons
     return miscDict;
 }
 
-} // namespace metkit::mars2grib::frontend::normalization
+}  // namespace metkit::mars2grib::frontend::normalization

@@ -16,45 +16,45 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB background process classification.
- *
- * This enumeration represents the GRIB code values associated with the
- * `backgroundProcess` key in the Product Definition Section.
- *
- * Each enumerator corresponds to a distinct model configuration or
- * post-processing workflow as defined by ECMWF conventions and encoded
- * in GRIB local concepts.
- *
- * The numeric values of the enumerators map **directly** to the GRIB
- * code table values and must not be changed manually.
- *
- * @note
- * The value `255` usually corresponds to the GRIB *missing* value.
- * In this specific case, it is semantically interpreted as the
- * deterministic IFS workflow (`ifs`) for compatibility with existing
- * production data.
- *
- * @important
- * This enum is a **GRIB-level representation**, not a policy decision.
- * All semantic validation, defaulting, and resolution logic must be
- * implemented in the corresponding deduction functions.
- *
- * @section Source of truth
- * The authoritative definition of supported background processes and
- * their GRIB encodings is maintained in:
- *
- *   `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
- *
- * This enumeration must remain consistent with that definition.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: critical]
- * - Replace this manually maintained enumeration with code generated
- *   automatically from ecCodes GRIB code tables / definitions.
- * - The generation should occur at build or configure time (e.g. via a
- *   Python code-generation step) to prevent silent divergence between
- *   the encoder and the ecCodes library.
- */
+///
+/// @brief GRIB background process classification.
+///
+/// This enumeration represents the GRIB code values associated with the
+/// `backgroundProcess` key in the Product Definition Section.
+///
+/// Each enumerator corresponds to a distinct model configuration or
+/// post-processing workflow as defined by ECMWF conventions and encoded
+/// in GRIB local concepts.
+///
+/// The numeric values of the enumerators map **directly** to the GRIB
+/// code table values and must not be changed manually.
+///
+/// @note
+/// The value `255` usually corresponds to the GRIB *missing* value.
+/// In this specific case, it is semantically interpreted as the
+/// deterministic IFS workflow (`ifs`) for compatibility with existing
+/// production data.
+///
+/// @important
+/// This enum is a **GRIB-level representation**, not a policy decision.
+/// All semantic validation, defaulting, and resolution logic must be
+/// implemented in the corresponding deduction functions.
+///
+/// @section Source of truth
+/// The authoritative definition of supported background processes and
+/// their GRIB encodings is maintained in:
+///
+/// `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
+///
+/// This enumeration must remain consistent with that definition.
+///
+/// @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: critical]
+/// - Replace this manually maintained enumeration with code generated
+/// automatically from ecCodes GRIB code tables / definitions.
+/// - The generation should occur at build or configure time (e.g. via a
+/// Python code-generation step) to prevent silent divergence between
+/// the encoder and the ecCodes library.
+///
 enum class BackgroundProcess : long {
     aifs_single           = 1,
     aifs_ens              = 2,
@@ -68,54 +68,54 @@ enum class BackgroundProcess : long {
     ifs                   = 255
 };
 
-/**
- * @brief Map a MARS model identifier to a GRIB `BackgroundProcess` enumeration.
- *
- * This function converts a string-based model identifier, typically obtained
- * from the MARS key `mars::model`, into the corresponding GRIB
- * `BackgroundProcess` enumeration value.
- *
- * The mapping is explicit and strict. Only the following identifiers are
- * supported:
- *
- * - `"ifs"`                    → `BackgroundProcess::ifs`
- * - `"aifs-single"`            → `BackgroundProcess::aifs_single`
- * - `"aifs-ens"`               → `BackgroundProcess::aifs_ens`
- * - `"aifs-single-mse"`        → `BackgroundProcess::aifs_single_mse`
- * - `"aifs-ens-crps"`          → `BackgroundProcess::aifs_ens_crps`
- * - `"aifs-ens-diff"`          → `BackgroundProcess::aifs_ens_diff`
- * - `"aifs-compo-single"`      → `BackgroundProcess::aifs_compo_single`
- * - `"aifs-compo-ens"`         → `BackgroundProcess::aifs_compo_ens`
- * - `"aifs-compo-single-mse"`  → `BackgroundProcess::aifs_compo_single_mse`
- * - `"aifs-compo-ens-crps"`    → `BackgroundProcess::aifs_compo_ens_crps`
- *
- * Any other value is considered invalid and results in a deduction error.
- *
- * @param[in] value String value of the MARS `model` key to be mapped
- *
- * @return The corresponding `BackgroundProcess` enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If the provided string does not correspond to a supported
- *         MARS model identifier.
- *
- * @note
- * - This function performs a **pure mapping** from MARS semantics to
- *   GRIB background process codes.
- * - No implicit normalization, fallback, or defaulting is performed.
- *
- * @important
- * The authoritative definition of valid model identifiers and their
- * mapping to GRIB background process codes is maintained in:
- *
- *   `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
- *
- * This function must remain consistent with that definition.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes definitions to prevent divergence between software stacks.
- */
+///
+/// @brief Map a MARS model identifier to a GRIB `BackgroundProcess` enumeration.
+///
+/// This function converts a string-based model identifier, typically obtained
+/// from the MARS key `mars::model`, into the corresponding GRIB
+/// `BackgroundProcess` enumeration value.
+///
+/// The mapping is explicit and strict. Only the following identifiers are
+/// supported:
+///
+/// - `"ifs"`                    → `BackgroundProcess::ifs`
+/// - `"aifs-single"`            → `BackgroundProcess::aifs_single`
+/// - `"aifs-ens"`               → `BackgroundProcess::aifs_ens`
+/// - `"aifs-single-mse"`        → `BackgroundProcess::aifs_single_mse`
+/// - `"aifs-ens-crps"`          → `BackgroundProcess::aifs_ens_crps`
+/// - `"aifs-ens-diff"`          → `BackgroundProcess::aifs_ens_diff`
+/// - `"aifs-compo-single"`      → `BackgroundProcess::aifs_compo_single`
+/// - `"aifs-compo-ens"`         → `BackgroundProcess::aifs_compo_ens`
+/// - `"aifs-compo-single-mse"`  → `BackgroundProcess::aifs_compo_single_mse`
+/// - `"aifs-compo-ens-crps"`    → `BackgroundProcess::aifs_compo_ens_crps`
+///
+/// Any other value is considered invalid and results in a deduction error.
+///
+/// @param[in] value String value of the MARS `model` key to be mapped
+///
+/// @return The corresponding `BackgroundProcess` enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If the provided string does not correspond to a supported
+/// MARS model identifier.
+///
+/// @note
+/// - This function performs a **pure mapping** from MARS semantics to
+/// GRIB background process codes.
+/// - No implicit normalization, fallback, or defaulting is performed.
+///
+/// @important
+/// The authoritative definition of valid model identifiers and their
+/// mapping to GRIB background process codes is maintained in:
+///
+/// `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
+///
+/// This function must remain consistent with that definition.
+///
+/// @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes definitions to prevent divergence between software stacks.
+///
 inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string& value) {
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
     if (value == "ifs") {
@@ -161,58 +161,58 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
     __builtin_unreachable();
 }
 
-/**
- * @brief Map a GRIB `BackgroundProcess` enumeration to its canonical MARS model identifier.
- *
- * This function converts a GRIB-level `BackgroundProcess` enumeration value
- * into the corresponding canonical string identifier used by MARS
- * (e.g. `mars::model`).
- *
- * The mapping is explicit and strict. Only officially supported enumeration
- * values are accepted.
- *
- * Supported mappings:
- *
- * - `BackgroundProcess::ifs`                    → `"ifs"`
- * - `BackgroundProcess::aifs_single`            → `"aifs-single"`
- * - `BackgroundProcess::aifs_ens`               → `"aifs-ens"`
- * - `BackgroundProcess::aifs_single_mse`        → `"aifs-single-mse"`
- * - `BackgroundProcess::aifs_ens_crps`          → `"aifs-ens-crps"`
- * - `BackgroundProcess::aifs_ens_diff`          → `"aifs-ens-diff"`
- * - `BackgroundProcess::aifs_compo_single`      → `"aifs-compo-single"`
- * - `BackgroundProcess::aifs_compo_ens`         → `"aifs-compo-ens"`
- * - `BackgroundProcess::aifs_compo_single_mse`  → `"aifs-compo-single-mse"`
- * - `BackgroundProcess::aifs_compo_ens_crps`    → `"aifs-compo-ens-crps"`
- *
- * Any other enumeration value is considered invalid and results in a
- * table-mapping error.
- *
- * @param[in] value GRIB `BackgroundProcess` enumeration value
- *
- * @return Canonical string representation corresponding to the MARS
- *         `model` identifier.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enumeration value does not correspond to a supported
- *         background process.
- *
- * @note
- * - This function performs a **pure reverse mapping** of
- *   `mapto_BackgroundProcess_or_throw(const std::string&)`.
- * - No implicit normalization, fallback, or defaulting is performed.
- *
- * @important
- * The authoritative definition of background process identifiers and their
- * string representations is maintained in:
- *
- *   `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
- *
- * This function must remain strictly consistent with that definition.
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes definitions to guarantee bidirectional consistency.
- */
+///
+/// @brief Map a GRIB `BackgroundProcess` enumeration to its canonical MARS model identifier.
+///
+/// This function converts a GRIB-level `BackgroundProcess` enumeration value
+/// into the corresponding canonical string identifier used by MARS
+/// (e.g. `mars::model`).
+///
+/// The mapping is explicit and strict. Only officially supported enumeration
+/// values are accepted.
+///
+/// Supported mappings:
+///
+/// - `BackgroundProcess::ifs`                    → `"ifs"`
+/// - `BackgroundProcess::aifs_single`            → `"aifs-single"`
+/// - `BackgroundProcess::aifs_ens`               → `"aifs-ens"`
+/// - `BackgroundProcess::aifs_single_mse`        → `"aifs-single-mse"`
+/// - `BackgroundProcess::aifs_ens_crps`          → `"aifs-ens-crps"`
+/// - `BackgroundProcess::aifs_ens_diff`          → `"aifs-ens-diff"`
+/// - `BackgroundProcess::aifs_compo_single`      → `"aifs-compo-single"`
+/// - `BackgroundProcess::aifs_compo_ens`         → `"aifs-compo-ens"`
+/// - `BackgroundProcess::aifs_compo_single_mse`  → `"aifs-compo-single-mse"`
+/// - `BackgroundProcess::aifs_compo_ens_crps`    → `"aifs-compo-ens-crps"`
+///
+/// Any other enumeration value is considered invalid and results in a
+/// table-mapping error.
+///
+/// @param[in] value GRIB `BackgroundProcess` enumeration value
+///
+/// @return Canonical string representation corresponding to the MARS
+/// `model` identifier.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enumeration value does not correspond to a supported
+/// background process.
+///
+/// @note
+/// - This function performs a **pure reverse mapping** of
+/// `mapto_BackgroundProcess_or_throw(const std::string&)`.
+/// - No implicit normalization, fallback, or defaulting is performed.
+///
+/// @important
+/// The authoritative definition of background process identifiers and their
+/// string representations is maintained in:
+///
+/// `definitions/grib2/localConcepts/ecmf/modelNameConcept.def`
+///
+/// This function must remain strictly consistent with that definition.
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes definitions to guarantee bidirectional consistency.
+///
 inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

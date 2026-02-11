@@ -8,46 +8,46 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file ensembleOp.h
- * @brief Implementation of the GRIB `ensemble` concept operation.
- *
- * This header defines the applicability rules and execution logic for the
- * **ensemble concept** within the mars2grib backend.
- *
- * The ensemble concept is responsible for encoding GRIB keys related to
- * ensemble forecasts in the *Product Definition Section*, including:
- *
- * - `typeOfEnsembleForecast`
- * - `numberOfForecastsInEnsemble`
- * - `perturbationNumber`
- *
- * The concept currently supports the **Individual ensemble variant**, which
- * represents a single ensemble member within an ensemble forecast system.
- *
- * The implementation follows the standard mars2grib concept model:
- * - Compile-time applicability via `ensembleApplicable`
- * - Structural validation of the Product Definition Section
- * - Delegation of semantic resolution to dedicated deduction functions
- * - Strict error handling with contextual concept exceptions
- *
- * @note
- * The namespace name `concepts_` is intentionally used instead of `concepts`
- * to avoid ambiguity and potential conflicts with the C++20 `concept` language
- * feature and related standard headers.
- *
- * This is a deliberate design choice and must not be changed.
- *
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file ensembleOp.h
+/// @brief Implementation of the GRIB `ensemble` concept operation.
+///
+/// This header defines the applicability rules and execution logic for the
+/// **ensemble concept** within the mars2grib backend.
+///
+/// The ensemble concept is responsible for encoding GRIB keys related to
+/// ensemble forecasts in the *Product Definition Section*, including:
+///
+/// - `typeOfEnsembleForecast`
+/// - `numberOfForecastsInEnsemble`
+/// - `perturbationNumber`
+///
+/// The concept currently supports the **Individual ensemble variant**, which
+/// represents a single ensemble member within an ensemble forecast system.
+///
+/// The implementation follows the standard mars2grib concept model:
+/// - Compile-time applicability via `ensembleApplicable`
+/// - Structural validation of the Product Definition Section
+/// - Delegation of semantic resolution to dedicated deduction functions
+/// - Strict error handling with contextual concept exceptions
+///
+/// @note
+/// The namespace name `concepts_` is intentionally used instead of `concepts`
+/// to avoid ambiguity and potential conflicts with the C++20 `concept` language
+/// feature and related standard headers.
+///
+/// This is a deliberate design choice and must not be changed.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System includes
 #include <string>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/ensemble/ensembleEnum.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/backend/concepts/ensemble/ensembleEnum.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/numberOfForecastsInEnsemble.h"
@@ -67,33 +67,33 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/**
- * @brief Compile-time applicability predicate for the `ensemble` concept.
- *
- * This predicate determines whether the ensemble concept is applicable
- * for a given combination of:
- * - encoding stage
- * - GRIB section
- * - ensemble variant
- *
- * Applicability is evaluated entirely at compile time and is used by the
- * concept dispatcher to ensure that only valid concept instantiations occur.
- *
- * @tparam Stage   Encoding stage (compile-time constant)
- * @tparam Section GRIB section index (compile-time constant)
- * @tparam Variant Ensemble concept variant
- *
- * @return `true` if the concept is applicable for the given parameters,
- *         `false` otherwise.
- *
- * @note
- * The default applicability rule enables the concept only when:
- * - `Variant == EnsembleType::Individual`
- * - `Stage == StagePreset`
- * - `Section == SecProductDefinitionSection`
- *
- * This reflects the current GRIB encoding rules for individual ensemble members.
- */
+///
+/// @brief Compile-time applicability predicate for the `ensemble` concept.
+///
+/// This predicate determines whether the ensemble concept is applicable
+/// for a given combination of:
+/// - encoding stage
+/// - GRIB section
+/// - ensemble variant
+///
+/// Applicability is evaluated entirely at compile time and is used by the
+/// concept dispatcher to ensure that only valid concept instantiations occur.
+///
+/// @tparam Stage   Encoding stage (compile-time constant)
+/// @tparam Section GRIB section index (compile-time constant)
+/// @tparam Variant Ensemble concept variant
+///
+/// @return `true` if the concept is applicable for the given parameters,
+/// `false` otherwise.
+///
+/// @note
+/// The default applicability rule enables the concept only when:
+/// - `Variant == EnsembleType::Individual`
+/// - `Stage == StagePreset`
+/// - `Section == SecProductDefinitionSection`
+///
+/// This reflects the current GRIB encoding rules for individual ensemble members.
+///
 template <std::size_t Stage, std::size_t Section, EnsembleType Variant>
 constexpr bool ensembleApplicable() {
     // Confitions to apply concept
@@ -102,49 +102,49 @@ constexpr bool ensembleApplicable() {
 }
 
 
-/**
- * @brief Execute the ensemble concept operation.
- *
- * This function implements the runtime logic of the GRIB `ensemble` concept.
- * When applicable, it:
- *
- * 1. Validates that the Product Definition Section is compatible with
- *    ensemble encoding.
- * 2. Deduces ensemble-related metadata from MARS and parameter dictionaries.
- * 3. Encodes the corresponding GRIB keys in the output dictionary.
- *
- * The concept currently supports the **Individual** ensemble variant, which
- * represents a single ensemble member.
- *
- * If the concept is invoked when not applicable, a
- * `Mars2GribConceptException` is thrown.
- *
- * @tparam Stage      Encoding stage (compile-time constant)
- * @tparam Section    GRIB section index (compile-time constant)
- * @tparam Variant    Ensemble concept variant
- * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the GRIB output dictionary
- *
- * @param[in]  mars MARS input dictionary
- * @param[in]  par  Parameter dictionary
- * @param[in]  opt  Options dictionary
- * @param[out] out  Output GRIB dictionary to be populated
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
- *         If:
- *         - the Product Definition Section is not compatible with ensemble encoding
- *         - any deduction fails
- *         - any GRIB key cannot be set
- *
- * @note
- * - All runtime errors are wrapped with full concept context
- *   (concept name, variant, stage, section).
- * - This concept does not rely on any pre-existing GRIB header state.
- *
- * @see ensembleApplicable
- */
+///
+/// @brief Execute the ensemble concept operation.
+///
+/// This function implements the runtime logic of the GRIB `ensemble` concept.
+/// When applicable, it:
+///
+/// 1. Validates that the Product Definition Section is compatible with
+/// ensemble encoding.
+/// 2. Deduces ensemble-related metadata from MARS and parameter dictionaries.
+/// 3. Encodes the corresponding GRIB keys in the output dictionary.
+///
+/// The concept currently supports the **Individual** ensemble variant, which
+/// represents a single ensemble member.
+///
+/// If the concept is invoked when not applicable, a
+/// `Mars2GribConceptException` is thrown.
+///
+/// @tparam Stage      Encoding stage (compile-time constant)
+/// @tparam Section    GRIB section index (compile-time constant)
+/// @tparam Variant    Ensemble concept variant
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the GRIB output dictionary
+///
+/// @param[in]  mars MARS input dictionary
+/// @param[in]  par  Parameter dictionary
+/// @param[in]  opt  Options dictionary
+/// @param[out] out  Output GRIB dictionary to be populated
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
+/// If:
+/// - the Product Definition Section is not compatible with ensemble encoding
+/// - any deduction fails
+/// - any GRIB key cannot be set
+///
+/// @note
+/// - All runtime errors are wrapped with full concept context
+/// (concept name, variant, stage, section).
+/// - This concept does not rely on any pre-existing GRIB header state.
+///
+/// @see ensembleApplicable
+///
 template <std::size_t Stage, std::size_t Section, EnsembleType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {

@@ -4,7 +4,6 @@
 #include <optional>
 #include <string>
 #include <typeinfo>
-#include <optional>
 
 #include "eckit/exception/Exceptions.h"
 #include "metkit/config/LibMetkit.h"
@@ -58,7 +57,7 @@ public:
     const std::string levtype() const { return levtype_.has_value() ? levtype_.value() : "undefined"; }
     const std::string param() const { return param_.has_value() ? param_.value() : "undefined"; }
 
-    void printFrame( const std::string& pad) const override {
+    void printFrame(const std::string& pad) const override {
 
         Mars2GribGenericException::printFrame(pad);
         if (param_) {
@@ -180,8 +179,8 @@ private:
 class Mars2GribEncoderException : public Mars2GribGenericException {
 public:
 
-    Mars2GribEncoderException(std::string reason, std::string marsDict_json,
-                              std::string parDict_json, std::string optDict_json, std::string encoderCfg_json,
+    Mars2GribEncoderException(std::string reason, std::string marsDict_json, std::string parDict_json,
+                              std::string optDict_json, std::string encoderCfg_json,
                               const eckit::CodeLocation& loc = eckit::CodeLocation()) :
         Mars2GribGenericException(reason, loc),
         marsDict_json_(std::move(marsDict_json)),

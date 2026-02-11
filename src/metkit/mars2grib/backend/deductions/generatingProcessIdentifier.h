@@ -22,59 +22,59 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Optionally resolve the GRIB `generatingProcessIdentifier` key from parameters.
- *
- * This deduction provides an **optional passthrough resolution** for the GRIB
- * `generatingProcessIdentifier` key.
- *
- * When present, the value is read **verbatim** from the parameter dictionary
- * (`par`) and returned without modification or validation.
- * If the key is not present, the function returns `std::nullopt`.
- *
- * @important
- * This function performs **no deduction logic** and **no semantic validation**.
- * It exists solely to allow expert or legacy workflows to explicitly inject
- * a GRIB `generatingProcessIdentifier` value via the parameter dictionary.
- *
- * The use of this mechanism is **discouraged** for production workflows, as it
- * may lead to inconsistent or non-reproducible GRIB headers if not coordinated
- * with the rest of the encoding logic.
- *
- * @section Semantics
- * - Input source: parameter dictionary (`par`)
- * - Resolution type: optional passthrough
- * - Validation: none
- * - Defaulting: none
- *
- * @tparam MarsDict_t Type of the MARS dictionary (unused)
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary (unused)
- * @param[in] par  Parameter dictionary; may contain `generatingProcessIdentifier`
- * @param[in] opt  Options dictionary (unused)
- *
- * @return An optional `long`:
- * - the value of `generatingProcessIdentifier` if present in `par`
- * - `std::nullopt` otherwise
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If any unexpected error occurs while accessing the parameter dictionary.
- *
- * @warning
- * This deduction must **not** be relied upon as the primary mechanism for setting
- * `generatingProcessIdentifier`.
- * A proper, deterministic deduction based on MARS semantics or encoder policy
- * should be preferred whenever possible.
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: legacy][prio: medium]
- * - Need to define a proper table and a proper logic to deduce the `generatingProcessIdentifier`
- * - Evaluate whether this passthrough deduction can be removed once all
- *   generating process identifiers are derived deterministically.
- * - Consider replacing this with a validated, table-driven deduction.
- *
- */
+///
+/// @brief Optionally resolve the GRIB `generatingProcessIdentifier` key from parameters.
+///
+/// This deduction provides an **optional passthrough resolution** for the GRIB
+/// `generatingProcessIdentifier` key.
+///
+/// When present, the value is read **verbatim** from the parameter dictionary
+/// (`par`) and returned without modification or validation.
+/// If the key is not present, the function returns `std::nullopt`.
+///
+/// @important
+/// This function performs **no deduction logic** and **no semantic validation**.
+/// It exists solely to allow expert or legacy workflows to explicitly inject
+/// a GRIB `generatingProcessIdentifier` value via the parameter dictionary.
+///
+/// The use of this mechanism is **discouraged** for production workflows, as it
+/// may lead to inconsistent or non-reproducible GRIB headers if not coordinated
+/// with the rest of the encoding logic.
+///
+/// @section Semantics
+/// - Input source: parameter dictionary (`par`)
+/// - Resolution type: optional passthrough
+/// - Validation: none
+/// - Defaulting: none
+///
+/// @tparam MarsDict_t Type of the MARS dictionary (unused)
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary (unused)
+/// @param[in] par  Parameter dictionary; may contain `generatingProcessIdentifier`
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return An optional `long`:
+/// - the value of `generatingProcessIdentifier` if present in `par`
+/// - `std::nullopt` otherwise
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If any unexpected error occurs while accessing the parameter dictionary.
+///
+/// @warning
+/// This deduction must **not** be relied upon as the primary mechanism for setting
+/// `generatingProcessIdentifier`.
+/// A proper, deterministic deduction based on MARS semantics or encoder policy
+/// should be preferred whenever possible.
+///
+/// @todo [owner: mds,dgov][scope: deduction][reason: legacy][prio: medium]
+/// - Need to define a proper table and a proper logic to deduce the `generatingProcessIdentifier`
+/// - Evaluate whether this passthrough deduction can be removed once all
+/// generating process identifiers are derived deterministically.
+/// - Consider replacing this with a validated, table-driven deduction.
+///
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] const MarsDict_t& mars,
                                                             const ParDict_t& par,

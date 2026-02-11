@@ -16,36 +16,36 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB classification of processed data products.
- *
- * This enumeration represents the GRIB code table values associated with
- * *Type of processed data* (GRIB2, Code Table 1.4).
- *
- * Each enumerator describes the nature of the data contained in the GRIB
- * message, distinguishing between analysis, forecast, ensemble components,
- * observational products, and derived or experimental datasets.
- *
- * The numeric values of the enumerators map **directly** to the GRIB
- * code table values and must not be changed manually.
- *
- * @important
- * This enum is a **GRIB-level representation**, not a policy decision.
- * All semantic validation, defaulting, and deduction logic must be handled
- * in the corresponding deduction layer.
- *
- * @note
- * The value `255` corresponds to the GRIB *missing* value.
- *
- * @section Source of truth
- * The authoritative definition of this table is maintained by WMO / ecCodes:
- *
- *   GRIB2 — Code Table 1.4 (Type of processed data)
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
- * - Generate this enumeration automatically from ecCodes GRIB tables
- *   at build or configure time to avoid divergence across software stacks.
- */
+///
+/// @brief GRIB classification of processed data products.
+///
+/// This enumeration represents the GRIB code table values associated with
+/// *Type of processed data* (GRIB2, Code Table 1.4).
+///
+/// Each enumerator describes the nature of the data contained in the GRIB
+/// message, distinguishing between analysis, forecast, ensemble components,
+/// observational products, and derived or experimental datasets.
+///
+/// The numeric values of the enumerators map **directly** to the GRIB
+/// code table values and must not be changed manually.
+///
+/// @important
+/// This enum is a **GRIB-level representation**, not a policy decision.
+/// All semantic validation, defaulting, and deduction logic must be handled
+/// in the corresponding deduction layer.
+///
+/// @note
+/// The value `255` corresponds to the GRIB *missing* value.
+///
+/// @section Source of truth
+/// The authoritative definition of this table is maintained by WMO / ecCodes:
+///
+/// GRIB2 — Code Table 1.4 (Type of processed data)
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Generate this enumeration automatically from ecCodes GRIB tables
+/// at build or configure time to avoid divergence across software stacks.
+///
 enum class TypeOfProcessedData : long {
     AnalysisProducts                    = 0,
     ForecastProducts                    = 1,
@@ -61,25 +61,25 @@ enum class TypeOfProcessedData : long {
     Missing                             = 255
 };
 
-/**
- * @brief Convert a symbolic name to `TypeOfProcessedData`.
- *
- * This function maps a string identifier to the corresponding
- * `TypeOfProcessedData` enumeration value.
- *
- * The mapping is explicit and strict. Only supported names are accepted.
- *
- * @param[in] value Symbolic name of the processed data type
- *
- * @return Corresponding `TypeOfProcessedData` enumerator
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the provided name is not supported.
- *
- * @note
- * - No normalization or fallback is performed.
- * - Intended for configuration, testing, and diagnostics.
- */
+///
+/// @brief Convert a symbolic name to `TypeOfProcessedData`.
+///
+/// This function maps a string identifier to the corresponding
+/// `TypeOfProcessedData` enumeration value.
+///
+/// The mapping is explicit and strict. Only supported names are accepted.
+///
+/// @param[in] value Symbolic name of the processed data type
+///
+/// @return Corresponding `TypeOfProcessedData` enumerator
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the provided name is not supported.
+///
+/// @note
+/// - No normalization or fallback is performed.
+/// - Intended for configuration, testing, and diagnostics.
+///
 inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::string& value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -117,57 +117,57 @@ inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::str
 }
 
 
-/**
- * @brief Map a numeric GRIB value to `TypeOfProcessedData`.
- *
- * This function validates and converts a raw numeric GRIB value
- * associated with the `typeOfProcessedData` key into the corresponding
- * `TypeOfProcessedData` enumeration.
- *
- * The mapping is **explicit and strict**. Only numeric values defined by
- * GRIB2 Code Table 1.4 and supported by this encoder are accepted.
- * Any other value is considered invalid and results in an exception.
- *
- * @section Accepted values
- * The following mappings are supported:
- *
- * - `0`   → `AnalysisProducts`
- * - `1`   → `ForecastProducts`
- * - `2`   → `AnalysisAndForecastProducts`
- * - `3`   → `ControlForecastProducts`
- * - `4`   → `PerturbedForecastProducts`
- * - `5`   → `ControlAndPerturbedForecastProducts`
- * - `6`   → `ProcessedSatelliteObservations`
- * - `7`   → `ProcessedRadarObservations`
- * - `8`   → `EventProbability`
- * - `9`   → `ExperimentalData`
- * - `10`  → `MlBasedForecast`
- * - `255` → `Missing`
- *
- * @param[in] value Raw numeric GRIB value to be validated and mapped
- *
- * @return The corresponding `TypeOfProcessedData` enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the provided numeric value does not correspond to a supported
- *         GRIB code.
- *
- * @note
- * - This function performs **no deduction** and **no defaulting**.
- * - It must not be used to infer semantics from MARS metadata.
- * - It is intended for validation of existing GRIB state or explicit overrides.
- *
- * @important
- * This function is part of the **tables layer**.
- * Policy decisions and semantic deductions must be implemented elsewhere.
- *
- * @section Source of truth
- * WMO GRIB2 Code Table 1.4 – Type of processed data.
- *
- * @todo [owner: mival][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated automatically
- *   from ecCodes GRIB tables to prevent divergence between software stacks.
- */
+///
+/// @brief Map a numeric GRIB value to `TypeOfProcessedData`.
+///
+/// This function validates and converts a raw numeric GRIB value
+/// associated with the `typeOfProcessedData` key into the corresponding
+/// `TypeOfProcessedData` enumeration.
+///
+/// The mapping is **explicit and strict**. Only numeric values defined by
+/// GRIB2 Code Table 1.4 and supported by this encoder are accepted.
+/// Any other value is considered invalid and results in an exception.
+///
+/// @section Accepted values
+/// The following mappings are supported:
+///
+/// - `0`   → `AnalysisProducts`
+/// - `1`   → `ForecastProducts`
+/// - `2`   → `AnalysisAndForecastProducts`
+/// - `3`   → `ControlForecastProducts`
+/// - `4`   → `PerturbedForecastProducts`
+/// - `5`   → `ControlAndPerturbedForecastProducts`
+/// - `6`   → `ProcessedSatelliteObservations`
+/// - `7`   → `ProcessedRadarObservations`
+/// - `8`   → `EventProbability`
+/// - `9`   → `ExperimentalData`
+/// - `10`  → `MlBasedForecast`
+/// - `255` → `Missing`
+///
+/// @param[in] value Raw numeric GRIB value to be validated and mapped
+///
+/// @return The corresponding `TypeOfProcessedData` enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the provided numeric value does not correspond to a supported
+/// GRIB code.
+///
+/// @note
+/// - This function performs **no deduction** and **no defaulting**.
+/// - It must not be used to infer semantics from MARS metadata.
+/// - It is intended for validation of existing GRIB state or explicit overrides.
+///
+/// @important
+/// This function is part of the **tables layer**.
+/// Policy decisions and semantic deductions must be implemented elsewhere.
+///
+/// @section Source of truth
+/// WMO GRIB2 Code Table 1.4 – Type of processed data.
+///
+/// @todo [owner: mival][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated automatically
+/// from ecCodes GRIB tables to prevent divergence between software stacks.
+///
 inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -206,23 +206,23 @@ inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value) {
 }
 
 
-/**
- * @brief Convert `TypeOfProcessedData` to a symbolic name.
- *
- * This function maps a `TypeOfProcessedData` enumeration value to its
- * canonical string representation.
- *
- * @param[in] value Enumeration value
- *
- * @return Canonical string name
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the value is not recognized.
- *
- * @note
- * - Intended for logging, debugging, and diagnostics.
- * - The returned names are stable identifiers, not user-facing text.
- */
+///
+/// @brief Convert `TypeOfProcessedData` to a symbolic name.
+///
+/// This function maps a `TypeOfProcessedData` enumeration value to its
+/// canonical string representation.
+///
+/// @param[in] value Enumeration value
+///
+/// @return Canonical string name
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the value is not recognized.
+///
+/// @note
+/// - Intended for logging, debugging, and diagnostics.
+/// - The returned names are stable identifiers, not user-facing text.
+///
 inline std::string enum2name_TypeOfProcessedData_or_throw(TypeOfProcessedData value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

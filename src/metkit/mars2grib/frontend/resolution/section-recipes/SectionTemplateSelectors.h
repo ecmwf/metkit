@@ -15,26 +15,16 @@ namespace metkit::mars2grib::frontend::resolution::recipes {
 
 struct SectionTemplateSelectors {
 
-    using GeneralRegistry = metkit::mars2grib::backend::concepts_::GeneralRegistry;
+    using GeneralRegistry         = metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using SectionTemplateSelector = metkit::mars2grib::backend::sections::resolver::SectionTemplateSelector;
 
-    static inline const std::array<
-        SectionTemplateSelector,
-        GeneralRegistry::NSections
-    > value = [] {
-        return std::array<
-            SectionTemplateSelector,
-            GeneralRegistry::NSections
-        >{
-            SectionTemplateSelector::make(impl::Section0Recipes),
-            SectionTemplateSelector::make(impl::Section1Recipes),
-            SectionTemplateSelector::make(impl::Section2Recipes),
-            SectionTemplateSelector::make(impl::Section3Recipes),
-            SectionTemplateSelector::make(impl::Section4Recipes),
-            SectionTemplateSelector::make(impl::Section5Recipes)
-        };
+    static inline const std::array<SectionTemplateSelector, GeneralRegistry::NSections> value = [] {
+        return std::array<SectionTemplateSelector, GeneralRegistry::NSections>{
+            SectionTemplateSelector::make(impl::Section0Recipes), SectionTemplateSelector::make(impl::Section1Recipes),
+            SectionTemplateSelector::make(impl::Section2Recipes), SectionTemplateSelector::make(impl::Section3Recipes),
+            SectionTemplateSelector::make(impl::Section4Recipes), SectionTemplateSelector::make(impl::Section5Recipes)};
     }();
 };
 
 
-}
+}  // namespace metkit::mars2grib::frontend::resolution::recipes
