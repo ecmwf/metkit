@@ -487,8 +487,6 @@ struct EntryVariantRegistry {
     /// - sentinel values for error handling
     /// - fixed structural dimensions of the encoding pipeline
     ///
-    static constexpr std::size_t not_applicable = NOT_APPLICABLE;
-    static constexpr std::size_t invalid        = INVALID;
     static constexpr std::size_t missing        = MISSING;
     static constexpr std::size_t NSections      = NUM_SECTIONS;
     static constexpr std::size_t NStages        = NUM_STAGES;
