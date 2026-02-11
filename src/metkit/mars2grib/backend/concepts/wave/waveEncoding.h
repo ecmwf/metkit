@@ -50,6 +50,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/wave/waveEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/periodItMax.h"
@@ -68,7 +69,7 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -298,7 +299,7 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
 
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

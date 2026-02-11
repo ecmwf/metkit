@@ -9,6 +9,7 @@
 #include "metkit/mars2grib/frontend/resolution/section-recipes/impl/section3Recipes.h"
 #include "metkit/mars2grib/frontend/resolution/section-recipes/impl/section4Recipes.h"
 #include "metkit/mars2grib/frontend/resolution/section-recipes/impl/section5Recipes.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::resolution::recipes {
 

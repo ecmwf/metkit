@@ -996,7 +996,7 @@ INPUT = \@MARS2GRIB_SOURCE_DIRECTORY@/utils/configConverter.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/utils/dictionary_traits/dictionary_access_traits.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/utils/dictionary_traits/dictaccess_eckit_configuration.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/utils/type_traits_name.h \
-@MARS2GRIB_SOURCE_DIRECTORY@/utils/mars2grib-exception.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/utils/mars2gribExceptions.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/utils/logUtils.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/utils/enableOptions.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/concepts/origin/originMatcher.h \

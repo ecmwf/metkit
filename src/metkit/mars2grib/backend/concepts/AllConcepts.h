@@ -90,6 +90,7 @@
 
 // Project includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/backend/concepts/analysis/analysisConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/composition/compositionConceptDescriptor.h"

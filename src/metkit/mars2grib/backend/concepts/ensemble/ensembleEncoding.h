@@ -48,6 +48,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/numberOfForecastsInEnsemble.h"
@@ -63,7 +64,7 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -192,7 +193,7 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
     MARS2GRIB_CONCEPT_THROW(ensemble, "Concept called when not applicable...");
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

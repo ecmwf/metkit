@@ -85,6 +85,7 @@
 
 // ecCodes API wrapper
 #include "metkit/codes/api/CodesAPI.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Codes wrapper types
 #include "metkit/codes/api/CodesTypes.h"

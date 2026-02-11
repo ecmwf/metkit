@@ -53,11 +53,12 @@
 
 // Tables
 #include "metkit/mars2grib/backend/tables/derivedForecast.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
@@ -167,7 +168,7 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 

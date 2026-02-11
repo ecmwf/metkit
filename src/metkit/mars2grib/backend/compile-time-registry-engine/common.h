@@ -35,6 +35,7 @@
 /// @ingroup mars2grib_backend_concepts
 ///
 #pragma once
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // System includes
 #include <array>

@@ -47,6 +47,7 @@
 // Project includes
 #include "metkit/mars2grib/backend/sections/resolver/Recipe.h"
 #include "metkit/mars2grib/backend/sections/resolver/ResolvedTemplateData.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 

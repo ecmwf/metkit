@@ -97,6 +97,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/makeEntryCallbacksRegistry.h"
 #include "metkit/mars2grib/backend/concepts/AllConcepts.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 

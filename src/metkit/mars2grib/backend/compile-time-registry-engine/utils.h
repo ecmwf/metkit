@@ -9,6 +9,7 @@
  */
 
 #pragma once
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 ///
 /// @file array_concat.h

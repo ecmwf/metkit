@@ -14,11 +14,12 @@
 
 
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
@@ -123,7 +124,7 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

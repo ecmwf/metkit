@@ -57,8 +57,9 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
 namespace metkit::mars2grib::backend::deductions {
@@ -386,7 +387,7 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 

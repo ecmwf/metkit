@@ -103,6 +103,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/EntryVariantRegistry.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/AllConcepts.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 

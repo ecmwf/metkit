@@ -12,10 +12,11 @@
 #include <exception>
 
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
 namespace metkit::mars2grib::backend::deductions {
@@ -123,7 +124,7 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::deductions
