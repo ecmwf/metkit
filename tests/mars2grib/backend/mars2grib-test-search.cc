@@ -29,11 +29,11 @@ std::tuple<ActiveConceptsData,std::size_t> make_ActiveConceptData_from_PayloadEn
     res.count = pe.count;
 
     for ( std::size_t i=0; i<res.activeConceptsIndices.size(); ++i ){
-        res.activeConceptsIndices[i] = GeneralRegistry::invalid;
+        res.activeConceptsIndices[i] = GeneralRegistry::missing;
     }
 
     for ( std::size_t i=0; i<res.activeVariantIndices.size(); ++i ){
-        res.activeVariantIndices[i] = GeneralRegistry::invalid;
+        res.activeVariantIndices[i] = GeneralRegistry::missing;
     }
 
     for (std::size_t i = 0; i < res.count; ++i) {

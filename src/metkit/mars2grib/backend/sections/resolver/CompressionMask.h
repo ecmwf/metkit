@@ -66,14 +66,14 @@
 /// of **all variant identifiers that ever participate** in the section is
 /// collected.
 ///
-/// Variants that never appear in any recipe entry are marked as invalid.
+/// Variants that never appear in any recipe entry are marked as invalid/missing.
 ///
 /// @subsection compressionmask_phase2 Phase 2: index assignment
 ///
 /// The collected variants are assigned **dense compressed indices**.
 ///
 /// This step finalizes the mask by mapping:
-/// - irrelevant variants → `invalid`
+/// - irrelevant variants → `missing`
 /// - relevant variants   → dense indices `[0, compressedSize)`
 ///
 /// The resulting mask is immutable and section-specific.
@@ -168,9 +168,6 @@ public:
     /// Registry providing global variant identifiers
     using GeneralRegistry = metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
-    /// Sentinel value marking invalid / irrelevant variants
-    static constexpr std::size_t invalid = GeneralRegistry::invalid;
-
     ///
     /// @brief Number of variants retained after compression.
     ///
@@ -193,7 +190,7 @@ public:
 
         for (std::size_t i = 0; i < in.size; ++i) {
             const std::size_t v = in.data[i];
-            if (mask_[v] != invalid) {
+            if (mask_[v] != GeneralRegistry::missing) {
                 out.data[out.size++] = v;
             }
         }
@@ -222,7 +219,7 @@ public:
         for (std::size_t i = 0; i < in.size; ++i) {
             const std::size_t v = in.data[i];
 
-            if (mask_[v] == invalid) {
+            if (mask_[v] == GeneralRegistry::missing) {
                 continue;
             }
 
@@ -265,7 +262,7 @@ public:
 
         for (std::size_t v = 0; v < mask_.size(); ++v) {
             std::size_t id = mask_[v];
-            if (id != GeneralRegistry::invalid) {
+            if (id != GeneralRegistry::missing) {
                 std::string cname = std::string(GeneralRegistry::conceptNameArr[id]);
                 std::string vname = std::string(GeneralRegistry::variantNameArr[id]);
                 os << "\"" << cname << "::" << vname << "\"";
@@ -292,7 +289,7 @@ public:
     /// - the compressed size
     /// - the full variant-to-compressed-index mapping
     ///
-    /// Variants mapped to `invalid` explicitly indicate concepts that never
+    /// Variants mapped to `missing` explicitly indicate concepts that never
     /// participate in the section and are therefore removed during key compression.
     ///
     /// @return JSON-style string describing the compression mask
@@ -320,7 +317,7 @@ public:
 
         for (std::size_t v = 0; v < mask_.size(); ++v) {
             std::size_t id = mask_[v];
-            if (id != GeneralRegistry::invalid) {
+            if (id != GeneralRegistry::missing) {
                 std::string cname = std::string(GeneralRegistry::conceptNameArr[id]);
                 std::string vname = std::string(GeneralRegistry::variantNameArr[id]);
                 oss << "\"" << cname << "::" << vname << "\"";
@@ -393,7 +390,7 @@ inline CompressionMask make_CompressionMask_or_throw(
     std::size_t cnt = 0;
     for (std::size_t v = 0; v < GeneralRegistry::NVariants; ++v) {
         if (mask[v] == 0) {
-            mask[v] = GeneralRegistry::invalid;
+            mask[v] = GeneralRegistry::missing;
         }
         else {
             mask[v] = cnt++;

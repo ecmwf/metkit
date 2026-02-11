@@ -79,12 +79,12 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
         for (std::size_t i = 0; i < GeneralRegistry::NConcepts; ++i) {
             std::size_t localVariantId  = callbacks[i](marsDict, optDict);
             std::size_t globalVariantId = GeneralRegistry::conceptOffsets[i] + localVariantId;
-            if (localVariantId != GeneralRegistry::not_applicable) {
+            if (localVariantId != GeneralRegistry::missing) {
                 activeConceptsData.activeVariantIndices[i]                           = globalVariantId;
                 activeConceptsData.activeConceptsIndices[activeConceptsData.count++] = i;
             }
             else {
-                activeConceptsData.activeVariantIndices[i] = GeneralRegistry::not_applicable;
+                activeConceptsData.activeVariantIndices[i] = GeneralRegistry::missing;
             }
         }
 

@@ -65,13 +65,11 @@ Stages represent *when* an operation occurs (e.g. allocation, preset, runtime), 
 
 ### Sentinel Values
 
-Three sentinel constants are used throughout the engine:
+One sentinel constant is used throughout the engine:
 
 * `MISSING`
-* `INVALID`
-* `NOT_APPLICABLE`
 
-They intentionally share the same numeric value but carry different semantic meaning depending on context. They are used to represent:
+It carries different semantic meaning depending on context. They are used to represent:
 
 * absent indices,
 * invalid lookups,
