@@ -12,7 +12,8 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
 namespace metkit::mars2grib::backend::tables {
@@ -119,7 +120,7 @@ inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_thro
         throw Mars2GribTableException(errMsg, Here());
     }
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///
@@ -171,7 +172,7 @@ inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOf
         }
     }
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 

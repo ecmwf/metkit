@@ -9,6 +9,7 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h"
@@ -21,7 +22,7 @@
 
 // Exceptions
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
 namespace metkit::mars2grib::backend::deductions {
@@ -176,7 +177,7 @@ inline StatisticalProcessing getTimeDescriptorFromMars_orThrow(
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::deductions

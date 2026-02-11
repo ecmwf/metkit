@@ -49,6 +49,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/backgroundProcess.h"
@@ -62,7 +63,7 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -213,7 +214,7 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
 
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

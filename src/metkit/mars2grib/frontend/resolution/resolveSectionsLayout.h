@@ -31,7 +31,8 @@
 #include "metkit/mars2grib/backend/sections/resolver/SectionLayoutData.h"
 #include "metkit/mars2grib/frontend/GribHeaderLayoutData.h"
 #include "metkit/mars2grib/frontend/resolution/section-recipes/SectionTemplateSelectors.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::frontend::resolution {
 
@@ -100,7 +101,7 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
             Mars2GribGenericException("Critical failure: Unable to resolve GRIB HeaderLayout", Here()));
     }
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///

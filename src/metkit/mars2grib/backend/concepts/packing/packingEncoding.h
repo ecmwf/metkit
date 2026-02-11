@@ -48,6 +48,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchDataRepresentationTemplateNumber.h"
@@ -60,7 +61,7 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -208,7 +209,7 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
     MARS2GRIB_CONCEPT_THROW(packing, "Concept called when not applicable...");
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

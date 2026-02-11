@@ -52,8 +52,9 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
@@ -131,7 +132,7 @@ long resolve_satelliteNumber_or_throw(const MarsDict_t& mars, const ParDict_t& p
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

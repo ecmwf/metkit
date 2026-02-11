@@ -24,7 +24,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 
 #include "metkit/mars2grib/backend/SpecializedEncoder.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 int main(int argc, char** argv) {
 

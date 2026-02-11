@@ -14,11 +14,12 @@
 #include <vector>
 
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::validation {
 
@@ -114,7 +115,7 @@ void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t&
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation

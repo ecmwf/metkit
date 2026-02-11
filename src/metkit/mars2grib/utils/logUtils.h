@@ -2,6 +2,7 @@
 
 #include "eckit/log/Log.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #define MARS2GRIB_LOG_CHECK(msg)                                                        \
     do {                                                                                \

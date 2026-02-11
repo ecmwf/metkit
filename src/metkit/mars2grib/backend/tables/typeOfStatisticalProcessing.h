@@ -12,7 +12,8 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
 namespace metkit::mars2grib::backend::tables {
@@ -142,7 +143,7 @@ inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_thro
                       "summation,return_period,median,severity,mode,index_processing,missing}";
     throw Mars2GribTableException(err, Here());
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///
@@ -207,7 +208,7 @@ inline std::string enum2name_TypeOfStatisticalProcessing_or_throw(TypeOfStatisti
         "Invalid TypeOfStatisticalProcessing enum value: actual='" + std::to_string(static_cast<long>(value)) + "'";
     throw Mars2GribTableException(err, Here());
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 

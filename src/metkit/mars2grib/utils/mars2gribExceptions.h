@@ -1,18 +1,68 @@
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+/// @file mars2gribExceptions.h
+/// @brief Unified exception hierarchy for the mars2grib framework.
+///
+/// This header defines the complete exception model used across
+/// mars2grib, covering:
+///
+/// - Generic infrastructure errors
+/// - Layer-specific failures (matcher, rules, validation, tables, deduction)
+/// - Concept execution failures (with contextual metadata)
+/// - Encoder failures (with serialized dictionary state)
+///
+/// The hierarchy is designed with the following goals:
+///
+/// - Strong contextual diagnostics
+/// - Support for nested exception propagation
+/// - Structured debug frame printing
+/// - Clear separation between backend and frontend layers
+///
+/// All exceptions ultimately derive from `eckit::Exception`,
+/// ensuring compatibility with the broader ECMWF ecosystem.
+///
+/// Nested exception support allows propagation chains to be
+/// printed in a structured stack-like format.
+///
+/// @ingroup mars2grib_utils
 #pragma once
 
+// System includes
 #include <exception>
 #include <optional>
 #include <string>
 #include <typeinfo>
 
+// Project includes
+#include "metkit/mars2grib/utils/generalUtils.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/config/LibMetkit.h"
 
+
 namespace metkit::mars2grib::utils::exceptions {
 
-// ==========================================================
-// Base exception (no metadata)
-// ==========================================================
+/// @brief Base exception for mars2grib.
+///
+/// This is the root exception type for most mars2grib failures.
+/// It:
+///
+/// - Inherits from `eckit::Exception`
+/// - Supports nested exceptions via `std::nested_exception`
+/// - Provides structured frame printing
+///
+/// Derived exceptions typically extend this class with
+/// additional contextual metadata.
+///
+/// The `printFrame()` method is designed to be used by
+/// extended stack printers.
 class Mars2GribGenericException : public eckit::Exception, public std::nested_exception {
 public:
 
@@ -34,9 +84,20 @@ public:
 };
 
 
-// ==========================================================
-// Matcher exception (no metadata)
-// ==========================================================
+/// @brief Exception raised during matcher evaluation.
+///
+/// This exception is used when resolving whether a concept
+/// should be activated based on MARS input.
+///
+/// It may optionally carry:
+///
+/// - `param`   : parameter identifier
+/// - `levtype` : level type
+///
+/// All metadata fields are optional and printed only if defined.
+///
+/// This exception extends the generic exception with matcher-specific
+/// diagnostic context.
 class Mars2GribMatcherException : public Mars2GribGenericException {
 public:
 
@@ -75,10 +136,12 @@ private:
     std::optional<std::string> levtype_;
 };
 
-
-// ==========================================================
-// Rules exception (no metadata)
-// ==========================================================
+/// @brief Exception raised in the rules layer.
+///
+/// Used when evaluating rule-based logic fails.
+///
+/// This class derives directly from `eckit::Exception` and
+/// supports nested exceptions.
 class Mars2GribRulesException : public eckit::Exception, public std::nested_exception {
 public:
 
@@ -86,9 +149,10 @@ public:
         eckit::Exception(reason, loc) {}
 };
 
-// ==========================================================
-// Dict Layer Exception
-// ==========================================================
+/// @brief Exception raised in the dictionary access layer.
+///
+/// Used when dictionary validation or access fails.
+/// Inherits structured printing from the generic exception.
 class Mars2GribDictException : public Mars2GribGenericException {
 public:
 
@@ -96,10 +160,10 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
-
-// ==========================================================
-// Validation Layer Exception (empty for now)
-// ==========================================================
+/// @brief Exception raised in the validation layer.
+///
+/// Intended for semantic validation errors.
+/// Currently does not add additional metadata beyond the base class.
 class Mars2GribValidationException : public Mars2GribGenericException {
 public:
 
@@ -107,10 +171,9 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
-
-// ==========================================================
-// Tables Layer Exception (empty for now)
-// ==========================================================
+/// @brief Exception raised in table resolution logic.
+///
+/// Used when GRIB table lookup or interpretation fails.
 class Mars2GribTableException : public Mars2GribGenericException {
 public:
 
@@ -118,10 +181,10 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
-
-// ==========================================================
-// Deduction Layer Exception (empty for now)
-// ==========================================================
+/// @brief Exception raised in the deduction layer.
+///
+/// Used when derived values cannot be computed or inferred
+/// from the provided dictionaries.
 class Mars2GribDeductionException : public Mars2GribGenericException {
 public:
 
@@ -129,10 +192,30 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
-
-// ==========================================================
-// Concept Layer Exception (with metadata!)
-// ==========================================================
+/// @brief Exception raised during concept execution.
+///
+/// This is the most context-rich exception in the hierarchy.
+/// It carries:
+///
+/// - Concept name
+/// - Concept variant
+/// - Encoding stage
+/// - GRIB section
+///
+/// This allows precise identification of:
+///
+/// - Which concept failed
+/// - Under which stage
+/// - In which section
+///
+/// The metadata is optional and printed only if present.
+///
+/// This exception is typically constructed via helper macros:
+///
+/// - `MARS2GRIB_CONCEPT_THROW`
+/// - `MARS2GRIB_CONCEPT_RETHROW`
+///
+/// Those macros automatically inject compile-time metadata.
 class Mars2GribConceptException : public Mars2GribGenericException {
 public:
 
@@ -172,10 +255,21 @@ private:
     std::optional<std::string> section_;
 };
 
-
-// ==========================================================
-// Encoder Layer Exception
-// ==========================================================
+/// @brief Exception raised in the encoder layer.
+///
+/// This exception captures serialized diagnostic state,
+/// including JSON representations of:
+///
+/// - MARS dictionary
+/// - Parameter dictionary
+/// - Options dictionary
+/// - Encoder configuration
+///
+/// It is intended for high-level failure reporting where
+/// complete encoding context must be preserved.
+///
+/// The diagnostic information is printed in structured form
+/// via `printFrame()`.
 class Mars2GribEncoderException : public Mars2GribGenericException {
 public:
 
@@ -213,9 +307,22 @@ private:
     const std::string encoderCfg_json_;
 };
 
-// ==========================================================
-// Print exception stack
-// ==========================================================
+/// @brief Recursively print nested exception stack.
+///
+/// Prints:
+///
+/// - Exception type
+/// - Exception message
+/// - Nested exceptions (if any)
+///
+/// The structure is indented according to nesting level.
+///
+/// This function does not use the structured frame printer.
+/// For detailed frames, use `printExtendedStack`.
+///
+/// @param e      Root exception
+/// @param os     Output stream
+/// @param level  Initial indentation level
 inline void printExceptionStack(const std::exception& e, std::ostream& os, std::size_t level = 0) {
     const std::string indent(level * 2, ' ');
 
@@ -241,6 +348,22 @@ inline std::string indent(std::size_t level) {
     return std::string(level * tabSize, ' ');
 }
 
+/// @brief Print structured exception stack with detailed frames.
+///
+/// For each nested exception frame:
+///
+/// - Prints file, function, line, and message (if available)
+/// - Prints additional metadata for specialized exceptions
+///
+/// This function detects `Mars2GribGenericException`
+/// via `dynamic_cast` and calls `printFrame()`
+/// to extract structured information.
+///
+/// Nested exceptions are recursively printed.
+///
+/// @param e      Root exception
+/// @param level  Indentation level
+/// @param frame  Frame counter
 inline void printExtendedStack(const std::exception& e, std::size_t level = 0, std::size_t frame = 1) {
 
     const std::string pad = indent(level);
@@ -266,7 +389,12 @@ inline void printExtendedStack(const std::exception& e, std::size_t level = 0, s
     }
 }
 
-
+/// @brief Join a vector of long values into a formatted string.
+///
+/// Output format:
+/// `{v1, v2, v3}`
+///
+/// Intended for diagnostic message construction.
 inline std::string joinNumbers(const std::vector<long>& vec) {
     std::string s{"{"};
     for (size_t i = 0; i < vec.size(); ++i) {
@@ -279,6 +407,12 @@ inline std::string joinNumbers(const std::vector<long>& vec) {
     return s;
 }
 
+/// @brief Join a vector of double values into a formatted string.
+///
+/// Output format:
+/// `{v1, v2, v3}`
+///
+/// Intended for diagnostic message construction.
 inline std::string joinNumbersDouble(const std::vector<double>& vec) {
     std::string s{"{"};
     for (size_t i = 0; i < vec.size(); ++i) {
@@ -291,12 +425,26 @@ inline std::string joinNumbersDouble(const std::vector<double>& vec) {
     return s;
 }
 
+/// @brief Rethrow a concept exception with full compile-time metadata.
+///
+/// This macro captures:
+///
+/// - Concept name
+/// - Variant name
+/// - Encoding stage
+/// - Section
+///
+/// and rethrows a `Mars2GribConceptException` while preserving
+/// the nested exception chain.
 #define MARS2GRIB_CONCEPT_RETHROW(CONCEPTNAME, MESSAGE)                                             \
     std::throw_with_nested(Mars2GribConceptException(std::string(CONCEPTNAME##Name),                \
                                                      std::string(CONCEPTNAME##TypeName<Variant>()), \
                                                      std::to_string(Stage), std::to_string(Section), MESSAGE, Here()))
 
-
+/// @brief Throw a concept exception with full compile-time metadata.
+///
+/// Same as `MARS2GRIB_CONCEPT_RETHROW`, but without nesting.
+/// Intended for initial throw sites.
 #define MARS2GRIB_CONCEPT_THROW(CONCEPTNAME, MESSAGE)                                                                  \
     do {                                                                                                               \
         throw Mars2GribConceptException(std::string(CONCEPTNAME##Name), std::string(CONCEPTNAME##TypeName<Variant>()), \

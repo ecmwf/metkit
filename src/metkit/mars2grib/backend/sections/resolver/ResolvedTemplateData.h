@@ -49,6 +49,7 @@
 
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 

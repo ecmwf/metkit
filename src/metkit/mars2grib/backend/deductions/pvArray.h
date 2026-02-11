@@ -72,8 +72,9 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
@@ -277,7 +278,7 @@ inline bool hostIsLittleEndian_or_throw() {
     throw Mars2GribDeductionException("Unsupported floating-point representation (non IEEE754 double?)", Here());
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///
@@ -396,7 +397,7 @@ std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
     }
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///
@@ -624,7 +625,7 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

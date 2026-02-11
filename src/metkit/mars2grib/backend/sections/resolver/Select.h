@@ -48,7 +48,8 @@
 
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 
@@ -137,7 +138,7 @@ private:
         }
 
         // Remove compiler warning
-        __builtin_unreachable();
+        mars2gribUnreachable();
     }
 
 public:

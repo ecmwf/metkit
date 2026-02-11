@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/All.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 

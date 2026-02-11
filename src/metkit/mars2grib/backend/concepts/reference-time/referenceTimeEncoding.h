@@ -59,6 +59,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/hindcastDateTime.h"
@@ -74,7 +75,7 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -249,7 +250,7 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
     MARS2GRIB_CONCEPT_THROW(referenceTime, "Concept called when not applicable...");
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

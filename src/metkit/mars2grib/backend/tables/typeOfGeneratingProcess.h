@@ -12,7 +12,8 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::tables {
 
@@ -147,7 +148,7 @@ inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const 
         throw Mars2GribTableException(errMsg, Here());
     }
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///
@@ -231,7 +232,7 @@ inline std::string enum2name_TypeOfGeneratingProcess_or_throw(TypeOfGeneratingPr
             throw Mars2GribTableException(errMsg, Here());
     }
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::tables

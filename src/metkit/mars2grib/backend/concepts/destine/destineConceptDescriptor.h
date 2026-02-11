@@ -35,6 +35,7 @@
 // Registry engine
 #include "metkit/mars2grib/backend/compile-time-registry-engine/RegisterEntryDescriptor.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/destine/destineEncoding.h"
@@ -131,7 +132,7 @@ struct DestineConcept : RegisterEntryDescriptor<DestineType, DestineList> {
         }
 
         // Avoid compiler warnings
-        __builtin_unreachable();
+        mars2gribUnreachable();
     }
 
     ///

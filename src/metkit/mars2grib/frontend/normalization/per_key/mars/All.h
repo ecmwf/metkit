@@ -35,3 +35,4 @@
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/truncation.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/type.h"
 #include "metkit/mars2grib/frontend/normalization/per_key/mars/wavelength.h"
+#include "metkit/mars2grib/utils/generalUtils.h"

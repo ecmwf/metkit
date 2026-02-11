@@ -15,13 +15,14 @@
 #include "eckit/types/Date.h"
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/backend/deductions/detail/timeUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::deductions {
 
@@ -123,7 +124,7 @@ eckit::DateTime resolve_HindcastDateTime_or_throw(const MarsDict_t& mars, const 
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

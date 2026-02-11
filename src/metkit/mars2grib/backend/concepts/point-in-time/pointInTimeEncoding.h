@@ -47,6 +47,7 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
@@ -57,7 +58,7 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -198,7 +199,7 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
     MARS2GRIB_CONCEPT_THROW(pointInTime, "Concept called when not applicable...");
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

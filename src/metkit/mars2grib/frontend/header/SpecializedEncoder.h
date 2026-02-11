@@ -110,7 +110,8 @@
 // Project includes
 #include "metkit/mars2grib/frontend/GribHeaderLayoutData.h"
 #include "metkit/mars2grib/frontend/header/EncodingPlan.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::frontend::header {
 

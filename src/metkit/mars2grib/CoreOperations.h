@@ -35,6 +35,7 @@
 /// @note: clang-format needs to be off here to preserve the logical grouping of
 /// includes and avoid unnecessary reordering that breaks the layering and dependencies.
 // clang-format off
+#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/encodeValues.h"
@@ -42,6 +43,7 @@
 #include "metkit/mars2grib/frontend/header/SpecializedEncoder.h"
 #include "metkit/mars2grib/frontend/make_HeaderLayout.h"
 #include "metkit/mars2grib/frontend/normalization/normalization.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 // clang-format on
 
 namespace metkit::mars2grib {
@@ -78,12 +80,19 @@ struct CoreOperations {
         const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& opt, const eckit::Value& lang,
         MarsDict_t& scratchMars, ParDict_t& scratchMisc) {
 
-        const MarsDict_t& activeMars =
-            frontend::normalization::normalize_MarsDict_if_enabled(inputMars, opt, lang, scratchMars);
-        const ParDict_t& activePar =
-            frontend::normalization::normalize_MiscDict_if_enabled(inputMisc, opt, lang, scratchMisc);
+        try {
+            const MarsDict_t& activeMars =
+                frontend::normalization::normalize_MarsDict_if_enabled(inputMars, opt, lang, scratchMars);
+            const ParDict_t& activePar =
+                frontend::normalization::normalize_MiscDict_if_enabled(inputMisc, opt, lang, scratchMisc);
 
-        return {activeMars, activePar};
+            return {activeMars, activePar};
+        }
+        catch (const std::exception& e) {
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribGenericException("Error during metadata normalization", Here()));
+        }
     }
 
     ///
@@ -102,13 +111,20 @@ struct CoreOperations {
     static std::unique_ptr<OutDict_t> encodeHeader(const MarsDict_t& mars, const ParDict_t& misc,
                                                    const OptDict_t& opt) {
 
-        using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
-        using metkit::mars2grib::frontend::header::SpecializedEncoder;
+        try {
+            using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
+            using metkit::mars2grib::frontend::header::SpecializedEncoder;
 
-        auto layout = make_HeaderLayout_or_throw(mars, opt);
+            auto layout = make_HeaderLayout_or_throw(mars, opt);
 
-        return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
-                                                                                                         opt);
+            return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
+                                                                                                             opt);
+        }
+        catch (const std::exception& e) {
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header encoding", Here()));
+        }
     }
 
     ///
@@ -125,9 +141,15 @@ struct CoreOperations {
     static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MiscDict_t& misc,
                                                    const OptDict_t& opt, std::unique_ptr<OutDict_t> handle) {
 
-        metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
-
-        return handle;
+        try {
+            metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
+            return handle;
+        }
+        catch (const std::exception& e) {
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribGenericException("Error during value encoding", Here()));
+        }
     }
 
     ///
@@ -141,13 +163,19 @@ struct CoreOperations {
     ///
     template <class MarsDict_t, class OptDict_t>
     static std::string dumpHeaderTest(const MarsDict_t& mars, const OptDict_t& opt) {
+        try {
+            using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
+            using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
 
-        using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
-        using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
+            auto layout = make_HeaderLayout_or_throw(mars, opt);
 
-        auto layout = make_HeaderLayout_or_throw(mars, opt);
-
-        return debug_convert_GribHeaderLayoutData_to_json(layout);
+            return debug_convert_GribHeaderLayoutData_to_json(layout);
+        }
+        catch (const std::exception& e) {
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header test dump", Here()));
+        }
     }
 };
 

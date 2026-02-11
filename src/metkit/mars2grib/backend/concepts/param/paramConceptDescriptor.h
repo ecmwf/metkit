@@ -35,6 +35,7 @@
 // Registry engine
 #include "metkit/mars2grib/backend/compile-time-registry-engine/RegisterEntryDescriptor.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/param/paramEncoding.h"
@@ -80,7 +81,7 @@ struct ParamConcept : RegisterEntryDescriptor<ParamType, ParamList> {
             return nullptr;
         }
 
-        __builtin_unreachable();
+        mars2gribUnreachable();
     }
 
     template <std::size_t Capability, ParamType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

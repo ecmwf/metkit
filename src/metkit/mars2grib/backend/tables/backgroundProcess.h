@@ -12,7 +12,8 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::tables {
 
@@ -158,7 +159,7 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
         throw Mars2GribTableException(errMsg, Here());
     }
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 ///
@@ -245,7 +246,7 @@ inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value)
     }
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 

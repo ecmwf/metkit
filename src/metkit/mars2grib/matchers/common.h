@@ -14,6 +14,7 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 using metkit::mars2grib::utils::dict_traits::get_opt;
 using metkit::mars2grib::utils::dict_traits::has;
