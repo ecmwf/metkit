@@ -8,38 +8,38 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file productionStatusOfProcessedData.h
- * @brief Deduction of the GRIB `productionStatusOfProcessedData` key (Code Table 1.3).
- *
- * This header defines the deduction used by the mars2grib backend to resolve
- * `productionStatusOfProcessedData`, which characterises the production status
- * of the processed data product.
- *
- * The deduction currently implements a minimal mapping based on MARS metadata:
- * - `mars["class"] == "d1"`  → `DestinationEarth`
- * - otherwise               → `Missing`
- *
- * The resolved value is returned as a strongly typed table enum and is intended
- * to be consumed by concept operations (deductions do not encode GRIB keys).
- *
- * Logging policy:
- * - RESOLVE: value derived via deduction logic from input dictionaries
- * - OVERRIDE: value taken verbatim from the parameter dictionary, overriding deduction logic
- *
- * Error handling:
- * - missing required inputs or unexpected failures throw `Mars2GribDeductionException`
- * - underlying errors are preserved via nested exception propagation
- *
- * @section References
- * Concept:
- *   - @ref dataTypeEncoding.h
- *
- * Related deductions:
- *   - @ref typeOfProcessedData.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file productionStatusOfProcessedData.h
+/// @brief Deduction of the GRIB `productionStatusOfProcessedData` key (Code Table 1.3).
+///
+/// This header defines the deduction used by the mars2grib backend to resolve
+/// `productionStatusOfProcessedData`, which characterises the production status
+/// of the processed data product.
+///
+/// The deduction currently implements a minimal mapping based on MARS metadata:
+/// - `mars["class"] == "d1"`  → `DestinationEarth`
+/// - otherwise               → `Missing`
+///
+/// The resolved value is returned as a strongly typed table enum and is intended
+/// to be consumed by concept operations (deductions do not encode GRIB keys).
+///
+/// Logging policy:
+/// - RESOLVE: value derived via deduction logic from input dictionaries
+/// - OVERRIDE: value taken verbatim from the parameter dictionary, overriding deduction logic
+///
+/// Error handling:
+/// - missing required inputs or unexpected failures throw `Mars2GribDeductionException`
+/// - underlying errors are preserved via nested exception propagation
+///
+/// @section References
+/// Concept:
+/// - @ref dataTypeEncoding.h
+///
+/// Related deductions:
+/// - @ref typeOfProcessedData.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -56,49 +56,49 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the GRIB `productionStatusOfProcessedData` key from input dictionaries.
- *
- * This deduction resolves `productionStatusOfProcessedData` using MARS metadata.
- *
- * Current rules:
- * - If `mars["class"] == "d1"`, return `DestinationEarth`.
- * - Otherwise, return `Missing`.
- *
- * @section Deduction contract
- * - Reads: `mars["class"]`
- * - Writes: none
- * - Side effects: logging (RESOLVE)
- * - Failure mode: throws
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary; must provide key `class`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (currently unused).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (currently unused).
- *
- * @param[in] mars
- *   MARS dictionary used to resolve `productionStatusOfProcessedData`.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The resolved `tables::ProductionStatusOfProcessedData` enumeration value.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If required inputs are missing or if any unexpected error occurs during deduction.
- *
- * @note
- * This deduction currently does not implement any override path via `par`.
- * If an override mechanism is introduced, successful override must emit an OVERRIDE log entry.
- */
+///
+/// @brief Resolve the GRIB `productionStatusOfProcessedData` key from input dictionaries.
+///
+/// This deduction resolves `productionStatusOfProcessedData` using MARS metadata.
+///
+/// Current rules:
+/// - If `mars["class"] == "d1"`, return `DestinationEarth`.
+/// - Otherwise, return `Missing`.
+///
+/// @section Deduction contract
+/// - Reads: `mars["class"]`
+/// - Writes: none
+/// - Side effects: logging (RESOLVE)
+/// - Failure mode: throws
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary; must provide key `class`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (currently unused).
+///
+/// @tparam OptDict_t
+/// Type of the options dictionary (currently unused).
+///
+/// @param[in] mars
+/// MARS dictionary used to resolve `productionStatusOfProcessedData`.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @param[in] opt
+/// Options dictionary (unused).
+///
+/// @return
+/// The resolved `tables::ProductionStatusOfProcessedData` enumeration value.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If required inputs are missing or if any unexpected error occurs during deduction.
+///
+/// @note
+/// This deduction currently does not implement any override path via `par`.
+/// If an override mechanism is introduced, successful override must emit an OVERRIDE log entry.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_or_throw(const MarsDict_t& mars,
                                                                                          const ParDict_t& par,

@@ -8,38 +8,38 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file LongrangeConcept.h
- * @brief Compile-time registry entry for the GRIB `longrange` concept.
- *
- * This header defines `LongrangeConcept`, the **compile-time descriptor**
- * that registers the GRIB `longrange` concept into the mars2grib
- * compile-time registry engine.
- *
- * The descriptor provides:
- * - The concept name
- * - The mapping between variants and their symbolic names
- * - The set of callbacks associated with each encoding phase
- * - The entry-level matcher used to activate the concept
- *
- * This file contains **no runtime logic**. All decisions are resolved
- * at compile time through template instantiation.
- *
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file LongrangeConcept.h
+/// @brief Compile-time registry entry for the GRIB `longrange` concept.
+///
+/// This header defines `LongrangeConcept`, the **compile-time descriptor**
+/// that registers the GRIB `longrange` concept into the mars2grib
+/// compile-time registry engine.
+///
+/// The descriptor provides:
+/// - The concept name
+/// - The mapping between variants and their symbolic names
+/// - The set of callbacks associated with each encoding phase
+/// - The entry-level matcher used to activate the concept
+///
+/// This file contains **no runtime logic**. All decisions are resolved
+/// at compile time through template instantiation.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System include
 #include <cstddef>
 
 // Registry engine
-#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/RegisterEntryDescriptor.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeEncoding.h"
-#include "metkit/mars2grib/backend/concepts/longrange/longrangeMatcher.h"
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeEnum.h"
+#include "metkit/mars2grib/backend/concepts/longrange/longrangeMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -48,106 +48,83 @@ namespace metkit::mars2grib::backend::concepts_ {
 // internal scope and not exposed through public headers.
 using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 
-/**
- * @brief Compile-time descriptor for the `longrange` concept.
- *
- * `LongrangeConcept` registers the GRIB `longrange` concept into the
- * compile-time registry engine.
- *
- * The descriptor defines:
- * - The canonical concept name
- * - The mapping from variant enum values to symbolic names
- * - The callbacks associated with each encoding phase
- * - The entry-level matcher used to detect applicability
- *
- * All functions in this descriptor are `constexpr` and are evaluated
- * entirely at compile time.
- */
-struct LongrangeConcept
-    : RegisterEntryDescriptor<LongrangeType, LongrangeList> {
+///
+/// @brief Compile-time descriptor for the `longrange` concept.
+///
+/// `LongrangeConcept` registers the GRIB `longrange` concept into the
+/// compile-time registry engine.
+///
+/// The descriptor defines:
+/// - The canonical concept name
+/// - The mapping from variant enum values to symbolic names
+/// - The callbacks associated with each encoding phase
+/// - The entry-level matcher used to detect applicability
+///
+/// All functions in this descriptor are `constexpr` and are evaluated
+/// entirely at compile time.
+///
+struct LongrangeConcept : RegisterEntryDescriptor<LongrangeType, LongrangeList> {
 
-    /**
-     * @brief Return the canonical name of the concept.
-     *
-     * This name is used for:
-     * - Registry identification
-     * - Diagnostics and logging
-     * - Debug and introspection facilities
-     */
-    static constexpr std::string_view entryName() {
-        return longrangeName;
-    }
+    ///
+    /// @brief Return the canonical name of the concept.
+    ///
+    /// This name is used for:
+    /// - Registry identification
+    /// - Diagnostics and logging
+    /// - Debug and introspection facilities
+    ///
+    static constexpr std::string_view entryName() { return longrangeName; }
 
-    /**
-     * @brief Return the symbolic name of a concept variant.
-     *
-     * @tparam T Variant enumeration value
-     *
-     * @return String view representing the variant name
-     */
+    ///
+    /// @brief Return the symbolic name of a concept variant.
+    ///
+    /// @tparam T Variant enumeration value
+    ///
+    /// @return String view representing the variant name
+    ///
     template <LongrangeType T>
     static constexpr std::string_view variantName() {
         return longrangeTypeName<T>();
     }
 
-    /**
-     * @brief Return the callback associated with a specific encoding phase.
-     *
-     * This function is queried by the registry engine to obtain the
-     * callback implementing the `longrange` concept for a given:
-     *
-     * - Capability
-     * - Encoding stage
-     * - GRIB section
-     * - Concept variant
-     *
-     * The function returns:
-     * - A valid function pointer if the concept is applicable
-     * - `nullptr` otherwise
-     *
-     * @tparam Capability Encoding capability index
-     * @tparam Stage      Encoding stage
-     * @tparam Sec        GRIB section
-     * @tparam Variant    Concept variant
-     * @tparam MarsDict_t Type of MARS dictionary
-     * @tparam ParDict_t  Type of parameter dictionary
-     * @tparam OptDict_t  Type of options dictionary
-     * @tparam OutDict_t  Type of output GRIB dictionary
-     *
-     * @return Function pointer implementing the phase, or `nullptr`
-     */
-    template <
-        std::size_t Capability,
-        std::size_t Stage,
-        std::size_t Sec,
-        LongrangeType Variant,
-        class MarsDict_t,
-        class ParDict_t,
-        class OptDict_t,
-        class OutDict_t>
-    static constexpr Fn<
-        MarsDict_t,
-        ParDict_t,
-        OptDict_t,
-        OutDict_t>
-    phaseCallbacks() {
+    ///
+    /// @brief Return the callback associated with a specific encoding phase.
+    ///
+    /// This function is queried by the registry engine to obtain the
+    /// callback implementing the `longrange` concept for a given:
+    ///
+    /// - Capability
+    /// - Encoding stage
+    /// - GRIB section
+    /// - Concept variant
+    ///
+    /// The function returns:
+    /// - A valid function pointer if the concept is applicable
+    /// - `nullptr` otherwise
+    ///
+    /// @tparam Capability Encoding capability index
+    /// @tparam Stage      Encoding stage
+    /// @tparam Sec        GRIB section
+    /// @tparam Variant    Concept variant
+    /// @tparam MarsDict_t Type of MARS dictionary
+    /// @tparam ParDict_t  Type of parameter dictionary
+    /// @tparam OptDict_t  Type of options dictionary
+    /// @tparam OutDict_t  Type of output GRIB dictionary
+    ///
+    /// @return Function pointer implementing the phase, or `nullptr`
+    ///
+    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, LongrangeType Variant, class MarsDict_t,
+              class ParDict_t, class OptDict_t, class OutDict_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
 
             if constexpr (longrangeApplicable<Stage, Sec, Variant>()) {
-                return &LongrangeOp<
-                    Stage,
-                    Sec,
-                    Variant,
-                    MarsDict_t,
-                    ParDict_t,
-                    OptDict_t,
-                    OutDict_t>;
+                return &LongrangeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
             else {
                 return nullptr;
             }
-
         }
         else {
             return nullptr;
@@ -156,32 +133,21 @@ struct LongrangeConcept
         __builtin_unreachable();
     }
 
-    /**
-     * @brief Variant-specific callbacks (not used for this concept).
-     */
-    template <
-        std::size_t Capability,
-        LongrangeType Variant,
-        class MarsDict_t,
-        class ParDict_t,
-        class OptDict_t,
-        class OutDict_t>
-    static constexpr Fn<
-        MarsDict_t,
-        ParDict_t,
-        OptDict_t,
-        OutDict_t>
-    variantCallbacks() {
+    ///
+    /// @brief Variant-specific callbacks (not used for this concept).
+    ///
+    template <std::size_t Capability, LongrangeType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
+              class OutDict_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
         return nullptr;
     }
 
-    /**
-     * @brief Entry-level matcher callback.
-     */
+    ///
+    /// @brief Entry-level matcher callback.
+    ///
     template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-    static constexpr Fm<MarsDict_t, OptDict_t>
-    entryCallbacks() {
-        if constexpr ( Capability == 0 ) {
+    static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
+        if constexpr (Capability == 0) {
             return &longrangeMatcher<MarsDict_t, OptDict_t>;
         }
         else {

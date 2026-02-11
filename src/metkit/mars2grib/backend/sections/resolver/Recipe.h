@@ -8,36 +8,36 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file Recipe.h
- * @brief Runtime representation of a fully expanded section recipe.
- *
- * This header defines `Recipe`, an **immutable runtime object** produced from
- * the compile-time section-recipe DSL.
- *
- * A `Recipe` encapsulates:
- * - A GRIB **template number**
- * - A multidimensional selection space derived from `Select<>` grammar nodes
- * - The total number of **valid variant combinations**
- *
- * Conceptually, a recipe represents the *Cartesian product* of a sequence of
- * concept-variant selectors. Each point in this space corresponds to a
- * concrete encoding configuration and can be materialized on demand as a
- * `ResolvedTemplateData` instance.
- *
- * The class is designed for:
- * - Fast lookup
- * - Predictable iteration
- * - Deterministic decoding via mixed-radix arithmetic
- *
- * Instances are immutable after construction and are intended to be stored
- * and traversed in hot paths during encoding plan construction.
- *
- * Debug and introspection facilities are provided for diagnostics only and
- * are not part of the performance-critical API.
- *
- * @ingroup mars2grib_backend_section_recipes
- */
+///
+/// @file Recipe.h
+/// @brief Runtime representation of a fully expanded section recipe.
+///
+/// This header defines `Recipe`, an **immutable runtime object** produced from
+/// the compile-time section-recipe DSL.
+///
+/// A `Recipe` encapsulates:
+/// - A GRIB **template number**
+/// - A multidimensional selection space derived from `Select<>` grammar nodes
+/// - The total number of **valid variant combinations**
+///
+/// Conceptually, a recipe represents the *Cartesian product* of a sequence of
+/// concept-variant selectors. Each point in this space corresponds to a
+/// concrete encoding configuration and can be materialized on demand as a
+/// `ResolvedTemplateData` instance.
+///
+/// The class is designed for:
+/// - Fast lookup
+/// - Predictable iteration
+/// - Deterministic decoding via mixed-radix arithmetic
+///
+/// Instances are immutable after construction and are intended to be stored
+/// and traversed in hot paths during encoding plan construction.
+///
+/// Debug and introspection facilities are provided for diagnostics only and
+/// are not part of the performance-critical API.
+///
+/// @ingroup mars2grib_backend_section_recipes
+///
 #pragma once
 
 // System includes
@@ -57,72 +57,72 @@
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 
-/**
- * @brief Runtime, immutable container defining a GRIB section template number.
- *
- * A `Recipe` represents the **runtime realization of a GRIB section template
- * definition**.
- *
- * In the GRIB model, a *template number* is not defined by a single choice,
- * but by an **ordered set of concepts** contributing to the same section.
- * Each concept may participate in the definition of the template using
- * **different variants**, and different combinations of variants may map
- * to the same template number.
- *
- * As a consequence, the process of defining a template number is
- * **inherently combinatorial**.
- *
- * The role of a `Recipe` is to:
- * - Bind a specific GRIB template number
- * - Describe the complete space of valid concept-variant combinations
- *   that realize that template
- *
- * The valid variants for each concept are expressed at compile time using
- * the `Select<>` DSL object, which specifies:
- * - Which concept participates
- * - Which variants of that concept are admissible for the template
- *
- * At runtime, the recipe materializes this information as a multidimensional
- * selection space, where:
- * - Each dimension corresponds to one concept
- * - Each dimension contains the list of allowed global variant identifiers
- *
- * Individual encoding configurations are obtained by enumerating this space
- * using mixed-radix decoding, preserving the original concept order.
- *
- * The class is intentionally opaque and immutable:
- * - No mutation after construction
- * - No exposure of internal storage
- * - Construction only via the `make_recipe` factory
- *
- * This design ensures deterministic behavior, efficient lookup, and
- * suitability for hot-path execution during encoding plan construction.
- */
+///
+/// @brief Runtime, immutable container defining a GRIB section template number.
+///
+/// A `Recipe` represents the **runtime realization of a GRIB section template
+/// definition**.
+///
+/// In the GRIB model, a *template number* is not defined by a single choice,
+/// but by an **ordered set of concepts** contributing to the same section.
+/// Each concept may participate in the definition of the template using
+/// **different variants**, and different combinations of variants may map
+/// to the same template number.
+///
+/// As a consequence, the process of defining a template number is
+/// **inherently combinatorial**.
+///
+/// The role of a `Recipe` is to:
+/// - Bind a specific GRIB template number
+/// - Describe the complete space of valid concept-variant combinations
+/// that realize that template
+///
+/// The valid variants for each concept are expressed at compile time using
+/// the `Select<>` DSL object, which specifies:
+/// - Which concept participates
+/// - Which variants of that concept are admissible for the template
+///
+/// At runtime, the recipe materializes this information as a multidimensional
+/// selection space, where:
+/// - Each dimension corresponds to one concept
+/// - Each dimension contains the list of allowed global variant identifiers
+///
+/// Individual encoding configurations are obtained by enumerating this space
+/// using mixed-radix decoding, preserving the original concept order.
+///
+/// The class is intentionally opaque and immutable:
+/// - No mutation after construction
+/// - No exposure of internal storage
+/// - Construction only via the `make_recipe` factory
+///
+/// This design ensures deterministic behavior, efficient lookup, and
+/// suitability for hot-path execution during encoding plan construction.
+///
 class Recipe {
 public:
 
-    /**
-     * @brief Return the total number of valid variant combinations.
-     */
+    ///
+    /// @brief Return the total number of valid variant combinations.
+    ///
     std::size_t numberOfCombinations() const noexcept { return nCombinations_; }
 
-    /**
-     * @brief Materialize a resolved recipe entry.
-     *
-     * This function decodes the given linear index into a concrete
-     * combination of concept variants and returns it as a
-     * `ResolvedTemplateData` payload.
-     *
-     * Mixed-radix decoding is used, preserving the original selector order.
-     * The rightmost selector varies fastest.
-     *
-     * @param[in] i Linear combination index
-     *
-     * @return Fully populated resolved template payload
-     *
-     * @throws std::out_of_range
-     *         If @p i is greater than or equal to the number of combinations
-     */
+    ///
+    /// @brief Materialize a resolved recipe entry.
+    ///
+    /// This function decodes the given linear index into a concrete
+    /// combination of concept variants and returns it as a
+    /// `ResolvedTemplateData` payload.
+    ///
+    /// Mixed-radix decoding is used, preserving the original selector order.
+    /// The rightmost selector varies fastest.
+    ///
+    /// @param[in] i Linear combination index
+    ///
+    /// @return Fully populated resolved template payload
+    ///
+    /// @throws std::out_of_range
+    /// If @p i is greater than or equal to the number of combinations
+    ///
     ResolvedTemplateData getEntry(std::size_t i) const {
 
         if (i >= nCombinations_) {
@@ -149,12 +149,12 @@ public:
         return entry;
     }
 
-    /**
-     * @brief Print a human-readable description of the recipe.
-     *
-     * @param[in]  prefix Line prefix used for indentation
-     * @param[out] os     Output stream
-     */
+    ///
+    /// @brief Print a human-readable description of the recipe.
+    ///
+    /// @param[in]  prefix Line prefix used for indentation
+    /// @param[out] os     Output stream
+    ///
     void debug_print(const std::string& prefix, std::ostream& os) const {
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
@@ -190,13 +190,13 @@ public:
         }
     }
 
-    /**
-     * @brief Convert the recipe to a JSON-like string.
-     *
-     * Intended exclusively for diagnostics and debugging.
-     *
-     * @return JSON-style string representation
-     */
+    ///
+    /// @brief Convert the recipe to a JSON-like string.
+    ///
+    /// Intended exclusively for diagnostics and debugging.
+    ///
+    /// @return JSON-style string representation
+    ///
     std::string debug_to_json() const {
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
@@ -260,17 +260,17 @@ private:
 };
 
 
-/**
- * @brief Factory function converting DSL grammar to a runtime recipe.
- *
- * This function erases the compile-time `Select<>` grammar and produces
- * a fully materialized `Recipe` object suitable for runtime use.
- *
- * @tparam TemplateNumber GRIB template number
- * @tparam Selects        Sequence of selector grammar nodes
- *
- * @return Immutable runtime recipe instance
- */
+///
+/// @brief Factory function converting DSL grammar to a runtime recipe.
+///
+/// This function erases the compile-time `Select<>` grammar and produces
+/// a fully materialized `Recipe` object suitable for runtime use.
+///
+/// @tparam TemplateNumber GRIB template number
+/// @tparam Selects        Sequence of selector grammar nodes
+///
+/// @return Immutable runtime recipe instance
+///
 template <std::size_t TemplateNumber, class... Selects>
 inline Recipe make_recipe() {
 

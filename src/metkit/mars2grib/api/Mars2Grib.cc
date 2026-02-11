@@ -9,41 +9,41 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file Mars2Grib.cc
- * @brief Implementation of the Mars2Grib public encoding API.
- *
- * This file contains the implementation of the `Mars2Grib` class declared
- * in `Mars2Grib.h`.
- *
- * It provides the concrete orchestration logic that:
- * - builds the internal encoder configuration from the MARS dictionary
- * - invokes the specialized backend encoder
- * - injects field values into the resulting GRIB handle
- *
- * This file intentionally contains **no GRIB semantics** and **no deduction
- * logic**. All domain-specific decisions are delegated to lower layers.
- *
- * ---
- *
- * ## Error propagation
- *
- * The current implementation propagates all exceptions across the API
- * boundary after printing extended diagnostic information.
- *
- * This behavior is intentional for early integration phases and may be
- * revised in the future to provide API-stable error wrapping.
- *
- * ---
- *
- * ## Scope
- *
- * - This file is part of the **Mars2Grib public API implementation**
- * - It is not intended for direct use by end users
- * - Its behavior defines the observable semantics of `Mars2Grib::encode`
- *
- * @ingroup mars2grib_api
- */
+///
+/// @file Mars2Grib.cc
+/// @brief Implementation of the Mars2Grib public encoding API.
+///
+/// This file contains the implementation of the `Mars2Grib` class declared
+/// in `Mars2Grib.h`.
+///
+/// It provides the concrete orchestration logic that:
+/// - builds the internal encoder configuration from the MARS dictionary
+/// - invokes the specialized backend encoder
+/// - injects field values into the resulting GRIB handle
+///
+/// This file intentionally contains **no GRIB semantics** and **no deduction
+/// logic**. All domain-specific decisions are delegated to lower layers.
+///
+/// ---
+///
+/// ## Error propagation
+///
+/// The current implementation propagates all exceptions across the API
+/// boundary after printing extended diagnostic information.
+///
+/// This behavior is intentional for early integration phases and may be
+/// revised in the future to provide API-stable error wrapping.
+///
+/// ---
+///
+/// ## Scope
+///
+/// - This file is part of the **Mars2Grib public API implementation**
+/// - It is not intended for direct use by end users
+/// - Its behavior defines the observable semantics of `Mars2Grib::encode`
+///
+/// @ingroup mars2grib_api
+///
 
 
 #include "Mars2Grib.h"
@@ -73,21 +73,21 @@
 namespace metkit::mars2grib {
 namespace impl {
 
-/**
- * @brief Read Mars2Grib options from a configuration object.
- *
- * This helper function maps a subset of keys from an
- * `eckit::LocalConfiguration` into a strongly typed `Options` object.
- *
- * Only explicitly present keys are applied; all others retain their
- * default values.
- *
- * @param[in] conf
- *   Configuration object containing encoder options.
- *
- * @return
- *   A fully initialized `Options` structure.
- */
+///
+/// @brief Read Mars2Grib options from a configuration object.
+///
+/// This helper function maps a subset of keys from an
+/// `eckit::LocalConfiguration` into a strongly typed `Options` object.
+///
+/// Only explicitly present keys are applied; all others retain their
+/// default values.
+///
+/// @param[in] conf
+/// Configuration object containing encoder options.
+///
+/// @return
+/// A fully initialized `Options` structure.
+///
 Options readOptions(const eckit::LocalConfiguration& conf) {
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -134,50 +134,50 @@ Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{impl::readOp
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return encode_impl<double>( Span<const double>{values}, mars, misc);
+    return encode_impl<double>(Span<const double>{values}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
 
-    return encode_impl<float>( Span<const float>{values}, mars, misc);
+    return encode_impl<float>(Span<const float>{values}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return encode_impl<double>( Span<const double>{values}, mars, misc);
+    return encode_impl<double>(Span<const double>{values}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return encode_impl<float>( Span<const float>{values}, mars, misc);
+    return encode_impl<float>(Span<const float>{values}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return encode_impl<double>( Span<const double>{values,length}, mars, misc);
+    return encode_impl<double>(Span<const double>{values, length}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return encode_impl<float>( Span<const float>{values,length}, mars, misc);
+    return encode_impl<float>(Span<const float>{values, length}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return encode_impl<double>( Span<const double>{values,length}, mars, misc);
+    return encode_impl<double>(Span<const double>{values, length}, mars, misc);
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return encode_impl<float>( Span<const float>{values,length}, mars, misc);
+    return encode_impl<float>(Span<const float>{values, length}, mars, misc);
 }
 
 }  // namespace metkit::mars2grib

@@ -16,26 +16,26 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief Ensemble statistical processing type.
- *
- * This enumeration represents GRIB code values defining how ensemble
- * members are statistically processed to produce the encoded field.
- *
- * The numeric values map **directly** to the GRIB code table definitions
- * and must not be changed manually.
- *
- * @note
- * The value `255` corresponds to the GRIB *missing* value.
- *
- * @important
- * This enum is a **GRIB-table representation only**.
- * No policy, defaulting, or deduction logic belongs here.
- *
- * @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
- * - Generate this enum and all conversion helpers automatically from
- *   ecCodes definitions at build time.
- */
+///
+/// @brief Ensemble statistical processing type.
+///
+/// This enumeration represents GRIB code values defining how ensemble
+/// members are statistically processed to produce the encoded field.
+///
+/// The numeric values map **directly** to the GRIB code table definitions
+/// and must not be changed manually.
+///
+/// @note
+/// The value `255` corresponds to the GRIB *missing* value.
+///
+/// @important
+/// This enum is a **GRIB-table representation only**.
+/// No policy, defaulting, or deduction logic belongs here.
+///
+/// @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Generate this enum and all conversion helpers automatically from
+/// ecCodes definitions at build time.
+///
 enum class DerivedForecast : long {
     UnweightedMeanAllMembers     = 0,
     WeightedMeanAllMembers       = 1,
@@ -51,16 +51,16 @@ enum class DerivedForecast : long {
     Missing                      = 255
 };
 
-/**
- * @brief Convert `DerivedForecast` to its canonical name.
- *
- * @param[in] value Enumeration value
- *
- * @return Canonical string name
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enumeration value is invalid.
- */
+///
+/// @brief Convert `DerivedForecast` to its canonical name.
+///
+/// @param[in] value Enumeration value
+///
+/// @return Canonical string name
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enumeration value is invalid.
+///
 inline std::string enum2name_DerivedForecast_or_throw(DerivedForecast value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -96,16 +96,16 @@ inline std::string enum2name_DerivedForecast_or_throw(DerivedForecast value) {
 }
 
 
-/**
- * @brief Convert a canonical name to `DerivedForecast`.
- *
- * @param[in] name Canonical string name
- *
- * @return Corresponding enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the name is not recognized.
- */
+///
+/// @brief Convert a canonical name to `DerivedForecast`.
+///
+/// @param[in] name Canonical string name
+///
+/// @return Corresponding enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the name is not recognized.
+///
 inline DerivedForecast name2enum_DerivedForecast_or_throw(const std::string& name) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -139,16 +139,16 @@ inline DerivedForecast name2enum_DerivedForecast_or_throw(const std::string& nam
 }
 
 
-/**
- * @brief Convert a numeric GRIB code to `DerivedForecast`.
- *
- * @param[in] value Numeric GRIB code
- *
- * @return Corresponding enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the value is not defined in the GRIB table.
- */
+///
+/// @brief Convert a numeric GRIB code to `DerivedForecast`.
+///
+/// @param[in] value Numeric GRIB code
+///
+/// @return Corresponding enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the value is not defined in the GRIB table.
+///
 inline DerivedForecast long2enum_DerivedForecast_or_throw(long value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

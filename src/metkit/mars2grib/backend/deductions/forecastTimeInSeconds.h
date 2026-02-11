@@ -19,63 +19,63 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the forecast valid time from the MARS dictionary using a step expressed in seconds.
- *
- * This deduction computes the forecast valid time by retrieving the MARS key
- * `step` and interpreting it as a forecast lead time expressed in hours.
- * The lead time is converted to seconds and added to the reference time
- * to obtain the forecast valid `eckit::DateTime`.
- *
- * The conversion follows the conventional MARS interpretation:
- * - `step` is assumed to be expressed in hours,
- * - the corresponding number of seconds is obtained as
- *   \f$ \text{step} \times 3600 \f$.
- *
- * The resolved forecast lead time (in seconds) is logged for diagnostic
- * and traceability purposes.
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `step`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary from which the forecast step is retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The forecast valid time as an `eckit::DateTime`, obtained by adding
- *   the forecast step (converted to seconds) to the reference time.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `step` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `long`,
- *   - any unexpected error occurs during conversion or time computation.
- *
- * @note
- *   This deduction assumes that the MARS `step` value is expressed in
- *   hours. Alternative units (e.g. minutes or seconds) are not supported.
- *
- * @note
- *   The reference time to which the forecast step is applied is assumed
- *   to be available in the surrounding context. This function does not
- *   resolve the reference time itself.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested exception
- *   propagation to preserve full error provenance across API boundaries.
- */
+///
+/// @brief Resolve the forecast valid time from the MARS dictionary using a step expressed in seconds.
+///
+/// This deduction computes the forecast valid time by retrieving the MARS key
+/// `step` and interpreting it as a forecast lead time expressed in hours.
+/// The lead time is converted to seconds and added to the reference time
+/// to obtain the forecast valid `eckit::DateTime`.
+///
+/// The conversion follows the conventional MARS interpretation:
+/// - `step` is assumed to be expressed in hours,
+/// - the corresponding number of seconds is obtained as
+/// \f$ \text{step} \times 3600 \f$.
+///
+/// The resolved forecast lead time (in seconds) is logged for diagnostic
+/// and traceability purposes.
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary, expected to contain the key `step`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (unused by this deduction).
+///
+/// @tparam OptDict_t
+/// Type of the options dictionary (unused by this deduction).
+///
+/// @param[in] mars
+/// MARS dictionary from which the forecast step is retrieved.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @param[in] opt
+/// Options dictionary (unused).
+///
+/// @return
+/// The forecast valid time as an `eckit::DateTime`, obtained by adding
+/// the forecast step (converted to seconds) to the reference time.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If:
+/// - the key `step` is not present in the MARS dictionary,
+/// - the associated value cannot be converted to `long`,
+/// - any unexpected error occurs during conversion or time computation.
+///
+/// @note
+/// This deduction assumes that the MARS `step` value is expressed in
+/// hours. Alternative units (e.g. minutes or seconds) are not supported.
+///
+/// @note
+/// The reference time to which the forecast step is applied is assumed
+/// to be available in the surrounding context. This function does not
+/// resolve the reference time itself.
+///
+/// @note
+/// The function follows a fail-fast strategy and uses nested exception
+/// propagation to preserve full error provenance across API boundaries.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_ForecastTimeInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

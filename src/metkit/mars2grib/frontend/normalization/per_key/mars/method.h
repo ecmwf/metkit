@@ -8,12 +8,12 @@
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 
-/**
- * @brief Individual sanitization check for the GRIB key: method.
- */
+///
+/// @brief Individual sanitization check for the GRIB key: method.
+///
 template <typename MarsDict_t>
-void sanitise_method_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language ) {
+void sanitise_method_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language) {
     // TODO: Implement specific validation logic for method
 }
 
-} // namespace metkit::mars2grib::frontend::normalization::per_key
+}  // namespace metkit::mars2grib::frontend::normalization::per_key

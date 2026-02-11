@@ -8,30 +8,30 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file sectionInitializerRegistry.h
- * @brief Static registries and dispatch logic for GRIB section initializers.
- *
- * This header defines the **section initializer registry layer** of the
- * mars2grib backend.
- *
- * It provides:
- * - compile-time registries mapping *(section, template number)* pairs
- *   to concrete section initializer functions
- * - a generic lookup utility for registry tables
- * - a unified dispatch function used by the encoder to resolve
- *   the correct initializer at runtime
- *
- * Each GRIB section exposes a sorted, constexpr registry associating
- * template numbers with their corresponding initializer functions.
- * These registries are intentionally static, allocation-free, and
- * trivially inspectable.
- *
- * This file contains **no encoding logic** itself; it only orchestrates
- * the selection of the appropriate initializer.
- *
- * @ingroup mars2grib_backend_sections
- */
+///
+/// @file sectionInitializerRegistry.h
+/// @brief Static registries and dispatch logic for GRIB section initializers.
+///
+/// This header defines the **section initializer registry layer** of the
+/// mars2grib backend.
+///
+/// It provides:
+/// - compile-time registries mapping *(section, template number)* pairs
+/// to concrete section initializer functions
+/// - a generic lookup utility for registry tables
+/// - a unified dispatch function used by the encoder to resolve
+/// the correct initializer at runtime
+///
+/// Each GRIB section exposes a sorted, constexpr registry associating
+/// template numbers with their corresponding initializer functions.
+/// These registries are intentionally static, allocation-free, and
+/// trivially inspectable.
+///
+/// This file contains **no encoding logic** itself; it only orchestrates
+/// the selection of the appropriate initializer.
+///
+/// @ingroup mars2grib_backend_sections
+///
 #pragma once
 
 // System includes
@@ -49,29 +49,29 @@
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
-/**
- * @brief Registry for GRIB Section 0 initializers.
- *
- * Section 0 does not require initialization logic; this registry
- * contains a single placeholder entry.
- */
+///
+/// @brief Registry for GRIB Section 0 initializers.
+///
+/// Section 0 does not require initialization logic; this registry
+/// contains a single placeholder entry.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec0Reg[] = {
     {0, &allocateTemplateNumber0<0, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
-/**
- * @brief Registry for GRIB Section 1 initializers.
- */
+///
+/// @brief Registry for GRIB Section 1 initializers.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec1Reg[] = {
     {0, &allocateTemplateNumber1<1, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
-/**
- * @brief Registry for GRIB Section 2 (Local Use Section) initializers.
- *
- * Includes both official and *virtual* template numbers used internally
- * by the encoder (e.g. DestinE extensions).
- */
+///
+/// @brief Registry for GRIB Section 2 (Local Use Section) initializers.
+///
+/// Includes both official and *virtual* template numbers used internally
+/// by the encoder (e.g. DestinE extensions).
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = {
     {1, &allocateTemplateNumber2<2, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -83,9 +83,9 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = 
     {1002, &allocateTemplateNumber2<2, 1002, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1004, &allocateTemplateNumber2<2, 1004, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
-/**
- * @brief Registry for GRIB Section 3 (Grid Definition Section) initializers.
- */
+///
+/// @brief Registry for GRIB Section 3 (Grid Definition Section) initializers.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = {
     {0, &allocateTemplateNumber3<3, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -94,9 +94,9 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = 
     {101, &allocateTemplateNumber3<3, 101, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
-/**
- * @brief Registry for GRIB Section 4 (Product Definition Section) initializers.
- */
+///
+/// @brief Registry for GRIB Section 4 (Product Definition Section) initializers.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = {
     {0, &allocateTemplateNumber4<4, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -130,29 +130,29 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {142, &allocateTemplateNumber4<4, 142, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {143, &allocateTemplateNumber4<4, 143, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
-/**
- * @brief Registry for GRIB Section 5 (Data Representation Section) initializers.
- */
+///
+/// @brief Registry for GRIB Section 5 (Data Representation Section) initializers.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec5Reg[] = {
     {0, &allocateTemplateNumber5<5, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {42, &allocateTemplateNumber5<5, 42, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {51, &allocateTemplateNumber5<5, 51, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
-/**
- * @brief Lookup a section initializer function by template number.
- *
- * Performs a linear search over a compile-time registry table and
- * returns the corresponding initializer function pointer.
- *
- * @tparam EntryT Registry entry type
- * @tparam N      Registry size
- *
- * @param table Registry table
- * @param templ Template number
- *
- * @return Initializer function pointer, or `nullptr` if not found.
- */
+///
+/// @brief Lookup a section initializer function by template number.
+///
+/// Performs a linear search over a compile-time registry table and
+/// returns the corresponding initializer function pointer.
+///
+/// @tparam EntryT Registry entry type
+/// @tparam N      Registry size
+///
+/// @param table Registry table
+/// @param templ Template number
+///
+/// @return Initializer function pointer, or `nullptr` if not found.
+///
 template <class EntryT, std::size_t N>
 constexpr auto lookup(const EntryT (&table)[N], std::size_t templ) -> decltype(table[0].callback) {
     for (std::size_t i = 0; i < N; ++i) {
@@ -162,26 +162,26 @@ constexpr auto lookup(const EntryT (&table)[N], std::size_t templ) -> decltype(t
     return nullptr;
 }
 
-/**
- * @brief Resolve a section initializer function.
- *
- * Dispatches to the appropriate section registry based on the
- * GRIB section number and resolves the initializer corresponding
- * to the provided template number.
- *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the output GRIB dictionary
- *
- * @param section GRIB section number
- * @param templ   Template number
- *
- * @return Initializer function pointer, or `nullptr` if not found.
- *
- * @throws Mars2GribGenericException
- *         If an error occurs during dispatch.
- */
+///
+/// @brief Resolve a section initializer function.
+///
+/// Dispatches to the appropriate section registry based on the
+/// GRIB section number and resolves the initializer corresponding
+/// to the provided template number.
+///
+/// @tparam MarsDict_t Type of the MARS dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the output GRIB dictionary
+///
+/// @param section GRIB section number
+/// @param templ   Template number
+///
+/// @return Initializer function pointer, or `nullptr` if not found.
+///
+/// @throws Mars2GribGenericException
+/// If an error occurs during dispatch.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> sectionRegistry(std::size_t section, std::size_t templ) {
 

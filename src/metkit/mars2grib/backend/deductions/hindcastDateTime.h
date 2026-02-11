@@ -25,68 +25,68 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the hindcast reference date and time from the MARS dictionary.
- *
- * This deduction retrieves the hindcast reference date and time from the
- * MARS dictionary entries `hdate` and `htime` and combines them into an
- * `eckit::DateTime` object.
- *
- * The values are expected to follow the standard MARS integer encodings:
- * - `hdate`: calendar date encoded as `YYYYMMDD`
- * - `htime`: clock time encoded as `HHMMSS`
- *
- * These fields are typically used for hindcast or reforecast products,
- * where the reference time of the forecast differs from the nominal
- * analysis or forecast reference time.
- *
- * The resolved hindcast date and time are logged for diagnostic and
- * traceability purposes.
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the keys `hdate`
- *   and `htime`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary from which the hindcast date and time are retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The hindcast reference date and time resolved from the MARS dictionary,
- *   returned as an `eckit::DateTime` object.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - either `hdate` or `htime` is missing from the MARS dictionary,
- *   - the associated values cannot be converted to `long`,
- *   - the integer values do not represent a valid calendar date or time,
- *   - any unexpected error occurs during dictionary access or conversion.
- *
- * @note
- *   This deduction assumes standard MARS integer encodings for hindcast
- *   date (`YYYYMMDD`) and time (`HHMMSS`). Validation and normalization
- *   are expected to be handled by the underlying conversion utilities.
- *
- * @note
- *   A future enhancement may retrieve hindcast date and time as strings
- *   and rely on higher-level Metkit parsing utilities for improved
- *   normalization and validation.
- *
- * @note
- *   This function follows a fail-fast strategy and uses nested exception
- *   propagation to preserve full error provenance across API boundaries.
- */
+///
+/// @brief Resolve the hindcast reference date and time from the MARS dictionary.
+///
+/// This deduction retrieves the hindcast reference date and time from the
+/// MARS dictionary entries `hdate` and `htime` and combines them into an
+/// `eckit::DateTime` object.
+///
+/// The values are expected to follow the standard MARS integer encodings:
+/// - `hdate`: calendar date encoded as `YYYYMMDD`
+/// - `htime`: clock time encoded as `HHMMSS`
+///
+/// These fields are typically used for hindcast or reforecast products,
+/// where the reference time of the forecast differs from the nominal
+/// analysis or forecast reference time.
+///
+/// The resolved hindcast date and time are logged for diagnostic and
+/// traceability purposes.
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary, expected to contain the keys `hdate`
+/// and `htime`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (unused by this deduction).
+///
+/// @tparam OptDict_t
+/// Type of the options dictionary (unused by this deduction).
+///
+/// @param[in] mars
+/// MARS dictionary from which the hindcast date and time are retrieved.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @param[in] opt
+/// Options dictionary (unused).
+///
+/// @return
+/// The hindcast reference date and time resolved from the MARS dictionary,
+/// returned as an `eckit::DateTime` object.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If:
+/// - either `hdate` or `htime` is missing from the MARS dictionary,
+/// - the associated values cannot be converted to `long`,
+/// - the integer values do not represent a valid calendar date or time,
+/// - any unexpected error occurs during dictionary access or conversion.
+///
+/// @note
+/// This deduction assumes standard MARS integer encodings for hindcast
+/// date (`YYYYMMDD`) and time (`HHMMSS`). Validation and normalization
+/// are expected to be handled by the underlying conversion utilities.
+///
+/// @note
+/// A future enhancement may retrieve hindcast date and time as strings
+/// and rely on higher-level Metkit parsing utilities for improved
+/// normalization and validation.
+///
+/// @note
+/// This function follows a fail-fast strategy and uses nested exception
+/// propagation to preserve full error provenance across API boundaries.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 eckit::DateTime resolve_HindcastDateTime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

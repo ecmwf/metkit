@@ -20,59 +20,59 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the GRIB `lengthOfTimeWindow` expressed in seconds.
- *
- * This deduction determines the value of the GRIB `lengthOfTimeWindow`
- * (in seconds) based on the MARS key `lengthOfTimeWindow`.
- *
- * The deduction follows these rules:
- *
- * - If the key `lengthOfTimeWindow` is present in the MARS dictionary,
- *   its value is interpreted as **hours** and converted to seconds.
- * - If the key is absent, a **default value of 12 hours** is assumed
- *   and converted to seconds.
- *
- * @important
- * This deduction currently relies on **implicit assumptions** about
- * units and defaults that are not explicitly encoded in MARS metadata.
- * These assumptions are documented but not enforced via validation.
- *
- * @assumptions
- * - `mars::lengthOfTimeWindow` is expressed in **hours**
- * - Default value is **12 hours** when the key is missing
- *
- * @warning
- * - These assumptions may not be valid for all datasets.
- * - Relying on implicit defaults may lead to non-reproducible GRIB output
- *   if upstream conventions change.
- *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary; may contain `lengthOfTimeWindow`
- * @param[in] par  Parameter dictionary (unused)
- * @param[in] opt  Options dictionary (unused)
- *
- * @return Length of the time window expressed in **seconds**
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If:
- *         - access to the MARS dictionary fails
- *         - the retrieved value cannot be interpreted as a valid integer
- *         - any unexpected error occurs during deduction
- *
- * @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
- * - Make the unit of `lengthOfTimeWindow` explicit instead of assuming hours.
- * - Replace the hard-coded default (12 hours) with a table-driven or
- *   specification-based default.
- * - Add explicit validation of allowed ranges and units.
- *
- * @note
- * - This deduction does not rely on any pre-existing GRIB header state.
- * - Logging intentionally emits warnings to highlight implicit assumptions.
- */
+///
+/// @brief Resolve the GRIB `lengthOfTimeWindow` expressed in seconds.
+///
+/// This deduction determines the value of the GRIB `lengthOfTimeWindow`
+/// (in seconds) based on the MARS key `lengthOfTimeWindow`.
+///
+/// The deduction follows these rules:
+///
+/// - If the key `lengthOfTimeWindow` is present in the MARS dictionary,
+/// its value is interpreted as **hours** and converted to seconds.
+/// - If the key is absent, a **default value of 12 hours** is assumed
+/// and converted to seconds.
+///
+/// @important
+/// This deduction currently relies on **implicit assumptions** about
+/// units and defaults that are not explicitly encoded in MARS metadata.
+/// These assumptions are documented but not enforced via validation.
+///
+/// @assumptions
+/// - `mars::lengthOfTimeWindow` is expressed in **hours**
+/// - Default value is **12 hours** when the key is missing
+///
+/// @warning
+/// - These assumptions may not be valid for all datasets.
+/// - Relying on implicit defaults may lead to non-reproducible GRIB output
+/// if upstream conventions change.
+///
+/// @tparam MarsDict_t Type of the MARS dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary (unused)
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary; may contain `lengthOfTimeWindow`
+/// @param[in] par  Parameter dictionary (unused)
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return Length of the time window expressed in **seconds**
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If:
+/// - access to the MARS dictionary fails
+/// - the retrieved value cannot be interpreted as a valid integer
+/// - any unexpected error occurs during deduction
+///
+/// @todo [owner: mds,dgov][scope: deduction][reason: correctness][prio: medium]
+/// - Make the unit of `lengthOfTimeWindow` explicit instead of assuming hours.
+/// - Replace the hard-coded default (12 hours) with a table-driven or
+/// specification-based default.
+/// - Add explicit validation of allowed ranges and units.
+///
+/// @note
+/// - This deduction does not rely on any pre-existing GRIB header state.
+/// - Logging intentionally emits warnings to highlight implicit assumptions.
+///
 
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {

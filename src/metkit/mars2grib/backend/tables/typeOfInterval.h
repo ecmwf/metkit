@@ -16,26 +16,26 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief Type of interval.
- *
- * This enumeration represents GRIB code values defining how an interval
- * is interpreted with respect to its first and second limits.
- *
- * The numeric values map **directly** to ecCodes GRIB table 4.91
- * and must not be changed manually.
- *
- * @note
- * The value `255` corresponds to the GRIB *missing* value.
- *
- * @important
- * This enum is a **GRIB-table representation only**.
- * No policy, defaulting, or deduction logic belongs here.
- *
- * @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
- * - Generate this enum and all conversion helpers automatically from
- *   ecCodes definitions at build time.
- */
+///
+/// @brief Type of interval.
+///
+/// This enumeration represents GRIB code values defining how an interval
+/// is interpreted with respect to its first and second limits.
+///
+/// The numeric values map **directly** to ecCodes GRIB table 4.91
+/// and must not be changed manually.
+///
+/// @note
+/// The value `255` corresponds to the GRIB *missing* value.
+///
+/// @important
+/// This enum is a **GRIB-table representation only**.
+/// No policy, defaulting, or deduction logic belongs here.
+///
+/// @todo [owner: mival,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Generate this enum and all conversion helpers automatically from
+/// ecCodes definitions at build time.
+///
 enum class TypeOfInterval : long {
     SmallerThanFirstLimit                = 0,
     GreaterThanSecondLimit               = 1,
@@ -52,16 +52,16 @@ enum class TypeOfInterval : long {
     Missing                              = 255
 };
 
-/**
- * @brief Convert `TypeOfInterval` to its canonical name.
- *
- * @param[in] value Enumeration value
- *
- * @return Canonical string name
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enumeration value is invalid.
- */
+///
+/// @brief Convert `TypeOfInterval` to its canonical name.
+///
+/// @param[in] value Enumeration value
+///
+/// @return Canonical string name
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enumeration value is invalid.
+///
 inline std::string enum2name_TypeOfInterval_or_throw(TypeOfInterval value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -99,16 +99,16 @@ inline std::string enum2name_TypeOfInterval_or_throw(TypeOfInterval value) {
 }
 
 
-/**
- * @brief Convert a canonical name to `TypeOfInterval`.
- *
- * @param[in] name Canonical string name
- *
- * @return Corresponding enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the name is not recognized.
- */
+///
+/// @brief Convert a canonical name to `TypeOfInterval`.
+///
+/// @param[in] name Canonical string name
+///
+/// @return Corresponding enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the name is not recognized.
+///
 inline TypeOfInterval name2enum_TypeOfInterval_or_throw(const std::string& name) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -144,16 +144,16 @@ inline TypeOfInterval name2enum_TypeOfInterval_or_throw(const std::string& name)
 }
 
 
-/**
- * @brief Convert a numeric GRIB code to `TypeOfInterval`.
- *
- * @param[in] value Numeric GRIB code
- *
- * @return Corresponding enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the value is not defined in the GRIB table.
- */
+///
+/// @brief Convert a numeric GRIB code to `TypeOfInterval`.
+///
+/// @param[in] value Numeric GRIB code
+///
+/// @return Corresponding enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the value is not defined in the GRIB table.
+///
 inline TypeOfInterval long2enum_TypeOfInterval_or_throw(long value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

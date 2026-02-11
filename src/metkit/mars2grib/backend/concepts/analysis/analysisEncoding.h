@@ -8,39 +8,39 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file analysisOp.h
- * @brief Implementation of the GRIB `analysis` concept operation.
- *
- * This header defines the applicability rules and execution logic for the
- * **analysis concept** within the mars2grib backend.
- *
- * The concept is responsible for populating GRIB keys related to the
- * *Local Use Section* analysis metadata, based on information extracted
- * from MARS input dictionaries and validated against GRIB constraints.
- *
- * The implementation follows the standard mars2grib concept model:
- * - Compile-time applicability via `analysisApplicable`
- * - Runtime validation and deduction
- * - Strict error handling with contextual concept exceptions
- *
- * @note
- * The namespace name `concepts_` is intentionally used instead of `concepts`
- * to avoid ambiguity and potential conflicts with the C++20 `concept` language
- * feature and related standard headers.
- *
- * This is a deliberate design choice and must not be changed.
-
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file analysisOp.h
+/// @brief Implementation of the GRIB `analysis` concept operation.
+///
+/// This header defines the applicability rules and execution logic for the
+/// **analysis concept** within the mars2grib backend.
+///
+/// The concept is responsible for populating GRIB keys related to the
+/// *Local Use Section* analysis metadata, based on information extracted
+/// from MARS input dictionaries and validated against GRIB constraints.
+///
+/// The implementation follows the standard mars2grib concept model:
+/// - Compile-time applicability via `analysisApplicable`
+/// - Runtime validation and deduction
+/// - Strict error handling with contextual concept exceptions
+///
+/// @note
+/// The namespace name `concepts_` is intentionally used instead of `concepts`
+/// to avoid ambiguity and potential conflicts with the C++20 `concept` language
+/// feature and related standard headers.
+///
+/// This is a deliberate design choice and must not be changed.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System includes
 #include <string>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/analysis/analysisEnum.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/backend/concepts/analysis/analysisEnum.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/lengthOfTimeWindow.h"
@@ -58,34 +58,34 @@ namespace metkit::mars2grib::backend::concepts_ {
 
 using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 
-/**
- * @brief Compile-time applicability predicate for the `analysis` concept.
- *
- * This function determines whether the `analysis` concept is applicable
- * for a given combination of:
- * - encoding stage
- * - GRIB section
- * - concept variant
- *
- * The applicability is evaluated entirely at compile time and is used
- * by the concept dispatcher to ensure that only valid concept invocations
- * are instantiated.
- *
- * @tparam Stage   Encoding stage (compile-time constant)
- * @tparam Section GRIB section index (compile-time constant)
- * @tparam Variant Analysis concept variant
- *
- * @return `true` if the concept is applicable for the given parameters,
- *         `false` otherwise.
- *
- * @note
- * The default applicability rule enables the concept only when:
- * - `Variant == AnalysisType::Default`
- * - `Stage == StagePreset`
- * - `Section == SecLocalUseSection`
- *
- * Users may override or specialize this predicate to alter applicability.
- */
+///
+/// @brief Compile-time applicability predicate for the `analysis` concept.
+///
+/// This function determines whether the `analysis` concept is applicable
+/// for a given combination of:
+/// - encoding stage
+/// - GRIB section
+/// - concept variant
+///
+/// The applicability is evaluated entirely at compile time and is used
+/// by the concept dispatcher to ensure that only valid concept invocations
+/// are instantiated.
+///
+/// @tparam Stage   Encoding stage (compile-time constant)
+/// @tparam Section GRIB section index (compile-time constant)
+/// @tparam Variant Analysis concept variant
+///
+/// @return `true` if the concept is applicable for the given parameters,
+/// `false` otherwise.
+///
+/// @note
+/// The default applicability rule enables the concept only when:
+/// - `Variant == AnalysisType::Default`
+/// - `Stage == StagePreset`
+/// - `Section == SecLocalUseSection`
+///
+/// Users may override or specialize this predicate to alter applicability.
+///
 template <std::size_t Stage, std::size_t Section, AnalysisType Variant>
 constexpr bool analysisApplicable() {
 
@@ -95,45 +95,45 @@ constexpr bool analysisApplicable() {
 }
 
 
-/**
- * @brief Execute the `analysis` concept operation.
- *
- * This function implements the runtime logic of the GRIB `analysis` concept.
- * When applicable, it:
- *
- * 1. Verifies GRIB preconditions for the Local Use Section.
- * 2. Deduces required analysis-related values from MARS and parameter dictionaries.
- * 3. Encodes the corresponding GRIB keys in the output dictionary.
- *
- * If the concept is invoked when not applicable, a
- * `Mars2GribConceptException` is thrown.
- *
- * @tparam Stage    Encoding stage (compile-time constant)
- * @tparam Section  GRIB section index (compile-time constant)
- * @tparam Variant  Analysis concept variant
- * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the GRIB output dictionary
- *
- * @param[in]  mars MARS input dictionary
- * @param[in]  par  Parameter dictionary
- * @param[in]  opt  Options dictionary
- * @param[out] out  Output GRIB dictionary to be populated
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
- *         If:
- *         - the concept is called when not applicable
- *         - required GRIB preconditions are not satisfied
- *         - any deduction or encoding step fails
- *
- * @note
- * - All runtime errors are wrapped with full concept context
- *   (concept name, variant, stage, section).
- * - This function does not rely on any pre-existing GRIB header state.
- *
- * @see analysisApplicable
- */
+///
+/// @brief Execute the `analysis` concept operation.
+///
+/// This function implements the runtime logic of the GRIB `analysis` concept.
+/// When applicable, it:
+///
+/// 1. Verifies GRIB preconditions for the Local Use Section.
+/// 2. Deduces required analysis-related values from MARS and parameter dictionaries.
+/// 3. Encodes the corresponding GRIB keys in the output dictionary.
+///
+/// If the concept is invoked when not applicable, a
+/// `Mars2GribConceptException` is thrown.
+///
+/// @tparam Stage    Encoding stage (compile-time constant)
+/// @tparam Section  GRIB section index (compile-time constant)
+/// @tparam Variant  Analysis concept variant
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the GRIB output dictionary
+///
+/// @param[in]  mars MARS input dictionary
+/// @param[in]  par  Parameter dictionary
+/// @param[in]  opt  Options dictionary
+/// @param[out] out  Output GRIB dictionary to be populated
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
+/// If:
+/// - the concept is called when not applicable
+/// - required GRIB preconditions are not satisfied
+/// - any deduction or encoding step fails
+///
+/// @note
+/// - All runtime errors are wrapped with full concept context
+/// (concept name, variant, stage, section).
+/// - This function does not rely on any pre-existing GRIB header state.
+///
+/// @see analysisApplicable
+///
 template <std::size_t Stage, std::size_t Section, AnalysisType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {

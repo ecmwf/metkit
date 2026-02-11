@@ -20,44 +20,44 @@
 
 namespace metkit::mars2grib::backend::validation {
 
-/**
- * @brief Validate the DestinE Local Use Section against production status rules.
- *
- * This function verifies that, when a GRIB *Local Use Section* is present,
- * its content is compatible with the expected DestinE conventions.
- *
- * The validation is performed **only if** the option `applyChecks` is present
- * in the options dictionary (`opt`) and evaluates to `true`.
- *
- * When enabled, the function:
- * - checks that the Local Use Section is present (`LocalUsePresent != 0`);
- * - reads the key `productionStatusOfProcessedData` from the output dictionary;
- * - throws an exception if the production status is different from the only
- *   allowed DestinE value (`12`);
- *
- * If the Local Use Section is expected but not present, an exception is raised.
- *
- * Any failure occurring during dictionary access or validation is caught and
- * rethrown as a nested `Mars2GribValidationException` with additional context.
- *
- * @tparam OptDict_t Type of the options dictionary
- * @tparam OutDict_t Type of the output dictionary
- *
- * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
- * @param[in] out Output dictionary expected to contain the keys
- *                `LocalUsePresent` and `productionStatusOfProcessedData`
- *                when checks are enabled
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
- *         If:
- *         - checks are enabled and the Local Use Section is not present
- *         - the production status is not compatible with DestinE rules
- *         - any error occurs while accessing the dictionaries
- *
- * @note
- * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
- * - The function returns normally on success and does not produce any output.
- */
+///
+/// @brief Validate the DestinE Local Use Section against production status rules.
+///
+/// This function verifies that, when a GRIB *Local Use Section* is present,
+/// its content is compatible with the expected DestinE conventions.
+///
+/// The validation is performed **only if** the option `applyChecks` is present
+/// in the options dictionary (`opt`) and evaluates to `true`.
+///
+/// When enabled, the function:
+/// - checks that the Local Use Section is present (`LocalUsePresent != 0`);
+/// - reads the key `productionStatusOfProcessedData` from the output dictionary;
+/// - throws an exception if the production status is different from the only
+/// allowed DestinE value (`12`);
+///
+/// If the Local Use Section is expected but not present, an exception is raised.
+///
+/// Any failure occurring during dictionary access or validation is caught and
+/// rethrown as a nested `Mars2GribValidationException` with additional context.
+///
+/// @tparam OptDict_t Type of the options dictionary
+/// @tparam OutDict_t Type of the output dictionary
+///
+/// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+/// @param[in] out Output dictionary expected to contain the keys
+/// `LocalUsePresent` and `productionStatusOfProcessedData`
+/// when checks are enabled
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+/// If:
+/// - checks are enabled and the Local Use Section is not present
+/// - the production status is not compatible with DestinE rules
+/// - any error occurs while accessing the dictionaries
+///
+/// @note
+/// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+/// - The function returns normally on success and does not produce any output.
+///
 template <class OptDict_t, class OutDict_t>
 void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 

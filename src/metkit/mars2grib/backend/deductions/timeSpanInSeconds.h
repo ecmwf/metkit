@@ -20,60 +20,60 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the time span from the MARS dictionary and convert it to seconds.
- *
- * This deduction retrieves the value associated with the key `timespan`
- * from the MARS dictionary (`mars`). The value is expected to be
- * convertible to a `long` and is treated as mandatory.
- *
- * The retrieved value is interpreted according to standard MARS
- * conventions as a time span expressed in **hours**. It is converted
- * to seconds by applying a fixed scaling factor:
- *
- * \f[
- *   \text{timeSpanInSeconds} = \text{timespan} \times 3600
- * \f]
- *
- * The resolved time span (in seconds) is logged for diagnostic and
- * traceability purposes.
- *
- * @tparam MarsDict_t
- *   Type of the MARS dictionary, expected to contain the key `timespan`.
- *
- * @tparam ParDict_t
- *   Type of the parameter dictionary (unused by this deduction).
- *
- * @tparam OptDict_t
- *   Type of the options dictionary (unused by this deduction).
- *
- * @param[in] mars
- *   MARS dictionary from which the time span is retrieved.
- *
- * @param[in] par
- *   Parameter dictionary (unused).
- *
- * @param[in] opt
- *   Options dictionary (unused).
- *
- * @return
- *   The time span expressed in seconds, returned as a `long`.
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *   If:
- *   - the key `timespan` is not present in the MARS dictionary,
- *   - the associated value cannot be converted to `long`,
- *   - any unexpected error occurs during dictionary access or conversion.
- *
- * @note
- *   This deduction assumes that the MARS `timespan` value is expressed
- *   in hours. No alternative units (e.g. minutes or seconds) are
- *   currently supported.
- *
- * @note
- *   The function follows a fail-fast strategy and uses nested exception
- *   propagation to preserve full error provenance across API boundaries.
- */
+///
+/// @brief Resolve the time span from the MARS dictionary and convert it to seconds.
+///
+/// This deduction retrieves the value associated with the key `timespan`
+/// from the MARS dictionary (`mars`). The value is expected to be
+/// convertible to a `long` and is treated as mandatory.
+///
+/// The retrieved value is interpreted according to standard MARS
+/// conventions as a time span expressed in **hours**. It is converted
+/// to seconds by applying a fixed scaling factor:
+///
+/// \f[
+/// \text{timeSpanInSeconds} = \text{timespan} \times 3600
+/// \f]
+///
+/// The resolved time span (in seconds) is logged for diagnostic and
+/// traceability purposes.
+///
+/// @tparam MarsDict_t
+/// Type of the MARS dictionary, expected to contain the key `timespan`.
+///
+/// @tparam ParDict_t
+/// Type of the parameter dictionary (unused by this deduction).
+///
+/// @tparam OptDict_t
+/// Type of the options dictionary (unused by this deduction).
+///
+/// @param[in] mars
+/// MARS dictionary from which the time span is retrieved.
+///
+/// @param[in] par
+/// Parameter dictionary (unused).
+///
+/// @param[in] opt
+/// Options dictionary (unused).
+///
+/// @return
+/// The time span expressed in seconds, returned as a `long`.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If:
+/// - the key `timespan` is not present in the MARS dictionary,
+/// - the associated value cannot be converted to `long`,
+/// - any unexpected error occurs during dictionary access or conversion.
+///
+/// @note
+/// This deduction assumes that the MARS `timespan` value is expressed
+/// in hours. No alternative units (e.g. minutes or seconds) are
+/// currently supported.
+///
+/// @note
+/// The function follows a fail-fast strategy and uses nested exception
+/// propagation to preserve full error provenance across API boundaries.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_TimeSpanInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

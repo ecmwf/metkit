@@ -8,44 +8,44 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file type.h
- * @brief Deduction of the MARS `type` identifier.
- *
- * This header defines the deduction responsible for resolving the
- * MARS `type` key used to classify the nature of a field
- * (e.g. analysis, forecast, ensemble member).
- *
- * The value is retrieved directly from the MARS dictionary and is
- * treated as mandatory.
- *
- * Deductions:
- * - extract values from input dictionaries
- * - apply deterministic resolution logic
- * - emit structured diagnostic logging
- *
- * Deductions do NOT:
- * - infer missing values
- * - apply defaults or fallbacks
- * - validate semantic correctness of the returned value
- *
- * Error handling follows a strict fail-fast strategy with nested
- * exception propagation to preserve full diagnostic context.
- *
- * Logging policy:
- * - RESOLVE: value obtained directly from input dictionaries
- *
- * @section References
- * Concept:
- *   - @ref marsEncoding.h
- *
- * Related deductions:
- *   - @ref class.h
- *   - @ref stream.h
- *   - @ref expver.h
- *
- * @ingroup mars2grib_backend_deductions
- */
+///
+/// @file type.h
+/// @brief Deduction of the MARS `type` identifier.
+///
+/// This header defines the deduction responsible for resolving the
+/// MARS `type` key used to classify the nature of a field
+/// (e.g. analysis, forecast, ensemble member).
+///
+/// The value is retrieved directly from the MARS dictionary and is
+/// treated as mandatory.
+///
+/// Deductions:
+/// - extract values from input dictionaries
+/// - apply deterministic resolution logic
+/// - emit structured diagnostic logging
+///
+/// Deductions do NOT:
+/// - infer missing values
+/// - apply defaults or fallbacks
+/// - validate semantic correctness of the returned value
+///
+/// Error handling follows a strict fail-fast strategy with nested
+/// exception propagation to preserve full diagnostic context.
+///
+/// Logging policy:
+/// - RESOLVE: value obtained directly from input dictionaries
+///
+/// @section References
+/// Concept:
+/// - @ref marsEncoding.h
+///
+/// Related deductions:
+/// - @ref class.h
+/// - @ref stream.h
+/// - @ref expver.h
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -58,33 +58,33 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-/**
- * @brief Resolve the MARS `type` identifier.
- *
- * This deduction resolves the MARS `type` key from the MARS dictionary.
- *
- * Resolution rules:
- * - `mars::type` MUST be present
- * - the value is retrieved verbatim as a string
- * - no inference, defaulting, or validation is applied
- *
- * @tparam MarsDict_t Type of the MARS dictionary
- * @tparam ParDict_t  Type of the parameter dictionary (unused)
- * @tparam OptDict_t  Type of the options dictionary (unused)
- *
- * @param[in] mars MARS dictionary; must contain `type`
- * @param[in] par  Parameter dictionary (unused)
- * @param[in] opt  Options dictionary (unused)
- *
- * @return The resolved MARS `type` identifier
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
- *         If the value cannot be resolved
- *
- * @note
- * The returned value is not interpreted by this deduction and is
- * assumed to follow MARS conventions.
- */
+///
+/// @brief Resolve the MARS `type` identifier.
+///
+/// This deduction resolves the MARS `type` key from the MARS dictionary.
+///
+/// Resolution rules:
+/// - `mars::type` MUST be present
+/// - the value is retrieved verbatim as a string
+/// - no inference, defaulting, or validation is applied
+///
+/// @tparam MarsDict_t Type of the MARS dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary (unused)
+/// @tparam OptDict_t  Type of the options dictionary (unused)
+///
+/// @param[in] mars MARS dictionary; must contain `type`
+/// @param[in] par  Parameter dictionary (unused)
+/// @param[in] opt  Options dictionary (unused)
+///
+/// @return The resolved MARS `type` identifier
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If the value cannot be resolved
+///
+/// @note
+/// The returned value is not interpreted by this deduction and is
+/// assumed to follow MARS conventions.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Type_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

@@ -16,30 +16,30 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB Production Status of Processed Data.
- *
- * This enumeration represents GRIB Code Table values describing the
- * *production status* of the processed data, as encoded in the
- * Product Definition Section.
- *
- * The values distinguish between operational, test, research,
- * reanalysis, and programme-specific data streams (e.g. TIGGE, S2S,
- * Copernicus, Destination Earth).
- *
- * The numeric values map **directly** to GRIB code table entries and
- * must not be modified manually.
- *
- * @section Source of truth
- * The authoritative definition of these values is maintained in
- * the GRIB code tables distributed with ecCodes.
- *
- * @todo [owner: mival][scope: tables][reason: correctness][prio: high]
- * - Generate this enumeration and all associated mappings
- *   automatically from ecCodes GRIB code tables at build time.
- * - This avoids silent divergence between the encoder and the
- *   ecCodes version used at runtime.
- */
+///
+/// @brief GRIB Production Status of Processed Data.
+///
+/// This enumeration represents GRIB Code Table values describing the
+/// *production status* of the processed data, as encoded in the
+/// Product Definition Section.
+///
+/// The values distinguish between operational, test, research,
+/// reanalysis, and programme-specific data streams (e.g. TIGGE, S2S,
+/// Copernicus, Destination Earth).
+///
+/// The numeric values map **directly** to GRIB code table entries and
+/// must not be modified manually.
+///
+/// @section Source of truth
+/// The authoritative definition of these values is maintained in
+/// the GRIB code tables distributed with ecCodes.
+///
+/// @todo [owner: mival][scope: tables][reason: correctness][prio: high]
+/// - Generate this enumeration and all associated mappings
+/// automatically from ecCodes GRIB code tables at build time.
+/// - This avoids silent divergence between the encoder and the
+/// ecCodes version used at runtime.
+///
 enum class ProductionStatusOfProcessedData : long {
     OperationalProducts              = 0,
     OperationalTestProducts          = 1,
@@ -58,16 +58,16 @@ enum class ProductionStatusOfProcessedData : long {
     Missing                          = 255
 };
 
-/**
- * @brief Convert `ProductionStatusOfProcessedData` to its symbolic name.
- *
- * @param[in] value Enumeration value
- *
- * @return Canonical symbolic name corresponding to the enum value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enumeration value is not recognised
- */
+///
+/// @brief Convert `ProductionStatusOfProcessedData` to its symbolic name.
+///
+/// @param[in] value Enumeration value
+///
+/// @return Canonical symbolic name corresponding to the enum value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enumeration value is not recognised
+///
 inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(ProductionStatusOfProcessedData value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -110,16 +110,16 @@ inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(Production
     __builtin_unreachable();
 }
 
-/**
- * @brief Convert a symbolic name to `ProductionStatusOfProcessedData`.
- *
- * @param[in] name Canonical symbolic name
- *
- * @return Corresponding `ProductionStatusOfProcessedData` enum value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the name is not recognised
- */
+///
+/// @brief Convert a symbolic name to `ProductionStatusOfProcessedData`.
+///
+/// @param[in] name Canonical symbolic name
+///
+/// @return Corresponding `ProductionStatusOfProcessedData` enum value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the name is not recognised
+///
 inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData_or_throw(const std::string& name) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -160,16 +160,16 @@ inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData
     __builtin_unreachable();
 }
 
-/**
- * @brief Convert a numeric GRIB code to `ProductionStatusOfProcessedData`.
- *
- * @param[in] value Numeric GRIB code table value
- *
- * @return Corresponding `ProductionStatusOfProcessedData` enum value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the numeric value is not valid
- */
+///
+/// @brief Convert a numeric GRIB code to `ProductionStatusOfProcessedData`.
+///
+/// @param[in] value Numeric GRIB code table value
+///
+/// @return Corresponding `ProductionStatusOfProcessedData` enum value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the numeric value is not valid
+///
 inline ProductionStatusOfProcessedData long2enum_ProductionStatusOfProcessedData_or_throw(long value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

@@ -20,43 +20,43 @@
 
 namespace metkit::mars2grib::backend::validation {
 
-/**
- * @brief Verify that the Product Definition Section corresponds to a statistics product.
- *
- * This function checks whether the GRIB Product Definition Section (PDS)
- * represents a *statistics product*.
- *
- * The validation is performed **only if** the option `applyChecks` is present
- * in the options dictionary (`opt`) and evaluates to `true`.
- * If the option is not present, no validation is performed.
- *
- * When enabled, the function verifies that the key `numberOfTimeRanges`
- * is present in the output dictionary (`out`).
- *
- * The absence of this field indicates that the Product Definition Section
- * does not describe a statistics product and results in an exception.
- *
- * Any failure occurring during dictionary access or validation is caught and
- * rethrown as a nested `Mars2GribValidationException` with additional context.
- *
- * @tparam OptDict_t Type of the options dictionary
- * @tparam OutDict_t Type of the output dictionary
- *
- * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
- * @param[in] out Output dictionary expected to contain the key `numberOfTimeRanges`
- *                when checks are enabled
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
- *         If:
- *         - checks are enabled and `numberOfTimeRanges` is missing
- *         - any error occurs while accessing the dictionaries
- *
- * @todo Extend the checks to other relevant keys, e.g. `typeOfStatisticsProcessing`
- *
- * @note
- * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
- * - The function returns normally on success and does not produce any output.
- */
+///
+/// @brief Verify that the Product Definition Section corresponds to a statistics product.
+///
+/// This function checks whether the GRIB Product Definition Section (PDS)
+/// represents a *statistics product*.
+///
+/// The validation is performed **only if** the option `applyChecks` is present
+/// in the options dictionary (`opt`) and evaluates to `true`.
+/// If the option is not present, no validation is performed.
+///
+/// When enabled, the function verifies that the key `numberOfTimeRanges`
+/// is present in the output dictionary (`out`).
+///
+/// The absence of this field indicates that the Product Definition Section
+/// does not describe a statistics product and results in an exception.
+///
+/// Any failure occurring during dictionary access or validation is caught and
+/// rethrown as a nested `Mars2GribValidationException` with additional context.
+///
+/// @tparam OptDict_t Type of the options dictionary
+/// @tparam OutDict_t Type of the output dictionary
+///
+/// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+/// @param[in] out Output dictionary expected to contain the key `numberOfTimeRanges`
+/// when checks are enabled
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+/// If:
+/// - checks are enabled and `numberOfTimeRanges` is missing
+/// - any error occurs while accessing the dictionaries
+///
+/// @todo Extend the checks to other relevant keys, e.g. `typeOfStatisticsProcessing`
+///
+/// @note
+/// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+/// - The function returns normally on success and does not produce any output.
+///
 template <class OptDict_t, class OutDict_t>
 void check_StatisticsProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 

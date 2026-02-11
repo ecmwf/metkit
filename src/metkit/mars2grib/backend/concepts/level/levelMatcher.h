@@ -11,8 +11,8 @@
  */
 #pragma once
 
-#include <string>
 #include <iostream>
+#include <string>
 
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
 #include "metkit/mars2grib/utils/mars2grib-exception.h"
@@ -288,7 +288,7 @@ std::size_t match_al(const MarsDict_t& mars) {
 #endif
 
 template <class MarsDict_t, class OptDict_t>
-std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt ) {
+std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
 #if 0
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -319,7 +319,6 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt ) {
     std::cout << " - level matcher" << std::endl;
 
     return 0;
-
 };
 
-}  // namespace metkit::mars2grib::frontend::matchers
+}  // namespace metkit::mars2grib::backend::concepts_

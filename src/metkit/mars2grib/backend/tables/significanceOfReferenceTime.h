@@ -17,39 +17,39 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB significance of reference time.
- *
- * This enumeration represents the GRIB code table values associated with
- * the `significanceOfReferenceTime` key in the Product Definition Section.
- *
- * The significance describes the semantic meaning of the reference time
- * used in the GRIB message (e.g. analysis time, forecast start time,
- * observation time).
- *
- * The numeric values map **directly** to the GRIB Code Table
- * “Significance of reference time”.
- *
- * @important
- * This enum is a **pure GRIB-level representation**.
- * It does not encode policy decisions or deduction logic.
- * All semantic resolution must be implemented in dedicated deduction
- * functions.
- *
- * @section Source of truth
- * GRIB2 Code Table 1.2:
- *   Significance of reference time
- *
- * @todo [owner: mival,mds,dgov][scope: tables][reason: correctness][prio: critical]
- * - Generate this enumeration automatically from ecCodes definitions
- *   at build or configure time (e.g. via a Python code-generation step).
- * - Avoid manual duplication of GRIB tables to prevent semantic drift
- *   between mars2grib and ecCodes.
- *
- * @note
- * There is currently no known ecCodes API to set or retrieve these values
- * via symbolic names; numeric values must therefore be used.
- */
+///
+/// @brief GRIB significance of reference time.
+///
+/// This enumeration represents the GRIB code table values associated with
+/// the `significanceOfReferenceTime` key in the Product Definition Section.
+///
+/// The significance describes the semantic meaning of the reference time
+/// used in the GRIB message (e.g. analysis time, forecast start time,
+/// observation time).
+///
+/// The numeric values map **directly** to the GRIB Code Table
+/// “Significance of reference time”.
+///
+/// @important
+/// This enum is a **pure GRIB-level representation**.
+/// It does not encode policy decisions or deduction logic.
+/// All semantic resolution must be implemented in dedicated deduction
+/// functions.
+///
+/// @section Source of truth
+/// GRIB2 Code Table 1.2:
+/// Significance of reference time
+///
+/// @todo [owner: mival,mds,dgov][scope: tables][reason: correctness][prio: critical]
+/// - Generate this enumeration automatically from ecCodes definitions
+/// at build or configure time (e.g. via a Python code-generation step).
+/// - Avoid manual duplication of GRIB tables to prevent semantic drift
+/// between mars2grib and ecCodes.
+///
+/// @note
+/// There is currently no known ecCodes API to set or retrieve these values
+/// via symbolic names; numeric values must therefore be used.
+///
 enum class SignificanceOfReferenceTime : long {
     Analysis             = 0,
     ForecastStart        = 1,
@@ -61,38 +61,38 @@ enum class SignificanceOfReferenceTime : long {
     Missing              = 255
 };
 
-/**
- * @brief Map a canonical string identifier to `SignificanceOfReferenceTime`.
- *
- * This function converts a canonical string representation into the
- * corresponding GRIB `SignificanceOfReferenceTime` enumeration value.
- *
- * The mapping is explicit and strict.
- *
- * Supported identifiers:
- * - `"analysis"`
- * - `"forecastStart"`
- * - `"forecastVerification"`
- * - `"observationTime"`
- * - `"localTime"`
- * - `"simulationStart"`
- * - `"missing"`
- *
- * @param[in] value Canonical string identifier
- *
- * @return Corresponding `SignificanceOfReferenceTime` enumeration value
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the provided string is not supported.
- *
- * @note
- * - This is a **pure table mapping**.
- * - No normalization, fallback, or defaulting is performed.
- *
- * @todo [owner: mival,mds,dgov][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes GRIB code tables.
- */
+///
+/// @brief Map a canonical string identifier to `SignificanceOfReferenceTime`.
+///
+/// This function converts a canonical string representation into the
+/// corresponding GRIB `SignificanceOfReferenceTime` enumeration value.
+///
+/// The mapping is explicit and strict.
+///
+/// Supported identifiers:
+/// - `"analysis"`
+/// - `"forecastStart"`
+/// - `"forecastVerification"`
+/// - `"observationTime"`
+/// - `"localTime"`
+/// - `"simulationStart"`
+/// - `"missing"`
+///
+/// @param[in] value Canonical string identifier
+///
+/// @return Corresponding `SignificanceOfReferenceTime` enumeration value
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the provided string is not supported.
+///
+/// @note
+/// - This is a **pure table mapping**.
+/// - No normalization, fallback, or defaulting is performed.
+///
+/// @todo [owner: mival,mds,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes GRIB code tables.
+///
 inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_throw(const std::string& value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -122,27 +122,27 @@ inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_thro
     __builtin_unreachable();
 }
 
-/**
- * @brief Convert `SignificanceOfReferenceTime` to its canonical string identifier.
- *
- * This function converts a GRIB-level `SignificanceOfReferenceTime`
- * enumeration value into its canonical string representation.
- *
- * @param[in] value GRIB `SignificanceOfReferenceTime` enumeration value
- *
- * @return Canonical string identifier
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
- *         If the enumeration value is not supported.
- *
- * @note
- * - This function is the strict inverse of
- *   `mapto_SignificanceOfReferenceTime_or_throw(const std::string&)`.
- *
- * @todo [owner: mival,mds,dgov][scope: tables][reason: correctness][prio: medium]
- * - Replace this hard-coded mapping with code generated directly from
- *   ecCodes GRIB code tables.
- */
+///
+/// @brief Convert `SignificanceOfReferenceTime` to its canonical string identifier.
+///
+/// This function converts a GRIB-level `SignificanceOfReferenceTime`
+/// enumeration value into its canonical string representation.
+///
+/// @param[in] value GRIB `SignificanceOfReferenceTime` enumeration value
+///
+/// @return Canonical string identifier
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
+/// If the enumeration value is not supported.
+///
+/// @note
+/// - This function is the strict inverse of
+/// `mapto_SignificanceOfReferenceTime_or_throw(const std::string&)`.
+///
+/// @todo [owner: mival,mds,dgov][scope: tables][reason: correctness][prio: medium]
+/// - Replace this hard-coded mapping with code generated directly from
+/// ecCodes GRIB code tables.
+///
 inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOfReferenceTime value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;

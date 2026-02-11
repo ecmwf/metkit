@@ -17,23 +17,23 @@
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB Table 4.10 – Type of statistical processing.
- *
- * This enumeration represents the GRIB code values used to describe
- * the statistical processing applied over a time range.
- *
- * @section Source of truth
- * GRIB2 Code Table 4.10 (ecCodes)
- *
- * @note
- * - Numeric values map **directly** to GRIB code table entries.
- * - Value `255` corresponds to GRIB *missing*.
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: critical]
- * - Generate this enum and its mappings automatically from ecCodes
- *   definitions at build time to avoid divergence.
- */
+///
+/// @brief GRIB Table 4.10 – Type of statistical processing.
+///
+/// This enumeration represents the GRIB code values used to describe
+/// the statistical processing applied over a time range.
+///
+/// @section Source of truth
+/// GRIB2 Code Table 4.10 (ecCodes)
+///
+/// @note
+/// - Numeric values map **directly** to GRIB code table entries.
+/// - Value `255` corresponds to GRIB *missing*.
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: critical]
+/// - Generate this enum and its mappings automatically from ecCodes
+/// definitions at build time to avoid divergence.
+///
 enum class TypeOfStatisticalProcessing : long {
     Average                 = 0,
     Accumulation            = 1,
@@ -57,41 +57,41 @@ enum class TypeOfStatisticalProcessing : long {
     Missing = 255
 };
 
-/**
- * @brief Convert a symbolic name to a GRIB TypeOfStatisticalProcessing.
- *
- * Supported names:
- *
- * - "average"
- * - "accumulation"
- * - "maximum"
- * - "minimum"
- * - "difference_end_minus_start"
- * - "root_mean_square"
- * - "standard_deviation"
- * - "covariance"
- * - "difference_start_minus_end"
- * - "ratio"
- * - "standardized_anomaly"
- * - "summation"
- * - "return_period"
- * - "median"
- * - "severity"
- * - "mode"
- * - "index_processing"
- * - "missing"
- *
- * @param[in] name Canonical symbolic name
- *
- * @return Corresponding `TypeOfStatisticalProcessing`
- *
- * @throws Mars2GribTableException
- *         If the name is not supported
- *
- * @note
- * - Case-sensitive
- * - No aliasing or normalization
- */
+///
+/// @brief Convert a symbolic name to a GRIB TypeOfStatisticalProcessing.
+///
+/// Supported names:
+///
+/// - "average"
+/// - "accumulation"
+/// - "maximum"
+/// - "minimum"
+/// - "difference_end_minus_start"
+/// - "root_mean_square"
+/// - "standard_deviation"
+/// - "covariance"
+/// - "difference_start_minus_end"
+/// - "ratio"
+/// - "standardized_anomaly"
+/// - "summation"
+/// - "return_period"
+/// - "median"
+/// - "severity"
+/// - "mode"
+/// - "index_processing"
+/// - "missing"
+///
+/// @param[in] name Canonical symbolic name
+///
+/// @return Corresponding `TypeOfStatisticalProcessing`
+///
+/// @throws Mars2GribTableException
+/// If the name is not supported
+///
+/// @note
+/// - Case-sensitive
+/// - No aliasing or normalization
+///
 inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_throw(const std::string& name) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -145,19 +145,19 @@ inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_thro
     __builtin_unreachable();
 }
 
-/**
- * @brief Convert a GRIB TypeOfStatisticalProcessing to its symbolic name.
- *
- * @param[in] value GRIB statistical processing code
- *
- * @return Canonical symbolic name
- *
- * @throws Mars2GribTableException
- *         If the enum value is not supported
- *
- * @note
- * - Returned strings are stable and suitable for round-tripping
- */
+///
+/// @brief Convert a GRIB TypeOfStatisticalProcessing to its symbolic name.
+///
+/// @param[in] value GRIB statistical processing code
+///
+/// @return Canonical symbolic name
+///
+/// @throws Mars2GribTableException
+/// If the enum value is not supported
+///
+/// @note
+/// - Returned strings are stable and suitable for round-tripping
+///
 inline std::string enum2name_TypeOfStatisticalProcessing_or_throw(TypeOfStatisticalProcessing value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
