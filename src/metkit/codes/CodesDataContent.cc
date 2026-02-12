@@ -16,8 +16,6 @@
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/MemoryHandle.h"
 
-#include "metkit/codes/GribHandle.h"
-
 namespace metkit {
 namespace codes {
 

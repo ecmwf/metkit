@@ -16,7 +16,6 @@
 #include "eckit/io/DataHandle.h"
 #include "eckit/io/StdFile.h"
 
-#include "metkit/codes/GribAccessor.h"
 
 using namespace std;
 
@@ -103,7 +102,12 @@ GribHandle::~GribHandle() noexcept(false) {
 
 std::string GribHandle::geographyHash() const {
     // The following key is edition independent
-    return GribAccessor<std::string>("md5GridSection")(*this);
+    std::string ret;
+    std::size_t keylen = 1024;
+    ret.resize(keylen);
+    CODES_CALL(codes_get_string(raw(), "md5GridSection", ret.data(), &keylen));
+    ret.resize(strlen(ret.c_str()));
+    return ret;
 }
 
 size_t GribHandle::getDataValuesSize() const {

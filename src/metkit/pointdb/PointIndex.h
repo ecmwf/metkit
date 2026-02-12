@@ -11,21 +11,13 @@
 #ifndef PointIndex_H
 #define PointIndex_H
 
-// #include <cmath>
 #include <memory>
-
-// #include "eckit/eckit.h"
-// #include "eckit/filesystem/PathName.h"
-
 
 #include "eckit/container/KDTree.h"
 #include "eckit/geometry/Point3.h"
+#include "metkit/codes/api/CodesAPI.h"
 
 namespace metkit {
-namespace grib {
-class GribHandle;
-}
-
 namespace pointdb {
 
 
@@ -99,7 +91,7 @@ public:
     NodeInfo nearestNeighbour(double lat, double lon);
 
     static PointIndex& lookUp(const std::string& md5);
-    static std::string cache(const metkit::grib::GribHandle& h);
+    static std::string cache(const metkit::codes::CodesHandle& h);
 
     static eckit::PathName cachePath(const std::string& dir, const std::string& name);
 
