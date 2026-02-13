@@ -181,15 +181,15 @@ inline void debug_print_ActiveConceptsData(const ActiveConceptsData& data, std::
         const std::size_t conceptId = data.activeConceptsIndices[i];
         const std::size_t variantId = data.activeVariantIndices[conceptId];
 
-        os << prefix << " ::   concept[" << i << "] : " << GeneralRegistry::conceptNameArr[variantId];
-
         if (variantId == GeneralRegistry::missing) {
-            os << " -> Missing\n";
+            os << prefix << " ::   concept[" << i << "] : Missing\n";
         }
         else {
-            os << " -> " << GeneralRegistry::variantNameArr[variantId] << "\n";
+            os << prefix << " ::   concept[" << i << "] : " << GeneralRegistry::conceptNameArr[variantId] << " -> " << GeneralRegistry::variantNameArr[variantId] << "\n";
         }
     }
+
+    os << std::flush;
 }
 
 ///

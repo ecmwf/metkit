@@ -2,22 +2,16 @@
 
 // System include
 #include <cstddef>
-#include <iostream>
 
 // Utils
-#include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/backend/concepts/param/paramEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
-#include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t paramMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
-
-    std::cout << " - param matcher" << std::endl;
-
-    return 9999999;
+    return static_cast<std::size_t>(ParamType::ParamId);
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_
