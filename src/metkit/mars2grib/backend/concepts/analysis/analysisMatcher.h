@@ -2,29 +2,23 @@
 
 // System include
 #include <cstddef>
-#include <iostream>
 
 // Utils
-#include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/analysis/analysisEnum.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
-#include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t analysisMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::has;
 
-    using metkit::mars2grib::backend::compile_time_registry_engine::NOT_APPLICABLE;
+    if (has(mars, "anoffset")) {
+        return static_cast<std::size_t>(AnalysisType::Default);
+    }
 
-    std::cout << " - analysis matcher" << std::endl;
-    // This doesn't compile because the compiler cannot find GeneralRegistry
-    // If we include the header, we will have a circular dependency error
-    // return GeneralRegistry::globalIndex(AnalysisType::Default);
-
-    return NOT_APPLICABLE;
+    return compile_time_registry_engine::MISSING;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_
