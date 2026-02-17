@@ -132,7 +132,7 @@ void OriginOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
             long subCentre     = deductions::resolve_SubCentre_or_throw(mars, par, opt);
 
             // Encoding
-            set_or_throw<std::string>(out, "origin", centre);
+            set_or_throw<std::string>(out, "centre", centre);
             set_or_throw<long>(out, "subCentre", subCentre);
         }
         catch (...) {
