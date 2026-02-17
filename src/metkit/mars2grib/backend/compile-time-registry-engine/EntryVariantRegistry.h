@@ -487,9 +487,9 @@ struct EntryVariantRegistry {
     /// - sentinel values for error handling
     /// - fixed structural dimensions of the encoding pipeline
     ///
-    static constexpr std::size_t missing        = MISSING;
-    static constexpr std::size_t NSections      = NUM_SECTIONS;
-    static constexpr std::size_t NStages        = NUM_STAGES;
+    static constexpr std::size_t missing   = MISSING;
+    static constexpr std::size_t NSections = NUM_SECTIONS;
+    static constexpr std::size_t NStages   = NUM_STAGES;
 
     static constexpr std::size_t NConcepts = Concepts::size;
     static constexpr std::size_t NVariants = detail::TotalVariantCount<Concepts>::value;

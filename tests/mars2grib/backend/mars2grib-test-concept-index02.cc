@@ -24,13 +24,12 @@ int main() {
 
     for (long i = 0; i < GeneralRegistry::NConcepts; i++) {
 
-        std::cout << "Concept ID " << i << " - with range: [" << GeneralRegistry::conceptOffsets[i] << " to " << GeneralRegistry::conceptOffsets[i + 1] << "] -> has variants:" << std::endl;
-        for (long j = GeneralRegistry::conceptOffsets[i];
-             j < GeneralRegistry::conceptOffsets[i + 1]; j++) {
+        std::cout << "Concept ID " << i << " - with range: [" << GeneralRegistry::conceptOffsets[i] << " to "
+                  << GeneralRegistry::conceptOffsets[i + 1] << "] -> has variants:" << std::endl;
+        for (long j = GeneralRegistry::conceptOffsets[i]; j < GeneralRegistry::conceptOffsets[i + 1]; j++) {
 
-            std::cout << "Concept(" << i << ", "
-                      << GeneralRegistry::variantIdArr[j] << ") -> " << GeneralRegistry::conceptNameArr[j]
-                      << "::" << GeneralRegistry::variantNameArr[j] << std::endl;
+            std::cout << "Concept(" << i << ", " << GeneralRegistry::variantIdArr[j] << ") -> "
+                      << GeneralRegistry::conceptNameArr[j] << "::" << GeneralRegistry::variantNameArr[j] << std::endl;
         }
         std::cout << std::endl;
     }

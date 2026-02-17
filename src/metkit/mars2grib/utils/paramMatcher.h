@@ -35,4 +35,4 @@ bool matchAny(int value, T... arg) {
     return (matchSingle(value, arg) || ...);
 }
 
-}
+}  // namespace metkit::mars2grib::util::param_matcher

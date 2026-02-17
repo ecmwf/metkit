@@ -185,7 +185,8 @@ inline void debug_print_ActiveConceptsData(const ActiveConceptsData& data, std::
             os << prefix << " ::   concept[" << i << "] : Missing\n";
         }
         else {
-            os << prefix << " ::   concept[" << i << "] : " << GeneralRegistry::conceptNameArr[variantId] << " -> " << GeneralRegistry::variantNameArr[variantId] << "\n";
+            os << prefix << " ::   concept[" << i << "] : " << GeneralRegistry::conceptNameArr[variantId] << " -> "
+               << GeneralRegistry::variantNameArr[variantId] << "\n";
         }
     }
 

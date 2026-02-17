@@ -1,9 +1,9 @@
+#include <cassert>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
-#include <tuple>
-#include <cassert>
 
 // eckit include
 #include <eckit/config/LocalConfiguration.h>
@@ -17,17 +17,18 @@
 
 int main() {
 
-    using Registry = metkit::mars2grib::backend::concepts_::MatchingCallbacksRegistry<eckit::LocalConfiguration,eckit::LocalConfiguration>;
+    using Registry = metkit::mars2grib::backend::concepts_::MatchingCallbacksRegistry<eckit::LocalConfiguration,
+                                                                                      eckit::LocalConfiguration>;
 
     const auto& callbacks = Registry::matchingCallbacks;
 
     std::cout << "Hello World: " << callbacks.size() << std::endl;
 
-    for ( const auto& f : callbacks ) {
-        if ( f ) {
+    for (const auto& f : callbacks) {
+        if (f) {
             eckit::LocalConfiguration xxx;
             eckit::LocalConfiguration yyy;
-            std::size_t r = f( xxx, yyy );
+            std::size_t r = f(xxx, yyy);
         }
         else {
             std::cout << "Aiaiaiaiaaii" << std::endl;

@@ -1,27 +1,23 @@
-#include <iostream>
-#include <string>
-#include <utility>
-#include <vector>
-#include <tuple>
 #include <cassert>
 #include <iostream>
-#include <string>
 #include <stdexcept>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 // eckit include
 
 
+#include <eckit/config/LocalConfiguration.h>
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/value/Value.h"
-#include <eckit/config/LocalConfiguration.h>
 
 
 //------------------------------------------------------------------------------
 // Minimal validator
 //------------------------------------------------------------------------------
-void checkKeyword(const eckit::Value& fields,
-                  const std::string& key,
-                  const std::string& value) {
+void checkKeyword(const eckit::Value& fields, const std::string& key, const std::string& value) {
 
     if (!fields.contains(key)) {
         throw std::runtime_error("Unknown keyword: " + key);
@@ -30,8 +26,7 @@ void checkKeyword(const eckit::Value& fields,
     const auto& entry = fields[key];
 
     // Ignore non-data entries (exactly as discussed)
-    if (entry.contains("category") &&
-        entry["category"].as<std::string>() != "data") {
+    if (entry.contains("category") && entry["category"].as<std::string>() != "data") {
         return;
     }
 
@@ -55,9 +50,8 @@ void checkKeyword(const eckit::Value& fields,
 int main(int argc, char** argv) {
 
     if (argc != 4) {
-        std::cerr
-            << "Usage:\n"
-            << "  " << argv[0] << " <language.yaml> <keyword> <value>\n";
+        std::cerr << "Usage:\n"
+                  << "  " << argv[0] << " <language.yaml> <keyword> <value>\n";
         return 1;
     }
 
@@ -66,8 +60,7 @@ int main(int argc, char** argv) {
         const std::string keyword      = argv[2];
         const std::string value        = argv[3];
 
-        eckit::Value language =
-            eckit::YAMLParser::decodeFile(languageFile);
+        eckit::Value language = eckit::YAMLParser::decodeFile(languageFile);
 
         const eckit::Value& fields = language["_field"];
 

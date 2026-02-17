@@ -67,7 +67,7 @@ namespace metkit::mars2grib::backend::compile_time_registry_engine {
 /// These values must remain outside the valid range of any real index,
 /// identifier, or enumerated domain they are compared against.
 ///
-inline constexpr std::size_t MISSING        = 9999999;
+inline constexpr std::size_t MISSING = 9999999;
 /// @}
 
 

@@ -14,7 +14,6 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 
 
-
 #include "metkit/mars2grib/CoreOperations.h"
 
 
@@ -27,6 +26,7 @@ eckit::LocalConfiguration mars2conf(const eckit::LocalConfiguration& mars) {
 
 class CheckMars2conf : public eckit::Tool {
 public:
+
     CheckMars2conf(int argc, char** argv) : Tool{argc, argv} {}
 
     static void usage(const std::string& tool) {
@@ -76,12 +76,15 @@ public:
             bool currentFailed = false;
             for (size_t si = 0; si <= 5; ++si) {
                 const auto expectedSection = expectedEncoder.getSubConfigurations("sections")[si];
-                const auto actualSection = actualEncoder.getSubConfigurations("sections")[si].getSubConfiguration("SectionLayoutData");
+                const auto actualSection =
+                    actualEncoder.getSubConfigurations("sections")[si].getSubConfiguration("SectionLayoutData");
 
                 const auto& expectedTemplate = expectedSection.getLong("templateNumber");
-                const auto& actualTemplate = actualSection.getLong("templateNumber");
+                const auto& actualTemplate   = actualSection.getLong("templateNumber");
                 if (expectedTemplate != actualTemplate) {
-                    eckit::Log::warning() << "Template number for section " << si << " does not match! : " << actualTemplate << " != " << expectedTemplate << std::endl;
+                    eckit::Log::warning()
+                        << "Template number for section " << si << " does not match! : " << actualTemplate
+                        << " != " << expectedTemplate << std::endl;
 
                     if (actualTemplate == 192'001'024'036) {
                         eckit::Log::warning() << "Skipping..." << std::endl;
@@ -92,10 +95,12 @@ public:
                 }
 
                 const auto& expectedConcepts = expectedSection.getSubConfigurations("concepts");
-                const auto& actualConcepts = actualSection.getStringVector("variantNames");
+                const auto& actualConcepts   = actualSection.getStringVector("variantNames");
 
                 if (expectedConcepts.size() != actualConcepts.size()) {
-                    eckit::Log::warning() << "Number of concepts for section " << si << " does not match! : " << actualConcepts.size() << " != " << expectedConcepts.size() << std::endl;
+                    eckit::Log::warning()
+                        << "Number of concepts for section " << si << " does not match! : " << actualConcepts.size()
+                        << " != " << expectedConcepts.size() << std::endl;
                     currentFailed = true;
                     continue;
                 }
@@ -103,16 +108,20 @@ public:
                     const auto expectedConcept = expectedConcepts[ci].getString("name");
                     const auto expectedVariant = expectedConcepts[ci].getString("type");
 
-                    size_t pos = actualConcepts[ci].find("::");
+                    size_t pos               = actualConcepts[ci].find("::");
                     const auto actualConcept = actualConcepts[ci].substr(0, pos);
                     const auto actualVariant = actualConcepts[ci].substr(pos + 2);
 
                     if (expectedConcept != actualConcept) {
-                        eckit::Log::warning() << "A concept for section " << si << " does not match! : " << actualConcept << " != " << expectedConcept << std::endl;
+                        eckit::Log::warning()
+                            << "A concept for section " << si << " does not match! : " << actualConcept
+                            << " != " << expectedConcept << std::endl;
                         currentFailed = true;
                     }
                     else if (expectedVariant != actualVariant) {
-                        eckit::Log::warning() << "A variant for section " << si << " does not match! : " << actualConcept << "::" << actualVariant << " != " << expectedConcept << "::" << expectedVariant << std::endl;
+                        eckit::Log::warning() << "A variant for section " << si
+                                              << " does not match! : " << actualConcept << "::" << actualVariant
+                                              << " != " << expectedConcept << "::" << expectedVariant << std::endl;
                         currentFailed = true;
                     }
                 }
@@ -128,7 +137,6 @@ public:
         if (failed != 0) {
             throw eckit::Exception(oss.str(), Here());
         }
-
     }
 };
 
