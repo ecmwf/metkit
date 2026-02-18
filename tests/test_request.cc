@@ -108,10 +108,31 @@ CASE("test_request_count") {
     }
     {
         const char* text =
-            "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/to/137,levtype=ml,number=-1,param=22/127/"
-            "128/129/152/u/v,process=local,step=000,stream=scda,time=18,type=an,target=reference.data";
+            "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=2/to/137,levtype=ml,number=-1,param=z/"
+            "t,process=local,step=000,stream=scda,time=18,type=an,target=reference.data";
         MarsRequest r = MarsRequest::parse(text);
-        EXPECT_EQUAL(279, r.count());
+        EXPECT_EQUAL(136, r.count());
+    }
+    {
+        const char* text =
+            "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/to/137,levtype=ml,number=-1,param=22/127/"
+            "128/129/152/u/v,process=local,step=000,stream=scda,time=6/18,type=an,target=reference.data";
+        MarsRequest r = MarsRequest::parse(text);
+        EXPECT_EQUAL(558, r.count());
+    }
+    {
+        const char* text =
+            "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=3/to/137,levtype=ml,number=-1,param=22/127/"
+            "128/129/152/u/v,process=local,step=000,stream=scda,time=6/18,type=an,target=reference.data";
+        MarsRequest r = MarsRequest::parse(text);
+        EXPECT_EQUAL(540, r.count());
+    }
+    {
+        const char* text =
+            "retrieve,accuracy=16,class=od,date=20230810,expver=1,levelist=1/2,levtype=ml,number=-1,param=22/127/"
+            "128/129/152/u/v,process=local,step=0/1/2,stream=scda,time=6/18,type=an,target=reference.data";
+        MarsRequest r = MarsRequest::parse(text);
+        EXPECT_EQUAL(54, r.count());
     }
 }
 
