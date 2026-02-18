@@ -74,29 +74,19 @@
 
 // System includes
 #include <memory>
-#include <tuple>
-#include <utility>
 #include <vector>
 
 // eckit
 #include "eckit/config/LocalConfiguration.h"
-#include "eckit/parser/YAMLParser.h"
 #include "eckit/value/Value.h"
 
 // ecCodes API wrapper
 #include "metkit/codes/api/CodesAPI.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Codes wrapper types
 #include "metkit/codes/api/CodesTypes.h"
 
-// dictionary access traits
-#include "metkit/mars2grib/utils/dictionary_traits/dictaccess_codes_handle.h"
-#include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
-#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
-
 // mars2grib public options
-#include "metkit/mars2grib/CoreOperations.h"
 #include "metkit/mars2grib/api/Options.h"
 
 namespace metkit::mars2grib {
@@ -327,105 +317,42 @@ public:
 private:
 
     ///
-    /// @brief Encode a value field into a GRIB message.
+    /// @brief Encode a field into a GRIB message.
     ///
-    /// This function performs the complete encoding pipeline:
-    /// - optional metadata normalization,
-    /// - GRIB header construction,
-    /// - value injection.
+    /// @param[in] values
+    /// Field values to encode as double.
     ///
-    /// The function is exception-safe and returns a fully initialized
-    /// `CodesHandle` owning the encoded GRIB message.
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
     ///
-    /// -----------------------------------------------------------------------------
-    /// Normalization and lifetime semantics (CRITICAL)
-    /// -----------------------------------------------------------------------------
-    ///
-    /// Metadata normalization is **conditionally enabled** based on runtime
-    /// options.
-    ///
-    /// The normalization step does **not** return new objects. Instead, it
-    /// returns **references** to the *active* metadata dictionaries:
-    ///
-    /// - If normalization is **disabled**:
-    /// - references alias the input objects (`inputMars`, `inputMisc`)
-    ///
-    /// - If normalization is **enabled**:
-    /// - references alias local scratch objects (`scratchMars`, `scratchMisc`)
-    /// - the scratch objects contain normalized copies of the inputs
-    ///
-    /// The returned references must be treated as **borrowed**:
-    /// - they must not be stored,
-    /// - they must not escape this function,
-    /// - their lifetime is strictly limited to this scope.
-    ///
-    /// This contract allows the pipeline to avoid unnecessary allocations when
-    /// normalization is disabled, while preserving correctness when it is enabled.
-    ///
-    /// -----------------------------------------------------------------------------
-    /// @tparam Val_t
-    /// Numeric type of the values to be encoded.
-    ///
-    /// @param values
-    /// Contiguous span of values to encode.
-    ///
-    /// @param inputMars
-    /// Input MARS request configuration (read-only).
-    ///
-    /// @param inputMisc
-    /// Input miscellaneous configuration (read-only).
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
     ///
     /// @return
-    /// A `std::unique_ptr` owning the encoded GRIB handle.
+    /// A unique pointer to a GRIB handle containing the encoded message.
     ///
-    /// @throws mars2grib::Exception
-    /// If normalization, header encoding, or value encoding fails.
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const Span<const double>& values,
+                                                       const eckit::LocalConfiguration& inputMars,
+                                                       const eckit::LocalConfiguration& inputMisc);
+
     ///
-    template <typename Val_t>
-    std::unique_ptr<metkit::codes::CodesHandle> encode_impl(const Span<const Val_t>& values,
-                                                            const eckit::LocalConfiguration& inputMars,
-                                                            const eckit::LocalConfiguration& inputMisc) {
-
-        using metkit::mars2grib::utils::exceptions::printExtendedStack;
-
-        // 1. Prepare Scratches for Normalization
-        eckit::LocalConfiguration scratchMars;
-        eckit::LocalConfiguration scratchMisc;
-
-        try {
-
-            // 2. Normalize Metadata (conditionally)
-            // -----------------------------------------------------------------
-            // IMPORTANT: Normalization returns *references*, not values.
-            //
-            // Depending on runtime options:
-            //   - normalization DISABLED  -> activeMars / activeMisc alias inputs
-            //   - normalization ENABLED   -> activeMars / activeMisc alias scratch
-            //
-            // The returned references are BORROWED and MUST NOT escape this scope.
-            // Their lifetime is bounded by `scratchMars` / `scratchMisc`.
-            // -----------------------------------------------------------------
-            auto [activeMars, activeMisc] =
-                CoreOperations::normalize_if_enabled(inputMars, inputMisc, opts_, language_, scratchMars, scratchMisc);
-
-            // 3. Encode Header (SpecializedEncoder creates the CodesHandle here)
-            auto gribHeader =
-                CoreOperations::encodeHeader<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                             metkit::codes::CodesHandle>(activeMars, activeMisc, opts_);
-
-            // 4. Inject Values
-            return CoreOperations::encodeValues(values, activeMisc, opts_, std::move(gribHeader));
-        }
-        catch (const std::exception& e) {
-            printExtendedStack(e);
-            throw;
-        }
-        catch (...) {
-            // Fallback for non-standard exceptions
-            throw metkit::mars2grib::utils::exceptions::Mars2GribGenericException("Unknown error during encoding",
-                                                                                  Here());
-        }
-    }
+    /// @brief Encode a field into a GRIB message.
+    ///
+    /// @param[in] values
+    /// Field values to encode as float.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> encode(const Span<const float>& values,
+                                                       const eckit::LocalConfiguration& inputMars,
+                                                       const eckit::LocalConfiguration& inputMisc);
 
     const eckit::Value language_;
     const Options opts_;

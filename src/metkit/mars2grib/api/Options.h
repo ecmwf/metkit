@@ -33,7 +33,6 @@
 /// @ingroup mars2grib_api
 ///
 #pragma once
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib {
 
