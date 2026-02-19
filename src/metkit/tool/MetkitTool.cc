@@ -17,6 +17,8 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/tool/MetkitTool.h"
 
+#include "eckit/system/LibraryManager.h"
+
 using namespace eckit;
 using namespace eckit::option;
 
@@ -47,9 +49,9 @@ void MetkitTool::run() {
     if (args.has("version")) {
         auto& log = eckit::Log::info();
 
-        using eckit::system::Library;
-        for (const auto& lib_name : Library::list()) {
-            auto& lib = Library::lookup(lib_name);
+        using eckit::system::LibraryManager;
+        for (const auto& lib_name : LibraryManager::list()) {
+            auto& lib = LibraryManager::lookup(lib_name);
             log << lib.name() << " " << lib.version() << " git-sha1:" << lib.gitsha1(8) << " home:" << lib.libraryHome()
                 << std::endl;
         }

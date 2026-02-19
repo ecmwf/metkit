@@ -1056,7 +1056,6 @@ _field: &_field
       - [baseline, Baseline simulations for climate model evaluation]
       - [projections, Future climate projections]
 
-
   experiment:
     category: data
     type: enum
@@ -1081,7 +1080,9 @@ _field: &_field
 
   realization:
     category: data
-    type: integer
+    multiple: true
+    type: to-by-list
+    by: 1 
 
   resolution:
     category: data
