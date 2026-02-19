@@ -25,7 +25,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 
 namespace impl {
 
-std::size_t matchSFC(const long param) {
+inline std::size_t matchSFC(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -146,7 +146,7 @@ std::size_t matchSFC(const long param) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype SFC", Here());
 }
 
-std::size_t matchHL(const long param) {
+inline std::size_t matchHL(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -159,7 +159,7 @@ std::size_t matchHL(const long param) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype HL", Here());
 }
 
-std::size_t matchML(const long param) {
+inline std::size_t matchML(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -172,7 +172,7 @@ std::size_t matchML(const long param) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype ML", Here());
 }
 
-std::size_t matchPL(const long param, const long level) {
+inline std::size_t matchPL(const long param, const long level) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -190,7 +190,7 @@ std::size_t matchPL(const long param, const long level) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype PL", Here());
 }
 
-std::size_t matchPT(const long param) {
+inline std::size_t matchPT(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -203,7 +203,7 @@ std::size_t matchPT(const long param) {
 }
 
 
-std::size_t matchPV(const long param) {
+inline std::size_t matchPV(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -215,7 +215,7 @@ std::size_t matchPV(const long param) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype PV", Here());
 }
 
-std::size_t matchSOL(const long param) {
+inline std::size_t matchSOL(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -233,7 +233,7 @@ std::size_t matchSOL(const long param) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype SOL", Here());
 }
 
-std::size_t matchAL(const long param) {
+inline std::size_t matchAL(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
