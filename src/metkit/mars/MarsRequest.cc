@@ -343,6 +343,7 @@ size_t MarsRequest::count() const {
     size_t levels            = 1;
     size_t params            = 0;
     size_t paramsSingleLevel = 0;
+    bool hasLevelOne         = false;
 
     for (const auto& p : params_) {
         if (p.values().size() == 1 && (p.values().at(0) == "all" || p.values().at(0) == "any")) {
@@ -350,6 +351,8 @@ size_t MarsRequest::count() const {
         }
         if (p.name() == "levelist") {
             levels = p.values().size();
+            // For a parameter matching paramIdsSingleLevel, we can only include one value, and for level=1
+            hasLevelOne = std::find(p.values().begin(), p.values().end(), "1") != p.values().end();
         }
         else {
             if (p.name() == "param") {
@@ -368,7 +371,7 @@ size_t MarsRequest::count() const {
     }
     if ((params + paramsSingleLevel) > 0) {
         if (ml) {
-            result *= (levels * params + paramsSingleLevel);
+            result *= (levels * params + (hasLevelOne ? paramsSingleLevel : 0));
         }
         else {
             result *= (levels * (params + paramsSingleLevel));
