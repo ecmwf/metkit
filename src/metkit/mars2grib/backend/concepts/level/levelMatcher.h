@@ -246,7 +246,7 @@ std::size_t matchAL(const long param) {
     }
 }
 
-}  // namespace
+}  // namespace impl
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
