@@ -316,44 +316,6 @@ public:
 
 private:
 
-    ///
-    /// @brief Encode a field into a GRIB message.
-    ///
-    /// @param[in] values
-    /// Field values to encode as double.
-    ///
-    /// @param[in] mars
-    /// MARS dictionary describing the field metadata.
-    ///
-    /// @param[in] misc
-    /// Auxiliary metadata dictionary.
-    ///
-    /// @return
-    /// A unique pointer to a GRIB handle containing the encoded message.
-    ///
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const Span<const double>& values,
-                                                       const eckit::LocalConfiguration& inputMars,
-                                                       const eckit::LocalConfiguration& inputMisc);
-
-    ///
-    /// @brief Encode a field into a GRIB message.
-    ///
-    /// @param[in] values
-    /// Field values to encode as float.
-    ///
-    /// @param[in] mars
-    /// MARS dictionary describing the field metadata.
-    ///
-    /// @param[in] misc
-    /// Auxiliary metadata dictionary.
-    ///
-    /// @return
-    /// A unique pointer to a GRIB handle containing the encoded message.
-    ///
-    std::unique_ptr<metkit::codes::CodesHandle> encode(const Span<const float>& values,
-                                                       const eckit::LocalConfiguration& inputMars,
-                                                       const eckit::LocalConfiguration& inputMisc);
-
     const eckit::Value language_;
     const Options opts_;
 };

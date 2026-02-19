@@ -26,7 +26,6 @@
 #pragma once
 
 // System includes
-#include <ostream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -39,7 +38,6 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/encodeValues.h"
-#include "metkit/mars2grib/frontend/header/EncodingPlan.h"
 #include "metkit/mars2grib/frontend/header/SpecializedEncoder.h"
 #include "metkit/mars2grib/frontend/make_HeaderLayout.h"
 #include "metkit/mars2grib/frontend/normalization/normalization.h"
@@ -149,6 +147,118 @@ struct CoreOperations {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
                 mars2grib::utils::exceptions::Mars2GribGenericException("Error during value encoding", Here()));
+        }
+    }
+
+    ///
+    /// @brief Encode a value field into a GRIB message.
+    ///
+    /// This function performs the complete encoding pipeline:
+    /// - optional metadata normalization,
+    /// - GRIB header construction,
+    /// - value injection.
+    ///
+    /// The function is exception-safe and returns an output dictionary. This can be a fully initialized `CodesHandle`
+    /// owning the encoded GRIB message.
+    ///
+    /// -----------------------------------------------------------------------------
+    /// Normalization and lifetime semantics (CRITICAL)
+    /// -----------------------------------------------------------------------------
+    ///
+    /// Metadata normalization is **conditionally enabled** based on runtime
+    /// options.
+    ///
+    /// The normalization step does **not** return new objects. Instead, it
+    /// returns **references** to the *active* metadata dictionaries:
+    ///
+    /// - If normalization is **disabled**:
+    /// - references alias the input objects (`inputMars`, `inputMisc`)
+    ///
+    /// - If normalization is **enabled**:
+    /// - references alias local scratch objects (`scratchMars`, `scratchMisc`)
+    /// - the scratch objects contain normalized copies of the inputs
+    ///
+    /// The returned references must be treated as **borrowed**:
+    /// - they must not be stored,
+    /// - they must not escape this function,
+    /// - their lifetime is strictly limited to this scope.
+    ///
+    /// This contract allows the pipeline to avoid unnecessary allocations when
+    /// normalization is disabled, while preserving correctness when it is enabled.
+    ///
+    /// -----------------------------------------------------------------------------
+    /// @tparam Val_t
+    /// Numeric type of the values to be encoded.
+    ///
+    /// @tparam MarsDict_t MARS dictionary type
+    /// @tparam MiscDict_t Parameterization dictionary type
+    /// @tparam OptDict_t Options dictionary type
+    /// @tparam OutDict_t Output dictionary type
+    ///
+    /// @param values
+    /// Contiguous span of values to encode.
+    ///
+    /// @param inputMars
+    /// Input MARS description of the data (read-only).
+    ///
+    /// @param inputMisc
+    /// Input miscellaneous description of the data (read-only).
+    ///
+    /// @param options
+    /// Encoding options controlling behavior such as validation,
+    /// logging, or feature toggles.
+    ///
+    /// @param language
+    /// MARS language definition
+    ///
+    /// @return
+    /// A `std::unique_ptr` with GRIB keys set
+    ///
+    /// @throws mars2grib::Exception
+    /// If normalization, header encoding, or value encoding fails.
+    ///
+    template <typename Val_t, class MarsDict_t, class MiscDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> encode(const metkit::codes::Span<const Val_t>& values,
+                                             const MarsDict_t& inputMars, const MiscDict_t& inputMisc,
+                                             const OptDict_t& options, const eckit::Value& language) {
+
+        using metkit::mars2grib::utils::exceptions::printExtendedStack;
+
+        // 1. Prepare Scratches for Normalization
+        MarsDict_t scratchMars;
+        MiscDict_t scratchMisc;
+
+        try {
+
+            // 2. Normalize Metadata (conditionally)
+            // -----------------------------------------------------------------
+            // IMPORTANT: Normalization returns *references*, not values.
+            //
+            // Depending on runtime options:
+            //   - normalization DISABLED  -> activeMars / activeMisc alias inputs
+            //   - normalization ENABLED   -> activeMars / activeMisc alias scratch
+            //
+            // The returned references are BORROWED and MUST NOT escape this scope.
+            // Their lifetime is bounded by `scratchMars` / `scratchMisc`.
+            // -----------------------------------------------------------------
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+
+            // 3. Encode Header (SpecializedEncoder creates the CodesHandle here)
+            auto gribHeader =
+                encodeHeader<MarsDict_t, MiscDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
+
+            // 4. Inject Values
+            return encodeValues(values, activeMisc, options, std::move(gribHeader));
+        }
+        catch (const std::exception& e) {
+            printExtendedStack(e);
+            throw;
+        }
+        catch (...) {
+            // Fallback for non-standard exceptions
+            throw metkit::mars2grib::utils::exceptions::Mars2GribGenericException("Unknown error during encoding",
+                                                                                  Here());
         }
     }
 
