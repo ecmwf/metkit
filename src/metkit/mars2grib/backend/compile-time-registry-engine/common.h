@@ -8,9 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-
 ///
-/// @file callbacksRegistry_common.h
+/// @file common.h
 /// @brief Canonical compile-time vocabulary shared by all concept dispatch registries.
 ///
 /// This header defines the **fundamental compile-time building blocks** used
@@ -19,7 +18,7 @@
 /// Specifically, it provides:
 /// - fixed pipeline dimensions (`NUM_STAGES`, `NUM_SECTIONS`),
 /// - canonical numeric identifiers for encoding stages and GRIB sections,
-/// - sentinel values representing non-semantic or invalid states,
+/// - sentinel value representing non-semantic or invalid states (`MISSING`),
 /// - canonical function pointer types (`Fn`, `Fm`) for dispatch interfaces,
 /// - minimal compile-time containers (`ValueList`, `TypeList`) used to model
 /// value and type universes.
@@ -35,7 +34,6 @@
 /// @ingroup mars2grib_backend_concepts
 ///
 #pragma once
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // System includes
 #include <array>
@@ -43,29 +41,27 @@
 #include <string_view>
 #include <utility>
 
+// Project includes
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::compile_time_registry_engine {
 
 
 ///
-/// @name Sentinel values
+/// @name Sentinel value
 /// @{
 ///
-/// These constants define **sentinel values** used throughout the mars2grib
-/// codebase to represent special, non-semantic states.
+/// This constant defines a **sentinel value** used throughout the mars2grib
+/// codebase to represent a special, non-semantic state.
 ///
-/// All three identifiers intentionally share the same numeric value.
-/// Their semantic distinction is purely **contextual**, improving readability
-/// and intent at the call site while preserving trivial comparability.
-///
-/// They are defined as `inline constexpr` values rather than enums to:
+/// It is defined as an `inline constexpr` value rather than an enum to:
 /// - allow direct use in compile-time contexts,
 /// - avoid implicit conversions or scoped enum verbosity,
 /// - support use as array indices or placeholders.
 ///
 /// @note
-/// These values must remain outside the valid range of any real index,
-/// identifier, or enumerated domain they are compared against.
+/// This value must remain outside the valid range of any real index,
+/// identifier, or enumerated domain it is compared against.
 ///
 inline constexpr std::size_t MISSING = 9999999;
 /// @}

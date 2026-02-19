@@ -15,9 +15,9 @@ std::size_t referenceTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     using metkit::mars2grib::utils::dict_traits::has;
 
     if (has(mars, "hdate")) {
-        return static_cast<size_t>(ReferenceTimeType::Reforecast);
+        return static_cast<std::size_t>(ReferenceTimeType::Reforecast);
     }
-    return static_cast<size_t>(ReferenceTimeType::Standard);
+    return static_cast<std::size_t>(ReferenceTimeType::Standard);
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

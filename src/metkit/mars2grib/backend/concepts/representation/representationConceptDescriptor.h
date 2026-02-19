@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file RepresentationConcept.h
+/// @file RepresentationConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `representation` concept.
 ///
 /// This header defines `RepresentationConcept`, the **compile-time descriptor**

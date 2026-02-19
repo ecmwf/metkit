@@ -34,7 +34,7 @@ namespace metkit::mars2grib::backend::validation {
 ///
 /// When enabled, the function reads the key `gridDefinitionTemplateNumber`
 /// from the output dictionary (`out`) and compares it against the list of
-/// expected values supplied in `expectedProductDefinitionTemplateNumber`.
+/// expected values supplied in `expectedGridDefinitionTemplateNumber`.
 ///
 /// If the actual template number does not match any of the expected values,
 /// an exception is thrown.

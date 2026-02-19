@@ -8,11 +8,8 @@
  * does it submit to any jurisdiction.
  */
 
-#pragma once
-#include "metkit/mars2grib/utils/generalUtils.h"
-
 ///
-/// @file array_concat.h
+/// @file utils.h
 /// @brief Compile-time concatenation utilities for fixed-size arrays.
 ///
 /// This header provides a minimal, constexpr-capable utility to **concatenate
@@ -81,6 +78,9 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+
+// Project includes
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::compile_time_registry_engine::detail {
 

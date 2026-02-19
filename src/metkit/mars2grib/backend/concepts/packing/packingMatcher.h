@@ -2,6 +2,7 @@
 
 // System include
 #include <cstddef>
+#include <string>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/packing/packingEnum.h"

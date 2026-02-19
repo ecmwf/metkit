@@ -23,7 +23,7 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-namespace {
+namespace impl {
 
 std::size_t matchSFC(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
@@ -264,29 +264,29 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     const auto levtype = get_or_throw<std::string>(mars, "levtype");
 
     if (levtype == "sfc") {
-        return matchSFC(param);
+        return impl::matchSFC(param);
     }
     if (levtype == "hl") {
-        return matchHL(param);
+        return impl::matchHL(param);
     }
     if (levtype == "ml") {
-        return matchML(param);
+        return impl::matchML(param);
     }
     if (levtype == "pl") {
         const auto level = get_or_throw<long>(mars, "levelist");
-        return matchPL(param, level);
+        return impl::matchPL(param, level);
     }
     if (levtype == "pt") {
-        return matchPT(param);
+        return impl::matchPT(param);
     }
     if (levtype == "pv") {
-        return matchPV(param);
+        return impl::matchPV(param);
     }
     if (levtype == "sol") {
-        return matchSOL(param);
+        return impl::matchSOL(param);
     }
     if (levtype == "al") {
-        return matchAL(param);
+        return impl::matchAL(param);
     }
 
     throw utils::exceptions::Mars2GribMatcherException("Unknown levtype \"" + levtype + "\"", Here());
