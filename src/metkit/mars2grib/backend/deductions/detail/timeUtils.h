@@ -8,6 +8,7 @@
 
 #include <eckit/types/DateTime.h>
 #include "eckit/exception/Exceptions.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::deductions::detail {
 

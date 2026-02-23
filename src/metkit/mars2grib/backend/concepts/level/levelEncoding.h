@@ -8,40 +8,40 @@
  * does it submit to any jurisdiction.
  */
 
-/**
- * @file levelOp.h
- * @brief Implementation of the GRIB `level` concept operation.
- *
- * This header defines the applicability rules and execution logic for the
- * **level concept** within the mars2grib backend.
- *
- * The level concept is responsible for encoding GRIB keys related to the
- * *vertical coordinate system* of the data, including:
- *
- * - `typeOfLevel`
- * - `level`
- * - hybrid vertical coordinate parameters (`pv` array)
- *
- * Depending on the selected level variant, the concept may:
- * - set only the level type,
- * - set both level type and numeric level,
- * - allocate and populate the PV array (hybrid levels).
- *
- * The implementation follows the standard mars2grib concept model:
- * - Compile-time applicability via `levelApplicable`
- * - Stage-aware behavior (allocation vs preset/runtime)
- * - Explicit handling of hybrid vertical coordinates
- * - Strict error handling with contextual concept exceptions
- *
- * @note
- * The namespace name `concepts_` is intentionally used instead of `concepts`
- * to avoid ambiguity and potential conflicts with the C++20 `concept` language
- * feature and related standard headers.
- *
- * This is a deliberate design choice and must not be changed.
- *
- * @ingroup mars2grib_backend_concepts
- */
+///
+/// @file levelOp.h
+/// @brief Implementation of the GRIB `level` concept operation.
+///
+/// This header defines the applicability rules and execution logic for the
+/// **level concept** within the mars2grib backend.
+///
+/// The level concept is responsible for encoding GRIB keys related to the
+/// *vertical coordinate system* of the data, including:
+///
+/// - `typeOfLevel`
+/// - `level`
+/// - hybrid vertical coordinate parameters (`pv` array)
+///
+/// Depending on the selected level variant, the concept may:
+/// - set only the level type,
+/// - set both level type and numeric level,
+/// - allocate and populate the PV array (hybrid levels).
+///
+/// The implementation follows the standard mars2grib concept model:
+/// - Compile-time applicability via `levelApplicable`
+/// - Stage-aware behavior (allocation vs preset/runtime)
+/// - Explicit handling of hybrid vertical coordinates
+/// - Strict error handling with contextual concept exceptions
+///
+/// @note
+/// The namespace name `concepts_` is intentionally used instead of `concepts`
+/// to avoid ambiguity and potential conflicts with the C++20 `concept` language
+/// feature and related standard headers.
+///
+/// This is a deliberate design choice and must not be changed.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System includes
@@ -49,8 +49,9 @@
 #include <vector>
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/conceptCore.h"
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/level.h"
@@ -59,21 +60,21 @@
 // Utils
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-/**
- * @brief Compile-time predicate indicating whether a PV array is required.
- *
- * Only hybrid vertical coordinates require a PV array describing the
- * vertical transformation.
- *
- * @tparam Variant Level concept variant
- *
- * @return `true` if a PV array is required,
- *         `false` otherwise.
- */
+///
+/// @brief Compile-time predicate indicating whether a PV array is required.
+///
+/// Only hybrid vertical coordinates require a PV array describing the
+/// vertical transformation.
+///
+/// @tparam Variant Level concept variant
+///
+/// @return `true` if a PV array is required,
+/// `false` otherwise.
+///
 template <LevelType Variant>
 constexpr bool needPv() {
     if constexpr (Variant == LevelType::Hybrid) {
@@ -84,20 +85,20 @@ constexpr bool needPv() {
     }
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
-/**
- * @brief Compile-time predicate indicating whether a numeric `level` value is required.
- *
- * Some level types require an associated numeric level (e.g. pressure, height),
- * while others encode only the level type.
- *
- * @tparam Variant Level concept variant
- *
- * @return `true` if a numeric `level` value must be set,
- *         `false` otherwise.
- */
+///
+/// @brief Compile-time predicate indicating whether a numeric `level` value is required.
+///
+/// Some level types require an associated numeric level (e.g. pressure, height),
+/// while others encode only the level type.
+///
+/// @tparam Variant Level concept variant
+///
+/// @return `true` if a numeric `level` value must be set,
+/// `false` otherwise.
+///
 template <LevelType Variant>
 constexpr bool needLevel() {
     if constexpr (Variant == LevelType::HeightAboveGroundAt10M || Variant == LevelType::HeightAboveGroundAt2M ||
@@ -113,20 +114,20 @@ constexpr bool needLevel() {
     }
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
-/**
- * @brief Compile-time predicate indicating whether a numeric `topLevel` and `bottomLevel` value is required.
- *
- * Some level types require two associated numeric levels (e.g. soilLayer),
- * while others encode only the level type and/or level.
- *
- * @tparam Variant Level concept variant
- *
- * @return `true` if a numeric `topLevel` and `bottomLevel` value must be set,
- *         `false` otherwise.
- */
+///
+/// @brief Compile-time predicate indicating whether a numeric `topLevel` and `bottomLevel` value is required.
+///
+/// Some level types require two associated numeric levels (e.g. soilLayer),
+/// while others encode only the level type and/or level.
+///
+/// @tparam Variant Level concept variant
+///
+/// @return `true` if a numeric `topLevel` and `bottomLevel` value must be set,
+/// `false` otherwise.
+///
 template <LevelType Variant>
 constexpr bool needTopBottomLevel() {
     if constexpr (Variant == LevelType::SoilLayer || Variant == LevelType::SeaIceLayer ||
@@ -138,33 +139,33 @@ constexpr bool needTopBottomLevel() {
     }
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 
-/**
- * @brief Compile-time applicability predicate for the `level` concept.
- *
- * This predicate determines whether the level concept is applicable for a given
- * combination of:
- * - encoding stage
- * - GRIB section
- * - level variant
- *
- * Applicability is evaluated entirely at compile time and is used by the
- * concept dispatcher to control instantiation and execution.
- *
- * Hybrid levels require special handling:
- * - during allocation stage to reserve space for the PV array,
- * - during preset/runtime stages to set the level type and parameters.
- *
- * @tparam Stage   Encoding stage (compile-time constant)
- * @tparam Section GRIB section index (compile-time constant)
- * @tparam Variant Level concept variant
- *
- * @return `true` if the concept is applicable for the given parameters,
- *         `false` otherwise.
- */
+///
+/// @brief Compile-time applicability predicate for the `level` concept.
+///
+/// This predicate determines whether the level concept is applicable for a given
+/// combination of:
+/// - encoding stage
+/// - GRIB section
+/// - level variant
+///
+/// Applicability is evaluated entirely at compile time and is used by the
+/// concept dispatcher to control instantiation and execution.
+///
+/// Hybrid levels require special handling:
+/// - during allocation stage to reserve space for the PV array,
+/// - during preset/runtime stages to set the level type and parameters.
+///
+/// @tparam Stage   Encoding stage (compile-time constant)
+/// @tparam Section GRIB section index (compile-time constant)
+/// @tparam Variant Level concept variant
+///
+/// @return `true` if the concept is applicable for the given parameters,
+/// `false` otherwise.
+///
 template <std::size_t Stage, std::size_t Section, LevelType Variant>
 constexpr bool levelApplicable() {
 
@@ -181,55 +182,55 @@ constexpr bool levelApplicable() {
 }
 
 
-/**
- * @brief Execute the `level` concept operation.
- *
- * This function implements the runtime logic of the GRIB `level` concept.
- * When applicable, it:
- *
- * - allocates and sets the PV array for hybrid levels during allocation stage,
- * - sets the GRIB `typeOfLevel` key,
- * - sets the numeric `level` key when required.
- *
- * The behavior is explicitly stage-dependent:
- * - `StageAllocate` is used for memory allocation (PV array),
- * - `StagePreset` and `StageRuntime` are used for semantic encoding.
- *
- * If the concept is invoked when not applicable, a
- * `Mars2GribConceptException` is thrown.
- *
- * @tparam Stage      Encoding stage (compile-time constant)
- * @tparam Section    GRIB section index (compile-time constant)
- * @tparam Variant    Level concept variant
- * @tparam MarsDict_t Type of the MARS input dictionary
- * @tparam ParDict_t  Type of the parameter dictionary
- * @tparam OptDict_t  Type of the options dictionary
- * @tparam OutDict_t  Type of the GRIB output dictionary
- *
- * @param[in]  mars MARS input dictionary
- * @param[in]  par  Parameter dictionary
- * @param[in]  opt  Options dictionary
- * @param[out] out  Output GRIB dictionary to be populated
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
- *         If:
- *         - required deductions fail,
- *         - invalid stage/variant combinations are invoked,
- *         - any GRIB key cannot be set.
- *
- * @note
- * - All runtime errors are wrapped with full concept context
- *   (concept name, variant, stage, section).
- * - The concept does not rely on pre-existing GRIB header state.
- * - Se of typeOfLevel is happening at both preset and runtime stages because
- *   sometimes due to sideeffects in eccodes the typeOfLevel set at preset stage
- *   can be overwritten before runtime stage.
- *
- *
- * @see levelApplicable
- * @see needLevel
- * @see needPv
- */
+///
+/// @brief Execute the `level` concept operation.
+///
+/// This function implements the runtime logic of the GRIB `level` concept.
+/// When applicable, it:
+///
+/// - allocates and sets the PV array for hybrid levels during allocation stage,
+/// - sets the GRIB `typeOfLevel` key,
+/// - sets the numeric `level` key when required.
+///
+/// The behavior is explicitly stage-dependent:
+/// - `StageAllocate` is used for memory allocation (PV array),
+/// - `StagePreset` and `StageRuntime` are used for semantic encoding.
+///
+/// If the concept is invoked when not applicable, a
+/// `Mars2GribConceptException` is thrown.
+///
+/// @tparam Stage      Encoding stage (compile-time constant)
+/// @tparam Section    GRIB section index (compile-time constant)
+/// @tparam Variant    Level concept variant
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam ParDict_t  Type of the parameter dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+/// @tparam OutDict_t  Type of the GRIB output dictionary
+///
+/// @param[in]  mars MARS input dictionary
+/// @param[in]  par  Parameter dictionary
+/// @param[in]  opt  Options dictionary
+/// @param[out] out  Output GRIB dictionary to be populated
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribConceptException
+/// If:
+/// - required deductions fail,
+/// - invalid stage/variant combinations are invoked,
+/// - any GRIB key cannot be set.
+///
+/// @note
+/// - All runtime errors are wrapped with full concept context
+/// (concept name, variant, stage, section).
+/// - The concept does not rely on pre-existing GRIB header state.
+/// - Se of typeOfLevel is happening at both preset and runtime stages because
+/// sometimes due to sideeffects in eccodes the typeOfLevel set at preset stage
+/// can be overwritten before runtime stage.
+///
+///
+/// @see levelApplicable
+/// @see needLevel
+/// @see needPv
+///
 template <std::size_t Stage, std::size_t Section, LevelType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
           class OutDict_t>
 void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
@@ -317,7 +318,7 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
     MARS2GRIB_CONCEPT_THROW(level, "Concept called when not applicable...");
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

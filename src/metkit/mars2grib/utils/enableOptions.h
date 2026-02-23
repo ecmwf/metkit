@@ -10,6 +10,7 @@
 #pragma once
 
 #include "metkit/mars2grib/api/Options.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::utils {
 
@@ -29,6 +30,18 @@ inline bool overrideEnabled(const Options& opt) {
 
 inline bool bitsPerValueCompressionEnabled(const Options& opt) {
     return opt.enableBitsPerValueCompression;
+}
+
+inline bool normalizeMarsEnabled(const Options& opt) {
+    return opt.normalizeMars;
+}
+
+inline bool normalizeMiscEnabled(const Options& opt) {
+    return opt.normalizeMisc;
+}
+
+inline bool fixMarsGridEnabled(const Options& opt) {
+    return opt.fixMarsGrid;
 }
 
 }  // namespace metkit::mars2grib::utils

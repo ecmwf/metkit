@@ -189,11 +189,6 @@ if ( HAVE_MARS2GRIB )
         mars2grib/api/Mars2Grib.cc
         mars2grib/api/Mars2Grib.h
         mars2grib/api/Options.h
-        mars2grib/frontend/encoderConfig.cc
-        mars2grib/frontend/level.cc
-        mars2grib/frontend/pdt.cc
-        mars2grib/frontend/statistical.cc
-        mars2grib/frontend/time.cc
     )
     set( mars2grib_libs eckit_geo )
 endif()

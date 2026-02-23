@@ -12,32 +12,33 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
 namespace metkit::mars2grib::backend::tables {
 
-/**
- * @brief GRIB time units (Code Table 4.4).
- *
- * This enumeration represents the GRIB code values associated with
- * time units as defined in GRIB2 Code Table 4.4.
- *
- * The numeric values map **directly** to the official GRIB code table
- * and must not be changed manually.
- *
- * @section Source of truth
- * GRIB2 Code Table 4.4:
- *   Units of time range
- *
- * @note
- * This enum is a pure GRIB table representation.
- * No semantic interpretation or policy decisions are encoded here.
- *
- * @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: critical]
- * - Generate this enum automatically from ecCodes GRIB tables
- *   to guarantee alignment with the runtime ecCodes version.
- */
+///
+/// @brief GRIB time units (Code Table 4.4).
+///
+/// This enumeration represents the GRIB code values associated with
+/// time units as defined in GRIB2 Code Table 4.4.
+///
+/// The numeric values map **directly** to the official GRIB code table
+/// and must not be changed manually.
+///
+/// @section Source of truth
+/// GRIB2 Code Table 4.4:
+/// Units of time range
+///
+/// @note
+/// This enum is a pure GRIB table representation.
+/// No semantic interpretation or policy decisions are encoded here.
+///
+/// @todo [owner: mds,dgov][scope: tables][reason: correctness][prio: critical]
+/// - Generate this enum automatically from ecCodes GRIB tables
+/// to guarantee alignment with the runtime ecCodes version.
+///
 enum class TimeUnit : long {
     Minute  = 0,
     Hour    = 1,
@@ -57,38 +58,38 @@ enum class TimeUnit : long {
     Missing = 255
 };
 
-/**
- * @brief Convert a symbolic time-unit name to a GRIB `TimeUnit`.
- *
- * Performs a strict mapping from a string identifier to the corresponding
- * GRIB time unit code.
- *
- * Supported names:
- *  - "minute"
- *  - "hour"
- *  - "day"
- *  - "month"
- *  - "year"
- *  - "decade"
- *  - "normal"
- *  - "century"
- *  - "3h"
- *  - "6h"
- *  - "12h"
- *  - "second"
- *  - "missing"
- *
- * @param[in] name Symbolic name of the time unit
- *
- * @return Corresponding `TimeUnit` enumeration value
- *
- * @throws Mars2GribTableException
- *         If the name is not a supported GRIB time unit
- *
- * @note
- * - Mapping is case-sensitive by design.
- * - No normalization or aliasing is performed.
- */
+///
+/// @brief Convert a symbolic time-unit name to a GRIB `TimeUnit`.
+///
+/// Performs a strict mapping from a string identifier to the corresponding
+/// GRIB time unit code.
+///
+/// Supported names:
+/// - "minute"
+/// - "hour"
+/// - "day"
+/// - "month"
+/// - "year"
+/// - "decade"
+/// - "normal"
+/// - "century"
+/// - "3h"
+/// - "6h"
+/// - "12h"
+/// - "second"
+/// - "missing"
+///
+/// @param[in] name Symbolic name of the time unit
+///
+/// @return Corresponding `TimeUnit` enumeration value
+///
+/// @throws Mars2GribTableException
+/// If the name is not a supported GRIB time unit
+///
+/// @note
+/// - Mapping is case-sensitive by design.
+/// - No normalization or aliasing is performed.
+///
 inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -127,26 +128,26 @@ inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name) {
                       "3h,6h,12h,second,missing}";
     throw Mars2GribTableException(err, Here());
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
-/**
- * @brief Convert a GRIB `TimeUnit` enumeration to its symbolic name.
- *
- * Performs a strict mapping from a GRIB time unit code to its
- * canonical string representation.
- *
- * @param[in] value GRIB `TimeUnit` enumeration value
- *
- * @return Canonical symbolic name of the time unit
- *
- * @throws Mars2GribTableException
- *         If the enum value is not supported
- *
- * @note
- * - Returned strings are stable and suitable for logging, YAML,
- *   diagnostics, and round-tripping via `name2enum_TimeUnit_or_throw`.
- */
+///
+/// @brief Convert a GRIB `TimeUnit` enumeration to its symbolic name.
+///
+/// Performs a strict mapping from a GRIB time unit code to its
+/// canonical string representation.
+///
+/// @param[in] value GRIB `TimeUnit` enumeration value
+///
+/// @return Canonical symbolic name of the time unit
+///
+/// @throws Mars2GribTableException
+/// If the enum value is not supported
+///
+/// @note
+/// - Returned strings are stable and suitable for logging, YAML,
+/// diagnostics, and round-tripping via `name2enum_TimeUnit_or_throw`.
+///
 inline std::string enum2name_TimeUnit_or_throw(TimeUnit value) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
@@ -185,7 +186,7 @@ inline std::string enum2name_TimeUnit_or_throw(TimeUnit value) {
     std::string err = "Invalid TimeUnit enum value: actual='" + std::to_string(static_cast<long>(value)) + "'";
     throw Mars2GribTableException(err, Here());
 
-    __builtin_unreachable();
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::tables

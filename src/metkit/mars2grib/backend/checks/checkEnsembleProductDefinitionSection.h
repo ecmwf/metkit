@@ -12,52 +12,53 @@
 #include <string>
 
 #include "eckit/log/Log.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
-#include "metkit/mars2grib/utils/mars2grib-exception.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::validation {
 
-/**
- * @brief Check that the GRIB Product Definition Section corresponds to an Ensemble forecast,
- *        when validation is enabled.
- *
- * This function verifies that the GRIB *Product Definition Section* indicates an
- * Ensemble forecast based on the runtime configuration provided in the options dictionary.
- *
- * The check is performed **only if** the option `applyChecks` is present in
- * the options dictionary (`opt`) and evaluates to `true`.
- *
- * When enabled, the function checks for the presence of the following keys
- * in the output dictionary (`out`):
- * - `typeOfEnsembleForecast`
- * - `perturbationNumber`
- * - `numberOfForecastsInEnsemble`
- *
- * If any of these keys are missing, an exception is raised indicating that
- * the Product Definition Section is not of Ensemble type.
- *
- * Any failure occurring during dictionary access or validation is caught and
- * rethrown as a nested `Mars2GribValidationException` with additional context.
- *
- * @tparam OptDict_t Type of the options dictionary
- * @tparam OutDict_t Type of the output dictionary
- *
- * @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
- * @param[in] out Output dictionary; must contain the keys required for Ensemble check
- *                when checks are enabled
- *
- * @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
- *         If:
- *         - `applyChecks` is `true` and any of the required keys are missing
- *         - any error occurs while accessing the dictionaries
- *
- * @note
- * - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
- * - The function returns normally on success and does not produce any output.
- */
+///
+/// @brief Check that the GRIB Product Definition Section corresponds to an Ensemble forecast,
+/// when validation is enabled.
+///
+/// This function verifies that the GRIB *Product Definition Section* indicates an
+/// Ensemble forecast based on the runtime configuration provided in the options dictionary.
+///
+/// The check is performed **only if** the option `applyChecks` is present in
+/// the options dictionary (`opt`) and evaluates to `true`.
+///
+/// When enabled, the function checks for the presence of the following keys
+/// in the output dictionary (`out`):
+/// - `typeOfEnsembleForecast`
+/// - `perturbationNumber`
+/// - `numberOfForecastsInEnsemble`
+///
+/// If any of these keys are missing, an exception is raised indicating that
+/// the Product Definition Section is not of Ensemble type.
+///
+/// Any failure occurring during dictionary access or validation is caught and
+/// rethrown as a nested `Mars2GribValidationException` with additional context.
+///
+/// @tparam OptDict_t Type of the options dictionary
+/// @tparam OutDict_t Type of the output dictionary
+///
+/// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
+/// @param[in] out Output dictionary; must contain the keys required for Ensemble check
+/// when checks are enabled
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
+/// If:
+/// - `applyChecks` is `true` and any of the required keys are missing
+/// - any error occurs while accessing the dictionaries
+///
+/// @note
+/// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
+/// - The function returns normally on success and does not produce any output.
+///
 template <class OptDict_t, class OutDict_t>
 void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 
@@ -94,7 +95,7 @@ void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const
     };
 
     // Remove compiler warning
-    __builtin_unreachable();
+    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation
