@@ -238,7 +238,7 @@ EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> make_EncodingPlan_or_t
 
                 for (std::size_t cid = 0; cid < section.count; ++cid) {
                     std::size_t vid = section.variantIndices[cid];
-                    const auto& f   = callbacks[vid][sid][pid];
+                    const auto& f   = callbacks[vid][pid][sid];
 
                     if (f) {
                         cell.push_back(f);
