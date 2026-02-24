@@ -98,3 +98,16 @@ if(HAVE_BUILD_TOOLS)
 
 endif()
 
+
+
+
+
+
+ecbuild_add_executable(
+    TARGET        geo_reproducer
+    SOURCES       geo_reproducer.cc
+    CONDITION     HAVE_BUILD_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit
+)
