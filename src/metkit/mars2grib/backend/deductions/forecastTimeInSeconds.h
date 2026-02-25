@@ -26,7 +26,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction computes the forecast valid time by retrieving the MARS key
 /// `step` and interpreting it as a forecast lead time expressed in hours.
 /// The lead time is converted to seconds and added to the reference time
-/// to obtain the forecast valid `eckit::DateTime`.
+/// to obtain the forecastTime in seconds as a `long`.
 ///
 /// The conversion follows the conventional MARS interpretation:
 /// - `step` is assumed to be expressed in hours,

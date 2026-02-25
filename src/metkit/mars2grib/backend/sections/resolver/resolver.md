@@ -1,8 +1,8 @@
- @page mars2grib_section_resolver Section Resolver Subsystem
+@page mars2grib_section_resolver Section Resolver Subsystem
 
- @tableofcontents
+@tableofcontents
 
- @section resolver_overview Overview
+@section resolver_overview Overview
 
  The **Section Resolver** subsystem is responsible for determining the
  concrete layout of a GRIB section given:
@@ -15,10 +15,10 @@
 
  Conceptually, the resolver answers the question:
 
- @verbatim
+@verbatim
    “Given the active concepts for this request,
     which section template applies?”
- @endverbatim
+@endverbatim
 
  The resolver is a **pure backend subsystem**. It contains no frontend
  orchestration logic and no configuration policy. It operates solely on:
@@ -30,7 +30,7 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_big_picture Big picture
+@section resolver_big_picture Big picture
 
  Section resolution is defined by the interaction of three orthogonal elements:
 
@@ -49,12 +49,12 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_namespace_structure Namespace organization
+@section resolver_namespace_structure Namespace organization
 
  The resolver subsystem is organized into a hierarchy of namespaces,
  each with a clearly defined role.
 
- @subsection resolver_ns_root backend::sections::resolver
+@subsection resolver_ns_root backend::sections::resolver
 
  This is the **public API** of the resolver subsystem.
 
@@ -73,7 +73,7 @@
 
  --------------------------------------------------------------------------
 
- @subsection resolver_ns_dsl backend::sections::resolver::dsl
+@subsection resolver_ns_dsl backend::sections::resolver::dsl
 
  This namespace defines the **declarative grammar** used to describe
  section template rules.
@@ -104,7 +104,7 @@
 
  --------------------------------------------------------------------------
 
- @subsection resolver_ns_detail backend::sections::resolver::detail
+@subsection resolver_ns_detail backend::sections::resolver::detail
 
  This namespace contains **internal infrastructure** used by the resolver
  algorithms.
@@ -126,7 +126,7 @@
 
  --------------------------------------------------------------------------
 
- @subsection resolver_ns_debug backend::sections::resolver::debug
+@subsection resolver_ns_debug backend::sections::resolver::debug
 
  This namespace contains **debugging and introspection utilities**.
 
@@ -144,9 +144,9 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_dsl The recipe DSL
+@section resolver_dsl The recipe DSL
 
- @subsection resolver_select Select: defining admissible variants
+@subsection resolver_select Select: defining admissible variants
 
  A `Select` object defines a **subset of variants of a single concept**.
 
@@ -166,7 +166,7 @@
 
  --------------------------------------------------------------------------
 
- @subsection resolver_recipe Recipe: defining a template number
+@subsection resolver_recipe Recipe: defining a template number
 
  A `Recipe` represents the runtime realization of a **single GRIB template
  number**.
@@ -184,7 +184,7 @@
 
  --------------------------------------------------------------------------
 
- @subsection resolver_recipes Recipes: section-scoped template definitions
+@subsection resolver_recipes Recipes: section-scoped template definitions
 
  A `Recipes` object represents the **complete set of template definitions**
  valid for a single GRIB section.
@@ -200,7 +200,7 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_runtime Active concept state
+@section resolver_runtime Active concept state
 
  `ActiveConceptsData` represents the **runtime state** of concept activation
  for a specific encoding request.
@@ -216,7 +216,7 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_algorithm Resolution algorithm
+@section resolver_algorithm Resolution algorithm
 
  The resolution process performed by `SectionTemplateSelector` can be
  summarized as:
@@ -233,7 +233,7 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_dependency_rules Dependency rules
+@section resolver_dependency_rules Dependency rules
 
  The following dependency rules are enforced by design:
 
@@ -246,7 +246,7 @@
 
  --------------------------------------------------------------------------
 
- @section resolver_summary Summary
+@section resolver_summary Summary
 
  The section resolver subsystem provides a compiler-like architecture
  for GRIB section template selection:

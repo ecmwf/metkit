@@ -24,16 +24,11 @@
 /// - apply deterministic resolution logic
 /// - emit structured diagnostic logging
 ///
-/// Deductions do NOT:
-/// - infer values from MARS metadata
-/// - apply implicit or hidden defaults
-/// - validate against spectral grid constraints
-///
 /// Error handling follows a strict fail-fast strategy with nested
 /// exception propagation to preserve full diagnostic context.
 ///
 /// Logging policy:
-/// - RESOLVE: value obtained or defaulted from input dictionaries
+/// - OVERRIDE: value overridden from input dictionaries
 /// - DEFAULT: value defaulted due to missing input
 ///
 /// @section References
@@ -84,7 +79,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// - If an unexpected error occurs during dictionary access
 /// - If `par::subSetTruncation` is provided but exceeds the MARS truncation or is negative
-/// - If MARS truncation is missing or invalid when needed for defaulting
+/// - If MARS truncation is invalid when needed for defaulting
 ///
 /// @note
 /// This deduction is fully deterministic and does not depend on
@@ -129,9 +124,9 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
                 throw Mars2GribDeductionException(logMsg, Here());
             }
 
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`subSetTruncation` resolved from input dictionaries: value='";
+            // Emit OVERRIDE log entry
+            MARS2GRIB_LOG_OVERRIDE([&]() {
+                std::string logMsg = "`subSetTruncation` overridden from input dictionaries: value='";
                 logMsg += std::to_string(subSetTrunc);
                 logMsg += "'";
                 return logMsg;
