@@ -112,7 +112,8 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         auto significanceOfReferenceTime = tables::SignificanceOfReferenceTime::Missing;
 
         // Retrieve mandatory type from Mars dictionary
-        auto marsType = get_or_throw<std::string>(mars, "type");
+        auto marsStream = get_or_throw<std::string>(mars, "stream");
+        auto marsType   = get_or_throw<std::string>(mars, "type");
 
         constexpr std::array<std::string_view, 17> analysisTypes = {
             {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
@@ -124,7 +125,12 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
 
         constexpr std::array<std::string_view, 4> startOfDataAssimilationTypes = {{"4i", "4v", "me", "eme"}};
 
-        if (std::any_of(analysisTypes.begin(), analysisTypes.end(), [&marsType](auto v) { return marsType == v; })) {
+        if (marsType == "fc" && (marsStream == "clte" || marsStream == "clmn")) {
+            // ClimateDT and ExtremesDT
+            significanceOfReferenceTime = tables::SignificanceOfReferenceTime::ForecastVerification;
+        }
+        else if (std::any_of(analysisTypes.begin(), analysisTypes.end(),
+                             [&marsType](auto v) { return marsType == v; })) {
             significanceOfReferenceTime = tables::SignificanceOfReferenceTime::Analysis;
         }
         else if (std::any_of(forecastTypes.begin(), forecastTypes.end(),
