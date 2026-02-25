@@ -70,7 +70,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @section Deduction contract
 /// - Reads: `mars["model"]`
 /// - Writes: none
-/// - Side effects: logging (RESOLVE)
+/// - Side effects: logging (RESOLVE or DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the GRIB `backgroundProcess` by mapping the

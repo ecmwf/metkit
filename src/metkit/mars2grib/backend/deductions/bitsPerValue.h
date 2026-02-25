@@ -191,7 +191,7 @@ long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool e
 /// - otherwise `mars["param"]`, `mars["levtype"]`,
 /// and `opt["enableBitsPerValueCompression"]`
 /// - Writes: none
-/// - Side effects: logging (RESOLVE or OVERRIDE)
+/// - Side effects: logging (OVERRIDE or DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the number of bits per value used for GRIB
@@ -308,7 +308,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
 /// @section Deduction contract
 /// - Reads: `par["bitsPerValue"]` (if present)
 /// - Writes: none
-/// - Side effects: logging (RESOLVE or OVERRIDE)
+/// - Side effects: logging (OVERRIDE or DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the number of bits per value used for GRIB

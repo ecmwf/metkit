@@ -538,6 +538,10 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
 /// PV array is constructed using a predefined lookup with a fixed
 /// default size (currently 137).
 ///
+/// 4. **Ambiguity error**
+/// If both `par["pv"]` and `par["pvSize"]` are present, this is treated
+/// as an error due to conflicting input, and an exception is thrown.
+///
 /// No attempt is made to validate the physical meaning,
 /// monotonicity, or numerical consistency of the PV values.
 ///
@@ -570,8 +574,6 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
 /// @note
 /// - This deduction is deterministic for a given parameter dictionary.
 /// - The returned PV array is passed verbatim to GRIB encoding logic.
-/// - No defaulting or inference beyond the two supported mechanisms
-/// is permitted.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
@@ -588,7 +590,7 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
 
         std::vector<double> pvArrayVal;
 
-        if (hasPV) {
+        if (hasPV && !hasPVSize) {
             // Get the pv array directly
             pvArrayVal = get_or_throw<std::vector<double>>(par, "pv");
 
@@ -631,6 +633,12 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
                 logMsg += "' (lookup from `pvSize`=" + std::to_string(pvArraySize) + ")";
                 return logMsg;
             }());
+        }
+        else {
+            // Both `pv` and `pvSize` are present: this is an error due to ambiguity
+            std::string logMsg =
+                "Ambiguous PV array configuration: both `pv` and `pvSize` are present in the parameter dictionary";
+            throw Mars2GribDeductionException(logMsg, Here());
         }
 
         // Exit with success
