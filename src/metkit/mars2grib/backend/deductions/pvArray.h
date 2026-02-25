@@ -31,9 +31,6 @@
 /// PV array is constructed using a predefined lookup with a fixed
 /// default size (currently 137).
 ///
-/// The deduction enforces that exactly one of these input mechanisms is
-/// used, and it treats the presence of `par["pv"]` as an explicit override
-///
 /// Exactly one of these inputs must be provided.
 ///
 /// ### Responsibilities
@@ -610,7 +607,7 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             // Get the pvArray size for lookup
             long pvArraySize = get_or_throw<long>(par, "pvSize");
 
-            // Lookup of the pv array from size not implemented
+            // Lookup of the pv array from size
             pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize);
 
             // Emit RESOLVE log entry
@@ -625,7 +622,7 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             // Get the pvArray size for lookup
             long pvArraySize = 137;
 
-            // Lookup of the pv array from size not implemented
+            // Lookup of the pv array from size
             pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize);
 
             // Emit DEFAULT log entry

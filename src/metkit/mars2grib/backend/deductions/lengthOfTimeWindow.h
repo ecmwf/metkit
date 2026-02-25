@@ -76,6 +76,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// its value is interpreted as **hours** and converted to seconds.
 /// - If the key is absent, a **default value of 0xFFFF** is used,
 ///   which is a common convention for "missing" in GRIB.
+///   This value is returned as seconds (i.e., 0xFFFF * 3600).
 ///
 /// @important
 /// This deduction currently relies on **implicit assumptions** about
@@ -85,6 +86,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @assumptions
 /// - `par::lengthOfTimeWindow` is expressed in **hours**
 /// - Default value is **0xFFFF** when the key is missing
+///   This value is returned as seconds (i.e., 0xFFFF * 3600).
 ///
 /// @warning
 /// - These assumptions may not be valid for all datasets.
@@ -127,7 +129,7 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
     try {
 
         // Default value in hours
-        constexpr long defaultLengthOfTimeWindow = 0xFFFF;  // Missing
+        constexpr long defaultLengthOfTimeWindowInHours = 0xFFFF;  // Missing
 
         // Big assumption here:
         // - lengthOfTimeWindow is in hours
@@ -154,7 +156,7 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
 
             // Success exit point (This is just a bit pattern not seconds, but it's a common convention for "missing" in
             // GRIB)
-            return defaultLengthOfTimeWindow;
+            return defaultLengthOfTimeWindowInHours * 3600;  // Convert hours to seconds
         }
     }
     catch (...) {

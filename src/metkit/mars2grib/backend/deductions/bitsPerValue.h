@@ -274,7 +274,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
 
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`bitsPerValue` defaulted to: value=";
+                std::string logMsg = "`bitsPerValue` defaulted to: value='";
                 logMsg += std::to_string(bitsPerValue) + "'";
                 return logMsg;
             }());
