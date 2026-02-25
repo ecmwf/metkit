@@ -104,7 +104,11 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
         const auto marsTruncation = get_or_throw<long>(mars, "truncation");
-        long defaultSubSetTrunc   = std::min(20L, marsTruncation);
+        if (marsTruncation < 0) {
+            std::string logMsg = "Invalid MARS truncation: value='" + std::to_string(marsTruncation) + "' is negative";
+            throw Mars2GribDeductionException(logMsg, Here());
+        }
+        long defaultSubSetTrunc = std::min(20L, marsTruncation);
 
         if (has(par, "subSetTruncation")) {
 

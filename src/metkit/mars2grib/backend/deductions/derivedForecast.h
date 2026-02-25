@@ -131,7 +131,7 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`derivedForecast` override from parameter dictionary: value='";
+                std::string logMsg = "`derivedForecast` overridden from parameter dictionary: value='";
                 logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast);
                 logMsg += "'";
                 return logMsg;

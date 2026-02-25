@@ -153,7 +153,8 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
 
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`lengthOfTimeWindow` defaulted to 'MISSING': value='0xFFFF'";
+                std::string logMsg =
+                    "`lengthOfTimeWindow` defaulted to MISSING='0xFFFF': value='0xFFFF*3600' [seconds]";
                 return logMsg;
             }());
 
