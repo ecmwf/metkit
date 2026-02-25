@@ -86,7 +86,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @assumptions
 /// - `par::lengthOfTimeWindow` is expressed in **hours**
 /// - Default value is **0xFFFF** when the key is missing
-///   This value is returned as seconds (i.e., 0xFFFF * 3600).
+///   This value is returned as seconds (i.e., 0xFFFF * 3600) to preserve later /3600 conversions.
 ///
 /// @warning
 /// - These assumptions may not be valid for all datasets.
@@ -101,7 +101,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// @param[in] par  Parameter dictionary
 /// @param[in] opt  Options dictionary (unused)
 ///
-/// @return Returns seconds when provided; otherwise returns the GRIB missing code 0xFFFF.
+/// @return The length of time window in seconds. If `par::lengthOfTimeWindow` is missing,
+///         returns `0xFFFF * 3600` so that later division by 3600 yields the GRIB missing code `0xFFFF`.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If:
@@ -115,7 +116,7 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @note
 /// - This deduction does not rely on any pre-existing GRIB header state.
-/// - Logging intentionally emits warnings to highlight implicit assumptions.
+/// - Logging intentionally emits RESOLVE/DEFAULT entries to highlight implicit assumptions.
 /// - The missing sentinel 0xFFFF is stored in “hours” and then converted to
 ///   seconds only to preserve later /3600 conversions.
 ///
