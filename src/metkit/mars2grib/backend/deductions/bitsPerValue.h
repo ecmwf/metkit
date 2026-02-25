@@ -264,7 +264,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
         }
         else {
 
-            // Retrive auxiliary values for default lookup
+            // Retrieve auxiliary values for default lookup
             long param            = get_or_throw<long>(mars, "param");
             std::string levtype   = get_or_throw<std::string>(mars, "levtype");
             bool applyCompression = utils::bitsPerValueCompressionEnabled(opt);
