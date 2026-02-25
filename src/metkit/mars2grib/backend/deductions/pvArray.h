@@ -31,8 +31,6 @@
 /// PV array is constructed using a predefined lookup with a fixed
 /// default size (currently 137).
 ///
-/// Exactly one of these inputs must be provided.
-///
 /// ### Responsibilities
 /// Deductions in this file are responsible for:
 /// - extracting PV-related metadata from input dictionaries
@@ -620,6 +618,7 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
         }
         else if (!hasPV && !hasPVSize) {
             // Get the pvArray size for lookup
+            // Value 137 is the default value in simulations and must always be present in the lookup table
             long pvArraySize = 137;
 
             // Lookup of the pv array from size

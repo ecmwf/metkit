@@ -76,7 +76,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// its value is interpreted as **hours** and converted to seconds.
 /// - If the key is absent, a **default value of 0xFFFF** is used,
 ///   which is a common convention for "missing" in GRIB.
-///   This value is returned as seconds (i.e., 0xFFFF * 3600).
+///   This value is returned as seconds (i.e., 0xFFFF * 3600) to preserve later /3600 conversions.
 ///
 /// @important
 /// This deduction currently relies on **implicit assumptions** about
@@ -116,6 +116,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// @note
 /// - This deduction does not rely on any pre-existing GRIB header state.
 /// - Logging intentionally emits warnings to highlight implicit assumptions.
+/// - The missing sentinel 0xFFFF is stored in “hours” and then converted to
+///   seconds only to preserve later /3600 conversions.
 ///
 
 template <class MarsDict_t, class ParDict_t, class OptDict_t>

@@ -140,7 +140,7 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`backgroundProcess` resolved from input dictionaries: value=";
+                std::string logMsg = "`backgroundProcess` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
                 return logMsg;
             }());
@@ -158,7 +158,7 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
 
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`backgroundProcess` defaulted to: value=";
+                std::string logMsg = "`backgroundProcess` defaulted to: value='";
                 logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
                 return logMsg;
             }());

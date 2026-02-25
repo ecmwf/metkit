@@ -75,7 +75,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @tparam ParDict_t  Type of the parameter dictionary
 /// @tparam OptDict_t  Type of the options dictionary (unused)
 ///
-/// @param[in] mars MARS dictionary providing `truncation` for defaulting
+/// @param[in] mars MARS dictionary providing `truncation` for defaulting and validation
 /// @param[in] par  Parameter dictionary; may contain `subSetTruncation`
 /// @param[in] opt  Options dictionary (unused)
 ///

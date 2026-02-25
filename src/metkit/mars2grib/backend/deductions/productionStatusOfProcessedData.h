@@ -26,7 +26,7 @@
 ///
 /// Logging policy:
 /// - RESOLVE: value derived via deduction logic from input dictionaries
-/// - DEFAULT: value defaulted to a predefined constant due to missing input
+/// - DEFAULT: value defaulted to a predefined constant when no specific mapping rule applies
 ///
 /// Error handling:
 /// - missing required inputs or unexpected failures throw `Mars2GribDeductionException`
