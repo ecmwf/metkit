@@ -68,7 +68,7 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// Resolution rules:
 /// - If `par::subSetTruncation` is present and valid, its value is used directly.
-/// - If `par::subSetTruncation` is absent, the value defaults explicitly the
+/// - If `par::subSetTruncation` is absent, the value defaults explicitly to the
 ///       smaller of the MARS truncation (`mars::truncation`) and a fixed maximum of 20.
 ///
 /// @tparam MarsDict_t Type of the MARS dictionary
