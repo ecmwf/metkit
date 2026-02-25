@@ -88,7 +88,6 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -126,7 +125,7 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`subSetTruncation` overridden from input dictionaries: value='";
+                std::string logMsg = "`subSetTruncation` overridden from parameter dictionary: value='";
                 logMsg += std::to_string(subSetTrunc);
                 logMsg += "'";
                 return logMsg;
@@ -139,7 +138,7 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
 
             // Emit DEFAULT log entry for defaulting
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`subSetTruncation` defaulted from input dictionaries: value='";
+                std::string logMsg = "`subSetTruncation` defaulted: value='";
                 logMsg += std::to_string(defaultSubSetTrunc);
                 logMsg += "'";
                 return logMsg;
