@@ -73,11 +73,6 @@ namespace metkit::mars2grib::backend::deductions {
 /// If no such mapping exists, the deduction returns `std::nullopt`
 /// without raising an error.
 ///
-/// @section Current deduction logic
-/// - If `mars::type == "4i"`, the generating process is resolved as
-/// `AnalysisIncrement`.
-/// - All other cases result in `std::nullopt`.
-///
 /// @tparam MarsDict_t Type of the MARS dictionary
 /// @tparam ParDict_t  Type of the parameter dictionary (unused)
 /// @tparam OptDict_t  Type of the options dictionary (unused)

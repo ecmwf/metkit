@@ -88,21 +88,22 @@ constexpr long double rad2deg = 180.0L / pi;
 ///
 /// The scaling convention is logarithmic and based on powers of ten:
 /// - `scaleFactorDirections` represents the base-10 logarithm of the real
-/// scaling factor applied to the physical direction values.
+/// scaling factor applied to the physical direction values converted to degrees.
 /// - For example, a value of `scaleFactorDirections = 2` corresponds to a
 /// real scaling factor of \f$10^2\f$.
 ///
 /// Scaled integer values are obtained as:
 /// \f[
 /// \text{scaledValue}_i =
-/// \mathrm{round}\!\left( \theta_i \times 10^{\text{scaleFactorDirections}} \right)
+/// \mathrm{round}\!\left( \theta_i \times 10^{\text{scaleFactorDirections}} \times \text{rad2deg} \right)
 /// \f]
-/// where \f$\theta_i\f$ is the physical wave direction expressed in radians.
+/// where \f$\theta_i\f$ is the physical wave direction expressed in radians
+/// and \f$\text{rad2deg} = 180/\pi\f$ converts radians to degrees.
 ///
 /// The inverse operation, used to reconstruct physical directions, is:
 /// \f[
 /// \theta_i =
-/// \frac{\text{scaledValue}_i}{10^{\text{scaleFactorDirections}}}
+/// \frac{\text{scaledValue}_i}{10^{\text{scaleFactorDirections}} \cdot \text{rad2deg}}
 /// \f]
 ///
 /// This structure is a plain data container and does not enforce internal
@@ -125,7 +126,7 @@ struct WaveDirectionGrid {
     /// @brief Base-10 logarithm of the real direction scaling factor.
     ///
     /// This value defines the scaling applied to physical wave direction
-    /// values (in radians) prior to integer encoding. For example:
+    /// values after conversion to degrees. For example:
     /// - `scaleFactorDirections = 2` implies a real scaling factor of
     /// \f$10^2\f$.
     ///
@@ -135,10 +136,8 @@ struct WaveDirectionGrid {
     /// @brief Scaled integer representation of wave directions.
     ///
     /// Each element corresponds to a wave direction encoded as an integer,
-    /// obtained by scaling the physical direction value (in radians) by
-    /// \f$10^{\text{scaleFactorDirections}}\f$ and rounding to the nearest
-    /// integer.
-    ///
+    /// obtained by converting the physical direction from radians to degrees,
+    /// then scaling by \f$10^{\text{scaleFactorDirections}}\f$ and rounding.
     std::vector<long> scaledValuesDirections;
 };
 
@@ -211,7 +210,7 @@ std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections) {
 /// This function builds a `WaveDirectionGrid` structure from a vector of
 /// physical wave propagation directions expressed in radians. The physical
 /// direction values are converted to an integer representation using a
-/// base-10 logarithmic scaling factor.
+/// base-10 logarithmic scaling factor after conversion to degrees.
 ///
 /// The scaling convention is defined as follows:
 /// - `scaleFactorOfWaveDirections` represents the base-10 logarithm of the
@@ -222,7 +221,7 @@ std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections) {
 /// Each scaled integer value is computed as:
 /// \f[
 /// \text{scaledValue}_i =
-/// \mathrm{round}\!\left( \theta_i \times 10^{\text{scaleFactorOfWaveDirections}} \right)
+/// \mathrm{round}\!\left( \theta_i \times 10^{\text{scaleFactorOfWaveDirections}} \times rad2deg\right)
 /// \f]
 /// where \f$\theta_i\f$ is the physical wave direction in radians.
 ///
@@ -363,7 +362,8 @@ WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, con
             }());
         }
         else {
-            throw Mars2GribDeductionException("Failed to resolve `waveDirectionGrid` from input dictionaries", Here());
+            /// @todo Need a defaulting strategy for `numberOfWaveDirections`
+            throw Mars2GribDeductionException("Default value NOT IMPLEMENTED for `numberOfWaveDirections`", Here());
         }
 
         // Build the scaled direction grid

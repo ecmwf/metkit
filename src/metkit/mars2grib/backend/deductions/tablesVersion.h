@@ -98,7 +98,7 @@ long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`tablesVersionLatest` resolved from input dictionaries: value='";
+            std::string logMsg = "`tablesVersionLatest` resolved from ecCodes runtime: value='";
             logMsg += std::to_string(tablesVersionLatestVal);
             logMsg += "'";
             return logMsg;
@@ -109,7 +109,7 @@ long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribDeductionException("Failed to resolve `tablesVersionLatest` from input dictionaries", Here()));
+            Mars2GribDeductionException("Failed to resolve `tablesVersionLatest` from ecCodes runtime", Here()));
     }
 };
 
@@ -152,8 +152,8 @@ long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_
         // Retrieve mandatory tablesVersion from parameter dictionary
         long tablesVersionCustomVal = get_or_throw<long>(par, "tablesVersion");
 
-        // Emit RESOLVE log entry
-        MARS2GRIB_LOG_RESOLVE([&]() {
+        // Emit OVERRIDE log entry
+        MARS2GRIB_LOG_OVERRIDE([&]() {
             std::string logMsg = "`tablesVersion` overridden from parameter dictionary: value='";
             logMsg += std::to_string(tablesVersionCustomVal);
             logMsg += "'";
@@ -165,7 +165,7 @@ long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribDeductionException("Failed to resolve `tablesVersion` from input dictionaries", Here()));
+            Mars2GribDeductionException("Failed to resolve `tablesVersion` from parameter dictionary", Here()));
     }
 };
 

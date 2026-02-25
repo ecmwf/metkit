@@ -45,8 +45,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// traceability purposes.
 ///
 /// @tparam MarsDict_t
-/// Type of the MARS dictionary, expected to contain the keys `hdate`
-/// and `htime`.
+/// Type of the MARS dictionary, expected to contain the key `hdate`,
+/// `htime` instead is optional and defaulted to 0 when missing.
 ///
 /// @tparam ParDict_t
 /// Type of the parameter dictionary (unused by this deduction).

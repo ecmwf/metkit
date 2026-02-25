@@ -27,6 +27,11 @@
         LOG_DEBUG_LIB(LibMetkit) << "           MARS2GRIB-OVERRIDE: " << msg << std::endl; \
     } while (0)
 
+#define MARS2GRIB_LOG_DEFAULT(msg)                                                        \
+    do {                                                                                  \
+        LOG_DEBUG_LIB(LibMetkit) << "           MARS2GRIB-DEFAULT: " << msg << std::endl; \
+    } while (0)
+
 #define MARS2GRIB_LOG_CONCEPT(CONCEPTNAME)                                                                    \
     do {                                                                                                      \
         LOG_DEBUG_LIB(LibMetkit) << "       MARS2GRIB-CONCEPT:"                                               \

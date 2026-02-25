@@ -33,7 +33,7 @@
 /// exception propagation to preserve full diagnostic context.
 ///
 /// Logging policy:
-/// - RESOLVE: value defaulted by the deduction
+/// - DEFAULT: value defaulted by the deduction
 ///
 /// @section References
 /// Concept:
@@ -66,7 +66,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @section Deduction contract
 /// - Reads: none
 /// - Writes: none
-/// - Side effects: logging (RESOLVE)
+/// - Side effects: logging (DEFAULT)
 /// - Failure mode: none (deterministic)
 ///
 /// This deduction resolves the GRIB `shapeOfTheEarth` key by
@@ -101,7 +101,7 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
     tables::ShapeOfTheReferenceSystem shapeOfTheEarth = tables::ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
 
     // Logging of the channel
-    MARS2GRIB_LOG_RESOLVE([&]() {
+    MARS2GRIB_LOG_DEFAULT([&]() {
         std::string logMsg = "`shapeOfTheEarth` defaulted from input dictionaries: value='";
         logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth);
         logMsg += "'";

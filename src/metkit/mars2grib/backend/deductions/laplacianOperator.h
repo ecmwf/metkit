@@ -68,7 +68,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @section Deduction contract
 /// - Reads: `par["laplacianOperator"]`
 /// - Writes: none
-/// - Side effects: none (no logging)
+/// - Side effects: logging (RESOLVE)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the Laplacian operator coefficient by retrieving
@@ -105,10 +105,6 @@ namespace metkit::mars2grib::backend::deductions {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If the key `laplacianOperator` is missing, cannot be converted to
 /// `double`, or if any unexpected error occurs during deduction.
-///
-/// @note
-/// This deduction performs presence-only validation and does not
-/// attempt to infer or normalize the coefficient value.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 double resolve_LaplacianOperator_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {

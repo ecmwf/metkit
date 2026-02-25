@@ -26,6 +26,14 @@
 /// - The PV array is constructed from a declared size
 /// (`par["pvSize"]`) using a predefined lookup table.
 ///
+/// 3. **Defaulting**
+/// - If neither `par["pv"]` nor `par["pvSize"]` is provided, a default
+/// PV array is constructed using a predefined lookup with a fixed
+/// default size (currently 137).
+///
+/// The deduction enforces that exactly one of these input mechanisms is
+/// used, and it treats the presence of `par["pv"]` as an explicit override
+///
 /// Exactly one of these inputs must be provided.
 ///
 /// ### Responsibilities
@@ -48,6 +56,7 @@
 /// Logging follows the mars2grib deduction policy:
 /// - OVERRIDE: PV array explicitly provided by the parameter dictionary
 /// - RESOLVE:  PV array constructed via deterministic lookup
+/// - DEFAULT:  PV array defaulted to a predefined size due to missing input
 ///
 /// @section References
 /// Concept:
@@ -512,7 +521,7 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
 /// - `par["pv"]` (explicit override), OR
 /// - `par["pvSize"]` (table-based construction)
 /// - Writes: none
-/// - Side effects: logging (OVERRIDE or RESOLVE)
+/// - Side effects: logging (OVERRIDE, RESOLVE, DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the PV array defining the vertical
@@ -529,8 +538,10 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
 /// the PV array is constructed using a predefined lookup
 /// based solely on the requested size.
 ///
-/// Exactly one of these inputs must be provided.
-/// Supplying neither results in a deduction error.
+/// 3. **Defaulting**
+/// If neither `par["pv"]` nor `par["pvSize"]` is provided, a default
+/// PV array is constructed using a predefined lookup with a fixed
+/// default size (currently 137).
 ///
 /// No attempt is made to validate the physical meaning,
 /// monotonicity, or numerical consistency of the PV values.
@@ -558,7 +569,6 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If:
-/// - neither `pv` nor `pvSize` is provided
 /// - the PV array cannot be retrieved or constructed
 /// - any unexpected error occurs during deduction
 ///
@@ -587,9 +597,9 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             // Get the pv array directly
             pvArrayVal = get_or_throw<std::vector<double>>(par, "pv");
 
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`pvArray` resolved from input dictionaries: size='";
+            // Emit OVERRIDE log entry
+            MARS2GRIB_LOG_OVERRIDE([&]() {
+                std::string logMsg = "`pvArray` overridden from input dictionaries: size='";
                 logMsg += std::to_string(pvArrayVal.size());
                 logMsg += "'";
                 return logMsg;
@@ -607,11 +617,24 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`pvArray` resolved from input dictionaries: size='";
                 logMsg += std::to_string(pvArrayVal.size());
+                logMsg += "' (lookup from `pvSize`=" + std::to_string(pvArraySize) + ")";
                 return logMsg;
             }());
         }
-        else {
-            throw Mars2GribDeductionException("Invalid `pvArray`: neither `pv` nor `pvSize` provided", Here());
+        else if (!hasPV && !hasPVSize) {
+            // Get the pvArray size for lookup
+            long pvArraySize = 137;
+
+            // Lookup of the pv array from size not implemented
+            pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize);
+
+            // Emit DEFAULT log entry
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`pvArray` defaulted to size='";
+                logMsg += std::to_string(pvArrayVal.size());
+                logMsg += "' (lookup from `pvSize`=" + std::to_string(pvArraySize) + ")";
+                return logMsg;
+            }());
         }
 
         // Exit with success

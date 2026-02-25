@@ -55,8 +55,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// Options dictionary (unused).
 ///
 /// @return
-/// The forecast valid time as an `eckit::DateTime`, obtained by adding
-/// the forecast step (converted to seconds) to the reference time.
+/// The forecast valid time as a `long`, representing the number of seconds,
+/// obtained by converting the step to seconds.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If:
@@ -89,6 +89,7 @@ long resolve_ForecastTimeInSeconds_or_throw(const MarsDict_t& mars, const ParDic
         long marsStep = get_or_throw<long>(mars, "step");
 
         // Convert step in seconds (Assumed to be in hours)
+        /// @todo add constant to avoid hardcoding 3600
         long marsStepInSecondsVal = marsStep * 3600;
 
         // Logging of the forecastTime
@@ -98,6 +99,7 @@ long resolve_ForecastTimeInSeconds_or_throw(const MarsDict_t& mars, const ParDic
             return logMsg;
         }());
 
+        // Success exit point
         return marsStepInSecondsVal;
     }
     catch (...) {
