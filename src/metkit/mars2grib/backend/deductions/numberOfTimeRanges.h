@@ -121,7 +121,7 @@ long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
         }
 
         // Handle trivial case
-        if (hasTimespan && !hasStatType) {
+        if (!hasStatType) {
 
             // Retrieve number Of Timeranges
             long numberOfTimeRanges = 1;

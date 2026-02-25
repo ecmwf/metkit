@@ -17,7 +17,7 @@
 ///
 /// The deduction reads the parameter dictionary entry lengthOfTimeWindow,
 /// interprets it as hours, and converts it to seconds. If the key is missing,
-/// the deduction returns the GRIB missing code 0xFFFF.
+/// the deduction returns `std::nullopt`.
 ///
 /// Deductions are responsible for:
 /// - extracting values from MARS, parameter, and option dictionaries
@@ -25,7 +25,7 @@
 /// - returning strongly typed values to concept operations
 ///
 /// Deductions:
-/// - do NOT encode GRIB keys directly
+/// - do NOT encode GRIB keys
 /// - do NOT infer units or values beyond the documented rule
 /// - do NOT perform GRIB table validation
 ///
@@ -51,6 +51,8 @@
 
 // System Include
 #include <exception>
+#include <optional>
+#include <string>
 
 // Other project includes
 #include "eckit/log/Log.h"
@@ -74,9 +76,8 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// - If the key `lengthOfTimeWindow` is present in the parameter dictionary,
 /// its value is interpreted as **hours** and converted to seconds.
-/// - If the key is absent, a **default value of 0xFFFF** is used,
-///   which is a common convention for "missing" in GRIB.
-///   This value is returned as seconds (i.e., 0xFFFF * 3600) to preserve later /3600 conversions.
+/// - If the key is absent, `std::nullopt` is used, which should be handled
+///   by the encoding layer as the GRIB missing code (0xFFFF).
 ///
 /// @important
 /// This deduction currently relies on **implicit assumptions** about
@@ -85,8 +86,7 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @assumptions
 /// - `par::lengthOfTimeWindow` is expressed in **hours**
-/// - Default value is **0xFFFF** when the key is missing
-///   This value is returned as seconds (i.e., 0xFFFF * 3600) to preserve later /3600 conversions.
+/// - Default value is `std::nullopt` when the key is missing
 ///
 /// @warning
 /// - These assumptions may not be valid for all datasets.
@@ -102,7 +102,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @param[in] opt  Options dictionary (unused)
 ///
 /// @return The length of time window in seconds. If `par::lengthOfTimeWindow` is missing,
-///         returns `0xFFFF * 3600` so that later division by 3600 yields the GRIB missing code `0xFFFF`.
+///         returns `std::nullopt`.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If:
@@ -117,12 +117,11 @@ namespace metkit::mars2grib::backend::deductions {
 /// @note
 /// - This deduction does not rely on any pre-existing GRIB header state.
 /// - Logging intentionally emits RESOLVE/DEFAULT entries to highlight implicit assumptions.
-/// - The missing sentinel 0xFFFF is stored in “hours” and then converted to
-///   seconds only to preserve later /3600 conversions.
 ///
 
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par,
+                                                                 const OptDict_t& opt) {
 
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -130,9 +129,6 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
-
-        // Default value in hours
-        constexpr long defaultLengthOfTimeWindowInHours = 0xFFFF;  // Missing
 
         // Big assumption here:
         // - lengthOfTimeWindow is in hours
@@ -147,20 +143,18 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
             }());
 
             // Success exit point
-            return lengthOfTimeWindowInHoursVal * 3600;  // Convert hours to seconds
+            return {lengthOfTimeWindowInHoursVal * 3600};  // Convert hours to seconds
         }
         else {
 
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg =
-                    "`lengthOfTimeWindow` defaulted to MISSING='0xFFFF': value='0xFFFF*3600' [seconds]";
+                std::string logMsg = "`lengthOfTimeWindow` defaulted to MISSING (nullopt)";
                 return logMsg;
             }());
 
-            // Success exit point (This is just a bit pattern not seconds, but it's a common convention for "missing" in
-            // GRIB)
-            return defaultLengthOfTimeWindowInHours * 3600;  // Convert hours to seconds
+            // Success exit point
+            return std::nullopt;
         }
     }
     catch (...) {

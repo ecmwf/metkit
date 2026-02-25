@@ -116,11 +116,16 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
             long subSetTrunc = get_or_throw<long>(par, "subSetTruncation");
 
             // Validate that subSetTruncation does not exceed MARS truncation
-            if (subSetTrunc > marsTruncation || subSetTrunc < 0) {
+            if (subSetTrunc < 0) {
+                std::string logMsg = "Invalid `subSetTruncation`:";
+                logMsg += " value='" + std::to_string(subSetTrunc);
+                logMsg += "' is negative";
+                throw Mars2GribDeductionException(logMsg, Here());
+            }
+            if (subSetTrunc > marsTruncation) {
                 std::string logMsg = "Invalid `subSetTruncation`:";
                 logMsg += " value='" + std::to_string(subSetTrunc) + "'";
                 logMsg += " exceeds MARS truncation='" + std::to_string(marsTruncation) + "'";
-                logMsg += " or is negative";
                 throw Mars2GribDeductionException(logMsg, Here());
             }
 
