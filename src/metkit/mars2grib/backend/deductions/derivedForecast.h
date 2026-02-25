@@ -139,7 +139,6 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
 
             // Success exit point
             return derivedForecast;
-
         }
         else {
             const auto marsType = get_or_throw<std::string>(mars, "type");
@@ -166,8 +165,6 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             // Success exit point
             return derivedForecast;
         }
-
-
     }
     catch (...) {
 

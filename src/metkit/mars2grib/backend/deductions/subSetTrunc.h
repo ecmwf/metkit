@@ -94,8 +94,8 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
-    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
@@ -133,8 +133,8 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         }
         else {
 
-             // Emit DEFAULT log entry for defaulting
-             MARS2GRIB_LOG_DEFAULT([&]() {
+            // Emit DEFAULT log entry for defaulting
+            MARS2GRIB_LOG_DEFAULT([&]() {
                 std::string logMsg = "`subSetTruncation` defaulted from input dictionaries: value='";
                 logMsg += std::to_string(defaultSubSetTrunc);
                 logMsg += "'";
@@ -144,7 +144,6 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
             // Success exit point
             return defaultSubSetTrunc;
         }
-
     }
     catch (...) {
 

@@ -370,8 +370,12 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
             }());
         }
         else {
-            /// @todo Need a defaulting strategy for: [`numberOfWaveFrequencies`, `indexOfReferenceWaveFrequency`, `referenceWaveFrequency`, `waveFrequencySpacingRatio`]
-            throw Mars2GribDeductionException("Default value NOT IMPLEMENTED for: [`numberOfWaveFrequencies`, `indexOfReferenceWaveFrequency`, `referenceWaveFrequency`, `waveFrequencySpacingRatio`]", Here());
+            /// @todo Need a defaulting strategy for: [`numberOfWaveFrequencies`, `indexOfReferenceWaveFrequency`,
+            /// `referenceWaveFrequency`, `waveFrequencySpacingRatio`]
+            throw Mars2GribDeductionException(
+                "Default value NOT IMPLEMENTED for: [`numberOfWaveFrequencies`, `indexOfReferenceWaveFrequency`, "
+                "`referenceWaveFrequency`, `waveFrequencySpacingRatio`]",
+                Here());
         }
 
         // Build the scaled frequency grid

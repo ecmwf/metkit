@@ -56,8 +56,8 @@
 #include "eckit/log/Log.h"
 
 // Core deduction includes
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -136,7 +136,7 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`lengthOfTimeWindow` resolved from input dictionaries: value='";
+                std::string logMsg = "`lengthOfTimeWindow` resolved from input dictionaries: value='";
                 logMsg += std::to_string(lengthOfTimeWindowInHoursVal) + "' [hours]";
                 return logMsg;
             }());
@@ -152,7 +152,8 @@ long resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const 
                 return logMsg;
             }());
 
-            // Success exit point (This is just a bit pattern not seconds, but it's a common convention for "missing" in GRIB)
+            // Success exit point (This is just a bit pattern not seconds, but it's a common convention for "missing" in
+            // GRIB)
             return defaultLengthOfTimeWindow;
         }
     }

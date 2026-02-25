@@ -102,9 +102,9 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
@@ -115,7 +115,7 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
             const auto perturbationNumber          = get_opt<long>(mars, "number").value_or(-1L);
 
             // Basic validation
-            if ( perturbationNumber < 0 || perturbationNumber > numberOfForecastsInEnsemble) {
+            if (perturbationNumber < 0 || perturbationNumber > numberOfForecastsInEnsemble) {
                 std::string errMsg = "`perturbationNumber` (";
                 errMsg += std::to_string(perturbationNumber);
                 errMsg += ") is out of valid range [0, ";
@@ -136,12 +136,11 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
         }
         else {
 
-            /// @todo Implement a defaulting strategy for `numberOfForecastsInEnsemble` when the key is missing from the parameter dictionary.
+            /// @todo Implement a defaulting strategy for `numberOfForecastsInEnsemble` when the key is missing from the
+            /// parameter dictionary.
             std::string errMsg = "Default value for `numberOfForecastsInEnsemble` not implemented";
             throw Mars2GribDeductionException(errMsg, Here());
-
         }
-
     }
     catch (...) {
 

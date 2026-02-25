@@ -44,8 +44,8 @@
 #pragma once
 
 // System includes
-#include <string>
 #include <optional>
+#include <string>
 
 // Table includes
 #include "metkit/mars2grib/backend/tables/productionStatusOfProcessedData.h"
@@ -159,10 +159,7 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
 
             // Success exit point
             return productionStatusOfProcessedData.value();
-
-
         }
-
     }
     catch (...) {
 

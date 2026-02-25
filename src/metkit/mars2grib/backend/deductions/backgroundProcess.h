@@ -124,8 +124,8 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
                                                              [[maybe_unused]] const ParDict_t& par,
                                                              [[maybe_unused]] const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
@@ -147,7 +147,6 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
 
             // Success exit point
             return backgroundProcess;
-
         }
         else {
 
@@ -166,9 +165,7 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
 
             // Success exit point
             return backgroundProcess;
-
         }
-
     }
     catch (...) {
 
