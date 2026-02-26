@@ -43,7 +43,7 @@ namespace metkit::mars2grib::backend::validation {
 /// @param[in] opt Options dictionary; may contain the boolean key `applyChecks`
 /// @param[in] out Output dictionary expected to contain the key `dataset`
 /// when checks are enabled
-/// @param[in] expectedDataset Expected dataset identifier
+/// @param[in] expectedDatasetString Expected dataset identifier
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribValidationException
 /// If:
@@ -57,7 +57,7 @@ namespace metkit::mars2grib::backend::validation {
 ///
 
 template <class OptDict_t, class OutDict_t>
-void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const std::string& expectedDataset) {
+void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const std::string& expectedDatasetString) {
 
     using metkit::mars2grib::utils::checksEnabled;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -67,14 +67,29 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
 
         if (checksEnabled<OutDict_t>(opt)) {
 
+            // Convert the expected 'dataset' from string to integer
+            long expectedDataset;
+            if (expectedDatasetString == "climate-dt") {
+                expectedDataset = 1;
+            }
+            else if (expectedDatasetString == "extremes-dt") {
+                expectedDataset = 2;
+            }
+            else {
+                throw Mars2GribValidationException(
+                    "Expected dataset '" + expectedDatasetString + "' cannot be mapped to integer representation",
+                    Here());
+            }
+
             // Get the `dataset` entry (expected in DestinE local use sections)
-            std::string actualDataset = get_or_throw<std::string>(out, "dataset");
+            const auto actualDataset = get_or_throw<long>(out, "dataset");
 
             // Compare against expected values
             if (actualDataset != expectedDataset) {
-                std::string errMsg = "Dataset does not match the expected value: ";
-                errMsg += "actual=" + actualDataset + ", expected=" + expectedDataset;
-                throw Mars2GribValidationException(errMsg, Here());
+                throw Mars2GribValidationException(
+                    "Dataset does not match the expected value: actual=" + std::to_string(actualDataset) +
+                        ", expected=" + std::to_string(expectedDataset),
+                    Here());
             }
 
             // Useful for debugging
