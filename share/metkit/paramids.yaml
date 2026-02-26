@@ -8,7 +8,6 @@
 2:
 - vp
 - Velocity potential
-- vpot
 3:
 - pt
 - Potential temperature
@@ -48,19 +47,15 @@
 15:
 - aluvp
 - UV visible albedo for direct radiation (climatological)
-- auvp
 16:
 - aluvd
 - UV visible albedo for diffuse radiation (climatological)
-- auvd
 17:
 - alnip
 - Near IR albedo for direct radiation (climatological)
-- anip
 18:
 - alnid
 - Near IR albedo for diffuse radiation (climatological)
-- anid
 19:
 - uvcs
 - Clear sky surface UV
@@ -109,7 +104,6 @@
 34:
 - sst
 - Sea surface temperature
-- sstk
 35:
 - istl1
 - Ice temperature layer 1
@@ -125,19 +119,15 @@
 39:
 - swvl1
 - Volumetric soil water layer 1
-- swv1
 40:
 - swvl2
 - Volumetric soil water layer 2
-- swv2
 41:
 - swvl3
 - Volumetric soil water layer 3
-- swv3
 42:
 - swvl4
 - Volumetric soil water layer 4
-- swv4
 43:
 - slt
 - Soil type
@@ -207,11 +197,9 @@
 66:
 - lai_lv
 - Leaf area index, low vegetation
-- lailv
 67:
 - lai_hv
 - Leaf area index, high vegetation
-- laihv
 68:
 - msr_lv
 - Minimum stomatal resistance, low vegetation
@@ -242,7 +230,6 @@
 77:
 - etadot
 - Eta-coordinate vertical velocity
-- etad
 78:
 - tclw
 - Total column cloud liquid water
@@ -429,7 +416,6 @@
 139:
 - stl1
 - Soil temperature level 1
-- st
 140:
 - swl1
 - Soil wetness level 1
@@ -457,7 +443,6 @@
 148:
 - chnk
 - Charnock
-- ss
 149:
 - snr
 - Surface net radiation (SW and LW)
@@ -641,7 +626,6 @@
 209:
 - ttrc
 - Top net long-wave (thermal) radiation, clear sky
-- ttru
 210:
 - ssrc
 - Surface net short-wave (solar) radiation, clear sky
@@ -780,15 +764,6 @@
 255:
 - _param_000255
 - Indicates a missing value
-928:
-- thk
-- thicknes
-956:
-- thka
-- thicknes anomaly
-999:
-- tc
-- tropical cyclone
 3003:
 - ptend
 - Pressure tendency
@@ -1884,29 +1859,21 @@
 131020:
 - talm2
 - Temperature anomaly less than -2 K
-- temperature anomaly of at most -2 k
 131021:
 - tag2
 - Temperature anomaly of at least +2 K
-- temperature anomaly of at least 2 k
 131022:
 - talm8
 - Temperature anomaly less than -8 K
-- temperature anomaly of at most -8 k
 131023:
 - talm4
 - Temperature anomaly less than -4 K
-- temperature anomaly of at most -4 k
 131024:
 - tag4
 - Temperature anomaly greater than +4 K
-- temperature anomaly greater than 4 k
-- temperature anomaly of at least 4 k
 131025:
 - tag8
 - Temperature anomaly greater than +8 K
-- temperature anomaly greater than 8 k
-- temperature anomaly of at least 8 k
 131049:
 - 10gp
 - 10 metre wind gust probability
@@ -2090,7 +2057,6 @@
 132049:
 - 10fgi
 - 10 metre wind gust index
-- 10gi
 132059:
 - capei
 - Convective available potential energy index
@@ -2474,28 +2440,22 @@
 - Wave energy flux mean direction
 140114:
 - h1012
-- Significant wave height of all waves with periods within the inclusive range from
-  10 to 12 seconds
+- Significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds
 140115:
 - h1214
-- Significant wave height of all waves with periods within the inclusive range from
-  12 to 14 seconds
+- Significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds
 140116:
 - h1417
-- Significant wave height of all waves with periods within the inclusive range from
-  14 to 17 seconds
+- Significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds
 140117:
 - h1721
-- Significant wave height of all waves with periods within the inclusive range from
-  17 to 21 seconds
+- Significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds
 140118:
 - h2125
-- Significant wave height of all waves with periods within the inclusive range from
-  21 to 25 seconds
+- Significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds
 140119:
 - h2530
-- Significant wave height of all waves with periods within the inclusive range from
-  25 to 30 seconds
+- Significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds
 140120:
 - sh10
 - Significant wave height of all waves with period larger than 10s
@@ -2786,28 +2746,22 @@
 - Time-mean wave energy flux mean direction
 141114:
 - avg_h1012
-- Time-mean significant wave height of all waves with periods within the inclusive
-  range from 10 to 12 seconds
+- Time-mean significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds
 141115:
 - avg_h1214
-- Time-mean significant wave height of all waves with periods within the inclusive
-  range from 12 to 14 seconds
+- Time-mean significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds
 141116:
 - avg_h1417
-- Time-mean significant wave height of all waves with periods within the inclusive
-  range from 14 to 17 seconds
+- Time-mean significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds
 141117:
 - avg_h1721
-- Time-mean significant wave height of all waves with periods within the inclusive
-  range from 17 to 21 seconds
+- Time-mean significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds
 141118:
 - avg_h2125
-- Time-mean significant wave height of all waves with periods within the inclusive
-  range from 21 to 25 seconds
+- Time-mean significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds
 141119:
 - avg_h2530
-- Time-mean significant wave height of all waves with periods within the inclusive
-  range from 25 to 30 seconds
+- Time-mean significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds
 141120:
 - avg_sh10
 - Time-mean significant wave height of all waves with period larger than 10s
@@ -3056,28 +3010,22 @@
 - Time-maximum wave energy flux mean direction
 143114:
 - max_h1012
-- Time-maximum significant wave height of all waves with periods within the inclusive
-  range from 10 to 12 seconds
+- Time-maximum significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds
 143115:
 - max_h1214
-- Time-maximum significant wave height of all waves with periods within the inclusive
-  range from 12 to 14 seconds
+- Time-maximum significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds
 143116:
 - max_h1417
-- Time-maximum significant wave height of all waves with periods within the inclusive
-  range from 14 to 17 seconds
+- Time-maximum significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds
 143117:
 - max_h1721
-- Time-maximum significant wave height of all waves with periods within the inclusive
-  range from 17 to 21 seconds
+- Time-maximum significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds
 143118:
 - max_h2125
-- Time-maximum significant wave height of all waves with periods within the inclusive
-  range from 21 to 25 seconds
+- Time-maximum significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds
 143119:
 - max_h2530
-- Time-maximum significant wave height of all waves with periods within the inclusive
-  range from 25 to 30 seconds
+- Time-maximum significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds
 143120:
 - max_sh10
 - Time-maximum significant wave height of all waves with period larger than 10s
@@ -3326,28 +3274,22 @@
 - Time-minimum wave energy flux mean direction
 144114:
 - min_h1012
-- Time-minimum significant wave height of all waves with periods within the inclusive
-  range from 10 to 12 seconds
+- Time-minimum significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds
 144115:
 - min_h1214
-- Time-minimum significant wave height of all waves with periods within the inclusive
-  range from 12 to 14 seconds
+- Time-minimum significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds
 144116:
 - min_h1417
-- Time-minimum significant wave height of all waves with periods within the inclusive
-  range from 14 to 17 seconds
+- Time-minimum significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds
 144117:
 - min_h1721
-- Time-minimum significant wave height of all waves with periods within the inclusive
-  range from 17 to 21 seconds
+- Time-minimum significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds
 144118:
 - min_h2125
-- Time-minimum significant wave height of all waves with periods within the inclusive
-  range from 21 to 25 seconds
+- Time-minimum significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds
 144119:
 - min_h2530
-- Time-minimum significant wave height of all waves with periods within the inclusive
-  range from 25 to 30 seconds
+- Time-minimum significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds
 144120:
 - min_sh10
 - Time-minimum significant wave height of all waves with period larger than 10s
@@ -3596,32 +3538,25 @@
 - Time-standard-deviation wave energy flux mean direction
 145114:
 - std_h1012
-- Time-standard-deviation significant wave height of all waves with periods within
-  the inclusive range from 10 to 12 seconds
+- Time-standard-deviation significant wave height of all waves with periods within the inclusive range from 10 to 12 seconds
 145115:
 - std_h1214
-- Time-standard-deviation significant wave height of all waves with periods within
-  the inclusive range from 12 to 14 seconds
+- Time-standard-deviation significant wave height of all waves with periods within the inclusive range from 12 to 14 seconds
 145116:
 - std_h1417
-- Time-standard-deviation significant wave height of all waves with periods within
-  the inclusive range from 14 to 17 seconds
+- Time-standard-deviation significant wave height of all waves with periods within the inclusive range from 14 to 17 seconds
 145117:
 - std_h1721
-- Time-standard-deviation significant wave height of all waves with periods within
-  the inclusive range from 17 to 21 seconds
+- Time-standard-deviation significant wave height of all waves with periods within the inclusive range from 17 to 21 seconds
 145118:
 - std_h2125
-- Time-standard-deviation significant wave height of all waves with periods within
-  the inclusive range from 21 to 25 seconds
+- Time-standard-deviation significant wave height of all waves with periods within the inclusive range from 21 to 25 seconds
 145119:
 - std_h2530
-- Time-standard-deviation significant wave height of all waves with periods within
-  the inclusive range from 25 to 30 seconds
+- Time-standard-deviation significant wave height of all waves with periods within the inclusive range from 25 to 30 seconds
 145120:
 - std_sh10
-- Time-standard-deviation significant wave height of all waves with period larger
-  than 10s
+- Time-standard-deviation significant wave height of all waves with period larger than 10s
 145121:
 - std_swh1
 - Time-standard-deviation significant wave height of first swell partition
@@ -4897,7 +4832,6 @@
 171031:
 - sica
 - Sea-ice cover anomaly
-- ci
 171032:
 - asna
 - Snow albedo anomaly
@@ -4922,23 +4856,15 @@
 171039:
 - swval1
 - Volumetric soil water anomaly layer 1
-- swv1
-- swvl1a
 171040:
 - swval2
 - Volumetric soil water anomaly layer 2
-- swv2
-- swvl2a
 171041:
 - swval3
 - Volumetric soil water anomaly layer 3
-- swv3
-- swvl3a
 171042:
 - swval4
 - Volumetric soil water anomaly layer 4
-- swv4
-- swvl4a
 171043:
 - slta
 - Soil type anomaly
@@ -5035,19 +4961,15 @@
 171129:
 - za
 - Geopotential anomaly
-- z
 171130:
 - ta
 - Temperature anomaly
-- t
 171131:
 - ua
 - U component of wind anomaly
-- u
 171132:
 - va
 - V component of wind anomaly
-- v
 171133:
 - qa
 - Specific humidity anomaly
@@ -5066,16 +4988,12 @@
 171138:
 - voa
 - Relative vorticity anomaly
-- vo
 171139:
 - stal1
 - Soil temperature anomaly level 1
-- stl1
-- st
 171140:
 - swal1
 - Soil wetness anomaly level 1
-- swl1
 171141:
 - sda
 - Snow depth anomaly
@@ -5109,7 +5027,6 @@
 171151:
 - msla
 - Mean sea level pressure anomaly
-- msl
 171152:
 - lspa
 - Logarithm of surface pressure anomaly
@@ -5122,15 +5039,12 @@
 171155:
 - da
 - Relative divergence anomaly
-- d
 171156:
 - gha
 - Height anomaly
-- gh
 171157:
 - ra
 - Relative humidity anomaly
-- r
 171158:
 - tspa
 - Tendency of surface pressure anomaly
@@ -5170,12 +5084,9 @@
 171170:
 - stal2
 - Soil temperature anomaly level 2
-- slal2
-- stl2
 171171:
 - swal2
 - Soil wetness anomaly level 2
-- swl2
 171173:
 - sra
 - Surface roughness anomaly
@@ -5209,11 +5120,9 @@
 171183:
 - stal3
 - Soil temperature anomaly level 3
-- stl3
 171184:
 - swal3
 - Soil wetness anomaly level 3
-- swl3
 171185:
 - ccca
 - Convective cloud cover anomaly
@@ -5283,7 +5192,6 @@
 171207:
 - 10sia
 - 10 metre wind speed anomaly
-- 10si
 171208:
 - tsrca
 - Top net solar radiation clear sky anomaly
@@ -5371,7 +5279,6 @@
 171237:
 - swal4
 - Soil wetness level 4 anomaly
-- swl4
 171238:
 - tsna
 - Temperature of snow layer anomaly
@@ -5435,91 +5342,69 @@
 172044:
 - esrate
 - Time-mean snow evaporation rate
-- es
 172045:
 - _param_172045
 - Time-mean snowmelt rate
 172050:
 - mlspfr
 - Mean large-scale precipitation fraction
-- lspf
 172142:
 - mlsprt
 - Time-mean large-scale precipitation rate
-- lsp
 172143:
 - cprate
 - Time-mean convective precipitation rate
-- cp
 172144:
 - mtsfr
 - Time-mean total snowfall rate
-- sf
 172145:
 - bldrate
 - Boundary layer dissipation
 172146:
 - msshfl
 - Time-mean surface sensible heat flux
-- sshf
-- '146'
 172147:
 - mslhfl
 - Time-mean surface latent heat flux
-- slhf
-- '147'
 172149:
 - msnrf
 - Mean surface net radiation flux
-- snr
 172153:
 - mswhr
 - Time-mean short-wave (solar) heating rate
-- swhr
 172154:
 - mlwhr
 - Time-mean long-wave (thermal) heating rate
-- lwhr
 172169:
 - msdsrf
 - Time-mean surface downward short-wave (solar) radiation flux
-- ssrd
 172175:
 - msdtrf
 - Time-mean surface downward long-wave (thermal) radiation flux
-- strd
 172176:
 - msnsrf
 - Time-mean surface net short-wave (solar) radiation flux
-- ssr
 172177:
 - msntrf
 - Time-mean surface net long-wave (thermal) radiation flux
-- str
 172178:
 - mtnsrf
 - Time-mean top net short-wave (solar) radiation flux
-- tsr
 172179:
 - mtntrf
 - Time-mean top net long-wave (thermal) radiation flux
-- ttr
 172180:
 - ewssra
 - Time-mean eastward turbulent surface stress
-- ewss
 172181:
 - nsssra
 - Time-mean northward turbulent surface stress
-- nsss
 172182:
 - erate
 - Time-mean evaporation rate
-- e
 172189:
 - msdr
 - Mean sunshine duration rate
-- sund
 172195:
 - _param_172195
 - Longitudinal component of gravity wave stress
@@ -5532,7 +5417,6 @@
 172205:
 - mrort
 - Time-mean runoff rate
-- ro
 172208:
 - _param_172208
 - Time-mean top net short-wave (solar) radiation flux, clear sky
@@ -5551,7 +5435,6 @@
 172228:
 - tprate
 - Time-mean total precipitation rate
-- tp
 172239:
 - _param_172239
 - Time-mean convective snowfall rate
@@ -5582,11 +5465,9 @@
 173142:
 - lspara
 - Stratiform precipitation (Large-scale precipitation) anomalous rate of accumulation
-- lspa
 173143:
 - mcpra
 - Mean convective precipitation rate anomaly
-- cpa
 173144:
 - sfara
 - Snowfall (convective + stratiform) anomalous rate of accumulation
@@ -5611,32 +5492,21 @@
 173169:
 - ssrdara
 - Surface solar radiation downwards anomalous rate of accumulation
-- ssrda
-- ssrd
 173175:
 - strdara
 - Surface thermal radiation downwards anomalous rate of accumulation
-- strda
 173176:
 - ssrara
 - Surface solar radiation anomalous rate of accumulation
-- ssra
-- ssr
 173177:
 - strara
 - Surface thermal radiation anomalous rate of accumulation
-- stra
-- str
 173178:
 - tsrara
 - Top solar radiation anomalous rate of accumulation
-- tsra
-- tsr
 173179:
 - ttrara
 - Top thermal radiation anomalous rate of accumulation
-- ttra
-- ttr
 173180:
 - ewssara
 - East-West surface stress anomalous rate of accumulation
@@ -5646,8 +5516,6 @@
 173182:
 - evara
 - Time-mean evaporation anomalous rate of accumulation
-- ea
-- e
 173189:
 - sundara
 - Sunshine duration anomalous rate of accumulation
@@ -9751,8 +9619,7 @@
 - Natural (sea-salt and dust) aerosol optical thickness at 532 nm
 215095:
 - aaot532
-- Anthropogenic (black carbon, organic matter, sulphate) aerosol optical thickness
-  at 532 nm
+- Anthropogenic (black carbon, organic matter, sulphate) aerosol optical thickness at 532 nm
 215096:
 - aodabs340
 - Total absorption aerosol optical depth at 340 nm
@@ -13639,8 +13506,7 @@
 - Time-integrated dry deposition mass flux of Hydroxyacetone
 222161:
 - acc_dry_depm_isopooh
-- Time-integrated dry deposition mass flux of all hydroxy-peroxides products of the
-  reaction of hydroxy-isoprene adducts with O2
+- Time-integrated dry deposition mass flux of all hydroxy-peroxides products of the reaction of hydroxy-isoprene adducts with O2
 222224:
 - acc_dry_depm_ch3cn
 - Time-integrated dry deposition mass flux of Acetonitrile
@@ -13778,8 +13644,7 @@
 - Time-integrated wet deposition mass flux of Hydroxyacetone
 223161:
 - acc_wet_depm_isopooh
-- Time-integrated wet deposition mass flux of all hydroxy-peroxides products of the
-  reaction of hydroxy-isoprene adducts with O2
+- Time-integrated wet deposition mass flux of all hydroxy-peroxides products of the reaction of hydroxy-isoprene adducts with O2
 223186:
 - acc_wet_depm_sog1
 - Time-integrated wet deposition mass flux of Condensable gas type 1
@@ -13879,7 +13744,6 @@
 228024:
 - deg0l
 - Geometric height of 0 degrees C atmospheric isothermal level above ground
-- deg0
 228025:
 - hvis
 - Horizontal visibility
@@ -14737,8 +14601,7 @@
 - Time-integrated total column vertically-integrated northward geopotential flux
 233002:
 - tviwgd
-- Time-integrated total column vertically-integrated divergence of water geopotential
-  flux
+- Time-integrated total column vertically-integrated divergence of water geopotential flux
 233003:
 - tvigd
 - Time-integrated total column vertically-integrated divergence of geopotential flux
@@ -14765,15 +14628,13 @@
 - Time-integrated total column vertically-integrated divergence of enthalpy flux
 233011:
 - tviked
-- Time-integrated total column vertically-integrated divergence of kinetic energy
-  flux
+- Time-integrated total column vertically-integrated divergence of kinetic energy flux
 233012:
 - tvited
 - Time-integrated total column vertically-integrated divergence of total energy flux
 233013:
 - tviwed
-- Time-integrated total column vertically-integrated divergence of water enthalpy
-  flux
+- Time-integrated total column vertically-integrated divergence of water enthalpy flux
 233014:
 - tvimad
 - Time-integrated total column vertically-integrated divergence of mass flux
@@ -14788,12 +14649,10 @@
 - Time-integrated total column vertically-integrated divergence of water vapour flux
 233018:
 - tviclwd
-- Time-integrated total column vertically-integrated divergence of cloud liquid water
-  flux
+- Time-integrated total column vertically-integrated divergence of cloud liquid water flux
 233019:
 - tviciwd
-- Time-integrated total column vertically-integrated divergence of cloud ice water
-  flux
+- Time-integrated total column vertically-integrated divergence of cloud ice water flux
 233020:
 - tvird
 - Time-integrated total column vertically-integrated divergence of rain flux
@@ -14811,8 +14670,7 @@
 - Time-integrated total column vertically-integrated eastward cloud liquid water flux
 233025:
 - tviclwn
-- Time-integrated total column vertically-integrated northward cloud liquid water
-  flux
+- Time-integrated total column vertically-integrated northward cloud liquid water flux
 233026:
 - tviciwe
 - Time-integrated total column vertically-integrated eastward cloud ice water flux
@@ -16234,15 +16092,13 @@
 - Time-maximum trapping layer top height
 237315:
 - max_degm10l
-- Time-maximum geometric height of -10 degrees C atmospheric isothermal level above
-  ground
+- Time-maximum geometric height of -10 degrees C atmospheric isothermal level above ground
 237316:
 - max_cbh
 - Time-maximum cloud base height
 237317:
 - max_deg0l
-- Time-maximum geometric height of 0 degrees C atmospheric isothermal level above
-  ground
+- Time-maximum geometric height of 0 degrees C atmospheric isothermal level above ground
 237318:
 - max_i10fg
 - Time-maximum 10 metre wind gust
@@ -16305,8 +16161,7 @@
 - Time-maximum ceiling
 237338:
 - max_tcsqw
-- Time-maximum total column integrated saturation specific humidity with respect to
-  water
+- Time-maximum total column integrated saturation specific humidity with respect to water
 237339:
 - max_sdirnswrf
 - Time-maximum surface direct normal short-wave radiation flux
@@ -16324,8 +16179,7 @@
 - Time-maximum total column vertically-integrated northward geopotential flux
 237344:
 - max_viwgd
-- Time-maximum total column vertically-integrated divergence of water geopotential
-  flux
+- Time-maximum total column vertically-integrated divergence of water geopotential flux
 237345:
 - max_vigd
 - Time-maximum total column vertically-integrated divergence of geopotential flux
@@ -16373,8 +16227,7 @@
 - Time-maximum total column vertically-integrated divergence of water vapour flux
 237360:
 - max_viclwd
-- Time-maximum total column vertically-integrated divergence of cloud liquid water
-  flux
+- Time-maximum total column vertically-integrated divergence of cloud liquid water flux
 237361:
 - max_viciwd
 - Time-maximum total column vertically-integrated divergence of cloud ice water flux
@@ -16485,8 +16338,7 @@
 - Time-maximum Reciprocal Obukhov length
 237397:
 - max_deg3l
-- Time-maximum geometric height of 3 degrees C atmospheric isothermal level above
-  ground
+- Time-maximum geometric height of 3 degrees C atmospheric isothermal level above ground
 237404:
 - max_sdifswrfcs
 - Time-maximum surface diffuse short-wave radiation flux, clear sky
@@ -16984,15 +16836,13 @@
 - Time-minimum trapping layer top height
 238315:
 - min_degm10l
-- Time-minimum geometric height of -10 degrees C atmospheric isothermal level above
-  ground
+- Time-minimum geometric height of -10 degrees C atmospheric isothermal level above ground
 238316:
 - min_cbh
 - Time-minimum cloud base height
 238317:
 - min_deg0l
-- Time-minimum geometric height of 0 degrees C atmospheric isothermal level above
-  ground
+- Time-minimum geometric height of 0 degrees C atmospheric isothermal level above ground
 238318:
 - min_i10fg
 - Time-minimum 10 metre wind gust
@@ -17055,8 +16905,7 @@
 - Time-minimum ceiling
 238338:
 - min_tcsqw
-- Time-minimum total column integrated saturation specific humidity with respect to
-  water
+- Time-minimum total column integrated saturation specific humidity with respect to water
 238339:
 - min_sdirnswrf
 - Time-minimum direct solar radiation flux
@@ -17074,8 +16923,7 @@
 - Time-minimum total column vertically-integrated northward geopotential flux
 238344:
 - min_viwgd
-- Time-minimum total column vertically-integrated divergence of water geopotential
-  flux
+- Time-minimum total column vertically-integrated divergence of water geopotential flux
 238345:
 - min_vigd
 - Time-minimum total column vertically-integrated divergence of geopotential flux
@@ -17228,8 +17076,7 @@
 - Time-minimum Reciprocal Obukhov length
 238397:
 - min_deg3l
-- Time-minimum geometric height of 3 degrees C atmospheric isothermal level above
-  ground
+- Time-minimum geometric height of 3 degrees C atmospheric isothermal level above ground
 238404:
 - min_sdifswrfcs
 - Time-minimum surface diffuse short-wave radiation flux, clear sky
@@ -17262,8 +17109,7 @@
 - Time-standard-deviation temperature tendency due to long-wave radiation
 239003:
 - std_ttswrcs
-- Time-standard-deviation temperature tendency due to short wave radiation, clear
-  sky
+- Time-standard-deviation temperature tendency due to short wave radiation, clear sky
 239004:
 - std_ttlwrcs
 - Time-standard-deviation temperature tendency due to long-wave radiation, clear sky
@@ -17299,8 +17145,7 @@
 - Time-standard-deviation turbulent diffusion coefficient for heat
 239022:
 - std_parcsf
-- Time-standard-deviation surface photosynthetically active radiation flux, clear
-  sky
+- Time-standard-deviation surface photosynthetically active radiation flux, clear sky
 239023:
 - std_esrwe
 - Time-standard-deviation snow evaporation rate
@@ -17660,8 +17505,7 @@
 - Time-standard-deviation total column vertically-integrated enthalpy
 239293:
 - std_vipie
-- Time-standard-deviation total column vertically-integrated potential + internal
-  energy
+- Time-standard-deviation total column vertically-integrated potential + internal energy
 239294:
 - std_vipile
 - Time-standard-deviation vertical integral of potential+internal+latent energy
@@ -17673,28 +17517,22 @@
 - Time-standard-deviation total column vertically-integrated water enthalpy
 239297:
 - std_aluvpi_p
-- Time-standard-deviation UV visible albedo for direct radiation, isotropic component
-  (climatological)
+- Time-standard-deviation UV visible albedo for direct radiation, isotropic component (climatological)
 239298:
 - std_aluvpv_p
-- Time-standard-deviation UV visible albedo for direct radiation, volumetric component
-  (climatological)
+- Time-standard-deviation UV visible albedo for direct radiation, volumetric component (climatological)
 239299:
 - std_aluvpg_p
-- Time-standard-deviation UV visible albedo for direct radiation, geometric component
-  (climatological)
+- Time-standard-deviation UV visible albedo for direct radiation, geometric component (climatological)
 239300:
 - std_alnipi_p
-- Time-standard-deviation near IR albedo for direct radiation, isotropic component
-  (climatological)
+- Time-standard-deviation near IR albedo for direct radiation, isotropic component (climatological)
 239301:
 - std_alnipv_p
-- Time-standard-deviation near IR albedo for direct radiation, volumetric component
-  (climatological)
+- Time-standard-deviation near IR albedo for direct radiation, volumetric component (climatological)
 239302:
 - std_alnipg_p
-- Time-standard-deviation near IR albedo for direct radiation, geometric component
-  (climatological)
+- Time-standard-deviation near IR albedo for direct radiation, geometric component (climatological)
 239303:
 - std_cin
 - Time-standard-deviation convective inhibition
@@ -17718,8 +17556,7 @@
 - Time-standard-deviation lake ice total depth
 239310:
 - std_dndzn
-- Time-standard-deviation minimum vertical gradient of refractivity inside trapping
-  layer
+- Time-standard-deviation minimum vertical gradient of refractivity inside trapping layer
 239311:
 - std_dndza
 - Time-standard-deviation mean vertical gradient of refractivity inside trapping layer
@@ -17734,15 +17571,13 @@
 - Time-standard-deviation trapping layer top height
 239315:
 - std_degm10l
-- Time-standard-deviation geometric height of -10 degrees C atmospheric isothermal
-  level above ground
+- Time-standard-deviation geometric height of -10 degrees C atmospheric isothermal level above ground
 239316:
 - std_cbh
 - Time-standard-deviation cloud base height
 239317:
 - std_deg0l
-- Time-standard-deviation geometric height of 0 degrees C atmospheric isothermal level
-  above ground
+- Time-standard-deviation geometric height of 0 degrees C atmospheric isothermal level above ground
 239318:
 - std_i10fg
 - Time-standard-deviation 10 metre wind gust
@@ -17799,15 +17634,13 @@
 - Time-standard-deviation mixed-layer CIN in the lowest 100 hPa
 239336:
 - std_mudlp
-- Time-standard-deviation departure level of the most unstable parcel expressed as
-  Pressure
+- Time-standard-deviation departure level of the most unstable parcel expressed as Pressure
 239337:
 - std_ceil
 - Time-standard-deviation ceiling
 239338:
 - std_tcsqw
-- Time-standard-deviation total column integrated saturation specific humidity with
-  respect to water
+- Time-standard-deviation total column integrated saturation specific humidity with respect to water
 239339:
 - std_sdirnswrf
 - Time-standard-deviation direct solar radiation flux
@@ -17819,20 +17652,16 @@
 - Time-standard-deviation freezing rain rate water equivalent
 239342:
 - std_vige
-- Time-standard-deviation total column vertically-integrated eastward geopotential
-  flux
+- Time-standard-deviation total column vertically-integrated eastward geopotential flux
 239343:
 - std_vign
-- Time-standard-deviation total column vertically-integrated northward geopotential
-  flux
+- Time-standard-deviation total column vertically-integrated northward geopotential flux
 239344:
 - std_viwgd
-- Time-standard-deviation total column vertically-integrated divergence of water geopotential
-  flux
+- Time-standard-deviation total column vertically-integrated divergence of water geopotential flux
 239345:
 - std_vigd
-- Time-standard-deviation total column vertically-integrated divergence of geopotential
-  flux
+- Time-standard-deviation total column vertically-integrated divergence of geopotential flux
 239346:
 - std_viee
 - Time-standard-deviation total column vertically-integrated eastward enthalpy flux
@@ -17841,36 +17670,28 @@
 - Time-standard-deviation total column vertically-integrated northward enthalpy flux
 239348:
 - std_vikee
-- Time-standard-deviation total column vertically-integrated eastward kinetic energy
-  flux
+- Time-standard-deviation total column vertically-integrated eastward kinetic energy flux
 239349:
 - std_viken
-- Time-standard-deviation total column vertically-integrated northward kinetic energy
-  flux
+- Time-standard-deviation total column vertically-integrated northward kinetic energy flux
 239350:
 - std_vitee
-- Time-standard-deviation total column vertically-integrated eastward total energy
-  flux
+- Time-standard-deviation total column vertically-integrated eastward total energy flux
 239351:
 - std_viten
-- Time-standard-deviation total column vertically-integrated northward total energy
-  flux
+- Time-standard-deviation total column vertically-integrated northward total energy flux
 239352:
 - std_vied
-- Time-standard-deviation total column vertically-integrated divergence of enthalpy
-  flux
+- Time-standard-deviation total column vertically-integrated divergence of enthalpy flux
 239353:
 - std_viked
-- Time-standard-deviation total column vertically-integrated divergence of kinetic
-  energy flux
+- Time-standard-deviation total column vertically-integrated divergence of kinetic energy flux
 239354:
 - std_vited
-- Time-standard-deviation total column vertically-integrated divergence of total energy
-  flux
+- Time-standard-deviation total column vertically-integrated divergence of total energy flux
 239355:
 - std_viwed
-- Time-standard-deviation total column vertically-integrated divergence of water enthalpy
-  flux
+- Time-standard-deviation total column vertically-integrated divergence of water enthalpy flux
 239356:
 - std_vimad
 - Time-standard-deviation vertically integrated divergence of mass flux
@@ -17939,12 +17760,10 @@
 - Time-standard-deviation vertically integrated net source of ozone
 239378:
 - std_ietssofd
-- Time-standard-deviation eastward turbulent surface stress due to orographic form
-  drag
+- Time-standard-deviation eastward turbulent surface stress due to orographic form drag
 239379:
 - std_intssofd
-- Time-standard-deviation northward turbulent surface stress due to orographic form
-  drag
+- Time-standard-deviation northward turbulent surface stress due to orographic form drag
 239380:
 - std_ietsssr
 - Time-standard-deviation eastward turbulent surface stress due to surface roughness
@@ -17989,8 +17808,7 @@
 - Time-standard-deviation Reciprocal Obukhov length
 239397:
 - std_deg3l
-- Time-standard-deviation geometric height of 3 degrees C atmospheric isothermal level
-  above ground
+- Time-standard-deviation geometric height of 3 degrees C atmospheric isothermal level above ground
 239404:
 - std_sdifswrfcs
 - Time-standard-deviation surface diffuse short-wave radiation flux, clear sky
@@ -18745,8 +18563,7 @@
 - Storm surface runoff
 260176:
 - cppop
-- Conditional percent precipitation amount fractile for an overall period (Encoded
-  as an accumulation)
+- Conditional percent precipitation amount fractile for an overall period (Encoded as an accumulation)
 260177:
 - pposp
 - Percent precipitation in a sub-period of an overall period
@@ -19802,20 +19619,16 @@
 - Fire danger index (as defined by the Australian forest service)
 260561:
 - scnfdr
-- Spread component (as defined by the U.S Forest Service National Fire-Danger Rating
-  System)
+- Spread component (as defined by the U.S Forest Service National Fire-Danger Rating System)
 260562:
 - buinfdr
-- Burning index (as defined by the U.S Forest Service National Fire-Danger Rating
-  System)
+- Burning index (as defined by the U.S Forest Service National Fire-Danger Rating System)
 260563:
 - icnfdr
-- Ignition component (as defined by the U.S Forest Service National Fire-Danger Rating
-  System)
+- Ignition component (as defined by the U.S Forest Service National Fire-Danger Rating System)
 260564:
 - ercnfdr
-- Energy release component (as defined by the U.S Forest Service National Fire-Danger
-  Rating System)
+- Energy release component (as defined by the U.S Forest Service National Fire-Danger Rating System)
 260565:
 - pof
 - Probability of fire detection
@@ -21050,12 +20863,10 @@
 - Time-maximum sea surface salinity
 265146:
 - max_sc300v
-- Time-maximum vertically integrated sea water practical salinity in the upper 300
-  m
+- Time-maximum vertically integrated sea water practical salinity in the upper 300 m
 265147:
 - max_sc700v
-- Time-maximum vertically integrated sea water practical salinity in the upper 700
-  m
+- Time-maximum vertically integrated sea water practical salinity in the upper 700 m
 265148:
 - max_scbtv
 - Time-maximum total column vertically integrated sea water practical salinity
@@ -21379,12 +21190,10 @@
 - Time-minimum sea surface salinity
 266146:
 - min_sc300v
-- Time-minimum vertically integrated sea water practical salinity in the upper 300
-  m
+- Time-minimum vertically integrated sea water practical salinity in the upper 300 m
 266147:
 - min_sc700v
-- Time-minimum vertically integrated sea water practical salinity in the upper 700
-  m
+- Time-minimum vertically integrated sea water practical salinity in the upper 700 m
 266148:
 - min_scbtv
 - Time-minimum total column vertically integrated sea water practical salinity
@@ -21615,8 +21424,7 @@
 - Time-standard-deviation ocean mixed layer depth defined by sigma theta 0.03 kg m-3
 267115:
 - std_mlotst125
-- Time-standard-deviation ocean mixed layer depth defined by sigma theta 0.125 kg
-  m-3
+- Time-standard-deviation ocean mixed layer depth defined by sigma theta 0.125 kg m-3
 267116:
 - std_mlott02
 - Time-standard-deviation ocean mixed layer depth defined by temperature 0.2 C
@@ -21709,12 +21517,10 @@
 - Time-standard-deviation sea surface salinity
 267146:
 - std_sc300v
-- Time-standard-deviation vertically integrated sea water practical salinity in the
-  upper 300 m
+- Time-standard-deviation vertically integrated sea water practical salinity in the upper 300 m
 267147:
 - std_sc700v
-- Time-standard-deviation vertically integrated sea water practical salinity in the
-  upper 700 m
+- Time-standard-deviation vertically integrated sea water practical salinity in the upper 700 m
 267148:
 - std_scbtv
 - Time-standard-deviation total column vertically integrated sea water practical salinity
@@ -21747,8 +21553,7 @@
 - Time-standard-deviation upward sea water velocity
 267508:
 - std_thetaodmp
-- Time-standard-deviation sea water potential temperature tendency due to newtonian
-  relaxation
+- Time-standard-deviation sea water potential temperature tendency due to newtonian relaxation
 267509:
 - std_sodmp
 - Time-standard-deviation sea water salinity tendency due to newtonian relaxation
@@ -22845,8 +22650,7 @@
 - Time-minimum emission mass flux from residential, commercial and other combustion
 422005:
 - std_emi_mflx_rescomb
-- Time-standard-deviation emission mass flux from residential, commercial and other
-  combustion
+- Time-standard-deviation emission mass flux from residential, commercial and other combustion
 423000:
 - emi_mflx_powgen
 - Emission mass flux from power generation
@@ -23416,8 +23220,7 @@
 - Time-minimum emission mass flux from oil refineries and transformation industry
 465005:
 - std_emi_mflx_oti
-- Time-standard-deviation emission mass flux from oil refineries and transformation
-  industry
+- Time-standard-deviation emission mass flux from oil refineries and transformation industry
 466000:
 - emi_mflx_gp
 - Emission mass flux from gas production
@@ -24245,12 +24048,10 @@
 - normalized differential vegetation index (NDVI)
 500221:
 - ndvi_mrat
-- ratio of monthly mean NDVI (normalized differential vegetation index) to annual
-  maximum
+- ratio of monthly mean NDVI (normalized differential vegetation index) to annual maximum
 500222:
 - ndviratio
-- ratio of monthly mean NDVI (normalized differential vegetation index) to annual
-  maximum
+- ratio of monthly mean NDVI (normalized differential vegetation index) to annual maximum
 500223:
 - aer_so4
 - Total sulfate aerosol
