@@ -151,7 +151,7 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
         else {
 
             // Retrieve mandatory MARS model identifier
-            std::string marsModelVal = "ifs";
+            std::string marsModelVal = "IFS";
 
             // Apply BackgroundProcess mapping logic
             tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
