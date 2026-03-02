@@ -9,7 +9,6 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h"
@@ -167,17 +166,16 @@ inline StatisticalProcessing getTimeDescriptorFromMars_orThrow(
                 }
             }
 
-            return out;
+            break;  // TODO: Support multi-loop statistics
         }
+
+        return out;
     }
     catch (...) {
         // Rethrow nested exceptions
         std::throw_with_nested(
             Mars2GribDeductionException("Unable to compute statistics descriptor from Mars dictionary", Here()));
     };
-
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::deductions

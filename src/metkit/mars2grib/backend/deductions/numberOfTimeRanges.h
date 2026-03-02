@@ -49,7 +49,6 @@
 
 // Details
 #include "metkit/mars2grib/backend/deductions/detail/timeUtils.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -136,30 +135,25 @@ long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
             return numberOfTimeRanges;
         }
 
-        if (hasStatType) {
+        // Retrieve MARS stattype
+        std::string statTypeVal = get_or_throw<std::string>(mars, "stattype");
 
-            // Retrieve MARS stattype
-            std::string statTypeVal = get_or_throw<std::string>(mars, "stattype");
+        // Count number of blocks in stattype
+        long numberOfBlocks = static_cast<long>(countBlocks(statTypeVal));
 
-            // Count number of blocks in stattype
-            long numberOfBlocks = static_cast<long>(countBlocks(statTypeVal));
+        // Compute number of time ranges
+        long numberOfTimeRanges = numberOfBlocks + 1;
 
-            // Compute number of time ranges
-            long numberOfTimeRanges = numberOfBlocks + 1;
+        // Emit RESOLVE log entry
+        MARS2GRIB_LOG_RESOLVE([&]() {
+            std::string logMsg = "`numberOfTimeRanges` resolved from input dictionaries: value='";
+            logMsg += std::to_string(numberOfTimeRanges) + "'";
+            return logMsg;
+        }());
 
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`numberOfTimeRanges` resolved from input dictionaries: value='";
-                logMsg += std::to_string(numberOfTimeRanges) + "'";
-                return logMsg;
-            }());
+        // Number of time ranges = number of blocks + 1
+        return numberOfTimeRanges;
 
-            // Number of time ranges = number of blocks + 1
-            return numberOfTimeRanges;
-        }
-
-        // Remove compiler warning
-        mars2gribUnreachable();
     }
     catch (...) {
 
@@ -167,9 +161,6 @@ long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `numberOfTimeRanges` from input dictionaries", Here()));
     };
-
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions
