@@ -7,7 +7,6 @@
 #include "eckit/exception/Exceptions.h"
 #include "metkit/mars2grib/backend/concepts/wave/waveEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {

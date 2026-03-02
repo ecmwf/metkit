@@ -7,7 +7,6 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/shape-of-the-earth/shapeOfTheEarthEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 

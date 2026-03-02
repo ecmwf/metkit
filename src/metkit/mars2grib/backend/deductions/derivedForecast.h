@@ -53,7 +53,6 @@
 
 // Tables
 #include "metkit/mars2grib/backend/tables/derivedForecast.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -173,8 +172,6 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             Mars2GribDeductionException("Failed to resolve `derivedForecast` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 

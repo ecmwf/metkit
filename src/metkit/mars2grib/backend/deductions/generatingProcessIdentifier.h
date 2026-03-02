@@ -14,7 +14,6 @@
 
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
@@ -123,8 +122,6 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
             "Unable to get `generatingProcessIdentifier` from parameter dictionary", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

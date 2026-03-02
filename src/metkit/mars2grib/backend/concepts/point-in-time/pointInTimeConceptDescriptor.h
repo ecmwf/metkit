@@ -35,7 +35,6 @@
 // Registry engine
 #include "metkit/mars2grib/backend/compile-time-registry-engine/RegisterEntryDescriptor.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeEncoding.h"
@@ -80,8 +79,6 @@ struct PointInTimeConcept : RegisterEntryDescriptor<PointInTimeType, PointInTime
         else {
             return nullptr;
         }
-
-        mars2gribUnreachable();
     }
 
     template <std::size_t Capability, PointInTimeType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

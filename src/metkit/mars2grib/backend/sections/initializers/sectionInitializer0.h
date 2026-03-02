@@ -36,7 +36,6 @@
 #pragma once
 
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 

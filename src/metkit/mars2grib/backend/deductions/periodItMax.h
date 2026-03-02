@@ -52,7 +52,6 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -143,8 +142,6 @@ std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDic
             Mars2GribDeductionException("Failed to resolve `iTmax` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

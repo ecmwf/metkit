@@ -11,7 +11,6 @@
 #include <utility>
 
 #include "eckit/exception/Exceptions.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Exceptions
 #include "metkit/config/LibMetkit.h"
@@ -55,7 +54,7 @@ struct DictHas {
 
     static bool has(const Dict&, std::string_view) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictHas not specialized for this Dict");
-        mars2gribUnreachable();
+        return false;  // Unreachable!
     }
 };
 
@@ -65,12 +64,11 @@ struct DictMissing {
 
     static bool isMissing(const Dict&, std::string_view) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictMissing not specialized for this Dict");
-        mars2gribUnreachable();
+        return false;  // Unreachable!
     }
 
     static void setMissing(Dict&, std::string_view) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictMissing not specialized for this Dict");
-        mars2gribUnreachable();
     }
 };
 
@@ -79,7 +77,6 @@ struct DictGetOpt {
 
     static std::optional<T> get_opt(const Dict&, std::string_view) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictGetOpt not specialized for this Dict and type");
-        mars2gribUnreachable();
     }
 };
 
@@ -88,7 +85,6 @@ struct DictGetOrThrow {
 
     static T get_or_throw(const Dict&, std::string_view) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictGetOrThrow not specialized for this Dict and type");
-        mars2gribUnreachable();
     }
 };
 
@@ -96,7 +92,6 @@ template <class Dict, class T>
 struct DictSetOrIgnore {
     static void set_or_ignore(Dict&, std::string_view, const T&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictSetOrIgnore not specialized for this Dict and type");
-        mars2gribUnreachable();
     }
 };
 
@@ -105,7 +100,6 @@ template <class Dict, class T>
 struct DictSetOrThrow {
     static void set_or_throw(Dict&, std::string_view, const T&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictSetOrThrow not specialized for this Dict and type");
-        mars2gribUnreachable();
     }
 };
 
@@ -194,9 +188,7 @@ inline T get_or_throw(const Dict& dict, std::string_view key) {
             exceptions::Mars2GribDictException("Forwarding errors while getting key `"s + std::string(key) + "` as `" +
                                                    std::string(type_name<T>()) + "` from dictionary`"s,
                                                Here()));
-        mars2gribUnreachable();
     }
-    mars2gribUnreachable();
 }
 
 // get<T>(dict,key) -> std::optional<T>
@@ -208,7 +200,6 @@ inline std::optional<T> get_opt(const Dict& dict, std::string_view key) {
     catch (...) {
         return std::nullopt;
     }
-    mars2gribUnreachable();
 }
 
 
@@ -228,22 +219,18 @@ inline void set_or_throw(Dict& dict, std::string_view key, const T& value) {
                                                                       std::string(key) + "` as `" +
                                                                       std::string(type_name<T>()) + "` to dictionary`"s,
                                                                   Here()));
-        mars2gribUnreachable();
     }
-    mars2gribUnreachable();
 }
 
 template <class T, class Dict>
 inline void set_or_ignore(Dict& dict, std::string_view key, const T& value) {
     try {
         DictSetOrIgnore<Dict, T>::set_or_ignore(dict, key, value);
-        return;
     }
     catch (...) {
         // ignore exceptions
-        mars2gribUnreachable();
     }
-    mars2gribUnreachable();
+    return;
 }
 
 

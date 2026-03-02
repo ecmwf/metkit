@@ -12,7 +12,6 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
@@ -120,7 +119,7 @@ inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_thro
         throw Mars2GribTableException(errMsg, Here());
     }
 
-    mars2gribUnreachable();
+
 }
 
 ///
@@ -172,7 +171,7 @@ inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOf
         }
     }
 
-    mars2gribUnreachable();
+
 }
 
 

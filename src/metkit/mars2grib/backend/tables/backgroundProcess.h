@@ -12,7 +12,6 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::tables {
@@ -158,8 +157,6 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
             "'aifs-compo-single-mse', 'aifs-compo-ens-crps'}";
         throw Mars2GribTableException(errMsg, Here());
     }
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 ///
@@ -245,8 +242,6 @@ inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value)
             throw Mars2GribTableException(errMsg, Here());
     }
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 

@@ -38,7 +38,6 @@
 #include <utility>
 
 #include "metkit/mars2grib/backend/concepts/EncodingCallbacksRegistry.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 

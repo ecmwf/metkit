@@ -132,7 +132,6 @@
 #include "eckit/geo/grid/regular/RegularGaussian.h"
 #include "eckit/geo/grid/regular/RegularLL.h"
 #include "eckit/spec/Custom.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 
 // Core concept includes
@@ -467,8 +466,6 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(representation, "Concept called when not applicable...");
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

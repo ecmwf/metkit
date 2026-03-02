@@ -15,7 +15,6 @@
 #include "eckit/types/Date.h"
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/backend/deductions/detail/timeUtils.h"
 
@@ -123,8 +122,6 @@ eckit::DateTime resolve_HindcastDateTime_or_throw(const MarsDict_t& mars, const 
             "Unable to get `date` and `time` from Mars dictionary to deduce `dateTime`", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

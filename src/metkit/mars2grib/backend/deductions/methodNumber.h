@@ -53,7 +53,6 @@
 #include <string>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
@@ -135,8 +134,6 @@ long resolve_MethodNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
             Mars2GribDeductionException("Failed to resolve `method` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

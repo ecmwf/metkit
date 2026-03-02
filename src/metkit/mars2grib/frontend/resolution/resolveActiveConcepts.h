@@ -22,7 +22,6 @@
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/concepts/MatchingCallbacksRegistry.h"
 #include "metkit/mars2grib/backend/sections/resolver/ActiveConceptsData.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::frontend::resolution {
@@ -95,7 +94,7 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
         std::throw_with_nested(Mars2GribGenericException("Unable to match ActiveConcepts", Here()));
     }
 
-    mars2gribUnreachable();
+
 };
 
 

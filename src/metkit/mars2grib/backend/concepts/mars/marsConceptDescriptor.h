@@ -35,7 +35,6 @@
 // Registry engine
 #include "metkit/mars2grib/backend/compile-time-registry-engine/RegisterEntryDescriptor.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core concept includes
 #include "metkit/mars2grib/backend/concepts/mars/marsEncoding.h"
@@ -130,8 +129,6 @@ struct MarsConcept : RegisterEntryDescriptor<MarsType, MarsList> {
         else {
             return nullptr;
         }
-
-        mars2gribUnreachable();
     }
 
     ///

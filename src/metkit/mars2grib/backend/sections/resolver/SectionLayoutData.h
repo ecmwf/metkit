@@ -40,7 +40,6 @@
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/sections/resolver/ResolvedTemplateData.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::sections::resolver {
@@ -151,7 +150,7 @@ inline SectionLayoutData make_SectionLayoutData_or_throw(std::size_t sectionNumb
         std::throw_with_nested(Mars2GribGenericException("Unable to create SectionLayoutData", Here()));
     }
 
-    mars2gribUnreachable();
+
 }
 
 }  // namespace detail

@@ -39,7 +39,6 @@
 
 // Project includes
 #include "metkit/codes/api/CodesTypes.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend {

@@ -46,7 +46,6 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -127,8 +126,6 @@ long resolve_ScaleFactorOfCentralWaveNumber_or_throw(const MarsDict_t& mars, con
             "Failed to resolve `scaleFactorOfCentralWaveNumber` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

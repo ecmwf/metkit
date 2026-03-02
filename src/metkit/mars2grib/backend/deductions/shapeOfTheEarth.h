@@ -51,7 +51,6 @@
 
 // Tables
 #include "metkit/mars2grib/backend/tables/shapeOfTheReferenceSystem.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"

@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
@@ -114,8 +113,6 @@ void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t&
             Mars2GribValidationException("Unable to validate Local Definition Number in Local Use Section", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation

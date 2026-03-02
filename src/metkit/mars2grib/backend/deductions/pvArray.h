@@ -76,7 +76,6 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -281,8 +280,6 @@ inline bool hostIsLittleEndian_or_throw() {
 
     throw Mars2GribDeductionException("Unsupported floating-point representation (non IEEE754 double?)", Here());
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 ///
@@ -400,8 +397,6 @@ std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
         std::throw_with_nested(Mars2GribDeductionException("Unable to lookup PV array from size", Here()));
     }
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 ///
@@ -651,8 +646,6 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             Mars2GribDeductionException("Failed to resolve `pvArray` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

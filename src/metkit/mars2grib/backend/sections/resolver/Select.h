@@ -48,7 +48,6 @@
 
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
@@ -136,9 +135,6 @@ private:
         else {
             return GeneralRegistry::make_id_array_from_variants<Concept, Vs...>();
         }
-
-        // Remove compiler warning
-        mars2gribUnreachable();
     }
 
 public:

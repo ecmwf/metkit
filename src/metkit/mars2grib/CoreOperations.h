@@ -34,7 +34,6 @@
 /// @note: clang-format needs to be off here to preserve the logical grouping of
 /// includes and avoid unnecessary reordering that breaks the layering and dependencies.
 // clang-format off
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/encodeValues.h"

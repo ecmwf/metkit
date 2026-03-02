@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "eckit/io/Buffer.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/codes/api/CodesTypes.h"
@@ -64,7 +63,6 @@
                         "` from dictionary `"s + std::string(type_name<metkit::codes::CodesHandle>()) + "`",   \
                     Here()));                                                                                  \
             }                                                                                                  \
-            mars2gribUnreachable();                                                                            \
         }                                                                                                      \
     };
 
@@ -92,7 +90,6 @@
             catch (...) {                                                           \
                 return std::nullopt;                                                \
             }                                                                       \
-            mars2gribUnreachable();                                                 \
         }                                                                           \
     };
 
@@ -120,7 +117,6 @@
                         "` in dictionary `"s + std::string(type_name<metkit::codes::CodesHandle>()) + "`", \
                     Here()));                                                                              \
             }                                                                                              \
-            mars2gribUnreachable();                                                                        \
         }                                                                                                  \
     };
 
@@ -142,7 +138,6 @@
             catch (...) {                                                              \
                 return;                                                                \
             }                                                                          \
-            mars2gribUnreachable();                                                    \
         }                                                                              \
     };
 
@@ -237,7 +232,6 @@ struct DictHas<metkit::codes::CodesHandle> {
                     std::string(type_name<metkit::codes::CodesHandle>()) + "`",
                 Here()));
         }
-        mars2gribUnreachable();
     }
 };
 
@@ -258,7 +252,6 @@ struct DictMissing<metkit::codes::CodesHandle> {
                     std::string(type_name<metkit::codes::CodesHandle>()) + "`",
                 Here()));
         }
-        mars2gribUnreachable();
     }
 
     static void setMissing(metkit::codes::CodesHandle& h, std::string_view key) noexcept(false) {
@@ -272,7 +265,6 @@ struct DictMissing<metkit::codes::CodesHandle> {
                     std::string(type_name<metkit::codes::CodesHandle>()) + "`",
                 Here()));
         }
-        mars2gribUnreachable();
     }
 };
 

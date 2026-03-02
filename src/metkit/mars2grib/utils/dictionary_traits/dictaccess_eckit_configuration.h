@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -62,7 +61,6 @@
                         "` from dictionary type `"s + std::string(type_name<eckit::LocalConfiguration>()) + "`",       \
                     Here()));                                                                                          \
             }                                                                                                          \
-            mars2gribUnreachable();                                                                                    \
         }                                                                                                              \
     };
 
@@ -91,7 +89,6 @@
             catch (...) {                                                           \
                 return std::nullopt;                                                \
             }                                                                       \
-            mars2gribUnreachable();                                                 \
         }                                                                           \
     };
 
@@ -111,7 +108,6 @@
             }                                                                           \
             catch (...) {                                                               \
             }                                                                           \
-            mars2gribUnreachable();                                                     \
         }                                                                               \
     };
 
@@ -140,7 +136,6 @@
                         "` in dictionary type `"s + std::string(type_name<eckit::LocalConfiguration>()) + "`", \
                     Here()));                                                                                  \
             }                                                                                                  \
-            mars2gribUnreachable();                                                                            \
         }                                                                                                      \
     };
 
@@ -265,7 +260,6 @@ struct DictHas<eckit::LocalConfiguration> {
                     std::string(type_name<eckit::LocalConfiguration>()) + "`",
                 Here()));
         }
-        mars2gribUnreachable();
     }
 };
 

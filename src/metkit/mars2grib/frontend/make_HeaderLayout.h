@@ -32,7 +32,6 @@
 #include "metkit/mars2grib/frontend/GribHeaderLayoutData.h"
 #include "metkit/mars2grib/frontend/resolution/resolveActiveConcepts.h"
 #include "metkit/mars2grib/frontend/resolution/resolveSectionsLayout.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 

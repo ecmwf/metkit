@@ -12,7 +12,6 @@
 #include <string>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
@@ -90,8 +89,6 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
         std::throw_with_nested(Mars2GribValidationException("Unable to validate dataset from the sample", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation

@@ -6,7 +6,6 @@
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 
 #include "metkit/mars2grib/backend/concepts/concept_registry.h"

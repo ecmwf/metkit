@@ -12,7 +12,6 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 
@@ -128,7 +127,7 @@ inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name) {
                       "3h,6h,12h,second,missing}";
     throw Mars2GribTableException(err, Here());
 
-    mars2gribUnreachable();
+
 }
 
 ///
@@ -186,7 +185,7 @@ inline std::string enum2name_TimeUnit_or_throw(TimeUnit value) {
     std::string err = "Invalid TimeUnit enum value: actual='" + std::to_string(static_cast<long>(value)) + "'";
     throw Mars2GribTableException(err, Here());
 
-    mars2gribUnreachable();
+
 }
 
 }  // namespace metkit::mars2grib::backend::tables

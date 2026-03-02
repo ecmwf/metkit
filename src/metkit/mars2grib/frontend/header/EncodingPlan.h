@@ -39,7 +39,6 @@
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/sections/initializers/sectionRegistry.h"
 #include "metkit/mars2grib/frontend/GribHeaderLayoutData.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::frontend::header::detail {

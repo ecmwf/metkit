@@ -12,7 +12,6 @@
 #include <string>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
@@ -87,8 +86,6 @@ void check_LocalUseSection_or_throw(const OptDict_t& opt, const OutDict_t& out) 
             Mars2GribValidationException("Unable to validate presence of Local Use Section", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation

@@ -9,7 +9,6 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -46,8 +45,6 @@ std::optional<long> timeIncrementInSeconds_opt(const MarsDict_t& mars, const Par
             Mars2GribDeductionException("Unable to get `timeIncrementInSeconds` from Mars dictionary", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 
@@ -74,8 +71,6 @@ long timeIncrementInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& pa
             Mars2GribDeductionException("Unable to get `timeIncrementInSeconds` from Mars dictionary", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 

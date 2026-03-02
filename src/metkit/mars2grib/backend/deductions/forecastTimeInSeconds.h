@@ -12,7 +12,6 @@
 #include <string>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
@@ -108,8 +107,6 @@ long resolve_ForecastTimeInSeconds_or_throw(const MarsDict_t& mars, const ParDic
         std::throw_with_nested(Mars2GribDeductionException("Unable to compute forecast time", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

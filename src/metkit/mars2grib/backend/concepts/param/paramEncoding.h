@@ -42,7 +42,6 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/param/paramEnum.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/paramId.h"
@@ -151,8 +150,6 @@ void ParamOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(param, "Concept called when not applicable...");
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

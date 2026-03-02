@@ -45,7 +45,6 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/composition/compositionEnum.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/constituentType.h"
@@ -174,8 +173,6 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(composition, "Concept called when not applicable...");
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

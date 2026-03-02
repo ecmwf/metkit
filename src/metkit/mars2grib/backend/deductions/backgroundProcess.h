@@ -55,7 +55,6 @@
 
 // Tables
 #include "metkit/mars2grib/backend/tables/backgroundProcess.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -174,8 +173,6 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
             Mars2GribDeductionException("Failed to resolve `backgroundProcess` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

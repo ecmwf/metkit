@@ -48,7 +48,6 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/tables/tablesEnum.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/localTablesVersion.h"
@@ -200,8 +199,6 @@ void TablesOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(tables, "Concept called when not applicable...");
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

@@ -108,7 +108,6 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/satellite/satelliteEnum.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchLocalDefinitionNumber.h"
@@ -267,8 +266,6 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(satellite, "Concept called when not applicable...");
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

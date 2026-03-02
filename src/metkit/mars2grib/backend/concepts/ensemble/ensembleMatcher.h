@@ -6,7 +6,6 @@
 // Utils
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 

@@ -30,7 +30,6 @@
 #pragma once
 
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
@@ -77,8 +76,6 @@ void allocateTemplateNumber5(const MarsDict_t& mars, const ParDict_t& par, const
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Error preparing section 5 with template number", Here()));
     }
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::sections::initializers

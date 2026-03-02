@@ -53,7 +53,6 @@
 
 // Tables includes
 #include "metkit/mars2grib/backend/tables/typeOfGeneratingProcess.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -175,8 +174,6 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             Mars2GribDeductionException("Failed to resolve `typeOfGeneratingProcess` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

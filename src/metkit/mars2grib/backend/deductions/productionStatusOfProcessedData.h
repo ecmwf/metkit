@@ -49,7 +49,6 @@
 
 // Table includes
 #include "metkit/mars2grib/backend/tables/productionStatusOfProcessedData.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -168,8 +167,6 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
             "Failed to resolve `productionStatusOfProcessedData` from input dictionaries", Here()));
     }
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 

@@ -59,7 +59,6 @@
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -164,8 +163,6 @@ std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_
             Mars2GribDeductionException("Unable to get `lengthOfTimeWindow` from Par dictionary", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::deductions

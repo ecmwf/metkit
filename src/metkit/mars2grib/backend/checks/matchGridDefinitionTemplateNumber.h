@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
@@ -105,8 +104,6 @@ void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const Out
             Mars2GribValidationException("Unable to validate Grid Definition Template Number", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation

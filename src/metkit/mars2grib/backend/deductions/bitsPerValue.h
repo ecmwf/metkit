@@ -64,7 +64,6 @@
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -297,8 +296,6 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
             Mars2GribDeductionException("Failed to resolve `bitsPerValue` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 
@@ -402,8 +399,6 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
             Mars2GribDeductionException("Failed to resolve `bitsPerValue` from input dictionaries", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 

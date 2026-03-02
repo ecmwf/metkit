@@ -54,7 +54,6 @@
 
 // Tables includes
 #include "metkit/mars2grib/backend/tables/significanceOfReferenceTime.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -163,8 +162,6 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
             "Failed to resolve `significanceOfReferenceTime` from input dictionaries", Here()));
     }
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

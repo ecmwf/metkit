@@ -12,7 +12,6 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::tables {
@@ -108,7 +107,7 @@ inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(Production
             throw Mars2GribTableException("Invalid ProductionStatusOfProcessedData enum value", Here());
     }
 
-    mars2gribUnreachable();
+
 }
 
 ///
@@ -158,7 +157,7 @@ inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData
 
     throw Mars2GribTableException("Invalid ProductionStatusOfProcessedData name: '" + name + "'", Here());
 
-    mars2gribUnreachable();
+
 }
 
 ///
@@ -211,7 +210,7 @@ inline ProductionStatusOfProcessedData long2enum_ProductionStatusOfProcessedData
                 "Invalid ProductionStatusOfProcessedData numeric value: " + std::to_string(value), Here());
     }
 
-    mars2gribUnreachable();
+
 }
 
 

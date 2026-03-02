@@ -44,7 +44,6 @@
 // Project includes
 #include "eckit/exception/Exceptions.h"
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 
 namespace metkit::mars2grib::utils::exceptions {

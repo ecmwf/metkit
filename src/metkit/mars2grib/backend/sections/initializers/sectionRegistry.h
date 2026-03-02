@@ -44,7 +44,6 @@
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializer4.h"
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializer5.h"
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 

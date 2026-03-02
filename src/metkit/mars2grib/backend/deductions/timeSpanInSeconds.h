@@ -12,7 +12,6 @@
 #include <string>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 // Exceptions
 #include "metkit/config/LibMetkit.h"
@@ -103,8 +102,6 @@ long resolve_TimeSpanInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t&
         std::throw_with_nested(Mars2GribDeductionException("Unable to get `timespan` from Mars dictionary", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

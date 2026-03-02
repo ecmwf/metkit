@@ -4,7 +4,6 @@
 
 // All elements needed to used the "dsl" objects to define recipes
 #include "metkit/mars2grib/backend/sections/resolver/dsl.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::resolution::recipes::impl {
 

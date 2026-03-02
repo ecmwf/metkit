@@ -12,7 +12,6 @@
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::tables {
@@ -114,7 +113,7 @@ inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::str
     errMsg += "actual='" + value + "'";
     throw Mars2GribTableException(errMsg, Here());
 
-    mars2gribUnreachable();
+
 }
 
 
@@ -203,7 +202,7 @@ inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value) {
                                           Here());
     }
 
-    mars2gribUnreachable();
+
 }
 
 

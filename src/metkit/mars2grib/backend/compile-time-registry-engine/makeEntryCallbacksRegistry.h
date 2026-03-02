@@ -93,7 +93,6 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/RegisterEntryDescriptor.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/compile-time-registry-engine/utils.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::compile_time_registry_engine {
 

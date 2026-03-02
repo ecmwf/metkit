@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "eckit/log/Log.h"
-#include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
@@ -106,8 +105,6 @@ void match_DataRepresentationTemplateNumber_or_throw(
             Mars2GribValidationException("Unable to validate Data Representation Template Number", Here()));
     };
 
-    // Remove compiler warning
-    mars2gribUnreachable();
 };
 
 }  // namespace metkit::mars2grib::backend::validation
