@@ -30,23 +30,23 @@ namespace metkit::mars2grib::backend::deductions {
 /// @brief Resolve the hindcast reference date and time from the MARS dictionary.
 ///
 /// This deduction retrieves the hindcast reference date and time from the
-/// MARS dictionary entries `hdate` and `htime` and combines them into an
-/// `eckit::DateTime` object.
+/// MARS dictionary entries `hdate` (mandatory) and `htime` (optional) and
+/// combines them into an `eckit::DateTime` object.
 ///
 /// The values are expected to follow the standard MARS integer encodings:
 /// - `hdate`: calendar date encoded as `YYYYMMDD`
-/// - `htime`: clock time encoded as `HHMMSS`
+/// - `htime`: clock time encoded as `HHMMSS` (defaulting to `000000` if missing)
 ///
 /// These fields are typically used for hindcast or reforecast products,
 /// where the reference time of the forecast differs from the nominal
 /// analysis or forecast reference time.
 ///
-/// The resolved hindcast date and time are logged for diagnostic and
+/// The resolved hindcast date and time (if present) are logged for diagnostic and
 /// traceability purposes.
 ///
 /// @tparam MarsDict_t
-/// Type of the MARS dictionary, expected to contain the keys `hdate`
-/// and `htime`.
+/// Type of the MARS dictionary, expected to contain the key `hdate`,
+/// `htime` instead is optional and defaulted to 0 when missing.
 ///
 /// @tparam ParDict_t
 /// Type of the parameter dictionary (unused by this deduction).
@@ -69,14 +69,14 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If:
-/// - either `hdate` or `htime` is missing from the MARS dictionary,
+/// - either `hdate` is missing from the MARS dictionary,
 /// - the associated values cannot be converted to `long`,
 /// - the integer values do not represent a valid calendar date or time,
 /// - any unexpected error occurs during dictionary access or conversion.
 ///
 /// @note
 /// This deduction assumes standard MARS integer encodings for hindcast
-/// date (`YYYYMMDD`) and time (`HHMMSS`). Validation and normalization
+/// date (`YYYYMMDD`) and time (`HHMMSS`) if present. Validation and normalization
 /// are expected to be handled by the underlying conversion utilities.
 ///
 /// @note

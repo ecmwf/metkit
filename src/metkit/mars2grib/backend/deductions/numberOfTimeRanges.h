@@ -30,7 +30,7 @@
 /// - original errors are preserved via nested exception propagation
 ///
 /// Logging follows the mars2grib deduction policy:
-/// - this deduction performs no logging
+/// - RESOLVE: value resolved from one or more input dictionaries
 ///
 /// @section References
 /// Concept:
@@ -64,7 +64,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @section Deduction contract
 /// - Reads: `mars["timespan"]`, optionally `mars["stattype"]`
 /// - Writes: none
-/// - Side effects: none
+/// - Side effects: logging (RESOLVE)
 /// - Failure mode: throws
 ///
 /// This deduction computes the number of time ranges required by GRIB
@@ -121,7 +121,7 @@ long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
         }
 
         // Handle trivial case
-        if (hasTimespan || !hasStatType) {
+        if (!hasStatType) {
 
             // Retrieve number Of Timeranges
             long numberOfTimeRanges = 1;

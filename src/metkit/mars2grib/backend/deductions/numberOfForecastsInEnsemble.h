@@ -66,15 +66,15 @@ namespace metkit::mars2grib::backend::deductions {
 /// The value is taken verbatim from the parameter dictionary.
 /// No inference, defaulting, or heuristic logic is applied.
 ///
-/// The MARS perturbation number (`mars["number"]`) is used only for
-/// consistency validation.
+/// The MARS perturbation number (`mars["number"]`) is optional and
+/// used only for consistency validation.
 ///
 /// @tparam MarsDict_t
-/// Type of the MARS dictionary. Must provide `number`.
+/// Type of the MARS dictionary. Optionally provide `number`.
 ///
 /// @tparam ParDict_t
-/// Type of the parameter dictionary. Must provide
-/// `numberOfForecastsInEnsemble`.
+/// Type of the parameter dictionary. Must provide `numberOfForecastsInEnsemble`.
+/// Since no defaulting is implemented for this key yet, it must be explicitly provided.
 ///
 /// @tparam OptDict_t
 /// Type of the options dictionary (unused).
@@ -104,33 +104,51 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
-        // The only way to infer this is from parametrization
-        const auto numberOfForecastsInEnsemble = get_or_throw<long>(par, "numberOfForecastsInEnsemble");
-        const auto perturbationNumber          = get_opt<long>(mars, "number");
+        if (has(par, "numberOfForecastsInEnsemble")) {
+            // The only way to infer this is from parametrization
+            const auto numberOfForecastsInEnsemble = get_or_throw<long>(par, "numberOfForecastsInEnsemble");
+            const auto perturbationNumber          = get_opt<long>(mars, "number");
 
-        // Basic validation
-        if (perturbationNumber && (*perturbationNumber < 0 || *perturbationNumber > numberOfForecastsInEnsemble)) {
-            std::string errMsg = "`perturbationNumber` (";
-            errMsg += std::to_string(*perturbationNumber);
-            errMsg += ") is out of valid range [0, ";
-            errMsg += std::to_string(numberOfForecastsInEnsemble);
-            errMsg += "];";
+            // Basic validation
+            if (perturbationNumber.has_value()) {
+                if (*perturbationNumber < 0) {
+                    std::string errMsg = "`perturbationNumber` (";
+                    errMsg += std::to_string(*perturbationNumber);
+                    errMsg += ") is negative";
+                    throw Mars2GribDeductionException(errMsg, Here());
+                }
+                if (*perturbationNumber > numberOfForecastsInEnsemble) {
+                    std::string errMsg = "`perturbationNumber` (";
+                    errMsg += std::to_string(*perturbationNumber);
+                    errMsg += ") is bigger than `numberOfForecastsInEnsemble` (";
+                    errMsg += std::to_string(numberOfForecastsInEnsemble);
+                    errMsg += ")";
+                    throw Mars2GribDeductionException(errMsg, Here());
+                }
+            }
+
+            // Logging of the par::numberOfForecastsInEnsemble
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`numberOfForecastsInEnsemble` resolved from input dictionaries: value='";
+                logMsg += std::to_string(numberOfForecastsInEnsemble);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            return numberOfForecastsInEnsemble;
+        }
+        else {
+
+            /// @todo Implement a defaulting strategy for `numberOfForecastsInEnsemble` when the key is missing from the
+            /// parameter dictionary.
+            std::string errMsg = "Default value for `numberOfForecastsInEnsemble` not implemented";
             throw Mars2GribDeductionException(errMsg, Here());
         }
-
-        // Logging of the par::lengthOfTimeWindow
-        MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`numberOfForecastsInEnsemble` resolved from input dictionaries: value='";
-            logMsg += std::to_string(numberOfForecastsInEnsemble);
-            logMsg += "'";
-            return logMsg;
-        }());
-
-        return numberOfForecastsInEnsemble;
     }
     catch (...) {
 

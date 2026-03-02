@@ -43,9 +43,9 @@
 /// - original errors are preserved via nested exception propagation
 ///
 /// Logging follows the mars2grib deduction policy:
-/// - RESOLVE: value derived via deduction logic from input dictionaries
 /// - OVERRIDE: value provided by parameter dictionary overriding deduction logic
-///
+/// - DEFAULT: value defaulted to a predefined constant or derived via default deduction
+///            logic from input dictionaries due to missing input
 /// @section References
 /// Concept:
 /// - @ref packingEncoding.h
@@ -191,7 +191,7 @@ long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool e
 /// - otherwise `mars["param"]`, `mars["levtype"]`,
 /// and `opt["enableBitsPerValueCompression"]`
 /// - Writes: none
-/// - Side effects: logging (RESOLVE or OVERRIDE)
+/// - Side effects: logging (OVERRIDE or DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the number of bits per value used for GRIB
@@ -203,11 +203,11 @@ long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool e
 /// MARS metadata and encoder options.
 ///
 /// The default mapping logic is delegated to
-/// `details::lookup_bits_per_value_default` and is designed to preserve
+/// `details::lookup_bitsPerValueGridded_default` and is designed to preserve
 /// bit-for-bit compatibility with legacy MultIO workflows.
 ///
 /// @tparam MarsDict_t
-/// Type of the MARS dictionary. Must provide `paramId` and `levtype`
+/// Type of the MARS dictionary. Must provide `param` and `levtype`
 /// if default deduction is required.
 ///
 /// @tparam ParDict_t
@@ -257,24 +257,24 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`bitsPerValue` overridden by parameter dictionary: value=";
+                std::string logMsg = "`bitsPerValue` overridden by parameter dictionary: value='";
                 logMsg += std::to_string(bitsPerValue) + "'";
                 return logMsg;
             }());
         }
         else {
 
-            // Retrive auxiliary values for default lookup
-            long paramId          = get_or_throw<long>(mars, "param");
+            // Retrieve auxiliary values for default lookup
+            long param            = get_or_throw<long>(mars, "param");
             std::string levtype   = get_or_throw<std::string>(mars, "levtype");
             bool applyCompression = utils::bitsPerValueCompressionEnabled(opt);
 
             // Resolve bitsPerValue from default mapping
-            bitsPerValue = details::lookup_bitsPerValueGridded_default(paramId, levtype, applyCompression);
+            bitsPerValue = details::lookup_bitsPerValueGridded_default(param, levtype, applyCompression);
 
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`bitsPerValue` resolved from input dictionaries: value=";
+            // Emit DEFAULT log entry
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`bitsPerValue` defaulted to: value='";
                 logMsg += std::to_string(bitsPerValue) + "'";
                 return logMsg;
             }());
@@ -308,7 +308,7 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
 /// @section Deduction contract
 /// - Reads: `par["bitsPerValue"]` (if present)
 /// - Writes: none
-/// - Side effects: logging (RESOLVE or OVERRIDE)
+/// - Side effects: logging (OVERRIDE or DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the number of bits per value used for GRIB
@@ -367,7 +367,7 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`bitsPerValue` overridden by parameter dictionary: value=";
+                std::string logMsg = "`bitsPerValue` overridden by parameter dictionary: value='";
                 logMsg += std::to_string(bitsPerValue) + "'";
                 return logMsg;
             }());
@@ -377,9 +377,9 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
             // Resolve bitsPerValue from default mapping
             bitsPerValue = 16;
 
-            // Emit RESOLVE log entry
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`bitsPerValue` resolved from input dictionaries: value=";
+            // Emit DEFAULT log entry
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`bitsPerValue` defaulted to: value='";
                 logMsg += std::to_string(bitsPerValue) + "'";
                 return logMsg;
             }());

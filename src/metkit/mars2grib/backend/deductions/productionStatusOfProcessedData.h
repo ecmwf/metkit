@@ -18,14 +18,15 @@
 ///
 /// The deduction currently implements a minimal mapping based on MARS metadata:
 /// - `mars["class"] == "d1"`  → `DestinationEarth`
-/// - otherwise               → `Missing`
+/// - `mars["class"] == "e6"`  → `ReanalysisProducts`
+/// - otherwise               → `OperationalProducts` (default)
 ///
 /// The resolved value is returned as a strongly typed table enum and is intended
 /// to be consumed by concept operations (deductions do not encode GRIB keys).
 ///
 /// Logging policy:
 /// - RESOLVE: value derived via deduction logic from input dictionaries
-/// - OVERRIDE: value taken verbatim from the parameter dictionary, overriding deduction logic
+/// - DEFAULT: value defaulted to a predefined constant when no specific mapping rule applies
 ///
 /// Error handling:
 /// - missing required inputs or unexpected failures throw `Mars2GribDeductionException`
@@ -43,6 +44,7 @@
 #pragma once
 
 // System includes
+#include <optional>
 #include <string>
 
 // Table includes
@@ -64,12 +66,13 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// Current rules:
 /// - If `mars["class"] == "d1"`, return `DestinationEarth`.
-/// - Otherwise, return `Missing`.
+/// - If `mars["class"] == "e6"`, return `ReanalysisProducts`.
+/// - Otherwise, return `OperationalProducts`.
 ///
 /// @section Deduction contract
 /// - Reads: `mars["class"]`
 /// - Writes: none
-/// - Side effects: logging (RESOLVE)
+/// - Side effects: logging (RESOLVE,DEFAULT)
 /// - Failure mode: throws
 ///
 /// @tparam MarsDict_t
@@ -112,11 +115,13 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
 
         // TODO: Here we set the default to operational product; will need to clarify exact logic with DGOV
         // It will probably need to be inferred from "type", "class", "stream"
-        auto productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::OperationalProducts;
+        auto productionStatusOfProcessedDataDefault = tables::ProductionStatusOfProcessedData::OperationalProducts;
+        std::optional<tables::ProductionStatusOfProcessedData> productionStatusOfProcessedData = std::nullopt;
 
+        // Retrieve mandatory MARS class
         const auto marsClass = get_or_throw<std::string>(mars, "class");
 
-        // Deduce typeOfProcessedData from mars class
+        // Deduce productionStatusOfProcessedData from mars class
         if (marsClass == "d1") {
             // This is mandatory for DestinE because it is used inside eccodes to allocate the proper "localUseSection"
             // template. Setting this keyword reallocate the local use section.
@@ -127,19 +132,34 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
             productionStatusOfProcessedData = tables::ProductionStatusOfProcessedData::ReanalysisProducts;
         }
 
-        // Emit RESOLVE log entry
-        MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`productionStatusOfProcessedData` resolved from input dictionaries: value='";
-            logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData);
-            logMsg += "'";
-            return logMsg;
-        }());
+        // Emit log entry based on deduction outcome
+        if (productionStatusOfProcessedData.has_value()) {
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`productionStatusOfProcessedData` resolved from input dictionaries: value='";
+                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData.value());
+                logMsg += "'";
+                return logMsg;
+            }());
 
-        // Success exit point
-        return productionStatusOfProcessedData;
+            // Success exit point
+            return productionStatusOfProcessedData.value();
+        }
+        else {
+            // Default to operational product
+            productionStatusOfProcessedData = productionStatusOfProcessedDataDefault;
 
-        // Remove compiler warning
-        mars2gribUnreachable();
+            // Emit DEFAULT log entry
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`productionStatusOfProcessedData` defaulted to operational product: value='";
+                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData.value());
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return productionStatusOfProcessedData.value();
+        }
     }
     catch (...) {
 

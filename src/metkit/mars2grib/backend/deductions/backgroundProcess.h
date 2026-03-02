@@ -36,7 +36,7 @@
 ///
 /// Logging follows the mars2grib deduction policy:
 /// - RESOLVE: value resolved via deduction logic from input dictionaries
-/// - OVERRIDE: value provided by parameter dictionary overriding deduction logic
+/// - DEFAULT: value defaulted to a predefined constant due to missing input
 ///
 /// @section References
 /// Concept:
@@ -70,7 +70,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// @section Deduction contract
 /// - Reads: `mars["model"]`
 /// - Writes: none
-/// - Side effects: logging (RESOLVE)
+/// - Side effects: logging (RESOLVE or DEFAULT)
 /// - Failure mode: throws
 ///
 /// This deduction resolves the GRIB `backgroundProcess` by mapping the
@@ -80,6 +80,8 @@ namespace metkit::mars2grib::backend::deductions {
 /// The mapping is explicit and strict: only supported model identifiers
 /// are accepted. Unsupported or unknown values result in an immediate
 /// deduction failure.
+/// If the key `model` is missing, a default value of "ifs" is used,
+/// which is then mapped to the corresponding `backgroundProcess`.
 ///
 /// This function acts as the single authoritative deduction point for
 /// `backgroundProcess`. All mapping rules and consistency checks for
@@ -87,7 +89,8 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @tparam MarsDict_t
 /// Type of the MARS dictionary. Must support keyed access to `model`
-/// and conversion to `std::string`.
+/// and conversion to `std::string`. If the key `model` is missing,
+/// a default value of "ifs" is used.
 ///
 /// @tparam ParDict_t
 /// Type of the parameter dictionary (unused by this deduction).
@@ -108,7 +111,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// The resolved GRIB `BackgroundProcess` enumeration value.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If the key `model` is missing, unsupported, cannot be mapped to a
+/// If the key `model` cannot be mapped to a
 /// valid GRIB background process, or if any unexpected error occurs
 /// during deduction.
 ///
@@ -121,26 +124,48 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
                                                              [[maybe_unused]] const ParDict_t& par,
                                                              [[maybe_unused]] const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
-        // Retrieve mandatory MARS model identifier
-        std::string marsModelVal = get_opt<std::string>(mars, "model").value_or("ifs");
+        if (has(mars, "model")) {
 
-        // Apply BackgroundProcess mapping logic
-        tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
+            // Retrieve mandatory MARS model identifier
+            std::string marsModelVal = get_or_throw<std::string>(mars, "model");
 
-        // Emit RESOLVE log entry
-        MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`backgroundProcess` resolved from input dictionaries: value=";
-            logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
-            return logMsg;
-        }());
+            // Apply BackgroundProcess mapping logic
+            tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
 
-        // Success exit point
-        return backgroundProcess;
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`backgroundProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return backgroundProcess;
+        }
+        else {
+
+            // Retrieve mandatory MARS model identifier
+            std::string marsModelVal = "ifs";
+
+            // Apply BackgroundProcess mapping logic
+            tables::BackgroundProcess backgroundProcess = tables::name2enum_BackgroundProcess_or_throw(marsModelVal);
+
+            // Emit DEFAULT log entry
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`backgroundProcess` defaulted to: value='";
+                logMsg += tables::enum2name_BackgroundProcess_or_throw(backgroundProcess) + "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return backgroundProcess;
+        }
     }
     catch (...) {
 

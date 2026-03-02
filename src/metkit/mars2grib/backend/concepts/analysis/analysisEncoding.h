@@ -36,6 +36,7 @@
 #pragma once
 
 // System includes
+#include <optional>
 #include <string>
 
 // Core concept includes
@@ -152,12 +153,19 @@ void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
             validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L});
 
             // Deductions
-            auto offsetToEndOf4DvarWindowVal = deductions::resolve_offsetToEndOf4DvarWindow_or_throw(mars, par, opt);
-            long lengthOfTimeWindowVal       = deductions::resolve_LengthOfTimeWindowInSeconds_or_throw(mars, par, opt);
+            long offsetToEndOf4DvarWindowVal = deductions::resolve_offsetToEndOf4DvarWindow_or_throw(mars, par, opt);
+            std::optional<long> lengthOfTimeWindowVal =
+                deductions::resolve_LengthOfTimeWindowInSeconds_or_throw(mars, par, opt);
 
             // Encoding
             set_or_throw<long>(out, "offsetToEndOf4DvarWindow", offsetToEndOf4DvarWindowVal);
-            set_or_throw<long>(out, "lengthOf4DvarWindow", lengthOfTimeWindowVal / 3600);
+            if (lengthOfTimeWindowVal.has_value()) {
+                set_or_throw<long>(out, "lengthOf4DvarWindow", lengthOfTimeWindowVal.value() / 3600);
+            }
+            else {
+                long missingLengthOfTimeWindowInHours = 0xFFFF;  // Missing sentinel in hours
+                set_or_throw<long>(out, "lengthOf4DvarWindow", missingLengthOfTimeWindowInHours);  // Missing
+            }
         }
         catch (...) {
 

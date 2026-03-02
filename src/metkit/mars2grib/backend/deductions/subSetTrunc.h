@@ -24,16 +24,12 @@
 /// - apply deterministic resolution logic
 /// - emit structured diagnostic logging
 ///
-/// Deductions do NOT:
-/// - infer values from MARS metadata
-/// - apply implicit or hidden defaults
-/// - validate against spectral grid constraints
-///
 /// Error handling follows a strict fail-fast strategy with nested
 /// exception propagation to preserve full diagnostic context.
 ///
 /// Logging policy:
-/// - RESOLVE: value obtained or defaulted from input dictionaries
+/// - OVERRIDE: value overridden from input dictionaries
+/// - DEFAULT: value defaulted due to missing input
 ///
 /// @section References
 /// Concept:
@@ -66,24 +62,24 @@ namespace metkit::mars2grib::backend::deductions {
 /// used to define a reduced set of spectral coefficients.
 ///
 /// Resolution rules:
-/// - If `par::subSetTruncation` is present, its value is used directly.
-/// - If `par::subSetTruncation` is absent, the value defaults explicitly
-/// to `20`.
+/// - If `par::subSetTruncation` is present and valid, its value is used directly.
+/// - If `par::subSetTruncation` is absent, the value defaults explicitly to the
+///       smaller of the MARS truncation (`mars::truncation`) and a fixed maximum of 20.
 ///
-/// No inference from MARS metadata is performed.
-///
-/// @tparam MarsDict_t Type of the MARS dictionary (unused)
+/// @tparam MarsDict_t Type of the MARS dictionary
 /// @tparam ParDict_t  Type of the parameter dictionary
 /// @tparam OptDict_t  Type of the options dictionary (unused)
 ///
-/// @param[in] mars MARS dictionary (unused)
+/// @param[in] mars MARS dictionary providing `truncation` for defaulting and validation
 /// @param[in] par  Parameter dictionary; may contain `subSetTruncation`
 /// @param[in] opt  Options dictionary (unused)
 ///
 /// @return The resolved spectral subset truncation value
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If an unexpected error occurs during dictionary access
+/// - If an unexpected error occurs during dictionary access
+/// - If `par::subSetTruncation` is provided but exceeds the MARS truncation or is negative
+/// - If MARS truncation is invalid when needed for defaulting
 ///
 /// @note
 /// This deduction is fully deterministic and does not depend on
@@ -92,8 +88,8 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
@@ -102,21 +98,55 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
         const auto marsTruncation = get_or_throw<long>(mars, "truncation");
-        long defaultSubSetTrunc   = std::min(20L, marsTruncation);
+        if (marsTruncation < 0) {
+            std::string logMsg = "Invalid MARS truncation: value='" + std::to_string(marsTruncation) + "' is negative";
+            throw Mars2GribDeductionException(logMsg, Here());
+        }
+        long defaultSubSetTrunc = std::min(20L, marsTruncation);
 
-        // Retrieve optional subSetTruncation from parameter dictionary
-        long subSetTrunc = get_opt<long>(par, "subSetTruncation").value_or(defaultSubSetTrunc);
+        if (has(par, "subSetTruncation")) {
 
-        // Emit RESOLVE log entry
-        MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`subSetTruncation` resolved from input dictionaries: value='";
-            logMsg += std::to_string(subSetTrunc);
-            logMsg += "'";
-            return logMsg;
-        }());
+            // Retrieve subSetTruncation from parameter dictionary
+            long subSetTrunc = get_or_throw<long>(par, "subSetTruncation");
 
-        // Success exit point
-        return subSetTrunc;
+            // Validate that subSetTruncation does not exceed MARS truncation
+            if (subSetTrunc < 0) {
+                std::string logMsg = "Invalid `subSetTruncation`:";
+                logMsg += " value='" + std::to_string(subSetTrunc);
+                logMsg += "' is negative";
+                throw Mars2GribDeductionException(logMsg, Here());
+            }
+            if (subSetTrunc > marsTruncation) {
+                std::string logMsg = "Invalid `subSetTruncation`:";
+                logMsg += " value='" + std::to_string(subSetTrunc) + "'";
+                logMsg += " exceeds MARS truncation='" + std::to_string(marsTruncation) + "'";
+                throw Mars2GribDeductionException(logMsg, Here());
+            }
+
+            // Emit OVERRIDE log entry
+            MARS2GRIB_LOG_OVERRIDE([&]() {
+                std::string logMsg = "`subSetTruncation` overridden from parameter dictionary: value='";
+                logMsg += std::to_string(subSetTrunc);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return subSetTrunc;
+        }
+        else {
+
+            // Emit DEFAULT log entry for defaulting
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`subSetTruncation` defaulted: value='";
+                logMsg += std::to_string(defaultSubSetTrunc);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return defaultSubSetTrunc;
+        }
     }
     catch (...) {
 
