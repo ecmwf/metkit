@@ -122,7 +122,6 @@ struct DestineConcept : RegisterEntryDescriptor<DestineType, DestineList> {
             if constexpr (destineApplicable<Stage, Sec, Variant>()) {
                 return &DestineOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

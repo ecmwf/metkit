@@ -122,7 +122,6 @@ struct GeneratingProcessConcept : RegisterEntryDescriptor<GeneratingProcessType,
             if constexpr (generatingProcessApplicable<Stage, Sec, Variant>()) {
                 return &GeneratingProcessOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

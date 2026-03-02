@@ -72,7 +72,6 @@ struct PointInTimeConcept : RegisterEntryDescriptor<PointInTimeType, PointInTime
             if constexpr (pointInTimeApplicable<Stage, Sec, Variant>()) {
                 return &PointInTimeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

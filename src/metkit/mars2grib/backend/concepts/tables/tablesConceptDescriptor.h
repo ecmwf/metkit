@@ -72,7 +72,6 @@ struct TablesConcept : RegisterEntryDescriptor<TablesType, TablesList> {
             if constexpr (tablesApplicable<Stage, Sec, Variant>()) {
                 return &TablesOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

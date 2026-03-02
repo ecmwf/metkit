@@ -122,7 +122,6 @@ struct MarsConcept : RegisterEntryDescriptor<MarsType, MarsList> {
             if constexpr (marsApplicable<Stage, Sec, Variant>()) {
                 return &MarsOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

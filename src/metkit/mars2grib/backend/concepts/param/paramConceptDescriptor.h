@@ -72,7 +72,6 @@ struct ParamConcept : RegisterEntryDescriptor<ParamType, ParamList> {
             if constexpr (paramApplicable<Stage, Sec, Variant>()) {
                 return &ParamOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

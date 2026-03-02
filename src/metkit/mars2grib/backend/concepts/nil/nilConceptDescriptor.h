@@ -122,7 +122,6 @@ struct NilConcept : RegisterEntryDescriptor<NilType, NilList> {
             if constexpr (nilApplicable<Stage, Sec, Variant>()) {
                 return &NilOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

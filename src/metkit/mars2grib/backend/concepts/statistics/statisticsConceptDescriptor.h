@@ -72,7 +72,6 @@ struct StatisticsConcept : RegisterEntryDescriptor<StatisticsType, StatisticsLis
             if constexpr (statisticsApplicable<Stage, Sec, Variant>()) {
                 return &StatisticsOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

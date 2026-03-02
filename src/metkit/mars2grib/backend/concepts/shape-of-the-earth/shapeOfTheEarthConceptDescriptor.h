@@ -72,7 +72,6 @@ struct ShapeOfTheEarthConcept : RegisterEntryDescriptor<ShapeOfTheEarthType, Sha
             if constexpr (shapeOfTheEarthApplicable<Stage, Sec, Variant>()) {
                 return &ShapeOfTheEarthOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

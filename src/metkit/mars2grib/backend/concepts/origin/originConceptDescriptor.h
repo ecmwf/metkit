@@ -72,7 +72,6 @@ struct OriginConcept : RegisterEntryDescriptor<OriginType, OriginList> {
             if constexpr (originApplicable<Stage, Sec, Variant>()) {
                 return &OriginOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

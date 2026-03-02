@@ -122,7 +122,6 @@ struct LongrangeConcept : RegisterEntryDescriptor<LongrangeType, LongrangeList> 
             if constexpr (longrangeApplicable<Stage, Sec, Variant>()) {
                 return &LongrangeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

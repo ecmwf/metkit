@@ -72,7 +72,6 @@ struct RepresentationConcept : RegisterEntryDescriptor<RepresentationType, Repre
             if constexpr (representationApplicable<Stage, Sec, Variant>()) {
                 return &RepresentationOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

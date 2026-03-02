@@ -72,7 +72,6 @@ struct ReferenceTimeConcept : RegisterEntryDescriptor<ReferenceTimeType, Referen
             if constexpr (referenceTimeApplicable<Stage, Sec, Variant>()) {
                 return &ReferenceTimeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

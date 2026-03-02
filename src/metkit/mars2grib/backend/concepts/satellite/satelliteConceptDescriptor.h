@@ -72,7 +72,6 @@ struct SatelliteConcept : RegisterEntryDescriptor<SatelliteType, SatelliteList> 
             if constexpr (satelliteApplicable<Stage, Sec, Variant>()) {
                 return &SatelliteOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

@@ -72,7 +72,6 @@ struct PackingConcept : RegisterEntryDescriptor<PackingType, PackingList> {
             if constexpr (packingApplicable<Stage, Sec, Variant>()) {
                 return &PackingOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

@@ -72,7 +72,6 @@ struct WaveConcept : RegisterEntryDescriptor<WaveType, WaveList> {
             if constexpr (waveApplicable<Stage, Sec, Variant>()) {
                 return &WaveOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;

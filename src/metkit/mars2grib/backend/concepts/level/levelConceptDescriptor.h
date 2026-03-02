@@ -122,7 +122,6 @@ struct LevelConcept : RegisterEntryDescriptor<LevelType, LevelList> {
             if constexpr (levelApplicable<Stage, Sec, Variant>()) {
                 return &LevelOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-
         }
 
         return nullptr;
