@@ -72,13 +72,10 @@ struct OriginConcept : RegisterEntryDescriptor<OriginType, OriginList> {
             if constexpr (originApplicable<Stage, Sec, Variant>()) {
                 return &OriginOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     template <std::size_t Capability, OriginType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

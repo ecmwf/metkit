@@ -79,9 +79,7 @@ constexpr bool needPv() {
     if constexpr (Variant == LevelType::Hybrid) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 ///
@@ -105,9 +103,7 @@ constexpr bool needLevel() {
                   Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 ///
@@ -127,9 +123,7 @@ constexpr bool needTopBottomLevel() {
                   Variant == LevelType::SnowLayer) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 

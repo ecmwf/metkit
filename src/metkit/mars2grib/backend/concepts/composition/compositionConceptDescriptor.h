@@ -122,13 +122,10 @@ struct CompositionConcept : RegisterEntryDescriptor<CompositionType, Composition
             if constexpr (compositionApplicable<Stage, Sec, Variant>()) {
                 return &CompositionOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     ///

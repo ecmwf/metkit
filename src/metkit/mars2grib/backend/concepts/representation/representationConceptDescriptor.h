@@ -72,13 +72,10 @@ struct RepresentationConcept : RegisterEntryDescriptor<RepresentationType, Repre
             if constexpr (representationApplicable<Stage, Sec, Variant>()) {
                 return &RepresentationOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     template <std::size_t Capability, RepresentationType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

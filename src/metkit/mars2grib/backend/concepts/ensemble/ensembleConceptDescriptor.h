@@ -122,13 +122,10 @@ struct EnsembleConcept : RegisterEntryDescriptor<EnsembleType, EnsembleList> {
             if constexpr (ensembleApplicable<Stage, Sec, Variant>()) {
                 return &EnsembleOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     ///

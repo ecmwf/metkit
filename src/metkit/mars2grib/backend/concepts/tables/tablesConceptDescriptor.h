@@ -72,13 +72,10 @@ struct TablesConcept : RegisterEntryDescriptor<TablesType, TablesList> {
             if constexpr (tablesApplicable<Stage, Sec, Variant>()) {
                 return &TablesOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     template <std::size_t Capability, TablesType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

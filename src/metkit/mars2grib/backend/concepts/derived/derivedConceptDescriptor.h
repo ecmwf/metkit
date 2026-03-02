@@ -122,13 +122,10 @@ struct DerivedConcept : RegisterEntryDescriptor<DerivedType, DerivedList> {
             if constexpr (derivedApplicable<Stage, Sec, Variant>()) {
                 return &DerivedOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     ///

@@ -72,13 +72,10 @@ struct ParamConcept : RegisterEntryDescriptor<ParamType, ParamList> {
             if constexpr (paramApplicable<Stage, Sec, Variant>()) {
                 return &ParamOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     template <std::size_t Capability, ParamType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

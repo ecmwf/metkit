@@ -122,13 +122,10 @@ struct AnalysisConcept : RegisterEntryDescriptor<AnalysisType, AnalysisList> {
             if constexpr (analysisApplicable<Stage, Sec, Variant>()) {
                 return &AnalysisOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     ///

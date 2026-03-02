@@ -122,13 +122,10 @@ struct DataTypeConcept : RegisterEntryDescriptor<DataTypeType, DataTypeList> {
             if constexpr (dataTypeApplicable<Stage, Sec, Variant>()) {
                 return &DataTypeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     ///

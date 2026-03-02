@@ -72,13 +72,10 @@ struct ReferenceTimeConcept : RegisterEntryDescriptor<ReferenceTimeType, Referen
             if constexpr (referenceTimeApplicable<Stage, Sec, Variant>()) {
                 return &ReferenceTimeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
-            else {
-                return nullptr;
-            }
+
         }
-        else {
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
     template <std::size_t Capability, ReferenceTimeType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,

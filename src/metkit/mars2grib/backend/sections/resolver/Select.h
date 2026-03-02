@@ -135,6 +135,10 @@ private:
         else {
             return GeneralRegistry::make_id_array_from_variants<Concept, Vs...>();
         }
+
+        #if defined(__INTEL_COMPILER)
+        __builtin_unreachable();
+        #endif
     }
 
 public:
