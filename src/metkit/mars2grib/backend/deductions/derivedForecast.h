@@ -171,7 +171,6 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `derivedForecast` from input dictionaries", Here()));
     };
-
 };
 
 

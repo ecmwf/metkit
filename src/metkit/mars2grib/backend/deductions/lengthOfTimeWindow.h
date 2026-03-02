@@ -162,7 +162,6 @@ std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_
         std::throw_with_nested(
             Mars2GribDeductionException("Unable to get `lengthOfTimeWindow` from Par dictionary", Here()));
     };
-
 }
 
 }  // namespace metkit::mars2grib::backend::deductions

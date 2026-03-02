@@ -153,7 +153,6 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `subSetTruncation` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

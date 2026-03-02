@@ -149,8 +149,6 @@ inline SectionLayoutData make_SectionLayoutData_or_throw(std::size_t sectionNumb
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Unable to create SectionLayoutData", Here()));
     }
-
-
 }
 
 }  // namespace detail

@@ -241,7 +241,6 @@ inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value)
             errMsg += std::to_string(static_cast<long>(value));
             throw Mars2GribTableException(errMsg, Here());
     }
-
 }
 
 

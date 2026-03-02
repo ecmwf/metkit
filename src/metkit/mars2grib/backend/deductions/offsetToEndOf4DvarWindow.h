@@ -121,7 +121,6 @@ long resolve_offsetToEndOf4DvarWindow_or_throw(const MarsDict_t& mars, const Par
         std::throw_with_nested(Mars2GribDeductionException(
             "Failed to resolve `offsetToEndOf4DvarWindow` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

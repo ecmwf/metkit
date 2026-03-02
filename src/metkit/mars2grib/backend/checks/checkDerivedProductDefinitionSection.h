@@ -90,7 +90,6 @@ void check_DerivedProductDefinitionSection_or_throw(const OptDict_t& opt, const 
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate Derived Product Definition Section", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

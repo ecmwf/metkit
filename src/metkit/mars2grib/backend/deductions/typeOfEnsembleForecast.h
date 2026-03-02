@@ -161,7 +161,6 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `typeOfEnsembleForecast` from input dictionaries", Here()));
     };
-
 };
 
 

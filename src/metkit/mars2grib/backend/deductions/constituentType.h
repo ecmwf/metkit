@@ -146,7 +146,6 @@ long resolve_ConstituentType_or_throw(const MarsDict_t& mars, const ParDict_t& p
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `constituentType` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

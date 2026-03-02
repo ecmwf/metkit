@@ -279,7 +279,6 @@ inline bool hostIsLittleEndian_or_throw() {
         return true;  // host LE
 
     throw Mars2GribDeductionException("Unsupported floating-point representation (non IEEE754 double?)", Here());
-
 }
 
 ///
@@ -396,7 +395,6 @@ std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
     catch (...) {
         std::throw_with_nested(Mars2GribDeductionException("Unable to lookup PV array from size", Here()));
     }
-
 }
 
 ///
@@ -645,7 +643,6 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `pvArray` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

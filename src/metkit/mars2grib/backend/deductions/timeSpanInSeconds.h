@@ -101,7 +101,6 @@ long resolve_TimeSpanInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t&
         // Rethrow nested exceptions
         std::throw_with_nested(Mars2GribDeductionException("Unable to get `timespan` from Mars dictionary", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

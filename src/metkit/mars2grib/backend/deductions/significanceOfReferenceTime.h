@@ -161,7 +161,6 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         std::throw_with_nested(Mars2GribDeductionException(
             "Failed to resolve `significanceOfReferenceTime` from input dictionaries", Here()));
     }
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

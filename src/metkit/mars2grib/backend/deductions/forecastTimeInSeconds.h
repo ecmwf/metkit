@@ -106,7 +106,6 @@ long resolve_ForecastTimeInSeconds_or_throw(const MarsDict_t& mars, const ParDic
         // Rethrow nested exceptions
         std::throw_with_nested(Mars2GribDeductionException("Unable to compute forecast time", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

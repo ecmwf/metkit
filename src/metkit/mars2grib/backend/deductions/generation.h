@@ -137,7 +137,6 @@ long resolve_Generation_or_throw(const MarsDict_t& mars, const ParDict_t& par, c
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `generation` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

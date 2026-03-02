@@ -126,8 +126,6 @@ inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name) {
                       "', expected={minute,hour,day,month,year,decade,normal,century,"
                       "3h,6h,12h,second,missing}";
     throw Mars2GribTableException(err, Here());
-
-
 }
 
 ///
@@ -184,8 +182,6 @@ inline std::string enum2name_TimeUnit_or_throw(TimeUnit value) {
 
     std::string err = "Invalid TimeUnit enum value: actual='" + std::to_string(static_cast<long>(value)) + "'";
     throw Mars2GribTableException(err, Here());
-
-
 }
 
 }  // namespace metkit::mars2grib::backend::tables

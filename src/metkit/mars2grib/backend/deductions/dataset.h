@@ -137,7 +137,6 @@ std::string resolve_Dataset_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `dataset` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

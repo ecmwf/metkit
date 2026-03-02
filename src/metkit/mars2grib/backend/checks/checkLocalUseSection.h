@@ -85,7 +85,6 @@ void check_LocalUseSection_or_throw(const OptDict_t& opt, const OutDict_t& out) 
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate presence of Local Use Section", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

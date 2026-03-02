@@ -112,8 +112,6 @@ inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::str
     std::string errMsg = "Invalid TypeOfProcessedData name: ";
     errMsg += "actual='" + value + "'";
     throw Mars2GribTableException(errMsg, Here());
-
-
 }
 
 
@@ -201,8 +199,6 @@ inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value) {
             throw Mars2GribTableException("Invalid GRIB value for `typeOfProcessedData`: " + std::to_string(value),
                                           Here());
     }
-
-
 }
 
 

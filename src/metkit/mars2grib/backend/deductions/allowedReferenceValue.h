@@ -218,7 +218,6 @@ double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParD
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `allowedReferenceValue` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

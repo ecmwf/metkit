@@ -155,7 +155,6 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
         std::throw_with_nested(Mars2GribDeductionException(
             "Failed to resolve `numberOfForecastsInEnsemble` from input dictionaries", Here()));
     };
-
 };
 
 

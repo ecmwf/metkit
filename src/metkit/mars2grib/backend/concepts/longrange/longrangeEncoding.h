@@ -165,7 +165,6 @@ void LongrangeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
 
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(longrange, "Concept called when not applicable...");
-
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

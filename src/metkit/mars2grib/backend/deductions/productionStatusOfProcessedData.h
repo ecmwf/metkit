@@ -166,7 +166,6 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
         std::throw_with_nested(Mars2GribDeductionException(
             "Failed to resolve `productionStatusOfProcessedData` from input dictionaries", Here()));
     }
-
 };
 
 

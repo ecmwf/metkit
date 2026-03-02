@@ -105,7 +105,6 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate Product Definition Template Number", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

@@ -106,8 +106,6 @@ inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(Production
         default:
             throw Mars2GribTableException("Invalid ProductionStatusOfProcessedData enum value", Here());
     }
-
-
 }
 
 ///
@@ -156,8 +154,6 @@ inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData
         return ProductionStatusOfProcessedData::Missing;
 
     throw Mars2GribTableException("Invalid ProductionStatusOfProcessedData name: '" + name + "'", Here());
-
-
 }
 
 ///
@@ -209,8 +205,6 @@ inline ProductionStatusOfProcessedData long2enum_ProductionStatusOfProcessedData
             throw Mars2GribTableException(
                 "Invalid ProductionStatusOfProcessedData numeric value: " + std::to_string(value), Here());
     }
-
-
 }
 
 

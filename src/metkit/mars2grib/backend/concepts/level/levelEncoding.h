@@ -82,7 +82,6 @@ constexpr bool needPv() {
     else {
         return false;
     }
-
 }
 
 ///
@@ -109,7 +108,6 @@ constexpr bool needLevel() {
     else {
         return false;
     }
-
 }
 
 ///
@@ -132,7 +130,6 @@ constexpr bool needTopBottomLevel() {
     else {
         return false;
     }
-
 }
 
 
@@ -309,7 +306,6 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
 
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(level, "Concept called when not applicable...");
-
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

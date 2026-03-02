@@ -172,7 +172,6 @@ tables::BackgroundProcess resolve_BackgroundProcess_or_throw(const MarsDict_t& m
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `backgroundProcess` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

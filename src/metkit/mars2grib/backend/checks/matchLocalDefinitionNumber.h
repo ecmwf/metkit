@@ -112,7 +112,6 @@ void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t&
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate Local Definition Number in Local Use Section", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

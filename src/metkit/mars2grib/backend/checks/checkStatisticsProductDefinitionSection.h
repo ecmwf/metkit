@@ -89,7 +89,6 @@ void check_StatisticsProductDefinitionSection_or_throw(const OptDict_t& opt, con
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate Product Definition Section as Statistics type", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

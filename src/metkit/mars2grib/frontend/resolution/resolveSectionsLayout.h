@@ -99,8 +99,6 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
         std::throw_with_nested(
             Mars2GribGenericException("Critical failure: Unable to resolve GRIB HeaderLayout", Here()));
     }
-
-
 }
 
 ///

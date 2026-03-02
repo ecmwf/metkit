@@ -88,7 +88,6 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
         // Rethrow nested exceptions
         std::throw_with_nested(Mars2GribValidationException("Unable to validate dataset from the sample", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

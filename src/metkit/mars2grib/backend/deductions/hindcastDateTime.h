@@ -121,7 +121,6 @@ eckit::DateTime resolve_HindcastDateTime_or_throw(const MarsDict_t& mars, const 
         std::throw_with_nested(Mars2GribDeductionException(
             "Unable to get `date` and `time` from Mars dictionary to deduce `dateTime`", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

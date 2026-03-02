@@ -121,7 +121,6 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
         std::throw_with_nested(Mars2GribDeductionException(
             "Unable to get `generatingProcessIdentifier` from parameter dictionary", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

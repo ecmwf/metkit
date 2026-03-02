@@ -141,8 +141,6 @@ inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_thro
                       "covariance,difference_start_minus_end,ratio,standardized_anomaly,"
                       "summation,return_period,median,severity,mode,index_processing,missing}";
     throw Mars2GribTableException(err, Here());
-
-
 }
 
 ///
@@ -206,8 +204,6 @@ inline std::string enum2name_TypeOfStatisticalProcessing_or_throw(TypeOfStatisti
     std::string err =
         "Invalid TypeOfStatisticalProcessing enum value: actual='" + std::to_string(static_cast<long>(value)) + "'";
     throw Mars2GribTableException(err, Here());
-
-
 }
 
 

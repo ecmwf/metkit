@@ -93,8 +93,6 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Unable to match ActiveConcepts", Here()));
     }
-
-
 };
 
 

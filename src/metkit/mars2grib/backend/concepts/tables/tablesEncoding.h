@@ -198,7 +198,6 @@ void TablesOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
 
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(tables, "Concept called when not applicable...");
-
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

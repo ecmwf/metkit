@@ -139,7 +139,6 @@ std::optional<long> resolve_PeriodItMin_opt(const MarsDict_t& mars, const ParDic
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `iTmin` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

@@ -378,7 +378,6 @@ WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, con
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `waveDirectionGrid` from input dictionaries", Here()));
     };
-
 }
 
 

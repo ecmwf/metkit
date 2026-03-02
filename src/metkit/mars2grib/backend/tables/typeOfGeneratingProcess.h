@@ -146,8 +146,6 @@ inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const 
         errMsg += "actual='" + value + "'";
         throw Mars2GribTableException(errMsg, Here());
     }
-
-
 }
 
 ///
@@ -230,8 +228,6 @@ inline std::string enum2name_TypeOfGeneratingProcess_or_throw(TypeOfGeneratingPr
             errMsg += std::to_string(static_cast<long>(value));
             throw Mars2GribTableException(errMsg, Here());
     }
-
-
 }
 
 }  // namespace metkit::mars2grib::backend::tables

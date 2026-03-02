@@ -116,7 +116,6 @@ std::string resolve_Stream_or_throw(const MarsDict_t& mars, const ParDict_t& par
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `stream` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

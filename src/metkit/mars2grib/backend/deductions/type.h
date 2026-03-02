@@ -112,7 +112,6 @@ std::string resolve_Type_or_throw(const MarsDict_t& mars, const ParDict_t& par, 
         // Rethrow nested exceptions
         std::throw_with_nested(Mars2GribDeductionException("Failed to resolve `type` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

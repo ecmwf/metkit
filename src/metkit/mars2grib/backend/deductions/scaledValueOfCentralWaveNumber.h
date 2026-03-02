@@ -126,7 +126,6 @@ long resolve_ScaledValueOfCentralWaveNumber_or_throw(const MarsDict_t& mars, con
         std::throw_with_nested(Mars2GribDeductionException(
             "Failed to resolve `scaledValueOfCentralWaveNumber` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

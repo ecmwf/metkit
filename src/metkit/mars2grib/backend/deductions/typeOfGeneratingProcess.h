@@ -173,7 +173,6 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `typeOfGeneratingProcess` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

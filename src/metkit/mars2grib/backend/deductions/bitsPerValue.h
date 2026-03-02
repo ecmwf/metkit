@@ -295,7 +295,6 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `bitsPerValue` from input dictionaries", Here()));
     };
-
 };
 
 
@@ -398,7 +397,6 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `bitsPerValue` from input dictionaries", Here()));
     };
-
 };
 
 

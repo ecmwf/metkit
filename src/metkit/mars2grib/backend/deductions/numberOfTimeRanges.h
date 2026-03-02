@@ -153,7 +153,6 @@ long numberOfTimeRanges(const MarsDict_t& mars, const ParDict_t& par) {
 
         // Number of time ranges = number of blocks + 1
         return numberOfTimeRanges;
-
     }
     catch (...) {
 

@@ -152,7 +152,6 @@ void ShapeOfTheEarthOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
 
     // Concept invoked outside its applicability domain
     MARS2GRIB_CONCEPT_THROW(shapeOfTheEarth, "Concept called when not applicable...");
-
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

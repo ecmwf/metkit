@@ -137,7 +137,6 @@ long resolve_InstrumentType_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `instrumentType` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

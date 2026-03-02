@@ -389,7 +389,6 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `waveFrequencyGrid` from input dictionaries", Here()));
     };
-
 };
 
 

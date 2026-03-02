@@ -141,7 +141,6 @@ std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDic
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `iTmax` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

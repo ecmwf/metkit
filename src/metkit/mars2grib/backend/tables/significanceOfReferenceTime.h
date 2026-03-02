@@ -118,8 +118,6 @@ inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_thro
         errMsg += "actual='" + value + "'";
         throw Mars2GribTableException(errMsg, Here());
     }
-
-
 }
 
 ///
@@ -170,8 +168,6 @@ inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOf
             throw Mars2GribTableException(errMsg, Here());
         }
     }
-
-
 }
 
 

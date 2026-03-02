@@ -103,7 +103,6 @@ void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const Out
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate Grid Definition Template Number", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

@@ -99,7 +99,6 @@ void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& o
         // Rethrow nested exceptions
         std::throw_with_nested(Mars2GribValidationException("Unable to validate DestinE Local Use Section", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

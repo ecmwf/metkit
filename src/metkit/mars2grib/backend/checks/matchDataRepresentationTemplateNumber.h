@@ -104,7 +104,6 @@ void match_DataRepresentationTemplateNumber_or_throw(
         std::throw_with_nested(
             Mars2GribValidationException("Unable to validate Data Representation Template Number", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::validation

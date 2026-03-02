@@ -131,7 +131,6 @@ std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t&
         std::throw_with_nested(
             Mars2GribDeductionException("Failed to resolve `resolution` from input dictionaries", Here()));
     };
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions
