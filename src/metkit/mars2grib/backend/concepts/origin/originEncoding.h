@@ -17,7 +17,7 @@
 ///
 /// The origin concept is responsible for encoding GRIB metadata identifying
 /// the producing centre and sub-centre. In the current backend this is written
-/// into the Local Use Section using:
+/// into the Identification Section using:
 /// - `origin`   (string centre identifier)
 /// - `subCentre` (numeric sub-centre identifier)
 ///
@@ -62,7 +62,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// The default applicability enables this concept only when:
 /// - `Variant == OriginType::Default`
 /// - `Stage == StagePreset`
-/// - `Section == SecLocalUseSection`
+/// - `Section == SecIdentificationSection`
 ///
 /// @tparam Stage   Encoding stage (compile-time constant)
 /// @tparam Section GRIB section index (compile-time constant)
@@ -75,7 +75,7 @@ template <std::size_t Stage, std::size_t Section, OriginType Variant>
 constexpr bool originApplicable() {
 
     // Conditions to apply concept
-    return ((Variant == OriginType::Default) && (Stage == StagePreset) && (Section == SecLocalUseSection));
+    return ((Variant == OriginType::Default) && (Stage == StagePreset) && (Section == SecIdentificationSection));
 }
 
 ///
