@@ -53,7 +53,7 @@ public:  // methods
 
     template <typename REQUEST_T, typename AXIS_T>
     static void normalise(const REQUEST_T& r, std::vector<Param>& req, const AXIS_T& axis, bool& windConversion,
-                          bool fullTableDropping = ParamID::fullTableDropping());
+                          bool fullTableDropping = ParamID::fullTableDropping(), bool forceGRIBParamID = false);
 
     static const std::vector<WindFamily>& getWindFamilies();
     static const std::vector<size_t>& getDropTables();
@@ -69,232 +69,138 @@ inline long replaceTable(size_t table, long paramid) {
 
 template <typename REQUEST_T, typename AXIS_T>
 void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const AXIS_T& axis, bool& windConversion,
-                        bool fullTableDropping) {
+                        bool fullTableDropping, bool forceGRIBParamID) {
 
     static const bool useGRIBParamID = eckit::Resource<bool>("useGRIBParamID", false);
+    bool strict                      = useGRIBParamID || forceGRIBParamID;
 
     const std::vector<WindFamily>& windFamilies(getWindFamilies());
 
+    std::vector<std::pair<Param, Param>> tableDropped;
+    std::set<Param> inAxis;
+    std::map<long, Param> inAxisParamID;
+    std::set<Param> wind;
 
-    if (useGRIBParamID) {
-
-
-        std::set<Param> inAxis;
-        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j) {
-            inAxis.insert((*j));
-        }
-
-        std::vector<Param> newreq;
-        newreq.reserve(req.size());
-
-        for (std::vector<Param>::const_iterator k = req.begin(); k != req.end(); ++k) {
-            const Param& p = (*k);
-
-            Param alt;
-
-            if (p.table()) {
-                alt = Param(0, (p.table() == 128 ? 0 : p.table()) * 1000 + p.value());  // No '.' version
-            }
-            else {
-                size_t t = p.value() / 1000;
-                size_t v = p.value() % 1000;
-                alt      = Param(t == 0 ? 128 : t, v);  // '.' version
-            }
-
-            if (inAxis.find(p) != inAxis.end()) {
-                newreq.push_back(p);
-            }
-            else if (inAxis.find(alt) != inAxis.end()) {
-                newreq.push_back(alt);
-            }
-            else {
-                newreq.push_back(p);
-            }
-
-            LOG_DEBUG_LIB(LibMetkit) << "useGRIBParamID p=" << p << ", alt=" << alt << ", choice=" << newreq.back()
-                                     << std::endl;
-        }
-
-
-        req = newreq;
-
-        for (eckit::Ordinal w = 0; w < windFamilies.size(); w++) {
-
-            const Param windU(windFamilies[w].u_);
-            const Param windV(windFamilies[w].v_);
-            const Param windVO(windFamilies[w].vo_);
-            const Param windD(windFamilies[w].d_);
-
-            bool wantU  = false;
-            bool wantV  = false;
-            bool wantVO = false;
-            bool wantD  = false;
-
-            // Check if wind is requested
-            for (eckit::Ordinal i = 0; i < req.size(); i++) {
-                if (req[i] == windU)
-                    wantU = true;
-                if (req[i] == windV)
-                    wantV = true;
-                if (req[i] == windVO)
-                    wantVO = true;
-                if (req[i] == windD)
-                    wantD = true;
-            }
-
-            // Check if we have got it, axis should be sorted
-            bool gotU = false;
-            bool gotV = false;
-
-            if (wantU)
-                gotU = std::binary_search(axis.begin(), axis.end(), windU);
-
-            if (wantV)
-                gotV = std::binary_search(axis.begin(), axis.end(), windV);
-
-
-            if ((wantU && !gotU) || (wantV && !gotV)) {
-                // Push VO and D if needed
-                if (!wantVO)
-                    req.push_back(windVO);
-                if (!wantD)
-                    req.push_back(windD);
-
-                LOG_DEBUG_LIB(LibMetkit) << "U/V conversion requested U=" << windU << ", V=" << windV
-                                         << ", VO=" << windVO << ", D=" << windD << std::endl;
-                windConversion = true;
-            }
-        }
+    for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j) {
+        inAxis.emplace(*j);
+        inAxisParamID[j->paramId()] = *j;
     }
-    else {
 
-        std::vector<std::pair<Param, Param> > tableDropped;
+    std::vector<Param> newreq;
+    newreq.reserve(req.size());
 
-        std::set<Param> inAxis;
-        std::map<long, Param> inAxisParamID;
-        std::set<Param> wind;
-
-        for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j) {
-            inAxis.emplace(*j);
-            inAxisParamID[j->paramId()] = *j;
+    for (const auto& r : req) {
+        if (inAxis.find(r) != inAxis.end()) {  // Perfect match - look no further
+            newreq.push_back(r);
         }
+        else {  // r is normalised to ParamID
+            long paramid   = r.paramId();
+            const auto& ap = inAxisParamID.find(paramid);
 
-        std::vector<Param> newreq;
-        newreq.reserve(req.size());
-
-        for (auto r : req) {
-            if (inAxis.find(r) != inAxis.end()) {  // Perfect match - look no further
-                newreq.push_back(r);
+            // ParamID representation matching - look no further
+            if (ap != inAxisParamID.end()) {
+                newreq.push_back(ap->second);
             }
-            else {  // r is normalised to ParamID
-                long paramid = r.paramId();
-                auto ap      = inAxisParamID.find(paramid);
-                if (ap != inAxisParamID.end()) {  // ParamID representation matching - look no further
-                    newreq.push_back(ap->second);
+            else {  // Special case for U/V - exact match
+                bool ok = false;
+                for (const auto& wf : windFamilies) {
+                    if ((paramid == wf.u_.paramId() || paramid == wf.v_.paramId() ||
+                         (!strict && (paramid == wf.u_.grib1value() || paramid == wf.v_.grib1value()))) &&
+                        inAxis.find(wf.vo_) != inAxis.end() && inAxis.find(wf.d_) != inAxis.end()) {
+
+                        if (paramid == wf.u_.paramId() || (!strict && paramid == wf.u_.grib1value()))
+                            newreq.push_back(wf.u_);
+                        else
+                            newreq.push_back(wf.v_);
+
+                        wind.emplace(wf.vo_);
+                        wind.emplace(wf.d_);
+                        windConversion = true;
+
+                        ok = true;
+                        break;
+                    }
                 }
-                else {  // Special case for U/V - exact match
-                    bool ok = false;
-                    for (eckit::Ordinal w = 0; w < windFamilies.size(); w++) {
-                        if ((paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].u_.grib1value() ||
-                             paramid == windFamilies[w].v_.paramId() || paramid == windFamilies[w].v_.grib1value()) &&
-                            inAxis.find(windFamilies[w].vo_) != inAxis.end() &&
-                            inAxis.find(windFamilies[w].d_) != inAxis.end()) {
-
-                            if (paramid == windFamilies[w].u_.paramId() || paramid == windFamilies[w].u_.grib1value())
-                                newreq.push_back(windFamilies[w].u_);
-                            else
-                                newreq.push_back(windFamilies[w].v_);
-
-                            wind.emplace(windFamilies[w].vo_);
-                            wind.emplace(windFamilies[w].d_);
-                            windConversion = true;
-
+                // Partial match (only it table has not been specified by user)
+                if (!ok && !strict && r.table() == 0 && paramid < 1000) {
+                    const std::vector<size_t>& dropTables = ParamID::getDropTables();
+                    for (auto t : dropTables) {
+                        auto ap = inAxisParamID.find(replaceTable(t, paramid));
+                        if (ap != inAxisParamID.end()) {  // ParamID representation matching - look no further
+                            newreq.push_back(ap->second);
                             ok = true;
                             break;
                         }
                     }
-                    if (!ok && r.table() == 0 &&
-                        paramid < 1000) {  // Partial match (only it table has not been specified by user)
-                        const std::vector<size_t>& dropTables = ParamID::getDropTables();
-                        for (auto t : dropTables) {
-                            auto ap = inAxisParamID.find(replaceTable(t, paramid));
-                            if (ap != inAxisParamID.end()) {  // ParamID representation matching - look no further
-                                newreq.push_back(ap->second);
-                                ok = true;
-                                break;
-                            }
-                        }
 
-                        if (!ok) {  // Special case for U/V - partial match
-                            for (eckit::Ordinal w = 0; !ok && w < windFamilies.size(); w++) {
-                                if (paramid == windFamilies[w].u_.paramId() ||
-                                    paramid == windFamilies[w].v_.paramId()) {
-                                    for (auto t : dropTables) {
-                                        auto vo = inAxisParamID.find(replaceTable(t, windFamilies[w].vo_.paramId()));
-                                        auto d  = inAxisParamID.find(replaceTable(t, windFamilies[w].d_.paramId()));
+                    if (!ok) {  // Special case for U/V - partial match
+                        for (const auto& wf : windFamilies) {
+                            if (paramid == wf.u_.paramId() || paramid == wf.v_.paramId()) {
+                                for (auto t : dropTables) {
+                                    auto vo = inAxisParamID.find(replaceTable(t, wf.vo_.paramId()));
+                                    auto d  = inAxisParamID.find(replaceTable(t, wf.d_.paramId()));
 
-                                        if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
-                                            bool grib1 = vo->second.table() > 0;
-                                            if (paramid == windFamilies[w].u_.paramId())
-                                                newreq.push_back(grib1 ? Param(t, paramid)
-                                                                       : Param(0, replaceTable(t, paramid)));
-                                            else
-                                                newreq.push_back(grib1 ? Param(t, paramid)
-                                                                       : Param(0, replaceTable(t, paramid)));
+                                    if (vo != inAxisParamID.end() && d != inAxisParamID.end()) {
+                                        bool grib1 = vo->second.table() > 0;
+                                        if (paramid == wf.u_.paramId())
+                                            newreq.push_back(grib1 ? Param(t, paramid)
+                                                                   : Param(0, replaceTable(t, paramid)));
+                                        else
+                                            newreq.push_back(grib1 ? Param(t, paramid)
+                                                                   : Param(0, replaceTable(t, paramid)));
 
-                                            wind.emplace(vo->second);
-                                            wind.emplace(d->second);
-                                            windConversion = true;
+                                        wind.emplace(vo->second);
+                                        wind.emplace(d->second);
+                                        windConversion = true;
 
-                                            ok = true;
-                                            break;
-                                        }
-                                    }
-                                    if (ok)
+                                        ok = true;
                                         break;
+                                    }
                                 }
+                                if (ok)
+                                    break;
                             }
                         }
-                        if (fullTableDropping &&
-                            !ok) {  // Backward compatibility - Partial match (drop completely table information)
-                            for (auto ap : inAxisParamID) {
-                                if (ap.first % 1000 == paramid % 1000) {
-                                    newreq.push_back(ap.second);
-                                    ok = true;
-                                    tableDropped.push_back(std::make_pair(r, ap.second));
-                                    break;
-                                }
+                    }
+                    if (fullTableDropping &&
+                        !ok) {  // Backward compatibility - Partial match (drop completely table information)
+                        for (const auto& ap : inAxisParamID) {
+                            if (ap.first % 1000 == paramid % 1000) {
+                                newreq.push_back(ap.second);
+                                ok = true;
+                                tableDropped.push_back(std::make_pair(r, ap.second));
+                                break;
                             }
                         }
                     }
                 }
             }
         }
-        req = newreq;
+    }
+    req = newreq;
 
-        for (auto w : wind) {
-            bool exist = false;
-            for (eckit::Ordinal i = 0; i < req.size(); i++)
-                if (req[i] == w) {
-                    exist = true;
-                    break;
-                }
-            if (!exist) {
-                req.push_back(w);
+    for (const auto& w : wind) {
+        bool exist = false;
+        for (eckit::Ordinal i = 0; i < req.size(); i++)
+            if (req[i] == w) {
+                exist = true;
+                break;
             }
+        if (!exist) {
+            req.push_back(w);
         }
-        if (tableDropped.size() > 0) {
-            eckit::MetricsPrefix prefix("paramid_normalisation");
-            {
-                std::ostringstream oss;
-                oss << request;
-                eckit::Metrics::set("user_request", oss.str());
-            }
-            {
-                std::ostringstream oss;
-                oss << tableDropped;
-                eckit::Metrics::set("params", oss.str());
-            }
+    }
+    if (tableDropped.size() > 0) {
+        eckit::MetricsPrefix prefix("paramid_normalisation");
+        {
+            std::ostringstream oss;
+            oss << request;
+            eckit::Metrics::set("user_request", oss.str());
+        }
+        {
+            std::ostringstream oss;
+            oss << tableDropped;
+            eckit::Metrics::set("params", oss.str());
         }
     }
 }
