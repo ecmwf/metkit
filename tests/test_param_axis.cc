@@ -40,7 +40,8 @@ static std::ostream& operator<<(std::ostream& out, const std::vector<Param>& par
 }
 
 static void test_param_axis(const std::vector<std::string>& user, const std::vector<std::string>& axis,
-                            const std::vector<std::string>& expect, bool expectWind, bool fullTableDropping) {
+                            const std::vector<std::string>& expect, bool useParamId, bool expectWind,
+                            bool fullTableDropping = ParamID::fullTableDropping()) {
 
     bool windRequested = false;
 
@@ -55,47 +56,17 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
     std::cout << "Axis:" << index << std::endl;
     std::cout << "User:" << params << std::endl;
     std::cout << "Wind:" << false << std::endl;
+    std::cout << "useParamId:" << useParamId << std::endl;
 
-    ParamID::normalise(ignore, params, index, windRequested, fullTableDropping);
-
-    std::cout << "Expected Params:" << expected << std::endl;
-    std::cout << "Returned Params:" << params << std::endl;
-    std::cout << "Expected Wind:" << expectWind << std::endl;
-    std::cout << "Returned Wind:" << windRequested << std::endl;
-
-    EXPECT_EQUAL(expectWind, windRequested);
-    EXPECT_EQUAL(params, expected);
-}
-
-
-static void test_param_axis(const std::vector<std::string>& user, const std::vector<std::string>& axis,
-                            const std::vector<std::string>& expect, bool expectWind) {
-
-    bool windRequested = false;
-
-    MarsRequest ignore;
-
-    std::vector<Param> params(user.begin(), user.end());
-    std::vector<Param> expected(expect.begin(), expect.end());
-    std::vector<Param> index(axis.begin(), axis.end());
-
-    std::sort(index.begin(), index.end());
-
-
-    std::cout << "Axis:" << index << std::endl;
-    std::cout << "User:" << params << std::endl;
-    std::cout << "Wind:" << false << std::endl;
-
-
-    ParamID::normalise(ignore, params, index, windRequested);
+    ParamID::normalise(ignore, params, index, windRequested, fullTableDropping, useParamId);
 
     std::cout << "Expected Params:" << expected << std::endl;
     std::cout << "Returned Params:" << params << std::endl;
     std::cout << "Expected Wind:" << expectWind << std::endl;
     std::cout << "Returned Wind:" << windRequested << std::endl;
 
-    EXPECT_EQUAL(expectWind, windRequested);
     EXPECT_EQUAL(params, expected);
+    EXPECT_EQUAL(expectWind, windRequested);
 }
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
@@ -128,7 +99,8 @@ CASE("trivial") {
     std::vector<std::string> axis   = {"1", "2", "3"};
     std::vector<std::string> expect = {"1", "2", "3"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("wind1") {
@@ -137,7 +109,8 @@ CASE("wind1") {
     std::vector<std::string> axis   = {"138", "155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 
@@ -147,7 +120,8 @@ CASE("wind2") {
     std::vector<std::string> axis   = {"131", "132", "138", "155"};
     std::vector<std::string> expect = {"131", "132"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 
@@ -157,7 +131,8 @@ CASE("wind3") {
     std::vector<std::string> axis   = {"138", "155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 
@@ -167,7 +142,8 @@ CASE("wind4") {
     std::vector<std::string> axis   = {"138.128", "155.128"};
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 
@@ -180,7 +156,8 @@ CASE("wind5") {
     std::vector<std::string> axis   = {"138", "155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 
@@ -190,7 +167,8 @@ CASE("wind6") {
     std::vector<std::string> axis   = {"138", "155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 
@@ -200,7 +178,8 @@ CASE("wind7") {
     std::vector<std::string> axis   = {"138.128", "155.128"};
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 
@@ -213,7 +192,8 @@ CASE("wind8") {
     std::vector<std::string> axis   = {"138.128", "155.128"};
     std::vector<std::string> expect = {"131.128", "132.128", "138.128", "155.128"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind9") {
@@ -225,7 +205,8 @@ CASE("wind9") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind10") {
@@ -236,8 +217,10 @@ CASE("wind10") {
     };
     std::vector<std::string> axis   = {"129138", "129155"};
     std::vector<std::string> expect = {"129131", "129132", "129138", "129155"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("wind11") {
@@ -249,7 +232,8 @@ CASE("wind11") {
     std::vector<std::string> axis   = {"138", "155", "129138", "129155"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind12") {
@@ -261,7 +245,8 @@ CASE("wind12") {
     std::vector<std::string> axis   = {"138", "155", "129138", "129155"};
     std::vector<std::string> expect = {"131", "129132", "138", "155", "129138", "129155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind13") {
@@ -273,7 +258,8 @@ CASE("wind13") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind14") {
@@ -284,7 +270,8 @@ CASE("wind14") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"131", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind15") {
@@ -295,7 +282,8 @@ CASE("wind15") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"210131"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("wind16") {
@@ -307,7 +295,8 @@ CASE("wind16") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"210131", "131", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind17") {
@@ -319,7 +308,8 @@ CASE("wind17") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"210131", "132", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 
 CASE("wind18") {
@@ -331,7 +321,8 @@ CASE("wind18") {
     std::vector<std::string> axis   = {"138", "155", "210131"};
     std::vector<std::string> expect = {"210131", "131", "138", "155"};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ true);
 }
 CASE("wind19") {
 
@@ -340,8 +331,10 @@ CASE("wind19") {
     };
     std::vector<std::string> axis   = {"160138", "160155", "160131"};
     std::vector<std::string> expect = {"160132", "160138", "160155"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 CASE("wind20") {
 
@@ -350,8 +343,10 @@ CASE("wind20") {
     };
     std::vector<std::string> axis   = {"160138", "160155", "160131"};
     std::vector<std::string> expect = {"160131"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 CASE("wind21") {
 
@@ -365,8 +360,10 @@ CASE("wind21") {
         "170155",
     };
     std::vector<std::string> expect = {"170132", "170138", "170155"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ true);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("mixed") {
@@ -377,7 +374,8 @@ CASE("mixed") {
     std::vector<std::string> axis   = {"129.128", "129"};
     std::vector<std::string> expect = {"129"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("ocean1") {
@@ -387,7 +385,8 @@ CASE("ocean1") {
                                        "145.151", "164.151", "175.151", "148.151"};
     std::vector<std::string> expect = {"145.128"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("ocean2") {
@@ -397,7 +396,8 @@ CASE("ocean2") {
                                        "145.151", "164.151", "175.151", "148.151"};
     std::vector<std::string> expect = {"145.128", "145.151"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("ocean3") {
@@ -407,7 +407,8 @@ CASE("ocean3") {
                                        "145.151", "164.151", "175.151", "148.151"};
     std::vector<std::string> expect = {"145.128", "164.128", "175.128", "148.128", "145.151"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("ocean4") {
@@ -415,8 +416,10 @@ CASE("ocean4") {
     std::vector<std::string> user   = {"145", "164", "175", "148"};
     std::vector<std::string> axis   = {"145.151", "164.151", "175.151", "148.151"};
     std::vector<std::string> expect = {"145.151", "164.151", "175.151", "148.151"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("MARS-794 - GRIB1 and GRIB2 in axis") {
@@ -446,28 +449,33 @@ CASE("MARS-794 - GRIB1 and GRIB2 in axis") {
     SECTION("by xxx only - priority to table 128") {
         std::vector<std::string> user   = {"148", "145", "164", "175"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.128"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by xxx and param.table") {
         std::vector<std::string> user   = {"148", "145.128", "164", "175.151"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by xxx and paramId") {
         std::vector<std::string> user   = {"148", "128145", "164", "151175"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by xxx and paramId and param.table") {
         std::vector<std::string> user   = {"148", "128145", "164", "175.151"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by xxx and paramId all ") {
         std::vector<std::string> user   = {"148", "145", "164", "175", "151148", "151145", "151164", "151175"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.128",
                                            "148.151", "145.151", "164.151", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
 
     // by paramId
@@ -475,24 +483,28 @@ CASE("MARS-794 - GRIB1 and GRIB2 in axis") {
     SECTION("by paramId only 128") {
         std::vector<std::string> user   = {"128148", "128145", "128164", "128175"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.128"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by paramId only 151") {
         std::vector<std::string> user   = {"151148", "151145", "151164", "151175"};
         std::vector<std::string> expect = {"148.151", "145.151", "164.151", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by paramId mixed 128 and 151") {
         std::vector<std::string> user   = {"151148", "128145", "128164", "151175"};
         std::vector<std::string> expect = {"148.151", "145.128", "164.128", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by paramId all") {
         std::vector<std::string> user   = {"151148", "151145", "151164", "151175",
                                            "128148", "128145", "128164", "128175"};
         std::vector<std::string> expect = {"148.151", "145.151", "164.151", "175.151",
                                            "148.128", "145.128", "164.128", "175.128"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
 
     // by param.table
@@ -500,24 +512,28 @@ CASE("MARS-794 - GRIB1 and GRIB2 in axis") {
     SECTION("by param.table only 128") {
         std::vector<std::string> user   = {"148.128", "145.128", "164.128", "175.128"};
         std::vector<std::string> expect = {"148.128", "145.128", "164.128", "175.128"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by param.table only 151") {
         std::vector<std::string> user   = {"148.151", "145.151", "164.151", "175.151"};
         std::vector<std::string> expect = {"148.151", "145.151", "164.151", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by param.table mixed 128 and 151") {
         std::vector<std::string> user   = {"148.128", "145.151", "164.128", "175.151"};
         std::vector<std::string> expect = {"148.128", "145.151", "164.128", "175.151"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
     SECTION("by param.table all") {
         std::vector<std::string> user   = {"148.151", "145.151", "164.151", "175.151",
                                            "148.128", "145.128", "164.128", "175.128"};
         std::vector<std::string> expect = {"148.151", "145.151", "164.151", "175.151",
                                            "148.128", "145.128", "164.128", "175.128"};
-        test_param_axis(user, axis, expect, false);
+        test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+        test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
     }
 }
 
@@ -528,7 +544,8 @@ CASE("table1") {
     std::vector<std::string> axis   = {"129.128", "130"};
     std::vector<std::string> expect = {"129.128", "130"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table2") {
@@ -537,7 +554,8 @@ CASE("table2") {
     std::vector<std::string> axis   = {"129.128", "130"};
     std::vector<std::string> expect = {"129.128", "130"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table3") {
@@ -549,8 +567,10 @@ CASE("table3") {
         "140129",
     };
     std::vector<std::string> expect = {"140129"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table4") {
@@ -562,8 +582,10 @@ CASE("table4") {
         "129.140",
     };
     std::vector<std::string> expect = {"129.140"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table5") {
@@ -574,7 +596,8 @@ CASE("table5") {
     std::vector<std::string> axis   = {"129.128", "129.140"};
     std::vector<std::string> expect = {"129.128"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table6") {
@@ -585,7 +608,8 @@ CASE("table6") {
     std::vector<std::string> axis   = {"129.128", "129.140"};
     std::vector<std::string> expect = {"129.128"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table7") {
@@ -596,7 +620,8 @@ CASE("table7") {
     std::vector<std::string> axis   = {"129", "140129"};
     std::vector<std::string> expect = {"129"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table8") {
@@ -607,7 +632,8 @@ CASE("table8") {
     std::vector<std::string> axis   = {"129", "140129"};
     std::vector<std::string> expect = {"129"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 
@@ -619,7 +645,8 @@ CASE("table9") {
     std::vector<std::string> axis   = {"129", "140129"};
     std::vector<std::string> expect = {"129"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, expect, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table10") {
@@ -628,8 +655,8 @@ CASE("table10") {
     std::vector<std::string> axis   = {"210131"};
     std::vector<std::string> expect = {};
 
-    test_param_axis(user, axis, expect, false, false);
-    test_param_axis(user, axis, axis, false, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false, /*fullTableDropping*/ false);
+    test_param_axis(user, axis, axis, /*useParamId*/ false, /*expectWind*/ false, /*fullTableDropping*/ true);
 }
 
 CASE("table11") {
@@ -638,8 +665,8 @@ CASE("table11") {
     std::vector<std::string> axis   = {"131.210"};
     std::vector<std::string> expect = {};
 
-    test_param_axis(user, axis, expect, false, false);
-    test_param_axis(user, axis, axis, false, true);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false, /*fullTableDropping*/ false);
+    test_param_axis(user, axis, axis, /*useParamId*/ false, /*expectWind*/ false, /*fullTableDropping*/ true);
 }
 
 CASE("table12") {
@@ -648,7 +675,7 @@ CASE("table12") {
     std::vector<std::string> axis   = {"210131", "170131", "180131", "160132"};
     std::vector<std::string> expect = {"170131", "160132"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
 }
 
 CASE("table13") {
@@ -656,8 +683,10 @@ CASE("table13") {
     std::vector<std::string> user   = {"131", "132"};
     std::vector<std::string> axis   = {"210131", "131.170", "180131", "160132"};
     std::vector<std::string> expect = {"131.170", "160132"};
+    std::vector<std::string> empty  = {};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
+    test_param_axis(user, axis, empty, /*useParamId*/ true, /*expectWind*/ false);
 }
 
 CASE("table14") {
@@ -666,7 +695,7 @@ CASE("table14") {
     std::vector<std::string> axis   = {"210131", "133.170", "180134"};
     std::vector<std::string> expect = {"180134", "133.170"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
 }
 
 CASE("table15") {
@@ -675,7 +704,7 @@ CASE("table15") {
     std::vector<std::string> axis   = {"210131", "133.170", "180134"};
     std::vector<std::string> expect = {"180134"};
 
-    test_param_axis(user, axis, expect, false);
+    test_param_axis(user, axis, expect, /*useParamId*/ false, /*expectWind*/ false);
 }
 
 }  // namespace metkit::mars::test
