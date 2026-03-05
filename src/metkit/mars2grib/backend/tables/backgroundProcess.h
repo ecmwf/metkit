@@ -79,7 +79,7 @@ enum class BackgroundProcess : long {
 /// The mapping is explicit and strict. Only the following identifiers are
 /// supported:
 ///
-/// - `"ifs"`                    → `BackgroundProcess::ifs`
+/// - `"IFS"`                    → `BackgroundProcess::ifs`
 /// - `"aifs-single"`            → `BackgroundProcess::aifs_single`
 /// - `"aifs-ens"`               → `BackgroundProcess::aifs_ens`
 /// - `"aifs-single-mse"`        → `BackgroundProcess::aifs_single_mse`
@@ -119,7 +119,7 @@ enum class BackgroundProcess : long {
 ///
 inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string& value) {
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
-    if (value == "ifs") {
+    if (value == "IFS") {
         return BackgroundProcess::ifs;
     }
     else if (value == "aifs-single") {
@@ -153,7 +153,7 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
         std::string errMsg = "Invalid BackgroundProcess value: ";
         errMsg += "actual='" + value + "', ";
         errMsg +=
-            "expected={'ifs', 'aifs-single', 'aifs-ens', 'aifs-single-mse', "
+            "expected={'IFS', 'aifs-single', 'aifs-ens', 'aifs-single-mse', "
             "'aifs-ens-crps', 'aifs-ens-diff', 'aifs-compo-single', 'aifs-compo-ens', "
             "'aifs-compo-single-mse', 'aifs-compo-ens-crps'}";
         throw Mars2GribTableException(errMsg, Here());
@@ -174,7 +174,7 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
 ///
 /// Supported mappings:
 ///
-/// - `BackgroundProcess::ifs`                    → `"ifs"`
+/// - `BackgroundProcess::ifs`                    → `"IFS"`
 /// - `BackgroundProcess::aifs_single`            → `"aifs-single"`
 /// - `BackgroundProcess::aifs_ens`               → `"aifs-ens"`
 /// - `BackgroundProcess::aifs_single_mse`        → `"aifs-single-mse"`
@@ -220,7 +220,7 @@ inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value)
 
     switch (value) {
         case BackgroundProcess::ifs:
-            return "ifs";
+            return "IFS";
         case BackgroundProcess::aifs_single:
             return "aifs-single";
         case BackgroundProcess::aifs_ens:
