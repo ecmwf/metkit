@@ -37,6 +37,13 @@ bool GRIBDecoder::match(const eckit::message::Message& msg) const {
                          (p[0] == 'B' and p[1] == 'U' and p[2] == 'D' and p[3] == 'G'));
 }
 
+namespace {
+bool isInteger(double val) {
+    double intpart;
+    return std::modf(val, &intpart) == 0.0;
+}
+}  // namespace
+
 
 void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message::MetadataGatherer& gather,
                               const eckit::message::GetMetadataOptions& options) const {
@@ -59,14 +66,36 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
         switch (options.valueRepresentation) {
             case eckit::message::ValueRepresentation::String: {
-                gather.setValue(name, k.getString());
+                // TODO - remove as soon as https://jira.ecmwf.int/browse/ECC-2113 is fixed
+                if (k.name() == "levelist") {
+                    double val = k.getDouble();
+                    if (isInteger(val)) {
+                        gather.setValue(name, eckit::translate<std::string>(static_cast<long>(val)));
+                    }
+                    else {
+                        gather.setValue(name, eckit::translate<std::string>(val));
+                    }
+                }
+                else {
+                    gather.setValue(name, k.getString());
+                }
                 break;
             }
             case eckit::message::ValueRepresentation::Native: {
                 std::visit(
                     [&](auto&& v) {
                         using Type = std::decay_t<decltype(v)>;
-                        if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
+                        // TODO - remove as soon as https://jira.ecmwf.int/browse/ECC-2113 is fixed
+                        if (k.name() == "levelist") {
+                            double val = k.getDouble();
+                            if (isInteger(val)) {
+                                gather.setValue(name, static_cast<long>(val));
+                            }
+                            else {
+                                gather.setValue(name, val);
+                            }
+                        }
+                        else if constexpr (std::is_same_v<Type, std::string> || std::is_arithmetic_v<Type>) {
                             gather.setValue(name, std::forward<decltype(v)>(v));
                         }
                         else if constexpr (std::is_same_v<Type, std::vector<uint8_t>>) {
