@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "metkit/codes/CodesContent.h"
+#include "metkit/codes/CodesDataContent.h"
 
 namespace metkit {
 namespace codes {
@@ -22,17 +22,16 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class BufrContent : public CodesContent {
+class BufrContent : public CodesDataContent {
 public:
 
-    BufrContent(codes_handle* handle, bool delete_handle);
-    explicit BufrContent(const codes_handle* handle);
+    BufrContent(std::unique_ptr<CodesHandle> handle);
 
-    ~BufrContent();
+    virtual ~BufrContent() = default;
 
 protected:
 
-    using CodesContent::transform;
+    using CodesDataContent::transform;
     void transform(const eckit::OrderedStringDict& dict) override;
 };
 

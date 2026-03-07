@@ -60,6 +60,22 @@ ecbuild_add_option( FEATURE ODB
                     DESCRIPTION "Add support for ODB data"
                     REQUIRED_PACKAGES "NAME odc VERSION 1.0" )
 
+# MARS2GRIB encoder
+
+ecbuild_add_option( FEATURE MARS2GRIB
+                    DEFAULT ON
+                    DESCRIPTION "Build the MARS2GRIB encoder" )
+
+# Python bindings for mars2grib encoder
+
+ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
+                    DEFAULT OFF
+                    CONDITION HAVE_MARS2GRIB
+                    DESCRIPTION "Build mars2grib python library"
+                    REQUIRED_PACKAGES
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development REQUIRED"
+                        "NAME pybind11 VERSION 3.0.1 REQUIRED" )
+
 # METKIT config files support
 
 ecbuild_add_option( FEATURE METKIT_CONFIG

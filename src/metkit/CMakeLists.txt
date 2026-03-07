@@ -129,12 +129,12 @@ if ( HAVE_GRIB )
         codes/BUFRDecoder.h
         codes/GRIBDecoder.cc
         codes/GRIBDecoder.h
+        codes/CodesDataContent.cc
+        codes/CodesDataContent.h
         codes/CodesContent.cc
         codes/CodesContent.h
         codes/BufrContent.cc
         codes/BufrContent.h
-        codes/MallocCodesContent.cc
-        codes/MallocCodesContent.h
         codes/CodesSplitter.cc
         codes/CodesSplitter.h
         codes/GribAccessor.cc
@@ -184,6 +184,15 @@ if ( HAVE_ODB )
     set( odc_libs odccore )
 endif()
 
+if ( HAVE_MARS2GRIB )
+    list( APPEND metkit_srcs
+        mars2grib/api/Mars2Grib.cc
+        mars2grib/api/Mars2Grib.h
+        mars2grib/api/Options.h
+    )
+    set( mars2grib_libs eckit_geo )
+endif()
+
 ecbuild_add_library(
 
     TARGET metkit
@@ -211,4 +220,9 @@ ecbuild_add_library(
         eckit
         eckit_option
         ${grib_libs}
+        ${mars2grib_libs}
 )
+
+if( HAVE_MARS2GRIB_PYTHON )
+    add_subdirectory(mars2grib/api/pymars2grib)
+endif()

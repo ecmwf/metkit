@@ -18210,6 +18210,33 @@
 254021:
 - covar_rh2m_tsn3
 - Covariance between 2-metre relative humidity and temperature of snow layer 3
+254022:
+- covar_skt_stl1
+- Covariance between skin temperature and soil temperature layer 1
+254023:
+- covar_skt_stl2
+- Covariance between skin temperature and soil temperature layer 2
+254024:
+- covar_skt_stl3
+- Covariance between skin temperature and soil temperature layer 3
+254025:
+- covar_skt_swvl1
+- Covariance between skin temperature and volumetric soil water layer 1
+254026:
+- covar_skt_swvl2
+- Covariance between skin temperature and volumetric soil water layer 2
+254027:
+- covar_skt_swvl3
+- Covariance between skin temperature and volumetric soil water layer 3
+254028:
+- covar_skt_tsn1
+- Covariance between skin temperature and temperature of snow layer 1
+254029:
+- covar_skt_tsn2
+- Covariance between skin temperature and temperature of snow layer 2
+254030:
+- covar_skt_tsn3
+- Covariance between skin temperature and temperature of snow layer 3
 260001:
 - tcolg
 - Total column vertically-integrated graupel (snow pellets)

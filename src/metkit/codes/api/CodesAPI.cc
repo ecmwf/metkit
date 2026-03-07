@@ -15,6 +15,7 @@
 
 #include "eccodes.h"
 
+#include "metkit/config/LibMetkit.h"
 
 namespace std {
 template <>
@@ -42,7 +43,12 @@ namespace {
 void throwOnError(int code, const eckit::CodeLocation& l, const char* details) {
     if (code != 0) {
         std::string msg = std::string(details) + std::string(": ") + std::string(codes_get_error_message(code));
-        throw CodesException(msg, l);
+        if (code == GRIB_WRONG_LENGTH) {
+            throw CodesWrongLength(msg, l);
+        }
+        else {
+            throw CodesException(msg, l);
+        }
     }
 };
 
@@ -50,7 +56,12 @@ void throwOnError(int code, const eckit::CodeLocation& l, const char* details, c
     if (code != 0) {
         std::string msg = std::string(details) + std::string(": ") + std::string(codes_get_error_message(code)) +
                           std::string(" for key ") + key;
-        throw CodesException(msg, l);
+        if (code == GRIB_WRONG_LENGTH) {
+            throw CodesWrongLength(msg, l);
+        }
+        else {
+            throw CodesException(msg, l);
+        }
     }
 };
 
@@ -162,19 +173,32 @@ void OwningCodesHandle::setMissing(const std::string& key) {
 }
 
 void OwningCodesHandle::set(const std::string& key, const std::string& value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<string>: " + key << " = '" << value << "'" << std::endl;
     size_t size = value.size();
     throwOnError(codes_set_string(raw(), key.c_str(), value.c_str(), &size), Here(), "CodesHandle::set(string, string)",
                  key);
 }
 void OwningCodesHandle::set(const std::string& key, double value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<double>: " + key << " = " << std::to_string(value) << std::endl;
     throwOnError(codes_set_double(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, double)", key);
 }
 void OwningCodesHandle::set(const std::string& key, long value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<long>: " + key << " = " << std::to_string(value) << std::endl;
     throwOnError(codes_set_long(raw(), key.c_str(), value), Here(), "CodesHandle::set(string, long)", key);
 }
 
 /// Set arrays
 void OwningCodesHandle::set(const std::string& key, Span<const std::string> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<string>>: " + key << std::endl;
+
     std::vector<const char*> out;
     out.reserve(value.size());
     for (auto it = value.data(); it != value.data() + value.size(); ++it) {
@@ -183,31 +207,59 @@ void OwningCodesHandle::set(const std::string& key, Span<const std::string> valu
     set(key, out);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const char*> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<const char*>>: " + key << std::endl;
+
     throwOnError(codes_set_string_array(raw(), key.c_str(), const_cast<const char**>(value.data()), value.size()),
                  Here(), "CodesHandle::set(string, span<const char*>)", key);
 }  /// set string array
 void OwningCodesHandle::set(const std::string& key, Span<const double> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<double>>: " + key << std::endl;
+
     throwOnError(codes_set_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const double>)", key);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const float> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<float>>: " + key << std::endl;
+
     throwOnError(codes_set_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const float>)", key);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const long> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<long>>: " + key << std::endl;
+
     throwOnError(codes_set_long_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::set(string, span<const long>)", key);
 }
 void OwningCodesHandle::set(const std::string& key, Span<const uint8_t> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<array<uint8_t>>: " + key << std::endl;
+
     size_t size = value.size();
     throwOnError(codes_set_bytes(raw(), key.c_str(), value.data(), &size), Here(),
                  "CodesHandle::set(string, span<const uint8_t>)", key);
 }
 void OwningCodesHandle::forceSet(const std::string& key, Span<const double> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<force array<double>>: " + key << std::endl;
+
     throwOnError(codes_set_force_double_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const double>)", key);
 }
 void OwningCodesHandle::forceSet(const std::string& key, Span<const float> value) {
+
+    LOG_DEBUG_LIB(LibMetkit) << std::endl;
+    LOG_DEBUG_LIB(LibMetkit) << "Codes API<force array<float>>: " + key << std::endl;
+
     throwOnError(codes_set_force_float_array(raw(), key.c_str(), value.data(), value.size()), Here(),
                  "CodesHandle::forceSet(string, span<const float>)", key);
 }
@@ -673,7 +725,8 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
         std::unique_ptr<codes_handle>(codes_handle_new_from_samples(NULL, sampleName.c_str())));
 }
 
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product) {
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product product,
+                                                 std::optional<int64_t> offset) {
     int err = 0;
     std::unique_ptr<codes_handle> ret;
 
@@ -681,6 +734,10 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 
     if (file == nullptr) {
         throw CodesException(std::string("Error opening file ") + fpath, Here());
+    }
+
+    if (offset) {
+        fseek(file, *offset, SEEK_SET);
     }
 
     switch (product) {
@@ -698,6 +755,38 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
     }
 
     return std::make_unique<OwningCodesHandle>(std::move(ret));
+}
+
+
+using ReadCBCtx = std::pair<std::reference_wrapper<std::function<int64_t(uint8_t*, int64_t)>>, std::exception_ptr>;
+
+long readCallBack(void* ctx, void* buffer, long len) {
+    auto& [func, eptr] = *static_cast<ReadCBCtx*>(ctx);
+    try {
+        auto r = func.get()(static_cast<uint8_t*>(buffer), len);
+        // API indicates EOF with 0. Codes expects -1 for EOF.
+        return (r == 0) ? -1 : r;
+    }
+    catch (...) {
+        // Capture exception for propagation and indicate error
+        eptr = std::current_exception();
+        return -2;
+    }
+}
+
+std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc) {
+    int err = 0;
+    ReadCBCtx ctx{readFunc, {}};
+    std::unique_ptr<codes_handle> ret =
+        std::unique_ptr<codes_handle>(codes_handle_new_from_stream(NULL, &ctx, &readCallBack, &err));
+    if (ctx.second) {
+        std::rethrow_exception(ctx.second);
+    }
+    throwOnError(err, Here(), "codesHandleFromStream(readFunc)");
+    if (ret) {
+        return std::make_unique<OwningCodesHandle>(std::move(ret));
+    }
+    return {};
 }
 
 
