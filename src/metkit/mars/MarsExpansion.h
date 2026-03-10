@@ -41,14 +41,6 @@ public:
     virtual void operator()(const MarsRequest&) = 0;
 };
 
-class ExpandCallback {
-public:
-
-    virtual ~ExpandCallback();
-    virtual void operator()(const MarsRequest& request) { this->operator()(DummyContext{}, request); }
-    virtual void operator()(const MarsExpandContext&, const MarsRequest&) = 0;
-};
-
 //----------------------------------------------------------------------------------------------------------------------
 
 class MarsExpansion : public eckit::NonCopyable {
@@ -62,10 +54,7 @@ public:
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
-    void expand(const MarsRequest&, ExpandCallback&);
-    void expand(const MarsExpandContext&, const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);
-    void flatten(const MarsExpandContext&, const MarsRequest&, FlattenCallback&);
 
 private:
 
