@@ -28,7 +28,6 @@ list( APPEND metkit_srcs
     mars/MarsExpandContext.h
     mars/MarsExpansion.cc
     mars/MarsExpansion.h
-    mars/MarsExpension.h
     mars/MarsHandle.cc
     mars/MarsHandle.h
     mars/MarsLanguage.cc
