@@ -51,6 +51,13 @@ ecbuild_add_executable( TARGET    odb-to-request
     NO_AS_NEEDED
     LIBS      metkit eckit_option )
 
+ecbuild_add_executable( TARGET    grib-to-request
+    SOURCES   grib-to-request.cc
+    CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS      metkit eckit_option )
+
 ecbuild_add_executable( TARGET    bufr-sanity-check
     SOURCES   bufr-sanity-check.cc
     CONDITION HAVE_BUFR AND HAVE_BUILD_TOOLS
