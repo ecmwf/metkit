@@ -59,15 +59,15 @@ namespace metkit::mars2grib::backend::tables {
 enum class BackgroundProcess : long {
     aifs_single           = 1,
     aifs_ens              = 2,
-    aifs_subs             = 3,
-    aifs_single_mse       = 4,
-    aifs_ens_crps         = 5,
-    aifs_ens_diff         = 6,
-    aifs_subs_crps        = 7,
-    aifs_compo_single     = 8,
-    aifs_compo_ens        = 9,
-    aifs_compo_single_mse = 10,
-    aifs_compo_ens_crps   = 11,
+    aifs_single_mse       = 3,
+    aifs_ens_crps         = 4,
+    aifs_ens_diff         = 5,
+    aifs_compo_single     = 6,
+    aifs_compo_ens        = 7,
+    aifs_compo_single_mse = 8,
+    aifs_compo_ens_crps   = 9,
+    aifs_subs             = 10,
+    aifs_subs_crps        = 11,
     ifs                   = 255
 };
 
