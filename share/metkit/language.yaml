@@ -812,7 +812,7 @@ _field: &_field
     - [360h]
     - [none, inst, instantaneous]
     default: none
-    multiple: false
+    multiple: true
 
   stattype:
     category: data
