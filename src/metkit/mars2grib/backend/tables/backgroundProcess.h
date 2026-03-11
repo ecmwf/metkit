@@ -145,7 +145,7 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
         return BackgroundProcess::aifs_ens_diff;
     }
     else if (value == "aifs-subs-crps") {
-        return BackgroundProcess::aifs_crps;
+        return BackgroundProcess::aifs_subs_crps;
     }
     else if (value == "aifs-compo-single") {
         return BackgroundProcess::aifs_compo_single;
