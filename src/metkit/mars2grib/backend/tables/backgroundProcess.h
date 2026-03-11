@@ -88,7 +88,7 @@ enum class BackgroundProcess : long {
 /// - `"aifs-single-mse"`        → `BackgroundProcess::aifs_single_mse`
 /// - `"aifs-ens-crps"`          → `BackgroundProcess::aifs_ens_crps`
 /// - `"aifs-ens-diff"`          → `BackgroundProcess::aifs_ens_diff`
-/// - `"aifs-subs-crps"          → `BackgroundProcess::aifs_subs_crps`
+/// - `"aifs-subs-crps"`         → `BackgroundProcess::aifs_subs_crps`
 /// - `"aifs-compo-single"`      → `BackgroundProcess::aifs_compo_single`
 /// - `"aifs-compo-ens"`         → `BackgroundProcess::aifs_compo_ens`
 /// - `"aifs-compo-single-mse"`  → `BackgroundProcess::aifs_compo_single_mse`
