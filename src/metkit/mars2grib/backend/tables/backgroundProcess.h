@@ -59,13 +59,15 @@ namespace metkit::mars2grib::backend::tables {
 enum class BackgroundProcess : long {
     aifs_single           = 1,
     aifs_ens              = 2,
-    aifs_single_mse       = 3,
-    aifs_ens_crps         = 4,
-    aifs_ens_diff         = 5,
-    aifs_compo_single     = 6,
-    aifs_compo_ens        = 7,
-    aifs_compo_single_mse = 8,
-    aifs_compo_ens_crps   = 9,
+    aifs_subs             = 3,
+    aifs_single_mse       = 4,
+    aifs_ens_crps         = 5,
+    aifs_ens_diff         = 6,
+    aifs_subs_crps        = 7,
+    aifs_compo_single     = 8,
+    aifs_compo_ens        = 9,
+    aifs_compo_single_mse = 10,
+    aifs_compo_ens_crps   = 11,
     ifs                   = 255
 };
 
@@ -82,9 +84,11 @@ enum class BackgroundProcess : long {
 /// - `"IFS"`                    → `BackgroundProcess::ifs`
 /// - `"aifs-single"`            → `BackgroundProcess::aifs_single`
 /// - `"aifs-ens"`               → `BackgroundProcess::aifs_ens`
+/// - `"aifs-subs"`              → `BackgroundProcess::aifs_subs`
 /// - `"aifs-single-mse"`        → `BackgroundProcess::aifs_single_mse`
 /// - `"aifs-ens-crps"`          → `BackgroundProcess::aifs_ens_crps`
 /// - `"aifs-ens-diff"`          → `BackgroundProcess::aifs_ens_diff`
+/// - `"aifs-subs-crps"          → `BackgroundProcess::aifs_subs_crps`
 /// - `"aifs-compo-single"`      → `BackgroundProcess::aifs_compo_single`
 /// - `"aifs-compo-ens"`         → `BackgroundProcess::aifs_compo_ens`
 /// - `"aifs-compo-single-mse"`  → `BackgroundProcess::aifs_compo_single_mse`
@@ -128,6 +132,9 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
     else if (value == "aifs-ens") {
         return BackgroundProcess::aifs_ens;
     }
+    else if (value == "aifs-subs") {
+        return BackgroundProcess::aifs_subs;
+    }
     else if (value == "aifs-single-mse") {
         return BackgroundProcess::aifs_single_mse;
     }
@@ -136,6 +143,9 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
     }
     else if (value == "aifs-ens-diff") {
         return BackgroundProcess::aifs_ens_diff;
+    }
+    else if (value == "aifs-subs-crps") {
+        return BackgroundProcess::aifs_crps;
     }
     else if (value == "aifs-compo-single") {
         return BackgroundProcess::aifs_compo_single;
@@ -153,8 +163,8 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
         std::string errMsg = "Invalid BackgroundProcess value: ";
         errMsg += "actual='" + value + "', ";
         errMsg +=
-            "expected={'IFS', 'aifs-single', 'aifs-ens', 'aifs-single-mse', "
-            "'aifs-ens-crps', 'aifs-ens-diff', 'aifs-compo-single', 'aifs-compo-ens', "
+            "expected={'IFS', 'aifs-single', 'aifs-ens', 'aifs-subs', 'aifs-single-mse', "
+            "'aifs-ens-crps', 'aifs-ens-diff', 'aifs-subs-crps', 'aifs-compo-single', 'aifs-compo-ens', "
             "'aifs-compo-single-mse', 'aifs-compo-ens-crps'}";
         throw Mars2GribTableException(errMsg, Here());
     }
@@ -177,9 +187,11 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
 /// - `BackgroundProcess::ifs`                    → `"IFS"`
 /// - `BackgroundProcess::aifs_single`            → `"aifs-single"`
 /// - `BackgroundProcess::aifs_ens`               → `"aifs-ens"`
+/// - `BackgroundProcess::aifs_subs`              → `"aifs-subs"`
 /// - `BackgroundProcess::aifs_single_mse`        → `"aifs-single-mse"`
 /// - `BackgroundProcess::aifs_ens_crps`          → `"aifs-ens-crps"`
 /// - `BackgroundProcess::aifs_ens_diff`          → `"aifs-ens-diff"`
+/// - `BackgroundProcess::aifs_subs_crps`         → `"aifs-subs-crps"`
 /// - `BackgroundProcess::aifs_compo_single`      → `"aifs-compo-single"`
 /// - `BackgroundProcess::aifs_compo_ens`         → `"aifs-compo-ens"`
 /// - `BackgroundProcess::aifs_compo_single_mse`  → `"aifs-compo-single-mse"`
@@ -225,12 +237,16 @@ inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value)
             return "aifs-single";
         case BackgroundProcess::aifs_ens:
             return "aifs-ens";
+        case BackgroundProcess::aifs_subs:
+            return "aifs-subs";
         case BackgroundProcess::aifs_single_mse:
             return "aifs-single-mse";
         case BackgroundProcess::aifs_ens_crps:
             return "aifs-ens-crps";
         case BackgroundProcess::aifs_ens_diff:
             return "aifs-ens-diff";
+        case BackgroundProcess::aifs_subs_crps:
+            return "aifs-subs-crps";
         case BackgroundProcess::aifs_compo_single:
             return "aifs-compo-single";
         case BackgroundProcess::aifs_compo_ens:
