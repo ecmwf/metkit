@@ -430,6 +430,8 @@ _field: &_field
           - [aifs-ens]
           - [aifs-ens-crps]
           - [aifs-ens-diff]
+          - [aifs-subs]
+          - [aifs-subs-crps]
           - [aifs-compo-single]
           - [aifs-compo-ens]
           - [aifs-compo-single-mse]
