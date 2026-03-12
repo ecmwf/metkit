@@ -104,15 +104,10 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
             set_or_throw<long>(out, "interpretationOfNumberOfPoints", 0L);
             set_or_throw<long>(out, "dataRepresentationTemplateNumber", 51L);
         }
-        // Special handling for unstructured grids (Template 101)
-        else if constexpr (TemplateNumber == 101) {
-            set_or_throw<long>(out, "gridDefinitionTemplateNumber", 101L);
-        }
         else {
             // Standard grid definition template
             long drt = static_cast<long>(TemplateNumber);
             set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt);
-            set_or_throw<long>(out, "resolutionAndComponentFlags", 0L);
         }
 
         return;

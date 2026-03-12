@@ -349,6 +349,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const auto jDirectionIncrementInDegrees = std::abs(grid->dlat());
 
                     // Encoding
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
                     set_or_throw<long>(out, "Ni", Ni);
                     set_or_throw<long>(out, "Nj", Nj);
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
@@ -380,6 +381,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     // TODO (GEOM): numberOfParallelsBetweenAPoleAndTheEquator, and numberOfPointsAlongAMeridian ?
 
                     // Encoding
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
@@ -408,6 +410,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     // TODO (GEOM): numberOfPointsAlongAMeridian ?
 
                     // Encoding
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
                     set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                     set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
@@ -442,6 +445,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                         std::get<eckit::geo::PointLonLat>(grid->first_point()).lon();
 
                     // Encoding
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
                     set_or_throw(out, "nside", nside);
                     set_or_throw(out, "orderingConvention", orderingConvention);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
