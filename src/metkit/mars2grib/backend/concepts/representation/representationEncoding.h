@@ -127,6 +127,7 @@
 // Eckit::geo includes
 #include "eckit/geo/Grid.h"
 #include "eckit/geo/PointLonLat.h"
+#include "eckit/geo/grid/ORCA.h"
 #include "eckit/geo/grid/reduced/HEALPix.h"
 #include "eckit/geo/grid/reduced/ReducedGaussian.h"
 #include "eckit/geo/grid/regular/RegularGaussian.h"
@@ -302,8 +303,8 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     // Checks/Validation
                     validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {101});
 
-                    // Not implemented error
-                    MARS2GRIB_CONCEPT_THROW(representation, "Support for Orca representation not implemented...");
+                    // Encoding
+                    set_or_throw<std::string>(out, "gridType", "unstructured_grid");
                 }
                 else if constexpr (Variant == RepresentationType::Fesom) {
 
@@ -446,7 +447,21 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
-                    MARS2GRIB_CONCEPT_THROW(representation, "Support for Orca representation not implemented...");
+
+                    // Deductions
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
+                    const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
+                    const auto* grid = dynamic_cast<const eckit::geo::grid::ORCA*>(genericGrid.get());
+
+                    const auto gridType    = grid->name();
+                    const auto gridSubType = grid->arrangement();
+                    const auto uuid        = grid->uid();
+
+                    // Encoding
+                    set_or_throw(out, "unstructuredGridType", gridType);
+                    set_or_throw(out, "unstructuredGridSubtype", gridSubType);
+                    set_or_throw(out, "uuidOfHGrid", uuid);
                 }
                 else if constexpr (Variant == RepresentationType::Fesom) {
                     MARS2GRIB_CONCEPT_THROW(representation, "Support for Fesom representation not implemented...");

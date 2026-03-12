@@ -51,6 +51,13 @@ inline const Recipe S3_R101 =
             RepresentationType::GeneralUnstructured>
     >();
 
+inline const Recipe S3_R101_ORCA =
+    make_recipe<101,
+        Select<ShapeOfTheEarthConcept>,
+        Select<RepresentationConcept,
+            RepresentationType::Orca>
+    >();
+
 // HEALPix grid
 inline const Recipe S3_R150 =
     make_recipe<150,
@@ -69,6 +76,7 @@ inline const Recipes Section3Recipes{ 3,
         &S3_R40,
         &S3_R50,
         &S3_R101,
+        &S3_R101_ORCA,
         &S3_R150
     }
 };
