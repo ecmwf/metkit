@@ -1,0 +1,134 @@
+- id: 167
+  shortname: 2t
+  name: 2 metre temperature
+  units: K
+
+- id: 165
+  shortname: 10u
+  name: 10 metre U wind component
+  units: m s**-1
+
+- id: 166
+  shortname: 10v
+  name: 10 metre V wind component
+  units: m s**-1
+
+- id: 129
+  shortname: z
+  name: Geopotential
+  units: m**2 s**-2
+
+- id: 133
+  shortname: q
+  name: Specific humidity
+  units: kg kg**-1
+
+- id: 134
+  shortname: sp
+  name: Surface pressure
+  units: Pa
+
+- id: 151
+  shortname: msl
+  name: Mean sea level pressure
+  units: Pa
+
+- id: 130
+  shortname: t
+  name: Temperature
+  units: K
+
+- id: 131
+  shortname: u
+  name: U component of wind
+  units: m s**-1
+
+- id: 132
+  shortname: v
+  name: V component of wind
+  units: m s**-1
+
+- id: 228
+  shortname: tp
+  name: Total precipitation
+  units: m
+
+- id: 164
+  shortname: tcc
+  name: Total cloud cover
+  units: (0 - 1)
+
+- id: 34
+  shortname: sst
+  name: Sea surface temperature
+  units: K
+
+- id: 141
+  shortname: sd
+  name: Snow depth
+  units: m of water equivalent
+
+- id: 139
+  shortname: stl1
+  name: Soil temperature level 1
+  units: K
+
+- id: 157
+  shortname: r
+  name: Relative humidity
+  units: '%'
+
+- id: 138
+  shortname: vo
+  name: Vorticity (relative)
+  units: s**-1
+
+- id: 155
+  shortname: d
+  name: Divergence
+  units: s**-1
+
+- id: 135
+  shortname: w
+  name: Vertical velocity
+  units: Pa s**-1
+
+- id: 203
+  shortname: o3
+  name: Ozone mass mixing ratio
+  units: kg kg**-1
+
+- id: 3
+  shortname: pt
+  name: Potential temperature
+  units: K
+
+- id: 142
+  shortname: lsp
+  name: Large-scale precipitation
+  units: m
+
+- id: 143
+  shortname: cp
+  name: Convective precipitation
+  units: m
+
+- id: 144
+  shortname: sf
+  name: Snowfall
+  units: m of water equivalent
+
+- id: 145
+  shortname: bld
+  name: Boundary layer dissipation
+  units: J m**-2
+
+- id: 146
+  shortname: sshf
+  name: Surface sensible heat flux
+  units: J m**-2
+
+- id: 147
+  shortname: slhf
+  name: Surface latent heat flux
+  units: J m**-2

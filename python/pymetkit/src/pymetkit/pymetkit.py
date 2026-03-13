@@ -3,7 +3,14 @@ from cffi import FFI
 import findlibs
 from typing import IO, Iterator
 import warnings
+from pathlib import Path
+import yaml
 from ._version import __version__
+
+try:
+    import requests as _requests
+except ImportError:
+    _requests = None
 
 ffi = FFI()
 
@@ -304,6 +311,176 @@ class PatchedLib:
             return retval
 
         return wrapped_fn
+
+
+class ParamDB:
+    """
+    Parameter database providing metadata lookup for ECMWF parameters.
+
+    Supports both online mode (fetching from the ECMWF parameter database API)
+    and offline mode (loading from a bundled YAML file).
+    """
+
+    _API_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
+
+    def __init__(self, mode: str = "offline"):
+        """
+        Initialise the parameter database.
+
+        Parameters
+        ----------
+        mode : str
+            Either ``"online"`` (fetch from the ECMWF API) or
+            ``"offline"`` (load from the bundled YAML file).
+        """
+        if mode not in ("online", "offline"):
+            raise ValueError(f"mode must be 'online' or 'offline', got '{mode}'")
+
+        self._by_id: dict[int, dict] = {}
+        self._by_shortname: dict[str, dict] = {}
+        self._by_longname: dict[str, dict] = {}
+
+        if mode == "online":
+            self._load_online()
+        else:
+            self._load_offline()
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _normalise(raw: dict) -> dict:
+        """Return a normalised parameter dict with canonical key names."""
+        entry = dict(raw)
+        # Normalise shortname
+        for key in ("shortName", "short_name", "shortname"):
+            if key in entry and key != "shortname":
+                entry["shortname"] = entry.pop(key)
+                break
+        # Ensure integer id
+        if "id" in entry:
+            entry["id"] = int(entry["id"])
+        return entry
+
+    def _index(self, entry: dict) -> None:
+        """Insert a normalised entry into the internal lookup dicts."""
+        param_id = entry.get("id")
+        shortname = entry.get("shortname")
+        longname = entry.get("name")
+
+        if param_id is not None:
+            self._by_id[int(param_id)] = entry
+        if shortname is not None:
+            self._by_shortname[str(shortname)] = entry
+        if longname is not None:
+            self._by_longname[str(longname)] = entry
+
+    def _load_online(self) -> None:
+        if _requests is None:
+            raise ImportError(
+                "The 'requests' package is required for online mode. "
+                "Install it with: pip install requests"
+            )
+        response = _requests.get(self._API_URL)
+        response.raise_for_status()
+        params = response.json()
+        for raw in params:
+            self._index(self._normalise(raw))
+
+    def _load_offline(self) -> None:
+        yaml_path = Path(__file__).parent / "parameter_metadata.yaml"
+        with yaml_path.open("r") as fh:
+            params = yaml.safe_load(fh)
+        for raw in params:
+            self._index(self._normalise(raw))
+
+    def _resolve(self, identifier: "int | str") -> dict:
+        """Resolve *identifier* (param_id, shortname, or longname) to a metadata dict."""
+        # Try as integer param_id first
+        if isinstance(identifier, int):
+            if identifier in self._by_id:
+                return self._by_id[identifier]
+            raise KeyError(f"Parameter with id {identifier!r} not found in database")
+        # For strings: try coercing to int, then shortname, then longname
+        if isinstance(identifier, str):
+            try:
+                int_id = int(identifier)
+                if int_id in self._by_id:
+                    return self._by_id[int_id]
+            except ValueError:
+                pass
+            if identifier in self._by_shortname:
+                return self._by_shortname[identifier]
+            if identifier in self._by_longname:
+                return self._by_longname[identifier]
+        raise KeyError(f"Parameter {identifier!r} not found in database")
+
+    # ------------------------------------------------------------------
+    # Conversion methods
+    # ------------------------------------------------------------------
+
+    def shortname_to_longname(self, shortname: str) -> str:
+        if shortname not in self._by_shortname:
+            raise KeyError(f"Short name {shortname!r} not found in database")
+        return self._by_shortname[shortname]["name"]
+
+    def longname_to_shortname(self, longname: str) -> str:
+        if longname not in self._by_longname:
+            raise KeyError(f"Long name {longname!r} not found in database")
+        return self._by_longname[longname]["shortname"]
+
+    def shortname_to_param_id(self, shortname: str) -> int:
+        if shortname not in self._by_shortname:
+            raise KeyError(f"Short name {shortname!r} not found in database")
+        return int(self._by_shortname[shortname]["id"])
+
+    def param_id_to_shortname(self, param_id: int) -> str:
+        if param_id not in self._by_id:
+            raise KeyError(f"Parameter id {param_id!r} not found in database")
+        return self._by_id[param_id]["shortname"]
+
+    def longname_to_param_id(self, longname: str) -> int:
+        if longname not in self._by_longname:
+            raise KeyError(f"Long name {longname!r} not found in database")
+        return int(self._by_longname[longname]["id"])
+
+    def param_id_to_longname(self, param_id: int) -> str:
+        if param_id not in self._by_id:
+            raise KeyError(f"Parameter id {param_id!r} not found in database")
+        return self._by_id[param_id]["name"]
+
+    # ------------------------------------------------------------------
+    # Metadata retrieval methods
+    # ------------------------------------------------------------------
+
+    def get_metadata(self, identifier: "int | str") -> dict:
+        """
+        Return the full metadata dictionary for a parameter.
+
+        Parameters
+        ----------
+        identifier : int or str
+            A param ID (int), shortname, or longname.
+        """
+        return self._resolve(identifier)
+
+    def get_units(self, identifier: "int | str") -> str:
+        """
+        Return the units string for a parameter.
+
+        Parameters
+        ----------
+        identifier : int or str
+            A param ID (int), shortname, or longname.
+
+        Returns
+        -------
+        str
+            The units string, or ``"unknown"`` if not available.
+        """
+        entry = self._resolve(identifier)
+        return entry.get("units", "unknown") or "unknown"
 
 
 try:
