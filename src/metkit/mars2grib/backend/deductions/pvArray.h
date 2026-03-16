@@ -361,7 +361,7 @@ inline double readDoubleMaybeSwapped(const std::array<uint8_t, 8>& p, bool swap)
 /// This function is intended for use at API or backend boundaries and follows
 /// a fail-fast strategy with rich error context propagation.
 ///
-std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
+inline std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
