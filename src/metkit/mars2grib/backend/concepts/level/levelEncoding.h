@@ -131,7 +131,7 @@ constexpr bool needLevel() {
 template <LevelType Variant>
 constexpr bool needTopBottomLevel() {
     if constexpr (Variant == LevelType::SoilLayer || Variant == LevelType::SeaIceLayer ||
-                  Variant == LevelType::SnowLayer) {
+                  Variant == LevelType::SnowLayer || Variant == LevelType::OceanModelLayer) {
         return true;
     }
     else {
