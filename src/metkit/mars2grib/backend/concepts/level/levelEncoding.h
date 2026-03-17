@@ -291,10 +291,6 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                         long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
                         set_or_throw<long>(out, "level", levelVal);
                     }
-                    if constexpr (needLevel<Variant>()) {
-                        long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
-                        set_or_throw<long>(out, "level", levelVal);
-                    }
                     if constexpr (needTopBottomLevel<Variant>()) {
                         long levelVal    = deductions::resolve_Level_or_throw(mars, par, opt);
                         long topLevel    = levelVal - 1;
