@@ -33,6 +33,9 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
     else if (gridType == "regular-ll") {
         return static_cast<std::size_t>(RepresentationType::Latlon);
     }
+    else if (gridType == "ORCA") {
+        return static_cast<std::size_t>(RepresentationType::Orca);
+    }
 
     throw utils::exceptions::Mars2GribMatcherException(
         "Cannot match grid \"" + marsGrid + "\" with grid type \"" + gridType + "\"! ", Here());

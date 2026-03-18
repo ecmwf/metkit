@@ -109,11 +109,20 @@ enum class LevelType : std::size_t {
     SnowLayer,
     SoilLayer,
     SeaIceLayer,
+    OceanSurface,
     DepthBelowSeaLayer,
+    OceanSurfaceToBottom,
     LakeBottom,
     MixingLayer,
+    OceanModel,
+    OceanModelLayer,
+    MixedLayerDepthByDensity,
+    MixedLayerDepthByTemperature,
+    SnowLayerOverIceOnWater,
     IceTopOnWater,
     IceLayerOnWater,
+    EntireMeltPond,
+    WaterSurfaceToIsothermalOceanLayer,
     AbstractSingleLevel,
     AbstractMultipleLevel,
     HeightAboveSeaAt10M,
@@ -142,11 +151,14 @@ using LevelList =
               LevelType::Isothermal, LevelType::IsobaricInPa, LevelType::IsobaricInHpa, LevelType::LowCloudLayer,
               LevelType::MediumCloudLayer, LevelType::HighCloudLayer, LevelType::MeanSea, LevelType::HeightAboveSea,
               LevelType::HeightAboveGround, LevelType::Hybrid, LevelType::Theta, LevelType::PotentialVorticity,
-              LevelType::SnowLayer, LevelType::SoilLayer, LevelType::SeaIceLayer, LevelType::DepthBelowSeaLayer,
-              LevelType::LakeBottom, LevelType::MixingLayer, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
-              LevelType::AbstractSingleLevel, LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M,
-              LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M,
-              LevelType::Default>;
+              LevelType::SnowLayer, LevelType::SoilLayer, LevelType::SeaIceLayer, LevelType::OceanSurface,
+              LevelType::DepthBelowSeaLayer, LevelType::OceanSurfaceToBottom, LevelType::LakeBottom,
+              LevelType::MixingLayer, LevelType::OceanModel, LevelType::OceanModelLayer,
+              LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
+              LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
+              LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel,
+              LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M,
+              LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M, LevelType::Default>;
 
 
 ///
@@ -199,11 +211,20 @@ DEF(LevelType::PotentialVorticity, "potentialVorticity");
 DEF(LevelType::SnowLayer, "snowLayer");
 DEF(LevelType::SoilLayer, "soilLayer");
 DEF(LevelType::SeaIceLayer, "seaIceLayer");
+DEF(LevelType::OceanSurface, "oceanSurface");
 DEF(LevelType::DepthBelowSeaLayer, "depthBelowSeaLayer");
+DEF(LevelType::OceanSurfaceToBottom, "oceanSurfaceToBottom");
 DEF(LevelType::LakeBottom, "lakeBottom");
 DEF(LevelType::MixingLayer, "mixingLayer");
+DEF(LevelType::OceanModel, "oceanModel");
+DEF(LevelType::OceanModelLayer, "oceanModelLayer");
+DEF(LevelType::MixedLayerDepthByDensity, "mixedLayerDepthByDensity");
+DEF(LevelType::MixedLayerDepthByTemperature, "mixedLayerDepthByTemperature");
+DEF(LevelType::SnowLayerOverIceOnWater, "snowLayerOverIceOnWater");
 DEF(LevelType::IceTopOnWater, "iceTopOnWater");
 DEF(LevelType::IceLayerOnWater, "iceLayerOnWater");
+DEF(LevelType::EntireMeltPond, "entireMeltPond");
+DEF(LevelType::WaterSurfaceToIsothermalOceanLayer, "waterSurfaceToIsothermalOceanLayer");
 DEF(LevelType::AbstractSingleLevel, "abstractSingleLevel");
 DEF(LevelType::AbstractMultipleLevel, "abstractMultipleLevel");
 DEF(LevelType::HeightAboveSeaAt10M, "heightAboveSeaAt10m");

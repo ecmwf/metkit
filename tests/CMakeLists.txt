@@ -55,15 +55,6 @@ ecbuild_add_test( TARGET        metkit_test_odbsplitter
                   NO_AS_NEEDED
                   LIBS          metkit )
 
-ecbuild_add_test( TARGET        metkit_test_gribhandle
-                  CONDITION     HAVE_GRIB
-                  SOURCES       test_gribhandle.cc
-                  INCLUDES      "${ECKIT_INCLUDE_DIRS}" "${ECCODES_INCLUDE_DIR}"
-                  LIBS          metkit
-                  TEST_DEPENDS  grib_get_data
-                  NO_AS_NEEDED
-                  ENVIRONMENT   "${metkit_env}")
-
 foreach( test
         c_api
         codes_api
@@ -108,3 +99,4 @@ ecbuild_add_test( TARGET        metkit_test_c_compiled
 add_subdirectory(regressions)
 add_subdirectory(marsgen)
 add_subdirectory(mars2grib)
+add_subdirectory(tools)
