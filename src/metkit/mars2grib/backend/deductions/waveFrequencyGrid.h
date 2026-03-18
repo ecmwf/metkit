@@ -173,8 +173,8 @@ namespace wave_frequency_detail {
 /// This implementation assumes geometric spacing of frequencies and does
 /// not perform validation of the physical consistency of the input values.
 ///
-std::vector<double> compute_WaveFrequencyGrid(long numberOfWaveFrequencies, long indexOfReferenceWaveFrequency,
-                                              double referenceWaveFrequency, double waveFrequencySpacingRatio) {
+inline std::vector<double> compute_WaveFrequencyGrid(long numberOfWaveFrequencies, long indexOfReferenceWaveFrequency,
+                                                     double referenceWaveFrequency, double waveFrequencySpacingRatio) {
 
     if (indexOfReferenceWaveFrequency == 0 || indexOfReferenceWaveFrequency > numberOfWaveFrequencies) {
         throw std::out_of_range("indexOfReferenceWaveFrequency out of range");
@@ -248,8 +248,8 @@ std::vector<double> compute_WaveFrequencyGrid(long numberOfWaveFrequencies, long
 /// ensuring that the provided values are physically meaningful and that
 /// the scaled values fit within the range of the target integer type.
 ///
-WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<double>& waveFrequenciesInHz,
-                                                  long scaleFactorOfWaveFrequencies) {
+inline WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<double>& waveFrequenciesInHz,
+                                                         long scaleFactorOfWaveFrequencies) {
 
     WaveFrequencyGrid out{};
 
