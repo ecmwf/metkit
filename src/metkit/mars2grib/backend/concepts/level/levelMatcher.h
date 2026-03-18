@@ -239,10 +239,66 @@ inline std::size_t matchAL(const long param) {
     if (matchAny(param, range(213101, 213160))) {
         return static_cast<std::size_t>(LevelType::AbstractSingleLevel);
     }
-    else {
-        throw utils::exceptions::Mars2GribMatcherException(
-            "No mapping exists for param \"" + std::to_string(param) + "\" on levtype AL", Here());
+
+    throw utils::exceptions::Mars2GribMatcherException(
+        "No mapping exists for param \"" + std::to_string(param) + "\" on levtype AL", Here());
+}
+
+inline std::size_t matchO2D(const long param) {
+    using metkit::mars2grib::util::param_matcher::matchAny;
+    using metkit::mars2grib::util::param_matcher::range;
+
+    if (matchAny(param, 262000, 262003, 262004, 262008, 262014, 262023)) {
+        return static_cast<std::size_t>(LevelType::IceLayerOnWater);
     }
+    if (matchAny(param, 262001, 262005, 262006)) {
+        return static_cast<std::size_t>(LevelType::IceTopOnWater);
+    }
+    if (matchAny(param, 262002, 262009, 262011, 262015)) {
+        return static_cast<std::size_t>(LevelType::SnowLayerOverIceOnWater);
+    }
+    if (matchAny(param, 262017, 262018)) {
+        return static_cast<std::size_t>(LevelType::EntireMeltPond);
+    }
+    if (matchAny(param, 262100, 262101, 262108, 262124, 262125, 262130, 262139, 262140, 262143)) {
+        return static_cast<std::size_t>(LevelType::OceanSurface);
+    }
+    if (matchAny(param, range(262102, 262106))) {
+        return static_cast<std::size_t>(LevelType::Isothermal);
+    }
+    if (matchAny(param, range(262113, 262115))) {
+        return static_cast<std::size_t>(LevelType::MixedLayerDepthByDensity);
+    }
+    if (matchAny(param, 262116)) {
+        return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
+    }
+    if (matchAny(param, 262118, 262119, 262121, 262122)) {
+        return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
+    }
+    if (matchAny(param, 262120, 262123)) {
+        return static_cast<std::size_t>(LevelType::OceanSurfaceToBottom);
+    }
+    if (matchAny(param, 262141)) {
+        return static_cast<std::size_t>(LevelType::WaterSurfaceToIsothermalOceanLayer);
+    }
+
+    throw utils::exceptions::Mars2GribMatcherException(
+        "No mapping exists for param \"" + std::to_string(param) + "\" on levtype O2D", Here());
+}
+
+inline std::size_t matchO3D(const long param) {
+    using metkit::mars2grib::util::param_matcher::matchAny;
+    using metkit::mars2grib::util::param_matcher::range;
+
+    if (matchAny(param, range(262500, 262502), 262505, 262506)) {
+        return static_cast<std::size_t>(LevelType::OceanModelLayer);
+    }
+    if (matchAny(param, 262507)) {
+        return static_cast<std::size_t>(LevelType::OceanModel);
+    }
+
+    throw utils::exceptions::Mars2GribMatcherException(
+        "No mapping exists for param \"" + std::to_string(param) + "\" on levtype O3D", Here());
 }
 
 }  // namespace impl
@@ -286,6 +342,12 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     }
     if (levtype == "al") {
         return impl::matchAL(param);
+    }
+    if (levtype == "o2d") {
+        return impl::matchO2D(param);
+    }
+    if (levtype == "o3d") {
+        return impl::matchO3D(param);
     }
 
     throw utils::exceptions::Mars2GribMatcherException("Unknown levtype \"" + levtype + "\"", Here());
