@@ -106,7 +106,8 @@ constexpr bool needLevel() {
                   Variant == LevelType::HeightAboveSeaAt2M || Variant == LevelType::HeightAboveSea ||
                   Variant == LevelType::Hybrid || Variant == LevelType::IsobaricInHpa ||
                   Variant == LevelType::IsobaricInPa || Variant == LevelType::Isothermal ||
-                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta) {
+                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta ||
+                  Variant == LevelType::OceanModel) {
         return true;
     }
     else {
