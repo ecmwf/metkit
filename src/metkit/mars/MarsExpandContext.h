@@ -33,7 +33,7 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class [[deprecated]] DummyContext : public MarsExpandContext {
+class DummyContext : public MarsExpandContext {
     using MarsExpandContext::MarsExpandContext;
 };
 

@@ -48,7 +48,7 @@ public:  // methods
 
     std::vector<MarsParsedRequest> parse();
 
-    void parse(MarsParserCallback& cb);
+    [[deprecated]] void parse(MarsParserCallback& cb);
 
     static void quoted(std::ostream& out, const std::string& value);
 

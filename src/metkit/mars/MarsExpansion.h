@@ -62,10 +62,10 @@ public:
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
-    void expand(const MarsRequest&, ExpandCallback&);
-    void expand(const MarsExpandContext&, const MarsRequest&, ExpandCallback&);
+    [[deprecated]] void expand(const MarsRequest&, ExpandCallback&);
+    [[deprecated]] void expand(const MarsExpandContext&, const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);
-    void flatten(const MarsExpandContext&, const MarsRequest&, FlattenCallback&);
+    [[deprecated]] void flatten(const MarsExpandContext&, const MarsRequest&, FlattenCallback&);
 
 private:
 
