@@ -24,7 +24,9 @@ requires-python = ">=3.10"
 dependencies = [
     "cffi",
     "metkitlib",
-    "findlibs"
+    "findlibs",
+    "pyyaml",
+    "requests"
 ]
 
 [tool.setuptools.dynamic]
@@ -39,7 +41,8 @@ zip-safe = false
 [tool.setuptools.package-data]
 "pymetkit" = [
     "VERSION", 
-    "metkit_c.h"
+    "metkit_c.h",
+    "parameter_metadata.yaml"
 ]
 
 [project.optional-dependencies]
