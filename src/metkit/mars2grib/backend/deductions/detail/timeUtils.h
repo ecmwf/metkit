@@ -284,7 +284,7 @@ inline long toSeconds_or_throw(std::string_view step) {
     }
 }
 
-eckit::Date convert_YYYYMMDD2Date_or_throw(long YYYYMMDD) {
+inline eckit::Date convert_YYYYMMDD2Date_or_throw(long YYYYMMDD) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
@@ -303,7 +303,7 @@ eckit::Date convert_YYYYMMDD2Date_or_throw(long YYYYMMDD) {
 }
 
 
-eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
+inline eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 

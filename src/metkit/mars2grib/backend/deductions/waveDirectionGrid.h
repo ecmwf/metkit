@@ -190,7 +190,7 @@ namespace wave_direction_detail {
 /// This function assumes a full directional coverage of \f$2\pi\f$ and
 /// does not support partial angular sectors.
 ///
-std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections) {
+inline std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections) {
 
     std::vector<double> th;
     th.resize(numberOfWaveDirections);
@@ -252,8 +252,8 @@ std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections) {
 /// meaningful and that the scaled values fit within the range of the
 /// target integer type.
 ///
-WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<double>& waveDirectionsInRadians,
-                                                  long scaleFactorOfWaveDirections) {
+inline WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<double>& waveDirectionsInRadians,
+                                                         long scaleFactorOfWaveDirections) {
 
     WaveDirectionGrid out{};
 

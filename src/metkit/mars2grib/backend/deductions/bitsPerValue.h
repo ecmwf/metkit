@@ -141,7 +141,7 @@ namespace details {
 /// requires additional parameters, and in this case the override can
 /// be used anyway.
 ///
-long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool enableCompression) {
+inline long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool enableCompression) {
 
     // Parameter IDs (hard-coded)
     constexpr long CLOUD_COVER                      = 248;

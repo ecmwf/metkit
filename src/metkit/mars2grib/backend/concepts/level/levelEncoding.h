@@ -106,7 +106,8 @@ constexpr bool needLevel() {
                   Variant == LevelType::HeightAboveSeaAt2M || Variant == LevelType::HeightAboveSea ||
                   Variant == LevelType::Hybrid || Variant == LevelType::IsobaricInHpa ||
                   Variant == LevelType::IsobaricInPa || Variant == LevelType::Isothermal ||
-                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta) {
+                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta ||
+                  Variant == LevelType::OceanModel) {
         return true;
     }
     else {
@@ -131,7 +132,7 @@ constexpr bool needLevel() {
 template <LevelType Variant>
 constexpr bool needTopBottomLevel() {
     if constexpr (Variant == LevelType::SoilLayer || Variant == LevelType::SeaIceLayer ||
-                  Variant == LevelType::SnowLayer) {
+                  Variant == LevelType::SnowLayer || Variant == LevelType::OceanModelLayer) {
         return true;
     }
     else {
@@ -287,10 +288,6 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                 }
                 else {
                     set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()));
-                    if constexpr (needLevel<Variant>()) {
-                        long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
-                        set_or_throw<long>(out, "level", levelVal);
-                    }
                     if constexpr (needLevel<Variant>()) {
                         long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
                         set_or_throw<long>(out, "level", levelVal);
