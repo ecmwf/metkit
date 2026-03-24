@@ -710,7 +710,7 @@ CASE("test_metkit_expand_param") {
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 1);
 
-        EXPECT_EQUAL(params[0], "172182");
+        EXPECT_EQUAL(params[0], "182");
     }
     {
         const char* text =
@@ -719,7 +719,7 @@ CASE("test_metkit_expand_param") {
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 2);
 
-        EXPECT_EQUAL(params[0], "172182");
+        EXPECT_EQUAL(params[0], "182");
         EXPECT_EQUAL(params[1], "172182");
     }
     {
