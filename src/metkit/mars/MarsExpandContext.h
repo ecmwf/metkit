@@ -22,7 +22,7 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class [[deprecated]] MarsExpandContext {
+class MarsExpandContext {
 
     void info(std::ostream&) const {}
 
