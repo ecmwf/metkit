@@ -35,6 +35,14 @@ namespace metkit {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+enum class NormalisationMode {
+    Strict,  // Exact match + wind conversion
+    Loose,   // Strict + partial match (dropping tables defined in param-matching.yaml)
+    FullTableDropping
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 class ParamID {
 
 public:  // types
@@ -53,11 +61,11 @@ public:  // methods
 
     template <typename REQUEST_T, typename AXIS_T>
     static void normalise(const REQUEST_T& r, std::vector<Param>& req, const AXIS_T& axis, bool& windConversion,
-                          bool fullTableDropping = ParamID::fullTableDropping(), bool forceGRIBParamID = false);
+                          NormalisationMode mode = ParamID::normalisationMode());
 
     static const std::vector<WindFamily>& getWindFamilies();
     static const std::vector<size_t>& getDropTables();
-    static bool fullTableDropping();
+    static NormalisationMode normalisationMode();
     static const std::set<std::string>& getMlParamsSingleLevel();
 };
 
@@ -69,10 +77,10 @@ inline long replaceTable(size_t table, long paramid) {
 
 template <typename REQUEST_T, typename AXIS_T>
 void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const AXIS_T& axis, bool& windConversion,
-                        bool fullTableDropping, bool forceGRIBParamID) {
+                        NormalisationMode mode) {
 
     static const bool useGRIBParamID = eckit::Resource<bool>("useGRIBParamID", false);
-    bool strict                      = useGRIBParamID || forceGRIBParamID;
+    bool strict                      = useGRIBParamID || mode == NormalisationMode::Strict;
 
     const std::vector<WindFamily>& windFamilies(getWindFamilies());
 
@@ -81,9 +89,11 @@ void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const
     std::map<long, Param> inAxisParamID;
     std::set<Param> wind;
 
+
     for (typename AXIS_T::const_iterator j = axis.begin(); j != axis.end(); ++j) {
-        inAxis.emplace(*j);
-        inAxisParamID[j->paramId()] = *j;
+        Param p = *j;
+        inAxis.emplace(p);
+        inAxisParamID[p.paramId()] = p;
     }
 
     std::vector<Param> newreq;
@@ -162,8 +172,8 @@ void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const
                             }
                         }
                     }
-                    if (fullTableDropping &&
-                        !ok) {  // Backward compatibility - Partial match (drop completely table information)
+                    if (mode == NormalisationMode::FullTableDropping && !ok) {
+                        // Backward compatibility - Partial match (drop completely table information)
                         for (const auto& ap : inAxisParamID) {
                             if (ap.first % 1000 == paramid % 1000) {
                                 newreq.push_back(ap.second);
