@@ -391,9 +391,19 @@ public:
         try {
             auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
 
+            // Initialization of the sample
+            for (const auto& section : plan_[0]) {
+                for (const auto& conceptCallback : section) {
+                    if (conceptCallback) {
+                        conceptCallback(mars, par, opt, *samplePtr);
+                    }
+                }
+            }
+            samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+
             // Encoding loop as a dense set of optimized operations
             for (std::size_t s = 0; s <= StageOverride; ++s) {
-                for (const auto& section : plan_[s]) {
+                for (const auto& section : plan_[s + 1]) {
                     for (const auto& conceptCallback : section) {
                         if (conceptCallback) {
                             conceptCallback(mars, par, opt, *samplePtr);
@@ -478,7 +488,7 @@ public:
             auto samplePtr = clone_or_throw<OutDict_t>(sample);
 
             // Encoding loop as a dense set of optimized operations
-            for (const auto& section : plan_[StageRuntime]) {
+            for (const auto& section : plan_[StageRuntime+1]) {
                 for (const auto& conceptCallback : section) {
                     if (conceptCallback) {
                         conceptCallback(mars, par, opt, *samplePtr);
