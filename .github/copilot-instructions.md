@@ -6,14 +6,15 @@ When working on a pull request:
 
 1. Determine the set of files modified by the PR.
 2. From that set, consider only files under:
-
-   - src/metkit/mars2grib
-   - test/mars2grib
+   - `src/metkit/mars2grib`
+   - Changes under `tests/mars2grib` require documentation updates only if they affect documented public behaviour
 
 3. For each of those files:
-   - Verify that the related documentation is present
-   - Verify that the documentation is up to date with the code changes
-   - If documentation is missing or outdated, propose the required updates
+   - Verify that the related documentation is present in the concrete doc locations for mars2grib, including (where applicable):
+     - `src/metkit/mars2grib/docs/**`
+     - Any module-level `.md` files or Doxygen pages associated with the modified code
+   - Verify that the documentation in these locations is up to date with the code changes
+   - If documentation is missing or outdated in these locations, propose the required updates
 
 4. Do not request documentation changes for files outside these paths.
 
