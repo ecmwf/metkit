@@ -63,6 +63,9 @@
 
 #include "Mars2Grib.h"
 
+// other libraries
+#include "eckit/exception/Exceptions.h"
+
 // dictionary access traits
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_codes_handle.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
@@ -305,9 +308,14 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
                                                                         const std::vector<float>& values,
                                                                         const eckit::LocalConfiguration& mars,
                                                                         const eckit::LocalConfiguration& misc) {
-    return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                            metkit::codes::CodesHandle>(*(cacheEntry->impl_), Span<const float>{values},
-                                                                        mars, misc, opts_, language_);
+    try {
+        return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                                metkit::codes::CodesHandle>(
+            *(cacheEntry->impl_), Span<const float>{values}, mars, misc, opts_, language_);
+    }
+    catch (...) {
+        throw eckit::Exception("Unable to access cache object", Here());
+    }
 }
 
 

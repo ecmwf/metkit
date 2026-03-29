@@ -147,6 +147,7 @@ struct CoreOperations {
     /// data compression. Utilizes spans for zero-copy data passing.
     ///
     /// @tparam Val_t      Numeric precision (float or double)
+    /// @tparam ParDict_t  Parameter dictionary type
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///

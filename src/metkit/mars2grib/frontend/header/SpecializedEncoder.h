@@ -305,7 +305,7 @@ public:
         try {
             auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
 
-            // Encoding loop as a dnse set of optimized operations
+            // Encoding loop as a dense set of optimized operations
             for (const auto& stage : plan_) {
                 for (const auto& section : stage) {
                     for (const auto& conceptCallback : section) {
@@ -391,8 +391,8 @@ public:
         try {
             auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
 
-            // Encoding loop as a dnse set of optimized operations
-            for (int s = 0; s <= StageOverride; ++s) {
+            // Encoding loop as a dense set of optimized operations
+            for (std::size_t s = 0; s <= StageOverride; ++s) {
                 for (const auto& section : plan_[s]) {
                     for (const auto& conceptCallback : section) {
                         if (conceptCallback) {
@@ -472,13 +472,12 @@ public:
         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
         using metkit::mars2grib::utils::dict_traits::clone_or_throw;
         using metkit::mars2grib::utils::dict_traits::dict_to_json;
-        using metkit::mars2grib::utils::dict_traits::make_from_sample_or_throw;
         using metkit::mars2grib::utils::exceptions::Mars2GribEncoderException;
 
         try {
             auto samplePtr = clone_or_throw<OutDict_t>(sample);
 
-            // Encoding loop as a dnse set of optimized operations
+            // Encoding loop as a dense set of optimized operations
             for (const auto& section : plan_[StageRuntime]) {
                 for (const auto& conceptCallback : section) {
                     if (conceptCallback) {
@@ -487,6 +486,7 @@ public:
                 }
             }
 
+            // @todo eventually need to return another clone to commit modifications
             return samplePtr;
         }
         catch (...) {
