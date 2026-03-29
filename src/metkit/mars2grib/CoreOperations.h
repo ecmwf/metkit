@@ -86,7 +86,7 @@ struct CoreOperations {
 
             return {activeMars, activePar};
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
                 mars2grib::utils::exceptions::Mars2GribGenericException("Error during metadata normalization", Here()));
@@ -118,12 +118,13 @@ struct CoreOperations {
             return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
                                                                                                              opt);
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
                 mars2grib::utils::exceptions::Mars2GribGenericException("Error during header encoding", Here()));
         }
     }
+
 
     ///
     /// @brief Inject numeric field values into a GRIB handle.
@@ -135,15 +136,15 @@ struct CoreOperations {
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
-    template <typename Val_t, class MiscDict_t, class OptDict_t, class OutDict_t>
-    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MiscDict_t& misc,
+    template <typename Val_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const ParDict_t& misc,
                                                    const OptDict_t& opt, std::unique_ptr<OutDict_t> handle) {
 
         try {
             metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
             return handle;
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
                 mars2grib::utils::exceptions::Mars2GribGenericException("Error during value encoding", Here()));
@@ -191,7 +192,7 @@ struct CoreOperations {
     /// Numeric type of the values to be encoded.
     ///
     /// @tparam MarsDict_t MARS dictionary type
-    /// @tparam MiscDict_t Parameterization dictionary type
+    /// @tparam ParDict_t Parameterization dictionary type
     /// @tparam OptDict_t Options dictionary type
     /// @tparam OutDict_t Output dictionary type
     ///
@@ -217,16 +218,16 @@ struct CoreOperations {
     /// @throws mars2grib::Exception
     /// If normalization, header encoding, or value encoding fails.
     ///
-    template <typename Val_t, class MarsDict_t, class MiscDict_t, class OptDict_t, class OutDict_t>
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     static std::unique_ptr<OutDict_t> encode(const metkit::codes::Span<const Val_t>& values,
-                                             const MarsDict_t& inputMars, const MiscDict_t& inputMisc,
+                                             const MarsDict_t& inputMars, const ParDict_t& inputMisc,
                                              const OptDict_t& options, const eckit::Value& language) {
 
         using metkit::mars2grib::utils::exceptions::printExtendedStack;
 
         // 1. Prepare Scratches for Normalization
         MarsDict_t scratchMars;
-        MiscDict_t scratchMisc;
+        ParDict_t scratchMisc;
 
         try {
 
@@ -246,7 +247,7 @@ struct CoreOperations {
 
             // 3. Encode Header (SpecializedEncoder creates the CodesHandle here)
             auto gribHeader =
-                encodeHeader<MarsDict_t, MiscDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
+                encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
 
             // 4. Inject Values
             return encodeValues(values, activeMisc, options, std::move(gribHeader));
@@ -261,6 +262,80 @@ struct CoreOperations {
                                                                                   Here());
         }
     }
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    struct CacheEntry {
+
+        using Encoder =
+            metkit::mars2grib::frontend::header::SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+        using Layout = metkit::mars2grib::frontend::GribHeaderLayoutData;
+
+        CacheEntry(Layout&& layout, const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options) :
+            encoder_{std::move(layout)}, preparedSample_{encoder_.prepare(inputMars, inputMisc, options)} {};
+        CacheEntry(const CacheEntry&)            = delete;
+        CacheEntry& operator=(const CacheEntry&) = delete;
+        CacheEntry(CacheEntry&&)                 = delete;
+        CacheEntry& operator=(CacheEntry&&)      = delete;
+        ~CacheEntry()                            = default;
+        const Encoder encoder_;
+        const std::unique_ptr<const OutDict_t> preparedSample_;
+    };
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>> prepare(
+        const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options,
+        const eckit::Value& language) {
+
+        // 1. Prepare Scratches for Normalization
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
+
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+
+            auto layout = make_HeaderLayout_or_throw(activeMars, options);
+
+            return std::make_unique<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>>(
+                std::move(layout), activeMars, activeMisc, options);
+        }
+        catch (...) {
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribGenericException("Error during cache preparation", Here()));
+        }
+    }
+
+
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> finaliseEncoding(
+        const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>& cacheEntry,
+        const metkit::codes::Span<const Val_t>& values, const MarsDict_t& inputMars, const ParDict_t& inputMisc,
+        const OptDict_t& options, const eckit::Value& language) {
+
+        // 1. Prepare Scratches for Normalization
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+
+            auto gribHeader =
+                cacheEntry.encoder_.finaliseEncoding(*(cacheEntry.preparedSample_), activeMars, activeMisc, options);
+
+            return encodeValues(values, activeMisc, options, std::move(gribHeader));
+        }
+        catch (...) {
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribGenericException("Error during encoding finalisation", Here()));
+        }
+    }
+
 
     ///
     /// @brief Capture a structural test point for regression analysis.
@@ -281,7 +356,7 @@ struct CoreOperations {
 
             return debug_convert_GribHeaderLayoutData_to_json(layout);
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
                 mars2grib::utils::exceptions::Mars2GribGenericException("Error during header test dump", Here()));

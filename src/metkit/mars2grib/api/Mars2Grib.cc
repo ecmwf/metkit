@@ -102,6 +102,51 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
 
 }  // namespace
 
+using CoreCacheEntry = CoreOperations::CacheEntry<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                                  metkit::codes::CodesHandle>;
+
+struct Mars2Grib::CacheEntry {
+    explicit CacheEntry(std::unique_ptr<const CoreCacheEntry>&& impl) : impl_{std::move(impl)} {}
+
+    CacheEntry(const CacheEntry&)            = delete;
+    CacheEntry& operator=(const CacheEntry&) = delete;
+    CacheEntry(CacheEntry&&)                 = delete;
+    CacheEntry& operator=(CacheEntry&&)      = delete;
+    ~CacheEntry()                            = default;
+
+    const std::unique_ptr<const CoreCacheEntry> impl_;
+};
+
+void Mars2Grib::CacheEntryDeleter::operator()(const CacheEntry* p) const {
+    delete p;
+}
+
+Mars2Grib::CacheEntryPtr Mars2Grib::prepare(const eckit::LocalConfiguration& mars,
+                                            const eckit::LocalConfiguration& misc) {
+    auto coreCache = CoreOperations::prepare<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                             metkit::codes::CodesHandle>(mars, misc, opts_, language_);
+
+    return CacheEntryPtr(new CacheEntry(std::move(coreCache)));
+}
+
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const CacheEntryPtr& cacheEntry,
+                                                                        const std::vector<double>& values,
+                                                                        const eckit::LocalConfiguration& mars,
+                                                                        const eckit::LocalConfiguration& misc) {
+    return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                            metkit::codes::CodesHandle>(
+        *(cacheEntry->impl_), Span<const double>{values}, mars, misc, opts_, language_);
+}
+
+std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const CacheEntryPtr& cacheEntry,
+                                                                        const std::vector<float>& values,
+                                                                        const eckit::LocalConfiguration& mars,
+                                                                        const eckit::LocalConfiguration& misc) {
+    return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                            metkit::codes::CodesHandle>(*(cacheEntry->impl_), Span<const float>{values},
+                                                                        mars, misc, opts_, language_);
+}
+
 
 // -----------------------------------------------------------------------------
 // Mars2Grib construction

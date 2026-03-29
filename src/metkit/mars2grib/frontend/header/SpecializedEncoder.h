@@ -108,6 +108,7 @@
 #include <utility>
 
 // Project includes
+#include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/frontend/GribHeaderLayoutData.h"
 #include "metkit/mars2grib/frontend/header/EncodingPlan.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
@@ -307,6 +308,74 @@ public:
                 debug_convert_GribHeaderLayoutData_to_json(layout_), Here()));
         }
     }
+
+    std::unique_ptr<const OutDict_t> prepare(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) const {
+
+        using metkit::mars2grib::backend::compile_time_registry_engine::StageOverride;
+        using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
+        using metkit::mars2grib::utils::dict_traits::clone_or_throw;
+        using metkit::mars2grib::utils::dict_traits::dict_to_json;
+        using metkit::mars2grib::utils::dict_traits::make_from_sample_or_throw;
+        using metkit::mars2grib::utils::exceptions::Mars2GribEncoderException;
+
+        try {
+            auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
+
+            // Encoding loop as a dnse set of optimized operations
+            for (int s = 0; s <= StageOverride; ++s) {
+                for (const auto& section : plan_[s]) {
+                    for (const auto& conceptCallback : section) {
+                        if (conceptCallback) {
+                            conceptCallback(mars, par, opt, *samplePtr);
+                        }
+                    }
+                }
+                samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+            }
+
+            return samplePtr;
+        }
+        catch (...) {
+            std::throw_with_nested(Mars2GribEncoderException(
+                "Critical failure in SpecializedEncoder execution", dict_to_json<MarsDict_t>(mars),
+                dict_to_json<ParDict_t>(par), dict_to_json<OptDict_t>(opt),
+                debug_convert_GribHeaderLayoutData_to_json(layout_), Here()));
+        }
+    }
+
+
+    std::unique_ptr<OutDict_t> finaliseEncoding(const OutDict_t& sample, const MarsDict_t& mars, const ParDict_t& par,
+                                                const OptDict_t& opt) const {
+
+        using metkit::mars2grib::backend::compile_time_registry_engine::StageRuntime;
+        using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
+        using metkit::mars2grib::utils::dict_traits::clone_or_throw;
+        using metkit::mars2grib::utils::dict_traits::dict_to_json;
+        using metkit::mars2grib::utils::dict_traits::make_from_sample_or_throw;
+        using metkit::mars2grib::utils::exceptions::Mars2GribEncoderException;
+
+        try {
+            auto samplePtr = clone_or_throw<OutDict_t>(sample);
+
+            // Encoding loop as a dnse set of optimized operations
+            for (const auto& section : plan_[StageRuntime]) {
+                for (const auto& conceptCallback : section) {
+                    if (conceptCallback) {
+                        conceptCallback(mars, par, opt, *samplePtr);
+                    }
+                }
+            }
+
+            return samplePtr;
+        }
+        catch (...) {
+            std::throw_with_nested(Mars2GribEncoderException(
+                "Critical failure in SpecializedEncoder execution", dict_to_json<MarsDict_t>(mars),
+                dict_to_json<ParDict_t>(par), dict_to_json<OptDict_t>(opt),
+                debug_convert_GribHeaderLayoutData_to_json(layout_), Here()));
+        }
+    }
+
 
 private:
 

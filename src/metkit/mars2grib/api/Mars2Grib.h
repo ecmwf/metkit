@@ -314,6 +314,25 @@ public:
     std::unique_ptr<metkit::codes::CodesHandle> encode(const float* values, size_t length,
                                                        const eckit::LocalConfiguration& mars);
 
+    struct CacheEntry;
+    struct CacheEntryDeleter {
+        void operator()(const CacheEntry*) const;
+    };
+
+    using CacheEntryPtr = std::unique_ptr<const CacheEntry, CacheEntryDeleter>;
+
+    CacheEntryPtr prepare(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc);
+
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry,
+                                                                 const std::vector<double>& values,
+                                                                 const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry,
+                                                                 const std::vector<float>& values,
+                                                                 const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
 private:
 
     const eckit::Value language_;
