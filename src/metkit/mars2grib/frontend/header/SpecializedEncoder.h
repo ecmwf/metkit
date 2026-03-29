@@ -488,7 +488,7 @@ public:
             auto samplePtr = clone_or_throw<OutDict_t>(sample);
 
             // Encoding loop as a dense set of optimized operations
-            for (const auto& section : plan_[StageRuntime+1]) {
+            for (const auto& section : plan_[StageRuntime + 1]) {
                 for (const auto& conceptCallback : section) {
                     if (conceptCallback) {
                         conceptCallback(mars, par, opt, *samplePtr);
