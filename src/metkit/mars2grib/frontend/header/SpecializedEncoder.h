@@ -89,6 +89,24 @@
 /// @endcode
 ///
 /// -----------------------------------------------------------------------------
+/// Transitional staged-encoding support
+/// -----------------------------------------------------------------------------
+///
+/// This class also exposes a temporary staged interface via `prepare()` and
+/// `finaliseEncoding()`.
+///
+/// These functions are introduced in preparation for a cache mechanism that
+/// will soon be implemented in the higher-level encoding pipeline.
+///
+/// Their purpose is to split the hot-path header construction into:
+///
+/// - an immutable reusable preparation phase
+/// - a lightweight finalisation phase operating from a prepared sample
+///
+/// This staged interface is intended to support incremental integration and
+/// performance comparison while the future cache design is being introduced.
+///
+/// -----------------------------------------------------------------------------
 /// Template parameters
 /// -----------------------------------------------------------------------------
 ///
@@ -309,6 +327,58 @@ public:
         }
     }
 
+    ///
+    /// @brief Execute the preparation phase of the staged encoder.
+    ///
+    /// This method evaluates only the prefix of the execution plan required
+    /// to build an immutable reusable sample for later completion.
+    ///
+    /// In particular, it executes all stages up to and including the
+    /// override stage, then returns the resulting output object as a
+    /// read-only prepared sample.
+    ///
+    /// This method exists to support a temporary staged-encoding workflow
+    /// introduced in preparation for a cache mechanism that will soon be
+    /// implemented in the surrounding encoding pipeline.
+    ///
+    /// Characteristics:
+    ///
+    /// - No layout resolution
+    /// - No plan modification
+    /// - No dynamic dispatch
+    /// - Execution limited to the preparation prefix of the plan
+    ///
+    /// The algorithm is:
+    ///
+    /// 1. Create an initial GRIB sample dictionary
+    /// 2. Execute all sections for stages from the beginning of the plan
+    ///    through `StageOverride`
+    /// 3. Clone between stages as required
+    /// 4. Return the resulting object as an immutable prepared sample
+    ///
+    /// @param[in] mars
+    /// MARS metadata dictionary
+    ///
+    /// @param[in] par
+    /// Parameter metadata dictionary
+    ///
+    /// @param[in] opt
+    /// Encoding options dictionary
+    ///
+    /// @return
+    /// A newly allocated immutable dictionary containing the prepared
+    /// reusable header state.
+    ///
+    /// @throws Mars2GribEncoderException
+    /// On any failure during preparation. The exception includes:
+    /// - serialized input dictionaries
+    /// - serialized header layout
+    /// - full nested exception chain
+    ///
+    /// @note
+    /// This function is part of a temporary staged interface added in
+    /// preparation for a cache that will soon be implemented.
+    ///
     std::unique_ptr<const OutDict_t> prepare(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) const {
 
         using metkit::mars2grib::backend::compile_time_registry_engine::StageOverride;
@@ -344,6 +414,57 @@ public:
     }
 
 
+    ///
+    /// @brief Execute the finalisation phase of the staged encoder.
+    ///
+    /// This method completes the encoding from a previously prepared sample.
+    ///
+    /// It clones the provided prepared sample, then executes only the runtime
+    /// stage of the execution plan in order to produce a fresh finalized
+    /// output object.
+    ///
+    /// This method exists to support a temporary staged-encoding workflow
+    /// introduced in preparation for a cache mechanism that will soon be
+    /// implemented in the surrounding encoding pipeline.
+    ///
+    /// Characteristics:
+    ///
+    /// - No layout resolution
+    /// - No plan modification
+    /// - No dynamic dispatch
+    /// - Execution limited to the runtime stage of the plan
+    ///
+    /// The algorithm is:
+    ///
+    /// 1. Clone the provided prepared sample
+    /// 2. Execute all sections in `StageRuntime`
+    /// 3. Return the finalized output object
+    ///
+    /// @param[in] sample
+    /// Immutable prepared sample previously produced by `prepare()`
+    ///
+    /// @param[in] mars
+    /// MARS metadata dictionary
+    ///
+    /// @param[in] par
+    /// Parameter metadata dictionary
+    ///
+    /// @param[in] opt
+    /// Encoding options dictionary
+    ///
+    /// @return
+    /// A newly allocated dictionary containing the finalized GRIB header
+    ///
+    /// @throws Mars2GribEncoderException
+    /// On any failure during finalisation. The exception includes:
+    /// - serialized input dictionaries
+    /// - serialized header layout
+    /// - full nested exception chain
+    ///
+    /// @note
+    /// This function is part of a temporary staged interface added in
+    /// preparation for a cache that will soon be implemented.
+    ///
     std::unique_ptr<OutDict_t> finaliseEncoding(const OutDict_t& sample, const MarsDict_t& mars, const ParDict_t& par,
                                                 const OptDict_t& opt) const {
 

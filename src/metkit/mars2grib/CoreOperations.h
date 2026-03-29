@@ -21,6 +21,20 @@
 /// 3. **Value Injection**: Physical realization of the GRIB data section.
 /// 4. **Diagnostic Capture**: Generating regression data for structural validation.
 ///
+///
+/// ---
+///
+/// ## Transitional cache preparation
+///
+/// This header also contains a temporary staged-encoding path based on
+/// `prepare()` and `finaliseEncoding()`.
+///
+/// This code is a preparatory step toward a future implementation where
+/// cache lifecycle and reuse are fully internalized inside the core layer.
+///
+/// At the current stage, the staged API exists to support benchmarking,
+/// comparison, and incremental integration of the future cache design.
+///
 /// @ingroup mars2grib_core
 ///
 #pragma once
@@ -263,6 +277,53 @@ struct CoreOperations {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Temporary staged-cache preparation path
+    // -------------------------------------------------------------------------
+    //
+    // The following types and functions implement a transitional staged
+    // preparation/finalisation workflow.
+    //
+    // This code exists as a preparatory step toward a future version where
+    // cache construction, reuse, and lifecycle are fully internalized in the
+    // core encoding layer.
+    //
+
+    ///
+    /// @brief Immutable staged-encoding cache entry.
+    ///
+    /// This object stores the reusable state required to split the encoding
+    /// pipeline into two phases:
+    ///
+    /// 1. **Preparation**
+    ///    - metadata normalization
+    ///    - header layout resolution
+    ///    - encoder specialization
+    ///    - creation of a reusable prepared sample
+    ///
+    /// 2. **Finalisation**
+    ///    - reuse of the prepared structural state
+    ///    - injection of dynamic metadata if needed
+    ///    - value encoding into a fresh output object
+    ///
+    /// The cache entry is intentionally immutable:
+    /// - copy is disabled
+    /// - move is disabled
+    /// - the prepared sample is owned through an immutable smart pointer
+    ///
+    /// This guarantees that once constructed, the cache entry represents a
+    /// stable reusable encoding context.
+    ///
+    /// @note
+    /// This staged cache path is a preparatory step toward a future
+    /// implementation where cache management is fully internalized in the
+    /// core encoding layer.
+    ///
+    /// @tparam MarsDict_t MARS dictionary type
+    /// @tparam ParDict_t  Parameter/misc dictionary type
+    /// @tparam OptDict_t  Encoding options dictionary type
+    /// @tparam OutDict_t  Output GRIB handle/dictionary type
+    ///
     template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     struct CacheEntry {
 
@@ -270,17 +331,119 @@ struct CoreOperations {
             metkit::mars2grib::frontend::header::SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
         using Layout = metkit::mars2grib::frontend::GribHeaderLayoutData;
 
+        ///
+        /// @brief Construct a cache entry from resolved layout and active metadata.
+        ///
+        /// This constructor:
+        /// - internalizes the resolved header layout into a specialized encoder
+        /// - prepares an immutable reusable sample from the active metadata
+        ///
+        /// The input metadata is expected to already represent the active
+        /// dictionaries selected after any optional normalization step.
+        ///
+        /// @param[in] layout
+        /// Resolved GRIB header layout to internalize.
+        ///
+        /// @param[in] inputMars
+        /// Active MARS metadata dictionary.
+        ///
+        /// @param[in] inputMisc
+        /// Active parameter/misc metadata dictionary.
+        ///
+        /// @param[in] options
+        /// Encoding options controlling specialization behavior.
+        ///
+        /// @note
+        /// This constructor is part of the temporary staged-cache path and
+        /// prepares the structure required for a future internal cache design.
+        ///
         CacheEntry(Layout&& layout, const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options) :
             encoder_{std::move(layout)}, preparedSample_{encoder_.prepare(inputMars, inputMisc, options)} {};
+
         CacheEntry(const CacheEntry&)            = delete;
         CacheEntry& operator=(const CacheEntry&) = delete;
         CacheEntry(CacheEntry&&)                 = delete;
         CacheEntry& operator=(CacheEntry&&)      = delete;
         ~CacheEntry()                            = default;
+
+        ///
+        /// @brief Fully specialized immutable encoder.
+        ///
+        /// This encoder owns the resolved layout and the precomputed execution
+        /// plan used during staged finalisation.
+        ///
         const Encoder encoder_;
+
+        ///
+        /// @brief Immutable prepared sample used as finalisation template.
+        ///
+        /// This object represents the reusable structural sample produced
+        /// during the preparation phase. It is treated as read-only input
+        /// during `finaliseEncoding()`, which derives a fresh output handle
+        /// from it.
+        ///
         const std::unique_ptr<const OutDict_t> preparedSample_;
     };
 
+    ///
+    /// @brief Prepare a reusable staged-encoding cache.
+    ///
+    /// This function performs the preparation phase of the staged encoding
+    /// pipeline:
+    /// - optional metadata normalization
+    /// - header layout resolution
+    /// - construction of a specialized encoder
+    /// - creation of an immutable reusable sample
+    ///
+    /// The returned cache entry can later be passed to
+    /// `finaliseEncoding()` to complete the encoding with concrete field
+    /// values.
+    ///
+    /// -----------------------------------------------------------------------------
+    /// Normalization and lifetime semantics (CRITICAL)
+    /// -----------------------------------------------------------------------------
+    ///
+    /// As in `encode()`, normalization returns borrowed references to the
+    /// active metadata dictionaries:
+    /// - either the original inputs
+    /// - or local scratch objects containing normalized copies
+    ///
+    /// These references must not escape this function except through
+    /// immediate materialization into owned cache state.
+    ///
+    /// The resulting `CacheEntry` stores only owned immutable state and
+    /// does not retain references to the scratch buffers.
+    ///
+    /// -----------------------------------------------------------------------------
+    ///
+    /// @tparam MarsDict_t MARS dictionary type
+    /// @tparam ParDict_t  Parameter/misc dictionary type
+    /// @tparam OptDict_t  Encoding options dictionary type
+    /// @tparam OutDict_t  Output GRIB handle/dictionary type
+    ///
+    /// @param[in] inputMars
+    /// Input MARS description of the data.
+    ///
+    /// @param[in] inputMisc
+    /// Input miscellaneous description of the data.
+    ///
+    /// @param[in] options
+    /// Encoding options controlling specialization and normalization.
+    ///
+    /// @param[in] language
+    /// MARS language definition.
+    ///
+    /// @return
+    /// A unique pointer owning an immutable staged cache entry.
+    ///
+    /// @throws mars2grib::Exception
+    /// If normalization, layout resolution, or sample preparation fails.
+    ///
+    /// @note
+    /// This staged cache path is a preparatory step toward a future
+    /// implementation where cache lifecycle and reuse are fully
+    /// internalized inside the core encoding layer.
+    ///
     template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     static std::unique_ptr<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>> prepare(
         const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options,
@@ -308,7 +471,69 @@ struct CoreOperations {
         }
     }
 
-
+    ///
+    /// @brief Complete an encoding from a previously prepared cache entry.
+    ///
+    /// This function performs the finalisation phase of the staged encoding
+    /// pipeline:
+    /// - optional metadata normalization
+    /// - reuse of the immutable specialized encoder
+    /// - reuse of the immutable prepared sample
+    /// - creation of a fresh header object
+    /// - injection of the field values into the resulting output handle
+    ///
+    /// The provided cache entry is treated as read-only and is not consumed.
+    /// It may therefore be reused across multiple finalisation calls.
+    ///
+    /// -----------------------------------------------------------------------------
+    /// Normalization and lifetime semantics (CRITICAL)
+    /// -----------------------------------------------------------------------------
+    ///
+    /// As in `encode()` and `prepare()`, normalization yields borrowed
+    /// references to the active metadata dictionaries. These references are
+    /// used only within this function and are not stored.
+    ///
+    /// The cache entry itself is fully owned and immutable, and no references
+    /// to local scratch objects escape the function.
+    ///
+    /// -----------------------------------------------------------------------------
+    ///
+    /// @tparam Val_t      Numeric type of the values to be encoded
+    /// @tparam MarsDict_t MARS dictionary type
+    /// @tparam ParDict_t  Parameter/misc dictionary type
+    /// @tparam OptDict_t  Encoding options dictionary type
+    /// @tparam OutDict_t  Output GRIB handle/dictionary type
+    ///
+    /// @param[in] cacheEntry
+    /// Immutable staged cache entry previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Contiguous span of values to encode.
+    ///
+    /// @param[in] inputMars
+    /// Input MARS description of the data.
+    ///
+    /// @param[in] inputMisc
+    /// Input miscellaneous description of the data.
+    ///
+    /// @param[in] options
+    /// Encoding options controlling behavior such as validation,
+    /// logging, or feature toggles.
+    ///
+    /// @param[in] language
+    /// MARS language definition.
+    ///
+    /// @return
+    /// A `std::unique_ptr` owning the fully encoded output object.
+    ///
+    /// @throws mars2grib::Exception
+    /// If normalization, staged header finalisation, or value encoding fails.
+    ///
+    /// @note
+    /// This staged cache path is a preparatory step toward a future
+    /// implementation where cache lifecycle and reuse are fully
+    /// internalized inside the core encoding layer.
+    ///
     template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     static std::unique_ptr<OutDict_t> finaliseEncoding(
         const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>& cacheEntry,
