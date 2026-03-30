@@ -465,6 +465,48 @@ public:
     ///
     /// @brief Finalize a GRIB encoding from a previously prepared cache.
     ///
+    /// This function completes the encoding pipeline using a cache
+    /// previously produced by `prepare()`.
+    ///
+    /// The cache supplies the pre-specialized, reusable encoding state,
+    /// while this function injects the provided field values and applies
+    /// any remaining dynamic metadata handling required to produce a final
+    /// GRIB message.
+    ///
+    /// The cache is not consumed by this operation and may be reused
+    /// for subsequent calls.
+    ///
+    /// @param[in] cacheEntry
+    /// Opaque staged-encoding cache previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Pointer to the field values as double.
+    ///
+    /// @param[in] length
+    /// Number of values in the buffer.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry, const double* values,
+                                                                 size_t length, const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
+    ///
+    /// @brief Finalize a GRIB encoding from a previously prepared cache.
+    ///
     /// This overload accepts field values as `float`.
     ///
     /// The cache supplies the pre-specialized, reusable encoding state,
@@ -499,6 +541,48 @@ public:
     std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry,
                                                                  const std::vector<float>& values,
                                                                  const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
+
+    ///
+    /// @brief Finalize a GRIB encoding from a previously prepared cache.
+    ///
+    /// This overload accepts field values as `float`.
+    ///
+    /// The cache supplies the pre-specialized, reusable encoding state,
+    /// while this function injects the provided field values and applies
+    /// any remaining dynamic metadata handling required to produce a final
+    /// GRIB message.
+    ///
+    /// The cache is not consumed by this operation and may be reused
+    /// for subsequent calls.
+    ///
+    /// @param[in] cacheEntry
+    /// Opaque staged-encoding cache previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Pointer to the field values as float.
+    ///
+    /// @param[in] length
+    /// Number of values in the buffer.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry, const float* values,
+                                                                 size_t length, const eckit::LocalConfiguration& mars,
                                                                  const eckit::LocalConfiguration& misc);
 
 private:
