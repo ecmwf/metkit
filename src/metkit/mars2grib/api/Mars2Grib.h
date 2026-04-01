@@ -91,6 +91,19 @@
 
 namespace metkit::mars2grib {
 
+/// ---
+///
+/// ## Transitional staged API
+///
+/// A temporary staged-encoding interface is also exposed through
+/// `prepare()` and `finaliseEncoding()`.
+///
+/// This interface exists only for short-term benchmarking and migration
+/// purposes and is not intended for external use. It may be changed or
+/// removed without notice.
+///
+
+
 ///
 /// @brief High-level encoder for converting MARS fields to GRIB.
 ///
@@ -313,6 +326,264 @@ public:
     ///
     std::unique_ptr<metkit::codes::CodesHandle> encode(const float* values, size_t length,
                                                        const eckit::LocalConfiguration& mars);
+
+    ///
+    /// @brief Opaque cache object for staged GRIB encoding.
+    ///
+    /// This type represents a precomputed encoding cache produced by
+    /// `prepare()` and later consumed by `finaliseEncoding()`.
+    ///
+    /// The cache internalizes the expensive metadata-specialization phase
+    /// and stores immutable state that can be reused across multiple
+    /// finalization calls.
+    ///
+    /// The concrete representation of this type is intentionally hidden
+    /// from API users.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    struct CacheEntry;
+
+    ///
+    /// @brief Custom deleter for opaque cache entries.
+    ///
+    /// This deleter is paired with `CacheEntryPtr` to allow ownership of
+    /// an incomplete, opaque `CacheEntry` type in the public interface.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    struct CacheEntryDeleter {
+
+        ///
+        /// @brief Destroy an opaque cache entry.
+        ///
+        /// @param[in] cache
+        /// Pointer to the cache entry to destroy.
+        ///
+        void operator()(const CacheEntry*) const;
+    };
+
+    ///
+    /// @brief Owning smart pointer to an opaque staged-encoding cache.
+    ///
+    /// This alias represents unique ownership of a `CacheEntry`
+    /// produced by `prepare()`.
+    ///
+    /// The pointed object is immutable and may be reused across
+    /// multiple `finaliseEncoding()` calls.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    using CacheEntryPtr = std::unique_ptr<const CacheEntry, CacheEntryDeleter>;
+
+    ///
+    /// @brief Prepare a reusable staged-encoding cache.
+    ///
+    /// This function performs the metadata-specialization phase of the
+    /// encoding pipeline and returns an opaque cache object that can be
+    /// reused in subsequent calls to `finaliseEncoding()`.
+    ///
+    /// The cache is derived from:
+    /// - the MARS dictionary,
+    /// - the auxiliary metadata dictionary,
+    /// - the current `Mars2Grib` options,
+    /// - the active language definition.
+    ///
+    /// This operation is intended for workflows where the structural
+    /// encoding setup is reused multiple times with different field values
+    /// and/or repeated finalization requests.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer owning an opaque immutable cache entry.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    CacheEntryPtr prepare(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc);
+
+    ///
+    /// @brief Finalize a GRIB encoding from a previously prepared cache.
+    ///
+    /// This function completes the encoding pipeline using a cache
+    /// previously produced by `prepare()`.
+    ///
+    /// The cache supplies the pre-specialized, reusable encoding state,
+    /// while this function injects the provided field values and applies
+    /// any remaining dynamic metadata handling required to produce a final
+    /// GRIB message.
+    ///
+    /// The cache is not consumed by this operation and may be reused
+    /// for subsequent calls.
+    ///
+    /// @param[in] cacheEntry
+    /// Opaque staged-encoding cache previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Field values to encode as double.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry,
+                                                                 const std::vector<double>& values,
+                                                                 const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
+    ///
+    /// @brief Finalize a GRIB encoding from a previously prepared cache.
+    ///
+    /// This function completes the encoding pipeline using a cache
+    /// previously produced by `prepare()`.
+    ///
+    /// The cache supplies the pre-specialized, reusable encoding state,
+    /// while this function injects the provided field values and applies
+    /// any remaining dynamic metadata handling required to produce a final
+    /// GRIB message.
+    ///
+    /// The cache is not consumed by this operation and may be reused
+    /// for subsequent calls.
+    ///
+    /// @param[in] cacheEntry
+    /// Opaque staged-encoding cache previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Pointer to the field values as double.
+    ///
+    /// @param[in] length
+    /// Number of values in the buffer.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry, const double* values,
+                                                                 size_t length, const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
+    ///
+    /// @brief Finalize a GRIB encoding from a previously prepared cache.
+    ///
+    /// This overload accepts field values as `float`.
+    ///
+    /// The cache supplies the pre-specialized, reusable encoding state,
+    /// while this function injects the provided field values and applies
+    /// any remaining dynamic metadata handling required to produce a final
+    /// GRIB message.
+    ///
+    /// The cache is not consumed by this operation and may be reused
+    /// for subsequent calls.
+    ///
+    /// @param[in] cacheEntry
+    /// Opaque staged-encoding cache previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Field values to encode as float.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry,
+                                                                 const std::vector<float>& values,
+                                                                 const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
+
+
+    ///
+    /// @brief Finalize a GRIB encoding from a previously prepared cache.
+    ///
+    /// This overload accepts field values as `float`.
+    ///
+    /// The cache supplies the pre-specialized, reusable encoding state,
+    /// while this function injects the provided field values and applies
+    /// any remaining dynamic metadata handling required to produce a final
+    /// GRIB message.
+    ///
+    /// The cache is not consumed by this operation and may be reused
+    /// for subsequent calls.
+    ///
+    /// @param[in] cacheEntry
+    /// Opaque staged-encoding cache previously produced by `prepare()`.
+    ///
+    /// @param[in] values
+    /// Pointer to the field values as float.
+    ///
+    /// @param[in] length
+    /// Number of values in the buffer.
+    ///
+    /// @param[in] mars
+    /// MARS dictionary describing the field metadata.
+    ///
+    /// @param[in] misc
+    /// Auxiliary metadata dictionary.
+    ///
+    /// @return
+    /// A unique pointer to a GRIB handle containing the encoded message.
+    ///
+    /// @note
+    /// This staged cache API is temporary and not intended for public use.
+    /// It is exposed only for transitional benchmarking and comparison
+    /// against a legacy implementation. It may be changed or removed
+    /// without notice.
+    ///
+    std::unique_ptr<metkit::codes::CodesHandle> finaliseEncoding(const CacheEntryPtr& cacheEntry, const float* values,
+                                                                 size_t length, const eckit::LocalConfiguration& mars,
+                                                                 const eckit::LocalConfiguration& misc);
 
 private:
 
