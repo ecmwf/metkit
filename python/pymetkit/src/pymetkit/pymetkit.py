@@ -1,6 +1,8 @@
+import json
 import os
 from cffi import FFI
 import findlibs
+from datetime import datetime, timedelta, timezone
 from typing import IO, Iterator
 import warnings
 from pathlib import Path
@@ -11,6 +13,11 @@ try:
     import requests as _requests
 except ImportError:
     _requests = None
+
+try:
+    import platformdirs as _platformdirs
+except ImportError:
+    _platformdirs = None
 
 ffi = FFI()
 
@@ -297,7 +304,6 @@ class PatchedLib:
         """
 
         def wrapped_fn(*args, **kwargs):
-
             # debug
             retval = fn(*args, **kwargs)
 
@@ -325,11 +331,29 @@ class ParamDB:
 
     Supports both online mode (fetching from the ECMWF parameter database API)
     and offline mode (loading from a bundled YAML file).
+
+    When using ``mode="online"`` a local JSON cache is maintained so that
+    repeated instantiations within the TTL window do not make a new HTTP
+    request.  The cache is stored under the OS user-cache directory
+    (e.g. ``~/.cache/pymetkit/`` on Linux, ``~/Library/Caches/pymetkit/``
+    on macOS) and is keyed to the API URL so that a different endpoint
+    produces a separate file.
     """
 
     _API_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
 
-    def __init__(self, mode: str = "offline"):
+    #: File name written inside the platform cache directory.
+    _CACHE_FILENAME = "paramdb_online_cache.json"
+
+    #: Default time-to-live for the online cache.
+    _DEFAULT_CACHE_TTL = timedelta(hours=1)
+
+    def __init__(
+        self,
+        mode: str = "offline",
+        cache_ttl: "timedelta | None" = None,
+        cache_path: "Path | str | None" = None,
+    ):
         """
         Initialise the parameter database.
 
@@ -338,6 +362,15 @@ class ParamDB:
         mode : str
             Either ``"online"`` (fetch from the ECMWF API) or
             ``"offline"`` (load from the bundled YAML file).
+        cache_ttl : datetime.timedelta, optional
+            How long a previously fetched online result may be reused before a
+            fresh HTTP request is made.  Defaults to 1 hour.  Only relevant
+            when ``mode="online"``.  Pass ``timedelta(0)`` to disable caching
+            entirely (always fetch).
+        cache_path : Path or str, optional
+            Directory in which to store the cache file.  Defaults to the
+            OS-appropriate user cache directory (requires ``platformdirs``).
+            Only relevant when ``mode="online"``.
         """
         if mode not in ("online", "offline"):
             raise ValueError(f"mode must be 'online' or 'offline', got '{mode}'")
@@ -347,7 +380,12 @@ class ParamDB:
         self._by_longname: dict[str, dict] = {}
 
         if mode == "online":
-            self._load_online()
+            effective_ttl = self._DEFAULT_CACHE_TTL if cache_ttl is None else cache_ttl
+            if not isinstance(effective_ttl, timedelta):
+                raise TypeError(
+                    f"cache_ttl must be a datetime.timedelta, got {type(effective_ttl).__name__!r}"
+                )
+            self._load_online(cache_ttl=effective_ttl, cache_path=cache_path)
         else:
             self._load_offline()
 
@@ -392,24 +430,119 @@ class ParamDB:
         if longname is not None:
             self._by_longname[str(longname)] = entry
 
-    def _load_online(self) -> None:
+    def _load_online(
+        self, cache_ttl: timedelta, cache_path: "Path | str | None"
+    ) -> None:
         if _requests is None:
             raise ImportError(
                 "The 'requests' package is required for online mode. "
                 "Install it with: pip install requests"
             )
+
+        # Try the cache first (unless TTL is zero)
+        if cache_ttl > timedelta(0):
+            cached = self._read_cache(cache_path, cache_ttl)
+            if cached is not None:
+                for raw in cached:
+                    self._index(self._normalise(raw))
+                return
+
+        # Fetch from the API
         response = _requests.get(self._API_URL)
         response.raise_for_status()
         params = response.json()
+
+        # Persist to cache (best-effort; errors are silently ignored)
+        if cache_ttl > timedelta(0):
+            self._write_cache(params, cache_path)
+
         for raw in params:
             self._index(self._normalise(raw))
 
     def _load_offline(self) -> None:
-        yaml_path = Path(__file__).parent / "parameter_metadata.yaml"
+        yaml_path = self._find_offline_yaml()
         with yaml_path.open("r") as fh:
             params = yaml.safe_load(fh)
         for raw in params:
             self._index(self._normalise(raw))
+
+    @staticmethod
+    def _find_offline_yaml() -> Path:
+        """Locate ``parameter_metadata.yaml``, searching in order:
+
+        1. Next to this module file (installed package layout).
+        2. ``<repo_root>/share/metkit/`` (development tree layout after the
+           YAML files were moved out of the Python package directory).
+        """
+        candidates = [
+            Path(__file__).parent / "parameter_metadata.yaml",
+            Path(__file__).parents[4] / "share" / "metkit" / "parameter_metadata.yaml",
+        ]
+        for path in candidates:
+            if path.exists():
+                return path
+        raise FileNotFoundError(
+            "parameter_metadata.yaml not found. Searched:\n"
+            + "\n".join(f"  {p}" for p in candidates)
+        )
+
+    # ------------------------------------------------------------------
+    # Cache helpers (online mode only)
+    # ------------------------------------------------------------------
+
+    def _resolve_cache_dir(self, cache_path: "Path | str | None") -> "Path | None":
+        """Return the directory to use for the cache file, or None if unavailable."""
+        if cache_path is not None:
+            return Path(cache_path)
+        if _platformdirs is not None:
+            return Path(_platformdirs.user_cache_dir("pymetkit"))
+        return None
+
+    def _cache_file(self, cache_path: "Path | str | None") -> "Path | None":
+        """Return the full path to the cache file, or None if no cache dir is available."""
+        cache_dir = self._resolve_cache_dir(cache_path)
+        if cache_dir is None:
+            return None
+        return cache_dir / self._CACHE_FILENAME
+
+    def _read_cache(
+        self, cache_path: "Path | str | None", cache_ttl: timedelta
+    ) -> "list | None":
+        """
+        Return the cached parameter list if it exists and is still fresh,
+        otherwise return None.
+        """
+        cache_file = self._cache_file(cache_path)
+        if cache_file is None or not cache_file.exists():
+            return None
+        try:
+            payload = json.loads(cache_file.read_text(encoding="utf-8"))
+            fetched_at = datetime.fromisoformat(payload["fetched_at"])
+            # Ensure both datetimes are timezone-aware for comparison
+            now = datetime.now(tz=timezone.utc)
+            if fetched_at.tzinfo is None:
+                fetched_at = fetched_at.replace(tzinfo=timezone.utc)
+            if (now - fetched_at) <= cache_ttl:
+                return payload["params"]
+        except Exception:
+            # Corrupt or unreadable cache — treat as a miss
+            pass
+        return None
+
+    def _write_cache(self, params: list, cache_path: "Path | str | None") -> None:
+        """Persist *params* to the cache file (best-effort; errors are silenced)."""
+        cache_file = self._cache_file(cache_path)
+        if cache_file is None:
+            return
+        try:
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "fetched_at": datetime.now(tz=timezone.utc).isoformat(),
+                "params": params,
+            }
+            cache_file.write_text(json.dumps(payload), encoding="utf-8")
+        except Exception:
+            pass
 
     def _resolve(self, identifier: "int | str") -> dict:
         """Resolve *identifier* (param_id, shortname, or longname) to a metadata dict."""

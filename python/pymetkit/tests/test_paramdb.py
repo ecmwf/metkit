@@ -1,4 +1,7 @@
 from contextlib import nullcontext as does_not_raise
+import json
+from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock, patch
 import pytest
 
 from pymetkit import ParamDB
@@ -334,3 +337,149 @@ def test_get_units_empty_string_returns_unknown():
     db._by_shortname = {"bar": entry}
     db._by_longname = {"Bar": entry}
     assert db.get_units(9998) == "unknown"
+
+
+# ---------------------------------------------------------------------------
+# Online caching
+# ---------------------------------------------------------------------------
+
+#: Minimal parameter list returned by a mocked API response.
+_FAKE_PARAMS = [
+    {
+        "id": 1,
+        "shortname": "strf",
+        "longname": "Stream function",
+        "units": "m**2 s**-1",
+    },
+    {
+        "id": 4,
+        "shortname": "eqpt",
+        "longname": "Equivalent potential temperature",
+        "units": "K",
+    },
+]
+
+
+@pytest.fixture()
+def fake_requests(monkeypatch):
+    """Monkeypatch the requests module with a mock that returns _FAKE_PARAMS."""
+    import pymetkit.pymetkit as _mod
+
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = _FAKE_PARAMS
+    mock_requests = MagicMock()
+    mock_requests.get.return_value = mock_resp
+    monkeypatch.setattr(_mod, "_requests", mock_requests)
+    return mock_requests
+
+
+def test_cache_ttl_must_be_timedelta(fake_requests, tmp_path):
+    """Passing a non-timedelta cache_ttl raises TypeError."""
+    with pytest.raises(TypeError, match="timedelta"):
+        ParamDB(mode="online", cache_ttl=3600, cache_path=tmp_path)
+
+
+def test_online_writes_cache_file(fake_requests, tmp_path):
+    """First online load writes a JSON cache file to the cache directory."""
+    ParamDB(mode="online", cache_path=tmp_path)
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    assert cache_file.exists()
+    payload = json.loads(cache_file.read_text())
+    assert "fetched_at" in payload
+    assert "params" in payload
+    assert payload["params"] == _FAKE_PARAMS
+
+
+def test_online_uses_fresh_cache(fake_requests, tmp_path):
+    """A second instantiation within the TTL window does not make an HTTP request."""
+    ParamDB(mode="online", cache_path=tmp_path)
+    assert fake_requests.get.call_count == 1
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1  # no new request
+
+
+def test_online_fetches_when_cache_expired(fake_requests, tmp_path):
+    """An expired cache entry triggers a fresh HTTP request."""
+    # Write a cache file whose timestamp is in the past
+    old_time = datetime.now(tz=timezone.utc) - timedelta(hours=2)
+    payload = {"fetched_at": old_time.isoformat(), "params": _FAKE_PARAMS}
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text(json.dumps(payload))
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1  # stale cache → new request
+
+
+def test_online_fetches_when_cache_not_yet_expired(fake_requests, tmp_path):
+    """A cache entry within the TTL does NOT trigger a new request."""
+    recent_time = datetime.now(tz=timezone.utc) - timedelta(minutes=30)
+    payload = {"fetched_at": recent_time.isoformat(), "params": _FAKE_PARAMS}
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text(json.dumps(payload))
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 0  # fresh cache → no request
+
+
+def test_online_zero_ttl_bypasses_cache(fake_requests, tmp_path):
+    """cache_ttl=timedelta(0) disables caching: always fetches and never writes a file."""
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    assert fake_requests.get.call_count == 1
+    assert not (tmp_path / ParamDB._CACHE_FILENAME).exists()
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    assert fake_requests.get.call_count == 2  # second call also fetches
+
+
+def test_online_corrupt_cache_falls_back_to_fetch(fake_requests, tmp_path):
+    """A corrupt/unreadable cache file is ignored and a fresh request is made."""
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text("this is not valid json {{{")
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1
+
+
+def test_online_cache_overwrites_after_expiry(fake_requests, tmp_path):
+    """After a stale cache triggers a fetch, the cache file is updated."""
+    old_time = datetime.now(tz=timezone.utc) - timedelta(hours=2)
+    payload = {"fetched_at": old_time.isoformat(), "params": _FAKE_PARAMS}
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text(json.dumps(payload))
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+
+    updated = json.loads(cache_file.read_text())
+    updated_time = datetime.fromisoformat(updated["fetched_at"])
+    if updated_time.tzinfo is None:
+        updated_time = updated_time.replace(tzinfo=timezone.utc)
+    assert updated_time > old_time
+
+
+def test_online_cache_data_is_usable(fake_requests, tmp_path):
+    """Data loaded from cache round-trips correctly through _normalise and _index."""
+    # Populate the cache
+    ParamDB(mode="online", cache_path=tmp_path)
+
+    # Load from cache (no network call)
+    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1  # only the first call used the network
+    assert db.param_id_to_shortname(1) == "strf"
+    assert db.param_id_to_shortname(4) == "eqpt"
+
+
+def test_online_no_platformdirs_no_cache_dir(fake_requests, tmp_path, monkeypatch):
+    """When platformdirs is unavailable and no cache_path is given, caching is
+    silently skipped and the data is still loaded correctly."""
+    import pymetkit.pymetkit as _mod
+
+    monkeypatch.setattr(_mod, "_platformdirs", None)
+    db = ParamDB(mode="online")  # no cache_path, no platformdirs
+    assert fake_requests.get.call_count == 1
+    assert db.param_id_to_shortname(1) == "strf"
+
+
+def test_online_default_ttl_is_one_hour():
+    """The documented default TTL is exactly one hour."""
+    assert ParamDB._DEFAULT_CACHE_TTL == timedelta(hours=1)
