@@ -36,14 +36,14 @@ ecbuild_add_option( FEATURE EXPERIMENTAL
 ecbuild_add_option( FEATURE GRIB
                     DEFAULT ON
                     DESCRIPTION "Add support for GRIB format"
-                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.27" )
+                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.46" )
 
 # BUFR support
 
 ecbuild_add_option( FEATURE BUFR
                     DEFAULT ON
                     DESCRIPTION "Add support for BUFR format"
-                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.27" )
+                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.46" )
 
 # netcdf support
 
