@@ -34,15 +34,21 @@ class MarsLanguage;
 
 class FlattenCallback {
 public:
+
     virtual void operator()(const MarsRequest&) = 0;
+
 protected:
+
     virtual ~FlattenCallback() = default;
 };
 
 class ExpandCallback {
 public:
+
     virtual void operator()(const MarsRequest&) = 0;
+
 protected:
+
     virtual ~ExpandCallback() = default;
 };
 
