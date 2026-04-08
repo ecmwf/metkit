@@ -55,15 +55,14 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
 
     std::cout << "Axis:" << index << std::endl;
     std::cout << "User:" << params << std::endl;
-    std::cout << "Wind:" << false << std::endl;
     std::cout << "NormalisationMode:" << static_cast<int>(mode) << std::endl;
 
     ParamID::normalise(ignore, params, index, windRequested, mode);
 
-    std::cout << "Expected Params:" << expected << std::endl;
-    std::cout << "Returned Params:" << params << std::endl;
-    std::cout << "Expected Wind:" << expectWind << std::endl;
-    std::cout << "Returned Wind:" << windRequested << std::endl;
+    std::cout << "Params expected: " << expected << std::endl;
+    std::cout << "       returned: " << params << std::endl;
+    std::cout << "Wind expected: " << expectWind << std::endl;
+    std::cout << "     returned: " << windRequested << std::endl;
 
     EXPECT_EQUAL(params, expected);
     EXPECT_EQUAL(expectWind, windRequested);

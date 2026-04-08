@@ -63,7 +63,10 @@ static void readTable() {
     if (paramMatching.contains("full-table-dropping")) {
         const eckit::Value fullTableDropping = paramMatching["full-table-dropping"];
         ASSERT(fullTableDropping.isBool());
-        normalisationMode_ = NormalisationMode::FullTableDropping;
+        bool fullTableDroppingValue = fullTableDropping;
+        if (fullTableDroppingValue) {
+            normalisationMode_ = NormalisationMode::FullTableDropping;
+        }
     }
 
     const eckit::Value mlParamsSingleLevel = paramMatching["ml-params-single-level"];
