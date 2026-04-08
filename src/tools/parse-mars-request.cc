@@ -157,17 +157,6 @@ void ParseRequest::process(const eckit::PathName& path) {
             }
         }
     }
-
-    class Print : public FlattenCallback {
-        virtual void operator()(const MarsRequest& request) { std::cout << request << std::endl; }
-    };
-
-
-    Print cb;
-
-    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-    //     expand.flatten(*j, cb, filter);
-    // }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
