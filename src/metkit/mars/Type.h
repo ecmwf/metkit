@@ -30,8 +30,6 @@
 
 namespace metkit::mars {
 
-class MarsExpandContext;
-
 //----------------------------------------------------------------------------------------------------------------------
 
 /// @brief abstract class - ContextRule subclasses are used to define a context. A MarsRequest matches a context, if it

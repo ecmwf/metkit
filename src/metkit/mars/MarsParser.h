@@ -19,8 +19,19 @@
 
 namespace metkit::mars {
 
-class MarsExpandContext;
 class MarsRequest;
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class MarsParserCallback {
+public:
+
+    virtual void operator()(const MarsRequest&) = 0;
+
+protected:
+
+    virtual ~MarsParserCallback() = default;
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -31,6 +42,8 @@ public:  // methods
     MarsParser(std::istream& in);
 
     std::vector<MarsParsedRequest> parse();
+
+    void parse(MarsParserCallback& cb);
 
     static void quoted(std::ostream& out, const std::string& value);
 

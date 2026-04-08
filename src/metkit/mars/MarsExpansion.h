@@ -23,10 +23,8 @@
 #include <string>
 #include <vector>
 
-#include "metkit/mars/MarsExpandContext.h"
 #include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
-
 
 namespace metkit::mars {
 
@@ -36,9 +34,16 @@ class MarsLanguage;
 
 class FlattenCallback {
 public:
-
-    virtual ~FlattenCallback();
     virtual void operator()(const MarsRequest&) = 0;
+protected:
+    virtual ~FlattenCallback() = default;
+};
+
+class ExpandCallback {
+public:
+    virtual void operator()(const MarsRequest&) = 0;
+protected:
+    virtual ~ExpandCallback() = default;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -54,6 +59,7 @@ public:
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
+    void expand(const MarsRequest&, ExpandCallback&);
     void flatten(const MarsRequest&, FlattenCallback&);
 
 private:
