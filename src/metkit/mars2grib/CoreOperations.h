@@ -359,7 +359,7 @@ struct CoreOperations {
         /// prepares the structure required for a future internal cache design.
         ///
         CacheEntry(Layout&& layout, const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options) :
-            encoder_{std::move(layout)}, preparedSample_{encoder_.prepare(inputMars, inputMisc, options)} {};
+            encoder_{std::move(layout)} {};
 
         CacheEntry(const CacheEntry&)            = delete;
         CacheEntry& operator=(const CacheEntry&) = delete;
@@ -383,7 +383,7 @@ struct CoreOperations {
         /// during `finaliseEncoding()`, which derives a fresh output handle
         /// from it.
         ///
-        const std::unique_ptr<const OutDict_t> preparedSample_;
+        // const std::unique_ptr<const OutDict_t> preparedSample_;
     };
 
     ///
@@ -551,7 +551,7 @@ struct CoreOperations {
                 normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
 
             auto gribHeader =
-                cacheEntry.encoder_.finaliseEncoding(*(cacheEntry.preparedSample_), activeMars, activeMisc, options);
+                cacheEntry.encoder_.encode( activeMars, activeMisc, options);
 
             return encodeValues(values, activeMisc, options, std::move(gribHeader));
         }
