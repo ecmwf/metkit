@@ -103,9 +103,9 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
 MarsLanguage::MarsLanguage(const std::string& verb) {
     pthread_once(&once, init);
 
-    verb_ = MarsLanguage::expandVerb(verb);
-    eckit::Value lang = languages_[verb_];
-    eckit::Value params = lang.keys();
+    verb_                = MarsLanguage::expandVerb(verb);
+    eckit::Value lang    = languages_[verb_];
+    eckit::Value params  = lang.keys();
     eckit::Value options = lang["_options"];
 
     for (size_t i = 0; i < params.size(); ++i) {
