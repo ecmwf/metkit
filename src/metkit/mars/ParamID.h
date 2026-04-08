@@ -63,9 +63,16 @@ public:  // methods
     static void normalise(const REQUEST_T& r, std::vector<Param>& req, const AXIS_T& axis, bool& windConversion,
                           NormalisationMode mode = ParamID::normalisationMode());
 
+    template <typename REQUEST_T, typename AXIS_T>
+    [[deprecated]] static void normalise(const REQUEST_T& r, std::vector<Param>& req, const AXIS_T& axis,
+                                         bool& windConversion, bool fullTableDropping, bool forceGRIBParamID = false);
+
     static const std::vector<WindFamily>& getWindFamilies();
     static const std::vector<size_t>& getDropTables();
     static NormalisationMode normalisationMode();
+    [[deprecated]] static bool fullTableDropping() {
+        return normalisationMode() == NormalisationMode::FullTableDropping;
+    }
     static const std::set<std::string>& getMlParamsSingleLevel();
 };
 
@@ -73,6 +80,15 @@ public:  // methods
 
 inline long replaceTable(size_t table, long paramid) {
     return (table * 1000 + paramid % 1000);
+}
+
+template <typename REQUEST_T, typename AXIS_T>
+void ParamID::normalise(const REQUEST_T& request, std::vector<Param>& req, const AXIS_T& axis, bool& windConversion,
+                        bool fullTableDropping, bool forceGRIBParamID) {
+
+    normalise(request, req, axis, windConversion,
+              forceGRIBParamID ? NormalisationMode::Strict
+                               : (fullTableDropping ? NormalisationMode::FullTableDropping : NormalisationMode::Loose));
 }
 
 template <typename REQUEST_T, typename AXIS_T>
