@@ -353,6 +353,7 @@ class ParamDB:
         mode: str = "offline",
         cache_ttl: "timedelta | None" = None,
         cache_path: "Path | str | None" = None,
+        yaml_path: "Path | str | None" = None,
     ):
         """
         Initialise the parameter database.
@@ -361,7 +362,7 @@ class ParamDB:
         ----------
         mode : str
             Either ``"online"`` (fetch from the ECMWF API) or
-            ``"offline"`` (load from the bundled YAML file).
+            ``"offline"`` (load from a YAML file).
         cache_ttl : datetime.timedelta, optional
             How long a previously fetched online result may be reused before a
             fresh HTTP request is made.  Defaults to 1 hour.  Only relevant
@@ -371,9 +372,23 @@ class ParamDB:
             Directory in which to store the cache file.  Defaults to the
             OS-appropriate user cache directory (requires ``platformdirs``).
             Only relevant when ``mode="online"``.
+        yaml_path : Path or str, optional
+            Path to a custom YAML file to load instead of the bundled
+            ``parameter_metadata.yaml``.  The file must be a YAML list where
+            each entry contains at minimum an ``id`` (integer), a short name
+            (``shortname`` / ``shortName`` / ``short_name``), and a long name
+            (``longname`` / ``longName`` / ``long_name`` / ``name``).
+            Only valid with ``mode="offline"``; raises ``ValueError`` if
+            combined with ``mode="online"``.
         """
         if mode not in ("online", "offline"):
             raise ValueError(f"mode must be 'online' or 'offline', got '{mode}'")
+
+        if yaml_path is not None and mode == "online":
+            raise ValueError(
+                "yaml_path cannot be used with mode='online'. "
+                "Use mode='offline' to load from a YAML file."
+            )
 
         self._by_id: dict[int, dict] = {}
         self._by_shortname: dict[str, dict] = {}
@@ -387,7 +402,7 @@ class ParamDB:
                 )
             self._load_online(cache_ttl=effective_ttl, cache_path=cache_path)
         else:
-            self._load_offline()
+            self._load_offline(yaml_path=yaml_path)
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -459,9 +474,14 @@ class ParamDB:
         for raw in params:
             self._index(self._normalise(raw))
 
-    def _load_offline(self) -> None:
-        yaml_path = self._find_offline_yaml()
-        with yaml_path.open("r") as fh:
+    def _load_offline(self, yaml_path: "Path | str | None" = None) -> None:
+        if yaml_path is not None:
+            resolved = Path(yaml_path)
+            if not resolved.exists():
+                raise FileNotFoundError(f"Custom YAML file not found: {resolved}")
+        else:
+            resolved = self._find_offline_yaml()
+        with resolved.open("r") as fh:
             params = yaml.safe_load(fh)
         for raw in params:
             self._index(self._normalise(raw))
