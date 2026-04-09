@@ -213,7 +213,7 @@
   defaults:
     number: [0]
 - context:
-    type: ['!', pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, bf, wp]
+    type: ['!', pf, cm, cs, cr, cv, sv, as, fp, ed, tu, ci, me, ff, icp, sot, fcmean, fcmax, fcmin, fcstdev, svar, gwt, gbf, bf, wp]
     class: ['!', ti, lw, s2]
     stream: ['!', mofc, wamf, mofm, wmfm, seas, wasf, wamf, sfmm, smma, seap, swmm, ocea, mnfc, mnfh, mnfa, mnfw, mfhw, mfaw, mnfm, mfhm, mfam, mfwm, mhwm, mawm, mmsf, msmm, wams, mswm, mmsa, enda, ewda, edmm, edmo, ewmm, ewmo, elda, ewla, espd, mmaf, mmam, mmaw, mmwm, seas, efsr, wfsr, efse, wfse, ocda]
   unset: [number]
