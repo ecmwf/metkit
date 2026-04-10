@@ -1,5 +1,6 @@
 import json
 import os
+import importlib.resources
 from cffi import FFI
 import findlibs
 from datetime import datetime, timedelta, timezone
@@ -336,8 +337,7 @@ class ParamDB:
     repeated instantiations within the TTL window do not make a new HTTP
     request.  The cache is stored under the OS user-cache directory
     (e.g. ``~/.cache/pymetkit/`` on Linux, ``~/Library/Caches/pymetkit/``
-    on macOS) and is keyed to the API URL so that a different endpoint
-    produces a separate file.
+    on macOS) using the fixed filename defined by ``_CACHE_FILENAME``.
     """
 
     _API_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
@@ -347,6 +347,9 @@ class ParamDB:
 
     #: Default time-to-live for the online cache.
     _DEFAULT_CACHE_TTL = timedelta(hours=1)
+
+    #: Default HTTP request timeout in seconds for online API calls.
+    _REQUEST_TIMEOUT = 30
 
     def __init__(
         self,
@@ -463,7 +466,7 @@ class ParamDB:
                 return
 
         # Fetch from the API
-        response = _requests.get(self._API_URL)
+        response = _requests.get(self._API_URL, timeout=self._REQUEST_TIMEOUT)
         response.raise_for_status()
         params = response.json()
 
@@ -490,10 +493,25 @@ class ParamDB:
     def _find_offline_yaml() -> Path:
         """Locate ``parameter_metadata.yaml``, searching in order:
 
-        1. Next to this module file (installed package layout).
-        2. ``<repo_root>/share/metkit/`` (development tree layout after the
+        1. Via ``importlib.resources`` from the installed package (reliable in
+           both regular installs and zip-safe wheels).
+        2. Next to this module file (editable / development install layout).
+        3. ``<repo_root>/share/metkit/`` (development tree layout after the
            YAML files were moved out of the Python package directory).
         """
+        # Candidate 1: importlib.resources (correct path for installed packages)
+        try:
+            ref = importlib.resources.files("pymetkit").joinpath(
+                "parameter_metadata.yaml"
+            )
+            # Materialise to a real filesystem path so callers can open() it.
+            with importlib.resources.as_file(ref) as p:
+                if p.exists():
+                    return p
+        except (FileNotFoundError, TypeError, AttributeError):
+            pass
+
+        # Candidates 2 & 3: filesystem heuristics (dev tree / editable install)
         candidates = [
             Path(__file__).parent / "parameter_metadata.yaml",
             Path(__file__).parents[4] / "share" / "metkit" / "parameter_metadata.yaml",

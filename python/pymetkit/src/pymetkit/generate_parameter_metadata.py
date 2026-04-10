@@ -16,8 +16,17 @@ from pathlib import Path
 
 PARAM_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
 UNIT_URL = "https://codes.ecmwf.int/parameter-database/api/v1/unit/"
-PARAM_OUTPUT = Path(__file__).parent / "parameter_metadata.yaml"
-UNIT_OUTPUT = Path(__file__).parent / "unit_metadata.yaml"
+
+# Output paths: canonical location is share/metkit/ at the repo root, which is
+# four parent directories above this module file:
+#   python/pymetkit/src/pymetkit/ -> python/pymetkit/src/ -> python/pymetkit/
+#   -> python/ -> <repo_root>
+_REPO_ROOT = Path(__file__).parents[4]
+PARAM_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.yaml"
+UNIT_OUTPUT = _REPO_ROOT / "share" / "metkit" / "unit_metadata.yaml"
+
+#: Timeout in seconds for HTTP requests to the ECMWF parameter database API.
+REQUEST_TIMEOUT = 30
 
 
 # ---------------------------------------------------------------------------
@@ -37,7 +46,7 @@ def fetch_units(url: str = UNIT_URL) -> tuple[list[dict], dict[int, str]]:
         Mapping of unit id -> unit name string for use in parameter enrichment.
     """
     print(f"Fetching units from {url} ...")
-    response = requests.get(url)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
     response.raise_for_status()
     raw_units = response.json()
     print(f"  Received {len(raw_units)} units.")
@@ -56,6 +65,9 @@ def fetch_units(url: str = UNIT_URL) -> tuple[list[dict], dict[int, str]]:
             if key == "id":
                 continue
             entry[key] = value
+        # Always emit a canonical 'name' field so unit_metadata.yaml has a
+        # stable schema regardless of which key the API uses (name/symbol/label)
+        entry["name"] = name
 
         units.append(entry)
         unit_map[uid] = name
@@ -87,7 +99,7 @@ def fetch_parameters(
 ) -> list[dict]:
     """Fetch all parameters from the ECMWF parameter database API."""
     print(f"Fetching parameters from {url} ...")
-    response = requests.get(url)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
     response.raise_for_status()
     params = response.json()
     print(f"  Received {len(params)} parameters.")

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from pymetkit import ParamDB
+import pymetkit.pymetkit as _mod
 
 
 # ---------------------------------------------------------------------------
@@ -27,17 +28,20 @@ def db():
     "mode, expectation",
     [
         ["offline", does_not_raise()],
-        ["online", does_not_raise()],  # network call; skipped below if no requests
+        ["online", does_not_raise()],
         ["invalid", pytest.raises(ValueError)],
         ["OFFLINE", pytest.raises(ValueError)],
     ],
 )
 def test_constructor_mode_validation(mode, expectation):
-    """Only 'online' and 'offline' are accepted mode values."""
-    if mode == "online":
-        pytest.importorskip("requests")
-    with expectation:
-        ParamDB(mode=mode)
+    """Only 'online' and 'offline' are accepted mode values.
+
+    The online case is patched so that no real HTTP request is made; only the
+    mode-parsing logic is exercised here.
+    """
+    with patch.object(_mod.ParamDB, "_load_online", return_value=None):
+        with expectation:
+            ParamDB(mode=mode)
 
 
 def test_offline_default():
@@ -51,8 +55,6 @@ def test_offline_default():
 
 def test_online_requires_requests(monkeypatch):
     """Online mode raises ImportError when the requests package is absent."""
-    import pymetkit.pymetkit as _mod
-
     monkeypatch.setattr(_mod, "_requests", None)
     with pytest.raises(ImportError, match="requests"):
         ParamDB(mode="online")
@@ -363,8 +365,6 @@ _FAKE_PARAMS = [
 @pytest.fixture()
 def fake_requests(monkeypatch):
     """Monkeypatch the requests module with a mock that returns _FAKE_PARAMS."""
-    import pymetkit.pymetkit as _mod
-
     mock_resp = MagicMock()
     mock_resp.json.return_value = _FAKE_PARAMS
     mock_requests = MagicMock()
@@ -472,8 +472,6 @@ def test_online_cache_data_is_usable(fake_requests, tmp_path):
 def test_online_no_platformdirs_no_cache_dir(fake_requests, tmp_path, monkeypatch):
     """When platformdirs is unavailable and no cache_path is given, caching is
     silently skipped and the data is still loaded correctly."""
-    import pymetkit.pymetkit as _mod
-
     monkeypatch.setattr(_mod, "_platformdirs", None)
     db = ParamDB(mode="online")  # no cache_path, no platformdirs
     assert fake_requests.get.call_count == 1

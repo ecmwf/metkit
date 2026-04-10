@@ -42,8 +42,7 @@ zip-safe = false
 [tool.setuptools.package-data]
 "pymetkit" = [
     "VERSION", 
-    "metkit_c.h",
-    "parameter_metadata.yaml"
+    "metkit_c.h"
 ]
 
 [project.optional-dependencies]
