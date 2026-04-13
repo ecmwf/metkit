@@ -32,6 +32,13 @@ inline const Recipe S2_R15 =
         Select<LongrangeConcept>
     >();
 
+// 4i related products
+inline const Recipe S2_R20 =
+    make_recipe<20,
+        Select<MarsConcept>,
+        Select<IterationConcept>
+    >();
+
 // Satellite-related products
 inline const Recipe S2_R24 =
     make_recipe<24,
@@ -43,6 +50,14 @@ inline const Recipe S2_R24 =
 inline const Recipe S2_R36 =
     make_recipe<36,
         Select<MarsConcept>,
+        Select<AnalysisConcept>
+    >();
+
+// 4i Analysis-related products
+inline const Recipe S2_R38 =
+    make_recipe<38,
+        Select<MarsConcept>,
+        Select<IterationConcept>,
         Select<AnalysisConcept>
     >();
 
@@ -79,8 +94,10 @@ inline const Recipes Section2Recipes{ 2,
     std::vector<const Recipe*>{
         &S2_R1,
         &S2_R15,
+        &S2_R20,
         &S2_R24,
         &S2_R36,
+        &S2_R38,
         &S2_R1001,
         &S2_R1002
     }
