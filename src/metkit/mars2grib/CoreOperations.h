@@ -29,6 +29,15 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <cstdio>
+#include <unistd.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+    #include <pthread.h>
+#elif defined(__linux__)
+    #include <sys/syscall.h>
+#endif
+
 
 /// Project includes
 /// @note: clang-format needs to be off here to preserve the logical grouping of
@@ -45,6 +54,52 @@
 // clang-format on
 
 namespace metkit::mars2grib {
+
+
+namespace detail {
+
+/// @brief Generates a strictly formatted log filename safely (Linux/macOS only).
+/// Guarantees no exceptions will escape and crash the simulation.
+inline std::string generateEncodingLogFilename() noexcept {
+    try {
+        // 1. Get true Process ID
+        pid_t pid = getpid();
+
+        // 2. Get true OS Thread ID
+        unsigned long long tid = 0;
+
+#if defined(__APPLE__) && defined(__MACH__)
+        uint64_t mac_tid;
+        pthread_threadid_np(NULL, &mac_tid);
+        tid = static_cast<unsigned long long>(mac_tid);
+#elif defined(__linux__)
+        // SYS_gettid is universally supported on Linux, even on old glibc versions
+        tid = static_cast<unsigned long long>(syscall(SYS_gettid));
+#else
+        // Ultimate fallback if compiled on an unknown UNIX variant
+        tid = 0;
+#endif
+
+        // 3. Format the string: encodingStack_%06d_%06llu.txt
+        // %06d ensures at least 6 digits with leading zeros (equivalent to %6.6d)
+        char buffer[64];
+        int written = std::snprintf(buffer, sizeof(buffer),
+                                    "encodingStack_%06d_%06llu.txt",
+                                    static_cast<int>(pid), tid);
+
+        if (written > 0 && static_cast<size_t>(written) < sizeof(buffer)) {
+            return std::string(buffer);
+        }
+
+        return "encodingStack_fallback.txt";
+
+    } catch (...) {
+        // Catches std::bad_alloc if std::string creation fails due to OOM
+        return "encodingStack_fallback.txt";
+    }
+}
+
+} // namespace detail
 
 
 ///
@@ -86,10 +141,10 @@ struct CoreOperations {
 
             return {activeMars, activePar};
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during metadata normalization", Here()));
+                mars2grib::utils::exceptions::Mars2GribCoreException("Error during metadata normalization", Here()));
         }
     }
 
@@ -118,10 +173,10 @@ struct CoreOperations {
             return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
                                                                                                              opt);
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header encoding", Here()));
+                mars2grib::utils::exceptions::Mars2GribCoreException("Error during header encoding", Here()));
         }
     }
 
@@ -143,10 +198,10 @@ struct CoreOperations {
             metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
             return handle;
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during value encoding", Here()));
+                mars2grib::utils::exceptions::Mars2GribCoreException("Error during value encoding", Here()));
         }
     }
 
@@ -251,14 +306,10 @@ struct CoreOperations {
             // 4. Inject Values
             return encodeValues(values, activeMisc, options, std::move(gribHeader));
         }
-        catch (const std::exception& e) {
-            printExtendedStack(e);
-            throw;
-        }
         catch (...) {
-            // Fallback for non-standard exceptions
-            throw metkit::mars2grib::utils::exceptions::Mars2GribGenericException("Unknown error during encoding",
-                                                                                  Here());
+            // Wrap any exception in a CoreOperations-specific exception to provide context
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribCoreException("Error during encoding", Here()));
         }
     }
 
@@ -281,12 +332,42 @@ struct CoreOperations {
 
             return debug_convert_GribHeaderLayoutData_to_json(layout);
         }
-        catch (const std::exception& e) {
+        catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
             std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header test dump", Here()));
+                mars2grib::utils::exceptions::Mars2GribCoreException("Error during header test dump", Here()));
         }
     }
+
+    static std::string generateStack( const std::exception& e, const std::string& msg, const eckit::CodeLocation& loc ){
+
+        using metkit::mars2grib::utils::exceptions::printExtendedStack;
+        using metkit::mars2grib::utils::exceptions::lineSize;
+
+        const std::string logName = detail::generateEncodingLogFilename();
+
+        std::ofstream out(logName);
+        std::size_t level = 0;
+        std::size_t frame = 1;
+
+        out << "+ " << std::string(lineSize, '=') << std::endl
+            << "+ frame " << frame << std::endl
+            << "+ " << std::string(lineSize, '-') << std::endl;
+
+        out << "+ file:     " << loc.file() << "\n"
+                              << "+ function: " << loc.func() << "\n"
+                              << "+ line:     " << loc.line() << "\n"
+                              << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
+                              << "+ message:  " << msg << "\n";
+
+        out << "+ " << std::string(lineSize, '+') << std::endl;
+
+        printExtendedStack( e, out, ++level, ++frame );
+
+        return "test.log";
+
+    }
+
 };
 
 }  // namespace metkit::mars2grib

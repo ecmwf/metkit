@@ -120,61 +120,145 @@ Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{readOptions(
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_, language_);
+    try {
+        return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_, language_);
+    try {
+        return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars) {
-    const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_, language_);
+    try {
+        const eckit::LocalConfiguration misc{};
+        return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
                                                               const eckit::LocalConfiguration& mars) {
-    const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_, language_);
+    try {
+        const eckit::LocalConfiguration misc{};
+        return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc, opts_,
-                                                              language_);
+    try {
+        return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc, opts_,
-                                                              language_);
+    try {
+        return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
                                                               const eckit::LocalConfiguration& mars) {
-    const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc, opts_,
-                                                              language_);
+    try {
+        const eckit::LocalConfiguration misc{};
+        return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
                                                               const eckit::LocalConfiguration& mars) {
-    const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc, opts_,
-                                                              language_);
+    try {
+        const eckit::LocalConfiguration misc{};
+        return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                      metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc, opts_,
+                                                                  language_);
+    }
+    catch (const std::exception& e) {
+        std::string logFile = CoreOperations::generateStack( e, "Error during API::encode call", Here() );
+        throw eckit::Exception("Error during encoding", Here());
+    }
+    catch (...) {
+        // Fallback for non-standard exceptions
+        throw eckit::Exception("Unknown error during encoding", Here());
+    }
 }
 
 }  // namespace metkit::mars2grib
