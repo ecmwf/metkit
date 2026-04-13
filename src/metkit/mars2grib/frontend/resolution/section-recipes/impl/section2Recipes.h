@@ -36,7 +36,7 @@ inline const Recipe S2_R15 =
 inline const Recipe S2_R20 =
     make_recipe<20,
         Select<MarsConcept>,
-        Select<AnalysisConcept>
+        Select<IterationConcept>
     >();
 
 // Satellite-related products
