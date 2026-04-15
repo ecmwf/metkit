@@ -110,9 +110,9 @@ constexpr bool referenceTimeApplicable() {
 
     // Compile time conditions to apply this concept
     bool condition1 = (Variant == ReferenceTimeType::Standard || Variant == ReferenceTimeType::Reforecast) &&
-                      (Stage == StagePreset) && (Section == SecIdentificationSection);
+                      (Stage == StageRuntime) && (Section == SecIdentificationSection);
 
-    bool condition2 = (Variant == ReferenceTimeType::Reforecast) && (Stage == StagePreset) &&
+    bool condition2 = (Variant == ReferenceTimeType::Reforecast) && (Stage == StageRuntime) &&
                       (Section == SecProductDefinitionSection);
 
     // Confitions to apply concept
