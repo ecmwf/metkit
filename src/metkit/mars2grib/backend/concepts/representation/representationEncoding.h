@@ -439,15 +439,15 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid = dynamic_cast<const eckit::geo::grid::reduced::HEALPix*>(genericGrid.get());
 
-                    const auto nside              = static_cast<long>(grid->Nside());
-                    const auto orderingConvention = grid->order() == eckit::geo::order::HEALPix::RING ? 0L : 1L;
+                    const auto nside                = static_cast<long>(grid->Nside());
+                    const auto orderingConvention   = grid->order();
                     const auto longitudeOfFirstGridPointInDegrees =
                         std::get<eckit::geo::PointLonLat>(grid->first_point()).lon();
 
                     // Encoding
                     set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
-                    set_or_throw(out, "nside", nside);
-                    set_or_throw(out, "orderingConvention", orderingConvention);
+                    set_or_throw(out, "Nside", nside);
+                    set_or_throw<std::string>(out, "orderingConvention", orderingConvention);
                     set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
