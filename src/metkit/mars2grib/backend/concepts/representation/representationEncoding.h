@@ -439,8 +439,8 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid = dynamic_cast<const eckit::geo::grid::reduced::HEALPix*>(genericGrid.get());
 
-                    const auto nside                = static_cast<long>(grid->Nside());
-                    const auto orderingConvention   = grid->order();
+                    const auto nside              = static_cast<long>(grid->Nside());
+                    const auto orderingConvention = grid->order();
                     const auto longitudeOfFirstGridPointInDegrees =
                         std::get<eckit::geo::PointLonLat>(grid->first_point()).lon();
 
