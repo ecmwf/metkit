@@ -115,6 +115,7 @@ _field: &_field
       - [ci, clustering information]
       - [cl, climatology]
       - [cm, cluster means]
+      - [cpf, crossing-point forecast]
       - [cr, cluster representative]
       - [cs, cluster std deviations]
       - [cv, calibration validation forecast]
