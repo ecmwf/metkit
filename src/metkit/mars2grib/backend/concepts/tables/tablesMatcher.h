@@ -17,11 +17,6 @@ std::size_t tablesMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     using metkit::mars2grib::util::param_matcher::range;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-    const auto param = get_or_throw<long>(mars, "param");
-    // Chemical products
-    if (matchAny(param, range(233032, 233035), range(235062, 235064))) {
-        return static_cast<std::size_t>(TablesType::Custom);
-    }
 
     return static_cast<size_t>(TablesType::Default);
 }

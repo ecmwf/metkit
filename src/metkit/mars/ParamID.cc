@@ -30,7 +30,7 @@ static std::vector<ParamID::WindFamily> windFamilies_;
 
 static std::vector<size_t> dropTables_;
 
-static bool fullTableDropping_;
+static NormalisationMode normalisationMode_;
 
 static std::set<std::string> mlParamsSingleLevel_;
 
@@ -59,11 +59,14 @@ static void readTable() {
         dropTables_.push_back(dropTables[i]);
     }
 
-    fullTableDropping_ = false;
+    normalisationMode_ = NormalisationMode::Loose;
     if (paramMatching.contains("full-table-dropping")) {
         const eckit::Value fullTableDropping = paramMatching["full-table-dropping"];
         ASSERT(fullTableDropping.isBool());
-        fullTableDropping_ = fullTableDropping;
+        bool fullTableDroppingValue = fullTableDropping;
+        if (fullTableDroppingValue) {
+            normalisationMode_ = NormalisationMode::FullTableDropping;
+        }
     }
 
     const eckit::Value mlParamsSingleLevel = paramMatching["ml-params-single-level"];
@@ -86,9 +89,9 @@ const std::set<std::string>& ParamID::getMlParamsSingleLevel() {
     return mlParamsSingleLevel_;
 }
 
-bool ParamID::fullTableDropping() {
+NormalisationMode ParamID::normalisationMode() {
     pthread_once(&once, readTable);
-    return fullTableDropping_;
+    return normalisationMode_;
 }
 
 

@@ -17,12 +17,6 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-FlattenCallback::~FlattenCallback() = default;
-
-ExpandCallback::~ExpandCallback() = default;
-
-//----------------------------------------------------------------------------------------------------------------------
-
 MarsExpansion::MarsExpansion(bool inherit, bool strict) : inherit_(inherit), strict_(strict) {}
 
 MarsExpansion::~MarsExpansion() {
@@ -36,7 +30,6 @@ void MarsExpansion::reset() {
         language.second->reset();
     }
 }
-
 
 MarsLanguage& MarsExpansion::language(const std::string& verb) {
     auto v = MarsLanguage::expandVerb(verb);
@@ -64,26 +57,15 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
 }
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) {
-    auto& lang = language(request.verb());
-    return lang.expand(request, inherit_, strict_);
+    return language(request.verb()).expand(request, inherit_, strict_);
 }
-
 
 void MarsExpansion::expand(const MarsRequest& request, ExpandCallback& callback) {
-    MarsRequest r = language(request.verb()).expand(request, inherit_, strict_);
-    callback(r);
+    callback(expand(request));
 }
-
 
 void MarsExpansion::flatten(const MarsRequest& request, FlattenCallback& callback) {
     language(request.verb()).flatten(request, callback);
-}
-
-void MarsExpansion::expand(const MarsExpandContext&, const MarsRequest& request, ExpandCallback& callback) {
-    expand(request, callback);
-}
-void MarsExpansion::flatten(const MarsExpandContext&, const MarsRequest& request, FlattenCallback& callback) {
-    flatten(request, callback);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
