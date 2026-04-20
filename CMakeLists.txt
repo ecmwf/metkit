@@ -64,6 +64,7 @@ ecbuild_add_option( FEATURE ODB
 
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
+                    CONDITION HAVE_GRIB
                     DESCRIPTION "Build the MARS2GRIB encoder" )
 
 # Python bindings for mars2grib encoder
