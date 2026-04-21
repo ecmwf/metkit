@@ -125,6 +125,7 @@ _field: &_field
       - [efi, extreme forecast index]
       - [efic, extreme forecast index control]
       - [em, ensemble mean]
+      - [emdn, ensemble median]
       - [eme, ensemble data assimilation model errors]
       - [emtm, ensemble mean of temporal mean]
       - [ep, event probability]
