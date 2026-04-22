@@ -757,7 +757,7 @@ _field: &_field
     - [bare, 3, 'Bare areas']
     - [hiv, 4, 'High vegetation']
     - [lov, 5, 'Low vegetation']
-    - [urban, 6, 'Urban']
+    - [urban, 6]
     # 1001-1500 Reserved for tile class entries for tile models using the ECOCLIMAP-SG land cover survey
     - [seao, 1001, 'Sea and oceans']
     - [lake, 1002, 'Lakes']
@@ -853,7 +853,7 @@ _field: &_field
     - [info, 2019, 'Interrupted forest']
     - [wlmi, 2020, 'Water and land mixtures']
     - [baso, 2021, 'Bare soil']
-    - [urba, 2022, 'Urban']
+    - [urba, 2022, 'Urban (GLCC BATS)']
     - [lori, 2023, 'Low-rise building']
     - [hiri, 2024, 'High-rise building']
     # 2501-3000 Reserved for tile grouping entries for tile models using the GLCC v2.0 BATS Classification survey
@@ -862,7 +862,7 @@ _field: &_field
     # 3001-3500 Reserved for tile class entries for tile models using the ESA-GlobCover GCV2009 survey
     - [pfic, 3001, 'Post-flooding or irrigated croplands']
     - [racr, 3002, 'Rainfed croplands']
-    - [mcve, 3003, 'Mosaic cropland (50%-70%)/vegetation (grassland, 'shrubland, forest) (20-50%)']
+    - [mcve, 3003, 'Mosaic cropland (50%-70%)/vegetation (grassland, shrubland, forest) (20-50%)']
     - [mvcr, 3004, 'Mosaic vegetation (grassland, shrubland, forest) (50%-70%)/cropland (20%-50%)']
     - [cobs, 3005, 'Closed to open (>15%) broadleaved evergreen and/or semi-deciduous forest (>5m)']
     - [clbd, 3006, 'Closed (>40%) broadleaved deciduous forest (>5m)']
@@ -879,7 +879,7 @@ _field: &_field
     - [clbff, 3017, 'Closed (>40%) broadleaved forest or shrubland permanently flooded - saline or brackish water']
     - [covef, 3018, 'Closed to open (>15%) vegetation (grassland, shrubland, woody vegetation) on regularly flooded or waterlogged soil - fresh, brackish or saline water']
     - [asaa, 3019, 'Artificial surfaces and associated areas (urban areas >50%)']
-    - [baar, 3020, 'Bare areas']
+    - [baar, 3020, 'Bare areas (GCV2009)']
     - [wabo, 3021, 'Water bodies']
     - [pesi, 3022, 'Permanent snow and ice']
     # 3501-4000 Reserved for tile grouping entries for tile models using the ESA-GlobCover GCV2009 survey
@@ -903,7 +903,7 @@ _field: &_field
     - [crop, 4016, 'Cropland (upland crops or inundated/ flooded crops)']
     - [mctnv, 4017, 'Mosaic of cropland / tree cover/ other natural vegetation']
     - [mcsh, 4018, 'Mosaic of cropland / shrub or herbaceous cover']
-    - [baare, 4019, 'Bare areas']
+    - [baare, 4019, 'Bare areas (GLC2000)']
     - [wbna, 4020, 'Water bodies (natural or artificial)']
     - [sina, 4021, 'Snow or ice (natural or artificial)']
     - [urar, 4022, 'Urban areas']
@@ -934,7 +934,7 @@ _field: &_field
           dataset: [on-demand-extremes-dt]
         type: enum
         values:
-          - [unknown, 0, Unknown]
+          - [unknown, 0]
           - [simple, 1, Simple tile scheme configuration with most-grouped tiles]
           - [granular, 2, Granular tile scheme configuration with most-separated tile groupings]
         default: none
