@@ -125,6 +125,7 @@ _field: &_field
       - [efi, extreme forecast index]
       - [efic, extreme forecast index control]
       - [em, ensemble mean]
+      - [emdn, ensemble median]
       - [eme, ensemble data assimilation model errors]
       - [emtm, ensemble mean of temporal mean]
       - [ep, event probability]
@@ -695,6 +696,9 @@ _field: &_field
     type: enum
     values:
     - [fs, from-start, fromstart]
+    - [10m]
+    - [15m]
+    - [20m]
     - [30m]
     - [1h]
     - [3h]
