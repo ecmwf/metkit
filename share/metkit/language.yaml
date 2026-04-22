@@ -697,6 +697,8 @@ _field: &_field
     values:
     - [fs, from-start, fromstart]
     - [10m]
+    - [15m]
+    - [20m]
     - [30m]
     - [1h]
     - [3h]
