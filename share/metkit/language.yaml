@@ -420,6 +420,12 @@ _field: &_field
           - [lm]
           - [hrm]
           - [wam]
+      - context:
+          class: [ti, lw, s2]
+        type: enum
+        values:
+          - [lam]
+          - [global, glob]
       - type: enum
         values:
           - [ecmf]
@@ -451,7 +457,7 @@ _field: &_field
           - [alaro]
           - [arome]
           - [harmonie-arome]
-          - [glob, global]
+          - [global, glob]
           - [ecpoint]
           - [ecland]
           - [htessel-lisflood]
