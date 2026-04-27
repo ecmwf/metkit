@@ -1242,6 +1242,17 @@ CASE("test_metkit_expand_coeffindex") {
     }
 }
 
+CASE("PGEN-566 class=ai") {
+    const char* text = "retrieve,date=20260506,class=ai,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/0600/1200/1800,step=0";
+    const char* expected = "retrieve,date=20260506,class=ai,type=fc,stream=oper,levtype=sfc,time=0000/0600/1200/1800,step=0,expver=0001,domain=g,param=228141/140229";
+    expand(text, expected);
+}
+CASE("PGEN-566 od") {
+    const char* text = "retrieve,date=20260506,class=od,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/0600/1200/1800,step=0";
+    const char* expected = "retrieve,date=20260506,class=od,type=fc,stream=oper,levtype=sfc,time=0000/0600/1200/1800,step=0,expver=0001,domain=g,param=141/3100";
+    expand(text, expected);
+}
+
 CASE("test_metkit_expand_A") {
     const char* text =
         "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
