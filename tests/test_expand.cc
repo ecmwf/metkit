@@ -1243,13 +1243,21 @@ CASE("test_metkit_expand_coeffindex") {
 }
 
 CASE("PGEN-566 class=ai") {
-    const char* text = "retrieve,date=20260506,class=ai,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/0600/1200/1800,step=0";
-    const char* expected = "retrieve,date=20260506,class=ai,type=fc,stream=oper,levtype=sfc,time=0000/0600/1200/1800,step=0,expver=0001,domain=g,param=228141/140229";
+    const char* text =
+        "retrieve,date=20260506,class=ai,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/"
+        "0600/1200/1800,step=0";
+    const char* expected =
+        "retrieve,date=20260506,class=ai,type=fc,stream=oper,levtype=sfc,time=0000/0600/1200/"
+        "1800,step=0,expver=0001,domain=g,param=228141/140229";
     expand(text, expected);
 }
 CASE("PGEN-566 od") {
-    const char* text = "retrieve,date=20260506,class=od,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/0600/1200/1800,step=0";
-    const char* expected = "retrieve,date=20260506,class=od,type=fc,stream=oper,levtype=sfc,time=0000/0600/1200/1800,step=0,expver=0001,domain=g,param=141/3100";
+    const char* text =
+        "retrieve,date=20260506,class=od,stream=oper,expver=0001,domain=g,type=fc,levtype=sfc,param=sd/swh,time=0000/"
+        "0600/1200/1800,step=0";
+    const char* expected =
+        "retrieve,date=20260506,class=od,type=fc,stream=oper,levtype=sfc,time=0000/0600/1200/"
+        "1800,step=0,expver=0001,domain=g,param=141/3100";
     expand(text, expected);
 }
 
