@@ -162,9 +162,19 @@ inline std::size_t matchML(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, range(21, 23), range(75, 77), range(129, 133), 135, 138, 152, range(155, 157), 203,
-                 range(246, 248), range(162100, 162113), 260290, 260292, 260293)) {
-        return static_cast<std::size_t>(LevelType::Hybrid);
+    // Single-level subset of ML params: 2D fields published on the
+    // model-level levtype but not requiring a vertical PV array. This
+    // guard fires before the multi-level rule below; params listed here
+    // are removed from the multi-level set.
+    if (matchAny(param, 22, 127, 128, 129, 152)) {
+        return static_cast<std::size_t>(LevelType::ModelSingleLevel);
+    }
+
+    // Multi-level model fields: full vertical column, require allocation
+    // and population of the PV array describing the hybrid coordinate.
+    if (matchAny(param, 21, 23, range(75, 77), range(130, 133), 135, 138, range(155, 157), 203, range(246, 248),
+                 range(162100, 162113), 260290, 260292, 260293)) {
+        return static_cast<std::size_t>(LevelType::ModelMultipleLevel);
     }
 
     throw utils::exceptions::Mars2GribMatcherException(
