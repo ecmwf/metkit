@@ -103,6 +103,7 @@
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/mars/marsConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/model-error/modelErrorConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/nil/nilConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/origin/originConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
@@ -173,6 +174,6 @@ using AllConcepts = TypeList<AnalysisConcept, CompositionConcept, DataTypeConcep
                              EnsembleConcept, GeneratingProcessConcept, LevelConcept, LongrangeConcept,
                              IterationConcept, MarsConcept, NilConcept, OriginConcept, PackingConcept, ParamConcept,
                              PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept, SatelliteConcept,
-                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept>;
+                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept, ModelErrorConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail
