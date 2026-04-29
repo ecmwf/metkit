@@ -94,10 +94,11 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_opt(
-    const MarsDict_t& mars, [[maybe_unused]] const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {
+    const MarsDict_t& mars, const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {
 
     using metkit::mars2grib::backend::tables::TypeOfGeneratingProcess;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     // N.B. Sometimes this is overwritten by eccodes as a side effect of setting `param`
@@ -142,13 +143,69 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         }
         else if (marsTypeVal == "fc") {
 
-            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Forecast;
+            // Detect ensemble evidence even when MARS `type` is the generic
+            // `fc`. Legacy GRIB1 data (and some rewritten streams) may carry
+            // `type=fc` together with ensemble-describing keys; in that case
+            // the correct GRIB2 `typeOfGeneratingProcess` is EnsembleForecast
+            // (4), not Forecast (2).
+            //
+            // Signals (any of):
+            //   - par.numberOfForecastsInEnsemble > 1
+            //   - par.typeOfEnsembleForecast present
+            //   - mars.number > 0
+            const bool hasEnsembleSize =
+                has(par, "numberOfForecastsInEnsemble") && (get_or_throw<long>(par, "numberOfForecastsInEnsemble") > 1);
+            const bool hasEnsembleType   = has(par, "typeOfEnsembleForecast");
+            const bool hasEnsembleNumber = has(mars, "number") && (get_or_throw<long>(mars, "number") > 0);
+
+            const bool isEnsemble = hasEnsembleSize || hasEnsembleType || hasEnsembleNumber;
+
+            tables::TypeOfGeneratingProcess result =
+                isEnsemble ? TypeOfGeneratingProcess::EnsembleForecast : TypeOfGeneratingProcess::Forecast;
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
                 logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
                 logMsg += "'";
+                if (isEnsemble) {
+                    logMsg += " (type='fc' with ensemble evidence:";
+                    if (hasEnsembleSize) {
+                        logMsg += " numberOfForecastsInEnsemble>1";
+                    }
+                    if (hasEnsembleType) {
+                        logMsg += " typeOfEnsembleForecast-present";
+                    }
+                    if (hasEnsembleNumber) {
+                        logMsg += " number>0";
+                    }
+                    logMsg += ")";
+                }
+                else {
+                    logMsg += " (type='fc', no ensemble evidence)";
+                }
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (marsTypeVal == "eme" || marsTypeVal == "me") {
+
+            // 4D-Var model-error fields (eme = ensemble model errors,
+            // me = model errors). Generated as part of the analysis
+            // system; the canonical ECMWF GRIB2 value is Analysis (0).
+            // Without an explicit mapping here the encoder fell back to the
+            // GRIB sample default, which only happened to be 0 by accident.
+            // Grouped with eme to mirror the {4i, 4v, me, eme} grouping
+            // already used in significanceOfReferenceTime.
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Analysis;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=eme/me)";
                 return logMsg;
             }());
 
