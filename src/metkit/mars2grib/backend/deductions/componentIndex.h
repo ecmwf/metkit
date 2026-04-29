@@ -128,15 +128,14 @@ long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         // with an unambiguous diagnostic.
         const std::string typeVal = get_or_throw<std::string>(mars, "type");
         if (typeVal != "eme") {
-            throw Mars2GribDeductionException(
-                std::string("`componentIndex` requested for a non-`eme` request: "
-                            "`mars[\"type\"]` is `")
-                    + typeVal
-                    + "` but only `eme` is supported. This is a serious upstream "
-                      "contract violation: the model-error deduction was reached "
-                      "for a request that is not a model-error product. Check "
-                      "recipe selection and matcher dispatch.",
-                Here());
+            throw Mars2GribDeductionException(std::string("`componentIndex` requested for a non-`eme` request: "
+                                                          "`mars[\"type\"]` is `") +
+                                                  typeVal +
+                                                  "` but only `eme` is supported. This is a serious upstream "
+                                                  "contract violation: the model-error deduction was reached "
+                                                  "for a request that is not a model-error product. Check "
+                                                  "recipe selection and matcher dispatch.",
+                                              Here());
         }
 
         // Retrieve mandatory MARS number (model-error realization id)
