@@ -141,6 +141,14 @@ inline std::size_t matchSFC(const long param) {
         return compile_time_registry_engine::MISSING;
     }
 
+    // ECMWF covariance paramIds (254001..254017) are defined in
+    // eccodes/definitions/grib2/localConcepts/{ecmf,era6}/paramId.def with
+    // typeOfFirstFixedSurface=254, which maps to the eccodes typeOfLevel
+    // concept "abstractLevel".
+    if (matchAny(param, range(254001, 254017))) {
+        return static_cast<std::size_t>(LevelType::AbstractLevel);
+    }
+
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype SFC", Here());
 }
@@ -283,10 +291,10 @@ inline std::size_t matchO2D(const long param) {
     if (matchAny(param, 262116)) {
         return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
     }
-    if (matchAny(param, 262118, 262119, 262121, 262122)) {
+    if (matchAny(param, 262118, 262119, 262121, 262122, 262146, 262147)) {
         return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
     }
-    if (matchAny(param, 262120, 262123)) {
+    if (matchAny(param, 262120, 262123, 262148)) {
         return static_cast<std::size_t>(LevelType::OceanSurfaceToBottom);
     }
     if (matchAny(param, 262141)) {
