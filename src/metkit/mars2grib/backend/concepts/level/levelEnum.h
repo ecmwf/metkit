@@ -142,7 +142,7 @@ enum class LevelType : std::size_t {
     EntireMeltPond,
     WaterSurfaceToIsothermalOceanLayer,
     AbstractSingleLevel,
-    AbstractLevel,        ///< Opaque level identifier carrying a numeric `level` value.
+    AbstractLevel,  ///< Opaque level identifier carrying a numeric `level` value.
     AbstractMultipleLevel,
     HeightAboveSeaAt10M,
     HeightAboveSeaAt2M,
@@ -173,12 +173,12 @@ using LevelList =
               LevelType::Theta, LevelType::PotentialVorticity, LevelType::SnowLayer, LevelType::SoilLayer,
               LevelType::SeaIceLayer, LevelType::OceanSurface, LevelType::DepthBelowSeaLayer,
               LevelType::OceanSurfaceToBottom, LevelType::LakeBottom, LevelType::MixingLayer, LevelType::OceanModel,
-              LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity,
-              LevelType::MixedLayerDepthByTemperature, LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater,
-              LevelType::IceLayerOnWater, LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer,
-              LevelType::AbstractSingleLevel, LevelType::AbstractLevel, LevelType::AbstractMultipleLevel,
-              LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M,
-              LevelType::HeightAboveGroundAt2M, LevelType::Default>;
+              LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
+              LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
+              LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel,
+              LevelType::AbstractLevel, LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M,
+              LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M,
+              LevelType::Default>;
 
 
 ///
