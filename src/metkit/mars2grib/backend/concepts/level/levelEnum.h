@@ -142,7 +142,7 @@ enum class LevelType : std::size_t {
     EntireMeltPond,
     WaterSurfaceToIsothermalOceanLayer,
     AbstractSingleLevel,
-    AbstractLevel,        ///< Opaque level identifier carrying a numeric `level` value.
+    AbstractLevel,  ///< Opaque level identifier carrying a numeric `level` value.
     AbstractMultipleLevel,
     HeightAboveSeaAt10M,
     HeightAboveSeaAt2M,
