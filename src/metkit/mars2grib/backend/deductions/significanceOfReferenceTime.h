@@ -41,8 +41,7 @@
 /// - @ref referenceTimeEncoding.h
 ///
 /// Related deductions:
-/// - @ref standardReferenceDateTime.h
-/// - @ref hindcastReferenceDateTime.h
+/// - @ref productTime.h
 ///
 /// @ingroup mars2grib_backend_deductions
 ///

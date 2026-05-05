@@ -62,8 +62,7 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/hindcastDateTime.h"
-#include "metkit/mars2grib/backend/deductions/referenceDateTime.h"
+#include "metkit/mars2grib/backend/deductions/productTime.h"
 #include "metkit/mars2grib/backend/deductions/significanceOfReferenceTime.h"
 
 // Tables
@@ -178,12 +177,18 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             MARS2GRIB_LOG_CONCEPT(referenceTime);
 
+            // Resolve the canonical ProductTime once per concept invocation.
+            // All three branches below source their date/time exclusively
+            // from this object (§15 of timeProducts.md).
+            auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+
             // =============================================================
             // Variant-specific logic
             // =============================================================
             if constexpr (Section == SecIdentificationSection) {
 
-                // Deductions
+                // Deductions: significanceOfReferenceTime is orthogonal to
+                // ProductTime (driven by mars.type / mars.stream).
                 tables::SignificanceOfReferenceTime significanceOfReferenceTime =
                     deductions::resolve_SignificanceOfReferenceTime_or_throw(mars, par, opt);
 
@@ -193,8 +198,9 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Standard)) {
 
-                // Deductions
-                eckit::DateTime dateTime = deductions::resolve_ReferenceDateTime_or_throw(mars, par, opt);
+                // For a standard product, the GRIB "reference date/time"
+                // is the canonical ProductTime::referenceDateTime.
+                const eckit::DateTime& dateTime = pt.referenceDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", dateTime.date().year());
@@ -207,8 +213,12 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Reforecast)) {
 
-                // Deductions
-                eckit::DateTime referenceDateTime = deductions::resolve_HindcastDateTime_or_throw(mars, par, opt);
+                // For a reforecast product, the Identification Section's
+                // reference date/time is the hindcast date — i.e. the
+                // canonical ProductTime::simulationDateTime (from date /
+                // time). The ProductDefinitionSection branch below writes
+                // the model-version date from referenceDateTime instead.
+                const eckit::DateTime& referenceDateTime = pt.simulationDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", referenceDateTime.date().year());
@@ -224,9 +234,10 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
                 // Validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {60L, 61L});
 
-
-                // Deduction
-                eckit::DateTime dateTime = deductions::resolve_ReferenceDateTime_or_throw(mars, par, opt);
+                // Model-version date/time = ProductTime::referenceDateTime
+                // (derived from date/time or year/month per §7.4).
+                // TODO: Need to clarify with DGOV if this is reference or simulatedDateTime.
+                const eckit::DateTime& dateTime = pt.referenceDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "YearOfModelVersion", dateTime.date().year());

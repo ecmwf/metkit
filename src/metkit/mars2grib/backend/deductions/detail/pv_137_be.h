@@ -1,8 +1,6 @@
 #pragma once
 #include "metkit/mars2grib/utils/generalUtils.h"
 
-// namespace metkit::mars2grib::backend::deductions::pv_detail::data {
-
 ///
 /// @brief Predefined PV coefficient table extracted from IFS binary output.
 ///
