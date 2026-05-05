@@ -7,6 +7,31 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+///
+/// @file levelMatcher.h
+/// @brief Entry-level matcher for the GRIB `level` concept.
+///
+/// This header defines the runtime matcher used by the concept registry to
+/// map MARS `levtype`, `param`, and, where required, `levelist` metadata onto
+/// GRIB level concept variants.
+///
+/// The implementation is split into levtype-specific helper functions in the
+/// internal `impl` namespace and a public entry-level matcher. Each helper is
+/// responsible for one MARS level type and returns a local `LevelType` variant
+/// index.
+///
+/// The matcher follows the standard mars2grib matching contract:
+/// - return a local concept variant index when the concept is active,
+/// - return `compile_time_registry_engine::MISSING` when it is not active,
+/// - wrap runtime failures as nested `Mars2GribMatcherException` instances.
+///
+/// Nested error handling is intentionally applied both at the entry point and
+/// inside the levtype-specific helpers so diagnostics retain the full matcher
+/// call chain and the levtype-specific mapping context.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System include
@@ -25,6 +50,23 @@ namespace metkit::mars2grib::backend::concepts_ {
 
 namespace impl {
 
+///
+/// @brief Match surface-level MARS parameters.
+///
+/// Maps `levtype=sfc` parameters onto their GRIB level concept variant.
+/// Wave-period parameters deliberately return `MISSING` because they are handled
+/// by the wave concept rather than by level encoding.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index, or
+/// `compile_time_registry_engine::MISSING` for surface products owned by another
+/// concept.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no surface-level mapping exists. Lower-level exceptions are preserved
+/// through `std::throw_with_nested`.
+///
 inline std::size_t matchSFC(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -158,6 +200,19 @@ inline std::size_t matchSFC(const long param) {
     }
 }
 
+///
+/// @brief Match height-level MARS parameters.
+///
+/// Maps `levtype=hl` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no height-level mapping exists. Lower-level exceptions are preserved
+/// through `std::throw_with_nested`.
+///
 inline std::size_t matchHL(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -177,6 +232,19 @@ inline std::size_t matchHL(const long param) {
     }
 }
 
+///
+/// @brief Match model-level MARS parameters.
+///
+/// Maps `levtype=ml` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no model-level mapping exists. Lower-level exceptions are preserved
+/// through `std::throw_with_nested`.
+///
 inline std::size_t matchML(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -206,6 +274,22 @@ inline std::size_t matchML(const long param) {
     }
 }
 
+///
+/// @brief Match pressure-level MARS parameters.
+///
+/// Maps `levtype=pl` parameters onto pressure-level GRIB variants. The MARS
+/// `levelist` value determines whether the pressure level is interpreted in hPa
+/// or Pa.
+///
+/// @param[in] param MARS parameter identifier
+/// @param[in] level MARS pressure level value from `levelist`
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no pressure-level mapping exists. Lower-level exceptions are preserved
+/// through `std::throw_with_nested`.
+///
 inline std::size_t matchPL(const long param, const long level) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -233,6 +317,19 @@ inline std::size_t matchPL(const long param, const long level) {
     }
 }
 
+///
+/// @brief Match potential-temperature-level MARS parameters.
+///
+/// Maps `levtype=pt` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no potential-temperature-level mapping exists. Lower-level exceptions are
+/// preserved through `std::throw_with_nested`.
+///
 inline std::size_t matchPT(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -252,6 +349,19 @@ inline std::size_t matchPT(const long param) {
 }
 
 
+///
+/// @brief Match potential-vorticity-level MARS parameters.
+///
+/// Maps `levtype=pv` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no potential-vorticity-level mapping exists. Lower-level exceptions are
+/// preserved through `std::throw_with_nested`.
+///
 inline std::size_t matchPV(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -270,6 +380,19 @@ inline std::size_t matchPV(const long param) {
     }
 }
 
+///
+/// @brief Match soil-level MARS parameters.
+///
+/// Maps `levtype=sol` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no soil-level mapping exists. Lower-level exceptions are preserved through
+/// `std::throw_with_nested`.
+///
 inline std::size_t matchSOL(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -294,6 +417,19 @@ inline std::size_t matchSOL(const long param) {
     }
 }
 
+///
+/// @brief Match abstract-level MARS parameters.
+///
+/// Maps `levtype=al` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no abstract-level mapping exists. Lower-level exceptions are preserved
+/// through `std::throw_with_nested`.
+///
 inline std::size_t matchAL(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -312,6 +448,19 @@ inline std::size_t matchAL(const long param) {
     }
 }
 
+///
+/// @brief Match two-dimensional ocean-level MARS parameters.
+///
+/// Maps `levtype=o2d` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no two-dimensional ocean-level mapping exists. Lower-level exceptions are
+/// preserved through `std::throw_with_nested`.
+///
 inline std::size_t matchO2D(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -361,6 +510,19 @@ inline std::size_t matchO2D(const long param) {
     }
 }
 
+///
+/// @brief Match three-dimensional ocean-level MARS parameters.
+///
+/// Maps `levtype=o3d` parameters onto their GRIB level concept variant.
+///
+/// @param[in] param MARS parameter identifier
+///
+/// @return Local `LevelType` variant index.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If no three-dimensional ocean-level mapping exists. Lower-level exceptions
+/// are preserved through `std::throw_with_nested`.
+///
 inline std::size_t matchO3D(const long param) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
@@ -384,6 +546,29 @@ inline std::size_t matchO3D(const long param) {
 
 }  // namespace impl
 
+///
+/// @brief Match the `level` concept variant.
+///
+/// The matcher first excludes products owned by other concepts, such as wave
+/// spectra and satellite products. For remaining products, it reads `param` and
+/// `levtype` and dispatches to the corresponding levtype-specific helper.
+/// Pressure-level products additionally require `levelist`.
+///
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+///
+/// @param[in] mars MARS input dictionary
+/// @param[in] opt  Options dictionary
+///
+/// @return Local level variant index, or
+/// `compile_time_registry_engine::MISSING` when the level concept is inactive.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If required MARS metadata is missing, `levtype` is unsupported, no mapping
+/// exists for the `(levtype, param)` combination, or lower-level matcher
+/// evaluation fails. Lower-level exceptions are preserved through
+/// `std::throw_with_nested`.
+///
 template <class MarsDict_t, class OptDict_t>
 std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
