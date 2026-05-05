@@ -33,7 +33,8 @@ std::size_t packingMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         throw Mars2GribMatcherException{"Unknown value \"" + packing + "\" for mars keyword \"packing\"!", Here()};
     }
     catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `packing` concept", Here()));
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `packing` concept", Here()));
     }
 }
 

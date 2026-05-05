@@ -17,7 +17,8 @@ std::size_t dataTypeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         return static_cast<std::size_t>(DataTypeType::Default);
     }
     catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `dataType` concept", Here()));
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `dataType` concept", Here()));
     }
 }
 

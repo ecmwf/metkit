@@ -43,7 +43,8 @@ std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `destine` concept", Here()));
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `destine` concept", Here()));
     }
 }
 

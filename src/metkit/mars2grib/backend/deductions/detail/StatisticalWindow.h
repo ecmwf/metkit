@@ -65,7 +65,7 @@ namespace metkit::mars2grib::backend::deductions::detail {
 ///
 struct StatisticalWindow {
     tables::TimeUnit unit{tables::TimeUnit::Second};
-    long             count{0};
+    long count{0};
 };
 
 }  // namespace metkit::mars2grib::backend::deductions::detail

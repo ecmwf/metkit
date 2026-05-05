@@ -37,7 +37,8 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `derived` concept", Here()));
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `derived` concept", Here()));
     }
 
 }

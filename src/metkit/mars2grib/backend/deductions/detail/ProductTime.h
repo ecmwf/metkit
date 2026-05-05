@@ -103,7 +103,7 @@ struct ProductTime {
     /// Valid entries: `statisticalWindows[0 .. statisticalWindowCount)`.
     /// Ordering: outermost → innermost.
     const std::array<StatisticalWindow, maxStatisticalWindows> statisticalWindows;
-    const std::size_t                                          statisticalWindowCount;
+    const std::size_t statisticalWindowCount;
 
     /// Sampling increment of the innermost statistical loop.
     /// `std::nullopt` for instant products (§9.1).
@@ -139,8 +139,8 @@ struct ProductTimeInput {
 
     eckit::DateTime simulationDateTime;
 
-    std::optional<eckit::DateTime> simulatedDateTime;   ///< from `hdate` / `htime`
-    std::optional<eckit::DateTime> referenceDateTime;   ///< from `fcyear` / `fcmonth`
+    std::optional<eckit::DateTime> simulatedDateTime;  ///< from `hdate` / `htime`
+    std::optional<eckit::DateTime> referenceDateTime;  ///< from `fcyear` / `fcmonth`
 
     /// Offset from `referenceDateTime` to `ProductTime::windowEnd`.
     long stepInSeconds{0};
@@ -153,7 +153,7 @@ struct ProductTimeInput {
     /// Temporal windows decoded from `stattype` (period part only),
     /// ordered outermost → innermost.
     std::array<StatisticalWindow, maxStatisticalWindows> stattypeWindows{};
-    std::size_t                                          stattypeWindowCount{0};
+    std::size_t stattypeWindowCount{0};
 
     /// From `deductions::timeIncrementInSeconds_opt(mars, par)`, i.e.
     /// `par["timeIncrementInSeconds"]`. Absent for instants and for the AIFS
@@ -189,9 +189,8 @@ inline long toSeconds_or_throw(std::string_view step) {
     }
 
     if (pos == 0) {
-        throw Mars2GribDeductionException(
-            "Invalid duration format (no numeric part): '" + std::string(step) + "'",
-            Here());
+        throw Mars2GribDeductionException("Invalid duration format (no numeric part): '" + std::string(step) + "'",
+                                          Here());
     }
 
     long value = 0;
@@ -199,16 +198,14 @@ inline long toSeconds_or_throw(std::string_view step) {
         value = std::stol(std::string(step.substr(0, pos)));
     }
     catch (...) {
-        throw Mars2GribDeductionException(
-            "Invalid numeric value in duration: '" + std::string(step) + "'", Here());
+        throw Mars2GribDeductionException("Invalid numeric value in duration: '" + std::string(step) + "'", Here());
     }
 
     char unit = 'h';  // default unit
     if (pos < step.size()) {
         if (pos + 1 != step.size()) {
             throw Mars2GribDeductionException(
-                "Invalid duration format (trailing characters): '" + std::string(step) + "'",
-                Here());
+                "Invalid duration format (trailing characters): '" + std::string(step) + "'", Here());
         }
         unit = step[pos];
     }
@@ -223,10 +220,8 @@ inline long toSeconds_or_throw(std::string_view step) {
         case 'd':
             return value * 86400L;
         default:
-            throw Mars2GribDeductionException(
-                std::string("Unknown duration unit: '") + unit
-                    + "', expected={h,m,s,d}",
-                Here());
+            throw Mars2GribDeductionException(std::string("Unknown duration unit: '") + unit + "', expected={h,m,s,d}",
+                                              Here());
     }
 }
 
@@ -244,8 +239,7 @@ inline eckit::Date convert_YYYYMMDD2Date_or_throw(long YYYYMMDD) {
         return eckit::Date(YYYY, MM, DD);
     }
     catch (const eckit::Exception& e) {
-        throw Mars2GribDeductionException(
-            "Invalid date value '" + std::to_string(YYYYMMDD) + "': " + e.what(), Here());
+        throw Mars2GribDeductionException("Invalid date value '" + std::to_string(YYYYMMDD) + "': " + e.what(), Here());
     }
 }
 
@@ -263,8 +257,7 @@ inline eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
         return eckit::Time(hh, mm, ss);
     }
     catch (const eckit::Exception& e) {
-        throw Mars2GribDeductionException(
-            "Invalid time value '" + std::to_string(hhmmss) + "': " + e.what(), Here());
+        throw Mars2GribDeductionException("Invalid time value '" + std::to_string(hhmmss) + "': " + e.what(), Here());
     }
 }
 
@@ -277,9 +270,7 @@ inline eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
 ///        `StatisticalWindow` allow-list `{Second, Day, Month}` (§3.1).
 ///
 inline bool isAllowedWindowUnit(tables::TimeUnit u) {
-    return u == tables::TimeUnit::Second
-        || u == tables::TimeUnit::Day
-        || u == tables::TimeUnit::Month;
+    return u == tables::TimeUnit::Second || u == tables::TimeUnit::Day || u == tables::TimeUnit::Month;
 }
 
 ///
@@ -310,7 +301,7 @@ inline eckit::DateTime subtractCalendarMonths(const eckit::DateTime& dt, long co
     long newMonthIdx = total % 12L;
     if (newMonthIdx < 0) {
         newMonthIdx += 12L;
-        newYear     -= 1L;
+        newYear -= 1L;
     }
     long newMonth = newMonthIdx + 1L;
 
@@ -341,8 +332,7 @@ inline eckit::DateTime subtractSeconds(const eckit::DateTime& dt, long count) {
 /// Dispatches on `window.unit`. Precondition: `window.unit` is in the
 /// allow-list and any required alignment has been verified by the caller.
 ///
-inline eckit::DateTime applyWindowSubtraction(const eckit::DateTime& windowEnd,
-                                              const StatisticalWindow& window) {
+inline eckit::DateTime applyWindowSubtraction(const eckit::DateTime& windowEnd, const StatisticalWindow& window) {
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     switch (window.unit) {
@@ -353,9 +343,8 @@ inline eckit::DateTime applyWindowSubtraction(const eckit::DateTime& windowEnd,
         case tables::TimeUnit::Month:
             return subtractCalendarMonths(windowEnd, window.count);
         default:
-            throw Mars2GribDeductionException(
-                "Internal error: applyWindowSubtraction called with disallowed unit",
-                Here());
+            throw Mars2GribDeductionException("Internal error: applyWindowSubtraction called with disallowed unit",
+                                              Here());
     }
     mars2gribUnreachable();
 }
@@ -419,8 +408,7 @@ inline std::string fmt(const StatisticalWindow& w) {
 ///
 /// @brief Format the populated prefix of a `StatisticalWindow` array.
 ///
-inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows>& a,
-                       std::size_t count) {
+inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows>& a, std::size_t count) {
     std::string s{"["};
     for (std::size_t i = 0; i < count; ++i) {
         if (i)
@@ -461,36 +449,32 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
 
     // §7.3: hdate / htime defaulting (the resolver has already enforced
     // §10.2; here we just apply the fall-through to simulationDateTime).
-    const eckit::DateTime simulatedDateTime =
-        input.simulatedDateTime.value_or(simulationDateTime);
+    const eckit::DateTime simulatedDateTime = input.simulatedDateTime.value_or(simulationDateTime);
 
     // §7.4: fcyear / fcmonth defaulting.
-    const eckit::DateTime referenceDateTime =
-        input.referenceDateTime.value_or(simulatedDateTime);
+    const eckit::DateTime referenceDateTime = input.referenceDateTime.value_or(simulatedDateTime);
 
     // ---------------------------------------------------------
     // §5.3: referenceDateTime >= simulatedDateTime          (§10.4)
     // ---------------------------------------------------------
     if (referenceDateTime < simulatedDateTime) {
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§10.4]: referenceDateTime ('"
-                + fmt(referenceDateTime) + "') < simulatedDateTime ('"
-                + fmt(simulatedDateTime) + "')",
-            Here());
+        throw Mars2GribDeductionException("ProductTime invariant violated [§10.4]: referenceDateTime ('" +
+                                              fmt(referenceDateTime) + "') < simulatedDateTime ('" +
+                                              fmt(simulatedDateTime) + "')",
+                                          Here());
     }
 
     // ---------------------------------------------------------
     // windowEnd (§7.5)
     // ---------------------------------------------------------
-    const eckit::DateTime windowEnd =
-        referenceDateTime + static_cast<eckit::Second>(input.stepInSeconds);
+    const eckit::DateTime windowEnd = referenceDateTime + static_cast<eckit::Second>(input.stepInSeconds);
 
     // ---------------------------------------------------------
     // §9: window assembly
     // ---------------------------------------------------------
     std::array<StatisticalWindow, maxStatisticalWindows> windows{};
-    std::size_t                                          windowCount = 0;
-    eckit::DateTime                                      windowStart = windowEnd;
+    std::size_t windowCount     = 0;
+    eckit::DateTime windowStart = windowEnd;
 
     const bool hasTimespanDuration = (input.timespanKind == TimespanKind::Duration);
     const bool hasTimespanNone     = (input.timespanKind == TimespanKind::None);
@@ -505,18 +489,17 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     }
     else if (hasTimespanDuration && nStat == 0) {
         // ----- §9.2: Old-style single-loop statistic -----
-        windows[0] = input.timespan;
+        windows[0]  = input.timespan;
         windowCount = 1;
         // windowStart computed after allow-list / positivity / alignment.
     }
     else if (hasTimespanDuration && nStat >= 1) {
         // ----- §9.3: Old-style multi-loop statistic -----
         if (nStat + 1 > maxStatisticalWindows) {
-            throw Mars2GribDeductionException(
-                "ProductTime invariant violated [§10.15]: statisticalWindowCount ("
-                    + std::to_string(nStat + 1) + ") > maxStatisticalWindows ("
-                    + std::to_string(maxStatisticalWindows) + ")",
-                Here());
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.15]: statisticalWindowCount (" +
+                                                  std::to_string(nStat + 1) + ") > maxStatisticalWindows (" +
+                                                  std::to_string(maxStatisticalWindows) + ")",
+                                              Here());
         }
         for (std::size_t i = 0; i < nStat; ++i) {
             windows[i] = input.stattypeWindows[i];
@@ -540,21 +523,20 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
         // §10.8: timespan = none with more than one stattype block.
         throw Mars2GribDeductionException(
             "ProductTime invariant violated [§10.8]: timespan='none' requires "
-            "exactly one stattype block, got " + std::to_string(nStat),
+            "exactly one stattype block, got " +
+                std::to_string(nStat),
             Here());
     }
     else if (hasTimespanMissing && nStat >= 1) {
         // §10.6: stattype present but timespan missing.
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§10.6]: stattype present (" + std::to_string(nStat)
-                + " block(s)) but timespan is missing",
-            Here());
+        throw Mars2GribDeductionException("ProductTime invariant violated [§10.6]: stattype present (" +
+                                              std::to_string(nStat) + " block(s)) but timespan is missing",
+                                          Here());
     }
     else {
         // Defensive: all combinations should be covered above.
         throw Mars2GribDeductionException(
-            "ProductTime internal error: unhandled (timespanKind, stattypeCount) combination",
-            Here());
+            "ProductTime internal error: unhandled (timespanKind, stattypeCount) combination", Here());
     }
 
     // ---------------------------------------------------------
@@ -564,18 +546,17 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
         const StatisticalWindow& w = windows[i];
 
         if (w.count <= 0) {
-            throw Mars2GribDeductionException(
-                "ProductTime invariant violated [§10.11]: statisticalWindows[" + std::to_string(i)
-                    + "] has non-positive count (" + std::to_string(w.count) + ")",
-                Here());
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.11]: statisticalWindows[" +
+                                                  std::to_string(i) + "] has non-positive count (" +
+                                                  std::to_string(w.count) + ")",
+                                              Here());
         }
 
         if (!isAllowedWindowUnit(w.unit)) {
-            throw Mars2GribDeductionException(
-                "ProductTime invariant violated [§10.18(b)]: statisticalWindows[" + std::to_string(i)
-                    + "] uses disallowed TimeUnit '" + fmt(w.unit)
-                    + "', expected one of {second, day, month}",
-                Here());
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.18(b)]: statisticalWindows[" +
+                                                  std::to_string(i) + "] uses disallowed TimeUnit '" + fmt(w.unit) +
+                                                  "', expected one of {second, day, month}",
+                                              Here());
         }
     }
 
@@ -589,8 +570,8 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
             if (!isAtMidnight(windowEnd)) {
                 throw Mars2GribDeductionException(
                     "ProductTime invariant violated [§10.9]: outermost window is "
-                    "calendar-day-aligned but windowEnd ('" + fmt(windowEnd)
-                        + "') is not at hh=00,mm=00,ss=00",
+                    "calendar-day-aligned but windowEnd ('" +
+                        fmt(windowEnd) + "') is not at hh=00,mm=00,ss=00",
                     Here());
             }
         }
@@ -598,8 +579,8 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
             if (!isOnFirstOfMonthMidnight(windowEnd)) {
                 throw Mars2GribDeductionException(
                     "ProductTime invariant violated [§10.10]: outermost window is "
-                    "calendar-month-aligned but windowEnd ('" + fmt(windowEnd)
-                        + "') is not on day=1 at hh=00,mm=00,ss=00",
+                    "calendar-month-aligned but windowEnd ('" +
+                        fmt(windowEnd) + "') is not on day=1 at hh=00,mm=00,ss=00",
                     Here());
             }
         }
@@ -612,10 +593,9 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     // §5.2: windowStart <= windowEnd                          (defensive)
     // ---------------------------------------------------------
     if (windowStart > windowEnd) {
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§5.2]: windowStart ('" + fmt(windowStart)
-                + "') > windowEnd ('" + fmt(windowEnd) + "')",
-            Here());
+        throw Mars2GribDeductionException("ProductTime invariant violated [§5.2]: windowStart ('" + fmt(windowStart) +
+                                              "') > windowEnd ('" + fmt(windowEnd) + "')",
+                                          Here());
     }
 
     // ---------------------------------------------------------
@@ -624,18 +604,16 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     std::optional<long> tInc = input.timeIncrementInSeconds;
 
     if (tInc.has_value() && tInc.value() < 0) {
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§10.14]: timeIncrementInSeconds < 0 ('"
-                + std::to_string(tInc.value()) + "')",
-            Here());
+        throw Mars2GribDeductionException("ProductTime invariant violated [§10.14]: timeIncrementInSeconds < 0 ('" +
+                                              std::to_string(tInc.value()) + "')",
+                                          Here());
     }
 
     if (windowCount >= 2 && !tInc.has_value()) {
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§10.13]: statisticalWindowCount ("
-                + std::to_string(windowCount)
-                + ") >= 2 requires timeIncrementInSeconds to be present",
-            Here());
+        throw Mars2GribDeductionException("ProductTime invariant violated [§10.13]: statisticalWindowCount (" +
+                                              std::to_string(windowCount) +
+                                              ") >= 2 requires timeIncrementInSeconds to be present",
+                                          Here());
     }
 
     // ---------------------------------------------------------
@@ -646,26 +624,17 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     const bool c = !tInc.has_value();
     if (!((a == b) && (b == c))) {
         throw Mars2GribDeductionException(
-            std::string("ProductTime invariant violated [§10.5]: tri-equivalence broken: ")
-                + "(windowStart==windowEnd)=" + (a ? "true" : "false")
-                + ", (statisticalWindowCount==0)=" + (b ? "true" : "false")
-                + ", (timeIncrementInSeconds==nullopt)=" + (c ? "true" : "false"),
+            std::string("ProductTime invariant violated [§10.5]: tri-equivalence broken: ") +
+                "(windowStart==windowEnd)=" + (a ? "true" : "false") + ", (statisticalWindowCount==0)=" +
+                (b ? "true" : "false") + ", (timeIncrementInSeconds==nullopt)=" + (c ? "true" : "false"),
             Here());
     }
 
     // ---------------------------------------------------------
     // Construct the immutable ProductTime
     // ---------------------------------------------------------
-    return ProductTime{
-        simulationDateTime,
-        simulatedDateTime,
-        referenceDateTime,
-        windowStart,
-        windowEnd,
-        windows,
-        windowCount,
-        tInc
-    };
+    return ProductTime{simulationDateTime, simulatedDateTime, referenceDateTime, windowStart,
+                       windowEnd,          windows,           windowCount,       tInc};
 }
 
 }  // namespace metkit::mars2grib::backend::deductions::detail

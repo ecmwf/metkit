@@ -107,9 +107,7 @@ namespace metkit::mars2grib::backend::deductions {
 ///       (§14).
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
-                                                 const ParDict_t&  par,
-                                                 const OptDict_t&  opt) {
+detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -136,35 +134,30 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
         if (hasDate && hasTime) {
             const long marsDate = get_or_throw<long>(mars, "date");
             const long marsTime = get_or_throw<long>(mars, "time");
-            simulationDateTime  = eckit::DateTime(
-                detail::convert_YYYYMMDD2Date_or_throw(marsDate),
-                detail::convert_hhmmss2Time_or_throw(marsTime));
+            simulationDateTime  = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsDate),
+                                                  detail::convert_hhmmss2Time_or_throw(marsTime));
         }
         else if (!hasDate && !hasTime && hasFcYear && hasFcMonth) {
             // R2 default: simulationDateTime := DateTime(fcyear, fcmonth, 1, 00:00:00).
             const long fcYear  = get_or_throw<long>(mars, "fcyear");
             const long fcMonth = get_or_throw<long>(mars, "fcmonth");
             try {
-                simulationDateTime = eckit::DateTime(
-                    eckit::Date(fcYear, fcMonth, 1), eckit::Time(0, 0, 0));
+                simulationDateTime = eckit::DateTime(eckit::Date(fcYear, fcMonth, 1), eckit::Time(0, 0, 0));
             }
             catch (const eckit::Exception& e) {
                 throw Mars2GribDeductionException(
-                    "Invalid (fcyear, fcmonth) for default simulationDateTime: "
-                        + std::string(e.what()),
-                    Here());
+                    "Invalid (fcyear, fcmonth) for default simulationDateTime: " + std::string(e.what()), Here());
             }
         }
         else {
             // §10.1: date or time missing without an applicable fallback.
-            throw Mars2GribDeductionException(
-                std::string("ProductTime invariant violated [§10.1]: ")
-                    + "missing 'date'/'time' without (fcyear,fcmonth) fallback. "
-                    + "has(date)=" + (hasDate ? "true" : "false")
-                    + ", has(time)=" + (hasTime ? "true" : "false")
-                    + ", has(fcyear)=" + (hasFcYear ? "true" : "false")
-                    + ", has(fcmonth)=" + (hasFcMonth ? "true" : "false"),
-                Here());
+            throw Mars2GribDeductionException(std::string("ProductTime invariant violated [§10.1]: ") +
+                                                  "missing 'date'/'time' without (fcyear,fcmonth) fallback. " +
+                                                  "has(date)=" + (hasDate ? "true" : "false") +
+                                                  ", has(time)=" + (hasTime ? "true" : "false") +
+                                                  ", has(fcyear)=" + (hasFcYear ? "true" : "false") +
+                                                  ", has(fcmonth)=" + (hasFcMonth ? "true" : "false"),
+                                              Here());
         }
 
         // =========================================================
@@ -180,22 +173,19 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
         }
         else if (hasHdate && !hasHtime) {
             const long marsHdate = get_or_throw<long>(mars, "hdate");
-            simulatedDateTime    = eckit::DateTime(
-                detail::convert_YYYYMMDD2Date_or_throw(marsHdate),
-                eckit::Time(0, 0, 0));
+            simulatedDateTime =
+                eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate), eckit::Time(0, 0, 0));
         }
         else if (hasHdate && hasHtime) {
             const long marsHdate = get_or_throw<long>(mars, "hdate");
             const long marsHtime = get_or_throw<long>(mars, "htime");
-            simulatedDateTime    = eckit::DateTime(
-                detail::convert_YYYYMMDD2Date_or_throw(marsHdate),
-                detail::convert_hhmmss2Time_or_throw(marsHtime));
+            simulatedDateTime    = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate),
+                                                   detail::convert_hhmmss2Time_or_throw(marsHtime));
         }
         else {
             // §10.2: htime present without hdate.
-            throw Mars2GribDeductionException(
-                "ProductTime invariant violated [§10.2]: 'htime' present without 'hdate'",
-                Here());
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.2]: 'htime' present without 'hdate'",
+                                              Here());
         }
 
         // =========================================================
@@ -210,24 +200,20 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
             const long fcYear  = get_or_throw<long>(mars, "fcyear");
             const long fcMonth = get_or_throw<long>(mars, "fcmonth");
             try {
-                referenceDateTime = eckit::DateTime(
-                    eckit::Date(fcYear, fcMonth, 1), eckit::Time(0, 0, 0));
+                referenceDateTime = eckit::DateTime(eckit::Date(fcYear, fcMonth, 1), eckit::Time(0, 0, 0));
             }
             catch (const eckit::Exception& e) {
                 throw Mars2GribDeductionException(
-                    "Invalid (fcyear, fcmonth) for referenceDateTime: "
-                        + std::string(e.what()),
-                    Here());
+                    "Invalid (fcyear, fcmonth) for referenceDateTime: " + std::string(e.what()), Here());
             }
         }
         else {
             // §10.3: exactly one of fcyear / fcmonth present.
-            throw Mars2GribDeductionException(
-                std::string("ProductTime invariant violated [§10.3]: ")
-                    + "exactly one of 'fcyear'/'fcmonth' present. "
-                    + "has(fcyear)=" + (hasFcYear ? "true" : "false")
-                    + ", has(fcmonth)=" + (hasFcMonth ? "true" : "false"),
-                Here());
+            throw Mars2GribDeductionException(std::string("ProductTime invariant violated [§10.3]: ") +
+                                                  "exactly one of 'fcyear'/'fcmonth' present. " +
+                                                  "has(fcyear)=" + (hasFcYear ? "true" : "false") +
+                                                  ", has(fcmonth)=" + (hasFcMonth ? "true" : "false"),
+                                              Here());
         }
 
         // =========================================================
@@ -254,7 +240,7 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
         // §7.6: timespan
         // =========================================================
 
-        detail::TimespanKind      timespanKind = detail::TimespanKind::Missing;
+        detail::TimespanKind timespanKind = detail::TimespanKind::Missing;
         detail::StatisticalWindow timespan{};
 
         if (has(mars, "timespan")) {
@@ -264,8 +250,8 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
                     timespanKind = detail::TimespanKind::None;
                 }
                 else {
-                    timespanKind  = detail::TimespanKind::Duration;
-                    timespan.unit = tables::TimeUnit::Second;
+                    timespanKind   = detail::TimespanKind::Duration;
+                    timespan.unit  = tables::TimeUnit::Second;
                     timespan.count = detail::toSeconds_or_throw(tsStr.value());
                 }
             }
@@ -288,18 +274,16 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
         // =========================================================
 
         std::array<detail::StatisticalWindow, detail::maxStatisticalWindows> stattypeWindows{};
-        std::size_t                                                          stattypeWindowCount = 0;
+        std::size_t stattypeWindowCount = 0;
 
         if (has(mars, "stattype")) {
-            const std::string statTypeVal = get_or_throw<std::string>(mars, "stattype");
-            const std::vector<detail::ParsedStatTypeBlock> blocks =
-                detail::parse_StatType_or_throw(statTypeVal);
+            const std::string statTypeVal                         = get_or_throw<std::string>(mars, "stattype");
+            const std::vector<detail::ParsedStatTypeBlock> blocks = detail::parse_StatType_or_throw(statTypeVal);
 
             if (blocks.size() > detail::maxStatisticalWindows) {
                 throw Mars2GribDeductionException(
-                    "ProductTime invariant violated [§10.15]: stattype yields "
-                        + std::to_string(blocks.size()) + " block(s) > maxStatisticalWindows ("
-                        + std::to_string(detail::maxStatisticalWindows) + ")",
+                    "ProductTime invariant violated [§10.15]: stattype yields " + std::to_string(blocks.size()) +
+                        " block(s) > maxStatisticalWindows (" + std::to_string(detail::maxStatisticalWindows) + ")",
                     Here());
             }
 
@@ -339,19 +323,16 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
         MARS2GRIB_LOG_RESOLVE([&]() {
             std::string msg = "`ProductTime` resolved from input dictionaries: ";
             msg += "simulationDateTime='" + detail::fmt(pt.simulationDateTime) + "'";
-            msg += " simulatedDateTime='"  + detail::fmt(pt.simulatedDateTime)  + "'";
-            msg += " referenceDateTime='"  + detail::fmt(pt.referenceDateTime)  + "'";
-            msg += " windowStart='"        + detail::fmt(pt.windowStart)        + "'";
-            msg += " windowEnd='"          + detail::fmt(pt.windowEnd)          + "'";
-            msg += " statisticalWindowCount='"
-                + std::to_string(pt.statisticalWindowCount) + "'";
-            msg += " statisticalWindows="
-                + detail::fmt(pt.statisticalWindows, pt.statisticalWindowCount);
-            msg += " timeIncrementInSeconds='"
-                + (pt.timeIncrementInSeconds.has_value()
-                       ? std::to_string(pt.timeIncrementInSeconds.value())
-                       : std::string("missing"))
-                + "'";
+            msg += " simulatedDateTime='" + detail::fmt(pt.simulatedDateTime) + "'";
+            msg += " referenceDateTime='" + detail::fmt(pt.referenceDateTime) + "'";
+            msg += " windowStart='" + detail::fmt(pt.windowStart) + "'";
+            msg += " windowEnd='" + detail::fmt(pt.windowEnd) + "'";
+            msg += " statisticalWindowCount='" + std::to_string(pt.statisticalWindowCount) + "'";
+            msg += " statisticalWindows=" + detail::fmt(pt.statisticalWindows, pt.statisticalWindowCount);
+            msg += " timeIncrementInSeconds='" +
+                   (pt.timeIncrementInSeconds.has_value() ? std::to_string(pt.timeIncrementInSeconds.value())
+                                                          : std::string("missing")) +
+                   "'";
             return msg;
         }());
 
@@ -360,8 +341,7 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
     catch (...) {
 
         // §11: nested rethrow with context.
-        std::throw_with_nested(
-            Mars2GribDeductionException("Unable to resolve ProductTime", Here()));
+        std::throw_with_nested(Mars2GribDeductionException("Unable to resolve ProductTime", Here()));
     }
 
     // Remove compiler warning

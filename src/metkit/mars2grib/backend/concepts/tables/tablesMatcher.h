@@ -24,7 +24,8 @@ std::size_t tablesMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         return static_cast<size_t>(TablesType::Default);
     }
     catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `tables` concept", Here()));
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `tables` concept", Here()));
     }
 }
 

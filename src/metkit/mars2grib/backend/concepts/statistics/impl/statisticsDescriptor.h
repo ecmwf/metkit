@@ -121,8 +121,7 @@ inline long previousMonthLengthHours(long year, long month) {
 ///
 /// `endYear`/`endMonth` are taken from `pt.windowEnd` for monthly windows.
 ///
-inline long windowLengthInHours(const deductions::detail::StatisticalWindow& w,
-                                long endYear, long endMonth) {
+inline long windowLengthInHours(const deductions::detail::StatisticalWindow& w, long endYear, long endMonth) {
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     switch (w.unit) {
@@ -130,7 +129,8 @@ inline long windowLengthInHours(const deductions::detail::StatisticalWindow& w,
             if (w.count % 3600 != 0) {
                 throw Mars2GribDeductionException(
                     "StatisticalWindow with unit=Second must have count divisible by 3600 "
-                    "to be expressed in hours; actual count=" + std::to_string(w.count),
+                    "to be expressed in hours; actual count=" +
+                        std::to_string(w.count),
                     Here());
             }
             return w.count / 3600;
@@ -140,10 +140,9 @@ inline long windowLengthInHours(const deductions::detail::StatisticalWindow& w,
         case tables::TimeUnit::Month:
             return w.count * previousMonthLengthHours(endYear, endMonth);
         default:
-            throw Mars2GribDeductionException(
-                "Unsupported StatisticalWindow unit for hour conversion: '"
-                    + tables::enum2name_TimeUnit_or_throw(w.unit) + "'",
-                Here());
+            throw Mars2GribDeductionException("Unsupported StatisticalWindow unit for hour conversion: '" +
+                                                  tables::enum2name_TimeUnit_or_throw(w.unit) + "'",
+                                              Here());
     }
 }
 
@@ -193,8 +192,7 @@ inline long windowLengthInHours(const deductions::detail::StatisticalWindow& w,
 ///         increment for multi-window products, or unsupported window unit.
 ///
 inline StatisticalProcessing compute_StatisticalProcessing(
-    const deductions::detail::ProductTime&                        pt,
-    const std::vector<tables::TypeOfStatisticalProcessing>&       types) {
+    const deductions::detail::ProductTime& pt, const std::vector<tables::TypeOfStatisticalProcessing>& types) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -202,19 +200,19 @@ inline StatisticalProcessing compute_StatisticalProcessing(
 
     if (types.size() != n) {
         throw Mars2GribDeductionException(
-            "compute_StatisticalProcessing: types.size()=" + std::to_string(types.size())
-                + " != pt.statisticalWindowCount=" + std::to_string(n),
+            "compute_StatisticalProcessing: types.size()=" + std::to_string(types.size()) +
+                " != pt.statisticalWindowCount=" + std::to_string(n),
             Here());
     }
 
     StatisticalProcessing out;
     out.numberOfTimeRanges = static_cast<long>(n);
-    out.typeOfStatisticalProcessing    .resize(n);
-    out.typeOfTimeIncrement            .resize(n);
-    out.indicatorOfUnitForTimeRange    .resize(n);
-    out.lengthOfTimeRange              .resize(n);
+    out.typeOfStatisticalProcessing.resize(n);
+    out.typeOfTimeIncrement.resize(n);
+    out.indicatorOfUnitForTimeRange.resize(n);
+    out.lengthOfTimeRange.resize(n);
     out.indicatorOfUnitForTimeIncrement.resize(n);
-    out.lengthOfTimeIncrement          .resize(n);
+    out.lengthOfTimeIncrement.resize(n);
 
     if (n == 0) {
         // Instant product: nothing to encode. Caller (Allocate stage) will
@@ -224,14 +222,12 @@ inline StatisticalProcessing compute_StatisticalProcessing(
     }
 
     // AIFS single-window no-increment detection (§9.4).
-    const bool aifsSingleWindowHack =
-        (n == 1) && !pt.timeIncrementInSeconds.has_value();
+    const bool aifsSingleWindowHack = (n == 1) && !pt.timeIncrementInSeconds.has_value();
 
     if (n >= 2 && !pt.timeIncrementInSeconds.has_value()) {
-        throw Mars2GribDeductionException(
-            "compute_StatisticalProcessing: multi-window product (n="
-                + std::to_string(n) + ") requires pt.timeIncrementInSeconds; missing.",
-            Here());
+        throw Mars2GribDeductionException("compute_StatisticalProcessing: multi-window product (n=" +
+                                              std::to_string(n) + ") requires pt.timeIncrementInSeconds; missing.",
+                                          Here());
     }
 
     const long endYear  = pt.windowEnd.date().year();
@@ -245,8 +241,7 @@ inline StatisticalProcessing compute_StatisticalProcessing(
         out.typeOfTimeIncrement[i]             = 2;
         out.indicatorOfUnitForTimeRange[i]     = static_cast<long>(tables::TimeUnit::Hour);
         out.indicatorOfUnitForTimeIncrement[i] = static_cast<long>(tables::TimeUnit::Second);
-        out.lengthOfTimeRange[i]               =
-            detail::windowLengthInHours(pt.statisticalWindows[i], endYear, endMonth);
+        out.lengthOfTimeRange[i] = detail::windowLengthInHours(pt.statisticalWindows[i], endYear, endMonth);
     }
 
     // Second pass: lengthOfTimeIncrement.
@@ -255,8 +250,7 @@ inline StatisticalProcessing compute_StatisticalProcessing(
         if (isInner) {
             if (aifsSingleWindowHack) {
                 out.lengthOfTimeIncrement[i]           = 0;
-                out.indicatorOfUnitForTimeIncrement[i] =
-                    static_cast<long>(tables::TimeUnit::Missing);
+                out.indicatorOfUnitForTimeIncrement[i] = static_cast<long>(tables::TimeUnit::Missing);
             }
             else {
                 // Guaranteed by the multi-window precondition check above
