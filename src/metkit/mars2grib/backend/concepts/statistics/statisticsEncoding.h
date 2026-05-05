@@ -121,8 +121,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 // Encoding
                 setMissing_or_throw(out, "hoursAfterDataCutoff");
                 setMissing_or_throw(out, "minutesAfterDataCutoff");
-                set_or_throw<long>(out, "numberOfTimeRanges",
-                                   deductions::numberOfTimeRanges(pt));
+                set_or_throw<long>(out, "numberOfTimeRanges", deductions::numberOfTimeRanges(pt));
             }
 
             // =============================================================
@@ -136,23 +135,17 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
 
                 auto pt    = deductions::resolve_ProductTime_or_throw(mars, par, opt);
                 auto inner = typeOfStatisticalProcessingEnum<Variant>();
-                auto types = deductions::resolve_TypeOfStatisticalProcessing_or_throw(
-                    inner, mars, par, opt);
+                auto types = deductions::resolve_TypeOfStatisticalProcessing_or_throw(inner, mars, par, opt);
 
                 auto desc = impl::compute_StatisticalProcessing(pt, types);
 
-                set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing",
-                                                desc.typeOfStatisticalProcessing);
-                set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement",
-                                                desc.typeOfTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange",
-                                                desc.indicatorOfUnitForTimeRange);
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange",
-                                                desc.lengthOfTimeRange);
+                set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", desc.typeOfStatisticalProcessing);
+                set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", desc.typeOfTimeIncrement);
+                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", desc.indicatorOfUnitForTimeRange);
+                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", desc.lengthOfTimeRange);
                 set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeIncrement",
                                                 desc.indicatorOfUnitForTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeIncrement",
-                                                desc.lengthOfTimeIncrement);
+                set_or_throw<std::vector<long>>(out, "lengthOfTimeIncrement", desc.lengthOfTimeIncrement);
             }
 
             // =============================================================

@@ -75,8 +75,8 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         // TODO: Don't handle products with timespan as non-statistical if they are not handled above!
         // if (has(mars, "timespan")) {
-        //     throw utils::exceptions::Mars2GribMatcherException("MARS contains `timespan` but typeOfStatisticalProcessing
-        //     is defined for param " + std::to_string(param), Here());
+        //     throw utils::exceptions::Mars2GribMatcherException("MARS contains `timespan` but
+        //     typeOfStatisticalProcessing is defined for param " + std::to_string(param), Here());
         // }
 
         return compile_time_registry_engine::MISSING;

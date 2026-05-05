@@ -82,8 +82,8 @@ namespace metkit::mars2grib::backend::deductions::detail {
 ///     - `sd` → `StandardDeviation`
 ///
 struct ParsedStatTypeBlock {
-    StatisticalWindow                            timeWindow;
-    tables::TypeOfStatisticalProcessing          typeOfStatisticalProcessing;
+    StatisticalWindow timeWindow;
+    tables::TypeOfStatisticalProcessing typeOfStatisticalProcessing;
 };
 
 // =============================================================
@@ -99,8 +99,7 @@ namespace impl {
 /// @throws Mars2GribDeductionException on unknown token (§10.16) or
 ///         narrow-allow-list violation (§10.18 (a)).
 ///
-inline StatisticalWindow decodePeriod_or_throw(std::string_view s,
-                                               const std::string& fullStatType) {
+inline StatisticalWindow decodePeriod_or_throw(std::string_view s, const std::string& fullStatType) {
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     if (s == "da")
@@ -108,11 +107,9 @@ inline StatisticalWindow decodePeriod_or_throw(std::string_view s,
     if (s == "mo")
         return StatisticalWindow{tables::TimeUnit::Month, 1};
 
-    throw Mars2GribDeductionException(
-        "Invalid stattype period token [§10.16/§10.18(a)]: actual='"
-            + std::string(s) + "', expected={'da','mo'} (in stattype='"
-            + fullStatType + "')",
-        Here());
+    throw Mars2GribDeductionException("Invalid stattype period token [§10.16/§10.18(a)]: actual='" + std::string(s) +
+                                          "', expected={'da','mo'} (in stattype='" + fullStatType + "')",
+                                      Here());
 }
 
 ///
@@ -121,8 +118,7 @@ inline StatisticalWindow decodePeriod_or_throw(std::string_view s,
 ///
 /// @throws Mars2GribDeductionException on unknown token (§10.16).
 ///
-inline tables::TypeOfStatisticalProcessing
-decodeOp_or_throw(std::string_view s, const std::string& fullStatType) {
+inline tables::TypeOfStatisticalProcessing decodeOp_or_throw(std::string_view s, const std::string& fullStatType) {
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     if (s == "av")
@@ -134,11 +130,9 @@ decodeOp_or_throw(std::string_view s, const std::string& fullStatType) {
     if (s == "sd")
         return tables::TypeOfStatisticalProcessing::StandardDeviation;
 
-    throw Mars2GribDeductionException(
-        "Invalid stattype operation token [§10.16]: actual='"
-            + std::string(s) + "', expected={'av','mn','mx','sd'} (in stattype='"
-            + fullStatType + "')",
-        Here());
+    throw Mars2GribDeductionException("Invalid stattype operation token [§10.16]: actual='" + std::string(s) +
+                                          "', expected={'av','mn','mx','sd'} (in stattype='" + fullStatType + "')",
+                                      Here());
 }
 
 }  // namespace impl
@@ -180,8 +174,7 @@ decodeOp_or_throw(std::string_view s, const std::string& fullStatType) {
 ///       value of GRIB Code Table 4.10; consumers do not need to perform
 ///       any further mapping.
 ///
-inline std::vector<ParsedStatTypeBlock>
-parse_StatType_or_throw(const std::string& stattype) {
+inline std::vector<ParsedStatTypeBlock> parse_StatType_or_throw(const std::string& stattype) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -200,25 +193,22 @@ parse_StatType_or_throw(const std::string& stattype) {
         if (pos + 4 > stattype.size()) {
             throw Mars2GribDeductionException(
                 "Invalid stattype format [§10.16]: incomplete 4-char block "
-                "at position " + std::to_string(pos) + " in '" + stattype + "'",
+                "at position " +
+                    std::to_string(pos) + " in '" + stattype + "'",
                 Here());
         }
 
-        StatisticalWindow window =
-            impl::decodePeriod_or_throw(stattype.substr(pos, 2), stattype);
-        tables::TypeOfStatisticalProcessing op =
-            impl::decodeOp_or_throw(stattype.substr(pos + 2, 2), stattype);
+        StatisticalWindow window               = impl::decodePeriod_or_throw(stattype.substr(pos, 2), stattype);
+        tables::TypeOfStatisticalProcessing op = impl::decodeOp_or_throw(stattype.substr(pos + 2, 2), stattype);
 
         blocks.push_back(ParsedStatTypeBlock{window, op});
 
         pos += 4;
         if (pos < stattype.size()) {
             if (stattype[pos] != '_') {
-                throw Mars2GribDeductionException(
-                    "Invalid stattype separator [§10.16] at position "
-                        + std::to_string(pos) + " in '" + stattype
-                        + "': expected '_'",
-                    Here());
+                throw Mars2GribDeductionException("Invalid stattype separator [§10.16] at position " +
+                                                      std::to_string(pos) + " in '" + stattype + "': expected '_'",
+                                                  Here());
             }
             ++pos;
         }
@@ -226,10 +216,9 @@ parse_StatType_or_throw(const std::string& stattype) {
 
     // Block-count limit: 1 or 2 blocks (§22.4 / §10.16).
     if (blocks.empty() || blocks.size() > 2) {
-        throw Mars2GribDeductionException(
-            "Invalid stattype [§10.16]: block count (" + std::to_string(blocks.size())
-                + ") outside allowed range {1, 2} (in stattype='" + stattype + "')",
-            Here());
+        throw Mars2GribDeductionException("Invalid stattype [§10.16]: block count (" + std::to_string(blocks.size()) +
+                                              ") outside allowed range {1, 2} (in stattype='" + stattype + "')",
+                                          Here());
     }
 
     // Semantic validation (§10.17): at most one mo, at most one da, mo precedes da.
@@ -239,29 +228,24 @@ parse_StatType_or_throw(const std::string& stattype) {
         if (blocks[i].timeWindow.unit == tables::TimeUnit::Month) {
             if (moIndex != -1) {
                 throw Mars2GribDeductionException(
-                    "Invalid stattype [§10.17] '" + stattype
-                        + "': more than one 'mo' block",
-                    Here());
+                    "Invalid stattype [§10.17] '" + stattype + "': more than one 'mo' block", Here());
             }
             moIndex = static_cast<int>(i);
         }
         if (blocks[i].timeWindow.unit == tables::TimeUnit::Day) {
             if (daIndex != -1) {
                 throw Mars2GribDeductionException(
-                    "Invalid stattype [§10.17] '" + stattype
-                        + "': more than one 'da' block",
-                    Here());
+                    "Invalid stattype [§10.17] '" + stattype + "': more than one 'da' block", Here());
             }
             daIndex = static_cast<int>(i);
         }
     }
 
     if (moIndex != -1 && daIndex != -1 && moIndex > daIndex) {
-        throw Mars2GribDeductionException(
-            "Invalid stattype [§10.17] '" + stattype
-                + "': blocks not in outermost-to-innermost order "
-                  "('mo' must precede 'da')",
-            Here());
+        throw Mars2GribDeductionException("Invalid stattype [§10.17] '" + stattype +
+                                              "': blocks not in outermost-to-innermost order "
+                                              "('mo' must precede 'da')",
+                                          Here());
     }
 
     return blocks;
