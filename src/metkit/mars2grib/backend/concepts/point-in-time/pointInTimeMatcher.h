@@ -2,24 +2,27 @@
 
 // System include
 #include <cstddef>
+#include <exception>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+    try {
 
-    using metkit::mars2grib::util::param_matcher::matchAny;
-    using metkit::mars2grib::util::param_matcher::range;
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+        using metkit::mars2grib::util::param_matcher::matchAny;
+        using metkit::mars2grib::util::param_matcher::range;
+        using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-    const auto param = get_or_throw<long>(mars, "param");
-    if (matchAny(param, range(1, 3), 10, range(15, 18), range(21, 23), range(26, 43), 53, 54, 59, 60, 66, 67,
+        const auto param = get_or_throw<long>(mars, "param");
+        if (matchAny(param, range(1, 3), 10, range(15, 18), range(21, 23), range(26, 43), 53, 54, 59, 60, 66, 67,
                  range(74, 79), range(129, 139), 141, 148, 151, 152, range(155, 157), range(159, 168), 170,
                  range(172, 174), 183, range(186, 188), 198, 203, 206, 207, range(229, 232), range(234, 236), 238,
                  range(243, 248), 3020, 3031, 3067, range(3073, 3075), 129172, range(131074, 131077),
@@ -35,35 +38,41 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                  262014, 262015, 262017, 262018, 262023, 262024, range(262100, 262106), range(262108, 262112),
                  range(262113, 262116), range(262118, 262125), 262130, range(262139, 262141), 262143, 262144,
                  range(262146, 262149), range(262500, 262502), range(262505, 262507), 262900, 262906, 262907)) {
-        return static_cast<std::size_t>(PointInTimeType::Default);
-    }
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
 
-    // Wave products
-    if (matchAny(param, range(140114, 140120), 140251)) {
-        return static_cast<std::size_t>(PointInTimeType::Default);
-    }
+        // Wave products
+        if (matchAny(param, range(140114, 140120), 140251)) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
 
-    // Satellite products
-    if (matchAny(param, 194, range(260510, 260512))) {
-        return static_cast<std::size_t>(PointInTimeType::Default);
-    }
+        // Satellite products
+        if (matchAny(param, 194, range(260510, 260512))) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
 
-    // Chemical products
-    if (matchAny(param, range(228083, 228085))) {
-        return static_cast<std::size_t>(PointInTimeType::Default);
-    }
+        // Chemical products
+        if (matchAny(param, range(228083, 228085))) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
 
-    // ECMWF covariance / analysis-uncertainty paramIds (254001..254017).
-    // These are point-in-time products living on the abstractLevel
-    // (typeOfFirstFixedSurface=254) and are used with MARS type=est
-    // (individual ensemble member, PDT=1) as well as with non-ensemble
-    // analyses (PDT=0). Without this mapping, PointInTimeConcept is left
-    // inactive and Section 4 recipe selection fails with "No matching recipe".
-    if (matchAny(param, range(254001, 254017))) {
-        return static_cast<std::size_t>(PointInTimeType::Default);
-    }
+        // ECMWF covariance / analysis-uncertainty paramIds (254001..254017).
+        // These are point-in-time products living on the abstractLevel
+        // (typeOfFirstFixedSurface=254) and are used with MARS type=est
+        // (individual ensemble member, PDT=1) as well as with non-ensemble
+        // analyses (PDT=0). Without this mapping, PointInTimeConcept is left
+        // inactive and Section 4 recipe selection fails with "No matching recipe".
+        if (matchAny(param, range(254001, 254017))) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
 
-    return compile_time_registry_engine::MISSING;
+        return compile_time_registry_engine::MISSING;
+
+    }
+    catch (...) {
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `pointInTime` concept", Here()));
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

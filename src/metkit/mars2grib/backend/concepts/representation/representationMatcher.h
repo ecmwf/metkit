@@ -2,6 +2,7 @@
 
 // System include
 #include <cstddef>
+#include <exception>
 
 // Utils
 #include "eckit/geo/Grid.h"
@@ -15,33 +16,39 @@ namespace metkit::mars2grib::backend::concepts_ {
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
-    using metkit::mars2grib::utils::dict_traits::has;
+    try {
+        using metkit::mars2grib::utils::dict_traits::get_or_throw;
+        using metkit::mars2grib::utils::dict_traits::has;
 
-    if (has(mars, "truncation")) {
-        return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
-    }
+        if (has(mars, "truncation")) {
+            return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
+        }
 
-    const auto marsGrid = get_or_throw<std::string>(mars, "grid");
-    const auto gridType = eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}})->type();
-    if (gridType == "regular-gg") {
-        return static_cast<std::size_t>(RepresentationType::RegularGaussian);
-    }
-    else if (gridType == "reduced-gg") {
-        return static_cast<std::size_t>(RepresentationType::ReducedGaussian);
-    }
-    else if (gridType == "regular-ll") {
-        return static_cast<std::size_t>(RepresentationType::Latlon);
-    }
-    else if (gridType == "ORCA") {
-        return static_cast<std::size_t>(RepresentationType::Orca);
-    }
-    else if (gridType == "healpix") {
-        return static_cast<std::size_t>(RepresentationType::Healpix);
-    }
+        const auto marsGrid = get_or_throw<std::string>(mars, "grid");
+        const auto gridType = eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}})->type();
+        if (gridType == "regular-gg") {
+            return static_cast<std::size_t>(RepresentationType::RegularGaussian);
+        }
+        else if (gridType == "reduced-gg") {
+            return static_cast<std::size_t>(RepresentationType::ReducedGaussian);
+        }
+        else if (gridType == "regular-ll") {
+            return static_cast<std::size_t>(RepresentationType::Latlon);
+        }
+        else if (gridType == "ORCA") {
+            return static_cast<std::size_t>(RepresentationType::Orca);
+        }
+        else if (gridType == "healpix") {
+            return static_cast<std::size_t>(RepresentationType::Healpix);
+        }
 
-    throw utils::exceptions::Mars2GribMatcherException(
-        "Cannot match grid \"" + marsGrid + "\" with grid type \"" + gridType + "\"! ", Here());
+        throw utils::exceptions::Mars2GribMatcherException(
+            "Cannot match grid \"" + marsGrid + "\" with grid type \"" + gridType + "\"! ", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `representation` concept", Here()));
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

@@ -11,6 +11,8 @@
 
 // System include
 #include <cstddef>
+#include <exception>
+#include <string>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
@@ -24,6 +26,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 namespace impl {
 
 inline std::size_t matchSFC(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -146,9 +149,15 @@ inline std::size_t matchSFC(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype SFC", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "sfc", "Unable to match `level` concept for levtype \"sfc\"", Here()));
+    }
 }
 
 inline std::size_t matchHL(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -159,9 +168,15 @@ inline std::size_t matchHL(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype HL", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "hl", "Unable to match `level` concept for levtype \"hl\"", Here()));
+    }
 }
 
 inline std::size_t matchML(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -182,9 +197,15 @@ inline std::size_t matchML(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype ML", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "ml", "Unable to match `level` concept for levtype \"ml\"", Here()));
+    }
 }
 
 inline std::size_t matchPL(const long param, const long level) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -200,9 +221,15 @@ inline std::size_t matchPL(const long param, const long level) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype PL", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "pl", "Unable to match `level` concept for levtype \"pl\" and levelist \"" + std::to_string(level) + "\"", Here()));
+    }
 }
 
 inline std::size_t matchPT(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -212,10 +239,16 @@ inline std::size_t matchPT(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype PT", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "pt", "Unable to match `level` concept for levtype \"pt\"", Here()));
+    }
 }
 
 
 inline std::size_t matchPV(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -225,9 +258,15 @@ inline std::size_t matchPV(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype PV", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "pv", "Unable to match `level` concept for levtype \"pv\"", Here()));
+    }
 }
 
 inline std::size_t matchSOL(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -243,9 +282,15 @@ inline std::size_t matchSOL(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype SOL", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "sol", "Unable to match `level` concept for levtype \"sol\"", Here()));
+    }
 }
 
 inline std::size_t matchAL(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -255,9 +300,15 @@ inline std::size_t matchAL(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype AL", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "al", "Unable to match `level` concept for levtype \"al\"", Here()));
+    }
 }
 
 inline std::size_t matchO2D(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -298,9 +349,15 @@ inline std::size_t matchO2D(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype O2D", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "o2d", "Unable to match `level` concept for levtype \"o2d\"", Here()));
+    }
 }
 
 inline std::size_t matchO3D(const long param) {
+    try {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
@@ -313,12 +370,18 @@ inline std::size_t matchO3D(const long param) {
 
     throw utils::exceptions::Mars2GribMatcherException(
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype O3D", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException(
+            param, "o3d", "Unable to match `level` concept for levtype \"o3d\"", Here()));
+    }
 }
 
 }  // namespace impl
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+    try {
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
 
@@ -365,6 +428,10 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     }
 
     throw utils::exceptions::Mars2GribMatcherException("Unknown levtype \"" + levtype + "\"", Here());
+    }
+    catch (...) {
+        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `level` concept", Here()));
+    }
 };
 
 }  // namespace metkit::mars2grib::backend::concepts_
