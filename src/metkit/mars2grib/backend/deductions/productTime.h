@@ -83,7 +83,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// Resolution proceeds in two stages:
 ///   1. **Resolver** (this function): reads the input dictionaries and
 ///      normalizes them into a `ProductTimeInput`.
-///   2. **Factory** (`detail::makeProductTime_or_throw`): validates all
+///   2. **Factory** (`detail::make_ProductTime_or_throw`): validates all
 ///      invariants and returns the immutable `ProductTime`.
 ///
 /// On success, exactly one composite RESOLVE log line is emitted listing
@@ -330,7 +330,7 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars,
         input.stattypeWindowCount    = stattypeWindowCount;
         input.timeIncrementInSeconds = tInc;
 
-        detail::ProductTime pt = detail::makeProductTime_or_throw(input);
+        detail::ProductTime pt = detail::make_ProductTime_or_throw(input);
 
         // =========================================================
         // §12: composite RESOLVE log line (success path only)

@@ -35,7 +35,7 @@
 /// The extended `Second`-inclusive allow-list applies only to the assembled
 /// `ProductTime::statisticalWindows` array (where the innermost window may
 /// originate from `timespan`); that check lives in
-/// `makeProductTime_or_throw`.
+/// `make_ProductTime_or_throw`.
 ///
 /// See `deductions/timeProducts.md` §22 for the full normative
 /// specification.

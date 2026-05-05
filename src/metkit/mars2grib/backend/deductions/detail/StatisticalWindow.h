@@ -26,7 +26,7 @@
 /// `deductions/timeProducts.md` §10.18:
 ///   - the parser (§22) enforces the narrow `stattype`-grammar allow-list
 ///     `{Day, Month}` at parse time;
-///   - the factory `makeProductTime_or_throw` (§detail/ProductTime.h)
+///   - the factory `make_ProductTime_or_throw` (§detail/ProductTime.h)
 ///     enforces the extended assembled-window allow-list `{Second, Day,
 ///     Month}` after window assembly.
 ///
@@ -52,7 +52,7 @@ namespace metkit::mars2grib::backend::deductions::detail {
 /// **Allow-list (assembled `ProductTime::statisticalWindows` entry)**:
 /// only `Second`, `Day`, `Month` are legal. Any other `TimeUnit` value (in
 /// particular `Hour`, `Minute`, `Hours3/6/12`, `Year`, `Decade`, `Normal`,
-/// `Century`, `Missing`) is rejected by the factory `makeProductTime_or_throw`
+/// `Century`, `Missing`) is rejected by the factory `make_ProductTime_or_throw`
 /// (§10.18 (b)).
 ///
 /// **Allow-list (parser-produced entry)**: only `Day`, `Month` are legal.
