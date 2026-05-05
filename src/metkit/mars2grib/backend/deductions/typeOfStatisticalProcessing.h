@@ -85,12 +85,14 @@ namespace metkit::mars2grib::backend::deductions {
 /// Local classification of MARS into one of the §9 cases (no `ProductTime`
 /// dependency):
 ///
-/// | MARS state                                              | §9 case | Output size | Output content                                                                  |
+/// | MARS state                                              | §9 case | Output size | Output content |
 /// |---------------------------------------------------------|---------|------------:|---------------------------------------------------------------------------------|
-/// | `stattype` absent, `timespan` is a Duration             | §9.2    | 1           | `[innerTypeOfStatisticalProcessing]`                                            |
-/// | `stattype` has N blocks, `timespan` is a Duration       | §9.3    | N + 1       | `[op(block_0), …, op(block_{N-1}), innerTypeOfStatisticalProcessing]`           |
-/// | `stattype` has 1 block,  `timespan = "none"`            | §9.4    | 1           | `[innerTypeOfStatisticalProcessing]` (after equality assertion, §23.6)          |
-/// | `stattype` absent,       `timespan` absent              | §9.1    | unreachable | (precondition violated, see §23.4 — no defensive check)                         |
+/// | `stattype` absent, `timespan` is a Duration             | §9.2    | 1           |
+/// `[innerTypeOfStatisticalProcessing]`                                            | | `stattype` has N blocks,
+/// `timespan` is a Duration       | §9.3    | N + 1       | `[op(block_0), …, op(block_{N-1}),
+/// innerTypeOfStatisticalProcessing]`           | | `stattype` has 1 block,  `timespan = "none"`            | §9.4    |
+/// 1           | `[innerTypeOfStatisticalProcessing]` (after equality assertion, §23.6)          | | `stattype` absent,
+/// `timespan` absent              | §9.1    | unreachable | (precondition violated, see §23.4 — no defensive check) |
 ///
 /// The innermost slot is **always** filled by the
 /// `innerTypeOfStatisticalProcessing` argument — never by a parsed block.
@@ -147,12 +149,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///       `resolve_ProductTime_or_throw`.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::vector<tables::TypeOfStatisticalProcessing>
-resolve_TypeOfStatisticalProcessing_or_throw(
-    tables::TypeOfStatisticalProcessing innerTypeOfStatisticalProcessing,
-    const MarsDict_t&                   mars,
-    const ParDict_t&                    par,
-    const OptDict_t&                    opt) {
+std::vector<tables::TypeOfStatisticalProcessing> resolve_TypeOfStatisticalProcessing_or_throw(
+    tables::TypeOfStatisticalProcessing innerTypeOfStatisticalProcessing, const MarsDict_t& mars, const ParDict_t& par,
+    const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -206,7 +205,7 @@ resolve_TypeOfStatisticalProcessing_or_throw(
         std::vector<detail::ParsedStatTypeBlock> blocks;
         if (hasStatType) {
             const std::string statTypeVal = get_or_throw<std::string>(mars, "stattype");
-            blocks = detail::parse_StatType_or_throw(statTypeVal);
+            blocks                        = detail::parse_StatType_or_throw(statTypeVal);
         }
 
         // =========================================================
@@ -255,19 +254,16 @@ resolve_TypeOfStatisticalProcessing_or_throw(
                     Here());
             }
 
-            const tables::TypeOfStatisticalProcessing parsedOp =
-                blocks[0].typeOfStatisticalProcessing;
+            const tables::TypeOfStatisticalProcessing parsedOp = blocks[0].typeOfStatisticalProcessing;
 
             if (parsedOp != innerTypeOfStatisticalProcessing) {
                 throw Mars2GribDeductionException(
                     std::string("typeOfStatisticalProcessing invariant violated "
                                 "[§10.12]: fakeDoubleLoop disagreement: parsed "
-                                "stattype block operation ('")
-                        + tables::enum2name_TypeOfStatisticalProcessing_or_throw(parsedOp)
-                        + "') != innerTypeOfStatisticalProcessing argument ('"
-                        + tables::enum2name_TypeOfStatisticalProcessing_or_throw(
-                              innerTypeOfStatisticalProcessing)
-                        + "')",
+                                "stattype block operation ('") +
+                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(parsedOp) +
+                        "') != innerTypeOfStatisticalProcessing argument ('" +
+                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerTypeOfStatisticalProcessing) + "')",
                     Here());
             }
 
@@ -293,21 +289,16 @@ resolve_TypeOfStatisticalProcessing_or_throw(
         // =========================================================
 
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string msg =
-                "`typeOfStatisticalProcessing` resolved from input dictionaries: ";
-            msg += "innerTypeOfStatisticalProcessing='"
-                + tables::enum2name_TypeOfStatisticalProcessing_or_throw(
-                      innerTypeOfStatisticalProcessing)
-                + "'";
+            std::string msg = "`typeOfStatisticalProcessing` resolved from input dictionaries: ";
+            msg += "innerTypeOfStatisticalProcessing='" +
+                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerTypeOfStatisticalProcessing) + "'";
             msg += " size='" + std::to_string(out.size()) + "'";
             msg += " typesOfStatisticalProcessing=[";
             for (std::size_t i = 0; i < out.size(); ++i) {
                 if (i) {
                     msg += ",";
                 }
-                msg += "'"
-                    + tables::enum2name_TypeOfStatisticalProcessing_or_throw(out[i])
-                    + "'";
+                msg += "'" + tables::enum2name_TypeOfStatisticalProcessing_or_throw(out[i]) + "'";
             }
             msg += "]";
             return msg;
@@ -318,9 +309,7 @@ resolve_TypeOfStatisticalProcessing_or_throw(
     catch (...) {
 
         // §11 / §23.9: nested rethrow with context.
-        std::throw_with_nested(
-            Mars2GribDeductionException(
-                "Unable to resolve typeOfStatisticalProcessing", Here()));
+        std::throw_with_nested(Mars2GribDeductionException("Unable to resolve typeOfStatisticalProcessing", Here()));
     }
 
     // Remove compiler warning

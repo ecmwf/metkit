@@ -2,8 +2,8 @@
 
 // System include
 #include <cstddef>
-#include <string>
 #include <exception>
+#include <string>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleEnum.h"
@@ -22,7 +22,8 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {
-        std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `ensemble` concept", Here()));
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `ensemble` concept", Here()));
     }
 }
 

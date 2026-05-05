@@ -250,30 +250,30 @@ DEF(StatisticsType::Default, 255);
 template <StatisticsType T>
 constexpr tables::TypeOfStatisticalProcessing typeOfStatisticalProcessingEnum();
 
-#define DEF(T, VAL)                                                                       \
-    template <>                                                                           \
-    constexpr tables::TypeOfStatisticalProcessing typeOfStatisticalProcessingEnum<T>() {  \
-        return tables::TypeOfStatisticalProcessing::VAL;                                  \
+#define DEF(T, VAL)                                                                      \
+    template <>                                                                          \
+    constexpr tables::TypeOfStatisticalProcessing typeOfStatisticalProcessingEnum<T>() { \
+        return tables::TypeOfStatisticalProcessing::VAL;                                 \
     }
 
-DEF(StatisticsType::Average,             Average);
-DEF(StatisticsType::Accumulation,        Accumulation);
-DEF(StatisticsType::Maximum,             Maximum);
-DEF(StatisticsType::Minimum,             Minimum);
+DEF(StatisticsType::Average, Average);
+DEF(StatisticsType::Accumulation, Accumulation);
+DEF(StatisticsType::Maximum, Maximum);
+DEF(StatisticsType::Minimum, Minimum);
 DEF(StatisticsType::DifferenceFromStart, DifferenceEndMinusStart);
-DEF(StatisticsType::RootMeanSquare,      RootMeanSquare);
-DEF(StatisticsType::StandardDeviation,   StandardDeviation);
-DEF(StatisticsType::Covariance,          Covariance);
-DEF(StatisticsType::DifferenceFromEnd,   DifferenceStartMinusEnd);
-DEF(StatisticsType::Ratio,               Ratio);
+DEF(StatisticsType::RootMeanSquare, RootMeanSquare);
+DEF(StatisticsType::StandardDeviation, StandardDeviation);
+DEF(StatisticsType::Covariance, Covariance);
+DEF(StatisticsType::DifferenceFromEnd, DifferenceStartMinusEnd);
+DEF(StatisticsType::Ratio, Ratio);
 DEF(StatisticsType::StandardizedAnomaly, StandardizedAnomaly);
-DEF(StatisticsType::Summation,           Summation);
-DEF(StatisticsType::ReturnPeriod,        ReturnPeriod);
-DEF(StatisticsType::Median,              Median);
-DEF(StatisticsType::Severity,            Severity);
-DEF(StatisticsType::Mode,                Mode);
-DEF(StatisticsType::IndexProcessing,     IndexProcessing);
-DEF(StatisticsType::Default,             Missing);
+DEF(StatisticsType::Summation, Summation);
+DEF(StatisticsType::ReturnPeriod, ReturnPeriod);
+DEF(StatisticsType::Median, Median);
+DEF(StatisticsType::Severity, Severity);
+DEF(StatisticsType::Mode, Mode);
+DEF(StatisticsType::IndexProcessing, IndexProcessing);
+DEF(StatisticsType::Default, Missing);
 
 #undef DEF
 
