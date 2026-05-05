@@ -62,6 +62,13 @@ public:
     bool match(const RequestLike& request, MatchMissingPolicy matchOnMissing = MatchOnMissing) const;
     bool match(const MarsRequest& request, MatchMissingPolicy matchOnMissing = MatchOnMissing) const;
 
+    void print(std::ostream& s) const;
+
+    friend std::ostream& operator<<(std::ostream& s, const Matcher& m) {
+        m.print(s);
+        return s;
+    }
+
 private:
 
     std::map<std::string, eckit::Regex> regexMap_;
