@@ -45,6 +45,7 @@
 
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
+#include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -222,6 +223,57 @@ DEF(StatisticsType::Severity, 100);
 DEF(StatisticsType::Mode, 101);
 DEF(StatisticsType::IndexProcessing, 102);
 DEF(StatisticsType::Default, 255);
+
+#undef DEF
+
+
+///
+/// @brief Compile-time mapping from `StatisticsType` to
+///        `tables::TypeOfStatisticalProcessing` (GRIB Code Table 4.10).
+///
+/// Parallel to `typeOfStatisticalProcessing<T>()` (which returns the raw
+/// `long` GRIB code). Use this overload when the call site needs the
+/// strongly-typed enum value — e.g. when passing the inner statistical
+/// operation to `resolve_TypeOfStatisticalProcessing_or_throw`.
+///
+/// The two specialization sets MUST stay in numerical lock-step; any
+/// future addition to `StatisticsType` MUST update both.
+///
+/// @note
+/// Three enumerator names differ between the concept-side `StatisticsType`
+/// and the table-side `tables::TypeOfStatisticalProcessing` (the numeric
+/// codes match exactly):
+///   - `StatisticsType::DifferenceFromStart` → `DifferenceEndMinusStart` (4)
+///   - `StatisticsType::DifferenceFromEnd`   → `DifferenceStartMinusEnd` (8)
+///   - `StatisticsType::Default`             → `Missing`                 (255)
+///
+template <StatisticsType T>
+constexpr tables::TypeOfStatisticalProcessing typeOfStatisticalProcessingEnum();
+
+#define DEF(T, VAL)                                                                       \
+    template <>                                                                           \
+    constexpr tables::TypeOfStatisticalProcessing typeOfStatisticalProcessingEnum<T>() {  \
+        return tables::TypeOfStatisticalProcessing::VAL;                                  \
+    }
+
+DEF(StatisticsType::Average,             Average);
+DEF(StatisticsType::Accumulation,        Accumulation);
+DEF(StatisticsType::Maximum,             Maximum);
+DEF(StatisticsType::Minimum,             Minimum);
+DEF(StatisticsType::DifferenceFromStart, DifferenceEndMinusStart);
+DEF(StatisticsType::RootMeanSquare,      RootMeanSquare);
+DEF(StatisticsType::StandardDeviation,   StandardDeviation);
+DEF(StatisticsType::Covariance,          Covariance);
+DEF(StatisticsType::DifferenceFromEnd,   DifferenceStartMinusEnd);
+DEF(StatisticsType::Ratio,               Ratio);
+DEF(StatisticsType::StandardizedAnomaly, StandardizedAnomaly);
+DEF(StatisticsType::Summation,           Summation);
+DEF(StatisticsType::ReturnPeriod,        ReturnPeriod);
+DEF(StatisticsType::Median,              Median);
+DEF(StatisticsType::Severity,            Severity);
+DEF(StatisticsType::Mode,                Mode);
+DEF(StatisticsType::IndexProcessing,     IndexProcessing);
+DEF(StatisticsType::Default,             Missing);
 
 #undef DEF
 

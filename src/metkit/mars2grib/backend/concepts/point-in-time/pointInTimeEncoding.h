@@ -53,7 +53,7 @@
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h"
+#include "metkit/mars2grib/backend/deductions/productTime.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -154,8 +154,15 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             MARS2GRIB_LOG_CONCEPT(pointInTime);
 
-            // Deductions
-            long marsStepInSeconds = deductions::resolve_ForecastTimeInSeconds_or_throw(mars, par, opt);
+            // Deductions: temporal data is sourced exclusively from the
+            // resolved `ProductTime` (§15 of timeProducts.md).
+            auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+
+            // For an instant product `windowStart == windowEnd`; the
+            // forecast-time offset is `windowEnd - referenceDateTime` (in
+            // seconds, returned by eckit::DateTime::operator-).
+            const long marsStepInSeconds =
+                static_cast<long>(static_cast<eckit::Second>(pt.windowEnd - pt.referenceDateTime));
 
             // Basic checks
             if (marsStepInSeconds % 3600 != 0) {
