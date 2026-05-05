@@ -16,7 +16,7 @@
 ///   - `TimespanKind`              (§6)
 ///   - `ProductTimeInput`          (§6)
 ///   - `ProductTime`               (§5)
-///   - `makeProductTime_or_throw`  (§6)
+///   - `make_ProductTime_or_throw` (§6)
 ///   - shared helpers (calendar arithmetic, alignment checks, signed-second
 ///     shifts, fmt overloads)
 ///
@@ -130,7 +130,7 @@ enum class TimespanKind {
 // =============================================================
 
 ///
-/// @brief Resolver-side input bundle for `makeProductTime_or_throw`.
+/// @brief Resolver-side input bundle for `make_ProductTime_or_throw`.
 ///
 /// The resolver normalizes raw MARS / par keys into this struct before
 /// invoking the factory. The factory does not consume raw MARS keys.
@@ -432,7 +432,7 @@ inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows
 }
 
 // =============================================================
-// 10. Factory: makeProductTime_or_throw (§6, §9, §10)
+// 10. Factory: make_ProductTime_or_throw (§6, §9, §10)
 // =============================================================
 
 ///
@@ -449,7 +449,7 @@ inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows
 /// @throws Mars2GribDeductionException on any rule violation; check sites
 ///         are tagged with the corresponding §10 entry number.
 ///
-inline ProductTime makeProductTime_or_throw(const ProductTimeInput& input) {
+inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 

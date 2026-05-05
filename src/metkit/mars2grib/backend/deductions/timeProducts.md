@@ -21,7 +21,7 @@ Out of scope for this document:
 - The MARS-side parsing of request strings.
 - The `paramId` → statistical-processing-type lookup table.
 - The GRIB-side encoding of fields outside the temporal domain.
-- The migration of consumer concept files (tracked separately).
+- The migration of consumer concept files (see §18.4).
 
 ---
 
@@ -36,7 +36,7 @@ MARS  par  opt
         |
         | builds ProductTimeInput, calls factory
         v
-  makeProductTime_or_throw       (deductions/detail/productTime.h)
+  make_ProductTime_or_throw      (deductions/detail/ProductTime.h)
         |
         | validates invariants, returns immutable ProductTime
         v
@@ -52,7 +52,7 @@ MARS  par  opt
                 |        (deductions/typeOfStatisticalProcessing.h, §23;
                 |         self-contained, depends on detail/StatType.h, §22)
                 +--> computeStatisticDescription(productTime, types)
-                          (deductions/statisticsDescriptor.h)
+                          (concepts/statistics/impl/statisticsDescriptor.h)
 ```
 
 `computeStatisticDescription` is a **pure function**: it depends only on its
@@ -92,7 +92,7 @@ tables::TimeUnit::Day
 tables::TimeUnit::Month
 ```
 
-The factory `makeProductTime_or_throw` MUST reject any other value (including
+The factory `make_ProductTime_or_throw` MUST reject any other value (including
 but not limited to `Minute`, `Hour`, `Hours3`, `Hours6`, `Hours12`, `Year`,
 `Decade`, `Normal`, `Century`, `Missing`) as a hard error (§10.18).
 
@@ -305,7 +305,7 @@ struct ProductTimeInput {
 Factory:
 
 ```cpp
-ProductTime makeProductTime_or_throw(const ProductTimeInput& input);
+ProductTime make_ProductTime_or_throw(const ProductTimeInput& input);
 ```
 
 The factory:
@@ -425,7 +425,8 @@ Three states (`TimespanKind`):
 
 ### 7.7 `stattype`
 
-Grammar (locked, identical to existing `detail/timeUtils.h::parseStatType_or_throw`):
+Grammar (locked, identical to the legacy `detail/timeUtils.h::parseStatType_or_throw`,
+now `detail/StatType.h::parse_StatType_or_throw`):
 
 ```text
 stattype := block ('_' block)*
@@ -451,9 +452,8 @@ period 'da'  ->  StatisticalWindow{tables::TimeUnit::Day,   1}
 
 The operation suffix is consumed by `resolveTypeOfStatisticalProcessing` (a
 sibling deduction, out of scope here). The `stattype` parser MUST be a single
-shared helper (currently `detail/timeUtils.h::parseStatType_or_throw`,
-relocated to `detail/productTime.h`) used by both deductions, so that the two
-never drift.
+shared helper (now in `detail/StatType.h` as `parse_StatType_or_throw`) used
+by both deductions, so that the two never drift.
 
 ### 7.8 `timeIncrementInSeconds`
 
@@ -487,7 +487,7 @@ ProductTime resolve_ProductTime_or_throw(
   2. Reads `par["timeIncrementInSeconds"]` via the existing
      `timeIncrementInSeconds_opt` helper.
   3. Builds a `ProductTimeInput`.
-  4. Calls `makeProductTime_or_throw`.
+  4. Calls `make_ProductTime_or_throw`.
   5. On success, emits exactly one `MARS2GRIB_LOG_RESOLVE` line (§12).
   6. On failure, rethrows-with-nested per §11.
 
@@ -496,12 +496,11 @@ ProductTime resolve_ProductTime_or_throw(
 used in new code.
 
 Header location: `deductions/productTime.h` (public). The factory
-`makeProductTime_or_throw` called by this resolver is declared in
-`deductions/detail/productTime.h`. Both files share the basename
-`productTime.h`; they are distinguished by the `detail/` subdirectory per the
-codebase convention for implementation-detail headers (matching the existing
-`detail/timeUtils.h` precedent and consistent with the convention that public
-deduction files are named after the concept they produce).
+`make_ProductTime_or_throw` called by this resolver is declared in
+`deductions/detail/ProductTime.h`. The two files are distinguished by both
+the `detail/` subdirectory and the case of the basename per the §20.1
+naming convention (function-primary public headers use lowercase initials;
+type-primary detail headers use UpperCamelCase initials).
 
 ---
 
@@ -594,6 +593,17 @@ windowStart             := windowEnd - statisticalWindows[0]
 Violation is a hard error (§10.5 for instants, §10.10 for non-positive,
 §10.13 for missing-where-required).
 
+The free helper `numberOfTimeRanges(const detail::ProductTime& pt)` declared
+in `productTime.h` returns the number of statistical loops contributing to
+the product, defined as `pt.statisticalWindowCount`. For instant products
+(§9.1) it returns `0`; for old-style single-loop and new-style
+fakeDoubleLoop statistics (§9.2, §9.4) it returns `1`; for old-style
+multi-loop statistics (§9.3) it returns the number of nested loops (`1` or
+`2`, matching the §3.1 allow-list and the §22.6 ordering). Consumers (e.g.
+the GRIB `numberOfTimeRange` key) MUST use this helper rather than recompute
+the count from `statisticalWindows.size()` to preserve the
+`statisticalWindowCount` invariant (§3.2).
+
 ### 9.6 Calendar subtraction
 
 For a window with `unit == tables::TimeUnit::Day` and `count == N`:
@@ -622,7 +632,7 @@ subtraction.
 
 ## 10. Hard errors
 
-The factory `makeProductTime_or_throw` and the resolver
+The factory `make_ProductTime_or_throw` and the resolver
 `resolve_ProductTime_or_throw` MUST throw `Mars2GribDeductionException` on any
 of the following conditions. Each entry corresponds to exactly one check site
 in the implementation.
@@ -646,7 +656,7 @@ in the implementation.
 | 10.15 | `statisticalWindowCount > maxStatisticalWindows` (= 3)           |
 | 10.16 | `stattype` block parsed with unknown period or operation token (raised by the shared parser, §22; period MUST be in `{mo, da}` and operation MUST be in `{av, mn, mx, sd}`) |
 | 10.17 | `stattype` blocks not in outermost-to-innermost order (e.g. `da_mo`) (raised by the shared parser, §22) |
-| 10.18 | any `StatisticalWindow` in `statisticalWindows[0..count)` has `unit` outside the §3.1 allow-list `{Second, Day, Month}` (e.g. `Hour`, `Hours6`, `Year`, `Missing`). **Two-level enforcement**: (a) the shared parser (§22) enforces the narrow `stattype`-grammar allow-list `{Day, Month}` at parse time; (b) the factory `makeProductTime_or_throw` enforces the extended assembled-window allow-list `{Second, Day, Month}` after window assembly (the `Second` extension covers the innermost window when it originates from `timespan` rather than `stattype`). |
+| 10.18 | any `StatisticalWindow` in `statisticalWindows[0..count)` has `unit` outside the §3.1 allow-list `{Second, Day, Month}` (e.g. `Hour`, `Hours6`, `Year`, `Missing`). **Two-level enforcement**: (a) the shared parser (§22) enforces the narrow `stattype`-grammar allow-list `{Day, Month}` at parse time; (b) the factory `make_ProductTime_or_throw` enforces the extended assembled-window allow-list `{Second, Day, Month}` after window assembly (the `Second` extension covers the innermost window when it originates from `timespan` rather than `stattype`). |
 
 The tri-equivalence check (10.5) subsumes several otherwise-separate checks
 (e.g. "instant with non-null increment", "statistical with zero-length
@@ -658,7 +668,7 @@ window"); they are aggregated into a single invariant for clarity.
 
 All failures use `Mars2GribDeductionException` with `Here()` for source
 location. The pattern matches sibling deductions
-(e.g. `numberOfTimeRanges.h`):
+(e.g. `typeOfStatisticalProcessing.h`):
 
 ```cpp
 try {
@@ -703,7 +713,7 @@ No log emissions on intermediate sub-steps. No log emissions on failure
 No `operator<<` is provided for `ProductTime` or `StatisticalWindow`. Both
 the RESOLVE log line (§12) and any inline error-message text build their
 string representation locally, in the same lambda style as
-`numberOfTimeRanges.h`. Tests assert on individual fields rather than on
+`typeOfStatisticalProcessing.h`. Tests assert on individual fields rather than on
 whole-struct equality.
 
 ---
@@ -711,7 +721,7 @@ whole-struct equality.
 ## 14. Thread-safety
 
 - `ProductTime` is immutable and trivially safe to share across threads.
-- `makeProductTime_or_throw` and `resolve_ProductTime_or_throw` access no
+- `make_ProductTime_or_throw` and `resolve_ProductTime_or_throw` access no
   shared mutable state. Concurrent invocation on **disjoint** inputs is safe.
 - Concurrent invocation that shares the same `MarsDict_t` / `ParDict_t` /
   `OptDict_t` instances is safe iff those dictionary types' read operations
@@ -736,12 +746,6 @@ the language level; reviewers and consumer-side tests are responsible.
 | `statisticalWindows`        | —               | —             | R            |
 | `statisticalWindowCount`    | —               | —             | R            |
 | `timeIncrementInSeconds`    | —               | —             | R            |
-
-The exact mapping between the legacy deductions used today by each consumer
-(`resolve_ForecastTimeInSeconds_or_throw`, `resolve_ReferenceDateTime_or_throw`,
-`resolve_HindcastDateTime_or_throw`, `resolve_SignificanceOfReferenceTime_or_throw`,
-`timeIncrementInSeconds_opt`, etc.) and the `ProductTime` field accesses above
-is part of the consumer-migration step (out of scope for this document).
 
 ---
 
@@ -1009,7 +1013,7 @@ consequence of the defaults.
   (function-primary).
 - `src/metkit/mars2grib/backend/deductions/detail/ProductTime.h` — types
   (`TimespanKind`, `ProductTimeInput`, `ProductTime`), factory
-  (`makeProductTime_or_throw`), and helpers (calendar arithmetic, alignment
+  (`make_ProductTime_or_throw`), and helpers (calendar arithmetic, alignment
   checks, signed-second shifts). UpperCamelCase initial per the §20 naming
   convention (type-primary). The shared `StatisticalWindow` type is no longer
   defined here; it lives in `detail/StatisticalWindow.h` (§21). The shared
@@ -1027,11 +1031,13 @@ consequence of the defaults.
 
 ### 18.2 Files rewritten
 
-- `src/metkit/mars2grib/backend/deductions/statisticsDescriptor.h` — becomes
-  the pure function `computeStatisticDescription(productTime,
+- `src/metkit/mars2grib/backend/concepts/statistics/impl/statisticsDescriptor.h`
+  — pure function `computeStatisticDescription(productTime,
   typeOfStatisticalProcessing)`. The existing `StatisticalProcessing` struct
-  is preserved. The current `reserve(...)` bug (vectors are indexed without
-  being resized) is fixed by switching to `resize(...)`.
+  is preserved. The legacy `reserve(...)` bug (vectors are indexed without
+  being resized) is fixed by switching to `resize(...)`. Header was relocated
+  out of `deductions/` because it is a `concepts/`-side consumer-stage helper,
+  not a deduction.
 
 ### 18.3 Files deleted
 
@@ -1040,32 +1046,27 @@ The following deductions are subsumed by `ProductTime` and removed:
 - `src/metkit/mars2grib/backend/deductions/detail/timeUtils.h`
 - `src/metkit/mars2grib/backend/deductions/forecastTimeInSeconds.h`
 - `src/metkit/mars2grib/backend/deductions/timeSpanInSeconds.h`
-- `src/metkit/mars2grib/backend/deductions/timeIncrementInSeconds.h`
 - `src/metkit/mars2grib/backend/deductions/numberOfTimeRanges.h`
 - `src/metkit/mars2grib/backend/deductions/referenceDateTime.h`
 - `src/metkit/mars2grib/backend/deductions/hindcastDateTime.h`
 
-`significanceOfReferenceTime.h` is removed **conditionally**: if its logic is
-purely temporal it folds into the new pipeline; if it carries non-temporal
-semantics (type/stream/etc.) it is preserved untouched. Determined by direct
-inspection at code-generation time.
+`significanceOfReferenceTime.h` is **preserved**: it carries non-temporal
+semantics (derived from `mars::type`) orthogonal to `ProductTime` and remains
+a standalone deduction.
 
-### 18.4 Files NOT modified in the deductions step
+`timeIncrementInSeconds.h` is **preserved**: its `timeIncrementInSeconds_opt`
+helper is consumed by the `ProductTime` resolver to populate the
+`ProductTime::timeIncrementInSeconds` field (§5).
+
+### 18.4 Consumer files migrated
+
+The three consumer headers below were migrated to source all temporal data
+from `resolve_ProductTime_or_throw` per the per-consumer field-access table
+(§15):
 
 - `src/metkit/mars2grib/backend/concepts/point-in-time/pointInTimeEncoding.h`
 - `src/metkit/mars2grib/backend/concepts/reference-time/referenceTimeEncoding.h`
 - `src/metkit/mars2grib/backend/concepts/statistics/statisticsEncoding.h`
-
-These three consumer files reference deductions that are deleted in §18.3 and
-will therefore **fail to compile** after the deductions step. This is
-intentional and matches the explicit scoping of the deductions-only work
-package. A separate consumer-migration step (out of scope here) restores the
-build by routing all temporal accesses through `resolve_ProductTime_or_throw`
-and the per-consumer field-access table (§15).
-
-A `STEP4_CONSUMER_MIGRATION_CHECKLIST.md` MUST be produced alongside the
-deductions step, listing for each consumer file the exact symbol replacements
-required.
 
 ### 18.5 Build system
 
@@ -1082,9 +1083,9 @@ This is the intended improvement; it MUST be flagged in release notes.
 
 ## 19. Locked-decision cross-reference
 
-Each numbered design decision from the Step 0 / Step 1 design discussion maps
-to one or more sections of this specification. The cross-reference is
-maintained for traceability; future amendments SHOULD update both columns.
+Each numbered design decision recorded in this specification maps to one or
+more sections. The cross-reference is maintained for traceability; future
+amendments SHOULD update both columns.
 
 | Decision | Section(s)                |
 |----------|---------------------------|
@@ -1166,7 +1167,7 @@ Examples already in the codebase:
 
 ```
 resolve_ProductTime_or_throw
-make_ProductTime_or_throw         (factory; legacy spelling makeProductTime_or_throw is grandfathered)
+make_ProductTime_or_throw         (factory)
 parse_StatType_or_throw
 resolve_TypeOfStatisticalProcessing_or_throw
 convert_YYYYMMDD2Date_or_throw
