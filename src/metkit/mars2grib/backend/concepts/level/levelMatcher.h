@@ -132,7 +132,7 @@ inline std::size_t matchSFC(const long param) {
     }
 
     // Chemical
-    if (matchAny(param, range(228080, 228085), range(233032, 233035), range(235062, 235064))) {
+    if (matchAny(param, range(228080, 228085), range(233032, 233035), range(235062, 235064), range(400000, 499999))) {
         return static_cast<std::size_t>(LevelType::Surface);
     }
 
@@ -163,7 +163,7 @@ inline std::size_t matchML(const long param) {
     using metkit::mars2grib::util::param_matcher::range;
 
     if (matchAny(param, range(21, 23), range(75, 77), range(129, 133), 135, 138, 152, range(155, 157), 203,
-                 range(246, 248), range(162100, 162113), 260290, 260292, 260293)) {
+                 range(246, 248), range(162100, 162113), 260290, 260292, 260293, range(400000, 499999))) {
         return static_cast<std::size_t>(LevelType::Hybrid);
     }
 
@@ -176,7 +176,7 @@ inline std::size_t matchPL(const long param, const long level) {
     using metkit::mars2grib::util::param_matcher::range;
 
     if (matchAny(param, 1, 2, 10, 60, 75, 76, range(129, 135), 138, 152, range(155, 157), 203, range(246, 248), 235100,
-                 range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290, 263107)) {
+                 range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290, 263107, range(400000, 499999))) {
         if (level >= 100) {
             return static_cast<std::size_t>(LevelType::IsobaricInHpa);
         }
@@ -193,7 +193,7 @@ inline std::size_t matchPT(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, 53, 54, 60, range(131, 133), 138, 155, 203, 235100, 235203, 237203, 238203, 239203)) {
+    if (matchAny(param, 53, 54, 60, range(131, 133), 138, 155, 203, 235100, 235203, 237203, 238203, 239203, range(400000, 499999))) {
         return static_cast<std::size_t>(LevelType::Theta);
     }
 
@@ -206,7 +206,7 @@ inline std::size_t matchPV(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, 3, 54, 129, range(131, 133), 203, 235098, 235269)) {
+    if (matchAny(param, 3, 54, 129, range(131, 133), 203, 235098, 235269, range(400000, 499999))) {
         return static_cast<std::size_t>(LevelType::PotentialVorticity);
     }
 

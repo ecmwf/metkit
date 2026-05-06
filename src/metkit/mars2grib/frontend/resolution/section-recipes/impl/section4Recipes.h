@@ -229,6 +229,15 @@ inline const Recipe S4_R78 =
         Select<ParamConcept>
     >();
 
+inline const Recipe S4_R80 =
+    make_recipe<79,
+        Select<GeneratingProcessConcept>,
+        Select<PointInTimeConcept>,
+        Select<LevelConcept>,
+        Select<CompositionConcept, CompositionType::AerosolOpticalSource>,
+        Select<ParamConcept>
+    >();
+
 inline const Recipe S4_R79 =
     make_recipe<79,
         Select<GeneratingProcessConcept>,
@@ -302,7 +311,7 @@ inline const Recipes Section4Recipes{ 4,
         &S4_R50, &S4_R45, &S4_R46, &S4_R85,
         &S4_R48, &S4_R49,
         &S4_R60, &S4_R61,
-        &S4_R76, &S4_R77, &S4_R78, &S4_R79,
+        &S4_R76, &S4_R77, &S4_R78, &S4_R79, &S4_R80,
         &S4_R99, &S4_R100,
         &S4_R103, &S4_R104,
         &S4_R142, &S4_R143
