@@ -49,7 +49,7 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     }
 
     // Chemical products
-    if (matchAny(param, range(228083, 228085))) {
+    if (matchAny(param, range(228083, 228085), range(400000, 499999))) {
         return static_cast<std::size_t>(PointInTimeType::Default);
     }
 

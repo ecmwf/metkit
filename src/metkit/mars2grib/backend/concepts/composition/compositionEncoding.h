@@ -48,7 +48,8 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/constituentType.h"
+#include "metkit/mars2grib/backend/deductions/chemId.h"
+#include "metkit/mars2grib/backend/deductions/firstWavelength.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -134,6 +135,7 @@ template <std::size_t Stage, std::size_t Section, CompositionType Variant, class
           class OptDict_t, class OutDict_t>
 void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -143,25 +145,32 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             MARS2GRIB_LOG_CONCEPT(composition);
 
-            // =============================================================
-            // Structural validation
-            // =============================================================
-            /// @todo [owner: dgov][scope: concept][reason: completeness][prio: low]
+            // NOTE : Can also simply check if chemId is present, and if wavelength is present and set it.
 
-            // =============================================================
-            // Variant-specific logic
-            // =============================================================
-            if constexpr (Variant == CompositionType::Chem) {
-
-                // Structural validation
-                /// @todo [owner: dgov][scope: concept][reason: completeness][prio: low]
+            if constexpr (Variant == CompositionType::AerosolOptical) {
 
                 // Deductions
-                long constituentType = deductions::resolve_ConstituentType_or_throw(mars, par, opt);
+                const auto chemId          = deductions::resolve_ChemId_or_throw(mars, par, opt);
+                const auto firstWavelength = deductions::resolve_FirstWavelength_or_throw(mars, par, opt);
 
                 // Encoding
-                set_or_throw<long>(out, "constituentType", constituentType);
+                set_or_throw(out, "enableChemSplit", true);
+                set_or_throw(out, "chemId", chemId);
+                set_or_throw(out, "firstWavelength", firstWavelength);
             }
+            else if constexpr (Variant == CompositionType::Chem || Variant == CompositionType::Aerosol || Variant == CompositionType::ChemicalSource) {
+
+                // Deductions
+                const auto chemId          = deductions::resolve_ChemId_or_throw(mars, par, opt);
+
+                // Encoding
+                set_or_throw(out, "enableChemSplit", true);
+                set_or_throw(out, "chemId", chemId);
+            }
+            else {
+                MARS2GRIB_CONCEPT_THROW(composition, "Concept variant is not implemented!");
+            }
+
         }
         catch (...) {
 
