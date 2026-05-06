@@ -19,3 +19,7 @@ doc/latex
 .mypy_cache
 build/
 Testing/
+
+# Rust
+rust/target/
+rust/Cargo.lock
