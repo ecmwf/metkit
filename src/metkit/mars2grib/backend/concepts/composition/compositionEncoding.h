@@ -158,10 +158,11 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
                 set_or_throw(out, "chemId", chemId);
                 set_or_throw(out, "firstWavelength", firstWavelength);
             }
-            else if constexpr (Variant == CompositionType::Chem || Variant == CompositionType::Aerosol || Variant == CompositionType::ChemicalSource) {
+            else if constexpr (Variant == CompositionType::Chem || Variant == CompositionType::Aerosol ||
+                               Variant == CompositionType::ChemicalSource) {
 
                 // Deductions
-                const auto chemId          = deductions::resolve_ChemId_or_throw(mars, par, opt);
+                const auto chemId = deductions::resolve_ChemId_or_throw(mars, par, opt);
 
                 // Encoding
                 set_or_throw(out, "enableChemSplit", true);
@@ -170,7 +171,6 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
             else {
                 MARS2GRIB_CONCEPT_THROW(composition, "Concept variant is not implemented!");
             }
-
         }
         catch (...) {
 
