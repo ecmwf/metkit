@@ -14,6 +14,7 @@
 #pragma once
 
 #include <functional>
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <variant>
