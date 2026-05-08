@@ -12,6 +12,8 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Matcher.h"
 
+#include <sstream>
+
 using namespace eckit::testing;
 using namespace metkit::mars;
 
@@ -149,6 +151,15 @@ CASE("match empty request") {
 
     EXPECT_EQUAL(match_any.match(req, Matcher::MatchOnMissing), true);
     EXPECT_EQUAL(match_all.match(req, Matcher::MatchOnMissing), true);
+}
+
+CASE("streaming matcher is deterministic") {
+    Matcher matcher("stream=^enfo$, expver=(x[0-9a-z]{3}), number=(1|2)", Matcher::Policy::Any);
+
+    std::ostringstream oss;
+    oss << matcher;
+
+    EXPECT_EQUAL(oss.str(), "{expver=(x[0-9a-z]{3}),number=(1|2),stream=^enfo$}");
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
