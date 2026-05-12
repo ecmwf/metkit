@@ -7,6 +7,9 @@
 
 use bindman::track_cpp_api;
 
+// Auto-generated metkit Error enum + From<cxx::Exception> impl
+include!(concat!(env!("OUT_DIR"), "/metkit_exceptions.rs"));
+
 #[track_cpp_api(
     ("metkit/mars/MarsRequest.h", class = "MarsRequest"),
     ("metkit/mars/MarsLanguage.h", class = "MarsLanguage"),

@@ -1,8 +1,8 @@
 // metkit C++ bridge for Rust FFI
 #pragma once
 
-// Use eckit's auto-generated exception handler
-#include "eckit_exceptions.h"
+// metkit's auto-generated exception handler (includes eckit's catches too)
+#include "metkit_exceptions.h"
 
 // eckit-sys bridge — provides StreamWrapper
 #include "eckit_bridge.h"

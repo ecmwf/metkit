@@ -24,6 +24,7 @@ fn main() {
         build_vendored()
     };
 
+    generate_exceptions(&include);
     build_cxx_bridge(&include);
 
     let crate_dir =
@@ -34,20 +35,42 @@ fn main() {
     println!("cargo:cpp_dir={}", crate_dir.join("cpp").display());
 }
 
+/// Generate `metkit_exceptions.{h,rs}`. The bridge exposes `CodesHandleWrapper`
+/// methods that can throw `metkit::codes::CodesException` / `CodesWrongLength`;
+/// nothing in the bridge currently calls `mars2grib`, so its exception headers
+/// aren't a source here. eckit's exceptions are inherited from eckit-sys.
+fn generate_exceptions(include: &std::path::Path) {
+    let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"));
+
+    let own = vec![bindman_build::ExceptionSource {
+        header: include.join("metkit/codes/api/CodesTypes.h"),
+        include_path: "metkit/codes/api/CodesTypes.h".to_string(),
+        cpp_namespace: "metkit::codes".to_string(),
+        message_prefix: "metkit".to_string(),
+        base_class: "eckit::Exception".to_string(),
+        recursive: true,
+    }];
+
+    let inherited = bindman_build::collect_dep_exception_sources();
+
+    bindman_build::generate_exception_bridge(&bindman_build::ExceptionBridgeConfig {
+        primary_namespace: "metkit",
+        out_dir: &out_dir,
+        own: &own,
+        inherited: &inherited,
+    });
+
+    bindman_build::publish_exception_sources(&own, &out_dir);
+}
+
 /// Compile the CXX bridge.
 fn build_cxx_bridge(include: &std::path::Path) {
     let crate_dir = std::path::PathBuf::from(
         std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
     );
+    let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"));
     let eckit_include = std::env::var("DEP_ECKIT_SYS_INCLUDE")
         .expect("DEP_ECKIT_SYS_INCLUDE not set — eckit-sys must be a dependency");
-    let eckit_out_dir = std::env::var("DEP_ECKIT_SYS_EXCEPTIONS_HEADER")
-        .ok()
-        .and_then(|p| {
-            std::path::PathBuf::from(p)
-                .parent()
-                .map(std::path::Path::to_path_buf)
-        });
 
     println!("cargo:rerun-if-changed=cpp/metkit_bridge.h");
     println!("cargo:rerun-if-changed=cpp/metkit_bridge.cpp");
@@ -57,12 +80,8 @@ fn build_cxx_bridge(include: &std::path::Path) {
         .file(crate_dir.join("cpp/metkit_bridge.cpp"))
         .include(include)
         .include(crate_dir.join("cpp"))
-        .include(&eckit_include);
-
-    // Include eckit's OUT_DIR for eckit_exceptions.h
-    if let Some(ref eckit_out) = eckit_out_dir {
-        build.include(eckit_out);
-    }
+        .include(&eckit_include)
+        .include(&out_dir); // for metkit_exceptions.h (generated)
 
     // Include eckit's cpp dir for eckit_bridge.h (needed for StreamWrapper)
     if let Ok(eckit_cpp_dir) = std::env::var("DEP_ECKIT_SYS_CPP_DIR") {
