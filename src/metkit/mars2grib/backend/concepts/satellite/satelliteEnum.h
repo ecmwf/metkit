@@ -85,7 +85,8 @@ inline constexpr std::string_view satelliteName{"satellite"};
 /// tables and registries.
 ///
 enum class SatelliteType : std::size_t {
-    Default = 0
+    Default               = 0,
+    BrightnessTemperature = 1
 };
 
 
@@ -101,7 +102,7 @@ enum class SatelliteType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using SatelliteList = ValueList<SatelliteType::Default>;
+using SatelliteList = ValueList<SatelliteType::Default, SatelliteType::BrightnessTemperature>;
 
 
 ///
@@ -132,6 +133,7 @@ constexpr std::string_view satelliteTypeName();
     }
 
 DEF(SatelliteType::Default, "default");
+DEF(SatelliteType::BrightnessTemperature, "brightnessTemperature");
 
 #undef DEF
 
