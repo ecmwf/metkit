@@ -79,6 +79,11 @@ static unsigned char unstr_latlon[] = {
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
     EXPECT_EQUAL(eq, md.getLong(name));
 
+#define MD_EXPECT_LONGS(md, name, eq1, eq2)                                                                                   \
+    EXPECT(md.has(name));                                                                                              \
+    std::cout << "expect long for " << name << " to equal " << eq1 << " or " << eq2 << " (got " << md.getLong(name) << ")" << std::endl; \
+    EXPECT(md.getLong(name) == eq1 || md.getLong(name) == eq2);
+
 #define MD_EXPECT_GE_LONG(md, name, eq)                                                             \
     EXPECT(md.has(name));                                                                           \
     std::cout << "expect long for " << name << " to be greater than or equal to " << eq << " (got " \
@@ -233,7 +238,7 @@ CASE("test codessplitter unstr_latlot.tmpl Native") {
         MD_EXPECT_STRING(md, "levtype", "o3d");
         MD_EXPECT_LONG(md, "PVPresent", 0);
         MD_EXPECT_STRING(md, "deletePV", "1");
-        MD_EXPECT_LONG(md, "lengthOfHeaders", 107);
+        MD_EXPECT_LONGS(md, "lengthOfHeaders", 107, 117);  // changed, as a consequence of fixes for ECC-2268
         MD_EXPECT_LONG(md, "section5Length", 21);
         MD_EXPECT_LONG(md, "numberOfValues", 496);
         MD_EXPECT_LONG(md, "dataRepresentationTemplateNumber", 0);
@@ -416,7 +421,7 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
         MD_EXPECT_STRING(md, "levtype", "o3d");
         MD_EXPECT_STRING(md, "PVPresent", "0");
         MD_EXPECT_STRING(md, "deletePV", "1");
-        MD_EXPECT_STRING(md, "lengthOfHeaders", "107");
+        MD_EXPECT_STRINGS(md, "lengthOfHeaders", "107", "117");  // changed, as a consequence of fixes for ECC-2268
         MD_EXPECT_STRING(md, "section5Length", "21");
         MD_EXPECT_STRING(md, "numberOfValues", "496");
         MD_EXPECT_STRING(md, "dataRepresentationTemplateNumber", "0");
