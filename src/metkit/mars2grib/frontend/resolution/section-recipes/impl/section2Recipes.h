@@ -64,6 +64,7 @@ inline const Recipe S2_R36 =
 inline const Recipe S2_R37 =
     make_recipe<37,
         Select<MarsConcept>,
+        Select<AnalysisConcept>,
         Select<SatelliteConcept, SatelliteType::BrightnessTemperature>
     >();
 
