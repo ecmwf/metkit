@@ -47,7 +47,60 @@ The ordered list of variants for a concept defines its **local variant index spa
 
 ---
 
-## 3. Concept Descriptor Contract
+## 3. New Concept vs New Variant
+
+When changing the concept system, first decide whether the requested behavior is
+a new concept or a new variant of an existing concept.
+
+Use a **new concept** when the feature is an independent semantic axis that must
+be composable with other concepts. Use a **new variant** when the feature is an
+alternative realization inside an existing semantic axis and does not require
+independent composability.
+
+This distinction is often a domain decision and is usually not reliably
+deducible from the code alone. If a request does not explicitly state whether a
+new concept or a new variant is required, ask before implementing.
+
+---
+
+## 4. Level Concept Guardrail
+
+The `level` concept is one of the most constrained concepts in mars2grib.
+Although GRIB ultimately represents vertical levels through six low-level
+fixed-surface keys:
+
+* `typeOfFirstFixedSurface`
+* `scaleFactorOfFirstFixedSurface`
+* `scaledValueOfFirstFixedSurface`
+* `typeOfSecondFixedSurface`
+* `scaleFactorOfSecondFixedSurface`
+* `scaledValueOfSecondFixedSurface`
+
+mars2grib must not set these keys directly. Many combinations of these keys are
+syntactically possible but semantically meaningless for ECMWF products.
+
+Instead, the encoder must rely on the official level abstraction:
+
+* `typeOfLevel`
+* `level`, when required
+* `topLevel` / `bottomLevel`, when required
+* PV-array data, when required
+
+Each supported `typeOfLevel` corresponds to a `LevelType` variant, apart from a
+few virtual type-of-level values kept in mars2grib because they cannot be added
+to ecCodes for backward-compatibility reasons. Each variant maps to a prescribed
+configuration of the low-level fixed-surface keys.
+
+Do not implement level fixes by injecting `typeOfFirstFixedSurface`,
+`scaleFactorOfFirstFixedSurface`, `scaledValueOfFirstFixedSurface`,
+`typeOfSecondFixedSurface`, `scaleFactorOfSecondFixedSurface`, or
+`scaledValueOfSecondFixedSurface`. If a new level behavior is required, add or
+adjust the appropriate `LevelType` variant, matcher mapping, or deduction so the
+level remains encoded through `typeOfLevel` and the official level interface.
+
+---
+
+## 5. Concept Descriptor Contract
 
 Each concept is implemented as a **descriptor type** that conforms to the
 `RegisterEntryDescriptor` interface.
@@ -68,7 +121,7 @@ The descriptor contains **no runtime state** and no virtual functions.
 
 ---
 
-## 4. Capabilities
+## 6. Capabilities
 
 Concepts may expose multiple independent *capabilities*.
 
@@ -87,7 +140,7 @@ independent dispatch planes.
 
 ---
 
-## 5. The Concept Universe (`AllConcepts`)
+## 7. The Concept Universe (`AllConcepts`)
 
 All concepts known to the system are aggregated into a single ordered typelist:
 
@@ -107,7 +160,7 @@ Changing this order is a **breaking structural change**.
 
 ---
 
-## 6. Concept Identifiers
+## 8. Concept Identifiers
 
 Each concept is assigned a **stable numeric identifier** based on its position
 in `AllConcepts`.
@@ -130,7 +183,7 @@ They are used as indices into:
 
 ---
 
-## 7. Variant Index Spaces
+## 9. Variant Index Spaces
 
 Variants are indexed in two ways:
 
@@ -158,7 +211,7 @@ The global variant index is the primary key used by:
 
 ---
 
-## 8. Matching Phase
+## 10. Matching Phase
 
 Matching determines **which concepts and variants are active** for a given
 input request.
@@ -179,7 +232,7 @@ The result is an `ActiveConceptsData` structure.
 
 ---
 
-## 9. Encoding Phases
+## 11. Encoding Phases
 
 Encoding is divided into **logical stages**, such as:
 
@@ -201,7 +254,7 @@ All dispatch tables are generated **entirely at compile time**.
 
 ---
 
-## 10. Design Principles
+## 12. Design Principles
 
 The concept system is designed around the following principles:
 
@@ -217,7 +270,7 @@ Execution code performs *only iteration and invocation*.
 
 ---
 
-## 11. Adding a New Concept
+## 13. Adding a New Concept
 
 To add a new concept:
 
@@ -231,7 +284,7 @@ No registry code needs to be modified.
 
 ---
 
-## 12. Summary
+## 14. Summary
 
 Concepts are the **semantic backbone** of the mars2grib backend.
 
