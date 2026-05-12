@@ -79,9 +79,10 @@ static unsigned char unstr_latlon[] = {
     std::cout << "expect long for " << name << " to equal " << eq << " (got " << md.getLong(name) << ")" << std::endl; \
     EXPECT_EQUAL(eq, md.getLong(name));
 
-#define MD_EXPECT_LONGS(md, name, eq1, eq2)                                                                                   \
-    EXPECT(md.has(name));                                                                                              \
-    std::cout << "expect long for " << name << " to equal " << eq1 << " or " << eq2 << " (got " << md.getLong(name) << ")" << std::endl; \
+#define MD_EXPECT_LONGS(md, name, eq1, eq2)                                                                         \
+    EXPECT(md.has(name));                                                                                           \
+    std::cout << "expect long for " << name << " to equal " << eq1 << " or " << eq2 << " (got " << md.getLong(name) \
+              << ")" << std::endl;                                                                                  \
     EXPECT(md.getLong(name) == eq1 || md.getLong(name) == eq2);
 
 #define MD_EXPECT_GE_LONG(md, name, eq)                                                             \
