@@ -311,6 +311,46 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                     set_or_throw<std::string>(out, "typeOfLevel", "isobaricInhPa");
                     set_or_throw<long>(out, "level", levelVal / 100);
                 }
+                else if constexpr (Variant == LevelType::AbstractLevel) {
+                    // ------------------------------------------------------------------
+                    // Special case: AbstractLevel
+                    //
+                    // AbstractLevel is a transitional level type that will be deprecated
+                    // once eccodes adds support for AbstractSingleLevel and
+                    // AbstractMultipleLevel. Until then, we handle it explicitly here
+                    // because:
+                    //
+                    // 1. Setting typeOfLevel="abstractLevel" via the eccodes ecmf concept
+                    //    forces typeOfSecondFixedSurface=255 (missing), which is incorrect
+                    //    for covariance parameters that require a second fixed surface
+                    //    (e.g. soil level).
+                    //
+                    // 2. The second fixed surface metadata is deterministic from the
+                    //    paramId and cannot be expressed through the paramId concept
+                    //    definition alone.
+                    //
+                    // Affected parameters (ECMWF covariance fields):
+                    //   254003 (covar_ssm_swvl1) -> second surface: soil level 1
+                    //   254006 (covar_ssm_swvl2) -> second surface: soil level 2
+                    //   254009 (covar_ssm_swvl3) -> second surface: soil level 3
+                    // ------------------------------------------------------------------
+                    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+
+                    long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
+                    set_or_throw<std::string>(out, "typeOfLevel", "abstractLevel");
+                    set_or_throw<long>(out, "level", levelVal);
+
+                    // Set second fixed surface for covariance parameters that require it
+                    long param = get_or_throw<long>(mars, "param");
+                    if (param == 254003 || param == 254006 || param == 254009) {
+                        // typeOfSecondFixedSurface = 151 (soil level, code table 4.5)
+                        set_or_throw<long>(out, "typeOfSecondFixedSurface", 151L);
+                        set_or_throw<long>(out, "scaleFactorOfSecondFixedSurface", 0L);
+                        // Soil layer number: 254003->1, 254006->2, 254009->3
+                        long soilLayer = (param - 254001) / 3 + 1;
+                        set_or_throw<long>(out, "scaledValueOfSecondFixedSurface", soilLayer);
+                    }
+                }
                 else {
                     set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()));
                     if constexpr (needLevel<Variant>()) {
