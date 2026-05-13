@@ -204,6 +204,7 @@ template <std::size_t Stage, std::size_t Section, SatelliteType Variant, class M
           class OptDict_t, class OutDict_t>
 void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -243,6 +244,17 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
 
+                // BrightnessTemperature: section 4 satellite band metadata is only
+                // present for PDT 32/33 (satellite-specific templates). For derived
+                // products (PDT=2), satellite info lives exclusively in section 2
+                // (local def 37) — skip section 4 encoding entirely.
+                if constexpr (Variant == SatelliteType::BrightnessTemperature) {
+                    long pdt = get_or_throw<long>(out, "productDefinitionTemplateNumber");
+                    if (pdt != 32 && pdt != 33) {
+                        return;
+                    }
+                }
+
                 // Check/Validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
 
@@ -251,6 +263,15 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
+
+                // BrightnessTemperature: skip section 4 satellite encoding for
+                // non-satellite PDTs (e.g. PDT=2 for derived products).
+                if constexpr (Variant == SatelliteType::BrightnessTemperature) {
+                    long pdt = get_or_throw<long>(out, "productDefinitionTemplateNumber");
+                    if (pdt != 32 && pdt != 33) {
+                        return;
+                    }
+                }
 
                 // Check/Validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});

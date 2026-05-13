@@ -15,11 +15,16 @@ std::size_t satelliteMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
 
-    if (has(mars, "channel") && has(mars, "ident") && has(mars, "instrument")) {
-        if (has(mars, "param") && get_or_throw<long>(mars, "param") == 194) {
-            return static_cast<std::size_t>(SatelliteType::BrightnessTemperature);
-        }
+    // BrightnessTemperature (paramId=194): only requires channel.
+    // Section 2 (local def 37) encodes channelNumber + numberOfFrequencies.
+    // Section 4 satellite band metadata (ident, instrument, series, waveNumber)
+    // is only present for PDT 32/33 — the encoding handles this conditionally.
+    if (has(mars, "channel") && has(mars, "param") && get_or_throw<long>(mars, "param") == 194) {
+        return static_cast<std::size_t>(SatelliteType::BrightnessTemperature);
+    }
 
+    // Default satellite: requires full satellite identification keys
+    if (has(mars, "channel") && has(mars, "ident") && has(mars, "instrument")) {
         return static_cast<std::size_t>(SatelliteType::Default);
     }
 

@@ -33,10 +33,10 @@ inline std::size_t matchSFC(const long param) {
     if (matchAny(param, 262118)) {
         return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
     }
-    if (matchAny(param, 59, 78, 79, 136, 137, 164, 206, range(162059, 162063), 162071, 162072, 162093, 228001, 228044,
-                 228050, 228052, range(228088, 228090), 228164, 235087, 235088, 235136, 235137, 235287, 235288, 235290,
-                 235326, 235383, 237087, 237088, 237137, 237287, 237288, 237290, 237326, 238087, 238088, 238137, 238287,
-                 238288, 238290, 238326, 239087, 239088, 239137, 239287, 239288, 239290, 239326, 260132)) {
+    if (matchAny(param, 59, 78, 79, 136, 137, 164, 194, 206, range(162059, 162063), 162071, 162072, 162093, 228001,
+                 228044, 228050, 228052, range(228088, 228090), 228164, 235087, 235088, 235136, 235137, 235287, 235288,
+                 235290, 235326, 235383, 237087, 237088, 237137, 237287, 237288, 237290, 237326, 238087, 238088, 238137,
+                 238287, 238288, 238290, 238326, 239087, 239088, 239137, 239287, 239288, 239290, 239326, 260132)) {
         return static_cast<std::size_t>(LevelType::EntireAtmosphere);
     }
     if (matchAny(param, 228007, 228011)) {
@@ -124,11 +124,6 @@ inline std::size_t matchSFC(const long param) {
     }
     if (matchAny(param, 228045, 235322, 237322, 238322, 239322)) {
         return static_cast<std::size_t>(LevelType::Tropopause);
-    }
-
-    // Satellite
-    if (matchAny(param, 194)) {
-        return static_cast<std::size_t>(LevelType::Surface);
     }
 
     // Chemical
