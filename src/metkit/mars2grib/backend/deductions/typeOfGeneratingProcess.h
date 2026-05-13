@@ -190,6 +190,26 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
+        else if (marsTypeVal == "est" || marsTypeVal == "es" || marsTypeVal == "em" || marsTypeVal == "ses") {
+
+            // Ensemble-derived statistical products (ensemble statistics,
+            // ensemble standard deviation, ensemble mean, ensemble spread
+            // of estimation). No dedicated code table entry exists for
+            // "ensemble-derived analysis"; EnsembleForecast (4) is the
+            // established convention to signal ensemble provenance.
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=" + marsTypeVal + ")";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
         else if (marsTypeVal == "eme" || marsTypeVal == "me") {
 
             // 4D-Var model-error fields (eme = ensemble model errors,
