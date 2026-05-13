@@ -18,6 +18,7 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     const auto& type = get_or_throw<std::string>(mars, "type");
     if (type == "em" ||    // Ensemble mean
         type == "es" ||    // Ensemble standard deviation
+        type == "ses" ||   // Ensemble spread of estimation
         type == "taem" ||  // Time-averaged ensemble mean
         type == "taes" ||  // Time-averaged ensemble standard deviation
         type == "efi" ||   // Extreme forecast index
