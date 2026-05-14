@@ -23,18 +23,33 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
-        long numberOfFrequencies = get_or_throw<long>(par, "numberOfFrequencies");
 
-        MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "`numberOfFrequencies` resolved from input dictionaries: value=";
-            logMsg += std::to_string(numberOfFrequencies);
-            return logMsg;
-        }());
+        if (has(par, "numberOfFrequencies")) {
+            long numberOfFrequencies = get_or_throw<long>(par, "numberOfFrequencies");
 
-        return numberOfFrequencies;
+            MARS2GRIB_LOG_OVERRIDE([&]() {
+                std::string logMsg = "`numberOfFrequencies` resolved from input dictionaries: value=";
+                logMsg += std::to_string(numberOfFrequencies);
+                return logMsg;
+            }());
+
+            return numberOfFrequencies;
+        }
+        else {
+            long numberOfFrequencies = 54;
+
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`numberOfFrequencies` resolved from input dictionaries: value=";
+                logMsg += std::to_string(numberOfFrequencies);
+                return logMsg;
+            }());
+
+            return numberOfFrequencies;
+        }
     }
     catch (...) {
         std::throw_with_nested(
