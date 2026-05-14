@@ -329,6 +329,11 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                     //    paramId and cannot be expressed through the paramId concept
                     //    definition alone.
                     //
+                    // Important: Do NOT set "level" here. The eccodes concept for
+                    // "abstractLevel" requires scaleFactorOfFirstFixedSurface=MISSING
+                    // and scaledValueOfFirstFixedSurface=MISSING. Setting "level"
+                    // would override those to 0, violating the concept definition.
+                    //
                     // Affected parameters (ECMWF covariance fields):
                     //   254003 (covar_ssm_swvl1) -> second surface: soil level 1
                     //   254006 (covar_ssm_swvl2) -> second surface: soil level 2
@@ -336,9 +341,7 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                     // ------------------------------------------------------------------
                     using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-                    long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
                     set_or_throw<std::string>(out, "typeOfLevel", "abstractLevel");
-                    set_or_throw<long>(out, "level", levelVal);
 
                     // Set second fixed surface for covariance parameters that require it
                     long param = get_or_throw<long>(mars, "param");
