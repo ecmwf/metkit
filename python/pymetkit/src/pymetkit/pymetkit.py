@@ -395,6 +395,7 @@ class ParamDB:
 
         self._by_id: dict[int, dict] = {}
         self._by_shortname: dict[str, dict] = {}
+        self._by_shortname_all: dict[str, list[dict]] = {}
         self._by_longname: dict[str, dict] = {}
 
         if mode == "online":
@@ -410,6 +411,98 @@ class ParamDB:
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _table_from_id(param_id: int) -> int:
+        """Decode the GRIB parameter table number from an encoded param ID.
+
+        The encoding scheme mirrors the C++ ``Param::paramId()`` logic:
+
+        * IDs 1–999          → table 128 (classic ECMWF, table prefix suppressed)
+        * IDs 1 000–999 999  → ``table * 1000 + param``  (e.g. 228228 → table 228)
+        * IDs ≥ 1 000 000    → ``center * 1_000_000 + table * 1000 + param``
+          (e.g. 7001292 → center 7, table 1)
+        """
+        if param_id < 1_000:
+            return 128
+        elif param_id < 1_000_000:
+            return param_id // 1_000
+        else:
+            return (param_id % 1_000_000) // 1_000
+
+    @staticmethod
+    def _center_from_id(param_id: int) -> "int | None":
+        """Decode the originating WMO center from an encoded param ID.
+
+        Returns ``None`` for IDs below 1 000 000 (ECMWF-local parameters).
+        For IDs ≥ 1 000 000 the center is ``param_id // 1_000_000``.
+        """
+        if param_id >= 1_000_000:
+            return param_id // 1_000_000
+        return None
+
+    def _resolve_shortname_with_context(
+        self,
+        shortname: str,
+        table: "int | None" = None,
+        center: "int | None" = None,
+    ) -> dict:
+        """Return the best-matching entry for *shortname* given optional context.
+
+        Parameters
+        ----------
+        shortname:
+            The ECMWF short name to look up.
+        table:
+            GRIB parameter table number (e.g. ``128`` for classic ECMWF,
+            ``140`` for ocean waves, ``228`` for "Standard 2").  When
+            provided, only candidates whose encoded param ID belongs to this
+            table are considered.
+        center:
+            WMO originating centre number (e.g. ``98`` for ECMWF, ``7`` for
+            NCEP).  Only relevant for param IDs ≥ 1 000 000.  When provided,
+            only candidates from that centre are considered.
+
+        Returns
+        -------
+        dict
+            The matched parameter metadata entry.
+
+        Raises
+        ------
+        KeyError
+            If *shortname* is not found, or if no candidate matches the
+            supplied context.
+        """
+        if shortname not in self._by_shortname_all:
+            raise KeyError(f"Short name {shortname!r} not found in database")
+
+        candidates = self._by_shortname_all[shortname]
+
+        if table is None and center is None:
+            # No context — return the default (lowest id / first-write-wins).
+            return self._by_shortname[shortname]
+
+        filtered = candidates
+        if table is not None:
+            filtered = [e for e in filtered if self._table_from_id(e["id"]) == table]
+        if center is not None:
+            filtered = [e for e in filtered if self._center_from_id(e["id"]) == center]
+
+        if not filtered:
+            ctx_parts = []
+            if table is not None:
+                ctx_parts.append(f"table={table}")
+            if center is not None:
+                ctx_parts.append(f"center={center}")
+            raise KeyError(
+                f"Short name {shortname!r} not found for context "
+                f"{', '.join(ctx_parts)}"
+            )
+
+        # Among the filtered candidates return the one with the lowest id
+        # (most canonical).
+        return min(filtered, key=lambda e: e["id"])
 
     @staticmethod
     def _normalise(raw: dict) -> dict:
@@ -444,9 +537,17 @@ class ParamDB:
         if param_id is not None:
             self._by_id[int(param_id)] = entry
         if shortname is not None:
-            self._by_shortname[str(shortname)] = entry
+            sn = str(shortname)
+            # first-write-wins: entries are loaded in ascending id order, so the
+            # lowest (most canonical) id wins for the default shortname lookup.
+            if sn not in self._by_shortname:
+                self._by_shortname[sn] = entry
+            # _by_shortname_all keeps every candidate for context-aware lookup.
+            self._by_shortname_all.setdefault(sn, []).append(entry)
         if longname is not None:
-            self._by_longname[str(longname)] = entry
+            ln = str(longname)
+            if ln not in self._by_longname:
+                self._by_longname[ln] = entry
 
     def _load_online(
         self, cache_ttl: timedelta, cache_path: "Path | str | None"
@@ -607,20 +708,54 @@ class ParamDB:
     # Conversion methods
     # ------------------------------------------------------------------
 
-    def shortname_to_longname(self, shortname: str) -> str:
-        if shortname not in self._by_shortname:
-            raise KeyError(f"Short name {shortname!r} not found in database")
-        return self._by_shortname[shortname]["longname"]
+    def shortname_to_longname(
+        self,
+        shortname: str,
+        table: "int | None" = None,
+        center: "int | None" = None,
+    ) -> str:
+        """Return the long name for *shortname*.
+
+        Parameters
+        ----------
+        shortname:
+            ECMWF short name (e.g. ``"t"``, ``"tp"``).
+        table:
+            Optional GRIB parameter table number to disambiguate collisions
+            (e.g. ``128`` for classic ECMWF, ``140`` for ocean waves).
+        center:
+            Optional WMO originating centre number (e.g. ``98`` for ECMWF,
+            ``7`` for NCEP).  Only relevant for param IDs ≥ 1 000 000.
+        """
+        return self._resolve_shortname_with_context(shortname, table, center)["longname"]
 
     def longname_to_shortname(self, longname: str) -> str:
         if longname not in self._by_longname:
             raise KeyError(f"Long name {longname!r} not found in database")
         return self._by_longname[longname]["shortname"]
 
-    def shortname_to_param_id(self, shortname: str) -> int:
-        if shortname not in self._by_shortname:
-            raise KeyError(f"Short name {shortname!r} not found in database")
-        return int(self._by_shortname[shortname]["id"])
+    def shortname_to_param_id(
+        self,
+        shortname: str,
+        table: "int | None" = None,
+        center: "int | None" = None,
+    ) -> int:
+        """Return the param ID for *shortname*.
+
+        Parameters
+        ----------
+        shortname:
+            ECMWF short name (e.g. ``"t"``, ``"tp"``).
+        table:
+            Optional GRIB parameter table number to disambiguate collisions
+            (e.g. ``128`` for classic ECMWF, ``140`` for ocean waves).
+        center:
+            Optional WMO originating centre number (e.g. ``98`` for ECMWF,
+            ``7`` for NCEP).  Only relevant for param IDs ≥ 1 000 000.
+        """
+        return int(
+            self._resolve_shortname_with_context(shortname, table, center)["id"]
+        )
 
     def param_id_to_shortname(self, param_id: int) -> str:
         if param_id not in self._by_id:
@@ -668,6 +803,58 @@ class ParamDB:
         """
         entry = self._resolve(identifier)
         return entry.get("units", "unknown") or "unknown"
+
+    def get_all_by_shortname(self, shortname: str) -> "list[dict]":
+        """Return *all* parameter entries that share *shortname*.
+
+        Most short names map to exactly one param ID, but ~163 short names
+        are reused across different GRIB parameter tables or originating
+        centres.  This method exposes every candidate so callers can inspect
+        the collisions and choose the appropriate one.
+
+        Parameters
+        ----------
+        shortname:
+            ECMWF short name to look up.
+
+        Returns
+        -------
+        list[dict]
+            List of metadata dicts, sorted by ascending param ID.  Each dict
+            contains at minimum ``id``, ``shortname``, and ``longname``.
+
+        Raises
+        ------
+        KeyError
+            If *shortname* is not found in the database at all.
+
+        Examples
+        --------
+        >>> db = ParamDB()
+        >>> entries = db.get_all_by_shortname("t")
+        >>> [(e["id"], e["longname"]) for e in entries]
+        [(130, 'Temperature'), (500014, 'Temperature')]
+        """
+        if shortname not in self._by_shortname_all:
+            raise KeyError(f"Short name {shortname!r} not found in database")
+        return sorted(self._by_shortname_all[shortname], key=lambda e: e["id"])
+
+    def shortname_has_collisions(self, shortname: str) -> bool:
+        """Return ``True`` if *shortname* maps to more than one param ID.
+
+        Parameters
+        ----------
+        shortname:
+            ECMWF short name to check.
+
+        Raises
+        ------
+        KeyError
+            If *shortname* is not found in the database at all.
+        """
+        if shortname not in self._by_shortname_all:
+            raise KeyError(f"Short name {shortname!r} not found in database")
+        return len(self._by_shortname_all[shortname]) > 1
 
 
 try:
