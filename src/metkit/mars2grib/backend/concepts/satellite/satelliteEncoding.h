@@ -117,6 +117,7 @@
 // Deductions
 #include "metkit/mars2grib/backend/deductions/channel.h"
 #include "metkit/mars2grib/backend/deductions/instrumentType.h"
+#include "metkit/mars2grib/backend/deductions/numberOfFrequencies.h"
 #include "metkit/mars2grib/backend/deductions/satelliteNumber.h"
 #include "metkit/mars2grib/backend/deductions/satelliteSeries.h"
 #include "metkit/mars2grib/backend/deductions/scaleFactorOfCentralWaveNumber.h"
@@ -203,6 +204,7 @@ template <std::size_t Stage, std::size_t Section, SatelliteType Variant, class M
           class OptDict_t, class OutDict_t>
 void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
 
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -214,17 +216,44 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
-                // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24});
+                if constexpr (Variant == SatelliteType::BrightnessTemperature) {
 
-                // Deductions
-                long channel = deductions::resolve_Channel_or_throw(mars, par, opt);
+                    // Check/Validation
+                    validation::match_LocalDefinitionNumber_or_throw(opt, out, {37});
 
-                // Encoding
-                set_or_throw(out, "channel", channel);
+                    // Deductions
+                    long channelNumber       = deductions::resolve_Channel_or_throw(mars, par, opt);
+                    long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
+
+                    // Encoding
+                    set_or_throw<long>(out, "channelNumber", channelNumber);
+                    set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
+                }
+                else {
+
+                    // Check/Validation
+                    validation::match_LocalDefinitionNumber_or_throw(opt, out, {24});
+
+                    // Deductions
+                    long channel = deductions::resolve_Channel_or_throw(mars, par, opt);
+
+                    // Encoding
+                    set_or_throw(out, "channel", channel);
+                }
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
+
+                // BrightnessTemperature: section 4 satellite band metadata is only
+                // present for PDT 32/33 (satellite-specific templates). For derived
+                // products (PDT=2), satellite info lives exclusively in section 2
+                // (local def 37) — skip section 4 encoding entirely.
+                if constexpr (Variant == SatelliteType::BrightnessTemperature) {
+                    long pdt = get_or_throw<long>(out, "productDefinitionTemplateNumber");
+                    if (pdt != 32 && pdt != 33) {
+                        return;
+                    }
+                }
 
                 // Check/Validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
@@ -234,6 +263,15 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
+
+                // BrightnessTemperature: skip section 4 satellite encoding for
+                // non-satellite PDTs (e.g. PDT=2 for derived products).
+                if constexpr (Variant == SatelliteType::BrightnessTemperature) {
+                    long pdt = get_or_throw<long>(out, "productDefinitionTemplateNumber");
+                    if (pdt != 32 && pdt != 33) {
+                        return;
+                    }
+                }
 
                 // Check/Validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});

@@ -20,12 +20,29 @@
 ///
 /// - `typeOfLevel`
 /// - `level`
-/// - hybrid vertical coordinate parameters (`pv` array)
+/// - model-level coordinates and PV array (multi-level model layouts only)
+/// - layered levels expressed via `topLevel` / `bottomLevel`
+///
+/// The encoder behaviour is governed by three orthogonal compile-time
+/// predicates over the variant:
+///
+/// - `needPv<Variant>()`        : the variant requires a PV array
+///                                (currently only `ModelMultipleLevel`).
+/// - `needLevel<Variant>()`     : the variant carries a numeric `level`
+///                                value to be written.
+/// - `needTopBottomLevel<Variant>()` : the variant is expressed as a
+///                                layer with explicit `topLevel` and
+///                                `bottomLevel` GRIB keys.
+///
+/// These three axes are independent: any subset may apply to a given
+/// variant. A small number of variants additionally have hard-coded
+/// special cases inside `LevelOp` (for example the `*At2M` / `*At10M`
+/// shortcuts and the `IsobaricInHpa` Pa->hPa conversion).
 ///
 /// Depending on the selected level variant, the concept may:
 /// - set only the level type,
 /// - set both level type and numeric level,
-/// - allocate and populate the PV array (hybrid levels).
+/// - allocate and populate the PV array (multi-level model layouts).
 ///
 /// The implementation follows the standard mars2grib concept model:
 /// - Compile-time applicability via `levelApplicable`
@@ -67,8 +84,10 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Compile-time predicate indicating whether a PV array is required.
 ///
-/// Only hybrid vertical coordinates require a PV array describing the
-/// vertical transformation.
+/// Only multi-level model-level layouts require a PV array describing
+/// the vertical hybrid coordinate transformation. Single-level model
+/// fields share the GRIB `typeOfLevel="hybrid"` string but do not carry
+/// a vertical column and therefore do not need a PV array.
 ///
 /// @tparam Variant Level concept variant
 ///
@@ -77,7 +96,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <LevelType Variant>
 constexpr bool needPv() {
-    if constexpr (Variant == LevelType::Hybrid) {
+    if constexpr (Variant == LevelType::ModelMultipleLevel) {
         return true;
     }
     else {
@@ -91,8 +110,13 @@ constexpr bool needPv() {
 ///
 /// @brief Compile-time predicate indicating whether a numeric `level` value is required.
 ///
-/// Some level types require an associated numeric level (e.g. pressure, height),
-/// while others encode only the level type.
+/// Some level types require an associated numeric level (e.g. pressure,
+/// height, model-level number). Both model-level variants
+/// (`ModelSingleLevel` and `ModelMultipleLevel`) require it; they differ
+/// only in whether a PV array is also needed.
+///
+/// `AbstractLevel` carries an opaque numeric `level` value (in contrast
+/// to `AbstractSingleLevel` and `AbstractMultipleLevel`, which do not).
 ///
 /// @tparam Variant Level concept variant
 ///
@@ -104,10 +128,11 @@ constexpr bool needLevel() {
     if constexpr (Variant == LevelType::HeightAboveGroundAt10M || Variant == LevelType::HeightAboveGroundAt2M ||
                   Variant == LevelType::HeightAboveGround || Variant == LevelType::HeightAboveSeaAt10M ||
                   Variant == LevelType::HeightAboveSeaAt2M || Variant == LevelType::HeightAboveSea ||
-                  Variant == LevelType::Hybrid || Variant == LevelType::IsobaricInHpa ||
-                  Variant == LevelType::IsobaricInPa || Variant == LevelType::Isothermal ||
-                  Variant == LevelType::PotentialVorticity || Variant == LevelType::Theta ||
-                  Variant == LevelType::OceanModel) {
+                  Variant == LevelType::ModelSingleLevel || Variant == LevelType::ModelMultipleLevel ||
+                  Variant == LevelType::IsobaricInHpa || Variant == LevelType::IsobaricInPa ||
+                  Variant == LevelType::Isothermal || Variant == LevelType::PotentialVorticity ||
+                  Variant == LevelType::Theta || Variant == LevelType::OceanModel ||
+                  Variant == LevelType::AbstractLevel) {
         return true;
     }
     else {
@@ -156,7 +181,7 @@ constexpr bool needTopBottomLevel() {
 /// Applicability is evaluated entirely at compile time and is used by the
 /// concept dispatcher to control instantiation and execution.
 ///
-/// Hybrid levels require special handling:
+/// Multi-level model layouts require special handling:
 /// - during allocation stage to reserve space for the PV array,
 /// - during preset/runtime stages to set the level type and parameters.
 ///
@@ -223,7 +248,7 @@ constexpr bool levelApplicable() {
 /// - All runtime errors are wrapped with full concept context
 /// (concept name, variant, stage, section).
 /// - The concept does not rely on pre-existing GRIB header state.
-/// - Se of typeOfLevel is happening at both preset and runtime stages because
+/// - Setting of typeOfLevel is happening at both preset and runtime stages because
 /// sometimes due to sideeffects in eccodes the typeOfLevel set at preset stage
 /// can be overwritten before runtime stage.
 ///
@@ -285,6 +310,49 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
                     long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
                     set_or_throw<std::string>(out, "typeOfLevel", "isobaricInhPa");
                     set_or_throw<long>(out, "level", levelVal / 100);
+                }
+                else if constexpr (Variant == LevelType::AbstractLevel) {
+                    // ------------------------------------------------------------------
+                    // Special case: AbstractLevel
+                    //
+                    // AbstractLevel is a transitional level type that will be deprecated
+                    // once eccodes adds support for AbstractSingleLevel and
+                    // AbstractMultipleLevel. Until then, we handle it explicitly here
+                    // because:
+                    //
+                    // 1. Setting typeOfLevel="abstractLevel" via the eccodes ecmf concept
+                    //    forces typeOfSecondFixedSurface=255 (missing), which is incorrect
+                    //    for covariance parameters that require a second fixed surface
+                    //    (e.g. soil level).
+                    //
+                    // 2. The second fixed surface metadata is deterministic from the
+                    //    paramId and cannot be expressed through the paramId concept
+                    //    definition alone.
+                    //
+                    // Important: Do NOT set "level" here. The eccodes concept for
+                    // "abstractLevel" requires scaleFactorOfFirstFixedSurface=MISSING
+                    // and scaledValueOfFirstFixedSurface=MISSING. Setting "level"
+                    // would override those to 0, violating the concept definition.
+                    //
+                    // Affected parameters (ECMWF covariance fields):
+                    //   254003 (covar_ssm_swvl1) -> second surface: soil level 1
+                    //   254006 (covar_ssm_swvl2) -> second surface: soil level 2
+                    //   254009 (covar_ssm_swvl3) -> second surface: soil level 3
+                    // ------------------------------------------------------------------
+                    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+
+                    set_or_throw<std::string>(out, "typeOfLevel", "abstractLevel");
+
+                    // Set second fixed surface for covariance parameters that require it
+                    long param = get_or_throw<long>(mars, "param");
+                    if (param == 254003 || param == 254006 || param == 254009) {
+                        // typeOfSecondFixedSurface = 151 (soil level, code table 4.5)
+                        set_or_throw<long>(out, "typeOfSecondFixedSurface", 151L);
+                        set_or_throw<long>(out, "scaleFactorOfSecondFixedSurface", 0L);
+                        // Soil layer number: 254003->1, 254006->2, 254009->3
+                        long soilLayer = (param - 254001) / 3 + 1;
+                        set_or_throw<long>(out, "scaledValueOfSecondFixedSurface", soilLayer);
+                    }
                 }
                 else {
                     set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()));

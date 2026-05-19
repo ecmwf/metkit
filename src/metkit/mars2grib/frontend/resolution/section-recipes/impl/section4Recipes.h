@@ -43,6 +43,20 @@ inline const Recipe S4_R2 =
         Select<DerivedConcept>
     >();
 
+// Derived satellite (brightness temperature): uses standard PDT=2 for
+// derived products (em/es/ses). Satellite metadata lives in section 2
+// (local def 37) only — the SatelliteConcept is a no-op at section 4
+// for non-satellite PDTs.
+inline const Recipe S4_R2_SAT =
+    make_recipe<2,
+        Select<GeneratingProcessConcept>,
+        Select<PointInTimeConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<DerivedConcept>,
+        Select<SatelliteConcept, SatelliteType::BrightnessTemperature>
+    >();
+
 inline const Recipe S4_R8 =
     make_recipe<8,
         Select<GeneratingProcessConcept>,
@@ -295,7 +309,7 @@ inline const Recipe S4_R143 =
 
 inline const Recipes Section4Recipes{ 4,
     std::vector<const Recipe*>{
-        &S4_R0,  &S4_R1,  &S4_R2,
+        &S4_R0,  &S4_R1,  &S4_R2,  &S4_R2_SAT,
         &S4_R8,  &S4_R11, &S4_R12,
         &S4_R32, &S4_R33,
         &S4_R40, &S4_R41, &S4_R42, &S4_R43,
