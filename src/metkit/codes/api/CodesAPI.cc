@@ -407,7 +407,12 @@ std::vector<std::string> OwningCodesHandle::getStringArray(const std::string& ke
 
 std::vector<uint8_t> OwningCodesHandle::getBytes(const std::string& key) const {
     std::vector<uint8_t> ret;
-    std::size_t ksize = length(key) / 2;
+    /// Note: The returned length for bytes often is much higher than needed.
+    ///   For UIDs (i.e. "uuidOfHGrid"), the native type is BYTES, but length returns the number of characters in its
+    ///   string representation - which is twice the number of bytes. However, in contrast for fields like "bitmap" it
+    ///   directly returns the number of bytes. It has been discussed with Shahram several times without a change taking
+    ///   in.
+    std::size_t ksize = length(key);
     ret.resize(ksize);
     throwOnError(codes_get_bytes(raw(), key.c_str(), ret.data(), &ksize), Here(), "CodesHandle::getBytes(string)", key);
     ret.resize(ksize);
