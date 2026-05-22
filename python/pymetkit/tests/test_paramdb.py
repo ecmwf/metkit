@@ -619,9 +619,12 @@ def test_yaml_path_none_loads_default_yaml():
 
 
 def test_shortname_default_returns_lowest_id(db):
-    """Without context, shortname_to_param_id returns the lowest (most canonical) id."""
-    # 't' maps to both 130 (ECMWF table 128) and 500014 (table 500).
-    # The canonical ECMWF id 130 must win.
+    """Without context, shortname_to_param_id returns the canonical ECMWF id.
+
+    't' maps to both 130 (ECMWF table 128, dissemination, origin 98) and
+    500014 (table 500).  The default priority (dissemination → ECMWF origin →
+    lowest id) must resolve to 130.
+    """
     assert db.shortname_to_param_id("t") == 130
 
 
@@ -641,19 +644,38 @@ def test_shortname_to_longname_with_table(db):
     assert db.shortname_to_longname("t", table=500) == "Temperature"
 
 
+def test_shortname_to_param_id_with_origin_ecmwf(db):
+    """origin=98 (ECMWF) selects the canonical ECMWF parameter."""
+    assert db.shortname_to_param_id("t", origin=98) == 130
+
+
+def test_shortname_to_param_id_with_access_dissemination(db):
+    """access='dissemination' filters to dissemination parameters."""
+    # 't' id=130 has dissemination; result must be 130.
+    assert db.shortname_to_param_id("t", access="dissemination") == 130
+
+
 def test_shortname_to_param_id_unknown_table_raises(db):
     """Requesting a table that has no entry for the shortname raises KeyError."""
     with pytest.raises(KeyError, match="table=999"):
         db.shortname_to_param_id("t", table=999)
 
 
+def test_shortname_to_param_id_unknown_origin_raises(db):
+    """Requesting an origin with no entry for the shortname raises KeyError."""
+    with pytest.raises(KeyError, match="origin=9999"):
+        db.shortname_to_param_id("t", origin=9999)
+
+
+def test_shortname_to_param_id_unknown_access_raises(db):
+    """Requesting an access value with no matching entry raises KeyError."""
+    with pytest.raises(KeyError, match="access="):
+        db.shortname_to_param_id("strf", access="nonexistent_access")
+
+
 def test_shortname_to_param_id_center_context(db):
-    """center context filters to the correct originating centre."""
-    # 't' id=500014 encodes center=0 (table 500, no explicit centre prefix).
-    # A param with id >= 1_000_000 would encode a centre; use a known one if
-    # present, otherwise just verify the helper doesn't crash on a valid call.
-    # We test the helper logic directly via _resolve_shortname_with_context.
-    entry = db._resolve_shortname_with_context("t", table=128)
+    """origin context filters to the correct originating centre."""
+    entry = db._resolve_shortname_with_context("t", origin=98)
     assert entry["id"] == 130
 
 
@@ -726,6 +748,26 @@ def test_center_from_id_above_million():
     """IDs >= 1_000_000 decode the centre correctly."""
     assert ParamDB._center_from_id(7001292) == 7
     assert ParamDB._center_from_id(85001156) == 85
+
+
+def test_default_resolution_prefers_dissemination_then_ecmwf(db):
+    """Default resolution: dissemination params with ECMWF origin win."""
+    # 't' → 130 has dissemination + origin 98; 500014 does not have origin 98.
+    assert db.shortname_to_param_id("t") == 130
+
+
+def test_origin_ids_stored_in_metadata(db):
+    """origin_ids field is present and populated for well-known params."""
+    meta = db.get_metadata(130)
+    assert "origin_ids" in meta
+    assert 98 in meta["origin_ids"]  # ECMWF
+
+
+def test_access_ids_stored_in_metadata(db):
+    """access_ids field is present for well-known dissemination params."""
+    meta = db.get_metadata(130)
+    assert "access_ids" in meta
+    assert "dissemination" in meta["access_ids"]
 
 
 def test_first_write_wins_for_shortname(db):

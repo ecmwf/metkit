@@ -16,6 +16,7 @@ from pathlib import Path
 
 PARAM_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
 UNIT_URL = "https://codes.ecmwf.int/parameter-database/api/v1/unit/"
+ORIGIN_URL = "https://codes.ecmwf.int/parameter-database/api/v1/origin/"
 
 # Output paths: canonical location is share/metkit/ at the repo root, which is
 # four parent directories above this module file:
@@ -90,14 +91,83 @@ def write_unit_yaml(units: list[dict], output_path: Path = UNIT_OUTPUT) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Origins
+# ---------------------------------------------------------------------------
+
+
+def fetch_origin_map(
+    origin_url: str = ORIGIN_URL,
+    param_url: str = PARAM_URL,
+) -> tuple[dict[int, dict], dict[int, list[int]]]:
+    """Fetch all origins and build a reverse map of param_id -> [origin_ids].
+
+    The ``/param/`` endpoint does not include an ``origin`` field in its
+    response, so we derive the mapping by querying each origin's filtered
+    parameter list via ``/param/?origin=<id>``.
+
+    Returns
+    -------
+    origins : dict[int, dict]
+        Mapping of origin_id -> origin metadata (id, abbreviation, name).
+    param_origin_map : dict[int, list[int]]
+        Mapping of param_id -> sorted list of origin_ids that include it.
+    """
+    print(f"Fetching origins from {origin_url} ...")
+    response = requests.get(origin_url, timeout=REQUEST_TIMEOUT)
+    response.raise_for_status()
+    raw_origins = response.json()
+    print(f"  Received {len(raw_origins)} origins.")
+
+    origins: dict[int, dict] = {o["id"]: o for o in raw_origins}
+    param_origin_map: dict[int, list[int]] = {}
+
+    for origin in raw_origins:
+        oid = origin["id"]
+        abbr = origin.get("abbreviation", str(oid))
+        print(f"  Fetching params for origin={oid} ({abbr}) ...")
+        r = requests.get(
+            param_url, params={"origin": oid}, timeout=REQUEST_TIMEOUT
+        )
+        r.raise_for_status()
+        origin_params = r.json()
+        print(f"    {len(origin_params)} params.")
+        for p in origin_params:
+            pid = int(p["id"])
+            param_origin_map.setdefault(pid, []).append(oid)
+
+    # Sort each origin list for deterministic output
+    for pid in param_origin_map:
+        param_origin_map[pid].sort()
+
+    return origins, param_origin_map
+
+
+# ---------------------------------------------------------------------------
 # Parameters
 # ---------------------------------------------------------------------------
 
 
 def fetch_parameters(
-    url: str = PARAM_URL, unit_map: dict[int, str] = None
+    url: str = PARAM_URL,
+    unit_map: "dict[int, str] | None" = None,
+    param_origin_map: "dict[int, list[int]] | None" = None,
 ) -> list[dict]:
-    """Fetch all parameters from the ECMWF parameter database API."""
+    """Fetch all parameters from the ECMWF parameter database API.
+
+    Parameters
+    ----------
+    url:
+        The parameter API endpoint.
+    unit_map:
+        Mapping of unit_id -> unit name string, used to resolve the
+        ``units`` field.  When ``None`` the units field is left empty.
+    param_origin_map:
+        Mapping of param_id -> list of origin_ids, built by
+        :func:`fetch_origin_map`.  When provided, each entry gains an
+        ``origin_ids`` field containing the sorted list of WMO originating
+        centre IDs that include this parameter.  When ``None`` the field
+        is omitted.
+    """
     print(f"Fetching parameters from {url} ...")
     response = requests.get(url, timeout=REQUEST_TIMEOUT)
     response.raise_for_status()
@@ -118,13 +188,22 @@ def fetch_parameters(
         else:
             units = ""
 
+        pid = int(raw["id"])
+
         entry = {
-            "id": int(raw["id"]),
+            "id": pid,
             "shortname": shortname,
             "longname": raw.get("name", ""),
             "units": units,
             "description": raw.get("description", ""),
+            # access_ids indicates dissemination availability; preserve as-is.
+            "access_ids": raw.get("access_ids", []),
         }
+
+        # Attach origin_ids derived from the per-origin filtered queries.
+        if param_origin_map is not None:
+            entry["origin_ids"] = param_origin_map.get(pid, [])
+
         result.append(entry)
 
     result.sort(key=lambda e: e["id"])
@@ -152,5 +231,7 @@ if __name__ == "__main__":
     units, unit_map = fetch_units()
     write_unit_yaml(units)
 
-    parameters = fetch_parameters(unit_map=unit_map)
+    _, param_origin_map = fetch_origin_map()
+
+    parameters = fetch_parameters(unit_map=unit_map, param_origin_map=param_origin_map)
     write_param_yaml(parameters)

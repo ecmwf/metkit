@@ -338,6 +338,21 @@ class ParamDB:
     request.  The cache is stored under the OS user-cache directory
     (e.g. ``~/.cache/pymetkit/`` on Linux, ``~/Library/Caches/pymetkit/``
     on macOS) using the fixed filename defined by ``_CACHE_FILENAME``.
+
+    Shortname collision resolution
+    --------------------------------
+    Some short names (e.g. ``t``, ``tp``, ``u``) are reused across different
+    GRIB parameter tables and originating centres.  When no context is given
+    the default resolution priority is:
+
+    1. Prefer parameters with ``"dissemination"`` in their ``access_ids``.
+    2. Among those, prefer parameters whose ``origin_ids`` include an origin
+       from ``_DEFAULT_ORIGIN_PREFERENCE`` (tried in order).
+    3. Fall back to the lowest param ID.
+
+    Pass ``table=``, ``origin=``, or ``access=`` to
+    :meth:`shortname_to_param_id` / :meth:`shortname_to_longname` to override
+    this behaviour explicitly.
     """
 
     _API_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
@@ -350,6 +365,11 @@ class ParamDB:
 
     #: Default HTTP request timeout in seconds for online API calls.
     _REQUEST_TIMEOUT = 30
+
+    #: Ordered list of WMO originating centre IDs tried when resolving a
+    #: colliding shortname with no explicit ``origin=`` context.
+    #: 98 = ECMWF, 0 = WMO.
+    _DEFAULT_ORIGIN_PREFERENCE: list[int] = [98, 0]
 
     def __init__(
         self,
@@ -445,7 +465,8 @@ class ParamDB:
         self,
         shortname: str,
         table: "int | None" = None,
-        center: "int | None" = None,
+        origin: "int | None" = None,
+        access: "str | None" = None,
     ) -> dict:
         """Return the best-matching entry for *shortname* given optional context.
 
@@ -458,10 +479,14 @@ class ParamDB:
             ``140`` for ocean waves, ``228`` for "Standard 2").  When
             provided, only candidates whose encoded param ID belongs to this
             table are considered.
-        center:
-            WMO originating centre number (e.g. ``98`` for ECMWF, ``7`` for
-            NCEP).  Only relevant for param IDs ≥ 1 000 000.  When provided,
-            only candidates from that centre are considered.
+        origin:
+            WMO originating centre ID (e.g. ``98`` for ECMWF, ``0`` for WMO,
+            ``7`` for NCEP).  When provided, only candidates whose
+            ``origin_ids`` list includes this value are considered.
+        access:
+            Access category string (e.g. ``"dissemination"``).  When
+            provided, only candidates whose ``access_ids`` list includes this
+            value are considered.
 
         Returns
         -------
@@ -479,30 +504,53 @@ class ParamDB:
 
         candidates = self._by_shortname_all[shortname]
 
-        if table is None and center is None:
-            # No context — return the default (lowest id / first-write-wins).
-            return self._by_shortname[shortname]
-
-        filtered = candidates
+        # --- Explicit context filters (hard constraints) ---
         if table is not None:
-            filtered = [e for e in filtered if self._table_from_id(e["id"]) == table]
-        if center is not None:
-            filtered = [e for e in filtered if self._center_from_id(e["id"]) == center]
+            candidates = [
+                e for e in candidates if self._table_from_id(e["id"]) == table
+            ]
+        if origin is not None:
+            candidates = [
+                e for e in candidates if origin in e.get("origin_ids", [])
+            ]
+        if access is not None:
+            candidates = [
+                e for e in candidates if access in e.get("access_ids", [])
+            ]
 
-        if not filtered:
+        if not candidates:
             ctx_parts = []
             if table is not None:
                 ctx_parts.append(f"table={table}")
-            if center is not None:
-                ctx_parts.append(f"center={center}")
+            if origin is not None:
+                ctx_parts.append(f"origin={origin}")
+            if access is not None:
+                ctx_parts.append(f"access={access!r}")
             raise KeyError(
                 f"Short name {shortname!r} not found for context "
                 f"{', '.join(ctx_parts)}"
             )
 
-        # Among the filtered candidates return the one with the lowest id
-        # (most canonical).
-        return min(filtered, key=lambda e: e["id"])
+        # If any explicit context was given, return the lowest-id match among
+        # the filtered set and skip the default priority logic.
+        if table is not None or origin is not None or access is not None:
+            return min(candidates, key=lambda e: e["id"])
+
+        # --- Default priority logic (no explicit context) ---
+        # 1. Prefer dissemination parameters.
+        dissem = [e for e in candidates if "dissemination" in e.get("access_ids", [])]
+        pool = dissem if dissem else candidates
+
+        # 2. Among the pool, prefer origins in _DEFAULT_ORIGIN_PREFERENCE order.
+        for preferred_origin in self._DEFAULT_ORIGIN_PREFERENCE:
+            origin_match = [
+                e for e in pool if preferred_origin in e.get("origin_ids", [])
+            ]
+            if origin_match:
+                return min(origin_match, key=lambda e: e["id"])
+
+        # 3. Fall back to lowest id.
+        return min(pool, key=lambda e: e["id"])
 
     @staticmethod
     def _normalise(raw: dict) -> dict:
@@ -712,7 +760,8 @@ class ParamDB:
         self,
         shortname: str,
         table: "int | None" = None,
-        center: "int | None" = None,
+        origin: "int | None" = None,
+        access: "str | None" = None,
     ) -> str:
         """Return the long name for *shortname*.
 
@@ -723,11 +772,15 @@ class ParamDB:
         table:
             Optional GRIB parameter table number to disambiguate collisions
             (e.g. ``128`` for classic ECMWF, ``140`` for ocean waves).
-        center:
-            Optional WMO originating centre number (e.g. ``98`` for ECMWF,
-            ``7`` for NCEP).  Only relevant for param IDs ≥ 1 000 000.
+        origin:
+            Optional WMO originating centre ID (e.g. ``98`` for ECMWF,
+            ``0`` for WMO, ``7`` for NCEP).
+        access:
+            Optional access category filter (e.g. ``"dissemination"``).
         """
-        return self._resolve_shortname_with_context(shortname, table, center)["longname"]
+        return self._resolve_shortname_with_context(
+            shortname, table, origin, access
+        )["longname"]
 
     def longname_to_shortname(self, longname: str) -> str:
         if longname not in self._by_longname:
@@ -738,7 +791,8 @@ class ParamDB:
         self,
         shortname: str,
         table: "int | None" = None,
-        center: "int | None" = None,
+        origin: "int | None" = None,
+        access: "str | None" = None,
     ) -> int:
         """Return the param ID for *shortname*.
 
@@ -749,12 +803,16 @@ class ParamDB:
         table:
             Optional GRIB parameter table number to disambiguate collisions
             (e.g. ``128`` for classic ECMWF, ``140`` for ocean waves).
-        center:
-            Optional WMO originating centre number (e.g. ``98`` for ECMWF,
-            ``7`` for NCEP).  Only relevant for param IDs ≥ 1 000 000.
+        origin:
+            Optional WMO originating centre ID (e.g. ``98`` for ECMWF,
+            ``0`` for WMO, ``7`` for NCEP).
+        access:
+            Optional access category filter (e.g. ``"dissemination"``).
         """
         return int(
-            self._resolve_shortname_with_context(shortname, table, center)["id"]
+            self._resolve_shortname_with_context(
+                shortname, table, origin, access
+            )["id"]
         )
 
     def param_id_to_shortname(self, param_id: int) -> str:
