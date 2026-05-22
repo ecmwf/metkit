@@ -126,4 +126,14 @@ bool Matcher::match(const RequestLike& request, MatchMissingPolicy matchOnMissin
     });
 }
 
+void Matcher::print(std::ostream& s) const {
+    s << "{";
+    const char* sep = "";
+    for (const auto& [key, regex] : regexMap_) {
+        s << sep << key << "=" << static_cast<const std::string&>(regex);
+        sep = ",";
+    }
+    s << "}";
+}
+
 }  // namespace metkit::mars
