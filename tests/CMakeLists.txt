@@ -55,9 +55,16 @@ ecbuild_add_test( TARGET        metkit_test_odbsplitter
                   NO_AS_NEEDED
                   LIBS          metkit )
 
+ecbuild_add_test( TARGET       metkit_test_codes_api
+                  CONDITION    HAVE_GRIB OR HAVE_BUFR
+                  SOURCES      test_codes_api.cc
+                  INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                  ENVIRONMENT  "${metkit_env}"
+                  NO_AS_NEEDED
+                  LIBS         metkit)
+
 foreach( test
         c_api
-        codes_api
         context
         date
         expand

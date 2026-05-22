@@ -24,6 +24,13 @@ if(NOT METKIT_CONFIGS_BRANCH)
     set(METKIT_CONFIGS_BRANCH chk)
 endif()
 
+# eckit
+
+set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
+
+ecbuild_find_package( NAME eckit  VERSION  1.32 REQUIRED )
+
+
 ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
                     DESCRIPTION "Build the command line tools" )
@@ -36,14 +43,14 @@ ecbuild_add_option( FEATURE EXPERIMENTAL
 ecbuild_add_option( FEATURE GRIB
                     DEFAULT ON
                     DESCRIPTION "Add support for GRIB format"
-                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.27" )
+                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.46" )
 
 # BUFR support
 
 ecbuild_add_option( FEATURE BUFR
                     DEFAULT ON
                     DESCRIPTION "Add support for BUFR format"
-                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.27" )
+                    REQUIRED_PACKAGES "NAME eccodes VERSION 2.46" )
 
 # netcdf support
 
@@ -64,6 +71,7 @@ ecbuild_add_option( FEATURE ODB
 
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
+                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO
                     DESCRIPTION "Build the MARS2GRIB encoder" )
 
 # Python bindings for mars2grib encoder
@@ -86,11 +94,7 @@ ecbuild_add_option( FEATURE METKIT_CONFIG
 ecbuild_add_option( FEATURE FAIL_ON_CCSDS
                     DESCRIPTION "Fail on CCSDS"
                     DEFAULT OFF	 )
-# eckit
 
-set( PERSISTENT_NAMESPACE "eckit" CACHE INTERNAL "" ) # needed for generating .b files for persistent support
-
-ecbuild_find_package( NAME eckit  VERSION  1.32 REQUIRED )
 
 ############################################################################################
 # sources

@@ -22,19 +22,13 @@ namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class [[deprecated]] MarsExpandContext {
+class MarsExpandContext {
 
     void info(std::ostream&) const {}
 
 public:
 
     friend std::ostream& operator<<(std::ostream& s, const MarsExpandContext& r) { return s; }
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-class [[deprecated]] DummyContext : public MarsExpandContext {
-    using MarsExpandContext::MarsExpandContext;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -18237,6 +18237,12 @@
 254030:
 - covar_skt_tsn3
 - Covariance between skin temperature and temperature of snow layer 3
+254500:
+- curvmsl
+- CURV diagnostic mean sea level pressure
+254501:
+- curvz
+- CURV diagnostic geopotential
 260001:
 - tcolg
 - Total column vertically-integrated graupel (snow pellets)
@@ -20466,6 +20472,9 @@
 262522:
 - rsdo
 - Sea water downward short-wave radiation flux
+262523:
+- sigmatrel
+- Sea water sigma theta relative
 262900:
 - ssr_sea
 - Net short wave radiation rate at sea surface
@@ -20793,6 +20802,9 @@
 263522:
 - avg_rsdo
 - Time-mean sea water downward short-wave radiation flux
+263523:
+- avg_sigmatrel
+- Time-mean sea water sigma theta relative
 263900:
 - avg_ssr_sea
 - Time-mean net short wave radiation rate at sea surface
