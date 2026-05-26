@@ -13,7 +13,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 
 template <class MarsDict_t, class OptDict_t>
 std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
 
     const auto& type = get_or_throw<std::string>(mars, "type");
     if (type == "em" ||    // Ensemble mean
@@ -25,6 +27,11 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         type == "sot"      // Shift of tails
     ) {
         return static_cast<std::size_t>(DerivedType::Default);
+    }
+
+    if (has(mars, "channel") && has(mars, "param") && get_or_throw<long>(mars, "param") == 194 && has(mars, "stream") &&
+        get_or_throw<std::string>(mars, "stream") == "elda") {
+        return static_cast<std::size_t>(DerivedType::BrightnessTemperature);
     }
 
     return compile_time_registry_engine::MISSING;
