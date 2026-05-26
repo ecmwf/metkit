@@ -81,6 +81,7 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = 
     {24, &allocateTemplateNumber2<2, 24, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {25, &allocateTemplateNumber2<2, 25, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {36, &allocateTemplateNumber2<2, 36, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {37, &allocateTemplateNumber2<2, 37, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {38, &allocateTemplateNumber2<2, 38, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {39, &allocateTemplateNumber2<2, 39, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1000, &allocateTemplateNumber2<2, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
