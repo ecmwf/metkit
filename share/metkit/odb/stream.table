@@ -69,6 +69,9 @@
 1095 wamf Wave monthly forecast
 1096 wmfm Wave monthly forecast means
 1097 smma Seasonal monthly means anomalies
+1098 clte Climate run output
+1099 clmn Climate run monthly means output
+1100 dame Daily means
 1110 seap Sensitive area prediction
 1120 eefh Extended ensemble forecast hindcast
 1121 eehs Extended ensemble forecast hindcast statistics
@@ -113,6 +116,20 @@
 1253 ocda Ocean data assimilation
 1254 olda Ocean Long window data assimilation
 1255 gfra Global Fire assimilation system reanalysis
+1256 rfsd Retrospective forcing and simulation data
+1257 sttd Statistics of deterministic data
+1258 stte Statistics of ensemble data
+1259 xwda eXtended Window Data Assimilation
+1260 sfdd Seasonal forecast daily and sub-daily data
+1261 sfmd Seasonal forecast monthly data
+1262 shdd Seasonal hindcast daily and sub-daily data
+1263 shmd Seasonal hindcast monthly data
+1264 sfdp Seasonal forecast derived products
+1265 shdp Seasonal hindcast derived products
+1266 ldas Land data-assimilation system (near real time)
+1267 ldbt Land data-assimilation system behind real time
+1268 ldst Land data-assimilation system statistics (near real time)
+1269 ldsb Land data-assimilation system statistics behind real time
 2231 cnrm Meteo France climate centre
 2232 mpic Max Plank Institute
 2233 ukmo UKMO climate centre
