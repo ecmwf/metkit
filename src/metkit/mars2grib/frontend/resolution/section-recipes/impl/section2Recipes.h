@@ -72,7 +72,7 @@ inline const Recipe S2_R37B =
     make_recipe<37,
         Select<MarsConcept>,
         Select<AnalysisConcept>,
-        Select<DerivedConcept, DerivedType::BrightnessTemperature>
+        Select<DerivedConcept, DerivedType::BrightnessTemperatureEnsembleMean>
     >();
 
 // 4i Analysis-related products

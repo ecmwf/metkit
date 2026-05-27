@@ -83,7 +83,7 @@ inline constexpr std::string_view derivedName{"derived"};
 /// tables and registries.
 ///
 enum class DerivedType : std::size_t {
-    BrightnessTemperature,  // Special variant for satellite brightness temperature products
+    BrightnessTemperatureEnsembleMean,  // Special variant for satellite brightness temperature products
     Default
 };
 
@@ -100,7 +100,7 @@ enum class DerivedType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using DerivedList = ValueList<DerivedType::BrightnessTemperature, DerivedType::Default>;
+using DerivedList = ValueList<DerivedType::BrightnessTemperatureEnsembleMean, DerivedType::Default>;
 
 
 ///
@@ -130,7 +130,7 @@ constexpr std::string_view derivedTypeName();
         return NAME;                                  \
     }
 
-DEF(DerivedType::BrightnessTemperature, "brightnessTemperature");
+DEF(DerivedType::BrightnessTemperatureEnsembleMean, "brightnessTemperatureEnsembleMean");
 DEF(DerivedType::Default, "default");
 
 #undef DEF
