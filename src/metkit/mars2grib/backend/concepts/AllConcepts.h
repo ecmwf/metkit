@@ -99,9 +99,11 @@
 #include "metkit/mars2grib/backend/concepts/destine/destineConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/iteration/iterationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/mars/marsConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/model-error/modelErrorConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/nil/nilConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/origin/originConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
@@ -168,10 +170,10 @@ using TypeList = metkit::mars2grib::backend::compile_time_registry_engine::TypeL
 /// Higher-level code should interact with concepts exclusively through
 /// registry APIs, not by iterating this list directly.
 ///
-using AllConcepts =
-    TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept, EnsembleConcept,
-             GeneratingProcessConcept, LevelConcept, LongrangeConcept, MarsConcept, NilConcept, OriginConcept,
-             PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept,
-             SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept>;
+using AllConcepts = TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept,
+                             EnsembleConcept, GeneratingProcessConcept, LevelConcept, LongrangeConcept,
+                             IterationConcept, MarsConcept, NilConcept, OriginConcept, PackingConcept, ParamConcept,
+                             PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept, SatelliteConcept,
+                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept, ModelErrorConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

@@ -33,10 +33,10 @@ inline std::size_t matchSFC(const long param) {
     if (matchAny(param, 262118)) {
         return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
     }
-    if (matchAny(param, 59, 78, 79, 136, 137, 164, 206, range(162059, 162063), 162071, 162072, 162093, 228001, 228044,
-                 228050, 228052, range(228088, 228090), 228164, 235087, 235088, 235136, 235137, 235287, 235288, 235290,
-                 235326, 235383, 237087, 237088, 237137, 237287, 237288, 237290, 237326, 238087, 238088, 238137, 238287,
-                 238288, 238290, 238326, 239087, 239088, 239137, 239287, 239288, 239290, 239326, 260132)) {
+    if (matchAny(param, 59, 78, 79, 136, 137, 164, 194, 206, range(162059, 162063), 162071, 162072, 162093, 228001,
+                 228044, 228050, 228052, range(228088, 228090), 228164, 235087, 235088, 235136, 235137, 235287, 235288,
+                 235290, 235326, 235383, 237087, 237088, 237137, 237287, 237288, 237290, 237326, 238087, 238088, 238137,
+                 238287, 238288, 238290, 238326, 239087, 239088, 239137, 239287, 239288, 239290, 239326, 260132)) {
         return static_cast<std::size_t>(LevelType::EntireAtmosphere);
     }
     if (matchAny(param, 228007, 228011)) {
@@ -126,11 +126,6 @@ inline std::size_t matchSFC(const long param) {
         return static_cast<std::size_t>(LevelType::Tropopause);
     }
 
-    // Satellite
-    if (matchAny(param, 194)) {
-        return static_cast<std::size_t>(LevelType::Surface);
-    }
-
     // Chemical
     if (matchAny(param, range(228080, 228085), range(233032, 233035), range(235062, 235064))) {
         return static_cast<std::size_t>(LevelType::Surface);
@@ -139,6 +134,14 @@ inline std::size_t matchSFC(const long param) {
     // Wave period
     if (matchAny(param, range(140114, 140120))) {
         return compile_time_registry_engine::MISSING;
+    }
+
+    // ECMWF covariance paramIds (254001..254017) are defined in
+    // eccodes/definitions/grib2/localConcepts/{ecmf,era6}/paramId.def with
+    // typeOfFirstFixedSurface=254, which maps to the eccodes typeOfLevel
+    // concept "abstractLevel".
+    if (matchAny(param, range(254001, 254017))) {
+        return static_cast<std::size_t>(LevelType::AbstractLevel);
     }
 
     throw utils::exceptions::Mars2GribMatcherException(
@@ -162,9 +165,19 @@ inline std::size_t matchML(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, range(21, 23), range(75, 77), range(129, 133), 135, 138, 152, range(155, 157), 203,
-                 range(246, 248), range(162100, 162113), 260290, 260292, 260293)) {
-        return static_cast<std::size_t>(LevelType::Hybrid);
+    // Single-level subset of ML params: 2D fields published on the
+    // model-level levtype but not requiring a vertical PV array. This
+    // guard fires before the multi-level rule below; params listed here
+    // are removed from the multi-level set.
+    if (matchAny(param, 22, 127, 128, 129, 152)) {
+        return static_cast<std::size_t>(LevelType::ModelSingleLevel);
+    }
+
+    // Multi-level model fields: full vertical column, require allocation
+    // and population of the PV array describing the hybrid coordinate.
+    if (matchAny(param, 21, 23, range(75, 77), range(130, 133), 135, 138, range(155, 157), 203, range(246, 248),
+                 range(162100, 162113), 260290, 260292, 260293)) {
+        return static_cast<std::size_t>(LevelType::ModelMultipleLevel);
     }
 
     throw utils::exceptions::Mars2GribMatcherException(
@@ -273,10 +286,10 @@ inline std::size_t matchO2D(const long param) {
     if (matchAny(param, 262116)) {
         return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
     }
-    if (matchAny(param, 262118, 262119, 262121, 262122)) {
+    if (matchAny(param, 262118, 262119, 262121, 262122, 262146, 262147)) {
         return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
     }
-    if (matchAny(param, 262120, 262123)) {
+    if (matchAny(param, 262120, 262123, 262148)) {
         return static_cast<std::size_t>(LevelType::OceanSurfaceToBottom);
     }
     if (matchAny(param, 262141)) {

@@ -34,7 +34,7 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                  260509, 260688, 261001, 261002, range(261014, 261016), 261018, 261023, range(262000, 262009), 262011,
                  262014, 262015, 262017, 262018, 262023, 262024, range(262100, 262106), range(262108, 262112),
                  range(262113, 262116), range(262118, 262125), 262130, range(262139, 262141), 262143, 262144,
-                 range(262500, 262502), range(262505, 262507), 262900, 262906, 262907)) {
+                 range(262146, 262149), range(262500, 262502), range(262505, 262507), 262900, 262906, 262907)) {
         return static_cast<std::size_t>(PointInTimeType::Default);
     }
 
@@ -50,6 +50,16 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
     // Chemical products
     if (matchAny(param, range(228083, 228085))) {
+        return static_cast<std::size_t>(PointInTimeType::Default);
+    }
+
+    // ECMWF covariance / analysis-uncertainty paramIds (254001..254017).
+    // These are point-in-time products living on the abstractLevel
+    // (typeOfFirstFixedSurface=254) and are used with MARS type=est
+    // (individual ensemble member, PDT=1) as well as with non-ensemble
+    // analyses (PDT=0). Without this mapping, PointInTimeConcept is left
+    // inactive and Section 4 recipe selection fails with "No matching recipe".
+    if (matchAny(param, range(254001, 254017))) {
         return static_cast<std::size_t>(PointInTimeType::Default);
     }
 

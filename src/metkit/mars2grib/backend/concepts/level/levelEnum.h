@@ -81,9 +81,26 @@ inline constexpr std::string_view levelName{"level"};
 /// - concrete GRIB levels (e.g. isobaric, hybrid, heightAboveGround)
 /// - abstract or logical levels used internally by the encoder
 ///
+/// @note
+/// Model-level coordinates are split into two variants:
+/// - `ModelSingleLevel` for fields published as a single 2D layer on the
+///   model-level system (no vertical column, no PV array).
+/// - `ModelMultipleLevel` for full vertical columns of model-level data,
+///   which require allocation and population of the PV array describing
+///   the vertical hybrid coordinate transformation.
+/// Both variants share the GRIB `typeOfLevel` string `"hybrid"`; they
+/// differ only in encoder behaviour (PV allocation).
+///
+/// @note
+/// Three abstract variants exist:
+/// - `AbstractSingleLevel` and `AbstractMultipleLevel`: opaque level
+///   identifiers without an associated numeric `level` value.
+/// - `AbstractLevel`: opaque level identifier that carries a numeric
+///   `level` value (encoded via the `level` GRIB key).
+///
 /// @warning
-/// Do not reorder existing enumerators, as they are used in compile-time
-/// tables and registries.
+/// Do not reorder existing enumerators in future changes, as their
+/// numeric values are used in compile-time tables and registries.
 ///
 enum class LevelType : std::size_t {
     Surface = 0,
@@ -103,7 +120,8 @@ enum class LevelType : std::size_t {
     MeanSea,
     HeightAboveSea,
     HeightAboveGround,
-    Hybrid,
+    ModelSingleLevel,    ///< 2D field on model-level system; no PV array.
+    ModelMultipleLevel,  ///< Full vertical column of model-level data; requires PV array.
     Theta,
     PotentialVorticity,
     SnowLayer,
@@ -124,6 +142,7 @@ enum class LevelType : std::size_t {
     EntireMeltPond,
     WaterSurfaceToIsothermalOceanLayer,
     AbstractSingleLevel,
+    AbstractLevel,  ///< Opaque level identifier carrying a numeric `level` value.
     AbstractMultipleLevel,
     HeightAboveSeaAt10M,
     HeightAboveSeaAt2M,
@@ -150,15 +169,16 @@ using LevelList =
               LevelType::Tropopause, LevelType::NominalTop, LevelType::MostUnstableParcel, LevelType::MixedLayerParcel,
               LevelType::Isothermal, LevelType::IsobaricInPa, LevelType::IsobaricInHpa, LevelType::LowCloudLayer,
               LevelType::MediumCloudLayer, LevelType::HighCloudLayer, LevelType::MeanSea, LevelType::HeightAboveSea,
-              LevelType::HeightAboveGround, LevelType::Hybrid, LevelType::Theta, LevelType::PotentialVorticity,
-              LevelType::SnowLayer, LevelType::SoilLayer, LevelType::SeaIceLayer, LevelType::OceanSurface,
-              LevelType::DepthBelowSeaLayer, LevelType::OceanSurfaceToBottom, LevelType::LakeBottom,
-              LevelType::MixingLayer, LevelType::OceanModel, LevelType::OceanModelLayer,
-              LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
+              LevelType::HeightAboveGround, LevelType::ModelSingleLevel, LevelType::ModelMultipleLevel,
+              LevelType::Theta, LevelType::PotentialVorticity, LevelType::SnowLayer, LevelType::SoilLayer,
+              LevelType::SeaIceLayer, LevelType::OceanSurface, LevelType::DepthBelowSeaLayer,
+              LevelType::OceanSurfaceToBottom, LevelType::LakeBottom, LevelType::MixingLayer, LevelType::OceanModel,
+              LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
               LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
               LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel,
-              LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M,
-              LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M, LevelType::Default>;
+              LevelType::AbstractLevel, LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M,
+              LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M,
+              LevelType::Default>;
 
 
 ///
@@ -205,7 +225,11 @@ DEF(LevelType::HighCloudLayer, "highCloudLayer");
 DEF(LevelType::MeanSea, "meanSea");
 DEF(LevelType::HeightAboveSea, "heightAboveSea");
 DEF(LevelType::HeightAboveGround, "heightAboveGround");
-DEF(LevelType::Hybrid, "hybrid");
+// ModelSingleLevel and ModelMultipleLevel both encode as GRIB
+// `typeOfLevel="hybrid"`; they differ only in encoder behaviour
+// (PV array allocation, see needPv in levelEncoding.h).
+DEF(LevelType::ModelSingleLevel, "hybrid");
+DEF(LevelType::ModelMultipleLevel, "hybrid");
 DEF(LevelType::Theta, "theta");
 DEF(LevelType::PotentialVorticity, "potentialVorticity");
 DEF(LevelType::SnowLayer, "snowLayer");
@@ -226,6 +250,7 @@ DEF(LevelType::IceLayerOnWater, "iceLayerOnWater");
 DEF(LevelType::EntireMeltPond, "entireMeltPond");
 DEF(LevelType::WaterSurfaceToIsothermalOceanLayer, "waterSurfaceToIsothermalOceanLayer");
 DEF(LevelType::AbstractSingleLevel, "abstractSingleLevel");
+DEF(LevelType::AbstractLevel, "abstractLevel");
 DEF(LevelType::AbstractMultipleLevel, "abstractMultipleLevel");
 DEF(LevelType::HeightAboveSeaAt10M, "heightAboveSeaAt10m");
 DEF(LevelType::HeightAboveSeaAt2M, "heightAboveSeaAt2m");

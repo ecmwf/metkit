@@ -9,15 +9,15 @@
  */
 
 ///
-/// @file derivedEnum.h
-/// @brief Definition of the `derived` concept variants and compile-time metadata.
+/// @file iterationEnum.h
+/// @brief Definition of the `iteration` concept variants and compile-time metadata.
 ///
-/// This header defines the **static description** of the GRIB `derived` concept
+/// This header defines the **static description** of the GRIB `iteration` concept
 /// used by the mars2grib backend. It contains:
 ///
-/// - the canonical concept name (`derivedName`)
-/// - the exhaustive enumeration of supported derived variants (`DerivedType`)
-/// - a compile-time typelist of all variants (`DerivedList`)
+/// - the canonical concept name (`iterationName`)
+/// - the enumeration of supported long-range variants (`IterationType`)
+/// - a compile-time typelist of all variants (`IterationList`)
 /// - a compile-time mapping from variant to string identifier
 ///
 /// This file intentionally contains **no runtime logic** and **no encoding
@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `derived.h` / `derivedOp` implementation.
+/// `iteration.h` / `iterationOp` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -51,23 +51,23 @@ template <auto... Vals>
 using ValueList = metkit::mars2grib::backend::compile_time_registry_engine::ValueList<Vals...>;
 
 ///
-/// @brief Canonical name of the `derived` concept.
+/// @brief Canonical name of the `iteration` concept.
 ///
 /// This identifier is used:
 /// - as the logical concept key in the concept registry
 /// - for logging and debugging output
-/// - to associate variants and capabilities with the `derived` concept
+/// - to associate variants and capabilities with the `iteration` concept
 ///
 /// The value must remain stable across releases.
 ///
-inline constexpr std::string_view derivedName{"derived"};
+inline constexpr std::string_view iterationName{"iteration"};
 
 
 ///
-/// @brief Enumeration of all supported `derived` concept variants.
+/// @brief Enumeration of all supported `iteration` concept variants.
 ///
-/// Each enumerator represents a specific derived product or statistical
-/// transformation applied to ensemble or multi-field data.
+/// Each enumerator represents a specific long-range forecasting
+/// classification or processing mode handled by the encoder.
 ///
 /// The numeric values of the enumerators are **not semantically relevant**;
 /// they are required only to:
@@ -75,21 +75,20 @@ inline constexpr std::string_view derivedName{"derived"};
 /// - allow array indexing and table generation
 ///
 /// @note
-/// This enumeration includes both direct field selections and
-/// post-processing/statistical aggregations.
+/// This enumeration is intentionally minimal. Additional variants may be
+/// introduced in the future as the long-range concept evolves.
 ///
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
 /// tables and registries.
 ///
-enum class DerivedType : std::size_t {
-    BrightnessTemperatureEnsembleMean,  // Special variant for satellite brightness temperature products
-    Default
+enum class IterationType : std::size_t {
+    Default = 0
 };
 
 
 ///
-/// @brief Compile-time list of all `derived` concept variants.
+/// @brief Compile-time list of all `iteration` concept variants.
 ///
 /// This typelist is used to:
 /// - generate concept capability tables at compile time
@@ -100,38 +99,37 @@ enum class DerivedType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using DerivedList = ValueList<DerivedType::BrightnessTemperatureEnsembleMean, DerivedType::Default>;
+using IterationList = ValueList<IterationType::Default>;
 
 
 ///
-/// @brief Compile-time mapping from `DerivedType` to human-readable name.
+/// @brief Compile-time mapping from `IterationType` to human-readable name.
 ///
 /// This function returns the canonical string identifier associated
-/// with a given derived variant.
+/// with a given long-range variant.
 ///
 /// The returned value is used for:
 /// - logging and debugging output
 /// - error reporting
 /// - concept registry diagnostics
 ///
-/// @tparam T Derived variant
+/// @tparam T Long-range variant
 /// @return String view identifying the variant
 ///
 /// @note
 /// The returned string must remain stable across releases, as it may
 /// appear in logs, tests, and diagnostic output.
 ///
-template <DerivedType T>
-constexpr std::string_view derivedTypeName();
+template <IterationType T>
+constexpr std::string_view iterationTypeName();
 
-#define DEF(T, NAME)                                  \
-    template <>                                       \
-    constexpr std::string_view derivedTypeName<T>() { \
-        return NAME;                                  \
+#define DEF(T, NAME)                                    \
+    template <>                                         \
+    constexpr std::string_view iterationTypeName<T>() { \
+        return NAME;                                    \
     }
 
-DEF(DerivedType::BrightnessTemperatureEnsembleMean, "brightnessTemperatureEnsembleMean");
-DEF(DerivedType::Default, "default");
+DEF(IterationType::Default, "default");
 
 #undef DEF
 
