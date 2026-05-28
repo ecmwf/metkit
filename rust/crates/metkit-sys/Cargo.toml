@@ -1,0 +1,50 @@
+[package]
+name = "metkit-sys"
+version = "1.18.1"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "C++ bindings to ECMWF metkit library using cxx"
+links = "metkit_sys"
+build = "build.rs"
+
+[features]
+# Defaults: core features
+default = ["vendored", "grib", "bufr", "mars2grib", "metkit-config"]
+
+# Build strategy (mutually exclusive)
+vendored = ["eckit-sys/vendored", "eccodes-sys/vendored", "eccodes-sys/eccodes-threads"]
+system = ["eckit-sys/system", "eccodes-sys/system"]
+
+# Format support (CMake default: ON)
+grib = ["eccodes-sys/product-grib"]  # GRIB format support (requires eccodes)
+bufr = ["eccodes-sys/product-bufr"]  # BUFR format support (requires eccodes)
+netcdf = []  # NetCDF data support (requires NetCDF library)
+odb = []     # ODB data support (requires odc)
+
+# Encoding (CMake default: ON)
+mars2grib = ["eckit-sys/geo-codec-grids"]  # MARS2GRIB encoder (requires eckit geo codec grids for ORCA/FESOM/ICON)
+
+# Configuration (CMake default: ON)
+metkit-config = []  # Install metkit configuration files
+
+# Other (CMake default: OFF)
+experimental = []   # Experimental features
+fail-on-ccsds = []  # Fail on CCSDS
+
+[dependencies]
+cxx.workspace = true
+eckit-sys = { workspace = true, default-features = false }
+eccodes-sys = { workspace = true, default-features = false }
+bindman.workspace = true
+
+[build-dependencies]
+cxx-build.workspace = true
+bindman-utils.workspace = true
+bindman-build.workspace = true
+
+[package.metadata.docs.rs]
