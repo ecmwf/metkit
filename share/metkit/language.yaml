@@ -662,6 +662,7 @@ _field: &_field
       - [pl, pressure levels]
       - [fl, flight levels]
       - [hl, height levels]
+      - [hmsl, height above mean sea level]
       - [pt, potential temperature]
       - [pv, potential vorticity]
       - [sfc, surf, surface] # sl ??
