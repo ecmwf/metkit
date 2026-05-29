@@ -119,7 +119,8 @@ inline std::size_t matchSFC(const long param) {
                  239042, 239078, 239080, 239083, 239084, 239093, 239134, 239159, 239263, 260004, 260005, 260015, 260038,
                  260048, 260109, 260121, 260123, 260255, 260259, 260289, 260292, 260293, range(260318, 260321), 260338,
                  260339, 260509, 260682, 260683, 260688, 261001, 261002, range(261014, 261016), 261018, 261023, 262000,
-                 262100, 262124, 262139, 262140, 262144)) {
+                 263000, 265000, 266000, 267000, 262100, 263100, 265100, 266100, 267100, 262124, 263124, 265124, 266124,
+                 267124, 262139, 262140, 262144, 263144, 265144, 266144, 267144)) {
         return static_cast<std::size_t>(LevelType::Surface);
     }
     if (matchAny(param, 228045, 235322, 237322, 238322, 239322)) {
@@ -230,7 +231,7 @@ inline std::size_t matchSOL(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, 262000, 262024)) {
+    if (matchAny(param, 262000, 263000, 265000, 266000, 267000, 262024, 263024, 265024, 266024, 267024)) {
         return static_cast<std::size_t>(LevelType::SeaIceLayer);
     }
     if (matchAny(param, 33, 74, 238, 228038, 228141, 235078, 235080, 237080, 238080, 239080)) {
@@ -260,38 +261,51 @@ inline std::size_t matchO2D(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, 262000, 262003, 262004, 262008, 262014, 262023)) {
+    if (matchAny(param, 262000, 263000, 265000, 266000, 267000, 262003, 263003, 265003, 266003, 267003, 262004, 263004,
+                 265004, 266004, 267004, 262008, 263008, 265008, 266008, 267008, 262014, 262023, 263023, 265023, 266023,
+                 267023)) {
         return static_cast<std::size_t>(LevelType::IceLayerOnWater);
     }
-    if (matchAny(param, 262001, 262005, 262006, 262906, 262907)) {
+    if (matchAny(param, 262001, 263001, 265001, 266001, 267001, 262005, 263005, 265005, 266005, 267005, 262006, 263006,
+                 265006, 266006, 267006, 262906, 263906, 265906, 266906, 267906, 262907, 263907, 265907, 266907,
+                 267907)) {
         return static_cast<std::size_t>(LevelType::IceTopOnWater);
     }
-    if (matchAny(param, 262002, 262009, 262011, 262015)) {
+    if (matchAny(param, 262002, 263002, 265002, 266002, 267002, 262009, 263009, 265009, 266009, 267009, 262011, 263011,
+                 265011, 266011, 267011, 262015)) {
         return static_cast<std::size_t>(LevelType::SnowLayerOverIceOnWater);
     }
-    if (matchAny(param, 262017, 262018)) {
+    if (matchAny(param, 262017, 263017, 265017, 266017, 267017, 262018, 263018, 265018, 266018, 267018)) {
         return static_cast<std::size_t>(LevelType::EntireMeltPond);
     }
-    if (matchAny(param, 262100, 262101, range(262108, 262112), 262124, 262125, 262130, 262139, 262140, 262143,
-                 262900)) {
+    if (matchAny(param, 262100, 263100, 265100, 266100, 267100, 262101, 263101, 265101, 266101, 267101, 262108, 263108,
+                 265108, 266108, 267108, 262109, 263109, 265109, 266109, 267109, 262110, 263110, 265110, 266110, 267110,
+                 262111, 263111, 265111, 266111, 267111, 262112, 263112, 265112, 266112, 267112, 262124, 263124, 265124,
+                 266124, 267124, 262125, 263125, 265125, 266125, 267125, 262130, 263130, 265130, 266130, 267130, 262139,
+                 263139, 265139, 266139, 267139, 262140, 263140, 265140, 266140, 267140, 262143, 263143, 265143, 266143,
+                 267143, 262900, 263900, 264900, 265900, 266900, 267900)) {
         return static_cast<std::size_t>(LevelType::OceanSurface);
     }
-    if (matchAny(param, range(262102, 262106))) {
+    if (matchAny(param, 262102, 263102, 265102, 266102, 267102, 262103, 263103, 265103, 266103, 267103, 262104, 263104,
+                 265104, 266104, 267104, 262105, 263105, 265105, 266105, 267105, 262106, 263106, 265106, 266106,
+                 267106)) {
         return static_cast<std::size_t>(LevelType::Isothermal);
     }
-    if (matchAny(param, range(262113, 262115))) {
+    if (matchAny(param, 262113, 263113, 265113, 266113, 267113, 262114, 263114, 265114, 266114, 267114, 262115, 263115,
+                 265115, 266115, 267115)) {
         return static_cast<std::size_t>(LevelType::MixedLayerDepthByDensity);
     }
-    if (matchAny(param, 262116)) {
+    if (matchAny(param, 262116, 263116, 265116, 266116, 267116)) {
         return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
     }
-    if (matchAny(param, 262118, 262119, 262121, 262122)) {
+    if (matchAny(param, 262118, 263118, 265118, 266118, 267118, 262119, 263119, 265119, 266119, 267119, 262121, 263121,
+                 265121, 266121, 267121, 262122, 263122, 265122, 266122, 267122)) {
         return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
     }
-    if (matchAny(param, 262120, 262123)) {
+    if (matchAny(param, 262120, 263120, 265120, 266120, 267120, 262123, 263123, 265123, 266123, 267123)) {
         return static_cast<std::size_t>(LevelType::OceanSurfaceToBottom);
     }
-    if (matchAny(param, 262141)) {
+    if (matchAny(param, 262141, 263141, 265141, 266141, 267141)) {
         return static_cast<std::size_t>(LevelType::WaterSurfaceToIsothermalOceanLayer);
     }
 
@@ -303,10 +317,12 @@ inline std::size_t matchO3D(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
 
-    if (matchAny(param, range(262500, 262502), 262505, 262506)) {
+    if (matchAny(param, 262500, 263500, 265500, 266500, 267500, 262501, 263501, 265501, 266501, 267501, 262502, 263502,
+                 265502, 266502, 267502, 262505, 263505, 265505, 266505, 267505, 262506, 263506, 265506, 266506,
+                 267506)) {
         return static_cast<std::size_t>(LevelType::OceanModelLayer);
     }
-    if (matchAny(param, 262507)) {
+    if (matchAny(param, 262507, 263507, 265507, 266507, 267507)) {
         return static_cast<std::size_t>(LevelType::OceanModel);
     }
 
