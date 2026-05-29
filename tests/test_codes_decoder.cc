@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/io/FileHandle.h"
 #include "eckit/io/MemoryHandle.h"
 #include "eckit/message/Message.h"
 #include "eckit/message/Reader.h"
@@ -460,6 +461,93 @@ CASE("test codessplitter unstr_latlot.tmpl String") {
     }
 }
 
+CASE("test levelist String") {
+    eckit::FileHandle f("pl.grib");
+
+    eckit::message::Reader reader(f);
+    eckit::message::Message msg;
+
+    std::vector<std::string> expect{"0", "0.02", "0.2", "2", "20", "200"};
+    for (size_t i = 0; i < expect.size(); ++i) {
+        msg = reader.next();
+        EXPECT(msg);
+
+        MetadataSetter md;
+        eckit::message::TypedSetter<MetadataSetter> gatherer{md};
+        eckit::message::GetMetadataOptions mdOpts{};
+        mdOpts.valueRepresentation = eckit::message::ValueRepresentation::String;
+        msg.getMetadata(gatherer, mdOpts);
+        { MD_EXPECT_STRING(md, "levelist", expect[i]); }
+    }
+    msg = reader.next();
+    EXPECT(!msg);
+}
+
+CASE("test levelist Native") {
+    eckit::FileHandle f("pl.grib");
+
+    eckit::message::Reader reader(f);
+    eckit::message::Message msg;
+
+    std::vector<double> expect{0, 0.02, 0.2, 2, 20, 200};
+    for (size_t i = 0; i < expect.size(); ++i) {
+        msg = reader.next();
+        EXPECT(msg);
+
+        MetadataSetter md;
+        eckit::message::TypedSetter<MetadataSetter> gatherer{md};
+        eckit::message::GetMetadataOptions mdOpts{};
+        mdOpts.valueRepresentation = eckit::message::ValueRepresentation::Native;
+        msg.getMetadata(gatherer, mdOpts);
+        { MD_EXPECT_DOUBLE(md, "levelist", expect[i]); }
+    }
+    msg = reader.next();
+    EXPECT(!msg);
+}
+
+CASE("test levelist String") {
+    eckit::FileHandle f("sol.grib");
+
+    eckit::message::Reader reader(f);
+    eckit::message::Message msg;
+
+    std::vector<std::string> expect{"0.02", "0.2", "2", "20"};
+    for (size_t i = 0; i < expect.size(); ++i) {
+        msg = reader.next();
+        EXPECT(msg);
+
+        MetadataSetter md;
+        eckit::message::TypedSetter<MetadataSetter> gatherer{md};
+        eckit::message::GetMetadataOptions mdOpts{};
+        mdOpts.valueRepresentation = eckit::message::ValueRepresentation::String;
+        msg.getMetadata(gatherer, mdOpts);
+        { MD_EXPECT_STRING(md, "levelist", expect[i]); }
+    }
+    msg = reader.next();
+    EXPECT(!msg);
+}
+
+CASE("test levelist Native") {
+    eckit::FileHandle f("sol.grib");
+
+    eckit::message::Reader reader(f);
+    eckit::message::Message msg;
+
+    std::vector<double> expect{0.02, 0.2, 2, 20};
+    for (size_t i = 0; i < expect.size(); ++i) {
+        msg = reader.next();
+        EXPECT(msg);
+
+        MetadataSetter md;
+        eckit::message::TypedSetter<MetadataSetter> gatherer{md};
+        eckit::message::GetMetadataOptions mdOpts{};
+        mdOpts.valueRepresentation = eckit::message::ValueRepresentation::Native;
+        msg.getMetadata(gatherer, mdOpts);
+        { MD_EXPECT_DOUBLE(md, "levelist", expect[i]); }
+    }
+    msg = reader.next();
+    EXPECT(!msg);
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
