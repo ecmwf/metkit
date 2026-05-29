@@ -39,6 +39,8 @@
 #include <exception>
 #include <optional>
 #include <string>
+#include <fstream>
+#include <iostream>
 #include <typeinfo>
 
 // Project includes
@@ -71,11 +73,32 @@ public:
 
     virtual ~Mars2GribGenericException() = default;
 
-    virtual void printFrame(const std::string& pad) const {
+    virtual void printFrame(std::ofstream& out, const std::string& pad) const {
 
         const auto& loc = location();
 
-        LOG_DEBUG_LIB(LibMetkit) << pad << "+ file:     " << loc.file() << "\n"
+        out << pad << "+ file:     " << loc.file() << "\n"
+                                 << pad << "+ function: " << loc.func() << "\n"
+                                 << pad << "+ line:     " << loc.line() << "\n"
+                                 << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
+                                 << pad << "+ message:  " << what() << "\n";
+    }
+};
+
+
+class Mars2GribCoreException : public eckit::Exception, public std::nested_exception {
+public:
+
+    Mars2GribCoreException(std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        eckit::Exception(reason, loc) {}
+
+    virtual ~Mars2GribCoreException() = default;
+
+    virtual void printFrame(std::ofstream& out, const std::string& pad) const {
+
+        const auto& loc = location();
+
+        out << pad << "+ file:     " << loc.file() << "\n"
                                  << pad << "+ function: " << loc.func() << "\n"
                                  << pad << "+ line:     " << loc.line() << "\n"
                                  << pad << "+ link:     " << loc.file() << ":" << loc.line() << "\n"
@@ -118,14 +141,14 @@ public:
     const std::string levtype() const { return levtype_.has_value() ? levtype_.value() : "undefined"; }
     const std::string param() const { return param_.has_value() ? param_.value() : "undefined"; }
 
-    void printFrame(const std::string& pad) const override {
+    void printFrame(std::ofstream& out, const std::string& pad) const override {
 
-        Mars2GribGenericException::printFrame(pad);
+        Mars2GribGenericException::printFrame(out, pad);
         if (param_) {
-            LOG_DEBUG_LIB(LibMetkit) << pad << "+ param:   " << param() << std::endl;
+            out << pad << "+ param:   " << param() << std::endl;
         }
         if (levtype_) {
-            LOG_DEBUG_LIB(LibMetkit) << pad << "+ levtype:    " << levtype() << std::endl;
+            out << pad << "+ levtype:    " << levtype() << std::endl;
         }
     };
 
@@ -232,13 +255,13 @@ public:
     const std::optional<std::string>& stage() const { return stage_; }
     const std::optional<std::string>& section() const { return section_; }
 
-    void printFrame(const std::string& pad) const override {
+    void printFrame(std::ofstream& out, const std::string& pad) const override {
 
-        Mars2GribGenericException::printFrame(pad);
+        Mars2GribGenericException::printFrame(out, pad);
 
         auto print_opt = [&](const char* k, const std::optional<std::string>& v) {
             if (v)
-                LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << k << ": " << *v << "\n";
+                out << pad << "+ " << k << ": " << *v << "\n";
         };
 
         print_opt("concept", conceptName_);
@@ -288,11 +311,11 @@ public:
     const std::string& optDict_json() const { return optDict_json_; }
     const std::string& encoderCfg_json() const { return encoderCfg_json_; }
 
-    void printFrame(const std::string& pad) const override {
+    void printFrame(std::ofstream& out, const std::string& pad) const override {
 
-        Mars2GribGenericException::printFrame(pad);
+        Mars2GribGenericException::printFrame(out, pad);
 
-        LOG_DEBUG_LIB(LibMetkit) << pad << "+ marsDict:   " << marsDict_json_ << "\n"
+        out << pad << "+ marsDict:   " << marsDict_json_ << "\n"
                                  << pad << "+ parDict:    " << parDict_json_ << "\n"
                                  << pad << "+ optDict:    " << optDict_json_ << "\n"
                                  << pad << "+ encoderCfg: " << encoderCfg_json_ << "\n";
@@ -364,28 +387,28 @@ inline std::string indent(std::size_t level) {
 /// @param e      Root exception
 /// @param level  Indentation level
 /// @param frame  Frame counter
-inline void printExtendedStack(const std::exception& e, std::size_t level = 0, std::size_t frame = 1) {
+inline void printExtendedStack(const std::exception& e, std::ofstream& out, std::size_t level = 0, std::size_t frame = 1) {
 
     const std::string pad = indent(level);
 
-    LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << std::string(lineSize, '=') << std::endl
+    out << pad << "+ " << std::string(lineSize, '=') << std::endl
                              << pad << "+ frame " << frame << std::endl
                              << pad << "+ " << std::string(lineSize, '-') << std::endl;
 
     if (const auto* me = dynamic_cast<const Mars2GribGenericException*>(&e)) {
-        me->printFrame(pad);
+        me->printFrame(out, pad);
     }
     else {
-        LOG_DEBUG_LIB(LibMetkit) << pad << "+ message: " << e.what() << std::endl;
+        out << pad << "+ message: " << e.what() << std::endl;
     }
 
-    LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << std::string(lineSize, '+') << std::endl;
+    out << pad << "+ " << std::string(lineSize, '+') << std::endl;
 
     try {
         std::rethrow_if_nested(e);
     }
     catch (const std::exception& nested) {
-        printExtendedStack(nested, level + 1, frame + 1);
+        printExtendedStack(nested, out, level + 1, frame + 1);
     }
 }
 
