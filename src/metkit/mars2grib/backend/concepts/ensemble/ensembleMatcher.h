@@ -61,9 +61,18 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
     // Skip model-error products: in that case "number" identifies the
     // model-error realization, not an ensemble member.
-    if (has(mars, "type") &&
-        (get_or_throw<std::string>(mars, "type") == "eme" || get_or_throw<std::string>(mars, "type") == "me")) {
-        return compile_time_registry_engine::MISSING;
+    try {
+        using metkit::mars2grib::utils::dict_traits::has;
+        using metkit::mars2grib::utils::dict_traits::get_or_throw;
+
+        if (has(mars, "number") && !(has(mars, "type") &&
+                                    (get_or_throw<std::string>(mars, "type") == "me" ||
+                                     get_or_throw<std::string>(mars, "type") == "eme"))) {
+            return static_cast<std::size_t>(EnsembleType::Individual);
+        }
+        else {
+            return compile_time_registry_engine::MISSING;
+        }
     }
     catch (...) {
         std::throw_with_nested(
