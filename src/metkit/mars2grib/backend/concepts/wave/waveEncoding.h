@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file waveOp.h
+/// @file waveEncoding.h
 /// @brief Implementation of the GRIB `wave` concept.
 ///
 /// This header defines the applicability rules and execution logic for the

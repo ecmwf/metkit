@@ -33,7 +33,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `statistics.h` / `statisticsOp` implementation.
+/// `statisticsEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///

@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `representation.h` / `representationOp` implementation.
+/// `representationEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///

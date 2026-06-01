@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file longrangeOp.h
+/// @file longrangeEncoding.h
 /// @brief Implementation of the GRIB `longrange` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

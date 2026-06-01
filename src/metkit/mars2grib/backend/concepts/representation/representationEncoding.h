@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file representationOp.h
+/// @file representationEncoding.h
 /// @brief Implementation of the GRIB `representation` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

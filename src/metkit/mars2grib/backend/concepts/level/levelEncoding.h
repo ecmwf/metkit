@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file levelOp.h
+/// @file levelEncoding.h
 /// @brief Implementation of the GRIB `level` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

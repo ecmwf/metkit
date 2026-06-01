@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file paramOp.h
+/// @file paramEncoding.h
 /// @brief Implementation of the GRIB `param` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
