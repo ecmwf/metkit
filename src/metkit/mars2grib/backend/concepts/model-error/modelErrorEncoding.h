@@ -89,7 +89,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, ModelErrorType Variant>
 constexpr bool modelErrorApplicable() {
-    return ( (Stage == StagePreset) && (Section == SecLocalUseSection) );
+    return ((Stage == StagePreset) && (Section == SecLocalUseSection));
 }
 
 
@@ -147,7 +147,7 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
 
             MARS2GRIB_LOG_CONCEPT(modelError);
 
-            if ( Variant == ModelErrorType::ComponentIndex ) {
+            if (Variant == ModelErrorType::ComponentIndex) {
                 validation::match_LocalDefinitionNumber_or_throw(opt, out, {25L, 39L});
 
                 // Deductions
@@ -159,19 +159,15 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 set_or_throw<long>(out, "componentIndex", componentIndexVal);
                 set_or_throw<long>(out, "numberOfComponents", numberOfComponentsVal);
                 set_or_throw<long>(out, "modelErrorType", modelErrorTypeVal);
-
-
             }
-            else if ( Variant == ModelErrorType::FourierCoefficients ) {
+            else if (Variant == ModelErrorType::FourierCoefficients) {
                 validation::match_LocalDefinitionNumber_or_throw(opt, out, {45L});
 
                 MARS2GRIB_CONCEPT_THROW(modelError, "Variant not implemented...");
-
             }
             else {
                 MARS2GRIB_CONCEPT_THROW(modelError, "Unknown variant...");
             }
-
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(modelError, "Unable to set `modelError` concept...");

@@ -72,15 +72,14 @@ std::size_t brightnessTemperatureMatcher(const MarsDict_t& mars, const OptDict_t
             Here());
     }
 
-    if ( stream == "elda" ) {
+    if (stream == "elda") {
         return static_cast<std::size_t>(BrightnessTemperatureType::EnsembleMean);
     }
-    else if ( stream == "oper" ) {
+    else if (stream == "oper") {
         return static_cast<std::size_t>(BrightnessTemperatureType::Default);
     }
 
     return compile_time_registry_engine::MISSING;
-
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

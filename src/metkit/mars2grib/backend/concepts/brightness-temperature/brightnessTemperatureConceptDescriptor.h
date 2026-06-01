@@ -62,8 +62,7 @@ using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 ///
 /// All functions in this descriptor are `constexpr` and are evaluated
 /// entirely at compile time.
-struct BrightnessTemperatureConcept
-    : RegisterEntryDescriptor<BrightnessTemperatureType, BrightnessTemperatureList> {
+struct BrightnessTemperatureConcept : RegisterEntryDescriptor<BrightnessTemperatureType, BrightnessTemperatureList> {
 
     /// @brief Return the canonical name of the concept.
     ///
@@ -71,9 +70,7 @@ struct BrightnessTemperatureConcept
     /// - Registry identification
     /// - Diagnostics and logging
     /// - Debug and introspection facilities
-    static constexpr std::string_view entryName() {
-        return brightnessTemperatureName;
-    }
+    static constexpr std::string_view entryName() { return brightnessTemperatureName; }
 
     /// @brief Return the symbolic name of a concept variant.
     ///
@@ -109,14 +106,8 @@ struct BrightnessTemperatureConcept
     /// @tparam OutDict_t Type of output GRIB dictionary
     ///
     /// @return Function pointer implementing the phase, or `nullptr`
-    template <std::size_t Capability,
-              std::size_t Stage,
-              std::size_t Sec,
-              BrightnessTemperatureType Variant,
-              class MarsDict_t,
-              class ParDict_t,
-              class OptDict_t,
-              class OutDict_t>
+    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, BrightnessTemperatureType Variant,
+              class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
         if constexpr (Capability == 0) {
             if constexpr (brightnessTemperatureApplicable<Stage, Sec, Variant>()) {
@@ -140,12 +131,8 @@ struct BrightnessTemperatureConcept
     /// through phase callbacks.
     ///
     /// @return Always `nullptr`
-    template <std::size_t Capability,
-              BrightnessTemperatureType Variant,
-              class MarsDict_t,
-              class ParDict_t,
-              class OptDict_t,
-              class OutDict_t>
+    template <std::size_t Capability, BrightnessTemperatureType Variant, class MarsDict_t, class ParDict_t,
+              class OptDict_t, class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
         return nullptr;
     }

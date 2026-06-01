@@ -61,7 +61,8 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
     // Skip model-error products: in that case "number" identifies the
     // model-error realization, not an ensemble member.
-    if (has(mars, "type") && (get_or_throw<std::string>(mars, "type") == "eme" || get_or_throw<std::string>(mars, "type") == "me")) {
+    if (has(mars, "type") &&
+        (get_or_throw<std::string>(mars, "type") == "eme" || get_or_throw<std::string>(mars, "type") == "me")) {
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {

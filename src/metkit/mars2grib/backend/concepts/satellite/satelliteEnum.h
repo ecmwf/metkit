@@ -85,7 +85,7 @@ inline constexpr std::string_view satelliteName{"satellite"};
 /// tables and registries.
 ///
 enum class SatelliteType : std::size_t {
-    Default               = 0
+    Default = 0
 };
 
 

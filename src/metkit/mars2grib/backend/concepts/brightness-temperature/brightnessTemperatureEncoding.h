@@ -86,8 +86,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// - `Section == SecLocalUseSection`
 template <std::size_t Stage, std::size_t Section, BrightnessTemperatureType Variant>
 constexpr bool brightnessTemperatureApplicable() {
-    return ((Stage == StagePreset) &&
-            (Section == SecLocalUseSection));
+    return ((Stage == StagePreset) && (Section == SecLocalUseSection));
 }
 
 /// @brief Execute the `brightnessTemperature` concept operation.
@@ -131,17 +130,9 @@ constexpr bool brightnessTemperatureApplicable() {
 ///   through the satellite path or the derived-product path.
 ///
 /// @see brightnessTemperatureApplicable
-template <std::size_t Stage,
-          std::size_t Section,
-          BrightnessTemperatureType Variant,
-          class MarsDict_t,
-          class ParDict_t,
-          class OptDict_t,
-          class OutDict_t>
-void BrightnessTemperatureOp(const MarsDict_t& mars,
-                             const ParDict_t& par,
-                             const OptDict_t& opt,
-                             OutDict_t& out) {
+template <std::size_t Stage, std::size_t Section, BrightnessTemperatureType Variant, class MarsDict_t, class ParDict_t,
+          class OptDict_t, class OutDict_t>
+void BrightnessTemperatureOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -156,15 +147,15 @@ void BrightnessTemperatureOp(const MarsDict_t& mars,
             auto numberOfFrequenciesVal = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
             set_or_throw(out, "numberOfFrequencies", numberOfFrequenciesVal);
 
-            // In Ensemble Mean variant, channel number is required; in Default variant it is already set by the satellite concept
+            // In Ensemble Mean variant, channel number is required; in Default variant it is already set by the
+            // satellite concept
             if constexpr (Variant == BrightnessTemperatureType::EnsembleMean) {
-                auto channelNumberVal       = deductions::resolve_Channel_or_throw(mars, par, opt);
+                auto channelNumberVal = deductions::resolve_Channel_or_throw(mars, par, opt);
                 set_or_throw(out, "channelNumber", channelNumberVal);
             }
         }
         catch (...) {
-            MARS2GRIB_CONCEPT_RETHROW(brightnessTemperature,
-                                      "Unable to set `brightnessTemperature` concept...");
+            MARS2GRIB_CONCEPT_RETHROW(brightnessTemperature, "Unable to set `brightnessTemperature` concept...");
         }
 
         // Successful operation

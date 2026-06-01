@@ -173,7 +173,7 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0});
 
                 // Set bits per value
-                if constexpr ( Stage == StageAllocate ) {
+                if constexpr (Stage == StageAllocate) {
                     long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                     set_or_throw<long>(out, "setBitsPerValue", bitsPerValue);
                 }
@@ -185,7 +185,7 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42});
 
                 // Set bits per value
-                if constexpr ( Stage == StageAllocate ) {
+                if constexpr (Stage == StageAllocate) {
                     long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                     set_or_throw<long>(out, "setBitsPerValue", bitsPerValue);
                 }
@@ -197,12 +197,12 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51});
 
                 // Set bits per value
-                if constexpr ( Stage == StageAllocate ) {
+                if constexpr (Stage == StageAllocate) {
                     long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
                     set_or_throw<long>(out, "setBitsPerValue", bitsPerValue);
                 }
 
-                if constexpr ( Stage == StagePreset ) {
+                if constexpr (Stage == StagePreset) {
                     double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
                     long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
                     set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
