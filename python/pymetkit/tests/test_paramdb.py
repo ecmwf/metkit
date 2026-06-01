@@ -4,8 +4,9 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 import pytest
 
-from pymetkit import ParamDB
+from pymetkit import ParamDB, ParameterEntry
 import pymetkit.pymetkit as _mod
+import pydantic
 
 
 # ---------------------------------------------------------------------------
@@ -778,3 +779,153 @@ def test_first_write_wins_for_shortname(db):
         assert entry["id"] == min_id, (
             f"_by_shortname[{sn!r}] has id={entry['id']} but min is {min_id}"
         )
+
+
+# ---------------------------------------------------------------------------
+# ParameterEntry model
+# ---------------------------------------------------------------------------
+
+
+class TestParameterEntryModel:
+    """Unit tests for the Pydantic ParameterEntry schema."""
+
+    def test_canonical_fields(self):
+        """Model accepts canonical field names and round-trips correctly."""
+        entry = ParameterEntry(id=130, shortname="t", longname="Temperature", units="K")
+        assert entry.id == 130
+        assert entry.shortname == "t"
+        assert entry.longname == "Temperature"
+        assert entry.units == "K"
+        assert entry.origin_ids == []
+        assert entry.access_ids == []
+
+    def test_shortname_alias(self):
+        """Raw API alias 'shortName' is accepted and normalised to 'shortname'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortName": "t", "longname": "Temperature"}
+        )
+        assert entry.shortname == "t"
+
+    def test_short_name_underscore_alias(self):
+        """Snake-case alias 'short_name' is accepted and normalised."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "short_name": "t", "longname": "Temperature"}
+        )
+        assert entry.shortname == "t"
+
+    def test_longname_aliases(self):
+        """'longName', 'long_name', and 'name' are all normalised to 'longname'."""
+        for key in ("longName", "long_name", "name"):
+            entry = ParameterEntry.model_validate(
+                {"id": 130, "shortname": "t", key: "Temperature"}
+            )
+            assert entry.longname == "Temperature", f"alias {key!r} not normalised"
+
+    def test_id_coercion_from_string(self):
+        """String id values are coerced to int."""
+        entry = ParameterEntry.model_validate(
+            {"id": "130", "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.id == 130
+        assert isinstance(entry.id, int)
+
+    def test_units_defaults_to_unknown_when_absent(self):
+        """Missing 'units' field defaults to 'unknown'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.units == "unknown"
+
+    def test_units_defaults_to_unknown_when_empty(self):
+        """Empty-string 'units' is normalised to 'unknown'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature", "units": ""}
+        )
+        assert entry.units == "unknown"
+
+    def test_units_defaults_to_unknown_when_none(self):
+        """None 'units' is normalised to 'unknown'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature", "units": None}
+        )
+        assert entry.units == "unknown"
+
+    def test_origin_ids_default_empty_list(self):
+        """Absent 'origin_ids' defaults to []."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.origin_ids == []
+
+    def test_origin_ids_none_becomes_empty_list(self):
+        """None 'origin_ids' is coerced to []."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature", "origin_ids": None}
+        )
+        assert entry.origin_ids == []
+
+    def test_access_ids_default_empty_list(self):
+        """Absent 'access_ids' defaults to []."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.access_ids == []
+
+    def test_origin_ids_coercion(self):
+        """String elements in origin_ids are coerced to int."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature",
+             "origin_ids": ["98", "0"]}
+        )
+        assert entry.origin_ids == [98, 0]
+
+    def test_extra_fields_preserved(self):
+        """Extra keys not in the schema are preserved in model_dump()."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature",
+             "url": "https://example.com/130"}
+        )
+        dumped = entry.model_dump()
+        assert dumped["url"] == "https://example.com/130"
+
+    def test_missing_id_raises(self):
+        """Missing required 'id' raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate({"shortname": "t", "longname": "Temperature"})
+
+    def test_missing_shortname_raises(self):
+        """Missing required 'shortname' raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate({"id": 130, "longname": "Temperature"})
+
+    def test_missing_longname_raises(self):
+        """Missing required 'longname' raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate({"id": 130, "shortname": "t"})
+
+    def test_empty_shortname_raises(self):
+        """Empty shortname raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate(
+                {"id": 130, "shortname": "", "longname": "Temperature"}
+            )
+
+    def test_model_dump_round_trip(self):
+        """model_dump() produces a dict that can be validated back into the model."""
+        original = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature",
+             "units": "K", "origin_ids": [98], "access_ids": ["dissemination"]}
+        )
+        dumped = original.model_dump()
+        restored = ParameterEntry.model_validate(dumped)
+        assert restored == original
+
+    def test_normalise_uses_model(self):
+        """ParamDB._normalise round-trips through ParameterEntry and returns a dict."""
+        raw = {"id": "130", "shortName": "t", "name": "Temperature", "units": "K"}
+        result = ParamDB._normalise(raw)
+        assert isinstance(result, dict)
+        assert result["id"] == 130
+        assert result["shortname"] == "t"
+        assert result["longname"] == "Temperature"
+        assert result["units"] == "K"

@@ -10,6 +10,7 @@ Usage
     python generate_parameter_metadata.py
 """
 
+import json
 import requests
 import yaml
 from pathlib import Path
@@ -25,6 +26,7 @@ ORIGIN_URL = "https://codes.ecmwf.int/parameter-database/api/v1/origin/"
 _REPO_ROOT = Path(__file__).parents[4]
 PARAM_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.yaml"
 UNIT_OUTPUT = _REPO_ROOT / "share" / "metkit" / "unit_metadata.yaml"
+SCHEMA_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_entry_schema.json"
 
 #: Timeout in seconds for HTTP requests to the ECMWF parameter database API.
 REQUEST_TIMEOUT = 30
@@ -235,3 +237,10 @@ if __name__ == "__main__":
 
     parameters = fetch_parameters(unit_map=unit_map, param_origin_map=param_origin_map)
     write_param_yaml(parameters)
+
+    # Write the JSON schema for ParameterEntry so downstream tools can validate YAML.
+    from .models import ParameterEntry  # noqa: E402 (local import to avoid circular at module level)
+
+    schema = ParameterEntry.model_json_schema()
+    SCHEMA_OUTPUT.write_text(json.dumps(schema, indent=2), encoding="utf-8")
+    print(f"Written JSON schema to {SCHEMA_OUTPUT}")

@@ -9,6 +9,7 @@ import warnings
 from pathlib import Path
 import yaml
 from ._version import __version__
+from .models import ParameterEntry
 
 try:
     import requests as _requests
@@ -554,27 +555,15 @@ class ParamDB:
 
     @staticmethod
     def _normalise(raw: dict) -> dict:
-        """Return a normalised parameter dict with canonical key names."""
-        entry = dict(raw)
+        """Return a normalised and validated parameter dict with canonical key names.
 
-        # Normalise shortname
-        for key in ("shortName", "short_name"):
-            if key in entry:
-                entry["shortname"] = entry.pop(key)
-                break
-
-        # Normalise longname (online API may return 'name', 'longName', or 'long_name')
-        if "longname" not in entry:
-            for key in ("longName", "long_name", "name"):
-                if key in entry:
-                    entry["longname"] = entry.pop(key)
-                    break
-
-        # Ensure integer id
-        if "id" in entry:
-            entry["id"] = int(entry["id"])
-
-        return entry
+        Uses :class:`~pymetkit.models.ParameterEntry` for field coercion and
+        validation.  Extra keys present in *raw* (e.g. ``"url"``, ``"units_id"``)
+        are preserved in the returned dict so no information is discarded.
+        """
+        entry = ParameterEntry.model_validate(raw)
+        # model_dump preserves extra fields captured via ``extra="allow"``
+        return entry.model_dump()
 
     def _index(self, entry: dict) -> None:
         """Insert a normalised entry into the internal lookup dicts."""
