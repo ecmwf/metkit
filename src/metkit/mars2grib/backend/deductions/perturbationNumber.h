@@ -9,6 +9,7 @@
  */
 
 ///
+/// @file perturbationNumber.h
 /// @brief Resolve the perturbation (ensemble member) number from the MARS dictionary.
 ///
 /// This deduction retrieves the value associated with the MARS key `number`,
@@ -60,6 +61,8 @@
 /// - @ref numberOfForecastsInEnsemble.h
 /// - @ref typeOfEnsembleForecast.h
 ///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 // System includes
@@ -73,50 +76,6 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-///
-/// @brief Resolve the perturbation number (`number`) from the MARS dictionary.
-///
-/// @section Deduction contract
-/// - Reads: `mars["number"]`
-/// - Writes: none
-/// - Side effects: logging (RESOLVE)
-/// - Failure mode: throws on error
-///
-/// This deduction retrieves the perturbation number associated with the
-/// current field from the MARS dictionary.
-///
-/// The value uniquely identifies the ensemble member within an ensemble
-/// forecast. Its interpretation (e.g. control vs perturbed members) is
-/// handled elsewhere and is not enforced here.
-///
-/// @tparam MarsDict_t
-/// Type of the MARS dictionary. Must contain `number`.
-///
-/// @tparam ParDict_t
-/// Type of the parameter dictionary (unused).
-///
-/// @tparam OptDict_t
-/// Type of the options dictionary (unused).
-///
-/// @param[in] mars
-/// MARS dictionary from which the perturbation number is retrieved.
-///
-/// @param[in] par
-/// Parameter dictionary (unused).
-///
-/// @param[in] opt
-/// Options dictionary (unused).
-///
-/// @return
-/// The perturbation number resolved from the MARS dictionary.
-///
-/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If the key `number` is missing, cannot be converted to `long`, or if
-/// any unexpected error occurs during deduction.
-///
-/// @note
-/// This deduction performs no range checks or consistency validation.
-///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 

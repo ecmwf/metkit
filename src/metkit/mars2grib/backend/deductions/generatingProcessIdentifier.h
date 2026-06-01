@@ -7,6 +7,22 @@
  * granted to it by virtue of its status as an intergovernmental organisation nor
  * does it submit to any jurisdiction.
  */
+
+///
+/// @file generatingProcessIdentifier.h
+/// @brief Optional deduction of the GRIB `generatingProcessIdentifier` key.
+///
+/// This header provides an optional passthrough deduction for the GRIB
+/// `generatingProcessIdentifier` key.
+///
+/// @section Deduction contract
+/// - Reads: `par["generatingProcessIdentifier"]` (optional)
+/// - Writes: none
+/// - Side effects: logging (RESOLVE when present, otherwise DEFAULT-style skip message)
+/// - Failure mode: returns `std::nullopt` when absent; throws on unexpected errors
+///
+/// @ingroup mars2grib_backend_deductions
+///
 #pragma once
 
 #include <optional>

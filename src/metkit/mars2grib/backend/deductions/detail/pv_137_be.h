@@ -1,15 +1,23 @@
-#pragma once
-#include "metkit/mars2grib/utils/generalUtils.h"
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
 
 ///
+/// @file detail/pv_137_be.h
 /// @brief Predefined PV coefficient table extracted from IFS binary output.
 ///
 /// This file contains a statically defined table of PV coefficients used by
 /// the PV lookup and decoding infrastructure in the mars2grib backend.
 ///
 /// The values in this table have been obtained by performing a **binary dump
-/// in the IFS** of the PV array associated
-/// with a specific hybrid vertical coordinate configuration.
+/// in the IFS** of the PV array associated with a specific hybrid vertical
+/// coordinate configuration.
 ///
 /// The dumped binary values were:
 /// - captured verbatim from IFS runtime memory,
@@ -51,6 +59,13 @@
 /// No attempt must be made to modify, regenerate, or reinterpret the
 /// coefficients manually.
 ///
+/// @ingroup mars2grib_backend_deductions
+///
+
+#pragma once
+
+#include "metkit/mars2grib/utils/generalUtils.h"
+
 static constexpr std::array<HexDouble, 1002> pv_137_1002_be = {
     {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, {0x40, 0x00, 0x00, 0xbf, 0x60, 0x00, 0x00, 0x00},
      {0x40, 0x08, 0xd1, 0x63, 0xc0, 0x00, 0x00, 0x00}, {0x40, 0x12, 0xaa, 0x11, 0xe0, 0x00, 0x00, 0x00},
