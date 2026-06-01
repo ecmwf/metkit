@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file MarsConcept.h
+/// @file marsConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `mars` concept.
 ///
 /// This header defines `MarsConcept`, the **compile-time descriptor**

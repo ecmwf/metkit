@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file CompositionConcept.h
+/// @file compositionConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `composition` concept.
 ///
 /// This header defines `CompositionConcept`, the **compile-time descriptor**

@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file satelliteOp.h
+/// @file satelliteEncoding.h
 /// @brief Implementation of the GRIB `satellite` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

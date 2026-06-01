@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file NilConcept.h
+/// @file nilConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `nil` concept.
 ///
 /// This header defines `NilConcept`, the **compile-time descriptor**

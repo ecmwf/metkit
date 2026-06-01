@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file derivedOp.h
+/// @file derivedEncoding.h
 /// @brief Implementation of the GRIB `derived` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

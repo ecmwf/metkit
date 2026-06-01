@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file IterationConcept.h
+/// @file iterationConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `iteration` concept.
 ///
 /// This header defines `IterationConcept`, the **compile-time descriptor**

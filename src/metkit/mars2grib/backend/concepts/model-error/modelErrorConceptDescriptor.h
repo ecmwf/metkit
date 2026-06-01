@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file ModelErrorConcept.h
+/// @file modelErrorConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `modelError` concept.
 ///
 /// This header defines `ModelErrorConcept`, the **compile-time descriptor**

@@ -83,6 +83,10 @@
 /// compile-time registry engine.
 ///
 
+///
+/// @ingroup mars2grib_backend_concepts
+///
+
 #pragma once
 
 // System includes
