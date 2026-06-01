@@ -116,6 +116,7 @@
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/tables/tablesConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/wave/waveConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureConceptDescriptor.h"
 
 
 namespace metkit::mars2grib::backend::concepts_::detail {
@@ -174,6 +175,6 @@ using AllConcepts = TypeList<AnalysisConcept, CompositionConcept, DataTypeConcep
                              EnsembleConcept, GeneratingProcessConcept, LevelConcept, LongrangeConcept,
                              IterationConcept, MarsConcept, NilConcept, OriginConcept, PackingConcept, ParamConcept,
                              PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept, SatelliteConcept,
-                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept, ModelErrorConcept>;
+                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail
