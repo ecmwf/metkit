@@ -183,8 +183,7 @@ static metkit::codes::Span<const double> constValueSpan(std::size_t requiredSize
         values.resize(requiredSize);
     }
 
-    std::transform(values.begin(), values.begin() + requiredSize, values.begin(),
-                   [value](double) { return value; });
+    std::transform(values.begin(), values.begin() + requiredSize, values.begin(), [value](double) { return value; });
 
     return metkit::codes::Span<const double>{values.data(), requiredSize};
 }
@@ -397,7 +396,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue) );
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::RegularGaussian) {
 
@@ -430,7 +429,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue) );
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::ReducedGaussian) {
 
@@ -463,7 +462,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue) );
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::Healpix) {
 
@@ -486,7 +485,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue) );
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
 
@@ -507,7 +506,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue) );
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else if constexpr (Variant == RepresentationType::Fesom) {
                     MARS2GRIB_CONCEPT_THROW(representation, "Support for Fesom representation not implemented...");
@@ -528,9 +527,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = (marsTruncation + 1) * (marsTruncation + 2);
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue) );
-
-
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
                 }
                 else {
                     MARS2GRIB_CONCEPT_THROW(representation, "Unknown `representation` variant...");

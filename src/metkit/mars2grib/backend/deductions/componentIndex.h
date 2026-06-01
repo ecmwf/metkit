@@ -128,21 +128,23 @@ long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         // with an unambiguous diagnostic.
         const std::string typeVal = get_or_throw<std::string>(mars, "type");
         if (typeVal != "eme" && typeVal != "me") {
-            throw Mars2GribDeductionException(std::string("`componentIndex` requested for a non-`eme` or non-`me` request: "
-                                                          "`mars[\"type\"]` is `") +
-                                                  typeVal +
-                                                  "` but only `eme` or `me` is supported. This is a serious upstream "
-                                                  "contract violation: the model-error deduction was reached "
-                                                  "for a request that is not a model-error product. Check "
-                                                  "recipe selection and matcher dispatch.",
-                                              Here());
+            throw Mars2GribDeductionException(
+                std::string("`componentIndex` requested for a non-`eme` or non-`me` request: "
+                            "`mars[\"type\"]` is `") +
+                    typeVal +
+                    "` but only `eme` or `me` is supported. This is a serious upstream "
+                    "contract violation: the model-error deduction was reached "
+                    "for a request that is not a model-error product. Check "
+                    "recipe selection and matcher dispatch.",
+                Here());
         }
 
         // Warning due to the hack
-        if ( typeVal == "me" ) {
-            eckit::Log::warning() << "MARS `type` value `me` is treated as a synonym for `eme` to accommodate legacy requests. "
-                                  << "This is a temporary compatibility hack and support for `me` will be removed in the future. "
-                                  << std::endl;
+        if (typeVal == "me") {
+            eckit::Log::warning()
+                << "MARS `type` value `me` is treated as a synonym for `eme` to accommodate legacy requests. "
+                << "This is a temporary compatibility hack and support for `me` will be removed in the future. "
+                << std::endl;
         }
 
         // Retrieve mandatory MARS number (model-error realization id)

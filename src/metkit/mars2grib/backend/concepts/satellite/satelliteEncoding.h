@@ -225,7 +225,6 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
                 // Encoding
                 set_or_throw<long>(out, "channelNumber", channelNumber);
                 set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
-
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {

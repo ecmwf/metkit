@@ -83,7 +83,6 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `derived` concept", Here()));
     }
-
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_
