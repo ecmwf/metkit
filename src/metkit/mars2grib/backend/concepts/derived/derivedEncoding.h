@@ -160,21 +160,6 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
 
             MARS2GRIB_LOG_CONCEPT(derived);
 
-            if constexpr (Section == SecLocalUseSection && Stage == StagePreset &&
-                          Variant == DerivedType::BrightnessTemperatureEnsembleMean) {
-
-                // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {37});
-
-                // Deductions
-                long channelNumber       = deductions::resolve_Channel_or_throw(mars, par, opt);
-                long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
-
-                // Encoding
-                set_or_throw<long>(out, "channelNumber", channelNumber);
-                set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
-            }
-
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
                 // Structural validation
                 validation::check_DerivedProductDefinitionSection_or_throw(opt, out);

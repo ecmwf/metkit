@@ -215,30 +215,17 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
-                if constexpr (Variant == SatelliteType::BrightnessTemperature) {
+                // Check/Validation
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {37});
 
-                    // Check/Validation
-                    validation::match_LocalDefinitionNumber_or_throw(opt, out, {37});
+                // Deductions
+                long channelNumber       = deductions::resolve_Channel_or_throw(mars, par, opt);
+                long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
 
-                    // Deductions
-                    long channelNumber       = deductions::resolve_Channel_or_throw(mars, par, opt);
-                    long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
+                // Encoding
+                set_or_throw<long>(out, "channelNumber", channelNumber);
+                set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
 
-                    // Encoding
-                    set_or_throw<long>(out, "channelNumber", channelNumber);
-                    set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
-                }
-                else {
-
-                    // Check/Validation
-                    validation::match_LocalDefinitionNumber_or_throw(opt, out, {24});
-
-                    // Deductions
-                    long channel = deductions::resolve_Channel_or_throw(mars, par, opt);
-
-                    // Encoding
-                    set_or_throw(out, "channel", channel);
-                }
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
