@@ -8,6 +8,24 @@
  * does it submit to any jurisdiction.
  */
 
+///
+/// @file numberOfFrequencies.h
+/// @brief Deduction of the GRIB `numberOfFrequencies` key.
+///
+/// Resolve the wave spectrum discretization size (`numberOfFrequencies`).
+///
+/// @section Deduction contract
+/// - Reads: `par["numberOfFrequencies"]` (optional)
+/// - Writes: none
+/// - Side effects: logging (OVERRIDE or DEFAULT)
+/// - Failure mode: throws on unexpected errors
+///
+/// If the parameter dictionary provides `numberOfFrequencies`, the value is
+/// used verbatim. Otherwise a documented default (`54`) is applied.
+///
+/// @ingroup mars2grib_backend_deductions
+///
+
 #pragma once
 
 #include <string>
@@ -19,6 +37,22 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
+///
+/// @brief Resolve the GRIB `numberOfFrequencies` key.
+///
+/// @tparam MarsDict_t Type of the MARS dictionary (unused).
+/// @tparam ParDict_t  Type of the parameter dictionary.
+/// @tparam OptDict_t  Type of the options dictionary (unused).
+///
+/// @param[in] mars MARS dictionary (unused).
+/// @param[in] par  Parameter dictionary; may contain `numberOfFrequencies`.
+/// @param[in] opt  Options dictionary (unused).
+///
+/// @return Resolved number of frequencies.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
+/// If an unexpected error occurs while accessing the parameter dictionary.
+///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
