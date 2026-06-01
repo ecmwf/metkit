@@ -83,7 +83,8 @@ inline constexpr std::string_view modelErrorName{"modelError"};
 /// tables and registries.
 ///
 enum class ModelErrorType : std::size_t {
-    Default = 0
+    ComponentIndex = 0,
+    FourierCoefficients
 };
 
 
@@ -99,7 +100,7 @@ enum class ModelErrorType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ModelErrorList = ValueList<ModelErrorType::Default>;
+using ModelErrorList = ValueList<ModelErrorType::ComponentIndex, ModelErrorType::FourierCoefficients>;
 
 
 ///
@@ -129,7 +130,9 @@ constexpr std::string_view modelErrorTypeName();
         return NAME;                                     \
     }
 
-DEF(ModelErrorType::Default, "default");
+DEF(ModelErrorType::ComponentIndex, "componentIndex");
+DEF(ModelErrorType::FourierCoefficients, "fourierCoefficients");
+
 
 #undef DEF
 
