@@ -24,7 +24,10 @@ requires-python = ">=3.10"
 dependencies = [
     "cffi",
     "metkitlib",
-    "findlibs"
+    "findlibs",
+    "pyyaml",
+    "requests",
+    "platformdirs",
 ]
 
 [tool.setuptools.dynamic]

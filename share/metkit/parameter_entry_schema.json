@@ -1,0 +1,50 @@
+{
+  "additionalProperties": true,
+  "description": "A single entry from the ECMWF parameter database.\n\nAccepts both the canonical field names produced by ``_normalise`` and the\nraw aliases that may appear in YAML or API responses.",
+  "properties": {
+    "id": {
+      "description": "Numeric ECMWF/GRIB parameter ID",
+      "title": "Id",
+      "type": "integer"
+    },
+    "shortname": {
+      "description": "Short name (e.g. 't', 'tp')",
+      "title": "Shortname",
+      "type": "string"
+    },
+    "longname": {
+      "description": "Human-readable long name (e.g. 'Temperature')",
+      "title": "Longname",
+      "type": "string"
+    },
+    "units": {
+      "default": "unknown",
+      "description": "Physical units string (e.g. 'K', 'm s**-1')",
+      "title": "Units",
+      "type": "string"
+    },
+    "origin_ids": {
+      "description": "WMO originating centre IDs associated with this parameter",
+      "items": {
+        "type": "integer"
+      },
+      "title": "Origin Ids",
+      "type": "array"
+    },
+    "access_ids": {
+      "description": "Access category tags (e.g. 'dissemination', 'research')",
+      "items": {
+        "type": "string"
+      },
+      "title": "Access Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "shortname",
+    "longname"
+  ],
+  "title": "ParameterEntry",
+  "type": "object"
+}

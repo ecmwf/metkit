@@ -1,0 +1,931 @@
+from contextlib import nullcontext as does_not_raise
+import json
+from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock, patch
+import pytest
+
+from pymetkit import ParamDB, ParameterEntry
+import pymetkit.pymetkit as _mod
+import pydantic
+
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def db():
+    """Shared offline ParamDB instance (loaded once per test module)."""
+    return ParamDB()
+
+
+# ---------------------------------------------------------------------------
+# Construction / mode validation
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "mode, expectation",
+    [
+        ["offline", does_not_raise()],
+        ["online", does_not_raise()],
+        ["invalid", pytest.raises(ValueError)],
+        ["OFFLINE", pytest.raises(ValueError)],
+    ],
+)
+def test_constructor_mode_validation(mode, expectation):
+    """Only 'online' and 'offline' are accepted mode values.
+
+    The online case is patched so that no real HTTP request is made; only the
+    mode-parsing logic is exercised here.
+    """
+    with patch.object(_mod.ParamDB, "_load_online", return_value=None):
+        with expectation:
+            ParamDB(mode=mode)
+
+
+def test_offline_default():
+    """ParamDB() with no arguments loads in offline mode without error."""
+    db = ParamDB()
+    # Sanity-check that data was actually loaded
+    assert len(db._by_id) > 0
+    assert len(db._by_shortname) > 0
+    assert len(db._by_longname) > 0
+
+
+def test_online_requires_requests(monkeypatch):
+    """Online mode raises ImportError when the requests package is absent."""
+    monkeypatch.setattr(_mod, "_requests", None)
+    with pytest.raises(ImportError, match="requests"):
+        ParamDB(mode="online")
+
+
+# ---------------------------------------------------------------------------
+# _normalise (static helper)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "raw, expected_shortname, expected_longname",
+    [
+        # Already canonical keys
+        [
+            {"id": 1, "shortname": "strf", "longname": "Stream function"},
+            "strf",
+            "Stream function",
+        ],
+        # CamelCase aliases
+        [
+            {"id": 1, "shortName": "strf", "longName": "Stream function"},
+            "strf",
+            "Stream function",
+        ],
+        # snake_case aliases
+        [
+            {"id": 1, "short_name": "strf", "long_name": "Stream function"},
+            "strf",
+            "Stream function",
+        ],
+        # 'name' as longname fallback
+        [
+            {"id": 1, "shortname": "strf", "name": "Stream function"},
+            "strf",
+            "Stream function",
+        ],
+    ],
+)
+def test_normalise_key_aliases(raw, expected_shortname, expected_longname):
+    result = ParamDB._normalise(raw)
+    assert result["shortname"] == expected_shortname
+    assert result["longname"] == expected_longname
+
+
+def test_normalise_coerces_id_to_int():
+    result = ParamDB._normalise({"id": "42", "shortname": "foo", "longname": "Foo"})
+    assert result["id"] == 42
+    assert isinstance(result["id"], int)
+
+
+def test_normalise_preserves_extra_fields():
+    raw = {
+        "id": 1,
+        "shortname": "strf",
+        "longname": "Stream function",
+        "units": "m**2 s**-1",
+    }
+    result = ParamDB._normalise(raw)
+    assert result["units"] == "m**2 s**-1"
+
+
+# ---------------------------------------------------------------------------
+# param_id_to_shortname / param_id_to_longname
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "param_id, expected_shortname",
+    [
+        [1, "strf"],
+        [4, "eqpt"],
+        [6, "ssfr"],
+    ],
+)
+def test_param_id_to_shortname(db, param_id, expected_shortname):
+    assert db.param_id_to_shortname(param_id) == expected_shortname
+
+
+def test_param_id_to_shortname_unknown(db):
+    with pytest.raises(KeyError):
+        db.param_id_to_shortname(999_999_999)
+
+
+@pytest.mark.parametrize(
+    "param_id, expected_longname",
+    [
+        [1, "Stream function"],
+        [4, "Equivalent potential temperature"],
+        [6, "Soil sand fraction"],
+    ],
+)
+def test_param_id_to_longname(db, param_id, expected_longname):
+    assert db.param_id_to_longname(param_id) == expected_longname
+
+
+def test_param_id_to_longname_unknown(db):
+    with pytest.raises(KeyError):
+        db.param_id_to_longname(999_999_999)
+
+
+# ---------------------------------------------------------------------------
+# shortname_to_longname / shortname_to_param_id
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "shortname, expected_longname",
+    [
+        ["strf", "Stream function"],
+        ["eqpt", "Equivalent potential temperature"],
+        ["ssfr", "Soil sand fraction"],
+    ],
+)
+def test_shortname_to_longname(db, shortname, expected_longname):
+    assert db.shortname_to_longname(shortname) == expected_longname
+
+
+def test_shortname_to_longname_unknown(db):
+    with pytest.raises(KeyError):
+        db.shortname_to_longname("not_a_real_shortname_xyz")
+
+
+@pytest.mark.parametrize(
+    "shortname, expected_id",
+    [
+        ["strf", 1],
+        ["eqpt", 4],
+        ["ssfr", 6],
+    ],
+)
+def test_shortname_to_param_id(db, shortname, expected_id):
+    assert db.shortname_to_param_id(shortname) == expected_id
+
+
+def test_shortname_to_param_id_unknown(db):
+    with pytest.raises(KeyError):
+        db.shortname_to_param_id("not_a_real_shortname_xyz")
+
+
+# ---------------------------------------------------------------------------
+# longname_to_shortname / longname_to_param_id
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "longname, expected_shortname",
+    [
+        # Use entries where the longname is unique in the DB (last-write-wins)
+        ["Equivalent potential temperature", "eqpt"],
+        ["Soil sand fraction", "ssfr"],
+        ["Soil clay fraction", "scfr"],
+    ],
+)
+def test_longname_to_shortname(db, longname, expected_shortname):
+    assert db.longname_to_shortname(longname) == expected_shortname
+
+
+def test_longname_to_shortname_unknown(db):
+    with pytest.raises(KeyError):
+        db.longname_to_shortname("Not A Real Long Name XYZ")
+
+
+@pytest.mark.parametrize(
+    "longname, expected_id",
+    [
+        ["Equivalent potential temperature", 4],
+        ["Soil sand fraction", 6],
+        ["Soil clay fraction", 7],
+    ],
+)
+def test_longname_to_param_id(db, longname, expected_id):
+    assert db.longname_to_param_id(longname) == expected_id
+
+
+def test_longname_to_param_id_unknown(db):
+    with pytest.raises(KeyError):
+        db.longname_to_param_id("Not A Real Long Name XYZ")
+
+
+# ---------------------------------------------------------------------------
+# Roundtrip consistency
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("param_id", [1, 4, 6])
+def test_roundtrip_id_shortname(db, param_id):
+    shortname = db.param_id_to_shortname(param_id)
+    assert db.shortname_to_param_id(shortname) == param_id
+
+
+@pytest.mark.parametrize("param_id", [4, 6, 7])
+def test_roundtrip_id_longname(db, param_id):
+    longname = db.param_id_to_longname(param_id)
+    assert db.longname_to_param_id(longname) == param_id
+
+
+# ---------------------------------------------------------------------------
+# get_metadata
+# ---------------------------------------------------------------------------
+
+
+def test_get_metadata_by_int(db):
+    meta = db.get_metadata(1)
+    assert meta["id"] == 1
+    assert meta["shortname"] == "strf"
+    assert meta["longname"] == "Stream function"
+
+
+def test_get_metadata_by_shortname(db):
+    meta = db.get_metadata("strf")
+    assert meta["id"] == 1
+
+
+def test_get_metadata_by_longname(db):
+    # Use a longname that is unique in the DB (no later entry overwrites it)
+    meta = db.get_metadata("Equivalent potential temperature")
+    assert meta["id"] == 4
+
+
+def test_get_metadata_by_numeric_string(db):
+    """A string that looks like an integer should resolve via param id."""
+    meta = db.get_metadata("1")
+    assert meta["id"] == 1
+    assert meta["shortname"] == "strf"
+
+
+def test_get_metadata_unknown_raises(db):
+    with pytest.raises(KeyError):
+        db.get_metadata(999_999_999)
+
+
+def test_get_metadata_unknown_string_raises(db):
+    with pytest.raises(KeyError):
+        db.get_metadata("not_a_param_xyz")
+
+
+def test_get_metadata_returns_dict(db):
+    meta = db.get_metadata(1)
+    assert isinstance(meta, dict)
+
+
+# ---------------------------------------------------------------------------
+# get_units
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "identifier, expected_units",
+    [
+        [1, "m**2 s**-1"],
+        ["strf", "m**2 s**-1"],
+        # Use a stable longname for the longname-based lookup
+        ["Equivalent potential temperature", "K"],
+        [6, "(0 - 1)"],
+        ["ssfr", "(0 - 1)"],
+    ],
+)
+def test_get_units(db, identifier, expected_units):
+    assert db.get_units(identifier) == expected_units
+
+
+def test_get_units_unknown_raises(db):
+    with pytest.raises(KeyError):
+        db.get_units(999_999_999)
+
+
+def test_get_units_missing_returns_unknown():
+    """When a parameter entry has no 'units' key, get_units returns 'unknown'."""
+    db = ParamDB.__new__(ParamDB)
+    db._by_id = {9999: {"id": 9999, "shortname": "foo", "longname": "Foo"}}
+    db._by_shortname = {"foo": db._by_id[9999]}
+    db._by_longname = {"Foo": db._by_id[9999]}
+    assert db.get_units(9999) == "unknown"
+
+
+def test_get_units_empty_string_returns_unknown():
+    """When a parameter's units value is an empty string, get_units returns 'unknown'."""
+    db = ParamDB.__new__(ParamDB)
+    entry = {"id": 9998, "shortname": "bar", "longname": "Bar", "units": ""}
+    db._by_id = {9998: entry}
+    db._by_shortname = {"bar": entry}
+    db._by_longname = {"Bar": entry}
+    assert db.get_units(9998) == "unknown"
+
+
+# ---------------------------------------------------------------------------
+# Online caching
+# ---------------------------------------------------------------------------
+
+#: Minimal parameter list returned by a mocked API response.
+_FAKE_PARAMS = [
+    {
+        "id": 1,
+        "shortname": "strf",
+        "longname": "Stream function",
+        "units": "m**2 s**-1",
+    },
+    {
+        "id": 4,
+        "shortname": "eqpt",
+        "longname": "Equivalent potential temperature",
+        "units": "K",
+    },
+]
+
+
+@pytest.fixture()
+def fake_requests(monkeypatch):
+    """Monkeypatch the requests module with a mock that returns _FAKE_PARAMS."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = _FAKE_PARAMS
+    mock_requests = MagicMock()
+    mock_requests.get.return_value = mock_resp
+    monkeypatch.setattr(_mod, "_requests", mock_requests)
+    return mock_requests
+
+
+def test_cache_ttl_must_be_timedelta(fake_requests, tmp_path):
+    """Passing a non-timedelta cache_ttl raises TypeError."""
+    with pytest.raises(TypeError, match="timedelta"):
+        ParamDB(mode="online", cache_ttl=3600, cache_path=tmp_path)
+
+
+def test_online_writes_cache_file(fake_requests, tmp_path):
+    """First online load writes a JSON cache file to the cache directory."""
+    ParamDB(mode="online", cache_path=tmp_path)
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    assert cache_file.exists()
+    payload = json.loads(cache_file.read_text())
+    assert "fetched_at" in payload
+    assert "params" in payload
+    assert payload["params"] == _FAKE_PARAMS
+
+
+def test_online_uses_fresh_cache(fake_requests, tmp_path):
+    """A second instantiation within the TTL window does not make an HTTP request."""
+    ParamDB(mode="online", cache_path=tmp_path)
+    assert fake_requests.get.call_count == 1
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1  # no new request
+
+
+def test_online_fetches_when_cache_expired(fake_requests, tmp_path):
+    """An expired cache entry triggers a fresh HTTP request."""
+    # Write a cache file whose timestamp is in the past
+    old_time = datetime.now(tz=timezone.utc) - timedelta(hours=2)
+    payload = {"fetched_at": old_time.isoformat(), "params": _FAKE_PARAMS}
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text(json.dumps(payload))
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1  # stale cache → new request
+
+
+def test_online_fetches_when_cache_not_yet_expired(fake_requests, tmp_path):
+    """A cache entry within the TTL does NOT trigger a new request."""
+    recent_time = datetime.now(tz=timezone.utc) - timedelta(minutes=30)
+    payload = {"fetched_at": recent_time.isoformat(), "params": _FAKE_PARAMS}
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text(json.dumps(payload))
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 0  # fresh cache → no request
+
+
+def test_online_zero_ttl_bypasses_cache(fake_requests, tmp_path):
+    """cache_ttl=timedelta(0) disables caching: always fetches and never writes a file."""
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    assert fake_requests.get.call_count == 1
+    assert not (tmp_path / ParamDB._CACHE_FILENAME).exists()
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    assert fake_requests.get.call_count == 2  # second call also fetches
+
+
+def test_online_corrupt_cache_falls_back_to_fetch(fake_requests, tmp_path):
+    """A corrupt/unreadable cache file is ignored and a fresh request is made."""
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text("this is not valid json {{{")
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1
+
+
+def test_online_cache_overwrites_after_expiry(fake_requests, tmp_path):
+    """After a stale cache triggers a fetch, the cache file is updated."""
+    old_time = datetime.now(tz=timezone.utc) - timedelta(hours=2)
+    payload = {"fetched_at": old_time.isoformat(), "params": _FAKE_PARAMS}
+    cache_file = tmp_path / ParamDB._CACHE_FILENAME
+    cache_file.write_text(json.dumps(payload))
+
+    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+
+    updated = json.loads(cache_file.read_text())
+    updated_time = datetime.fromisoformat(updated["fetched_at"])
+    if updated_time.tzinfo is None:
+        updated_time = updated_time.replace(tzinfo=timezone.utc)
+    assert updated_time > old_time
+
+
+def test_online_cache_data_is_usable(fake_requests, tmp_path):
+    """Data loaded from cache round-trips correctly through _normalise and _index."""
+    # Populate the cache
+    ParamDB(mode="online", cache_path=tmp_path)
+
+    # Load from cache (no network call)
+    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert fake_requests.get.call_count == 1  # only the first call used the network
+    assert db.param_id_to_shortname(1) == "strf"
+    assert db.param_id_to_shortname(4) == "eqpt"
+
+
+def test_online_no_platformdirs_no_cache_dir(fake_requests, tmp_path, monkeypatch):
+    """When platformdirs is unavailable and no cache_path is given, caching is
+    silently skipped and the data is still loaded correctly."""
+    monkeypatch.setattr(_mod, "_platformdirs", None)
+    db = ParamDB(mode="online")  # no cache_path, no platformdirs
+    assert fake_requests.get.call_count == 1
+    assert db.param_id_to_shortname(1) == "strf"
+
+
+def test_online_default_ttl_is_one_hour():
+    """The documented default TTL is exactly one hour."""
+    assert ParamDB._DEFAULT_CACHE_TTL == timedelta(hours=1)
+
+
+# ---------------------------------------------------------------------------
+# yaml_path parameter
+# ---------------------------------------------------------------------------
+
+#: Minimal YAML content used by the yaml_path tests.
+_CUSTOM_YAML = """\
+- id: 101
+  shortname: cust1
+  longname: Custom param one
+  units: m s**-1
+  description: First custom parameter
+- id: 102
+  shortname: cust2
+  longname: Custom param two
+  units: K
+  description: Second custom parameter
+"""
+
+#: Same data with alternate key names to exercise _normalise.
+_CUSTOM_YAML_ALIASES = """\
+- id: 201
+  shortName: alias1
+  longName: Alias param one
+  units: Pa
+- id: 202
+  short_name: alias2
+  long_name: Alias param two
+  units: kg m**-3
+"""
+
+
+@pytest.fixture()
+def custom_yaml(tmp_path):
+    """Write _CUSTOM_YAML to a temporary file and return its Path."""
+    p = tmp_path / "custom_params.yaml"
+    p.write_text(_CUSTOM_YAML)
+    return p
+
+
+@pytest.fixture()
+def custom_yaml_aliases(tmp_path):
+    """Write _CUSTOM_YAML_ALIASES to a temporary file and return its Path."""
+    p = tmp_path / "alias_params.yaml"
+    p.write_text(_CUSTOM_YAML_ALIASES)
+    return p
+
+
+def test_yaml_path_loads_custom_file(custom_yaml):
+    """yaml_path pointing at a valid YAML file loads without error."""
+    db = ParamDB(yaml_path=custom_yaml)
+    assert db.param_id_to_shortname(101) == "cust1"
+    assert db.param_id_to_shortname(102) == "cust2"
+
+
+def test_yaml_path_as_string(custom_yaml):
+    """yaml_path accepts a plain string as well as a Path object."""
+    db = ParamDB(yaml_path=str(custom_yaml))
+    assert db.param_id_to_shortname(101) == "cust1"
+
+
+def test_yaml_path_data_is_used_not_default(custom_yaml):
+    """Custom YAML is actually loaded; the standard DB entries are NOT present."""
+    db = ParamDB(yaml_path=custom_yaml)
+    # Custom entries exist
+    assert db.param_id_to_shortname(101) == "cust1"
+    # Standard entry is absent
+    with pytest.raises(KeyError):
+        db.param_id_to_shortname(1)
+
+
+def test_yaml_path_full_lookup_chain(custom_yaml):
+    """All three lookup indices work correctly for a custom YAML file."""
+    db = ParamDB(yaml_path=custom_yaml)
+    # id → shortname / longname
+    assert db.param_id_to_shortname(101) == "cust1"
+    assert db.param_id_to_longname(101) == "Custom param one"
+    # shortname → id / longname
+    assert db.shortname_to_param_id("cust1") == 101
+    assert db.shortname_to_longname("cust1") == "Custom param one"
+    # longname → id / shortname
+    assert db.longname_to_param_id("Custom param one") == 101
+    assert db.longname_to_shortname("Custom param one") == "cust1"
+
+
+def test_yaml_path_get_metadata(custom_yaml):
+    """get_metadata works for all identifier types with a custom YAML file."""
+    db = ParamDB(yaml_path=custom_yaml)
+    assert db.get_metadata(101)["shortname"] == "cust1"
+    assert db.get_metadata("cust1")["id"] == 101
+    assert db.get_metadata("Custom param one")["id"] == 101
+    assert db.get_metadata("101")["shortname"] == "cust1"
+
+
+def test_yaml_path_get_units(custom_yaml):
+    """get_units returns the correct value from a custom YAML file."""
+    db = ParamDB(yaml_path=custom_yaml)
+    assert db.get_units(101) == "m s**-1"
+    assert db.get_units(102) == "K"
+
+
+def test_yaml_path_normalises_key_aliases(custom_yaml_aliases):
+    """Alternate key names (shortName, longName, etc.) are normalised correctly."""
+    db = ParamDB(yaml_path=custom_yaml_aliases)
+    assert db.param_id_to_shortname(201) == "alias1"
+    assert db.param_id_to_longname(201) == "Alias param one"
+    assert db.param_id_to_shortname(202) == "alias2"
+    assert db.param_id_to_longname(202) == "Alias param two"
+
+
+def test_yaml_path_missing_file_raises(tmp_path):
+    """A yaml_path that does not exist raises FileNotFoundError."""
+    missing = tmp_path / "does_not_exist.yaml"
+    with pytest.raises(FileNotFoundError):
+        ParamDB(yaml_path=missing)
+
+
+def test_yaml_path_with_online_mode_raises(custom_yaml):
+    """Combining yaml_path with mode='online' raises ValueError."""
+    with pytest.raises(ValueError, match="yaml_path"):
+        ParamDB(mode="online", yaml_path=custom_yaml)
+
+
+def test_yaml_path_none_loads_default_yaml():
+    """yaml_path=None (the default) loads the standard parameter_metadata.yaml."""
+    db = ParamDB(yaml_path=None)
+    # The standard DB has many entries; a well-known entry should be present.
+    assert db.param_id_to_shortname(1) == "strf"
+    assert len(db._by_id) > 100
+
+
+# ---------------------------------------------------------------------------
+# Shortname collision / context-aware lookup
+# ---------------------------------------------------------------------------
+
+
+def test_shortname_default_returns_lowest_id(db):
+    """Without context, shortname_to_param_id returns the canonical ECMWF id.
+
+    't' maps to both 130 (ECMWF table 128, dissemination, origin 98) and
+    500014 (table 500).  The default priority (dissemination → ECMWF origin →
+    lowest id) must resolve to 130.
+    """
+    assert db.shortname_to_param_id("t") == 130
+
+
+def test_shortname_to_param_id_with_table_128(db):
+    """table=128 selects the classic ECMWF parameter."""
+    assert db.shortname_to_param_id("t", table=128) == 130
+
+
+def test_shortname_to_param_id_with_table_500(db):
+    """table=500 selects the non-ECMWF (table-500) parameter."""
+    assert db.shortname_to_param_id("t", table=500) == 500014
+
+
+def test_shortname_to_longname_with_table(db):
+    """table context is forwarded correctly through shortname_to_longname."""
+    assert db.shortname_to_longname("t", table=128) == "Temperature"
+    assert db.shortname_to_longname("t", table=500) == "Temperature"
+
+
+def test_shortname_to_param_id_with_origin_ecmwf(db):
+    """origin=98 (ECMWF) selects the canonical ECMWF parameter."""
+    assert db.shortname_to_param_id("t", origin=98) == 130
+
+
+def test_shortname_to_param_id_with_access_dissemination(db):
+    """access='dissemination' filters to dissemination parameters."""
+    # 't' id=130 has dissemination; result must be 130.
+    assert db.shortname_to_param_id("t", access="dissemination") == 130
+
+
+def test_shortname_to_param_id_unknown_table_raises(db):
+    """Requesting a table that has no entry for the shortname raises KeyError."""
+    with pytest.raises(KeyError, match="table=999"):
+        db.shortname_to_param_id("t", table=999)
+
+
+def test_shortname_to_param_id_unknown_origin_raises(db):
+    """Requesting an origin with no entry for the shortname raises KeyError."""
+    with pytest.raises(KeyError, match="origin=9999"):
+        db.shortname_to_param_id("t", origin=9999)
+
+
+def test_shortname_to_param_id_unknown_access_raises(db):
+    """Requesting an access value with no matching entry raises KeyError."""
+    with pytest.raises(KeyError, match="access="):
+        db.shortname_to_param_id("strf", access="nonexistent_access")
+
+
+def test_shortname_to_param_id_center_context(db):
+    """origin context filters to the correct originating centre."""
+    entry = db._resolve_shortname_with_context("t", origin=98)
+    assert entry["id"] == 130
+
+
+def test_get_all_by_shortname_returns_all_candidates(db):
+    """get_all_by_shortname returns every entry for a colliding shortname."""
+    entries = db.get_all_by_shortname("t")
+    ids = [e["id"] for e in entries]
+    assert 130 in ids
+    assert 500014 in ids
+    # Results are sorted ascending by id
+    assert ids == sorted(ids)
+
+
+def test_get_all_by_shortname_unique_shortname(db):
+    """get_all_by_shortname returns a single-element list for a unique shortname."""
+    entries = db.get_all_by_shortname("strf")
+    assert len(entries) == 1
+    assert entries[0]["id"] == 1
+
+
+def test_get_all_by_shortname_unknown_raises(db):
+    with pytest.raises(KeyError):
+        db.get_all_by_shortname("not_a_real_shortname_xyz")
+
+
+def test_shortname_has_collisions_true(db):
+    """shortname_has_collisions returns True for a known colliding shortname."""
+    assert db.shortname_has_collisions("t") is True
+
+
+def test_shortname_has_collisions_false(db):
+    """shortname_has_collisions returns False for a unique shortname."""
+    assert db.shortname_has_collisions("strf") is False
+
+
+def test_shortname_has_collisions_unknown_raises(db):
+    with pytest.raises(KeyError):
+        db.shortname_has_collisions("not_a_real_shortname_xyz")
+
+
+def test_table_from_id_classic_ecmwf():
+    """IDs below 1000 decode to table 128 (classic ECMWF)."""
+    assert ParamDB._table_from_id(130) == 128
+    assert ParamDB._table_from_id(1) == 128
+    assert ParamDB._table_from_id(999) == 128
+
+
+def test_table_from_id_non_128_ecmwf():
+    """IDs in the 1000–999999 range decode to table = id // 1000."""
+    assert ParamDB._table_from_id(228228) == 228
+    assert ParamDB._table_from_id(140232) == 140
+    assert ParamDB._table_from_id(500014) == 500
+
+
+def test_table_from_id_center_namespaced():
+    """IDs >= 1_000_000 decode the table from the middle digits."""
+    # 7001292 → center=7, table=1, param=292
+    assert ParamDB._table_from_id(7001292) == 1
+    # 85001156 → center=85, table=1, param=156
+    assert ParamDB._table_from_id(85001156) == 1
+
+
+def test_center_from_id_below_million():
+    """IDs below 1_000_000 have no centre (returns None)."""
+    assert ParamDB._center_from_id(130) is None
+    assert ParamDB._center_from_id(228228) is None
+
+
+def test_center_from_id_above_million():
+    """IDs >= 1_000_000 decode the centre correctly."""
+    assert ParamDB._center_from_id(7001292) == 7
+    assert ParamDB._center_from_id(85001156) == 85
+
+
+def test_default_resolution_prefers_dissemination_then_ecmwf(db):
+    """Default resolution: dissemination params with ECMWF origin win."""
+    # 't' → 130 has dissemination + origin 98; 500014 does not have origin 98.
+    assert db.shortname_to_param_id("t") == 130
+
+
+def test_origin_ids_stored_in_metadata(db):
+    """origin_ids field is present and populated for well-known params."""
+    meta = db.get_metadata(130)
+    assert "origin_ids" in meta
+    assert 98 in meta["origin_ids"]  # ECMWF
+
+
+def test_access_ids_stored_in_metadata(db):
+    """access_ids field is present for well-known dissemination params."""
+    meta = db.get_metadata(130)
+    assert "access_ids" in meta
+    assert "dissemination" in meta["access_ids"]
+
+
+def test_first_write_wins_for_shortname(db):
+    """_by_shortname always holds the entry with the lowest id for each shortname."""
+    for sn, entry in db._by_shortname.items():
+        all_entries = db._by_shortname_all[sn]
+        min_id = min(e["id"] for e in all_entries)
+        assert entry["id"] == min_id, (
+            f"_by_shortname[{sn!r}] has id={entry['id']} but min is {min_id}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# ParameterEntry model
+# ---------------------------------------------------------------------------
+
+
+class TestParameterEntryModel:
+    """Unit tests for the Pydantic ParameterEntry schema."""
+
+    def test_canonical_fields(self):
+        """Model accepts canonical field names and round-trips correctly."""
+        entry = ParameterEntry(id=130, shortname="t", longname="Temperature", units="K")
+        assert entry.id == 130
+        assert entry.shortname == "t"
+        assert entry.longname == "Temperature"
+        assert entry.units == "K"
+        assert entry.origin_ids == []
+        assert entry.access_ids == []
+
+    def test_shortname_alias(self):
+        """Raw API alias 'shortName' is accepted and normalised to 'shortname'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortName": "t", "longname": "Temperature"}
+        )
+        assert entry.shortname == "t"
+
+    def test_short_name_underscore_alias(self):
+        """Snake-case alias 'short_name' is accepted and normalised."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "short_name": "t", "longname": "Temperature"}
+        )
+        assert entry.shortname == "t"
+
+    def test_longname_aliases(self):
+        """'longName', 'long_name', and 'name' are all normalised to 'longname'."""
+        for key in ("longName", "long_name", "name"):
+            entry = ParameterEntry.model_validate(
+                {"id": 130, "shortname": "t", key: "Temperature"}
+            )
+            assert entry.longname == "Temperature", f"alias {key!r} not normalised"
+
+    def test_id_coercion_from_string(self):
+        """String id values are coerced to int."""
+        entry = ParameterEntry.model_validate(
+            {"id": "130", "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.id == 130
+        assert isinstance(entry.id, int)
+
+    def test_units_defaults_to_unknown_when_absent(self):
+        """Missing 'units' field defaults to 'unknown'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.units == "unknown"
+
+    def test_units_defaults_to_unknown_when_empty(self):
+        """Empty-string 'units' is normalised to 'unknown'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature", "units": ""}
+        )
+        assert entry.units == "unknown"
+
+    def test_units_defaults_to_unknown_when_none(self):
+        """None 'units' is normalised to 'unknown'."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature", "units": None}
+        )
+        assert entry.units == "unknown"
+
+    def test_origin_ids_default_empty_list(self):
+        """Absent 'origin_ids' defaults to []."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.origin_ids == []
+
+    def test_origin_ids_none_becomes_empty_list(self):
+        """None 'origin_ids' is coerced to []."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature", "origin_ids": None}
+        )
+        assert entry.origin_ids == []
+
+    def test_access_ids_default_empty_list(self):
+        """Absent 'access_ids' defaults to []."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature"}
+        )
+        assert entry.access_ids == []
+
+    def test_origin_ids_coercion(self):
+        """String elements in origin_ids are coerced to int."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature",
+             "origin_ids": ["98", "0"]}
+        )
+        assert entry.origin_ids == [98, 0]
+
+    def test_extra_fields_preserved(self):
+        """Extra keys not in the schema are preserved in model_dump()."""
+        entry = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature",
+             "url": "https://example.com/130"}
+        )
+        dumped = entry.model_dump()
+        assert dumped["url"] == "https://example.com/130"
+
+    def test_missing_id_raises(self):
+        """Missing required 'id' raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate({"shortname": "t", "longname": "Temperature"})
+
+    def test_missing_shortname_raises(self):
+        """Missing required 'shortname' raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate({"id": 130, "longname": "Temperature"})
+
+    def test_missing_longname_raises(self):
+        """Missing required 'longname' raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate({"id": 130, "shortname": "t"})
+
+    def test_empty_shortname_raises(self):
+        """Empty shortname raises ValidationError."""
+        with pytest.raises(pydantic.ValidationError):
+            ParameterEntry.model_validate(
+                {"id": 130, "shortname": "", "longname": "Temperature"}
+            )
+
+    def test_model_dump_round_trip(self):
+        """model_dump() produces a dict that can be validated back into the model."""
+        original = ParameterEntry.model_validate(
+            {"id": 130, "shortname": "t", "longname": "Temperature",
+             "units": "K", "origin_ids": [98], "access_ids": ["dissemination"]}
+        )
+        dumped = original.model_dump()
+        restored = ParameterEntry.model_validate(dumped)
+        assert restored == original
+
+    def test_normalise_uses_model(self):
+        """ParamDB._normalise round-trips through ParameterEntry and returns a dict."""
+        raw = {"id": "130", "shortName": "t", "name": "Temperature", "units": "K"}
+        result = ParamDB._normalise(raw)
+        assert isinstance(result, dict)
+        assert result["id"] == 130
+        assert result["shortname"] == "t"
+        assert result["longname"] == "Temperature"
+        assert result["units"] == "K"
