@@ -129,6 +129,7 @@ enum class LevelType : std::size_t {
     HeightAboveSeaAt2M,
     HeightAboveGroundAt10M,
     HeightAboveGroundAt2M,
+    FlightLevel,
     Default
 };
 
@@ -145,20 +146,19 @@ enum class LevelType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using LevelList =
-    ValueList<LevelType::Surface, LevelType::EntireAtmosphere, LevelType::EntireLake, LevelType::CloudBase,
-              LevelType::Tropopause, LevelType::NominalTop, LevelType::MostUnstableParcel, LevelType::MixedLayerParcel,
-              LevelType::Isothermal, LevelType::IsobaricInPa, LevelType::IsobaricInHpa, LevelType::LowCloudLayer,
-              LevelType::MediumCloudLayer, LevelType::HighCloudLayer, LevelType::MeanSea, LevelType::HeightAboveSea,
-              LevelType::HeightAboveGround, LevelType::Hybrid, LevelType::Theta, LevelType::PotentialVorticity,
-              LevelType::SnowLayer, LevelType::SoilLayer, LevelType::SeaIceLayer, LevelType::OceanSurface,
-              LevelType::DepthBelowSeaLayer, LevelType::OceanSurfaceToBottom, LevelType::LakeBottom,
-              LevelType::MixingLayer, LevelType::OceanModel, LevelType::OceanModelLayer,
-              LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
-              LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
-              LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel,
-              LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M,
-              LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M, LevelType::Default>;
+using LevelList = ValueList<
+    LevelType::Surface, LevelType::EntireAtmosphere, LevelType::EntireLake, LevelType::CloudBase, LevelType::Tropopause,
+    LevelType::NominalTop, LevelType::MostUnstableParcel, LevelType::MixedLayerParcel, LevelType::Isothermal,
+    LevelType::IsobaricInPa, LevelType::IsobaricInHpa, LevelType::LowCloudLayer, LevelType::MediumCloudLayer,
+    LevelType::HighCloudLayer, LevelType::MeanSea, LevelType::HeightAboveSea, LevelType::HeightAboveGround,
+    LevelType::Hybrid, LevelType::Theta, LevelType::PotentialVorticity, LevelType::SnowLayer, LevelType::SoilLayer,
+    LevelType::SeaIceLayer, LevelType::OceanSurface, LevelType::DepthBelowSeaLayer, LevelType::OceanSurfaceToBottom,
+    LevelType::LakeBottom, LevelType::MixingLayer, LevelType::OceanModel, LevelType::OceanModelLayer,
+    LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature, LevelType::SnowLayerOverIceOnWater,
+    LevelType::IceTopOnWater, LevelType::IceLayerOnWater, LevelType::EntireMeltPond,
+    LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel, LevelType::AbstractMultipleLevel,
+    LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M,
+    LevelType::HeightAboveGroundAt2M, LevelType::FlightLevel, LevelType::Default>;
 
 
 ///
@@ -231,6 +231,7 @@ DEF(LevelType::HeightAboveSeaAt10M, "heightAboveSeaAt10m");
 DEF(LevelType::HeightAboveSeaAt2M, "heightAboveSeaAt2m");
 DEF(LevelType::HeightAboveGroundAt10M, "heightAboveGroundAt10m");
 DEF(LevelType::HeightAboveGroundAt2M, "heightAboveGroundAt2m");
+DEF(LevelType::FlightLevel, "flightLevel");
 DEF(LevelType::Default, "default");
 
 #undef DEF

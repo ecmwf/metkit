@@ -189,6 +189,18 @@ inline std::size_t matchPL(const long param, const long level) {
         "No mapping exists for param \"" + std::to_string(param) + "\" on levtype PL", Here());
 }
 
+inline std::size_t matchFL(const long param) {
+    using metkit::mars2grib::util::param_matcher::matchAny;
+    using metkit::mars2grib::util::param_matcher::range;
+
+    if (matchAny(param, 260290)) {
+        return static_cast<std::size_t>(LevelType::FlightLevel);
+    }
+
+    throw utils::exceptions::Mars2GribMatcherException(
+        "No mapping exists for param \"" + std::to_string(param) + "\" on levtype FL", Here());
+}
+
 inline std::size_t matchPT(const long param) {
     using metkit::mars2grib::util::param_matcher::matchAny;
     using metkit::mars2grib::util::param_matcher::range;
@@ -331,6 +343,9 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     if (levtype == "pl") {
         const auto level = get_or_throw<long>(mars, "levelist");
         return impl::matchPL(param, level);
+    }
+    if (levtype == "fl") {
+        return impl::matchFL(param);
     }
     if (levtype == "pt") {
         return impl::matchPT(param);
