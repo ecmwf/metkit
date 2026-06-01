@@ -83,6 +83,10 @@
 ///
 /// This header is safe to include in performance-critical translation units.
 ///
+///
+/// @ingroup mars2grib_backend_concepts
+///
+
 #pragma once
 
 // System includes

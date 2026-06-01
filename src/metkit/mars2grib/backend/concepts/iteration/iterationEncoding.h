@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file iterationOp.h
+/// @file iterationEncoding.h
 /// @brief Implementation of the GRIB `iteration` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file LongrangeConcept.h
+/// @file longrangeConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `longrange` concept.
 ///
 /// This header defines `LongrangeConcept`, the **compile-time descriptor**

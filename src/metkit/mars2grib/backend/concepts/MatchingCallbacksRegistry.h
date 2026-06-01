@@ -87,6 +87,10 @@
 ///
 /// This header is safe to include transitively in performance-critical code.
 ///
+///
+/// @ingroup mars2grib_backend_concepts
+///
+
 #pragma once
 
 // System includes

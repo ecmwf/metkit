@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file analysisOp.h
+/// @file analysisEncoding.h
 /// @brief Implementation of the GRIB `analysis` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

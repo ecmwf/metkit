@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file marsOp.h
+/// @file marsEncoding.h
 /// @brief Implementation of the GRIB `mars` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

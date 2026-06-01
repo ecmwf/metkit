@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file LevelConcept.h
+/// @file levelConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `level` concept.
 ///
 /// This header defines `LevelConcept`, the **compile-time descriptor**

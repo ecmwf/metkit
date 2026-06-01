@@ -94,6 +94,10 @@
 ///
 /// This header must remain lightweight and safe to include transitively.
 ///
+///
+/// @ingroup mars2grib_backend_concepts
+///
+
 #pragma once
 
 // System includes

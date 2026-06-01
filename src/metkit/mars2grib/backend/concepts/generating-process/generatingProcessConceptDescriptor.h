@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file GeneratingProcessConcept.h
+/// @file generatingProcessConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `generatingProcess` concept.
 ///
 /// This header defines `GeneratingProcessConcept`, the **compile-time descriptor**

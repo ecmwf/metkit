@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file shapeOfTheEarthOp.h
+/// @file shapeOfTheEarthEncoding.h
 /// @brief Implementation of the GRIB `shapeOfTheEarth` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

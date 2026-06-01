@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file referenceTimeOp.h
+/// @file referenceTimeEncoding.h
 /// @brief Implementation of the GRIB `referenceTime` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

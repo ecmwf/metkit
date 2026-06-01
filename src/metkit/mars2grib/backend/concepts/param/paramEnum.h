@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `param.h` / `paramOp` implementation.
+/// `paramEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///

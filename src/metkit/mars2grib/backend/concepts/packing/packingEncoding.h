@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file packingOp.h
+/// @file packingEncoding.h
 /// @brief Implementation of the GRIB `packing` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

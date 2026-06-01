@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file modelErrorOp.h
+/// @file modelErrorEncoding.h
 /// @brief Implementation of the GRIB `modelError` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file DerivedConcept.h
+/// @file derivedConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `derived` concept.
 ///
 /// This header defines `DerivedConcept`, the **compile-time descriptor**

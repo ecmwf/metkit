@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file originOp.h
+/// @file originEncoding.h
 /// @brief Implementation of the GRIB `origin` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

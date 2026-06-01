@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file pointInTimeOp.h
+/// @file pointInTimeEncoding.h
 /// @brief Implementation of the GRIB `pointInTime` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

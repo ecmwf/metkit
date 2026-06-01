@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file nilOp.h
+/// @file nilEncoding.h
 /// @brief Implementation of the GRIB `nil` concept operation.
 ///
 /// This header defines the **nil concept**, a sentinel / placeholder concept

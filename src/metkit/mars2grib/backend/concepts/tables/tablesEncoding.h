@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file tablesOp.h
+/// @file tablesEncoding.h
 /// @brief Implementation of the GRIB tables-versioning concept (`tables`).
 ///
 /// This header defines the applicability rules and execution logic for the
