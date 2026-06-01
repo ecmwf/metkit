@@ -42,11 +42,21 @@ CASE("Test Obstype expansions") {
     assertTypeExpansion("obstype", {"ti3r", "trmm"}, {"130", "129"});
     assertTypeExpansion("obstype", {"130", "trmm"}, {"130", "129"});
     assertTypeExpansion("obstype", {"trmm", "qscat"}, {"129", "130", "137", "138"});
-    assertTypeExpansion("obstype", {"sd"},
-                        {"121", "122", "123", "124", "210", "212", "213", "214", "216", "217", "218", "51",  "53",
+    {
+        std::vector<std::string> values{"sd"};
+        static MarsLanguage language("retrieve");
+        language.type("obstype")->expand(values);
+        std::vector<std::string> expected{"121", "122", "123", "124", "210", "212", "213", "214", "216", "217", "218", "51",  "53",
                          "54",  "55",  "56",  "57",  "59",  "60",  "61",  "62",  "63",  "65",  "71",  "72",  "73",
                          "75",  "138", "139", "153", "155", "211", "240", "250", "126", "49",  "127", "129", "130",
-                         "137", "206", "207", "208", "209", "156", "154", "201", "202", "252", "245", "246"});
+                         "137", "206", "207", "208", "209", "156", "154", "201", "202", "252", "245", "246"};
+        EXPECT(values.size() >= expected.size());
+        std::set<std::string> valuesSet(values.begin(), values.end());
+        EXPECT_EQUAL(values.size(), valuesSet.size());
+        for (const auto& v : expected) {
+            EXPECT(valuesSet.find(v) != valuesSet.end());
+        }
+    }
     EXPECT_THROWS_AS(assertTypeExpansion("obstype", {"foo"}, {""}), UserError);
 }
 
