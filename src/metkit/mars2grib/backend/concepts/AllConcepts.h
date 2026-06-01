@@ -93,6 +93,7 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/backend/concepts/analysis/analysisConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/composition/compositionConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/data-type/dataTypeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/derived/derivedConceptDescriptor.h"
@@ -116,7 +117,6 @@
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/tables/tablesConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/wave/waveConceptDescriptor.h"
-#include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureConceptDescriptor.h"
 
 
 namespace metkit::mars2grib::backend::concepts_::detail {
@@ -171,10 +171,11 @@ using TypeList = metkit::mars2grib::backend::compile_time_registry_engine::TypeL
 /// Higher-level code should interact with concepts exclusively through
 /// registry APIs, not by iterating this list directly.
 ///
-using AllConcepts = TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept,
-                             EnsembleConcept, GeneratingProcessConcept, LevelConcept, LongrangeConcept,
-                             IterationConcept, MarsConcept, NilConcept, OriginConcept, PackingConcept, ParamConcept,
-                             PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept, SatelliteConcept,
-                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept>;
+using AllConcepts =
+    TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept, EnsembleConcept,
+             GeneratingProcessConcept, LevelConcept, LongrangeConcept, IterationConcept, MarsConcept, NilConcept,
+             OriginConcept, PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept,
+             RepresentationConcept, SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept,
+             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

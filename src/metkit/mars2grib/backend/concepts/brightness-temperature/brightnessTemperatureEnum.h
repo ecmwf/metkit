@@ -75,8 +75,7 @@ inline constexpr std::string_view brightnessTemperatureName{"brightnessTemperatu
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
 /// tables and registries.
-enum class BrightnessTemperatureType : std::size_t
-{
+enum class BrightnessTemperatureType : std::size_t {
     EnsembleMean = 0,
     Default
 };
@@ -91,7 +90,8 @@ enum class BrightnessTemperatureType : std::size_t
 /// @note
 /// The order of this list must match the intended iteration order for
 /// registry construction and diagnostics.
-using BrightnessTemperatureList = ValueList<BrightnessTemperatureType::EnsembleMean, BrightnessTemperatureType::Default>;
+using BrightnessTemperatureList =
+    ValueList<BrightnessTemperatureType::EnsembleMean, BrightnessTemperatureType::Default>;
 
 /// @brief Compile-time mapping from `BrightnessTemperatureType` to human-readable name.
 ///
