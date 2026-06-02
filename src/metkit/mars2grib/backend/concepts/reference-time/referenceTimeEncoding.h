@@ -215,10 +215,10 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
                 // For a reforecast product, the Identification Section's
                 // reference date/time is the hindcast date — i.e. the
-                // canonical ProductTime::simulationDateTime (from date /
+                // canonical ProductTime::labelDateTime (from date /
                 // time). The ProductDefinitionSection branch below writes
                 // the model-version date from referenceDateTime instead.
-                const eckit::DateTime& referenceDateTime = pt.simulationDateTime;
+                const eckit::DateTime& referenceDateTime = pt.labelDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", referenceDateTime.date().year());
@@ -236,7 +236,7 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
                 // Model-version date/time = ProductTime::referenceDateTime
                 // (derived from date/time or year/month per §7.4).
-                // TODO: Need to clarify with DGOV if this is reference or simulatedDateTime.
+                // TODO: Need to clarify with DGOV if this is reference or initialConditionsDateTime.
                 const eckit::DateTime& dateTime = pt.referenceDateTime;
 
                 // Encoding

@@ -85,13 +85,13 @@ inline constexpr std::size_t maxStatisticalWindows = 3;
 /// See `deductions/timeProducts.md` §5 for the full contract, including:
 ///   - tri-equivalent instant invariant (§5.1)
 ///   - window-end ordering invariant   (§5.2)
-///   - reference-vs-simulated invariant (§5.3)
+///   - reference-vs-initial-conditions invariant (§5.3)
 ///   - per-consumer field-access table  (§15)
 ///
 struct ProductTime {
 
-    const eckit::DateTime simulationDateTime;
-    const eckit::DateTime simulatedDateTime;
+    const eckit::DateTime labelDateTime;
+    const eckit::DateTime initialConditionsDateTime;
     const eckit::DateTime referenceDateTime;
 
     /// Internal convention: `[windowStart, windowEnd)` when
@@ -137,9 +137,9 @@ enum class TimespanKind {
 ///
 struct ProductTimeInput {
 
-    eckit::DateTime simulationDateTime;
+    eckit::DateTime labelDateTime;
 
-    std::optional<eckit::DateTime> simulatedDateTime;  ///< from `hdate` / `htime`
+    std::optional<eckit::DateTime> initialConditionsDateTime;  ///< from `hdate` / `htime`
     std::optional<eckit::DateTime> referenceDateTime;  ///< from `fcyear` / `fcmonth`
 
     /// Offset from `referenceDateTime` to `ProductTime::windowEnd`.
@@ -427,7 +427,7 @@ inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows
 /// @brief Validate input invariants and construct an immutable `ProductTime`.
 ///
 /// Performs (in order):
-///   1. Default resolution for `simulatedDateTime` and `referenceDateTime`
+///   1. Default resolution for `initialConditionsDateTime` and `referenceDateTime`
 ///      (§7.3, §7.4).
 ///   2. Computes `windowEnd := referenceDateTime + stepInSeconds` (§7.5).
 ///   3. Assembles `statisticalWindows` per the case table (§9).
@@ -445,22 +445,23 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     // Default resolution (§7.3, §7.4)
     // ---------------------------------------------------------
 
-    const eckit::DateTime simulationDateTime = input.simulationDateTime;
+    const eckit::DateTime labelDateTime = input.labelDateTime;
 
     // §7.3: hdate / htime defaulting (the resolver has already enforced
-    // §10.2; here we just apply the fall-through to simulationDateTime).
-    const eckit::DateTime simulatedDateTime = input.simulatedDateTime.value_or(simulationDateTime);
+    // §10.2; here we just apply the fall-through to labelDateTime).
+    const eckit::DateTime initialConditionsDateTime =
+        input.initialConditionsDateTime.value_or(labelDateTime);
 
     // §7.4: fcyear / fcmonth defaulting.
-    const eckit::DateTime referenceDateTime = input.referenceDateTime.value_or(simulatedDateTime);
+    const eckit::DateTime referenceDateTime = input.referenceDateTime.value_or(initialConditionsDateTime);
 
     // ---------------------------------------------------------
-    // §5.3: referenceDateTime >= simulatedDateTime          (§10.4)
+    // §5.3: referenceDateTime >= initialConditionsDateTime          (§10.4)
     // ---------------------------------------------------------
-    if (referenceDateTime < simulatedDateTime) {
+    if (referenceDateTime < initialConditionsDateTime) {
         throw Mars2GribDeductionException("ProductTime invariant violated [§10.4]: referenceDateTime ('" +
-                                              fmt(referenceDateTime) + "') < simulatedDateTime ('" +
-                                              fmt(simulatedDateTime) + "')",
+                                              fmt(referenceDateTime) + "') < initialConditionsDateTime ('" +
+                                              fmt(initialConditionsDateTime) + "')",
                                           Here());
     }
 
@@ -633,7 +634,7 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     // ---------------------------------------------------------
     // Construct the immutable ProductTime
     // ---------------------------------------------------------
-    return ProductTime{simulationDateTime, simulatedDateTime, referenceDateTime, windowStart,
+    return ProductTime{labelDateTime, initialConditionsDateTime, referenceDateTime, windowStart,
                        windowEnd,          windows,           windowCount,       tInc};
 }
 
