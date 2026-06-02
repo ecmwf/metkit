@@ -95,9 +95,9 @@ struct Options {
     /// language definition to ensure key-value consistency and
     /// case-insensitivity before resolution.
     ///
-    /// @default false
+    /// @default true
     ///
-    bool normalizeMars = false;
+    bool normalizeMars = true;
 
     ///
     /// @brief Enable semantic normalization of the auxiliary metadata.
