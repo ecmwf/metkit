@@ -20,6 +20,7 @@
 
 // Project includes
 #include "eckit/value/Value.h"
+#include "metkit/mars2grib/frontend/normalization/per_key/SanitizationRegistry.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
@@ -105,11 +106,13 @@ const MarsDict_t& normalize_MarsDict_if_enabled(const MarsDict_t& mars, const Op
     bool needsSanitize = normalizeMarsEnabled(opt);
 
     if (needsFix || needsSanitize) {
-        // We pay the performance debt here for the user's convenience
-        scratch = mars;
-
         if (needsSanitize) {
-            // Future placeholder for language-based logic
+            // Per-key rules write normalized values into the (empty) scratch.
+            per_key::MarsSanitizerRegistry<MarsDict_t>::run_all(mars, scratch, language);
+        }
+        else {
+            // Fix-only path: seed scratch from mars so fixMarsGrid can mutate it.
+            scratch = mars;
         }
 
         if (needsFix) {
