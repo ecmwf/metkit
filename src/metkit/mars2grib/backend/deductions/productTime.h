@@ -121,7 +121,7 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
     try {
 
         // =========================================================
-        // §7.1 / §7.2: simulationDateTime from (date, time) or
+        // §7.1 / §7.2: labelDateTime from (date, time) or
         //                  defaulted from (fcyear, fcmonth)
         // =========================================================
 
@@ -130,23 +130,23 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         const bool hasFcYear  = has(mars, "fcyear");
         const bool hasFcMonth = has(mars, "fcmonth");
 
-        eckit::DateTime simulationDateTime;
+        eckit::DateTime labelDateTime;
         if (hasDate && hasTime) {
             const long marsDate = get_or_throw<long>(mars, "date");
             const long marsTime = get_or_throw<long>(mars, "time");
-            simulationDateTime  = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsDate),
-                                                  detail::convert_hhmmss2Time_or_throw(marsTime));
+            labelDateTime = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsDate),
+                                            detail::convert_hhmmss2Time_or_throw(marsTime));
         }
         else if (!hasDate && !hasTime && hasFcYear && hasFcMonth) {
-            // R2 default: simulationDateTime := DateTime(fcyear, fcmonth, 1, 00:00:00).
+            // R2 default: labelDateTime := DateTime(fcyear, fcmonth, 1, 00:00:00).
             const long fcYear  = get_or_throw<long>(mars, "fcyear");
             const long fcMonth = get_or_throw<long>(mars, "fcmonth");
             try {
-                simulationDateTime = eckit::DateTime(eckit::Date(fcYear, fcMonth, 1), eckit::Time(0, 0, 0));
+                labelDateTime = eckit::DateTime(eckit::Date(fcYear, fcMonth, 1), eckit::Time(0, 0, 0));
             }
             catch (const eckit::Exception& e) {
                 throw Mars2GribDeductionException(
-                    "Invalid (fcyear, fcmonth) for default simulationDateTime: " + std::string(e.what()), Here());
+                    "Invalid (fcyear, fcmonth) for default labelDateTime: " + std::string(e.what()), Here());
             }
         }
         else {
@@ -161,26 +161,26 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         }
 
         // =========================================================
-        // §7.3: simulatedDateTime from (hdate, htime)
+        // §7.3: initialConditionsDateTime from (hdate, htime)
         // =========================================================
 
         const bool hasHdate = has(mars, "hdate");
         const bool hasHtime = has(mars, "htime");
 
-        std::optional<eckit::DateTime> simulatedDateTime;
+        std::optional<eckit::DateTime> initialConditionsDateTime;
         if (!hasHdate && !hasHtime) {
-            // simulatedDateTime defaults to simulationDateTime in the factory.
+            // initialConditionsDateTime defaults to labelDateTime in the factory.
         }
         else if (hasHdate && !hasHtime) {
             const long marsHdate = get_or_throw<long>(mars, "hdate");
-            simulatedDateTime =
+            initialConditionsDateTime =
                 eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate), eckit::Time(0, 0, 0));
         }
         else if (hasHdate && hasHtime) {
             const long marsHdate = get_or_throw<long>(mars, "hdate");
             const long marsHtime = get_or_throw<long>(mars, "htime");
-            simulatedDateTime    = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate),
-                                                   detail::convert_hhmmss2Time_or_throw(marsHtime));
+            initialConditionsDateTime = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate),
+                                                        detail::convert_hhmmss2Time_or_throw(marsHtime));
         }
         else {
             // §10.2: htime present without hdate.
@@ -194,7 +194,7 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
 
         std::optional<eckit::DateTime> referenceDateTime;
         if (!hasFcYear && !hasFcMonth) {
-            // referenceDateTime defaults to simulatedDateTime in the factory.
+            // referenceDateTime defaults to initialConditionsDateTime in the factory.
         }
         else if (hasFcYear && hasFcMonth) {
             const long fcYear  = get_or_throw<long>(mars, "fcyear");
@@ -304,8 +304,8 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         // =========================================================
 
         detail::ProductTimeInput input;
-        input.simulationDateTime     = simulationDateTime;
-        input.simulatedDateTime      = simulatedDateTime;
+        input.labelDateTime                 = labelDateTime;
+        input.initialConditionsDateTime     = initialConditionsDateTime;
         input.referenceDateTime      = referenceDateTime;
         input.stepInSeconds          = stepInSeconds;
         input.timespanKind           = timespanKind;
@@ -322,8 +322,8 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
 
         MARS2GRIB_LOG_RESOLVE([&]() {
             std::string msg = "`ProductTime` resolved from input dictionaries: ";
-            msg += "simulationDateTime='" + detail::fmt(pt.simulationDateTime) + "'";
-            msg += " simulatedDateTime='" + detail::fmt(pt.simulatedDateTime) + "'";
+            msg += "labelDateTime='" + detail::fmt(pt.labelDateTime) + "'";
+            msg += " initialConditionsDateTime='" + detail::fmt(pt.initialConditionsDateTime) + "'";
             msg += " referenceDateTime='" + detail::fmt(pt.referenceDateTime) + "'";
             msg += " windowStart='" + detail::fmt(pt.windowStart) + "'";
             msg += " windowEnd='" + detail::fmt(pt.windowEnd) + "'";

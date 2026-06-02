@@ -35,11 +35,9 @@
 ///   handled inside `compute_StatisticalProcessing`).
 ///
 /// ### StageRuntime
-/// - **Intentionally empty in this revision**. The time-dependent keys
-///   (`forecastTime` from `pt.windowStart` offset relative to
-///   `pt.referenceDateTime`, and the
-///   `<year|month|day|hour|minute|second>OfEndOfOverallTimeInterval` set
-///   from `pt.windowEnd`) will be populated in a follow-up.
+/// - Encodes the time-dependent keys from the resolved `ProductTime`:
+///   - `forecastTime` (hours between `pt.referenceDateTime` and `pt.windowStart`)
+///   - `<year|month|day|hour|minute|second>OfEndOfOverallTimeInterval` (from `pt.windowEnd`)
 ///
 /// All temporal data is sourced exclusively from the `ProductTime`
 /// produced by `resolve_ProductTime_or_throw` (§15 of `timeProducts.md`).
@@ -151,16 +149,38 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             // StageRuntime
             //
-            // Intentionally empty. Time-dependent keys (forecastTime,
-            // <year|month|day|hour|minute|second>OfEndOfOverallTimeInterval)
-            // will be populated in a follow-up using pt.windowStart /
-            // pt.windowEnd.
+            // Time-dependent keys: forecastTime and end-of-interval date/time.
             // =============================================================
             if constexpr (Stage == StageRuntime) {
-                (void)mars;
-                (void)par;
-                (void)opt;
-                (void)out;
+                auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+
+                // forecastTime is the distance in hours between reference time
+                // and WindowBegin (pt.windowStart). It must be a non-negative
+                // integer number of hours.
+                const long deltaSeconds =
+                    static_cast<long>(static_cast<eckit::Second>(pt.windowStart - pt.referenceDateTime));
+
+                if (deltaSeconds < 0) {
+                    throw Mars2GribConceptException(
+                        std::string(statisticsName), std::string(statisticsTypeName<Variant>()), std::to_string(Stage),
+                        std::to_string(Section), "statistics: forecastTime must be non-negative", Here());
+                }
+
+                if (deltaSeconds % 3600 != 0) {
+                    throw Mars2GribConceptException(
+                        std::string(statisticsName), std::string(statisticsTypeName<Variant>()), std::to_string(Stage),
+                        std::to_string(Section), "statistics: forecastTime must be a whole number of hours", Here());
+                }
+
+                set_or_throw<long>(out, "forecastTime", deltaSeconds / 3600);
+
+                const eckit::DateTime& end = pt.windowEnd;
+                set_or_throw<long>(out, "yearOfEndOfOverallTimeInterval", end.date().year());
+                set_or_throw<long>(out, "monthOfEndOfOverallTimeInterval", end.date().month());
+                set_or_throw<long>(out, "dayOfEndOfOverallTimeInterval", end.date().day());
+                set_or_throw<long>(out, "hourOfEndOfOverallTimeInterval", end.time().hours());
+                set_or_throw<long>(out, "minuteOfEndOfOverallTimeInterval", end.time().minutes());
+                set_or_throw<long>(out, "secondOfEndOfOverallTimeInterval", end.time().seconds());
             }
         }
         catch (...) {
