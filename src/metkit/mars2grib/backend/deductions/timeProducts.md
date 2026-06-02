@@ -204,8 +204,8 @@ upstream.
 inline constexpr std::size_t maxStatisticalWindows = 3;
 
 struct ProductTime {
-    const eckit::DateTime simulationDateTime;
-    const eckit::DateTime simulatedDateTime;
+    const eckit::DateTime labelDateTime;
+    const eckit::DateTime initialConditionsDateTime;
     const eckit::DateTime referenceDateTime;
 
     // Internal convention: [windowStart, windowEnd) when windowStart < windowEnd.
@@ -257,7 +257,7 @@ Strictly `<` for statistical products; equality reserved for instants.
 ### 5.3 Reference-vs-simulated invariant
 
 ```text
-referenceDateTime >= simulatedDateTime     (always)
+referenceDateTime >= initialConditionsDateTime     (always)
 ```
 
 Violation is a hard error (§10.4). The corner case where reference < simulated
@@ -278,9 +278,9 @@ enum class TimespanKind {
 };
 
 struct ProductTimeInput {
-    eckit::DateTime simulationDateTime;
+    eckit::DateTime labelDateTime;
 
-    std::optional<eckit::DateTime> simulatedDateTime;   // from hdate/htime
+    std::optional<eckit::DateTime> initialConditionsDateTime;   // from hdate/htime
     std::optional<eckit::DateTime> referenceDateTime;   // from fcyear/fcmonth
 
     // Offset from referenceDateTime to ProductTime::windowEnd.
@@ -337,33 +337,33 @@ The factory:
 
 ### 7.2 `date` / `time`
 
-Resolution rule for `simulationDateTime`:
+Resolution rule for `labelDateTime`:
 
 ```text
 date present and time present:
-    simulationDateTime := DateTime(date, time)
+    labelDateTime := DateTime(date, time)
 
 date missing and time missing and fcyear present and fcmonth present:
-    simulationDateTime := DateTime(Date(fcyear, fcmonth, 1), Time(00:00:00))
+    labelDateTime := DateTime(Date(fcyear, fcmonth, 1), Time(00:00:00))
     (this is the same value §7.4 produces for referenceDateTime;
-     consequently simulationDateTime == referenceDateTime in this case)
+     consequently labelDateTime == referenceDateTime in this case)
 
 any other combination -> hard error (§10.1)
 ```
 
-`simulationDateTime` is a label for the simulation; it is not used for `step`
+`labelDateTime` is a label for the simulation; it is not used for `step`
 arithmetic. The `hdate`/`htime` rules in §7.3 are unchanged regardless of
 whether the R2 default in §7.2 is taken: if `hdate` is present it still
-drives `simulatedDateTime`, and the §5.3 invariant
-`referenceDateTime >= simulatedDateTime` continues to apply (it may now
+drives `initialConditionsDateTime`, and the §5.3 invariant
+`referenceDateTime >= initialConditionsDateTime` continues to apply (it may now
 constrain `(fcyear, fcmonth, 1)` against `hdate`).
 
 ### 7.3 `hdate` / `htime`
 
 ```text
-hdate missing,  htime missing  ->  simulatedDateTime := simulationDateTime
-hdate present,  htime missing  ->  simulatedDateTime := DateTime(hdate, 00:00:00)
-hdate present,  htime present  ->  simulatedDateTime := DateTime(hdate, htime)
+hdate missing,  htime missing  ->  initialConditionsDateTime := labelDateTime
+hdate present,  htime missing  ->  initialConditionsDateTime := DateTime(hdate, 00:00:00)
+hdate present,  htime present  ->  initialConditionsDateTime := DateTime(hdate, htime)
 hdate missing,  htime present  ->  hard error (§10.2)
 ```
 
@@ -372,7 +372,7 @@ hdate missing,  htime present  ->  hard error (§10.2)
 Both must be present together or both absent.
 
 ```text
-both missing  ->  referenceDateTime := simulatedDateTime
+both missing  ->  referenceDateTime := initialConditionsDateTime
 both present  ->  referenceDateTime := DateTime(Date(fcyear, fcmonth, 1), Time(00:00:00))
 exactly one present -> hard error (§10.3)
 ```
@@ -518,7 +518,7 @@ the resulting `ProductTime`.
 | §9.4 New fakeDoubleLoop | `None`    | exactly 1  | `[parse(stattype)]`                              | `windowEnd - statisticalWindows[0]`          | optional or required (§9.5) |
 | any other combination   | —         | —          | —                                                | —                                            | hard error (§10.6, §10.7, §10.8) |
 
-In all rows, `simulationDateTime`, `simulatedDateTime`, `referenceDateTime`,
+In all rows, `labelDateTime`, `initialConditionsDateTime`, `referenceDateTime`,
 and `windowEnd` are computed per §7. The strict-alignment rule (§4.4) is
 applied after `windowStart` is computed.
 
@@ -642,7 +642,7 @@ in the implementation.
 | 10.1  | `date` or `time` missing without fallback: `date` missing OR `time` missing, **except** when both `date` AND `time` are missing AND both `fcyear` AND `fcmonth` are present (in which case §7.2 substitutes the default). Note: `step` missing is NOT an error (§7.5 default 0). |
 | 10.2  | `htime` present without `hdate`                                  |
 | 10.3  | exactly one of `fcyear` / `fcmonth` present (must be both or neither) |
-| 10.4  | `referenceDateTime < simulatedDateTime`                          |
+| 10.4  | `referenceDateTime < initialConditionsDateTime`                          |
 | 10.5  | tri-equivalence broken: `windowStart == windowEnd` XOR `statisticalWindowCount == 0` XOR `timeIncrementInSeconds == nullopt` |
 | 10.6  | `stattype` present but `timespan` missing                        |
 | 10.7  | `timespan = none` but `stattype` missing                         |
@@ -698,8 +698,8 @@ in a stable, greppable form.
 Indicative payload shape:
 
 ```text
-`ProductTime` resolved from input dictionaries: simulationDateTime='...' \
-simulatedDateTime='...' referenceDateTime='...' windowStart='...' windowEnd='...' \
+`ProductTime` resolved from input dictionaries: labelDateTime='...' \
+initialConditionsDateTime='...' referenceDateTime='...' windowStart='...' windowEnd='...' \
 statisticalWindowCount='N' statisticalWindows=['...','...'] timeIncrementInSeconds='...|missing'
 ```
 
@@ -738,8 +738,8 @@ the language level; reviewers and consumer-side tests are responsible.
 
 | Field                       | `referenceTime` | `pointInTime` | `statistics` |
 |-----------------------------|:---------------:|:-------------:|:------------:|
-| `simulationDateTime`        | R               | —             | R            |
-| `simulatedDateTime`         | R               | —             | R            |
+| `labelDateTime`             | R               | —             | R            |
+| `initialConditionsDateTime` | R               | —             | R            |
 | `referenceDateTime`         | R               | R             | R            |
 | `windowStart`               | —               | —             | R            |
 | `windowEnd`                 | —               | R             | R            |
@@ -800,8 +800,8 @@ stattype = (missing)
 Output:
 
 ```text
-simulationDateTime      = 2026-05-01 00:00:00
-simulatedDateTime       = 2026-05-01 00:00:00
+labelDateTime                 = 2026-05-01 00:00:00
+initialConditionsDateTime     = 2026-05-01 00:00:00
 referenceDateTime       = 2026-05-01 00:00:00
 windowEnd               = 2026-05-02 00:00:00
 windowStart             = 2026-05-02 00:00:00
@@ -825,8 +825,8 @@ step  = 24
 Output:
 
 ```text
-simulationDateTime      = 2026-05-01 00:00:00
-simulatedDateTime       = 1993-05-01 00:00:00
+labelDateTime                 = 2026-05-01 00:00:00
+initialConditionsDateTime     = 1993-05-01 00:00:00
 referenceDateTime       = 1993-05-01 00:00:00
 windowEnd               = 1993-05-02 00:00:00
 windowStart             = 1993-05-02 00:00:00
@@ -851,14 +851,14 @@ step    = 24
 Output:
 
 ```text
-simulationDateTime      = 2026-05-01 00:00:00
-simulatedDateTime       = 1993-05-01 00:00:00
+labelDateTime                 = 2026-05-01 00:00:00
+initialConditionsDateTime     = 1993-05-01 00:00:00
 referenceDateTime       = 1993-05-01 00:00:00     # Date(1993, 5, 1)
 windowEnd               = 1993-05-02 00:00:00
 windowStart             = 1993-05-02 00:00:00
 ```
 
-Invariant §5.3 holds: `referenceDateTime == simulatedDateTime`.
+Invariant §5.3 holds: `referenceDateTime == initialConditionsDateTime`.
 
 ### 17.4 Old-style single-loop statistic — hourly accumulation over 1h
 
@@ -962,8 +962,8 @@ stattype = (missing)
 Output:
 
 ```text
-simulationDateTime      = 2026-05-01 00:00:00
-simulatedDateTime       = 2026-05-01 00:00:00
+labelDateTime                 = 2026-05-01 00:00:00
+initialConditionsDateTime     = 2026-05-01 00:00:00
 referenceDateTime       = 2026-05-01 00:00:00
 windowEnd               = 2026-05-01 00:00:00     # step defaults to 0
 windowStart             = 2026-05-01 00:00:00
@@ -987,8 +987,8 @@ step     = (missing)
 Output:
 
 ```text
-simulationDateTime      = 1993-05-01 00:00:00     # defaulted from (fcyear, fcmonth, 1, 00:00:00)
-simulatedDateTime       = 1993-05-01 00:00:00     # from simulationDateTime, hdate absent
+labelDateTime                 = 1993-05-01 00:00:00     # defaulted from (fcyear, fcmonth, 1, 00:00:00)
+initialConditionsDateTime     = 1993-05-01 00:00:00     # from labelDateTime, hdate absent
 referenceDateTime       = 1993-05-01 00:00:00     # from (fcyear, fcmonth, 1, 00:00:00)
 windowEnd               = 1993-05-01 00:00:00     # step defaults to 0
 windowStart             = 1993-05-01 00:00:00
@@ -1543,4 +1543,3 @@ innerTypeOfStatisticalProcessing = Maximum
 ```
 
 Result: hard error §10.12 (parsed `Average` ≠ argument `Maximum`).
-
