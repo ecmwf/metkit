@@ -4,17 +4,29 @@
 
 #pragma once
 
+#include <string>
+
 #include "eckit/value/Value.h"
+#include "metkit/mars2grib/frontend/normalization/per_key/mars/EnumHelper.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 
 ///
-/// @brief Individual sanitization check for the GRIB key: class.
+/// @brief Sanitize the MARS key: class.
+///
+/// Resolves the user-supplied string value to its canonical form via the
+/// MARS language enum alias table. No-op if the key is absent.
 ///
 template <typename MarsDict_t>
 void sanitise_class_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language) {
-    // TODO: Implement specific validation logic for class
+    using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
+    if (auto raw = get_opt<std::string>(in, "class")) {
+        set_or_throw<std::string>(out, "class",
+                                  enum_helper::resolve_canonical(language, "class", *raw));
+    }
 }
 
 }  // namespace metkit::mars2grib::frontend::normalization::per_key

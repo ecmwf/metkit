@@ -5,16 +5,23 @@
 #pragma once
 
 #include "eckit/value/Value.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::normalization::per_key {
 
 ///
-/// @brief Individual sanitization check for the GRIB key: time.
+/// @brief Sanitize the MARS key: time (reference time, HHMM).
+///
+/// Normalizes to a long. No-op if absent.
 ///
 template <typename MarsDict_t>
 void sanitise_time_or_throw(const MarsDict_t& in, MarsDict_t& out, const eckit::Value& language) {
-    // TODO: Implement specific validation logic for time
+    using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
+    if (auto v = get_opt<long>(in, "time")) {
+        set_or_throw<long>(out, "time", *v);
+    }
 }
 
 }  // namespace metkit::mars2grib::frontend::normalization::per_key

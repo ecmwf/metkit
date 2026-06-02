@@ -11,11 +11,10 @@
 
 #include <string>
 
-#include "eckit/log/Log.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Exceptions
-#include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -24,87 +23,85 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// @brief Resolve the time span from the MARS dictionary and convert it to seconds.
 ///
-/// This deduction retrieves the value associated with the key `timespan`
-/// from the MARS dictionary (`mars`). The value is expected to be
-/// convertible to a `long` and is treated as mandatory.
+/// The value stored under the @c timespan key may be either:
+/// - a @c long (hours), or
+/// - a @c std::string with an optional unit suffix.
 ///
-/// The retrieved value is interpreted according to standard MARS
-/// conventions as a time span expressed in **hours**. It is converted
-/// to seconds by applying a fixed scaling factor:
+/// String conversion rules:
+/// - @c "Xm"  (e.g. @c "10m") -> X * 60 seconds
+/// - @c "Xh"  (e.g. @c "6h")  -> X * 3600 seconds
+/// - @c "fs" / @c "from-start" / @c "fromstart" -> @c step * 3600 seconds
+///   (@c step must be present in @p mars)
+/// - Plain numeric string @c "N" -> N * 3600 seconds (treated as hours)
 ///
-/// \f[
-/// \text{timeSpanInSeconds} = \text{timespan} \times 3600
-/// \f]
-///
-/// The resolved time span (in seconds) is logged for diagnostic and
-/// traceability purposes.
-///
-/// @tparam MarsDict_t
-/// Type of the MARS dictionary, expected to contain the key `timespan`.
-///
-/// @tparam ParDict_t
-/// Type of the parameter dictionary (unused by this deduction).
-///
-/// @tparam OptDict_t
-/// Type of the options dictionary (unused by this deduction).
-///
-/// @param[in] mars
-/// MARS dictionary from which the time span is retrieved.
-///
-/// @param[in] par
-/// Parameter dictionary (unused).
-///
-/// @param[in] opt
-/// Options dictionary (unused).
-///
-/// @return
-/// The time span expressed in seconds, returned as a `long`.
-///
-/// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If:
-/// - the key `timespan` is not present in the MARS dictionary,
-/// - the associated value cannot be converted to `long`,
-/// - any unexpected error occurs during dictionary access or conversion.
-///
-/// @note
-/// This deduction assumes that the MARS `timespan` value is expressed
-/// in hours. No alternative units (e.g. minutes or seconds) are
-/// currently supported.
-///
-/// @note
-/// The function follows a fail-fast strategy and uses nested exception
-/// propagation to preserve full error provenance across API boundaries.
+/// A @c long value N is always treated as hours: result = N * 3600.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_TimeSpanInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
+        // --- Numeric path: long N interpreted as hours ---
+        if (auto v = get_opt<long>(mars, "timespan")) {
+            const long seconds = *v * 3600L;
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "timeSpan: " + std::to_string(*v) + "h = " + std::to_string(seconds) + " [seconds]";
+            }());
+            return seconds;
+        }
 
-        // Get the mars.timespan
-        long marsTimespanVal = get_or_throw<long>(mars, "timespan");
+        // --- String path: parse unit suffix ---
+        const std::string raw = get_or_throw<std::string>(mars, "timespan");
 
-        long timeSpanInSeconds = marsTimespanVal * 3600;
+        // "fs" / "from-start" / "fromstart" -> step hours
+        if (raw == "fs" || raw == "from-start" || raw == "fromstart") {
+            const long step    = get_or_throw<long>(mars, "step");
+            const long seconds = step * 3600L;
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "timeSpan: fs resolved from step=" + std::to_string(step) + " -> " + std::to_string(seconds) + " [seconds]";
+            }());
+            return seconds;
+        }
 
-        // Logging of the timeSpan
+        // "Xm" suffix — minutes
+        if (raw.size() > 1 && raw.back() == 'm') {
+            const long minutes = std::stol(raw.substr(0, raw.size() - 1));
+            const long seconds = minutes * 60L;
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "timeSpan: " + raw + " = " + std::to_string(seconds) + " [seconds]";
+            }());
+            return seconds;
+        }
+
+        // "Xh" suffix — hours
+        if (raw.size() > 1 && raw.back() == 'h') {
+            const long hours   = std::stol(raw.substr(0, raw.size() - 1));
+            const long seconds = hours * 3600L;
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                return "timeSpan: " + raw + " = " + std::to_string(seconds) + " [seconds]";
+            }());
+            return seconds;
+        }
+
+        // Plain numeric string — treated as hours
+        const long hours   = std::stol(raw);
+        const long seconds = hours * 3600L;
         MARS2GRIB_LOG_RESOLVE([&]() {
-            std::string logMsg = "timeSpan: deduced from mars dictionary with value: ";
-            logMsg += std::to_string(timeSpanInSeconds) + " [seconds]";
-            return logMsg;
+            return "timeSpan: " + raw + "h = " + std::to_string(seconds) + " [seconds]";
         }());
-
-        return timeSpanInSeconds;
+        return seconds;
+    }
+    catch (const Mars2GribDeductionException&) {
+        throw;
     }
     catch (...) {
+        std::throw_with_nested(Mars2GribDeductionException("Unable to resolve `timespan` from Mars dictionary", Here()));
+    }
 
-        // Rethrow nested exceptions
-        std::throw_with_nested(Mars2GribDeductionException("Unable to get `timespan` from Mars dictionary", Here()));
-    };
-
-    // Remove compiler warning
     mars2gribUnreachable();
-};
+}
 
 }  // namespace metkit::mars2grib::backend::deductions
