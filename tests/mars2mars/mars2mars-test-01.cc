@@ -17,6 +17,7 @@
 #include "eckit/testing/Test.h"
 
 #include "metkit/mars/MarsRequest.h"
+#include "metkit/mars/MarsExpansion.h"
 
 #include "metkit/mars2mars/api/Mars2Mars.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_mars_request.h"
@@ -25,7 +26,8 @@
 
 namespace {
 
-void populateMarsRequest(metkit::mars::MarsRequest& mars) {
+metkit::mars::MarsRequest generateMarsRequest() {
+    metkit::mars::MarsRequest mars;
     mars.verb("retrieve");
 
     // String-only keys
@@ -36,7 +38,7 @@ void populateMarsRequest(metkit::mars::MarsRequest& mars) {
 
 
     mars.setValue("date", "2026-02-09");
-    mars.setValue("time", "00:000:00");
+    mars.setValue("time", "00:00:00");
 
     mars.setValue("levtype", "sfc");
 
@@ -44,6 +46,10 @@ void populateMarsRequest(metkit::mars::MarsRequest& mars) {
     mars.setValue("param", "261018");
     mars.setValue("step", "0");
 
+    metkit::mars::MarsExpansion expand(true, true);
+    mars = expand.expand(mars);
+
+    return mars;
 }
 
 }  // namespace
@@ -53,9 +59,8 @@ CASE("mars2mars_marsrequest_convert_to_json") {
     using metkit::mars2mars::utils::dict_traits::dict_to_json;
 
     try {
-        metkit::mars::MarsRequest marsRequest;
 
-        populateMarsRequest(marsRequest);
+        metkit::mars::MarsRequest marsRequest = generateMarsRequest();
 
         const metkit::mars::MarsRequest converted =
             Mars2Mars{}.convert(marsRequest);
