@@ -10,44 +10,40 @@
  */
 
 ///
-/// @file Mars2mars.cc
-/// @brief Implementation of the Mars2mars converter API.
+/// @file Mars2Mars.cc
+/// @brief Implementation of the Mars2Mars converter API.
 ///
 
 
-#include "Mars2mars.h"
+#include "Mars2Mars.h"
 
 // other libraries
 #include "eckit/exception/Exceptions.h"
 
 // dictionary access traits
-#include "metkit/mars2mars/utils/dictionary_traits/dictaccess_codes_handle.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
-
-// encode header/values implementation
-#include "metkit/mars2mars/CoreOperations.h"
 
 namespace metkit::mars2mars {
 
 
 
 // -----------------------------------------------------------------------------
-// Mars2mars construction
+// Mars2Mars construction
 // -----------------------------------------------------------------------------
 
-Mars2mars::Mars2mars() {}
+Mars2Mars::Mars2Mars() {}
 
 
 // -----------------------------------------------------------------------------
 // Conversion interfaces
 // -----------------------------------------------------------------------------
-eckit::LocalConfiguration Mars2mars::convert(const eckit::LocalConfiguration& mars) {
-    return CoreOperations::convert<eckit::LocalConfiguration>(mars);
+eckit::LocalConfiguration Mars2Mars::convert(const eckit::LocalConfiguration& mars) {
+    return mars;
 }
 
-metkit::mars::MarsRequest Mars2mars::convert(const metkit::mars::MarsRequest& mars){
-    return CoreOperations::convert<metkit::mars::MarsRequest>(mars);
-};
+metkit::mars::MarsRequest Mars2Mars::convert(const metkit::mars::MarsRequest& mars){
+    return mars;
+}
 
 }  // namespace metkit::mars2mars

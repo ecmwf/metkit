@@ -10,7 +10,7 @@
  */
 
 ///
-/// @file Mars2mars.h
+/// @file Mars2Mars.h
 /// @brief API for converting pre-MTG2 MARS to post-MTG2 MARS descriptions
 ///
 
@@ -25,15 +25,15 @@ namespace metkit::mars2mars {
 ///
 /// @brief API for converting pre-MTG2 MARS to post-MTG2 MARS descriptions
 ///
-class Mars2mars {
+class Mars2Mars {
 public:
 
     ///
-    /// @brief Construct a Mars2mars converter
+    /// @brief Construct a Mars2Mars converter
     ///
-    Mars2mars();
+    Mars2Mars();
 
-    ~Mars2mars() = default;
+    ~Mars2Mars() = default;
 
     eckit::LocalConfiguration convert(const eckit::LocalConfiguration& mars);
 
