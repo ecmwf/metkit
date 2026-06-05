@@ -22,6 +22,7 @@
 
 // dictionary access traits
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
+#include "metkit/mars2mars/utils/dictionary_traits/dictaccess_mars_request.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 
 namespace metkit::mars2mars {
@@ -43,6 +44,11 @@ eckit::LocalConfiguration Mars2Mars::convert(const eckit::LocalConfiguration& ma
 }
 
 metkit::mars::MarsRequest Mars2Mars::convert(const metkit::mars::MarsRequest& mars){
+
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
+
+    long param = get_or_throw<long>(mars, "param");
+
     return mars;
 }
 
