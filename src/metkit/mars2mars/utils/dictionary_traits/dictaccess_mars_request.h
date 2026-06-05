@@ -8,6 +8,10 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <algorithm>
+#include <cctype>
+#include <iomanip>
+#include <sstream>
 
 #include "eckit/log/JSON.h"
 
@@ -184,6 +188,7 @@ inline long paramToLong(std::string_view value, std::string_view key) {
     //
     // If later you need "228.128" -> some canonical long encoding,
     // add that rule here, not in generic parsing.
+    // std::cout << "Parsing param value `" << value << "` as long for key `" << key << "`" << std::endl;
     return parsePlainLong(value, key);
 }
 
@@ -199,6 +204,251 @@ inline std::string plainLongString(long value) {
     return std::to_string(value);
 }
 
+inline bool allDigits(std::string_view s) {
+    return std::all_of(s.begin(), s.end(), [](unsigned char c) {
+        return std::isdigit(c);
+    });
+}
+
+inline bool isLeapYear(long year) {
+    return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+}
+
+inline long daysInMonth(long year, long month) {
+    switch (month) {
+        case 1:  return 31;
+        case 2:  return isLeapYear(year) ? 29 : 28;
+        case 3:  return 31;
+        case 4:  return 30;
+        case 5:  return 31;
+        case 6:  return 30;
+        case 7:  return 31;
+        case 8:  return 31;
+        case 9:  return 30;
+        case 10: return 31;
+        case 11: return 30;
+        case 12: return 31;
+        default: return 0;
+    }
+}
+
+inline void checkYYYYMMDD(long yyyymmdd, std::string_view key) {
+    const long year  = yyyymmdd / 10000;
+    const long month = (yyyymmdd / 100) % 100;
+    const long day   = yyyymmdd % 100;
+
+    if (year <= 0 || month < 1 || month > 12 || day < 1 || day > daysInMonth(year, month)) {
+        throw exceptions::Mars2marsDictException(
+            "Invalid MARS date `"s + std::to_string(yyyymmdd) +
+                "` for key `"s + std::string{key} +
+                "`. Expected a valid yyyymmdd date.",
+            Here());
+    }
+}
+
+inline long marsDateToLong(std::string_view value, std::string_view key) {
+    const std::string s{value};
+
+    std::string compact;
+
+    if (s.size() == 8 && allDigits(s)) {
+        compact = s;
+    }
+    else if (s.size() == 10 && s[4] == '-' && s[7] == '-' &&
+             allDigits(std::string_view{s.data(), 4}) &&
+             allDigits(std::string_view{s.data() + 5, 2}) &&
+             allDigits(std::string_view{s.data() + 8, 2})) {
+        compact.reserve(8);
+        compact.append(s, 0, 4);
+        compact.append(s, 5, 2);
+        compact.append(s, 8, 2);
+    }
+    else {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert key `"s + std::string{key} + "` value `"s + s +
+                "` to MARS date integer yyyymmdd. Supported forms are yyyymmdd and yyyy-mm-dd.",
+            Here());
+    }
+
+    const long result = parsePlainLong(compact, key);
+    checkYYYYMMDD(result, key);
+
+    return result;
+}
+
+inline std::string longToMarsDate(long value) {
+    const std::string s = std::to_string(value);
+
+    if (s.size() != 8 || !allDigits(s)) {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert integer `"s + s +
+                "` to MARS date. Expected yyyymmdd.",
+            Here());
+    }
+
+    checkYYYYMMDD(value, "date");
+
+    return s;
+}
+
+inline long parseTimePart(std::string_view part, std::string_view full, std::string_view key) {
+    if (part.empty() || !allDigits(part)) {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert key `"s + std::string{key} + "` value `"s +
+                std::string{full} + "` to MARS time.",
+            Here());
+    }
+
+    return parsePlainLong(part, key);
+}
+
+inline long makeHHMMSS(long hh, long mm, long ss, std::string_view value, std::string_view key) {
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59 || ss < 0 || ss > 59) {
+        throw exceptions::Mars2marsDictException(
+            "Invalid MARS time `"s + std::string{value} + "` for key `"s +
+                std::string{key} +
+                "`. Expected hh=[0,23], mm=[0,59], ss=[0,59].",
+            Here());
+    }
+
+    if (ss != 0) {
+        throw exceptions::Mars2marsDictException(
+            "Invalid MARS time `"s + std::string{value} + "` for key `"s +
+                std::string{key} +
+                "`. Seconds are not supported by metkit MARS time normalisation.",
+            Here());
+    }
+
+    return hh * 10000 + mm * 100 + ss;
+}
+
+inline long parseSeparatedMarsTime(
+    std::string_view value,
+    std::string_view key,
+    char sep) {
+
+    const auto p0 = value.find(sep);
+
+    if (p0 == std::string_view::npos) {
+        throw exceptions::Mars2marsDictException(
+            "Internal error while parsing separated MARS time `"s +
+                std::string{value} + "`",
+            Here());
+    }
+
+    const auto p1 = value.find(sep, p0 + 1);
+
+    const auto hhPart = value.substr(0, p0);
+
+    if (p1 == std::string_view::npos) {
+        const auto mmPart = value.substr(p0 + 1);
+
+        const long hh = parseTimePart(hhPart, value, key);
+        const long mm = parseTimePart(mmPart, value, key);
+
+        return makeHHMMSS(hh, mm, 0, value, key);
+    }
+
+    if (value.find(sep, p1 + 1) != std::string_view::npos) {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert key `"s + std::string{key} + "` value `"s +
+                std::string{value} + "` to MARS time.",
+            Here());
+    }
+
+    const auto mmPart = value.substr(p0 + 1, p1 - p0 - 1);
+    const auto ssPart = value.substr(p1 + 1);
+
+    const long hh = parseTimePart(hhPart, value, key);
+    const long mm = parseTimePart(mmPart, value, key);
+    const long ss = parseTimePart(ssPart, value, key);
+
+    return makeHHMMSS(hh, mm, ss, value, key);
+}
+
+inline long marsTimeToLong(std::string_view value, std::string_view key) {
+    const std::string s{value};
+
+    if (s.empty()) {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert empty key `"s + std::string{key} +
+                "` value to MARS time.",
+            Here());
+    }
+
+    if (s.find(':') != std::string::npos) {
+        return parseSeparatedMarsTime(s, key, ':');
+    }
+
+    if (s.find('-') != std::string::npos) {
+        return parseSeparatedMarsTime(s, key, '-');
+    }
+
+    if (!allDigits(s)) {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert key `"s + std::string{key} + "` value `"s + s +
+                "` to MARS time integer hhmmss.",
+            Here());
+    }
+
+    if (s.size() <= 2) {
+        // H or HH -> HH:00:00
+        const long hh = parsePlainLong(s, key);
+        return makeHHMMSS(hh, 0, 0, value, key);
+    }
+
+    if (s.size() <= 4) {
+        // HMM or HHMM -> HH:MM:00
+        std::string hhmm = s;
+        hhmm.insert(hhmm.begin(), 4 - hhmm.size(), '0');
+
+        const long hh = parsePlainLong(std::string_view{hhmm.data(), 2}, key);
+        const long mm = parsePlainLong(std::string_view{hhmm.data() + 2, 2}, key);
+
+        return makeHHMMSS(hh, mm, 0, value, key);
+    }
+
+    if (s.size() <= 6) {
+        // HMMSS or HHMMSS -> HH:MM:SS
+        std::string hhmmss = s;
+        hhmmss.insert(hhmmss.begin(), 6 - hhmmss.size(), '0');
+
+        const long hh = parsePlainLong(std::string_view{hhmmss.data(), 2}, key);
+        const long mm = parsePlainLong(std::string_view{hhmmss.data() + 2, 2}, key);
+        const long ss = parsePlainLong(std::string_view{hhmmss.data() + 4, 2}, key);
+
+        return makeHHMMSS(hh, mm, ss, value, key);
+    }
+
+    throw exceptions::Mars2marsDictException(
+        "Cannot convert key `"s + std::string{key} + "` value `"s + s +
+            "` to MARS time integer hhmmss.",
+        Here());
+}
+
+inline std::string longToMarsTime(long value) {
+    if (value < 0 || value > 235959) {
+        throw exceptions::Mars2marsDictException(
+            "Cannot convert integer `"s + std::to_string(value) +
+                "` to MARS time. Expected hhmmss.",
+            Here());
+    }
+
+    std::ostringstream os;
+    os << std::setw(6) << std::setfill('0') << value;
+
+    const std::string hhmmss = os.str();
+
+    const long hh = parsePlainLong(std::string_view{hhmmss.data(), 2}, "time");
+    const long mm = parsePlainLong(std::string_view{hhmmss.data() + 2, 2}, "time");
+    const long ss = parsePlainLong(std::string_view{hhmmss.data() + 4, 2}, "time");
+
+    makeHHMMSS(hh, mm, ss, hhmmss, "time");
+
+    // metkit canonical MARS time is HHMM, not HHMMSS.
+    return hhmmss.substr(0, 4);
+}
+
 inline const std::unordered_map<std::string, ToLong>& toLongConverters() {
     static const std::unordered_map<std::string, ToLong> converters = {
         {"param", paramToLong},
@@ -206,6 +456,10 @@ inline const std::unordered_map<std::string, ToLong>& toLongConverters() {
         {"chem", plainLong},
         {"step", hoursLong},
         {"timespan", hoursLong},
+        {"date", marsDateToLong},
+        {"hdate", marsDateToLong},
+        {"time", marsTimeToLong},
+        {"htime", marsTimeToLong},
     };
 
     return converters;
@@ -218,6 +472,10 @@ inline const std::unordered_map<std::string, FromLong>& fromLongConverters() {
         {"chem", plainLongString},
         {"step", longToHours},
         {"timespan", longToHours},
+        {"date", longToMarsDate},
+        {"hdate", longToMarsDate},
+        {"time", longToMarsTime},
+        {"htime", longToMarsTime},
     };
 
     return converters;
