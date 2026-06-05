@@ -17,8 +17,10 @@
 
 #include "Mars2Mars.h"
 
-// other libraries
+#include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
+#include "metkit/mars/MarsRequest.h"
+#include "metkit/mars2mars/mappings/all.h"
 
 // dictionary access traits
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
@@ -40,16 +42,11 @@ Mars2Mars::Mars2Mars() {}
 // Conversion interfaces
 // -----------------------------------------------------------------------------
 eckit::LocalConfiguration Mars2Mars::convert(const eckit::LocalConfiguration& mars) {
-    return mars;
+    return convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars);
 }
 
-metkit::mars::MarsRequest Mars2Mars::convert(const metkit::mars::MarsRequest& mars){
-
-    using metkit::mars2mars::utils::dict_traits::get_or_throw;
-
-    long param = get_or_throw<long>(mars, "param");
-
-    return mars;
+metkit::mars::MarsRequest Mars2Mars::convert(const metkit::mars::MarsRequest& mars) {
+    return convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars);
 }
 
 }  // namespace metkit::mars2mars
