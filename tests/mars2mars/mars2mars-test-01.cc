@@ -16,8 +16,8 @@
 #include "eckit/log/CodeLocation.h"
 #include "eckit/testing/Test.h"
 
-#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsExpansion.h"
+#include "metkit/mars/MarsRequest.h"
 
 #include "metkit/mars2mars/api/Mars2Mars.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_mars_request.h"
@@ -62,8 +62,7 @@ CASE("mars2mars_marsrequest_convert_to_json") {
 
         metkit::mars::MarsRequest marsRequest = generateMarsRequest();
 
-        const auto [converted, misc ] =
-            Mars2Mars{}.convert(marsRequest);
+        const auto [converted, misc] = Mars2Mars{}.convert(marsRequest);
 
         const std::string json = dict_to_json(converted);
 

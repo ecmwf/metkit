@@ -37,9 +37,8 @@ public:
 
     ~Mars2Mars() = default;
 
-    template<typename Dict_t>
+    template <typename Dict_t>
     Mars2MarsResult<Dict_t> convert(const Dict_t& mars) = delete;
-
 };
 
 
@@ -48,13 +47,11 @@ public:
 // -----------------------------------------------------------------------------
 
 template <>
-Mars2MarsResult<eckit::LocalConfiguration>
-Mars2Mars::convert<eckit::LocalConfiguration>(
+Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfiguration>(
     const eckit::LocalConfiguration& mars);
 
 template <>
-Mars2MarsResult<metkit::mars::MarsRequest>
-Mars2Mars::convert<metkit::mars::MarsRequest>(
+Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::MarsRequest>(
     const metkit::mars::MarsRequest& mars);
 
 }  // namespace metkit::mars2mars
