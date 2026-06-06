@@ -34,29 +34,14 @@ namespace {
 
 const std::vector<std::string>& mars2marsSplitKeys() {
     static const std::vector<std::string> keys = {
-        "class",
-        "stream",
-        "type",
-        "expver",
-        "levtype",
-        "param",
-        "levelist",
-        "step",
-        "date",
-        "time",
-        "number",
-        "chem",
-        "wavelength",
-        "timespan",
-        "hdate",
-        "htime",
+        "class", "stream", "type",   "expver", "levtype",    "param",    "levelist", "step",
+        "date",  "time",   "number", "chem",   "wavelength", "timespan", "hdate",    "htime",
     };
 
     return keys;
 }
 
-std::vector<metkit::mars::MarsRequest>
-readRequestsFromFile(const std::string& path) {
+std::vector<metkit::mars::MarsRequest> readRequestsFromFile(const std::string& path) {
     std::ifstream in(path);
 
     if (!in) {
@@ -66,13 +51,11 @@ readRequestsFromFile(const std::string& path) {
     return metkit::mars::MarsRequest::parse(in);
 }
 
-std::vector<metkit::mars::MarsRequest>
-flattenRequest(const metkit::mars::MarsRequest& request) {
+std::vector<metkit::mars::MarsRequest> flattenRequest(const metkit::mars::MarsRequest& request) {
     return request.split(mars2marsSplitKeys());
 }
 
-std::string jsonArrayFromRequests(
-    const std::vector<metkit::mars::MarsRequest>& requests) {
+std::string jsonArrayFromRequests(const std::vector<metkit::mars::MarsRequest>& requests) {
     using metkit::mars2mars::utils::dict_traits::dict_to_json;
 
     std::ostringstream out;
@@ -97,12 +80,12 @@ std::string jsonArrayFromRequests(
 }  // namespace
 
 CASE("mars2mars_flatten_convert_append_to_json") {
+    // try {
     using metkit::mars2mars::Mars2Mars;
 
     const std::string reqFileName = MARS2MARS_TEST_REQUEST_FILE;
 
-    const std::vector<metkit::mars::MarsRequest> requests =
-        readRequestsFromFile(reqFileName);
+    const std::vector<metkit::mars::MarsRequest> requests = readRequestsFromFile(reqFileName);
 
     EXPECT(!requests.empty());
 
@@ -114,14 +97,12 @@ CASE("mars2mars_flatten_convert_append_to_json") {
     for (const auto& request : requests) {
         const metkit::mars::MarsRequest expanded = expand.expand(request);
 
-        const std::vector<metkit::mars::MarsRequest> points =
-            flattenRequest(expanded);
+        const std::vector<metkit::mars::MarsRequest> points = flattenRequest(expanded);
 
         EXPECT(!points.empty());
 
         for (const auto& point : points) {
-            const auto [converted, misc] =
-                mars2mars.convert(point);
+            const auto [converted, misc] = mars2mars.convert(point);
 
             convertedPoints.push_back(converted);
         }
@@ -136,6 +117,10 @@ CASE("mars2mars_flatten_convert_append_to_json") {
     EXPECT(!outputJson.empty());
     EXPECT(outputJson.front() == '[');
     EXPECT(outputJson.back() == ']');
+    // }
+    // catch (const eckit::Exception& e) {
+    //     std::cerr << "Test failed with exception: " << e.what() << std::endl;
+    // }
 }
 
 int main(int argc, char** argv) {

@@ -10,4 +10,4 @@ struct Mars2MarsResult {
     eckit::LocalConfiguration misc;
 };
 
-} // namespace metkit::mars2mars
+}  // namespace metkit::mars2mars

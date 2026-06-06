@@ -27,6 +27,9 @@
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_mars_request.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 
+// Error handling utilities
+#include "Mars2MarsApiErrorHandling.h"
+
 namespace metkit::mars2mars {
 
 // -----------------------------------------------------------------------------
@@ -36,19 +39,25 @@ namespace metkit::mars2mars {
 Mars2Mars::Mars2Mars() {}
 
 template <>
-Mars2MarsResult<eckit::LocalConfiguration>
-Mars2Mars::convert<eckit::LocalConfiguration>(
+Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfiguration>(
     const eckit::LocalConfiguration& mars) {
 
-    return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars);
+    using metkit::mars2mars::utils::exceptions::withMars2MarsApiErrorHandling;
+
+    return withMars2MarsApiErrorHandling<Mars2MarsResult<eckit::LocalConfiguration>>(
+        "Mars2Mars::convert<eckit::LocalConfiguration>",
+        [&]() { return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars); }, Here());
 }
 
 template <>
-Mars2MarsResult<metkit::mars::MarsRequest>
-Mars2Mars::convert<metkit::mars::MarsRequest>(
+Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::MarsRequest>(
     const metkit::mars::MarsRequest& mars) {
 
-    return rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars);
+    using metkit::mars2mars::utils::exceptions::withMars2MarsApiErrorHandling;
+
+    return withMars2MarsApiErrorHandling<Mars2MarsResult<metkit::mars::MarsRequest>>(
+        "Mars2Mars::convert<metkit::mars::MarsRequest>",
+        [&]() { return rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars); }, Here());
 }
 
 }  // namespace metkit::mars2mars
