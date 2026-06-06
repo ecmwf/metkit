@@ -13,14 +13,16 @@
 
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2mars/utils/paramMatcher.h"
+#include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
 
-namespace metkit::mars2mars {
+namespace metkit::mars2mars::rules {
 
 using metkit::mars2mars::utils::dict_traits::get_or_throw;
 using metkit::mars2mars::utils::dict_traits::set_or_throw;
 
 using metkit::mars2mars::util::param_matcher::matchAny;
 using metkit::mars2mars::util::param_matcher::range;
+
 
 template <class OutDict_t>
 inline void setParamLevel(OutDict_t& out, long param, const std::string& levtype, long levelist) {
@@ -66,13 +68,14 @@ inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out) {
 }
 
 template <class InDict_t, class OutDict_t>
-OutDict_t convertAll(const InDict_t& in) {
+Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
     using metkit::mars2mars::utils::dict_traits::clone_or_throw;
     std::unique_ptr<OutDict_t> out = clone_or_throw(in);
+    std::unique_ptr<eckit::LocalConfiguration> misc = std::make_unique<eckit::LocalConfiguration>();
 
     convertSFC2SOL(in, *out);
 
-    return *out;
+    return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};
 }
 
-}
+} // namespace metkit::mars2mars::rules

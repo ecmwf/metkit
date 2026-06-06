@@ -19,6 +19,8 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "metkit/mars/MarsRequest.h"
 
+#include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
+
 namespace metkit::mars2mars {
 
 
@@ -35,10 +37,24 @@ public:
 
     ~Mars2Mars() = default;
 
-    eckit::LocalConfiguration convert(const eckit::LocalConfiguration& mars);
-
-    metkit::mars::MarsRequest convert(const metkit::mars::MarsRequest& mars);
+    template<typename Dict_t>
+    Mars2MarsResult<Dict_t> convert(const Dict_t& mars) = delete;
 
 };
+
+
+// -----------------------------------------------------------------------------
+// Supported API specializations
+// -----------------------------------------------------------------------------
+
+template <>
+Mars2MarsResult<eckit::LocalConfiguration>
+Mars2Mars::convert<eckit::LocalConfiguration>(
+    const eckit::LocalConfiguration& mars);
+
+template <>
+Mars2MarsResult<metkit::mars::MarsRequest>
+Mars2Mars::convert<metkit::mars::MarsRequest>(
+    const metkit::mars::MarsRequest& mars);
 
 }  // namespace metkit::mars2mars
