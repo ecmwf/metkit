@@ -120,7 +120,7 @@ CASE("mars2mars_flatten_convert_append_to_json") {
         EXPECT(!points.empty());
 
         for (const auto& point : points) {
-            const metkit::mars::MarsRequest converted =
+            const auto [converted, misc] =
                 mars2mars.convert(point);
 
             convertedPoints.push_back(converted);

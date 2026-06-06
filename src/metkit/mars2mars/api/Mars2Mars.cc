@@ -29,24 +29,26 @@
 
 namespace metkit::mars2mars {
 
-
-
 // -----------------------------------------------------------------------------
 // Mars2Mars construction
 // -----------------------------------------------------------------------------
 
 Mars2Mars::Mars2Mars() {}
 
+template <>
+Mars2MarsResult<eckit::LocalConfiguration>
+Mars2Mars::convert<eckit::LocalConfiguration>(
+    const eckit::LocalConfiguration& mars) {
 
-// -----------------------------------------------------------------------------
-// Conversion interfaces
-// -----------------------------------------------------------------------------
-eckit::LocalConfiguration Mars2Mars::convert(const eckit::LocalConfiguration& mars) {
-    return convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars);
+    return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars);
 }
 
-metkit::mars::MarsRequest Mars2Mars::convert(const metkit::mars::MarsRequest& mars) {
-    return convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars);
+template <>
+Mars2MarsResult<metkit::mars::MarsRequest>
+Mars2Mars::convert<metkit::mars::MarsRequest>(
+    const metkit::mars::MarsRequest& mars) {
+
+    return rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars);
 }
 
 }  // namespace metkit::mars2mars

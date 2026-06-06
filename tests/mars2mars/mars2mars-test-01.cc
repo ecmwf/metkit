@@ -62,7 +62,7 @@ CASE("mars2mars_marsrequest_convert_to_json") {
 
         metkit::mars::MarsRequest marsRequest = generateMarsRequest();
 
-        const metkit::mars::MarsRequest converted =
+        const auto [converted, misc ] =
             Mars2Mars{}.convert(marsRequest);
 
         const std::string json = dict_to_json(converted);
