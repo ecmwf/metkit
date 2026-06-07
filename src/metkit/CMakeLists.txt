@@ -174,6 +174,13 @@ if ( HAVE_ODB )
     set( odc_libs odccore )
 endif()
 
+if ( HAVE_GRIB2MARS )
+    list( APPEND metkit_srcs
+        grib2mars/api/Grib2Mars.cc
+        grib2mars/api/Grib2Mars.h
+    )
+endif()
+
 if ( HAVE_MARS2MARS )
     list( APPEND metkit_srcs
         mars2mars/api/Mars2Mars.cc
