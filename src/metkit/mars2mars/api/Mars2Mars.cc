@@ -11,7 +11,10 @@
 
 ///
 /// @file Mars2Mars.cc
-/// @brief Implementation of the Mars2Mars converter API.
+/// @brief Implementation of the public Mars2Mars conversion API.
+///
+/// The implementation forwards each supported conversion through the rule
+/// layer and wraps the result in the common API error-handling policy.
 ///
 
 
@@ -36,8 +39,10 @@ namespace metkit::mars2mars {
 // Mars2Mars construction
 // -----------------------------------------------------------------------------
 
+/// @brief Default construct a Mars2Mars converter.
 Mars2Mars::Mars2Mars() {}
 
+/// @brief Convert an `eckit::LocalConfiguration` request.
 template <>
 Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfiguration>(
     const eckit::LocalConfiguration& mars) {
@@ -49,6 +54,7 @@ Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfig
         [&]() { return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars); }, Here());
 }
 
+/// @brief Convert a `metkit::mars::MarsRequest` request.
 template <>
 Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::MarsRequest>(
     const metkit::mars::MarsRequest& mars) {

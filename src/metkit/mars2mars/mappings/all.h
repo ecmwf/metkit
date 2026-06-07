@@ -9,6 +9,8 @@
  * does it submit to any jurisdiction.
  */
 
+/// @file all.h
+/// @brief Conversion rules used by the mars2mars mapper.
 #pragma once
 
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
@@ -25,6 +27,7 @@ using metkit::mars2mars::util::param_matcher::matchAny;
 using metkit::mars2mars::util::param_matcher::range;
 
 
+/// @brief Assign `param`, `levtype`, and `levelist` together.
 template <class OutDict_t>
 inline void setParamLevel(OutDict_t& out, long param, const std::string& levtype, long levelist) {
 
@@ -41,6 +44,7 @@ inline void setParamLevel(OutDict_t& out, long param, const std::string& levtype
     }
 }
 
+/// @brief Convert surface-like legacy requests into solar-style output.
 template <class InDict_t, class OutDict_t>
 inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
 
@@ -87,6 +91,7 @@ inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfi
     }
 }
 
+/// @brief Apply all registered conversion rules and return a result object.
 template <class InDict_t, class OutDict_t>
 Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
 

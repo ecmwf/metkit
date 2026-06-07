@@ -11,7 +11,13 @@
 
 ///
 /// @file mars2mars-convert.cc
-/// @brief Tool for converting pre-MTG2 MARS requests to post-MTG2 MARS requests.
+/// @brief CLI tool for converting legacy MARS requests.
+///
+/// The executable reads one or more MARS request files, expands each request
+/// into scalar points, converts them through the mars2mars API, and optionally
+/// squashes the converted points back into a compact request form.
+///
+/// Output can be written as JSON or as MARS syntax.
 ///
 
 #include <algorithm>
@@ -53,6 +59,7 @@ using metkit::mars::MarsRequest;
 // Flattening policy
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief Keys that must be split before conversion.
 const std::vector<std::string>& splitKeys() {
     // static const std::vector<std::string> keys = {
     //     "class",
@@ -85,6 +92,7 @@ const std::vector<std::string>& splitKeys() {
 // Squashing policy
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief Keys that are conservatively squashed after conversion.
 const std::vector<std::string>& squashKeys() {
     static const std::vector<std::string> keys = {
         "levelist",
@@ -99,6 +107,7 @@ const std::vector<std::string>& squashKeys() {
 // Request signatures
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief Return parameter names in sorted order.
 std::vector<std::string> sortedKeys(const MarsRequest& request) {
     std::vector<std::string> keys;
 
@@ -110,6 +119,7 @@ std::vector<std::string> sortedKeys(const MarsRequest& request) {
     return keys;
 }
 
+/// @brief Serialize a value list into a signature fragment.
 std::string valuesSignature(const std::vector<std::string>& values) {
     std::ostringstream os;
 
@@ -124,6 +134,7 @@ std::string valuesSignature(const std::vector<std::string>& values) {
     return os.str();
 }
 
+/// @brief Build a grouping signature for squashing.
 std::string squashSignature(const MarsRequest& request, const std::string& squashKey) {
     std::ostringstream signature;
 
@@ -146,8 +157,9 @@ std::string squashSignature(const MarsRequest& request, const std::string& squas
 // Squashing
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief Collect unique values while preserving first-seen order.
 std::vector<std::string> uniqueValuesPreserveOrder(const std::vector<MarsRequest>& block,
-                                                   const std::string& squashKey) {
+                                                    const std::string& squashKey) {
     std::vector<std::string> values;
     std::set<std::string> seen;
 
@@ -168,6 +180,7 @@ std::vector<std::string> uniqueValuesPreserveOrder(const std::vector<MarsRequest
     return values;
 }
 
+/// @brief Squash a compatible block of requests.
 MarsRequest squashBlock(const std::vector<MarsRequest>& block, const std::string& squashKey) {
     ASSERT(!block.empty());
 
@@ -186,6 +199,7 @@ MarsRequest squashBlock(const std::vector<MarsRequest>& block, const std::string
     return out;
 }
 
+/// @brief Squash a request list by one key.
 std::vector<MarsRequest> squashByKey(const std::vector<MarsRequest>& requests, const std::string& squashKey) {
     std::map<std::string, std::vector<MarsRequest>> blocks;
 
@@ -203,6 +217,7 @@ std::vector<MarsRequest> squashByKey(const std::vector<MarsRequest>& requests, c
     return out;
 }
 
+/// @brief Apply the full squashing policy.
 std::vector<MarsRequest> squashMars2MarsRequests(const std::vector<MarsRequest>& requests) {
     std::vector<MarsRequest> out = requests;
 
@@ -217,6 +232,7 @@ std::vector<MarsRequest> squashMars2MarsRequests(const std::vector<MarsRequest>&
 // Output
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief Write converted requests as JSON.
 void writeJson(const std::vector<MarsRequest>& requests, std::ostream& out) {
     using metkit::mars2mars::utils::dict_traits::dict_to_json;
 
@@ -235,6 +251,7 @@ void writeJson(const std::vector<MarsRequest>& requests, std::ostream& out) {
     out << "]\n";
 }
 
+/// @brief Write converted requests in MARS syntax.
 void writeMars(const std::vector<MarsRequest>& requests, std::ostream& out) {
     for (const auto& request : requests) {
         request.dump(out);
@@ -248,21 +265,29 @@ void writeMars(const std::vector<MarsRequest>& requests, std::ostream& out) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// @brief Command-line front-end for mars2mars conversion.
 class Mars2MarsConvert final : public metkit::MetkitTool {
 public:
 
+    /// @brief Construct the tool and register CLI options.
     Mars2MarsConvert(int argc, char** argv);
     ~Mars2MarsConvert() override = default;
 
 private:
 
+    /// @brief Require at least one input path.
     int minimumPositionalArguments() const override { return 1; }
 
+    /// @brief Read CLI options and validate the requested format.
     void init(const CmdArgs& args) override;
+    /// @brief Execute the conversion pipeline.
     void execute(const CmdArgs& args) override;
+    /// @brief Print usage information.
     void usage(const std::string& tool) const override;
 
+    /// @brief Process a file or directory path recursively.
     void processPath(const eckit::PathName& path, std::vector<metkit::mars::MarsRequest>& outputRequests) const;
+    /// @brief Process one MARS request file.
     void processFile(const eckit::PathName& path, std::vector<metkit::mars::MarsRequest>& outputRequests) const;
 
 private:
