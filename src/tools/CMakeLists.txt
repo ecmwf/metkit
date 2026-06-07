@@ -8,6 +8,45 @@
 #     LIBS     metkit eckit_option eckit
 # )
 
+
+# ecbuild_add_executable( TARGET   bufr-to-mars-request
+
+#     CONDITION HAVE_BUFR
+
+#     SOURCES  bufr-to-mars-request.cc
+
+#     INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
+
+#     LIBS     metkit eckit_option eckit eccodes
+# )
+
+ecbuild_add_executable(
+    TARGET mars2mars-convert
+    SOURCES mars2mars-convert.cc
+    CONDITION HAVE_MARS2MARS AND HAVE_BUILD_TOOLS
+    INCLUDES ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS metkit eckit_option eckit
+)
+
+ecbuild_add_executable(
+    TARGET grib2mars-convert
+    SOURCES grib2mars-convert.cc
+    CONDITION HAVE_GRIB2MARS AND HAVE_BUILD_TOOLS
+    INCLUDES ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS metkit eckit_option eckit
+)
+
+ecbuild_add_executable(
+    TARGET metkit-grib1-to-grib2
+    SOURCES grib1-to-grib2.cc
+    CONDITION HAVE_MARS2GRIB AND HAVE_MARS2MARS AND HAVE_BUILD_TOOLS
+    INCLUDES ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS metkit eckit_option eckit
+)
+
 ecbuild_add_executable( TARGET    parse-mars-request
     CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
     SOURCES   parse-mars-request.cc
