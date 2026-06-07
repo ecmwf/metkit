@@ -26,8 +26,8 @@ namespace metkit::mars2mars::rules {
 template <class InDict_t, class OutDict_t>
 Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
 
-    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
     using metkit::mars2mars::utils::dict_traits::clone_or_throw;
+    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
         std::unique_ptr<OutDict_t> out                  = clone_or_throw(in);
