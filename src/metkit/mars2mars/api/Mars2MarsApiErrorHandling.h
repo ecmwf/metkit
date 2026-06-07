@@ -97,8 +97,8 @@ inline eckit::PathName makeErrorStackFilePath(const std::string& apiName) {
 
 /// @brief Serialize a mars2mars exception stack to disk.
 inline void writeMars2MarsExceptionStackToFile(const Mars2marsGenericException& exception, const std::string& apiName,
-                                                const eckit::PathName& errorStackFilePath,
-                                                const eckit::CodeLocation& loc = eckit::CodeLocation()) {
+                                               const eckit::PathName& errorStackFilePath,
+                                               const eckit::CodeLocation& loc = eckit::CodeLocation()) {
 
     std::ofstream out(errorStackFilePath.asString());
 

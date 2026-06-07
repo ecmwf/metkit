@@ -9,45 +9,24 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file all.h
+/// @file sfc2sol.h
 /// @brief Conversion rules used by the mars2mars mapper.
 #pragma once
 
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
+#include "metkit/mars2mars/mappings/rules/common.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2mars/utils/mars2marsExceptions.h"
 #include "metkit/mars2mars/utils/paramMatcher.h"
 
 namespace metkit::mars2mars::rules::impl {
 
-namespace detail {
-
-/// @brief Assign `param`, `levtype`, and `levelist` together.
-template <class OutDict_t>
-inline void setParamLevel(OutDict_t& out, long param, const std::string& levtype, long levelist) {
-
-    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
-    using metkit::mars2mars::utils::dict_traits::set_or_throw;
-
-    try {
-        set_or_throw<long>(out, "param", param);
-        set_or_throw<std::string>(out, "levtype", levtype);
-        set_or_throw<long>(out, "levelist", levelist);
-    }
-    catch (...) {
-        // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to setParamLevel to input dictionaries", Here()));
-    }
-}
-
-} // namespace detail
-
 /// @brief Convert surface-like legacy requests into sol layer output.
 template <class InDict_t, class OutDict_t>
 inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
 
-    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
         const auto param = get_or_throw<long>(in, "param");
