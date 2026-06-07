@@ -11,7 +11,25 @@
 
 ///
 /// @file Mars2Mars.h
-/// @brief API for converting pre-MTG2 MARS to post-MTG2 MARS descriptions
+/// @brief Public conversion API for transforming MARS requests.
+///
+/// This header exposes the primary mars2mars entry point. Callers provide a
+/// supported dictionary type and receive a structured result containing the
+/// converted MARS request plus auxiliary conversion metadata.
+///
+/// The API is intentionally narrow and explicit:
+/// - only supported dictionary types may be converted
+/// - conversion is delegated to the rule engine
+/// - all failures are routed through the shared API error boundary
+///
+/// @section References
+/// Implementation:
+/// - @ref Mars2Mars.cc
+///
+/// Result type:
+/// - @ref Mars2MarsReturnValue.h
+///
+/// @ingroup mars2mars_api
 ///
 
 #pragma once
@@ -25,18 +43,36 @@ namespace metkit::mars2mars {
 
 
 ///
-/// @brief API for converting pre-MTG2 MARS to post-MTG2 MARS descriptions
+/// @brief Main API for converting MARS requests.
+///
+/// The converter owns no runtime configuration state. It is a thin façade
+/// around the conversion rules and the shared API error handling layer.
 ///
 class Mars2Mars {
 public:
 
     ///
-    /// @brief Construct a Mars2Mars converter
+    /// @brief Construct a Mars2Mars converter.
+    ///
+    /// No configuration is stored in the object itself.
     ///
     Mars2Mars();
 
     ~Mars2Mars() = default;
 
+    /// @brief Convert a supported dictionary type.
+    ///
+    /// The primary template is deleted intentionally. Only explicit
+    /// specializations are available through the public API.
+    ///
+    /// @tparam Dict_t
+    /// Input dictionary type.
+    ///
+    /// @param[in] mars
+    /// Input MARS dictionary.
+    ///
+    /// @return
+    /// A converted result for the supported dictionary type.
     template <typename Dict_t>
     Mars2MarsResult<Dict_t> convert(const Dict_t& mars) = delete;
 };
@@ -46,10 +82,12 @@ public:
 // Supported API specializations
 // -----------------------------------------------------------------------------
 
+/// @brief Convert an `eckit::LocalConfiguration` request.
 template <>
 Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfiguration>(
     const eckit::LocalConfiguration& mars);
 
+/// @brief Convert a `metkit::mars::MarsRequest` request.
 template <>
 Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::MarsRequest>(
     const metkit::mars::MarsRequest& mars);

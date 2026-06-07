@@ -1,3 +1,16 @@
+/*
+ * (C) Copyright 2026- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+/// @file Mars2MarsApiErrorHandling.h
+/// @brief Common error handling for mars2mars public API calls.
 #pragma once
 
 #include <atomic>
@@ -21,8 +34,10 @@ namespace metkit::mars2mars::utils::exceptions {
 
 namespace detail {
 
+/// @brief Environment variable controlling error-stack output.
 inline constexpr const char* MARS2MARS_ERROR_STACK_DIR_ENV = "MARS2MARS_ERROR_STACK_DIR";
 
+/// @brief Sanitize a string for use in a generated filename.
 inline std::string sanitizeForFileName(const std::string& value) {
     std::string out;
     out.reserve(value.size());
@@ -39,6 +54,7 @@ inline std::string sanitizeForFileName(const std::string& value) {
     return out;
 }
 
+/// @brief Convert the current thread identifier into a filename-safe string.
 inline std::string currentThreadIdAsString() {
     std::ostringstream os;
     os << std::this_thread::get_id();
@@ -46,6 +62,7 @@ inline std::string currentThreadIdAsString() {
     return sanitizeForFileName(os.str());
 }
 
+/// @brief Resolve the directory where stack files are stored.
 inline eckit::PathName errorStackDirectory() {
     if (const char* value = std::getenv(MARS2MARS_ERROR_STACK_DIR_ENV)) {
         if (value[0] != '\0') {
@@ -56,6 +73,7 @@ inline eckit::PathName errorStackDirectory() {
     return eckit::PathName(".").fullName();
 }
 
+/// @brief Build a unique error-stack file path for an API entry point.
 inline eckit::PathName makeErrorStackFilePath(const std::string& apiName) {
     static std::atomic<unsigned long> counter{0};
 
@@ -77,9 +95,10 @@ inline eckit::PathName makeErrorStackFilePath(const std::string& apiName) {
     return dir / fileName.str();
 }
 
+/// @brief Serialize a mars2mars exception stack to disk.
 inline void writeMars2MarsExceptionStackToFile(const Mars2marsGenericException& exception, const std::string& apiName,
-                                               const eckit::PathName& errorStackFilePath,
-                                               const eckit::CodeLocation& loc = eckit::CodeLocation()) {
+                                                const eckit::PathName& errorStackFilePath,
+                                                const eckit::CodeLocation& loc = eckit::CodeLocation()) {
 
     std::ofstream out(errorStackFilePath.asString());
 
@@ -113,6 +132,22 @@ inline void writeMars2MarsExceptionStackToFile(const Mars2marsGenericException& 
 
 }  // namespace detail
 
+/// @brief Execute a callable under the mars2mars API error boundary.
+///
+/// @tparam Result
+/// Callable return type.
+///
+/// @tparam Callable
+/// Callable type.
+///
+/// @param[in] apiName
+/// API entry-point name used in diagnostics.
+///
+/// @param[in] callable
+/// Operation to execute.
+///
+/// @param[in] loc
+/// Source location attached to user-facing failures.
 template <typename Result, typename Callable>
 Result withMars2MarsApiErrorHandling(const std::string& apiName, Callable&& callable,
                                      const eckit::CodeLocation& loc = eckit::CodeLocation()) {
