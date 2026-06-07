@@ -23,7 +23,7 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/mars/MarsRequest.h"
-#include "metkit/mars2mars/mappings/all.h"
+#include "metkit/mars2mars/mappings/mappings.h"
 
 // dictionary access traits
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
