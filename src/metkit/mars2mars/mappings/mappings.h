@@ -18,7 +18,11 @@
 #include "metkit/mars2mars/utils/mars2marsExceptions.h"
 
 // All the rules
+#include "metkit/mars2mars/mappings/rules/chemical.h"
+#include "metkit/mars2mars/mappings/rules/local2wmo.h"
 #include "metkit/mars2mars/mappings/rules/sfc2sol.h"
+#include "metkit/mars2mars/mappings/rules/timespan.h"
+#include "metkit/mars2mars/mappings/rules/windspeed.h"
 
 namespace metkit::mars2mars::rules {
 
@@ -35,6 +39,10 @@ Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
 
         // Apply all conversions in sequence
         impl::convertSFC2SOL(in, *out, *misc);
+        impl::convertLocal2WMO(in, *out, *misc);
+        impl::fixTimespan(in, *out, *misc);
+        impl::fixWindspeed(in, *out, *misc);
+        impl::convertChemical(in, *out, *misc);
 
         return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};
     }

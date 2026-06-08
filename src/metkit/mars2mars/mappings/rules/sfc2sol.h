@@ -26,6 +26,7 @@ template <class InDict_t, class OutDict_t>
 inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    using metkit::mars2mars::utils::dict_traits::get_opt;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
@@ -61,6 +62,24 @@ inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfi
                 return detail::setParamLevel(out, 260360, "sol", 3);
             case 236:
                 return detail::setParamLevel(out, 260360, "sol", 4);
+
+            // SFC with non-zero levelist to SOL
+            case 33:
+            case 238:
+            case 228038:
+            case 235080:
+            case 237080:
+            case 238080:
+            case 239080:
+            case 260199:
+            case 260360:
+            case 262000:
+            case 262024:
+                const auto levelist = get_opt<long>(in, "levelist").value_or(0);
+                if (levelist != 0) {
+                    return detail::setParamLevel(out, param, "sol", levelist);
+                }
+                break;
         }
     }
     catch (...) {
