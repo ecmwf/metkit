@@ -45,6 +45,15 @@ ecbuild_add_executable(
     LIBS metkit eckit_option eckit
 )
 
+ecbuild_add_executable(
+    TARGET grib2mars-convert
+    SOURCES grib2mars-convert.cc
+    CONDITION HAVE_GRIB2MARS AND HAVE_BUILD_TOOLS
+    INCLUDES ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS metkit eckit_option eckit
+)
+
 ecbuild_add_executable( TARGET    parse-mars-request
     CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
     SOURCES   parse-mars-request.cc
