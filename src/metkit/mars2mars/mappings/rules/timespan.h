@@ -35,7 +35,8 @@ inline void setParamTimespan(OutDict_t& out, long param, const std::string& time
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to set param and/or timespan in output dictionary", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to set param and/or timespan in output dictionary", Here()));
     }
 }
 

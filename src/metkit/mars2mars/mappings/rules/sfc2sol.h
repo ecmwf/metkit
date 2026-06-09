@@ -25,8 +25,8 @@ namespace metkit::mars2mars::rules::impl {
 template <class InDict_t, class OutDict_t>
 inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
 
-    using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::get_opt;
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {

@@ -36,7 +36,8 @@ inline void setParamChem(OutDict_t& out, long param, long chem) {
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to set param, and/or chem and/or in output dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to set param, and/or chem and/or in output dictionaries", Here()));
     }
 }
 
@@ -55,7 +56,8 @@ inline void setParamChemWavelength(OutDict_t& out, long param, long chem, double
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to set param, chem and/or, wavelength in output dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to set param, chem and/or, wavelength in output dictionaries", Here()));
     }
 }
 
@@ -1226,7 +1228,8 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in convertChemical", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to convert input dictionary in convertChemical", Here()));
     }
 }
 

@@ -35,7 +35,8 @@ inline void setParamScale(OutDict_t& out, eckit::LocalConfiguration& misc, long 
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to set param and/or scaleFactor in output dictionaries", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to set param and/or scaleFactor in output dictionaries", Here()));
     }
 }
 
@@ -178,7 +179,8 @@ inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalCon
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in convertLocal2WMO", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to convert input dictionary in convertLocal2WMO", Here()));
     }
 }
 
