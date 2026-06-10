@@ -28,3 +28,9 @@ bindman-utils = { git = "ssh://git@github.com/ecmwf/bindman.git" }
 cxx = "1.0"
 cxx-build = "1.0"
 thiserror = "2"
+
+# Redirect playground's eckit-sys (pulled in transitively by
+# eccodes-sys from the playground) to the one from `ecmwf/eckit`, so the
+# `links = "eckit_sys"` value appears only once in the graph.
+[patch."ssh://git@github.com/ecmwf/rust-wrappers-playground.git"]
+eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "rust-bindings" }
