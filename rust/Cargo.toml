@@ -17,7 +17,7 @@ metkit-sys = { path = "crates/metkit-sys" }
 
 # Foundation crates
 eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "rust-bindings", default-features = false }
-eccodes-sys = { git = "ssh://git@github.com/ecmwf/eccodes.git", branch = "rust-bindings", default-features = false }
+eccodes-sys = { git = "ssh://git@github.com/ecmwf/rust-wrappers-playground.git", default-features = false }
 
 # Build tools
 bindman = { git = "ssh://git@github.com/ecmwf/bindman.git" }
