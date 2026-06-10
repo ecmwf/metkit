@@ -37,8 +37,8 @@
 # )
 
 ecbuild_add_executable(
-    TARGET mars2mars-convert
-    SOURCES mars2mars-convert.cc
+    TARGET request-to-mtg2
+    SOURCES request-to-mtg2.cc
     CONDITION HAVE_MARS2MARS AND HAVE_BUILD_TOOLS
     INCLUDES ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED

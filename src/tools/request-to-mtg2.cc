@@ -10,7 +10,7 @@
  */
 
 ///
-/// @file mars2mars-convert.cc
+/// @file request-to-mtg2.cc
 /// @brief CLI tool for converting legacy MARS requests.
 ///
 /// The executable reads one or more MARS request files, expands each request
