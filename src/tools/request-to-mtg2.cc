@@ -159,7 +159,7 @@ std::string squashSignature(const MarsRequest& request, const std::string& squas
 
 /// @brief Collect unique values while preserving first-seen order.
 std::vector<std::string> uniqueValuesPreserveOrder(const std::vector<MarsRequest>& block,
-                                                    const std::string& squashKey) {
+                                                   const std::string& squashKey) {
     std::vector<std::string> values;
     std::set<std::string> seen;
 
