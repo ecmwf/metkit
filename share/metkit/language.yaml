@@ -60,6 +60,7 @@ _field: &_field
       - [l5, era5l]
       - [l6, era6l]
       - [la, aladin-laef, laef, lace]
+      - [lr, WMO Lead Centre for Global Climate Re-Analyses]
       - [lw, WMO lead centre wave forecast verification]
       - [ma, metaps]
       - [mc, macc]
@@ -1523,6 +1524,8 @@ _postproc: &_postproc
     type: [enum, regex]
     values:
       - auto
+      - none
+      - source
       - N32
       - N48
       - N64
