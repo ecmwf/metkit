@@ -19,6 +19,7 @@
 
 // All the rules
 #include "metkit/mars2mars/mappings/rules/chemical.h"
+#include "metkit/mars2mars/mappings/rules/ecc-1806.h"
 #include "metkit/mars2mars/mappings/rules/local2wmo.h"
 #include "metkit/mars2mars/mappings/rules/sfc2sol.h"
 #include "metkit/mars2mars/mappings/rules/timespan.h"
@@ -38,6 +39,7 @@ Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
         std::unique_ptr<eckit::LocalConfiguration> misc = std::make_unique<eckit::LocalConfiguration>();
 
         // Apply all conversions in sequence
+        impl::convertECC1806(in, *out, *misc);
         impl::convertSFC2SOL(in, *out, *misc);
         impl::convertLocal2WMO(in, *out, *misc);
         impl::fixTimespan(in, *out, *misc);
