@@ -75,10 +75,14 @@ The `StatisticalWindow` type is defined in the shared header
 ```cpp
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
 
+namespace metkit::mars2grib::backend::deductions::detail {
+
 struct StatisticalWindow {
     tables::TimeUnit unit{tables::TimeUnit::Second};
     long             count{0};
 };
+
+}  // namespace metkit::mars2grib::backend::deductions::detail
 ```
 
 ### 3.1 Allowed `TimeUnit` subset
@@ -296,8 +300,10 @@ struct ProductTimeInput {
     std::array<StatisticalWindow, maxStatisticalWindows> stattypeWindows{};
     std::size_t                                          stattypeWindowCount{0};
 
-    // Source: deductions::timeIncrementInSeconds_opt(mars, par) — i.e. par["timeIncrementInSeconds"].
-    // Absent for instants and for the AIFS single-window path (§9.4).
+    // Source: deductions::timeIncrementInSeconds_opt(mars, par) when the resolver invokes it (§7.9).
+    // Resolver-forced std::nullopt for instant products and for invalid
+    // timespan/stattype combinations that fail before the value is used.
+    // Also optionally absent for the AIFS single-window path (§9.4).
     std::optional<long> timeIncrementInSeconds;
 };
 ```
@@ -333,7 +339,9 @@ The factory:
 | `step`     | no, default `0` (§7.5) | MARS                                       |
 | `timespan` | no                   | MARS                                         |
 | `stattype` | no                   | MARS                                         |
-| `timeIncrementInSeconds` | no       | par (parameter dictionary), via `deductions::timeIncrementInSeconds_opt` |
+| `class`    | conditional (§7.8)   | MARS                                         |
+| `stream`   | conditional (§7.8)   | MARS                                         |
+| `timeIncrementInSeconds` | no       | par (parameter dictionary), conditionally via `deductions::timeIncrementInSeconds_opt` (§7.9) |
 
 ### 7.2 `date` / `time`
 
@@ -455,14 +463,63 @@ sibling deduction, out of scope here). The `stattype` parser MUST be a single
 shared helper (now in `detail/StatType.h` as `parse_StatType_or_throw`) used
 by both deductions, so that the two never drift.
 
-### 7.8 `timeIncrementInSeconds`
+### 7.8 Single-loop representation policy
+
+When the resolver detects a single-loop statistic, it MUST read MARS `class`
+and `stream` and validate whether the product must use the standard
+single-loop representation or the fakeDoubleLoop representation.
+
+The two single-loop representations are:
+
+```text
+standard single-loop:
+    timespanKind == Duration AND stattypeWindowCount == 0
+
+fakeDoubleLoop single-loop:
+    timespanKind == None AND stattypeWindowCount == 1
+```
+
+The fakeDoubleLoop representation is required exactly for the following
+`(class, stream)` combinations:
+
+| `class` | `stream` values |
+|---------|-----------------|
+| `e6`    | `sttd`, `stte`  |
+| `od`    | `sfmd`, `shmd`  |
+| `rd`    | `sfmd`, `shmd`  |
+| `c3`    | `sfmd`, `shmd`  |
+| `gh`    | `msmm`, `rfsd`  |
+| `eh`    | `msmm`, `rfsd`  |
+
+For these combinations, standard single-loop statistics are a hard error
+(§10.20). For all other combinations, fakeDoubleLoop single-loop statistics are
+a hard error (§10.21). If `class` or `stream` cannot be read while validating a
+single-loop statistic, this is a hard error (§10.19).
+
+This rule applies only to single-loop statistics. It does not apply to instant
+products or old-style multi-loop statistics.
+
+### 7.9 `timeIncrementInSeconds`
 
 Source: `deductions::timeIncrementInSeconds_opt(mars, par)`, which reads
-`par["timeIncrementInSeconds"]`. Existing normalization is preserved:
+`par["timeIncrementInSeconds"]` when invoked. The resolver invokes it only
+for inputs that are statistical candidates:
+
+```text
+timespanKind == Duration
+OR
+timespanKind == None AND stattypeWindowCount == 1
+```
+
+For instant products, and for invalid `timespan` / `stattype` combinations that
+fail before the value is used, the resolver forwards `std::nullopt` without
+reading `par["timeIncrementInSeconds"]`.
+
+When the helper is invoked, existing normalization is preserved:
 
 - absent             -> `std::nullopt`
 - present, value `0` -> `std::nullopt` (legacy normalization)
-- present, value < 0 -> hard error (§10.10)
+- present, value < 0 -> hard error (§10.14)
 - present, value > 0 -> the value
 
 The forwarded `std::optional<long>` becomes `ProductTime::timeIncrementInSeconds`
@@ -484,12 +541,14 @@ ProductTime resolve_ProductTime_or_throw(
   reads no keys at present. Reserved for future options.
 - The resolver:
   1. Reads MARS keys per §7.
-  2. Reads `par["timeIncrementInSeconds"]` via the existing
-     `timeIncrementInSeconds_opt` helper.
-  3. Builds a `ProductTimeInput`.
-  4. Calls `make_ProductTime_or_throw`.
-  5. On success, emits exactly one `MARS2GRIB_LOG_RESOLVE` line (§12).
-  6. On failure, rethrows-with-nested per §11.
+  2. Validates the standard/fakeDoubleLoop representation policy for
+     single-loop statistics according to §7.8.
+  3. Conditionally reads `par["timeIncrementInSeconds"]` via the existing
+     `timeIncrementInSeconds_opt` helper, according to §7.9.
+  4. Builds a `ProductTimeInput`.
+  5. Calls `make_ProductTime_or_throw`.
+  6. On success, emits exactly one `MARS2GRIB_LOG_RESOLVE` line (§12).
+  7. On failure, rethrows-with-nested per §11.
 
 `resolve_ProductTime_or_throw` is the canonical name. Any additional spelling
 (e.g. `resolveProductTime_or_throw`) is a deprecated alias and SHOULD NOT be
@@ -512,7 +571,7 @@ the resulting `ProductTime`.
 
 | Case | `timespanKind` | `stattype` blocks | `statisticalWindows` (out→in) | `windowStart` | `timeIncrementInSeconds` |
 |------|----------------|-------------------|-------------------------------|---------------|--------------------------|
-| §9.1 Instant            | `Missing` | 0          | (empty)                                          | `windowEnd`                                  | `std::nullopt` (required) |
+| §9.1 Instant            | `Missing` | 0          | (empty)                                          | `windowEnd`                                  | `std::nullopt` (resolver-forced) |
 | §9.2 Old single-loop    | `Duration`| 0          | `[timespan]`                                     | `windowEnd - timespan`                       | optional or required (§9.5) |
 | §9.3 Old multi-loop     | `Duration`| 1 or 2     | `[parse(stattype) ..., timespan]`                | `windowEnd - statisticalWindows[0]`          | required and > 0 |
 | §9.4 New fakeDoubleLoop | `None`    | exactly 1  | `[parse(stattype)]`                              | `windowEnd - statisticalWindows[0]`          | optional or required (§9.5) |
@@ -528,7 +587,7 @@ applied after `windowStart` is computed.
 windowEnd               := referenceDateTime + stepInSeconds
 windowStart             := windowEnd
 statisticalWindows      := (empty array, statisticalWindowCount = 0)
-timeIncrementInSeconds  := std::nullopt  (MUST; else §10.5)
+timeIncrementInSeconds  := std::nullopt  (resolver-forced; par value is not read)
 ```
 
 Used primarily by `referenceTime` and `pointInTime`. `statistics` MUST NOT be
@@ -546,6 +605,9 @@ windowStart             := windowEnd - timespan          (= windowEnd - timespan
 `timespan.unit` is `tables::TimeUnit::Second` (§7.6). `windowStart` is
 therefore a simple seconds subtraction; no calendar arithmetic is involved on
 this path.
+
+This representation is valid only when the `(class, stream)` policy in §7.8
+does not require fakeDoubleLoop representation.
 
 ### 9.3 Old-style multi-loop statistic
 
@@ -573,6 +635,9 @@ receives the `paramId`-derived operation as its
 `innerTypeOfStatisticalProcessing` argument and compares it against the parsed
 `stattype` block operation in this case.
 
+This representation is valid only when the `(class, stream)` policy in §7.8
+requires fakeDoubleLoop representation.
+
 ```text
 windowEnd               := referenceDateTime + stepInSeconds
 statisticalWindows      := [parse(single stattype block)]
@@ -590,8 +655,10 @@ windowStart             := windowEnd - statisticalWindows[0]
 | §9.3 Old multi-loop     | MUST be present and > 0                                  |
 | §9.4 New fakeDoubleLoop | MAY be `std::nullopt` (AIFS path); if present MUST be > 0 |
 
-Violation is a hard error (§10.5 for instants, §10.10 for non-positive,
-§10.13 for missing-where-required).
+Violation is a hard error (§10.5 for the constructed `ProductTime` invariant,
+§10.14 for negative values when the helper is invoked, §10.13 for
+missing-where-required). For §9.1, the resolver forces the constructed field to
+`std::nullopt` and does not consult the par value.
 
 The free helper `numberOfTimeRanges(const detail::ProductTime& pt)` declared
 in `productTime.h` returns the number of statistical loops contributing to
@@ -652,11 +719,14 @@ in the implementation.
 | 10.11 | any `StatisticalWindow` in `statisticalWindows[0..count)` has `count <= 0` |
 | 10.12 | (deduction-side, `resolve_TypeOfStatisticalProcessing_or_throw`, §23) in the §9.4 fakeDoubleLoop case, the parsed `stattype` block operation disagrees with the `innerTypeOfStatisticalProcessing` argument supplied by the caller |
 | 10.13 | `statisticalWindowCount >= 2` and `timeIncrementInSeconds == nullopt` |
-| 10.14 | `timeIncrementInSeconds` raw input value < 0                     |
+| 10.14 | `timeIncrementInSeconds` value < 0 after resolver normalization, or raw input value < 0 when `timeIncrementInSeconds_opt` is invoked (§7.9) |
 | 10.15 | `statisticalWindowCount > maxStatisticalWindows` (= 3)           |
 | 10.16 | `stattype` block parsed with unknown period or operation token (raised by the shared parser, §22; period MUST be in `{mo, da}` and operation MUST be in `{av, mn, mx, sd}`) |
 | 10.17 | `stattype` blocks not in outermost-to-innermost order (e.g. `da_mo`) (raised by the shared parser, §22) |
 | 10.18 | any `StatisticalWindow` in `statisticalWindows[0..count)` has `unit` outside the §3.1 allow-list `{Second, Day, Month}` (e.g. `Hour`, `Hours6`, `Year`, `Missing`). **Two-level enforcement**: (a) the shared parser (§22) enforces the narrow `stattype`-grammar allow-list `{Day, Month}` at parse time; (b) the factory `make_ProductTime_or_throw` enforces the extended assembled-window allow-list `{Second, Day, Month}` after window assembly (the `Second` extension covers the innermost window when it originates from `timespan` rather than `stattype`). |
+| 10.19 | single-loop statistic detected, but MARS `class` or `stream` cannot be read, so the standard/fakeDoubleLoop representation policy cannot be evaluated (§7.8) |
+| 10.20 | standard single-loop statistic (`timespanKind == Duration`, no `stattype`) used for a `(class, stream)` combination that requires fakeDoubleLoop representation (§7.8) |
+| 10.21 | fakeDoubleLoop single-loop statistic (`timespan = none`, exactly one `stattype` block) used for a `(class, stream)` combination that does not require fakeDoubleLoop representation (§7.8) |
 
 The tri-equivalence check (10.5) subsumes several otherwise-separate checks
 (e.g. "instant with non-null increment", "statistical with zero-length
@@ -1093,8 +1163,9 @@ amendments SHOULD update both columns.
 | A2 / B8 (strict calendar alignment)       | §4.4, §10.9, §10.10          |
 | A3 (reference >= simulated)               | §5.3, §10.4                  |
 | A4 / C6 (instant tri-equivalence)         | §4.1, §5.1, §9.1, §10.5      |
-| A5 / B1 (timeIncrementInSeconds in PT)    | §5, §6, §7.8, §9.5           |
+| A5 / B1 (timeIncrementInSeconds in PT)    | §5, §6, §7.9, §9.5           |
 | Q1 (fakeDoubleLoop paramId↔stattype, deduction-side) | §9.4, §10.12, §23 |
+| Single-loop standard/fakeDoubleLoop representation policy | §7.8, §9.2, §9.4, §10.19, §10.20, §10.21 |
 | B2 / C9 (stattype grammar)                | §7.7, §10.16, §10.17, §22    |
 | B3 (bare numeric units = hours)           | §7.5, §7.6                   |
 | B4 (Date(fcyear, fcmonth, 1))             | §7.4                         |
@@ -1193,14 +1264,14 @@ UpperCamelCase initial per §20.1 (type-primary).
 ```cpp
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
 
-namespace metkit::mars2grib::backend::deductions {
+namespace metkit::mars2grib::backend::deductions::detail {
 
 struct StatisticalWindow {
     tables::TimeUnit unit{tables::TimeUnit::Second};
     long             count{0};
 };
 
-}  // namespace metkit::mars2grib::backend::deductions
+}  // namespace metkit::mars2grib::backend::deductions::detail
 ```
 
 The type carries no methods, no `operator<<` (per §13), and no validation;
@@ -1218,12 +1289,10 @@ the factory at assembly time, §10.18).
 ### 21.4 Rationale
 
 The type is a shared primitive consumed by both `ProductTime` and the
-`stattype` parser. It cannot live inside `detail/ProductTime.h` because that
-would force the parser to depend on a deduction's detail header, inverting
-the dependency direction. It cannot live inside `detail/StatType.h` because
-`ProductTime`'s §9.2 single-loop case constructs `StatisticalWindow`
-*without* invoking the parser. A shared header is the only correct
-placement.
+`stattype` parser. It lives in its own detail header, rather than inside
+`detail/ProductTime.h` or `detail/StatType.h`, so both detail components can
+include the shared primitive without coupling either one to the other's
+implementation header.
 
 ---
 
