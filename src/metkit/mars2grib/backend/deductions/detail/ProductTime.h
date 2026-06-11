@@ -323,7 +323,28 @@ inline eckit::DateTime subtractCalendarDays(const eckit::DateTime& dt, long coun
 /// @brief Subtract `count` seconds from a `DateTime`.
 ///
 inline eckit::DateTime subtractSeconds(const eckit::DateTime& dt, long count) {
-    return dt + (-static_cast<eckit::Second>(count));
+    // assert(count >= 0);
+
+    static constexpr long secondsPerDay = 24 * 60 * 60;
+
+    eckit::Date d = dt.date();
+
+    // eckit::Time has operator eckit::Second(), and eckit::Second is double.
+    eckit::Second t = dt.time();  // seconds since midnight
+
+    const long wholeDays = count / secondsPerDay;
+    const long remSecs   = count % secondsPerDay;
+
+    d -= wholeDays;
+
+    if (t < static_cast<eckit::Second>(remSecs)) {
+        d -= 1;
+        t += static_cast<eckit::Second>(secondsPerDay);
+    }
+
+    t -= static_cast<eckit::Second>(remSecs);
+
+    return eckit::DateTime(d, eckit::Time(t));
 }
 
 ///
@@ -540,18 +561,20 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
             "ProductTime internal error: unhandled (timespanKind, stattypeCount) combination", Here());
     }
 
-    // ---------------------------------------------------------
-    // Per-window validation (§3.1, §3.2 → §10.11, §10.18 (b))
-    // ---------------------------------------------------------
+    // -----------------------------------------------------------------
+    // Per-window validation (§3.1, §3.2 → §10.11a, §10.11b, §10.18 (b))
+    // -----------------------------------------------------------------
     for (std::size_t i = 0; i < windowCount; ++i) {
         const StatisticalWindow& w = windows[i];
 
         if (w.count <= 0) {
-            throw Mars2GribDeductionException("ProductTime invariant violated [§10.11]: statisticalWindows[" +
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.11a]: statisticalWindows[" +
                                                   std::to_string(i) + "] has non-positive count (" +
                                                   std::to_string(w.count) + ")",
                                               Here());
         }
+
+
 
         if (!isAllowedWindowUnit(w.unit)) {
             throw Mars2GribDeductionException("ProductTime invariant violated [§10.18(b)]: statisticalWindows[" +
@@ -586,7 +609,6 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
             }
         }
         // tables::TimeUnit::Second: no alignment required.
-
         windowStart = applyWindowSubtraction(windowEnd, outermost);
     }
 
@@ -623,13 +645,18 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
     const bool a = (windowStart == windowEnd);
     const bool b = (windowCount == 0);
     const bool c = !tInc.has_value();
-    if (!((a == b) && (b == c))) {
+    if (!((a == b) && (b == c) )) {
         throw Mars2GribDeductionException(
             std::string("ProductTime invariant violated [§10.5]: tri-equivalence broken: ") +
                 "(windowStart==windowEnd)=" + (a ? "true" : "false") + ", (statisticalWindowCount==0)=" +
                 (b ? "true" : "false") + ", (timeIncrementInSeconds==nullopt)=" + (c ? "true" : "false"),
             Here());
     }
+
+    /// @todo: Handle the case of zero windows with stepInSeconds == 0 (instant product)
+    ///        but timeIncrementInSeconds present. This is technically a violation of the
+    ///        tri-equivalence invariant (§10.5) but we may want to allow it as scientists
+    ///        wants do avoid 2 requests for fields that have an increasing window.
 
     // ---------------------------------------------------------
     // Construct the immutable ProductTime

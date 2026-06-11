@@ -112,6 +112,7 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
+    using metkit::mars2grib::utils::dict_traits::dict_to_json;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     // Suppress "unused parameter" warning while preserving the documented
@@ -291,13 +292,18 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
                 stattypeWindows[i] = blocks[i].timeWindow;
             }
             stattypeWindowCount = blocks.size();
+
         }
 
         // =========================================================
         // §7.8: timeIncrementInSeconds (par)
         // =========================================================
-
-        const std::optional<long> tInc = timeIncrementInSeconds_opt(mars, par);
+        std::optional<long> tInc = std::nullopt;
+        
+        if ( (timespanKind == detail::TimespanKind::None && stattypeWindowCount ==1) ||
+             timespanKind == detail::TimespanKind::Duration ) {
+            tInc = timeIncrementInSeconds_opt(mars, par);
+        }
 
         // =========================================================
         // Assemble the input bundle and call the factory.
