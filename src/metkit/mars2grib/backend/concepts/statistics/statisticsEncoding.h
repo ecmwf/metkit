@@ -143,7 +143,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", desc.lengthOfTimeRange);
                 set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeIncrement",
                                                 desc.indicatorOfUnitForTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeIncrement", desc.lengthOfTimeIncrement);
+                set_or_throw<std::vector<long>>(out, "timeIncrement", desc.lengthOfTimeIncrement);
             }
 
             // =============================================================
