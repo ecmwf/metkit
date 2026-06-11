@@ -32,6 +32,14 @@
 ///
 /// All rules in this file are normative; see `deductions/timeProducts.md`.
 ///
+/// Error handling follows the mars2grib generic fail-fast pattern:
+/// - each helper/factory executes its complete body inside a `try` block
+/// - all exceptions are caught at the function boundary
+/// - failures are rethrown with `std::throw_with_nested` as
+///   `Mars2GribGenericException`
+/// - the original low-level exception is preserved as the nested cause
+/// - successful, non-exception execution is left unchanged
+///
 /// @ingroup mars2grib_backend_deductions
 ///
 
@@ -39,6 +47,8 @@
 
 // System includes
 #include <array>
+#include <exception>
+#include <iostream>
 #include <cctype>
 #include <cstddef>
 #include <optional>
@@ -174,91 +184,133 @@ struct ProductTimeInput {
 ///   - `s` seconds
 ///   - `d` days
 ///
-/// @throws Mars2GribDeductionException on malformed input.
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the duration string is malformed or cannot be converted. The original
+/// exception is preserved as a nested exception.
 ///
 inline long toSeconds_or_throw(std::string_view step) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
-    if (step.empty()) {
-        throw Mars2GribDeductionException("Empty duration string", Here());
-    }
-
-    std::size_t pos = 0;
-    while (pos < step.size() && std::isdigit(static_cast<unsigned char>(step[pos]))) {
-        ++pos;
-    }
-
-    if (pos == 0) {
-        throw Mars2GribDeductionException("Invalid duration format (no numeric part): '" + std::string(step) + "'",
-                                          Here());
-    }
-
-    long value = 0;
     try {
-        value = std::stol(std::string(step.substr(0, pos)));
+        using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+        if (step.empty()) {
+            throw Mars2GribDeductionException("Empty duration string", Here());
+        }
+
+        std::size_t pos = 0;
+        while (pos < step.size() && std::isdigit(static_cast<unsigned char>(step[pos]))) {
+            ++pos;
+        }
+
+        if (pos == 0) {
+            throw Mars2GribDeductionException("Invalid duration format (no numeric part): '" + std::string(step) + "'",
+                                              Here());
+        }
+
+        long value = 0;
+        try {
+            value = std::stol(std::string(step.substr(0, pos)));
+        }
+        catch (...) {
+            throw Mars2GribDeductionException("Invalid numeric value in duration: '" + std::string(step) + "'", Here());
+        }
+
+        char unit = 'h';  // default unit
+        if (pos < step.size()) {
+            if (pos + 1 != step.size()) {
+                throw Mars2GribDeductionException(
+                    "Invalid duration format (trailing characters): '" + std::string(step) + "'", Here());
+            }
+            unit = step[pos];
+        }
+
+        switch (unit) {
+            case 'h':
+                return value * 3600L;
+            case 'm':
+                return value * 60L;
+            case 's':
+                return value;
+            case 'd':
+                return value * 86400L;
+            default:
+                throw Mars2GribDeductionException(std::string("Unknown duration unit: '") + unit + "', expected={h,m,s,d}",
+                                                  Here());
+        }
     }
     catch (...) {
-        throw Mars2GribDeductionException("Invalid numeric value in duration: '" + std::string(step) + "'", Here());
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to convert duration string to seconds", Here()));
     }
 
-    char unit = 'h';  // default unit
-    if (pos < step.size()) {
-        if (pos + 1 != step.size()) {
-            throw Mars2GribDeductionException(
-                "Invalid duration format (trailing characters): '" + std::string(step) + "'", Here());
-        }
-        unit = step[pos];
-    }
-
-    switch (unit) {
-        case 'h':
-            return value * 3600L;
-        case 'm':
-            return value * 60L;
-        case 's':
-            return value;
-        case 'd':
-            return value * 86400L;
-        default:
-            throw Mars2GribDeductionException(std::string("Unknown duration unit: '") + unit + "', expected={h,m,s,d}",
-                                              Here());
-    }
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Convert a MARS-encoded `YYYYMMDD` integer to `eckit::Date`.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline eckit::Date convert_YYYYMMDD2Date_or_throw(long YYYYMMDD) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
-
-    long YYYY = YYYYMMDD / 10000;
-    long MM   = (YYYYMMDD / 100) % 100;
-    long DD   = YYYYMMDD % 100;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return eckit::Date(YYYY, MM, DD);
+        using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+        long YYYY = YYYYMMDD / 10000;
+        long MM   = (YYYYMMDD / 100) % 100;
+        long DD   = YYYYMMDD % 100;
+
+        try {
+            return eckit::Date(YYYY, MM, DD);
+        }
+        catch (const eckit::Exception& e) {
+            throw Mars2GribDeductionException("Invalid date value '" + std::to_string(YYYYMMDD) + "': " + e.what(), Here());
+        }
     }
-    catch (const eckit::Exception& e) {
-        throw Mars2GribDeductionException("Invalid date value '" + std::to_string(YYYYMMDD) + "': " + e.what(), Here());
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to convert YYYYMMDD value to eckit::Date", Here()));
     }
+
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Convert a MARS-encoded `HHMMSS` integer to `eckit::Time`.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
-
-    long hh = hhmmss / 10000;
-    long mm = (hhmmss / 100) % 100;
-    long ss = hhmmss % 100;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return eckit::Time(hh, mm, ss);
+        using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+        long hh = hhmmss / 10000;
+        long mm = (hhmmss / 100) % 100;
+        long ss = hhmmss % 100;
+
+        try {
+            return eckit::Time(hh, mm, ss);
+        }
+        catch (const eckit::Exception& e) {
+            throw Mars2GribDeductionException("Invalid time value '" + std::to_string(hhmmss) + "': " + e.what(), Here());
+        }
     }
-    catch (const eckit::Exception& e) {
-        throw Mars2GribDeductionException("Invalid time value '" + std::to_string(hhmmss) + "': " + e.what(), Here());
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to convert HHMMSS value to eckit::Time", Here()));
     }
+
+    mars2gribUnreachable();
 }
 
 // =============================================================
@@ -269,16 +321,46 @@ inline eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
 /// @brief Test whether a `tables::TimeUnit` value belongs to the
 ///        `StatisticalWindow` allow-list `{Second, Day, Month}` (§3.1).
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline bool isAllowedWindowUnit(tables::TimeUnit u) {
-    return u == tables::TimeUnit::Second || u == tables::TimeUnit::Day || u == tables::TimeUnit::Month;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        return u == tables::TimeUnit::Second || u == tables::TimeUnit::Day || u == tables::TimeUnit::Month;
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to classify TimeUnit allow-list membership", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Test whether a `tables::TimeUnit` value is calendar-aligned
 ///        (i.e. `Day` or `Month`) per the classification table in §3.3.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline bool isCalendarUnit(tables::TimeUnit u) {
-    return u == tables::TimeUnit::Day || u == tables::TimeUnit::Month;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        return u == tables::TimeUnit::Day || u == tables::TimeUnit::Month;
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to classify TimeUnit calendar alignment", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 // =============================================================
@@ -291,21 +373,36 @@ inline bool isCalendarUnit(tables::TimeUnit u) {
 /// Precondition: `dt` is on day=1 at 00:00:00 (verified by alignment check
 /// (§10.10) before this function is called).
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline eckit::DateTime subtractCalendarMonths(const eckit::DateTime& dt, long count) {
-    long year  = dt.date().year();
-    long month = dt.date().month();
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
-    // Convert to (year * 12 + (month-1)) basis so subtraction is trivial.
-    long total       = year * 12L + (month - 1L) - count;
-    long newYear     = total / 12L;
-    long newMonthIdx = total % 12L;
-    if (newMonthIdx < 0) {
-        newMonthIdx += 12L;
-        newYear -= 1L;
+    try {
+        long year  = dt.date().year();
+        long month = dt.date().month();
+
+        // Convert to (year * 12 + (month-1)) basis so subtraction is trivial.
+        long total       = year * 12L + (month - 1L) - count;
+        long newYear     = total / 12L;
+        long newMonthIdx = total % 12L;
+        if (newMonthIdx < 0) {
+            newMonthIdx += 12L;
+            newYear -= 1L;
+        }
+        long newMonth = newMonthIdx + 1L;
+
+        return eckit::DateTime(eckit::Date(newYear, newMonth, 1), eckit::Time(0, 0, 0));
     }
-    long newMonth = newMonthIdx + 1L;
+    catch (...) {
 
-    return eckit::DateTime(eckit::Date(newYear, newMonth, 1), eckit::Time(0, 0, 0));
+        std::throw_with_nested(Mars2GribGenericException("Failed to subtract calendar months from DateTime", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
@@ -313,38 +410,68 @@ inline eckit::DateTime subtractCalendarMonths(const eckit::DateTime& dt, long co
 ///
 /// Precondition: `dt` is at 00:00:00 (verified by alignment check (§10.9)).
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline eckit::DateTime subtractCalendarDays(const eckit::DateTime& dt, long count) {
-    eckit::Date d = dt.date();
-    d -= count;
-    return eckit::DateTime(d, eckit::Time(0, 0, 0));
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        eckit::Date d = dt.date();
+        d -= count;
+        return eckit::DateTime(d, eckit::Time(0, 0, 0));
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to subtract calendar days from DateTime", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Subtract `count` seconds from a `DateTime`.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline eckit::DateTime subtractSeconds(const eckit::DateTime& dt, long count) {
-    // assert(count >= 0);
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
-    static constexpr long secondsPerDay = 24 * 60 * 60;
+    try {
+        // assert(count >= 0);
 
-    eckit::Date d = dt.date();
+        static constexpr long secondsPerDay = 24 * 60 * 60;
 
-    // eckit::Time has operator eckit::Second(), and eckit::Second is double.
-    eckit::Second t = dt.time();  // seconds since midnight
+        eckit::Date d = dt.date();
 
-    const long wholeDays = count / secondsPerDay;
-    const long remSecs   = count % secondsPerDay;
+        // eckit::Time has operator eckit::Second(), and eckit::Second is double.
+        eckit::Second t = dt.time();  // seconds since midnight
 
-    d -= wholeDays;
+        const long wholeDays = count / secondsPerDay;
+        const long remSecs   = count % secondsPerDay;
 
-    if (t < static_cast<eckit::Second>(remSecs)) {
-        d -= 1;
-        t += static_cast<eckit::Second>(secondsPerDay);
+        d -= wholeDays;
+
+        if (t < static_cast<eckit::Second>(remSecs)) {
+            d -= 1;
+            t += static_cast<eckit::Second>(secondsPerDay);
+        }
+
+        t -= static_cast<eckit::Second>(remSecs);
+
+        return eckit::DateTime(d, eckit::Time(t));
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to subtract seconds from DateTime", Here()));
     }
 
-    t -= static_cast<eckit::Second>(remSecs);
-
-    return eckit::DateTime(d, eckit::Time(t));
+    mars2gribUnreachable();
 }
 
 ///
@@ -353,20 +480,35 @@ inline eckit::DateTime subtractSeconds(const eckit::DateTime& dt, long count) {
 /// Dispatches on `window.unit`. Precondition: `window.unit` is in the
 /// allow-list and any required alignment has been verified by the caller.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline eckit::DateTime applyWindowSubtraction(const eckit::DateTime& windowEnd, const StatisticalWindow& window) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
-    switch (window.unit) {
-        case tables::TimeUnit::Second:
-            return subtractSeconds(windowEnd, window.count);
-        case tables::TimeUnit::Day:
-            return subtractCalendarDays(windowEnd, window.count);
-        case tables::TimeUnit::Month:
-            return subtractCalendarMonths(windowEnd, window.count);
-        default:
-            throw Mars2GribDeductionException("Internal error: applyWindowSubtraction called with disallowed unit",
-                                              Here());
+    try {
+        using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+        switch (window.unit) {
+            case tables::TimeUnit::Second:
+                return subtractSeconds(windowEnd, window.count);
+            case tables::TimeUnit::Day:
+                return subtractCalendarDays(windowEnd, window.count);
+            case tables::TimeUnit::Month:
+                return subtractCalendarMonths(windowEnd, window.count);
+            default:
+                throw Mars2GribDeductionException("Internal error: applyWindowSubtraction called with disallowed unit",
+                                                  Here());
+        }
+        mars2gribUnreachable();
     }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to apply statistical-window subtraction", Here()));
+    }
+
     mars2gribUnreachable();
 }
 
@@ -377,16 +519,46 @@ inline eckit::DateTime applyWindowSubtraction(const eckit::DateTime& windowEnd, 
 ///
 /// @brief Test whether a `DateTime` is at hh=00, mm=00, ss=00.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline bool isAtMidnight(const eckit::DateTime& dt) {
-    const eckit::Time& t = dt.time();
-    return t.hours() == 0 && t.minutes() == 0 && t.seconds() == 0;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        const eckit::Time& t = dt.time();
+        return t.hours() == 0 && t.minutes() == 0 && t.seconds() == 0;
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to test DateTime midnight alignment", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Test whether a `DateTime` is on day=1 at midnight.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline bool isOnFirstOfMonthMidnight(const eckit::DateTime& dt) {
-    return isAtMidnight(dt) && dt.date().day() == 1;
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        return isAtMidnight(dt) && dt.date().day() == 1;
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to test DateTime first-of-month midnight alignment", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 // =============================================================
@@ -396,8 +568,23 @@ inline bool isOnFirstOfMonthMidnight(const eckit::DateTime& dt) {
 ///
 /// @brief Format an `eckit::DateTime` as an ISO-8601 string for logs/errors.
 ///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
+///
 inline std::string fmt(const eckit::DateTime& dt) {
-    return dt.iso(true);
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        return dt.iso(true);
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to format DateTime", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
@@ -406,38 +593,83 @@ inline std::string fmt(const eckit::DateTime& dt) {
 /// Uses the canonical names produced by `tables::enum2name_TimeUnit_or_throw`
 /// for the allow-list values, with a numeric fallback for any other value.
 ///
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
 inline std::string fmt(tables::TimeUnit u) {
-    switch (u) {
-        case tables::TimeUnit::Second:
-            return "second";
-        case tables::TimeUnit::Day:
-            return "day";
-        case tables::TimeUnit::Month:
-            return "month";
-        default:
-            return "TimeUnit(" + std::to_string(static_cast<long>(u)) + ")";
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        switch (u) {
+            case tables::TimeUnit::Second:
+                return "second";
+            case tables::TimeUnit::Day:
+                return "day";
+            case tables::TimeUnit::Month:
+                return "month";
+            default:
+                return "TimeUnit(" + std::to_string(static_cast<long>(u)) + ")";
+        }
     }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to format TimeUnit", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Format a `StatisticalWindow` as `{unit,count}`.
 ///
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
 inline std::string fmt(const StatisticalWindow& w) {
-    return "{" + fmt(w.unit) + "," + std::to_string(w.count) + "}";
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        return "{" + fmt(w.unit) + "," + std::to_string(w.count) + "}";
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to format StatisticalWindow", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 ///
 /// @brief Format the populated prefix of a `StatisticalWindow` array.
 ///
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If the helper fails. The original exception is preserved as a nested
+/// exception.
+///
 inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows>& a, std::size_t count) {
-    std::string s{"["};
-    for (std::size_t i = 0; i < count; ++i) {
-        if (i)
-            s += ",";
-        s += fmt(a[i]);
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        std::string s{"["};
+        for (std::size_t i = 0; i < count; ++i) {
+            if (i)
+                s += ",";
+            s += fmt(a[i]);
+        }
+        s += "]";
+        return s;
     }
-    s += "]";
-    return s;
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to format StatisticalWindow array", Here()));
+    }
+
+    mars2gribUnreachable();
 }
 
 // =============================================================
@@ -455,214 +687,227 @@ inline std::string fmt(const std::array<StatisticalWindow, maxStatisticalWindows
 ///   4. Computes `windowStart` per §9.
 ///   5. Validates all invariants (§5.1, §5.2, §5.3) and all hard errors (§10).
 ///
-/// @throws Mars2GribDeductionException on any rule violation; check sites
-///         are tagged with the corresponding §10 entry number.
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException
+/// If any ProductTime rule or invariant is violated, or if any unexpected
+/// error occurs. The original exception is preserved as a nested exception;
+/// rule-violation check sites remain tagged with the corresponding §10 entry
+/// number in the nested cause.
 ///
 inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
-    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+    try {
 
-    // ---------------------------------------------------------
-    // Default resolution (§7.3, §7.4)
-    // ---------------------------------------------------------
+        using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
-    const eckit::DateTime labelDateTime = input.labelDateTime;
+        // ---------------------------------------------------------
+        // Default resolution (§7.3, §7.4)
+        // ---------------------------------------------------------
 
-    // §7.3: hdate / htime defaulting (the resolver has already enforced
-    // §10.2; here we just apply the fall-through to labelDateTime).
-    const eckit::DateTime initialConditionsDateTime =
-        input.initialConditionsDateTime.value_or(labelDateTime);
+        const eckit::DateTime labelDateTime = input.labelDateTime;
 
-    // §7.4: fcyear / fcmonth defaulting.
-    const eckit::DateTime referenceDateTime = input.referenceDateTime.value_or(initialConditionsDateTime);
+        // §7.3: hdate / htime defaulting (the resolver has already enforced
+        // §10.2; here we just apply the fall-through to labelDateTime).
+        const eckit::DateTime initialConditionsDateTime =
+            input.initialConditionsDateTime.value_or(labelDateTime);
 
-    // ---------------------------------------------------------
-    // §5.3: referenceDateTime >= initialConditionsDateTime          (§10.4)
-    // ---------------------------------------------------------
-    if (referenceDateTime < initialConditionsDateTime) {
-        throw Mars2GribDeductionException("ProductTime invariant violated [§10.4]: referenceDateTime ('" +
-                                              fmt(referenceDateTime) + "') < initialConditionsDateTime ('" +
-                                              fmt(initialConditionsDateTime) + "')",
-                                          Here());
-    }
+        // §7.4: fcyear / fcmonth defaulting.
+        const eckit::DateTime referenceDateTime = input.referenceDateTime.value_or(initialConditionsDateTime);
 
-    // ---------------------------------------------------------
-    // windowEnd (§7.5)
-    // ---------------------------------------------------------
-    const eckit::DateTime windowEnd = referenceDateTime + static_cast<eckit::Second>(input.stepInSeconds);
-
-    // ---------------------------------------------------------
-    // §9: window assembly
-    // ---------------------------------------------------------
-    std::array<StatisticalWindow, maxStatisticalWindows> windows{};
-    std::size_t windowCount     = 0;
-    eckit::DateTime windowStart = windowEnd;
-
-    const bool hasTimespanDuration = (input.timespanKind == TimespanKind::Duration);
-    const bool hasTimespanNone     = (input.timespanKind == TimespanKind::None);
-    const bool hasTimespanMissing  = (input.timespanKind == TimespanKind::Missing);
-    const std::size_t nStat        = input.stattypeWindowCount;
-
-    // Case dispatch (§9).
-    if (hasTimespanMissing && nStat == 0) {
-        // ----- §9.1: Instant product -----
-        windowCount = 0;
-        windowStart = windowEnd;
-    }
-    else if (hasTimespanDuration && nStat == 0) {
-        // ----- §9.2: Old-style single-loop statistic -----
-        windows[0]  = input.timespan;
-        windowCount = 1;
-        // windowStart computed after allow-list / positivity / alignment.
-    }
-    else if (hasTimespanDuration && nStat >= 1) {
-        // ----- §9.3: Old-style multi-loop statistic -----
-        if (nStat + 1 > maxStatisticalWindows) {
-            throw Mars2GribDeductionException("ProductTime invariant violated [§10.15]: statisticalWindowCount (" +
-                                                  std::to_string(nStat + 1) + ") > maxStatisticalWindows (" +
-                                                  std::to_string(maxStatisticalWindows) + ")",
-                                              Here());
-        }
-        for (std::size_t i = 0; i < nStat; ++i) {
-            windows[i] = input.stattypeWindows[i];
-        }
-        windows[nStat] = input.timespan;
-        windowCount    = nStat + 1;
-    }
-    else if (hasTimespanNone && nStat == 1) {
-        // ----- §9.4: New-style fakeDoubleLoop -----
-        windows[0]  = input.stattypeWindows[0];
-        windowCount = 1;
-    }
-    else if (hasTimespanNone && nStat == 0) {
-        // §10.7: timespan = none but stattype missing.
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§10.7]: timespan='none' requires "
-            "exactly one stattype block, got 0",
-            Here());
-    }
-    else if (hasTimespanNone && nStat > 1) {
-        // §10.8: timespan = none with more than one stattype block.
-        throw Mars2GribDeductionException(
-            "ProductTime invariant violated [§10.8]: timespan='none' requires "
-            "exactly one stattype block, got " +
-                std::to_string(nStat),
-            Here());
-    }
-    else if (hasTimespanMissing && nStat >= 1) {
-        // §10.6: stattype present but timespan missing.
-        throw Mars2GribDeductionException("ProductTime invariant violated [§10.6]: stattype present (" +
-                                              std::to_string(nStat) + " block(s)) but timespan is missing",
-                                          Here());
-    }
-    else {
-        // Defensive: all combinations should be covered above.
-        throw Mars2GribDeductionException(
-            "ProductTime internal error: unhandled (timespanKind, stattypeCount) combination", Here());
-    }
-
-    // -----------------------------------------------------------------
-    // Per-window validation (§3.1, §3.2 → §10.11a, §10.11b, §10.18 (b))
-    // -----------------------------------------------------------------
-    for (std::size_t i = 0; i < windowCount; ++i) {
-        const StatisticalWindow& w = windows[i];
-
-        if (w.count <= 0) {
-            throw Mars2GribDeductionException("ProductTime invariant violated [§10.11a]: statisticalWindows[" +
-                                                  std::to_string(i) + "] has non-positive count (" +
-                                                  std::to_string(w.count) + ")",
+        // ---------------------------------------------------------
+        // §5.3: referenceDateTime >= initialConditionsDateTime          (§10.4)
+        // ---------------------------------------------------------
+        if (referenceDateTime < initialConditionsDateTime) {
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.4]: referenceDateTime ('" +
+                                                  fmt(referenceDateTime) + "') < initialConditionsDateTime ('" +
+                                                  fmt(initialConditionsDateTime) + "')",
                                               Here());
         }
 
+        // ---------------------------------------------------------
+        // windowEnd (§7.5)
+        // ---------------------------------------------------------
+        const eckit::DateTime windowEnd = referenceDateTime + static_cast<eckit::Second>(input.stepInSeconds);
 
+        // ---------------------------------------------------------
+        // §9: window assembly
+        // ---------------------------------------------------------
+        std::array<StatisticalWindow, maxStatisticalWindows> windows{};
+        std::size_t windowCount     = 0;
+        eckit::DateTime windowStart = windowEnd;
 
-        if (!isAllowedWindowUnit(w.unit)) {
-            throw Mars2GribDeductionException("ProductTime invariant violated [§10.18(b)]: statisticalWindows[" +
-                                                  std::to_string(i) + "] uses disallowed TimeUnit '" + fmt(w.unit) +
-                                                  "', expected one of {second, day, month}",
+        const bool hasTimespanDuration = (input.timespanKind == TimespanKind::Duration);
+        const bool hasTimespanNone     = (input.timespanKind == TimespanKind::None);
+        const bool hasTimespanMissing  = (input.timespanKind == TimespanKind::Missing);
+        const std::size_t nStat        = input.stattypeWindowCount;
+
+        // Case dispatch (§9).
+        if (hasTimespanMissing && nStat == 0) {
+            // ----- §9.1: Instant product -----
+            windowCount = 0;
+            windowStart = windowEnd;
+        }
+        else if (hasTimespanDuration && nStat == 0) {
+            // ----- §9.2: Old-style single-loop statistic -----
+            windows[0]  = input.timespan;
+            windowCount = 1;
+            // windowStart computed after allow-list / positivity / alignment.
+        }
+        else if (hasTimespanDuration && nStat >= 1) {
+            // ----- §9.3: Old-style multi-loop statistic -----
+            if (nStat + 1 > maxStatisticalWindows) {
+                throw Mars2GribDeductionException("ProductTime invariant violated [§10.15]: statisticalWindowCount (" +
+                                                      std::to_string(nStat + 1) + ") > maxStatisticalWindows (" +
+                                                      std::to_string(maxStatisticalWindows) + ")",
+                                                  Here());
+            }
+            for (std::size_t i = 0; i < nStat; ++i) {
+                windows[i] = input.stattypeWindows[i];
+            }
+            windows[nStat] = input.timespan;
+            windowCount    = nStat + 1;
+        }
+        else if (hasTimespanNone && nStat == 1) {
+            // ----- §9.4: New-style fakeDoubleLoop -----
+            windows[0]  = input.stattypeWindows[0];
+            windowCount = 1;
+        }
+        else if (hasTimespanNone && nStat == 0) {
+            // §10.7: timespan = none but stattype missing.
+            throw Mars2GribDeductionException(
+                "ProductTime invariant violated [§10.7]: timespan='none' requires "
+                "exactly one stattype block, got 0",
+                Here());
+        }
+        else if (hasTimespanNone && nStat > 1) {
+            // §10.8: timespan = none with more than one stattype block.
+            throw Mars2GribDeductionException(
+                "ProductTime invariant violated [§10.8]: timespan='none' requires "
+                "exactly one stattype block, got " +
+                    std::to_string(nStat),
+                Here());
+        }
+        else if (hasTimespanMissing && nStat >= 1) {
+            // §10.6: stattype present but timespan missing.
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.6]: stattype present (" +
+                                                  std::to_string(nStat) + " block(s)) but timespan is missing",
                                               Here());
         }
-    }
+        else {
+            // Defensive: all combinations should be covered above.
+            throw Mars2GribDeductionException(
+                "ProductTime internal error: unhandled (timespanKind, stattypeCount) combination", Here());
+        }
 
-    // ---------------------------------------------------------
-    // Outermost-window alignment (§4.4, §10.9, §10.10) and windowStart
-    // ---------------------------------------------------------
-    if (windowCount > 0) {
-        const StatisticalWindow& outermost = windows[0];
+        // -----------------------------------------------------------------
+        // Per-window validation (§3.1, §3.2 → §10.11a, §10.11b, §10.18 (b))
+        // -----------------------------------------------------------------
+        for (std::size_t i = 0; i < windowCount; ++i) {
+            const StatisticalWindow& w = windows[i];
 
-        if (outermost.unit == tables::TimeUnit::Day) {
-            if (!isAtMidnight(windowEnd)) {
-                throw Mars2GribDeductionException(
-                    "ProductTime invariant violated [§10.9]: outermost window is "
-                    "calendar-day-aligned but windowEnd ('" +
-                        fmt(windowEnd) + "') is not at hh=00,mm=00,ss=00",
-                    Here());
+            if (w.count <= 0) {
+                throw Mars2GribDeductionException("ProductTime invariant violated [§10.11a]: statisticalWindows[" +
+                                                      std::to_string(i) + "] has non-positive count (" +
+                                                      std::to_string(w.count) + ")",
+                                                  Here());
+            }
+
+
+
+            if (!isAllowedWindowUnit(w.unit)) {
+                throw Mars2GribDeductionException("ProductTime invariant violated [§10.18(b)]: statisticalWindows[" +
+                                                      std::to_string(i) + "] uses disallowed TimeUnit '" + fmt(w.unit) +
+                                                      "', expected one of {second, day, month}",
+                                                  Here());
             }
         }
-        else if (outermost.unit == tables::TimeUnit::Month) {
-            if (!isOnFirstOfMonthMidnight(windowEnd)) {
-                throw Mars2GribDeductionException(
-                    "ProductTime invariant violated [§10.10]: outermost window is "
-                    "calendar-month-aligned but windowEnd ('" +
-                        fmt(windowEnd) + "') is not on day=1 at hh=00,mm=00,ss=00",
-                    Here());
+
+        // ---------------------------------------------------------
+        // Outermost-window alignment (§4.4, §10.9, §10.10) and windowStart
+        // ---------------------------------------------------------
+        if (windowCount > 0) {
+            const StatisticalWindow& outermost = windows[0];
+
+            if (outermost.unit == tables::TimeUnit::Day) {
+                if (!isAtMidnight(windowEnd)) {
+                    throw Mars2GribDeductionException(
+                        "ProductTime invariant violated [§10.9]: outermost window is "
+                        "calendar-day-aligned but windowEnd ('" +
+                            fmt(windowEnd) + "') is not at hh=00,mm=00,ss=00",
+                        Here());
+                }
             }
+            else if (outermost.unit == tables::TimeUnit::Month) {
+                if (!isOnFirstOfMonthMidnight(windowEnd)) {
+                    throw Mars2GribDeductionException(
+                        "ProductTime invariant violated [§10.10]: outermost window is "
+                        "calendar-month-aligned but windowEnd ('" +
+                            fmt(windowEnd) + "') is not on day=1 at hh=00,mm=00,ss=00",
+                        Here());
+                }
+            }
+            // tables::TimeUnit::Second: no alignment required.
+            windowStart = applyWindowSubtraction(windowEnd, outermost);
         }
-        // tables::TimeUnit::Second: no alignment required.
-        windowStart = applyWindowSubtraction(windowEnd, outermost);
+
+        // ---------------------------------------------------------
+        // §5.2: windowStart <= windowEnd                          (defensive)
+        // ---------------------------------------------------------
+        if (windowStart > windowEnd) {
+            throw Mars2GribDeductionException("ProductTime invariant violated [§5.2]: windowStart ('" + fmt(windowStart) +
+                                                  "') > windowEnd ('" + fmt(windowEnd) + "')",
+                                              Here());
+        }
+
+        // ---------------------------------------------------------
+        // timeIncrementInSeconds validation (§7.8, §9.5, §10.13, §10.14)
+        // ---------------------------------------------------------
+        std::optional<long> tInc = input.timeIncrementInSeconds;
+
+        if (tInc.has_value() && tInc.value() < 0) {
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.14]: timeIncrementInSeconds < 0 ('" +
+                                                  std::to_string(tInc.value()) + "')",
+                                              Here());
+        }
+
+        if (windowCount >= 2 && !tInc.has_value()) {
+            throw Mars2GribDeductionException("ProductTime invariant violated [§10.13]: statisticalWindowCount (" +
+                                                  std::to_string(windowCount) +
+                                                  ") >= 2 requires timeIncrementInSeconds to be present",
+                                              Here());
+        }
+
+        // ---------------------------------------------------------
+        // §5.1: tri-equivalent instant invariant                  (§10.5)
+        // ---------------------------------------------------------
+        const bool a = (windowStart == windowEnd);
+        const bool b = (windowCount == 0);
+        const bool c = !tInc.has_value();
+        if (!((a == b) && (b == c) )) {
+            throw Mars2GribDeductionException(
+                std::string("ProductTime invariant violated [§10.5]: tri-equivalence broken: ") +
+                    "(windowStart==windowEnd)=" + (a ? "true" : "false") + ", (statisticalWindowCount==0)=" +
+                    (b ? "true" : "false") + ", (timeIncrementInSeconds==nullopt)=" + (c ? "true" : "false"),
+                Here());
+        }
+
+        /// @todo: Handle the case of zero windows with stepInSeconds == 0 (instant product)
+        ///        but timeIncrementInSeconds present. This is technically a violation of the
+        ///        tri-equivalence invariant (§10.5) but we may want to allow it as scientists
+        ///        wants do avoid 2 requests for fields that have an increasing window.
+
+        // ---------------------------------------------------------
+        // Construct the immutable ProductTime
+        // ---------------------------------------------------------
+        return ProductTime{labelDateTime, initialConditionsDateTime, referenceDateTime, windowStart,
+                           windowEnd,          windows,           windowCount,       tInc};
+    }
+    catch (...) {
+
+        std::throw_with_nested(Mars2GribGenericException("Failed to construct ProductTime", Here()));
     }
 
-    // ---------------------------------------------------------
-    // §5.2: windowStart <= windowEnd                          (defensive)
-    // ---------------------------------------------------------
-    if (windowStart > windowEnd) {
-        throw Mars2GribDeductionException("ProductTime invariant violated [§5.2]: windowStart ('" + fmt(windowStart) +
-                                              "') > windowEnd ('" + fmt(windowEnd) + "')",
-                                          Here());
-    }
-
-    // ---------------------------------------------------------
-    // timeIncrementInSeconds validation (§7.8, §9.5, §10.13, §10.14)
-    // ---------------------------------------------------------
-    std::optional<long> tInc = input.timeIncrementInSeconds;
-
-    if (tInc.has_value() && tInc.value() < 0) {
-        throw Mars2GribDeductionException("ProductTime invariant violated [§10.14]: timeIncrementInSeconds < 0 ('" +
-                                              std::to_string(tInc.value()) + "')",
-                                          Here());
-    }
-
-    if (windowCount >= 2 && !tInc.has_value()) {
-        throw Mars2GribDeductionException("ProductTime invariant violated [§10.13]: statisticalWindowCount (" +
-                                              std::to_string(windowCount) +
-                                              ") >= 2 requires timeIncrementInSeconds to be present",
-                                          Here());
-    }
-
-    // ---------------------------------------------------------
-    // §5.1: tri-equivalent instant invariant                  (§10.5)
-    // ---------------------------------------------------------
-    const bool a = (windowStart == windowEnd);
-    const bool b = (windowCount == 0);
-    const bool c = !tInc.has_value();
-    if (!((a == b) && (b == c) )) {
-        throw Mars2GribDeductionException(
-            std::string("ProductTime invariant violated [§10.5]: tri-equivalence broken: ") +
-                "(windowStart==windowEnd)=" + (a ? "true" : "false") + ", (statisticalWindowCount==0)=" +
-                (b ? "true" : "false") + ", (timeIncrementInSeconds==nullopt)=" + (c ? "true" : "false"),
-            Here());
-    }
-
-    /// @todo: Handle the case of zero windows with stepInSeconds == 0 (instant product)
-    ///        but timeIncrementInSeconds present. This is technically a violation of the
-    ///        tri-equivalence invariant (§10.5) but we may want to allow it as scientists
-    ///        wants do avoid 2 requests for fields that have an increasing window.
-
-    // ---------------------------------------------------------
-    // Construct the immutable ProductTime
-    // ---------------------------------------------------------
-    return ProductTime{labelDateTime, initialConditionsDateTime, referenceDateTime, windowStart,
-                       windowEnd,          windows,           windowCount,       tInc};
+    mars2gribUnreachable();
 }
 
 }  // namespace metkit::mars2grib::backend::deductions::detail
