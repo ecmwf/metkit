@@ -82,16 +82,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, PackingType Variant>
 constexpr bool packingApplicable() {
 
-    // Most packing algorithms only require configuration at the allocation stage
-    if constexpr (Stage == StageAllocate && Section == SecDataRepresentationSection) {
+    if constexpr (Stage == StagePreset && Section == SecDataRepresentationSection) {
         return true;
-    }
-
-    if constexpr (Variant == PackingType::SpectralComplex) {
-        // Spectral complex packing requires some parameters to be set at the preset stage
-        if constexpr (Stage == StagePreset && Section == SecDataRepresentationSection) {
-            return true;
-        }
     }
 
     return false;
@@ -173,10 +165,9 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0});
 
                 // Set bits per value
-                if constexpr (Stage == StageAllocate) {
-                    long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-                    set_or_throw<long>(out, "setBitsPerValue", bitsPerValue);
-                }
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
+
             }
 
             if constexpr (Variant == PackingType::Ccsds) {
@@ -185,10 +176,8 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42});
 
                 // Set bits per value
-                if constexpr (Stage == StageAllocate) {
-                    long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-                    set_or_throw<long>(out, "setBitsPerValue", bitsPerValue);
-                }
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
             }
 
             if constexpr (Variant == PackingType::SpectralComplex) {
@@ -197,20 +186,17 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51});
 
                 // Set bits per value
-                if constexpr (Stage == StageAllocate) {
-                    long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
-                    set_or_throw<long>(out, "setBitsPerValue", bitsPerValue);
-                }
+                long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
+                set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
 
-                if constexpr (Stage == StagePreset) {
-                    double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
-                    long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
-                    set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
-                    set_or_throw<long>(out, "subSetJ", subSetTruncation);
-                    set_or_throw<long>(out, "subSetK", subSetTruncation);
-                    set_or_throw<long>(out, "subSetM", subSetTruncation);
-                    set_or_throw<long>(out, "TS", (subSetTruncation + 1) * (subSetTruncation + 2));
-                }
+                // double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
+                long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
+                // set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
+                set_or_throw<long>(out, "subSetJ", subSetTruncation);
+                set_or_throw<long>(out, "subSetK", subSetTruncation);
+                set_or_throw<long>(out, "subSetM", subSetTruncation);
+                set_or_throw<long>(out, "TS", (subSetTruncation + 1) * (subSetTruncation + 2));
+
             }
         }
         catch (...) {
