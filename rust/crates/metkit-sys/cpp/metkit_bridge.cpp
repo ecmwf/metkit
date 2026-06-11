@@ -1,5 +1,6 @@
 // metkit C++ bridge implementation
 #include "metkit_bridge.h"
+#include "metkit_exceptions.h"
 #include "eckit/log/JSON.h"
 
 #include <sstream>
