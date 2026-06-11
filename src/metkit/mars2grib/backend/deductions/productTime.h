@@ -43,6 +43,7 @@
 // System includes
 #include <array>
 #include <cstddef>
+#include <exception>
 #include <optional>
 #include <string>
 #include <vector>
@@ -68,12 +69,46 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
+
+///
+/// @brief Test whether a single-loop statistic requires fakeDoubleLoop representation.
+///
+/// FakeDoubleLoop is a compatibility representation for selected single-loop
+/// statistics where `timespan="none"` and the single `stattype` block carries
+/// the statistical period. Products outside this allow-list must use the
+/// standard single-loop representation (`timespan` duration, no `stattype`).
+///
+/// @param[in] klass MARS `class` value.
+/// @param[in] stream MARS `stream` value.
+/// @return `true` when fakeDoubleLoop representation is required.
+///
+inline bool requiresFakeDoubleLoopRepresentation(const std::string& klass, const std::string& stream) {
+
+    // Rule valid for ERA6 products.
+    if (klass == "e6" && (stream == "sttd" || stream == "stte")) {
+        return true;
+    }
+
+    // Rule valid for SEAS6 products.
+    if ((klass == "od" || klass == "rd" || klass == "c3") && (stream == "sfmd" || stream == "shmd")) {
+        return true;
+    }
+
+    // Other explicitly enabled products.
+    if ((klass == "gh" || klass == "eh") && (stream == "msmm" || stream == "rfsd")) {
+        return true;
+    }
+
+    return false;
+}
+
 ///
 /// @brief Resolve the canonical `ProductTime` for one MARS product.
 ///
 /// @section Deduction contract
 ///   - Reads (MARS): `date`, `time`, `hdate`, `htime`, `fcyear`, `fcmonth`,
-///                   `step`, `timespan`, `stattype`
+///                   `step`, `timespan`, `stattype`; additionally `class` and
+///                   `stream` when validating single-loop statistics
 ///   - Reads (par):  `timeIncrementInSeconds` (via `timeIncrementInSeconds_opt`)
 ///   - Reads (opt):  none (signature-only, reserved)
 ///   - Writes:       none
@@ -85,6 +120,11 @@ namespace metkit::mars2grib::backend::deductions {
 ///      normalizes them into a `ProductTimeInput`.
 ///   2. **Factory** (`detail::make_ProductTime_or_throw`): validates all
 ///      invariants and returns the immutable `ProductTime`.
+///
+/// For single-loop statistics, the resolver also validates whether the product
+/// must use the standard representation (`timespan` duration, no `stattype`) or
+/// the fakeDoubleLoop representation (`timespan="none"`, one `stattype` block),
+/// according to the `(class, stream)` allow-list.
 ///
 /// On success, exactly one composite RESOLVE log line is emitted listing
 /// every resolved field in a stable, greppable form (§12).
@@ -296,7 +336,49 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         }
 
         // =========================================================
-        // §7.8: timeIncrementInSeconds (par)
+        // §7.8: single-loop representation policy
+        // =========================================================
+
+        const bool isStandardSingleLoopStatistic =
+            (timespanKind == detail::TimespanKind::Duration && stattypeWindowCount == 0);
+        const bool isFakeDoubleLoopSingleLoopStatistic =
+            (timespanKind == detail::TimespanKind::None && stattypeWindowCount == 1);
+
+        if (isStandardSingleLoopStatistic || isFakeDoubleLoopSingleLoopStatistic) {
+            std::string klass;
+            std::string stream;
+            try {
+                klass  = get_or_throw<std::string>(mars, "class");
+                stream = get_or_throw<std::string>(mars, "stream");
+            }
+            catch (...) {
+                std::throw_with_nested(Mars2GribDeductionException(
+                    "ProductTime invariant violated [§10.19]: single-loop statistic requires MARS 'class' and "
+                    "'stream' to validate the standard/fakeDoubleLoop representation policy",
+                    Here()));
+            }
+
+            const bool requiresFakeDoubleLoop = requiresFakeDoubleLoopRepresentation(klass, stream);
+
+            if (isStandardSingleLoopStatistic && requiresFakeDoubleLoop) {
+                throw Mars2GribDeductionException(
+                    "ProductTime invariant violated [§10.20]: standard single-loop statistic is not valid for "
+                    "class='" +
+                        klass + "', stream='" + stream + "'; fakeDoubleLoop representation is required",
+                    Here());
+            }
+
+            if (isFakeDoubleLoopSingleLoopStatistic && !requiresFakeDoubleLoop) {
+                throw Mars2GribDeductionException(
+                    "ProductTime invariant violated [§10.21]: fakeDoubleLoop single-loop statistic is not valid for "
+                    "class='" +
+                        klass + "', stream='" + stream + "'; standard single-loop representation is required",
+                    Here());
+            }
+        }
+
+        // =========================================================
+        // §7.9: timeIncrementInSeconds (par)
         // =========================================================
         std::optional<long> tInc = std::nullopt;
         
