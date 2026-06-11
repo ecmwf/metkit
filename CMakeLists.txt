@@ -69,6 +69,10 @@ ecbuild_add_option( FEATURE ODB
 
 # MARS2GRIB encoder
 
+ecbuild_add_option( FEATURE MARS2MARS
+                    DEFAULT ON
+                    DESCRIPTION "Build the MARS2MARS converter" )
+
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
                     CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO
