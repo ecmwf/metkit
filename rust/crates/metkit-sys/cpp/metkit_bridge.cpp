@@ -188,22 +188,22 @@ std::unique_ptr<CodesHandleWrapper> CodesHandleWrapper::clone() const {
     return std::make_unique<CodesHandleWrapper>(handle_->clone());
 }
 
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_message(rust::Slice<const uint8_t> data) {
+std::unique_ptr<CodesHandleWrapper> CodesHandleWrapper::from_message(rust::Slice<const uint8_t> data) {
     return std::make_unique<CodesHandleWrapper>(
         metkit::codes::codesHandleFromMessageCopy(metkit::codes::Span<const uint8_t>(data.data(), data.size())));
 }
 
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_file(rust::Str path) {
+std::unique_ptr<CodesHandleWrapper> CodesHandleWrapper::from_file(rust::Str path) {
     return std::make_unique<CodesHandleWrapper>(
         metkit::codes::codesHandleFromFile(std::string(path), metkit::codes::Product::GRIB));
 }
 
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_file_at_offset(rust::Str path, int64_t offset) {
+std::unique_ptr<CodesHandleWrapper> CodesHandleWrapper::from_file_at_offset(rust::Str path, int64_t offset) {
     return std::make_unique<CodesHandleWrapper>(
         metkit::codes::codesHandleFromFile(std::string(path), metkit::codes::Product::GRIB, offset));
 }
 
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_sample(rust::Str sample) {
+std::unique_ptr<CodesHandleWrapper> CodesHandleWrapper::from_sample(rust::Str sample) {
     return std::make_unique<CodesHandleWrapper>(metkit::codes::codesHandleFromSample(std::string(sample)));
 }
 

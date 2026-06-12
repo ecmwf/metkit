@@ -109,16 +109,16 @@ public:
     // Clone
     std::unique_ptr<CodesHandleWrapper> clone() const;
 
+    // Factories
+    static std::unique_ptr<CodesHandleWrapper> from_message(rust::Slice<const uint8_t> data);
+    static std::unique_ptr<CodesHandleWrapper> from_file(rust::Str path);
+    static std::unique_ptr<CodesHandleWrapper> from_file_at_offset(rust::Str path, int64_t offset);
+    static std::unique_ptr<CodesHandleWrapper> from_sample(rust::Str sample);
+
     // Access underlying
     const metkit::codes::CodesHandle& inner() const { return *handle_; }
     metkit::codes::CodesHandle& inner() { return *handle_; }
 };
-
-// CodesHandle factory functions
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_message(rust::Slice<const uint8_t> data);
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_file(rust::Str path);
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_file_at_offset(rust::Str path, int64_t offset);
-std::unique_ptr<CodesHandleWrapper> codes_handle_from_sample(rust::Str sample);
 
 // ==================== HyperCube ====================
 

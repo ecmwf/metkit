@@ -121,14 +121,16 @@ pub mod ffi {
         #[rust_name = "clone_handle"]
         fn clone(self: &CodesHandleWrapper) -> Result<UniquePtr<CodesHandleWrapper>>;
 
-        // Factory
-        fn codes_handle_from_message(data: &[u8]) -> Result<UniquePtr<CodesHandleWrapper>>;
-        fn codes_handle_from_file(path: &str) -> Result<UniquePtr<CodesHandleWrapper>>;
-        fn codes_handle_from_file_at_offset(
-            path: &str,
-            offset: i64,
-        ) -> Result<UniquePtr<CodesHandleWrapper>>;
-        fn codes_handle_from_sample(sample: &str) -> Result<UniquePtr<CodesHandleWrapper>>;
+        // Factories — static methods on CodesHandleWrapper, called from Rust as
+        // `ffi::CodesHandleWrapper::from_message(...)` etc.
+        #[Self = "CodesHandleWrapper"]
+        fn from_message(data: &[u8]) -> Result<UniquePtr<CodesHandleWrapper>>;
+        #[Self = "CodesHandleWrapper"]
+        fn from_file(path: &str) -> Result<UniquePtr<CodesHandleWrapper>>;
+        #[Self = "CodesHandleWrapper"]
+        fn from_file_at_offset(path: &str, offset: i64) -> Result<UniquePtr<CodesHandleWrapper>>;
+        #[Self = "CodesHandleWrapper"]
+        fn from_sample(sample: &str) -> Result<UniquePtr<CodesHandleWrapper>>;
 
         // ==================== HyperCube ====================
 
