@@ -1,17 +1,23 @@
 # metkit-sys
 
-Low-level Rust bindings to ECMWF's [metkit](https://github.com/ecmwf/metkit) C++ library.
+Low-level Rust bindings to ECMWF's [metkit](https://github.com/ecmwf/metkit) C++
+library.
 
-This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe, ergonomic API, use the higher-level `metkit` crate (planned).
+This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe,
+ergonomic API, use the higher-level `metkit` crate (forthcoming).
 
-## Features
+## Cargo build features
+
+These flags control what the underlying C++ metkit library is compiled with.
+Each maps to a `-DENABLE_<NAME>=ON/OFF` flag in upstream
+[`metkit/CMakeLists.txt`](https://github.com/ecmwf/metkit/blob/develop/CMakeLists.txt).
 
 ### Build strategy (mutually exclusive)
 
-- `vendored` - Build metkit and its dependencies (eckit, ecCodes) from source.
-- `system` - Link against system-installed metkit.
-
-`vendored` is enabled by default.
+- `vendored` (default) - Clone and build metkit (and its eckit / ecCodes
+  dependencies) from source.
+- `system` - Link against a system-installed metkit, located via CMake
+  `find_package(metkit)`. Honours `METKIT_DIR` and `CMAKE_PREFIX_PATH`.
 
 ### Format support (enabled by default)
 
@@ -20,12 +26,13 @@ This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe, e
 
 ### Format support (off by default; require external libraries)
 
-- `netcdf` - NetCDF data support (requires NetCDF library).
-- `odb` - ODB data support (requires odc).
+- `netcdf` - NetCDF data support.
+- `odb` - ODB data support (requires `odc`).
 
 ### Encoding (enabled by default)
 
-- `mars2grib` - MARS2GRIB encoder. Pulls in `eckit-sys/geo-codec-grids` for ORCA/FESOM/ICON grid support.
+- `mars2grib` - MARS2GRIB encoder. Pulls in `eckit-sys/geo-codec-grids` for
+  ORCA / FESOM / ICON grid support.
 
 ### Configuration (enabled by default)
 
@@ -35,6 +42,12 @@ This crate provides raw FFI bindings using [cxx](https://cxx.rs/). For a safe, e
 
 - `experimental` - Experimental upstream features.
 - `fail-on-ccsds` - Fail when encountering CCSDS-encoded messages.
+
+## Environment variables
+
+- `METKIT_DIR` - Install prefix of a metkit build, used by `system` mode.
+- `CMAKE_PREFIX_PATH` - Additional CMake search paths.
+- `DOCS_RS` - When set, the build script becomes a no-op (for docs.rs).
 
 ## License
 
