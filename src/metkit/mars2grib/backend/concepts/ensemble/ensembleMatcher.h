@@ -62,12 +62,11 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     // Skip model-error products: in that case "number" identifies the
     // model-error realization, not an ensemble member.
     try {
-        using metkit::mars2grib::utils::dict_traits::has;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
+        using metkit::mars2grib::utils::dict_traits::has;
 
-        if (has(mars, "number") && !(has(mars, "type") &&
-                                    (get_or_throw<std::string>(mars, "type") == "me" ||
-                                     get_or_throw<std::string>(mars, "type") == "eme"))) {
+        if (has(mars, "number") && !(has(mars, "type") && (get_or_throw<std::string>(mars, "type") == "me" ||
+                                                           get_or_throw<std::string>(mars, "type") == "eme"))) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
         else {

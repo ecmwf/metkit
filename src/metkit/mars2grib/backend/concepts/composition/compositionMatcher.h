@@ -60,7 +60,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <class MarsDict_t, class OptDict_t>
 std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
-   try {
+    try {
 
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
@@ -71,7 +71,8 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         const auto param = get_or_throw<long>(mars, "param");
 
-        // TODO: This is the range for CAMS, there are some unmapped parameters that may need to be supported for ERA6, etc.
+        // TODO: This is the range for CAMS, there are some unmapped parameters that may need to be supported for ERA6,
+        // etc.
         if (param < 400000 || param >= 500000) {
             return compile_time_registry_engine::MISSING;
         }
@@ -96,9 +97,9 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 if (matchAny(chem, range(900, 916))) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
-                if (matchAny(chem, 2, 3, range(5, 24), range(26, 30), range(32, 50), 52, 53, range(55, 58), range(63, 80),
-                         82, 83, 85, 86, range(99, 101), 107, 112, 159, 161, 169, range(173, 178), range(186, 204), 222,
-                         range(224, 231), 233, 311, 359, 404, 917)) {
+                if (matchAny(chem, 2, 3, range(5, 24), range(26, 30), range(32, 50), 52, 53, range(55, 58),
+                             range(63, 80), 82, 83, 85, 86, range(99, 101), 107, 112, 159, 161, 169, range(173, 178),
+                             range(186, 204), 222, range(224, 231), 233, 311, 359, 404, 917)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
@@ -106,9 +107,9 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 if (matchAny(chem, range(900, 917), 924)) {
                     return static_cast<std::size_t>(CompositionType::Aerosol);
                 }
-                if (matchAny(chem, range(2, 24), range(26, 30), range(32, 50), 52, 53, range(55, 59), range(63, 80), 82, 83,
-                             85, 86, range(99, 101), 107, 112, 118, 159, 161, 169, range(173, 178), range(186, 204), 222,
-                             range(224, 230), 233, 236, 311)) {
+                if (matchAny(chem, range(2, 24), range(26, 30), range(32, 50), 52, 53, range(55, 59), range(63, 80), 82,
+                             83, 85, 86, range(99, 101), 107, 112, 118, 159, 161, 169, range(173, 178), range(186, 204),
+                             222, range(224, 230), 233, 236, 311)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
@@ -154,7 +155,6 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             "compositionMatcher: matching logic is not implemented for param=" + std::to_string(param) +
                 ", chem=" + std::to_string(chem) + ", hasWavelength=" + (hasWavelength ? "true" : "false"),
             Here());
-
     }
     catch (...) {
         std::throw_with_nested(

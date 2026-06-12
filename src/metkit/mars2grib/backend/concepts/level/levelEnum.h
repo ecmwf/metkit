@@ -174,12 +174,12 @@ using LevelList =
               LevelType::Theta, LevelType::PotentialVorticity, LevelType::SnowLayer, LevelType::SoilLayer,
               LevelType::SeaIceLayer, LevelType::OceanSurface, LevelType::DepthBelowSeaLayer,
               LevelType::OceanSurfaceToBottom, LevelType::LakeBottom, LevelType::MixingLayer, LevelType::OceanModel,
-              LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity,
-              LevelType::MixedLayerDepthByTemperature, LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater,
-              LevelType::IceLayerOnWater, LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer,
-              LevelType::AbstractSingleLevel, LevelType::AbstractLevel, LevelType::AbstractMultipleLevel,
-              LevelType::HeightAboveSeaAt10M, LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M,
-              LevelType::HeightAboveGroundAt2M, LevelType::FlightLevel, LevelType::Default>;
+              LevelType::OceanModelLayer, LevelType::MixedLayerDepthByDensity, LevelType::MixedLayerDepthByTemperature,
+              LevelType::SnowLayerOverIceOnWater, LevelType::IceTopOnWater, LevelType::IceLayerOnWater,
+              LevelType::EntireMeltPond, LevelType::WaterSurfaceToIsothermalOceanLayer, LevelType::AbstractSingleLevel,
+              LevelType::AbstractLevel, LevelType::AbstractMultipleLevel, LevelType::HeightAboveSeaAt10M,
+              LevelType::HeightAboveSeaAt2M, LevelType::HeightAboveGroundAt10M, LevelType::HeightAboveGroundAt2M,
+              LevelType::FlightLevel, LevelType::Default>;
 
 ///
 /// @brief Compile-time mapping from `LevelType` to human-readable name.

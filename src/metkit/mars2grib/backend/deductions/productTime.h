@@ -149,10 +149,10 @@ inline bool requiresFakeDoubleLoopRepresentation(const std::string& klass, const
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
+    using metkit::mars2grib::utils::dict_traits::dict_to_json;
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
-    using metkit::mars2grib::utils::dict_traits::dict_to_json;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     // Suppress "unused parameter" warning while preserving the documented
@@ -175,8 +175,8 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         if (hasDate && hasTime) {
             const long marsDate = get_or_throw<long>(mars, "date");
             const long marsTime = get_or_throw<long>(mars, "time");
-            labelDateTime = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsDate),
-                                            detail::convert_hhmmss2Time_or_throw(marsTime));
+            labelDateTime       = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsDate),
+                                                  detail::convert_hhmmss2Time_or_throw(marsTime));
         }
         else if (!hasDate && !hasTime && hasFcYear && hasFcMonth) {
             // R2 default: labelDateTime := DateTime(fcyear, fcmonth, 1, 00:00:00).
@@ -218,8 +218,8 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
                 eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate), eckit::Time(0, 0, 0));
         }
         else if (hasHdate && hasHtime) {
-            const long marsHdate = get_or_throw<long>(mars, "hdate");
-            const long marsHtime = get_or_throw<long>(mars, "htime");
+            const long marsHdate      = get_or_throw<long>(mars, "hdate");
+            const long marsHtime      = get_or_throw<long>(mars, "htime");
             initialConditionsDateTime = eckit::DateTime(detail::convert_YYYYMMDD2Date_or_throw(marsHdate),
                                                         detail::convert_hhmmss2Time_or_throw(marsHtime));
         }
@@ -332,7 +332,6 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
                 stattypeWindows[i] = blocks[i].timeWindow;
             }
             stattypeWindowCount = blocks.size();
-
         }
 
         // =========================================================
@@ -381,9 +380,9 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         // §7.9: timeIncrementInSeconds (par)
         // =========================================================
         std::optional<long> tInc = std::nullopt;
-        
-        if ( (timespanKind == detail::TimespanKind::None && stattypeWindowCount ==1) ||
-             timespanKind == detail::TimespanKind::Duration ) {
+
+        if ((timespanKind == detail::TimespanKind::None && stattypeWindowCount == 1) ||
+            timespanKind == detail::TimespanKind::Duration) {
             tInc = timeIncrementInSeconds_opt(mars, par);
         }
 
@@ -392,15 +391,15 @@ detail::ProductTime resolve_ProductTime_or_throw(const MarsDict_t& mars, const P
         // =========================================================
 
         detail::ProductTimeInput input;
-        input.labelDateTime                 = labelDateTime;
-        input.initialConditionsDateTime     = initialConditionsDateTime;
-        input.referenceDateTime      = referenceDateTime;
-        input.stepInSeconds          = stepInSeconds;
-        input.timespanKind           = timespanKind;
-        input.timespan               = timespan;
-        input.stattypeWindows        = stattypeWindows;
-        input.stattypeWindowCount    = stattypeWindowCount;
-        input.timeIncrementInSeconds = tInc;
+        input.labelDateTime             = labelDateTime;
+        input.initialConditionsDateTime = initialConditionsDateTime;
+        input.referenceDateTime         = referenceDateTime;
+        input.stepInSeconds             = stepInSeconds;
+        input.timespanKind              = timespanKind;
+        input.timespan                  = timespan;
+        input.stattypeWindows           = stattypeWindows;
+        input.stattypeWindowCount       = stattypeWindowCount;
+        input.timeIncrementInSeconds    = tInc;
 
         detail::ProductTime pt = detail::make_ProductTime_or_throw(input);
 

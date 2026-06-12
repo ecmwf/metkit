@@ -47,10 +47,10 @@
 
 // System includes
 #include <array>
-#include <exception>
-#include <iostream>
 #include <cctype>
 #include <cstddef>
+#include <exception>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -150,7 +150,7 @@ struct ProductTimeInput {
     eckit::DateTime labelDateTime;
 
     std::optional<eckit::DateTime> initialConditionsDateTime;  ///< from `hdate` / `htime`
-    std::optional<eckit::DateTime> referenceDateTime;  ///< from `fcyear` / `fcmonth`
+    std::optional<eckit::DateTime> referenceDateTime;          ///< from `fcyear` / `fcmonth`
 
     /// Offset from `referenceDateTime` to `ProductTime::windowEnd`.
     long stepInSeconds{0};
@@ -235,8 +235,8 @@ inline long toSeconds_or_throw(std::string_view step) {
             case 'd':
                 return value * 86400L;
             default:
-                throw Mars2GribDeductionException(std::string("Unknown duration unit: '") + unit + "', expected={h,m,s,d}",
-                                                  Here());
+                throw Mars2GribDeductionException(
+                    std::string("Unknown duration unit: '") + unit + "', expected={h,m,s,d}", Here());
         }
     }
     catch (...) {
@@ -269,7 +269,8 @@ inline eckit::Date convert_YYYYMMDD2Date_or_throw(long YYYYMMDD) {
             return eckit::Date(YYYY, MM, DD);
         }
         catch (const eckit::Exception& e) {
-            throw Mars2GribDeductionException("Invalid date value '" + std::to_string(YYYYMMDD) + "': " + e.what(), Here());
+            throw Mars2GribDeductionException("Invalid date value '" + std::to_string(YYYYMMDD) + "': " + e.what(),
+                                              Here());
         }
     }
     catch (...) {
@@ -302,7 +303,8 @@ inline eckit::Time convert_hhmmss2Time_or_throw(long hhmmss) {
             return eckit::Time(hh, mm, ss);
         }
         catch (const eckit::Exception& e) {
-            throw Mars2GribDeductionException("Invalid time value '" + std::to_string(hhmmss) + "': " + e.what(), Here());
+            throw Mars2GribDeductionException("Invalid time value '" + std::to_string(hhmmss) + "': " + e.what(),
+                                              Here());
         }
     }
     catch (...) {
@@ -555,7 +557,8 @@ inline bool isOnFirstOfMonthMidnight(const eckit::DateTime& dt) {
     }
     catch (...) {
 
-        std::throw_with_nested(Mars2GribGenericException("Failed to test DateTime first-of-month midnight alignment", Here()));
+        std::throw_with_nested(
+            Mars2GribGenericException("Failed to test DateTime first-of-month midnight alignment", Here()));
     }
 
     mars2gribUnreachable();
@@ -708,8 +711,7 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
 
         // §7.3: hdate / htime defaulting (the resolver has already enforced
         // §10.2; here we just apply the fall-through to labelDateTime).
-        const eckit::DateTime initialConditionsDateTime =
-            input.initialConditionsDateTime.value_or(labelDateTime);
+        const eckit::DateTime initialConditionsDateTime = input.initialConditionsDateTime.value_or(labelDateTime);
 
         // §7.4: fcyear / fcmonth defaulting.
         const eckit::DateTime referenceDateTime = input.referenceDateTime.value_or(initialConditionsDateTime);
@@ -813,7 +815,6 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
             }
 
 
-
             if (!isAllowedWindowUnit(w.unit)) {
                 throw Mars2GribDeductionException("ProductTime invariant violated [§10.18(b)]: statisticalWindows[" +
                                                       std::to_string(i) + "] uses disallowed TimeUnit '" + fmt(w.unit) +
@@ -854,8 +855,8 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
         // §5.2: windowStart <= windowEnd                          (defensive)
         // ---------------------------------------------------------
         if (windowStart > windowEnd) {
-            throw Mars2GribDeductionException("ProductTime invariant violated [§5.2]: windowStart ('" + fmt(windowStart) +
-                                                  "') > windowEnd ('" + fmt(windowEnd) + "')",
+            throw Mars2GribDeductionException("ProductTime invariant violated [§5.2]: windowStart ('" +
+                                                  fmt(windowStart) + "') > windowEnd ('" + fmt(windowEnd) + "')",
                                               Here());
         }
 
@@ -883,7 +884,7 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
         const bool a = (windowStart == windowEnd);
         const bool b = (windowCount == 0);
         const bool c = !tInc.has_value();
-        if (!((a == b) && (b == c) )) {
+        if (!((a == b) && (b == c))) {
             throw Mars2GribDeductionException(
                 std::string("ProductTime invariant violated [§10.5]: tri-equivalence broken: ") +
                     "(windowStart==windowEnd)=" + (a ? "true" : "false") + ", (statisticalWindowCount==0)=" +
@@ -899,8 +900,9 @@ inline ProductTime make_ProductTime_or_throw(const ProductTimeInput& input) {
         // ---------------------------------------------------------
         // Construct the immutable ProductTime
         // ---------------------------------------------------------
-        return ProductTime{labelDateTime, initialConditionsDateTime, referenceDateTime, windowStart,
-                           windowEnd,          windows,           windowCount,       tInc};
+        return ProductTime{
+            labelDateTime, initialConditionsDateTime, referenceDateTime, windowStart, windowEnd, windows, windowCount,
+            tInc};
     }
     catch (...) {
 

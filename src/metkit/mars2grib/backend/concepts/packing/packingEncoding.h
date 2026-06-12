@@ -167,7 +167,6 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Set bits per value
                 long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
-
             }
 
             if constexpr (Variant == PackingType::Ccsds) {
@@ -190,13 +189,12 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
 
                 // double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
-                long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
+                long subSetTruncation = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
                 // set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
                 set_or_throw<long>(out, "subSetJ", subSetTruncation);
                 set_or_throw<long>(out, "subSetK", subSetTruncation);
                 set_or_throw<long>(out, "subSetM", subSetTruncation);
                 set_or_throw<long>(out, "TS", (subSetTruncation + 1) * (subSetTruncation + 2));
-
             }
         }
         catch (...) {

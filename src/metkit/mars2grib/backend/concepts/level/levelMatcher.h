@@ -174,7 +174,8 @@ inline std::size_t matchSFC(const long param) {
         }
 
         // Chemical
-        if (matchAny(param, range(228080, 228085), range(233032, 233035), range(235062, 235064), range(400000, 499999))) {
+        if (matchAny(param, range(228080, 228085), range(233032, 233035), range(235062, 235064),
+                     range(400000, 499999))) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
 
@@ -261,7 +262,7 @@ inline std::size_t matchML(const long param) {
 
         // Multi-level model fields: full vertical column, require allocation
         // and population of the PV array describing the hybrid coordinate.
-        if ( matchAny(param, 21, 23, range(75, 77), range(130, 133), 135, 138, range(155, 157), 203, range(246, 248),
+        if (matchAny(param, 21, 23, range(75, 77), range(130, 133), 135, 138, range(155, 157), 203, range(246, 248),
                      range(162100, 162113), 260290, 260292, 260293, range(400000, 499999))) {
             return static_cast<std::size_t>(LevelType::ModelMultipleLevel);
         }
@@ -298,9 +299,9 @@ inline std::size_t matchPL(const long param, const long level) {
         using metkit::mars2grib::util::param_matcher::range;
 
 
-        if (matchAny(param, 1, 2, 10, 60, 75, 76, range(129, 135), 138, 152, range(155, 157), 203, range(246, 248), 235100,
-                 range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290, 263107,
-                 range(400000, 499999))) {
+        if (matchAny(param, 1, 2, 10, 60, 75, 76, range(129, 135), 138, 152, range(155, 157), 203, range(246, 248),
+                     235100, range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290,
+                     263107, range(400000, 499999))) {
             if (level >= 100) {
                 return static_cast<std::size_t>(LevelType::IsobaricInHpa);
             }
