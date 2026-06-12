@@ -10,7 +10,6 @@
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/MarsRequestHandle.h"
-#include "metkit/mars/ParamID.h"
 #include "metkit/mars/RequestEnvironment.h"
 
 #include "rust/cxx.h"
@@ -191,13 +190,5 @@ public:
 };
 
 std::unique_ptr<MarsLanguageWrapper> language_create(rust::Str verb);
-
-// ==================== ParamID / WindFamily ====================
-
-size_t wind_family_count();
-rust::String wind_family_u(size_t index);
-rust::String wind_family_v(size_t index);
-rust::String wind_family_vo(size_t index);
-rust::String wind_family_d(size_t index);
 
 }  // namespace metkit_bridge

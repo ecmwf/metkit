@@ -327,26 +327,4 @@ std::unique_ptr<MarsLanguageWrapper> language_create(rust::Str verb) {
     return std::make_unique<MarsLanguageWrapper>(verb);
 }
 
-// ==================== ParamID / WindFamily ====================
-
-size_t wind_family_count() {
-    return metkit::ParamID::getWindFamilies().size();
-}
-
-rust::String wind_family_u(size_t index) {
-    return rust::String(std::string(metkit::ParamID::getWindFamilies().at(index).u_));
-}
-
-rust::String wind_family_v(size_t index) {
-    return rust::String(std::string(metkit::ParamID::getWindFamilies().at(index).v_));
-}
-
-rust::String wind_family_vo(size_t index) {
-    return rust::String(std::string(metkit::ParamID::getWindFamilies().at(index).vo_));
-}
-
-rust::String wind_family_d(size_t index) {
-    return rust::String(std::string(metkit::ParamID::getWindFamilies().at(index).d_));
-}
-
 }  // namespace metkit_bridge

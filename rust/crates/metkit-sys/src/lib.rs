@@ -173,15 +173,6 @@ pub mod ffi {
         fn is_data(self: &MarsLanguageWrapper, keyword: &str) -> bool;
 
         fn language_create(verb: &str) -> Result<UniquePtr<MarsLanguageWrapper>>;
-
-        // ==================== ParamID / WindFamily ====================
-
-        #[must_use]
-        fn wind_family_count() -> usize;
-        fn wind_family_u(index: usize) -> Result<String>;
-        fn wind_family_v(index: usize) -> Result<String>;
-        fn wind_family_vo(index: usize) -> Result<String>;
-        fn wind_family_d(index: usize) -> Result<String>;
     }
 }
 
