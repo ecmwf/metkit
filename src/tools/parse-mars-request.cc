@@ -10,6 +10,10 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
@@ -38,18 +42,15 @@ namespace {
 class ConvertedRequests : public FlattenCallback {
 public:
 
-    ConvertedRequests(std::vector<MarsRequest>& flattenedRequests) :
-        flattenedRequests_(flattenedRequests) {}
+    ConvertedRequests(std::vector<MarsRequest>& flattenedRequests) : flattenedRequests_(flattenedRequests) {}
 
-    void operator()(const MarsRequest& req) override {
-        flattenedRequests_.push_back(converter_.convert(req).mars);
-    }
+    void operator()(const MarsRequest& req) override { flattenedRequests_.push_back(converter_.convert(req).mars); }
 
     std::vector<MarsRequest>& flattenedRequests_;
     Mars2Mars converter_;
 };
 
-}
+}  // namespace
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -59,7 +60,8 @@ public:
     ParseRequest(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
         options_.push_back(new SimpleOption<bool>("compact", "Compact output, default = false"));
-        options_.push_back(new SimpleOption<bool>("grib2", "Convert request to the full Grib2 metadata, default = false"));
+        options_.push_back(
+            new SimpleOption<bool>("convert-to-grib2", "Convert request to the full Grib2 metadata, default = false"));
     }
 
     virtual ~ParseRequest() {}
@@ -94,7 +96,7 @@ void ParseRequest::execute(const eckit::option::CmdArgs& args) {
 void ParseRequest::init(const CmdArgs& args) {
     args.get("json", json_);
     args.get("compact", compact_);
-    args.get("grib2", grib2_);
+    args.get("convert-to-grib2", grib2_);
     args.get("porcelain", porcelain_);
     if (porcelain_)
         compact_ = true;
@@ -161,10 +163,10 @@ void ParseRequest::process(const eckit::PathName& path) {
 
 
     std::vector<MarsRequest> v = expand.expand(p);
-    
+
     if (grib2_) {
         std::vector<MarsRequest> out;
-        
+
         for (auto& r : v) {
             MarsLanguage lang{r.verb()};
             std::vector<MarsRequest> converted;
@@ -174,7 +176,8 @@ void ParseRequest::process(const eckit::PathName& path) {
             if (converted.size() > 1) {
                 std::map<std::set<std::string>, std::vector<MarsRequest>> coherentRequests;
 
-                // split the requests into groups of requests with the same set of metadata (but potentially different values)
+                // split the requests into groups of requests with the same set of metadata (but potentially different
+                // values)
                 for (const auto& r : converted) {
                     std::set<std::string> keys;
                     for (const auto& p : r.parameters()) {
@@ -195,8 +198,8 @@ void ParseRequest::process(const eckit::PathName& path) {
                     for (size_t i = 1; i < reqs.size(); ++i) {
                         merged.merge(reqs[i]);
                     }
-                    if (merged.count() ==
-                        reqs.size()) {  // the set of fields forms a full hypercube - return corresponding merged request
+                    if (merged.count() == reqs.size()) {  // the set of fields forms a full hypercube - return
+                                                          // corresponding merged request
                         converted.push_back(std::move(merged));
                         continue;
                     }
