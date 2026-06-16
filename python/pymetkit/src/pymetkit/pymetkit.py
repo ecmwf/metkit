@@ -283,15 +283,15 @@ class PatchedLib:
         # C API. These should be wrapped with the correct error handling. Otherwise forward
         # these on directly.
 
+        missing_symbols = []
         for f in dir(self.__lib):
             try:
                 attr = getattr(self.__lib, f)
                 setattr(
                     self, f, self.__check_error(attr, f) if callable(attr) else attr
                 )
-            except Exception as e:
-                print(e)
-                print("Error retrieving attribute", f, "from library")
+            except Exception:
+                missing_symbols.append(f)
 
         # Initialise the library, and set it up for python-appropriate behaviour
 
@@ -300,7 +300,8 @@ class PatchedLib:
         except AttributeError:
             raise CFFIModuleLoadFailed(
                 f"MetKit shared library loaded from '{libName}' but required symbols are "
-                "missing. The library is stale or incompatible with this version of pymetkit."
+                f"missing ({len(missing_symbols)} of {len(dir(self.__lib))} failed). "
+                "The library is stale or incompatible with this version of pymetkit."
             )
 
         # Check the library version
