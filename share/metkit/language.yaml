@@ -956,7 +956,6 @@ _field: &_field
       - [snow_ice_itcw_itcs, Snow covered and ice covered and with intercepted water and with intercepted snow]
       - [flood_ice_itcw_itcs, Flooded and ice covered and with intercepted water and with intercepted snow]
       - [snow_flood_ice_itcw_itcs, Snow covered and flooded and ice covered and with intercepted water and with intercepted snow]
-
     default: none
     multiple: true
 
