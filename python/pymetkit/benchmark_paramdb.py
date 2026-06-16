@@ -236,9 +236,9 @@ def bench_cold_online_hit(n: int = 5, cache_path: Path | None = None) -> float |
     return _mean_ms(times)
 
 
-def bench_warm_lookups(db: ParamDB, n: int = 500) -> None:
-    """Benchmark every public lookup method on an already-loaded ParamDB."""
-    cases: list[tuple[str, object]] = [
+def _warm_lookup_cases(db: ParamDB) -> list[tuple[str, object]]:
+    """Return the standard set of warm-lookup benchmarks for *db*."""
+    return [
         # ── ID-based ──────────────────────────────────────────────────────
         ("param_id_to_shortname(130)",
             lambda: db.param_id_to_shortname(130)),
@@ -286,9 +286,20 @@ def bench_warm_lookups(db: ParamDB, n: int = 500) -> None:
             lambda: db.shortname_has_collisions("t")),
     ]
 
+
+def bench_warm_lookups(db: ParamDB, n: int = 500, print_rows: bool = True) -> dict[str, float]:
+    """Benchmark every public lookup method on an already-loaded ParamDB.
+
+    Returns a dict mapping label → mean time in ms.
+    """
+    cases = _warm_lookup_cases(db)
+    results: dict[str, float] = {}
     for label, fn in cases:
         times = _bench(fn, n=n)
-        _row(label, _fmt(times))
+        results[label] = _mean_ms(times)
+        if print_rows:
+            _row(label, _fmt(times))
+    return results
 
 # ---------------------------------------------------------------------------
 # Main
@@ -345,11 +356,12 @@ def main() -> None:
     _section(f"Warm lookups  (n={n_warm} each)")
     db_offline = ParamDB()
     db_offline.param_id_to_shortname(1)   # ensure loaded before timing starts
-    bench_warm_lookups(db_offline, n=n_warm)
+    warm_offline = bench_warm_lookups(db_offline, n=n_warm)
 
     # ── Online ─────────────────────────────────────────────────────────────
     t_online_miss: float | None = None
     t_online_hit:  float | None = None
+    warm_online: dict[str, float] | None = None
 
     if args.online:
         _header("Online mode  (ECMWF parameter database API)")
@@ -364,7 +376,6 @@ def main() -> None:
         t_online_hit = bench_cold_online_hit(n=n_cold, cache_path=cache_path)
 
         _section(f"Warm lookups  (n={n_warm} each)")
-        print(dim("  (in-memory lookups are identical to offline — shown for completeness)"))
         if t_online_hit is not None:
             from datetime import timedelta
             _cp = cache_path or Path(tempfile.mkdtemp(prefix="paramdb_bench_"))
@@ -372,7 +383,7 @@ def main() -> None:
                                 cache_ttl=timedelta(hours=1))
             try:
                 db_online.param_id_to_shortname(1)
-                bench_warm_lookups(db_online, n=n_warm)
+                warm_online = bench_warm_lookups(db_online, n=n_warm)
             except Exception as exc:
                 print(dim(f"  Skipped: {exc}"))
         else:
@@ -398,6 +409,29 @@ def main() -> None:
                 t_online_miss,
                 baseline_ms=t_offline_cold,
             )
+
+    # ── Warm-lookup comparison (offline vs online) ─────────────────────────
+    if args.online and warm_online is not None:
+        _header("Warm-lookup comparison  (offline vs online, per call)")
+        print(dim("  Both are O(1) dict lookups after load — differences are noise.\n"))
+        print(f"  {'Method':<{_W_LABEL}}{'Offline':<14}{'Online':<14}{'Δ'}")
+        print(f"  {'─' * (_W_LABEL + 35)}")
+        for label in warm_offline:
+            off_us = warm_offline[label] * 1000
+            on_us  = warm_online.get(label)
+            if on_us is None:
+                continue
+            on_us_val = on_us * 1000
+            delta = on_us_val - off_us
+            delta_str = f"{delta:+.2f} µs"
+            if abs(delta) < 0.5:
+                delta_col = dim(delta_str)
+            elif delta > 0:
+                delta_col = dim(delta_str)
+            else:
+                delta_col = green(delta_str)
+            print(f"  {label:<{_W_LABEL}}{off_us:<14.2f}{on_us_val:<14.2f}{delta_col}")
+
         print()
         print(dim("  Note: warm lookups are O(1) dict access and identical across modes"))
         print(dim("  after the initial load — the cold-load time is the only meaningful"))
