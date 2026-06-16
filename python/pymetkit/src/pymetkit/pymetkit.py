@@ -49,6 +49,11 @@ class MarsRequest:
         the request can be specified through kwargs, noting that
         reserved words in Python must be suffixed with "_" e.g. "class_"
         """
+        if lib is None:
+            raise ImportError(
+                "MetKit C library is not available. "
+                "MarsRequest requires the MetKit shared library to be installed and functional."
+            )
         crequest = ffi.new("metkit_marsrequest_t **")
         lib.metkit_marsrequest_new(crequest)
         self.__request = ffi.gc(crequest[0], lib.metkit_marsrequest_delete)
@@ -220,6 +225,11 @@ def parse_mars_request(
     -------
     list of Request
     """
+    if lib is None:
+        raise ImportError(
+            "MetKit C library is not available. "
+            "parse_mars_request() requires the MetKit shared library to be installed and functional."
+        )
     crequest_iter = ffi.new("metkit_requestiterator_t **")
 
     if isinstance(file_or_str, str):
@@ -285,7 +295,13 @@ class PatchedLib:
 
         # Initialise the library, and set it up for python-appropriate behaviour
 
-        self.metkit_initialise()
+        try:
+            self.metkit_initialise()
+        except AttributeError:
+            raise CFFIModuleLoadFailed(
+                f"MetKit shared library loaded from '{libName}' but required symbols are "
+                "missing. The library is stale or incompatible with this version of pymetkit."
+            )
 
         # Check the library version
 
@@ -382,6 +398,10 @@ class ParamDB:
         """
         Initialise the parameter database.
 
+        The underlying data is loaded **lazily** — no file I/O or network
+        request is made until the first lookup method is called.  This makes
+        instantiation cheap and safe to do at import time or inside hot paths.
+
         Parameters
         ----------
         mode : str
@@ -414,20 +434,29 @@ class ParamDB:
                 "Use mode='offline' to load from a YAML file."
             )
 
-        self._by_id: dict[int, dict] = {}
-        self._by_shortname: dict[str, dict] = {}
-        self._by_shortname_all: dict[str, list[dict]] = {}
-        self._by_longname: dict[str, dict] = {}
-
+        # Validate and resolve cache_ttl up-front so callers get a TypeError at
+        # construction time rather than at first lookup.
         if mode == "online":
             effective_ttl = self._DEFAULT_CACHE_TTL if cache_ttl is None else cache_ttl
             if not isinstance(effective_ttl, timedelta):
                 raise TypeError(
                     f"cache_ttl must be a datetime.timedelta, got {type(effective_ttl).__name__!r}"
                 )
-            self._load_online(cache_ttl=effective_ttl, cache_path=cache_path)
         else:
-            self._load_offline(yaml_path=yaml_path)
+            effective_ttl = None
+
+        # Store load parameters for deferred use.
+        self._mode = mode
+        self._effective_cache_ttl = effective_ttl
+        self._cache_path = cache_path
+        self._yaml_path = yaml_path
+
+        # Lookup indices — populated on first access via _ensure_loaded().
+        self._by_id: dict[int, dict] = {}
+        self._by_shortname: dict[str, dict] = {}
+        self._by_shortname_all: dict[str, list[dict]] = {}
+        self._by_longname: dict[str, dict] = {}
+        self._loaded: bool = False
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -585,6 +614,23 @@ class ParamDB:
             ln = str(longname)
             if ln not in self._by_longname:
                 self._by_longname[ln] = entry
+
+    def _ensure_loaded(self) -> None:
+        """Load parameter data on first access (lazy initialisation).
+
+        Subsequent calls are no-ops — once ``_loaded`` is ``True`` the method
+        returns immediately without any I/O.
+        """
+        if self._loaded:
+            return
+        if self._mode == "online":
+            self._load_online(
+                cache_ttl=self._effective_cache_ttl,
+                cache_path=self._cache_path,
+            )
+        else:
+            self._load_offline(yaml_path=self._yaml_path)
+        self._loaded = True
 
     def _load_online(
         self, cache_ttl: timedelta, cache_path: "Path | str | None"
@@ -767,11 +813,13 @@ class ParamDB:
         access:
             Optional access category filter (e.g. ``"dissemination"``).
         """
+        self._ensure_loaded()
         return self._resolve_shortname_with_context(
             shortname, table, origin, access
         )["longname"]
 
     def longname_to_shortname(self, longname: str) -> str:
+        self._ensure_loaded()
         if longname not in self._by_longname:
             raise KeyError(f"Long name {longname!r} not found in database")
         return self._by_longname[longname]["shortname"]
@@ -798,6 +846,7 @@ class ParamDB:
         access:
             Optional access category filter (e.g. ``"dissemination"``).
         """
+        self._ensure_loaded()
         return int(
             self._resolve_shortname_with_context(
                 shortname, table, origin, access
@@ -805,16 +854,19 @@ class ParamDB:
         )
 
     def param_id_to_shortname(self, param_id: int) -> str:
+        self._ensure_loaded()
         if param_id not in self._by_id:
             raise KeyError(f"Parameter id {param_id!r} not found in database")
         return self._by_id[param_id]["shortname"]
 
     def longname_to_param_id(self, longname: str) -> int:
+        self._ensure_loaded()
         if longname not in self._by_longname:
             raise KeyError(f"Long name {longname!r} not found in database")
         return int(self._by_longname[longname]["id"])
 
     def param_id_to_longname(self, param_id: int) -> str:
+        self._ensure_loaded()
         if param_id not in self._by_id:
             raise KeyError(f"Parameter id {param_id!r} not found in database")
         return self._by_id[param_id]["longname"]
@@ -832,6 +884,7 @@ class ParamDB:
         identifier : int or str
             A param ID (int), shortname, or longname.
         """
+        self._ensure_loaded()
         return self._resolve(identifier)
 
     def get_units(self, identifier: "int | str") -> str:
@@ -848,6 +901,7 @@ class ParamDB:
         str
             The units string, or ``"unknown"`` if not available.
         """
+        self._ensure_loaded()
         entry = self._resolve(identifier)
         return entry.get("units", "unknown") or "unknown"
 
@@ -882,6 +936,7 @@ class ParamDB:
         >>> [(e["id"], e["longname"]) for e in entries]
         [(130, 'Temperature'), (500014, 'Temperature')]
         """
+        self._ensure_loaded()
         if shortname not in self._by_shortname_all:
             raise KeyError(f"Short name {shortname!r} not found in database")
         return sorted(self._by_shortname_all[shortname], key=lambda e: e["id"])
@@ -899,6 +954,7 @@ class ParamDB:
         KeyError
             If *shortname* is not found in the database at all.
         """
+        self._ensure_loaded()
         if shortname not in self._by_shortname_all:
             raise KeyError(f"Short name {shortname!r} not found in database")
         return len(self._by_shortname_all[shortname]) > 1
@@ -907,4 +963,10 @@ class ParamDB:
 try:
     lib = PatchedLib()
 except CFFIModuleLoadFailed as e:
-    raise ImportError() from e
+    warnings.warn(
+        f"MetKit C library could not be loaded: {e}. "
+        "MarsRequest and parse() will not be available. ParamDB is still usable.",
+        ImportWarning,
+        stacklevel=2,
+    )
+    lib = None

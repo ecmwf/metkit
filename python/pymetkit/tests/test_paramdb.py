@@ -46,9 +46,13 @@ def test_constructor_mode_validation(mode, expectation):
 
 
 def test_offline_default():
-    """ParamDB() with no arguments loads in offline mode without error."""
+    """ParamDB() with no arguments loads data on first access."""
     db = ParamDB()
-    # Sanity-check that data was actually loaded
+    # Nothing loaded yet — indices empty until first lookup.
+    assert db._loaded is False
+    # First lookup triggers the load.
+    assert db.param_id_to_shortname(1) == "strf"
+    assert db._loaded is True
     assert len(db._by_id) > 0
     assert len(db._by_shortname) > 0
     assert len(db._by_longname) > 0
@@ -57,8 +61,9 @@ def test_offline_default():
 def test_online_requires_requests(monkeypatch):
     """Online mode raises ImportError when the requests package is absent."""
     monkeypatch.setattr(_mod, "_requests", None)
+    db = ParamDB(mode="online")
     with pytest.raises(ImportError, match="requests"):
-        ParamDB(mode="online")
+        db.param_id_to_shortname(1)
 
 
 # ---------------------------------------------------------------------------
@@ -326,6 +331,7 @@ def test_get_units_unknown_raises(db):
 def test_get_units_missing_returns_unknown():
     """When a parameter entry has no 'units' key, get_units returns 'unknown'."""
     db = ParamDB.__new__(ParamDB)
+    db._loaded = True  # bypass lazy load — indices are set manually below
     db._by_id = {9999: {"id": 9999, "shortname": "foo", "longname": "Foo"}}
     db._by_shortname = {"foo": db._by_id[9999]}
     db._by_longname = {"Foo": db._by_id[9999]}
@@ -335,6 +341,7 @@ def test_get_units_missing_returns_unknown():
 def test_get_units_empty_string_returns_unknown():
     """When a parameter's units value is an empty string, get_units returns 'unknown'."""
     db = ParamDB.__new__(ParamDB)
+    db._loaded = True  # bypass lazy load — indices are set manually below
     entry = {"id": 9998, "shortname": "bar", "longname": "Bar", "units": ""}
     db._by_id = {9998: entry}
     db._by_shortname = {"bar": entry}
@@ -382,7 +389,8 @@ def test_cache_ttl_must_be_timedelta(fake_requests, tmp_path):
 
 def test_online_writes_cache_file(fake_requests, tmp_path):
     """First online load writes a JSON cache file to the cache directory."""
-    ParamDB(mode="online", cache_path=tmp_path)
+    db = ParamDB(mode="online", cache_path=tmp_path)
+    db.param_id_to_shortname(1)  # trigger lazy load
     cache_file = tmp_path / ParamDB._CACHE_FILENAME
     assert cache_file.exists()
     payload = json.loads(cache_file.read_text())
@@ -393,10 +401,12 @@ def test_online_writes_cache_file(fake_requests, tmp_path):
 
 def test_online_uses_fresh_cache(fake_requests, tmp_path):
     """A second instantiation within the TTL window does not make an HTTP request."""
-    ParamDB(mode="online", cache_path=tmp_path)
+    db1 = ParamDB(mode="online", cache_path=tmp_path)
+    db1.param_id_to_shortname(1)  # trigger lazy load → writes cache
     assert fake_requests.get.call_count == 1
 
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db2 = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db2.param_id_to_shortname(1)  # should read from cache
     assert fake_requests.get.call_count == 1  # no new request
 
 
@@ -408,7 +418,8 @@ def test_online_fetches_when_cache_expired(fake_requests, tmp_path):
     cache_file = tmp_path / ParamDB._CACHE_FILENAME
     cache_file.write_text(json.dumps(payload))
 
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db.param_id_to_shortname(1)  # trigger lazy load
     assert fake_requests.get.call_count == 1  # stale cache → new request
 
 
@@ -419,17 +430,20 @@ def test_online_fetches_when_cache_not_yet_expired(fake_requests, tmp_path):
     cache_file = tmp_path / ParamDB._CACHE_FILENAME
     cache_file.write_text(json.dumps(payload))
 
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db.param_id_to_shortname(1)  # trigger lazy load
     assert fake_requests.get.call_count == 0  # fresh cache → no request
 
 
 def test_online_zero_ttl_bypasses_cache(fake_requests, tmp_path):
     """cache_ttl=timedelta(0) disables caching: always fetches and never writes a file."""
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    db1 = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    db1.param_id_to_shortname(1)  # trigger lazy load
     assert fake_requests.get.call_count == 1
     assert not (tmp_path / ParamDB._CACHE_FILENAME).exists()
 
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    db2 = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(0))
+    db2.param_id_to_shortname(1)  # trigger lazy load
     assert fake_requests.get.call_count == 2  # second call also fetches
 
 
@@ -438,7 +452,8 @@ def test_online_corrupt_cache_falls_back_to_fetch(fake_requests, tmp_path):
     cache_file = tmp_path / ParamDB._CACHE_FILENAME
     cache_file.write_text("this is not valid json {{{")
 
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db.param_id_to_shortname(1)  # trigger lazy load
     assert fake_requests.get.call_count == 1
 
 
@@ -449,7 +464,8 @@ def test_online_cache_overwrites_after_expiry(fake_requests, tmp_path):
     cache_file = tmp_path / ParamDB._CACHE_FILENAME
     cache_file.write_text(json.dumps(payload))
 
-    ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    db.param_id_to_shortname(1)  # trigger lazy load
 
     updated = json.loads(cache_file.read_text())
     updated_time = datetime.fromisoformat(updated["fetched_at"])
@@ -460,14 +476,16 @@ def test_online_cache_overwrites_after_expiry(fake_requests, tmp_path):
 
 def test_online_cache_data_is_usable(fake_requests, tmp_path):
     """Data loaded from cache round-trips correctly through _normalise and _index."""
-    # Populate the cache
-    ParamDB(mode="online", cache_path=tmp_path)
+    # Populate the cache via first instance's lazy load.
+    db1 = ParamDB(mode="online", cache_path=tmp_path)
+    db1.param_id_to_shortname(1)  # trigger lazy load → writes cache
+    assert fake_requests.get.call_count == 1
 
-    # Load from cache (no network call)
-    db = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
-    assert fake_requests.get.call_count == 1  # only the first call used the network
-    assert db.param_id_to_shortname(1) == "strf"
-    assert db.param_id_to_shortname(4) == "eqpt"
+    # Second instance should read from cache — no extra network call.
+    db2 = ParamDB(mode="online", cache_path=tmp_path, cache_ttl=timedelta(hours=1))
+    assert db2.param_id_to_shortname(1) == "strf"
+    assert db2.param_id_to_shortname(4) == "eqpt"
+    assert fake_requests.get.call_count == 1  # still only the first call used the network
 
 
 def test_online_no_platformdirs_no_cache_dir(fake_requests, tmp_path, monkeypatch):
@@ -475,8 +493,8 @@ def test_online_no_platformdirs_no_cache_dir(fake_requests, tmp_path, monkeypatc
     silently skipped and the data is still loaded correctly."""
     monkeypatch.setattr(_mod, "_platformdirs", None)
     db = ParamDB(mode="online")  # no cache_path, no platformdirs
+    assert db.param_id_to_shortname(1) == "strf"  # trigger lazy load
     assert fake_requests.get.call_count == 1
-    assert db.param_id_to_shortname(1) == "strf"
 
 
 def test_online_default_ttl_is_one_hour():
@@ -594,10 +612,11 @@ def test_yaml_path_normalises_key_aliases(custom_yaml_aliases):
 
 
 def test_yaml_path_missing_file_raises(tmp_path):
-    """A yaml_path that does not exist raises FileNotFoundError."""
+    """A yaml_path that does not exist raises FileNotFoundError on first lookup."""
     missing = tmp_path / "does_not_exist.yaml"
+    db = ParamDB(yaml_path=missing)
     with pytest.raises(FileNotFoundError):
-        ParamDB(yaml_path=missing)
+        db.param_id_to_shortname(1)
 
 
 def test_yaml_path_with_online_mode_raises(custom_yaml):
@@ -779,6 +798,63 @@ def test_first_write_wins_for_shortname(db):
         assert entry["id"] == min_id, (
             f"_by_shortname[{sn!r}] has id={entry['id']} but min is {min_id}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Lazy loading
+# ---------------------------------------------------------------------------
+
+
+def test_lazy_indices_empty_before_first_lookup():
+    """Indices are empty immediately after construction — no I/O has happened."""
+    db = ParamDB()
+    assert db._loaded is False
+    assert db._by_id == {}
+    assert db._by_shortname == {}
+    assert db._by_shortname_all == {}
+    assert db._by_longname == {}
+
+
+def test_lazy_loaded_after_first_lookup():
+    """First lookup populates the indices and sets _loaded=True."""
+    db = ParamDB()
+    assert not db._loaded
+    _ = db.param_id_to_shortname(130)
+    assert db._loaded
+    assert len(db._by_id) > 0
+
+
+def test_lazy_loaded_only_once():
+    """Repeated lookups do not reload the data."""
+    db = ParamDB()
+    _ = db.param_id_to_shortname(130)
+    # Poison the index with a sentinel — a reload would wipe it.
+    db._by_id[-1] = {"id": -1, "shortname": "_sentinel_", "longname": "Sentinel"}
+    _ = db.param_id_to_shortname(130)
+    assert -1 in db._by_id, "Sentinel was removed — data was reloaded unexpectedly"
+
+
+@pytest.mark.parametrize(
+    "method, args",
+    [
+        ("param_id_to_shortname", (130,)),
+        ("param_id_to_longname", (130,)),
+        ("shortname_to_param_id", ("t",)),
+        ("shortname_to_longname", ("t",)),
+        ("longname_to_param_id", ("Temperature",)),
+        ("longname_to_shortname", ("Temperature",)),
+        ("get_metadata", (130,)),
+        ("get_units", (130,)),
+        ("get_all_by_shortname", ("t",)),
+        ("shortname_has_collisions", ("t",)),
+    ],
+)
+def test_each_public_method_triggers_load(method, args):
+    """Every public lookup method triggers lazy loading on first call."""
+    db = ParamDB()
+    assert not db._loaded
+    getattr(db, method)(*args)
+    assert db._loaded
 
 
 # ---------------------------------------------------------------------------
