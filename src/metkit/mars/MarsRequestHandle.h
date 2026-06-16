@@ -15,21 +15,23 @@
 #define MarsRequestHandle_H
 
 #include <memory>
+#include <string>
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/io/DataHandle.h"
+#include "eckit/types/Types.h"
 
 #include "metkit/mars/BaseProtocol.h"
 #include "metkit/mars/MarsRequest.h"
 
-namespace metkit {
-namespace mars {
+
+namespace metkit::mars {
 
 class MarsRequestHandle : public eckit::DataHandle {
 public:
 
     class RetryTransfer : public eckit::Exception {
-        virtual bool retryOnClient() const { return true; }
+        bool retryOnClient() const override { return true; }
 
     public:
 
@@ -47,9 +49,11 @@ public:
     ~MarsRequestHandle();
 
     // -- Overridden methods (from Streamable)
-    virtual std::string className() const override { return "MarsRequestHandle"; }
-    virtual const eckit::ReanimatorBase& reanimator() const override;
+    std::string className() const override { return "MarsRequestHandle"; }
+    const eckit::ReanimatorBase& reanimator() const override;
     static const eckit::ClassSpec& classSpec();
+
+    const eckit::StringDict& stats() const;
 
 private:  // members
 
@@ -73,7 +77,7 @@ private:  // members
     bool canSeek() const override;
 };
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
+
 
 #endif
