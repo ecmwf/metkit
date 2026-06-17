@@ -396,7 +396,12 @@ def test_online_writes_cache_file(fake_requests, tmp_path):
     payload = json.loads(cache_file.read_text())
     assert "fetched_at" in payload
     assert "params" in payload
-    assert payload["params"] == _FAKE_PARAMS
+    # Cache stores normalised entries (with defaults for optional fields)
+    for cached, original in zip(payload["params"], _FAKE_PARAMS):
+        assert cached["id"] == original["id"]
+        assert cached["shortname"] == original["shortname"]
+        assert cached["longname"] == original["longname"]
+        assert cached["units"] == original["units"]
 
 
 def test_online_uses_fresh_cache(fake_requests, tmp_path):

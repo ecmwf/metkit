@@ -25,6 +25,7 @@ ORIGIN_URL = "https://codes.ecmwf.int/parameter-database/api/v1/origin/"
 #   -> python/ -> <repo_root>
 _REPO_ROOT = Path(__file__).parents[4]
 PARAM_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.yaml"
+PARAM_JSON_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.json"
 UNIT_OUTPUT = _REPO_ROOT / "share" / "metkit" / "unit_metadata.yaml"
 SCHEMA_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_entry_schema.json"
 
@@ -225,6 +226,19 @@ def write_param_yaml(params: list[dict], output_path: Path = PARAM_OUTPUT) -> No
     print(f"Written {len(params)} parameters to {output_path}")
 
 
+def write_param_json(
+    params: list[dict], output_path: Path = PARAM_JSON_OUTPUT
+) -> None:
+    """Write the parameter list to a JSON file (fast-load format).
+
+    This is functionally identical to the YAML but loads ~10-50× faster
+    via ``json.load()`` compared to ``yaml.safe_load()``.
+    """
+    with output_path.open("w") as fh:
+        json.dump(params, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"Written {len(params)} parameters to {output_path}")
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -237,6 +251,7 @@ if __name__ == "__main__":
 
     parameters = fetch_parameters(unit_map=unit_map, param_origin_map=param_origin_map)
     write_param_yaml(parameters)
+    write_param_json(parameters)
 
     # Write the JSON schema for ParameterEntry so downstream tools can validate YAML.
     from .models import ParameterEntry  # noqa: E402 (local import to avoid circular at module level)

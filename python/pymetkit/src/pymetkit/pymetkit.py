@@ -642,12 +642,13 @@ class ParamDB:
                 "Install it with: pip install requests"
             )
 
-        # Try the cache first (unless TTL is zero)
+        # Try the cache first (unless TTL is zero).
+        # Cache stores already-normalised entries — skip Pydantic on hit.
         if cache_ttl > timedelta(0):
             cached = self._read_cache(cache_path, cache_ttl)
             if cached is not None:
-                for raw in cached:
-                    self._index(self._normalise(raw))
+                for entry in cached:
+                    self._index(entry)
                 return
 
         # Fetch from the API
@@ -655,24 +656,39 @@ class ParamDB:
         response.raise_for_status()
         params = response.json()
 
-        # Persist to cache (best-effort; errors are silently ignored)
-        if cache_ttl > timedelta(0):
-            self._write_cache(params, cache_path)
+        # Normalise once (coerces API field names to canonical keys)
+        normalised = [self._normalise(raw) for raw in params]
 
-        for raw in params:
-            self._index(self._normalise(raw))
+        # Persist normalised entries to cache (best-effort)
+        if cache_ttl > timedelta(0):
+            self._write_cache(normalised, cache_path)
+
+        for entry in normalised:
+            self._index(entry)
 
     def _load_offline(self, yaml_path: "Path | str | None" = None) -> None:
         if yaml_path is not None:
             resolved = Path(yaml_path)
             if not resolved.exists():
                 raise FileNotFoundError(f"Custom YAML file not found: {resolved}")
+            # Custom YAML: run Pydantic validation to normalise aliases/types
+            with resolved.open("r") as fh:
+                params = yaml.safe_load(fh)
+            for raw in params:
+                self._index(self._normalise(raw))
         else:
-            resolved = self._find_offline_yaml()
-        with resolved.open("r") as fh:
-            params = yaml.safe_load(fh)
-        for raw in params:
-            self._index(self._normalise(raw))
+            # Bundled data: prefer JSON (fast) over YAML (slow).
+            # Both contain identical data — JSON loads ~10-50× faster.
+            json_path = self._find_offline_json()
+            if json_path is not None:
+                with json_path.open("r") as fh:
+                    params = json.load(fh)
+            else:
+                resolved = self._find_offline_yaml()
+                with resolved.open("r") as fh:
+                    params = yaml.safe_load(fh)
+            for raw in params:
+                self._index(raw)
 
     @staticmethod
     def _find_offline_yaml() -> Path:
@@ -708,6 +724,35 @@ class ParamDB:
             "parameter_metadata.yaml not found. Searched:\n"
             + "\n".join(f"  {p}" for p in candidates)
         )
+
+    @staticmethod
+    def _find_offline_json() -> "Path | None":
+        """Locate ``parameter_metadata.json`` (fast-load format).
+
+        Returns ``None`` if the JSON file is not found — caller should fall
+        back to the YAML file.  Searches the same locations as
+        :meth:`_find_offline_yaml`.
+        """
+        # Candidate 1: importlib.resources
+        try:
+            ref = importlib.resources.files("pymetkit").joinpath(
+                "parameter_metadata.json"
+            )
+            with importlib.resources.as_file(ref) as p:
+                if p.exists():
+                    return p
+        except (FileNotFoundError, TypeError, AttributeError):
+            pass
+
+        # Candidates 2 & 3: filesystem heuristics
+        candidates = [
+            Path(__file__).parent / "parameter_metadata.json",
+            Path(__file__).parents[4] / "share" / "metkit" / "parameter_metadata.json",
+        ]
+        for path in candidates:
+            if path.exists():
+                return path
+        return None
 
     # ------------------------------------------------------------------
     # Cache helpers (online mode only)
