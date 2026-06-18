@@ -1137,13 +1137,14 @@ INPUT = \@MARS2GRIB_SOURCE_DIRECTORY@/utils/configConverter.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/timeSpanInSeconds.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/systemNumber.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/resolution.h \
-@MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/constituentType.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/experiment.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/class.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/subSetTrunc.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/timeIncrementInSeconds.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/laplacianOperator.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/channel.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/chemId.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/firstWavelength.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/level.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/instrumentType.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/derivedForecast.h \
