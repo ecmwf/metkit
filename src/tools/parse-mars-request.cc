@@ -21,6 +21,8 @@
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
 
+#include "metkit/metkit_config.h"
+
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsLanguage.h"
@@ -28,15 +30,17 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/tool/MetkitTool.h"
 
+using namespace eckit;
+using namespace eckit::option;
+using namespace metkit;
+using namespace metkit::mars;
+
+#ifdef metkit_HAVE_MARS2MARS
 #include "metkit/mars2mars/api/Mars2Mars.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictaccess_mars_request.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 
-using namespace metkit;
-using namespace metkit::mars;
 using namespace metkit::mars2mars;
-using namespace eckit;
-using namespace eckit::option;
 
 namespace {
 class ConvertedRequests : public FlattenCallback {
@@ -52,6 +56,8 @@ public:
 
 }  // namespace
 
+#endif
+
 //----------------------------------------------------------------------------------------------------------------------
 
 class ParseRequest : public MetkitTool {
@@ -60,8 +66,10 @@ public:
     ParseRequest(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
         options_.push_back(new SimpleOption<bool>("compact", "Compact output, default = false"));
+#ifdef metkit_HAVE_MARS2MARS
         options_.push_back(
             new SimpleOption<bool>("convert-to-grib2", "Convert request to the full Grib2 metadata, default = false"));
+#endif
     }
 
     virtual ~ParseRequest() {}
@@ -110,7 +118,9 @@ void ParseRequest::usage(const std::string& tool) const {
                 << std::endl
                 << tool << " --json mars1.req mars2.req" << std::endl
                 << tool << " --porcelain folderOfRequests" << std::endl
-                << tool << " --grib2 mars1.req mars2.req" << std::endl
+#ifdef metkit_HAVE_MARS2MARS
+                << tool << " --convert-to-grib2 mars1.req mars2.req" << std::endl
+#endif
                 << std::endl;
 }
 
@@ -161,17 +171,16 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "----------> Expanding ... " << std::endl;
     }
 
-
     std::vector<MarsRequest> v = expand.expand(p);
 
+#ifdef metkit_HAVE_MARS2MARS
     if (grib2_) {
         std::vector<MarsRequest> out;
 
         for (auto& r : v) {
-            MarsLanguage lang{r.verb()};
             std::vector<MarsRequest> converted;
             ConvertedRequests cb(converted);
-            lang.flatten(r, cb);
+            expand.flatten(r, cb);
 
             if (converted.size() > 1) {
                 std::map<std::set<std::string>, std::vector<MarsRequest>> coherentRequests;
@@ -218,6 +227,8 @@ void ParseRequest::process(const eckit::PathName& path) {
         }
         std::swap(v, out);
     }
+#endif  // HAVE_MARS2MARS
+
 
     for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
         if (json_) {

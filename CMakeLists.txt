@@ -71,7 +71,7 @@ ecbuild_add_option( FEATURE ODB
 
 ecbuild_add_option( FEATURE MARS2MARS
                     DEFAULT ON
-                    DESCRIPTION "Build the MARS2MARS converter" )
+                    DESCRIPTION "Build the convert-to-grib2 MarsRequest converter" )
 
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
