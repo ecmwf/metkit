@@ -14,7 +14,7 @@ Each maps to a `-DENABLE_<NAME>=ON/OFF` flag in upstream
 
 ### Build strategy (mutually exclusive)
 
-- `vendored` (default) - Clone and build metkit (and its eckit / ecCodes
+- `vendored` (default) - Clone and build metkit (and its eckit and ecCodes
   dependencies) from source.
 - `system` - Link against a system-installed metkit, located via CMake
   `find_package(metkit)`. Honours `METKIT_DIR` and `CMAKE_PREFIX_PATH`.
