@@ -71,7 +71,7 @@ ecbuild_add_option( FEATURE ODB
 
 ecbuild_add_option( FEATURE MARS2MARS
                     DEFAULT ON
-                    DESCRIPTION "Build the MARS2MARS converter" )
+                    DESCRIPTION "Build the convert-to-grib2 MarsRequest converter" )
 
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
@@ -85,8 +85,8 @@ ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
                     CONDITION HAVE_MARS2GRIB
                     DESCRIPTION "Build mars2grib python library"
                     REQUIRED_PACKAGES
-                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development REQUIRED"
-                        "NAME pybind11 VERSION 3.0.1 REQUIRED" )
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
+                        "NAME pybind11 VERSION 3.0.1" )
 
 # METKIT config files support
 

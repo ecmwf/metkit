@@ -650,7 +650,12 @@ _field: &_field
     category: data
     aliases: [levtyp]
     defaults:
-      - vals: [pl]
+      - context:
+          stream: ['!', dacw, dcwv, ewda, ewhc, ewla, ewmm, ewmo, lwwv, mawm, mawv, mfaw, mfhw, mfwm, mhwm, mnfw, mswm, scwv, swmm, waef, wamd, wamf, wamo, wams, wasf, wave, weef, weeh, wees, wehs, weov, wmfm, wvhc]
+        vals: [pl]
+      - context:
+          stream: [dacw, dcwv, ewda, ewhc, ewla, ewmm, ewmo, lwwv, mawm, mawv, mfaw, mfhw, mfwm, mhwm, mnfw, mswm, scwv, swmm, waef, wamd, wamf, wamo, wams, wasf, wave, weef, weeh, wees, wehs, weov, wmfm, wvhc]
+        vals: [sfc]
     flatten: false
     type: [enum, integer]
     values:
