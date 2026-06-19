@@ -10,30 +10,23 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractStep(const std::string& keyword,
-                 const metkit::codes::CodesHandle& grib,
-                 MarsDict& mars,
-                 MiscDict& misc) {
+void extractStep(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
         if (!grib.has("stepType")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `stepType` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `stepType` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         if (!grib.has("endStep")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `endStep` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `endStep` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         const std::string stepType = grib.getString("stepType");
-        const long endStep = grib.getLong("endStep");
+        const long endStep         = grib.getLong("endStep");
 
         set_or_throw<long>(mars, keyword, endStep);
 #if 0
@@ -83,10 +76,7 @@ void extractStep(const std::string& keyword,
         }
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

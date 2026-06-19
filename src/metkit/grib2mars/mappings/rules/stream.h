@@ -10,10 +10,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractStream(const std::string& keyword,
-                   const metkit::codes::CodesHandle& grib,
-                   MarsDict& mars,
-                   MiscDict& misc) {
+void extractStream(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
@@ -21,9 +18,7 @@ void extractStream(const std::string& keyword,
         (void)misc;
 
         if (!grib.has(keyword)) {
-            throw Grib2MarsGenericException(
-                "GRIB message is missing required key `" + keyword + "`",
-                Here());
+            throw Grib2MarsGenericException("GRIB message is missing required key `" + keyword + "`", Here());
         }
 
         const std::string value = grib.getString(keyword);
@@ -31,10 +26,7 @@ void extractStream(const std::string& keyword,
         set_or_throw<std::string>(mars, keyword, value);
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

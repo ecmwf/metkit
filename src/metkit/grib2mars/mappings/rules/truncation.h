@@ -10,9 +10,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractTruncation(const std::string& keyword,
-                       const metkit::codes::CodesHandle& grib,
-                       MarsDict& mars,
+void extractTruncation(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
                        MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
@@ -20,9 +18,7 @@ void extractTruncation(const std::string& keyword,
     try {
         if (!grib.has("gridType")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `gridType` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `gridType` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         const std::string gridType = grib.getString("gridType");
@@ -36,10 +32,8 @@ void extractTruncation(const std::string& keyword,
         }
 
         if (!grib.has("J")) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `J` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+            throw Grib2MarsGenericException("Missing GRIB key `J` required to extract MARS keyword `" + keyword + "`",
+                                            Here());
         }
 
         const long truncation = grib.getLong("J");
@@ -53,10 +47,7 @@ void extractTruncation(const std::string& keyword,
         }
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

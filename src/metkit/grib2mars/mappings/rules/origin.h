@@ -10,10 +10,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractOrigin(const std::string& keyword,
-                   const metkit::codes::CodesHandle& grib,
-                   MarsDict& mars,
-                   MiscDict& misc) {
+void extractOrigin(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
@@ -34,14 +31,12 @@ void extractOrigin(const std::string& keyword,
 
         throw Grib2MarsGenericException(
             "Missing GRIB keys `origin` and `centre` required to extract "
-            "MARS keyword `" + keyword + "`",
+            "MARS keyword `" +
+                keyword + "`",
             Here());
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

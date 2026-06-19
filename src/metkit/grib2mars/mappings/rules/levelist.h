@@ -11,9 +11,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractLevelist(const std::string& keyword,
-                     const metkit::codes::CodesHandle& grib,
-                     MarsDict& mars,
+void extractLevelist(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
                      MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
@@ -23,16 +21,12 @@ void extractLevelist(const std::string& keyword,
 
         if (!grib.has("levtype")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `levtype` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `levtype` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         if (!grib.has("level")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `level` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `level` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         const std::string levtype = grib.getString("levtype");
@@ -52,22 +46,19 @@ void extractLevelist(const std::string& keyword,
 
             if (pressureUnits == "hPa") {
                 const long level = grib.getLong("level");
-                levelist = level * 100;
+                levelist         = level * 100;
             }
         }
 
         if (!levelist) {
             const long level = grib.getLong("level");
-            levelist = level;
+            levelist         = level;
         }
 
         set_or_throw<long>(mars, keyword, *levelist);
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

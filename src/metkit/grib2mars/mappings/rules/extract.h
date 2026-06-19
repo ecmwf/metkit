@@ -10,38 +10,38 @@
 #include "metkit/grib2mars/utils/grib2marsExceptions.h"
 
 // One extractor header per MARS keyword
-#include "metkit/grib2mars/mappings/rules/class.h"
-#include "metkit/grib2mars/mappings/rules/stream.h"
-#include "metkit/grib2mars/mappings/rules/expver.h"
-#include "metkit/grib2mars/mappings/rules/type.h"
-#include "metkit/grib2mars/mappings/rules/param.h"
-#include "metkit/grib2mars/mappings/rules/levtype.h"
-#include "metkit/grib2mars/mappings/rules/levelist.h"
-#include "metkit/grib2mars/mappings/rules/frequency.h"
-#include "metkit/grib2mars/mappings/rules/direction.h"
-#include "metkit/grib2mars/mappings/rules/ident.h"
-#include "metkit/grib2mars/mappings/rules/channel.h"
-#include "metkit/grib2mars/mappings/rules/instrument.h"
-#include "metkit/grib2mars/mappings/rules/anoffset.h"
-#include "metkit/grib2mars/mappings/rules/number.h"
-#include "metkit/grib2mars/mappings/rules/grid.h"
-#include "metkit/grib2mars/mappings/rules/truncation.h"
-#include "metkit/grib2mars/mappings/rules/packing.h"
-#include "metkit/grib2mars/mappings/rules/date.h"
-#include "metkit/grib2mars/mappings/rules/hdate.h"
-#include "metkit/grib2mars/mappings/rules/step.h"
-#include "metkit/grib2mars/mappings/rules/time.h"
-#include "metkit/grib2mars/mappings/rules/system.h"
-#include "metkit/grib2mars/mappings/rules/method.h"
-#include "metkit/grib2mars/mappings/rules/origin.h"
-#include "metkit/grib2mars/mappings/rules/timespan.h"
-#include "metkit/grib2mars/mappings/rules/stattype.h"
-#include "metkit/grib2mars/mappings/rules/domain.h"
 #include "metkit/grib2mars/mappings/rules/activity.h"
+#include "metkit/grib2mars/mappings/rules/anoffset.h"
+#include "metkit/grib2mars/mappings/rules/channel.h"
+#include "metkit/grib2mars/mappings/rules/class.h"
 #include "metkit/grib2mars/mappings/rules/dataset.h"
+#include "metkit/grib2mars/mappings/rules/date.h"
+#include "metkit/grib2mars/mappings/rules/direction.h"
+#include "metkit/grib2mars/mappings/rules/domain.h"
 #include "metkit/grib2mars/mappings/rules/experiment.h"
-#include "metkit/grib2mars/mappings/rules/resolution.h"
+#include "metkit/grib2mars/mappings/rules/expver.h"
+#include "metkit/grib2mars/mappings/rules/frequency.h"
+#include "metkit/grib2mars/mappings/rules/grid.h"
+#include "metkit/grib2mars/mappings/rules/hdate.h"
+#include "metkit/grib2mars/mappings/rules/ident.h"
+#include "metkit/grib2mars/mappings/rules/instrument.h"
+#include "metkit/grib2mars/mappings/rules/levelist.h"
+#include "metkit/grib2mars/mappings/rules/levtype.h"
+#include "metkit/grib2mars/mappings/rules/method.h"
 #include "metkit/grib2mars/mappings/rules/model.h"
+#include "metkit/grib2mars/mappings/rules/number.h"
+#include "metkit/grib2mars/mappings/rules/origin.h"
+#include "metkit/grib2mars/mappings/rules/packing.h"
+#include "metkit/grib2mars/mappings/rules/param.h"
+#include "metkit/grib2mars/mappings/rules/resolution.h"
+#include "metkit/grib2mars/mappings/rules/stattype.h"
+#include "metkit/grib2mars/mappings/rules/step.h"
+#include "metkit/grib2mars/mappings/rules/stream.h"
+#include "metkit/grib2mars/mappings/rules/system.h"
+#include "metkit/grib2mars/mappings/rules/time.h"
+#include "metkit/grib2mars/mappings/rules/timespan.h"
+#include "metkit/grib2mars/mappings/rules/truncation.h"
+#include "metkit/grib2mars/mappings/rules/type.h"
 #include "metkit/grib2mars/mappings/rules/wavelength.h"
 
 namespace metkit::grib2mars::rules::impl {
@@ -49,11 +49,8 @@ namespace metkit::grib2mars::rules::impl {
 namespace detail {
 
 template <class MarsDict, class MiscDict>
-using MarsExtractor =
-    void (*)(const std::string& keyword,
-             const metkit::codes::CodesHandle& grib,
-             MarsDict& mars,
-             MiscDict& misc);
+using MarsExtractor = void (*)(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
+                               MiscDict& misc);
 
 template <class MarsDict, class MiscDict>
 const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& extractorRegistry() {
@@ -104,35 +101,27 @@ MarsExtractor<MarsDict, MiscDict> resolveExtractor(const std::string& keyword) {
         const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& registry =
             extractorRegistry<MarsDict, MiscDict>();
 
-        const typename std::unordered_map<
-            std::string,
-            MarsExtractor<MarsDict, MiscDict>>::const_iterator it =
-                registry.find(keyword);
+        const typename std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>::const_iterator it =
+            registry.find(keyword);
 
         if (it == registry.end()) {
-            throw Grib2MarsGenericException(
-                "No grib2mars extractor registered for MARS keyword `" + keyword + "`",
-                Here());
+            throw Grib2MarsGenericException("No grib2mars extractor registered for MARS keyword `" + keyword + "`",
+                                            Here());
         }
 
         const MarsExtractor<MarsDict, MiscDict> extractor = it->second;
         return extractor;
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to resolve grib2mars extractor for MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException(
+            "Failed to resolve grib2mars extractor for MARS keyword `" + keyword + "`", Here()));
     }
 }
 
 }  // namespace detail
 
 template <class MarsDict, class MiscDict>
-void extract(const std::string& keyword,
-             const metkit::codes::CodesHandle& grib,
-             MarsDict& mars,
-             MiscDict& misc) {
+void extract(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
@@ -143,9 +132,7 @@ void extract(const std::string& keyword,
     }
     catch (...) {
         std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "` from GRIB message",
-                Here()));
+            Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "` from GRIB message", Here()));
     }
 }
 

@@ -10,10 +10,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractGrid(const std::string& keyword,
-                 const metkit::codes::CodesHandle& grib,
-                 MarsDict& mars,
-                 MiscDict& misc) {
+void extractGrid(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
@@ -22,9 +19,7 @@ void extractGrid(const std::string& keyword,
 
         if (!grib.has("gridType")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `gridType` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `gridType` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         const std::string gridType = grib.getString("gridType");
@@ -54,8 +49,7 @@ void extractGrid(const std::string& keyword,
             const double dx = grib.getDouble("iDirectionIncrementInDegrees");
             const double dy = grib.getDouble("jDirectionIncrementInDegrees");
 
-            const std::string grid =
-                std::to_string(dx) + "/" + std::to_string(dy);
+            const std::string grid = std::to_string(dx) + "/" + std::to_string(dy);
 
             set_or_throw<std::string>(mars, keyword, grid);
 
@@ -63,10 +57,9 @@ void extractGrid(const std::string& keyword,
         }
 
         if (!grib.has("gridName")) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `gridName` required to extract MARS keyword `" +
-                    keyword + "` for gridType `" + gridType + "`",
-                Here());
+            throw Grib2MarsGenericException("Missing GRIB key `gridName` required to extract MARS keyword `" + keyword +
+                                                "` for gridType `" + gridType + "`",
+                                            Here());
         }
 
         const std::string gridName = grib.getString("gridName");
@@ -74,10 +67,7 @@ void extractGrid(const std::string& keyword,
         set_or_throw<std::string>(mars, keyword, gridName);
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

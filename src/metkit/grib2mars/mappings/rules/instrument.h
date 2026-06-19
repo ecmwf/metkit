@@ -10,9 +10,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractInstrument(const std::string& keyword,
-                       const metkit::codes::CodesHandle& grib,
-                       MarsDict& mars,
+void extractInstrument(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
                        MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
@@ -20,9 +18,7 @@ void extractInstrument(const std::string& keyword,
     try {
         if (!grib.has(keyword)) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `" + keyword +
-                    "` required to extract MARS keyword `" + keyword + "`",
-                Here());
+                "Missing GRIB key `" + keyword + "` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         const std::string value = grib.getString(keyword);
@@ -35,10 +31,7 @@ void extractInstrument(const std::string& keyword,
         }
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 

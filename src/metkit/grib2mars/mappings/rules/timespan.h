@@ -10,9 +10,7 @@
 namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
-void extractTimespan(const std::string& keyword,
-                     const metkit::codes::CodesHandle& grib,
-                     MarsDict& mars,
+void extractTimespan(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
                      MiscDict& misc) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
@@ -22,9 +20,7 @@ void extractTimespan(const std::string& keyword,
 
         if (!grib.has("stepType")) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `stepType` required to extract MARS keyword `" +
-                    keyword + "`",
-                Here());
+                "Missing GRIB key `stepType` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
         const std::string stepType = grib.getString("stepType");
@@ -35,17 +31,15 @@ void extractTimespan(const std::string& keyword,
         }
 
         if (!grib.has("startStep")) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `startStep` required to extract MARS keyword `" +
-                    keyword + "` for statistical stepType `" + stepType + "`",
-                Here());
+            throw Grib2MarsGenericException("Missing GRIB key `startStep` required to extract MARS keyword `" +
+                                                keyword + "` for statistical stepType `" + stepType + "`",
+                                            Here());
         }
 
         if (!grib.has("endStep")) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `endStep` required to extract MARS keyword `" +
-                    keyword + "` for statistical stepType `" + stepType + "`",
-                Here());
+            throw Grib2MarsGenericException("Missing GRIB key `endStep` required to extract MARS keyword `" + keyword +
+                                                "` for statistical stepType `" + stepType + "`",
+                                            Here());
         }
 
         const long startStep = grib.getLong("startStep");
@@ -55,11 +49,8 @@ void extractTimespan(const std::string& keyword,
 
         if (timespan <= 0) {
             throw Grib2MarsGenericException(
-                "Invalid statistical window while extracting MARS keyword `" +
-                    keyword +
-                    "`: stepType=`" + stepType +
-                    "`, startStep=" + std::to_string(startStep) +
-                    ", endStep=" + std::to_string(endStep) +
+                "Invalid statistical window while extracting MARS keyword `" + keyword + "`: stepType=`" + stepType +
+                    "`, startStep=" + std::to_string(startStep) + ", endStep=" + std::to_string(endStep) +
                     ", timespan=" + std::to_string(timespan),
                 Here());
         }
@@ -67,10 +58,7 @@ void extractTimespan(const std::string& keyword,
         set_or_throw<long>(mars, keyword, timespan);
     }
     catch (...) {
-        std::throw_with_nested(
-            Grib2MarsGenericException(
-                "Failed to extract MARS keyword `" + keyword + "`",
-                Here()));
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
     }
 }
 
