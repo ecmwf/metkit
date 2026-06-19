@@ -149,10 +149,6 @@ void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
         auto mars = mappedMarsMisc.mars;
         auto misc = mergeLocalConfigs(mappedMarsMisc.misc, originalMarsMisc.misc);
 
-        // Some hacks to fix the mars dictionary
-        // TODO: Move to grib2mars
-        mars.set("origin", "ecmf");
-
         // Encode into GRIB2 using mars2grib encoder
         const auto newSample = mars2grib.encode(values, mars, misc);
 

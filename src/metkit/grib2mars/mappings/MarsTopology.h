@@ -240,6 +240,22 @@ private:
         }
     }
 
+    static void append_required_keywords(std::vector<std::string>& keywords) {
+        using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
+
+        try {
+            append_unique(keywords, "class");
+            append_unique(keywords, "stream");
+            append_unique(keywords, "type");
+            append_unique(keywords, "origin");
+        }
+        catch (...) {
+            std::throw_with_nested(
+                Grib2MarsGenericException(
+                    "Failed to append required MARS keywords while building grib2mars MarsTopology", Here()));
+        }
+    }
+
     static std::vector<std::string> make_MarsKeywords(
         const metkit::codes::CodesHandle& grib) {
         using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
@@ -252,6 +268,7 @@ private:
             // MARS keywords required by mars2grib but not always injected by ecCodes.
             append_packing_keyword(grib, keywords);
             append_geometry_keyword(grib, keywords);
+            append_required_keywords(keywords);
 
             return keywords;
         }
