@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -25,7 +26,6 @@
 
 #include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpansion.h"
-#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/tool/MetkitTool.h"
@@ -177,7 +177,7 @@ void ParseRequest::process(const eckit::PathName& path) {
     if (grib2_) {
         std::vector<MarsRequest> out;
 
-        for (auto& r : v) {
+        for (const auto& r : v) {
             std::vector<MarsRequest> converted;
             ConvertedRequests cb(converted);
             expand.flatten(r, cb);
