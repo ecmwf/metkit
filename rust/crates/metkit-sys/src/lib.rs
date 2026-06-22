@@ -17,7 +17,7 @@ include!(concat!(env!("OUT_DIR"), "/metkit_exceptions.rs"));
 #[cxx::bridge(namespace = "metkit_bridge")]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("metkit_bridge.h");
+        include!("MetkitBridge.h");
 
         // ==================== MarsRequest ====================
 
@@ -66,18 +66,29 @@ pub mod ffi {
         type MessageWrapper = eckit_sys::MessageWrapper;
 
         fn encode(self: &MarsRequestWrapper, stream: Pin<&mut StreamWrapper>) -> Result<()>;
-        fn request_decode(stream: Pin<&mut StreamWrapper>)
-        -> Result<UniquePtr<MarsRequestWrapper>>;
 
         /// Create a `MarsRequestHandle` — DataHandle for Hermes protocol.
-        fn mars_request_handle(
-            request: &MarsRequestWrapper,
+        fn make_handle(
+            self: &MarsRequestWrapper,
             config: &ConfigWrapper,
         ) -> Result<UniquePtr<DataHandleWrapper>>;
 
         // Output
         fn to_json(self: &MarsRequestWrapper) -> Result<String>;
         fn dump(self: &MarsRequestWrapper) -> String;
+
+        // Factories
+        #[Self = "MarsRequestWrapper"]
+        #[must_use]
+        fn create(verb: &str) -> UniquePtr<MarsRequestWrapper>;
+
+        /// Create a `MarsRequest` from a GRIB message (reads metadata keys).
+        #[Self = "MarsRequestWrapper"]
+        fn from_message(msg: &MessageWrapper) -> Result<UniquePtr<MarsRequestWrapper>>;
+
+        /// Decode a `MarsRequest` from a stream.
+        #[Self = "MarsRequestWrapper"]
+        fn decode(stream: Pin<&mut StreamWrapper>) -> Result<UniquePtr<MarsRequestWrapper>>;
 
         // ==================== CodesHandle ====================
 
@@ -143,29 +154,31 @@ pub mod ffi {
         fn clear(self: Pin<&mut HyperCubeWrapper>, request: &MarsRequestWrapper) -> Result<bool>;
         fn field_ordinal(self: &HyperCubeWrapper, request: &MarsRequestWrapper) -> Result<usize>;
 
-        fn hypercube_create(request: &MarsRequestWrapper) -> Result<UniquePtr<HyperCubeWrapper>>;
+        #[Self = "HyperCubeWrapper"]
+        fn create(request: &MarsRequestWrapper) -> Result<UniquePtr<HyperCubeWrapper>>;
 
-        // ==================== MarsRequest factory ====================
+        // ==================== ParsedRequests ====================
 
-        #[must_use]
-        fn request_create(verb: &str) -> UniquePtr<MarsRequestWrapper>;
-
-        /// Create a `MarsRequest` from a GRIB message (reads metadata keys).
-        fn request_from_message(msg: &MessageWrapper) -> Result<UniquePtr<MarsRequestWrapper>>;
-
-        // Parsed requests — parse once, iterate by index
         type ParsedRequestsWrapper;
         fn count(self: &ParsedRequestsWrapper) -> usize;
         fn at(self: &ParsedRequestsWrapper, index: usize) -> Result<UniquePtr<MarsRequestWrapper>>;
-        fn parse_requests(input: &str, strict: bool) -> Result<UniquePtr<ParsedRequestsWrapper>>;
+
+        #[Self = "ParsedRequestsWrapper"]
+        fn parse(input: &str, strict: bool) -> Result<UniquePtr<ParsedRequestsWrapper>>;
 
         /// Raw parse without verb validation — uses `MarsParser` directly.
-        fn parse_requests_raw(input: &str) -> Result<UniquePtr<ParsedRequestsWrapper>>;
+        #[Self = "ParsedRequestsWrapper"]
+        fn parse_raw(input: &str) -> Result<UniquePtr<ParsedRequestsWrapper>>;
 
         // ==================== RequestEnvironment ====================
 
-        fn request_environment_init(keys: Vec<String>, values: Vec<String>);
-        fn request_environment_request() -> Result<UniquePtr<MarsRequestWrapper>>;
+        type RequestEnvironmentWrapper;
+
+        #[Self = "RequestEnvironmentWrapper"]
+        fn initialise(keys: Vec<String>, values: Vec<String>);
+
+        #[Self = "RequestEnvironmentWrapper"]
+        fn request() -> Result<UniquePtr<MarsRequestWrapper>>;
 
         // ==================== MarsLanguage ====================
 
@@ -174,7 +187,8 @@ pub mod ffi {
         fn sink_keywords(self: &MarsLanguageWrapper) -> Vec<String>;
         fn is_data(self: &MarsLanguageWrapper, keyword: &str) -> bool;
 
-        fn language_create(verb: &str) -> Result<UniquePtr<MarsLanguageWrapper>>;
+        #[Self = "MarsLanguageWrapper"]
+        fn create(verb: &str) -> Result<UniquePtr<MarsLanguageWrapper>>;
     }
 }
 

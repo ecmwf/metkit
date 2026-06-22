@@ -31,7 +31,7 @@ fn main() {
         std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
     bindman_build::check_cpp_api(&include, &crate_dir.join("src/lib.rs"));
 
-    // Export cpp directory for downstream crates (metkit_bridge.h)
+    // Export cpp directory for downstream crates (MetkitBridge.h)
     println!("cargo:cpp_dir={}", crate_dir.join("cpp").display());
 }
 
@@ -72,18 +72,34 @@ fn build_cxx_bridge(include: &std::path::Path) {
     let eckit_include = std::env::var("DEP_ECKIT_SYS_INCLUDE")
         .expect("DEP_ECKIT_SYS_INCLUDE not set — eckit-sys must be a dependency");
 
-    println!("cargo:rerun-if-changed=cpp/metkit_bridge.h");
-    println!("cargo:rerun-if-changed=cpp/metkit_bridge.cpp");
+    println!("cargo:rerun-if-changed=cpp/MetkitBridge.h");
+    println!("cargo:rerun-if-changed=cpp/MarsRequest.h");
+    println!("cargo:rerun-if-changed=cpp/MarsRequest.cc");
+    println!("cargo:rerun-if-changed=cpp/CodesHandle.h");
+    println!("cargo:rerun-if-changed=cpp/CodesHandle.cc");
+    println!("cargo:rerun-if-changed=cpp/HyperCube.h");
+    println!("cargo:rerun-if-changed=cpp/HyperCube.cc");
+    println!("cargo:rerun-if-changed=cpp/ParsedRequests.h");
+    println!("cargo:rerun-if-changed=cpp/ParsedRequests.cc");
+    println!("cargo:rerun-if-changed=cpp/MarsLanguage.h");
+    println!("cargo:rerun-if-changed=cpp/MarsLanguage.cc");
+    println!("cargo:rerun-if-changed=cpp/RequestEnvironment.h");
+    println!("cargo:rerun-if-changed=cpp/RequestEnvironment.cc");
 
     let mut build = cxx_build::bridge("src/lib.rs");
     build
-        .file(crate_dir.join("cpp/metkit_bridge.cpp"))
+        .file(crate_dir.join("cpp/MarsRequest.cc"))
+        .file(crate_dir.join("cpp/CodesHandle.cc"))
+        .file(crate_dir.join("cpp/HyperCube.cc"))
+        .file(crate_dir.join("cpp/ParsedRequests.cc"))
+        .file(crate_dir.join("cpp/MarsLanguage.cc"))
+        .file(crate_dir.join("cpp/RequestEnvironment.cc"))
         .include(include)
         .include(crate_dir.join("cpp"))
         .include(&eckit_include)
         .include(&out_dir); // for metkit_exceptions.h (generated)
 
-    // Include eckit's cpp dir for eckit_bridge.h (needed for StreamWrapper)
+    // Include eckit's cpp dir for EckitBridge.h (needed for StreamWrapper)
     if let Ok(eckit_cpp_dir) = std::env::var("DEP_ECKIT_SYS_CPP_DIR") {
         build.include(&eckit_cpp_dir);
     }
