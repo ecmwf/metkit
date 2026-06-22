@@ -95,7 +95,6 @@
     stream: [ssmi]
   unset: [levtype, levelist, param, grid, rotation]
 
-# new default for levtype=ml, to be enabled later
 - context:
     levtype: [ml]
   defaults:

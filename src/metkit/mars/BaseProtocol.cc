@@ -14,14 +14,19 @@
 
 #include "metkit/mars/BaseProtocol.h"
 
+#include <pthread.h>
+
+#include <string>
+
 #include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
+#include "eckit/log/Log.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/thread/Mutex.h"
-#include "eckit/thread/Once.h"
+#include "eckit/types/Types.h"
 
-namespace metkit {
-namespace mars {
+
+namespace metkit::mars {
 
 
 static eckit::Mutex* local_mutex                  = 0;
@@ -35,7 +40,7 @@ static void init() {
 }
 
 
-BaseProtocol::BaseProtocol() {}
+BaseProtocol::BaseProtocol() = default;
 
 BaseProtocol::BaseProtocol(eckit::Stream& s) : eckit::Streamable(s) {}
 
@@ -43,7 +48,10 @@ BaseProtocol::BaseProtocol(eckit::Stream& s) : eckit::Streamable(s) {}
 BaseProtocol::BaseProtocol(const eckit::Configuration&) {}
 
 
-BaseProtocol::~BaseProtocol() {}
+const eckit::StringDict& BaseProtocol::stats() const {
+    static const eckit::StringDict empty{};
+    return empty;
+}
 
 const eckit::ClassSpec& BaseProtocol::classSpec() {
     static eckit::ClassSpec spec = {&Streamable::classSpec(), "BaseProtocol"};
@@ -109,5 +117,4 @@ void ProtocolFactory::list(std::ostream& out) {
 }
 
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
