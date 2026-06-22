@@ -15,10 +15,12 @@
 
 #include "eckit/config/Configuration.h"
 #include "eckit/config/Resource.h"
-#include "eckit/io/AutoCloser.h"
+#include "eckit/log/Log.h"
 #include "eckit/net/Endpoint.h"
 #include "eckit/net/IPAddress.h"
 #include "eckit/net/TCPClient.h"
+#include "eckit/net/TCPServer.h"
+#include "eckit/net/TCPSocket.h"
 #include "eckit/net/TCPStream.h"
 #include "eckit/utils/StringTools.h"
 #include "eckit/utils/Translator.h"
@@ -27,12 +29,10 @@
 #include "metkit/mars/ClientTask.h"
 #include "metkit/mars/RequestEnvironment.h"
 
-
 using namespace eckit;
 using eckit::net::Endpoint;
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 static Reanimator<DHSProtocol> dhsProtocolReanimator;
 
@@ -57,11 +57,9 @@ Endpoint unpackHostPort(const std::string& hoststr) {
     return {bits[0], port};
 }
 
-
 Endpoint selectProxyHost(const std::vector<std::string> proxies) {
     return unpackHostPort(proxies[std::rand() % proxies.size()]);
 }
-
 
 Endpoint selectProxyHost(const Configuration& config) {
     if (config.has("proxyHost")) {
@@ -75,7 +73,6 @@ Endpoint selectProxyHost(const Configuration& config) {
     throw UserError("Neither proxyHosts nor proxyHost specified in configuration");
 }
 }  // namespace
-
 
 // Implement the default callback behaviour. Client opens a socket that can be connected to by
 // the server or data mover
@@ -275,7 +272,6 @@ protected:
 
 Reanimator<PassiveProxyCallback> PassiveProxyCallback::reanimator_;
 
-
 // ---------------------------------------------------------------------------------------------------------------------
 
 const ClassSpec& BaseCallbackConnection::classSpec() {
@@ -363,6 +359,7 @@ DHSProtocol::DHSProtocol(Stream& s) : BaseProtocol(s), callback_(Reanimator<Base
     env_ = MarsRequest(s);
 }
 
+/// @attention this dtor may throw in cleanup()!
 DHSProtocol::~DHSProtocol() {
     done_ = true;
     cleanup();
@@ -577,6 +574,7 @@ bool DHSProtocol::wait(Length& size) {
                 std::string key, value;
                 for (int i = 0; i < n; i++) {
                     s >> key >> value;
+                    stats_[key] = value;
                     Log::info() << "DHSProtocol:s " << key << "=" << value << std::endl;
                 }
             } break;
@@ -595,5 +593,4 @@ bool DHSProtocol::wait(Length& size) {
 
 static ProtocolBuilder<DHSProtocol> builder("dhsbase");
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
