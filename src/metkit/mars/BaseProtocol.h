@@ -14,15 +14,17 @@
 #ifndef BaseProtocol_H
 #define BaseProtocol_H
 
+#include <string>
+
 #include "eckit/io/Length.h"
 #include "eckit/serialisation/Streamable.h"
+#include "eckit/types/Types.h"
 
 namespace eckit {
 class Configuration;
 }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class MarsRequest;
 
@@ -34,8 +36,6 @@ public:
     BaseProtocol(eckit::Stream&);
     BaseProtocol(const eckit::Configuration&);
 
-    virtual ~BaseProtocol() override;
-
     virtual eckit::Length retrieve(const MarsRequest&)             = 0;
     virtual void archive(const MarsRequest&, const eckit::Length&) = 0;
 
@@ -43,13 +43,15 @@ public:
     virtual long write(const void* buffer, long len) = 0;
     virtual void cleanup()                           = 0;
 
+    virtual const eckit::StringDict& stats() const;
+
     // -- Overridden methods (from Streamable)
     static const eckit::ClassSpec& classSpec();
 
 protected:
 
     virtual void print(std::ostream&) const = 0;
-    virtual void encode(eckit::Stream&) const override;
+    void encode(eckit::Stream&) const override;
 
 private:
 
@@ -82,14 +84,14 @@ public:
 
 template <class T>
 class ProtocolBuilder : public ProtocolFactory {
-    virtual BaseProtocol* make(const eckit::Configuration& param) override { return new T(param); }
+    BaseProtocol* make(const eckit::Configuration& param) override { return new T(param); }
 
 public:
 
     ProtocolBuilder(const std::string& name) : ProtocolFactory(name) {}
 };
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
+
 
 #endif
