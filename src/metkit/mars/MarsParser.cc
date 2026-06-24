@@ -15,8 +15,6 @@
 
 #include "metkit/mars/MarsParser.h"
 
-#include "metkit/mars/MarsExpandContext.h"
-
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -200,7 +198,7 @@ void MarsParser::parse(MarsParserCallback& cb) {
 
     while (peek() != 0) {
         auto r = parseRequest();
-        cb(DummyContext{}, r);
+        cb(r);
     }
 }
 

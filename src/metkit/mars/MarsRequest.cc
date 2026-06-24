@@ -30,7 +30,9 @@ namespace mars {
 
 MarsRequest::MarsRequest() {}
 
-MarsRequest::MarsRequest(const std::string& s) : verb_(s) {}
+MarsRequest::MarsRequest(const std::string& s) : verb_(s) {
+    ASSERT(s.find(',') == std::string::npos);
+}
 
 MarsRequest::MarsRequest(const std::string& s, const std::map<std::string, std::string>& values) : verb_(s) {
     for (auto j = values.begin(); j != values.end(); ++j) {

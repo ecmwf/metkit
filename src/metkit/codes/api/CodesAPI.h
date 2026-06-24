@@ -15,6 +15,7 @@
 #include "metkit/codes/api/KeyIterator.h"
 
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -24,7 +25,7 @@
 /// It does not wrap the whole `eccodes.h`.
 /// The most important interface is the `CodesHandle` - it use to work on specific GRIB or BUFR messages.
 /// An addition to that, a few factory functions (`codesHandleFromMessage`, `codesHandleFromSample`,
-/// `codesHandleFromFile`) and iterators are wrapped.
+/// `codesHandleFromFile`, `codesHandleFromStream`) and iterators are wrapped.
 ///
 /// Missing components:
 ///  * codes_context
@@ -371,8 +372,23 @@ std::unique_ptr<CodesHandle> codesHandleFromSample(const std::string& sampleName
 /// The user needs to maintain the lifetime of the passed array.
 /// @param file Pointer to a implementation dependent file handle containing a BUFR or GRIB message.
 /// @param product The intented type of handle that is supposed to be loaded (BUFR or GRIB).
+/// @param offset  Optional: An offset in bytes within the file where the actual message starts.
 /// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
-std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product);
+std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Product,
+                                                 std::optional<int64_t> offset = std::optional<int64_t>{});
+
+/// Create a new `CodesHandle` from a stream
+///
+/// The user needs to maintain the lifetime of the passed array.
+/// @param readFunc Function that accepts a buffer as uint8_t* and its length as int64_t.
+///        The function can fill the buffer and return the number of bytes filled/consumed.
+///        Exceptions thrown in the function are propagated.
+///        A return value of 0 indicates an stream end (EOF) and will result in a nullptr without an error.
+///        A negative return value indicates an error - in that case it is smarter to throw an exception.
+/// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`. Nullptr on stream end.
+/// @throws CodesWrongLength if the message is corrupted, CodesException on any other error
+///         returned from eccodes, any expected propagated from readFunc.
+std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc);
 
 
 //----------------------------------------------------------------------------------------------------------------------

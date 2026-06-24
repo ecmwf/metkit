@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -eux
+
+yell() { printf "$(basename "$0"): \033[0;31m!!! %s !!!\033[0m\\n" "$*" >&2; }
+die() { yell "$*"; exit 1; }
+
+line_count() {
+  [[ $# -eq 1 ]] || die "line_count requires 1 argument; expected line count"
+  val=$(wc -l < out) && val=$((val + 0))
+  [[ $val -eq $1 ]] || die "Incorrect count => [$val != $1]"
+}
+
+grep_count() {
+  [[ $# -eq 2 ]] || die "grep_count requires 2; regex and expected count"
+  val=$(grep -cE "$1" out)
+  [[ $val -eq $2 ]] || die "Incorrect count [$val != $2] for regex [$1]"
+}
+
+
+g2r="$<TARGET_FILE:grib-to-request>"
+
+srcdir=@CMAKE_CURRENT_SOURCE_DIR@
+bindir=@CMAKE_CURRENT_BINARY_DIR@
+
+export ECCODES_DEFINITION_PATH="@ECCODES_DEFINITION_PATH@"
+
+$g2r $srcdir/d1.grib | tee out
+
+line_count 16
+grep_count "step=0" 13
+grep_count "step=12" 3
+grep_count "timespan=fs" 3
+
+
+$g2r --one $srcdir/d1.grib | tee out
+
+line_count 1
+
+
+$g2r --compact $srcdir/d1.grib | tee out
+
+line_count 2
+grep_count "timespan=fs" 1

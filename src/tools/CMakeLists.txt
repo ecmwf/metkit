@@ -1,39 +1,11 @@
 ### provides MARS requests from GRIB files
 
-# ecbuild_add_executable( TARGET   grib-to-mars-request
-
-#     CONDITION HAVE_GRIB
-
-#     SOURCES  grib-to-mars-request.cc
-
-#     INCLUDES
-#         ${ECKIT_INCLUDE_DIRS}
-
-#     LIBS     metkit
-# )
-
 # ecbuild_add_executable( TARGET   grib-blob
-
 #     CONDITION HAVE_GRIB
-
 #     SOURCES  grib-blob.cc
-
 #     INCLUDES
 #         ${ECKIT_INCLUDE_DIRS}
-
 #     LIBS     metkit eckit_option eckit
-# )
-
-
-# ecbuild_add_executable( TARGET   bufr-to-mars-request
-
-#     CONDITION HAVE_BUFR
-
-#     SOURCES  bufr-to-mars-request.cc
-
-#     INCLUDES ${ECCODES_INCLUDE_DIRS} ${ECKIT_INCLUDE_DIRS}
-
-#     LIBS     metkit eckit_option eckit eccodes
 # )
 
 ecbuild_add_executable( TARGET    parse-mars-request
@@ -47,6 +19,13 @@ ecbuild_add_executable( TARGET    parse-mars-request
 ecbuild_add_executable( TARGET    odb-to-request
     SOURCES   odb-to-request.cc
     CONDITION HAVE_ODB AND HAVE_BUILD_TOOLS
+    INCLUDES  ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS      metkit eckit_option )
+
+ecbuild_add_executable( TARGET    grib-to-request
+    SOURCES   grib-to-request.cc
+    CONDITION HAVE_GRIB AND HAVE_BUILD_TOOLS
     INCLUDES  ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
     LIBS      metkit eckit_option )
@@ -67,11 +46,19 @@ ecbuild_add_executable(
     LIBS          metkit
 )
 
+ecbuild_add_executable(
+    TARGET        check-mars2conf
+    CONDITION     HAVE_MARS2GRIB
+    SOURCES       check-mars2conf.cc
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit
+)
+
 # ecbuild_add_executable( TARGET     ncmerge
 #                         SOURCES    ncmerge.cc
 #                         CONDITION  HAVE_NETCDF
 #                         LIBS       metkit NetCDF::NetCDF_C )
-
 
 if(HAVE_BUILD_TOOLS)
     list( APPEND tools nccompare.py compare-mars-requests.py )

@@ -89,14 +89,15 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
     // https://confluence.ecmwf.int/display/ECC/bufr_keys_iterator
     h->set("unpack", 1);
 
-    for (auto& k : h->keys()) {
+    for (const auto& k : h->keys()) {
         auto name = k.name();
 
         if (name == "subsetNumber") {
             continue;
         }
 
-        /* get key size to see if it is an array */
+        // Get key size to see if it is an array
+        // Only continue for scalar values
         if (h->size(name) != 1) {
             continue;
         }

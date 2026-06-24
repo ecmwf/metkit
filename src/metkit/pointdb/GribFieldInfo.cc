@@ -9,12 +9,12 @@
  */
 
 #include "metkit/pointdb/GribFieldInfo.h"
-#include <bitset>
-#include "metkit/codes/GribAccessor.h"
+#include "metkit/codes/api/CodesAPI.h"
 #include "metkit/pointdb/GribDataSource.h"
 
+#include <bitset>
+
 using namespace eckit;
-using namespace metkit::grib;
 
 
 extern "C" {
@@ -24,17 +24,6 @@ double grib_power(long s, long n);
 
 namespace metkit {
 namespace pointdb {
-
-static GribAccessor<long> bitmapPresent("bitmapPresent");
-static GribAccessor<long> binaryScaleFactor("binaryScaleFactor");
-static GribAccessor<long> decimalScaleFactor("decimalScaleFactor");
-static GribAccessor<unsigned long> bitsPerValue("bitsPerValue");
-static GribAccessor<double> referenceValue("referenceValue");
-static GribAccessor<unsigned long> offsetBeforeData("offsetBeforeData");
-static GribAccessor<unsigned long> offsetBeforeBitmap("offsetBeforeBitmap");
-static GribAccessor<unsigned long> numberOfValues("numberOfValues");
-static GribAccessor<unsigned long> numberOfDataPoints("numberOfDataPoints");
-static GribAccessor<long> sphericalHarmonics("sphericalHarmonics");
 
 static Mutex mutex;
 
@@ -63,23 +52,23 @@ GribFieldInfo::GribFieldInfo() :
     numberOfDataPoints_(0),
     sphericalHarmonics_(0) {}
 
-void GribFieldInfo::update(const GribHandle& h) {
-    binaryScaleFactor_  = binaryScaleFactor(h);
-    decimalScaleFactor_ = decimalScaleFactor(h);
-    bitsPerValue_       = bitsPerValue(h);
-    referenceValue_     = referenceValue(h);
-    offsetBeforeData_   = offsetBeforeData(h);
-    numberOfDataPoints_ = numberOfDataPoints(h);
-    numberOfValues_     = numberOfValues(h);
-    sphericalHarmonics_ = sphericalHarmonics(h);
+void GribFieldInfo::update(const codes::CodesHandle& h) {
+    binaryScaleFactor_  = h.getLong("binaryScaleFactor");
+    decimalScaleFactor_ = h.getLong("decimalScaleFactor");
+    bitsPerValue_       = h.getLong("bitsPerValue");
+    referenceValue_     = h.getDouble("referenceValue");
+    offsetBeforeData_   = h.getLong("offsetBeforeData");
+    numberOfDataPoints_ = h.getLong("numberOfDataPoints");
+    numberOfValues_     = h.getLong("numberOfValues");
+    sphericalHarmonics_ = h.getLong("sphericalHarmonics");
 
-    if (bitmapPresent(h))
-        offsetBeforeBitmap_ = offsetBeforeBitmap(h);
+    if (h.getLong("bitmapPresent"))
+        offsetBeforeBitmap_ = h.getLong("offsetBeforeBitmap");
     else
         offsetBeforeBitmap_ = 0;
 
     if (!sphericalHarmonics_)
-        geographyHash_ = h.geographyHash();
+        geographyHash_ = h.getString("md5GridSection");
 }
 
 void GribFieldInfo::print(std::ostream& s) const {

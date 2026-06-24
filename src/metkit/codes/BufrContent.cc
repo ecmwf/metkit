@@ -8,13 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-/// @author Baudouin Raoult
-/// @author Emanuele Danovaro
-/// @date   Mar 2022
-
 #include "metkit/codes/BufrContent.h"
-
-#include "metkit/codes/GribHandle.h"
 
 #include "eccodes.h"
 
@@ -24,29 +18,14 @@ namespace codes {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BufrContent::BufrContent(codes_handle* handle, bool delete_handle) : CodesContent(handle, delete_handle) {}
-
-BufrContent::BufrContent(const codes_handle* handle) : BufrContent(const_cast<codes_handle*>(handle), false) {}
-
-BufrContent::~BufrContent() {}
-
+BufrContent::BufrContent(std::unique_ptr<CodesHandle> handle) : CodesDataContent(std::move(handle)) {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void BufrContent::transform(const eckit::OrderedStringDict& dict) {
-
-    std::vector<codes_values> values;
-
-    for (auto& kv : dict) {
-        codes_values v;
-        v.name       = kv.first.c_str();
-        v.long_value = std::stol(kv.second);
-        v.type       = GRIB_TYPE_LONG;
-
-        values.push_back(v);
+    for (const auto& [key, value] : dict) {
+        handle_->set(key, std::stol(value));
     }
-
-    CODES_CALL(codes_set_values(handle_, values.data(), values.size()));
 }
 
 

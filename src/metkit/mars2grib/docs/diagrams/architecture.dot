@@ -1,0 +1,93 @@
+digraph encoder_overall_structure {
+    rankdir=TB;
+    compound=true;
+    fontsize=10;
+    nodesep=0.6;
+    ranksep=1.2;
+
+    // =========================================================
+    // Inputs (two rows to reduce horizontal span)
+    // =========================================================
+    subgraph cluster_inputs {
+        label="Inputs";
+        style=rounded;
+
+        // first row
+        mars [label="MARS dictionary"];
+        par  [label="PAR / MISC / EXTRA dictionary"];
+
+        // second row
+        opt  [label="OPT dictionaries"];
+        vals [label="Values (data payload)"];
+
+        { rank=same; mars;  par; }
+        { rank=same; opt; vals; }
+    }
+
+    // =========================================================
+    // Frontend (pure functions)
+    // =========================================================
+    subgraph cluster_frontend {
+        label="frontend/ (pure functions)";
+        style=rounded;
+
+        frontend [shape=box,
+                  label="Frontend\n(derive EncoderCfg from MARS)"];
+        encfg    [shape=box,
+                  label="EncoderCfg\n(sections + ordered concepts)\n(used once; stored const for debug)"];
+    }
+
+    // =========================================================
+    // Backend (RAII encoder)
+    // =========================================================
+    subgraph cluster_backend {
+        label="backend/ (header construction)";
+        style=rounded;
+
+        raii   [shape=box,
+                label="RAII Encoder\n(uses cfg + dictionaries)\n(build consistent header)"];
+        gribHeader [shape=box,
+                label="Grib Header\n(valid GRIB message)\n(values = 0)"];
+    }
+
+    // =========================================================
+    // API (orchestration)
+    // =========================================================
+    subgraph cluster_api {
+        label="api/ (orchestration)";
+        style=rounded;
+
+        api    [shape=box,
+                label="API\n(call frontend + backend,\nthen encode values,\nreturn GRIB message)"];
+        outmsg [shape=box,
+                label="GRIB message\n(valid header + values)"];
+    }
+
+    // ---------------------------------------------------------
+    // Main vertical flow
+    // ---------------------------------------------------------
+    mars     -> frontend [label="input"];
+    frontend -> encfg    [label="generate"];
+    encfg    -> raii     [label="instantiate"];
+    raii     -> gribHeader   [label="produce"];
+    gribHeader   -> api      [label="encode values on grib header"];
+    api      -> outmsg   [label="return"];
+
+    // ---------------------------------------------------------
+    // Backend dictionary usage (orthogonal inputs)
+    // ---------------------------------------------------------
+    mars -> raii [label="use", style=dashed];
+    par  -> raii [label="use", style=dashed];
+    opt  -> raii [label="use", style=dashed];
+
+    // Values applied only at API level
+    vals -> api [label="input"];
+
+    // ---------------------------------------------------------
+    // Design intent (future caching)
+    // ---------------------------------------------------------
+    encfg -> raii [label="(cacheable design)",
+                   style=dotted,
+                   arrowhead=none];
+}
+

@@ -10,6 +10,11 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "eckit/io/Buffer.h"
 #include "eckit/io/Offset.h"
@@ -17,16 +22,41 @@
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
 
+#include "metkit/metkit_config.h"
+
+#include "metkit/hypercube/HyperCube.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsParser.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/tool/MetkitTool.h"
 
-
-using namespace metkit;
-using namespace metkit::mars;
 using namespace eckit;
 using namespace eckit::option;
+using namespace metkit;
+using namespace metkit::mars;
+
+#ifdef metkit_HAVE_MARS2MARS
+#include "metkit/mars2mars/api/Mars2Mars.h"
+#include "metkit/mars2mars/utils/dictionary_traits/dictaccess_mars_request.h"
+#include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
+
+using namespace metkit::mars2mars;
+
+namespace {
+class ConvertedRequests : public FlattenCallback {
+public:
+
+    ConvertedRequests(std::vector<MarsRequest>& flattenedRequests) : flattenedRequests_(flattenedRequests) {}
+
+    void operator()(const MarsRequest& req) override { flattenedRequests_.push_back(converter_.convert(req).mars); }
+
+    std::vector<MarsRequest>& flattenedRequests_;
+    Mars2Mars converter_;
+};
+
+}  // namespace
+
+#endif
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +66,10 @@ public:
     ParseRequest(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new SimpleOption<bool>("json", "Format request in json, default = false"));
         options_.push_back(new SimpleOption<bool>("compact", "Compact output, default = false"));
+#ifdef metkit_HAVE_MARS2MARS
+        options_.push_back(
+            new SimpleOption<bool>("convert-to-grib2", "Convert request to the full Grib2 metadata, default = false"));
+#endif
     }
 
     virtual ~ParseRequest() {}
@@ -56,6 +90,7 @@ private:  // members
 
     bool json_    = false;
     bool compact_ = false;
+    bool grib2_   = false;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -69,6 +104,7 @@ void ParseRequest::execute(const eckit::option::CmdArgs& args) {
 void ParseRequest::init(const CmdArgs& args) {
     args.get("json", json_);
     args.get("compact", compact_);
+    args.get("convert-to-grib2", grib2_);
     args.get("porcelain", porcelain_);
     if (porcelain_)
         compact_ = true;
@@ -82,6 +118,9 @@ void ParseRequest::usage(const std::string& tool) const {
                 << std::endl
                 << tool << " --json mars1.req mars2.req" << std::endl
                 << tool << " --porcelain folderOfRequests" << std::endl
+#ifdef metkit_HAVE_MARS2MARS
+                << tool << " --convert-to-grib2 mars1.req mars2.req" << std::endl
+#endif
                 << std::endl;
 }
 
@@ -132,8 +171,64 @@ void ParseRequest::process(const eckit::PathName& path) {
         std::cout << "----------> Expanding ... " << std::endl;
     }
 
-
     std::vector<MarsRequest> v = expand.expand(p);
+
+#ifdef metkit_HAVE_MARS2MARS
+    if (grib2_) {
+        std::vector<MarsRequest> out;
+
+        for (const auto& r : v) {
+            std::vector<MarsRequest> converted;
+            ConvertedRequests cb(converted);
+            expand.flatten(r, cb);
+
+            if (converted.size() > 1) {
+                std::map<std::set<std::string>, std::vector<MarsRequest>> coherentRequests;
+
+                // split the requests into groups of requests with the same set of metadata (but potentially different
+                // values)
+                for (const auto& r : converted) {
+                    std::set<std::string> keys;
+                    for (const auto& p : r.parameters()) {
+                        keys.insert(p.name());
+                    }
+                    coherentRequests[keys].push_back(r);
+                }
+                converted.clear();
+
+                // compact each group of requests into a single request (if possible)
+                for (const auto& [keys, reqs] : coherentRequests) {
+                    if (reqs.size() == 1) {  // it is a single field - return its request as is
+                        converted.push_back(reqs.front());
+                        continue;
+                    }
+
+                    MarsRequest merged{reqs.front()};
+                    for (size_t i = 1; i < reqs.size(); ++i) {
+                        merged.merge(reqs[i]);
+                    }
+                    if (merged.count() == reqs.size()) {  // the set of fields forms a full hypercube - return
+                                                          // corresponding merged request
+                        converted.push_back(std::move(merged));
+                        continue;
+                    }
+
+                    // sparse hypercube - we have to compute a set of compact requests describing the input fields
+                    metkit::hypercube::HyperCube h{merged};
+                    for (const auto& r : reqs) {
+                        h.clear(r);
+                    }
+                    for (const auto& r : h.requests()) {
+                        converted.push_back(r);
+                    }
+                }
+            }
+            out.insert(out.end(), converted.begin(), converted.end());
+        }
+        std::swap(v, out);
+    }
+#endif  // HAVE_MARS2MARS
+
 
     for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
         if (json_) {
@@ -157,17 +252,6 @@ void ParseRequest::process(const eckit::PathName& path) {
             }
         }
     }
-
-    class Print : public FlattenCallback {
-        virtual void operator()(const MarsRequest& request) { std::cout << request << std::endl; }
-    };
-
-
-    Print cb;
-
-    // for (std::vector<MarsRequest>::const_iterator j = v.begin(); j != v.end(); ++j) {
-    //     expand.flatten(*j, cb, filter);
-    // }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

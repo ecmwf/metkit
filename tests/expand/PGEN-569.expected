@@ -1,0 +1,12 @@
+disseminate,    
+  expver          =    0080,    
+  class           =    mc,    
+  stream          =    oper,    
+  time            =    0000/1200,    
+  type            =    an,    
+  step            =    0,    
+  levtype         =    ml,    
+  levelist        =    1,    
+  param           =    131/132,
+  date            =    20260420,
+  domain          =    g

@@ -27,6 +27,14 @@ public:
     CodesException(const std::string& reason, const eckit::CodeLocation& l = eckit::CodeLocation());
 };
 
+/// More specialized exception that is thrown in specific cases when a message could not be read properly, usually
+/// indicating corruption.
+class CodesWrongLength : public CodesException {
+public:
+
+    CodesWrongLength(const std::string& reason, const eckit::CodeLocation& l = eckit::CodeLocation());
+};
+
 
 /// Enum to classify types of handles
 enum class Product {
