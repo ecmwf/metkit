@@ -117,10 +117,10 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         constexpr std::array<std::string_view, 17> analysisTypes = {
             {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
 
-        constexpr std::array<std::string_view, 36> forecastTypes = {
-            {"fc",    "cf",      "pf",  "cm", "fp",  "em",   "ep",     "es", "fa", "efi", "efic",   "bf",
-             "cd",    "wem",     "wes", "cr", "ses", "taem", "taes",   "sg", "sf", "if",  "fcmean", "fcmax",
-             "fcmin", "fcstdev", "ssd", "tf", "bf",  "cd",   "hcmean", "s3", "si", "gbf", "gwt",    "est"}};
+        constexpr std::array<std::string_view, 38> forecastTypes = {
+            {"fc",  "cf",  "pf", "cm",  "fp",     "em",   "ep", "es",  "fa",  "efi",    "efic",  "bf",    "cd",
+             "wem", "wes", "cr", "ses", "taem",   "taes", "sg", "sf",  "if",  "fcmean", "fcmax", "fcmin", "fcstdev",
+             "ssd", "tf",  "bf", "cd",  "hcmean", "s3",   "si", "gbf", "gwt", "est",    "icp",   "pfc"}};
 
         constexpr std::array<std::string_view, 4> startOfDataAssimilationTypes = {{"4i", "4v", "me", "eme"}};
 
