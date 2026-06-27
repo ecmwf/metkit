@@ -84,6 +84,78 @@ public:
 };
 
 
+/// @brief Exception raised during GRIB section layout resolution.
+///
+/// Used when the structural resolution layer fails while building
+/// the layout for a specific GRIB section.
+///
+/// This exception extends the generic exception with section-specific
+/// diagnostic context, including:
+///
+/// - The GRIB section identifier being resolved
+/// - A serialized snapshot of the active concepts state
+///
+/// The additional metadata is emitted via `printFrame()` to support
+/// structured debugging of section selection failures.
+class Mars2GribSectionResolutionException : public Mars2GribGenericException {
+public:
+
+    Mars2GribSectionResolutionException(std::string reason, std::size_t sectionId,
+                                        const std::string& activeConceptsJson,
+                                        const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), sectionId_(sectionId), activeConceptsJson_(activeConceptsJson) {}
+
+    virtual ~Mars2GribSectionResolutionException() = default;
+
+    virtual void printFrame(const std::string& pad) const {
+
+        const auto& loc = location();
+
+        Mars2GribGenericException::printFrame(pad);
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ section:  " << sectionId_ << "\n"
+                                 << pad << "+ activeConcepts:  " << activeConceptsJson_ << "\n";
+    }
+
+private:
+
+    std::size_t sectionId_;
+    std::string activeConceptsJson_;
+};
+
+
+/// @brief Exception raised during top-level header layout construction.
+///
+/// Used when the frontend resolution pipeline fails while assembling
+/// the complete GRIB header layout from the input MARS request.
+///
+/// This exception extends the generic exception with a serialized
+/// representation of the originating MARS request for diagnostics.
+///
+/// The captured request payload is emitted via `printFrame()` to aid
+/// debugging of end-to-end layout resolution failures.
+class Mars2GribHeaderLayoutException : public Mars2GribGenericException {
+public:
+
+    Mars2GribHeaderLayoutException(std::string reason, const std::string& marsJson,
+                                   const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), marsJson_(marsJson) {}
+
+    virtual ~Mars2GribHeaderLayoutException() = default;
+
+    virtual void printFrame(const std::string& pad) const {
+
+        const auto& loc = location();
+
+        Mars2GribGenericException::printFrame(pad);
+        LOG_DEBUG_LIB(LibMetkit) << pad << "+ marsJson:  " << marsJson_ << "\n";
+    }
+
+private:
+
+    std::string marsJson_;
+};
+
+
 /// @brief Exception raised during matcher evaluation.
 ///
 /// This exception is used when resolving whether a concept
