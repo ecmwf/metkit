@@ -60,6 +60,7 @@
 
 // checks
 #include "metkit/mars2grib/backend/checks/checkEnsembleProductDefinitionSection.h"
+#include "metkit/mars2grib/backend/checks/matchProductDefinitionTemplateNumber.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -98,8 +99,8 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <std::size_t Stage, std::size_t Section, EnsembleType Variant>
 constexpr bool ensembleApplicable() {
     // Confitions to apply concept
-    return ((Variant == EnsembleType::Individual) && (Stage == StagePreset) &&
-            (Section == SecProductDefinitionSection));
+    return ((Variant == EnsembleType::Individual || Variant == EnsembleType::ProbabilityLargeEnsemble) &&
+            (Stage == StagePreset) && (Section == SecProductDefinitionSection));
 }
 
 
@@ -114,8 +115,8 @@ constexpr bool ensembleApplicable() {
 /// 2. Deduces ensemble-related metadata from MARS and parameter dictionaries.
 /// 3. Encodes the corresponding GRIB keys in the output dictionary.
 ///
-/// The concept currently supports the **Individual** ensemble variant, which
-/// represents a single ensemble member.
+/// The concept currently supports the **Individual** and **ProbabilityLargeEnsemble** ensemble variants, which
+/// represent a single ensemble member.
 ///
 /// If the concept is invoked when not applicable, a
 /// `Mars2GribConceptException` is thrown.
@@ -179,6 +180,15 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
                 set_or_throw<long>(out, "typeOfEnsembleForecast", static_cast<long>(typeOfEnsembleForecast));
                 set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
                 set_or_throw<long>(out, "perturbationNumber", marsNumber);
+            }
+
+            if constexpr (Variant == EnsembleType::ProbabilityLargeEnsemble) {
+
+                // Structural validation
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L});
+
+                // Deductions
+                std::cout << "TODO:: Resolving TypeOfEnsembleForecast for ProbabilityLargeEnsemble..." << std::endl;
             }
         }
         catch (...) {

@@ -9,15 +9,15 @@
  */
 
 ///
-/// @file ensembleEnum.h
-/// @brief Definition of the `ensemble` concept variants and compile-time metadata.
+/// @file strikeProbabilityEnum.h
+/// @brief Definition of the `strikeProbability` concept variants and compile-time metadata.
 ///
-/// This header defines the **static description** of the GRIB `ensemble` concept
-/// used by the mars2grib backend. It contains:
+/// This header defines the **static description** of the GRIB `strikeProbability`
+/// concept used by the mars2grib backend. It contains:
 ///
-/// - the canonical concept name (`ensembleName`)
-/// - the enumeration of supported ensemble variants (`EnsembleType`)
-/// - a compile-time typelist of all variants (`EnsembleList`)
+/// - the canonical concept name (`strikeProbabilityName`)
+/// - the enumeration of supported strike-probability variants (`StrikeProbabilityType`)
+/// - a compile-time typelist of all variants (`StrikeProbabilityList`)
 /// - a compile-time mapping from variant to string identifier
 ///
 /// This file intentionally contains **no runtime logic** and **no encoding
@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `ensembleEncoding.h` implementation.
+/// `strikeProbabilityEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -51,23 +51,23 @@ template <auto... Vals>
 using ValueList = metkit::mars2grib::backend::compile_time_registry_engine::ValueList<Vals...>;
 
 ///
-/// @brief Canonical name of the `ensemble` concept.
+/// @brief Canonical name of the `strikeProbability` concept.
 ///
 /// This identifier is used:
 /// - as the logical concept key in the concept registry
 /// - for logging and debugging output
-/// - to associate variants and capabilities with the `ensemble` concept
+/// - to associate variants and capabilities with the `strikeProbability` concept
 ///
 /// The value must remain stable across releases.
 ///
-inline constexpr std::string_view ensembleName{"ensemble"};
+inline constexpr std::string_view strikeProbabilityName{"strikeProbability"};
 
 
 ///
-/// @brief Enumeration of all supported `ensemble` concept variants.
+/// @brief Enumeration of all supported `strikeProbability` concept variants.
 ///
-/// Each enumerator represents a specific ensemble configuration or
-/// perturbation strategy handled by the encoder.
+/// The concept currently defines a single default variant because the
+/// runtime matching and encoding logic is intentionally left unspecified.
 ///
 /// The numeric values of the enumerators are **not semantically relevant**;
 /// they are required only to:
@@ -75,23 +75,20 @@ inline constexpr std::string_view ensembleName{"ensemble"};
 /// - allow array indexing and table generation
 ///
 /// @note
-/// This enumeration includes both deterministic and stochastic ensemble
-/// generation approaches.
+/// Additional variants may be introduced later once the strike-probability
+/// semantics are finalized.
 ///
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
 /// tables and registries.
 ///
-enum class EnsembleType : std::size_t {
-    Individual = 0,
-    PerturbedParameters,
-    RandomPatterns,
-    ProbabilityLargeEnsemble
+enum class StrikeProbabilityType : std::size_t {
+    Default = 0
 };
 
 
 ///
-/// @brief Compile-time list of all `ensemble` concept variants.
+/// @brief Compile-time list of all `strikeProbability` concept variants.
 ///
 /// This typelist is used to:
 /// - generate concept capability tables at compile time
@@ -102,41 +99,37 @@ enum class EnsembleType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using EnsembleList = ValueList<EnsembleType::Individual, EnsembleType::PerturbedParameters,
-                               EnsembleType::RandomPatterns, EnsembleType::ProbabilityLargeEnsemble>;
+using StrikeProbabilityList = ValueList<StrikeProbabilityType::Default>;
 
 
 ///
-/// @brief Compile-time mapping from `EnsembleType` to human-readable name.
+/// @brief Compile-time mapping from `StrikeProbabilityType` to human-readable name.
 ///
 /// This function returns the canonical string identifier associated
-/// with a given ensemble variant.
+/// with a given strike-probability variant.
 ///
 /// The returned value is used for:
 /// - logging and debugging output
 /// - error reporting
 /// - concept registry diagnostics
 ///
-/// @tparam T Ensemble variant
+/// @tparam T Strike-probability variant
 /// @return String view identifying the variant
 ///
 /// @note
 /// The returned string must remain stable across releases, as it may
 /// appear in logs, tests, and diagnostic output.
 ///
-template <EnsembleType T>
-constexpr std::string_view ensembleTypeName();
+template <StrikeProbabilityType T>
+constexpr std::string_view strikeProbabilityTypeName();
 
-#define DEF(T, NAME)                                   \
-    template <>                                        \
-    constexpr std::string_view ensembleTypeName<T>() { \
-        return NAME;                                   \
+#define DEF(T, NAME)                                            \
+    template <>                                                 \
+    constexpr std::string_view strikeProbabilityTypeName<T>() { \
+        return NAME;                                            \
     }
 
-DEF(EnsembleType::Individual, "individual");
-DEF(EnsembleType::PerturbedParameters, "perturbedParameters");
-DEF(EnsembleType::RandomPatterns, "randomPatterns");
-DEF(EnsembleType::ProbabilityLargeEnsemble, "probabilityLargeEnsemble");
+DEF(StrikeProbabilityType::Default, "default");
 
 #undef DEF
 
