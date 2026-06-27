@@ -75,6 +75,10 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                      range(231001, 231003), 231005, 231010, 231012, 231057, 231058, range(233000, 233031), 260259)) {
             return static_cast<std::size_t>(StatisticsType::Accumulation);
         }
+        // Strike-probability products
+        if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131085, 131098, 131099)) {
+            return static_cast<std::size_t>(StatisticsType::Accumulation);
+        }
         if (matchAny(param, range(141101, 141105), 141208, 141209, 141215, 141216, 141220, 141229, 141232, 141233,
                      141245, 228004, 228005, 228051, 228053, range(228057, 228060), 235020, 235021,
                      range(235029, 235031), range(235033, 235043), range(235048, 235053), 235055, 235058,
@@ -82,6 +86,10 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                      235098, 235100, 235108, range(235129, 235138), 235151, 235152, 235155, 235157, 235159, 235165,
                      235166, 235168, 235189, 235203, 235246, 235263, 235269, 235283, 235287, 235288, 235290, 235305,
                      235309, 235322, 235326, 235339, 235383, 263024, 263107)) {
+            return static_cast<std::size_t>(StatisticsType::Average);
+        }
+        // Strike-probability products
+        if (matchAny(param, 131065, 131066, 131067)) {
             return static_cast<std::size_t>(StatisticsType::Average);
         }
         if (matchAny(param, 49, 121, 123, 201, range(143101, 143105), 143208, 143209, 143215, 143216, 143220, 143229,
@@ -92,11 +100,15 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                      237321, 237322, 237326, 265024)) {
             return static_cast<std::size_t>(StatisticsType::Maximum);
         }
+        // Strike-probability products
+        if (matchAny(param, 131071, 131072, 131100)) {
+            return static_cast<std::size_t>(StatisticsType::Maximum);
+        }
         if (matchAny(param, 122, 202, range(144101, 144105), 144208, 144209, 144215, 144216, 144220, 144229, 144232,
                      144233, 144245, 228027, 228223, 228225, 228227, 238013, 238041, 238042, 238055, 238077, 238078,
                      238080, 238083, 238084, 238087, 238088, 238090, 238091, 238093, 238094, 238097, 238108, 238131,
                      238132, 238134, 238137, 238151, 238159, range(238165, 238168), 238203, 238207, 238263, 238287,
-                     238288, 238290, 238305, 238309, 238322, 238326, 266024)) {
+                     238288, 238290, 238305, 238309, 238322, 238326, 266024, 131070)) {
             return static_cast<std::size_t>(StatisticsType::Minimum);
         }
         if (matchAny(param, 260320, 260321, 260339, 260683)) {
@@ -110,6 +122,10 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                      239093, 239094, 239097, 239108, 239131, 239132, 239134, 239137, 239151, 239159,
                      range(239165, 239168), 239203, 239207, 239263, 239287, 239288, 239290, 239305, 239309, 239322,
                      239326, 267024)) {
+            return static_cast<std::size_t>(StatisticsType::StandardDeviation);
+        }
+        // Strike-probability products
+        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
             return static_cast<std::size_t>(StatisticsType::StandardDeviation);
         }
 
