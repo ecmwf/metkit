@@ -216,10 +216,10 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24,37});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
 
                 // Deductions
-                long channelNumber       = deductions::resolve_Channel_or_throw(mars, par, opt);
+                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
                 // long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
 
                 // Encoding
