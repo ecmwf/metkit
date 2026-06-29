@@ -27,6 +27,7 @@
 // System include
 #include <cstddef>
 #include <exception>
+#include <string>
 
 // Utils
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodEnum.h"
@@ -56,8 +57,14 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <class MarsDict_t, class OptDict_t>
 std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
-        static_cast<void>(mars);
-        static_cast<void>(opt);
+
+        using metkit::mars2grib::utils::dict_traits::get_or_throw;
+
+        const auto type = get_or_throw<std::string>(mars, "type");
+
+        if ( type == "efi" || type == "efic" || type == "sot" ){
+            return static_cast<std::size_t>(ReferencePeriodType::Default);
+        }
 
         return compile_time_registry_engine::MISSING;
     }
