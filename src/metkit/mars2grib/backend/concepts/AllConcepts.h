@@ -114,6 +114,7 @@
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/param/paramConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/representation/representationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/satellite/satelliteConceptDescriptor.h"
@@ -181,6 +182,7 @@ using AllConcepts =
              GeneratingProcessConcept, LevelConcept, LongrangeConcept, IterationConcept, MarsConcept, NilConcept,
              OriginConcept, PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept,
              RepresentationConcept, SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept,
-             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, StrikeProbabilityConcept>;
+             WaveConcept, ModelErrorConcept, BrightnessTemperatureConcept, StrikeProbabilityConcept,
+             ReferencePeriodConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

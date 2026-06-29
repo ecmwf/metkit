@@ -282,6 +282,16 @@ inline const Recipe S4_R104 =
         Select<EnsembleConcept, EnsembleType::Individual>
     >();
 
+inline const Recipe S4_R107 =
+    make_recipe<107,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<DerivedConcept>,
+        Select<ReferencePeriodConcept>
+    >();
+
 inline const Recipe S4_R121 =
     make_recipe<121,
         Select<GeneratingProcessConcept>,
