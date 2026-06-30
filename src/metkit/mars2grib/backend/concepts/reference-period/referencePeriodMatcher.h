@@ -60,9 +60,10 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
 
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-        const auto type = get_or_throw<std::string>(mars, "type");
+        const auto marsType = get_or_throw<std::string>(mars, "type");
 
-        if ( type == "efi" || type == "efic" || type == "sot" ){
+        std::cout << "referencePeriodMatcher: marsType = " << marsType << std::endl;
+        if ( marsType == "efi" || marsType == "efic" || marsType == "sot" ){
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 

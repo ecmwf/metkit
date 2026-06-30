@@ -160,18 +160,36 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
 
             MARS2GRIB_LOG_CONCEPT(derived);
 
-            if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
-                // Structural validation
-                validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
+            if constexpr (Variant == DerivedType::Default) {
+                if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
+                    // Structural validation
+                    validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
 
-                // Deductions
-                tables::DerivedForecast derivedForecast = deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
-                long numberOfForecastsInEnsemble =
-                    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+                    // Deductions
+                    tables::DerivedForecast derivedForecast = deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                    long numberOfForecastsInEnsemble =
+                        deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
 
-                // Encoding
-                set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
-                set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                    // Encoding
+                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
+                    set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                }
+            }
+
+            if constexpr (Variant == DerivedType::ShiftOfTails) {
+                if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
+                    // Structural validation
+                    // validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
+
+                    // Deductions
+                    tables::DerivedForecast derivedForecast = deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                    // long numberOfForecastsInEnsemble =
+                    //    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+
+                    // Encoding
+                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
+                    // set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                }
             }
         }
         catch (...) {

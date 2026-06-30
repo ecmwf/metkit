@@ -83,6 +83,7 @@ inline constexpr std::string_view derivedName{"derived"};
 /// tables and registries.
 ///
 enum class DerivedType : std::size_t {
+    ShiftOfTails = 0,  ///< Shift-of-tails derived product
     Default
 };
 
@@ -99,7 +100,7 @@ enum class DerivedType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using DerivedList = ValueList<DerivedType::Default>;
+using DerivedList = ValueList<DerivedType::ShiftOfTails,DerivedType::Default>;
 
 
 ///
@@ -130,6 +131,7 @@ constexpr std::string_view derivedTypeName();
     }
 
 DEF(DerivedType::Default, "default");
+DEF(DerivedType::ShiftOfTails, "shift_of_tails");
 
 #undef DEF
 

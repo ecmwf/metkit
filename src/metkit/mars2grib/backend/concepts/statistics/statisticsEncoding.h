@@ -82,7 +82,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant>
 constexpr bool statisticsApplicable() {
-    return (Section == SecProductDefinitionSection);
+    return (Section == SecProductDefinitionSection && Variant != StatisticsType::IndexProcessing);
 }
 
 
