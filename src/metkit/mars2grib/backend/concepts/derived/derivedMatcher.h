@@ -65,16 +65,25 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
+
         const auto& type = get_or_throw<std::string>(mars, "type");
+
+        std::cout << "Derived matcher 01: type = " << type << std::endl;
         if (type == "em" ||    // Ensemble mean
             type == "es" ||    // Ensemble standard deviation
             type == "ses" ||   // Ensemble spread of estimation
             type == "taem" ||  // Time-averaged ensemble mean
             type == "taes" ||  // Time-averaged ensemble standard deviation
             type == "efi" ||   // Extreme forecast index
-            type == "sot"      // Shift of tails
+            type == "efic"     // Extreme forecast index
         ) {
             return static_cast<std::size_t>(DerivedType::Default);
+        }
+
+        std::cout << "Derived matcher 03: type = " << type << std::endl;
+        if (type == "sot") {
+            std::cout << "Derived matcher 04: type = " << type << " -> " << static_cast<std::size_t>(DerivedType::ShiftOfTails) << std::endl;
+            return static_cast<std::size_t>(DerivedType::ShiftOfTails);
         }
 
         return compile_time_registry_engine::MISSING;

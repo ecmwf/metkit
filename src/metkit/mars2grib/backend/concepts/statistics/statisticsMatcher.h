@@ -140,6 +140,10 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         //     typeOfStatisticalProcessing is defined for param " + std::to_string(param), Here());
         // }
 
+        if ( matchAny( param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132228 ) ){
+            return static_cast<std::size_t>(StatisticsType::IndexProcessing);
+        }
+
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {

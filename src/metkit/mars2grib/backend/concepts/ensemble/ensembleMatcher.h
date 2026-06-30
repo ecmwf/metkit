@@ -70,8 +70,11 @@ std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
 
         long param = get_or_throw<long>(mars, "param");
-        if (has(mars, "number") && !(has(mars, "type") && (get_or_throw<std::string>(mars, "type") == "me" ||
-                                                           get_or_throw<std::string>(mars, "type") == "eme"))) {
+        if (has(mars, "number") && !(has(mars, "type") && (get_or_throw<std::string>(mars, "type") == "me"  ||
+                                                           get_or_throw<std::string>(mars, "type") == "eme" ||
+                                                           get_or_throw<std::string>(mars, "type") == "efi" ||
+                                                           get_or_throw<std::string>(mars, "type") == "efic" ||
+                                                           get_or_throw<std::string>(mars, "type") == "sot") )) {
             return static_cast<std::size_t>(EnsembleType::Individual);
         }
         else if (has(mars, "type") && (get_or_throw<std::string>(mars, "type") == "ep")) {
