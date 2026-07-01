@@ -12,14 +12,14 @@
 // Baudouin Raoult - (c) ECMWF Feb 12
 
 #include "metkit/mars/MarsRequestHandle.h"
-#include "metkit/config/LibMetkit.h"
 
 #include "eckit/types/Types.h"
 #include "eckit/utils/StringTools.h"
 
+#include "metkit/config/LibMetkit.h"
 
-namespace metkit {
-namespace mars {
+
+namespace metkit::mars {
 
 static eckit::Reanimator<MarsRequestHandle> marsRequestHandleReanimator;
 
@@ -64,6 +64,9 @@ MarsRequestHandle::~MarsRequestHandle() {
     }
 }
 
+const eckit::StringDict& MarsRequestHandle::stats() const {
+    return protocol_->stats();
+}
 
 eckit::Length MarsRequestHandle::openForRead() {
     eckit::Log::info() << "MarsRequestHandle::openForRead[" << request_ << "]" << std::endl;
@@ -133,5 +136,4 @@ bool MarsRequestHandle::canSeek() const {
     return false;
 }
 
-}  // namespace mars
-}  // namespace metkit
+}  // namespace metkit::mars
