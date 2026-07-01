@@ -198,3 +198,31 @@ of your YAML file to get inline validation and autocompletion:
   shortname: myvar
   longname: My Custom Variable
 ```
+
+---
+
+## Regenerating bundled data files (release process)
+
+The bundled parameter metadata must be regenerated before each release to pick
+up any changes from the ECMWF parameter database API. Run:
+
+```bash
+python -m pymetkit.generate_parameter_metadata
+```
+
+This produces the following files in `share/metkit/`:
+
+| File                           | Purpose                                          |
+|--------------------------------|--------------------------------------------------|
+| `parameter_metadata.yaml`      | Human-readable parameter database (8,200+ entries) |
+| `parameter_metadata.json`      | Fast-load format (identical data, ~200× faster to parse) |
+| `unit_metadata.yaml`           | Unit definitions (208 entries)                   |
+| `parameter_entry_schema.json`  | JSON Schema for validating custom YAML files     |
+
+The script requires network access to `codes.ecmwf.int` and typically takes
+2–3 minutes (it queries each originating centre individually to build the
+`origin_ids` mapping).
+
+Symlinks in the package source directory (`python/pymetkit/src/pymetkit/`) point
+to `share/metkit/` so that the data files are included in the built wheel via
+`importlib.resources`.

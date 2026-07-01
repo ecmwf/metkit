@@ -1,7 +1,9 @@
 """
 Standalone script to generate:
-  - parameter_metadata.yaml  — one entry per ECMWF parameter
+  - parameter_metadata.yaml  — one entry per ECMWF parameter (human-readable)
+  - parameter_metadata.json  — same data, compact JSON (fast-load, ~200× faster)
   - unit_metadata.yaml       — one entry per ECMWF unit
+  - parameter_entry_schema.json — JSON Schema for ParameterEntry validation
 
 Usage
 -----
