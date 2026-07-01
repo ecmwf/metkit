@@ -24,19 +24,19 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
 
     const auto marsGrid = get_or_throw<std::string>(mars, "grid");
     const auto gridType = eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}})->type();
-    if (gridType == "regular-gg") {
+    if (gridType == "regular_gg") {
         return static_cast<std::size_t>(RepresentationType::RegularGaussian);
     }
-    else if (gridType == "reduced-gg") {
+    else if (gridType == "reduced_gg") {
         return static_cast<std::size_t>(RepresentationType::ReducedGaussian);
     }
-    else if (gridType == "regular-ll") {
+    else if (gridType == "regular_ll") {
         return static_cast<std::size_t>(RepresentationType::Latlon);
     }
     else if (gridType == "ORCA") {
         return static_cast<std::size_t>(RepresentationType::Orca);
     }
-    else if (gridType == "healpix") {
+    else if (gridType == "HEALPix") {
         return static_cast<std::size_t>(RepresentationType::Healpix);
     }
 
