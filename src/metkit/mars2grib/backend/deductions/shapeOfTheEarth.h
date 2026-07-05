@@ -71,7 +71,7 @@ namespace metkit::mars2grib::backend::deductions {
 ///
 /// This deduction resolves the GRIB `shapeOfTheEarth` key by
 /// applying a fixed, deterministic value corresponding to
-/// a spherical Earth with radius 6371229 m.
+/// a spherical Earth with radius 6371229 m when the value is not specified in the parameter dictionary.
 ///
 /// No inference from MARS, or options dictionaries  is currently performed.
 ///
@@ -97,19 +97,63 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDict_t& mars, const ParDict_t& par,
                                                                    const OptDict_t& opt) {
-    // Default value
-    tables::ShapeOfTheReferenceSystem shapeOfTheEarth = tables::ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
 
-    // Logging of the channel
-    MARS2GRIB_LOG_DEFAULT([&]() {
-        std::string logMsg = "`shapeOfTheEarth` defaulted from input dictionaries: value='";
-        logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth);
-        logMsg += "'";
-        return logMsg;
-    }());
 
-    // Success exit point
-    return shapeOfTheEarth;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+    using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+    try {
+
+        if ( has(par, "shapeOfTheEarth") ) {
+
+            // Retrieve the value from the parameter dictionary
+            long shapeOfTheEarthId = get_or_throw<long>(par, "shapeOfTheEarth");
+
+            // Convert to enumeration
+            tables::ShapeOfTheReferenceSystem shapeOfTheEarth =
+                tables::long2enum_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarthId);
+
+            // Logging of the channel
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`shapeOfTheEarth` resolved from PAR dictionary: value='";
+                logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return shapeOfTheEarth;
+
+        }
+        else {
+
+            // Default value
+            tables::ShapeOfTheReferenceSystem shapeOfTheEarth = tables::ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
+
+            // Logging of the channel
+            MARS2GRIB_LOG_DEFAULT([&]() {
+                std::string logMsg = "`shapeOfTheEarth` defaulted with value='";
+                logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth);
+                logMsg += "'";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return shapeOfTheEarth;
+
+        }
+    }
+    catch (...) {
+
+        // Rethrow nested exceptions
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to resolve `shapeOfTheEarth` from input dictionaries", Here()));
+    };
+
+    // Remove compiler warning
+    mars2gribUnreachable();
+
 };
 
 }  // namespace metkit::mars2grib::backend::deductions
