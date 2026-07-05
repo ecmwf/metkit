@@ -27,6 +27,7 @@
 // System include
 #include <cstddef>
 #include <exception>
+#include <memory>
 
 // Utils
 #include "eckit/geo/Grid.h"
@@ -69,8 +70,13 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
         }
 
         const auto marsGrid = get_or_throw<std::string>(mars, "grid");
+<<<<<<< HEAD
         const auto gridType = eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}})->type();
         if (gridType == "regular_gg") {
+=======
+        const auto gridType = std::unique_ptr<const eckit::geo::Grid>(eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))->type();
+        if (gridType == "regular-gg") {
+>>>>>>> 94068382 (mars2grib: fix memory leak in representation matcher)
             return static_cast<std::size_t>(RepresentationType::RegularGaussian);
         }
         else if (gridType == "reduced_gg") {

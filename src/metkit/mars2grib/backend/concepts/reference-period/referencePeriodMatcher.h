@@ -62,7 +62,6 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
 
         const auto marsType = get_or_throw<std::string>(mars, "type");
 
-        std::cout << "referencePeriodMatcher: marsType = " << marsType << std::endl;
         if ( marsType == "efi" || marsType == "efic" || marsType == "sot" ){
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
