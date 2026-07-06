@@ -157,7 +157,7 @@ inline std::size_t matchSFC(const long param) {
             return static_cast<std::size_t>(LevelType::MostUnstableParcel);
         }
         // efi
-        if (matchAny(param,132044, 132059)) {
+        if (matchAny(param, 132044, 132059)) {
             return static_cast<std::size_t>(LevelType::MostUnstableParcel);
         }
         if (matchAny(param, 178, 179, 208, 209, 212, 235039, 235040, 235049, 235050, 235053)) {

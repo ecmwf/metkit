@@ -105,7 +105,7 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
 
     try {
 
-        if ( has(par, "shapeOfTheEarth") ) {
+        if (has(par, "shapeOfTheEarth")) {
 
             // Retrieve the value from the parameter dictionary
             long shapeOfTheEarthId = get_or_throw<long>(par, "shapeOfTheEarth");
@@ -124,12 +124,12 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
 
             // Success exit point
             return shapeOfTheEarth;
-
         }
         else {
 
             // Default value
-            tables::ShapeOfTheReferenceSystem shapeOfTheEarth = tables::ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
+            tables::ShapeOfTheReferenceSystem shapeOfTheEarth =
+                tables::ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
 
             // Logging of the channel
             MARS2GRIB_LOG_DEFAULT([&]() {
@@ -141,7 +141,6 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
 
             // Success exit point
             return shapeOfTheEarth;
-
         }
     }
     catch (...) {
@@ -153,7 +152,6 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
 
     // Remove compiler warning
     mars2gribUnreachable();
-
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

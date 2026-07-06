@@ -70,7 +70,9 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
         }
 
         const auto marsGrid = get_or_throw<std::string>(mars, "grid");
-        const auto gridType = std::unique_ptr<const eckit::geo::Grid>(eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))->type();
+        const auto gridType = std::unique_ptr<const eckit::geo::Grid>(
+                                  eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))
+                                  ->type();
         if (gridType == "regular_gg") {
             return static_cast<std::size_t>(RepresentationType::RegularGaussian);
         }

@@ -166,7 +166,8 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                     validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
 
                     // Deductions
-                    tables::DerivedForecast derivedForecast = deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                    tables::DerivedForecast derivedForecast =
+                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
                     long numberOfForecastsInEnsemble =
                         deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
 
@@ -182,7 +183,8 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                     // validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
 
                     // Deductions
-                    tables::DerivedForecast derivedForecast = deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                    tables::DerivedForecast derivedForecast =
+                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
                     // long numberOfForecastsInEnsemble =
                     //    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
 

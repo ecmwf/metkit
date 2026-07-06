@@ -114,8 +114,8 @@ struct ReferencePeriodConcept : RegisterEntryDescriptor<ReferencePeriodType, Ref
     ///
     /// @return Function pointer implementing the phase, or `nullptr`
     ///
-    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, ReferencePeriodType Variant,
-              class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, ReferencePeriodType Variant, class MarsDict_t,
+              class ParDict_t, class OptDict_t, class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
@@ -137,8 +137,8 @@ struct ReferencePeriodConcept : RegisterEntryDescriptor<ReferencePeriodType, Ref
     ///
     /// @brief Variant-specific callbacks (not used for this concept).
     ///
-    template <std::size_t Capability, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t,
-              class OptDict_t, class OutDict_t>
+    template <std::size_t Capability, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
+              class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
         return nullptr;
     }

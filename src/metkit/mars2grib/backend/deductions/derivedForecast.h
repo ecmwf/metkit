@@ -149,7 +149,7 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             else if (marsType == "es" || marsType == "ses" || marsType == "taes") {
                 derivedForecast = tables::DerivedForecast::SpreadAllMembers;
             }
-            else if ( marsType == "efi" || marsType == "efic" || marsType == "sot" ) {
+            else if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
                 derivedForecast = tables::DerivedForecast::LargeAnomalyIndexAllMembers;
             }
             else {

@@ -90,7 +90,7 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
         }
 
         eckit::Log::debug<LibMetkit>() << "Resolved ActiveConceptsData: "
-                                      << debug_convert_ActiveConceptsData_to_json(activeConceptsData) << std::endl;
+                                       << debug_convert_ActiveConceptsData_to_json(activeConceptsData) << std::endl;
 
         // Return the active concepts
         return activeConceptsData;

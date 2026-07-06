@@ -100,7 +100,7 @@ enum class DerivedType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using DerivedList = ValueList<DerivedType::ShiftOfTails,DerivedType::Default>;
+using DerivedList = ValueList<DerivedType::ShiftOfTails, DerivedType::Default>;
 
 
 ///
