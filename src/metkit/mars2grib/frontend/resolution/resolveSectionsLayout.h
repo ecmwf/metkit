@@ -61,14 +61,19 @@ using ActiveConceptsData = metkit::mars2grib::backend::sections::resolver::Activ
 ///
 /// @param[in] activeConcepts The semantic interpretation of the MARS request.
 /// @return A dense array of resolved @ref SectionLayoutData.
-/// @throws Mars2GribGenericException if a section fails to resolve or returns invalid data.
+/// @throws Mars2GribGenericException if a section returns invalid data.
+/// @throws Mars2GribSectionResolutionException if any section fails to resolve.
 ///
 inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSections> resolve_SectionsLayout_or_throw(
     const ActiveConceptsData& activeConcepts) {
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
+    using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_ActiveConceptsData_to_json;
     using metkit::mars2grib::frontend::resolution::recipes::SectionTemplateSelectors;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+    using metkit::mars2grib::utils::exceptions::Mars2GribSectionResolutionException;
+
+    std::size_t section = 0;
 
     try {
         // Recover the static structural recipes (Stage 1 resolution)
@@ -78,7 +83,7 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
         std::array<SectionLayoutData, GeneralRegistry::NSections> sectionsLayout;
 
         // Iterate through all canonical GRIB sections (0 through 8)
-        for (std::size_t section = 0; section < GeneralRegistry::NSections; ++section) {
+        for (section = 0; section < GeneralRegistry::NSections; ++section) {
 
             // Apply the recipe for this specific section index
             SectionLayoutData sectionData = selectors[section].select_or_throw(activeConcepts);
@@ -98,7 +103,8 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribGenericException("Critical failure: Unable to resolve GRIB HeaderLayout", Here()));
+            Mars2GribSectionResolutionException("Critical failure: Unable to resolve GRIB HeaderLayout", section,
+                                                debug_convert_ActiveConceptsData_to_json(activeConcepts), Here()));
     }
 
     mars2gribUnreachable();

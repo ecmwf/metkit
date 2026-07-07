@@ -65,7 +65,7 @@ namespace metkit::mars2grib::frontend {
 /// * @param[in] marsDict Input MARS request.
 /// @param[in] optDict  Encoder configuration and options.
 /// * @return A fully resolved @ref GribHeaderLayoutData.
-/// @throws Mars2GribGenericException if any phase of the resolution fails.
+/// @throws Mars2GribHeaderLayoutException if any phase of the resolution fails.
 ///
 template <class MarsDict_t, class OptDict_t>
 GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, const OptDict_t& optDict) {
@@ -76,7 +76,8 @@ GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, cons
     using metkit::mars2grib::frontend::resolution::resolve_ActiveConcepts_or_throw;
     using metkit::mars2grib::frontend::resolution::resolve_SectionsLayout_or_throw;
     using metkit::mars2grib::frontend::resolution::SectionLayoutData;
-    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+    using metkit::mars2grib::utils::exceptions::Mars2GribHeaderLayoutException;
 
     try {
         // Step 1: Semantic Analysis (What concepts are we encoding?)
@@ -91,8 +92,8 @@ GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, cons
         return GribHeaderLayoutData{{std::move(sectionsLayout)}};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribGenericException("Critical failure: Unable to resolve GRIB HeaderLayout", Here()));
+        std::throw_with_nested(Mars2GribHeaderLayoutException("Critical failure: Unable to resolve GRIB HeaderLayout",
+                                                              dict_to_json<MarsDict_t>(marsDict), Here()));
     }
 
     return {};

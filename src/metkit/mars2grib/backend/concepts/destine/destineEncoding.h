@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file destineOp.h
+/// @file destineEncoding.h
 /// @brief Implementation of the GRIB `destine` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file compositionOp.h
+/// @file compositionEncoding.h
 /// @brief Implementation of the GRIB `composition` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the

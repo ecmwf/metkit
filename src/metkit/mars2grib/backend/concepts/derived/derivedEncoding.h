@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file derivedOp.h
+/// @file derivedEncoding.h
 /// @brief Implementation of the GRIB `derived` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -51,8 +51,10 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
+#include "metkit/mars2grib/backend/deductions/channel.h"
 #include "metkit/mars2grib/backend/deductions/derivedForecast.h"
 #include "metkit/mars2grib/backend/deductions/numberOfForecastsInEnsemble.h"
+#include "metkit/mars2grib/backend/deductions/numberOfFrequencies.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/derivedForecast.h"
@@ -96,7 +98,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, DerivedType Variant>
 constexpr bool derivedApplicable() {
-    return (Stage == StagePreset) && (Section == SecProductDefinitionSection);
+    return (Stage == StagePreset) && ((Section == SecProductDefinitionSection) || (Section == SecLocalUseSection));
 }
 
 ///
@@ -158,16 +160,39 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
 
             MARS2GRIB_LOG_CONCEPT(derived);
 
-            // Structural validation
-            validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
+            if constexpr (Variant == DerivedType::Default) {
+                if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
+                    // Structural validation
+                    validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
 
-            // Deductions
-            tables::DerivedForecast derivedForecast = deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
-            long numberOfForecastsInEnsemble = deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+                    // Deductions
+                    tables::DerivedForecast derivedForecast =
+                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                    long numberOfForecastsInEnsemble =
+                        deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
 
-            // Encoding
-            set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
-            set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                    // Encoding
+                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
+                    set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                }
+            }
+
+            if constexpr (Variant == DerivedType::ShiftOfTails) {
+                if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
+                    // Structural validation
+                    // validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
+
+                    // Deductions
+                    tables::DerivedForecast derivedForecast =
+                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                    // long numberOfForecastsInEnsemble =
+                    //    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+
+                    // Encoding
+                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
+                    // set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                }
+            }
         }
         catch (...) {
 

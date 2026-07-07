@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `ensemble.h` / `ensembleOp` implementation.
+/// `ensembleEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -85,7 +85,8 @@ inline constexpr std::string_view ensembleName{"ensemble"};
 enum class EnsembleType : std::size_t {
     Individual = 0,
     PerturbedParameters,
-    RandomPatterns
+    RandomPatterns,
+    ProbabilityLargeEnsemble
 };
 
 
@@ -101,8 +102,8 @@ enum class EnsembleType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using EnsembleList =
-    ValueList<EnsembleType::Individual, EnsembleType::PerturbedParameters, EnsembleType::RandomPatterns>;
+using EnsembleList = ValueList<EnsembleType::Individual, EnsembleType::PerturbedParameters,
+                               EnsembleType::RandomPatterns, EnsembleType::ProbabilityLargeEnsemble>;
 
 
 ///
@@ -135,6 +136,7 @@ constexpr std::string_view ensembleTypeName();
 DEF(EnsembleType::Individual, "individual");
 DEF(EnsembleType::PerturbedParameters, "perturbedParameters");
 DEF(EnsembleType::RandomPatterns, "randomPatterns");
+DEF(EnsembleType::ProbabilityLargeEnsemble, "probabilityLargeEnsemble");
 
 #undef DEF
 

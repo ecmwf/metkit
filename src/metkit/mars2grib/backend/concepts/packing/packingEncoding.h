@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file packingOp.h
+/// @file packingEncoding.h
 /// @brief Implementation of the GRIB `packing` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -81,7 +81,12 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, PackingType Variant>
 constexpr bool packingApplicable() {
-    return (Stage == StagePreset && Section == SecDataRepresentationSection);
+
+    if constexpr (Stage == StagePreset && Section == SecDataRepresentationSection) {
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -159,10 +164,8 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Check sample structure
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0});
 
-                // Get bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-
                 // Set bits per value
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
             }
 
@@ -171,10 +174,8 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Check sample structure
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42});
 
-                // Get bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-
                 // Set bits per value
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
             }
 
@@ -183,14 +184,13 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 // Check sample structure
                 validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51});
 
-                // Get bits per value
-                long bitsPerValue        = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
-                double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
-                long subSetTruncation    = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
-
                 // Set bits per value
+                long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
-                set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
+
+                // double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
+                long subSetTruncation = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
+                // set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
                 set_or_throw<long>(out, "subSetJ", subSetTruncation);
                 set_or_throw<long>(out, "subSetK", subSetTruncation);
                 set_or_throw<long>(out, "subSetM", subSetTruncation);

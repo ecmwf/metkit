@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file DataTypeConcept.h
+/// @file dataTypeConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `dataType` concept.
 ///
 /// This header defines `DataTypeConcept`, the **compile-time descriptor**

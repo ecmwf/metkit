@@ -282,6 +282,36 @@ inline const Recipe S4_R104 =
         Select<EnsembleConcept, EnsembleType::Individual>
     >();
 
+inline const Recipe S4_R107 =
+    make_recipe<107,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<DerivedConcept>,
+        Select<ReferencePeriodConcept>
+    >();
+
+inline const Recipe S4_R121 =
+    make_recipe<121,
+        Select<GeneratingProcessConcept>,
+        Select<PointInTimeConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<EnsembleConcept, EnsembleType::ProbabilityLargeEnsemble>,
+        Select<StrikeProbabilityConcept>
+    >();
+
+inline const Recipe S4_R122 =
+    make_recipe<122,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<EnsembleConcept, EnsembleType::ProbabilityLargeEnsemble>,
+        Select<StrikeProbabilityConcept>
+    >();
+
 inline const Recipe S4_R142 =
     make_recipe<142,
         Select<GeneratingProcessConcept>,
@@ -313,7 +343,8 @@ inline const Recipes Section4Recipes{ 4,
         &S4_R60, &S4_R61,
         &S4_R76, &S4_R77, &S4_R78, &S4_R79, &S4_R80,
         &S4_R99, &S4_R100,
-        &S4_R103, &S4_R104,
+        &S4_R103, &S4_R104, &S4_R107,
+        &S4_R121, &S4_R122,
         &S4_R142, &S4_R143
     }
 };

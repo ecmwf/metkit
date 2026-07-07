@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file EnsembleConcept.h
+/// @file ensembleConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `ensemble` concept.
 ///
 /// This header defines `EnsembleConcept`, the **compile-time descriptor**
