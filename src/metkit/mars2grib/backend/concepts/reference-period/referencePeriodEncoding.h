@@ -111,6 +111,8 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
     static_cast<void>(opt);
     static_cast<void>(out);
 
+    using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
+
     if constexpr (referencePeriodApplicable<Stage, Section, Variant>()) {
 
         try {
