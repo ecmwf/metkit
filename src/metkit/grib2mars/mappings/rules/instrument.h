@@ -21,9 +21,9 @@ void extractInstrument(const std::string& keyword, const metkit::codes::CodesHan
                 "Missing GRIB key `" + keyword + "` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        const std::string value = grib.getString(keyword);
+        const long value = grib.getLong(keyword);
 
-        set_or_throw<std::string>(mars, keyword, value);
+        set_or_throw<long>(mars, keyword, value);
 
         if (grib.has("satelliteSeries")) {
             const long satelliteSeries = grib.getLong("satelliteSeries");

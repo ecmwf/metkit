@@ -23,9 +23,9 @@ void extractWavelength(const std::string& keyword, const metkit::codes::CodesHan
                 "Missing GRIB key `" + keyword + "` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        const double value = grib.getDouble(keyword);
+        const long value = grib.getLong(keyword);
 
-        set_or_throw<double>(mars, keyword, value);
+        set_or_throw<long>(mars, keyword, value);
     }
     catch (...) {
         std::throw_with_nested(

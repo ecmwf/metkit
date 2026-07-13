@@ -23,9 +23,9 @@ void extractChannel(const std::string& keyword, const metkit::codes::CodesHandle
                 "Missing GRIB key `" + keyword + "` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        const std::string value = grib.getString(keyword);
+        const long value = grib.getLong(keyword);
 
-        set_or_throw<std::string>(mars, keyword, value);
+        set_or_throw<long>(mars, keyword, value);
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));

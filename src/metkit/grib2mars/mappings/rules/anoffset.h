@@ -29,8 +29,8 @@ void extractAnoffset(const std::string& keyword, const metkit::codes::CodesHandl
                 Here());
         }
 
-        const std::string value = grib.getString(keyword);
-        set_or_throw<std::string>(mars, keyword, value);
+        const long value = grib.getLong(keyword);
+        set_or_throw<long>(mars, keyword, value);
 
         const long lengthOf4DvarWindow = grib.getLong("lengthOf4DvarWindow");
 
