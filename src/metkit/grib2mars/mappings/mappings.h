@@ -12,6 +12,7 @@
 #include "metkit/grib2mars/mappings/Grib2MarsReturnValue.h"
 #include "metkit/grib2mars/mappings/MarsTopology.h"
 #include "metkit/grib2mars/mappings/rules/extract.h"
+#include "metkit/grib2mars/mappings/rules/misc.h"
 #include "metkit/grib2mars/utils/grib2marsExceptions.h"
 
 namespace metkit::grib2mars::rules {
@@ -34,6 +35,9 @@ Grib2MarsResult<OutDict_t> convertAll(const metkit::codes::CodesHandle& grib) {
         for (const std::string& keyword : topology) {
             impl::extract(keyword, grib, *mars, *misc);
         }
+
+        // Extract the remaining miscelanious values which are not attached to a MARS mapping
+        impl::extractMisc(grib, *mars, *misc);
 
         return Grib2MarsResult<OutDict_t>{std::move(*mars), std::move(*misc)};
     }
