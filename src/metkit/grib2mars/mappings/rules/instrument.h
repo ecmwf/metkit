@@ -29,6 +29,16 @@ void extractInstrument(const std::string& keyword, const metkit::codes::CodesHan
             const long satelliteSeries = grib.getLong("satelliteSeries");
             misc.set("satelliteSeries", satelliteSeries);
         }
+
+        if (grib.has("scaleFactorOfCentralWaveNumber")) {
+            const long scaleFactorOfCentralWaveNumber = grib.getLong("scaleFactorOfCentralWaveNumber");
+            misc.set("scaleFactorOfCentralWaveNumber", scaleFactorOfCentralWaveNumber);
+        }
+
+        if (grib.has("scaledValueOfCentralWaveNumber")) {
+            const long scaledValueOfCentralWaveNumber = grib.getLong("scaledValueOfCentralWaveNumber");
+            misc.set("scaledValueOfCentralWaveNumber", scaledValueOfCentralWaveNumber);
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
