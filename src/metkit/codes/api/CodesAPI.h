@@ -400,7 +400,9 @@ std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t
 /// design and should be removed as soon as the underlying workflow is
 /// refactored.
 ///
-/// @note The caller retains ownership of `gribHandle`; the handle is not cloned.
+/// The returned wrapper borrows `gribHandle` without taking ownership.
+/// The caller keeps ownership of `gribHandle` and needs to maintain its
+/// lifetime for the whole lifetime of the returned `CodesHandle`.
 /// @param gribHandle Pointer to a `codes_handle` that is a GRIB handle.
 /// @return Instance of a `CodesHandle` wrapped in a `std::unique_ptr`.
 std::unique_ptr<CodesHandle> codesHandleFromGRIBHandle(codes_handle* gribHandle);
