@@ -66,6 +66,15 @@ inline const Recipe S3_R150 =
             RepresentationType::Healpix>
     >();
 
+// This is just meant to skip the section3 resolution in order to allow gridspec do be used after the encoder
+inline const Recipe S3_R1000 =
+    make_recipe<0,
+        Select<ShapeOfTheEarthConcept,
+            ShapeOfTheEarthType::Dummy>,
+        Select<RepresentationConcept,
+            RepresentationType::Dummy>
+    >();
+
 //------------------------------------------------------------------------------
 // Section 3 – Aggregated Recipes
 //------------------------------------------------------------------------------
@@ -77,7 +86,8 @@ inline const Recipes Section3Recipes{ 3,
         &S3_R50,
         &S3_R101,
         &S3_R101_ORCA,
-        &S3_R150
+        &S3_R150,
+        &S3_R1000
     }
 };
 

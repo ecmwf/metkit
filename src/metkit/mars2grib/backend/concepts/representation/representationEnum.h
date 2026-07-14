@@ -93,6 +93,7 @@ enum class RepresentationType : std::size_t {
     Healpix,
     Orca,
     Fesom,
+    Dummy,  // Used to skip section3 resolution and delegate to gridSpec
     Default
 };
 
@@ -112,7 +113,7 @@ enum class RepresentationType : std::size_t {
 using RepresentationList = ValueList<RepresentationType::Latlon, RepresentationType::RegularGaussian,
                                      RepresentationType::ReducedGaussian, RepresentationType::SphericalHarmonics,
                                      RepresentationType::GeneralUnstructured, RepresentationType::Healpix,
-                                     RepresentationType::Orca, RepresentationType::Fesom, RepresentationType::Default>;
+                                     RepresentationType::Orca, RepresentationType::Fesom, RepresentationType::Dummy, RepresentationType::Default>;
 
 
 ///
@@ -150,6 +151,7 @@ DEF(RepresentationType::GeneralUnstructured, "generalUnstructured");
 DEF(RepresentationType::Healpix, "healpix");
 DEF(RepresentationType::Orca, "orca");
 DEF(RepresentationType::Fesom, "fesom");
+DEF(RepresentationType::Dummy, "dummy");
 DEF(RepresentationType::Default, "default");
 
 #undef DEF

@@ -24,6 +24,15 @@ inline bool checksEnabled(const Options& opt) {
     return opt.applyChecks;
 }
 
+inline bool skipSection3(const Options& opt) {
+    return opt.skipSection3;
+}
+
+
+// inline bool skipSection3(const eckit::LocalConfiguration& opt) {
+//     return false;
+// }
+
 inline bool overrideEnabled(const Options& opt) {
     return opt.enableOverride;
 }

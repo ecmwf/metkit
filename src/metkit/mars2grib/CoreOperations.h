@@ -127,7 +127,7 @@ struct CoreOperations {
             using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
             using metkit::mars2grib::frontend::header::SpecializedEncoder;
 
-            auto layout = make_HeaderLayout_or_throw(mars, opt);
+            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(mars, opt);
 
             return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
                                                                                                              opt);
@@ -151,13 +151,19 @@ struct CoreOperations {
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
-    template <typename Val_t, class ParDict_t, class OptDict_t, class OutDict_t>
-    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const ParDict_t& misc,
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MarsDict_t& mars, const ParDict_t& misc,
                                                    const OptDict_t& opt, std::unique_ptr<OutDict_t> handle) {
 
         try {
-            metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
-            return handle;
+            if (metkit::mars2grib::utils::skipSection3(opt)) {
+                metkit::mars2grib::backend::encodeValuesGridSpec(values, mars, misc, opt, *handle);
+                return handle;
+            }
+            else {
+                metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
+                return handle;
+            }
         }
         catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
@@ -265,7 +271,8 @@ struct CoreOperations {
                 encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
 
             // 4. Inject Values
-            return encodeValues(values, activeMisc, options, std::move(gribHeader));
+            return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
+
         }
         catch (const std::exception& e) {
             printExtendedStack(e);
@@ -460,7 +467,7 @@ struct CoreOperations {
             auto [activeMars, activeMisc] =
                 normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
 
-            auto layout = make_HeaderLayout_or_throw(activeMars, options);
+            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(activeMars, options);
 
             return std::make_unique<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>>(
                 std::move(layout), activeMars, activeMisc, options);
@@ -553,7 +560,7 @@ struct CoreOperations {
             auto gribHeader =
                 cacheEntry.encoder_.finaliseEncoding(*(cacheEntry.preparedSample_), activeMars, activeMisc, options);
 
-            return encodeValues(values, activeMisc, options, std::move(gribHeader));
+            return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
         }
         catch (...) {
             // Wrap any exception in a CoreOperations-specific exception to provide context
@@ -572,22 +579,22 @@ struct CoreOperations {
     /// @tparam MarsDict_t MARS dictionary type
     /// @tparam OptDict_t  Encoding options dictionary type
     ///
-    template <class MarsDict_t, class OptDict_t>
-    static std::string dumpHeaderTest(const MarsDict_t& mars, const OptDict_t& opt) {
-        try {
-            using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
-            using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
-
-            auto layout = make_HeaderLayout_or_throw(mars, opt);
-
-            return debug_convert_GribHeaderLayoutData_to_json(layout);
-        }
-        catch (...) {
-            // Wrap any exception in a CoreOperations-specific exception to provide context
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribGenericException("Error during header test dump", Here()));
-        }
-    }
+    // template <class MarsDict_t, class OptDict_t>
+    // static std::string dumpHeaderTest(const MarsDict_t& mars, const OptDict_t& opt) {
+    //     try {
+    //         using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
+    //         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
+    //
+    //         auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(mars, opt);
+// 
+    //         return debug_convert_GribHeaderLayoutData_to_json(layout);
+    //     }
+    //     catch (...) {
+    //         // Wrap any exception in a CoreOperations-specific exception to provide context
+    //         std::throw_with_nested(
+    //             mars2grib::utils::exceptions::Mars2GribGenericException("Error during header test dump", Here()));
+    //     }
+    // }
 };
 
 }  // namespace metkit::mars2grib

@@ -61,14 +61,14 @@ ecbuild_add_executable(
     LIBS          metkit
 )
 
-ecbuild_add_executable(
-    TARGET        check-mars2conf
-    CONDITION     HAVE_MARS2GRIB
-    SOURCES       check-mars2conf.cc
-    INCLUDES      ${ECKIT_INCLUDE_DIRS}
-    NO_AS_NEEDED
-    LIBS          metkit
-)
+# ecbuild_add_executable(
+#     TARGET        check-mars2conf
+#     CONDITION     HAVE_MARS2GRIB
+#     SOURCES       check-mars2conf.cc
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit
+# )
 
 # ecbuild_add_executable(
 #     TARGET        ncmerge
