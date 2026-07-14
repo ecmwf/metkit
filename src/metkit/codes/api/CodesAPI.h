@@ -393,10 +393,16 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc);
 
 
-/// Create a new `CodesHandle` from a GRIB handle
-/// @note The user needs to maintain the lifetime of the passed handle.
-/// @param gribHandle Pointer to a `codes_handle` that is a GRIB handle. The handle is not cloned, the ownership remains with the caller.
-/// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
+/// Temporary workaround.
+///
+/// This function is a transitional API introduced to unblock the current
+/// implementation. It is intentionally not part of the intended long-term
+/// design and should be removed as soon as the underlying workflow is
+/// refactored.
+///
+/// @note The caller retains ownership of `gribHandle`; the handle is not cloned.
+/// @param gribHandle Pointer to a `codes_handle` that is a GRIB handle.
+/// @return Instance of a `CodesHandle` wrapped in a `std::unique_ptr`.
 std::unique_ptr<CodesHandle> codesHandleFromGRIBHandle(codes_handle* gribHandle);
 
 //----------------------------------------------------------------------------------------------------------------------
