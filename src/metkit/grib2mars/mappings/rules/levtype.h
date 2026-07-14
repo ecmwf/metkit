@@ -26,6 +26,11 @@ void extractLevtype(const std::string& keyword, const metkit::codes::CodesHandle
         const std::string value = grib.getString(keyword);
 
         set_or_throw<std::string>(mars, keyword, value);
+
+        if (grib.has("pv")) {
+            const auto pv = grib.getDoubleArray("pv");
+            misc.set("pv", pv);
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
