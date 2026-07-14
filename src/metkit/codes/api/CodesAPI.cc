@@ -794,5 +794,13 @@ std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t
     return {};
 }
 
+std::unique_ptr<CodesHandle> codesHandleFromGRIBHandle(codes_handle* gribHandle) {
+    std::unique_ptr<codes_handle> ret = std::unique_ptr<codes_handle>(gribHandle);
+    if (gribHandle) {
+        return std::make_unique<OwningCodesHandle>(std::move(ret));
+    }
+    return {};
+}
+
 
 }  // namespace metkit::codes

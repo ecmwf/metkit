@@ -14,6 +14,8 @@
 #include "metkit/codes/api/GeoIterator.h"
 #include "metkit/codes/api/KeyIterator.h"
 
+#include "eccodes.h"
+
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -390,6 +392,12 @@ std::unique_ptr<CodesHandle> codesHandleFromFile(const std::string& fpath, Produ
 ///         returned from eccodes, any expected propagated from readFunc.
 std::unique_ptr<CodesHandle> codesHandleFromStream(std::function<int64_t(uint8_t*, int64_t)> readFunc);
 
+
+/// Create a new `CodesHandle` from a GRIB handle
+/// @note The user needs to maintain the lifetime of the passed handle.
+/// @param gribHandle Pointer to a `codes_handle` that is a GRIB handle. The handle is not cloned, the ownership remains with the caller.
+/// @return Instance of a `CodesHandle` wrapped in a `unique_ptr`.
+std::unique_ptr<CodesHandle> codesHandleFromGRIBHandle(codes_handle* gribHandle);
 
 //----------------------------------------------------------------------------------------------------------------------
 
