@@ -212,6 +212,11 @@ static metkit::codes::Span<const double> constValueSpan(std::size_t requiredSize
 template <std::size_t Stage, std::size_t Section, RepresentationType Variant>
 constexpr bool representationApplicable() {
 
+    // Disable the concept for the Dummy variant
+    if constexpr ( Variant == RepresentationType::Dummy ) {
+        return false;
+    }
+
     bool condition1 = Stage == StageAllocate && Section == SecGridDefinitionSection;
     bool condition2 = Stage == StagePreset && Section == SecGridDefinitionSection;
 
