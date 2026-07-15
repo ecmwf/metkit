@@ -104,7 +104,8 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
             set_or_throw<long>(out, "interpretationOfNumberOfPoints", 0L);
             set_or_throw<long>(out, "dataRepresentationTemplateNumber", 51L);
         }
-        else {
+
+        if constexpr (TemplateNumber != 50 && TemplateNumber != 1000) {
             // Standard grid definition template
             long drt = static_cast<long>(TemplateNumber);
             set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt);
