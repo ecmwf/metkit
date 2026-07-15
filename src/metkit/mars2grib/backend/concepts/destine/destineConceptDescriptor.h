@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file DestineConcept.h
+/// @file destineConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `destine` concept.
 ///
 /// This header defines `DestineConcept`, the **compile-time descriptor**

@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file AnalysisConcept.h
+/// @file analysisConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `analysis` concept.
 ///
 /// This header defines `AnalysisConcept`, the **compile-time descriptor**

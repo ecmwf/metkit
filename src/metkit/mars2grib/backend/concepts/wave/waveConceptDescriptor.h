@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file WaveConcept.h
+/// @file waveConceptDescriptor.h
 /// @brief Compile-time registry entry for the GRIB `wave` concept.
 ///
 /// This header defines `WaveConcept`, the **compile-time descriptor**
@@ -57,13 +57,45 @@ using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 ///
 struct WaveConcept : RegisterEntryDescriptor<WaveType, WaveList> {
 
+    ///
+    /// @brief Return the canonical name of the concept.
+    ///
+    /// This name is used for:
+    /// - registry identification
+    /// - diagnostics and logging
+    /// - debug and introspection utilities
+    ///
     static constexpr std::string_view entryName() { return waveName; }
 
+    ///
+    /// @brief Return the symbolic name of a concept variant.
+    ///
+    /// @tparam T Variant enumeration value
+    /// @return String view representing the variant name
+    ///
     template <WaveType T>
     static constexpr std::string_view variantName() {
         return waveTypeName<T>();
     }
 
+    ///
+    /// @brief Return the callback associated with a specific encoding phase.
+    ///
+    /// This hook is queried by the registry engine to obtain the function
+    /// implementing the `wave` concept for a given:
+    /// - capability
+    /// - stage
+    /// - GRIB section
+    /// - variant
+    ///
+    /// The function returns either a valid function pointer or `nullptr` if the
+    /// combination is not applicable.
+    ///
+    /// @tparam Capability Encoding capability index
+    /// @tparam Stage      Encoding stage
+    /// @tparam Sec        GRIB section
+    /// @tparam Variant    Concept variant
+    ///
     template <std::size_t Capability, std::size_t Stage, std::size_t Sec, WaveType Variant, class MarsDict_t,
               class ParDict_t, class OptDict_t, class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
@@ -90,6 +122,15 @@ struct WaveConcept : RegisterEntryDescriptor<WaveType, WaveList> {
         return nullptr;
     }
 
+    ///
+    /// @brief Entry-level matcher callback.
+    ///
+    /// This hook is invoked to determine whether the `wave` concept should be
+    /// activated for a given request.
+    ///
+    /// @tparam Capability Matching/encoding capability index
+    /// @return Matcher function pointer, or `nullptr` if not participating.
+    ///
     template <std::size_t Capability, class MarsDict_t, class OptDict_t>
     static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
         if constexpr (Capability == 0) {

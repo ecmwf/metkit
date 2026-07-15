@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file analysisOp.h
+/// @file analysisEncoding.h
 /// @brief Implementation of the GRIB `analysis` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -150,7 +150,7 @@ void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
             MARS2GRIB_LOG_CONCEPT(analysis);
 
             // Structural validation
-            validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L});
+            validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L, 37L, 38L, 39L});
 
             // Deductions
             long offsetToEndOf4DvarWindowVal = deductions::resolve_offsetToEndOf4DvarWindow_or_throw(mars, par, opt);

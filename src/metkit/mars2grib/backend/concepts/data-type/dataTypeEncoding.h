@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file dataTypeOp.h
+/// @file dataTypeEncoding.h
 /// @brief Implementation of the GRIB `dataType` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
