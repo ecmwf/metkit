@@ -64,7 +64,7 @@ std::size_t shapeOfTheEarthMatcher(const MarsDict_t& mars, const OptDict_t& opt)
 
         // This is used to fully delegate section3 setting to gridSpec
         if (metkit::mars2grib::utils::skipSection3(opt)) {
-            return static_cast<std::size_t>(RepresentationType::Dummy);
+            return static_cast<std::size_t>(ShapeOfTheEarthType::Dummy);
         }
 
         // NOTE: Spherical harmonics is encoded without shape of the earth

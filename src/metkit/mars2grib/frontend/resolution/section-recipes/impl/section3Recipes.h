@@ -68,7 +68,7 @@ inline const Recipe S3_R150 =
 
 // This is just meant to skip the section3 resolution in order to allow gridspec do be used after the encoder
 inline const Recipe S3_R1000 =
-    make_recipe<0,
+    make_recipe<1000,
         Select<ShapeOfTheEarthConcept,
             ShapeOfTheEarthType::Dummy>,
         Select<RepresentationConcept,
