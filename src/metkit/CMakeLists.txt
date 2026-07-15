@@ -178,6 +178,7 @@ if ( HAVE_GRIB2MARS )
     list( APPEND metkit_srcs
         grib2mars/api/Grib2Mars.cc
         grib2mars/api/Grib2Mars.h
+        grib2mars/mappings/Grib2MarsReturnValue.h
     )
 endif()
 
