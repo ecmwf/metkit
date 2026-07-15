@@ -110,10 +110,11 @@ enum class RepresentationType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using RepresentationList = ValueList<RepresentationType::Latlon, RepresentationType::RegularGaussian,
-                                     RepresentationType::ReducedGaussian, RepresentationType::SphericalHarmonics,
-                                     RepresentationType::GeneralUnstructured, RepresentationType::Healpix,
-                                     RepresentationType::Orca, RepresentationType::Fesom, RepresentationType::Dummy, RepresentationType::Default>;
+using RepresentationList =
+    ValueList<RepresentationType::Latlon, RepresentationType::RegularGaussian, RepresentationType::ReducedGaussian,
+              RepresentationType::SphericalHarmonics, RepresentationType::GeneralUnstructured,
+              RepresentationType::Healpix, RepresentationType::Orca, RepresentationType::Fesom,
+              RepresentationType::Dummy, RepresentationType::Default>;
 
 
 ///

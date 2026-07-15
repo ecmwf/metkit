@@ -176,11 +176,12 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
 /// @return The updated GRIB handle containing the encoded payload
 ///
 template <typename Val_t, class MarsDict_t, class MiscDict_t, class OptDict_t, class OutDict_t>
-void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, const MiscDict_t& misc, const OptDict_t& opt, OutDict_t& handle) {
+void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, const MiscDict_t& misc,
+                          const OptDict_t& opt, OutDict_t& handle) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
-    using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {

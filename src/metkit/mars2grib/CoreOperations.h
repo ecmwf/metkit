@@ -152,8 +152,9 @@ struct CoreOperations {
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
     template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MarsDict_t& mars, const ParDict_t& misc,
-                                                   const OptDict_t& opt, std::unique_ptr<OutDict_t> handle) {
+    static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MarsDict_t& mars,
+                                                   const ParDict_t& misc, const OptDict_t& opt,
+                                                   std::unique_ptr<OutDict_t> handle) {
 
         try {
             if (metkit::mars2grib::utils::skipSection3(opt)) {
@@ -272,7 +273,6 @@ struct CoreOperations {
 
             // 4. Inject Values
             return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
-
         }
         catch (const std::exception& e) {
             printExtendedStack(e);
@@ -586,7 +586,7 @@ struct CoreOperations {
     //         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
     //
     //         auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(mars, opt);
-// 
+    //
     //         return debug_convert_GribHeaderLayoutData_to_json(layout);
     //     }
     //     catch (...) {

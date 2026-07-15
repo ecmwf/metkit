@@ -81,7 +81,7 @@ GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, cons
 
     try {
         // Step 1: Semantic Analysis (What concepts are we encoding?)
-        ActiveConceptsData activeConcepts = resolve_ActiveConcepts_or_throw<MarsDict_t,OptDict_t>(marsDict, optDict);
+        ActiveConceptsData activeConcepts = resolve_ActiveConcepts_or_throw<MarsDict_t, OptDict_t>(marsDict, optDict);
 
         // Step 2: Structural Mapping (Where do these concepts live in the GRIB sections?)
         std::array<SectionLayoutData, GeneralRegistry::NSections> sectionsLayout =
