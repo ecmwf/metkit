@@ -5,7 +5,7 @@
 //! - Tracking which fields have been retrieved (`clear()`, `count()`)
 //! - Ordering fields in a fieldset (`field_ordinal()`)
 
-use crate::request::MarsRequest;
+use crate::request::{Expanded, MarsRequest, RequestState};
 
 /// N-dimensional field grid derived from a `MarsRequest`.
 pub struct HyperCube {
@@ -18,10 +18,14 @@ unsafe impl Send for HyperCube {}
 unsafe impl Sync for HyperCube {}
 
 impl HyperCube {
-    /// Create from a `MarsRequest` — builds the N-dimensional grid
+    /// Create from an expanded `MarsRequest` — builds the N-dimensional grid
     /// from the request's parameter values.
-    pub fn new(request: &MarsRequest) -> crate::Result<Self> {
-        let inner = metkit_sys::hypercube_create(request.as_sys()).map_err(crate::Error::from)?;
+    ///
+    /// The C++ `HyperCube` assumes canonical, enumerated values (no date
+    /// ranges, no aliases), so only [`MarsRequest<Expanded>`] is accepted.
+    pub fn new(request: &MarsRequest<Expanded>) -> crate::Result<Self> {
+        let inner =
+            metkit_sys::HyperCubeWrapper::create(request.as_sys()).map_err(crate::Error::from)?;
         Ok(Self { inner })
     }
 
@@ -44,14 +48,18 @@ impl HyperCube {
     }
 
     /// Check if a request matches a cell in the hypercube.
-    pub fn contains(&self, request: &MarsRequest) -> crate::Result<bool> {
+    ///
+    /// Field requests often come from GRIB messages
+    /// (`TryFrom<&eckit::Message>`, which yields `MarsRequest<Raw>`),
+    /// so any state is accepted.
+    pub fn contains<S: RequestState>(&self, request: &MarsRequest<S>) -> crate::Result<bool> {
         self.inner
             .contains(request.as_sys())
             .map_err(crate::Error::from)
     }
 
     /// Mark a cell as found. Returns true if the cell existed and was cleared.
-    pub fn clear(&mut self, request: &MarsRequest) -> crate::Result<bool> {
+    pub fn clear<S: RequestState>(&mut self, request: &MarsRequest<S>) -> crate::Result<bool> {
         self.inner
             .pin_mut()
             .clear(request.as_sys())
@@ -59,7 +67,7 @@ impl HyperCube {
     }
 
     /// Get the ordinal position of a request in the hypercube (for field ordering).
-    pub fn field_ordinal(&self, request: &MarsRequest) -> crate::Result<usize> {
+    pub fn field_ordinal<S: RequestState>(&self, request: &MarsRequest<S>) -> crate::Result<usize> {
         self.inner
             .field_ordinal(request.as_sys())
             .map_err(crate::Error::from)

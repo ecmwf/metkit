@@ -4,7 +4,7 @@
 //! Wraps the Hermes TCP protocol: connects on `open_for_read()`,
 //! reads GRIB data via `Read` trait.
 
-use crate::request::MarsRequest;
+use crate::request::{Expanded, MarsRequest};
 
 /// A `DataHandle` that retrieves data via the Hermes protocol.
 ///
@@ -25,11 +25,14 @@ pub struct MarsRequestHandle {
 }
 
 impl MarsRequestHandle {
-    /// Create a new handle from a request and database configuration.
+    /// Create a new handle from an expanded request and database configuration.
     ///
-    /// Mirrors C++ `MarsRequestHandle(request, config)`.
-    pub fn new(request: &MarsRequest, config: &eckit::Config) -> crate::Result<Self> {
-        let inner = metkit_sys::mars_request_handle(request.as_sys(), config.as_sys())
+    /// Mirrors C++ `MarsRequestHandle(request, config)`. The request is sent
+    /// to the server as-is, so it must already be language-expanded.
+    pub fn new(request: &MarsRequest<Expanded>, config: &eckit::Config) -> crate::Result<Self> {
+        let inner = request
+            .as_sys()
+            .make_handle(config.as_sys())
             .map_err(crate::Error::from)?;
         Ok(Self {
             inner: eckit::DataHandle::from_raw(inner),

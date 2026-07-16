@@ -12,7 +12,7 @@ pub struct MarsLanguage {
 impl MarsLanguage {
     /// Create a language definition for a verb.
     pub fn new(verb: &str) -> Result<Self> {
-        let inner = metkit_sys::language_create(verb).map_err(crate::Error::from)?;
+        let inner = metkit_sys::MarsLanguageWrapper::create(verb).map_err(crate::Error::from)?;
         Ok(Self { inner })
     }
 

@@ -20,7 +20,8 @@ unsafe impl Send for CodesHandle {}
 impl CodesHandle {
     /// Create from raw message bytes (copies the data).
     pub fn from_message(data: &[u8]) -> crate::Result<Self> {
-        let inner = metkit_sys::codes_handle_from_message(data).map_err(crate::Error::from)?;
+        let inner =
+            metkit_sys::CodesHandleWrapper::from_message(data).map_err(crate::Error::from)?;
         Ok(Self { inner })
     }
 
@@ -28,8 +29,8 @@ impl CodesHandle {
     ///
     /// Mirrors C++ `metkit::codes::codesHandleFromSample()`.
     pub fn from_sample(sample: impl AsRef<str>) -> crate::Result<Self> {
-        let inner =
-            metkit_sys::codes_handle_from_sample(sample.as_ref()).map_err(crate::Error::from)?;
+        let inner = metkit_sys::CodesHandleWrapper::from_sample(sample.as_ref())
+            .map_err(crate::Error::from)?;
         Ok(Self { inner })
     }
 
@@ -41,7 +42,8 @@ impl CodesHandle {
                 path.as_ref().display()
             ))
         })?;
-        let inner = metkit_sys::codes_handle_from_file(path_str).map_err(crate::Error::from)?;
+        let inner =
+            metkit_sys::CodesHandleWrapper::from_file(path_str).map_err(crate::Error::from)?;
         Ok(Self { inner })
     }
 
@@ -53,7 +55,7 @@ impl CodesHandle {
                 path.as_ref().display()
             ))
         })?;
-        let inner = metkit_sys::codes_handle_from_file_at_offset(path_str, offset)
+        let inner = metkit_sys::CodesHandleWrapper::from_file_at_offset(path_str, offset)
             .map_err(crate::Error::from)?;
         Ok(Self { inner })
     }

@@ -1,7 +1,7 @@
 //! Safe Rust wrapper for ECMWF's metkit C++ library.
 //!
 //! Provides:
-//! - [`MarsRequestBuilder`] / [`MarsRequest`] — build and validate MARS requests
+//! - [`MarsRequest`] — build and validate MARS requests (typestate: [`Raw`] / [`Expanded`])
 //! - [`MarsLanguage`] — keyword categorization
 //! - [`initialize_environment`] — protocol environment metadata
 
@@ -11,7 +11,6 @@ pub mod error;
 pub mod handle;
 pub mod hypercube;
 pub mod language;
-pub mod param;
 pub mod request;
 
 pub use codes::{CodesGet, CodesHandle, CodesSet};
@@ -20,5 +19,6 @@ pub use error::{Error, Result};
 pub use handle::MarsRequestHandle;
 pub use hypercube::HyperCube;
 pub use language::MarsLanguage;
-pub use param::{WindFamily, wind_families};
-pub use request::{MarsRequest, MarsRequestBuilder, ParsedRequests, parse, tokenize};
+pub use request::{
+    Expanded, MarsRequest, MarsValue, ParsedRequests, Raw, RequestState, parse, tokenize,
+};
