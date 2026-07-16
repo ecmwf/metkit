@@ -10,15 +10,18 @@
 
 
 #include <cstdio>
+#include <cstring>
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/geo/Grid.h"
 #include "eckit/log/Log.h"
+#include "eckit/option/CmdArgs.h"
+#include "eckit/option/SimpleOption.h"
 #include "eckit/runtime/Main.h"
 #include "eckit/runtime/Tool.h"
 
 #include "eccodes/eccodes.h"
-
 #include "metkit/grib2mars/api/Grib2Mars.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
 
@@ -35,31 +38,30 @@ void get_vector_double(codes_handle* h, const std::string& k, std::vector<double
 }
 
 
-std::string get_string(codes_handle* h, const std::string& k) {
-    char buffer[1024];
-    size_t size = sizeof(buffer);
-
-    ASSERT(CODES_SUCCESS == codes_get_string(h, k.c_str(), buffer, &size));
-
-    return buffer;
-}
+template <typename T>
+using Option = eckit::option::SimpleOption<T>;
 
 
 class Roundtrip : public eckit::Tool {
     using Tool::Tool;
 
+    static void usage(const std::string& name) {
+        eckit::Log::info() << name << " file [grid]" << std::endl;
+        exit(1);
+    }
+
     void run() override {
-        const auto& tool = Main::instance();
-        if (tool.argc() != 2 && tool.argc() != 3) {
-            eckit::Log::info() << tool.name() << " file [grid]" << std::endl;
-            exit(1);
-        }
 
-        std::string path = tool.argv(1);
-        std::string grid = (tool.argc() == 3 ? tool.argv(2) : "");
+        std::vector<eckit::option::Option*> options;
+        options.push_back(new Option<std::string>("grid", "MARS grid"));
+        options.push_back(new Option<bool>("gridspec", "Set grid as gridSpec"));
+        options.push_back(new Option<bool>("valid", "Check isMessageValid (deafult true)"));
+        options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (deafult false)"));
 
+        eckit::option::CmdArgs args(usage, options, 1, 1);
+        ASSERT(args.count() == 1);
 
-        auto* f = std::fopen(path.c_str(), "rb");
+        auto* f = std::fopen(args(0).c_str(), "rb");
         ASSERT(f != nullptr);
 
         int err = 0;
@@ -71,36 +73,49 @@ class Roundtrip : public eckit::Tool {
 
 
         {
+            eckit::LocalConfiguration cfg;
+            cfg.set("skipSection3", args.getBool("gridspec", false));
+
             metkit::grib2mars::Grib2Mars grib2mars;
-            metkit::mars2grib::Mars2Grib mars2grib;
+            metkit::mars2grib::Mars2Grib mars2grib(cfg);
 
             auto ch = metkit::codes::codesHandleFromGRIBHandle(g);
             ASSERT(ch);
 
             auto [mars, misc] = grib2mars.convert<eckit::LocalConfiguration>(*ch);
 
-            if (!grid.empty()) {
+            if (args.has("grid")) {
+                mars.set("grid", args.getString("grid"));
                 mars.remove("area");
                 mars.remove("rotation");
-
-                // until implementation uses 'grid'
-                if (auto gridType = get_string(g, "gridType"); gridType == "sh") {
-                    ASSERT(grid.size() >= 2 && grid.front() == 'T');
-                    auto truncation = std::atol(&grid[1]);
-
-                    mars.set("truncation", truncation);
-                    mars.remove("grid");
-                }
-                else {
-                    mars.set("grid", grid);
-                    mars.remove("truncation");
-                }
+                mars.remove("truncation");
+            }
+            else if (args.has("truncation")) {
+                mars.set("truncation", args.getLong("truncation"));
+                mars.remove("area");
+                mars.remove("grid");
+                mars.remove("rotation");
             }
 
             const auto h = mars2grib.encode(values, mars, misc);
             ASSERT(h);
 
-            ASSERT(h->getLong("isMessageValid") != 0);
+            if (args.getBool("valid", true)) {
+                ASSERT(h->getLong("isMessageValid") != 0);
+            }
+
+            if (args.getBool("cmp", true)) {
+                size_t size = 0;
+                ASSERT(CODES_SUCCESS == codes_get_message_size(g, &size));
+                ASSERT(size == h->messageSize());
+
+                const void* input_message = nullptr;
+                ASSERT(CODES_SUCCESS == codes_get_message(g, &input_message, &size));
+
+                auto encoded = h->messageData();
+                ASSERT(encoded.size() == size);
+                ASSERT(std::memcmp(input_message, encoded.data(), size) == 0);
+            }
         }
 
         codes_handle_delete(g);
