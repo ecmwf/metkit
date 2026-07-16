@@ -26,7 +26,8 @@ void extractTimespan(const std::string& keyword, const metkit::codes::CodesHandl
         const std::string stepType = grib.getString("stepType");
 
         if (stepType == "instant") {
-            set_or_throw<std::string>(mars, keyword, "none");
+            // TODO: Re-enable the line below after ProductTime is refactored
+            // set_or_throw<std::string>(mars, keyword, "none");
             return;
         }
 
