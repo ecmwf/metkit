@@ -27,5 +27,5 @@ endmacro()
 
 add_roundtrip_tests("mtg2-sfc" "O1280")
 add_roundtrip_tests("mtg2-o2d" "eORCA025_T")
-# add_roundtrip_tests("mtg2-t" "T20")
-# add_roundtrip_tests("mtg2-vod" "T20")
+add_roundtrip_tests("mtg2-t" "T20")
+add_roundtrip_tests("mtg2-vod" "T20")

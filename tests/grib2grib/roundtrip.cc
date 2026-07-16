@@ -82,26 +82,25 @@ class Roundtrip : public eckit::Tool {
             if (!grid.empty()) {
                 mars.remove("area");
                 mars.remove("rotation");
-                mars.remove("grid");
-                mars.remove("truncation");
 
                 // until implementation uses 'grid'
-                if (std::string gridType = get_string(g, "gridType"); gridType == "sh") {
-                    long J = 0;
-                    ASSERT(CODES_SUCCESS == codes_get_long(g, "J", &J));
-                    mars.set("truncation", J);
+                if (auto gridType = get_string(g, "gridType"); gridType == "sh") {
+                    ASSERT(grid.size() >= 2 && grid.front() == 'T');
+                    auto truncation = std::atol(&grid[1]);
+
+                    mars.set("truncation", truncation);
+                    mars.remove("grid");
                 }
                 else {
                     mars.set("grid", grid);
+                    mars.remove("truncation");
                 }
             }
 
             const auto h = mars2grib.encode(values, mars, misc);
             ASSERT(h);
 
-            auto isMessageValid = h->getLong("isMessageValid");
-            eckit::Log::info() << "isMessageValid=" << isMessageValid << std::endl;
-            eckit::Log::info() << "messageSize=" << h->messageSize() << std::endl;
+            ASSERT(h->getLong("isMessageValid") != 0);
         }
 
         codes_handle_delete(g);
