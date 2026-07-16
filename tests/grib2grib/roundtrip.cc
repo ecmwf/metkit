@@ -54,6 +54,7 @@ class Roundtrip : public eckit::Tool {
 
         std::vector<eckit::option::Option*> options;
         options.push_back(new Option<std::string>("grid", "MARS grid"));
+        options.push_back(new Option<long>("truncation", "MARS truncation (for gridType=sh)"));
         options.push_back(new Option<bool>("gridspec", "Set grid as gridSpec"));
         options.push_back(new Option<bool>("valid", "Check isMessageValid (deafult true)"));
         options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (deafult false)"));
@@ -74,7 +75,15 @@ class Roundtrip : public eckit::Tool {
 
         {
             eckit::LocalConfiguration cfg;
-            cfg.set("skipSection3", args.getBool("gridspec", false));
+
+            if (args.getBool("gridspec", false)) {
+                cfg.set("skipSection3", true);
+
+                std::unique_ptr<const eckit::geo::Grid> grid(
+                    eckit::geo::GridFactory::make_from_string(args.getString("grid")));
+                eckit::Log::info() << "Using gridSpec for grid definition, grid.spec_str(): " << grid->spec_str()
+                                   << std::endl;
+            }
 
             metkit::grib2mars::Grib2Mars grib2mars;
             metkit::mars2grib::Mars2Grib mars2grib(cfg);
@@ -104,9 +113,12 @@ class Roundtrip : public eckit::Tool {
                 ASSERT(h->getLong("isMessageValid") != 0);
             }
 
-            if (args.getBool("cmp", true)) {
+            if (args.getBool("cmp", false)) {
                 size_t size = 0;
                 ASSERT(CODES_SUCCESS == codes_get_message_size(g, &size));
+
+                eckit::Log::info() << "Original message size: " << size
+                                   << ", encoded message size: " << h->messageSize() << std::endl;
                 ASSERT(size == h->messageSize());
 
                 const void* input_message = nullptr;
