@@ -439,7 +439,7 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-std::vector<std::string> MarsLanguage::parseKey(const std::string& keyword, std::vector<std::string> values,
+std::vector<std::string> MarsLanguage::expandKey(const std::string& keyword, std::vector<std::string> values,
                                                 const MarsRequest& context, bool strict) {
     std::string p = eckit::StringTools::lower(keyword);
 

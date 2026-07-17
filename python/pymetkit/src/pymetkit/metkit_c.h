@@ -27,7 +27,7 @@ const char* metkit_git_sha1();
 metkit_error_t metkit_initialise();
 
 metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator_t** requests, bool strict);
-metkit_error_t metkit_parse_key(const char* verb, const char* keyword, const char* value,
+metkit_error_t metkit_expand_key(const char* verb, const char* keyword, const char* value,
                                 const metkit_marsrequest_t* context, bool strict, metkit_paramiterator_t** values);
 metkit_error_t metkit_marsrequest_new(metkit_marsrequest_t** request);
 metkit_error_t metkit_marsrequest_delete(const metkit_marsrequest_t* request);

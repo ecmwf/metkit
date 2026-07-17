@@ -184,7 +184,7 @@ metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* r
     });
 }
 
-metkit_error_t metkit_parse_key(const char* verb, const char* keyword, const char* value,
+metkit_error_t metkit_expand_key(const char* verb, const char* keyword, const char* value,
                                 const metkit_marsrequest_t* context, bool strict, metkit_paramiterator_t** values) {
     return tryCatch([verb, keyword, value, context, strict, values] {
         ASSERT(keyword);
@@ -197,11 +197,11 @@ metkit_error_t metkit_parse_key(const char* verb, const char* keyword, const cha
 
         std::vector<std::string> expanded;
         if (context) {
-            expanded = expansion.parseKey(verb ? verb : "retrieve", keyword, std::move(tokens), *context);
+            expanded = expansion.expandKey(verb ? verb : "retrieve", keyword, std::move(tokens), *context);
         }
         else {
             expanded =
-                expansion.parseKey(verb ? verb : "retrieve", keyword, std::move(tokens), metkit::mars::MarsRequest{});
+                expansion.expandKey(verb ? verb : "retrieve", keyword, std::move(tokens), metkit::mars::MarsRequest{});
         }
 
         *values = new metkit_paramiterator_t(std::move(expanded));

@@ -76,7 +76,7 @@ public:  // methods
     /// @param context other keys providing context for context-sensitive types
     /// @param strict if true, validate expanded values and throw on invalid values
     /// @return expanded/normalised values
-    std::vector<std::string> parseKey(const std::string& keyword, std::vector<std::string> values,
+    std::vector<std::string> expandKey(const std::string& keyword, std::vector<std::string> values,
                                       const MarsRequest& context = {}, bool strict = false);
 
     bool isData(const std::string& keyword) const;

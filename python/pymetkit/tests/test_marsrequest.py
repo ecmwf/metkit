@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from contextlib import nullcontext as does_not_raise
 import pytest
 
-from pymetkit import parse_mars_request, parse_key, MarsRequest, MetKitException
+from pymetkit import parse_mars_request, expand_key, MarsRequest, MetKitException
 
 request = """
 retrieve,
@@ -99,22 +99,22 @@ def test_empty_request(tmpdir):
         ],
     ],
 )
-def test_parse_key(keyword, value, kwargs, expected):
-    assert parse_key(keyword, value, **kwargs) == expected
+def test_expand_key(keyword, value, kwargs, expected):
+    assert expand_key(keyword, value, **kwargs) == expected
 
 
-def test_parse_key_context_marsrequest():
+def test_expand_key_context_marsrequest():
     context = MarsRequest("retrieve", levtype="pl")
-    assert parse_key("levelist", "500/to/300/by/100", context=context) == [
+    assert expand_key("levelist", "500/to/300/by/100", context=context) == [
         "500",
         "400",
         "300",
     ]
 
 
-def test_parse_key_strict_raises():
+def test_expand_key_strict_raises():
     with pytest.raises(MetKitException):
-        parse_key("time", "notatime", strict=True)
+        expand_key("time", "notatime", strict=True)
 
 
 def test_new_request():

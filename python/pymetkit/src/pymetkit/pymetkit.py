@@ -219,14 +219,14 @@ def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Mars
     return requests
 
 
-def parse_key(
+def expand_key(
     keyword: str,
     value: str | int | list,
     verb: str = "retrieve",
     context: "MarsRequest | dict | None" = None,
     strict: bool = False,
 ) -> list[str]:
-    """Parse/normalise the values of a single MARS key, without building a full request.
+    """Expand and normalise the values of a single MARS key, without building a full request.
 
     Applies the MARS language rules for ``keyword``: range syntax such as
     ``"1/to/10/by/1"`` is expanded, and per-key normalisation is performed (e.g.
@@ -234,7 +234,7 @@ def parse_key(
 
     Context-sensitive keys (e.g. those whose interpretation depends on other
     keys) consult ``context``. Supply the relevant neighbouring keys there, e.g.
-    ``parse_key("levelist", "1/to/10", context={"levtype": "ml"})``.
+    ``expand_key("levelist", "1/to/10", context={"levtype": "ml"})``.
 
     Note: this performs single-pass expansion only. Second-pass, rule-based
     resolution (e.g. ``param``) and default inheritance are not applied; use
@@ -242,7 +242,7 @@ def parse_key(
 
     Params
     ------
-    keyword: name of the MARS key to parse (canonical, alias or unambiguous prefix)
+    keyword: name of the MARS key to expand (canonical, alias or unambiguous prefix)
     value: values to expand, as a ``"a/b/c"`` string or a list of tokens
     verb: MARS verb whose language defines the key (defaults to "retrieve")
     context: optional MarsRequest or dict of neighbouring keys for context-sensitive keys
@@ -254,7 +254,7 @@ def parse_key(
 
     Examples
     --------
-    >>> parse_key("step", "1/to/10/by/1")
+    >>> expand_key("step", "1/to/10/by/1")
     ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
     """
     if isinstance(value, (list, tuple)):
@@ -269,7 +269,7 @@ def parse_key(
         context_c = context.ctype()
 
     it_c = ffi.new("metkit_paramiterator_t **")
-    lib.metkit_parse_key(
+    lib.metkit_expand_key(
         ffi_encode(verb),
         ffi_encode(keyword),
         ffi_encode(value),

@@ -118,7 +118,7 @@ metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* r
  *                    metkit_paramiterator_delete
  * @return metkit_error_t Error code
  */
-metkit_error_t metkit_parse_key(const char* verb, const char* keyword, const char* value,
+metkit_error_t metkit_expand_key(const char* verb, const char* keyword, const char* value,
                                 const metkit_marsrequest_t* context, bool strict, metkit_paramiterator_t** values);
 /* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST

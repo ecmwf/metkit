@@ -66,13 +66,13 @@ public:
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
 
     /// @brief Parse/normalise the values of a single keyword in isolation, using (and caching) the
-    /// language for @p verb. See MarsLanguage::parseKey for semantics and limitations.
+    /// language for @p verb. See MarsLanguage::expandKey for semantics and limitations.
     /// @param verb MARS verb whose language defines the keyword (e.g. "retrieve")
     /// @param keyword keyword to parse (canonical, alias or unambiguous prefix)
     /// @param values values to expand (already split on '/')
     /// @param context other keys providing context for context-sensitive types
     /// @return expanded/normalised values
-    std::vector<std::string> parseKey(const std::string& verb, const std::string& keyword,
+    std::vector<std::string> expandKey(const std::string& verb, const std::string& keyword,
                                       std::vector<std::string> values, const MarsRequest& context = {});
 
     void expand(const MarsRequest&, ExpandCallback&);
