@@ -350,26 +350,37 @@ class PatchedLib:
         """
         If calls into the MetKit library return errors, ensure that they get
         detected and reported by throwing an appropriate python exception.
+
+        Two distinct return-code domains exist in the C API and must not share a
+        single success-set, otherwise their overlapping integer values collide
+        (e.g. metkit_error_t METKIT_ERROR == metkit_iterator_status_t
+        METKIT_ITERATOR_COMPLETE == 1):
+
+        * iterator functions (``*_next`` / ``*_current``) return
+          metkit_iterator_status_t, where SUCCESS and COMPLETE are both non-error
+          outcomes and only ITERATOR_ERROR indicates failure;
+        * every other function returns metkit_error_t, where only METKIT_SUCCESS
+          indicates success.
         """
 
-        def wrapped_fn(*args, **kwargs):
+        # Functions that do not return an error/status code at all.
+        if name in ("metkit_version", "metkit_git_sha1"):
+            return fn
 
-            # debug
+        is_iterator = name.endswith("_next") or name.endswith("_current")
+
+        def wrapped_fn(*args, **kwargs):
             retval = fn(*args, **kwargs)
 
-            # Some functions dont return error codes. Ignore these.
-            if name in ["metkit_version", "metkit_git_sha1"]:
+            if is_iterator:
+                if retval == self.__lib.METKIT_ITERATOR_ERROR:
+                    err = ffi_decode(self.__lib.metkit_get_error_string(retval))
+                    raise MetKitException("Error in function '{}': {}".format(name, err))
                 return retval
 
-            # error codes:
-            if retval not in (
-                self.__lib.METKIT_SUCCESS,
-                self.__lib.METKIT_ITERATOR_SUCCESS,
-                self.__lib.METKIT_ITERATOR_COMPLETE,
-            ):
+            if retval != self.__lib.METKIT_SUCCESS:
                 err = ffi_decode(self.__lib.metkit_get_error_string(retval))
-                msg = "Error in function '{}': {}".format(name, err)
-                raise MetKitException(msg)
+                raise MetKitException("Error in function '{}': {}".format(name, err))
             return retval
 
         return wrapped_fn
