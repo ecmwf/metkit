@@ -219,6 +219,75 @@ def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Mars
     return requests
 
 
+def parse_key(
+    keyword: str,
+    value: str | int | list,
+    verb: str = "retrieve",
+    context: "MarsRequest | dict | None" = None,
+    strict: bool = False,
+) -> list[str]:
+    """Parse/normalise the values of a single MARS key, without building a full request.
+
+    Applies the MARS language rules for ``keyword``: range syntax such as
+    ``"1/to/10/by/1"`` is expanded, and per-key normalisation is performed (e.g.
+    ``date="-1"`` resolves to a ``yyyymmdd`` date, ``time="6"`` to ``"0600"``).
+
+    Context-sensitive keys (e.g. those whose interpretation depends on other
+    keys) consult ``context``. Supply the relevant neighbouring keys there, e.g.
+    ``parse_key("levelist", "1/to/10", context={"levtype": "ml"})``.
+
+    Note: this performs single-pass expansion only. Second-pass, rule-based
+    resolution (e.g. ``param``) and default inheritance are not applied; use
+    :meth:`MarsRequest.expand` on a (scoped) request for those.
+
+    Params
+    ------
+    keyword: name of the MARS key to parse (canonical, alias or unambiguous prefix)
+    value: values to expand, as a ``"a/b/c"`` string or a list of tokens
+    verb: MARS verb whose language defines the key (defaults to "retrieve")
+    context: optional MarsRequest or dict of neighbouring keys for context-sensitive keys
+    strict: if True, raise an error on invalid values
+
+    Returns
+    -------
+    list of expanded/normalised string values
+
+    Examples
+    --------
+    >>> parse_key("step", "1/to/10/by/1")
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+    """
+    if isinstance(value, (list, tuple)):
+        value = "/".join(str(v) for v in value)
+    else:
+        value = str(value)
+
+    context_c = ffi.NULL
+    if context is not None:
+        if isinstance(context, dict):
+            context = MarsRequest(**context)
+        context_c = context.ctype()
+
+    it_c = ffi.new("metkit_paramiterator_t **")
+    lib.metkit_parse_key(
+        ffi_encode(verb),
+        ffi_encode(keyword),
+        ffi_encode(value),
+        context_c,
+        strict,
+        it_c,
+    )
+    it = ffi.gc(it_c[0], lib.metkit_paramiterator_delete)
+
+    values = []
+    while lib.metkit_paramiterator_next(it) == lib.METKIT_ITERATOR_SUCCESS:
+        cvalue = ffi.new("const char **")
+        lib.metkit_paramiterator_current(it, cvalue)
+        values.append(ffi_decode(cvalue[0]))
+
+    return values
+
+
 class MetKitException(RuntimeError):
     """Raised when MetKit library throws exception"""
 

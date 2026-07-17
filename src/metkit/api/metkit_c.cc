@@ -1,6 +1,7 @@
 #include "metkit_c.h"
 #include <functional>
 #include "eckit/runtime/Main.h"
+#include "eckit/utils/StringTools.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/metkit_version.h"
@@ -180,6 +181,30 @@ metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* r
         ASSERT(request);
         ASSERT(str);
         *request = metkit::mars::MarsRequest::parse(str, strict);
+    });
+}
+
+metkit_error_t metkit_parse_key(const char* verb, const char* keyword, const char* value,
+                                const metkit_marsrequest_t* context, bool strict, metkit_paramiterator_t** values) {
+    return tryCatch([verb, keyword, value, context, strict, values] {
+        ASSERT(keyword);
+        ASSERT(value);
+        ASSERT(values);
+
+        std::vector<std::string> tokens = eckit::StringTools::split("/", value);
+
+        metkit::mars::MarsExpansion expansion(false, strict);
+
+        std::vector<std::string> expanded;
+        if (context) {
+            expanded = expansion.parseKey(verb ? verb : "retrieve", keyword, std::move(tokens), *context);
+        }
+        else {
+            expanded =
+                expansion.parseKey(verb ? verb : "retrieve", keyword, std::move(tokens), metkit::mars::MarsRequest{});
+        }
+
+        *values = new metkit_paramiterator_t(std::move(expanded));
     });
 }
 

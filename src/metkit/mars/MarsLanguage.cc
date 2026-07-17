@@ -439,6 +439,35 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
+std::vector<std::string> MarsLanguage::parseKey(const std::string& keyword, std::vector<std::string> values,
+                                                const MarsRequest& context, bool strict) {
+    std::string p = eckit::StringTools::lower(keyword);
+
+    std::string canonical;
+    if (auto c = cache_.find(p); c != cache_.end()) {
+        canonical = c->second;
+    }
+    else {
+        canonical = cache_[p] = bestMatch(p, keywords_, true, false, true, aliases_);
+    }
+
+    Type* t = type(canonical);
+
+    if (values.size() == 1) {
+        const std::string& s = eckit::StringTools::lower(values[0]);
+        if (s == "all" && t->multiple()) {
+            return {"all"};
+        }
+    }
+
+    t->expand(values, context);
+    if (strict) {
+        t->check(values);
+    }
+    return values;
+}
+
+
 MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
     MarsRequest result(verb_);
 
