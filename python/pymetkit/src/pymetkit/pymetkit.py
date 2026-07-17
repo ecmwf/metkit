@@ -219,6 +219,40 @@ def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Mars
     return requests
 
 
+def _expand_param(
+    value: str | int | list,
+    verb: str,
+    context: "MarsRequest | dict | None",
+    strict: bool,
+) -> list[str]:
+    """Resolve the ``param`` key via a full (multi-pass) request expansion.
+
+    ``param`` cannot be expanded in isolation because its result depends on other
+    keys. A scoped :class:`MarsRequest` is built from ``context`` (which supplies
+    the neighbouring keys such as ``class``/``stream``/``type``/``levtype``), the
+    param value is set, the request is expanded, and the resolved ``param`` values
+    are returned.
+    """
+    if isinstance(value, (list, tuple)):
+        values = [str(v) for v in value]
+    else:
+        values = str(value).split("/")
+
+    request = MarsRequest(verb)
+    if context is not None:
+        if isinstance(context, MarsRequest):
+            for key, vals in context:
+                request[key] = vals
+        else:  # dict-like
+            for key, vals in context.items():
+                request[key.rstrip("_")] = vals
+    request["param"] = values
+
+    expanded = request.expand(inherit=False, strict=strict)
+    resolved = expanded["param"]
+    return [resolved] if isinstance(resolved, str) else resolved
+
+
 def expand_key(
     keyword: str,
     value: str | int | list,
@@ -236,9 +270,12 @@ def expand_key(
     keys) consult ``context``. Supply the relevant neighbouring keys there, e.g.
     ``expand_key("levelist", "1/to/10", context={"levtype": "ml"})``.
 
-    Note: this performs single-pass expansion only. Second-pass, rule-based
-    resolution (e.g. ``param``) and default inheritance are not applied; use
-    :meth:`MarsRequest.expand` on a (scoped) request for those.
+    Note: this performs single-pass expansion for most keys. ``param`` is a
+    special case: its value depends on other keys (``class``/``stream``/``type``/
+    ``levtype``) and requires a full multi-pass expansion, so ``expand_key``
+    transparently builds a scoped request from ``context``, expands it, and
+    returns the resolved ``param`` values, e.g.
+    ``expand_key("param", "t", context={"levtype": "sfc"})``.
 
     Params
     ------
@@ -256,7 +293,16 @@ def expand_key(
     --------
     >>> expand_key("step", "1/to/10/by/1")
     ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+    >>> expand_key("param", "t", context={"levtype": "pl"})
+    ['130']
     """
+    if keyword == "param":
+        # 'param' cannot be resolved by single-pass expansion: its value depends
+        # on other keys, so it needs the full multi-pass request expansion. We
+        # hide that from the caller by building a scoped request from the given
+        # context, expanding it, and returning just the resolved param values.
+        return _expand_param(value, verb, context, strict)
+
     if isinstance(value, (list, tuple)):
         value = "/".join(str(v) for v in value)
     else:

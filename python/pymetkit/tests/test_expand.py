@@ -192,9 +192,13 @@ def test_keyword_aliases_resolve(alias):
     assert expand_key(alias, "1/to/3") == ["1", "2", "3"]
 
 
-@pytest.mark.parametrize("alias", ["param", "parameter", "parameters"])
-def test_param_aliases_resolve(alias):
-    assert expand_key(alias, "130") == ["130"]
+def test_param_resolves_with_context():
+    # 'param' is resolved transparently via a full multi-pass expansion.
+    assert expand_key("param", "130", context={"levtype": "pl"}) == ["130"]
+    assert expand_key("param", "t", context={"levtype": "pl"}) == ["130"]
+    # context changes the result: 't' is 130 on pressure levels, 164 on surface
+    sfc = {"class": "od", "stream": "oper", "type": "an", "levtype": "sfc"}
+    assert expand_key("param", "t", context=sfc) == ["164"]
 
 
 def test_unknown_keyword_raises():

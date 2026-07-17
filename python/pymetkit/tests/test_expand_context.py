@@ -154,19 +154,34 @@ def test_context_dict_and_marsrequest_agree():
 
 
 # ---------------------------------------------------------------------------
-# Documented limitation: second-pass (pass2) resolution is NOT applied
+# 'param' is resolved transparently via a full multi-pass expansion
 # ---------------------------------------------------------------------------
-# 'param' is resolved in a second pass by matching many other keys. expand_key
-# performs single-pass expansion only, so a symbolic param name is passed through
-# unchanged even when the relevant context keys are supplied ...
-def test_param_pass2_not_applied_by_expand_key():
-    param_context = {"levtype": "pl", "stream": "oper", "type": "an", "class": "od"}
-    assert expand_key("param", "t") == ["t"]
-    assert expand_key("param", "t", context=param_context) == ["t"]
+# 'param' depends on other keys, so expand_key builds a scoped request from the
+# context, expands it, and returns the resolved param. Context changes the
+# result: 't' is 130 on pressure levels but 164 on the surface.
+def test_param_resolved_with_context():
+    pl = {"class": "od", "stream": "oper", "type": "an", "levtype": "pl"}
+    sfc = {"class": "od", "stream": "oper", "type": "an", "levtype": "sfc"}
+    assert expand_key("param", "t", context=pl) == ["130"]
+    assert expand_key("param", "t", context=sfc) == ["164"]
+    assert expand_key("param", "2t", context=sfc) == ["167"]
 
 
-# ... whereas a full (scoped) request expansion does resolve it.
-def test_param_resolved_by_full_request_expansion():
+# Context may be a dict or a MarsRequest, and both agree.
+def test_param_context_dict_and_marsrequest_agree():
+    sfc = {"class": "od", "stream": "oper", "type": "an", "levtype": "sfc"}
+    from_dict = expand_key("param", "t", context=sfc)
+
+    req = MarsRequest(
+        "retrieve", class_="od", stream="oper", type="an", levtype="sfc"
+    )
+    from_request = expand_key("param", "t", context=req)
+
+    assert from_dict == from_request == ["164"]
+
+
+# expand_key's transparent param resolution matches a full request expansion.
+def test_param_expand_key_matches_full_request_expansion():
     req = MarsRequest(
         "retrieve",
         class_="od",
@@ -178,4 +193,6 @@ def test_param_resolved_by_full_request_expansion():
         expver="1",
         step="0",
     )
-    assert req.expand()["param"] == "130"
+    assert expand_key("param", "t", context={
+        "class": "od", "stream": "oper", "type": "an", "levtype": "pl",
+    }) == [req.expand()["param"]]

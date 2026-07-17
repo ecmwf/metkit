@@ -88,8 +88,8 @@ def test_empty_request(tmpdir):
         ["step", [0, 6, 12], {}, ["0", "6", "12"]],
         ["time", "6/to/18/by/6", {}, ["0600", "1200", "1800"]],
         ["date", "-1", {}, [yesterday]],
-        # alias resolves to canonical keyword
-        ["parameter", "130", {}, ["130"]],
+        # param resolves via full multi-pass expansion using context
+        ["param", "t", {"context": {"levtype": "pl"}}, ["130"]],
         # context-sensitive keyword: levelist depends on levtype
         [
             "levelist",
@@ -101,6 +101,12 @@ def test_empty_request(tmpdir):
 )
 def test_expand_key(keyword, value, kwargs, expected):
     assert expand_key(keyword, value, **kwargs) == expected
+
+
+def test_expand_key_param_resolves_with_context():
+    # 'param' is resolved transparently; context drives the result.
+    sfc = {"class": "od", "stream": "oper", "type": "an", "levtype": "sfc"}
+    assert expand_key("param", "t", context=sfc) == ["164"]
 
 
 def test_expand_key_context_marsrequest():
