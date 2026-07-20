@@ -64,7 +64,7 @@ void extractPacking(const std::string& keyword, const metkit::codes::CodesHandle
         }
 
         if (grib.has("bitmapPresent")) {
-            const long bitmapPresent = grib.getLong("bitmapPresent");
+            const bool bitmapPresent = grib.getLong("bitmapPresent") == 1;
 
             misc.set("bitmapPresent", bitmapPresent);
         }
