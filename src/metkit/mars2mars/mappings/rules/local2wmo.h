@@ -83,7 +83,7 @@ inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalCon
             case 9:
                 return setParamScale(out, misc, 231012, 1000.0);
             case 141:
-                return setParamScale(out, misc, 231141, 1000.0);
+                return setParamScale(out, misc, 228141, 1000.0);
             case 142:
                 return setParamScale(out, misc, 3062, 1000.0);
             case 182:
