@@ -101,6 +101,9 @@ eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& bas
         else if (overwrite.isFloatingPoint(key)) {
             result.set(key, overwrite.getDouble(key));
         }
+        else if (overwrite.isBoolean(key)) {
+            result.set(key, overwrite.getBool(key));
+        }
         else if (overwrite.isFloatingPointList(key)) {
             result.set(key, overwrite.getDoubleVector(key));
         }
