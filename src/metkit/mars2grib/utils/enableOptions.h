@@ -14,43 +14,100 @@
 
 namespace metkit::mars2grib::utils {
 
-template <typename OutDict>
-inline bool checksEnabled(const Options& opt) {
+template <typename OutDict, class OptDict_t>
+inline bool checksEnabled(const OptDict_t& opt) {
     using metkit::mars2grib::utils::dict_traits::dict_supports_checks_v;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
 
     if constexpr (!dict_supports_checks_v<OutDict>) {
         return false;
     }
-    return opt.applyChecks;
+
+    if (has(opt, "applyChecks")) {
+        return get_or_throw<bool>(opt, "applyChecks");
+    }
+    else {
+        return true;
+    }
 }
 
-inline bool skipSection3(const Options& opt) {
-    return opt.skipSection3;
+template <class OptDict_t>
+inline bool skipSection3(const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    if (has(opt, "skipSection3")) {
+        return get_or_throw<bool>(opt, "skipSection3");
+    }
+    else {
+        return false;
+    }
 }
 
+template <class OptDict_t>
+inline bool overrideEnabled(const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
 
-// inline bool skipSection3(const eckit::LocalConfiguration& opt) {
-//     return false;
-// }
-
-inline bool overrideEnabled(const Options& opt) {
-    return opt.enableOverride;
+    if (has(opt, "enableOverride")) {
+        return get_or_throw<bool>(opt, "enableOverride");
+    }
+    else {
+        return false;
+    }
 }
 
-inline bool bitsPerValueCompressionEnabled(const Options& opt) {
-    return opt.enableBitsPerValueCompression;
+template <class OptDict_t>
+inline bool bitsPerValueCompressionEnabled(const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    if (has(opt, "enableBitsPerValueCompression")) {
+        return get_or_throw<bool>(opt, "enableBitsPerValueCompression");
+    }
+    else {
+        return false;
+    }
 }
 
-inline bool normalizeMarsEnabled(const Options& opt) {
-    return opt.normalizeMars;
+template <class OptDict_t>
+inline bool normalizeMarsEnabled(const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    if (has(opt, "normalizeMars")) {
+        return get_or_throw<bool>(opt, "normalizeMars");
+    }
+    else {
+        return false;
+    }
 }
 
-inline bool normalizeMiscEnabled(const Options& opt) {
-    return opt.normalizeMisc;
+template <class OptDict_t>
+inline bool normalizeMiscEnabled(const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    if (has(opt, "normalizeMisc")) {
+        return get_or_throw<bool>(opt, "normalizeMisc");
+    }
+    else {
+        return false;
+    }
 }
 
-inline bool fixMarsGridEnabled(const Options& opt) {
-    return opt.fixMarsGrid;
+template <class OptDict_t>
+inline bool fixMarsGridEnabled(const OptDict_t& opt) {
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
+
+    if (has(opt, "fixMarsGrid")) {
+        return get_or_throw<bool>(opt, "fixMarsGrid");
+    }
+    else {
+        return false;
+    }
 }
 
 }  // namespace metkit::mars2grib::utils

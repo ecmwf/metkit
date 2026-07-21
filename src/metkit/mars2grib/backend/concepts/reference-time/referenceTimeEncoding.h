@@ -39,6 +39,12 @@
 /// - Strict validation of GRIB template compatibility
 /// - Context-rich error handling
 ///
+/// All encoded temporal date/time payload values are sourced exclusively from
+/// the resolved `backend::models::product_time_spec::ProductTimeAnchorSpec`
+/// through `impl::build_ReferenceTimeProductTimeSpec_or_throw(...)`. The
+/// separate `significanceOfReferenceTime` GRIB key remains sourced from its
+/// dedicated deduction.
+///
 /// @note
 /// The namespace name `concepts_` is intentionally used instead of `concepts`
 /// to avoid ambiguity and potential conflicts with the C++20 `concept` language
@@ -62,11 +68,13 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Deductions
-#include "metkit/mars2grib/backend/deductions/productTime.h"
 #include "metkit/mars2grib/backend/deductions/significanceOfReferenceTime.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/significanceOfReferenceTime.h"
+
+// Local details
+#include "metkit/mars2grib/backend/concepts/reference-time/impl/ReferenceTimeProductTimeSpec.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchProductDefinitionTemplateNumber.h"
@@ -129,6 +137,9 @@ constexpr bool referenceTimeApplicable() {
 /// - Sets the reference date and time fields
 /// - Optionally encodes model version date/time metadata for reforecasts
 ///
+/// Temporal date/time payload values are sourced from the reference-time-facing
+/// transport built from `ProductTimeAnchorSpec`.
+///
 /// The behavior is driven by:
 /// - the concept variant (`Standard` vs `Reforecast`)
 /// - the target GRIB section
@@ -177,18 +188,19 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             MARS2GRIB_LOG_CONCEPT(referenceTime);
 
-            // Resolve the canonical ProductTime once per concept invocation.
-            // All three branches below source their date/time exclusively
-            // from this object (§15 of timeProducts.md).
-            auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+            // Resolve the canonical ProductTimeSpec anchor state once per
+            // concept invocation. All three date/time branches below source
+            // their encoded values exclusively from this object.
+            const auto anchorSpec = models::product_time_spec::ProductTimeAnchorSpec(mars, par, opt);
+            const auto rt         = impl::build_ReferenceTimeProductTimeSpec_or_throw(anchorSpec);
 
             // =============================================================
             // Variant-specific logic
             // =============================================================
             if constexpr (Section == SecIdentificationSection) {
 
-                // Deductions: significanceOfReferenceTime is orthogonal to
-                // ProductTime (driven by mars.type / mars.stream).
+                // Deductions: significanceOfReferenceTime is orthogonal to the
+                // resolved ProductTimeSpec anchor state.
                 tables::SignificanceOfReferenceTime significanceOfReferenceTime =
                     deductions::resolve_SignificanceOfReferenceTime_or_throw(mars, par, opt);
 
@@ -198,9 +210,9 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Standard)) {
 
-                // For a standard product, the GRIB "reference date/time"
-                // is the canonical ProductTime::referenceDateTime.
-                const eckit::DateTime& dateTime = pt.referenceDateTime;
+                // For a standard product, the GRIB reference date/time is the
+                // resolved ProductTimeSpec reference datetime.
+                const eckit::DateTime& dateTime = rt.referenceDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", dateTime.date().year());
@@ -214,11 +226,11 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Reforecast)) {
 
                 // For a reforecast product, the Identification Section's
-                // reference date/time is the hindcast date — i.e. the
-                // canonical ProductTime::labelDateTime (from date /
-                // time). The ProductDefinitionSection branch below writes
-                // the model-version date from referenceDateTime instead.
-                const eckit::DateTime& referenceDateTime = pt.labelDateTime;
+                // reference date/time is the resolved ProductTimeSpec label
+                // datetime. The Product Definition Section branch below writes
+                // the model-version date from the resolved reference datetime
+                // instead.
+                const eckit::DateTime& referenceDateTime = rt.labelDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "year", referenceDateTime.date().year());
@@ -234,10 +246,9 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
                 // Validation
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {60L, 61L});
 
-                // Model-version date/time = ProductTime::referenceDateTime
-                // (derived from date/time or year/month per §7.4).
-                // TODO: Need to clarify with DGOV if this is reference or initialConditionsDateTime.
-                const eckit::DateTime& dateTime = pt.referenceDateTime;
+                // Model-version date/time is the resolved ProductTimeSpec
+                // reference datetime.
+                const eckit::DateTime& dateTime = rt.referenceDateTime;
 
                 // Encoding
                 set_or_throw<long>(out, "YearOfModelVersion", dateTime.date().year());

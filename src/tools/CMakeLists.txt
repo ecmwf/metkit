@@ -25,6 +25,15 @@ ecbuild_add_executable(
     LIBS          metkit eckit_option eckit
 )
 
+# ecbuild_add_executable(
+#     TARGET        grib-to-productTime
+#     SOURCES       grib-to-product-time.cc
+#     CONDITION     HAVE_MARS2GRIB AND HAVE_MARS2MARS AND HAVE_BUILD_TOOLS
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit eckit_option eckit
+# )
+
 ecbuild_add_executable(
     TARGET        parse-mars-request
     CONDITION     HAVE_BUILD_TOOLS
