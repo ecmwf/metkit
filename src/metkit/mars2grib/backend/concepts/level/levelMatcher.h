@@ -576,6 +576,7 @@ inline std::size_t matchO2D(const long param) {
             return static_cast<std::size_t>(LevelType::OceanSurface);
         }
         if (matchAny(param, range(262102, 262106))) {
+            // Note: We assume that these fields already have the level encoded as soon as the paramId is set!
             return static_cast<std::size_t>(LevelType::Isothermal);
         }
         if (matchAny(param, range(262113, 262115))) {
