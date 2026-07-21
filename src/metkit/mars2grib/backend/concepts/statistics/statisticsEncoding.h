@@ -53,11 +53,16 @@
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/statistics/impl/statisticsDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/statistics/impl/productTimeSpecLowering.h"
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
+// Models (new product time implementation)
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
+
 // Deductions (ProductTime + per-loop type-of-statistical-processing resolver)
 #include "metkit/mars2grib/backend/deductions/productTime.h"
+#include "metkit/mars2grib/backend/deductions/productTimeSpec.h"
 #include "metkit/mars2grib/backend/deductions/typeOfStatisticalProcessing.h"
 
 // Checks
@@ -112,6 +117,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             if constexpr (Stage == StageAllocate) {
 
                 auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+                auto pts = deductions::resolve_ProductTimeSpec_or_throw(typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
 
                 // Checks/Validation
                 validation::check_StatisticsProductDefinitionSection_or_throw(opt, out);
@@ -131,8 +137,10 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StagePreset) {
 
-                auto pt    = deductions::resolve_ProductTime_or_throw(mars, par, opt);
                 auto inner = typeOfStatisticalProcessingEnum<Variant>();
+                auto tmp = models::ProductTimeSpec(inner, mars, par, opt);
+
+                auto pt    = deductions::resolve_ProductTime_or_throw(mars, par, opt);
                 auto types = deductions::resolve_TypeOfStatisticalProcessing_or_throw(inner, mars, par, opt);
 
                 auto desc = impl::compute_StatisticalProcessing(pt, types);

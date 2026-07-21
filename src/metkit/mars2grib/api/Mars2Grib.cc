@@ -59,8 +59,6 @@
 ///
 /// @ingroup mars2grib_api
 ///
-
-
 #include "Mars2Grib.h"
 
 // other libraries
@@ -69,6 +67,7 @@
 // dictionary access traits
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_codes_handle.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictaccess_options.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 
 // encode header/values implementation
@@ -77,47 +76,85 @@
 namespace metkit::mars2grib {
 namespace {
 
+namespace tables = metkit::mars2grib::backend::tables;
+namespace dict   = metkit::mars2grib::utils::dict_traits;
+namespace exceptions = metkit::mars2grib::utils::exceptions;
+
+
 ///
-/// @brief Read Mars2Grib options from a configuration object.
+/// @brief Read Mars2Grib options from an eckit configuration.
 ///
-/// This helper function maps a subset of keys from an
-/// `eckit::LocalConfiguration` into a strongly typed `Options` object.
+/// A default-constructed `Options` object is created first. Every explicitly
+/// present key is then read with its required type and applied to that object.
 ///
-/// Only explicitly present keys are applied; all others retain their
-/// default values.
+/// The untyped `has(conf, key)` check is intentional. It distinguishes an absent
+/// key from a present key with the wrong type. A present key with the wrong type
+/// reaches `get_or_throw<T>()` and produces a hard configuration error instead
+/// of silently preserving the default.
 ///
-/// @param[in] conf
-/// Configuration object containing encoder options.
+/// @param[in] conf Configuration containing zero or more Mars2Grib options.
 ///
-/// @return
-/// A fully initialized `Options` structure.
+/// @return A complete strongly typed Options object.
 ///
 Options readOptions(const eckit::LocalConfiguration& conf) {
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
-    using metkit::mars2grib::utils::dict_traits::has;
-
     Options opts;
-    if (has<bool>(conf, "applyChecks")) {
-        opts.applyChecks = get_or_throw<bool>(conf, "applyChecks");
+
+    if (dict::has(conf, "applyChecks")) {
+        opts.applyChecks = dict::get_or_throw<bool>(conf, "applyChecks");
     }
-    if (has<bool>(conf, "enableOverride")) {
-        opts.enableOverride = get_or_throw<bool>(conf, "enableOverride");
+
+    if (dict::has(conf, "enableOverride")) {
+        opts.enableOverride = dict::get_or_throw<bool>(conf, "enableOverride");
     }
-    if (has<bool>(conf, "enableBitsPerValueCompression")) {
-        opts.enableBitsPerValueCompression = get_or_throw<bool>(conf, "enableBitsPerValueCompression");
+
+    if (dict::has(conf, "enableBitsPerValueCompression")) {
+        opts.enableBitsPerValueCompression =
+            dict::get_or_throw<bool>(conf, "enableBitsPerValueCompression");
     }
-    if (has<bool>(conf, "normalizeMars")) {
-        opts.normalizeMars = get_or_throw<bool>(conf, "normalizeMars");
+
+    if (dict::has(conf, "normalizeMars")) {
+        opts.normalizeMars = dict::get_or_throw<bool>(conf, "normalizeMars");
     }
-    if (has<bool>(conf, "normalizeMisc")) {
-        opts.normalizeMisc = get_or_throw<bool>(conf, "normalizeMisc");
+
+    if (dict::has(conf, "normalizeMisc")) {
+        opts.normalizeMisc = dict::get_or_throw<bool>(conf, "normalizeMisc");
     }
-    if (has<bool>(conf, "fixMarsGrid")) {
-        opts.fixMarsGrid = get_or_throw<bool>(conf, "fixMarsGrid");
+
+    if (dict::has(conf, "fixMarsGrid")) {
+        opts.fixMarsGrid = dict::get_or_throw<bool>(conf, "fixMarsGrid");
     }
-    if (has<bool>(conf, "skipSection3")) {
-        opts.skipSection3 = get_or_throw<bool>(conf, "skipSection3");
+
+    if (dict::has(conf, "skipSection3")) {
+        opts.skipSection3 = dict::get_or_throw<bool>(conf, "skipSection3");
     }
+
+    if (dict::has(conf, "allowDefaultTimeIncrementInSeconds")) {
+        opts.allowDefaultTimeIncrementInSeconds =
+            dict::get_or_throw<bool>(conf, "allowDefaultTimeIncrementInSeconds");
+    }
+
+    if (dict::has(conf, "allowZeroLengthFsWindow")) {
+        opts.allowZeroLengthFsWindow =
+            dict::get_or_throw<bool>(conf, "allowZeroLengthFsWindow");
+    }
+
+    if (dict::has(conf, "allowNonEnumeratedPositiveIntegerTimespanHours")) {
+        opts.allowNonEnumeratedPositiveIntegerTimespanHours =
+            dict::get_or_throw<bool>(
+                conf, "allowNonEnumeratedPositiveIntegerTimespanHours");
+    }
+
+    if (dict::has(conf, "allowRedundantTimeIncrement")) {
+        opts.allowRedundantTimeIncrement =
+            dict::get_or_throw<bool>(conf, "allowRedundantTimeIncrement");
+    }
+
+    if (dict::has(conf, "allowMissingTimespanForInstantProduct")) {
+        opts.allowMissingTimespanForInstantProduct =
+            dict::get_or_throw<bool>(
+                conf, "allowMissingTimespanForInstantProduct");
+    }
+
     return opts;
 }
 

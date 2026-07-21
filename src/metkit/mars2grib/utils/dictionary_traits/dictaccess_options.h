@@ -1,0 +1,256 @@
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0.
+ */
+
+///
+/// @file dictaccess_options.h
+/// @brief Read-only dictionary-access traits for Mars2Grib Options.
+///
+/// This adapter exposes the strongly typed `Options` aggregate through the
+/// generic Mars2Grib dictionary API.
+///
+/// Supported operations:
+///
+/// - `has(options, key)`
+/// - `has<T>(options, key)`
+/// - `get_opt<T>(options, key)`
+/// - `get_or_throw<T>(options, key)`
+///
+/// Deliberately unsupported operations:
+///
+/// - mutation through dictionary traits;
+/// - cloning through dictionary traits;
+/// - construction from a sample;
+/// - dictionary JSON serialisation.
+///
+/// The Options object is already a complete policy snapshot. The adapter is
+/// therefore read-only.
+///
+#pragma once
+
+#include <optional>
+#include <string>
+#include <string_view>
+
+#include "metkit/mars2grib/api/Options.h"
+#include "metkit/mars2grib/backend/tables/typeOfTimeIntervals.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
+#include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/type_traits_name.h"
+
+namespace metkit::mars2grib::utils {
+
+///
+/// @brief Human-readable type name used by generic dictionary diagnostics.
+///
+template <>
+constexpr std::string_view
+type_name<metkit::mars2grib::backend::tables::TypeOfTimeIntervals>() {
+    return "TypeOfTimeIntervals";
+}
+
+///
+/// @brief Human-readable type name for the Options dictionary.
+///
+template <>
+constexpr std::string_view
+type_name<metkit::mars2grib::Options>() {
+    return "metkit::mars2grib::Options";
+}
+
+}  // namespace metkit::mars2grib::utils
+
+namespace metkit::mars2grib::utils::dict_traits {
+
+namespace options_detail {
+
+inline bool isBoolKey(std::string_view key) noexcept {
+    return key == "applyChecks" ||
+           key == "enableOverride" ||
+           key == "enableBitsPerValueCompression" ||
+           key == "normalizeMars" ||
+           key == "normalizeMisc" ||
+           key == "fixMarsGrid" ||
+           key == "skipSection3" ||
+           key == "allowDefaultTimeIncrementInSeconds" ||
+           key == "allowZeroLengthFsWindow" ||
+           key == "allowNonEnumeratedPositiveIntegerTimespanHours" ||
+           key == "allowRedundantTimeIncrement" ||
+           key == "allowMissingTimespanForInstantProduct";
+}
+
+inline bool isKnownKey(std::string_view key) noexcept {
+    return isBoolKey(key);
+}
+
+[[noreturn]] inline void throwUnknownKey(std::string_view key) {
+    throw exceptions::Mars2GribDictException(
+        "Unknown key `" + std::string(key) +
+            "` in dictionary type `metkit::mars2grib::Options`",
+        Here());
+}
+
+[[noreturn]] inline void throwWrongRequestedType(
+    std::string_view key,
+    std::string_view requestedType) {
+
+    if (!isKnownKey(key)) {
+        throwUnknownKey(key);
+    }
+
+    throw exceptions::Mars2GribDictException(
+        "Key `" + std::string(key) +
+            "` cannot be read as `" + std::string(requestedType) +
+            "` from dictionary type `metkit::mars2grib::Options`",
+        Here());
+}
+
+[[noreturn]] inline void throwMissingOptionalValue(
+    std::string_view key,
+    std::string_view requestedType) {
+
+    throw exceptions::Mars2GribDictException(
+        "Key `" + std::string(key) +
+            "` has no materialised value while reading `" +
+            std::string(requestedType) +
+            "` from dictionary type `metkit::mars2grib::Options`",
+        Here());
+}
+
+inline bool getBoolOrThrow(
+    const Options& opts,
+    std::string_view key) {
+
+    if (key == "applyChecks") {
+        return opts.applyChecks;
+    }
+
+    if (key == "enableOverride") {
+        return opts.enableOverride;
+    }
+
+    if (key == "enableBitsPerValueCompression") {
+        return opts.enableBitsPerValueCompression;
+    }
+
+    if (key == "normalizeMars") {
+        return opts.normalizeMars;
+    }
+
+    if (key == "normalizeMisc") {
+        return opts.normalizeMisc;
+    }
+
+    if (key == "fixMarsGrid") {
+        return opts.fixMarsGrid;
+    }
+
+    if (key == "skipSection3") {
+        return opts.skipSection3;
+    }
+
+    if (key == "allowDefaultTimeIncrementInSeconds") {
+        return opts.allowDefaultTimeIncrementInSeconds;
+    }
+
+    if (key == "allowZeroLengthFsWindow") {
+        return opts.allowZeroLengthFsWindow;
+    }
+
+    if (key == "allowNonEnumeratedPositiveIntegerTimespanHours") {
+        return opts.allowNonEnumeratedPositiveIntegerTimespanHours;
+    }
+
+    if (key == "allowRedundantTimeIncrement") {
+        return opts.allowRedundantTimeIncrement;
+    }
+
+    if (key == "allowMissingTimespanForInstantProduct") {
+        return opts.allowMissingTimespanForInstantProduct;
+    }
+
+    throwWrongRequestedType(key, "bool");
+}
+
+}  // namespace options_detail
+
+// -----------------------------------------------------------------------------
+// has(options, key)
+// -----------------------------------------------------------------------------
+
+///
+/// @brief Report whether an option has a readable materialised value.
+///
+/// Every non-optional Options member is always present. The optional
+/// `defaultTimeIncrementInSeconds` key is present only when its
+/// `std::optional<long>` contains a value. Unknown keys are absent.
+///
+/// This definition gives the untyped `has(options, key)` operation normal
+/// dictionary semantics rather than merely reporting whether the C++ structure
+/// declares a member with that name.
+///
+template <>
+struct DictHas<Options> {
+
+    static bool has(
+        const Options& opts,
+        std::string_view key) noexcept(false) {
+
+        if (options_detail::isBoolKey(key)) {
+            return true;
+        }
+
+        return false;
+    }
+};
+
+// -----------------------------------------------------------------------------
+// bool access
+// -----------------------------------------------------------------------------
+
+template <>
+struct DictGetOrThrow<Options, bool> {
+
+    static bool get_or_throw(
+        const Options& opts,
+        std::string_view key) noexcept(false) {
+
+        return options_detail::getBoolOrThrow(opts, key);
+    }
+};
+
+template <>
+struct DictGetOpt<Options, bool> {
+
+    static std::optional<bool> get_opt(
+        const Options& opts,
+        std::string_view key) noexcept(false) {
+
+        if (!options_detail::isBoolKey(key)) {
+            return std::nullopt;
+        }
+
+        return options_detail::getBoolOrThrow(opts, key);
+    }
+};
+
+/*
+ * No explicit function-template specialisation is required for `has<T>()`.
+ *
+ * The generic dictionary API implements:
+ *
+ *   has<T>(options, key)
+ *
+ * by invoking:
+ *
+ *   DictGetOpt<Options, T>::get_opt(options, key).has_value()
+ *
+ * Therefore the three DictGetOpt specialisations above provide:
+ *
+ * - has<bool>(options, key)
+ * - has<long>(options, key)
+ * - has<TypeOfTimeIntervals>(options, key)
+ */
+}  // namespace metkit::mars2grib::utils::dict_traits

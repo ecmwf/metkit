@@ -13,127 +13,224 @@
 /// @file Options.h
 /// @brief Configuration options for the Mars2Grib encoding API.
 ///
-/// This header defines the public configuration structure used to
-/// control the behavior of the **Mars2Grib encoder**.
+/// This header defines the public configuration structure used to control the
+/// behaviour of the Mars2Grib encoder.
 ///
-/// The `Options` structure is part of the **user-facing API** and is
-/// intentionally simple, explicit, and stable. Each option enables or
-/// disables a well-defined aspect of the encoding process.
+/// `Options` is a fully materialised, strongly typed policy object. A caller may
+/// construct it directly, or the API may populate it from another option source,
+/// such as an `eckit::LocalConfiguration` or an initializer list.
 ///
-/// Options:
-/// - do NOT change the semantic meaning of the input data
-/// - do NOT introduce implicit defaults in metadata
-/// - only affect validation, override behavior, or encoding strategies
+/// Every member has an explicit default. Consequently, a default-constructed
+/// `Options` object is always valid as an option dictionary, even though a later
+/// deduction may reject a particular product when an opt-in policy required by
+/// that product has not been enabled.
 ///
-/// Options can be:
-/// - constructed programmatically
-/// - passed directly to the `Mars2Grib` constructor
-/// - populated from an `eckit::LocalConfiguration`
+/// The options control:
+///
+/// - validation and override behaviour;
+/// - metadata normalisation;
+/// - GRIB encoding strategy;
+/// - compatibility policies accepted by ProductTimeSpec;
+/// - explicit ProductTimeSpec defaulting policies.
 ///
 /// @ingroup mars2grib_api
 ///
 #pragma once
 
+#include <optional>
+
+#include "metkit/mars2grib/backend/tables/typeOfTimeIntervals.h"
+
 namespace metkit::mars2grib {
 
+namespace defaults {
+
+inline constexpr bool applyChecks = true;
+inline constexpr bool enableOverride = false;
+inline constexpr bool enableBitsPerValueCompression = false;
+inline constexpr bool normalizeMars = false;
+inline constexpr bool normalizeMisc = false;
+inline constexpr bool fixMarsGrid = true;
+inline constexpr bool skipSection3 = false;
+
+inline constexpr bool allowDefaultTimeIncrementInSeconds = false;
+inline constexpr bool allowZeroLengthFsWindow = false;
+inline constexpr bool allowNonEnumeratedPositiveIntegerTimespanHours = false;
+inline constexpr bool allowRedundantTimeIncrement = false;
+inline constexpr bool allowMissingTimespanForInstantProduct = false;
+inline constexpr backend::tables::TypeOfTimeIntervals defaultTypeOfTimeIncrement =
+    backend::tables::TypeOfTimeIntervals::Missing;
+
+}  // namespace defaults
+
 ///
-/// @brief Encoding options for the Mars2Grib API.
+/// @brief Encoding and ProductTimeSpec policy options for Mars2Grib.
 ///
-/// This structure controls optional behaviors of the GRIB encoding
-/// process. All options are **opt-in** and have conservative defaults
-/// to preserve backward compatibility and predictable behavior.
+/// The structure is intentionally a plain aggregate:
 ///
-/// The default-constructed `Options` object corresponds to the
-/// standard mars2grib encoding behavior.
+/// - direct programmatic construction remains simple;
+/// - every option can be copied into a stable policy snapshot;
+/// - dictionary traits can expose the structure through the same typed access
+///   API used for other Mars2Grib dictionaries;
+/// - adding an option does not require virtual dispatch or ownership machinery.
+///
+/// Unless stated otherwise, boolean options are disabled by default. This keeps
+/// compatibility relaxations and metadata defaulting explicit and opt-in.
 ///
 struct Options {
+
+    // -------------------------------------------------------------------------
+    // General encoder behaviour
+    // -------------------------------------------------------------------------
 
     ///
     /// @brief Enable or disable input validation checks.
     ///
-    /// When enabled, the encoder performs consistency and validity
-    /// checks at selected critical points during the encoding phase.
+    /// When enabled, the encoder performs consistency and validity checks at
+    /// selected critical points during encoding.
     ///
-    /// Disabling this option may improve performance but can result
-    /// in failures that are harder to diagnose in the presence of
-    /// malformed or inconsistent input.
+    /// Disabling this option may improve performance, but malformed or
+    /// inconsistent input may then fail later and with less useful diagnostics.
     ///
     /// @default true
     ///
-    bool applyChecks = true;
+    bool applyChecks = defaults::applyChecks;
 
     ///
     /// @brief Enable metadata override semantics.
     ///
-    /// When enabled, values provided through parameter dictionary are
-    /// allowed to override values resolved from the MARS dictionary.
+    /// When enabled, values provided through the parameter dictionary may
+    /// override values resolved from the MARS dictionary.
     ///
     /// When disabled, conflicting overrides result in an error.
     ///
     /// @default false
     ///
-    bool enableOverride = false;
+    bool enableOverride = defaults::enableOverride;
 
     ///
     /// @brief Enable bits-per-value compression.
     ///
-    /// When enabled, the encoder is allowed to select a bits-per-value
-    /// packing strategy to reduce message size.
+    /// When enabled, the encoder may select a bits-per-value packing strategy
+    /// to reduce message size.
     ///
-    /// This option affects only the **encoding strategy** and does not
-    /// alter the numerical values of the field.
-    ///
-    /// @default false
-    ///
-    bool enableBitsPerValueCompression = false;
-
-
-    ///
-    /// @brief Enable semantic normalization of the MARS dictionary.
-    ///
-    /// When active, the MARS request is sanitized against the library
-    /// language definition to ensure key-value consistency and
-    /// case-insensitivity before resolution.
+    /// This option affects the encoding strategy only. It does not alter the
+    /// semantic meaning of the field.
     ///
     /// @default false
     ///
-    bool normalizeMars = false;
+    bool enableBitsPerValueCompression = defaults::enableBitsPerValueCompression;
 
     ///
-    /// @brief Enable semantic normalization of the auxiliary metadata.
+    /// @brief Enable semantic normalisation of the MARS dictionary.
     ///
-    /// When active, the auxiliary (Misc) dictionary is sanitized against
-    /// the library language definition. This is recommended when
-    /// parameters are provided as raw strings.
+    /// When enabled, the MARS request is sanitised against the active language
+    /// definition before deductions are performed.
     ///
     /// @default false
     ///
-    bool normalizeMisc = false;
+    bool normalizeMars = defaults::normalizeMars;
 
     ///
-    /// @brief Automatically normalize MARS 'grid' syntax.
+    /// @brief Enable semantic normalisation of auxiliary metadata.
     ///
-    /// If enabled, the encoder detects and converts legacy MARS grid
-    /// specifications (e.g., 'L640x320') into standard GRIB-compliant
-    /// increment strings ('deltaLon/deltaLat').
+    /// When enabled, the auxiliary or Misc dictionary is sanitised against the
+    /// active language definition before deductions are performed.
     ///
-    /// This is a **procedural normalization** that ensures resolution
-    /// compatibility for Gaussian or reduced grids.
+    /// @default false
+    ///
+    bool normalizeMisc = defaults::normalizeMisc;
+
+    ///
+    /// @brief Automatically normalise legacy MARS `grid` syntax.
+    ///
+    /// When enabled, the encoder converts supported legacy MARS grid
+    /// specifications into the form expected by the GRIB geometry encoding.
     ///
     /// @default true
     ///
-    bool fixMarsGrid = true;
-
+    bool fixMarsGrid = defaults::fixMarsGrid;
 
     ///
-    /// @brief Skip GRIB Section 3 (Grid Definition Section) encoding.
+    /// @brief Skip explicit encoding of GRIB Section 3.
     ///
-    /// When enabled, the encoder bypasses the encoding of Section 3,
-    /// allowing the gridSpec/ecCodes to take care of all the geometry and grid definition details.
+    /// When enabled, the encoder does not encode the Grid Definition Section
+    /// itself and leaves geometry handling to gridSpec/ecCodes.
     ///
     /// @default false
     ///
-    bool skipSection3 = false;
+    bool skipSection3 = defaults::skipSection3;
+
+    // -------------------------------------------------------------------------
+    // ProductTimeSpec policies
+    // -------------------------------------------------------------------------
+
+    ///
+    /// @brief Allow a missing source time increment to be defaulted.
+    ///
+    /// This option only enables the defaulting policy. The default value itself
+    /// is stored in `defaultTimeIncrementInSeconds`.
+    ///
+    /// When this option is true, `defaultTimeIncrementInSeconds` must be present
+    /// and strictly positive. ProductTimeSpec still decides whether the current
+    /// product shape is eligible for defaulting.
+    ///
+    /// In particular, enabling this option does not make every missing increment
+    /// valid. Non-`ml` from-start single-loop products remain ineligible for
+    /// defaulting and require an explicit source increment.
+    ///
+    /// @default false
+    ///
+    bool allowDefaultTimeIncrementInSeconds = defaults::allowDefaultTimeIncrementInSeconds;
+
+    ///
+    /// @brief Allow a zero-length from-start statistical window.
+    ///
+    /// When disabled, a from-start product whose resolved step is zero is
+    /// rejected. When enabled, ProductTimeSpec may construct the explicitly
+    /// supported zero-length from-start statistical representation.
+    ///
+    /// @default false
+    ///
+    bool allowZeroLengthFsWindow = defaults::allowZeroLengthFsWindow;
+
+    ///
+    /// @brief Allow positive integer-hour `timespan` values not enumerated by
+    /// the active MARS language.
+    ///
+    /// Integer-valued `timespan` is interpreted as hours. By default, the value
+    /// must belong to the language-defined supported set. Enabling this option
+    /// allows any strictly positive integer number of hours, subject to the
+    /// remaining ProductTimeSpec checks.
+    ///
+    /// @default false
+    ///
+    bool allowNonEnumeratedPositiveIntegerTimespanHours =
+        defaults::allowNonEnumeratedPositiveIntegerTimespanHours;
+
+    ///
+    /// @brief Allow explicit time increments that are semantically redundant.
+    ///
+    /// This compatibility policy is used for cases where the product semantics
+    /// do not require an increment, but an input dictionary nevertheless
+    /// provides one. ProductTimeSpec remains responsible for deciding which
+    /// product shapes may ignore such a redundant value.
+    ///
+    /// @default false
+    ///
+    bool allowRedundantTimeIncrement = defaults::allowRedundantTimeIncrement;
+
+    ///
+    /// @brief Allow a missing `timespan` to represent an instant product.
+    ///
+    /// The normative instant representation uses `timespan="none"`. Enabling
+    /// this option accepts the compatibility representation in which both
+    /// `timespan` and `stattype` are absent.
+    ///
+    /// @default false
+    ///
+    bool allowMissingTimespanForInstantProduct = defaults::allowMissingTimespanForInstantProduct;
+
 };
 
 }  // namespace metkit::mars2grib

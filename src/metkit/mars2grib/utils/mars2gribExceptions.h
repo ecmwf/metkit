@@ -264,6 +264,34 @@ public:
         Mars2GribGenericException(reason, loc) {}
 };
 
+/// @brief Exception raised in the backend model layer.
+///
+/// Used when model-local orchestration fails while assembling normalized model
+/// input or constructing a backend model object from already-resolved
+/// deduction outputs.
+class Mars2GribModelException : public Mars2GribGenericException {
+public:
+
+    Mars2GribModelException(std::string reason, const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc) {}
+
+    Mars2GribModelException(std::string reason, std::string normalizedInputJson,
+                            const eckit::CodeLocation& loc = eckit::CodeLocation()) :
+        Mars2GribGenericException(reason, loc), normalizedInputJson_(std::move(normalizedInputJson)) {}
+
+    void printFrame(const std::string& pad) const override {
+
+        Mars2GribGenericException::printFrame(pad);
+        if (normalizedInputJson_) {
+            LOG_DEBUG_LIB(LibMetkit) << pad << "+ normalizedInputJson:  " << *normalizedInputJson_ << "\n";
+        }
+    }
+
+private:
+
+    std::optional<std::string> normalizedInputJson_;
+};
+
 /// @brief Exception raised during concept execution.
 ///
 /// This is the most context-rich exception in the hierarchy.

@@ -190,10 +190,15 @@ if ( HAVE_MARS2MARS )
 endif()
 
 if ( HAVE_MARS2GRIB )
+#    add_subdirectory(mars2grib/product-time-spec)
     list( APPEND metkit_srcs
         mars2grib/api/Mars2Grib.cc
         mars2grib/api/Mars2Grib.h
         mars2grib/api/Options.h
+        mars2grib/product-time-spec/ProductTimeSpec.cc
+        mars2grib/product-time-spec/ProductTimeSpec.h
+        mars2grib/product-time-spec/ProductTimeSpecInput.h
+        mars2grib/product-time-spec/ProductTimeSpecResolver.h
     )
     set( mars2grib_libs eckit_geo )
 endif()
