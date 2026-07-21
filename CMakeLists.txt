@@ -103,6 +103,11 @@ ecbuild_add_option( FEATURE FAIL_ON_CCSDS
                     DESCRIPTION "Fail on CCSDS"
                     DEFAULT OFF	 )
 
+### Documentation
+ecbuild_add_option( FEATURE METKIT_DOCUMENTATION
+                    DEFAULT OFF
+                    DESCRIPTION "Enable documentation generation" )
+
 
 ############################################################################################
 # sources
@@ -112,6 +117,10 @@ include(cmake/compiler_warnings.cmake) # optionally handle compiler specific war
 add_subdirectory( src )
 add_subdirectory( share )
 add_subdirectory( tests )
+
+if(ENABLE_METKIT_DOCUMENTATION)
+    add_subdirectory(docs)
+endif()
 
 ############################################################################################
 # finalize
