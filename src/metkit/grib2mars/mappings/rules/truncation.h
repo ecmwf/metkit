@@ -41,8 +41,7 @@ void extractTruncation(const std::string& keyword, const metkit::codes::CodesHan
         set_or_throw<long>(mars, keyword, truncation);
 
         if (grib.has("laplacianOperator")) {
-            const long laplacianOperator = grib.getLong("laplacianOperator");
-
+            const double laplacianOperator = grib.getDouble("laplacianOperator");
             misc.set("laplacianOperator", laplacianOperator);
         }
     }
