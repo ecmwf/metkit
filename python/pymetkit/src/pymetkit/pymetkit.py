@@ -257,7 +257,7 @@ def expand_key(
     keyword: str,
     value: str | int | list,
     verb: str = "retrieve",
-    context: "MarsRequest | dict | None" = None,
+    context: "dict | MarsRequest | None" = None,
     strict: bool = False,
 ) -> list[str]:
     """Expand and normalise the values of a single MARS key, without building a full request.
@@ -311,7 +311,7 @@ def expand_key(
     context_c = ffi.NULL
     if context is not None:
         if isinstance(context, dict):
-            context = MarsRequest(**context)
+            context = MarsRequest(**context) # @maby: If we're going to build a mars request anyway, why not just pass it all in?
         context_c = context.ctype()
 
     it_c = ffi.new("metkit_paramiterator_t **")
