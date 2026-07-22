@@ -76,7 +76,8 @@ void extractStep(const std::string& keyword, const metkit::codes::CodesHandle& g
         if (grib.has("timeIncrement")) {
             const long timeIncrement = grib.getLong("timeIncrement");
             misc.set("timeIncrementInSeconds", timeIncrement);
-        } else {
+        }
+        else {
             misc.set("timeIncrementInSeconds", 3600L);
         }
     }
