@@ -10,6 +10,7 @@ namespace metkit::grib2mars::rules::impl {
 
 template <class MarsDict, class MiscDict>
 void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
+    using metkit::grib2mars::utils::dict_traits::get_or_throw;
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
@@ -25,6 +26,19 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             const auto typeOfProcessedData = grib.getString("typeOfProcessedData");
             if (typeOfProcessedData != "missing") {
                 misc.set("typeOfProcessedData", typeOfProcessedData);
+            }
+        }
+
+        const auto type = get_or_throw<std::string>(mars, "type");
+        if (type == "eme" || type == "me") {
+            if (grib.has("numberOfComponents")) {
+                const auto numberOfComponents = grib.getLong("numberOfComponents");
+                misc.set("numberOfComponents", numberOfComponents);
+            }
+
+            if (grib.has("modelErrorType")) {
+                const auto modelErrorType = grib.getLong("modelErrorType");
+                misc.set("modelErrorType", modelErrorType);
             }
         }
     }
