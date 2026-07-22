@@ -14,6 +14,7 @@
 #include "metkit/grib2mars/mappings/rules/anoffset.h"
 #include "metkit/grib2mars/mappings/rules/channel.h"
 #include "metkit/grib2mars/mappings/rules/class.h"
+#include "metkit/grib2mars/mappings/rules/coeffindex.h"
 #include "metkit/grib2mars/mappings/rules/dataset.h"
 #include "metkit/grib2mars/mappings/rules/date.h"
 #include "metkit/grib2mars/mappings/rules/direction.h"
@@ -25,6 +26,7 @@
 #include "metkit/grib2mars/mappings/rules/hdate.h"
 #include "metkit/grib2mars/mappings/rules/ident.h"
 #include "metkit/grib2mars/mappings/rules/instrument.h"
+#include "metkit/grib2mars/mappings/rules/iteration.h"
 #include "metkit/grib2mars/mappings/rules/levelist.h"
 #include "metkit/grib2mars/mappings/rules/levtype.h"
 #include "metkit/grib2mars/mappings/rules/method.h"
@@ -88,6 +90,8 @@ const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& extrac
         {"resolution", extractResolution<MarsDict, MiscDict>},
         {"model", extractModel<MarsDict, MiscDict>},
         {"wavelength", extractWavelength<MarsDict, MiscDict>},
+        {"iteration", extractIteration<MarsDict, MiscDict>},
+        {"coeffindex", extractCoeffindex<MarsDict, MiscDict>},
     };
 
     return registry;
