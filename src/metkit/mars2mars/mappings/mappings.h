@@ -14,6 +14,7 @@
 #pragma once
 
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
+#include "metkit/mars2mars/mappings/rules/misc-params.h"
 #include "metkit/mars2mars/mappings/rules/wave2oper.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2mars/utils/mars2marsExceptions.h"
@@ -48,6 +49,7 @@ Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
         impl::fixTimespan(in, *out, *misc);
         impl::fixWindspeed(in, *out, *misc);
         impl::convertChemical(in, *out, *misc);
+        impl::convertMiscParams(in, *out, *misc);
 
         return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};
     }
