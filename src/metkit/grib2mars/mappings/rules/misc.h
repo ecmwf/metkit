@@ -20,6 +20,13 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             const auto generatingProcessIdentifier = grib.getLong("generatingProcessIdentifier");
             misc.set("generatingProcessIdentifier", generatingProcessIdentifier);
         }
+
+        if (grib.getString("type") != "ai" && grib.has("typeOfProcessedData")) {
+            const auto typeOfProcessedData = grib.getString("typeOfProcessedData");
+            if (typeOfProcessedData != "missing") {
+                misc.set("typeOfProcessedData", typeOfProcessedData);
+            }
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MISC keywords", Here()));
