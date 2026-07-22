@@ -22,7 +22,6 @@ CASE("retrieve_best_match_param_not_matching") {
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter"}, false, false, false, {});
 
-    // TODO:(TKR) THIS IS MENTAL
     EXPECT(match == "parameter");
 
     auto empty = language.bestMatch("param", {"car"}, false, false, false, {});
@@ -36,7 +35,6 @@ CASE("retrieve_best_match_param_not_matching_throw") {
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter"}, true, false, false, {});
 
-    // TODO:(TKR) THIS IS MENTAL
     EXPECT(match == "parameter");
 
     EXPECT_THROWS(language.bestMatch("param", {"car"}, true, false, false, {}));
@@ -49,12 +47,10 @@ CASE("retrieve_best_match_param_not_matching") {
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter"}, false, false, true, {});
 
-    // TODO:(TKR) THIS IS MENTAL
     EXPECT(match == "parameter");
 
     match = language.bestMatch("par", {"parameter"}, false, false, true, {});
 
-    // TODO:(TKR) THIS IS MENTAL
     EXPECT(match == "parameter");
 
     match = language.bestMatch("par", {"car"}, false, false, true, {});
