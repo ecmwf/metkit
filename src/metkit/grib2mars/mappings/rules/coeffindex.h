@@ -23,6 +23,11 @@ void extractCoeffindex(const std::string& keyword, const metkit::codes::CodesHan
 
         const long value = grib.getLong(keyword);
         set_or_throw<long>(mars, keyword, value);
+
+        if (grib.has("numberOfFourierCoefficients")) {
+            const long numberOfFourierCoefficients = grib.getLong("numberOfFourierCoefficients");
+            misc.set("numberOfFourierCoefficients", numberOfFourierCoefficients);
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));

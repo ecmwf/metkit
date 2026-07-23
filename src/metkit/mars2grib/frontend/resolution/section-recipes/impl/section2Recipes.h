@@ -46,11 +46,11 @@ inline const Recipe S2_R24 =
         Select<SatelliteConcept>
     >();
 
-// Model-error products
+// 4DVar model errors
 inline const Recipe S2_R25 =
     make_recipe<25,
         Select<MarsConcept>,
-        Select<ModelErrorConcept>
+        Select<ModelErrorConcept, ModelErrorType::ComponentIndex>
     >();
 
 // Analysis-related products
@@ -84,12 +84,20 @@ inline const Recipe S2_R38 =
         Select<AnalysisConcept>
     >();
 
-// Analysis model-error products
+// 4DVar model errors for long window 4Dvar system
 inline const Recipe S2_R39 =
     make_recipe<39,
         Select<MarsConcept>,
         Select<AnalysisConcept>,
-        Select<ModelErrorConcept>
+        Select<ModelErrorConcept, ModelErrorType::ComponentIndex>
+    >();
+
+// Model error fourier coefficients
+// Note: Template 45 has the analysis concept, but it's unused (and unmatched) for stream oper
+inline const Recipe S2_R45 =
+    make_recipe<45,
+        Select<MarsConcept>,
+        Select<ModelErrorConcept, ModelErrorType::FourierCoefficients>
     >();
 
 //------------------------------------------------------------------------------
@@ -133,6 +141,7 @@ inline const Recipes Section2Recipes{ 2,
         &S2_R37B,
         &S2_R38,
         &S2_R39,
+        &S2_R45,
         &S2_R1001,
         &S2_R1002
     }
