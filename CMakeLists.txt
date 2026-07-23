@@ -96,6 +96,15 @@ ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
                         "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
                         "NAME pybind11 VERSION 3.0.1" )
 
+# Pythonic pybind11 interface (pymetkit)
+
+ecbuild_add_option( FEATURE PYTHON_METKIT_INTERFACE
+                    DEFAULT OFF
+                    DESCRIPTION "Build the pybind11 pymetkit interface"
+                    REQUIRED_PACKAGES
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
+                        "NAME pybind11 VERSION 3.0.1" )
+
 # METKIT config files support
 
 ecbuild_add_option( FEATURE METKIT_CONFIG
