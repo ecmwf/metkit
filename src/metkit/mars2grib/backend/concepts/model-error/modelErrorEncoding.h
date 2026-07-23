@@ -166,9 +166,10 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 validation::match_LocalDefinitionNumber_or_throw(opt, out, {45L});
 
                 // Deductions
-                const auto fourierCoefficientIndex = deductions::resolve_FourierCoefficientIndex(mars, par, opt);
+                const auto fourierCoefficientIndex =
+                    deductions::resolve_FourierCoefficientIndex_or_throw(mars, par, opt);
                 const auto numberOfFourierCoefficients =
-                    deductions::resolve_NumberOfFourierCoefficients(mars, par, opt);
+                    deductions::resolve_NumberOfFourierCoefficients_or_throw(mars, par, opt);
                 const auto modelErrorTypeVal = deductions::resolve_ModelErrorType_or_throw(mars, par, opt);
 
                 // Encoding

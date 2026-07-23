@@ -113,7 +113,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// the upstream tool.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_FourierCoefficientIndex(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+long resolve_FourierCoefficientIndex_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
