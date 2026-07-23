@@ -15,8 +15,6 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
-        (void)mars;
-
         if (grib.has("generatingProcessIdentifier")) {
             const auto generatingProcessIdentifier = grib.getLong("generatingProcessIdentifier");
             misc.set("generatingProcessIdentifier", generatingProcessIdentifier);
@@ -44,7 +42,11 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
         }
 
         if (type == "es" || type == "em" || type == "ses") {
-            long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
+            if (!grib.has("numberOfForecastsInEnsemble")) {
+                throw Grib2MarsGenericException(
+                    "Missing GRIB key `numberOfForecastsInEnsemble` required for derived ensemble forecast", Here());
+            }
+            const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
             misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
         }
 

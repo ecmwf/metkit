@@ -1157,6 +1157,8 @@ INPUT = \@MARS2GRIB_SOURCE_DIRECTORY@/utils/configConverter.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/numberOfFrequencies.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/type.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/satelliteNumber.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/fourierCoefficientIndex.h \
+@MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/numberOfFourierCoefficients.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/checks/matchDataRepresentationTemplateNumber.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/checks/matchProductDefinitionTemplateNumber.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/checks/checkLocalUseSection.h \
