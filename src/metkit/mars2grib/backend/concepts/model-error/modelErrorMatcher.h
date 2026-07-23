@@ -63,13 +63,13 @@ std::size_t modelErrorMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return compile_time_registry_engine::MISSING;
         }
 
+        if (has(mars, "coeffindex")) {
+            return static_cast<std::size_t>(ModelErrorType::FourierCoefficients);
+        }
+
         // At this point the request is a model-error request: "number" is mandatory
         if (has(mars, "number")) {
             return static_cast<std::size_t>(ModelErrorType::ComponentIndex);
-        }
-
-        if (has(mars, "coeffindex")) {
-            return static_cast<std::size_t>(ModelErrorType::FourierCoefficients);
         }
 
         return compile_time_registry_engine::MISSING;

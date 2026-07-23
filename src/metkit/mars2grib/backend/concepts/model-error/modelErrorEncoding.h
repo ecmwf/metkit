@@ -49,8 +49,10 @@
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/componentIndex.h"
+#include "metkit/mars2grib/backend/deductions/fourierCoefficientIndex.h"
 #include "metkit/mars2grib/backend/deductions/modelErrorType.h"
 #include "metkit/mars2grib/backend/deductions/numberOfComponents.h"
+#include "metkit/mars2grib/backend/deductions/numberOfFourierCoefficients.h"
 
 // checks
 #include "metkit/mars2grib/backend/checks/matchLocalDefinitionNumber.h"
@@ -151,9 +153,9 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 validation::match_LocalDefinitionNumber_or_throw(opt, out, {25L, 39L});
 
                 // Deductions
-                auto componentIndexVal     = deductions::resolve_ComponentIndex_or_throw(mars, par, opt);
-                auto numberOfComponentsVal = deductions::resolve_NumberOfComponents_or_throw(mars, par, opt);
-                auto modelErrorTypeVal     = deductions::resolve_ModelErrorType_or_throw(mars, par, opt);
+                const auto componentIndexVal     = deductions::resolve_ComponentIndex_or_throw(mars, par, opt);
+                const auto numberOfComponentsVal = deductions::resolve_NumberOfComponents_or_throw(mars, par, opt);
+                const auto modelErrorTypeVal     = deductions::resolve_ModelErrorType_or_throw(mars, par, opt);
 
                 // Encoding
                 set_or_throw<long>(out, "componentIndex", componentIndexVal);
@@ -163,7 +165,16 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             else if (Variant == ModelErrorType::FourierCoefficients) {
                 validation::match_LocalDefinitionNumber_or_throw(opt, out, {45L});
 
-                MARS2GRIB_CONCEPT_THROW(modelError, "Variant not implemented...");
+                // Deductions
+                const auto fourierCoefficientIndex = deductions::resolve_FourierCoefficientIndex(mars, par, opt);
+                const auto numberOfFourierCoefficients =
+                    deductions::resolve_NumberOfFourierCoefficients(mars, par, opt);
+                const auto modelErrorTypeVal = deductions::resolve_ModelErrorType_or_throw(mars, par, opt);
+
+                // Encoding
+                set_or_throw<long>(out, "fourierCoefficientIndex", fourierCoefficientIndex);
+                set_or_throw<long>(out, "numberOfFourierCoefficients", numberOfFourierCoefficients);
+                set_or_throw<long>(out, "modelErrorType", modelErrorTypeVal);
             }
             else {
                 MARS2GRIB_CONCEPT_THROW(modelError, "Unknown variant...");
