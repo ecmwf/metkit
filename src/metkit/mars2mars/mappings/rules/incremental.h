@@ -9,7 +9,7 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file incrementalType4i.h
+/// @file incremental.h
 /// @brief Conversion rules used by the mars2mars mapper.
 #pragma once
 
