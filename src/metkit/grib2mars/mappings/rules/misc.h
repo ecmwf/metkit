@@ -30,6 +30,7 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
         }
 
         const auto type = get_or_throw<std::string>(mars, "type");
+
         if (type == "eme" || type == "me") {
             if (grib.has("numberOfComponents")) {
                 const auto numberOfComponents = grib.getLong("numberOfComponents");
@@ -40,6 +41,20 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
                 const auto modelErrorType = grib.getLong("modelErrorType");
                 misc.set("modelErrorType", modelErrorType);
             }
+        }
+
+        if (type == "es" || type == "em" || type == "ses") {
+            long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
+            misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+        }
+
+        if (grib.has("typeOfEnsembleForecast")) {
+            const long typeOfEnsembleForecast = grib.getLong("typeOfEnsembleForecast");
+            misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
+        }
+        else if (grib.has("eps")) {
+            const long typeOfEnsembleForecast = grib.getLong("eps");
+            misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
         }
     }
     catch (...) {
