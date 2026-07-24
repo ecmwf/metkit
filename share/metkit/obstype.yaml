@@ -119,6 +119,7 @@
             - [55, atov, atovs]
             - [56, atop, atovs products]
             - [57, airs, fbairs]
+            - [58, amsr3, advanced microwave scanning radiometer 3]
             - [59, amsre, fbamsre, advanced microwave scanning radiometer]
             - [60, amsr2, amsr2_gc, advanced microwave scanning radiometer 2] # ????
             - [61, smt, satem mean temperature]
