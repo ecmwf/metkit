@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -33,6 +34,7 @@
 #include "eckit/message/Reader.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/EckitTool.h"
+#include "eckit/option/SimpleOption.h"
 
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/grib2mars/api/Grib2Mars.h"
@@ -56,18 +58,47 @@ private:
     void init(const CmdArgs& args) override;
     void execute(const CmdArgs& args) override;
     void usage(const std::string& tool) const override;
+
+    bool skipDiscipline192_                          = false;
+    std::optional<std::string> expver_               = std::nullopt;
+    std::optional<long> generatingProcessIdentifier_ = std::nullopt;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Grib1ToGrib2Tool::Grib1ToGrib2Tool(int argc, char** argv) : eckit::EckitTool(argc, argv) {}
+Grib1ToGrib2Tool::Grib1ToGrib2Tool(int argc, char** argv) : eckit::EckitTool(argc, argv) {
+    options_.push_back(new eckit::option::SimpleOption<bool>("help", "Print this help message"));
 
-void Grib1ToGrib2Tool::init(const CmdArgs& args) {}
+    // Input handling
+    options_.push_back(
+        new eckit::option::SimpleOption<bool>("skip-discipline-192", "Skip discipline 192 input messages"));
+
+    // Override values
+    options_.push_back(new eckit::option::SimpleOption<std::string>("expver", "Override expver"));
+    options_.push_back(
+        new eckit::option::SimpleOption<long>("generatingProcessIdentifier", "Override generatingProcessIdentifier"));
+}
+
+void Grib1ToGrib2Tool::init(const CmdArgs& args) {
+    skipDiscipline192_ = args.has("skip-discipline-192");
+
+    if (args.has("expver")) {
+        std::string expver;
+        args.get("expver", expver);
+        expver_ = expver;
+    }
+
+    if (args.has("generatingProcessIdentifier")) {
+        long generatingProcessIdentifier;
+        args.get("generatingProcessIdentifier", generatingProcessIdentifier);
+        generatingProcessIdentifier_ = generatingProcessIdentifier;
+    }
+}
 
 void Grib1ToGrib2Tool::usage(const std::string& tool) const {
     Log::info() << "Usage: " << tool << " [options] input output" << std::endl
                 << std::endl
-                << "Convert GRIB1 to GRIB2" << std::endl
+                << "Convert (pre-MTG2) GRIB1 to (post-MTG2) GRIB2" << std::endl
                 << std::endl;
 }
 
@@ -143,6 +174,10 @@ void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
     while ((msg = msgReader.next())) {
         auto codesHandle = readCodesHandle(msg);
 
+        if (skipDiscipline192_ && codesHandle->getLong("discipline") == 192) {
+            continue;
+        }
+
         // Read the MARS/Misc dictionary from the input GRIB sample
         const auto originalMarsMisc = grib2mars.convert<eckit::LocalConfiguration>(*codesHandle);
 
@@ -154,6 +189,14 @@ void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
 
         auto mars = mappedMarsMisc.mars;
         auto misc = mergeLocalConfigs(mappedMarsMisc.misc, originalMarsMisc.misc);
+
+        // Override values if specified by the user in the arguments
+        if (expver_) {
+            mars.set("expver", *expver_);
+        }
+        if (generatingProcessIdentifier_) {
+            misc.set("generatingProcessIdentifier", *generatingProcessIdentifier_);
+        }
 
         // Encode into GRIB2 using mars2grib encoder
         const auto newSample = mars2grib.encode(values, mars, misc);
