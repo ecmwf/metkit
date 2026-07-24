@@ -50,7 +50,7 @@ inline void convertMiscParams(const InDict_t& in, OutDict_t& out, eckit::LocalCo
 
             case 151164:  // Average potential temperature in the upper 300m (deg' C to K)
                 set_or_throw<long>(out, "param", 262144);
-                misc.set("offset", 273.15);
+                misc.set("offsetValuesBy", 273.15);
                 break;
 
             case 151175:  // Average sea water practical salinity in the upper 300m (psu to g/kg)

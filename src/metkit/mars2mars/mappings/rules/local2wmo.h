@@ -24,14 +24,14 @@ namespace metkit::mars2mars::rules::impl {
 
 /// @brief Assign `param`, and `scaleFactor` together.
 template <class OutDict_t>
-inline void setParamScale(OutDict_t& out, eckit::LocalConfiguration& misc, long param, double scaleFactor) {
+inline void setParamScale(OutDict_t& out, eckit::LocalConfiguration& misc, long param, double scaleValuesBy) {
 
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
         set_or_throw<long>(out, "param", param);
-        set_or_throw<double>(misc, "scaleFactor", scaleFactor);
+        set_or_throw<double>(misc, "scaleValuesBy", scaleValuesBy);
     }
     catch (...) {
         // Rethrow nested exceptions
