@@ -23,3 +23,6 @@ Testing/
 # Rust
 rust/target/
 rust/Cargo.lock
+# Documentation build artifacts
+docs/doc-build/
+docs/.venv/

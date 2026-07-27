@@ -98,7 +98,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = 
     {40, &allocateTemplateNumber3<3, 40, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {50, &allocateTemplateNumber3<3, 50, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {101, &allocateTemplateNumber3<3, 101, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {1000, &allocateTemplateNumber3<3, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 4 (Product Definition Section) initializers.

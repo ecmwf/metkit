@@ -123,6 +123,17 @@ struct Options {
     /// @default true
     ///
     bool fixMarsGrid = true;
+
+
+    ///
+    /// @brief Skip GRIB Section 3 (Grid Definition Section) encoding.
+    ///
+    /// When enabled, the encoder bypasses the encoding of Section 3,
+    /// allowing the gridSpec/ecCodes to take care of all the geometry and grid definition details.
+    ///
+    /// @default false
+    ///
+    bool skipSection3 = false;
 };
 
 }  // namespace metkit::mars2grib
