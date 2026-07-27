@@ -55,7 +55,6 @@
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/bitsPerValue.h"
-#include "metkit/mars2grib/backend/deductions/laplacianOperator.h"
 #include "metkit/mars2grib/backend/deductions/subSetTrunc.h"
 
 // Utils
@@ -188,9 +187,7 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
                 long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
                 set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
 
-                // double laplacianOperator = deductions::resolve_LaplacianOperator_or_throw(mars, par, opt);
                 long subSetTruncation = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
-                // set_or_throw<double>(out, "laplacianOperator", laplacianOperator);
                 set_or_throw<long>(out, "subSetJ", subSetTruncation);
                 set_or_throw<long>(out, "subSetK", subSetTruncation);
                 set_or_throw<long>(out, "subSetM", subSetTruncation);

@@ -1139,7 +1139,6 @@ INPUT = \@MARS2GRIB_SOURCE_DIRECTORY@/utils/configConverter.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/class.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/subSetTrunc.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/timeIncrementInSeconds.h \
-@MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/laplacianOperator.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/channel.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/chemId.h \
 @MARS2GRIB_SOURCE_DIRECTORY@/backend/deductions/firstWavelength.h \
