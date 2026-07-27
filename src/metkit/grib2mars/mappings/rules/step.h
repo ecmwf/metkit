@@ -15,70 +15,17 @@ void extractStep(const std::string& keyword, const metkit::codes::CodesHandle& g
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
-        if (!grib.has("stepType")) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `stepType` required to extract MARS keyword `" + keyword + "`", Here());
-        }
-
         if (!grib.has("endStep")) {
             throw Grib2MarsGenericException(
                 "Missing GRIB key `endStep` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        const std::string stepType = grib.getString("stepType");
         const long endStep         = grib.getLong("endStep");
-
         set_or_throw<long>(mars, keyword, endStep);
-#if 0
-        if (stepType != "instant") {
-            if (!grib.has("startStep")) {
-                throw Grib2MarsGenericException(
-                    "Missing GRIB key `startStep` required to extract "
-                    "`timespan` for statistical GRIB message with stepType `" +
-                        stepType + "`",
-                    Here());
-            }
-
-            const long startStep = grib.getLong("startStep");
-            const long timespan = endStep - startStep;
-
-            if (timespan == 0) {
-                throw Grib2MarsGenericException(
-                    "Invalid zero statistical window while extracting `timespan`: "
-                    "stepType=`" +
-                        stepType +
-                        "`, startStep=" + std::to_string(startStep) +
-                        ", endStep=" + std::to_string(endStep),
-                    Here());
-            }
-
-            if (timespan < 0) {
-                throw Grib2MarsGenericException(
-                    "Invalid negative statistical window while extracting `timespan`: "
-                    "stepType=`" +
-                        stepType +
-                        "`, startStep=" + std::to_string(startStep) +
-                        ", endStep=" + std::to_string(endStep),
-                    Here());
-            }
-
-            set_or_throw<long>(mars, "timespan", timespan);
-        }
-#endif
-        if (grib.has("initialStep")) {
-            const long initialStep = grib.getLong("initialStep");
-            misc.set("initialStep", initialStep);
-        }
-        else {
-            misc.set("initialStep", 0L);
-        }
 
         if (grib.has("timeIncrement")) {
             const long timeIncrement = grib.getLong("timeIncrement");
             misc.set("timeIncrementInSeconds", timeIncrement);
-        }
-        else {
-            misc.set("timeIncrementInSeconds", 3600L);
         }
     }
     catch (...) {
