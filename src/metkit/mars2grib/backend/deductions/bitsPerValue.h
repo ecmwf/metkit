@@ -51,7 +51,6 @@
 /// - @ref packingEncoding.h
 ///
 /// Related deductions:
-/// - @ref laplacianOperator.h
 /// - @ref subSetTrunc.h
 ///
 /// @ingroup mars2grib_backend_deductions
