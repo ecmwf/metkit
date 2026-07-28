@@ -76,6 +76,12 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 template <std::size_t Stage, std::size_t Section, ShapeOfTheEarthType Variant>
 constexpr bool shapeOfTheEarthApplicable() {
+
+    // Disable the concept for the Dummy variant
+    if constexpr (Variant == ShapeOfTheEarthType::Dummy) {
+        return false;
+    }
+
     return Section == SecGridDefinitionSection && Stage == StagePreset;
 }
 
