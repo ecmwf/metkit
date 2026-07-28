@@ -49,15 +49,6 @@ void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDic
             const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
             misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
         }
-
-        if (grib.has("typeOfEnsembleForecast")) {
-            const long typeOfEnsembleForecast = grib.getLong("typeOfEnsembleForecast");
-            misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
-        }
-        else if (grib.has("eps")) {
-            const long typeOfEnsembleForecast = grib.getLong("eps");
-            misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
-        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MISC keywords", Here()));
