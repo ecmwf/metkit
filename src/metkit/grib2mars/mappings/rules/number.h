@@ -22,6 +22,29 @@ void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle&
 
         const long value = grib.getLong(keyword);
         set_or_throw<long>(mars, keyword, value);
+
+        if (grib.has("numberOfForecastsInEnsemble")) {
+            const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
+
+            if (numberOfForecastsInEnsemble != 0) {
+                misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+
+                if (grib.getString("class") != "ai") {
+                    if (grib.has("typeOfEnsembleForecast")) {
+                        const long typeOfEnsembleForecast = grib.getLong("typeOfEnsembleForecast");
+                        misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
+                    }
+                    else if (grib.has("eps")) {
+                        const long typeOfEnsembleForecast = grib.getLong("eps");
+                        misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
+                    }
+                }
+            }
+        }
+        else if (grib.getString("type") != "me") {
+            throw Grib2MarsGenericException(
+                "Missing GRIB key `numberOfForecastsInEnsemble` required to extract MARS keyword `" + keyword + "`", Here());
+        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
