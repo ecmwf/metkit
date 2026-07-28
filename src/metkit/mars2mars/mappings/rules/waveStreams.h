@@ -9,7 +9,7 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file wave2oper.h
+/// @file waveStreams.h
 /// @brief Conversion rules used by the mars2mars mapper.
 #pragma once
 
@@ -21,9 +21,9 @@
 namespace metkit::mars2mars::rules::impl {
 
 
-/// @brief Convert surface-like legacy requests into sol layer output.
+/// @brief Convert wave streams
 template <class InDict_t, class OutDict_t>
-inline void convertWave2Oper(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+inline void convertWaveStreams(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
@@ -34,10 +34,13 @@ inline void convertWave2Oper(const InDict_t& in, OutDict_t& out, eckit::LocalCon
         if (get_or_throw<std::string>(in, "stream") == "wave") {
             set_or_throw<std::string>(out, "stream", "oper");
         }
+        else if (get_or_throw<std::string>(in, "stream") == "waef") {
+            set_or_throw<std::string>(out, "stream", "enfo");
+        }
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in wave2oper", Here()));
+        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in convertWaveStreams", Here()));
     }
 }
 
