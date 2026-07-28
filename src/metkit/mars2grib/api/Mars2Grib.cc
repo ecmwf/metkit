@@ -115,6 +115,9 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
     if (has<bool>(conf, "fixMarsGrid")) {
         opts.fixMarsGrid = get_or_throw<bool>(conf, "fixMarsGrid");
     }
+    if (has<bool>(conf, "skipSection3")) {
+        opts.skipSection3 = get_or_throw<bool>(conf, "skipSection3");
+    }
     return opts;
 }
 

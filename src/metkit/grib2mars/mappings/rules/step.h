@@ -1,0 +1,83 @@
+#pragma once
+
+#include <string>
+
+#include "metkit/codes/api/CodesAPI.h"
+
+#include "metkit/grib2mars/utils/dictionary_traits/dictionary_access_traits.h"
+#include "metkit/grib2mars/utils/grib2marsExceptions.h"
+
+namespace metkit::grib2mars::rules::impl {
+
+template <class MarsDict, class MiscDict>
+void extractStep(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
+    using metkit::grib2mars::utils::dict_traits::set_or_throw;
+    using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
+
+    try {
+        if (!grib.has("stepType")) {
+            throw Grib2MarsGenericException(
+                "Missing GRIB key `stepType` required to extract MARS keyword `" + keyword + "`", Here());
+        }
+
+        if (!grib.has("endStep")) {
+            throw Grib2MarsGenericException(
+                "Missing GRIB key `endStep` required to extract MARS keyword `" + keyword + "`", Here());
+        }
+
+        const std::string stepType = grib.getString("stepType");
+        const long endStep         = grib.getLong("endStep");
+
+        set_or_throw<long>(mars, keyword, endStep);
+#if 0
+        if (stepType != "instant") {
+            if (!grib.has("startStep")) {
+                throw Grib2MarsGenericException(
+                    "Missing GRIB key `startStep` required to extract "
+                    "`timespan` for statistical GRIB message with stepType `" +
+                        stepType + "`",
+                    Here());
+            }
+
+            const long startStep = grib.getLong("startStep");
+            const long timespan = endStep - startStep;
+
+            if (timespan == 0) {
+                throw Grib2MarsGenericException(
+                    "Invalid zero statistical window while extracting `timespan`: "
+                    "stepType=`" +
+                        stepType +
+                        "`, startStep=" + std::to_string(startStep) +
+                        ", endStep=" + std::to_string(endStep),
+                    Here());
+            }
+
+            if (timespan < 0) {
+                throw Grib2MarsGenericException(
+                    "Invalid negative statistical window while extracting `timespan`: "
+                    "stepType=`" +
+                        stepType +
+                        "`, startStep=" + std::to_string(startStep) +
+                        ", endStep=" + std::to_string(endStep),
+                    Here());
+            }
+
+            set_or_throw<long>(mars, "timespan", timespan);
+        }
+#endif
+        if (grib.has("initialStep")) {
+            const long initialStep = grib.getLong("initialStep");
+            misc.set("initialStep", initialStep);
+        }
+
+        if (grib.has("timeIncrement")) {
+            const long timeIncrement = grib.getLong("timeIncrement");
+            misc.set("timeIncrementInSeconds", timeIncrement);
+        }
+    }
+    catch (...) {
+        std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));
+    }
+}
+
+}  // namespace metkit::grib2mars::rules::impl
