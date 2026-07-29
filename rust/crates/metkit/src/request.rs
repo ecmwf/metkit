@@ -57,9 +57,14 @@ impl RequestState for Expanded {}
 ///     metkit::parse("retrieve, class=od\nlist, class=od", false)?.to_vec()?;
 ///
 /// // Trusted input — syntax-checked only, caller vouches for validity
-/// let trusted: MarsRequest<Expanded> = MarsRequest::from_trusted("retrieve, class=od, date=20260713")?;
+/// let mut trusted: MarsRequest<Expanded> =
+///     MarsRequest::from_trusted("retrieve, class=od, date=20260713")?;
 ///
-/// // Editing an expanded request demotes it back to Raw
+/// // Escape hatch: edit in place, keeping <Expanded>. Same trust contract —
+/// // only when you're sure the new value stays valid and canonical.
+/// trusted.set_trusted("expver", "0002");
+///
+/// // The safe alternative: editing demotes back to Raw, then re-expand
 /// let mut edited = expanded.into_raw();
 /// edited.set("expver", "0002");
 /// let expanded = edited.expand(true, false)?;
@@ -91,47 +96,47 @@ unsafe impl<S: RequestState> Sync for MarsRequest<S> {}
 /// `&Vec<String>`, pass `v.as_slice()`.
 pub trait MarsValue: sealed::Sealed {
     #[doc(hidden)]
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str);
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str);
 }
 
 impl sealed::Sealed for &str {}
 impl MarsValue for &str {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         request.inner.pin_mut().set_value_string(key, self);
     }
 }
 
 impl sealed::Sealed for String {}
 impl MarsValue for String {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         request.inner.pin_mut().set_value_string(key, &self);
     }
 }
 
 impl sealed::Sealed for &String {}
 impl MarsValue for &String {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         request.inner.pin_mut().set_value_string(key, self);
     }
 }
 
 impl sealed::Sealed for i64 {}
 impl MarsValue for i64 {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         request.inner.pin_mut().set_value_long(key, self);
     }
 }
 
 impl sealed::Sealed for Vec<String> {}
 impl MarsValue for Vec<String> {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         request.inner.pin_mut().set_values(key, self);
     }
 }
 
 impl sealed::Sealed for Vec<&str> {}
 impl MarsValue for Vec<&str> {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         let values: Vec<String> = self.into_iter().map(str::to_string).collect();
         request.inner.pin_mut().set_values(key, values);
     }
@@ -139,7 +144,7 @@ impl MarsValue for Vec<&str> {
 
 impl sealed::Sealed for &[&str] {}
 impl MarsValue for &[&str] {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         let values: Vec<String> = self.iter().map(|v| (*v).to_string()).collect();
         request.inner.pin_mut().set_values(key, values);
     }
@@ -147,21 +152,21 @@ impl MarsValue for &[&str] {
 
 impl sealed::Sealed for &[String] {}
 impl MarsValue for &[String] {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         request.inner.pin_mut().set_values(key, self.to_vec());
     }
 }
 
 impl<const N: usize> sealed::Sealed for [&str; N] {}
 impl<const N: usize> MarsValue for [&str; N] {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         self.as_slice().set_on(request, key);
     }
 }
 
 impl<const N: usize> sealed::Sealed for &[&str; N] {}
 impl<const N: usize> MarsValue for &[&str; N] {
-    fn set_on(self, request: &mut MarsRequest<Raw>, key: &str) {
+    fn set_on<S: RequestState>(self, request: &mut MarsRequest<S>, key: &str) {
         self.as_slice().set_on(request, key);
     }
 }
@@ -233,6 +238,23 @@ impl MarsRequest<Expanded> {
                 "expected exactly one MARS request, found {n}"
             ))),
         }
+    }
+
+    /// Set a value in place, **keeping** the [`Expanded`] tag — an escape hatch
+    /// for callers who know exactly what they are doing.
+    ///
+    /// Editing normally invalidates expansion, so the safe path is
+    /// [`into_raw`](MarsRequest::into_raw) → [`set`](MarsRequest::set) →
+    /// [`expand`](MarsRequest::expand). `set_trusted` skips that round-trip and
+    /// asserts, on the caller's authority, that the new value is already
+    /// expanded and canonical and leaves the request valid — the same trust
+    /// contract as [`from_trusted`](MarsRequest::from_trusted). A value that
+    /// breaks that contract surfaces as a runtime error in downstream C++
+    /// instead of at this boundary.
+    ///
+    /// Prefer the safe path unless you fully control the value.
+    pub fn set_trusted(&mut self, key: &str, value: impl MarsValue) {
+        value.set_on(self, key);
     }
 }
 
@@ -310,8 +332,6 @@ impl<S: RequestState> MarsRequest<S> {
         })
     }
 
-    // TODO: expanded function
-
     /// Re-tag as [`Raw`] to edit the request. Free — no FFI call.
     ///
     /// Any edit invalidates expansion, so mutation lives on
@@ -338,12 +358,15 @@ impl<S: RequestState> MarsRequest<S> {
         })
     }
 
-    /// Serialize to JSON.
+    /// Serialize the parameters to JSON, in metkit's own format.
+    ///
+    /// Mirrors eckit's `JSON << MarsRequest`: the object holds only the
+    /// parameters (the verb is **not** included), with a lone value rendered as
+    /// a scalar and multiple values as an array. This is a display/interchange
+    /// format — it is lossy and not intended to round-trip.
     pub fn to_json(&self) -> Result<String> {
         self.inner.to_json().map_err(crate::Error::from)
     }
-
-    // TODO: serde_json function here ->>
 
     /// Dump as formatted text.
     #[must_use]
