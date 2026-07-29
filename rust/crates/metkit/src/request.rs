@@ -49,11 +49,15 @@ impl RequestState for Expanded {}
 /// request.set("step", ["0", "6", "12"]);    // multiple values
 /// let expanded = request.expand(true, false)?;
 ///
-/// // Parsing expands (C++ MarsRequest::parse runs MarsExpansion)
+/// // Parsing a single request expands it (C++ MarsRequest::parse runs MarsExpansion)
 /// let request: MarsRequest<Expanded> = "retrieve, class=od, date=-1".parse()?;
 ///
+/// // Multiple requests: parse the text, then collect into a Vec
+/// let requests: Vec<MarsRequest<Expanded>> =
+///     metkit::parse("retrieve, class=od\nlist, class=od", false)?.to_vec()?;
+///
 /// // Trusted input — syntax-checked only, caller vouches for validity
-/// let trusted = MarsRequest::from_trusted("retrieve, class=od, date=20260713")?;
+/// let trusted: MarsRequest<Expanded> = MarsRequest::from_trusted("retrieve, class=od, date=20260713")?;
 ///
 /// // Editing an expanded request demotes it back to Raw
 /// let mut edited = expanded.into_raw();
@@ -306,6 +310,8 @@ impl<S: RequestState> MarsRequest<S> {
         })
     }
 
+    // TODO: expanded function
+
     /// Re-tag as [`Raw`] to edit the request. Free — no FFI call.
     ///
     /// Any edit invalidates expansion, so mutation lives on
@@ -336,6 +342,8 @@ impl<S: RequestState> MarsRequest<S> {
     pub fn to_json(&self) -> Result<String> {
         self.inner.to_json().map_err(crate::Error::from)
     }
+
+    // TODO: serde_json function here ->>
 
     /// Dump as formatted text.
     #[must_use]
@@ -456,6 +464,15 @@ impl<S: RequestState> ParsedRequests<S> {
     pub fn at(&self, index: usize) -> Result<MarsRequest<S>> {
         let inner = self.inner.at(index).map_err(crate::Error::from)?;
         Ok(MarsRequest::from_raw(inner))
+    }
+
+    /// Collect all parsed requests into a `Vec`.
+    ///
+    /// Short-circuits on the first request that fails to materialize. Use this
+    /// when you want every request up front; [`iter`](Self::iter) when you want
+    /// to process them lazily.
+    pub fn to_vec(&self) -> Result<Vec<MarsRequest<S>>> {
+        self.iter().collect()
     }
 
     /// Iterate over all parsed requests.
