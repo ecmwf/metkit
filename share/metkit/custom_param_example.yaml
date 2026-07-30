@@ -1,0 +1,126 @@
+# yaml-language-server: $schema=./parameter_entry_schema.json
+#
+# custom_param_example.yaml
+# =========================
+# Annotated starter file for ParamDB(yaml_path="...").
+#
+# Load with:
+#   from pymetkit import ParamDB
+#   db = ParamDB(yaml_path="custom_param_example.yaml")
+#
+#
+# Schema
+# ------
+# Each entry is a YAML mapping.
+#
+# Required fields
+# ~~~~~~~~~~~~~~~
+#   id         (integer)
+#       Unique numeric parameter ID.
+#       Use IDs > 900000 to avoid collisions with official ECMWF IDs (1–500999).
+#
+#   shortname  (string)
+#       Short identifier used in GRIB messages and MARS requests (e.g. "t", "tp").
+#       Must be non-empty.
+#
+#   longname   (string)
+#       Human-readable description (e.g. "Temperature").
+#       Must be non-empty.
+#
+# Optional fields (all have sensible defaults)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   units      (string)          Physical units.  Default: "unknown".
+#                                Examples: "K", "m s**-1", "kg m**-2 s**-1"
+#
+#   origin_ids (list of int)     WMO originating centre IDs.  Default: [].
+#                                Common values:
+#                                  98  — ECMWF
+#                                   0  — WMO / unspecified
+#                                   7  — NCEP (US)
+#                                  46  — INPE (Brazil)
+#
+#   access_ids (list of string)  Access-category tags.  Default: [].
+#                                Examples: "dissemination", "research", "test"
+#
+# Extra fields
+# ~~~~~~~~~~~~
+# Any extra keys (e.g. "url", "version", "notes") are allowed and are preserved
+# verbatim in the dict returned by db.get_metadata().
+#
+# Key aliases
+# ~~~~~~~~~~~
+# The following raw API spellings are accepted and normalised automatically:
+#   shortName / short_name  →  shortname
+#   longName / long_name / name  →  longname
+#
+#
+# Validation
+# ----------
+# Validate programmatically with ParameterEntry (Pydantic v2):
+#
+#   import pydantic, yaml
+#   from pymetkit import ParameterEntry
+#
+#   entries = yaml.safe_load(open("custom_param_example.yaml"))
+#   for raw in entries:
+#       try:
+#           ParameterEntry.model_validate(raw)
+#       except pydantic.ValidationError as exc:
+#           print(f"Invalid entry (id={raw.get('id')}): {exc}")
+#
+# Or validate with the bundled JSON schema (share/metkit/parameter_entry_schema.json):
+#
+#   import json, jsonschema, yaml
+#   schema  = json.load(open("share/metkit/parameter_entry_schema.json"))
+#   entries = yaml.safe_load(open("custom_param_example.yaml"))
+#   for entry in entries:
+#       jsonschema.validate(instance=entry, schema=schema)
+#
+# VS Code: the "# yaml-language-server" comment at the top of this file enables
+# inline validation and autocompletion if you have the YAML extension installed.
+#
+# ---------------------------------------------------------------------------
+
+# --- Minimal entry (required fields only) -----------------------------------
+- id: 900001
+  shortname: myvar
+  longname: My Custom Variable
+
+# --- Entry with units -------------------------------------------------------
+- id: 900002
+  shortname: myflux
+  longname: My Custom Surface Flux
+  units: W m**-2
+
+# --- Full entry with all optional fields ------------------------------------
+- id: 900003
+  shortname: mytemp
+  longname: My Custom Temperature
+  units: K
+  origin_ids: [98]           # 98 = ECMWF
+  access_ids: [dissemination, research]
+
+# --- Entry with multiple originating centres --------------------------------
+- id: 900004
+  shortname: mywind
+  longname: My Custom Wind Speed
+  units: m s**-1
+  origin_ids: [98, 0]        # ECMWF + WMO
+  access_ids: [dissemination]
+
+# --- Entry using raw API key spellings (also accepted) ----------------------
+- id: 900005
+  shortName: myrain          # shortName / short_name also accepted
+  name: My Custom Rainfall   # name / longName / long_name also accepted
+  units: kg m**-2
+
+# --- Entry with extra metadata fields (preserved in get_metadata()) ---------
+- id: 900006
+  shortname: mycloud
+  longname: My Custom Cloud Fraction
+  units: "1"                 # dimensionless
+  origin_ids: [98]
+  access_ids: [research]
+  url: "https://my-docs.example.com/mycloud"
+  version: 2
+  notes: "Experimental parameter — not for operational use"
