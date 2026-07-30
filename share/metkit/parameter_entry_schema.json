@@ -1,4 +1,66 @@
 {
+  "$defs": {
+    "MarsRequestContext": {
+      "additionalProperties": true,
+      "description": "A MARS-key context that (partly) selects a parameter id.\n\nThis mirrors a single matcher rule from ``share/metkit/params.yaml``. Its\nschema is kept **separate** from :class:`ParameterEntry` so the context\ncontract can evolve independently and so user-supplied context schemas can\nvalidate against it. All fields are optional because ``params.yaml`` rules\ndo not always constrain every key (e.g. ``levtype`` is occasionally absent).",
+      "properties": {
+        "class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "MARS class (e.g. 'od', 'ai')",
+          "title": "Class"
+        },
+        "stream": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "MARS stream (e.g. 'oper', 'enfo')",
+          "title": "Stream"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "MARS type (e.g. 'fc', 'cf')",
+          "title": "Type"
+        },
+        "levtype": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "MARS level type (e.g. 'sfc', 'pl')",
+          "title": "Levtype"
+        }
+      },
+      "title": "MarsRequestContext",
+      "type": "object"
+    }
+  },
   "additionalProperties": true,
   "description": "A single entry from the ECMWF parameter database.\n\nAccepts both the canonical field names produced by ``_normalise`` and the\nraw aliases that may appear in YAML or API responses.",
   "properties": {
@@ -22,6 +84,27 @@
       "description": "Physical units string (e.g. 'K', 'm s**-1')",
       "title": "Units",
       "type": "string"
+    },
+    "table": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "GRIB parameter table the id encodes to (e.g. 128, 228)",
+      "title": "Table"
+    },
+    "mars_request_context": {
+      "description": "MARS-key contexts (from params.yaml) in which this paramid appears; used to disambiguate shortname collisions",
+      "items": {
+        "$ref": "#/$defs/MarsRequestContext"
+      },
+      "title": "Mars Request Context",
+      "type": "array"
     },
     "origin_ids": {
       "description": "WMO originating centre IDs associated with this parameter",

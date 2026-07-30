@@ -26,6 +26,7 @@ dependencies = [
     "metkitlib",
     "findlibs",
     "pyyaml",
+    "pydantic>=2",
     "requests",
     "platformdirs",
 ]
@@ -47,6 +48,7 @@ zip-safe = false
     "parameter_metadata.yaml",
     "unit_metadata.yaml",
     "parameter_entry_schema.json",
+    "mars_context_schema.json",
     "custom_param_example.yaml",
 ]
 

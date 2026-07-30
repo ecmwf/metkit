@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 import pytest
 
-from pymetkit import ParamDB, ParameterEntry
+from pymetkit import ParamDB, ParameterEntry, ParamIDCandidate, AmbiguousParamError
 import pymetkit.pymetkit as _mod
 import pydantic
 
@@ -644,13 +644,16 @@ def test_yaml_path_none_loads_default_yaml():
 
 
 def test_shortname_default_returns_lowest_id(db):
-    """Without context, shortname_to_param_id returns the canonical ECMWF id.
+    """Without context, a colliding shortname raises AmbiguousParamError.
 
-    't' maps to both 130 (ECMWF table 128, dissemination, origin 98) and
-    500014 (table 500).  The default priority (dissemination → ECMWF origin →
-    lowest id) must resolve to 130.
+    't' maps to both 130 (ECMWF table 128) and 500014 (table 500). The v2 API
+    never guesses: with no context/filters the call raises, and the error
+    carries every candidate for the caller to disambiguate.
     """
-    assert db.shortname_to_param_id("t") == 130
+    with pytest.raises(AmbiguousParamError) as exc:
+        db.shortname_to_param_id("t")
+    assert exc.value.shortname == "t"
+    assert {c.param_id for c in exc.value.candidates} == {130, 500014}
 
 
 def test_shortname_to_param_id_with_table_128(db):
@@ -712,6 +715,96 @@ def test_get_all_by_shortname_returns_all_candidates(db):
     assert 500014 in ids
     # Results are sorted ascending by id
     assert ids == sorted(ids)
+
+
+# ---------------------------------------------------------------------------
+# v2 candidate API: shortname_to_param_id_candidates + AmbiguousParamError
+# ---------------------------------------------------------------------------
+
+_needs_lib = pytest.mark.skipif(
+    _mod.lib is None, reason="requires the MetKit C library for context= resolution"
+)
+
+
+def test_candidates_unique_shortname(db):
+    """A unique shortname yields a single candidate; singular call returns int."""
+    cands = db.shortname_to_param_id_candidates("msl")
+    assert len(cands) == 1
+    assert isinstance(cands[0], ParamIDCandidate)
+    assert cands[0].param_id == 151
+    assert db.shortname_to_param_id("msl") == 151
+
+
+def test_candidates_collision_returns_all(db):
+    """A colliding shortname returns every candidate, sorted by table."""
+    cands = db.shortname_to_param_id_candidates("tp")
+    assert {c.param_id for c in cands} == {228, 228228}
+    tables = [c.table for c in cands]
+    assert tables == sorted(tables)
+
+
+def test_candidate_exposes_full_origin_and_access_lists(db):
+    """Candidate origin/access are the full metadata lists."""
+    (cand,) = db.shortname_to_param_id_candidates("msl")
+    meta = db.get_metadata(151)
+    assert cand.origin == list(meta.get("origin_ids", []))
+    assert cand.access == list(meta.get("access_ids", []))
+
+
+def test_ambiguous_error_carries_candidates(db):
+    """No context on a collision raises AmbiguousParamError with candidates."""
+    with pytest.raises(AmbiguousParamError) as exc:
+        db.shortname_to_param_id("tp")
+    assert exc.value.shortname == "tp"
+    assert {c.param_id for c in exc.value.candidates} == {228, 228228}
+
+
+def test_candidates_table_filter_narrows_to_one(db):
+    """A table hard-filter reduces the candidate list to a single entry."""
+    cands = db.shortname_to_param_id_candidates("tp", table=228)
+    assert len(cands) == 1
+    assert cands[0].param_id == 228228
+
+
+def test_candidates_unknown_shortname_raises(db):
+    with pytest.raises(KeyError):
+        db.shortname_to_param_id_candidates("not_a_real_shortname_xyz")
+
+
+def test_candidates_filter_no_match_raises(db):
+    with pytest.raises(KeyError, match="table=999"):
+        db.shortname_to_param_id_candidates("tp", table=999)
+
+
+@_needs_lib
+def test_context_resolves_tp_class_od(db):
+    """context={'class': 'od'} resolves tp to 228 via the C++ expand engine."""
+    assert db.shortname_to_param_id("tp", context={"class": "od"}) == 228
+
+
+@_needs_lib
+def test_context_resolves_tp_full_ai(db):
+    """Full ai context resolves tp to 228228."""
+    ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
+    assert db.shortname_to_param_id("tp", context=ctx) == 228228
+
+
+@_needs_lib
+def test_context_and_filter_combined(db):
+    """context and hard filters compose to a single result."""
+    ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
+    assert (
+        db.shortname_to_param_id("tp", context=ctx, access="dissemination") == 228228
+    )
+
+
+@_needs_lib
+def test_candidate_context_roundtrips(db):
+    """Each candidate's advertised minimal context resolves back to its own id."""
+    for cand in db.shortname_to_param_id_candidates("tp"):
+        assert cand.mars_request_context, f"expected non-empty ctx for {cand.param_id}"
+        got = db.shortname_to_param_id("tp", context=cand.mars_request_context)
+        assert got == cand.param_id
 
 
 def test_get_all_by_shortname_unique_shortname(db):
@@ -776,9 +869,10 @@ def test_center_from_id_above_million():
 
 
 def test_default_resolution_prefers_dissemination_then_ecmwf(db):
-    """Default resolution: dissemination params with ECMWF origin win."""
-    # 't' → 130 has dissemination + origin 98; 500014 does not have origin 98.
-    assert db.shortname_to_param_id("t") == 130
+    """A table filter selects the ECMWF dissemination parameter unambiguously."""
+    # 't' → 130 has dissemination + origin 98 and encodes to table 128;
+    # 500014 encodes to table 500. table=128 narrows to the single ECMWF id.
+    assert db.shortname_to_param_id("t", table=128) == 130
 
 
 def test_origin_ids_stored_in_metadata(db):
@@ -844,7 +938,7 @@ def test_lazy_loaded_only_once():
     [
         ("param_id_to_shortname", (130,)),
         ("param_id_to_longname", (130,)),
-        ("shortname_to_param_id", ("t",)),
+        ("shortname_to_param_id", ("msl",)),
         ("shortname_to_longname", ("t",)),
         ("longname_to_param_id", ("Temperature",)),
         ("longname_to_shortname", ("Temperature",)),

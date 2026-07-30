@@ -3,7 +3,9 @@ import os
 import importlib.resources
 from cffi import FFI
 import findlibs
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from itertools import combinations
 from typing import IO, Iterator
 import warnings
 from pathlib import Path
@@ -40,6 +42,58 @@ def ffi_decode(data: FFI.CData) -> str:
         return buf
     else:
         return buf.decode(encoding="utf-8", errors="surrogateescape")
+
+
+@dataclass(frozen=True)
+class ParamIDCandidate:
+    """One possible paramid for a shortname, plus the context that selects it.
+
+    Attributes
+    ----------
+    param_id:
+        The candidate numeric parameter ID.
+    table:
+        GRIB parameter table the id encodes to (e.g. ``128``, ``228``).
+    origin:
+        WMO originating centre ids associated with this candidate — the full
+        list (e.g. ``[0, 34, 98]``), since several centres may share the id.
+    access:
+        Access categories (e.g. ``["dissemination"]``) — the full list.
+    mars_request_context:
+        The minimal set of MARS key/value pairs that, when passed as
+        ``context=`` to :meth:`ParamDB.shortname_to_param_id`, selects this
+        candidate (e.g. ``{"class": "ai"}``). Empty if no baked context is
+        recorded or if no key-subset uniquely distinguishes this candidate.
+    """
+
+    param_id: int
+    table: int
+    origin: "list[int]"
+    access: "list[str]"
+    mars_request_context: dict = field(default_factory=dict)
+
+
+class AmbiguousParamError(KeyError):
+    """Raised when a shortname (given the supplied context) maps to >1 paramid.
+
+    Attributes
+    ----------
+    shortname:
+        The shortname that could not be uniquely resolved.
+    candidates:
+        Every matching candidate, each carrying the context needed to select
+        it, sorted by ``(table, origin, access, mars_request_context)``. The
+        caller inspects these and re-calls with a narrowing ``context=``.
+    """
+
+    def __init__(self, shortname: str, candidates: "list[ParamIDCandidate]"):
+        self.shortname = shortname
+        self.candidates = candidates
+        ids = [c.param_id for c in candidates]
+        super().__init__(
+            f"Short name {shortname!r} is ambiguous: candidates {ids}. "
+            f"Supply context= to disambiguate (see .candidates for options)."
+        )
 
 
 class MarsRequest:
@@ -88,6 +142,37 @@ class MarsRequest:
             self.__request, inherit, strict, expanded_request.ctype()
         )
         return expanded_request
+
+    def resolved_param(self) -> int:
+        """Return the single resolved ``param`` value as an ``int``.
+
+        Convenience accessor for the shortname -> paramid resolution path:
+        after building a request with ``param=<shortname>`` plus context keys
+        and calling :meth:`expand`, the C++ ``TypeParam::pass2`` rewrites
+        ``param`` to the numeric id. This reads that id back.
+
+        Returns
+        -------
+        int
+            The single resolved paramid.
+
+        Raises
+        ------
+        KeyError
+            If the request has no ``param`` key.
+        ValueError
+            If ``param`` resolved to zero or more than one value (i.e. the
+            context did not collapse to a single id).
+        """
+        if "param" not in self:
+            raise KeyError("Request has no 'param' key to resolve")
+        n = self.num_values("param")
+        if n != 1:
+            values = self["param"]
+            raise ValueError(
+                f"'param' did not resolve to a single value (got {n}: {values})"
+            )
+        return int(self["param"])
 
     def validate(self):
         """
@@ -277,7 +362,14 @@ class PatchedLib:
             raise RuntimeError("MetKit library not found")
 
         ffi.cdef(self.__read_header())
-        self.__lib = ffi.dlopen(libName)
+        try:
+            self.__lib = ffi.dlopen(libName)
+        except OSError as e:
+            raise CFFIModuleLoadFailed(
+                f"MetKit shared library found at '{libName}' but could not be "
+                f"loaded ({e}). It is likely stale or incompatible (e.g. an "
+                "eckit/metkit ABI mismatch). ParamDB remains usable."
+            ) from e
 
         # All of the executable members of the CFFI-loaded library are functions in the MetKit
         # C API. These should be wrapped with the correct error handling. Otherwise forward
@@ -458,6 +550,8 @@ class ParamDB:
         self._by_shortname_all: dict[str, list[dict]] = {}
         self._by_longname: dict[str, dict] = {}
         self._loaded: bool = False
+        # Memo for the C++ expand oracle: (shortname, sorted-context-tuple) -> ids.
+        self._ctx_cache: dict = {}
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -583,6 +677,162 @@ class ParamDB:
         # 3. Fall back to lowest id.
         return min(pool, key=lambda e: e["id"])
 
+    # ------------------------------------------------------------------
+    # Context-aware resolution helpers (v2 API)
+    # ------------------------------------------------------------------
+
+    def _context_resolved_ids(self, shortname: str, context: dict) -> "set[int] | None":
+        """Resolve *shortname* + *context* to paramid(s) via the C++ engine.
+
+        Builds ``MarsRequest(param=shortname, **context)``, expands it (which
+        runs ``TypeParam::pass2`` and fills MARS defaults for unspecified keys),
+        and reads back the resolved ``param`` value(s). Results are memoised on
+        ``self._ctx_cache`` since each ``expand`` is a comparatively expensive
+        (~ms) C++ round-trip and the minimal-context search repeats queries.
+
+        The C++ library reads its language files (``params.yaml`` etc.) from
+        ``~metkit/share/metkit`` — set ``METKIT_HOME`` to this repository root
+        to resolve against the in-repo ``share/metkit`` data.
+
+        Returns
+        -------
+        set[int] | None
+            The set of resolved numeric ids, or ``None`` if the MetKit C
+            library is unavailable (caller should fall back to baked contexts).
+        """
+        if lib is None:
+            return None
+        cache_key = (shortname, tuple(sorted((str(k).rstrip("_"), str(v)) for k, v in context.items())))
+        cached = self._ctx_cache.get(cache_key)
+        if cached is not None:
+            return cached
+        req = MarsRequest(verb="retrieve")
+        req["param"] = shortname
+        for key, value in context.items():
+            req[key.rstrip("_")] = value
+        expanded = req.expand()
+        if "param" not in expanded:
+            self._ctx_cache[cache_key] = set()
+            return set()
+        values = expanded["param"]
+        if isinstance(values, str):
+            values = [values]
+        resolved: set[int] = set()
+        for v in values:
+            try:
+                resolved.add(int(v))
+            except (TypeError, ValueError):
+                continue
+        self._ctx_cache[cache_key] = resolved
+        return resolved
+
+    @staticmethod
+    def _entry_matches_context(entry: dict, context: dict) -> bool:
+        """Offline fallback: does any baked context of *entry* satisfy *context*?
+
+        Used only when the C++ library is unavailable. An entry matches when at
+        least one of its ``mars_request_context`` dicts contains every
+        ``key == value`` pair in *context*.
+        """
+        wanted = {k.rstrip("_"): str(v) for k, v in context.items()}
+        for baked in entry.get("mars_request_context", []):
+            if all(str(baked.get(k)) == v for k, v in wanted.items()):
+                return True
+        return False
+
+    def _minimal_distinguishing_context(
+        self, entry: dict, siblings: "list[dict]", shortname: str
+    ) -> dict:
+        """Return the smallest MARS key-subset that selects *entry* over siblings.
+
+        Searches the key-subsets of *entry*'s baked ``mars_request_context``
+        dicts for the smallest subset that uniquely selects this id.
+
+        When the MetKit C library is available, ``expand`` is used as the
+        authoritative oracle: a subset qualifies only if
+        ``MarsRequest(param=shortname, **subset).expand()`` resolves to exactly
+        this id. This guarantees the advertised context actually round-trips
+        (bare ``{"class": "ai"}`` is rejected for ``tp`` because ``expand``'s
+        inherited defaults resolve it to 228, not 228228).
+
+        Offline (no library), it falls back to a set-membership heuristic
+        against the baked contexts of the sibling candidates.
+
+        Returns ``{}`` if no subset uniquely distinguishes *entry* (residual
+        ambiguity) or if *entry* has no baked context.
+        """
+        entry_id = int(entry["id"])
+        use_oracle = lib is not None
+
+        other_contexts: list[dict] = []
+        if not use_oracle:
+            for sib in siblings:
+                if sib.get("id") == entry_id:
+                    continue
+                other_contexts.extend(sib.get("mars_request_context", []))
+
+        def selects(subctx: dict) -> bool:
+            if use_oracle:
+                return self._context_resolved_ids(shortname, subctx) == {entry_id}
+            return not any(
+                all(str(o.get(k)) == str(v) for k, v in subctx.items())
+                for o in other_contexts
+            )
+
+        best: "dict | None" = None
+        for ctx in entry.get("mars_request_context", []):
+            keys = sorted(ctx.keys())
+            for size in range(1, len(keys) + 1):
+                if best is not None and size >= len(best):
+                    break
+                found_at_size = None
+                for combo in combinations(keys, size):
+                    subctx = {k: ctx[k] for k in combo}
+                    if selects(subctx):
+                        found_at_size = subctx
+                        break
+                if found_at_size is not None:
+                    best = found_at_size
+                    break
+        return best or {}
+
+    def _make_candidate(
+        self,
+        entry: dict,
+        siblings: "list[dict]",
+        shortname: str,
+        minimal: bool = True,
+    ) -> ParamIDCandidate:
+        """Build a :class:`ParamIDCandidate` from a metadata *entry*.
+
+        When *minimal* is ``False`` the (expensive, expand-oracle) minimal
+        distinguishing context is skipped and left empty — used when the entry
+        is already unambiguous so no disambiguating context is required.
+        """
+        param_id = int(entry["id"])
+        ctx = (
+            self._minimal_distinguishing_context(entry, siblings, shortname)
+            if minimal
+            else {}
+        )
+        return ParamIDCandidate(
+            param_id=param_id,
+            table=self._table_from_id(param_id),
+            origin=list(entry.get("origin_ids", [])),
+            access=list(entry.get("access_ids", [])),
+            mars_request_context=ctx,
+        )
+
+    @staticmethod
+    def _candidate_sort_key(cand: ParamIDCandidate) -> tuple:
+        return (
+            cand.table,
+            tuple(sorted(cand.origin)),
+            tuple(sorted(cand.access)),
+            tuple(sorted((str(k), str(v)) for k, v in cand.mars_request_context.items())),
+            cand.param_id,
+        )
+
     @staticmethod
     def _normalise(raw: dict) -> dict:
         """Return a normalised and validated parameter dict with canonical key names.
@@ -592,8 +842,9 @@ class ParamDB:
         are preserved in the returned dict so no information is discarded.
         """
         entry = ParameterEntry.model_validate(raw)
-        # model_dump preserves extra fields captured via ``extra="allow"``
-        return entry.model_dump()
+        # model_dump preserves extra fields captured via ``extra="allow"``.
+        # by_alias=True keeps MARS ``class`` (not the Python-safe ``class_``).
+        return entry.model_dump(by_alias=True)
 
     def _index(self, entry: dict) -> None:
         """Insert a normalised entry into the internal lookup dicts."""
@@ -870,40 +1121,250 @@ class ParamDB:
             raise KeyError(f"Long name {longname!r} not found in database")
         return self._by_longname[longname]["shortname"]
 
-    def shortname_to_param_id(
+    def shortname_to_param_id_candidates(
         self,
         shortname: str,
+        context: "dict | None" = None,
+        *,
         table: "int | None" = None,
         origin: "int | None" = None,
         access: "str | None" = None,
-    ) -> int:
-        """Return the param ID for *shortname*.
+    ) -> "list[ParamIDCandidate]":
+        """Return all candidate paramids for *shortname*, each with its context.
+
+        The programmatic counterpart to :class:`AmbiguousParamError`: it returns
+        the candidate + context information as a normal value, so callers can
+        inspect the options and then call :meth:`shortname_to_param_id` with the
+        narrowing ``context=`` (or ``table``/``origin``/``access``) they want.
+
+        Two independent narrowing mechanisms are available and may be combined:
+
+        * ``context`` — a dict of MARS keys resolved via the C++ ``expand``
+          engine (authoritative, cycle-correct). When the MetKit C library is
+          unavailable, the baked ``mars_request_context`` metadata is used as a
+          fallback.
+        * ``table`` / ``origin`` / ``access`` — direct hard filters on the
+          candidate metadata, applied WITHOUT constructing a MARS request.
 
         Parameters
         ----------
         shortname:
             ECMWF short name (e.g. ``"t"``, ``"tp"``).
+        context:
+            Optional dict of MARS keys used to pre-narrow the candidate set
+            (e.g. ``{"class": "ai"}``). When omitted, all candidates surviving
+            the hard filters are returned.
         table:
-            Optional GRIB parameter table number to disambiguate collisions
-            (e.g. ``128`` for classic ECMWF, ``140`` for ocean waves).
+            Optional hard filter — GRIB parameter table number.
         origin:
-            Optional WMO originating centre ID (e.g. ``98`` for ECMWF,
-            ``0`` for WMO, ``7`` for NCEP).
+            Optional hard filter — WMO originating centre id (membership).
         access:
-            Optional access category filter (e.g. ``"dissemination"``).
+            Optional hard filter — access category string (membership).
+
+        Returns
+        -------
+        list[ParamIDCandidate]
+            Every matching candidate, sorted by
+            ``(table, origin, access, mars_request_context, param_id)``. Length
+            1 means the shortname (given any supplied context/filters) is
+            unambiguous.
+
+        Raises
+        ------
+        KeyError
+            If *shortname* is unknown, or no candidate survives the filters.
         """
         self._ensure_loaded()
-        return int(
-            self._resolve_shortname_with_context(
-                shortname, table, origin, access
-            )["id"]
+        entries, siblings = self._filter_shortname_entries(
+            shortname, context, table=table, origin=origin, access=access
         )
+        # A single surviving candidate is unambiguous: no distinguishing
+        # context is needed, so skip the (expensive) expand-oracle computation.
+        if len(entries) == 1:
+            return [self._make_candidate(entries[0], siblings, shortname, minimal=False)]
+        candidates = [
+            self._make_candidate(e, siblings, shortname) for e in entries
+        ]
+        candidates.sort(key=self._candidate_sort_key)
+        return candidates
+
+    def _filter_shortname_entries(
+        self,
+        shortname: str,
+        context: "dict | None" = None,
+        *,
+        table: "int | None" = None,
+        origin: "int | None" = None,
+        access: "str | None" = None,
+    ) -> "tuple[list[dict], list[dict]]":
+        """Return ``(surviving_entries, all_siblings)`` for *shortname*.
+
+        Applies the ``table``/``origin``/``access`` hard filters and the MARS
+        ``context`` filter (via the C++ ``expand`` engine, or the baked-context
+        offline fallback). Does NOT compute minimal contexts — that expensive
+        step is deferred to :meth:`_make_candidate`. Raises ``KeyError`` if the
+        shortname is unknown or no entry survives the filters.
+        """
+        if shortname not in self._by_shortname_all:
+            raise KeyError(f"Short name {shortname!r} not found in database")
+
+        siblings = self._by_shortname_all[shortname]
+        entries = list(siblings)
+
+        # --- Hard metadata filters -----------------------------------------
+        if table is not None:
+            entries = [e for e in entries if self._table_from_id(e["id"]) == table]
+        if origin is not None:
+            entries = [e for e in entries if origin in e.get("origin_ids", [])]
+        if access is not None:
+            entries = [e for e in entries if access in e.get("access_ids", [])]
+
+        # --- MARS context filter (C++ expand, with offline fallback) -------
+        if context:
+            resolved = self._context_resolved_ids(shortname, context)
+            if resolved is not None:
+                entries = [e for e in entries if int(e["id"]) in resolved]
+            else:
+                entries = [
+                    e for e in entries if self._entry_matches_context(e, context)
+                ]
+
+        if not entries:
+            ctx_parts = []
+            if context:
+                ctx_parts.append(f"context={context!r}")
+            if table is not None:
+                ctx_parts.append(f"table={table}")
+            if origin is not None:
+                ctx_parts.append(f"origin={origin}")
+            if access is not None:
+                ctx_parts.append(f"access={access!r}")
+            raise KeyError(
+                f"Short name {shortname!r} not found for "
+                f"{', '.join(ctx_parts) or 'the given filters'}"
+            )
+
+        return entries, siblings
+
+    def shortname_to_param_id(
+        self,
+        shortname: str,
+        context: "dict | None" = None,
+        *,
+        table: "int | None" = None,
+        origin: "int | None" = None,
+        access: "str | None" = None,
+    ) -> int:
+        """Return the single param ID for *shortname*, given optional context.
+
+        Ambiguity is never resolved by guessing. When more than one candidate
+        remains after applying ``context`` and the ``table``/``origin``/
+        ``access`` filters, :class:`AmbiguousParamError` is raised; its
+        ``.candidates`` attribute lists every remaining id with the context
+        needed to select it.
+
+        Parameters
+        ----------
+        shortname:
+            ECMWF short name (e.g. ``"t"``, ``"tp"``).
+        context:
+            Optional dict of MARS keys resolved via the C++ ``expand`` engine
+            (e.g. ``{"class": "ai"}``). Partial context is usually sufficient —
+            ``expand`` fills defaults for unspecified keys.
+        table:
+            Optional hard filter — GRIB parameter table number.
+        origin:
+            Optional hard filter — WMO originating centre id (membership).
+        access:
+            Optional hard filter — access category string (membership).
+
+        Returns
+        -------
+        int
+            The uniquely resolved paramid.
+
+        Raises
+        ------
+        KeyError
+            If *shortname* is unknown, or no candidate survives the filters.
+        AmbiguousParamError
+            If more than one candidate remains after applying context/filters.
+        """
+        self._ensure_loaded()
+        entries, siblings = self._filter_shortname_entries(
+            shortname, context, table=table, origin=origin, access=access
+        )
+        if len(entries) == 1:
+            return int(entries[0]["id"])
+        # Ambiguous: only now pay the cost of computing per-candidate
+        # distinguishing contexts for the error payload.
+        candidates = [
+            self._make_candidate(e, siblings, shortname) for e in entries
+        ]
+        candidates.sort(key=self._candidate_sort_key)
+        raise AmbiguousParamError(shortname, candidates)
+
 
     def param_id_to_shortname(self, param_id: int) -> str:
         self._ensure_loaded()
         if param_id not in self._by_id:
             raise KeyError(f"Parameter id {param_id!r} not found in database")
         return self._by_id[param_id]["shortname"]
+
+    @staticmethod
+    def _param_context_from_cpp(param_id: int) -> "list[dict] | None":
+        """Return MARS contexts for *param_id* from the C++ layer, if available.
+
+        Placeholder for the future ``metkit_param_context`` C API (outcomes §4).
+        That hook does not exist yet, so this always returns ``None`` to signal
+        "not available", causing :meth:`param_id_to_context` to fall back to the
+        precomputed YAML data. Once the C API lands, implement it here and the
+        public method will transparently prefer it.
+        """
+        return None
+
+    def param_id_to_context(self, param_id: int) -> "list[dict]":
+        """Return the MARS-key contexts in which *param_id* is valid.
+
+        Each context is a dict of MARS keys (e.g.
+        ``{"class": "ai", "stream": "enfo", "type": "cf", "levtype": "sfc"}``)
+        drawn from the authoritative ``params.yaml`` map. These are the raw
+        contexts used to disambiguate shortname collisions.
+
+        Resolution order:
+
+        1. The C++ layer (``metkit_param_context``) when available — see
+           :meth:`_param_context_from_cpp`. Not yet implemented.
+        2. Fallback: the precomputed ``mars_request_context`` field baked into
+           the bundled parameter metadata.
+
+        Parameters
+        ----------
+        param_id:
+            Numeric parameter id.
+
+        Returns
+        -------
+        list[dict]
+            Zero or more MARS context dicts. Empty if the id has no recorded
+            context (e.g. not referenced in ``params.yaml``).
+
+        Raises
+        ------
+        KeyError
+            If *param_id* is not in the database.
+        """
+        self._ensure_loaded()
+        if param_id not in self._by_id:
+            raise KeyError(f"Parameter id {param_id!r} not found in database")
+
+        # Prefer the authoritative C++ source once it exists.
+        cpp = self._param_context_from_cpp(param_id)
+        if cpp is not None:
+            return cpp
+
+        # Fallback: precomputed contexts from the bundled data.
+        return list(self._by_id[param_id].get("mars_request_context", []))
 
     def longname_to_param_id(self, longname: str) -> int:
         self._ensure_loaded()

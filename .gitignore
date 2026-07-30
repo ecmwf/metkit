@@ -23,3 +23,5 @@ Testing/
 # Rust
 rust/target/
 rust/Cargo.lock
+# pymetkit dev venv
+python/pymetkit/.venv/

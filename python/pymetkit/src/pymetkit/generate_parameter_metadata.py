@@ -30,6 +30,13 @@ PARAM_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.yaml"
 PARAM_JSON_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.json"
 UNIT_OUTPUT = _REPO_ROOT / "share" / "metkit" / "unit_metadata.yaml"
 SCHEMA_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_entry_schema.json"
+MARS_CONTEXT_SCHEMA_OUTPUT = (
+    _REPO_ROOT / "share" / "metkit" / "mars_context_schema.json"
+)
+
+#: Authoritative MARS context->paramid map used by the C++ resolution engine.
+#: Each entry is ``[{class, stream, type, levtype}, [paramid, ...]]``.
+LANGUAGE_PARAMS_YAML = _REPO_ROOT / "share" / "metkit" / "params.yaml"
 
 #: Timeout in seconds for HTTP requests to the ECMWF parameter database API.
 REQUEST_TIMEOUT = 30
@@ -242,6 +249,81 @@ def write_param_json(
 
 
 # ---------------------------------------------------------------------------
+# Table + MARS context enrichment (derived locally — no network required)
+# ---------------------------------------------------------------------------
+
+#: Keys of a MARS context matcher in params.yaml, in canonical order.
+_CONTEXT_KEYS = ("class", "stream", "type", "levtype")
+
+
+def table_from_id(param_id: int) -> int:
+    """Return the GRIB parameter table a *param_id* encodes to.
+
+    Mirrors the C++ ``Param`` encoding / ``ParamDB._table_from_id``:
+      * ``< 1000``      -> table 128 (classic ECMWF; prefix suppressed)
+      * ``< 1_000_000`` -> ``param_id // 1000``
+      * ``>= 1_000_000``-> ``(param_id % 1_000_000) // 1000``
+    """
+    if param_id < 1000:
+        return 128
+    if param_id < 1_000_000:
+        return param_id // 1000
+    return (param_id % 1_000_000) // 1000
+
+
+def build_param_context_map(
+    params_yaml_path: Path = LANGUAGE_PARAMS_YAML,
+) -> dict[int, list[dict]]:
+    """Invert ``params.yaml`` into ``param_id -> [context dict, ...]``.
+
+    ``params.yaml`` lists, for each MARS context matcher
+    (``{class, stream, type, levtype}``), the paramids valid in that context.
+    This inverts it so each paramid maps to the list of contexts in which it
+    appears — the raw material for disambiguating shortname collisions. The
+    *minimal distinguishing* subset among a shortname's candidates is computed
+    at query time, not here.
+    """
+    print(f"Reading MARS contexts from {params_yaml_path} ...")
+    with params_yaml_path.open("r") as fh:
+        rules = yaml.safe_load(fh)
+
+    context_map: dict[int, list[dict]] = {}
+    for matcher, ids in rules:
+        # Canonicalise key order and drop absent keys.
+        context = {k: matcher[k] for k in _CONTEXT_KEYS if k in matcher}
+        for pid in ids:
+            bucket = context_map.setdefault(int(pid), [])
+            if context not in bucket:
+                bucket.append(context)
+
+    # Deterministic ordering of contexts per paramid.
+    for pid in context_map:
+        context_map[pid].sort(key=lambda c: tuple(c.get(k, "") for k in _CONTEXT_KEYS))
+    print(f"  Mapped MARS contexts for {len(context_map)} paramids.")
+    return context_map
+
+
+def enrich_parameters(
+    params: list[dict],
+    context_map: "dict[int, list[dict]] | None" = None,
+) -> list[dict]:
+    """Add ``table`` and ``mars_request_context`` to each parameter entry.
+
+    ``table`` is derived from the id encoding; ``mars_request_context`` is
+    looked up from *context_map* (built by :func:`build_param_context_map`).
+    Both are fully offline derivations — no network access required.
+    """
+    if context_map is None:
+        context_map = build_param_context_map()
+
+    for entry in params:
+        pid = int(entry["id"])
+        entry["table"] = table_from_id(pid)
+        entry["mars_request_context"] = context_map.get(pid, [])
+    return params
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
@@ -252,12 +334,28 @@ if __name__ == "__main__":
     _, param_origin_map = fetch_origin_map()
 
     parameters = fetch_parameters(unit_map=unit_map, param_origin_map=param_origin_map)
+
+    # Enrich with locally-derived table + MARS context (no network needed).
+    context_map = build_param_context_map()
+    enrich_parameters(parameters, context_map)
+
     write_param_yaml(parameters)
     write_param_json(parameters)
 
-    # Write the JSON schema for ParameterEntry so downstream tools can validate YAML.
-    from .models import ParameterEntry  # noqa: E402 (local import to avoid circular at module level)
+    # Write the JSON schemas so downstream tools can validate YAML.
+    # The MARS context schema is kept SEPARATE from the parameter schema so the
+    # context contract can evolve independently (and back user-supplied schemas).
+    from .models import (  # noqa: E402 (local import to avoid circular at module level)
+        MarsRequestContext,
+        ParameterEntry,
+    )
 
     schema = ParameterEntry.model_json_schema()
     SCHEMA_OUTPUT.write_text(json.dumps(schema, indent=2), encoding="utf-8")
     print(f"Written JSON schema to {SCHEMA_OUTPUT}")
+
+    ctx_schema = MarsRequestContext.model_json_schema()
+    MARS_CONTEXT_SCHEMA_OUTPUT.write_text(
+        json.dumps(ctx_schema, indent=2), encoding="utf-8"
+    )
+    print(f"Written MARS context schema to {MARS_CONTEXT_SCHEMA_OUTPUT}")

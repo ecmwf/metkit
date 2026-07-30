@@ -9,6 +9,34 @@ from typing import Annotated, Any
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
+class MarsRequestContext(BaseModel):
+    """A MARS-key context that (partly) selects a parameter id.
+
+    This mirrors a single matcher rule from ``share/metkit/params.yaml``. Its
+    schema is kept **separate** from :class:`ParameterEntry` so the context
+    contract can evolve independently and so user-supplied context schemas can
+    validate against it. All fields are optional because ``params.yaml`` rules
+    do not always constrain every key (e.g. ``levtype`` is occasionally absent).
+    """
+
+    model_config = {"populate_by_name": True, "extra": "allow"}
+
+    class_: "str | None" = Field(
+        default=None,
+        alias="class",
+        description="MARS class (e.g. 'od', 'ai')",
+    )
+    stream: "str | None" = Field(
+        default=None, description="MARS stream (e.g. 'oper', 'enfo')"
+    )
+    type: "str | None" = Field(
+        default=None, description="MARS type (e.g. 'fc', 'cf')"
+    )
+    levtype: "str | None" = Field(
+        default=None, description="MARS level type (e.g. 'sfc', 'pl')"
+    )
+
+
 class ParameterEntry(BaseModel):
     """
     A single entry from the ECMWF parameter database.
@@ -36,6 +64,19 @@ class ParameterEntry(BaseModel):
     units: str = Field(
         default="unknown",
         description="Physical units string (e.g. 'K', 'm s**-1')",
+    )
+
+    table: "int | None" = Field(
+        default=None,
+        description="GRIB parameter table the id encodes to (e.g. 128, 228)",
+    )
+
+    mars_request_context: list[MarsRequestContext] = Field(
+        default_factory=list,
+        description=(
+            "MARS-key contexts (from params.yaml) in which this paramid "
+            "appears; used to disambiguate shortname collisions"
+        ),
     )
 
     origin_ids: list[int] = Field(
@@ -80,6 +121,13 @@ class ParameterEntry(BaseModel):
         if v is None or str(v).strip() == "":
             return "unknown"
         return str(v)
+
+    @field_validator("table", mode="before")
+    @classmethod
+    def coerce_table(cls, v: Any) -> "int | None":
+        if v is None or str(v).strip() == "":
+            return None
+        return int(v)
 
     @field_validator("origin_ids", mode="before")
     @classmethod
