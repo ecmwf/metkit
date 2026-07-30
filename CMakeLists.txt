@@ -35,6 +35,10 @@ ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
                     DESCRIPTION "Build the command line tools" )
 
+ecbuild_add_option( FEATURE BUILD_GRIB2_TOOLS
+                    DEFAULT OFF
+                    DESCRIPTION "Build the command line tools to support the migration to Grib2" )
+
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
                     DESCRIPTION "Experimental features" )

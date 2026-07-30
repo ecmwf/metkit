@@ -11,6 +11,6 @@
 #include "ParseRequest.h"
 
 int main(int argc, char** argv) {
-    ParseRequest tool(argc, argv);
+    ParseRequest tool(argc, argv, true);
     return tool.start();
 }
