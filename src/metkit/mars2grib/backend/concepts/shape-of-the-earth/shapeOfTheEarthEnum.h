@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `shapeOfTheEarth.h` / `shapeOfTheEarthOp` implementation.
+/// `shapeOfTheEarthEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -85,7 +85,8 @@ inline constexpr std::string_view shapeOfTheEarthName{"shapeOfTheEarth"};
 /// tables and registries.
 ///
 enum class ShapeOfTheEarthType : std::size_t {
-    Default = 0
+    Dummy = 0,  // Used to skip section3 resolution and delegate to gridSpec
+    Default
 };
 
 
@@ -101,7 +102,7 @@ enum class ShapeOfTheEarthType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ShapeOfTheEarthList = ValueList<ShapeOfTheEarthType::Default>;
+using ShapeOfTheEarthList = ValueList<ShapeOfTheEarthType::Dummy, ShapeOfTheEarthType::Default>;
 
 
 ///
@@ -131,6 +132,7 @@ constexpr std::string_view shapeOfTheEarthTypeName();
         return NAME;                                          \
     }
 
+DEF(ShapeOfTheEarthType::Dummy, "dummy");
 DEF(ShapeOfTheEarthType::Default, "default");
 
 #undef DEF

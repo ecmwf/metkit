@@ -146,8 +146,11 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             if (marsType == "em" || marsType == "taem") {
                 derivedForecast = tables::DerivedForecast::UnweightedMeanAllMembers;
             }
-            else if (marsType == "es" || marsType == "taes") {
+            else if (marsType == "es" || marsType == "ses" || marsType == "taes") {
                 derivedForecast = tables::DerivedForecast::SpreadAllMembers;
+            }
+            else if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
+                derivedForecast = tables::DerivedForecast::LargeAnomalyIndexAllMembers;
             }
             else {
                 throw Mars2GribDeductionException(

@@ -59,6 +59,7 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
     using Registry = metkit::mars2grib::backend::concepts_::MatchingCallbacksRegistry<MarsDict_t, OptDict_t>;
+    using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_ActiveConceptsData_to_json;
 
     try {
 
@@ -87,6 +88,9 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
                 activeConceptsData.activeVariantIndices[i] = GeneralRegistry::missing;
             }
         }
+
+        eckit::Log::debug<LibMetkit>() << "Resolved ActiveConceptsData: "
+                                       << debug_convert_ActiveConceptsData_to_json(activeConceptsData) << std::endl;
 
         // Return the active concepts
         return activeConceptsData;

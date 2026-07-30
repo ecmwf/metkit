@@ -70,7 +70,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// - Failure mode: throws
 ///
 /// This deduction resolves the GRIB `centre` identifier by retrieving the
-/// mandatory MARS key `origin` and returning its value verbatim.
+/// optional MARS key `origin` and returning its value verbatim.
 ///
 /// No normalization, translation, or defaulting is applied at this stage.
 /// Any semantic interpretation or mapping to numeric GRIB centre codes
@@ -99,8 +99,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// The originating centre identifier as provided by MARS.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-/// If the key `origin` is missing, cannot be retrieved as a string,
-/// or if any unexpected error occurs during deduction.
+/// If any unexpected error occurs during deduction.
 ///
 /// @note
 /// This deduction enforces presence-only validation and does not
@@ -109,13 +108,13 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
-        // Retrieve mandatory MARS origin
-        std::string origin = get_or_throw<std::string>(mars, "origin");
+        // Retrieve (optional) MARS origin
+        std::string origin = get_opt<std::string>(mars, "origin").value_or("ecmf");
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {

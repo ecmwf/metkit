@@ -83,6 +83,10 @@
 /// compile-time registry engine.
 ///
 
+///
+/// @ingroup mars2grib_backend_concepts
+///
+
 #pragma once
 
 // System includes
@@ -93,25 +97,30 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/backend/concepts/analysis/analysisConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/composition/compositionConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/data-type/dataTypeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/derived/derivedConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/destine/destineConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/iteration/iterationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/level/levelConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/mars/marsConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/model-error/modelErrorConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/nil/nilConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/origin/originConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/param/paramConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/representation/representationConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/satellite/satelliteConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/shape-of-the-earth/shapeOfTheEarthConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsConceptDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/strike-probability/strikeProbabilityConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/tables/tablesConceptDescriptor.h"
 #include "metkit/mars2grib/backend/concepts/wave/waveConceptDescriptor.h"
 
@@ -168,10 +177,11 @@ using TypeList = metkit::mars2grib::backend::compile_time_registry_engine::TypeL
 /// Higher-level code should interact with concepts exclusively through
 /// registry APIs, not by iterating this list directly.
 ///
-using AllConcepts =
-    TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept, EnsembleConcept,
-             GeneratingProcessConcept, LevelConcept, LongrangeConcept, MarsConcept, NilConcept, OriginConcept,
-             PackingConcept, ParamConcept, PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept,
-             SatelliteConcept, ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept>;
+using AllConcepts = TypeList<AnalysisConcept, CompositionConcept, DataTypeConcept, DerivedConcept, DestineConcept,
+                             EnsembleConcept, GeneratingProcessConcept, LevelConcept, LongrangeConcept,
+                             IterationConcept, MarsConcept, NilConcept, OriginConcept, PackingConcept, ParamConcept,
+                             PointInTimeConcept, ReferenceTimeConcept, RepresentationConcept, SatelliteConcept,
+                             ShapeOfTheEarthConcept, StatisticsConcept, TablesConcept, WaveConcept, ModelErrorConcept,
+                             BrightnessTemperatureConcept, StrikeProbabilityConcept, ReferencePeriodConcept>;
 
 }  // namespace metkit::mars2grib::backend::concepts_::detail

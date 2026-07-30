@@ -217,7 +217,7 @@ inline std::string debug_convert_ActiveConceptsData_to_json(const ActiveConcepts
         const std::size_t conceptId = data.activeConceptsIndices[i];
         const std::size_t variantId = data.activeVariantIndices[conceptId];
 
-        oss << "{ \"concept\": \"" << GeneralRegistry::conceptNameArr[conceptId] << "\"";
+        oss << "{ \"concept\": \"" << GeneralRegistry::conceptNameArr[variantId] << "\"";
 
         if (variantId == GeneralRegistry::missing) {
             oss << ", \"variant\": \"Missing\" }";

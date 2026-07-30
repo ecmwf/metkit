@@ -1,12 +1,11 @@
 
-# quarantined due to eckit::geo returning reduced_gg instead of reduced-gg
-# ecbuild_add_test( TARGET        mars2grib_test_cpp_api
-#                   CONDITION     HAVE_MARS2GRIB
-#                   INCLUDES      "${ECCODES_INCLUDE_DIRS}"
-#                   SOURCES       test_cpp_api.cc
-#                   LIBS          metkit
-#                   NO_AS_NEEDED
-# )
+ecbuild_add_test( TARGET        mars2grib_test_cpp_api
+                  CONDITION     HAVE_MARS2GRIB
+                  INCLUDES      "${ECCODES_INCLUDE_DIRS}"
+                  SOURCES       test_cpp_api.cc
+                  LIBS          metkit
+                  NO_AS_NEEDED
+)
 
 ecbuild_add_test( TARGET        mars2grib_test_python_api
                   CONDITION     HAVE_MARS2GRIB_PYTHON

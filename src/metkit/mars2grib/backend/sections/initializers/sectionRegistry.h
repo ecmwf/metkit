@@ -77,8 +77,13 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = {
     {1, &allocateTemplateNumber2<2, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {15, &allocateTemplateNumber2<2, 15, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {20, &allocateTemplateNumber2<2, 20, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {24, &allocateTemplateNumber2<2, 24, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {25, &allocateTemplateNumber2<2, 25, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {36, &allocateTemplateNumber2<2, 36, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {37, &allocateTemplateNumber2<2, 37, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {38, &allocateTemplateNumber2<2, 38, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {39, &allocateTemplateNumber2<2, 39, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1000, &allocateTemplateNumber2<2, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1001, &allocateTemplateNumber2<2, 1001, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1002, &allocateTemplateNumber2<2, 1002, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -93,7 +98,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = 
     {40, &allocateTemplateNumber3<3, 40, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {50, &allocateTemplateNumber3<3, 50, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {101, &allocateTemplateNumber3<3, 101, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
-    {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
+    {150, &allocateTemplateNumber3<3, 150, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {1000, &allocateTemplateNumber3<3, 1000, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 4 (Product Definition Section) initializers.
@@ -128,6 +134,9 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {100, &allocateTemplateNumber4<4, 100, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {103, &allocateTemplateNumber4<4, 103, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {104, &allocateTemplateNumber4<4, 104, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {107, &allocateTemplateNumber4<4, 107, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {121, &allocateTemplateNumber4<4, 121, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {122, &allocateTemplateNumber4<4, 122, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {142, &allocateTemplateNumber4<4, 142, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {143, &allocateTemplateNumber4<4, 143, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 

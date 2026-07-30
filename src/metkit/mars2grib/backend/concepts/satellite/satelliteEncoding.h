@@ -9,7 +9,7 @@
  */
 
 ///
-/// @file satelliteOp.h
+/// @file satelliteEncoding.h
 /// @brief Implementation of the GRIB `satellite` concept operation.
 ///
 /// This header defines the applicability rules and execution logic for the
@@ -117,6 +117,7 @@
 // Deductions
 #include "metkit/mars2grib/backend/deductions/channel.h"
 #include "metkit/mars2grib/backend/deductions/instrumentType.h"
+#include "metkit/mars2grib/backend/deductions/numberOfFrequencies.h"
 #include "metkit/mars2grib/backend/deductions/satelliteNumber.h"
 #include "metkit/mars2grib/backend/deductions/satelliteSeries.h"
 #include "metkit/mars2grib/backend/deductions/scaleFactorOfCentralWaveNumber.h"
@@ -215,13 +216,15 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
 
                 // Deductions
-                long channel = deductions::resolve_Channel_or_throw(mars, par, opt);
+                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
+                // long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
 
                 // Encoding
-                set_or_throw(out, "channel", channel);
+                set_or_throw<long>(out, "channelNumber", channelNumber);
+                // set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
