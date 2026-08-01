@@ -93,6 +93,34 @@ metkit_error_t metkit_parse_marsrequests(const char* str, metkit_requestiterator
  */
 metkit_error_t metkit_parse_marsrequest(const char* str, metkit_marsrequest_t* request, bool strict);
 /* ---------------------------------------------------------------------------------------------------------------------
+ * KEY PARSING
+ * --- */
+
+/**
+ * Parse/normalise the values of a single MARS keyword in isolation, without building a full request.
+ *
+ * Applies the MARS language rules for the keyword: range syntax such as "1/to/10/by/1" is expanded and
+ * per-key normalisation is performed (e.g. date "-1" resolves to a yyyymmdd date, time "6" to "0600").
+ * The value string is split on '/' before expansion.
+ *
+ * Context-sensitive keywords (e.g. those whose interpretation depends on other keys) consult @p context:
+ * pass a Request populated with the relevant neighbouring keys, or NULL/empty when not needed.
+ *
+ * @note This performs single-pass expansion only. Second-pass, rule-based resolution (e.g. 'param') and
+ * default inheritance are NOT applied; use metkit_marsrequest_expand on a (scoped) request for those.
+ *
+ * @param verb MARS verb whose language defines the keyword (NULL defaults to "retrieve")
+ * @param keyword keyword to parse (canonical, alias or unambiguous prefix)
+ * @param value values to expand, as a '/'-separated string (e.g. "1/to/10/by/1")
+ * @param context Request providing context for context-sensitive keywords, or NULL
+ * @param strict if true, validate expanded values and raise an error on invalid values
+ * @param[out] values ParamIterator over the expanded values. Must be deallocated with
+ *                    metkit_paramiterator_delete
+ * @return metkit_error_t Error code
+ */
+metkit_error_t metkit_expand_key(const char* verb, const char* keyword, const char* value,
+                                const metkit_marsrequest_t* context, bool strict, metkit_paramiterator_t** values);
+/* ---------------------------------------------------------------------------------------------------------------------
  * REQUEST
  * --- */
 

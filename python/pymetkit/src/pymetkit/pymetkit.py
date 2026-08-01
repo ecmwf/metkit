@@ -219,6 +219,121 @@ def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[Mars
     return requests
 
 
+def _expand_param(
+    value: str | int | list,
+    verb: str,
+    context: "MarsRequest | dict | None",
+    strict: bool,
+) -> list[str]:
+    """Resolve the ``param`` key via a full (multi-pass) request expansion.
+
+    ``param`` cannot be expanded in isolation because its result depends on other
+    keys. A scoped :class:`MarsRequest` is built from ``context`` (which supplies
+    the neighbouring keys such as ``class``/``stream``/``type``/``levtype``), the
+    param value is set, the request is expanded, and the resolved ``param`` values
+    are returned.
+    """
+    if isinstance(value, (list, tuple)):
+        values = [str(v) for v in value]
+    else:
+        values = str(value).split("/")
+
+    request = MarsRequest(verb)
+    if context is not None:
+        if isinstance(context, MarsRequest):
+            for key, vals in context:
+                request[key] = vals
+        else:  # dict-like
+            for key, vals in context.items():
+                request[key.rstrip("_")] = vals
+    request["param"] = values
+
+    expanded = request.expand(inherit=False, strict=strict)
+    resolved = expanded["param"]
+    return [resolved] if isinstance(resolved, str) else resolved
+
+
+def expand_key(
+    keyword: str,
+    value: str | int | list,
+    verb: str = "retrieve",
+    context: "dict | MarsRequest | None" = None,
+    strict: bool = False,
+) -> list[str]:
+    """Expand and normalise the values of a single MARS key, without building a full request.
+
+    Applies the MARS language rules for ``keyword``: range syntax such as
+    ``"1/to/10/by/1"`` is expanded, and per-key normalisation is performed (e.g.
+    ``date="-1"`` resolves to a ``yyyymmdd`` date, ``time="6"`` to ``"0600"``).
+
+    Context-sensitive keys (e.g. those whose interpretation depends on other
+    keys) consult ``context``. Supply the relevant neighbouring keys there, e.g.
+    ``expand_key("levelist", "1/to/10", context={"levtype": "ml"})``.
+
+    Note: this performs single-pass expansion for most keys. ``param`` is a
+    special case: its value depends on other keys (``class``/``stream``/``type``/
+    ``levtype``) and requires a full multi-pass expansion, so ``expand_key``
+    transparently builds a scoped request from ``context``, expands it, and
+    returns the resolved ``param`` values, e.g.
+    ``expand_key("param", "t", context={"levtype": "sfc"})``.
+
+    Params
+    ------
+    keyword: name of the MARS key to expand (canonical, alias or unambiguous prefix)
+    value: values to expand, as a ``"a/b/c"`` string or a list of tokens
+    verb: MARS verb whose language defines the key (defaults to "retrieve")
+    context: optional MarsRequest or dict of neighbouring keys for context-sensitive keys
+    strict: if True, raise an error on invalid values
+
+    Returns
+    -------
+    list of expanded/normalised string values
+
+    Examples
+    --------
+    >>> expand_key("step", "1/to/10/by/1")
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+    >>> expand_key("param", "t", context={"levtype": "pl"})
+    ['130']
+    """
+    if keyword == "param":
+        # 'param' cannot be resolved by single-pass expansion: its value depends
+        # on other keys, so it needs the full multi-pass request expansion. We
+        # hide that from the caller by building a scoped request from the given
+        # context, expanding it, and returning just the resolved param values.
+        return _expand_param(value, verb, context, strict)
+
+    if isinstance(value, (list, tuple)):
+        value = "/".join(str(v) for v in value)
+    else:
+        value = str(value)
+
+    context_c = ffi.NULL
+    if context is not None:
+        if isinstance(context, dict):
+            context = MarsRequest(**context) # @maby: If we're going to build a mars request anyway, why not just pass it all in?
+        context_c = context.ctype()
+
+    it_c = ffi.new("metkit_paramiterator_t **")
+    lib.metkit_expand_key(
+        ffi_encode(verb),
+        ffi_encode(keyword),
+        ffi_encode(value),
+        context_c,
+        strict,
+        it_c,
+    )
+    it = ffi.gc(it_c[0], lib.metkit_paramiterator_delete)
+
+    values = []
+    while lib.metkit_paramiterator_next(it) == lib.METKIT_ITERATOR_SUCCESS:
+        cvalue = ffi.new("const char **")
+        lib.metkit_paramiterator_current(it, cvalue)
+        values.append(ffi_decode(cvalue[0]))
+
+    return values
+
+
 class MetKitException(RuntimeError):
     """Raised when MetKit library throws exception"""
 
@@ -281,26 +396,37 @@ class PatchedLib:
         """
         If calls into the MetKit library return errors, ensure that they get
         detected and reported by throwing an appropriate python exception.
+
+        Two distinct return-code domains exist in the C API and must not share a
+        single success-set, otherwise their overlapping integer values collide
+        (e.g. metkit_error_t METKIT_ERROR == metkit_iterator_status_t
+        METKIT_ITERATOR_COMPLETE == 1):
+
+        * iterator functions (``*_next`` / ``*_current``) return
+          metkit_iterator_status_t, where SUCCESS and COMPLETE are both non-error
+          outcomes and only ITERATOR_ERROR indicates failure;
+        * every other function returns metkit_error_t, where only METKIT_SUCCESS
+          indicates success.
         """
 
-        def wrapped_fn(*args, **kwargs):
+        # Functions that do not return an error/status code at all.
+        if name in ("metkit_version", "metkit_git_sha1"):
+            return fn
 
-            # debug
+        is_iterator = name.endswith("_next") or name.endswith("_current")
+
+        def wrapped_fn(*args, **kwargs):
             retval = fn(*args, **kwargs)
 
-            # Some functions dont return error codes. Ignore these.
-            if name in ["metkit_version", "metkit_git_sha1"]:
+            if is_iterator:
+                if retval == self.__lib.METKIT_ITERATOR_ERROR:
+                    err = ffi_decode(self.__lib.metkit_get_error_string(retval))
+                    raise MetKitException("Error in function '{}': {}".format(name, err))
                 return retval
 
-            # error codes:
-            if retval not in (
-                self.__lib.METKIT_SUCCESS,
-                self.__lib.METKIT_ITERATOR_SUCCESS,
-                self.__lib.METKIT_ITERATOR_COMPLETE,
-            ):
+            if retval != self.__lib.METKIT_SUCCESS:
                 err = ffi_decode(self.__lib.metkit_get_error_string(retval))
-                msg = "Error in function '{}': {}".format(name, err)
-                raise MetKitException(msg)
+                raise MetKitException("Error in function '{}': {}".format(name, err))
             return retval
 
         return wrapped_fn

@@ -63,6 +63,22 @@ public:  // methods
 
     Type* type(const std::string& name) const;
 
+    /// @brief Parse/normalise the values of a single keyword, in isolation from a full request.
+    /// Resolves @p keyword against this verb's language (aliases and partial matches allowed),
+    /// then expands @p values using the keyword's Type. Range syntax (e.g. "1/to/10/by/1") and
+    /// per-key normalisation (e.g. date/time) are applied. Context-sensitive keys (e.g. those
+    /// backed by TypeMixed) consult @p context; supply the relevant neighbouring keys there.
+    /// @note This performs the single-pass expansion only. Second-pass resolution (pass2/finalise,
+    /// e.g. rule-based 'param' expansion) and default inheritance are not applied here; use a
+    /// (scoped) MarsRequest expansion for those.
+    /// @param keyword keyword to parse (canonical, alias or unambiguous prefix)
+    /// @param values values to expand (already split on '/')
+    /// @param context other keys providing context for context-sensitive types
+    /// @param strict if true, validate expanded values and throw on invalid values
+    /// @return expanded/normalised values
+    std::vector<std::string> expandKey(const std::string& keyword, std::vector<std::string> values,
+                                      const MarsRequest& context = {}, bool strict = false);
+
     bool isData(const std::string& keyword) const;
 
     bool isPostProc(const std::string& keyword) const;

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from contextlib import nullcontext as does_not_raise
 import pytest
 
-from pymetkit import parse_mars_request, MarsRequest, MetKitException
+from pymetkit import parse_mars_request, expand_key, MarsRequest, MetKitException
 
 request = """
 retrieve,
@@ -79,6 +79,48 @@ def test_empty_request(tmpdir):
         f.write("")
     requests = parse_mars_request(open(request_file, "r"))
     assert len(requests) == 0
+
+
+@pytest.mark.parametrize(
+    "keyword, value, kwargs, expected",
+    [
+        ["step", "1/to/10/by/1", {}, [str(i) for i in range(1, 11)]],
+        ["step", [0, 6, 12], {}, ["0", "6", "12"]],
+        ["time", "6/to/18/by/6", {}, ["0600", "1200", "1800"]],
+        ["date", "-1", {}, [yesterday]],
+        # param resolves via full multi-pass expansion using context
+        ["param", "t", {"context": {"levtype": "pl"}}, ["130"]],
+        # context-sensitive keyword: levelist depends on levtype
+        [
+            "levelist",
+            "1000/to/850/by/50",
+            {"context": {"levtype": "pl"}},
+            ["1000", "950", "900", "850"],
+        ],
+    ],
+)
+def test_expand_key(keyword, value, kwargs, expected):
+    assert expand_key(keyword, value, **kwargs) == expected
+
+
+def test_expand_key_param_resolves_with_context():
+    # 'param' is resolved transparently; context drives the result.
+    sfc = {"class": "od", "stream": "oper", "type": "an", "levtype": "sfc"}
+    assert expand_key("param", "t", context=sfc) == ["164"]
+
+
+def test_expand_key_context_marsrequest():
+    context = MarsRequest("retrieve", levtype="pl")
+    assert expand_key("levelist", "500/to/300/by/100", context=context) == [
+        "500",
+        "400",
+        "300",
+    ]
+
+
+def test_expand_key_strict_raises():
+    with pytest.raises(MetKitException):
+        expand_key("time", "notatime", strict=True)
 
 
 def test_new_request():

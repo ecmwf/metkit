@@ -60,6 +60,11 @@ MarsRequest MarsExpansion::expand(const MarsRequest& request) {
     return language(request.verb()).expand(request, inherit_, strict_);
 }
 
+std::vector<std::string> MarsExpansion::expandKey(const std::string& verb, const std::string& keyword,
+                                                 std::vector<std::string> values, const MarsRequest& context) {
+    return language(verb).expandKey(keyword, std::move(values), context, strict_);
+}
+
 void MarsExpansion::expand(const MarsRequest& request, ExpandCallback& callback) {
     callback(expand(request));
 }
