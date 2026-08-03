@@ -112,6 +112,15 @@ def test_date_year_day_of_year():
     assert expand_key("date", "2018-23") == ["20180123"]
 
 
+def test_date_range_alternate_format():
+    # Check that expansion respects alternate date formats
+    assert expand_key("date", "2020-01-01/to/2020-01-03") == [
+        "2020-01-01",
+        "2020-01-02",
+        "2020-01-03",
+    ]
+
+
 def test_date_range_crosses_leap_day():
     # 2020 is a leap year, so 29 Feb is included.
     assert expand_key("date", "20200228/to/20200302") == [
