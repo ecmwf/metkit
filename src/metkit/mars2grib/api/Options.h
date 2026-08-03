@@ -49,12 +49,12 @@ inline constexpr bool normalizeMisc                 = false;
 inline constexpr bool fixMarsGrid                   = true;
 inline constexpr bool skipSection3                  = false;
 
-inline constexpr bool allowDefaultTimeIncrementInSeconds                = false;
+inline constexpr bool allowDefaultTimeIncrement                         = false;
 inline constexpr bool allowZeroLengthFsWindow                           = false;
 inline constexpr bool allowExtendedSetOfOperationsForZeroLengthFsWindow = false;
 inline constexpr bool allowNonEnumeratedPositiveIntegerTimespanHours    = false;
-inline constexpr bool allowRedundantTimeIncrement                       = false;
-inline constexpr bool allowMissingTimespanForInstantProduct             = false;
+inline constexpr bool allowRedundantTimeIncrement                       = true;
+inline constexpr bool allowMissingTimespanForInstantProduct             = true;
 
 }  // namespace defaults
 
@@ -173,7 +173,7 @@ struct Options {
     ///
     /// @default false
     ///
-    bool allowDefaultTimeIncrementInSeconds = defaults::allowDefaultTimeIncrementInSeconds;
+    bool allowDefaultTimeIncrement = defaults::allowDefaultTimeIncrement;
 
     ///
     /// @brief Allow a zero-length from-start statistical window.

@@ -127,8 +127,8 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
         opts.skipSection3 = dict::get_or_throw<bool>(conf, "skipSection3");
     }
 
-    if (dict::has(conf, "allowDefaultTimeIncrementInSeconds")) {
-        opts.allowDefaultTimeIncrementInSeconds = dict::get_or_throw<bool>(conf, "allowDefaultTimeIncrementInSeconds");
+    if (dict::has(conf, "allowDefaultTimeIncrement")) {
+        opts.allowDefaultTimeIncrement = dict::get_or_throw<bool>(conf, "allowDefaultTimeIncrement");
     }
 
     if (dict::has(conf, "allowZeroLengthFsWindow")) {

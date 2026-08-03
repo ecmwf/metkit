@@ -117,8 +117,8 @@ void applyOption(Options& opts, std::string_view key, const eckit::Value& value)
         return;
     }
 
-    if (key == "allowDefaultTimeIncrementInSeconds") {
-        opts.allowDefaultTimeIncrementInSeconds = readBool(key, value);
+    if (key == "allowDefaultTimeIncrement") {
+        opts.allowDefaultTimeIncrement = readBool(key, value);
         return;
     }
 

@@ -80,7 +80,7 @@ inline void appendJsonBool(std::string& json, std::string_view key, bool value, 
 inline bool isBoolKey(std::string_view key) noexcept {
     return key == "applyChecks" || key == "enableOverride" || key == "enableBitsPerValueCompression" ||
            key == "normalizeMars" || key == "normalizeMisc" || key == "fixMarsGrid" || key == "skipSection3" ||
-           key == "allowDefaultTimeIncrementInSeconds" || key == "allowZeroLengthFsWindow" ||
+           key == "allowDefaultTimeIncrement" || key == "allowZeroLengthFsWindow" ||
            key == "allowExtendedSetOfOperationsForZeroLengthFsWindow" ||
            key == "allowNonEnumeratedPositiveIntegerTimespanHours" || key == "allowRedundantTimeIncrement" ||
            key == "allowMissingTimespanForInstantProduct";
@@ -90,22 +90,6 @@ inline bool isKnownKey(std::string_view key) noexcept {
     return isBoolKey(key);
 }
 
-[[noreturn]] inline void throwUnknownKey(std::string_view key) {
-    throw exceptions::Mars2GribDictException(
-        "Unknown key `" + std::string(key) + "` in dictionary type `metkit::mars2grib::Options`", Here());
-}
-
-[[noreturn]] inline void throwWrongRequestedType(std::string_view key, std::string_view requestedType) {
-
-    if (!isKnownKey(key)) {
-        throwUnknownKey(key);
-    }
-
-    throw exceptions::Mars2GribDictException("Key `" + std::string(key) + "` cannot be read as `" +
-                                                 std::string(requestedType) +
-                                                 "` from dictionary type `metkit::mars2grib::Options`",
-                                             Here());
-}
 
 [[noreturn]] inline void throwMissingOptionalValue(std::string_view key, std::string_view requestedType) {
 
@@ -145,8 +129,8 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
         return opts.skipSection3;
     }
 
-    if (key == "allowDefaultTimeIncrementInSeconds") {
-        return opts.allowDefaultTimeIncrementInSeconds;
+    if (key == "allowDefaultTimeIncrement") {
+        return opts.allowDefaultTimeIncrement;
     }
 
     if (key == "allowZeroLengthFsWindow") {
@@ -169,7 +153,11 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
         return opts.allowMissingTimespanForInstantProduct;
     }
 
-    throwWrongRequestedType(key, "bool");
+    throw exceptions::Mars2GribDictException("Key `" + std::string(key) + "` cannot be read as `" +
+                                                 "bool" +
+                                                 "` from dictionary type `metkit::mars2grib::Options`",
+                                             Here());
+
 }
 
 }  // namespace options_detail
@@ -194,8 +182,8 @@ struct DictToJsonTraits<Options> {
             options_detail::appendJsonBool(json, "normalizeMisc", opts.normalizeMisc, true);
             options_detail::appendJsonBool(json, "fixMarsGrid", opts.fixMarsGrid, true);
             options_detail::appendJsonBool(json, "skipSection3", opts.skipSection3, true);
-            options_detail::appendJsonBool(json, "allowDefaultTimeIncrementInSeconds",
-                                           opts.allowDefaultTimeIncrementInSeconds, true);
+            options_detail::appendJsonBool(json, "allowDefaultTimeIncrement",
+                                           opts.allowDefaultTimeIncrement, true);
             options_detail::appendJsonBool(json, "allowZeroLengthFsWindow", opts.allowZeroLengthFsWindow, true);
             options_detail::appendJsonBool(json, "allowExtendedSetOfOperationsForZeroLengthFsWindow",
                                            opts.allowExtendedSetOfOperationsForZeroLengthFsWindow, true);
