@@ -9,21 +9,26 @@
  */
 
 ///
-/// @file IFSSynopticSingleLoop.h
-/// @brief Matcher and leaf builder for an IFS synoptic-analysis single-loop statistic.
+/// @file SeasonalSingleLoop.h
+/// @brief Matcher and leaf builder for a seasonal single-loop statistic.
 ///
-/// This header is the authoritative implementation of the `IFSSynopticSingleLoop` ProductTimeSpec shape. It
-/// deliberately owns both the matcher and the leaf builder for this case.
+/// This header is the authoritative implementation of the
+/// `SeasonalSingleLoop` ProductTimeSpec shape. It deliberately owns both the
+/// matcher and the leaf builder for this case.
 ///
-/// The matcher exposes each structural and regime condition through a semantically named Boolean. The builder keeps the
-/// full window-construction flow local: range selection, shape-specific validation, increment resolution, window
-/// creation, and ordering are visible here.
+/// The matcher exposes each structural and regime condition through a
+/// semantically named Boolean. The builder keeps the full window-construction
+/// flow local: range selection, shape-specific validation, increment
+/// resolution, window creation, and ordering are visible here.
 ///
-/// Only genuinely cross-cutting semantics—such as `typeOfTimeIncrement`, default increment deduction, and temporal
-/// arithmetic—are delegated. All failures are nested in `Mars2GribModelException` with the normalized input snapshot.
+/// Only genuinely cross-cutting semantics such as `typeOfTimeIncrement`,
+/// default increment deduction, and temporal arithmetic are delegated. All
+/// failures are nested in `Mars2GribModelException` with the normalized input
+/// snapshot.
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
 ///
+
 #pragma once
 
 #include "eckit/types/DateTime.h"
@@ -42,15 +47,15 @@
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 
 /**
- * @brief Match an IFS synoptic-analysis single-loop statistic.
+ * @brief Match a seasonal single-loop statistical representation.
  *
  * The shape matches when:
  *
- * - the regime is IFS;
- * - the normalized input is not seasonal;
- * - the product is synoptic;
- * - the product is an analysis;
- * - the resolved domain classification is `SynopticAnalysisDomain`;
+ * - the resolved domain classification is `SeasonalForecastDomain`;
+ * - the normalized input is seasonal;
+ * - the product is not synoptic;
+ * - MARS semantics classify the product as forecast;
+ * - `timespan` contains an explicit duration;
  * - no outer `stattype` blocks are present.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
@@ -58,62 +63,59 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_IFSSynopticSingleLoop_Shape(
+inline bool match_SeasonalSingleLoop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
-    using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
+    using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isIfs                     = input.regime == SimulationRegime::IFS;
-        const bool isNotSeasonal             = !product_time_spec::detail::isSeasonal(input);
-        const bool isSynoptic                = input.isSynoptic;
-        const bool isAnalysis                = input.simulationType == SimulationType::Analysis;
-        const bool hasSynopticAnalysisDomain = domainKind == ProductTimeSpecDomainKind::SynopticAnalysisDomain;
+        const bool hasSeasonalForecastDomain = domainKind == ProductTimeSpecDomainKind::SeasonalForecastDomain;
+        const bool isSeasonal                = product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic             = !input.isSynoptic;
+        const bool isForecast                = input.simulationType == SimulationType::Forecast;
+        const bool hasDurationTimespan       = input.timespan.kind == TimespanKind::Duration;
         const bool hasNoStattypeBlocks       = input.stattype.empty();
 
-        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasSynopticAnalysisDomain &&
+        return hasSeasonalForecastDomain && isSeasonal && isNotSynoptic && isForecast && hasDurationTimespan &&
                hasNoStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_IFSSynopticSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_SeasonalSingleLoop_Shape`", input.to_json(), Here()));
     }
 }
 
 /**
- * @brief Build the intrinsic one-month synoptic-analysis window.
+ * @brief Build one canonical seasonal statistical window.
  *
- * The builder keeps all shape-level decisions visible:
+ * The builder keeps the complete high-level flow visible:
  *
- * 1. resolve and validate the intrinsic twenty-four-hour increment;
- * 2. assign the canonical one-calendar-month range;
- * 3. construct the single canonical statistical window.
- *
- * The absolute synoptic interval has already been constructed by the domain
- * builder and is intentionally not recomputed here.
+ * 1. obtain the innermost range from `timespan`;
+ * 2. resolve explicit, missing, or defaulted increment semantics;
+ * 3. construct the canonical window directly;
+ * 4. return the one-element window vector.
  *
  * @param[in] input Fully normalized ProductTimeSpec input and embedded options.
- * @param[in] domain Already constructed calendar-aligned synoptic domain.
- * @return One canonical synoptic-analysis window.
- * @throws Mars2GribModelException If redundant increment validation fails.
+ * @param[in] domain Already constructed absolute seasonal ProductTimeSpec domain.
+ * @return One canonical seasonal statistical window.
+ * @throws Mars2GribModelException If range or increment resolution fails.
  */
-inline std::vector<ProductTimeSpecWindow> build_IFSSynopticSingleLoop_Shape(
+inline std::vector<ProductTimeSpecWindow> build_SeasonalSingleLoop_Shape(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveSynopticIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-    using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
     try {
+        const TimeDuration timeRange = timespanDuration(input);
 
-        const ResolvedInnerIncrement resolvedIncrement = resolveSynopticIncrement(input);
-
-        const TimeDuration timeRange = oneMonth();
+        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, domain, timeRange, false);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
@@ -122,7 +124,7 @@ inline std::vector<ProductTimeSpecWindow> build_IFSSynopticSingleLoop_Shape(
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_SeasonalSingleLoop_Shape`", input.to_json(), Here()));
     }
 }
 

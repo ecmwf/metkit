@@ -31,6 +31,7 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
@@ -46,13 +47,15 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * The shape matches when:
  *
  * - the regime is IFS;
+ * - the resolved domain classification is `ForecastDomain`;
+ * - the normalized input is not seasonal;
  * - the product is not synoptic;
  * - `timespan` uses from-start semantics;
  * - no outer `stattype` blocks are present;
  * - step is positive.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
- * @param[in] domainClassification Previously resolved normal forecast or analysis domain.
+ * @param[in] domainClassification Previously resolved domain classification.
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
@@ -61,18 +64,21 @@ inline bool match_IFSFromStartSingleLoopPositive_Shape(
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
 
         const bool isIfs                 = input.regime == SimulationRegime::IFS;
+        const bool hasForecastDomain     = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal         = !product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic         = !input.isSynoptic;
         const bool usesFromStartTimespan = input.timespan.kind == TimespanKind::FromStart;
         const bool hasNoStattypeBlocks   = input.stattype.empty();
-        const long step                  = input.step.has_value() ? input.step->length : -1L;
-        const bool stepIsPositive        = step > 0L;
+        const bool hasPositiveStep       = product_time_spec::detail::stepIsPositive(input);
 
-        return isIfs && isNotSynoptic && usesFromStartTimespan && hasNoStattypeBlocks && stepIsPositive;
+        return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && usesFromStartTimespan &&
+               hasNoStattypeBlocks && hasPositiveStep;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_IFSFromStartSingleLoopPositive_Shape`",

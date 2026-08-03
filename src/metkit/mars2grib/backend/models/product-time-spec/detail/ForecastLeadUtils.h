@@ -92,6 +92,48 @@ inline bool stepIsMissing(const ProductTimeSpecInput& input) {
 }
 
 ///
+/// @brief Test whether the normalized input contains an explicit zero-valued `step`.
+///
+/// @param[in] input Fully normalized ProductTimeSpec input.
+/// @return `true` when `input.step` is present and its length is exactly zero,
+///         otherwise `false`.
+/// @throws Mars2GribModelException If the check cannot be completed.
+///
+inline bool stepIsZero(const ProductTimeSpecInput& input) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        return hasStep(input) && input.step->length == 0;
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to test whether ProductTimeSpec input contains a zero step",
+                                    input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Test whether the normalized input contains an explicit positive `step`.
+///
+/// @param[in] input Fully normalized ProductTimeSpec input.
+/// @return `true` when `input.step` is present and its length is strictly
+///         positive, otherwise `false`.
+/// @throws Mars2GribModelException If the check cannot be completed.
+///
+inline bool stepIsPositive(const ProductTimeSpecInput& input) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        return hasStep(input) && input.step->length > 0;
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to test whether ProductTimeSpec input contains a positive step",
+                                    input.to_json(), Here()));
+    }
+}
+
+///
 /// @brief Test whether the normalized input contains an explicit `fcmonth` source.
 ///
 /// This helper exists as the positive-form companion of `stepIsMissing(...)` so

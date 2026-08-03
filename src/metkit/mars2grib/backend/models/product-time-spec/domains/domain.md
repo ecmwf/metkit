@@ -22,7 +22,8 @@ return `true`.
 
 | Case | `isSynoptic` | `regime` | `simulationType` | Result |
 |---|---|---|---|---|
-| `ForecastDomain` | `false` | any | `Forecast` | support ends at `referenceDateTime + step` and extends backward by the resolved outer range |
+| `ForecastDomain` | `false` | any | `Forecast`, non-seasonal | support ends at `referenceDateTime + step` and extends backward by the resolved outer range |
+| `SeasonalForecastDomain` | `false` | any | `Forecast`, seasonal | support ends at `referenceDateTime + fcmonth months` and extends backward by the resolved outer range, using a dedicated seasonal outer-range callback |
 | `AnalysisDomain` | `false` | not `AIFS` | `Analysis` | support starts at `referenceDateTime` and extends forward by the resolved outer range |
 | `SynopticAnalysisDomain` | `true` | `IFS` | `Analysis` | support starts at exact MARS date/time and ends at the next calendar-month boundary |
 

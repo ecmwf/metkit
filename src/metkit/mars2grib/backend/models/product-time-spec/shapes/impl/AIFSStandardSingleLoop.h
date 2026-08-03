@@ -31,6 +31,7 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
@@ -48,6 +49,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  *
  * - the regime is AIFS;
  * - the domain is a forecast domain;
+ * - the normalized input is not seasonal;
  * - the product is not synoptic;
  * - the source increment is missing;
  * - `timespan` contains a duration;
@@ -69,6 +71,7 @@ inline bool match_AIFSStandardSingleLoop_Shape(
     try {
         const bool isAifs                                 = input.regime == SimulationRegime::AIFS;
         const bool hasForecastDomain                      = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal                          = !product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic                          = !input.isSynoptic;
         const bool sourceIncrementIsMissing               = !input.timeIncrement.has_value();
         const bool hasDurationTimespan                    = input.timespan.kind == TimespanKind::Duration;
@@ -78,8 +81,9 @@ inline bool match_AIFSStandardSingleLoop_Shape(
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
-        return isAifs && hasForecastDomain && isNotSynoptic && sourceIncrementIsMissing && hasDurationTimespan &&
-               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+        return isAifs && hasForecastDomain && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
+               hasDurationTimespan && hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop &&
+               doesNotRequireFakeSingleLoopDoubleLoop;
     }
     catch (...) {
         std::throw_with_nested(

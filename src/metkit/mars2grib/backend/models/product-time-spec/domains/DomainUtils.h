@@ -24,33 +24,71 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/deductions/timespan.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail {
 
 ///
-/// @brief Retrieve the normalized forecast step expressed in seconds.
+/// @brief Retrieve the normalized non-seasonal forecast lead.
 ///
 /// @param[in] input Fully normalized ProductTimeSpec input.
-/// @return Resolved step in seconds.
-/// @throws Mars2GribModelException If the normalized step is missing.
+/// @return Resolved `step` duration.
+/// @throws Mars2GribModelException If the normalized `step` is missing.
 ///
-inline long resolvedStepInSeconds(const ProductTimeSpecInput& input) {
+inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep(
+    const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-    using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
 
     try {
         const bool hasResolvedStep = input.step.has_value();
 
         if (!hasResolvedStep) {
-            throw Mars2GribModelException("Domain construction requires a resolved step", input.to_json(), Here());
+            throw Mars2GribModelException("Non-seasonal forecast-domain construction requires a resolved step",
+                                          input.to_json(), Here());
         }
-        long stepInSeconds = convertToSeconds(*input.step);
-        return stepInSeconds;
+
+        return *input.step;
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to retrieve ProductTimeSpec step", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to retrieve the non-seasonal ProductTimeSpec forecast lead", input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Retrieve the normalized seasonal forecast lead expressed in calendar months.
+///
+/// @param[in] input Fully normalized ProductTimeSpec input.
+/// @return Resolved `fcmonth` duration represented as `{length, Month}`.
+/// @throws Mars2GribModelException If `fcmonth` is missing or locally invalid.
+///
+inline metkit::mars2grib::backend::deductions::TimeDuration resolvedSeasonalForecastLead(
+    const ProductTimeSpecInput& input) {
+    using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::tables::TimeUnit;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        const bool seasonalInputIsPresent = product_time_spec::detail::isSeasonal(input);
+
+        if (!seasonalInputIsPresent) {
+            throw Mars2GribModelException("Seasonal forecast-domain construction requires seasonal input semantics",
+                                          input.to_json(), Here());
+        }
+
+        const long fcmonth = *input.marsFcmonth;
+
+        if (fcmonth <= 0) {
+            throw Mars2GribModelException("Seasonal forecast-domain construction requires a strictly positive fcmonth",
+                                          input.to_json(), Here());
+        }
+
+        return TimeDuration{fcmonth, TimeUnit::Month};
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to retrieve the seasonal ProductTimeSpec forecast lead", input.to_json(), Here()));
     }
 }
 
@@ -98,7 +136,7 @@ inline metkit::mars2grib::backend::deductions::TimeDuration timespanDuration(con
 ///
 /// Resolution follows source semantics before shape construction:
 /// - instant products use zero;
-/// - from-start products use step;
+/// - from-start products use the non-seasonal forecast lead;
 /// - synoptic products use one calendar month;
 /// - products with `stattype` blocks use the outermost block range;
 /// - remaining duration-valued products use `timespan`.
@@ -127,7 +165,7 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveOuterDomainRa
             return metkit::mars2grib::utils::time_arithmetic::zeroDuration();
         }
         if (isFromStart) {
-            return TimeDuration{resolvedStepInSeconds(input), TimeUnit::Second};
+            return resolvedForecastStep(input);
         }
         if (isSynoptic) {
             return TimeDuration{1, TimeUnit::Month};
@@ -145,6 +183,64 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveOuterDomainRa
     catch (...) {
         std::throw_with_nested(
             Mars2GribModelException("Failed to resolve ProductTimeSpec outer domain range", input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Resolve the outer support range required by the seasonal forecast domain builder.
+///
+/// Resolution follows the same source semantics as the normal domain path, but
+/// keeps the seasonal from-start branch explicitly separate so future seasonal
+/// outer-range changes remain local to the seasonal forecast domain.
+///
+/// Current seasonal resolution rules are:
+/// - instant products use zero;
+/// - from-start products use the seasonal forecast lead;
+/// - synoptic products use one calendar month;
+/// - products with `stattype` blocks use the outermost block range;
+/// - remaining duration-valued products use `timespan`.
+///
+/// @param[in] input Fully normalized ProductTimeSpec input.
+/// @return Outer range used to place the seasonal forecast domain.
+/// @throws Mars2GribModelException If no supported range source is available.
+///
+inline metkit::mars2grib::backend::deductions::TimeDuration resolveSeasonalForecastOuterDomainRange(
+    const ProductTimeSpecInput& input) {
+    using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        const bool isInstant =
+            input.innerMostTypeOfStatisticalProcessing == tables::TypeOfStatisticalProcessing::Missing;
+        const bool isFromStart = input.timespan.kind == TimespanKind::FromStart;
+
+        const bool isSynoptic            = input.isSynoptic;
+        const bool hasOuterStattypeBlock = !input.stattype.empty();
+        const bool hasDurationTimespan   = input.timespan.kind == TimespanKind::Duration;
+
+        if (isInstant) {
+            return metkit::mars2grib::utils::time_arithmetic::zeroDuration();
+        }
+        if (isFromStart) {
+            return resolvedSeasonalForecastLead(input);
+        }
+        if (isSynoptic) {
+            return TimeDuration{1, tables::TimeUnit::Month};
+        }
+        if (hasOuterStattypeBlock) {
+            return input.stattype.front().timeRange;
+        }
+        if (hasDurationTimespan) {
+            return timespanDuration(input);
+        }
+
+        throw Mars2GribModelException("No seasonal forecast outer domain range can be resolved from normalized input",
+                                      input.to_json(), Here());
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to resolve the seasonal ProductTimeSpec outer domain range", input.to_json(), Here()));
     }
 }
 

@@ -31,6 +31,7 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
@@ -45,6 +46,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  *
  * The shape matches when:
  *
+ * - the normalized input is not seasonal;
  * - `timespan` is missing;
  * - no `stattype` blocks are present;
  * - the compatibility option allows a missing instant timespan;
@@ -63,6 +65,7 @@ inline bool match_InstantTimespanMissing_Shape(
 
     try {
 
+        const bool isNotSeasonal = !product_time_spec::detail::isSeasonal(input);
         const bool timespanIsMissing =
             input.timespan.kind == metkit::mars2grib::backend::deductions::TimespanKind::Missing;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
@@ -71,7 +74,8 @@ inline bool match_InstantTimespanMissing_Shape(
             input.innerMostTypeOfStatisticalProcessing ==
             metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing;
 
-        return timespanIsMissing && hasNoStattypeBlocks && missingTimespanIsAllowed && statisticalProcessingIsMissing;
+        return isNotSeasonal && timespanIsMissing && hasNoStattypeBlocks && missingTimespanIsAllowed &&
+               statisticalProcessingIsMissing;
     }
     catch (...) {
         std::throw_with_nested(
