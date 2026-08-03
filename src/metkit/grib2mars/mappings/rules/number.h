@@ -43,7 +43,8 @@ void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle&
         }
         else if (grib.getString("type") != "me") {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `numberOfForecastsInEnsemble` required to extract MARS keyword `" + keyword + "`", Here());
+                "Missing GRIB key `numberOfForecastsInEnsemble` required to extract MARS keyword `" + keyword + "`",
+                Here());
         }
     }
     catch (...) {

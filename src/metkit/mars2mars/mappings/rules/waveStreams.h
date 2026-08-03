@@ -40,7 +40,8 @@ inline void convertWaveStreams(const InDict_t& in, OutDict_t& out, eckit::LocalC
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in convertWaveStreams", Here()));
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to convert input dictionary in convertWaveStreams", Here()));
     }
 }
 
