@@ -115,9 +115,9 @@ def test_date_year_day_of_year():
 def test_date_range_alternate_format():
     # Check that expansion respects alternate date formats
     assert expand_key("date", "2020-01-01/to/2020-01-03") == [
-        "2020-01-01",
-        "2020-01-02",
-        "2020-01-03",
+        "20200101",
+        "20200102",
+        "20200103",
     ]
 
 
@@ -145,6 +145,15 @@ def test_date_range_with_step():
 def test_month_name_climatology_passthrough(value):
     # Bare month names are climatology values and are kept as-is (lower-cased).
     assert expand_key("date", value) == [value]
+
+
+def test_hdate_range():
+    # Check that expansion respects alternate date formats
+    assert expand_key("date", "20200101/to/20200103") == [
+        "20200101",
+        "20200102",
+        "20200103",
+    ]
 
 
 # ---------------------------------------------------------------------------
