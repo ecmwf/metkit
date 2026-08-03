@@ -20,7 +20,7 @@ void extractStep(const std::string& keyword, const metkit::codes::CodesHandle& g
                 "Missing GRIB key `endStep` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        const long endStep         = grib.getLong("endStep");
+        const long endStep = grib.getLong("endStep");
         set_or_throw<long>(mars, keyword, endStep);
 
         if (grib.has("timeIncrement")) {
