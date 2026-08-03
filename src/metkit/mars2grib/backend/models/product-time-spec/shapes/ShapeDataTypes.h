@@ -1,3 +1,18 @@
+/*
+ * (C) Copyright 2026- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+///
+/// @file ShapeDataTypes.h
+/// @brief Shape classifications and resolved ProductTimeSpec window artifacts.
+///
+
 #pragma once
 
 #include <cstddef>
@@ -21,6 +36,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape {
 /// - IFS single-loop and multi-loop statistical representations;
 /// - AIFS single-loop statistical representations whose increment semantics are
 ///   always missing;
+/// - seasonal single-loop forecast representations bound to the dedicated
+///   `SeasonalForecastDomain`;
 /// - from-start variants distinguished by zero-length versus positive-step
 ///   semantics;
 /// - fake-loop compatibility cases that preserve legacy source encodings while
@@ -42,6 +59,8 @@ enum class ProductTimeSpecShapeKind : std::size_t {
     AIFSFakeDoubleLoopSingleLoop,
     AIFSFromStartSingleLoopAtZero,
     AIFSFromStartSingleLoopPositive,
+
+    SeasonalSingleLoop,
 
     IFSStandardMultiLoop,
     IFSFakeSingleLoopDoubleLoop,
@@ -111,6 +130,9 @@ inline std::string productTimeSpecShapeTypeName(ProductTimeSpecShapeKind value) 
             return "AIFSFromStartSingleLoopAtZero";
         case ProductTimeSpecShapeKind::AIFSFromStartSingleLoopPositive:
             return "AIFSFromStartSingleLoopPositive";
+
+        case ProductTimeSpecShapeKind::SeasonalSingleLoop:
+            return "SeasonalSingleLoop";
 
         case ProductTimeSpecShapeKind::IFSStandardMultiLoop:
             return "IFSStandardMultiLoop";

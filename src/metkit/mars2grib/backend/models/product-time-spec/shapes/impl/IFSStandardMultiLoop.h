@@ -31,6 +31,7 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
@@ -46,12 +47,14 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * The shape matches when:
  *
  * - the regime is IFS;
+ * - the resolved domain classification is `ForecastDomain`;
+ * - the normalized input is not seasonal;
  * - the product is not synoptic;
  * - `timespan` contains the innermost loop duration;
  * - one or more outer `stattype` blocks are present.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
- * @param[in] domainClassification Previously resolved normal forecast or analysis domain.
+ * @param[in] domainClassification Previously resolved domain classification.
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
@@ -60,16 +63,20 @@ inline bool match_IFSStandardMultiLoop_Shape(
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
 
-        const bool isIfs                  = input.regime == SimulationRegime::IFS;
-        const bool isNotSynoptic          = !input.isSynoptic;
-        const bool hasDurationTimespan    = input.timespan.kind == TimespanKind::Duration;
-        const bool hasOuterStattypeBlocks = !input.stattype.empty();
+        const bool isIfs                   = input.regime == SimulationRegime::IFS;
+        const bool hasForecastDomain       = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal           = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic           = !input.isSynoptic;
+        const bool hasDurationTimespan     = input.timespan.kind == TimespanKind::Duration;
+        const bool hasOuterStattypeBlocks  = !input.stattype.empty();
 
-        return isIfs && isNotSynoptic && hasDurationTimespan && hasOuterStattypeBlocks;
+        return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
+               hasOuterStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(

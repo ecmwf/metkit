@@ -24,21 +24,24 @@ return `true`.
 |---|---|---|---|---|---|---|---|---|
 | `InstantTimespanMissing` | any | any | any | `Missing` | empty | redundant values validated later | n/a | n/a |
 | `InstantTimespanNone` | any | any | any | `None` | empty | redundant values validated later | n/a | n/a |
-| `IFSStandardSingleLoop` | `IFS` | non-synoptic forecast or analysis | `false` | `Duration` | empty | explicit, missing, or defaulted | `false` | `false` |
-| `IFSFakeDoubleLoopSingleLoop` | `IFS` | non-synoptic forecast or analysis | `false` | `None` | exactly one block | explicit, missing, or defaulted | `true` | `false` |
-| `IFSFromStartSingleLoopAtZero` | `IFS` | non-synoptic forecast or analysis | `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | n/a |
-| `IFSFromStartSingleLoopPositive` | `IFS` | non-synoptic forecast or analysis | `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | n/a |
+| `IFSStandardSingleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | `false` | `false` |
+| `IFSFakeDoubleLoopSingleLoop` | `IFS` | `ForecastDomain` | `false` | `None` | exactly one block | explicit, missing, or defaulted | `true` | `false` |
+| `IFSFromStartSingleLoopAtZero` | `IFS` | `ForecastDomain` | `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | n/a |
+| `IFSFromStartSingleLoopPositive` | `IFS` | `ForecastDomain` | `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | n/a |
 | `IFSSynopticSingleLoop` | `IFS` | `SynopticAnalysisDomain` | `true` | synoptic-supported source | empty | intrinsic or redundant 24h value | n/a | n/a |
 | `AIFSStandardSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `Duration` | empty | must be missing | `false` | `false` |
 | `AIFSFakeDoubleLoopSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `None` | exactly one block | must be missing | `true` | n/a |
 | `AIFSFromStartSingleLoopAtZero` | `AIFS` | `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | n/a |
 | `AIFSFromStartSingleLoopPositive` | `AIFS` | `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | n/a |
-| `IFSStandardMultiLoop` | `IFS` | non-synoptic forecast or analysis | `false` | `Duration` | one or more blocks | explicit, missing, or defaulted | n/a | n/a |
-| `IFSFakeSingleLoopDoubleLoop` | `IFS` | non-synoptic forecast or analysis | `false` | `Duration` | empty | explicit, missing, or defaulted | `false` | `true` |
+| `SeasonalSingleLoop` | any | `SeasonalForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | n/a | n/a |
+| `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | one or more blocks | explicit, missing, or defaulted | n/a | n/a |
+| `IFSFakeSingleLoopDoubleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | `false` | `true` |
 
 ## Notes
 
 - Shape classification depends on the already resolved domain kind.
 - AIFS cases currently exist only for forecast-domain products.
+- All non-seasonal forecast-like shapes explicitly reject seasonal input through `isSeasonal(input)`.
+- `SeasonalForecastDomain` is currently accepted only by `SeasonalSingleLoop`.
 - Multi-loop cases are currently IFS-only.
 - Instant cases are distinguished by the source representation of `timespan`.

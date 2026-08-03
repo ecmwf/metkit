@@ -32,6 +32,7 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
@@ -49,6 +50,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  *
  * - the regime is AIFS;
  * - the domain is a forecast domain;
+ * - the normalized input is not seasonal;
  * - the product is not synoptic;
  * - the source increment is missing;
  * - `timespan` uses from-start semantics;
@@ -72,19 +74,19 @@ inline bool match_AIFSFromStartSingleLoopAtZero_Shape(
 
         const bool isAifs                   = input.regime == SimulationRegime::AIFS;
         const bool hasForecastDomain        = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal            = !product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic            = !input.isSynoptic;
         const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
         const bool usesFromStartTimespan    = input.timespan.kind == TimespanKind::FromStart;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
-        const long step                     = input.step.has_value() ? input.step->length : -999999L;
-        const bool stepIsZero               = step == 0L;
+        const bool hasZeroStep              = product_time_spec::detail::stepIsZero(input);
 
         const bool stepZeroIsAllowed  = input.allowZeroLengthFsWindow;
         const bool operationIsAllowed = isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
             input.innerMostTypeOfStatisticalProcessing, input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
 
-        return isAifs && hasForecastDomain && isNotSynoptic && sourceIncrementIsMissing && usesFromStartTimespan &&
-               hasNoStattypeBlocks && stepIsZero && stepZeroIsAllowed && operationIsAllowed;
+        return isAifs && hasForecastDomain && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
+               usesFromStartTimespan && hasNoStattypeBlocks && hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_AIFSFromStartSingleLoopAtZero_Shape`",

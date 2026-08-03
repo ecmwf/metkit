@@ -43,6 +43,8 @@ Delegation is limited to genuinely cross-cutting semantics:
 
 - temporal arithmetic;
 - normalized primitive extraction;
+- forecast-lead predicates shared by multiple seasonal matchers and domain
+  builders;
 - `typeOfTimeIncrement` resolution;
 - explicit increment validation;
 - default time-increment deduction;
@@ -50,6 +52,33 @@ Delegation is limited to genuinely cross-cutting semantics:
 
 Generic `makeWindow`, `buildSingleLoop`, or `buildMultiLoopWindows` helpers are
 intentionally avoided.
+
+## Seasonal forecast split
+
+Seasonal forecast support is currently isolated at the domain level.
+
+The normalized seasonal discriminator is centralized in:
+
+- `detail/ForecastLeadUtils.h::isSeasonal(...)`
+
+Its semantics are exact and intentionally local:
+
+```text
+step is missing
+fcmonth is present
+```
+
+Forecast domains are therefore split into two explicit cases:
+
+- `ForecastDomain`, for non-seasonal forecast products whose lead comes from
+  `step`;
+- `SeasonalForecastDomain`, for seasonal forecast products whose lead comes from
+  `fcmonth` and is represented as calendar months.
+
+Seasonal forecast outer-range resolution also has a dedicated callback path so
+future seasonal divergence can remain local to the seasonal domain case even
+when the current implementation is still close to the non-seasonal forecast
+path.
 
 ## Naming convention
 
