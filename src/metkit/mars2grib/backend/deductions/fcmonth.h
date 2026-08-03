@@ -13,18 +13,19 @@
 /// @brief Public deduction header for the optional raw MARS `fcmonth` key.
 ///
 /// Exposes `resolve_Fcmonth_opt`, the canonical entry point that resolves the
-/// raw optional MARS `fcmonth` source into a validated canonical integer month.
+/// raw optional MARS `fcmonth` source into a validated canonical integer
+/// forecast lead count expressed in calendar months.
 ///
 /// This deduction owns:
 /// - direct `fcmonth` dictionary access;
-/// - lexical parsing of integer and textual month-enum representations;
-/// - local validation that the resolved month value is in the enum range
-///   `[1,12]`.
+/// - lexical parsing of integer and textual decimal representations;
+/// - local validation that the resolved forecast lead count is strictly
+///   positive.
 ///
 /// This deduction does NOT:
-/// - validate the relationship between `year` and `fcmonth` or any other key;
-/// - construct a date or datetime;
-/// - apply any ProductTimeSpec-specific semantics.
+/// - materialize a `TimeDuration` value;
+/// - validate the relationship between `fcmonth` and any other temporal key;
+/// - apply ProductTimeSpec model semantics beyond local source validation.
 ///
 /// @ingroup mars2grib_backend_deductions
 ///
@@ -46,23 +47,30 @@ namespace metkit::mars2grib::backend::deductions {
 namespace detail {
 
 ///
-/// @brief Validate one canonical integer forecast-month enum value.
+/// @brief Validate one canonical integer forecast lead count expressed in months.
 ///
-/// The MARS `fcmonth` keyword is treated as an enum whose canonical numeric
-/// values are the calendar months `1..12`.
+/// The MARS `fcmonth` keyword is interpreted as a strictly positive integer lead
+/// count measured in calendar months.
 ///
-/// @param[in] value Canonical integer forecast-month value.
+/// @param[in] value Canonical integer forecast lead count.
 /// @param[in] key   Human-readable source-key name used in diagnostics.
-/// @return `value` unchanged when it lies in `[1,12]`.
-/// @throws Mars2GribDeductionException if `value` lies outside `[1,12]`.
+/// @return `value` unchanged when it is strictly positive.
+/// @throws Mars2GribDeductionException if `value` is not strictly positive.
 ///
-inline long checkedFcmonthEnumValue(long value, const std::string& key) {
+inline long checkedPositiveFcmonthLeadCount(long value, const std::string& key) {
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
-    if (value < 1 || value > 12) {
-        throw Mars2GribDeductionException("`" + key + "` must be in [1,12]", Here());
+    try {
+        if (value <= 0) {
+            throw Mars2GribDeductionException("`" + key + "` must be a strictly positive integer", Here());
+        }
+
+        return value;
     }
-    return value;
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribDeductionException("Failed to validate `fcmonth` as a positive forecast lead count", Here()));
+    }
 }
 
 }  // namespace detail
@@ -80,9 +88,9 @@ inline long checkedFcmonthEnumValue(long value, const std::string& key) {
 ///
 /// Resolution rules:
 /// - `fcmonth` absent -> `std::nullopt`;
-/// - numeric `fcmonth` -> validated as an enum value in `[1,12]`;
-/// - string `fcmonth` -> parsed as one supported month alias or decimal
-///   integer, then validated as an enum value in `[1,12]`;
+/// - numeric `fcmonth` -> validated as a strictly positive integer lead count;
+/// - string `fcmonth` -> parsed as a decimal integer, then validated as a
+///   strictly positive integer lead count;
 /// - malformed, unsupported, or out-of-range values -> hard error.
 ///
 /// @tparam MarsDict_t   MARS dictionary type.
@@ -93,11 +101,11 @@ inline long checkedFcmonthEnumValue(long value, const std::string& key) {
 /// @param[in] par   Parameter dictionary (signature-only).
 /// @param[in] opt   Options dictionary (signature-only).
 ///
-/// @return `std::optional<long>` containing the canonical integer forecast
-///         month when the key is present, `std::nullopt` otherwise.
+/// @return `std::optional<long>` containing the canonical integer forecast lead
+///         count in months when the key is present, `std::nullopt` otherwise.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
-///         on malformed, unsupported, or out-of-range raw `fcmonth` input,
+///         on malformed, unsupported, or locally invalid raw `fcmonth` input,
 ///         with the original cause attached via `std::throw_with_nested`.
 ///
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
@@ -116,10 +124,10 @@ std::optional<long> resolve_Fcmonth_opt(const MarsDict_t& mars, const ParDict_t&
 
         long result = 0;
         if (auto value = get_opt<long>(mars, "fcmonth")) {
-            result = detail::checkedFcmonthEnumValue(*value, "fcmonth");
+            result = detail::checkedPositiveFcmonthLeadCount(*value, "fcmonth");
         }
         else if (auto value = get_opt<std::string>(mars, "fcmonth")) {
-            result = detail::checkedFcmonthEnumValue(detail::parseMonthEnum(*value, "fcmonth"), "fcmonth");
+            result = detail::checkedPositiveFcmonthLeadCount(detail::parseLongStrict(*value, "fcmonth"), "fcmonth");
         }
         else {
             throw Mars2GribDeductionException("Unsupported type for `fcmonth`", Here());
