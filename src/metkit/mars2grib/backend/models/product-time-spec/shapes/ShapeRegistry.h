@@ -178,8 +178,20 @@ inline ProductTimeSpecShapeKind classify_Shape_or_throw(
         }
 
         if (numberOfMatches != 1) {
-            throw Mars2GribModelException("Unexpectedly returned from `classify_Shape_or_throw`", input.to_json(),
-                                          Here());
+            throw Mars2GribModelException(
+                [&]() {
+                    std::ostringstream oss;
+                    oss << "Shape classification failed: expected exactly one match, but found " << numberOfMatches
+                        << " matches. Match results: [";
+                    for (std::size_t i = 0; i < matches.size(); ++i) {
+                        oss << detail::shapeCases[i].name << "=" << (matches[i] ? "true" : "false");
+                        if (i < matches.size() - 1) {
+                            oss << ", ";
+                        }
+                    }
+                    oss << "]";
+                    return oss.str();
+                }(), input.to_json(), Here());
         }
 
         return detail::shapeCases[matchedIndex].classification;
