@@ -17,6 +17,7 @@
 #include <cctype>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 
 #include "eckit/config/LocalConfiguration.h"
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
@@ -100,6 +101,41 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
     }
 }
 
+/// @brief Fix timespan of statistical fields that have been wrongly encoded as instant at step 0.
+template <class InDict_t, class OutDict_t>
+inline void fixStep0Timespan(const InDict_t& in, OutDict_t& out) {
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    using metkit::mars2mars::utils::dict_traits::has;
+    using metkit::mars2mars::utils::dict_traits::set_or_throw;
+    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
+
+    static const std::unordered_set<long> paramIdsWithTimespan{
+        8,      9,      20,     44,     45,     47,     49,     50,     57,     58,     121,    122,
+        123,    142,    143,    144,    146,    145,    147,    169,    175,    176,    177,    178,
+        179,    180,    181,    182,    189,    195,    196,    197,    201,    202,    205,    208,
+        209,    210,    211,    212,    213,    228,    228021, 228022, 228080, 228081, 228082, 228129,
+        228130, 228216, 228222, 228223, 228224, 228225, 228226, 228227, 228026, 228027, 228028, 228251};
+
+    try {
+        if (!has(in, "step") || get_or_throw<long>(in, "step") != 0) {
+            return;
+        }
+
+        const long paramId = get_or_throw<long>(in, "param");
+
+        if (paramIdsWithTimespan.find(paramId) == paramIdsWithTimespan.end()) {
+            return;
+        }
+
+        set_or_throw<std::string>(out, "timespan", "0h");
+    }
+    catch (...) {
+        // Rethrow nested exceptions
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to apply step 0 timespan fix in output dictionary", Here()));
+    }
+}
+
 /// @brief Convert surface-like legacy requests into sol layer output.
 template <class InDict_t, class OutDict_t>
 inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
@@ -111,6 +147,9 @@ inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfigur
     try {
         // Handle step ranges (e.g. "0-6") and default timespan to "none" for single-value steps.
         convertStepRangeToTimespan(in, out);
+
+        // Fix statistical fields that are wrongly encoded as instant fields at step 0.
+        fixStep0Timespan(in, out);
 
         const auto param = get_or_throw<long>(in, "param");
 
