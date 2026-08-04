@@ -13,6 +13,11 @@
 /// @brief Conversion rules used by the mars2mars mapper.
 #pragma once
 
+#include <algorithm>
+#include <cctype>
+#include <string>
+#include <string_view>
+
 #include "eckit/config/LocalConfiguration.h"
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
 #include "metkit/mars2mars/mappings/rules/common.h"
@@ -40,6 +45,60 @@ inline void setParamTimespan(OutDict_t& out, long param, const std::string& time
     }
 }
 
+/// @brief Detect a `step` of the form "<startStep>-<endStep>" and rewrite
+/// `step` + `timespan` on `out`. When `step` is a single value, default the
+/// output `timespan` to "none" if it is not already set on `in`.
+template <class InDict_t, class OutDict_t>
+inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
+    using metkit::mars2mars::utils::dict_traits::get_or_throw;
+    using metkit::mars2mars::utils::dict_traits::has;
+    using metkit::mars2mars::utils::dict_traits::set_or_throw;
+    using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
+
+    try {
+
+        if (!has(in, "step")) {
+            return;
+        }
+
+        const std::string step = get_or_throw<std::string>(in, "step");
+
+        // Strict range detection: "<digits>-<digits>"
+        const auto dash        = step.find('-');
+        const auto isAllDigits = [](std::string_view v) {
+            return !v.empty() && std::all_of(v.begin(), v.end(), [](unsigned char c) { return std::isdigit(c) != 0; });
+        };
+        const bool isRange = dash != std::string::npos && step.find('-', dash + 1) == std::string::npos &&
+                             isAllDigits(std::string_view{step.data(), dash}) &&
+                             isAllDigits(std::string_view{step.data() + dash + 1, step.size() - dash - 1});
+
+        if (!isRange) {
+            // Single-value step: leave step untouched. Default timespan to
+            // "none" only when the input has no timespan yet.
+            if (!has(in, "timespan")) {
+                set_or_throw<std::string>(out, "timespan", "none");
+            }
+            return;
+        }
+
+        const long startStep = std::stol(std::string(step, 0, dash));
+        const long endStep   = std::stol(std::string(step, dash + 1));
+
+        if (endStep < startStep) {
+            throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep < startStep (" +
+                                                std::to_string(endStep) + " < " + std::to_string(startStep) + ")",
+                                            Here());
+        }
+
+        set_or_throw<long>(out, "step", endStep);
+        set_or_throw<std::string>(out, "timespan", std::to_string(endStep - startStep) + "h");
+    }
+    catch (...) {
+        // Rethrow nested exceptions
+        std::throw_with_nested(
+            Mars2marsGenericException("Failed to apply step-range timespan rule in output dictionary", Here()));
+    }
+}
 
 /// @brief Convert surface-like legacy requests into sol layer output.
 template <class InDict_t, class OutDict_t>
@@ -50,6 +109,9 @@ inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfigur
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        // Handle step ranges (e.g. "0-6") and default timespan to "none" for single-value steps.
+        convertStepRangeToTimespan(in, out);
+
         const auto param = get_or_throw<long>(in, "param");
 
         switch (param) {
