@@ -62,7 +62,8 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
             return;
         }
 
-        const std::string step = get_or_throw<std::string>(in, "step");
+        const std::string step = has<long>(in, "step") ? std::to_string(get_or_throw<long>(in, "step"))
+                                                       : get_or_throw<std::string>(in, "step");
 
         // Strict range detection: "<digits>-<digits>"
         const auto dash        = step.find('-');
@@ -88,6 +89,13 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
         if (endStep < startStep) {
             throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep < startStep (" +
                                                 std::to_string(endStep) + " < " + std::to_string(startStep) + ")",
+                                            Here());
+        }
+
+        if (endStep == startStep && endStep != 0) {
+            throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep == startStep (" +
+                                                std::to_string(endStep) + " == " + std::to_string(startStep) +
+                                                ") is only allowed for step 0",
                                             Here());
         }
 
@@ -117,7 +125,10 @@ inline void fixStep0Timespan(const InDict_t& in, OutDict_t& out) {
         228130, 228216, 228222, 228223, 228224, 228225, 228226, 228227, 228026, 228027, 228028, 228251};
 
     try {
-        if (!has(in, "step") || get_or_throw<long>(in, "step") != 0) {
+
+        // This fix should only be applied if step == 0.
+        // Note that when step is the range 0-0, timespan is already set to 0 in convertStepRangeToTimespan.
+        if (has<long>(in, "step") && get_or_throw<long>(in, "step") != 0) {
             return;
         }
 
