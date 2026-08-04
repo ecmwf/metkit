@@ -67,8 +67,8 @@ inline bool hasFcmonth(const ProductTimeSpecInput& input) {
         return input.marsFcmonth.has_value();
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException(
-            "Failed to test whether ProductTimeSpec input contains fcmonth", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input contains fcmonth",
+                                                       input.to_json(), Here()));
     }
 }
 
@@ -86,8 +86,8 @@ inline bool stepIsMissing(const ProductTimeSpecInput& input) {
         return !hasStep(input);
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to test whether ProductTimeSpec input lacks step", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input lacks step",
+                                                       input.to_json(), Here()));
     }
 }
 
@@ -106,9 +106,8 @@ inline bool stepIsZero(const ProductTimeSpecInput& input) {
         return hasStep(input) && input.step->length == 0;
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to test whether ProductTimeSpec input contains a zero step",
-                                    input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to test whether ProductTimeSpec input contains a zero step", input.to_json(), Here()));
     }
 }
 
@@ -127,9 +126,8 @@ inline bool stepIsPositive(const ProductTimeSpecInput& input) {
         return hasStep(input) && input.step->length > 0;
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to test whether ProductTimeSpec input contains a positive step",
-                                    input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to test whether ProductTimeSpec input contains a positive step", input.to_json(), Here()));
     }
 }
 
@@ -150,8 +148,8 @@ inline bool fcmonthIsPresent(const ProductTimeSpecInput& input) {
         return hasFcmonth(input);
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException(
-            "Failed to test whether ProductTimeSpec input contains fcmonth", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input contains fcmonth",
+                                                       input.to_json(), Here()));
     }
 }
 
@@ -178,8 +176,8 @@ inline bool isSeasonal(const ProductTimeSpecInput& input) {
         return stepIsMissing(input) && fcmonthIsPresent(input);
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException(
-            "Failed to test whether ProductTimeSpec input is seasonal", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input is seasonal",
+                                                       input.to_json(), Here()));
     }
 }
 

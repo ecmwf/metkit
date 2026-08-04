@@ -68,12 +68,12 @@ inline bool match_IFSStandardMultiLoop_Shape(
 
     try {
 
-        const bool isIfs                   = input.regime == SimulationRegime::IFS;
-        const bool hasForecastDomain       = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
-        const bool isNotSeasonal           = !product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic           = !input.isSynoptic;
-        const bool hasDurationTimespan     = input.timespan.kind == TimespanKind::Duration;
-        const bool hasOuterStattypeBlocks  = !input.stattype.empty();
+        const bool isIfs                  = input.regime == SimulationRegime::IFS;
+        const bool hasForecastDomain      = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal          = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic          = !input.isSynoptic;
+        const bool hasDurationTimespan    = input.timespan.kind == TimespanKind::Duration;
+        const bool hasOuterStattypeBlocks = !input.stattype.empty();
 
         return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
                hasOuterStattypeBlocks;

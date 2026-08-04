@@ -74,8 +74,7 @@ inline bool match_IFSSynopticSingleLoop_Shape(
         const bool hasSynopticAnalysisDomain = domainKind == ProductTimeSpecDomainKind::SynopticAnalysisDomain;
         const bool hasNoStattypeBlocks       = input.stattype.empty();
 
-        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasSynopticAnalysisDomain &&
-               hasNoStattypeBlocks;
+        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasSynopticAnalysisDomain && hasNoStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(

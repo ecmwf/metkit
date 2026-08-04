@@ -153,11 +153,9 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
         return opts.allowMissingTimespanForInstantProduct;
     }
 
-    throw exceptions::Mars2GribDictException("Key `" + std::string(key) + "` cannot be read as `" +
-                                                 "bool" +
+    throw exceptions::Mars2GribDictException("Key `" + std::string(key) + "` cannot be read as `" + "bool" +
                                                  "` from dictionary type `metkit::mars2grib::Options`",
                                              Here());
-
 }
 
 }  // namespace options_detail
@@ -182,8 +180,7 @@ struct DictToJsonTraits<Options> {
             options_detail::appendJsonBool(json, "normalizeMisc", opts.normalizeMisc, true);
             options_detail::appendJsonBool(json, "fixMarsGrid", opts.fixMarsGrid, true);
             options_detail::appendJsonBool(json, "skipSection3", opts.skipSection3, true);
-            options_detail::appendJsonBool(json, "allowDefaultTimeIncrement",
-                                           opts.allowDefaultTimeIncrement, true);
+            options_detail::appendJsonBool(json, "allowDefaultTimeIncrement", opts.allowDefaultTimeIncrement, true);
             options_detail::appendJsonBool(json, "allowZeroLengthFsWindow", opts.allowZeroLengthFsWindow, true);
             options_detail::appendJsonBool(json, "allowExtendedSetOfOperationsForZeroLengthFsWindow",
                                            opts.allowExtendedSetOfOperationsForZeroLengthFsWindow, true);

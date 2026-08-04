@@ -69,15 +69,15 @@ inline bool match_IFSFakeDoubleLoopSingleLoop_Shape(
 
     try {
 
-        const bool isIfs                                   = input.regime == SimulationRegime::IFS;
-        const bool hasForecastDomain                       = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
-        const bool isNotSeasonal                           = !product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic                           = !input.isSynoptic;
-        const bool timespanIsNone                          = input.timespan.kind == TimespanKind::None;
-        const bool hasExactlyOneStattypeBlock              = input.stattype.size() == 1;
-        const bool requiresFakeSecondLoop                  = input.requiresFakeSingleLoopDoubleLoopRepresentation;
-        const bool requiresFakeDoubleLoop                  = input.requiresFakeDoubleLoopSingleLoopRepresentation;
-        const bool doesNotRequireFakeSingleLoopDoubleLoop  = !requiresFakeSecondLoop;
+        const bool isIfs                                  = input.regime == SimulationRegime::IFS;
+        const bool hasForecastDomain                      = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal                          = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic                          = !input.isSynoptic;
+        const bool timespanIsNone                         = input.timespan.kind == TimespanKind::None;
+        const bool hasExactlyOneStattypeBlock             = input.stattype.size() == 1;
+        const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
+        const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
+        const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
         return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && timespanIsNone &&
                hasExactlyOneStattypeBlock && requiresFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;

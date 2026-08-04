@@ -70,15 +70,15 @@ inline bool match_IFSStandardSingleLoop_Shape(
 
     try {
 
-        const bool isIfs                       = input.regime == SimulationRegime::IFS;
-        const bool hasForecastDomain           = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
-        const bool isNotSeasonal               = !product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic               = !input.isSynoptic;
-        const bool hasDurationTimespan         = input.timespan.kind == TimespanKind::Duration;
-        const bool hasNoStattypeBlocks         = input.stattype.empty();
-        const bool requiresFakeDoubleLoop      = input.requiresFakeDoubleLoopSingleLoopRepresentation;
-        const bool requiresFakeSecondLoop      = input.requiresFakeSingleLoopDoubleLoopRepresentation;
-        const bool doesNotRequireFakeDoubleLoop = !requiresFakeDoubleLoop;
+        const bool isIfs                                  = input.regime == SimulationRegime::IFS;
+        const bool hasForecastDomain                      = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal                          = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic                          = !input.isSynoptic;
+        const bool hasDurationTimespan                    = input.timespan.kind == TimespanKind::Duration;
+        const bool hasNoStattypeBlocks                    = input.stattype.empty();
+        const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
+        const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
+        const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
         return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&

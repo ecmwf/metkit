@@ -37,11 +37,11 @@
 /// | `false` | `false` | | `AIFSFakeDoubleLoopSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `None` | exactly one
 /// block | must be missing | `true` | n/a | | `AIFSFromStartSingleLoopAtZero` | `AIFS` | `ForecastDomain` | `false` |
 /// `FromStart` | empty | must be missing | n/a | n/a | | `AIFSFromStartSingleLoopPositive` | `AIFS` | `ForecastDomain`
-/// | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `SeasonalSingleLoop` | any | `SeasonalForecastDomain` | `false` |
-/// `Duration` | empty | explicit, missing, or defaulted | n/a | n/a | | `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` |
-/// `false` | `Duration` | one or more blocks | explicit, missing, or defaulted | n/a | n/a | |
-/// `IFSFakeSingleLoopDoubleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit,
-/// missing, or defaulted | `false` | `true` |
+/// | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `SeasonalSingleLoop` | any |
+/// `SeasonalForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | n/a | n/a | |
+/// `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | one or more blocks | explicit, missing,
+/// or defaulted | n/a | n/a | | `IFSFakeSingleLoopDoubleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty
+/// | explicit, missing, or defaulted | `false` | `true` |
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
 ///
@@ -56,12 +56,12 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSFakeSingleLoopDoubleLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSFromStartSingleLoopAtZero.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSFromStartSingleLoopPositive.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/SeasonalSingleLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSStandardMultiLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSStandardSingleLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSSynopticSingleLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/InstantTimespanMissing.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/InstantTimespanNone.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/SeasonalSingleLoop.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape {
 
@@ -196,7 +196,8 @@ inline ProductTimeSpecShapeKind classify_Shape_or_throw(
                     }
                     oss << "]";
                     return oss.str();
-                }(), input.to_json(), Here());
+                }(),
+                input.to_json(), Here());
         }
 
         return detail::shapeCases[matchedIndex].classification;
