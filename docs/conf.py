@@ -34,7 +34,7 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_internal"]
 
-autoapi_dirs = ["../python/pymetkit/src/pymetkit"]
+autoapi_dirs = ["../src/pymetkit"]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
 autoapi_add_toctree_entry = False
