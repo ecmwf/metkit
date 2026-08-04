@@ -65,8 +65,8 @@ inline bool match_SeasonalForecast_Domain(const ProductTimeSpecInput& input) {
         return isNotSynoptic && isSeasonal && isForecast;
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `match_SeasonalForecast_Domain`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to execute `match_SeasonalForecast_Domain`", input.to_json(), Here()));
     }
 }
 
@@ -91,8 +91,8 @@ inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpec
         return ProductTimeSpecDomain{subtractDuration(domainEndDateTime, outerRange), domainEndDateTime};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalForecast_Domain`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to execute `build_SeasonalForecast_Domain`", input.to_json(), Here()));
     }
 }
 

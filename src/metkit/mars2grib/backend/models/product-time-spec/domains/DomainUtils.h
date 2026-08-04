@@ -36,8 +36,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
 /// @return Resolved `step` duration.
 /// @throws Mars2GribModelException If the normalized `step` is missing.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep(
-    const ProductTimeSpecInput& input) {
+inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -87,8 +86,8 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolvedSeasonalFore
         return TimeDuration{fcmonth, TimeUnit::Month};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException(
-            "Failed to retrieve the seasonal ProductTimeSpec forecast lead", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to retrieve the seasonal ProductTimeSpec forecast lead",
+                                                       input.to_json(), Here()));
     }
 }
 

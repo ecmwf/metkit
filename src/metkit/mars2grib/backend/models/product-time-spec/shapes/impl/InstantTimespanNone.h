@@ -64,7 +64,7 @@ inline bool match_InstantTimespanNone_Shape(
 
     try {
 
-        const bool isNotSeasonal = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSeasonal  = !product_time_spec::detail::isSeasonal(input);
         const bool timespanIsNone = input.timespan.kind == metkit::mars2grib::backend::deductions::TimespanKind::None;
         const bool hasNoStattypeBlocks = input.stattype.empty();
 
