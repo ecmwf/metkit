@@ -84,7 +84,7 @@ inline bool match_SeasonalSingleLoop_Shape(
         const bool hasNoStattypeBlocks = input.stattype.empty();
 
         return hasSeasonalForecastDomain && isSeasonal && isNotSynoptic && isForecast &&
-               hasAcceptedTimespanRepresentation && hasNoStattypeBlocks;
+               hasAcceptedTimespanRepresentation && !hasNoStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
