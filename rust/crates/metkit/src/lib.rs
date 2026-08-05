@@ -3,7 +3,7 @@
 //! Provides:
 //! - [`MarsRequest`] — build and validate MARS requests (typestate: [`Raw`] / [`Expanded`])
 //! - [`MarsLanguage`] — keyword categorization
-//! - [`initialize_environment`] — protocol environment metadata
+//! - [`initialize`] — protocol environment metadata
 
 pub mod codes;
 pub mod environment;

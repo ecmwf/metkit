@@ -11,10 +11,10 @@ use crate::request::MarsRequest;
 /// # Example
 ///
 /// ```ignore
-/// metkit::initialize_environment(&[
+/// metkit::initialize(&[
 ///     ("client", "mars-client-rs"),
 ///     ("version", "0.1.0"),
-/// ])?;
+/// ]);
 /// ```
 pub fn initialize(env: &[(&str, &str)]) {
     let keys: Vec<String> = env.iter().map(|(k, _)| (*k).to_string()).collect();
