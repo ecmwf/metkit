@@ -390,22 +390,6 @@ impl<S: RequestState> MarsRequest<S> {
     }
 }
 
-impl<S: RequestState> Clone for MarsRequest<S> {
-    /// Rebuild by copying verb + all params. State-preserving.
-    fn clone(&self) -> Self {
-        let mut inner = metkit_sys::MarsRequestWrapper::create(&self.verb());
-        for key in self.params() {
-            if let Ok(values) = self.values(&key) {
-                inner.pin_mut().set_values(&key, values);
-            }
-        }
-        Self {
-            inner,
-            _state: PhantomData,
-        }
-    }
-}
-
 impl std::str::FromStr for MarsRequest<Expanded> {
     type Err = crate::Error;
 
