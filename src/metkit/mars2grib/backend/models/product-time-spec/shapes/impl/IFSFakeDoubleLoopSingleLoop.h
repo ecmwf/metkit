@@ -121,8 +121,9 @@ inline std::vector<ProductTimeSpecWindow> build_IFSFakeDoubleLoopSingleLoop_Shap
         if (!processingTypesMatch) {
             std::ostringstream os;
             os << "IFSFakeDoubleLoopSingleLoop stattype processing must match the innermost processing: "
-               "stattype[#" << input.stattype.size() << "]="
-               << enum2name_TypeOfStatisticalProcessing_or_throw(stattype.typeOfStatisticalProcessing)
+                  "stattype[#"
+               << input.stattype.size()
+               << "]=" << enum2name_TypeOfStatisticalProcessing_or_throw(stattype.typeOfStatisticalProcessing)
                << ", innermost="
                << enum2name_TypeOfStatisticalProcessing_or_throw(input.innerMostTypeOfStatisticalProcessing);
             throw Mars2GribModelException(os.str(), input.to_json(), Here());

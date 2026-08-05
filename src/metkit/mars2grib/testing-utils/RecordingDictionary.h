@@ -91,52 +91,36 @@ template <>
 struct RecordedTypeTraits<bool> {
     static constexpr std::string_view category = "bool";
 
-    static std::string datatype_json(bool) {
-        return R"({"type":"boolean","rank":0,"size":1})";
-    }
+    static std::string datatype_json(bool) { return R"({"type":"boolean","rank":0,"size":1})"; }
 
-    static std::string value_json(bool value) {
-        return value ? "true" : "false";
-    }
+    static std::string value_json(bool value) { return value ? "true" : "false"; }
 };
 
 template <>
 struct RecordedTypeTraits<long long> {
     static constexpr std::string_view category = "integer";
 
-    static std::string datatype_json(long long) {
-        return R"({"type":"integer","rank":0,"size":1})";
-    }
+    static std::string datatype_json(long long) { return R"({"type":"integer","rank":0,"size":1})"; }
 
-    static std::string value_json(long long value) {
-        return numeric_to_json(value);
-    }
+    static std::string value_json(long long value) { return numeric_to_json(value); }
 };
 
 template <>
 struct RecordedTypeTraits<double> {
     static constexpr std::string_view category = "double";
 
-    static std::string datatype_json(double) {
-        return R"({"type":"double","rank":0,"size":1})";
-    }
+    static std::string datatype_json(double) { return R"({"type":"double","rank":0,"size":1})"; }
 
-    static std::string value_json(double value) {
-        return numeric_to_json(value);
-    }
+    static std::string value_json(double value) { return numeric_to_json(value); }
 };
 
 template <>
 struct RecordedTypeTraits<std::string> {
     static constexpr std::string_view category = "string";
 
-    static std::string datatype_json(const std::string&) {
-        return R"({"type":"string","rank":0,"size":1})";
-    }
+    static std::string datatype_json(const std::string&) { return R"({"type":"string","rank":0,"size":1})"; }
 
-    static std::string value_json(const std::string& value) {
-        return quote_json(value);
-    }
+    static std::string value_json(const std::string& value) { return quote_json(value); }
 };
 
 template <>
@@ -144,13 +128,10 @@ struct RecordedTypeTraits<std::vector<long long>> {
     static constexpr std::string_view category = "vector<integer>";
 
     static std::string datatype_json(const std::vector<long long>& value) {
-        return std::string{"{\"type\":\"integer\",\"rank\":1,\"size\":"} + numeric_to_json(value.size()) +
-               '}';
+        return std::string{"{\"type\":\"integer\",\"rank\":1,\"size\":"} + numeric_to_json(value.size()) + '}';
     }
 
-    static std::string value_json(const std::vector<long long>& value) {
-        return vector_to_json(value);
-    }
+    static std::string value_json(const std::vector<long long>& value) { return vector_to_json(value); }
 };
 
 template <>
@@ -158,13 +139,10 @@ struct RecordedTypeTraits<std::vector<double>> {
     static constexpr std::string_view category = "vector<double>";
 
     static std::string datatype_json(const std::vector<double>& value) {
-        return std::string{"{\"type\":\"double\",\"rank\":1,\"size\":"} + numeric_to_json(value.size()) +
-               '}';
+        return std::string{"{\"type\":\"double\",\"rank\":1,\"size\":"} + numeric_to_json(value.size()) + '}';
     }
 
-    static std::string value_json(const std::vector<double>& value) {
-        return vector_to_json(value);
-    }
+    static std::string value_json(const std::vector<double>& value) { return vector_to_json(value); }
 };
 
 template <>
@@ -172,13 +150,10 @@ struct RecordedTypeTraits<std::vector<std::string>> {
     static constexpr std::string_view category = "vector<string>";
 
     static std::string datatype_json(const std::vector<std::string>& value) {
-        return std::string{"{\"type\":\"string\",\"rank\":1,\"size\":"} + numeric_to_json(value.size()) +
-               '}';
+        return std::string{"{\"type\":\"string\",\"rank\":1,\"size\":"} + numeric_to_json(value.size()) + '}';
     }
 
-    static std::string value_json(const std::vector<std::string>& value) {
-        return vector_to_json(value);
-    }
+    static std::string value_json(const std::vector<std::string>& value) { return vector_to_json(value); }
 };
 
 template <>
@@ -233,6 +208,7 @@ inline std::string vector_to_json(const std::vector<T>& values) {
 
 class RecordingDictionary {
 public:
+
     struct ValueCompareResult {
         bool equal{true};
         std::string path;
@@ -249,78 +225,61 @@ public:
         std::string lhs_json;
         std::string rhs_json;
 
-        explicit operator bool() const {
-            return equal;
-        }
+        explicit operator bool() const { return equal; }
     };
 
     class RecordedValue {
     public:
+
         virtual ~RecordedValue() = default;
 
-        virtual std::unique_ptr<RecordedValue> clone() const = 0;
-        virtual std::string category() const                 = 0;
-        virtual std::string datatype_json() const            = 0;
-        virtual std::string value_json() const               = 0;
+        virtual std::unique_ptr<RecordedValue> clone() const                 = 0;
+        virtual std::string category() const                                 = 0;
+        virtual std::string datatype_json() const                            = 0;
+        virtual std::string value_json() const                               = 0;
         virtual ValueCompareResult compare(const RecordedValue& other) const = 0;
     };
 
     template <typename T>
     class TypedRecordedValue final : public RecordedValue {
     public:
+
         explicit TypedRecordedValue(T value) : value_{std::move(value)} {}
 
         std::unique_ptr<RecordedValue> clone() const override {
             return std::make_unique<TypedRecordedValue<T>>(value_);
         }
 
-        std::string category() const override {
-            return std::string{detail::RecordedTypeTraits<T>::category};
-        }
+        std::string category() const override { return std::string{detail::RecordedTypeTraits<T>::category}; }
 
-        std::string datatype_json() const override {
-            return detail::RecordedTypeTraits<T>::datatype_json(value_);
-        }
+        std::string datatype_json() const override { return detail::RecordedTypeTraits<T>::datatype_json(value_); }
 
-        std::string value_json() const override {
-            return detail::RecordedTypeTraits<T>::value_json(value_);
-        }
+        std::string value_json() const override { return detail::RecordedTypeTraits<T>::value_json(value_); }
 
         ValueCompareResult compare(const RecordedValue& other) const override {
             const auto* typedOther = dynamic_cast<const TypedRecordedValue<T>*>(&other);
             if (typedOther == nullptr) {
-                return {false,
-                        "datatype",
-                        "Recorded value categories differ",
-                        datatype_json(),
-                        other.datatype_json()};
+                return {false, "datatype", "Recorded value categories differ", datatype_json(), other.datatype_json()};
             }
 
             if (!(value_ == typedOther->value_)) {
-                return {false,
-                        "value",
-                        "Recorded values differ",
-                        value_json(),
-                        typedOther->value_json()};
+                return {false, "value", "Recorded values differ", value_json(), typedOther->value_json()};
             }
 
             return {};
         }
 
-        const T& value() const {
-            return value_;
-        }
+        const T& value() const { return value_; }
 
     private:
+
         T value_;
     };
 
     struct SampleMetadata {
         std::string sample;
 
-        bool operator==(const SampleMetadata& other) const {
-            return sample == other.sample;
-        }
+        bool operator==(const SampleMetadata& other) const { return sample == other.sample; }
     };
 
     struct CloneMetadata {
@@ -332,21 +291,18 @@ public:
     };
 
     struct MissingValueTag {
-        bool operator==(const MissingValueTag&) const {
-            return true;
-        }
+        bool operator==(const MissingValueTag&) const { return true; }
     };
 
     struct ValuesSummary {
         std::size_t size{0};
         double average{0.0};
 
-        bool operator==(const ValuesSummary& other) const {
-            return size == other.size && average == other.average;
-        }
+        bool operator==(const ValuesSummary& other) const { return size == other.size && average == other.average; }
     };
 
 public:
+
     enum class OperationKind {
         MakeFromSample,
         Clone,
@@ -362,9 +318,7 @@ public:
         Operation() = default;
 
         Operation(OperationKind opKind, std::string opKey, std::unique_ptr<const RecordedValue> opValue) :
-            kind{opKind},
-            key{std::move(opKey)},
-            value{std::move(opValue)} {}
+            kind{opKind}, key{std::move(opKey)}, value{std::move(opValue)} {}
 
         Operation(const Operation& other) : kind{other.kind}, key{other.key} {
             if (other.value) {
@@ -390,16 +344,17 @@ public:
         Operation& operator=(Operation&&) noexcept = default;
     };
 
-    RecordingDictionary() = default;
-    RecordingDictionary(const RecordingDictionary&)            = default;
-    RecordingDictionary& operator=(const RecordingDictionary&) = default;
-    RecordingDictionary(RecordingDictionary&&) noexcept        = default;
+    RecordingDictionary()                                          = default;
+    RecordingDictionary(const RecordingDictionary&)                = default;
+    RecordingDictionary& operator=(const RecordingDictionary&)     = default;
+    RecordingDictionary(RecordingDictionary&&) noexcept            = default;
     RecordingDictionary& operator=(RecordingDictionary&&) noexcept = default;
-    ~RecordingDictionary()                                     = default;
+    ~RecordingDictionary()                                         = default;
 
     void record_make_from_sample(std::string_view sample) {
-        operations_.emplace_back(OperationKind::MakeFromSample, std::string{},
-                                 std::make_unique<TypedRecordedValue<SampleMetadata>>(SampleMetadata{std::string(sample)}));
+        operations_.emplace_back(
+            OperationKind::MakeFromSample, std::string{},
+            std::make_unique<TypedRecordedValue<SampleMetadata>>(SampleMetadata{std::string(sample)}));
     }
 
     void record_clone(std::size_t sourceOperationCount) {
@@ -414,16 +369,13 @@ public:
     }
 
     void record_set(std::string_view key, bool value) {
-        operations_.emplace_back(OperationKind::Set, std::string(key), std::make_unique<TypedRecordedValue<bool>>(value));
+        operations_.emplace_back(OperationKind::Set, std::string(key),
+                                 std::make_unique<TypedRecordedValue<bool>>(value));
     }
 
-    void record_set(std::string_view key, int value) {
-        record_set(key, static_cast<long long>(value));
-    }
+    void record_set(std::string_view key, int value) { record_set(key, static_cast<long long>(value)); }
 
-    void record_set(std::string_view key, long value) {
-        record_set(key, static_cast<long long>(value));
-    }
+    void record_set(std::string_view key, long value) { record_set(key, static_cast<long long>(value)); }
 
     void record_set(std::string_view key, long long value) {
         operations_.emplace_back(OperationKind::Set, std::string(key),
@@ -445,9 +397,7 @@ public:
                                  std::make_unique<TypedRecordedValue<std::string>>(std::move(value)));
     }
 
-    void record_set(std::string_view key, const char* value) {
-        record_set(key, std::string(value));
-    }
+    void record_set(std::string_view key, const char* value) { record_set(key, std::string(value)); }
 
     void record_set(std::string_view key, const std::vector<long>& value) {
         std::vector<long long> normalized;
@@ -506,13 +456,9 @@ public:
                                  std::make_unique<TypedRecordedValue<std::vector<uint8_t>>>(std::move(value)));
     }
 
-    std::size_t operation_count() const {
-        return operations_.size();
-    }
+    std::size_t operation_count() const { return operations_.size(); }
 
-    const std::vector<Operation>& operations() const {
-        return operations_;
-    }
+    const std::vector<Operation>& operations() const { return operations_; }
 
     std::string operation_to_json(const Operation& operation) const {
         switch (operation.kind) {
@@ -524,8 +470,8 @@ public:
             }
             case OperationKind::Set: {
                 return std::string{"{\"set\":{\"key\":"} + detail::quote_json(operation.key) +
-                       ",\"datatype\":" + operation.value->datatype_json() + ",\"value\":" +
-                       operation.value->value_json() + "}}";
+                       ",\"datatype\":" + operation.value->datatype_json() +
+                       ",\"value\":" + operation.value->value_json() + "}}";
             }
             case OperationKind::SetMissing: {
                 return std::string{"{\"set_missing\":{\"key\":"} + detail::quote_json(operation.key) + "}}";
@@ -605,15 +551,12 @@ public:
         return {};
     }
 
-    bool operator==(const RecordingDictionary& other) const {
-        return compare(other).equal;
-    }
+    bool operator==(const RecordingDictionary& other) const { return compare(other).equal; }
 
-    bool operator!=(const RecordingDictionary& other) const {
-        return !(*this == other);
-    }
+    bool operator!=(const RecordingDictionary& other) const { return !(*this == other); }
 
 private:
+
     static ValuesSummary summarize_values(const std::vector<double>& value) {
         double sum = 0.0;
 
@@ -666,9 +609,7 @@ struct detail::RecordedTypeTraits<RecordingDictionary::MissingValueTag> {
         return R"({"type":"missing","rank":0,"size":0})";
     }
 
-    static std::string value_json(const RecordingDictionary::MissingValueTag&) {
-        return "null";
-    }
+    static std::string value_json(const RecordingDictionary::MissingValueTag&) { return "null"; }
 };
 
 template <>
@@ -676,8 +617,7 @@ struct detail::RecordedTypeTraits<RecordingDictionary::ValuesSummary> {
     static constexpr std::string_view category = "values-summary";
 
     static std::string datatype_json(const RecordingDictionary::ValuesSummary& value) {
-        return std::string{"{\"type\":\"double\",\"rank\":1,\"size\":"} + detail::numeric_to_json(value.size) +
-               '}';
+        return std::string{"{\"type\":\"double\",\"rank\":1,\"size\":"} + detail::numeric_to_json(value.size) + '}';
     }
 
     static std::string value_json(const RecordingDictionary::ValuesSummary& value) {
