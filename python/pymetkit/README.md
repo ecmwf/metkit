@@ -44,7 +44,7 @@ from pymetkit import ParamDB
 
 db = ParamDB()
 
-db.shortname_to_param_id("t")     # → 130
+db.shortname_to_param_id("msl")   # → 151  (unique shortname)
 db.param_id_to_shortname(130)     # → "t"
 db.shortname_to_longname("t")     # → "Temperature"
 db.param_id_to_longname(130)      # → "Temperature"
@@ -54,29 +54,100 @@ db.get_metadata(130)               # → full metadata dict
 
 ### Collision resolution
 
-Some shortnames appear in more than one GRIB table or originating centre.
-Pass `table=`, `origin=`, or `access=` to disambiguate:
+Some shortnames map to more than one param ID (different GRIB tables,
+originating centres, or MARS contexts). The resolver **never guesses**: if a
+shortname is ambiguous, `shortname_to_param_id` raises `AmbiguousParamError`
+carrying every candidate. Narrow the result with a MARS `context=` (resolved
+through the C++ `expand` engine) and/or the `table=` / `origin=` / `access=`
+hard filters.
+
+The signature is:
 
 ```python
-# Default: prefers dissemination params → ECMWF origin → lowest id
-db.shortname_to_param_id("tp")                    # → 228
+db.shortname_to_param_id(shortname, context=None, *, table=None, origin=None, access=None)
+```
 
-# Explicit table override
-db.shortname_to_param_id("tp", table=228)         # → 228228
+`context=` is a single dict of MARS keys. `table`, `origin` and `access` are
+**scalar** hard filters passed individually (not a dict) — e.g.
+`table=228, origin=98`.
 
-# Explicit origin (98 = ECMWF)
-db.shortname_to_param_id("t", origin=98)          # → 130
+```python
+from pymetkit import ParamDB, AmbiguousParamError
 
-# Access filter
-db.shortname_to_param_id("tp", access="dissemination")  # → 228
+db = ParamDB()
 
-# Inspect all candidates for a colliding shortname
+# No context argument → stays ambiguous → raises, error lists the candidates
+try:
+    db.shortname_to_param_id("tp")
+except AmbiguousParamError as e:
+    e.candidates
+    # [ParamIDCandidate(param_id=228,    table=128, ..., mars_request_context={}),
+    #  ParamIDCandidate(param_id=228228, table=228, ...,
+    #                   mars_request_context={'class': 'ai', 'levtype': 'sfc',
+    #                                         'type': 'fc'})]
+
+# An *explicit* empty context resolves to the canonical/default id via expand
+db.shortname_to_param_id("tp", context={})               # → 228
+
+# Partial MARS context (funnelled through expand; usually enough)
+db.shortname_to_param_id("tp", context={"class": "od"})  # → 228
+db.shortname_to_param_id("tp", context={"class": "ai", "stream": "oper",
+                                        "type": "fc", "levtype": "sfc"})  # → 228228
+
+# Hard metadata filters (no MARS request built) — combinable with context=
+db.shortname_to_param_id("tp", table=228)                # → 228228
+db.shortname_to_param_id("t", origin=98)                 # → 130
+
+# Programmatic discovery: every candidate + its selecting context
+db.shortname_to_param_id_candidates("tp")
+# [ParamIDCandidate(param_id=228, ...), ParamIDCandidate(param_id=228228, ...)]
+
+# Raw candidate rows
 db.get_all_by_shortname("tp")
 # [{'id': 228, 'shortname': 'tp', ...}, {'id': 228228, 'shortname': 'tp', ...}]
 
 db.shortname_has_collisions("tp")  # → True
-db.shortname_has_collisions("t")   # → False (only one candidate)
+db.shortname_has_collisions("msl") # → False (only one candidate)
 ```
+
+#### Understanding `mars_request_context`
+
+Each candidate advertises how to select it via its `mars_request_context`:
+
+| Value | Meaning | How to select |
+|-------|---------|---------------|
+| `{}` | This is the **default** candidate | `context={}` resolves to it |
+| `{...}` (non-empty) | Minimal distinguishing MARS context | pass it as `context=` |
+| `None` | **No** MARS context can isolate it | use the hard filters instead |
+
+When `mars_request_context is None`, use `candidate.hard_filter_selector` — a
+ready-to-splat dict of `table=` / `origin=` / `access=` kwargs:
+
+```python
+try:
+    db.shortname_to_param_id("sst")
+except AmbiguousParamError as e:
+    for c in e.candidates:
+        if c.mars_request_context is None:            # e.g. id=151159 (table 151)
+            db.shortname_to_param_id("sst", **c.hard_filter_selector)   # → 151159
+        else:                                         # id=34, mars_request_context={}
+            db.shortname_to_param_id("sst", context=c.mars_request_context)  # → 34
+```
+
+Across the full parameter database, of ~7,150 shortnames **97.7 % are
+unambiguous**; of the 162 real collisions, **155 resolve** with
+`context`/`table`/`origin`/`access`, and only **7** (e.g. `cdct`, `tcond`,
+`swdi`, `ru-103`) are same-table/origin twins that no filter can separate.
+
+> **Note:** `context=` is resolved by the C++ `expand` engine, which reads its
+> language files from `~metkit/share/metkit`. Set `METKIT_HOME=<repo root>` to
+> resolve against the in-repo `share/metkit`. A non-empty
+> `mars_request_context` is the smallest MARS key-subset that actually
+> round-trips through `expand` to that id; `context={}` maps to the canonical
+> default. Without the C++ library the `context=` path is unavailable, but the
+> `table`/`origin`/`access` hard filters still work.
+
+
 
 ### Online mode (live API + local cache)
 

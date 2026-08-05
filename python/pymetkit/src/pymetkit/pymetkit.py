@@ -3,7 +3,7 @@ import os
 import importlib.resources
 from cffi import FFI
 import findlibs
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from itertools import combinations
 from typing import IO, Iterator
@@ -62,15 +62,35 @@ class ParamIDCandidate:
     mars_request_context:
         The minimal set of MARS key/value pairs that, when passed as
         ``context=`` to :meth:`ParamDB.shortname_to_param_id`, selects this
-        candidate (e.g. ``{"class": "ai"}``). Empty if no baked context is
-        recorded or if no key-subset uniquely distinguishes this candidate.
+        candidate (e.g. ``{"class": "ai"}``). Special values:
+
+        * ``{}`` — this candidate is the **default**: an empty ``context={}``
+          resolves to it via the C++ ``expand`` layer.
+        * ``None`` — **no** MARS context can select this candidate; use the
+          hard filters instead (see :attr:`hard_filter_selector`, typically
+          ``table=<table>``).
     """
 
     param_id: int
     table: int
     origin: "list[int]"
     access: "list[str]"
-    mars_request_context: dict = field(default_factory=dict)
+    mars_request_context: "dict | None" = None
+
+    @property
+    def hard_filter_selector(self) -> dict:
+        """Hard-filter kwargs that select this candidate when no MARS context can.
+
+        Returns the ``table``/``origin``/``access`` filter arguments to pass to
+        :meth:`ParamDB.shortname_to_param_id` — useful when
+        :attr:`mars_request_context` is ``None`` (context cannot disambiguate).
+        """
+        sel: dict = {"table": self.table}
+        if self.origin:
+            sel["origin"] = self.origin[0]
+        if self.access:
+            sel["access"] = self.access[0]
+        return sel
 
 
 class AmbiguousParamError(KeyError):
@@ -742,7 +762,7 @@ class ParamDB:
 
     def _minimal_distinguishing_context(
         self, entry: dict, siblings: "list[dict]", shortname: str
-    ) -> dict:
+    ) -> "dict | None":
         """Return the smallest MARS key-subset that selects *entry* over siblings.
 
         Searches the key-subsets of *entry*'s baked ``mars_request_context``
@@ -758,11 +778,22 @@ class ParamDB:
         Offline (no library), it falls back to a set-membership heuristic
         against the baked contexts of the sibling candidates.
 
-        Returns ``{}`` if no subset uniquely distinguishes *entry* (residual
-        ambiguity) or if *entry* has no baked context.
+        Returns
+        -------
+        dict | None
+            * ``{}`` — *entry* is the default: an empty ``context={}`` already
+              resolves uniquely to it (oracle only).
+            * a non-empty dict — the minimal distinguishing MARS context.
+            * ``None`` — no MARS context can uniquely select *entry* (residual
+              ambiguity, or no baked context / no oracle).
         """
         entry_id = int(entry["id"])
         use_oracle = lib is not None
+
+        # Oracle: is this the default candidate? An empty context resolving
+        # uniquely to this id means ``context={}`` selects it.
+        if use_oracle and self._context_resolved_ids(shortname, {}) == {entry_id}:
+            return {}
 
         other_contexts: list[dict] = []
         if not use_oracle:
@@ -794,7 +825,7 @@ class ParamDB:
                 if found_at_size is not None:
                     best = found_at_size
                     break
-        return best or {}
+        return best  # None when nothing distinguishes *entry*
 
     def _make_candidate(
         self,
@@ -806,14 +837,14 @@ class ParamDB:
         """Build a :class:`ParamIDCandidate` from a metadata *entry*.
 
         When *minimal* is ``False`` the (expensive, expand-oracle) minimal
-        distinguishing context is skipped and left empty — used when the entry
-        is already unambiguous so no disambiguating context is required.
+        distinguishing context is skipped and left as ``None`` — used when the
+        entry is already unambiguous so no disambiguating context is required.
         """
         param_id = int(entry["id"])
         ctx = (
             self._minimal_distinguishing_context(entry, siblings, shortname)
             if minimal
-            else {}
+            else None
         )
         return ParamIDCandidate(
             param_id=param_id,
@@ -825,11 +856,15 @@ class ParamDB:
 
     @staticmethod
     def _candidate_sort_key(cand: ParamIDCandidate) -> tuple:
+        # None (no context) sorts after {} (default) and any real context.
+        ctx = cand.mars_request_context
+        ctx_none = ctx is None
         return (
             cand.table,
             tuple(sorted(cand.origin)),
             tuple(sorted(cand.access)),
-            tuple(sorted((str(k), str(v)) for k, v in cand.mars_request_context.items())),
+            ctx_none,
+            tuple(sorted((str(k), str(v)) for k, v in (ctx or {}).items())),
             cand.param_id,
         )
 
@@ -1220,7 +1255,12 @@ class ParamDB:
             entries = [e for e in entries if access in e.get("access_ids", [])]
 
         # --- MARS context filter (C++ expand, with offline fallback) -------
-        if context:
+        # ``context is not None`` (rather than truthiness) so an *explicit*
+        # empty ``context={}`` still runs ``expand``: that resolves the
+        # shortname to its canonical/default paramid via the C++ layer. A bare
+        # ``context=None`` (no context argument) skips this and leaves the
+        # collision ambiguous, as documented.
+        if context is not None:
             resolved = self._context_resolved_ids(shortname, context)
             if resolved is not None:
                 entries = [e for e in entries if int(e["id"]) in resolved]

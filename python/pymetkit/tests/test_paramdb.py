@@ -800,11 +800,45 @@ def test_context_and_filter_combined(db):
 
 @_needs_lib
 def test_candidate_context_roundtrips(db):
-    """Each candidate's advertised minimal context resolves back to its own id."""
+    """Each candidate's advertised context selects its own id.
+
+    ``{}`` (default) and any non-empty context must round-trip through
+    ``context=``; a ``None`` context means no MARS context can select it, so
+    it is validated via its hard-filter selector instead.
+    """
     for cand in db.shortname_to_param_id_candidates("tp"):
-        assert cand.mars_request_context, f"expected non-empty ctx for {cand.param_id}"
-        got = db.shortname_to_param_id("tp", context=cand.mars_request_context)
+        if cand.mars_request_context is None:
+            got = db.shortname_to_param_id("tp", **cand.hard_filter_selector)
+        else:
+            got = db.shortname_to_param_id("tp", context=cand.mars_request_context)
         assert got == cand.param_id
+
+
+@_needs_lib
+def test_empty_context_resolves_default_but_bare_raises(db):
+    """context={} resolves the canonical id; no context stays ambiguous."""
+    from pymetkit import AmbiguousParamError
+
+    # explicit empty context -> canonical/default via C++ expand
+    assert db.shortname_to_param_id("sst", context={}) == 34
+    assert db.shortname_to_param_id("tp", context={}) == 228
+    # no context argument -> still ambiguous
+    with pytest.raises(AmbiguousParamError):
+        db.shortname_to_param_id("sst")
+
+
+@_needs_lib
+def test_candidate_context_none_and_default(db):
+    """The default candidate carries {}, context-irreducible ones carry None."""
+    from pymetkit import AmbiguousParamError
+
+    try:
+        db.shortname_to_param_id("sst")
+    except AmbiguousParamError as e:
+        by_id = {c.param_id: c for c in e.candidates}
+        assert by_id[34].mars_request_context == {}          # default
+        assert by_id[151159].mars_request_context is None    # no MARS context
+        assert by_id[151159].hard_filter_selector["table"] == 151
 
 
 def test_get_all_by_shortname_unique_shortname(db):
