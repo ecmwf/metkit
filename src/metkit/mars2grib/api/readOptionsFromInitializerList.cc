@@ -147,6 +147,11 @@ void applyOption(Options& opts, std::string_view key, const eckit::Value& value)
         return;
     }
 
+    if (key == "allowMissingTimespanForStatisticalProduct") {
+        opts.allowMissingTimespanForStatisticalProduct = readBool(key, value);
+        return;
+    }
+
     throw exceptions::Mars2GribDictException("Unknown Mars2Grib option `" + std::string(key) + "`", Here());
 }
 

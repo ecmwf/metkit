@@ -9,22 +9,16 @@
  */
 
 ///
-/// @file SeasonalSingleLoop.h
-/// @brief Matcher and leaf builder for a seasonal single-loop statistic.
+/// @file SeasonalMultiloop.h
+/// @brief Matcher and placeholder leaf builder for a seasonal multi-loop statistic.
 ///
 /// This header is the authoritative implementation of the
-/// `SeasonalSingleLoop` ProductTimeSpec shape. It deliberately owns both the
+/// `SeasonalMultiloop` ProductTimeSpec shape. It deliberately owns both the
 /// matcher and the leaf builder for this case.
 ///
 /// The matcher exposes each structural and regime condition through a
-/// semantically named Boolean. The builder keeps the full window-construction
-/// flow local: range selection, shape-specific validation, increment
-/// resolution, window creation, and ordering are visible here.
-///
-/// Only genuinely cross-cutting semantics such as `typeOfTimeIncrement`,
-/// default increment deduction, and temporal arithmetic are delegated. All
-/// failures are nested in `Mars2GribModelException` with the normalized input
-/// snapshot.
+/// semantically named Boolean. The builder is intentionally a placeholder until
+/// the full seasonal multi-loop construction semantics are implemented.
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
 ///
@@ -37,17 +31,15 @@
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeUtils.h"
-#include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 
 /**
- * @brief Match a seasonal single-loop statistical representation.
+ * @brief Match a seasonal multi-loop statistical representation.
  *
  * The shape matches when:
  *
@@ -55,22 +47,20 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * - the normalized input is seasonal;
  * - the product is not synoptic;
  * - MARS semantics classify the product as forecast;
- * - `timespan` is explicitly `none`, or it is missing and accepted by the
- *   shape policy;
- * - no outer `stattype` blocks are present.
+ * - `timespan` contains the inner-loop duration;
+ * - one or more outer `stattype` blocks are present.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
  * @param[in] domainClassification Previously resolved domain classification.
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_SeasonalSingleLoop_Shape(
+inline bool match_SeasonalMultiloop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
     using metkit::mars2grib::backend::deductions::SimulationType;
+    using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
-    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
-    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -78,57 +68,39 @@ inline bool match_SeasonalSingleLoop_Shape(
         const bool isSeasonal                = product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic             = !input.isSynoptic;
         const bool isForecast                = input.simulationType == SimulationType::Forecast;
-        const bool hasAcceptedTimespanRepresentation =
-            timespanIsNone(input) ||
-            timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
-        const bool hasNoStattypeBlocks = input.stattype.empty();
+        const bool hasDurationTimespan       = input.timespan.kind == TimespanKind::Duration;
+        const bool hasOuterStattypeBlocks    = !input.stattype.empty();
 
-        return hasSeasonalForecastDomain && isSeasonal && isNotSynoptic && isForecast &&
-               hasAcceptedTimespanRepresentation && hasNoStattypeBlocks;
+        return hasSeasonalForecastDomain && isSeasonal && isNotSynoptic && isForecast && hasDurationTimespan &&
+               hasOuterStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_SeasonalSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_SeasonalMultiloop_Shape`", input.to_json(), Here()));
     }
 }
 
 /**
- * @brief Build one canonical seasonal statistical window.
- *
- * The builder keeps the complete high-level flow visible:
- *
- * 1. use the intrinsic one-calendar-month seasonal window range;
- * 2. resolve explicit, missing, or defaulted increment semantics;
- * 3. construct the canonical window directly;
- * 4. return the one-element window vector.
+ * @brief Placeholder builder for the seasonal multi-loop shape.
  *
  * @param[in] input Fully normalized ProductTimeSpec input and embedded options.
  * @param[in] domain Already constructed absolute seasonal ProductTimeSpec domain.
- * @return One canonical seasonal statistical window.
- * @throws Mars2GribModelException If range or increment resolution fails.
+ * @return Never returns.
+ * @throws Mars2GribModelException Always, because this shape is not implemented yet.
  */
-inline std::vector<ProductTimeSpecWindow> build_SeasonalSingleLoop_Shape(
+inline std::vector<ProductTimeSpecWindow> build_SeasonalMultiloop_Shape(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::backend::deductions::TimeDuration;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-    using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
     try {
-        const TimeDuration timeRange = oneMonth();
+        (void)domain;
 
-        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, domain, timeRange, false);
-
-        ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
-                                     timeRange, resolvedIncrement.timeIncrement};
-
-        return {window};
+        throw Mars2GribModelException("SeasonalMultiloop shape is not implemented yet", input.to_json(), Here());
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_SeasonalSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_Shape`", input.to_json(), Here()));
     }
 }
 

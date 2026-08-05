@@ -149,6 +149,11 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
             dict::get_or_throw<bool>(conf, "allowMissingTimespanForInstantProduct");
     }
 
+    if (dict::has(conf, "allowMissingTimespanForStatisticalProduct")) {
+        opts.allowMissingTimespanForStatisticalProduct =
+            dict::get_or_throw<bool>(conf, "allowMissingTimespanForStatisticalProduct");
+    }
+
     return opts;
 }
 

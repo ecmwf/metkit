@@ -24,24 +24,24 @@
 /// | Shape case | Regime | Domain kind | Synoptic | `timespan.kind` | `stattype` | `timeIncrement` expectation |
 /// Fake-double-loop flag | Fake-second-loop flag |
 /// |------------|--------|-------------|----------|------------------|------------|-----------------------------|----------------------|----------------------|
-/// | `InstantTimespanMissing` | any | any | any | `Missing` | empty | redundant values validated later | n/a | n/a |
-/// | `InstantTimespanNone` | any | any | any | `None` | empty | redundant values validated later | n/a | n/a |
-/// | `IFSStandardSingleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit,
-/// missing, or defaulted | `false` | `false` | | `IFSFakeDoubleLoopSingleLoop` | `IFS` | `ForecastDomain` |
-/// `false` | `None` | exactly one block | explicit, missing, or defaulted | `true` | `false` | |
+/// | `Instant` | any | any | any | `None`, or `Missing` when allowed | empty | redundant values validated later | n/a |
+/// n/a | | `IFSStandardSingleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or
+/// defaulted | `false` | `false` | | `IFSFakeDoubleLoopSingleLoop` | `IFS` | `ForecastDomain` | `false` | `None`, or
+/// `Missing` when allowed | exactly one block | explicit, missing, or defaulted | `true` | `false` | |
 /// `IFSFromStartSingleLoopAtZero` | `IFS` | `ForecastDomain` | `false` | `FromStart` | empty |
 /// explicit, missing, or defaulted | n/a | n/a | | `IFSFromStartSingleLoopPositive` | `IFS` | `ForecastDomain` |
 /// `false` | `FromStart` | empty | explicit, missing, or defaulted | n/a | n/a | | `IFSSynopticSingleLoop` |
 /// `IFS` | `SynopticAnalysisDomain` | `true` | synoptic-supported source | empty | intrinsic or redundant 24h value |
 /// n/a | n/a | | `AIFSStandardSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `Duration` | empty | must be missing
-/// | `false` | `false` | | `AIFSFakeDoubleLoopSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `None` | exactly one
-/// block | must be missing | `true` | n/a | | `AIFSFromStartSingleLoopAtZero` | `AIFS` | `ForecastDomain` | `false` |
-/// `FromStart` | empty | must be missing | n/a | n/a | | `AIFSFromStartSingleLoopPositive` | `AIFS` | `ForecastDomain`
-/// | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `SeasonalSingleLoop` | any |
-/// `SeasonalForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | n/a | n/a | |
-/// `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | one or more blocks | explicit, missing,
-/// or defaulted | n/a | n/a | | `IFSFakeSingleLoopDoubleLoop` | `IFS` | `ForecastDomain` | `false` | `Duration` | empty
-/// | explicit, missing, or defaulted | `false` | `true` |
+/// | `false` | `false` | | `AIFSFakeDoubleLoopSingleLoop` | `AIFS` | `ForecastDomain` | `false` | `None`, or `Missing`
+/// when allowed | exactly one block | must be missing | `true` | n/a | | `AIFSFromStartSingleLoopAtZero` | `AIFS` |
+/// `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `AIFSFromStartSingleLoopPositive`
+/// | `AIFS` | `ForecastDomain` | `false` | `FromStart` | empty | must be missing | n/a | n/a | | `SeasonalSingleLoop` |
+/// any | `SeasonalForecastDomain` | `false` | `None`, or `Missing` when allowed | empty | explicit, missing, or
+/// defaulted | n/a | n/a | | `SeasonalMultiloop` | any | `SeasonalForecastDomain` | `false` | `Duration` | one or more
+/// blocks | explicit, missing, or defaulted | n/a | n/a | | `IFSStandardMultiLoop` | `IFS` | `ForecastDomain` | `false`
+/// | `Duration` | one or more blocks | explicit, missing, or defaulted | n/a | n/a | | `IFSFakeSingleLoopDoubleLoop` |
+/// `IFS` | `ForecastDomain` | `false` | `Duration` | empty | explicit, missing, or defaulted | `false` | `true` |
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
 ///
@@ -59,8 +59,8 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSStandardMultiLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSStandardSingleLoop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/IFSSynopticSingleLoop.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/InstantTimespanMissing.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/InstantTimespanNone.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/Instant.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/SeasonalMultiloop.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/impl/SeasonalSingleLoop.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape {
@@ -93,10 +93,7 @@ struct ShapeCase {
 
 /// @brief Immutable shape registry ordered exactly like `ProductTimeSpecShapeKind`.
 inline constexpr std::array<ShapeCase, static_cast<std::size_t>(ProductTimeSpecShapeKind::Count)> shapeCases{{
-    {ProductTimeSpecShapeKind::InstantTimespanMissing, "InstantTimespanMissing", &match_InstantTimespanMissing_Shape,
-     &build_InstantTimespanMissing_Shape},
-    {ProductTimeSpecShapeKind::InstantTimespanNone, "InstantTimespanNone", &match_InstantTimespanNone_Shape,
-     &build_InstantTimespanNone_Shape},
+    {ProductTimeSpecShapeKind::Instant, "Instant", &match_Instant_Shape, &build_Instant_Shape},
     {ProductTimeSpecShapeKind::IFSStandardSingleLoop, "IFSStandardSingleLoop", &match_IFSStandardSingleLoop_Shape,
      &build_IFSStandardSingleLoop_Shape},
     {ProductTimeSpecShapeKind::IFSFakeDoubleLoopSingleLoop, "IFSFakeDoubleLoopSingleLoop",
@@ -117,6 +114,8 @@ inline constexpr std::array<ShapeCase, static_cast<std::size_t>(ProductTimeSpecS
      &match_AIFSFromStartSingleLoopPositive_Shape, &build_AIFSFromStartSingleLoopPositive_Shape},
     {ProductTimeSpecShapeKind::SeasonalSingleLoop, "SeasonalSingleLoop", &match_SeasonalSingleLoop_Shape,
      &build_SeasonalSingleLoop_Shape},
+    {ProductTimeSpecShapeKind::SeasonalMultiloop, "SeasonalMultiloop", &match_SeasonalMultiloop_Shape,
+     &build_SeasonalMultiloop_Shape},
     {ProductTimeSpecShapeKind::IFSStandardMultiLoop, "IFSStandardMultiLoop", &match_IFSStandardMultiLoop_Shape,
      &build_IFSStandardMultiLoop_Shape},
     {ProductTimeSpecShapeKind::IFSFakeSingleLoopDoubleLoop, "IFSFakeSingleLoopDoubleLoop",

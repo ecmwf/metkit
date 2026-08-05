@@ -31,12 +31,11 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape {
 /// the final ProductTimeSpec representation.
 ///
 /// The active cases are grouped as follows:
-/// - instant-product representations distinguished by source `timespan`
-///   encoding;
+/// - instant-product representations;
 /// - IFS single-loop and multi-loop statistical representations;
 /// - AIFS single-loop statistical representations whose increment semantics are
 ///   always missing;
-/// - seasonal single-loop forecast representations bound to the dedicated
+/// - seasonal forecast representations bound to the dedicated
 ///   `SeasonalForecastDomain`;
 /// - from-start variants distinguished by zero-length versus positive-step
 ///   semantics;
@@ -46,8 +45,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape {
 /// `Count` is a sentinel used exclusively to size the registry.
 ///
 enum class ProductTimeSpecShapeKind : std::size_t {
-    InstantTimespanMissing,
-    InstantTimespanNone,
+    Instant,
 
     IFSStandardSingleLoop,
     IFSFakeDoubleLoopSingleLoop,
@@ -61,6 +59,7 @@ enum class ProductTimeSpecShapeKind : std::size_t {
     AIFSFromStartSingleLoopPositive,
 
     SeasonalSingleLoop,
+    SeasonalMultiloop,
 
     IFSStandardMultiLoop,
     IFSFakeSingleLoopDoubleLoop,
@@ -106,10 +105,8 @@ struct ProductTimeSpecShape {
 inline std::string productTimeSpecShapeTypeName(ProductTimeSpecShapeKind value) {
 
     switch (value) {
-        case ProductTimeSpecShapeKind::InstantTimespanMissing:
-            return "InstantTimespanMissing";
-        case ProductTimeSpecShapeKind::InstantTimespanNone:
-            return "InstantTimespanNone";
+        case ProductTimeSpecShapeKind::Instant:
+            return "Instant";
 
         case ProductTimeSpecShapeKind::IFSStandardSingleLoop:
             return "IFSStandardSingleLoop";
@@ -133,6 +130,8 @@ inline std::string productTimeSpecShapeTypeName(ProductTimeSpecShapeKind value) 
 
         case ProductTimeSpecShapeKind::SeasonalSingleLoop:
             return "SeasonalSingleLoop";
+        case ProductTimeSpecShapeKind::SeasonalMultiloop:
+            return "SeasonalMultiloop";
 
         case ProductTimeSpecShapeKind::IFSStandardMultiLoop:
             return "IFSStandardMultiLoop";

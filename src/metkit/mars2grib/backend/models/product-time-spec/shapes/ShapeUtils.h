@@ -27,11 +27,55 @@
 #include <algorithm>
 #include <array>
 
+#include "metkit/mars2grib/backend/deductions/common.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
+
+/**
+ * @brief Test whether the normalized `timespan` is explicitly `none`.
+ *
+ * @param[in] input Fully normalized ProductTimeSpec input.
+ * @return `true` when `timespan.kind` is `None`; otherwise `false`.
+ * @throws Mars2GribModelException If evaluation unexpectedly fails.
+ */
+inline bool timespanIsNone(const ProductTimeSpecInput& input) {
+    using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        return input.timespan.kind == TimespanKind::None;
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `timespanIsNone`", input.to_json(), Here()));
+    }
+}
+
+/**
+ * @brief Test whether the normalized `timespan` is missing and accepted by the caller.
+ *
+ * @param[in] input Fully normalized ProductTimeSpec input.
+ * @param[in] allowMissingTimespan Caller-specific policy deciding whether the
+ *            missing representation is accepted for the inspected shape.
+ * @return `true` when `timespan.kind` is `Missing` and the caller allows it;
+ *         otherwise `false`.
+ * @throws Mars2GribModelException If evaluation unexpectedly fails.
+ */
+inline bool timespanIsMissingAndAllowed(const ProductTimeSpecInput& input, const bool allowMissingTimespan) {
+    using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        return input.timespan.kind == TimespanKind::Missing && allowMissingTimespan;
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to execute `timespanIsMissingAndAllowed`", input.to_json(), Here()));
+    }
+}
 
 /**
  * @brief Verify whether the innermost statistical processing is allowed at step zero.

@@ -237,6 +237,9 @@ struct ProductTimeSpecInput {
     /// @brief Permit missing `timespan` as the instant-product representation.
     bool allowMissingTimespanForInstantProduct{false};
 
+    /// @brief Permit missing `timespan` as a compatibility form for eligible statistical products.
+    bool allowMissingTimespanForStatisticalProduct{false};
+
     /// @brief Caller-supplied innermost statistical processing type.
     tables::TypeOfStatisticalProcessing innerMostTypeOfStatisticalProcessing{
         tables::TypeOfStatisticalProcessing::Missing};
@@ -294,6 +297,8 @@ struct ProductTimeSpecInput {
                 << (allowRedundantTimeIncrement ? "true" : "false") << ','
                 << detail::jsonQuote_modelInput("allowMissingTimespanForInstantProduct") << ':'
                 << (allowMissingTimespanForInstantProduct ? "true" : "false") << ','
+                << detail::jsonQuote_modelInput("allowMissingTimespanForStatisticalProduct") << ':'
+                << (allowMissingTimespanForStatisticalProduct ? "true" : "false") << ','
                 << detail::jsonQuote_modelInput("innerMostTypeOfStatisticalProcessing") << ':'
                 << detail::jsonQuote_modelInput(
                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerMostTypeOfStatisticalProcessing))
@@ -382,7 +387,9 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
             get_or_throw<bool>(opt, "allowNonEnumeratedPositiveIntegerTimespanHours");
         input.allowRedundantTimeIncrement           = get_or_throw<bool>(opt, "allowRedundantTimeIncrement");
         input.allowMissingTimespanForInstantProduct = get_or_throw<bool>(opt, "allowMissingTimespanForInstantProduct");
-        input.innerMostTypeOfStatisticalProcessing  = innerMostTypeOfStatisticalProcessing;
+        input.allowMissingTimespanForStatisticalProduct =
+            get_or_throw<bool>(opt, "allowMissingTimespanForStatisticalProduct");
+        input.innerMostTypeOfStatisticalProcessing = innerMostTypeOfStatisticalProcessing;
 
 
         MARS2GRIB_LOG_RESOLVE(

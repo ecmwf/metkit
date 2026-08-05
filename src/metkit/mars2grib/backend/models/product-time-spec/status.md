@@ -86,17 +86,17 @@ Remaining change:
 
 - stop duplicating raw step/fcmonth predicates
 
-### 4. Seasonal shape does not exist yet
+### 4. Seasonal shape support is expanding
 
-There is currently no `SeasonalSingleLoop` case in:
+Seasonal support now needs to cover:
 
-- `ShapeDataTypes.h`
-- `ShapeRegistry.h`
+- `SeasonalSingleLoop`
+- `SeasonalMultiloop`
 
 Required change:
 
-- add `SeasonalSingleLoop`
-- implement matcher/builder file
+- keep `SeasonalSingleLoop` monthly
+- add `SeasonalMultiloop` matcher and placeholder builder
 
 ## Files Expected To Change
 
@@ -111,6 +111,7 @@ Required change:
 - `backend/models/product-time-spec/shapes/ShapeDataTypes.h`
 - `backend/models/product-time-spec/shapes/ShapeRegistry.h`
 - `backend/models/product-time-spec/shapes/impl/SeasonalSingleLoop.h`
+- `backend/models/product-time-spec/shapes/impl/SeasonalMultiloop.h`
 
 ### Medium priority cleanup
 
@@ -136,8 +137,8 @@ For the current iteration:
 
 ## Open Technical Risk
 
-The new `SeasonalSingleLoop` matcher must be specific enough to avoid shape
-classification overlap.
+The seasonal matchers must be specific enough to avoid shape classification
+overlap.
 
 `isSeasonal(input)` alone is not sufficient as a full matcher.
 
@@ -146,12 +147,12 @@ as:
 
 - forecast semantics
 - non-synoptic semantics
-- duration-valued `timespan`
+- accepted `timespan` compatibility form (`none`, or missing when allowed)
 - no `stattype` blocks
 
 ## Recommended Next Steps
 
 1. Review shape/domain-kind interactions now that `SeasonalForecastDomain` exists.
-2. Add `SeasonalSingleLoop`.
+2. Add `SeasonalSingleLoop` and `SeasonalMultiloop`.
 3. Replace duplicated raw step checks with helper calls.
 4. Update remaining documentation.

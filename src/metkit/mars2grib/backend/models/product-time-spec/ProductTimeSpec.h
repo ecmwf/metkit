@@ -330,7 +330,7 @@ private:
 
     struct ProductTimeSpecComponents {
         anchor::ProductTimeSpecAnchorKind anchorType{anchor::ProductTimeSpecAnchorKind::ForecastAnalysis};
-        shape::ProductTimeSpecShapeKind shapeType{shape::ProductTimeSpecShapeKind::InstantTimespanMissing};
+        shape::ProductTimeSpecShapeKind shapeType{shape::ProductTimeSpecShapeKind::Instant};
         domain::ProductTimeSpecDomainKind domainType{domain::ProductTimeSpecDomainKind::ForecastDomain};
         anchor::ProductTimeSpecAnchor anchor{};
         domain::ProductTimeSpecDomain domain{};

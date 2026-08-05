@@ -113,8 +113,7 @@ inline StatisticsProductTimeSpec build_StatisticsProductTimeSpec_or_throw(
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        if (spec.shapeType() == ProductTimeSpecShapeKind::InstantTimespanMissing ||
-            spec.shapeType() == ProductTimeSpecShapeKind::InstantTimespanNone) {
+        if (spec.shapeType() == ProductTimeSpecShapeKind::Instant) {
             throw Mars2GribGenericException(
                 "Statistics backend cannot build a `StatisticsProductTimeSpec` from an Instant `ProductTimeSpec`",
                 Here());

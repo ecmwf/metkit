@@ -55,6 +55,7 @@ inline constexpr bool allowExtendedSetOfOperationsForZeroLengthFsWindow = false;
 inline constexpr bool allowNonEnumeratedPositiveIntegerTimespanHours    = false;
 inline constexpr bool allowRedundantTimeIncrement                       = true;
 inline constexpr bool allowMissingTimespanForInstantProduct             = true;
+inline constexpr bool allowMissingTimespanForStatisticalProduct         = false;
 
 }  // namespace defaults
 
@@ -232,6 +233,21 @@ struct Options {
     /// @default false
     ///
     bool allowMissingTimespanForInstantProduct = defaults::allowMissingTimespanForInstantProduct;
+
+    ///
+    /// @brief Allow a missing `timespan` to represent selected statistical products.
+    ///
+    /// The normative statistical representations keep an explicit `timespan`
+    /// source. Enabling this option accepts the compatibility representation in
+    /// which `timespan` is missing for eligible statistical shapes whose
+    /// canonical window construction does not need the source `timespan` value.
+    ///
+    /// ProductTimeSpec remains responsible for deciding which statistical shape
+    /// families may use this compatibility policy.
+    ///
+    /// @default false
+    ///
+    bool allowMissingTimespanForStatisticalProduct = defaults::allowMissingTimespanForStatisticalProduct;
 };
 
 }  // namespace metkit::mars2grib
