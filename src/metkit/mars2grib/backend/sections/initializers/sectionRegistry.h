@@ -77,6 +77,7 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
 inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = {
     {1, &allocateTemplateNumber2<2, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {15, &allocateTemplateNumber2<2, 15, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {16, &allocateTemplateNumber2<2, 16, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {20, &allocateTemplateNumber2<2, 20, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {24, &allocateTemplateNumber2<2, 24, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {25, &allocateTemplateNumber2<2, 25, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},

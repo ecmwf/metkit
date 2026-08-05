@@ -83,7 +83,8 @@ inline constexpr std::string_view longrangeName{"longrange"};
 /// tables and registries.
 ///
 enum class LongrangeType : std::size_t {
-    Default = 0
+    SeasonalForecast = 0,
+    SeasonalForecastMonthlyMean
 };
 
 
@@ -99,7 +100,7 @@ enum class LongrangeType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using LongrangeList = ValueList<LongrangeType::Default>;
+using LongrangeList = ValueList<LongrangeType::SeasonalForecast, LongrangeType::SeasonalForecastMonthlyMean>;
 
 
 ///
@@ -129,7 +130,8 @@ constexpr std::string_view longrangeTypeName();
         return NAME;                                    \
     }
 
-DEF(LongrangeType::Default, "default");
+DEF(LongrangeType::SeasonalForecast, "seasonal-forecast");
+DEF(LongrangeType::SeasonalForecastMonthlyMean, "seasonal-forecast-monthly-mean");
 
 #undef DEF
 

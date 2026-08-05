@@ -40,8 +40,10 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @brief Match the `longrange` concept variant.
 ///
-/// The concept is active as `LongrangeType::Default` when both `method` and
-/// `system` are present in the MARS request.
+/// The concept is active when both `method` and
+/// `system` are present in the MARS request; When stream is equal to "" or ""
+/// then the concept is active with the variant LongrangeType::SeasonalForecastMonthlyMean,
+/// otherwise the concept is active with the variant LongrangeType::SeasonalForecast.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -49,7 +51,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @param[in] mars MARS input dictionary
 /// @param[in] opt  Options dictionary
 ///
-/// @return Local variant index for `LongrangeType::Default`, or
+/// @return Local variant index for `LongrangeType::SeasonalForecast`, or
 /// `compile_time_registry_engine::MISSING` when the concept is inactive.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
@@ -59,10 +61,19 @@ namespace metkit::mars2grib::backend::concepts_ {
 template <class MarsDict_t, class OptDict_t>
 std::size_t longrangeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
+        using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
+        const auto marsStream = get_or_throw<std::string>(mars, "stream");
         if (has(mars, "method") && has(mars, "system")) {
-            return static_cast<size_t>(LongrangeType::Default);
+
+            /// @todo review this logic
+            if (has(mars, "fcmonth") && (marsStream == "sfmd" || marsStream == "xxx")) {
+                return static_cast<size_t>(LongrangeType::SeasonalForecastMonthlyMean);
+            }
+            else {
+                return static_cast<size_t>(LongrangeType::SeasonalForecast);
+            }
         }
 
         return compile_time_registry_engine::MISSING;

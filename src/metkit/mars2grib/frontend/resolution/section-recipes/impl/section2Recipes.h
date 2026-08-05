@@ -29,7 +29,14 @@ inline const Recipe S2_R1 =
 inline const Recipe S2_R15 =
     make_recipe<15,
         Select<MarsConcept>,
-        Select<LongrangeConcept>
+        Select<LongrangeConcept, LongrangeType::SeasonalForecast>
+    >();
+
+// Long-range products
+inline const Recipe S2_R16 =
+    make_recipe<16,
+        Select<MarsConcept>,
+        Select<LongrangeConcept, LongrangeType::SeasonalForecastMonthlyMean>
     >();
 
 // 4i related products
@@ -133,6 +140,7 @@ inline const Recipes Section2Recipes{ 2,
     std::vector<const Recipe*>{
         &S2_R1,
         &S2_R15,
+        &S2_R16,
         &S2_R20,
         &S2_R24,
         &S2_R25,
