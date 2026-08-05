@@ -34,7 +34,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeUtils.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -50,7 +50,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * - the resolved domain classification is `ForecastDomain`;
  * - the normalized input is not seasonal;
  * - the product is not synoptic;
- * - `timespan` is `none`;
+ * - `timespan` is explicitly `none`, or it is missing and accepted by the
+ *   shape policy;
  * - exactly one `stattype` block is present;
  * - the product belongs to the fake-double-loop whitelist.
  *
@@ -63,23 +64,26 @@ inline bool match_IFSFakeDoubleLoopSingleLoop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
-    using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
 
-        const bool isIfs                                  = input.regime == SimulationRegime::IFS;
-        const bool hasForecastDomain                      = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
-        const bool isNotSeasonal                          = !product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic                          = !input.isSynoptic;
-        const bool timespanIsNone                         = input.timespan.kind == TimespanKind::None;
+        const bool isIfs             = input.regime == SimulationRegime::IFS;
+        const bool hasForecastDomain = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal     = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic     = !input.isSynoptic;
+        const bool hasAcceptedTimespanRepresentation =
+            timespanIsNone(input) ||
+            timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasExactlyOneStattypeBlock             = input.stattype.size() == 1;
         const bool requiresFakeSecondLoop                 = input.requiresFakeSingleLoopDoubleLoopRepresentation;
         const bool requiresFakeDoubleLoop                 = input.requiresFakeDoubleLoopSingleLoopRepresentation;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
-        return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && timespanIsNone &&
+        return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && hasAcceptedTimespanRepresentation &&
                hasExactlyOneStattypeBlock && requiresFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
     }
     catch (...) {

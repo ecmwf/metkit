@@ -9,21 +9,25 @@
  */
 
 ///
-/// @file InstantTimespanMissing.h
-/// @brief Matcher and leaf builder for an instant product whose timespan is missing.
+/// @file Instant.h
+/// @brief Matcher and leaf builder for an instant product.
 ///
-/// This header is the authoritative implementation of the `InstantTimespanMissing` ProductTimeSpec shape. It
-/// deliberately owns both the matcher and the leaf builder for this case.
+/// This header is the authoritative implementation of the `Instant`
+/// ProductTimeSpec shape. It deliberately owns both the matcher and the leaf
+/// builder for this case.
 ///
-/// The matcher exposes each structural and regime condition through a semantically named Boolean. The builder keeps the
-/// full window-construction flow local: range selection, shape-specific validation, increment resolution, window
-/// creation, and ordering are visible here.
+/// The matcher exposes each structural and regime condition through a
+/// semantically named Boolean. The builder keeps the full window-construction
+/// flow local: range selection, shape-specific validation, increment
+/// resolution, window creation, and ordering are visible here.
 ///
-/// Only genuinely cross-cutting semantics—such as `typeOfTimeIncrement`, default increment deduction, and temporal
-/// arithmetic—are delegated. All failures are nested in `Mars2GribModelException` with the normalized input snapshot.
+/// Only genuinely cross-cutting semantics such as `typeOfTimeIncrement` and
+/// temporal arithmetic are delegated. All failures are nested in
+/// `Mars2GribModelException` with the normalized input snapshot.
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
 ///
+
 #pragma once
 
 #include "eckit/types/DateTime.h"
@@ -34,7 +38,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeUtils.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -42,14 +46,14 @@
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 
 /**
- * @brief Match the compatibility representation of an instant product with missing timespan.
+ * @brief Match an instant product representation accepted by the canonical model.
  *
  * The shape matches when:
  *
  * - the normalized input is not seasonal;
- * - `timespan` is missing;
+ * - `timespan` is explicitly `none`, or it is missing and the instant
+ *   compatibility option allows the missing source representation;
  * - no `stattype` blocks are present;
- * - the compatibility option allows a missing instant timespan;
  * - statistical processing is missing.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
@@ -58,28 +62,30 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_InstantTimespanMissing_Shape(
+inline bool match_Instant_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
+    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        (void)domainKind;
 
         const bool isNotSeasonal = !product_time_spec::detail::isSeasonal(input);
-        const bool timespanIsMissing =
-            input.timespan.kind == metkit::mars2grib::backend::deductions::TimespanKind::Missing;
-        const bool hasNoStattypeBlocks      = input.stattype.empty();
-        const bool missingTimespanIsAllowed = input.allowMissingTimespanForInstantProduct;
+        const bool hasAcceptedTimespanRepresentation =
+            timespanIsNone(input) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct);
+        const bool hasNoStattypeBlocks = input.stattype.empty();
         const bool statisticalProcessingIsMissing =
             input.innerMostTypeOfStatisticalProcessing ==
             metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing;
 
-        return isNotSeasonal && timespanIsMissing && hasNoStattypeBlocks && missingTimespanIsAllowed &&
+        return isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
                statisticalProcessingIsMissing;
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_InstantTimespanMissing_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_Instant_Shape`", input.to_json(), Here()));
     }
 }
 
@@ -99,7 +105,7 @@ inline bool match_InstantTimespanMissing_Shape(
  * @return One canonical instant window.
  * @throws Mars2GribModelException If validation or construction fails.
  */
-inline std::vector<ProductTimeSpecWindow> build_InstantTimespanMissing_Shape(
+inline std::vector<ProductTimeSpecWindow> build_Instant_Shape(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
@@ -120,7 +126,7 @@ inline std::vector<ProductTimeSpecWindow> build_InstantTimespanMissing_Shape(
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_InstantTimespanMissing_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_Instant_Shape`", input.to_json(), Here()));
     }
 }
 

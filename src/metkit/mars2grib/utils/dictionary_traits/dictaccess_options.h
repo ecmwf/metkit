@@ -83,7 +83,7 @@ inline bool isBoolKey(std::string_view key) noexcept {
            key == "allowDefaultTimeIncrement" || key == "allowZeroLengthFsWindow" ||
            key == "allowExtendedSetOfOperationsForZeroLengthFsWindow" ||
            key == "allowNonEnumeratedPositiveIntegerTimespanHours" || key == "allowRedundantTimeIncrement" ||
-           key == "allowMissingTimespanForInstantProduct";
+           key == "allowMissingTimespanForInstantProduct" || key == "allowMissingTimespanForStatisticalProduct";
 }
 
 inline bool isKnownKey(std::string_view key) noexcept {
@@ -153,6 +153,10 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
         return opts.allowMissingTimespanForInstantProduct;
     }
 
+    if (key == "allowMissingTimespanForStatisticalProduct") {
+        return opts.allowMissingTimespanForStatisticalProduct;
+    }
+
     throw exceptions::Mars2GribDictException("Key `" + std::string(key) + "` cannot be read as `" + "bool" +
                                                  "` from dictionary type `metkit::mars2grib::Options`",
                                              Here());
@@ -188,7 +192,9 @@ struct DictToJsonTraits<Options> {
                                            opts.allowNonEnumeratedPositiveIntegerTimespanHours, true);
             options_detail::appendJsonBool(json, "allowRedundantTimeIncrement", opts.allowRedundantTimeIncrement, true);
             options_detail::appendJsonBool(json, "allowMissingTimespanForInstantProduct",
-                                           opts.allowMissingTimespanForInstantProduct, false);
+                                           opts.allowMissingTimespanForInstantProduct, true);
+            options_detail::appendJsonBool(json, "allowMissingTimespanForStatisticalProduct",
+                                           opts.allowMissingTimespanForStatisticalProduct, false);
             json += '}';
             return json;
         }

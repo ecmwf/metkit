@@ -85,18 +85,25 @@ A new shape case shall be introduced:
 
 - `SeasonalSingleLoop`
 
-For now, the seasonal shape is single-loop only.
+Seasonal support also reserves:
+
+- `SeasonalMultiloop`
+
+The currently implemented seasonal window semantics remain monthly.
 
 Its matcher shall use `isSeasonal(input)` and the normal single-loop structural
 checks.
 
-At minimum, the matcher is expected to verify:
+At minimum, the single-loop matcher is expected to verify:
 
 - `isSeasonal(input)`
 - forecast semantics
 - non-synoptic semantics
-- duration-valued `timespan`
+- `timespan` is `none`, or missing when allowed
 - no `stattype` blocks
+
+The single-loop canonical window range is always one calendar month. `fcmonth`
+places that monthly statistic at the relevant forecast month.
 
 The seasonal discriminator itself shall remain centralized in the helper layer,
 not duplicated in shape matchers.

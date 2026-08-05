@@ -34,7 +34,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeUtils.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -51,7 +51,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * - the normalized input is not seasonal;
  * - the product is not synoptic;
  * - the source increment is missing;
- * - `timespan` is `none`;
+ * - `timespan` is explicitly `none`, or it is missing and accepted by the
+ *   shape policy;
  * - exactly one `stattype` block is present.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
@@ -63,22 +64,25 @@ inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
-    using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isAifs                     = input.regime == SimulationRegime::AIFS;
-        const bool hasForecastDomain          = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
-        const bool isNotSeasonal              = !product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic              = !input.isSynoptic;
-        const bool sourceIncrementIsMissing   = !input.timeIncrement.has_value();
-        const bool timespanIsNone             = input.timespan.kind == TimespanKind::None;
+        const bool isAifs                   = input.regime == SimulationRegime::AIFS;
+        const bool hasForecastDomain        = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isNotSeasonal            = !product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic            = !input.isSynoptic;
+        const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
+        const bool hasAcceptedTimespanRepresentation =
+            timespanIsNone(input) ||
+            timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasExactlyOneStattypeBlock = input.stattype.size() == 1;
         const bool requiresFakeDoubleLoop     = input.requiresFakeDoubleLoopSingleLoopRepresentation;
 
         return isAifs && hasForecastDomain && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
-               timespanIsNone && hasExactlyOneStattypeBlock && requiresFakeDoubleLoop;
+               hasAcceptedTimespanRepresentation && hasExactlyOneStattypeBlock && requiresFakeDoubleLoop;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_AIFSFakeDoubleLoopSingleLoop_Shape`",
