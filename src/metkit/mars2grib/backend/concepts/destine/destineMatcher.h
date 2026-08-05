@@ -1,7 +1,32 @@
+/*
+ * (C) Copyright 2025- ECMWF and individual contributors.
+ *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ * In applying this licence, ECMWF does not waive the privileges and immunities
+ * granted to it by virtue of its status as an intergovernmental organisation nor
+ * does it submit to any jurisdiction.
+ */
+
+///
+/// @file destineMatcher.h
+/// @brief Entry-level matcher for the GRIB `destine` concept.
+///
+/// This header defines the runtime matcher used by the concept registry to
+/// decide whether DestinE digital-twin metadata is active for a MARS request.
+///
+/// The matcher follows the standard mars2grib matching contract:
+/// - return a local concept variant index when the concept is active,
+/// - return `compile_time_registry_engine::MISSING` when it is not active,
+/// - wrap runtime failures as nested `Mars2GribMatcherException` instances.
+///
+/// @ingroup mars2grib_backend_concepts
+///
 #pragma once
 
 // System include
 #include <cstddef>
+#include <exception>
 #include <string>
 
 // Project includes
@@ -12,32 +37,59 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
+///
+/// @brief Match the `destine` concept variant.
+///
+/// The concept is active for class `d1` requests without `anoffset`. The
+/// `dataset` keyword selects the concrete DestinE variant.
+///
+/// @tparam MarsDict_t Type of the MARS input dictionary
+/// @tparam OptDict_t  Type of the options dictionary
+///
+/// @param[in] mars MARS input dictionary
+/// @param[in] opt  Options dictionary
+///
+/// @return Local DestinE variant index, or
+/// `compile_time_registry_engine::MISSING` when the concept is inactive.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
+/// If required DestinE metadata is missing, unsupported `dataset` values are
+/// encountered, or lower-level matcher evaluation fails. Lower-level exceptions
+/// are preserved through `std::throw_with_nested`.
+///
 template <class MarsDict_t, class OptDict_t>
 std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
-    using metkit::mars2grib::utils::dict_traits::get_or_throw;
-    using metkit::mars2grib::utils::dict_traits::has;
-    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+    try {
+        using metkit::mars2grib::utils::dict_traits::get_or_throw;
+        using metkit::mars2grib::utils::dict_traits::has;
+        using metkit::mars2grib::utils::exceptions::Mars2GribMatcherException;
 
-    if (!has(mars, "anoffset") && get_or_throw<std::string>(mars, "class") == "d1") {
-        if (has(mars, "dataset")) {
-            if (get_or_throw<std::string>(mars, "dataset") == "extremes-dt") {
-                return static_cast<std::size_t>(DestineType::ExtremesDT);
-            }
-            else if (get_or_throw<std::string>(mars, "dataset") == "climate-dt") {
-                return static_cast<std::size_t>(DestineType::ClimateDT);
+        if (!has(mars, "anoffset") && get_or_throw<std::string>(mars, "class") == "d1") {
+            if (has(mars, "dataset")) {
+                if (get_or_throw<std::string>(mars, "dataset") == "extremes-dt") {
+                    return static_cast<std::size_t>(DestineType::ExtremesDT);
+                }
+                else if (get_or_throw<std::string>(mars, "dataset") == "climate-dt") {
+                    return static_cast<std::size_t>(DestineType::ClimateDT);
+                }
+                else {
+                    throw Mars2GribMatcherException{"Unknown value \"" + get_or_throw<std::string>(mars, "dataset") +
+                                                        "\" for mars keyword \"dataset\"!",
+                                                    Here()};
+                }
             }
             else {
-                throw Mars2GribGenericException{"Unknown value \"" + get_or_throw<std::string>(mars, "dataset") +
-                                                "\" for mars keyword \"dataset\"!"};
+                throw Mars2GribMatcherException{
+                    "Missing required mars keyword \"dataset\" for class \"d1\" without \"anoffset\"!", Here()};
             }
         }
-        else {
-            throw Mars2GribGenericException{
-                "Missing required mars keyword \"dataset\" for class \"d1\" without \"anoffset\"!"};
-        }
-    }
 
-    return compile_time_registry_engine::MISSING;
+        return compile_time_registry_engine::MISSING;
+    }
+    catch (...) {
+        std::throw_with_nested(
+            utils::exceptions::Mars2GribMatcherException("Unable to match `destine` concept", Here()));
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

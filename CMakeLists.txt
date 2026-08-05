@@ -35,6 +35,10 @@ ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
                     DESCRIPTION "Build the command line tools" )
 
+ecbuild_add_option( FEATURE BUILD_GRIB2_TOOLS
+                    DEFAULT OFF
+                    DESCRIPTION "Build the command line tools to support the migration to Grib2" )
+
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
                     DESCRIPTION "Experimental features" )
@@ -69,6 +73,10 @@ ecbuild_add_option( FEATURE ODB
 
 # MARS2GRIB encoder
 
+ecbuild_add_option( FEATURE GRIB2MARS
+                    DEFAULT ON
+                    DESCRIPTION "Build the GRIB2MARS converter" )
+
 ecbuild_add_option( FEATURE MARS2MARS
                     DEFAULT ON
                     DESCRIPTION "Build the convert-to-grib2 MarsRequest converter" )
@@ -99,6 +107,11 @@ ecbuild_add_option( FEATURE FAIL_ON_CCSDS
                     DESCRIPTION "Fail on CCSDS"
                     DEFAULT OFF	 )
 
+### Documentation
+ecbuild_add_option( FEATURE METKIT_DOCUMENTATION
+                    DEFAULT OFF
+                    DESCRIPTION "Enable documentation generation" )
+
 
 ############################################################################################
 # sources
@@ -108,6 +121,10 @@ include(cmake/compiler_warnings.cmake) # optionally handle compiler specific war
 add_subdirectory( src )
 add_subdirectory( share )
 add_subdirectory( tests )
+
+if(ENABLE_METKIT_DOCUMENTATION)
+    add_subdirectory(docs)
+endif()
 
 ############################################################################################
 # finalize

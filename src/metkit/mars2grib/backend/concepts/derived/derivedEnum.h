@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `derived.h` / `derivedOp` implementation.
+/// `derivedEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -83,21 +83,7 @@ inline constexpr std::string_view derivedName{"derived"};
 /// tables and registries.
 ///
 enum class DerivedType : std::size_t {
-    Individual = 0,
-    Derived,
-    PerturbedParameters,
-    RandomPatterns,
-    MeanUnweightedAll,
-    MeanWeightedAll,
-    StddevCluster,
-    StddevClusterNorm,
-    SpreadAll,
-    LargeAnomalyIndex,
-    MeanUnweightedCluster,
-    Iqr,
-    MinAll,
-    MaxAll,
-    VarianceAll,
+    ShiftOfTails = 0,  ///< Shift-of-tails derived product
     Default
 };
 
@@ -114,11 +100,7 @@ enum class DerivedType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using DerivedList = ValueList<DerivedType::Individual, DerivedType::Derived, DerivedType::PerturbedParameters,
-                              DerivedType::RandomPatterns, DerivedType::MeanUnweightedAll, DerivedType::MeanWeightedAll,
-                              DerivedType::StddevCluster, DerivedType::StddevClusterNorm, DerivedType::SpreadAll,
-                              DerivedType::LargeAnomalyIndex, DerivedType::MeanUnweightedCluster, DerivedType::Iqr,
-                              DerivedType::MinAll, DerivedType::MaxAll, DerivedType::VarianceAll, DerivedType::Default>;
+using DerivedList = ValueList<DerivedType::ShiftOfTails, DerivedType::Default>;
 
 
 ///
@@ -148,22 +130,8 @@ constexpr std::string_view derivedTypeName();
         return NAME;                                  \
     }
 
-DEF(DerivedType::Individual, "individual");
-DEF(DerivedType::Derived, "derived");
-DEF(DerivedType::PerturbedParameters, "perturbedParameters");
-DEF(DerivedType::RandomPatterns, "randomPatterns");
-DEF(DerivedType::MeanUnweightedAll, "meanUnweightedAll");
-DEF(DerivedType::MeanWeightedAll, "meanWeightedAll");
-DEF(DerivedType::StddevCluster, "stddevCluster");
-DEF(DerivedType::StddevClusterNorm, "stddevClusterNorm");
-DEF(DerivedType::SpreadAll, "spreadAll");
-DEF(DerivedType::LargeAnomalyIndex, "largeAnomalyIndex");
-DEF(DerivedType::MeanUnweightedCluster, "meanUnweightedCluster");
-DEF(DerivedType::Iqr, "iqr");
-DEF(DerivedType::MinAll, "minAll");
-DEF(DerivedType::MaxAll, "maxAll");
-DEF(DerivedType::VarianceAll, "varianceAll");
 DEF(DerivedType::Default, "default");
+DEF(DerivedType::ShiftOfTails, "shift_of_tails");
 
 #undef DEF
 

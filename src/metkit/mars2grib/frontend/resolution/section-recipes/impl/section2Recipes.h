@@ -32,6 +32,13 @@ inline const Recipe S2_R15 =
         Select<LongrangeConcept>
     >();
 
+// 4i related products
+inline const Recipe S2_R20 =
+    make_recipe<20,
+        Select<MarsConcept>,
+        Select<IterationConcept>
+    >();
+
 // Satellite-related products
 inline const Recipe S2_R24 =
     make_recipe<24,
@@ -39,11 +46,50 @@ inline const Recipe S2_R24 =
         Select<SatelliteConcept>
     >();
 
+// Model-error products
+inline const Recipe S2_R25 =
+    make_recipe<25,
+        Select<MarsConcept>,
+        Select<ModelErrorConcept>
+    >();
+
 // Analysis-related products
 inline const Recipe S2_R36 =
     make_recipe<36,
         Select<MarsConcept>,
         Select<AnalysisConcept>
+    >();
+
+// Brightness temperature satellite products
+inline const Recipe S2_R37A =
+    make_recipe<37,
+        Select<MarsConcept>,
+        Select<AnalysisConcept>,
+        Select<BrightnessTemperatureConcept, BrightnessTemperatureType::EnsembleMean>
+    >();
+
+inline const Recipe S2_R37B =
+    make_recipe<37,
+        Select<MarsConcept>,
+        Select<AnalysisConcept>,
+        Select<SatelliteConcept>,
+        Select<BrightnessTemperatureConcept, BrightnessTemperatureType::Default>
+    >();
+
+// 4i Analysis-related products
+inline const Recipe S2_R38 =
+    make_recipe<38,
+        Select<MarsConcept>,
+        Select<IterationConcept>,
+        Select<AnalysisConcept>
+    >();
+
+// Analysis model-error products
+inline const Recipe S2_R39 =
+    make_recipe<39,
+        Select<MarsConcept>,
+        Select<AnalysisConcept>,
+        Select<ModelErrorConcept>
     >();
 
 //------------------------------------------------------------------------------
@@ -79,8 +125,14 @@ inline const Recipes Section2Recipes{ 2,
     std::vector<const Recipe*>{
         &S2_R1,
         &S2_R15,
+        &S2_R20,
         &S2_R24,
+        &S2_R25,
         &S2_R36,
+        &S2_R37A,
+        &S2_R37B,
+        &S2_R38,
+        &S2_R39,
         &S2_R1001,
         &S2_R1002
     }

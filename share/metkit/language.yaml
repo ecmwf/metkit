@@ -684,6 +684,13 @@ _field: &_field
     type: to-by-list-float
     by: 1
 
+  units:
+    category: postproc
+    type: enum
+    values:
+      - [si]
+      - [av]
+
   param:
     category: data
     aliases: [parameter,parameters]
