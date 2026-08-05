@@ -130,7 +130,11 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         }
 
         // Chemical products
-        if (matchAny(param, range(228080, 228082), range(233032, 233035), range(235062, 235064))) {
+        // Note: In range 4xxxxy the following typeOfStatisticalProduct can be derived from the last digit:
+        //       y == 1 -> mean; 2 -> accumulation; 3 -> maximum; 4 -> minimum; 5 -> standard deviation
+        //       If the last digit is 0, the param is point-in-time.
+        if (matchAny(param, range(228080, 228082), range(233032, 233035), range(235062, 235064)) ||
+            (matchAny(param, range(400000, 499999)) && (param % 10 == 2))) {
             return static_cast<std::size_t>(StatisticsType::Accumulation);
         }
 
