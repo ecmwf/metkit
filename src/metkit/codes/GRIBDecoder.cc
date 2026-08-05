@@ -64,7 +64,7 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
         const auto keySize = h->size(name);
         if (keySize != 1) {
             LOG_DEBUG_LIB(LibMetkit) << "GRIBDecoder::getMetadata skipping non-scalar key '" << name
-                                      << "' (size=" << keySize << ")" << std::endl;
+                                     << "' (size=" << keySize << ")" << std::endl;
             continue;
         }
 
