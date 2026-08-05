@@ -37,6 +37,7 @@
 
 namespace metkit::mars2grib::backend::concepts_ {
 
+
 ///
 /// @brief Match the `longrange` concept variant.
 ///
@@ -65,11 +66,25 @@ std::size_t longrangeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::has;
 
         const auto marsStream = get_or_throw<std::string>(mars, "stream");
+        const auto marsClass = get_or_throw<std::string>(mars, "class");
+
+        auto isSeasonal = [](const std::string& klass, const std::string& stream) {
+            return (klass == "od" || klass == "rd" || klass == "c3") && (stream == "sfmd" || stream == "shmd");
+        };
+
         if (has(mars, "method") && has(mars, "system")) {
 
             /// @todo review this logic
-            if (has(mars, "fcmonth") && (marsStream == "sfmd" || marsStream == "xxx")) {
-                return static_cast<size_t>(LongrangeType::SeasonalForecastMonthlyMean);
+            if (has(mars, "fcmonth")){
+                if (isSeasonal(marsClass, marsStream)) {
+                    return static_cast<size_t>(LongrangeType::SeasonalForecastMonthlyMean);
+                }
+                else {
+                    std::ostringstream os;
+                    os << "MARS request has `fcmonth` but is not seasonal: class=" << marsClass
+                       << ", stream=" << marsStream;
+                    throw eckit::SeriousBug(os.str(), Here());
+                }
             }
             else {
                 return static_cast<size_t>(LongrangeType::SeasonalForecast);
