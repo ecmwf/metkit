@@ -124,9 +124,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StageAllocate) {
 
-                const auto spec = models::product_time_spec::ProductTimeSpec(
-                    typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
-                const auto pts = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
+                                                                             mars, par, opt);
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 // Checks/Validation
                 validation::check_StatisticsProductDefinitionSection_or_throw(opt, out);
@@ -146,9 +146,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StagePreset) {
 
-                const auto spec = models::product_time_spec::ProductTimeSpec(
-                    typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
-                const auto pts = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
+                                                                             mars, par, opt);
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing);
                 set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", pts.typeOfTimeIncrement);
@@ -165,9 +165,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // Time-dependent keys: forecastTime and end-of-interval date/time.
             // =============================================================
             if constexpr (Stage == StageRuntime) {
-                const auto spec = models::product_time_spec::ProductTimeSpec(
-                    typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
-                const auto pts = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
+                                                                             mars, par, opt);
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 

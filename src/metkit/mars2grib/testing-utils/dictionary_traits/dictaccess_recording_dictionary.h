@@ -50,15 +50,15 @@ template <>
 struct DictTraits<metkit::mars2grib::testing_utils::RecordingDictionary> {
     static constexpr bool support_checks = false;
 
-    static std::unique_ptr<metkit::mars2grib::testing_utils::RecordingDictionary>
-    make_from_sample_or_throw(std::string_view name) {
+    static std::unique_ptr<metkit::mars2grib::testing_utils::RecordingDictionary> make_from_sample_or_throw(
+        std::string_view name) {
         auto dict = std::make_unique<metkit::mars2grib::testing_utils::RecordingDictionary>();
         dict->record_make_from_sample(name);
         return dict;
     }
 
-    static std::unique_ptr<metkit::mars2grib::testing_utils::RecordingDictionary>
-    clone_or_throw(const metkit::mars2grib::testing_utils::RecordingDictionary& dict) {
+    static std::unique_ptr<metkit::mars2grib::testing_utils::RecordingDictionary> clone_or_throw(
+        const metkit::mars2grib::testing_utils::RecordingDictionary& dict) {
         auto clone = std::make_unique<metkit::mars2grib::testing_utils::RecordingDictionary>(dict);
         clone->record_clone(dict.operation_count());
         return clone;
@@ -67,7 +67,8 @@ struct DictTraits<metkit::mars2grib::testing_utils::RecordingDictionary> {
 
 template <>
 struct DictMissing<metkit::mars2grib::testing_utils::RecordingDictionary> {
-    static bool isMissing(const metkit::mars2grib::testing_utils::RecordingDictionary&, std::string_view) noexcept(false) {
+    static bool isMissing(const metkit::mars2grib::testing_utils::RecordingDictionary&,
+                          std::string_view) noexcept(false) {
         throw std::logic_error("RecordingDictionary does not support read-side missing checks");
     }
 
@@ -77,21 +78,21 @@ struct DictMissing<metkit::mars2grib::testing_utils::RecordingDictionary> {
     }
 };
 
-#define M2G_DEFINE_RECORDING_DICT_SET_TRAITS(CTYPE)                                                     \
-    template <>                                                                                         \
-    struct DictSetOrThrow<metkit::mars2grib::testing_utils::RecordingDictionary, CTYPE> {              \
-        static void set_or_throw(metkit::mars2grib::testing_utils::RecordingDictionary& dict,          \
-                                 std::string_view key, const CTYPE& value) noexcept(false) {           \
-            dict.record_set(key, value);                                                                \
-        }                                                                                               \
-    };                                                                                                  \
-                                                                                                        \
-    template <>                                                                                         \
-    struct DictSetOrIgnore<metkit::mars2grib::testing_utils::RecordingDictionary, CTYPE> {             \
-        static void set_or_ignore(metkit::mars2grib::testing_utils::RecordingDictionary& dict,         \
-                                  std::string_view key, const CTYPE& value) noexcept(false) {          \
-            dict.record_set(key, value);                                                                \
-        }                                                                                               \
+#define M2G_DEFINE_RECORDING_DICT_SET_TRAITS(CTYPE)                                                                  \
+    template <>                                                                                                      \
+    struct DictSetOrThrow<metkit::mars2grib::testing_utils::RecordingDictionary, CTYPE> {                            \
+        static void set_or_throw(metkit::mars2grib::testing_utils::RecordingDictionary& dict, std::string_view key,  \
+                                 const CTYPE& value) noexcept(false) {                                               \
+            dict.record_set(key, value);                                                                             \
+        }                                                                                                            \
+    };                                                                                                               \
+                                                                                                                     \
+    template <>                                                                                                      \
+    struct DictSetOrIgnore<metkit::mars2grib::testing_utils::RecordingDictionary, CTYPE> {                           \
+        static void set_or_ignore(metkit::mars2grib::testing_utils::RecordingDictionary& dict, std::string_view key, \
+                                  const CTYPE& value) noexcept(false) {                                              \
+            dict.record_set(key, value);                                                                             \
+        }                                                                                                            \
     };
 
 M2G_DEFINE_RECORDING_DICT_SET_TRAITS(bool)
