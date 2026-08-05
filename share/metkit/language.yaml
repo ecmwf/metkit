@@ -467,6 +467,8 @@ _field: &_field
           - [mhm]
           - [pcr-globwb]
           - [vic-wur]
+          - [geff]
+          - [sparky]
 
   forcing:
     category: data
@@ -683,6 +685,13 @@ _field: &_field
     multiple: true
     type: to-by-list-float
     by: 1
+
+  units:
+    category: postproc
+    type: enum
+    values:
+      - [si]
+      - [av]
 
   param:
     category: data

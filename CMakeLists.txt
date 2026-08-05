@@ -35,6 +35,10 @@ ecbuild_add_option( FEATURE BUILD_TOOLS
                     DEFAULT ON
                     DESCRIPTION "Build the command line tools" )
 
+ecbuild_add_option( FEATURE BUILD_GRIB2_TOOLS
+                    DEFAULT OFF
+                    DESCRIPTION "Build the command line tools to support the migration to Grib2" )
+
 ecbuild_add_option( FEATURE EXPERIMENTAL
                     DEFAULT OFF
                     DESCRIPTION "Experimental features" )
@@ -88,6 +92,15 @@ ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
                     DEFAULT OFF
                     CONDITION HAVE_MARS2GRIB
                     DESCRIPTION "Build mars2grib python library"
+                    REQUIRED_PACKAGES
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
+                        "NAME pybind11 VERSION 3.0.1" )
+
+# Pythonic pybind11 interface (pymetkit)
+
+ecbuild_add_option( FEATURE PYTHON_METKIT_INTERFACE
+                    DEFAULT OFF
+                    DESCRIPTION "Build the pybind11 pymetkit interface"
                     REQUIRED_PACKAGES
                         "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
                         "NAME pybind11 VERSION 3.0.1" )
