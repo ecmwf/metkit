@@ -125,7 +125,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             if constexpr (Stage == StageAllocate) {
 
                 const auto spec = models::product_time_spec::ProductTimeSpec(
-                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                    typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
                 const auto pts = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 // Checks/Validation
@@ -147,7 +147,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             if constexpr (Stage == StagePreset) {
 
                 const auto spec = models::product_time_spec::ProductTimeSpec(
-                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                    typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
                 const auto pts = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing);
@@ -166,7 +166,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StageRuntime) {
                 const auto spec = models::product_time_spec::ProductTimeSpec(
-                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                    typeOfStatisticalProcessingEnum<Variant>(), mars, par, opt);
                 const auto pts = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);

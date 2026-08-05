@@ -119,8 +119,13 @@ inline std::vector<ProductTimeSpecWindow> build_IFSFakeDoubleLoopSingleLoop_Shap
             stattype.typeOfStatisticalProcessing == input.innerMostTypeOfStatisticalProcessing;
 
         if (!processingTypesMatch) {
-            throw Mars2GribModelException("FakeDoubleLoop stattype processing must match the innermost processing",
-                                          input.to_json(), Here());
+            std::ostringstream os;
+            os << "IFSFakeDoubleLoopSingleLoop stattype processing must match the innermost processing: "
+               "stattype[#" << input.stattype.size() << "]="
+               << enum2name_TypeOfStatisticalProcessing_or_throw(stattype.typeOfStatisticalProcessing)
+               << ", innermost="
+               << enum2name_TypeOfStatisticalProcessing_or_throw(input.innerMostTypeOfStatisticalProcessing);
+            throw Mars2GribModelException(os.str(), input.to_json(), Here());
         }
 
         const TimeDuration timeRange = stattype.timeRange;
