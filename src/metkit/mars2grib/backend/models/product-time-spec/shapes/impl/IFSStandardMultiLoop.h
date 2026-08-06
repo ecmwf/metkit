@@ -118,8 +118,8 @@ inline std::vector<ProductTimeSpecWindow> build_IFSStandardMultiLoop_Shape(
                                           input.to_json(), Here());
         }
 
-        if (input.stattype.size() <= 2) {
-            throw Mars2GribModelException("Cannot build IFSStandardMultiLoop shape with fewer than 3 stattype blocks",
+        if (input.stattype.size() > 2) {
+            throw Mars2GribModelException("Cannot build IFSStandardMultiLoop shape with more than 2 stattype blocks",
                                           input.to_json(), Here());
         }
 
