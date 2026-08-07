@@ -39,12 +39,6 @@ void extractTruncation(const std::string& keyword, const metkit::codes::CodesHan
         const long truncation = grib.getLong("J");
 
         set_or_throw<long>(mars, keyword, truncation);
-
-        if (grib.has("laplacianOperator")) {
-            const long laplacianOperator = grib.getLong("laplacianOperator");
-
-            misc.set("laplacianOperator", laplacianOperator);
-        }
     }
     catch (...) {
         std::throw_with_nested(Grib2MarsGenericException("Failed to extract MARS keyword `" + keyword + "`", Here()));

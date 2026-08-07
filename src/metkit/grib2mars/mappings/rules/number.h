@@ -15,68 +15,36 @@ void extractNumber(const std::string& keyword, const metkit::codes::CodesHandle&
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
-        if (!grib.has("type")) {
+        if (!grib.has(keyword)) {
             throw Grib2MarsGenericException(
-                "Missing GRIB key `type` required to extract MARS keyword `" + keyword + "`", Here());
+                "Missing GRIB key `" + keyword + "` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        const std::string type = grib.getString("type");
+        const long value = grib.getLong(keyword);
+        set_or_throw<long>(mars, keyword, value);
 
-        if (type == "es" || type == "em") {
-            if (!grib.has("numberOfForecastsInEnsemble")) {
-                throw Grib2MarsGenericException(
-                    "Missing GRIB key `numberOfForecastsInEnsemble` required "
-                    "for derived ensemble forecast",
-                    Here());
-            }
-
+        if (grib.has("numberOfForecastsInEnsemble")) {
             const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
 
-            misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+            if (numberOfForecastsInEnsemble != 0) {
+                misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
 
-            return;
-        }
-
-        if (!grib.has("number") || !grib.has("numberOfForecastsInEnsemble")) {
-            return;
-        }
-
-        const long number                      = grib.getLong("number");
-        const long numberOfForecastsInEnsemble = grib.getLong("numberOfForecastsInEnsemble");
-
-        if (number != 0 && numberOfForecastsInEnsemble == 0) {
-            throw Grib2MarsGenericException("The value for key `numberOfForecastsInEnsemble` must not be 0", Here());
-        }
-
-        if (numberOfForecastsInEnsemble == 0) {
-            return;
-        }
-
-        set_or_throw<long>(mars, keyword, number);
-
-        misc.set("numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
-
-        if (grib.has("class")) {
-            const std::string klass = grib.getString("class");
-
-            if (klass == "ai") {
-                // Handled in the encoder, matching the original tool logic.
-                return;
+                if (grib.getString("class") != "ai") {
+                    if (grib.has("typeOfEnsembleForecast")) {
+                        const long typeOfEnsembleForecast = grib.getLong("typeOfEnsembleForecast");
+                        misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
+                    }
+                    else if (grib.has("eps")) {
+                        const long typeOfEnsembleForecast = grib.getLong("eps");
+                        misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
+                    }
+                }
             }
         }
-
-        if (grib.has("typeOfEnsembleForecast")) {
-            const long typeOfEnsembleForecast = grib.getLong("typeOfEnsembleForecast");
-
-            misc.set("typeOfEnsembleForecast", typeOfEnsembleForecast);
-
-            return;
-        }
-
-        if (grib.has("eps")) {
-            const long eps = grib.getLong("eps");
-
-            misc.set("typeOfEnsembleForecast", eps);
+        else if (grib.getString("type") != "me") {
+            throw Grib2MarsGenericException(
+                "Missing GRIB key `numberOfForecastsInEnsemble` required to extract MARS keyword `" + keyword + "`",
+                Here());
         }
     }
     catch (...) {

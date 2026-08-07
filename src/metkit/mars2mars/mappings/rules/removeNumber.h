@@ -9,7 +9,7 @@
  * does it submit to any jurisdiction.
  */
 
-/// @file wave2oper.h
+/// @file removeNumber.h
 /// @brief Conversion rules used by the mars2mars mapper.
 #pragma once
 
@@ -21,23 +21,22 @@
 namespace metkit::mars2mars::rules::impl {
 
 
-/// @brief Convert surface-like legacy requests into sol layer output.
+/// @brief Remove MARS key number if no longer used
 template <class InDict_t, class OutDict_t>
-inline void convertWave2Oper(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+inline void removeNumber(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
-    using metkit::mars2mars::utils::dict_traits::set_or_throw;
+    using metkit::mars2mars::utils::dict_traits::setMissing_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
-
-        if (get_or_throw<std::string>(in, "stream") == "wave") {
-            set_or_throw<std::string>(out, "stream", "oper");
+        if (get_or_throw<std::string>(in, "type") == "me") {
+            setMissing_or_throw(out, "number");
         }
     }
     catch (...) {
         // Rethrow nested exceptions
-        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in wave2oper", Here()));
+        std::throw_with_nested(Mars2marsGenericException("Failed to convert input dictionary in removeNumber", Here()));
     }
 }
 

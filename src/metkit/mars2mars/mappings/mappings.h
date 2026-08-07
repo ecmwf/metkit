@@ -14,17 +14,19 @@
 #pragma once
 
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
-#include "metkit/mars2mars/mappings/rules/wave2oper.h"
+#include "metkit/mars2mars/mappings/rules/removeNumber.h"
 #include "metkit/mars2mars/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2mars/utils/mars2marsExceptions.h"
 
 // All the rules
 #include "metkit/mars2mars/mappings/rules/chemical.h"
 #include "metkit/mars2mars/mappings/rules/ecc-1806.h"
+#include "metkit/mars2mars/mappings/rules/incremental.h"
 #include "metkit/mars2mars/mappings/rules/local2wmo.h"
+#include "metkit/mars2mars/mappings/rules/misc-params.h"
 #include "metkit/mars2mars/mappings/rules/sfc2sol.h"
 #include "metkit/mars2mars/mappings/rules/timespan.h"
-#include "metkit/mars2mars/mappings/rules/wave2oper.h"
+#include "metkit/mars2mars/mappings/rules/waveStreams.h"
 #include "metkit/mars2mars/mappings/rules/windspeed.h"
 
 namespace metkit::mars2mars::rules {
@@ -41,13 +43,16 @@ Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
         std::unique_ptr<eckit::LocalConfiguration> misc = std::make_unique<eckit::LocalConfiguration>();
 
         // Apply all conversions in sequence
-        impl::convertWave2Oper(in, *out, *misc);
+        impl::convertWaveStreams(in, *out, *misc);
         impl::convertECC1806(in, *out, *misc);
         impl::convertSFC2SOL(in, *out, *misc);
         impl::convertLocal2WMO(in, *out, *misc);
         impl::fixTimespan(in, *out, *misc);
         impl::fixWindspeed(in, *out, *misc);
         impl::convertChemical(in, *out, *misc);
+        impl::convertIncremental(in, *out, *misc);
+        impl::convertMiscParams(in, *out, *misc);
+        impl::removeNumber(in, *out, *misc);
 
         return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};
     }

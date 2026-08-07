@@ -34,7 +34,7 @@ inline void fixWindspeed(const InDict_t& in, OutDict_t& out, eckit::LocalConfigu
 
     try {
         const auto levtype = get_opt<std::string>(in, "levtype");
-        if (levtype && *levtype == "SFC") {
+        if (levtype && *levtype == "sfc") {
             const auto param = get_or_throw<long>(in, "param");
             switch (param) {
                 case 228246:  // 100u
