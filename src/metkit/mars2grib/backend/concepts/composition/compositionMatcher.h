@@ -138,14 +138,20 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
+            else if (matchAny(param, 435000, 435002, 436000, 436002, 437000, 437002)) {
+                if (matchAny(chem, 25)) {
+                    return static_cast<std::size_t>(CompositionType::Chem);
+                }
+            }
             else if (matchAny(param, 479000)) {
                 if (matchAny(chem, 404)) {
                     return static_cast<std::size_t>(CompositionType::Chem);
                 }
             }
             else if (matchAny(param, 469000)) {
-                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 18, 19, 42, range(45, 48), 52, 99, 100, 129, 224, 226, 233, 311,
-                             933, 934)) {
+                if (matchAny(chem, 2, 5, 9, 10, 12, 16, 18, 19, 25, 31, 42, range(45, 49), 52, range(98, 100), 124, 126,
+                             129, 199, 224, 226, 233, 311, 334, 404, range(431, 433), range(438, 441), range(443, 446),
+                             922, 930, 933, 934, 948, 951)) {
                     return static_cast<std::size_t>(CompositionType::ChemicalSource);
                 }
             }

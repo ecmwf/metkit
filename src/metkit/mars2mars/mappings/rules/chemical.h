@@ -111,14 +111,32 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 return setParamChem(out, 400000, 930);
             case 210074:
                 return setParamChem(out, 400000, 931);
+            case 210080:
+                return setParamChem(out, 469000, 25);
             case 210081:
                 return setParamChem(out, 469000, 2);
+            case 210082:
+                return setParamChem(out, 469000, 404);
+            case 210083:
+                return setParamChem(out, 469000, 334);
+            case 210084:
+                return setParamChem(out, 469000, 199);
             case 210085:
                 return setParamChem(out, 469000, 129);
+            case 210086:
+                return setParamChem(out, 469000, 31);
+            case 210087:
+                return setParamChem(out, 469000, 930);
+            case 210088:
+                return setParamChem(out, 469000, 922);
+            case 210089:
+                return setParamChem(out, 469000, 948);
             case 210090:
                 return setParamChem(out, 469000, 934);
             case 210091:
                 return setParamChem(out, 469000, 933);
+            case 210092:
+                return setParamChem(out, 469000, 951);
             case 210102:
                 return setParamChem(out, 469000, 233);
             case 210103:
@@ -133,8 +151,18 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 return setParamChem(out, 469000, 48);
             case 210108:
                 return setParamChem(out, 469000, 16);
+            case 210109:
+                return setParamChem(out, 469000, 49);
+            case 210110:
+                return setParamChem(out, 469000, 99);
+            case 210111:
+                return setParamChem(out, 469000, 124);
+            case 210112:
+                return setParamChem(out, 469000, 126);
             case 210113:
                 return setParamChem(out, 469000, 5);
+            case 210114:
+                return setParamChem(out, 469000, 98);
             case 210115:
                 return setParamChem(out, 469000, 52);
             case 210116:
@@ -217,6 +245,28 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 return setParamChemWavelength(out, 457000, 922, 1640.0);
             case 210230:
                 return setParamChemWavelength(out, 457000, 922, 2130.0);
+            case 210231:
+                return setParamChem(out, 469000, 431);
+            case 210232:
+                return setParamChem(out, 469000, 432);
+            case 210233:
+                return setParamChem(out, 469000, 433);
+            case 210234:
+                return setParamChem(out, 469000, 439);
+            case 210235:
+                return setParamChem(out, 469000, 440);
+            case 210236:
+                return setParamChem(out, 469000, 441);
+            case 210237:
+                return setParamChem(out, 469000, 443);
+            case 210238:
+                return setParamChem(out, 469000, 438);
+            case 210239:
+                return setParamChem(out, 469000, 444);
+            case 210240:
+                return setParamChem(out, 469000, 445);
+            case 210241:
+                return setParamChem(out, 469000, 446);
             case 210247:
                 return setParamChem(out, 402000, 912);
             case 210248:
@@ -1221,6 +1271,18 @@ inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConf
                 return setParamChem(out, 444000, 17);
             case 223033:
                 return setParamChem(out, 444000, 33);
+            case 228080:
+                return setParamChem(out, 435002, 25);
+            case 228081:
+                return setParamChem(out, 436002, 25);
+            case 228082:
+                return setParamChem(out, 437002, 25);
+            case 228083:
+                return setParamChem(out, 435000, 25);
+            case 228084:
+                return setParamChem(out, 436000, 25);
+            case 228085:
+                return setParamChem(out, 437000, 25);
 
             default:
                 break;
