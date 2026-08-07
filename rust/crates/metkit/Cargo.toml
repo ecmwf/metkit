@@ -1,0 +1,26 @@
+[package]
+name = "metkit"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Safe Rust wrapper for ECMWF's metkit C++ library"
+links = "metkit_rs"
+build = "build.rs"
+
+[features]
+default = ["vendored", "grib", "bufr"]
+vendored = ["metkit-sys/vendored"]
+system = ["metkit-sys/system"]
+grib = ["metkit-sys/grib"]
+bufr = ["metkit-sys/bufr"]
+
+[dependencies]
+metkit-sys.workspace = true
+eckit.workspace = true
+thiserror.workspace = true
+cxx.workspace = true
+
+[build-dependencies]
+bindman-utils.workspace = true
