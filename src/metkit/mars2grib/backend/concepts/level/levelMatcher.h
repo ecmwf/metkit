@@ -120,6 +120,9 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 140233, 140245, 140249, 141233, 141245, 143233, 143245, 144233, 144245, 145233, 145245)) {
             return static_cast<std::size_t>(LevelType::HeightAboveSeaAt10M);
         }
+        if (matchAny(param, 235320, 237320, 238320, 239320)) {
+            return static_cast<std::size_t>(LevelType::HeightAboveSeaAt2M);
+        }
         if (matchAny(param, 188, 3075)) {
             return static_cast<std::size_t>(LevelType::HighCloudLayer);
         }
@@ -150,7 +153,8 @@ inline std::size_t matchSFC(const long param) {
         if (matchAny(param, 228008, 228009, 235090, 235091, 237090, 237091, 238090, 238091, 239090, 239091)) {
             return static_cast<std::size_t>(LevelType::MixingLayer);
         }
-        if (matchAny(param, range(228235, 228237))) {
+        if (matchAny(param, range(228235, 228237),
+            235117, 237117, 238117, 239117)) {
             return static_cast<std::size_t>(LevelType::MostUnstableParcel);
         }
         // efi
@@ -188,7 +192,10 @@ inline std::size_t matchSFC(const long param) {
                      239078, 239080, 239083, 239084, 239093, 239134, 239159, 239263, 260004, 260005, 260015, 260038,
                      260048, 260109, 260121, 260123, 260255, 260259, 260289, 260292, 260293, range(260318, 260321),
                      260338, 260339, 260509, 260682, 260683, 260688, 261001, 261002, range(261014, 261016), 261018,
-                     261023, 262000, 262100, 262124, 262139, 262140, 262144)) {
+                     261023, 262000, 262100, 262124, 262139, 262140, 262144, 141231, 143231, 144231, 145231, 235079, 237079, 238079, 239079)) {
+            return static_cast<std::size_t>(LevelType::Surface);
+        }
+        if ( matchAny(param, 235079, 237079, 238079, 239079)) {
             return static_cast<std::size_t>(LevelType::Surface);
         }
         // Strike-probability
