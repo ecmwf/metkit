@@ -15,57 +15,13 @@
 
 #pragma once
 
-#include <cstddef>
-
 #include "eckit/types/DateTime.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ProductTimeSpecJsonUtils.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec::shape {
-
-///
-/// @brief Supported canonical ProductTimeSpec shape cases.
-///
-/// Shape classification describes the canonical statistical-window topology of
-/// the final ProductTimeSpec representation.
-///
-/// The active cases are grouped as follows:
-/// - instant-product representations;
-/// - IFS single-loop and multi-loop statistical representations;
-/// - AIFS single-loop statistical representations whose increment semantics are
-///   always missing;
-/// - seasonal forecast representations bound to the dedicated
-///   `SeasonalForecastDomain`;
-/// - from-start variants distinguished by zero-length versus positive-step
-///   semantics;
-/// - fake-loop compatibility cases that preserve legacy source encodings while
-///   producing canonical windows.
-///
-/// `Count` is a sentinel used exclusively to size the registry.
-///
-enum class ProductTimeSpecShapeKind : std::size_t {
-    Instant,
-
-    IFSStandardSingleLoop,
-    IFSFakeDoubleLoopSingleLoop,
-    IFSFromStartSingleLoopAtZero,
-    IFSFromStartSingleLoopPositive,
-    IFSSynopticSingleLoop,
-
-    AIFSStandardSingleLoop,
-    AIFSFakeDoubleLoopSingleLoop,
-    AIFSFromStartSingleLoopAtZero,
-    AIFSFromStartSingleLoopPositive,
-
-    SeasonalSingleLoop,
-    SeasonalMultiloop,
-
-    IFSStandardMultiLoop,
-    IFSFakeSingleLoopDoubleLoop,
-
-    Count  // Used for sizing the registry, not a valid classification.
-};
 
 ///
 /// @brief One canonical ProductTimeSpec statistical window.
@@ -98,49 +54,6 @@ struct ProductTimeSpecShape {
     /// @brief Canonical windows in outermost-to-innermost order.
     std::vector<ProductTimeSpecWindow> values{};
 };
-
-/// @brief Return the stable diagnostic name of one shape case.
-/// @param[in] value Shape classification value.
-/// @return Stable human-readable shape-case name.
-inline std::string productTimeSpecShapeTypeName(ProductTimeSpecShapeKind value) {
-
-    switch (value) {
-        case ProductTimeSpecShapeKind::Instant:
-            return "Instant";
-
-        case ProductTimeSpecShapeKind::IFSStandardSingleLoop:
-            return "IFSStandardSingleLoop";
-        case ProductTimeSpecShapeKind::IFSFakeDoubleLoopSingleLoop:
-            return "IFSFakeDoubleLoopSingleLoop";
-        case ProductTimeSpecShapeKind::IFSFromStartSingleLoopAtZero:
-            return "IFSFromStartSingleLoopAtZero";
-        case ProductTimeSpecShapeKind::IFSFromStartSingleLoopPositive:
-            return "IFSFromStartSingleLoopPositive";
-        case ProductTimeSpecShapeKind::IFSSynopticSingleLoop:
-            return "IFSSynopticSingleLoop";
-
-        case ProductTimeSpecShapeKind::AIFSStandardSingleLoop:
-            return "AIFSStandardSingleLoop";
-        case ProductTimeSpecShapeKind::AIFSFakeDoubleLoopSingleLoop:
-            return "AIFSFakeDoubleLoopSingleLoop";
-        case ProductTimeSpecShapeKind::AIFSFromStartSingleLoopAtZero:
-            return "AIFSFromStartSingleLoopAtZero";
-        case ProductTimeSpecShapeKind::AIFSFromStartSingleLoopPositive:
-            return "AIFSFromStartSingleLoopPositive";
-
-        case ProductTimeSpecShapeKind::SeasonalSingleLoop:
-            return "SeasonalSingleLoop";
-        case ProductTimeSpecShapeKind::SeasonalMultiloop:
-            return "SeasonalMultiloop";
-
-        case ProductTimeSpecShapeKind::IFSStandardMultiLoop:
-            return "IFSStandardMultiLoop";
-        case ProductTimeSpecShapeKind::IFSFakeSingleLoopDoubleLoop:
-            return "IFSFakeSingleLoopDoubleLoop";
-    }
-
-    return "InvalidShapeKind";
-}
 
 /// @brief Serialize one resolved shape artifact as diagnostic JSON.
 /// @param[in] value Resolved canonical window sequence.
