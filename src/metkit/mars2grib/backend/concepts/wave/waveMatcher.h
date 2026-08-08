@@ -69,7 +69,7 @@ std::size_t waveMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
 
         const auto param = get_or_throw<long>(mars, "param");
 
-        if (matchAny(param, range(140114, 140120))) {
+        if (matchAny(param, range(140114, 140120), 141231, 143231, 144231, 145231 )) {
             return static_cast<std::size_t>(WaveType::Period);
         }
 
