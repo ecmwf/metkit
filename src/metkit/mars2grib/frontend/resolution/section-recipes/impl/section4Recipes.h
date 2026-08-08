@@ -269,6 +269,7 @@ inline const Recipe S4_R103 =
     make_recipe<103,
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
+        Select<LevelConcept>,
         Select<ParamConcept>,
         Select<WaveConcept, WaveType::Period>
     >();
@@ -277,6 +278,26 @@ inline const Recipe S4_R104 =
     make_recipe<104,
         Select<GeneratingProcessConcept>,
         Select<PointInTimeConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<WaveConcept, WaveType::Period>,
+        Select<EnsembleConcept, EnsembleType::Individual>
+    >();
+
+inline const Recipe S4_R144 =
+    make_recipe<144,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
+        Select<ParamConcept>,
+        Select<WaveConcept, WaveType::Period>
+    >();
+
+inline const Recipe S4_R145 =
+    make_recipe<145,
+        Select<GeneratingProcessConcept>,
+        Select<StatisticsConcept>,
+        Select<LevelConcept>,
         Select<ParamConcept>,
         Select<WaveConcept, WaveType::Period>,
         Select<EnsembleConcept, EnsembleType::Individual>
@@ -345,7 +366,8 @@ inline const Recipes Section4Recipes{ 4,
         &S4_R99, &S4_R100,
         &S4_R103, &S4_R104, &S4_R107,
         &S4_R121, &S4_R122,
-        &S4_R142, &S4_R143
+        &S4_R142, &S4_R143,
+        &S4_R144, &S4_R145
     }
 };
 
