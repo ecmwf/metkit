@@ -56,14 +56,16 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
  */
 inline bool match_Forecast_Domain(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationType;
+    using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         const bool isNotSynoptic = !input.isSynoptic;
         const bool isNotSeasonal = !product_time_spec::detail::isSeasonal(input);
         const bool isForecast    = input.simulationType == SimulationType::Forecast;
+        const bool isNotFromStart = input.timespan.kind != TimespanKind::FromStart;
 
-        return isNotSynoptic && isNotSeasonal && isForecast;
+        return isNotSynoptic && isNotSeasonal && isForecast && isNotFromStart;
     }
     catch (...) {
         std::throw_with_nested(

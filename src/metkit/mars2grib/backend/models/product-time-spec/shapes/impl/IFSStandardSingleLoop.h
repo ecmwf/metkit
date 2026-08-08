@@ -119,10 +119,9 @@ inline ProductTimeSpecShapeStage1 build_IFSStandardSingleLoop_ShapeStage1(
 
         const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
 
-        ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
-                                     timeRange, resolvedIncrement.timeIncrement};
+        (void)resolvedIncrement;
 
-        return ProductTimeSpecShapeStage1{{window}};
+        return ProductTimeSpecShapeStage1{{timeRange}};
     }
     catch (...) {
         std::throw_with_nested(
@@ -144,7 +143,14 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeFinal(
         (void)anchor;
         (void)domain;
 
-        return ProductTimeSpecShape{shapeStage1.values};
+        const auto& timeRange = shapeStage1.windowTimeRanges.at(0);
+        const auto resolvedIncrement =
+            metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement(input, timeRange, false);
+
+        ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
+                                     timeRange, resolvedIncrement.timeIncrement};
+
+        return ProductTimeSpecShape{{window}};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeFinal`",

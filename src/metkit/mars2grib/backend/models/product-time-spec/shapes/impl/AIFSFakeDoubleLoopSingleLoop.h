@@ -134,10 +134,7 @@ inline ProductTimeSpecShapeStage1 build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1
         }
 
 
-        ProductTimeSpecWindow window{statisticalProcessing, missingTypeOfTimeIncrement(), timeRange,
-                                     missingIncrement()};
-
-        return ProductTimeSpecShapeStage1{{window}};
+        return ProductTimeSpecShapeStage1{{timeRange}};
     }
     catch (...) {
         std::throw_with_nested(
@@ -153,13 +150,22 @@ inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal(
     const ProductTimeSpecShapeStage1& shapeStage1,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
 
     try {
         (void)classification;
         (void)anchor;
         (void)domain;
 
-        return ProductTimeSpecShape{shapeStage1.values};
+        const auto& stattype             = input.stattype.front();
+        const auto& timeRange            = shapeStage1.windowTimeRanges.at(0);
+        const auto statisticalProcessing = stattype.typeOfStatisticalProcessing;
+
+        ProductTimeSpecWindow window{statisticalProcessing, missingTypeOfTimeIncrement(), timeRange,
+                                     missingIncrement()};
+
+        return ProductTimeSpecShape{{window}};
     }
     catch (...) {
         std::throw_with_nested(

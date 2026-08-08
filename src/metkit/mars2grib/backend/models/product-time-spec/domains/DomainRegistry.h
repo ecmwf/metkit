@@ -21,7 +21,8 @@
 ///
 /// | `isSynoptic` | `regime` | `simulationType` | Selected domain callback |
 /// |--------------|----------|------------------|--------------------------|
-/// | `false`      | any      | `Forecast`, non-seasonal | `ForecastDomain` |
+/// | `false`      | any      | `Forecast`, non-seasonal, non-from-start | `ForecastDomain` |
+/// | `false`      | any      | `Forecast`, non-seasonal, from-start | `FromStartForecastDomain` |
 /// | `false`      | any      | `Forecast`, seasonal | `SeasonalForecastDomain` |
 /// | `false`      | not `AIFS` | `Analysis`     | `AnalysisDomain`         |
 /// | `true`       | `IFS`    | `Analysis`       | `SynopticAnalysisDomain` |
@@ -41,6 +42,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/AnalysisDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/ForecastDomain.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/FromStartForecastDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/SeasonalForecastDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/SynopticAnalysisDomain.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
@@ -80,6 +82,8 @@ struct DomainCase {
 /// @brief Immutable domain registry ordered exactly like `ProductTimeSpecDomainKind`.
 inline constexpr std::array<DomainCase, static_cast<std::size_t>(ProductTimeSpecDomainKind::Count)> domainCases{{
     {ProductTimeSpecDomainKind::ForecastDomain, "ForecastDomain", &match_Forecast_Domain, &build_Forecast_Domain},
+    {ProductTimeSpecDomainKind::FromStartForecastDomain, "FromStartForecastDomain", &match_FromStartForecast_Domain,
+     &build_FromStartForecast_Domain},
     {ProductTimeSpecDomainKind::SeasonalForecastDomain, "SeasonalForecastDomain", &match_SeasonalForecast_Domain,
      &build_SeasonalForecast_Domain},
     {ProductTimeSpecDomainKind::AnalysisDomain, "AnalysisDomain", &match_Analysis_Domain, &build_Analysis_Domain},
@@ -90,10 +94,12 @@ inline constexpr std::array<DomainCase, static_cast<std::size_t>(ProductTimeSpec
 static_assert(static_cast<std::size_t>(detail::domainCases[0].classification) ==
               static_cast<std::size_t>(ProductTimeSpecDomainKind::ForecastDomain));
 static_assert(static_cast<std::size_t>(detail::domainCases[1].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::SeasonalForecastDomain));
+              static_cast<std::size_t>(ProductTimeSpecDomainKind::FromStartForecastDomain));
 static_assert(static_cast<std::size_t>(detail::domainCases[2].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::AnalysisDomain));
+              static_cast<std::size_t>(ProductTimeSpecDomainKind::SeasonalForecastDomain));
 static_assert(static_cast<std::size_t>(detail::domainCases[3].classification) ==
+              static_cast<std::size_t>(ProductTimeSpecDomainKind::AnalysisDomain));
+static_assert(static_cast<std::size_t>(detail::domainCases[4].classification) ==
               static_cast<std::size_t>(ProductTimeSpecDomainKind::SynopticAnalysisDomain));
 
 }  // namespace detail
