@@ -59,22 +59,19 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
 inline bool match_SeasonalMultiloop_Shape(
-    const ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
+    const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool hasSeasonalForecastDomain = domainKind == ProductTimeSpecDomainKind::SeasonalForecastDomain;
         const bool isSeasonal                = product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic             = !input.isSynoptic;
         const bool isForecast                = input.simulationType == SimulationType::Forecast;
         const bool hasDurationTimespan       = input.timespan.kind == TimespanKind::Duration;
         const bool hasOuterStattypeBlocks    = !input.stattype.empty();
 
-        return hasSeasonalForecastDomain && isSeasonal && isNotSynoptic && isForecast && hasDurationTimespan &&
+        return isSeasonal && isNotSynoptic && isForecast && hasDurationTimespan &&
                hasOuterStattypeBlocks;
     }
     catch (...) {
@@ -99,9 +96,9 @@ inline bool match_SeasonalMultiloop_Shape(
  * @return Canonical windows ordered outermost to innermost.
  * @throws Mars2GribModelException If any range or increment is invalid.
  */
-inline std::vector<ProductTimeSpecWindow> build_SeasonalMultiloop_Shape(
+inline ProductTimeSpecShapeStage1 build_SeasonalMultiloop_ShapeStage1(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
@@ -111,6 +108,7 @@ inline std::vector<ProductTimeSpecWindow> build_SeasonalMultiloop_Shape(
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        (void)classification;
         if (input.stattype.empty()) {
             throw Mars2GribModelException("Cannot build SeasonalMultiloop shape with no outer stattype blocks",
                                           input.to_json(), Here());
@@ -134,8 +132,7 @@ inline std::vector<ProductTimeSpecWindow> build_SeasonalMultiloop_Shape(
 
         const TimeDuration innermostTimeRange = timespanDuration(input);
 
-        const ResolvedInnerIncrement resolvedInnermostIncrement =
-            resolveIfsInnerIncrement(input, domain, innermostTimeRange, true);
+        const ResolvedInnerIncrement resolvedInnermostIncrement = resolveIfsInnerIncrement(input, innermostTimeRange, true);
 
         ProductTimeSpecWindow innermostWindow{input.innerMostTypeOfStatisticalProcessing,
                                               resolvedInnermostIncrement.typeOfTimeIncrement, innermostTimeRange,
@@ -147,11 +144,31 @@ inline std::vector<ProductTimeSpecWindow> build_SeasonalMultiloop_Shape(
             windows[windowIndex].timeIncrement = windows[windowIndex + 1].timeRange;
         }
 
-        return windows;
+        return ProductTimeSpecShapeStage1{windows};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_Shape`", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_ShapeStage1`",
+                                                       input.to_json(), Here()));
+    }
+}
+
+inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeFinal(
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
+    const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
+    const ProductTimeSpecShapeStage1& shapeStage1,
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        (void)classification;
+        (void)anchor;
+        (void)domain;
+        return ProductTimeSpecShape{shapeStage1.values};
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_ShapeFinal`",
+                                                       input.to_json(), Here()));
     }
 }
 

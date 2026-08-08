@@ -65,16 +65,13 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
 inline bool match_SeasonalSingleLoop_Shape(
-    const ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
+    const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationType;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool hasSeasonalForecastDomain = domainKind == ProductTimeSpecDomainKind::SeasonalForecastDomain;
         const bool isSeasonal                = product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic             = !input.isSynoptic;
         const bool isForecast                = input.simulationType == SimulationType::Forecast;
@@ -83,7 +80,7 @@ inline bool match_SeasonalSingleLoop_Shape(
             timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasNoStattypeBlocks = input.stattype.empty();
 
-        return hasSeasonalForecastDomain && isSeasonal && isNotSynoptic && isForecast &&
+        return isSeasonal && isNotSynoptic && isForecast &&
                hasAcceptedTimespanRepresentation && !hasNoStattypeBlocks;
     }
     catch (...) {
@@ -107,9 +104,9 @@ inline bool match_SeasonalSingleLoop_Shape(
  * @return One canonical seasonal statistical window.
  * @throws Mars2GribModelException If range or increment resolution fails.
  */
-inline std::vector<ProductTimeSpecWindow> build_SeasonalSingleLoop_Shape(
+inline ProductTimeSpecShapeStage1 build_SeasonalSingleLoop_ShapeStage1(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
@@ -117,18 +114,40 @@ inline std::vector<ProductTimeSpecWindow> build_SeasonalSingleLoop_Shape(
     using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
     try {
+        (void)classification;
         const TimeDuration timeRange = oneMonth();
 
-        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, domain, timeRange, false);
+        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
 
-        return {window};
+        return ProductTimeSpecShapeStage1{{window}};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_SeasonalSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_SeasonalSingleLoop_ShapeStage1`", input.to_json(),
+                                    Here()));
+    }
+}
+
+inline ProductTimeSpecShape build_SeasonalSingleLoop_ShapeFinal(
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
+    const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
+    const ProductTimeSpecShapeStage1& shapeStage1,
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        (void)classification;
+        (void)anchor;
+        (void)domain;
+        return ProductTimeSpecShape{shapeStage1.values};
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalSingleLoop_ShapeFinal`",
+                                                       input.to_json(), Here()));
     }
 }
 

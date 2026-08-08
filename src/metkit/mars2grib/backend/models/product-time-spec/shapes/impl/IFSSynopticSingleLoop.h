@@ -59,11 +59,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
 inline bool match_IFSSynopticSingleLoop_Shape(
-    const ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
+    const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -71,10 +69,9 @@ inline bool match_IFSSynopticSingleLoop_Shape(
         const bool isNotSeasonal             = !product_time_spec::detail::isSeasonal(input);
         const bool isSynoptic                = input.isSynoptic;
         const bool isAnalysis                = input.simulationType == SimulationType::Analysis;
-        const bool hasSynopticAnalysisDomain = domainKind == ProductTimeSpecDomainKind::SynopticAnalysisDomain;
         const bool hasNoStattypeBlocks       = input.stattype.empty();
 
-        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasSynopticAnalysisDomain && hasNoStattypeBlocks;
+        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasNoStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -99,9 +96,9 @@ inline bool match_IFSSynopticSingleLoop_Shape(
  * @return One canonical synoptic-analysis window.
  * @throws Mars2GribModelException If redundant increment validation fails.
  */
-inline std::vector<ProductTimeSpecWindow> build_IFSSynopticSingleLoop_Shape(
+inline ProductTimeSpecShapeStage1 build_IFSSynopticSingleLoop_ShapeStage1(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveSynopticIncrement;
@@ -110,6 +107,8 @@ inline std::vector<ProductTimeSpecWindow> build_IFSSynopticSingleLoop_Shape(
 
     try {
 
+        (void)classification;
+
         const ResolvedInnerIncrement resolvedIncrement = resolveSynopticIncrement(input);
 
         const TimeDuration timeRange = oneMonth();
@@ -117,11 +116,33 @@ inline std::vector<ProductTimeSpecWindow> build_IFSSynopticSingleLoop_Shape(
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
 
-        return {window};
+        return ProductTimeSpecShapeStage1{{window}};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeStage1`", input.to_json(),
+                                    Here()));
+    }
+}
+
+inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeFinal(
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
+    const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
+    const ProductTimeSpecShapeStage1& shapeStage1,
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        (void)classification;
+        (void)anchor;
+        (void)domain;
+
+        return ProductTimeSpecShape{shapeStage1.values};
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeFinal`",
+                                                       input.to_json(), Here()));
     }
 }
 

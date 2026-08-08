@@ -41,6 +41,7 @@
 #include <utility>
 
 #include "metkit/config/LibMetkit.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
@@ -199,7 +200,9 @@ private:
 
         try {
             const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input);
-            anchor::ProductTimeSpecAnchor anchor               = anchor::build_Anchor_or_throw(anchorType, input);
+            ProductTimeSpecClassification classification;
+            classification.anchorType = anchorType;
+            anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification);
 
             ProductTimeAnchorSpecComponents result;
             result.anchorType = anchorType;
@@ -343,12 +346,14 @@ private:
     /// This helper executes the backend-model ProductTimeSpec pipeline after a
     /// normalized input snapshot already exists:
     /// 1. classify anchor;
-    /// 2. build anchor;
+    /// 2. classify shape;
     /// 3. classify domain;
-    /// 4. build domain;
-    /// 5. classify shape;
-    /// 6. build shape windows;
-    /// 7. return the immutable member bundle used by the final constructor.
+    /// 4. assemble the classification bundle;
+    /// 5. build anchor;
+    /// 6. build the stage-1 shape;
+    /// 7. build domain;
+    /// 8. build the final shape;
+    /// 9. return the immutable member bundle used by the final constructor.
     ///
     /// @param[in] input Complete normalized ProductTimeSpec input snapshot.
     /// @return Complete staged component bundle for final member initialization.
@@ -362,12 +367,21 @@ private:
 
         try {
             const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input);
-            anchor::ProductTimeSpecAnchor anchor               = anchor::build_Anchor_or_throw(anchorType, input);
             const domain::ProductTimeSpecDomainKind domainType = domain::classify_Domain_or_throw(input);
-            domain::ProductTimeSpecDomain domain            = domain::build_Domain_or_throw(domainType, input, anchor);
-            const shape::ProductTimeSpecShapeKind shapeType = shape::classify_Shape_or_throw(input, domainType);
-            shape::ProductTimeSpecShape windows;
-            windows.values = shape::build_Shape_or_throw(shapeType, input, domain);
+            const shape::ProductTimeSpecShapeKind shapeType   = shape::classify_Shape_or_throw(input);
+
+            ProductTimeSpecClassification classification;
+            classification.anchorType = anchorType;
+            classification.shapeType  = shapeType;
+            classification.domainType = domainType;
+
+            anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification);
+            const shape::ProductTimeSpecShapeStage1 shapeStage1 =
+                shape::build_ShapeStage1_or_throw(shapeType, input, classification);
+            domain::ProductTimeSpecDomain domain =
+                domain::build_Domain_or_throw(domainType, input, classification, anchor, shapeStage1);
+            const shape::ProductTimeSpecShape windows =
+                shape::build_ShapeFinal_or_throw(shapeType, input, classification, anchor, shapeStage1, domain);
 
             ProductTimeSpecComponents result;
             result.anchorType = anchorType;

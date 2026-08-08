@@ -61,17 +61,16 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
 inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(
-    const ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
+    const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
+    using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         const bool isAifs                   = input.regime == SimulationRegime::AIFS;
-        const bool hasForecastDomain        = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isForecast               = input.simulationType == SimulationType::Forecast;
         const bool isNotSeasonal            = !product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic            = !input.isSynoptic;
         const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
@@ -81,7 +80,7 @@ inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(
         const bool hasExactlyOneStattypeBlock = input.stattype.size() == 1;
         const bool requiresFakeDoubleLoop     = input.requiresFakeDoubleLoopSingleLoopRepresentation;
 
-        return isAifs && hasForecastDomain && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
+        return isAifs && isForecast && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
                hasAcceptedTimespanRepresentation && hasExactlyOneStattypeBlock && requiresFakeDoubleLoop;
     }
     catch (...) {
@@ -105,15 +104,16 @@ inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(
  * @return One canonical AIFS statistical window.
  * @throws Mars2GribModelException If AIFS invariants are violated.
  */
-inline std::vector<ProductTimeSpecWindow> build_AIFSFakeDoubleLoopSingleLoop_Shape(
+inline ProductTimeSpecShapeStage1 build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        (void)classification;
         const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
 
         if (!sourceIncrementIsMissing) {
@@ -137,11 +137,34 @@ inline std::vector<ProductTimeSpecWindow> build_AIFSFakeDoubleLoopSingleLoop_Sha
         ProductTimeSpecWindow window{statisticalProcessing, missingTypeOfTimeIncrement(), timeRange,
                                      missingIncrement()};
 
-        return {window};
+        return ProductTimeSpecShapeStage1{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_Shape`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1`",
+                                    input.to_json(), Here()));
+    }
+}
+
+inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal(
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
+    const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
+    const ProductTimeSpecShapeStage1& shapeStage1,
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        (void)classification;
+        (void)anchor;
+        (void)domain;
+
+        return ProductTimeSpecShape{shapeStage1.values};
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal`",
+                                    input.to_json(), Here()));
     }
 }
 

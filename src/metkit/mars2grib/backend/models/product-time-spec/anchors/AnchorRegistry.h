@@ -55,7 +55,7 @@ namespace detail {
 using AnchorMatcher = bool (*)(const ProductTimeSpecInput&);
 
 /// @brief Function-pointer type shared by all anchor builders.
-using AnchorBuilder = ProductTimeSpecAnchor (*)(const ProductTimeSpecInput&);
+using AnchorBuilder = ProductTimeSpecAnchor (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&);
 
 ///
 /// @brief Immutable registry row for one anchor case.
@@ -142,12 +142,14 @@ inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecI
 ///            `classify_Anchor_or_throw`.
 /// @param[in] input Fully normalized ProductTimeSpec input supplied to the
 ///            selected anchor builder.
+/// @param[in] fullClassification Full resolved ProductTimeSpec classification bundle.
 /// @return Complete and case-validated `ProductTimeSpecAnchor`.
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException If
 ///         the classification is invalid or the selected builder fails.
 ///
 inline ProductTimeSpecAnchor build_Anchor_or_throw(ProductTimeSpecAnchorKind classification,
-                                                   const ProductTimeSpecInput& input) {
+                                                    const ProductTimeSpecInput& input,
+                                                    const ProductTimeSpecClassification& fullClassification) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -158,7 +160,7 @@ inline ProductTimeSpecAnchor build_Anchor_or_throw(ProductTimeSpecAnchorKind cla
             throw Mars2GribModelException("Invalid AnchorClassification value", input.to_json(), Here());
         }
 
-        return detail::anchorCases[index].builder(input);
+        return detail::anchorCases[index].builder(input, fullClassification);
     }
     catch (...) {
         std::throw_with_nested(

@@ -30,8 +30,10 @@
 
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -71,18 +73,24 @@ inline bool match_SynopticAnalysis_Domain(const ProductTimeSpecInput& input) {
  * @brief Preserve exact MARS date/time as the start and align the end to the next month boundary.
  *
  * @param[in] input Fully normalized ProductTimeSpec input snapshot.
+ * @param[in] classification Full resolved ProductTimeSpec classification bundle.
  * @param[in] anchor Previously constructed ProductTimeSpec anchor.
+ * @param[in] shapeStage1 Previously constructed stage-1 ProductTimeSpec shape.
  * @return Constructed ProductTimeSpec domain for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
 inline ProductTimeSpecDomain build_SynopticAnalysis_Domain(const ProductTimeSpecInput& input,
-                                                           const anchor::ProductTimeSpecAnchor& anchor) {
+                                                           const ProductTimeSpecClassification& classification,
+                                                           const anchor::ProductTimeSpecAnchor& anchor,
+                                                           const shape::ProductTimeSpecShapeStage1& shapeStage1) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::beginningOfNextCalendarMonth;
     using metkit::mars2grib::utils::time_arithmetic::makeDateTime;
 
     try {
+        (void)classification;
         (void)anchor;
+        (void)shapeStage1;
         if (!input.marsDate.has_value()) {
             throw Mars2GribModelException("Synoptic analysis domain requires an explicit MARS date", input.to_json(),
                                           Here());

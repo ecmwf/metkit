@@ -289,19 +289,16 @@ inline void validateExplicitIncrement(const ProductTimeSpecInput& input, long in
  * additional input and domain facts without changing any shape builder.
  *
  * @param[in] input Normalized input and embedded options.
- * @param[in] domain Already resolved absolute domain.
  * @param[in] innerRange Innermost canonical time range.
  * @return Positive default increment expressed in seconds.
  * @throws Mars2GribModelException If no valid default can be deduced.
  */
 inline long deduceDefaultTimeIncrement(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
     const metkit::mars2grib::backend::deductions::TimeDuration& innerRange) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        (void)domain;
         (void)innerRange;
 
         throw Mars2GribModelException("Default time-increment deduction not implemented", input.to_json(), Here());
@@ -323,7 +320,6 @@ inline long deduceDefaultTimeIncrement(
  *   validate the result, and use it.
  *
  * @param[in] input Normalized input and embedded options.
- * @param[in] domain Already resolved absolute domain.
  * @param[in] innerRange Innermost canonical time range.
  * @param[in] isMultiLoop Whether the final shape contains multiple windows.
  * @param[in] allowZeroLengthFromStart Whether the zero-length from-start exception applies.
@@ -332,7 +328,6 @@ inline long deduceDefaultTimeIncrement(
  */
 inline ResolvedInnerIncrement resolveIfsInnerIncrement(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
     const metkit::mars2grib::backend::deductions::TimeDuration& innerRange, bool isMultiLoop,
     bool allowZeroLengthFromStart = false) {
     using metkit::mars2grib::backend::tables::TimeUnit;
@@ -356,7 +351,7 @@ inline ResolvedInnerIncrement resolveIfsInnerIncrement(
             return ResolvedInnerIncrement{missingIncrement(), missingTypeOfTimeIncrement()};
         }
 
-        const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, domain, innerRange);
+        const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innerRange);
 
         validateExplicitIncrement(input, defaultIncrementInSeconds, innerRange, allowZeroLengthFromStart);
 

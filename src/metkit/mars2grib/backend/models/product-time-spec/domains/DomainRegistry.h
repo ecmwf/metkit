@@ -38,6 +38,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/AnalysisDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/ForecastDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/SeasonalForecastDomain.h"
@@ -55,10 +56,13 @@ using DomainMatcher = bool (*)(const ProductTimeSpecInput&);
 ///
 /// @brief Function-pointer type shared by all domain builders.
 ///
-/// A domain builder receives normalized input and the already constructed anchor.
-/// It returns the complete absolute support interval.
+/// A domain builder receives normalized input, the resolved classification
+/// bundle, the already constructed anchor, and the stage-1 shape artifact. It
+/// returns the complete absolute support interval.
 ///
-using DomainBuilder = ProductTimeSpecDomain (*)(const ProductTimeSpecInput&, const anchor::ProductTimeSpecAnchor&);
+using DomainBuilder = ProductTimeSpecDomain (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
+                                                const anchor::ProductTimeSpecAnchor&,
+                                                const shape::ProductTimeSpecShapeStage1&);
 
 ///
 /// @brief Immutable registry row for one domain case.
@@ -153,8 +157,11 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
 /// @param[in] input
 /// Fully normalized ProductTimeSpec input.
 ///
+/// @param[in] fullClassification Full resolved ProductTimeSpec classification bundle.
 /// @param[in] anchor
 /// Complete anchor constructed before domain construction.
+/// @param[in] shapeStage1
+/// Stage-1 shape artifact constructed before domain construction.
 ///
 /// @return
 /// Absolute ProductTimeSpec support interval.
@@ -164,7 +171,9 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
 ///
 inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind classification,
                                                    const ProductTimeSpecInput& input,
-                                                   const anchor::ProductTimeSpecAnchor& anchor) {
+                                                    const ProductTimeSpecClassification& fullClassification,
+                                                    const anchor::ProductTimeSpecAnchor& anchor,
+                                                    const shape::ProductTimeSpecShapeStage1& shapeStage1) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -175,7 +184,7 @@ inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind cla
             throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(), Here());
         }
 
-        return detail::domainCases[index].builder(input, anchor);
+        return detail::domainCases[index].builder(input, fullClassification, anchor, shapeStage1);
     }
     catch (...) {
         std::throw_with_nested(

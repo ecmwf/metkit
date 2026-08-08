@@ -55,6 +55,18 @@ struct ProductTimeSpecShape {
     std::vector<ProductTimeSpecWindow> values{};
 };
 
+///
+/// @brief Ordered stage-1 ProductTimeSpec window sequence.
+///
+/// This intermediate artifact currently mirrors `ProductTimeSpecShape` exactly so
+/// stage-1 and final shape construction can be decoupled without changing the
+/// final stored shape type.
+///
+struct ProductTimeSpecShapeStage1 {
+    /// @brief Stage-1 canonical windows in outermost-to-innermost order.
+    std::vector<ProductTimeSpecWindow> values{};
+};
+
 /// @brief Serialize one resolved shape artifact as diagnostic JSON.
 /// @param[in] value Resolved canonical window sequence.
 /// @return One JSON object describing the final shape state.
