@@ -61,17 +61,16 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
 inline bool match_IFSFromStartSingleLoopAtZero_Shape(
-    const ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind& domainKind) {
+    const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
+    using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomainKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
 
         const bool isIfs                 = input.regime == SimulationRegime::IFS;
-        const bool hasForecastDomain     = domainKind == ProductTimeSpecDomainKind::ForecastDomain;
+        const bool isForecast            = input.simulationType == SimulationType::Forecast;
         const bool isNotSeasonal         = !product_time_spec::detail::isSeasonal(input);
         const bool isNotSynoptic         = !input.isSynoptic;
         const bool usesFromStartTimespan = input.timespan.kind == TimespanKind::FromStart;
@@ -83,7 +82,7 @@ inline bool match_IFSFromStartSingleLoopAtZero_Shape(
             input.innerMostTypeOfStatisticalProcessing, input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
 
 
-        return isIfs && hasForecastDomain && isNotSeasonal && isNotSynoptic && usesFromStartTimespan &&
+        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && usesFromStartTimespan &&
                hasNoStattypeBlocks && hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
     }
     catch (...) {
@@ -107,8 +106,27 @@ inline bool match_IFSFromStartSingleLoopAtZero_Shape(
  * @return One canonical from-start window.
  * @throws Mars2GribModelException If domain arithmetic or increment resolution fails.
  */
-inline std::vector<ProductTimeSpecWindow> build_IFSFromStartSingleLoopAtZero_Shape(
+inline ProductTimeSpecShapeStage1 build_IFSFromStartSingleLoopAtZero_ShapeStage1(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        (void)input;
+        (void)classification;
+        return ProductTimeSpecShapeStage1{};
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopAtZero_ShapeStage1`",
+                                                       input.to_json(), Here()));
+    }
+}
+
+inline ProductTimeSpecShape build_IFSFromStartSingleLoopAtZero_ShapeFinal(
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
+    const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
+    const ProductTimeSpecShapeStage1& shapeStage1,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
@@ -117,20 +135,23 @@ inline std::vector<ProductTimeSpecWindow> build_IFSFromStartSingleLoopAtZero_Sha
     using metkit::mars2grib::utils::time_arithmetic::durationBetween;
 
     try {
+        (void)classification;
+        (void)anchor;
+        (void)shapeStage1;
         const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
 
         const bool isZeroLengthFromStart = timeRange.length == 0;
 
-        const ResolvedInnerIncrement resolvedIncrement =
-            resolveIfsInnerIncrement(input, domain, timeRange, false, isZeroLengthFromStart);
+        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false,
+                                                                                  isZeroLengthFromStart);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
 
-        return {window};
+        return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopAtZero_Shape`",
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopAtZero_ShapeFinal`",
                                                        input.to_json(), Here()));
     }
 }

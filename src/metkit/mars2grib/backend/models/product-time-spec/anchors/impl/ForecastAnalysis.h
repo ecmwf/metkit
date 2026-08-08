@@ -72,15 +72,18 @@ inline bool match_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input) {
  * @brief Construct a ForecastAnalysis anchor from one MARS date/time source.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
+ * @param[in] classification Full resolved ProductTimeSpec classification bundle.
  * @return Constructed and order-validated ProductTimeSpec anchor.
  *
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
-inline ProductTimeSpecAnchor build_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input) {
+inline ProductTimeSpecAnchor build_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input,
+                                                           const ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchorKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        (void)classification;
         const eckit::DateTime anchorDateTime = forecastAnalysisDateTimeFromInput(input);
 
         return checkedAnchor(input, anchorDateTime, anchorDateTime, anchorDateTime,

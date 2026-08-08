@@ -72,15 +72,18 @@ inline bool match_Hindcast_Anchor(const ProductTimeSpecInput& input) {
  * @brief Construct a Hindcast anchor from hdate and MARS date/time.
  *
  * @param[in] input Fully normalized ProductTimeSpec input.
+ * @param[in] classification Full resolved ProductTimeSpec classification bundle.
  * @return Constructed and order-validated ProductTimeSpec anchor.
  *
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
-inline ProductTimeSpecAnchor build_Hindcast_Anchor(const ProductTimeSpecInput& input) {
+inline ProductTimeSpecAnchor build_Hindcast_Anchor(const ProductTimeSpecInput& input,
+                                                   const ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchorKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
+        (void)classification;
         const eckit::DateTime labelDateTime             = hindcastLabelDateTimeFromInput(input);
         const eckit::DateTime initialConditionsDateTime = hindcastInitialConditionsDateTimeFromInput(input);
         const eckit::DateTime referenceDateTime         = initialConditionsDateTime;
