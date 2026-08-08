@@ -125,14 +125,9 @@ inline ProductTimeSpecShapeStage1 build_AIFSStandardSingleLoop_ShapeStage1(
         }
 
 
-        const TimeDuration timeRange     = timespanDuration(input);
-        const auto statisticalProcessing = input.innerMostTypeOfStatisticalProcessing;
+        const TimeDuration timeRange = timespanDuration(input);
 
-
-        ProductTimeSpecWindow window{statisticalProcessing, missingTypeOfTimeIncrement(), timeRange,
-                                     missingIncrement()};
-
-        return ProductTimeSpecShapeStage1{{window}};
+        return ProductTimeSpecShapeStage1{{timeRange}};
     }
     catch (...) {
         std::throw_with_nested(
@@ -148,13 +143,21 @@ inline ProductTimeSpecShape build_AIFSStandardSingleLoop_ShapeFinal(
     const ProductTimeSpecShapeStage1& shapeStage1,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
 
     try {
         (void)classification;
         (void)anchor;
         (void)domain;
 
-        return ProductTimeSpecShape{shapeStage1.values};
+        const auto& timeRange            = shapeStage1.windowTimeRanges.at(0);
+        const auto statisticalProcessing = input.innerMostTypeOfStatisticalProcessing;
+
+        ProductTimeSpecWindow window{statisticalProcessing, missingTypeOfTimeIncrement(), timeRange,
+                                     missingIncrement()};
+
+        return ProductTimeSpecShape{{window}};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_AIFSStandardSingleLoop_ShapeFinal`",

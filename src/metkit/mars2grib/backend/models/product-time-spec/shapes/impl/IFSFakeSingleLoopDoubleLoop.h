@@ -119,19 +119,7 @@ inline ProductTimeSpecShapeStage1 build_IFSFakeSingleLoopDoubleLoop_ShapeStage1(
         (void)classification;
         const TimeDuration sharedTimeRange = timespanDuration(input);
 
-        ProductTimeSpecWindow outerWindow{input.innerMostTypeOfStatisticalProcessing,
-                                          typeOfTimeIncrementForWindow(input, true, false, sharedTimeRange),
-                                          sharedTimeRange, sharedTimeRange};
-
-        const ResolvedInnerIncrement resolvedInnermostIncrement = resolveIfsInnerIncrement(input, sharedTimeRange, true);
-
-        ProductTimeSpecWindow innermostWindow{input.innerMostTypeOfStatisticalProcessing,
-                                              resolvedInnermostIncrement.typeOfTimeIncrement, sharedTimeRange,
-                                              resolvedInnermostIncrement.timeIncrement};
-
-        outerWindow.timeIncrement = innermostWindow.timeRange;
-
-        return ProductTimeSpecShapeStage1{{outerWindow, innermostWindow}};
+        return ProductTimeSpecShapeStage1{{sharedTimeRange, sharedTimeRange}};
     }
     catch (...) {
         std::throw_with_nested(
@@ -147,12 +135,29 @@ inline ProductTimeSpecShape build_IFSFakeSingleLoopDoubleLoop_ShapeFinal(
     const ProductTimeSpecShapeStage1& shapeStage1,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
 
     try {
         (void)classification;
         (void)anchor;
         (void)domain;
-        return ProductTimeSpecShape{shapeStage1.values};
+
+        const auto& sharedOuterRange = shapeStage1.windowTimeRanges.at(0);
+        const auto& sharedInnerRange = shapeStage1.windowTimeRanges.at(1);
+
+        ProductTimeSpecWindow outerWindow{input.innerMostTypeOfStatisticalProcessing,
+                                          typeOfTimeIncrementForWindow(input, true, false, sharedOuterRange),
+                                          sharedOuterRange, sharedInnerRange};
+
+        const auto resolvedInnermostIncrement = resolveIfsInnerIncrement(input, sharedInnerRange, true);
+        ProductTimeSpecWindow innermostWindow{input.innerMostTypeOfStatisticalProcessing,
+                                              resolvedInnermostIncrement.typeOfTimeIncrement, sharedInnerRange,
+                                              resolvedInnermostIncrement.timeIncrement};
+
+        outerWindow.timeIncrement = innermostWindow.timeRange;
+
+        return ProductTimeSpecShape{{outerWindow, innermostWindow}};
     }
     catch (...) {
         std::throw_with_nested(

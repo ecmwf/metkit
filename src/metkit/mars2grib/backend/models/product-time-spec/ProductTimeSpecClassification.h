@@ -92,6 +92,10 @@ namespace domain {
 /// - `ForecastDomain`, for non-synoptic non-seasonal forecast products whose
 ///   support ends at `referenceDateTime + step` and extends backward by the
 ///   resolved outer range;
+/// - `FromStartForecastDomain`, for non-synoptic non-seasonal forecast products
+///   using from-start shape semantics whose support ends at
+///   `referenceDateTime + step` and is completed by the final shape stage after
+///   domain construction;
 /// - `SeasonalForecastDomain`, for non-synoptic seasonal forecast products whose
 ///   support ends at `referenceDateTime + fcmonth months` and extends backward
 ///   by the resolved outer range;
@@ -105,6 +109,7 @@ namespace domain {
 ///
 enum class ProductTimeSpecDomainKind : std::size_t {
     ForecastDomain,
+    FromStartForecastDomain,
     SeasonalForecastDomain,
     AnalysisDomain,
     SynopticAnalysisDomain,
@@ -119,6 +124,8 @@ inline std::string productTimeSpecDomainTypeName(ProductTimeSpecDomainKind value
         switch (value) {
             case ProductTimeSpecDomainKind::ForecastDomain:
                 return "ForecastDomain";
+            case ProductTimeSpecDomainKind::FromStartForecastDomain:
+                return "FromStartForecastDomain";
             case ProductTimeSpecDomainKind::SeasonalForecastDomain:
                 return "SeasonalForecastDomain";
             case ProductTimeSpecDomainKind::AnalysisDomain:

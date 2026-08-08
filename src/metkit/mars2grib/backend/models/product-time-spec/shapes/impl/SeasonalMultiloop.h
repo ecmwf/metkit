@@ -119,32 +119,17 @@ inline ProductTimeSpecShapeStage1 build_SeasonalMultiloop_ShapeStage1(
                                           input.to_json(), Here());
         }
 
-        std::vector<ProductTimeSpecWindow> windows;
-        windows.reserve(input.stattype.size() + 1);
+        std::vector<TimeDuration> windowTimeRanges;
+        windowTimeRanges.reserve(input.stattype.size() + 1);
 
         for (const auto& stattypeBlock : input.stattype) {
-            ProductTimeSpecWindow outerWindow{stattypeBlock.typeOfStatisticalProcessing,
-                                              typeOfTimeIncrementForWindow(input, true, false, stattypeBlock.timeRange),
-                                              stattypeBlock.timeRange, missingIncrement()};
-
-            windows.push_back(outerWindow);
+            windowTimeRanges.push_back(stattypeBlock.timeRange);
         }
 
         const TimeDuration innermostTimeRange = timespanDuration(input);
+        windowTimeRanges.push_back(innermostTimeRange);
 
-        const ResolvedInnerIncrement resolvedInnermostIncrement = resolveIfsInnerIncrement(input, innermostTimeRange, true);
-
-        ProductTimeSpecWindow innermostWindow{input.innerMostTypeOfStatisticalProcessing,
-                                              resolvedInnermostIncrement.typeOfTimeIncrement, innermostTimeRange,
-                                              resolvedInnermostIncrement.timeIncrement};
-
-        windows.push_back(innermostWindow);
-
-        for (std::size_t windowIndex = 0; windowIndex + 1 < windows.size(); ++windowIndex) {
-            windows[windowIndex].timeIncrement = windows[windowIndex + 1].timeRange;
-        }
-
-        return ProductTimeSpecShapeStage1{windows};
+        return ProductTimeSpecShapeStage1{windowTimeRanges};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_ShapeStage1`",
@@ -159,12 +144,39 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeFinal(
     const ProductTimeSpecShapeStage1& shapeStage1,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
 
     try {
         (void)classification;
         (void)anchor;
         (void)domain;
-        return ProductTimeSpecShape{shapeStage1.values};
+
+        std::vector<ProductTimeSpecWindow> windows;
+        windows.reserve(shapeStage1.windowTimeRanges.size());
+
+        for (std::size_t rangeIndex = 0; rangeIndex + 1 < shapeStage1.windowTimeRanges.size(); ++rangeIndex) {
+            const auto& timeRange = shapeStage1.windowTimeRanges[rangeIndex];
+            const auto& stattypeBlock = input.stattype[rangeIndex];
+            windows.push_back(ProductTimeSpecWindow{stattypeBlock.typeOfStatisticalProcessing,
+                                                    typeOfTimeIncrementForWindow(input, true, false, timeRange), timeRange,
+                                                    missingIncrement()});
+        }
+
+        const auto& innermostTimeRange = shapeStage1.windowTimeRanges.back();
+        const auto resolvedInnermostIncrement =
+            resolveIfsInnerIncrement(input, innermostTimeRange, true);
+
+        windows.push_back(ProductTimeSpecWindow{input.innerMostTypeOfStatisticalProcessing,
+                                                resolvedInnermostIncrement.typeOfTimeIncrement, innermostTimeRange,
+                                                resolvedInnermostIncrement.timeIncrement});
+
+        for (std::size_t windowIndex = 0; windowIndex + 1 < windows.size(); ++windowIndex) {
+            windows[windowIndex].timeIncrement = windows[windowIndex + 1].timeRange;
+        }
+
+        return ProductTimeSpecShape{windows};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_ShapeFinal`",

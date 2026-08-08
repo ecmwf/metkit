@@ -135,12 +135,7 @@ inline ProductTimeSpecShapeStage1 build_IFSFakeDoubleLoopSingleLoop_ShapeStage1(
 
         const TimeDuration timeRange = stattype.timeRange;
 
-        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
-
-        ProductTimeSpecWindow window{stattype.typeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
-                                     timeRange, resolvedIncrement.timeIncrement};
-
-        return ProductTimeSpecShapeStage1{{window}};
+        return ProductTimeSpecShapeStage1{{timeRange}};
     }
     catch (...) {
         std::throw_with_nested(
@@ -161,7 +156,17 @@ inline ProductTimeSpecShape build_IFSFakeDoubleLoopSingleLoop_ShapeFinal(
         (void)classification;
         (void)anchor;
         (void)domain;
-        return ProductTimeSpecShape{shapeStage1.values};
+
+        const auto& stattype   = input.stattype.front();
+        const auto& timeRange  = shapeStage1.windowTimeRanges.at(0);
+        const auto resolvedIncrement =
+            metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement(input, timeRange,
+                                                                                                      false);
+
+        ProductTimeSpecWindow window{stattype.typeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
+                                     timeRange, resolvedIncrement.timeIncrement};
+
+        return ProductTimeSpecShape{{window}};
     }
     catch (...) {
         std::throw_with_nested(

@@ -58,13 +58,13 @@ struct ProductTimeSpecShape {
 ///
 /// @brief Ordered stage-1 ProductTimeSpec window sequence.
 ///
-/// This intermediate artifact currently mirrors `ProductTimeSpecShape` exactly so
-/// stage-1 and final shape construction can be decoupled without changing the
-/// final stored shape type.
+/// This intermediate artifact carries only the ordered canonical window ranges
+/// that are known before domain construction. The vector may be empty when the
+/// range is intentionally deferred until the final shape stage.
 ///
 struct ProductTimeSpecShapeStage1 {
-    /// @brief Stage-1 canonical windows in outermost-to-innermost order.
-    std::vector<ProductTimeSpecWindow> values{};
+    /// @brief Stage-1 canonical window ranges in outermost-to-innermost order.
+    std::vector<deductions::TimeDuration> windowTimeRanges{};
 };
 
 /// @brief Serialize one resolved shape artifact as diagnostic JSON.
