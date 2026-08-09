@@ -10,7 +10,11 @@
 
 ///
 /// @file DomainDataTypes.h
-/// @brief Domain classifications and resolved ProductTimeSpec domain artifact.
+/// @brief Domain artifact and resolved ProductTimeSpec domain state.
+///
+/// This header owns:
+/// - the resolved `ProductTimeSpecDomain` artifact type;
+/// - the best-effort diagnostic JSON serializer for the resolved domain.
 ///
 
 #pragma once
@@ -27,8 +31,11 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain {
 /// @brief Absolute temporal support interval of one resolved ProductTimeSpec.
 ///
 /// The domain artifact stores the start and end datetimes of the product's
-/// resolved support. The start and end are absolute placements, not relative
-/// durations, and are already fully computed by the selected domain builder.
+/// resolved support together with the synoptic-placement flag and the signed
+/// whole-hour offsets from the anchor reference datetime.
+///
+/// The start and end are absolute placements, not relative durations, and are
+/// already fully computed by the selected domain builder.
 ///
 struct ProductTimeSpecDomain {
 
@@ -49,11 +56,15 @@ struct ProductTimeSpecDomain {
 };
 
 /// @brief Serialize one resolved domain artifact as diagnostic JSON.
+///
+/// This function is best-effort and never throws. It is intended for
+/// diagnostic-context construction only and therefore returns a stable fallback
+/// error object if serialization fails.
+///
 /// @param[in] value Resolved domain artifact.
-/// @return One JSON object describing the final domain state.
-inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-
+/// @return One JSON object describing the final domain state, or a stable
+///         fallback error object if serialization fails.
+inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value) noexcept {
     try {
         std::ostringstream out;
         out << '{' << detail::jsonQuote_modelInput("domainStartDateTime") << ':'
@@ -67,8 +78,7 @@ inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value)
         return out.str();
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to serialize the ProductTimeSpec domain artifact", Here()));
+        return std::string{"{\"error\":\"productTimeSpecDomainJson failed while building diagnostic context\"}"};
     }
 }
 

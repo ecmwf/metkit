@@ -36,7 +36,8 @@
 /// |-------------|-------------|--------------|------------------------|--------------------------|
 /// | present     | optional    | absent       | both absent            | `ForecastAnalysis`       |
 /// | present     | optional    | present      | both absent            | `Hindcast`               |
-/// | absent      | absent      | absent       | one or both present    | `SeasonalClimate` matcher raises `not implemented` |
+/// | absent      | absent      | absent       | one or both present    | `SeasonalClimate` matcher raises `not
+/// implemented` |
 ///
 /// Unsupported source states include, among others:
 /// - partial `year` / `month` presence;
