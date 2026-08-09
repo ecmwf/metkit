@@ -10,12 +10,22 @@
 
 ///
 /// @file DomainRegistry.h
-/// @brief Register, classify, and dispatch ProductTimeSpec domain cases.
+/// @brief Register, classify, build, and check ProductTimeSpec domain cases.
+///
+/// This header centralizes the case table and the public dispatch entry points
+/// for ProductTimeSpec domain handling.
+///
+/// It owns:
+/// - the immutable registry row type used to keep matcher, builder, and checker
+///   callbacks aligned with their classification values;
+/// - the domain classification entry point;
+/// - the domain builder dispatch entry point;
+/// - the domain checker dispatch entry point.
 ///
 /// Every domain matcher is evaluated independently. Classification succeeds only
 /// when exactly one matcher returns `true`; matcher order never resolves overlap.
 /// Zero matches identify unsupported semantics, while multiple matches identify
-/// an error in matcher boundaries.
+/// overlap in matcher boundaries.
 ///
 /// The active callback-selection matrix is:
 ///
@@ -59,36 +69,43 @@ using DomainMatcher = bool (*)(const ProductTimeSpecInput&);
 /// @brief Function-pointer type shared by all domain builders.
 ///
 /// A domain builder receives normalized input, the resolved classification
-/// bundle, the already constructed anchor, and the stage-1 shape artifact. It
-/// returns the complete absolute support interval.
+/// bundle, the already constructed anchor, and the stage-1 outer time range. It
+/// returns the complete raw absolute support interval.
 ///
 using DomainBuilder = ProductTimeSpecDomain (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
                                                 const anchor::ProductTimeSpecAnchor&,
                                                 const shape::ProductTimeSpecOuterTimeRange&);
 
 ///
+/// @brief Function-pointer type shared by all domain check callbacks.
+using DomainChecker = bool (*)(const ProductTimeSpecInput&, const anchor::ProductTimeSpecAnchor&,
+                               const ProductTimeSpecDomain&);
+
 /// @brief Immutable registry row for one domain case.
 ///
-/// The row keeps the classification value, diagnostic name, matcher, and builder
-/// together so that independent arrays cannot become misaligned.
+/// The row keeps the classification value, diagnostic name, matcher, builder,
+/// and checker together so that independent arrays cannot become misaligned.
 ///
 struct DomainCase {
     ProductTimeSpecDomainKind classification;
     std::string_view name;
     DomainMatcher matcher;
     DomainBuilder builder;
+    DomainChecker checker;
 };
 
 /// @brief Immutable domain registry ordered exactly like `ProductTimeSpecDomainKind`.
 inline constexpr std::array<DomainCase, static_cast<std::size_t>(ProductTimeSpecDomainKind::Count)> domainCases{{
-    {ProductTimeSpecDomainKind::ForecastDomain, "ForecastDomain", &match_Forecast_Domain, &build_Forecast_Domain},
+    {ProductTimeSpecDomainKind::ForecastDomain, "ForecastDomain", &match_Forecast_Domain, &build_Forecast_Domain,
+     &check_Forecast_Domain},
     {ProductTimeSpecDomainKind::FromStartForecastDomain, "FromStartForecastDomain", &match_FromStartForecast_Domain,
-     &build_FromStartForecast_Domain},
+     &build_FromStartForecast_Domain, &check_FromStartForecast_Domain},
     {ProductTimeSpecDomainKind::SeasonalForecastDomain, "SeasonalForecastDomain", &match_SeasonalForecast_Domain,
-     &build_SeasonalForecast_Domain},
-    {ProductTimeSpecDomainKind::AnalysisDomain, "AnalysisDomain", &match_Analysis_Domain, &build_Analysis_Domain},
+     &build_SeasonalForecast_Domain, &check_SeasonalForecast_Domain},
+    {ProductTimeSpecDomainKind::AnalysisDomain, "AnalysisDomain", &match_Analysis_Domain, &build_Analysis_Domain,
+     &check_Analysis_Domain},
     {ProductTimeSpecDomainKind::SynopticAnalysisDomain, "SynopticAnalysisDomain", &match_SynopticAnalysis_Domain,
-     &build_SynopticAnalysis_Domain},
+     &build_SynopticAnalysis_Domain, &check_SynopticAnalysis_Domain},
 }};
 
 static_assert(static_cast<std::size_t>(detail::domainCases[0].classification) ==
@@ -108,7 +125,7 @@ static_assert(static_cast<std::size_t>(detail::domainCases[4].classification) ==
 /// @brief Classify the normalized input against every registered domain case.
 ///
 /// @section Domain classification contract
-/// - Reads: `analysisOrForecast` and synoptic facts from normalized input.
+/// - Reads: normalized synoptic, regime, simulation-type, and timespan facts.
 /// - Evaluates: every matcher in `domainCases`.
 /// - Success: exactly one matcher returns `true`.
 /// - Failure: zero or multiple matchers return `true`.
@@ -195,6 +212,47 @@ inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind cla
     catch (...) {
         std::throw_with_nested(
             Mars2GribModelException("Failed to build the ProductTimeSpec domain", input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Dispatch the checker associated with a validated domain classification.
+///
+/// @param[in] classification
+/// Unique domain classification returned by `classify_Domain_or_throw`.
+///
+/// @param[in] input
+/// Fully normalized ProductTimeSpec input.
+///
+/// @param[in] anchor
+/// Complete anchor constructed before domain validation.
+///
+/// @param[in] domain
+/// Complete domain artifact produced by the selected domain builder.
+///
+/// @return
+/// `true` when the selected checker validates the domain successfully.
+///
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
+/// If the classification is invalid or the selected checker fails.
+///
+inline bool check_Domain_or_throw(ProductTimeSpecDomainKind classification, const ProductTimeSpecInput& input,
+                                  const anchor::ProductTimeSpecAnchor& anchor, const ProductTimeSpecDomain& domain) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        const std::size_t index          = static_cast<std::size_t>(classification);
+        const bool classificationIsValid = index < detail::domainCases.size();
+
+        if (!classificationIsValid) {
+            throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(), Here());
+        }
+
+        return detail::domainCases[index].checker(input, anchor, domain);
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to check the ProductTimeSpec domain", input.to_json(), Here()));
     }
 }
 

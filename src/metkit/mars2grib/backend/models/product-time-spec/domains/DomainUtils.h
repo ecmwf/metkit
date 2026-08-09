@@ -12,8 +12,17 @@
 /// @file DomainUtils.h
 /// @brief Shared normalized-value primitives used by domain and shape builders.
 ///
-/// This header resolves primitive durations required by several cases. It does not
-/// construct complete domains and does not select a domain classification.
+/// This header contains low-level helpers used by multiple domain and shape
+/// cases. It owns:
+/// - primitive lead extraction helpers retained for the remaining organization
+///   layer;
+/// - extraction of duration-valued `timespan` as elapsed seconds;
+/// - shared outer-range resolution helpers;
+/// - conversion of two absolute datetimes into a signed whole-hour reference
+///   offset.
+///
+/// It does not construct complete domain artifacts and does not select a domain
+/// classification.
 ///
 /// Every function catches all failures and rethrows `Mars2GribModelException`
 /// directly. Functions receiving input attach `input.to_json()`.
