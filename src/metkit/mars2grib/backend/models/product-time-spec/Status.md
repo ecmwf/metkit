@@ -22,11 +22,14 @@ It must be updated at each significant implementation step.
 - planning completed for the rewrite structure;
 - temporary markdown replaced with `Requirements.md`, `Status.md`, and
   `Constraints.md`;
-- one additional early normalized-input refinement has been identified before
-  the callback-by-callback rewrite;
-- point `0` has been implemented in code;
-- point `1.0` has been implemented in code;
-- callback-by-callback review not started yet.
+- early normalized-input refinement completed in code;
+- raw domain artifact extension completed in code;
+- anchor callback review and rewrite completed in code;
+- domain callback review and rewrite completed in code;
+- shape callback review and rewrite completed in code;
+- anchor, domain, and shape local raw check callbacks implemented in code;
+- shape registry checker dispatch implemented in code;
+- normalization not started yet.
 
 ## Completed Tasks
 
@@ -36,6 +39,26 @@ It must be updated at each significant implementation step.
 - `0.3` Compute the new input member during `make_ProductTimeSpecInput_or_throw`.
 - `0.4` Update zero-step shape callbacks to consume the input member.
 - `1.0` Extend raw domain artifact.
+- `1.1` Review `match_Analysis_Domain`.
+- `1.2` Review `build_Analysis_Domain`.
+- `1.3` Review `match_Forecast_Domain`.
+- `1.4` Review `build_Forecast_Domain`.
+- `1.5` Review `match_FromStartForecast_Domain`.
+- `1.6` Review `build_FromStartForecast_Domain`.
+- `1.7` Review `match_SeasonalForecast_Domain`.
+- `1.8` Review `build_SeasonalForecast_Domain`.
+- `1.9` Review `match_SynopticAnalysis_Domain`.
+- `1.10` Review `build_SynopticAnalysis_Domain`.
+- `2.0` Add per-anchor check callbacks.
+- `2.1` Review `match_ForecastAnalysis_Anchor`.
+- `2.2` Review `build_ForecastAnalysis_Anchor`.
+- `2.3` Review `match_Hindcast_Anchor`.
+- `2.4` Review `build_Hindcast_Anchor`.
+- `2.5` Review `match_SeasonalClimate_Anchor`.
+- `2.6` Review `build_SeasonalClimate_Anchor`.
+- `3.0` Add per-domain check callbacks.
+- `4.0` Add per-shape check callbacks.
+- `4.1` to `4.42` Review and refactor all shape callbacks.
 
 ## Agreed Decisions
 
@@ -60,17 +83,12 @@ It must be updated at each significant implementation step.
 
 ## Active Rewrite Order
 
-1. extend raw domain artifact;
-2. extend normalized input with precomputed step-zero allowance;
-3. review and refactor anchor callbacks;
-4. review and refactor domain callbacks;
-5. review and refactor shape callbacks;
-6. add per-case raw check callbacks;
-7. add raw-to-normalized artifact layer;
-8. add post-normalization cross checks;
-9. audit diagnostic JSON and exception boundaries;
-10. harden `TemporalArithmetic`;
-11. rewrite in-code documentation.
+1. update the living markdown to reflect the completed callback and checker work;
+2. add the raw-to-normalized artifact layer;
+3. add post-normalization cross checks;
+4. audit diagnostic JSON and exception boundaries;
+5. harden `TemporalArithmetic`;
+6. rewrite in-code documentation.
 
 ## Callback Review Tracker
 
@@ -86,103 +104,103 @@ Use the following status values:
 
 ### Anchor callbacks
 
-- `match_ForecastAnalysis_Anchor` : pending
-- `build_ForecastAnalysis_Anchor` : pending
-- `match_Hindcast_Anchor` : pending
-- `build_Hindcast_Anchor` : pending
-- `match_SeasonalClimate_Anchor` : pending
-- `build_SeasonalClimate_Anchor` : pending
+- `match_ForecastAnalysis_Anchor` : rewritten
+- `build_ForecastAnalysis_Anchor` : rewritten
+- `match_Hindcast_Anchor` : rewritten
+- `build_Hindcast_Anchor` : rewritten
+- `match_SeasonalClimate_Anchor` : rewritten
+- `build_SeasonalClimate_Anchor` : rewritten
 
 ### Domain callbacks
 
-- `match_Analysis_Domain` : pending
-- `build_Analysis_Domain` : pending
-- `match_Forecast_Domain` : pending
-- `build_Forecast_Domain` : pending
-- `match_FromStartForecast_Domain` : pending
-- `build_FromStartForecast_Domain` : pending
-- `match_SeasonalForecast_Domain` : pending
-- `build_SeasonalForecast_Domain` : pending
-- `match_SynopticAnalysis_Domain` : pending
-- `build_SynopticAnalysis_Domain` : pending
+- `match_Analysis_Domain` : rewritten
+- `build_Analysis_Domain` : rewritten
+- `match_Forecast_Domain` : rewritten
+- `build_Forecast_Domain` : rewritten
+- `match_FromStartForecast_Domain` : rewritten
+- `build_FromStartForecast_Domain` : rewritten
+- `match_SeasonalForecast_Domain` : rewritten
+- `build_SeasonalForecast_Domain` : rewritten
+- `match_SynopticAnalysis_Domain` : rewritten
+- `build_SynopticAnalysis_Domain` : rewritten
 
 ### Shape callbacks
 
-- `match_Instant_Shape` : pending
-- `build_Instant_ShapeOuterTimeRange` : pending
-- `build_Instant_ShapeWindows` : pending
-- `match_IFSStandardSingleLoop_Shape` : pending
-- `build_IFSStandardSingleLoop_ShapeOuterTimeRange` : pending
-- `build_IFSStandardSingleLoop_ShapeWindows` : pending
-- `match_IFSFakeDoubleLoopSingleLoop_Shape` : pending
-- `build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : pending
-- `build_IFSFakeDoubleLoopSingleLoop_ShapeWindows` : pending
-- `match_IFSFromStartSingleLoopAtZero_Shape` : pending
-- `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : pending
-- `build_IFSFromStartSingleLoopAtZero_ShapeWindows` : pending
-- `match_IFSFromStartSingleLoopPositive_Shape` : pending
-- `build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : pending
-- `build_IFSFromStartSingleLoopPositive_ShapeWindows` : pending
-- `match_IFSSynopticSingleLoop_Shape` : pending
-- `build_IFSSynopticSingleLoop_ShapeOuterTimeRange` : pending
-- `build_IFSSynopticSingleLoop_ShapeWindows` : pending
-- `match_AIFSStandardSingleLoop_Shape` : pending
-- `build_AIFSStandardSingleLoop_ShapeOuterTimeRange` : pending
-- `build_AIFSStandardSingleLoop_ShapeWindows` : pending
-- `match_AIFSFakeDoubleLoopSingleLoop_Shape` : pending
-- `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : pending
-- `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows` : pending
-- `match_AIFSFromStartSingleLoopAtZero_Shape` : pending
-- `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : pending
-- `build_AIFSFromStartSingleLoopAtZero_ShapeWindows` : pending
-- `match_AIFSFromStartSingleLoopPositive_Shape` : pending
-- `build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : pending
-- `build_AIFSFromStartSingleLoopPositive_ShapeWindows` : pending
-- `match_SeasonalSingleLoop_Shape` : pending
-- `build_SeasonalSingleLoop_ShapeOuterTimeRange` : pending
-- `build_SeasonalSingleLoop_ShapeWindows` : pending
-- `match_SeasonalMultiloop_Shape` : pending
-- `build_SeasonalMultiloop_ShapeOuterTimeRange` : pending
-- `build_SeasonalMultiloop_ShapeWindows` : pending
-- `match_IFSStandardMultiLoop_Shape` : pending
-- `build_IFSStandardMultiLoop_ShapeOuterTimeRange` : pending
-- `build_IFSStandardMultiLoop_ShapeWindows` : pending
-- `match_IFSFakeSingleLoopDoubleLoop_Shape` : pending
-- `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange` : pending
-- `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows` : pending
+- `match_Instant_Shape` : rewritten
+- `build_Instant_ShapeOuterTimeRange` : rewritten
+- `build_Instant_ShapeWindows` : rewritten
+- `match_IFSStandardSingleLoop_Shape` : rewritten
+- `build_IFSStandardSingleLoop_ShapeOuterTimeRange` : rewritten
+- `build_IFSStandardSingleLoop_ShapeWindows` : rewritten
+- `match_IFSFakeDoubleLoopSingleLoop_Shape` : rewritten
+- `build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : rewritten
+- `build_IFSFakeDoubleLoopSingleLoop_ShapeWindows` : rewritten
+- `match_IFSFromStartSingleLoopAtZero_Shape` : rewritten
+- `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : rewritten
+- `build_IFSFromStartSingleLoopAtZero_ShapeWindows` : rewritten
+- `match_IFSFromStartSingleLoopPositive_Shape` : rewritten
+- `build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : rewritten
+- `build_IFSFromStartSingleLoopPositive_ShapeWindows` : rewritten
+- `match_IFSSynopticSingleLoop_Shape` : rewritten
+- `build_IFSSynopticSingleLoop_ShapeOuterTimeRange` : rewritten
+- `build_IFSSynopticSingleLoop_ShapeWindows` : rewritten
+- `match_AIFSStandardSingleLoop_Shape` : rewritten
+- `build_AIFSStandardSingleLoop_ShapeOuterTimeRange` : rewritten
+- `build_AIFSStandardSingleLoop_ShapeWindows` : rewritten
+- `match_AIFSFakeDoubleLoopSingleLoop_Shape` : rewritten
+- `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : rewritten
+- `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows` : rewritten
+- `match_AIFSFromStartSingleLoopAtZero_Shape` : rewritten
+- `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : rewritten
+- `build_AIFSFromStartSingleLoopAtZero_ShapeWindows` : rewritten
+- `match_AIFSFromStartSingleLoopPositive_Shape` : rewritten
+- `build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : rewritten
+- `build_AIFSFromStartSingleLoopPositive_ShapeWindows` : rewritten
+- `match_SeasonalSingleLoop_Shape` : rewritten
+- `build_SeasonalSingleLoop_ShapeOuterTimeRange` : rewritten
+- `build_SeasonalSingleLoop_ShapeWindows` : rewritten
+- `match_SeasonalMultiloop_Shape` : rewritten
+- `build_SeasonalMultiloop_ShapeOuterTimeRange` : rewritten
+- `build_SeasonalMultiloop_ShapeWindows` : rewritten
+- `match_IFSStandardMultiLoop_Shape` : rewritten
+- `build_IFSStandardMultiLoop_ShapeOuterTimeRange` : rewritten
+- `build_IFSStandardMultiLoop_ShapeWindows` : rewritten
+- `match_IFSFakeSingleLoopDoubleLoop_Shape` : rewritten
+- `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange` : rewritten
+- `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows` : rewritten
 
 ## Future Raw Check Callback Tracker
 
 ### Anchor raw checks
 
-- `check_ForecastAnalysis_Anchor` : not added
-- `check_Hindcast_Anchor` : not added
-- `check_SeasonalClimate_Anchor` : not added
+- `check_ForecastAnalysis_Anchor` : added
+- `check_Hindcast_Anchor` : added
+- `check_SeasonalClimate_Anchor` : added
 
 ### Domain raw checks
 
-- `check_Analysis_Domain` : not added
-- `check_Forecast_Domain` : not added
-- `check_FromStartForecast_Domain` : not added
-- `check_SeasonalForecast_Domain` : not added
-- `check_SynopticAnalysis_Domain` : not added
+- `check_Analysis_Domain` : added
+- `check_Forecast_Domain` : added
+- `check_FromStartForecast_Domain` : added
+- `check_SeasonalForecast_Domain` : added
+- `check_SynopticAnalysis_Domain` : added
 
 ### Shape raw checks
 
-- `check_Instant_Shape` : not added
-- `check_IFSStandardSingleLoop_Shape` : not added
-- `check_IFSFakeDoubleLoopSingleLoop_Shape` : not added
-- `check_IFSFromStartSingleLoopAtZero_Shape` : not added
-- `check_IFSFromStartSingleLoopPositive_Shape` : not added
-- `check_IFSSynopticSingleLoop_Shape` : not added
-- `check_AIFSStandardSingleLoop_Shape` : not added
-- `check_AIFSFakeDoubleLoopSingleLoop_Shape` : not added
-- `check_AIFSFromStartSingleLoopAtZero_Shape` : not added
-- `check_AIFSFromStartSingleLoopPositive_Shape` : not added
-- `check_SeasonalSingleLoop_Shape` : not added
-- `check_SeasonalMultiloop_Shape` : not added
-- `check_IFSStandardMultiLoop_Shape` : not added
-- `check_IFSFakeSingleLoopDoubleLoop_Shape` : not added
+- `check_Instant_Shape` : added
+- `check_IFSStandardSingleLoop_Shape` : added
+- `check_IFSFakeDoubleLoopSingleLoop_Shape` : added
+- `check_IFSFromStartSingleLoopAtZero_Shape` : added
+- `check_IFSFromStartSingleLoopPositive_Shape` : added
+- `check_IFSSynopticSingleLoop_Shape` : added
+- `check_AIFSStandardSingleLoop_Shape` : added
+- `check_AIFSFakeDoubleLoopSingleLoop_Shape` : added
+- `check_AIFSFromStartSingleLoopAtZero_Shape` : added
+- `check_AIFSFromStartSingleLoopPositive_Shape` : added
+- `check_SeasonalSingleLoop_Shape` : added
+- `check_SeasonalMultiloop_Shape` : added
+- `check_IFSStandardMultiLoop_Shape` : added
+- `check_IFSFakeSingleLoopDoubleLoop_Shape` : added
 
 ## Normalization Tracker
 
@@ -260,8 +278,8 @@ Still intentionally deferred:
 
 The next session should begin by:
 
-1. extending `ProductTimeSpecInput` with the precomputed step-zero allowance;
-2. extending `ProductTimeSpecDomain`;
-3. reviewing domain callbacks one by one;
-4. deciding the raw-to-normalized domain and shape artifact boundary;
-5. only then beginning code modifications.
+1. updating the living markdown to reflect the completed callback and checker work;
+2. adding the raw-to-normalized artifact layer;
+3. wiring normalization into the top-level ProductTimeSpec pipeline;
+4. adding final cross checks on normalized artifacts;
+5. only then beginning the exception-boundary and arithmetic hardening phases.

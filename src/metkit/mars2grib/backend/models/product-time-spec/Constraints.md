@@ -108,6 +108,16 @@ When multiple windows are needed:
 
 - Input-policy facts may be precomputed in `ProductTimeSpecInput` when doing so
   reduces callback-local recomputation and improves callback readability.
+- Seasonal class/stream semantics and seasonal lead semantics are distinct facts
+  and must not be conflated.
+- Seasonal class/stream semantics are:
+  - `marsClass` in `od`, `rd`, `c3`;
+  - `marsStream` in `sfmd`, `shmd`.
+- Seasonal lead semantics are:
+  - `step` absent;
+  - `marsFcmonth` present.
+- Seasonal shape and domain cases must require both facts together.
+- Non-seasonal shape and domain cases must reject the conjunction of both facts.
 - Normalization must happen after raw callbacks.
 - Per-callback raw checks must happen before normalization.
 - Cross anchor/domain/shape checks must happen after normalization.

@@ -358,10 +358,8 @@ of throwing.
 
 ## Current Limitations
 
-The domain checker infrastructure is now present, but top-level orchestration
-may still need to call the checker stage explicitly where required by the later
-rewrite phases.
+The domain checker infrastructure is present and the registry now exposes the
+checker dispatch entry point.
 
-`DomainUtils.h` still retains a few helper functions whose logic is being moved
-toward leaf callbacks. Those helpers remain part of the organization layer for
-now and can be reduced further in later cleanup passes if desired.
+The remaining major work after the callback rewrite is now the raw-to-
+normalized artifact layer and the later post-normalization cross checks.

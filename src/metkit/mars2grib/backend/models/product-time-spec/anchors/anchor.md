@@ -317,6 +317,8 @@ The main current limitation of the anchor folder is:
 - `SeasonalClimate` is recognized as a reserved case but intentionally not
   implemented.
 
-The anchor checker infrastructure is now present, but top-level orchestration
-may still need to call the checker stage explicitly where required by the later
-rewrite phases.
+The anchor checker infrastructure is present and the registry now exposes the
+checker dispatch entry point.
+
+Top-level normalization and cross-artifact final checks still remain later
+pipeline stages outside the anchor folder.
