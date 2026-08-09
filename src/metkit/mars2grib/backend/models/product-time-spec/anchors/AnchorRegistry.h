@@ -10,16 +10,25 @@
 
 ///
 /// @file AnchorRegistry.h
-/// @brief Register, classify, and dispatch ProductTimeSpec anchor cases.
+/// @brief Register, classify, build, and check ProductTimeSpec anchor cases.
 ///
-/// The registry evaluates every anchor matcher and stores every Boolean result.
-/// Matcher order is not a precedence mechanism: classification succeeds only
-/// when exactly one matcher returns `true`.
+/// This header centralizes the case table and the public dispatch entry points
+/// for ProductTimeSpec anchor handling.
+///
+/// It owns:
+/// - the immutable registry row type used to keep matcher, builder, and checker
+///   callbacks aligned with their classification values;
+/// - the anchor classification entry point;
+/// - the anchor builder dispatch entry point;
+/// - the anchor checker dispatch entry point.
+///
+/// Classification is exhaustive and non-prioritized. Every registered matcher
+/// is evaluated, and classification succeeds only when exactly one matcher
+/// returns `true`.
 ///
 /// A zero-match result means that the normalized input does not describe a
-/// supported anchor. A multiple-match result means that two or more matcher
-/// contracts overlap. Both are hard classification failures and include the
-/// complete matcher-result vector in the diagnostic.
+/// supported implemented anchor. A multiple-match result means that two or more
+/// matcher contracts overlap. Both are hard classification failures.
 ///
 /// The active callback-selection matrix is:
 ///
@@ -27,12 +36,12 @@
 /// |-------------|-------------|--------------|------------------------|--------------------------|
 /// | present     | optional    | absent       | both absent            | `ForecastAnalysis`       |
 /// | present     | optional    | present      | both absent            | `Hindcast`               |
-/// | absent      | absent      | absent       | both present           | `SeasonalClimate`        |
+/// | absent      | absent      | absent       | one or both present    | `SeasonalClimate` matcher raises `not implemented` |
 ///
 /// Unsupported source states include, among others:
 /// - partial `year` / `month` presence;
 /// - `time` without `date`;
-/// - simultaneous direct `date` / `hdate` sources together with `year` / `month`;
+/// - simultaneous direct `date` / `hdate` sources together with `year` or `month`;
 /// - complete absence of all anchor source families.
 ///
 /// @ingroup mars2grib_product_time_spec_anchors
@@ -57,26 +66,31 @@ using AnchorMatcher = bool (*)(const ProductTimeSpecInput&);
 /// @brief Function-pointer type shared by all anchor builders.
 using AnchorBuilder = ProductTimeSpecAnchor (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&);
 
+/// @brief Function-pointer type shared by all anchor check callbacks.
+using AnchorChecker = bool (*)(const ProductTimeSpecInput&, const ProductTimeSpecAnchor&);
+
 ///
 /// @brief Immutable registry row for one anchor case.
 ///
-/// The row keeps the classification value, diagnostic name, matcher, and builder
-/// together so that independent arrays cannot become misaligned.
+/// The row keeps the classification value, diagnostic name, matcher, builder,
+/// and checker together so that independent arrays cannot become misaligned.
 ///
 struct AnchorCase {
     ProductTimeSpecAnchorKind classification;
     std::string_view name;
     AnchorMatcher matcher;
     AnchorBuilder builder;
+    AnchorChecker checker;
 };
 
 inline constexpr std::array<detail::AnchorCase, static_cast<std::size_t>(ProductTimeSpecAnchorKind::Count)> anchorCases{
     {
         {ProductTimeSpecAnchorKind::ForecastAnalysis, "ForecastAnalysis", &match_ForecastAnalysis_Anchor,
-         &build_ForecastAnalysis_Anchor},
-        {ProductTimeSpecAnchorKind::Hindcast, "Hindcast", &match_Hindcast_Anchor, &build_Hindcast_Anchor},
+         &build_ForecastAnalysis_Anchor, &check_ForecastAnalysis_Anchor},
+        {ProductTimeSpecAnchorKind::Hindcast, "Hindcast", &match_Hindcast_Anchor, &build_Hindcast_Anchor,
+         &check_Hindcast_Anchor},
         {ProductTimeSpecAnchorKind::SeasonalClimate, "SeasonalClimate", &match_SeasonalClimate_Anchor,
-         &build_SeasonalClimate_Anchor},
+         &build_SeasonalClimate_Anchor, &check_SeasonalClimate_Anchor},
     }};
 
 static_assert(static_cast<std::size_t>(detail::anchorCases[0].classification) ==
@@ -101,7 +115,7 @@ static_assert(static_cast<std::size_t>(detail::anchorCases[2].classification) ==
 /// @param[in] input Fully normalized ProductTimeSpec input.
 /// @return Unique matching `ProductTimeSpecAnchorKind` value.
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
-///         If matcher evaluation fails or classification is not unique.
+///         if matcher evaluation fails or classification is not unique.
 ///
 inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -144,12 +158,12 @@ inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecI
 ///            selected anchor builder.
 /// @param[in] fullClassification Full resolved ProductTimeSpec classification bundle.
 /// @return Complete and case-validated `ProductTimeSpecAnchor`.
-/// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException If
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException if
 ///         the classification is invalid or the selected builder fails.
 ///
 inline ProductTimeSpecAnchor build_Anchor_or_throw(ProductTimeSpecAnchorKind classification,
-                                                    const ProductTimeSpecInput& input,
-                                                    const ProductTimeSpecClassification& fullClassification) {
+                                                   const ProductTimeSpecInput& input,
+                                                   const ProductTimeSpecClassification& fullClassification) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -165,6 +179,38 @@ inline ProductTimeSpecAnchor build_Anchor_or_throw(ProductTimeSpecAnchorKind cla
     catch (...) {
         std::throw_with_nested(
             Mars2GribModelException("Failed to build the ProductTimeSpec anchor", input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Dispatch the checker associated with a validated anchor classification.
+///
+/// @param[in] classification Unique anchor classification returned by
+///            `classify_Anchor_or_throw`.
+/// @param[in] input Fully normalized ProductTimeSpec input supplied to the
+///            selected anchor checker.
+/// @param[in] anchor Complete anchor artifact produced by the selected anchor builder.
+/// @return `true` when the selected checker validates the anchor successfully.
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException if
+///         the classification is invalid or the selected checker fails.
+///
+inline bool check_Anchor_or_throw(ProductTimeSpecAnchorKind classification, const ProductTimeSpecInput& input,
+                                  const ProductTimeSpecAnchor& anchor) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        const std::size_t index          = static_cast<std::size_t>(classification);
+        const bool classificationIsValid = index < detail::anchorCases.size();
+
+        if (!classificationIsValid) {
+            throw Mars2GribModelException("Invalid AnchorClassification value", input.to_json(), Here());
+        }
+
+        return detail::anchorCases[index].checker(input, anchor);
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to check the ProductTimeSpec anchor", input.to_json(), Here()));
     }
 }
 
