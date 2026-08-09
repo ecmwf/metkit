@@ -37,6 +37,15 @@ struct ProductTimeSpecDomain {
 
     /// @brief Absolute end datetime of the resolved product support.
     eckit::DateTime domainEndDateTime{};
+
+    /// @brief Whether the domain uses synoptic placement semantics.
+    bool isSynoptic{false};
+
+    /// @brief Signed whole-hour offset from the reference to the real support start.
+    long startOffsetHoursFromReference{0};
+
+    /// @brief Signed whole-hour offset from the reference to the support end.
+    long endOffsetHoursFromReference{0};
 };
 
 /// @brief Serialize one resolved domain artifact as diagnostic JSON.
@@ -50,7 +59,12 @@ inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value)
         out << '{' << detail::jsonQuote_modelInput("domainStartDateTime") << ':'
             << detail::productTimeSpecDateTimeJson(value.domainStartDateTime) << ','
             << detail::jsonQuote_modelInput("domainEndDateTime") << ':'
-            << detail::productTimeSpecDateTimeJson(value.domainEndDateTime) << '}';
+            << detail::productTimeSpecDateTimeJson(value.domainEndDateTime) << ','
+            << detail::jsonQuote_modelInput("isSynoptic") << ':' << (value.isSynoptic ? "true" : "false") << ','
+            << detail::jsonQuote_modelInput("startOffsetHoursFromReference") << ':'
+            << value.startOffsetHoursFromReference << ','
+            << detail::jsonQuote_modelInput("endOffsetHoursFromReference") << ':'
+            << value.endOffsetHoursFromReference << '}';
         return out.str();
     }
     catch (...) {

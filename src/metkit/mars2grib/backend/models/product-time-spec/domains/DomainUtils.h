@@ -22,6 +22,8 @@
 ///
 #pragma once
 
+#include <limits>
+
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/deductions/timespan.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
@@ -240,6 +242,52 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveSeasonalForec
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
             "Failed to resolve the seasonal ProductTimeSpec outer domain range", input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Compute the signed whole-hour offset from one datetime to another.
+///
+/// The result is positive when `targetDateTime` follows `referenceDateTime`,
+/// negative when it precedes it, and zero when both datetimes are equal.
+///
+/// @param[in] referenceDateTime Datetime from which the offset is measured.
+/// @param[in] targetDateTime Datetime whose signed whole-hour offset is needed.
+/// @return Signed whole-hour offset from `referenceDateTime` to `targetDateTime`.
+/// @throws Mars2GribModelException If the elapsed duration is not an exact
+///         whole number of hours.
+///
+inline long offsetHoursFromReference(const eckit::DateTime& referenceDateTime, const eckit::DateTime& targetDateTime) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
+    using metkit::mars2grib::utils::time_arithmetic::durationBetween;
+
+    try {
+        const bool targetFollowsReference = targetDateTime >= referenceDateTime;
+        const auto elapsedDuration =
+            targetFollowsReference ? durationBetween(referenceDateTime, targetDateTime)
+                                   : durationBetween(targetDateTime, referenceDateTime);
+        const long elapsedSeconds = convertToSeconds(elapsedDuration);
+
+        if (elapsedSeconds % 3600L != 0) {
+            throw Mars2GribModelException("Reference-relative offset is not an exact whole number of hours", Here());
+        }
+
+        const long elapsedHours = elapsedSeconds / 3600L;
+
+        if (targetFollowsReference) {
+            return elapsedHours;
+        }
+
+        if (elapsedHours == std::numeric_limits<long>::min()) {
+            throw Mars2GribModelException("Negative whole-hour offset is out of range for a long", Here());
+        }
+
+        return -elapsedHours;
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to compute signed whole-hour offset from reference datetime", Here()));
     }
 }
 
