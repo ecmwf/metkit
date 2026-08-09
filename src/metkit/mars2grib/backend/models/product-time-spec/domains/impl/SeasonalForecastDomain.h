@@ -51,7 +51,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
  * @brief Return true only when input matches the seasonal forecast domain.
  *
  * - the product is not synoptic;
- * - the normalized input is seasonal;
+ * - the product satisfies both the seasonal class/stream discriminator and the
+ *   seasonal lead discriminator;
  * - MARS semantics classify the product as forecast.
  *
  * @param[in] input Fully normalized ProductTimeSpec input snapshot.
@@ -64,10 +65,14 @@ inline bool match_SeasonalForecast_Domain(const ProductTimeSpecInput& input) {
 
     try {
         const bool isNotSynoptic = !input.isSynoptic;
-        const bool isSeasonal    = product_time_spec::detail::isSeasonal(input);
-        const bool isForecast    = input.simulationType == SimulationType::Forecast;
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isSeasonalProduct        = hasSeasonalClassStream && hasSeasonalLeadSemantics;
+        const bool isForecast               = input.simulationType == SimulationType::Forecast;
 
-        return isNotSynoptic && isSeasonal && isForecast;
+        return isNotSynoptic && isSeasonalProduct && isForecast;
     }
     catch (...) {
         std::throw_with_nested(
@@ -115,9 +120,16 @@ inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpec
                                           input.to_json(), Here());
         }
 
-        if (!product_time_spec::detail::isSeasonal(input)) {
-            throw Mars2GribModelException("SeasonalForecastDomain construction requires seasonal input semantics",
-                                          input.to_json(), Here());
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isSeasonalProduct        = hasSeasonalClassStream && hasSeasonalLeadSemantics;
+
+        if (!isSeasonalProduct) {
+            throw Mars2GribModelException(
+                "SeasonalForecastDomain construction requires both seasonal class/stream and seasonal lead semantics",
+                input.to_json(), Here());
         }
 
         if (!input.marsFcmonth.has_value()) {

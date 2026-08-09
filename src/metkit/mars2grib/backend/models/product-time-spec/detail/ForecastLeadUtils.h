@@ -10,11 +10,10 @@
 
 ///
 /// @file ForecastLeadUtils.h
-/// @brief Shared forecast-lead predicates for ProductTimeSpec seasonal semantics.
+/// @brief Shared forecast-lead predicates for ProductTimeSpec input-step semantics.
 ///
 /// This internal header centralizes the small normalized-input predicates used
-/// to distinguish step-based forecast products from seasonal forecast products
-/// driven by `fcmonth`.
+/// to inspect `step` and `fcmonth` presence and value shape.
 ///
 /// The helpers in this header are intentionally limited to local Boolean input
 /// inspection. They do not classify complete shape or domain cases and they do
@@ -154,31 +153,4 @@ inline bool fcmonthIsPresent(const ProductTimeSpecInput& input) {
 }
 
 ///
-/// @brief Test whether the normalized input uses seasonal forecast lead semantics.
-///
-/// The seasonal discriminator is intentionally local and exact:
-/// - `step` is absent;
-/// - `fcmonth` is present.
-///
-/// No additional simulation-type, shape, or domain facts are evaluated here.
-/// Those remain the responsibility of the higher-level matchers that consume
-/// this helper.
-///
-/// @param[in] input Fully normalized ProductTimeSpec input.
-/// @return `true` when the normalized input is seasonal according to the local
-///         ProductTimeSpec seasonal discriminator, otherwise `false`.
-/// @throws Mars2GribModelException If the check cannot be completed.
-///
-inline bool isSeasonal(const ProductTimeSpecInput& input) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-
-    try {
-        return stepIsMissing(input) && fcmonthIsPresent(input);
-    }
-    catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input is seasonal",
-                                                       input.to_json(), Here()));
-    }
-}
-
 }  // namespace metkit::mars2grib::backend::models::product_time_spec::detail

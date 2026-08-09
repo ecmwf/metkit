@@ -10,31 +10,34 @@
 
 ///
 /// @file IFSFromStartSingleLoopPositive.h
-/// @brief Matcher and leaf builder for an IFS from-start single-loop statistic.
+/// @brief Matcher, builders, and checker for the IFSFromStartSingleLoopPositive shape.
 ///
-/// This header is the authoritative implementation of the `IFSFromStartSingleLoop` ProductTimeSpec shape. It
-/// deliberately owns both the matcher and the leaf builder for this case.
+/// This header is the authoritative implementation of the
+/// `IFSFromStartSingleLoopPositive` shape case. It keeps recognition,
+/// construction, and validation together so that the complete case can be
+/// reviewed without following a dispatch chain.
 ///
-/// The matcher exposes each structural and regime condition through a semantically named Boolean. The builder keeps the
-/// full window-construction flow local: range selection, shape-specific validation, increment resolution, window
-/// creation, and ordering are visible here.
+/// The matcher states every identifying condition as a named Boolean and
+/// returns their explicit conjunction. The stage-1 builder keeps the outer time
+/// range deferred for this case. The final builder constructs the one canonical
+/// from-start IFS statistical window from visible local members and locally
+/// resolved increment semantics. The checker validates that the resolved shape
+/// remains consistent with both the input semantics and the stage artifacts.
 ///
-/// Only genuinely cross-cutting semantics—such as `typeOfTimeIncrement`, default increment deduction, and temporal
-/// arithmetic—are delegated. All failures are nested in `Mars2GribModelException` with the normalized input snapshot.
+/// Every function catches all failures and rethrows a nested
+/// `Mars2GribModelException` with the serialized input state.
 ///
 /// @ingroup mars2grib_product_time_spec_shapes
 ///
 #pragma once
 
-#include "eckit/types/DateTime.h"
-#include "eckit/types/Time.h"
-
 #include "metkit/mars2grib/backend/deductions/common.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/TimeIncrement.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
@@ -42,38 +45,40 @@
 namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 
 /**
- * @brief Match an IFS single-loop statistic using from-start semantics.
- *
- * The shape matches when:
+ * @brief Return true only when input matches the IFSFromStartSingleLoopPositive shape.
  *
  * - the regime is IFS;
- * - the resolved domain classification is `ForecastDomain`;
- * - the normalized input is not seasonal;
+ * - the product is forecast;
+ * - the product does not satisfy both the seasonal class/stream discriminator
+ *   and the seasonal lead discriminator;
  * - the product is not synoptic;
  * - `timespan` uses from-start semantics;
  * - no outer `stattype` blocks are present;
- * - step is positive.
+ * - step is strictly positive.
  *
- * @param[in] input Fully normalized ProductTimeSpec input.
- * @param[in] domainClassification Previously resolved domain classification.
- * @return `true` only when all documented facts hold.
- * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
+ * @param[in] input Fully normalized ProductTimeSpec input snapshot.
+ * @return `true` only when all documented conditions are satisfied; otherwise `false`.
+ * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
 inline bool match_IFSFromStartSingleLoopPositive_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::stepIsPositive;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-
-        const bool isIfs                 = input.regime == SimulationRegime::IFS;
-        const bool isForecast            = input.simulationType == SimulationType::Forecast;
-        const bool isNotSeasonal         = !product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic         = !input.isSynoptic;
-        const bool usesFromStartTimespan = input.timespan.kind == TimespanKind::FromStart;
-        const bool hasNoStattypeBlocks   = input.stattype.empty();
-        const bool hasPositiveStep       = product_time_spec::detail::stepIsPositive(input);
+        const bool isIfs      = input.regime == SimulationRegime::IFS;
+        const bool isForecast = input.simulationType == SimulationType::Forecast;
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
+        const bool isNotSynoptic            = !input.isSynoptic;
+        const bool usesFromStartTimespan    = input.timespan.kind == TimespanKind::FromStart;
+        const bool hasNoStattypeBlocks      = input.stattype.empty();
+        const bool hasPositiveStep          = stepIsPositive(input);
 
         return isIfs && isForecast && isNotSeasonal && isNotSynoptic && usesFromStartTimespan && hasNoStattypeBlocks &&
                hasPositiveStep;
@@ -85,19 +90,16 @@ inline bool match_IFSFromStartSingleLoopPositive_Shape(const ProductTimeSpecInpu
 }
 
 /**
- * @brief Build one IFS from-start window from the resolved absolute domain.
+ * @brief Construct the stage-1 outer range for the IFSFromStartSingleLoopPositive shape.
  *
- * The builder performs the full shape-specific flow:
+ * In this case:
+ * - the final range depends on the resolved absolute domain span;
+ * - the stage-1 outer time range therefore remains deferred.
  *
- * 1. calculate the elapsed range between domain start and domain end;
- * 2. identify the accepted zero-length special case;
- * 3. resolve explicit, missing, or defaulted increment semantics;
- * 4. construct and return the one canonical window.
- *
- * @param[in] input Fully normalized ProductTimeSpec input and embedded options.
- * @param[in] domain Already constructed absolute ProductTimeSpec domain.
- * @return One canonical from-start window.
- * @throws Mars2GribModelException If domain arithmetic or increment resolution fails.
+ * @param[in] input Fully normalized ProductTimeSpec input snapshot.
+ * @param[in] classification Full resolved ProductTimeSpec classification bundle.
+ * @return Constructed stage-1 outer time range for this unique case.
+ * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
 inline ProductTimeSpecOuterTimeRange build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
@@ -107,9 +109,11 @@ inline ProductTimeSpecOuterTimeRange build_IFSFromStartSingleLoopPositive_ShapeO
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        (void)input;
         (void)classification;
-        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Deferred, std::nullopt};
+
+        const auto availability = ProductTimeSpecOuterTimeRangeAvailability::Deferred;
+
+        return ProductTimeSpecOuterTimeRange{availability, std::nullopt};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
@@ -117,6 +121,24 @@ inline ProductTimeSpecOuterTimeRange build_IFSFromStartSingleLoopPositive_ShapeO
     }
 }
 
+/**
+ * @brief Construct the canonical IFS from-start positive-step window.
+ *
+ * In this case:
+ * - the canonical time range is the resolved domain span;
+ * - the statistical processing type is the innermost normalized processing;
+ * - increment resolution follows the normal IFS single-loop structure;
+ * - normal increment validation applies again for positive from-start ranges;
+ * - exactly one canonical window is produced.
+ *
+ * @param[in] input Fully normalized ProductTimeSpec input snapshot.
+ * @param[in] classification Full resolved ProductTimeSpec classification bundle.
+ * @param[in] anchor Previously constructed ProductTimeSpec anchor.
+ * @param[in] outerTimeRange Previously constructed stage-1 outer time range.
+ * @param[in] domain Previously constructed ProductTimeSpec domain.
+ * @return Constructed ProductTimeSpec shape for this unique case.
+ * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
+ */
 inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
@@ -124,30 +146,278 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::deduceDefaultTimeIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
+    using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
     using metkit::mars2grib::utils::time_arithmetic::durationBetween;
 
     try {
         (void)classification;
         (void)anchor;
-        (void)outerTimeRange;
+
+        const bool outerTimeRangeIsDeferred =
+            outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Deferred;
+
+        if (!outerTimeRangeIsDeferred || outerTimeRange.timeRange.has_value()) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive requires a deferred outer time range",
+                                          input.to_json(), Here());
+        }
+
         const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
 
-        const bool isZeroLengthFromStart = timeRange.length == 0;
+        ResolvedInnerIncrement resolvedIncrement{};
 
-        const ResolvedInnerIncrement resolvedIncrement =
-            resolveIfsInnerIncrement(input, timeRange, false, isZeroLengthFromStart);
+        if (input.timeIncrement.has_value()) {
+            const long incrementInSeconds = convertToSeconds(*input.timeIncrement);
 
-        ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
-                                     timeRange, resolvedIncrement.timeIncrement};
+            if (incrementInSeconds <= 0) {
+                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(),
+                                              Here());
+            }
+
+            if (timeRange.unit != TimeUnit::Month) {
+                const long timeRangeInSeconds = convertToSeconds(timeRange);
+
+                if (incrementInSeconds > timeRangeInSeconds) {
+                    throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
+                                                  input.to_json(), Here());
+                }
+            }
+
+            resolvedIncrement.timeIncrement       = TimeDuration{incrementInSeconds, TimeUnit::Second};
+            resolvedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, timeRange);
+        }
+        else if (!input.allowDefaultTimeIncrement) {
+            resolvedIncrement.timeIncrement       = missingIncrement();
+            resolvedIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement();
+        }
+        else {
+            throw Mars2GribModelException(
+                "Default time-increment deduction for IFSFromStartSingleLoopPositive is not implemented",
+                input.to_json(), Here());
+
+            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, timeRange);
+
+            if (defaultIncrementInSeconds <= 0) {
+                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(),
+                                              Here());
+            }
+
+            if (timeRange.unit != TimeUnit::Month) {
+                const long timeRangeInSeconds = convertToSeconds(timeRange);
+
+                if (defaultIncrementInSeconds > timeRangeInSeconds) {
+                    throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
+                                                  input.to_json(), Here());
+                }
+            }
+
+            resolvedIncrement.timeIncrement       = TimeDuration{defaultIncrementInSeconds, TimeUnit::Second};
+            resolvedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, timeRange);
+        }
+
+        // This case carries the normalized innermost statistical processing
+        // directly into the one canonical window.
+        const auto typeOfStatisticalProcessing = input.innerMostTypeOfStatisticalProcessing;
+
+        // The increment kind follows the locally resolved IFS increment rules.
+        const auto typeOfTimeIncrement = resolvedIncrement.typeOfTimeIncrement;
+
+        // The canonical range is the real domain span for the positive from-start case.
+        const auto canonicalTimeRange = timeRange;
+
+        // The increment is the explicit, missing, or defaulted value resolved above.
+        const auto timeIncrement = resolvedIncrement.timeIncrement;
+
+        ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, canonicalTimeRange,
+                                     timeIncrement};
 
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
             "Failed to execute `build_IFSFromStartSingleLoopPositive_ShapeWindows`", input.to_json(), Here()));
+    }
+}
+
+/**
+ * @brief Validate one resolved IFSFromStartSingleLoopPositive shape against its source input and stage artifacts.
+ *
+ * This checker verifies:
+ * - the resolved shape classification is `IFSFromStartSingleLoopPositive`;
+ * - the originating input still satisfies the case semantics;
+ * - the stage-1 outer time range remains deferred;
+ * - the resolved shape contains exactly one canonical window;
+ * - that window matches the locally recomputed positive-step from-start semantics.
+ *
+ * @param[in] input Fully normalized ProductTimeSpec input snapshot.
+ * @param[in] classification Full resolved ProductTimeSpec classification bundle.
+ * @param[in] anchor Previously constructed ProductTimeSpec anchor.
+ * @param[in] outerTimeRange Previously constructed stage-1 outer time range.
+ * @param[in] domain Previously constructed ProductTimeSpec domain.
+ * @param[in] shape Resolved shape artifact produced by the builder.
+ * @return `true` when the shape is valid for the IFSFromStartSingleLoopPositive case.
+ * @throws Mars2GribModelException if the resolved shape is inconsistent with
+ *         the input, classification, or case semantics.
+ */
+inline bool check_IFSFromStartSingleLoopPositive_Shape(
+    const ProductTimeSpecInput& input,
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
+    const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
+    const ProductTimeSpecShape& shape) {
+    using metkit::mars2grib::backend::deductions::SimulationRegime;
+    using metkit::mars2grib::backend::deductions::SimulationType;
+    using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::deductions::TimespanKind;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::deduceDefaultTimeIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::stepIsPositive;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecShapeKind;
+    using metkit::mars2grib::backend::tables::TimeUnit;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::utils::time_arithmetic::compareTimeDuration;
+    using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
+    using metkit::mars2grib::utils::time_arithmetic::durationBetween;
+
+    try {
+        (void)anchor;
+
+        if (classification.shapeType != ProductTimeSpecShapeKind::IFSFromStartSingleLoopPositive) {
+            throw Mars2GribModelException("Shape classification mismatch: expected IFSFromStartSingleLoopPositive",
+                                          input.to_json(), Here());
+        }
+
+        const bool isIfs      = input.regime == SimulationRegime::IFS;
+        const bool isForecast = input.simulationType == SimulationType::Forecast;
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
+        const bool isNotSynoptic            = !input.isSynoptic;
+        const bool usesFromStartTimespan    = input.timespan.kind == TimespanKind::FromStart;
+        const bool hasNoStattypeBlocks      = input.stattype.empty();
+        const bool hasPositiveStep          = stepIsPositive(input);
+
+        if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !usesFromStartTimespan ||
+            !hasNoStattypeBlocks || !hasPositiveStep) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive input semantics are not satisfied",
+                                          input.to_json(), Here());
+        }
+
+        if (domain.isSynoptic) {
+            throw Mars2GribModelException(
+                "IFSFromStartSingleLoopPositive shape must not be paired with a synoptic domain", input.to_json(),
+                Here());
+        }
+
+        const bool outerTimeRangeIsDeferred =
+            outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Deferred;
+
+        if (!outerTimeRangeIsDeferred || outerTimeRange.timeRange.has_value()) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive requires a deferred outer time range",
+                                          input.to_json(), Here());
+        }
+
+        const TimeDuration expectedTimeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
+
+        if (shape.values.size() != 1) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive shape must contain exactly one window",
+                                          input.to_json(), Here());
+        }
+
+        ResolvedInnerIncrement expectedIncrement{};
+
+        if (input.timeIncrement.has_value()) {
+            const long incrementInSeconds = convertToSeconds(*input.timeIncrement);
+
+            if (incrementInSeconds <= 0) {
+                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(),
+                                              Here());
+            }
+
+            if (expectedTimeRange.unit != TimeUnit::Month) {
+                const long timeRangeInSeconds = convertToSeconds(expectedTimeRange);
+
+                if (incrementInSeconds > timeRangeInSeconds) {
+                    throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
+                                                  input.to_json(), Here());
+                }
+            }
+
+            expectedIncrement.timeIncrement       = TimeDuration{incrementInSeconds, TimeUnit::Second};
+            expectedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, expectedTimeRange);
+        }
+        else if (!input.allowDefaultTimeIncrement) {
+            expectedIncrement.timeIncrement       = missingIncrement();
+            expectedIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement();
+        }
+        else {
+            throw Mars2GribModelException(
+                "Default time-increment deduction for IFSFromStartSingleLoopPositive is not implemented",
+                input.to_json(), Here());
+
+            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, expectedTimeRange);
+
+            if (defaultIncrementInSeconds <= 0) {
+                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(),
+                                              Here());
+            }
+
+            if (expectedTimeRange.unit != TimeUnit::Month) {
+                const long timeRangeInSeconds = convertToSeconds(expectedTimeRange);
+
+                if (defaultIncrementInSeconds > timeRangeInSeconds) {
+                    throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
+                                                  input.to_json(), Here());
+                }
+            }
+
+            expectedIncrement.timeIncrement       = TimeDuration{defaultIncrementInSeconds, TimeUnit::Second};
+            expectedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, expectedTimeRange);
+        }
+
+        const ProductTimeSpecWindow& window = shape.values.front();
+
+        if (window.typeOfStatisticalProcessing != input.innerMostTypeOfStatisticalProcessing) {
+            throw Mars2GribModelException(
+                "IFSFromStartSingleLoopPositive window statistical processing does not match the innermost input "
+                "processing",
+                input.to_json(), Here());
+        }
+
+        if (window.typeOfTimeIncrement != expectedIncrement.typeOfTimeIncrement) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive window typeOfTimeIncrement is inconsistent",
+                                          input.to_json(), Here());
+        }
+
+        if (!compareTimeDuration(window.timeRange, expectedTimeRange)) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive window timeRange is inconsistent",
+                                          input.to_json(), Here());
+        }
+
+        if (!compareTimeDuration(window.timeIncrement, expectedIncrement.timeIncrement)) {
+            throw Mars2GribModelException("IFSFromStartSingleLoopPositive window timeIncrement is inconsistent",
+                                          input.to_json(), Here());
+        }
+
+        return true;
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `check_IFSFromStartSingleLoopPositive_Shape`",
+                                                       input.to_json(), Here()));
     }
 }
 

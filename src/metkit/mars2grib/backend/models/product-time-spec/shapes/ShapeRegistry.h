@@ -10,7 +10,7 @@
 
 ///
 /// @file ShapeRegistry.h
-/// @brief Register, classify, and dispatch ProductTimeSpec shape cases.
+/// @brief Register, classify, build, and check ProductTimeSpec shape cases.
 ///
 /// Shape classification is exhaustive and non-prioritized. Every matcher is
 /// evaluated, all Boolean results are retained for diagnostics, and exactly one
@@ -82,6 +82,11 @@ using ShapeWindowsBuilder = ProductTimeSpecShape (*)(const ProductTimeSpecInput&
                                                      const ProductTimeSpecOuterTimeRange&,
                                                      const domain::ProductTimeSpecDomain&);
 
+/// @brief Function-pointer type shared by all shape check callbacks.
+using ShapeChecker = bool (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
+                              const anchor::ProductTimeSpecAnchor&, const ProductTimeSpecOuterTimeRange&,
+                              const domain::ProductTimeSpecDomain&, const ProductTimeSpecShape&);
+
 ///
 /// @brief Immutable registry row for one shape case.
 ///
@@ -94,45 +99,52 @@ struct ShapeCase {
     ShapeMatcher matcher;
     ShapeOuterTimeRangeBuilder outerTimeRangeBuilder;
     ShapeWindowsBuilder windowsBuilder;
+    ShapeChecker checker;
 };
 
 /// @brief Immutable shape registry ordered exactly like `ProductTimeSpecShapeKind`.
 inline constexpr std::array<ShapeCase, static_cast<std::size_t>(ProductTimeSpecShapeKind::Count)> shapeCases{{
     {ProductTimeSpecShapeKind::Instant, "Instant", &match_Instant_Shape, &build_Instant_ShapeOuterTimeRange,
-     &build_Instant_ShapeWindows},
+     &build_Instant_ShapeWindows, &check_Instant_Shape},
     {ProductTimeSpecShapeKind::IFSStandardSingleLoop, "IFSStandardSingleLoop", &match_IFSStandardSingleLoop_Shape,
-     &build_IFSStandardSingleLoop_ShapeOuterTimeRange, &build_IFSStandardSingleLoop_ShapeWindows},
+     &build_IFSStandardSingleLoop_ShapeOuterTimeRange, &build_IFSStandardSingleLoop_ShapeWindows,
+     &check_IFSStandardSingleLoop_Shape},
     {ProductTimeSpecShapeKind::IFSFakeDoubleLoopSingleLoop, "IFSFakeDoubleLoopSingleLoop",
      &match_IFSFakeDoubleLoopSingleLoop_Shape, &build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange,
-     &build_IFSFakeDoubleLoopSingleLoop_ShapeWindows},
+     &build_IFSFakeDoubleLoopSingleLoop_ShapeWindows, &check_IFSFakeDoubleLoopSingleLoop_Shape},
     {ProductTimeSpecShapeKind::IFSFromStartSingleLoopAtZero, "IFSFromStartSingleLoopAtZero",
      &match_IFSFromStartSingleLoopAtZero_Shape, &build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange,
-     &build_IFSFromStartSingleLoopAtZero_ShapeWindows},
+     &build_IFSFromStartSingleLoopAtZero_ShapeWindows, &check_IFSFromStartSingleLoopAtZero_Shape},
     {ProductTimeSpecShapeKind::IFSFromStartSingleLoopPositive, "IFSFromStartSingleLoopPositive",
      &match_IFSFromStartSingleLoopPositive_Shape, &build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange,
-     &build_IFSFromStartSingleLoopPositive_ShapeWindows},
+     &build_IFSFromStartSingleLoopPositive_ShapeWindows, &check_IFSFromStartSingleLoopPositive_Shape},
     {ProductTimeSpecShapeKind::IFSSynopticSingleLoop, "IFSSynopticSingleLoop", &match_IFSSynopticSingleLoop_Shape,
-     &build_IFSSynopticSingleLoop_ShapeOuterTimeRange, &build_IFSSynopticSingleLoop_ShapeWindows},
+     &build_IFSSynopticSingleLoop_ShapeOuterTimeRange, &build_IFSSynopticSingleLoop_ShapeWindows,
+     &check_IFSSynopticSingleLoop_Shape},
     {ProductTimeSpecShapeKind::AIFSStandardSingleLoop, "AIFSStandardSingleLoop", &match_AIFSStandardSingleLoop_Shape,
-     &build_AIFSStandardSingleLoop_ShapeOuterTimeRange, &build_AIFSStandardSingleLoop_ShapeWindows},
+     &build_AIFSStandardSingleLoop_ShapeOuterTimeRange, &build_AIFSStandardSingleLoop_ShapeWindows,
+     &check_AIFSStandardSingleLoop_Shape},
     {ProductTimeSpecShapeKind::AIFSFakeDoubleLoopSingleLoop, "AIFSFakeDoubleLoopSingleLoop",
      &match_AIFSFakeDoubleLoopSingleLoop_Shape, &build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange,
-     &build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows},
+     &build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows, &check_AIFSFakeDoubleLoopSingleLoop_Shape},
     {ProductTimeSpecShapeKind::AIFSFromStartSingleLoopAtZero, "AIFSFromStartSingleLoopAtZero",
      &match_AIFSFromStartSingleLoopAtZero_Shape, &build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange,
-     &build_AIFSFromStartSingleLoopAtZero_ShapeWindows},
+     &build_AIFSFromStartSingleLoopAtZero_ShapeWindows, &check_AIFSFromStartSingleLoopAtZero_Shape},
     {ProductTimeSpecShapeKind::AIFSFromStartSingleLoopPositive, "AIFSFromStartSingleLoopPositive",
      &match_AIFSFromStartSingleLoopPositive_Shape, &build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange,
-     &build_AIFSFromStartSingleLoopPositive_ShapeWindows},
+     &build_AIFSFromStartSingleLoopPositive_ShapeWindows, &check_AIFSFromStartSingleLoopPositive_Shape},
     {ProductTimeSpecShapeKind::SeasonalSingleLoop, "SeasonalSingleLoop", &match_SeasonalSingleLoop_Shape,
-     &build_SeasonalSingleLoop_ShapeOuterTimeRange, &build_SeasonalSingleLoop_ShapeWindows},
+     &build_SeasonalSingleLoop_ShapeOuterTimeRange, &build_SeasonalSingleLoop_ShapeWindows,
+     &check_SeasonalSingleLoop_Shape},
     {ProductTimeSpecShapeKind::SeasonalMultiloop, "SeasonalMultiloop", &match_SeasonalMultiloop_Shape,
-     &build_SeasonalMultiloop_ShapeOuterTimeRange, &build_SeasonalMultiloop_ShapeWindows},
+     &build_SeasonalMultiloop_ShapeOuterTimeRange, &build_SeasonalMultiloop_ShapeWindows,
+     &check_SeasonalMultiloop_Shape},
     {ProductTimeSpecShapeKind::IFSStandardMultiLoop, "IFSStandardMultiLoop", &match_IFSStandardMultiLoop_Shape,
-     &build_IFSStandardMultiLoop_ShapeOuterTimeRange, &build_IFSStandardMultiLoop_ShapeWindows},
+     &build_IFSStandardMultiLoop_ShapeOuterTimeRange, &build_IFSStandardMultiLoop_ShapeWindows,
+     &check_IFSStandardMultiLoop_Shape},
     {ProductTimeSpecShapeKind::IFSFakeSingleLoopDoubleLoop, "IFSFakeSingleLoopDoubleLoop",
      &match_IFSFakeSingleLoopDoubleLoop_Shape, &build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange,
-     &build_IFSFakeSingleLoopDoubleLoop_ShapeWindows},
+     &build_IFSFakeSingleLoopDoubleLoop_ShapeWindows, &check_IFSFakeSingleLoopDoubleLoop_Shape},
 }};
 
 static_assert(static_cast<std::size_t>(shapeCases[0].classification) == 0);
@@ -288,6 +300,44 @@ inline ProductTimeSpecShape build_ShapeWindows_or_throw(ProductTimeSpecShapeKind
     catch (...) {
         std::throw_with_nested(
             Mars2GribModelException("Failed to build the ProductTimeSpec windows", input.to_json(), Here()));
+    }
+}
+
+///
+/// @brief Dispatch the checker associated with a validated shape classification.
+///
+/// @param[in] classification
+/// Unique shape classification returned by `classify_Shape_or_throw`.
+/// @param[in] input Fully normalized ProductTimeSpec input, including embedded options.
+/// @param[in] classificationBundle Full resolved ProductTimeSpec classification bundle.
+/// @param[in] anchor Resolved ProductTimeSpec anchor.
+/// @param[in] outerTimeRange Stage-1 ProductTimeSpec outer time range artifact.
+/// @param[in] domain Resolved ProductTimeSpec domain.
+/// @param[in] shape Complete ProductTimeSpec shape artifact produced by the selected final builder.
+/// @return `true` when the selected checker validates the shape successfully.
+/// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException If the classification is invalid or the
+///         selected checker fails.
+///
+inline bool check_Shape_or_throw(ProductTimeSpecShapeKind classification, const ProductTimeSpecInput& input,
+                                 const ProductTimeSpecClassification& classificationBundle,
+                                 const anchor::ProductTimeSpecAnchor& anchor,
+                                 const ProductTimeSpecOuterTimeRange& outerTimeRange,
+                                 const domain::ProductTimeSpecDomain& domain, const ProductTimeSpecShape& shape) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+        const std::size_t index          = static_cast<std::size_t>(classification);
+        const bool classificationIsValid = index < detail::shapeCases.size();
+
+        if (!classificationIsValid) {
+            throw Mars2GribModelException("Invalid ProductTimeSpecShapeKind value", input.to_json(), Here());
+        }
+
+        return detail::shapeCases[index].checker(input, classificationBundle, anchor, outerTimeRange, domain, shape);
+    }
+    catch (...) {
+        std::throw_with_nested(
+            Mars2GribModelException("Failed to check the ProductTimeSpec shape", input.to_json(), Here()));
     }
 }
 
