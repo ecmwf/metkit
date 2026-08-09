@@ -80,11 +80,16 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolvedSeasonalFore
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool seasonalInputIsPresent = product_time_spec::detail::isSeasonal(input);
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool seasonalInputIsPresent   = hasSeasonalClassStream && hasSeasonalLeadSemantics;
 
         if (!seasonalInputIsPresent) {
-            throw Mars2GribModelException("Seasonal forecast-domain construction requires seasonal input semantics",
-                                          input.to_json(), Here());
+            throw Mars2GribModelException(
+                "Seasonal forecast-domain construction requires both seasonal class/stream and seasonal lead semantics",
+                input.to_json(), Here());
         }
 
         const long fcmonth = *input.marsFcmonth;

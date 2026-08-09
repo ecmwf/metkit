@@ -49,7 +49,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
  * @brief Return true only when input matches the normal non-seasonal forecast domain.
  *
  * - the product is not synoptic;
- * - the product is not seasonal;
+ * - the product does not satisfy both the seasonal class/stream discriminator
+ *   and the seasonal lead discriminator;
  * - MARS semantics classify the product as forecast.
  *
  * @param[in] input Fully normalized ProductTimeSpec input snapshot.
@@ -62,10 +63,14 @@ inline bool match_Forecast_Domain(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isNotSynoptic  = !input.isSynoptic;
-        const bool isNotSeasonal  = !product_time_spec::detail::isSeasonal(input);
-        const bool isForecast     = input.simulationType == SimulationType::Forecast;
-        const bool isNotFromStart = input.timespan.kind != TimespanKind::FromStart;
+        const bool isNotSynoptic = !input.isSynoptic;
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
+        const bool isForecast               = input.simulationType == SimulationType::Forecast;
+        const bool isNotFromStart           = input.timespan.kind != TimespanKind::FromStart;
 
         return isNotSynoptic && isNotSeasonal && isForecast && isNotFromStart;
     }

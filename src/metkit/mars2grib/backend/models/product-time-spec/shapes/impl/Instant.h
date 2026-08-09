@@ -47,7 +47,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
 /**
  * @brief Return true only when input matches the Instant shape.
  *
- * - the product is not seasonal;
+ * - the product does not satisfy both the seasonal class/stream discriminator
+ *   and the seasonal lead discriminator;
  * - `timespan` is explicitly `none`, or it is missing and the configured
  *   instant compatibility rule allows that source representation;
  * - no `stattype` blocks are present;
@@ -58,14 +59,17 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
 inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
-    using metkit::mars2grib::backend::models::product_time_spec::detail::isSeasonal;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isNotSeasonal = !isSeasonal(input);
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
         const bool hasAcceptedTimespanRepresentation =
             timespanIsNone(input) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct);
         const bool hasNoStattypeBlocks = input.stattype.empty();
@@ -212,7 +216,6 @@ inline bool check_Instant_Shape(
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
     const ProductTimeSpecShape& shape) {
-    using metkit::mars2grib::backend::models::product_time_spec::detail::isSeasonal;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecShapeKind;
@@ -232,7 +235,11 @@ inline bool check_Instant_Shape(
             throw Mars2GribModelException("Shape classification mismatch: expected Instant", input.to_json(), Here());
         }
 
-        const bool isNotSeasonal = !isSeasonal(input);
+        const bool hasSeasonalClassStream =
+            (input.marsClass == "od" || input.marsClass == "rd" || input.marsClass == "c3") &&
+            (input.marsStream == "sfmd" || input.marsStream == "shmd");
+        const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
+        const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
         const bool hasAcceptedTimespanRepresentation =
             timespanIsNone(input) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct);
         const bool hasNoStattypeBlocks = input.stattype.empty();
