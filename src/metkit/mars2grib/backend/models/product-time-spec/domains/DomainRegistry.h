@@ -63,8 +63,8 @@ using DomainMatcher = bool (*)(const ProductTimeSpecInput&);
 /// returns the complete absolute support interval.
 ///
 using DomainBuilder = ProductTimeSpecDomain (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
-                                                const anchor::ProductTimeSpecAnchor&,
-                                                const shape::ProductTimeSpecShapeStage1&);
+                                                 const anchor::ProductTimeSpecAnchor&,
+                                                 const shape::ProductTimeSpecOuterTimeRange&);
 
 ///
 /// @brief Immutable registry row for one domain case.
@@ -166,8 +166,8 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
 /// @param[in] fullClassification Full resolved ProductTimeSpec classification bundle.
 /// @param[in] anchor
 /// Complete anchor constructed before domain construction.
-/// @param[in] shapeStage1
-/// Stage-1 shape artifact constructed before domain construction.
+/// @param[in] outerTimeRange
+/// Stage-1 outer time range constructed before domain construction.
 ///
 /// @return
 /// Absolute ProductTimeSpec support interval.
@@ -176,10 +176,10 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
 /// If the classification is invalid or the selected builder fails.
 ///
 inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind classification,
-                                                   const ProductTimeSpecInput& input,
-                                                    const ProductTimeSpecClassification& fullClassification,
-                                                    const anchor::ProductTimeSpecAnchor& anchor,
-                                                    const shape::ProductTimeSpecShapeStage1& shapeStage1) {
+                                                    const ProductTimeSpecInput& input,
+                                                     const ProductTimeSpecClassification& fullClassification,
+                                                     const anchor::ProductTimeSpecAnchor& anchor,
+                                                     const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -190,7 +190,7 @@ inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind cla
             throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(), Here());
         }
 
-        return detail::domainCases[index].builder(input, fullClassification, anchor, shapeStage1);
+        return detail::domainCases[index].builder(input, fullClassification, anchor, outerTimeRange);
     }
     catch (...) {
         std::throw_with_nested(

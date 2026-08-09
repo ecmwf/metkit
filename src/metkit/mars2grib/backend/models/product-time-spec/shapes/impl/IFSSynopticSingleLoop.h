@@ -96,12 +96,12 @@ inline bool match_IFSSynopticSingleLoop_Shape(
  * @return One canonical synoptic-analysis window.
  * @throws Mars2GribModelException If redundant increment validation fails.
  */
-inline ProductTimeSpecShapeStage1 build_IFSSynopticSingleLoop_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_IFSSynopticSingleLoop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveSynopticIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
@@ -111,31 +111,33 @@ inline ProductTimeSpecShapeStage1 build_IFSSynopticSingleLoop_ShapeStage1(
 
         const TimeDuration timeRange = oneMonth();
 
-        return ProductTimeSpecShapeStage1{{timeRange}};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeStage1`", input.to_json(),
+            Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeOuterTimeRange`", input.to_json(),
                                     Here()));
     }
 }
 
-inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeFinal(
+inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveSynopticIncrement;
+    using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
     try {
         (void)classification;
         (void)anchor;
+        (void)outerTimeRange;
         (void)domain;
 
         const auto resolvedIncrement = resolveSynopticIncrement(input);
-        const auto& timeRange        = shapeStage1.windowTimeRanges.at(0);
+        const auto timeRange         = oneMonth();
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
@@ -143,7 +145,7 @@ inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeFinal(
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeFinal`",
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeWindows`",
                                                        input.to_json(), Here()));
     }
 }

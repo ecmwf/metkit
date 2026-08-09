@@ -376,12 +376,12 @@ private:
             classification.domainType = domainType;
 
             anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification);
-            const shape::ProductTimeSpecShapeStage1 shapeStage1 =
-                shape::build_ShapeStage1_or_throw(shapeType, input, classification);
+            const shape::ProductTimeSpecOuterTimeRange outerTimeRange =
+                shape::build_ShapeOuterTimeRange_or_throw(shapeType, input, classification);
             domain::ProductTimeSpecDomain domain =
-                domain::build_Domain_or_throw(domainType, input, classification, anchor, shapeStage1);
+                domain::build_Domain_or_throw(domainType, input, classification, anchor, outerTimeRange);
             const shape::ProductTimeSpecShape windows =
-                shape::build_ShapeFinal_or_throw(shapeType, input, classification, anchor, shapeStage1, domain);
+                shape::build_ShapeWindows_or_throw(shapeType, input, classification, anchor, outerTimeRange, domain);
 
             ProductTimeSpecComponents result;
             result.anchorType = anchorType;

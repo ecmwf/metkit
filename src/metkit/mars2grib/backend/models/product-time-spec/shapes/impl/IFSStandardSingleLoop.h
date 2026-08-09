@@ -104,12 +104,12 @@ inline bool match_IFSStandardSingleLoop_Shape(
  * @return One canonical IFS statistical window.
  * @throws Mars2GribModelException If range or increment resolution fails.
  */
-inline ProductTimeSpecShapeStage1 build_IFSStandardSingleLoop_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_IFSStandardSingleLoop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -117,35 +117,33 @@ inline ProductTimeSpecShapeStage1 build_IFSStandardSingleLoop_ShapeStage1(
         (void)classification;
         const TimeDuration timeRange = timespanDuration(input);
 
-        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
-
-        (void)resolvedIncrement;
-
-        return ProductTimeSpecShapeStage1{{timeRange}};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeStage1`", input.to_json(),
+            Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeOuterTimeRange`", input.to_json(),
                                     Here()));
     }
 }
 
-inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeFinal(
+inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
 
     try {
         (void)classification;
         (void)anchor;
+        (void)outerTimeRange;
         (void)domain;
 
-        const auto& timeRange = shapeStage1.windowTimeRanges.at(0);
-        const auto resolvedIncrement =
-            metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement(input, timeRange, false);
+        const auto timeRange = timespanDuration(input);
+        const auto resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
@@ -153,7 +151,7 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeFinal(
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeFinal`",
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeWindows`",
                                                        input.to_json(), Here()));
     }
 }

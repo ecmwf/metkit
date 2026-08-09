@@ -100,27 +100,29 @@ inline bool match_IFSFromStartSingleLoopPositive_Shape(
  * @return One canonical from-start window.
  * @throws Mars2GribModelException If domain arithmetic or increment resolution fails.
  */
-inline ProductTimeSpecShapeStage1 build_IFSFromStartSingleLoopPositive_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)input;
         (void)classification;
-        return ProductTimeSpecShapeStage1{};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Deferred, std::nullopt};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopPositive_ShapeStage1`",
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange`",
                                                        input.to_json(), Here()));
     }
 }
 
-inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeFinal(
+inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
@@ -131,7 +133,7 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeFinal(
     try {
         (void)classification;
         (void)anchor;
-        (void)shapeStage1;
+        (void)outerTimeRange;
         const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
 
         const bool isZeroLengthFromStart = timeRange.length == 0;
@@ -145,7 +147,7 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopPositive_ShapeFinal(
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopPositive_ShapeFinal`",
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopPositive_ShapeWindows`",
                                                        input.to_json(), Here()));
     }
 }

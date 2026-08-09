@@ -86,17 +86,26 @@ inline bool match_Forecast_Domain(const ProductTimeSpecInput& input) {
 inline ProductTimeSpecDomain build_Forecast_Domain(const ProductTimeSpecInput& input,
                                                    const ProductTimeSpecClassification& classification,
                                                    const anchor::ProductTimeSpecAnchor& anchor,
-                                                   const shape::ProductTimeSpecShapeStage1& shapeStage1) {
+                                                   const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::addDuration;
     using metkit::mars2grib::utils::time_arithmetic::subtractDuration;
 
     try {
         (void)classification;
-        (void)shapeStage1;
+
+        const bool outerTimeRangeIsAvailable =
+            outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Available;
+
+        if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
+            throw Mars2GribModelException("ForecastDomain requires an available outer time range", input.to_json(),
+                                          Here());
+        }
+
         const auto forecastLead      = detail::resolvedForecastStep(input);
         const auto domainEndDateTime = addDuration(anchor.referenceDateTime, forecastLead);
-        const auto outerRange        = detail::resolveOuterDomainRange(input);
+        const auto outerRange        = *outerTimeRange.timeRange;
         return ProductTimeSpecDomain{subtractDuration(domainEndDateTime, outerRange), domainEndDateTime};
     }
     catch (...) {

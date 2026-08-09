@@ -105,13 +105,12 @@ inline bool match_IFSFakeSingleLoopDoubleLoop_Shape(
  * @return Exactly two canonical windows.
  * @throws Mars2GribModelException If range or increment resolution fails.
  */
-inline ProductTimeSpecShapeStage1 build_IFSFakeSingleLoopDoubleLoop_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::ResolvedInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -119,32 +118,34 @@ inline ProductTimeSpecShapeStage1 build_IFSFakeSingleLoopDoubleLoop_ShapeStage1(
         (void)classification;
         const TimeDuration sharedTimeRange = timespanDuration(input);
 
-        return ProductTimeSpecShapeStage1{{sharedTimeRange, sharedTimeRange}};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, sharedTimeRange};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeStage1`",
+            Mars2GribModelException("Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange`",
                                     input.to_json(), Here()));
     }
 }
 
-inline ProductTimeSpecShape build_IFSFakeSingleLoopDoubleLoop_ShapeFinal(
+inline ProductTimeSpecShape build_IFSFakeSingleLoopDoubleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
 
     try {
         (void)classification;
         (void)anchor;
+        (void)outerTimeRange;
         (void)domain;
 
-        const auto& sharedOuterRange = shapeStage1.windowTimeRanges.at(0);
-        const auto& sharedInnerRange = shapeStage1.windowTimeRanges.at(1);
+        const auto sharedOuterRange = timespanDuration(input);
+        const auto sharedInnerRange = sharedOuterRange;
 
         ProductTimeSpecWindow outerWindow{input.innerMostTypeOfStatisticalProcessing,
                                           typeOfTimeIncrementForWindow(input, true, false, sharedOuterRange),
@@ -161,7 +162,7 @@ inline ProductTimeSpecShape build_IFSFakeSingleLoopDoubleLoop_ShapeFinal(
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeFinal`",
+            Mars2GribModelException("Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows`",
                                     input.to_json(), Here()));
     }
 }
