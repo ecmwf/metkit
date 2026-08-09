@@ -82,14 +82,23 @@ inline bool match_Analysis_Domain(const ProductTimeSpecInput& input) {
 inline ProductTimeSpecDomain build_Analysis_Domain(const ProductTimeSpecInput& input,
                                                    const ProductTimeSpecClassification& classification,
                                                    const anchor::ProductTimeSpecAnchor& anchor,
-                                                   const shape::ProductTimeSpecShapeStage1& shapeStage1) {
+                                                   const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::addDuration;
 
     try {
         (void)classification;
-        (void)shapeStage1;
-        const auto outerRange = detail::resolveOuterDomainRange(input);
+
+        const bool outerTimeRangeIsAvailable =
+            outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Available;
+
+        if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
+            throw Mars2GribModelException("AnalysisDomain requires an available outer time range", input.to_json(),
+                                          Here());
+        }
+
+        const auto outerRange = *outerTimeRange.timeRange;
         return ProductTimeSpecDomain{anchor.referenceDateTime, addDuration(anchor.referenceDateTime, outerRange)};
     }
     catch (...) {

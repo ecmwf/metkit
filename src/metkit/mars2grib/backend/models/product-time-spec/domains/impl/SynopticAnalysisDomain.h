@@ -82,7 +82,10 @@ inline bool match_SynopticAnalysis_Domain(const ProductTimeSpecInput& input) {
 inline ProductTimeSpecDomain build_SynopticAnalysis_Domain(const ProductTimeSpecInput& input,
                                                            const ProductTimeSpecClassification& classification,
                                                            const anchor::ProductTimeSpecAnchor& anchor,
-                                                           const shape::ProductTimeSpecShapeStage1& shapeStage1) {
+                                                           const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
+    using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::beginningOfNextCalendarMonth;
     using metkit::mars2grib::utils::time_arithmetic::makeDateTime;
@@ -90,7 +93,23 @@ inline ProductTimeSpecDomain build_SynopticAnalysis_Domain(const ProductTimeSpec
     try {
         (void)classification;
         (void)anchor;
-        (void)shapeStage1;
+
+        const bool outerTimeRangeIsAvailable =
+            outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Available;
+
+        if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
+            throw Mars2GribModelException("SynopticAnalysisDomain requires an available outer time range",
+                                          input.to_json(), Here());
+        }
+
+        const TimeDuration expectedOuterTimeRange{1, TimeUnit::Month};
+
+        if (outerTimeRange.timeRange->length != expectedOuterTimeRange.length ||
+            outerTimeRange.timeRange->unit != expectedOuterTimeRange.unit) {
+            throw Mars2GribModelException("SynopticAnalysisDomain requires a one-month outer time range",
+                                          input.to_json(), Here());
+        }
+
         if (!input.marsDate.has_value()) {
             throw Mars2GribModelException("Synoptic analysis domain requires an explicit MARS date", input.to_json(),
                                           Here());

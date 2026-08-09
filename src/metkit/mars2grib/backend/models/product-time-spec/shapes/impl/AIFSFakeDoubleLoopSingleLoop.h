@@ -104,12 +104,12 @@ inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(
  * @return One canonical AIFS statistical window.
  * @throws Mars2GribModelException If AIFS invariants are violated.
  */
-inline ProductTimeSpecShapeStage1 build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -134,20 +134,20 @@ inline ProductTimeSpecShapeStage1 build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1
         }
 
 
-        return ProductTimeSpecShapeStage1{{timeRange}};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1`",
+            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange`",
                                     input.to_json(), Here()));
     }
 }
 
-inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal(
+inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
@@ -156,10 +156,11 @@ inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal(
     try {
         (void)classification;
         (void)anchor;
+        (void)outerTimeRange;
         (void)domain;
 
         const auto& stattype             = input.stattype.front();
-        const auto& timeRange            = shapeStage1.windowTimeRanges.at(0);
+        const auto timeRange             = stattype.timeRange;
         const auto statisticalProcessing = stattype.typeOfStatisticalProcessing;
 
         ProductTimeSpecWindow window{statisticalProcessing, missingTypeOfTimeIncrement(), timeRange,
@@ -169,7 +170,7 @@ inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal(
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal`",
+            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows`",
                                     input.to_json(), Here()));
     }
 }

@@ -102,27 +102,29 @@ inline bool match_AIFSFromStartSingleLoopPositive_Shape(
  * @return One canonical AIFS statistical window.
  * @throws Mars2GribModelException If AIFS invariants are violated.
  */
-inline ProductTimeSpecShapeStage1 build_AIFSFromStartSingleLoopPositive_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)input;
         (void)classification;
-        return ProductTimeSpecShapeStage1{};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Deferred, std::nullopt};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_AIFSFromStartSingleLoopPositive_ShapeStage1`",
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange`",
                                                        input.to_json(), Here()));
     }
 }
 
-inline ProductTimeSpecShape build_AIFSFromStartSingleLoopPositive_ShapeFinal(
+inline ProductTimeSpecShape build_AIFSFromStartSingleLoopPositive_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
@@ -133,7 +135,7 @@ inline ProductTimeSpecShape build_AIFSFromStartSingleLoopPositive_ShapeFinal(
     try {
         (void)classification;
         (void)anchor;
-        (void)shapeStage1;
+        (void)outerTimeRange;
         const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
 
         if (!sourceIncrementIsMissing) {
@@ -152,7 +154,7 @@ inline ProductTimeSpecShape build_AIFSFromStartSingleLoopPositive_ShapeFinal(
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `build_AIFSFromStartSingleLoopPositive_ShapeFinal`", input.to_json(), Here()));
+            "Failed to execute `build_AIFSFromStartSingleLoopPositive_ShapeWindows`", input.to_json(), Here()));
     }
 }
 

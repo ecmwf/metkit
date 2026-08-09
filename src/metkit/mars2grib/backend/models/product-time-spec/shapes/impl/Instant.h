@@ -102,11 +102,11 @@ inline bool match_Instant_Shape(
  * @return One canonical instant window.
  * @throws Mars2GribModelException If validation or construction fails.
  */
-inline ProductTimeSpecShapeStage1 build_Instant_ShapeStage1(
+inline ProductTimeSpecOuterTimeRange build_Instant_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
-    using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::backend::models::product_time_spec::detail::validateInstantIncrement;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -115,19 +115,20 @@ inline ProductTimeSpecShapeStage1 build_Instant_ShapeStage1(
 
         validateInstantIncrement(input);
 
-        return ProductTimeSpecShapeStage1{{metkit::mars2grib::utils::time_arithmetic::zeroDuration()}};
+        return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available,
+                                             metkit::mars2grib::utils::time_arithmetic::zeroDuration()};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_Instant_ShapeStage1`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_Instant_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
-inline ProductTimeSpecShape build_Instant_ShapeFinal(
+inline ProductTimeSpecShape build_Instant_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
-    const ProductTimeSpecShapeStage1& shapeStage1,
+    const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
@@ -136,17 +137,19 @@ inline ProductTimeSpecShape build_Instant_ShapeFinal(
     try {
         (void)classification;
         (void)anchor;
+        (void)outerTimeRange;
         (void)domain;
 
         ProductTimeSpecWindow window{metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing,
-                                     missingTypeOfTimeIncrement(), shapeStage1.windowTimeRanges.at(0),
+                                     missingTypeOfTimeIncrement(),
+                                     metkit::mars2grib::utils::time_arithmetic::zeroDuration(),
                                      missingIncrement()};
 
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_Instant_ShapeFinal`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_Instant_ShapeWindows`", input.to_json(), Here()));
     }
 }
 

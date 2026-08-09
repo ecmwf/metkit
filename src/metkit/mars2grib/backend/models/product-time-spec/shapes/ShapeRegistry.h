@@ -73,14 +73,14 @@ namespace detail {
 using ShapeMatcher = bool (*)(const ProductTimeSpecInput&);
 
 /// @brief Function-pointer type shared by all stage-1 shape builders.
-using ShapeStage1Builder = ProductTimeSpecShapeStage1 (*)(const ProductTimeSpecInput&,
-                                                          const ProductTimeSpecClassification&);
+using ShapeOuterTimeRangeBuilder = ProductTimeSpecOuterTimeRange (*)(const ProductTimeSpecInput&,
+                                                                     const ProductTimeSpecClassification&);
 
 /// @brief Function-pointer type shared by all final shape builders.
-using ShapeFinalBuilder = ProductTimeSpecShape (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
-                                                   const anchor::ProductTimeSpecAnchor&,
-                                                   const ProductTimeSpecShapeStage1&,
-                                                   const domain::ProductTimeSpecDomain&);
+using ShapeWindowsBuilder = ProductTimeSpecShape (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
+                                                     const anchor::ProductTimeSpecAnchor&,
+                                                     const ProductTimeSpecOuterTimeRange&,
+                                                     const domain::ProductTimeSpecDomain&);
 
 ///
 /// @brief Immutable registry row for one shape case.
@@ -92,47 +92,47 @@ struct ShapeCase {
     ProductTimeSpecShapeKind classification;
     std::string_view name;
     ShapeMatcher matcher;
-    ShapeStage1Builder stage1Builder;
-    ShapeFinalBuilder finalBuilder;
+    ShapeOuterTimeRangeBuilder outerTimeRangeBuilder;
+    ShapeWindowsBuilder windowsBuilder;
 };
 
 /// @brief Immutable shape registry ordered exactly like `ProductTimeSpecShapeKind`.
 inline constexpr std::array<ShapeCase, static_cast<std::size_t>(ProductTimeSpecShapeKind::Count)> shapeCases{{
-    {ProductTimeSpecShapeKind::Instant, "Instant", &match_Instant_Shape, &build_Instant_ShapeStage1,
-     &build_Instant_ShapeFinal},
+    {ProductTimeSpecShapeKind::Instant, "Instant", &match_Instant_Shape, &build_Instant_ShapeOuterTimeRange,
+     &build_Instant_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSStandardSingleLoop, "IFSStandardSingleLoop", &match_IFSStandardSingleLoop_Shape,
-     &build_IFSStandardSingleLoop_ShapeStage1, &build_IFSStandardSingleLoop_ShapeFinal},
+     &build_IFSStandardSingleLoop_ShapeOuterTimeRange, &build_IFSStandardSingleLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSFakeDoubleLoopSingleLoop, "IFSFakeDoubleLoopSingleLoop",
-     &match_IFSFakeDoubleLoopSingleLoop_Shape, &build_IFSFakeDoubleLoopSingleLoop_ShapeStage1,
-     &build_IFSFakeDoubleLoopSingleLoop_ShapeFinal},
+     &match_IFSFakeDoubleLoopSingleLoop_Shape, &build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange,
+     &build_IFSFakeDoubleLoopSingleLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSFromStartSingleLoopAtZero, "IFSFromStartSingleLoopAtZero",
-     &match_IFSFromStartSingleLoopAtZero_Shape, &build_IFSFromStartSingleLoopAtZero_ShapeStage1,
-     &build_IFSFromStartSingleLoopAtZero_ShapeFinal},
+     &match_IFSFromStartSingleLoopAtZero_Shape, &build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange,
+     &build_IFSFromStartSingleLoopAtZero_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSFromStartSingleLoopPositive, "IFSFromStartSingleLoopPositive",
-     &match_IFSFromStartSingleLoopPositive_Shape, &build_IFSFromStartSingleLoopPositive_ShapeStage1,
-     &build_IFSFromStartSingleLoopPositive_ShapeFinal},
+     &match_IFSFromStartSingleLoopPositive_Shape, &build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange,
+     &build_IFSFromStartSingleLoopPositive_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSSynopticSingleLoop, "IFSSynopticSingleLoop", &match_IFSSynopticSingleLoop_Shape,
-     &build_IFSSynopticSingleLoop_ShapeStage1, &build_IFSSynopticSingleLoop_ShapeFinal},
+     &build_IFSSynopticSingleLoop_ShapeOuterTimeRange, &build_IFSSynopticSingleLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::AIFSStandardSingleLoop, "AIFSStandardSingleLoop", &match_AIFSStandardSingleLoop_Shape,
-     &build_AIFSStandardSingleLoop_ShapeStage1, &build_AIFSStandardSingleLoop_ShapeFinal},
+     &build_AIFSStandardSingleLoop_ShapeOuterTimeRange, &build_AIFSStandardSingleLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::AIFSFakeDoubleLoopSingleLoop, "AIFSFakeDoubleLoopSingleLoop",
-     &match_AIFSFakeDoubleLoopSingleLoop_Shape, &build_AIFSFakeDoubleLoopSingleLoop_ShapeStage1,
-     &build_AIFSFakeDoubleLoopSingleLoop_ShapeFinal},
+     &match_AIFSFakeDoubleLoopSingleLoop_Shape, &build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange,
+     &build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::AIFSFromStartSingleLoopAtZero, "AIFSFromStartSingleLoopAtZero",
-     &match_AIFSFromStartSingleLoopAtZero_Shape, &build_AIFSFromStartSingleLoopAtZero_ShapeStage1,
-     &build_AIFSFromStartSingleLoopAtZero_ShapeFinal},
+     &match_AIFSFromStartSingleLoopAtZero_Shape, &build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange,
+     &build_AIFSFromStartSingleLoopAtZero_ShapeWindows},
     {ProductTimeSpecShapeKind::AIFSFromStartSingleLoopPositive, "AIFSFromStartSingleLoopPositive",
-     &match_AIFSFromStartSingleLoopPositive_Shape, &build_AIFSFromStartSingleLoopPositive_ShapeStage1,
-     &build_AIFSFromStartSingleLoopPositive_ShapeFinal},
+     &match_AIFSFromStartSingleLoopPositive_Shape, &build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange,
+     &build_AIFSFromStartSingleLoopPositive_ShapeWindows},
     {ProductTimeSpecShapeKind::SeasonalSingleLoop, "SeasonalSingleLoop", &match_SeasonalSingleLoop_Shape,
-     &build_SeasonalSingleLoop_ShapeStage1, &build_SeasonalSingleLoop_ShapeFinal},
+     &build_SeasonalSingleLoop_ShapeOuterTimeRange, &build_SeasonalSingleLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::SeasonalMultiloop, "SeasonalMultiloop", &match_SeasonalMultiloop_Shape,
-     &build_SeasonalMultiloop_ShapeStage1, &build_SeasonalMultiloop_ShapeFinal},
+     &build_SeasonalMultiloop_ShapeOuterTimeRange, &build_SeasonalMultiloop_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSStandardMultiLoop, "IFSStandardMultiLoop", &match_IFSStandardMultiLoop_Shape,
-     &build_IFSStandardMultiLoop_ShapeStage1, &build_IFSStandardMultiLoop_ShapeFinal},
+     &build_IFSStandardMultiLoop_ShapeOuterTimeRange, &build_IFSStandardMultiLoop_ShapeWindows},
     {ProductTimeSpecShapeKind::IFSFakeSingleLoopDoubleLoop, "IFSFakeSingleLoopDoubleLoop",
-     &match_IFSFakeSingleLoopDoubleLoop_Shape, &build_IFSFakeSingleLoopDoubleLoop_ShapeStage1,
-     &build_IFSFakeSingleLoopDoubleLoop_ShapeFinal},
+     &match_IFSFakeSingleLoopDoubleLoop_Shape, &build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange,
+     &build_IFSFakeSingleLoopDoubleLoop_ShapeWindows},
 }};
 
 static_assert(static_cast<std::size_t>(shapeCases[0].classification) == 0);
@@ -232,9 +232,9 @@ inline ProductTimeSpecShapeKind classify_Shape_or_throw(const ProductTimeSpecInp
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 /// If the classification is invalid or the selected stage-1 builder fails.
 ///
-inline ProductTimeSpecShapeStage1 build_ShapeStage1_or_throw(ProductTimeSpecShapeKind classification,
-                                                             const ProductTimeSpecInput& input,
-                                                             const ProductTimeSpecClassification& fullClassification) {
+inline ProductTimeSpecOuterTimeRange build_ShapeOuterTimeRange_or_throw(ProductTimeSpecShapeKind classification,
+                                                                        const ProductTimeSpecInput& input,
+                                                                        const ProductTimeSpecClassification& fullClassification) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -245,11 +245,11 @@ inline ProductTimeSpecShapeStage1 build_ShapeStage1_or_throw(ProductTimeSpecShap
             throw Mars2GribModelException("Invalid ProductTimeSpecShapeKind value", input.to_json(), Here());
         }
 
-        return detail::shapeCases[index].stage1Builder(input, fullClassification);
+        return detail::shapeCases[index].outerTimeRangeBuilder(input, fullClassification);
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to build the ProductTimeSpec stage-1 shape", input.to_json(), Here()));
+            Mars2GribModelException("Failed to build the ProductTimeSpec outer time range", input.to_json(), Here()));
     }
 }
 
@@ -267,12 +267,12 @@ inline ProductTimeSpecShapeStage1 build_ShapeStage1_or_throw(ProductTimeSpecShap
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException If the classification is invalid or the
 ///         selected final builder fails.
 ///
-inline ProductTimeSpecShape build_ShapeFinal_or_throw(ProductTimeSpecShapeKind classification,
-                                                      const ProductTimeSpecInput& input,
-                                                      const ProductTimeSpecClassification& classificationBundle,
-                                                      const anchor::ProductTimeSpecAnchor& anchor,
-                                                      const ProductTimeSpecShapeStage1& shapeStage1,
-                                                      const domain::ProductTimeSpecDomain& domain) {
+inline ProductTimeSpecShape build_ShapeWindows_or_throw(ProductTimeSpecShapeKind classification,
+                                                        const ProductTimeSpecInput& input,
+                                                        const ProductTimeSpecClassification& classificationBundle,
+                                                        const anchor::ProductTimeSpecAnchor& anchor,
+                                                        const ProductTimeSpecOuterTimeRange& outerTimeRange,
+                                                        const domain::ProductTimeSpecDomain& domain) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -283,11 +283,11 @@ inline ProductTimeSpecShape build_ShapeFinal_or_throw(ProductTimeSpecShapeKind c
             throw Mars2GribModelException("Invalid ProductTimeSpecShapeKind value", input.to_json(), Here());
         }
 
-        return detail::shapeCases[index].finalBuilder(input, classificationBundle, anchor, shapeStage1, domain);
+        return detail::shapeCases[index].windowsBuilder(input, classificationBundle, anchor, outerTimeRange, domain);
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to build the final ProductTimeSpec shape", input.to_json(), Here()));
+            Mars2GribModelException("Failed to build the ProductTimeSpec windows", input.to_json(), Here()));
     }
 }
 

@@ -56,15 +56,25 @@ struct ProductTimeSpecShape {
 };
 
 ///
-/// @brief Ordered stage-1 ProductTimeSpec window sequence.
+/// @brief Availability state of the stage-1 outer time range.
+enum class ProductTimeSpecOuterTimeRangeAvailability {
+    Available,
+    Deferred,
+};
+
 ///
-/// This intermediate artifact carries only the ordered canonical window ranges
-/// that are known before domain construction. The vector may be empty when the
-/// range is intentionally deferred until the final shape stage.
+/// @brief Stage-1 outer time range required by selected domain builders.
 ///
-struct ProductTimeSpecShapeStage1 {
-    /// @brief Stage-1 canonical window ranges in outermost-to-innermost order.
-    std::vector<deductions::TimeDuration> windowTimeRanges{};
+/// This intermediate artifact carries the one outer time range that is either
+/// already available before domain construction or intentionally deferred until
+/// the final shape stage.
+///
+struct ProductTimeSpecOuterTimeRange {
+    /// @brief Whether the outer time range is already available or deferred.
+    ProductTimeSpecOuterTimeRangeAvailability availability{ProductTimeSpecOuterTimeRangeAvailability::Deferred};
+
+    /// @brief Resolved outer time range when availability is `Available`.
+    std::optional<deductions::TimeDuration> timeRange{};
 };
 
 /// @brief Serialize one resolved shape artifact as diagnostic JSON.
