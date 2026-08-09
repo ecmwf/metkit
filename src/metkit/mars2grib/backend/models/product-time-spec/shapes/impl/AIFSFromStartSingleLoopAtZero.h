@@ -62,8 +62,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_AIFSFromStartSingleLoopAtZero_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -120,8 +119,8 @@ inline ProductTimeSpecOuterTimeRange build_AIFSFromStartSingleLoopAtZero_ShapeOu
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Deferred, std::nullopt};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -158,8 +157,8 @@ inline ProductTimeSpecShape build_AIFSFromStartSingleLoopAtZero_ShapeWindows(
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeWindows`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeWindows`", input.to_json(), Here()));
     }
 }
 

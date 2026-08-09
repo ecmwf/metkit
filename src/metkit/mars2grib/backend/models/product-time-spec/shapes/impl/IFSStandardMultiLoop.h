@@ -58,8 +58,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_IFSStandardMultiLoop_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_IFSStandardMultiLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -74,8 +73,7 @@ inline bool match_IFSStandardMultiLoop_Shape(
         const bool hasDurationTimespan    = input.timespan.kind == TimespanKind::Duration;
         const bool hasOuterStattypeBlocks = !input.stattype.empty();
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
-               hasOuterStattypeBlocks;
+        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasOuterStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -125,8 +123,8 @@ inline ProductTimeSpecOuterTimeRange build_IFSStandardMultiLoop_ShapeOuterTimeRa
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, outerTimeRange};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSStandardMultiLoop_ShapeOuterTimeRange`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSStandardMultiLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -136,11 +134,11 @@ inline ProductTimeSpecShape build_IFSStandardMultiLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)classification;
@@ -154,11 +152,11 @@ inline ProductTimeSpecShape build_IFSStandardMultiLoop_ShapeWindows(
         for (const auto& stattypeBlock : input.stattype) {
             const auto& timeRange = stattypeBlock.timeRange;
             windows.push_back(ProductTimeSpecWindow{stattypeBlock.typeOfStatisticalProcessing,
-                                                    typeOfTimeIncrementForWindow(input, true, false, timeRange), timeRange,
-                                                    missingIncrement()});
+                                                    typeOfTimeIncrementForWindow(input, true, false, timeRange),
+                                                    timeRange, missingIncrement()});
         }
 
-        const auto innermostTimeRange = timespanDuration(input);
+        const auto innermostTimeRange         = timespanDuration(input);
         const auto resolvedInnermostIncrement = resolveIfsInnerIncrement(input, innermostTimeRange, true);
 
         windows.push_back(ProductTimeSpecWindow{input.innerMostTypeOfStatisticalProcessing,

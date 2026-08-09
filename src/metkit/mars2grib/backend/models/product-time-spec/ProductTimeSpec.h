@@ -201,7 +201,7 @@ private:
         try {
             const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input);
             ProductTimeSpecClassification classification;
-            classification.anchorType = anchorType;
+            classification.anchorType            = anchorType;
             anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification);
 
             ProductTimeAnchorSpecComponents result;
@@ -368,7 +368,7 @@ private:
         try {
             const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input);
             const domain::ProductTimeSpecDomainKind domainType = domain::classify_Domain_or_throw(input);
-            const shape::ProductTimeSpecShapeKind shapeType   = shape::classify_Shape_or_throw(input);
+            const shape::ProductTimeSpecShapeKind shapeType    = shape::classify_Shape_or_throw(input);
 
             ProductTimeSpecClassification classification;
             classification.anchorType = anchorType;

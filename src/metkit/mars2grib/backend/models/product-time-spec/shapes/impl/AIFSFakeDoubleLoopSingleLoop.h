@@ -60,8 +60,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_AIFSFakeDoubleLoopSingleLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
@@ -137,9 +136,8 @@ inline ProductTimeSpecOuterTimeRange build_AIFSFakeDoubleLoopSingleLoop_ShapeOut
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange`",
-                                    input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -149,9 +147,9 @@ inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)classification;
@@ -169,9 +167,8 @@ inline ProductTimeSpecShape build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows(
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows`",
-                                    input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows`", input.to_json(), Here()));
     }
 }
 

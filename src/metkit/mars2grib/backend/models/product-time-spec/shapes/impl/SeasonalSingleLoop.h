@@ -64,24 +64,22 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_SeasonalSingleLoop_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_SeasonalSingleLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isSeasonal                = product_time_spec::detail::isSeasonal(input);
-        const bool isNotSynoptic             = !input.isSynoptic;
-        const bool isForecast                = input.simulationType == SimulationType::Forecast;
+        const bool isSeasonal    = product_time_spec::detail::isSeasonal(input);
+        const bool isNotSynoptic = !input.isSynoptic;
+        const bool isForecast    = input.simulationType == SimulationType::Forecast;
         const bool hasAcceptedTimespanRepresentation =
             timespanIsNone(input) ||
             timespanIsMissingAndAllowed(input, input.allowMissingTimespanForStatisticalProduct);
         const bool hasNoStattypeBlocks = input.stattype.empty();
 
-        return isSeasonal && isNotSynoptic && isForecast &&
-               hasAcceptedTimespanRepresentation && !hasNoStattypeBlocks;
+        return isSeasonal && isNotSynoptic && isForecast && hasAcceptedTimespanRepresentation && !hasNoStattypeBlocks;
     }
     catch (...) {
         std::throw_with_nested(
@@ -120,9 +118,8 @@ inline ProductTimeSpecOuterTimeRange build_SeasonalSingleLoop_ShapeOuterTimeRang
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_SeasonalSingleLoop_ShapeOuterTimeRange`", input.to_json(),
-                                    Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_SeasonalSingleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -132,8 +129,8 @@ inline ProductTimeSpecShape build_SeasonalSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
     try {
@@ -142,7 +139,7 @@ inline ProductTimeSpecShape build_SeasonalSingleLoop_ShapeWindows(
         (void)outerTimeRange;
         (void)domain;
 
-        const auto timeRange = oneMonth();
+        const auto timeRange         = oneMonth();
         const auto resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,

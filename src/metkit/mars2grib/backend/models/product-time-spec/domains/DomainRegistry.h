@@ -39,12 +39,12 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/AnalysisDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/ForecastDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/FromStartForecastDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/SeasonalForecastDomain.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/impl/SynopticAnalysisDomain.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeDataTypes.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -63,8 +63,8 @@ using DomainMatcher = bool (*)(const ProductTimeSpecInput&);
 /// returns the complete absolute support interval.
 ///
 using DomainBuilder = ProductTimeSpecDomain (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
-                                                 const anchor::ProductTimeSpecAnchor&,
-                                                 const shape::ProductTimeSpecOuterTimeRange&);
+                                                const anchor::ProductTimeSpecAnchor&,
+                                                const shape::ProductTimeSpecOuterTimeRange&);
 
 ///
 /// @brief Immutable registry row for one domain case.
@@ -176,10 +176,10 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
 /// If the classification is invalid or the selected builder fails.
 ///
 inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind classification,
-                                                    const ProductTimeSpecInput& input,
-                                                     const ProductTimeSpecClassification& fullClassification,
-                                                     const anchor::ProductTimeSpecAnchor& anchor,
-                                                     const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+                                                   const ProductTimeSpecInput& input,
+                                                   const ProductTimeSpecClassification& fullClassification,
+                                                   const anchor::ProductTimeSpecAnchor& anchor,
+                                                   const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {

@@ -60,8 +60,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_IFSStandardSingleLoop_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -80,8 +79,8 @@ inline bool match_IFSStandardSingleLoop_Shape(
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
-               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
+               doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
     }
     catch (...) {
         std::throw_with_nested(
@@ -108,9 +107,9 @@ inline ProductTimeSpecOuterTimeRange build_IFSStandardSingleLoop_ShapeOuterTimeR
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -120,9 +119,8 @@ inline ProductTimeSpecOuterTimeRange build_IFSStandardSingleLoop_ShapeOuterTimeR
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeOuterTimeRange`", input.to_json(),
-                                    Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSStandardSingleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -132,9 +130,9 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)classification;
@@ -142,7 +140,7 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
         (void)outerTimeRange;
         (void)domain;
 
-        const auto timeRange = timespanDuration(input);
+        const auto timeRange         = timespanDuration(input);
         const auto resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,

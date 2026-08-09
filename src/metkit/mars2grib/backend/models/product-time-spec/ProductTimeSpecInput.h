@@ -183,7 +183,7 @@ inline bool isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
             {TypeOfStatisticalProcessing::Average, TypeOfStatisticalProcessing::Minimum,
              TypeOfStatisticalProcessing::Maximum}};
 
-        const bool isMissing = innerTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
+        const bool isMissing      = innerTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
         const bool isAccumulation = innerTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Accumulation;
         const bool isInExtendedOperationSet = std::any_of(
             extendedSetOfOperation.begin(), extendedSetOfOperation.end(),
@@ -360,8 +360,7 @@ struct ProductTimeSpecInput {
                 << detail::jsonQuote_modelInput(
                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerMostTypeOfStatisticalProcessing))
                 << ',' << detail::jsonQuote_modelInput("isAllowedInnerTypeOfStatisticalProcessingAtStepZero") << ':'
-                << (isAllowedInnerTypeOfStatisticalProcessingAtStepZero ? "true" : "false")
-                << '}';
+                << (isAllowedInnerTypeOfStatisticalProcessingAtStepZero ? "true" : "false") << '}';
             return out.str();
         }
         catch (...) {
@@ -408,9 +407,12 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t>
 ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
     tables::TypeOfStatisticalProcessing innerMostTypeOfStatisticalProcessing, const MarsDict_t& mars,
     const ParDict_t& par, const OptDict_t& opt) {
-    using metkit::mars2grib::backend::models::product_time_spec::detail::requiresFakeDoubleLoopSingleLoopRepresentation_or_throw;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::requiresFakeSingleLoopDoubleLoopRepresentation_or_throw;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::isAllowed_InnerTypeOfStatisticalProcessingAtStepZero;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::
+        isAllowed_InnerTypeOfStatisticalProcessingAtStepZero;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::
+        requiresFakeDoubleLoopSingleLoopRepresentation_or_throw;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::
+        requiresFakeSingleLoopDoubleLoopRepresentation_or_throw;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -454,8 +456,7 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
         input.innerMostTypeOfStatisticalProcessing = innerMostTypeOfStatisticalProcessing;
         input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero =
             isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
-                input.innerMostTypeOfStatisticalProcessing,
-                input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
+                input.innerMostTypeOfStatisticalProcessing, input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
 
 
         MARS2GRIB_LOG_RESOLVE(

@@ -58,18 +58,17 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_IFSSynopticSingleLoop_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isIfs                     = input.regime == SimulationRegime::IFS;
-        const bool isNotSeasonal             = !product_time_spec::detail::isSeasonal(input);
-        const bool isSynoptic                = input.isSynoptic;
-        const bool isAnalysis                = input.simulationType == SimulationType::Analysis;
-        const bool hasNoStattypeBlocks       = input.stattype.empty();
+        const bool isIfs               = input.regime == SimulationRegime::IFS;
+        const bool isNotSeasonal       = !product_time_spec::detail::isSeasonal(input);
+        const bool isSynoptic          = input.isSynoptic;
+        const bool isAnalysis          = input.simulationType == SimulationType::Analysis;
+        const bool hasNoStattypeBlocks = input.stattype.empty();
 
         return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasNoStattypeBlocks;
     }
@@ -114,9 +113,8 @@ inline ProductTimeSpecOuterTimeRange build_IFSSynopticSingleLoop_ShapeOuterTimeR
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, timeRange};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeOuterTimeRange`", input.to_json(),
-                                    Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSSynopticSingleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -126,8 +124,8 @@ inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveSynopticIncrement;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::oneMonth;
 
     try {

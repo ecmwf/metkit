@@ -62,9 +62,8 @@ inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value)
             << detail::productTimeSpecDateTimeJson(value.domainEndDateTime) << ','
             << detail::jsonQuote_modelInput("isSynoptic") << ':' << (value.isSynoptic ? "true" : "false") << ','
             << detail::jsonQuote_modelInput("startOffsetHoursFromReference") << ':'
-            << value.startOffsetHoursFromReference << ','
-            << detail::jsonQuote_modelInput("endOffsetHoursFromReference") << ':'
-            << value.endOffsetHoursFromReference << '}';
+            << value.startOffsetHoursFromReference << ',' << detail::jsonQuote_modelInput("endOffsetHoursFromReference")
+            << ':' << value.endOffsetHoursFromReference << '}';
         return out.str();
     }
     catch (...) {
