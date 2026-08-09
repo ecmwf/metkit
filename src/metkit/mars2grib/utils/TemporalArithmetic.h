@@ -342,6 +342,33 @@ inline metkit::mars2grib::backend::deductions::TimeDuration twentyFourHours() {
     }
 }
 
+///
+/// @brief Return true only when two TimeDuration values are exactly identical.
+///
+/// Equality here is structural, not semantic:
+/// - units must be the same;
+/// - lengths must be the same.
+///
+/// This intentionally does not normalize equivalent fixed-unit durations.
+/// For example, `{24, Hour}` and `{1, Day}` are considered different.
+///
+/// @param[in] lhs Left-hand duration.
+/// @param[in] rhs Right-hand duration.
+/// @return `true` when both `length` and `unit` are identical; otherwise `false`.
+/// @throws Mars2GribGenericException If comparison fails unexpectedly.
+///
+inline bool compareTimeDuration(const metkit::mars2grib::backend::deductions::TimeDuration& lhs,
+                                const metkit::mars2grib::backend::deductions::TimeDuration& rhs) {
+    using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
+
+    try {
+        return lhs.length == rhs.length && lhs.unit == rhs.unit;
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribGenericException("Failed to compare two TimeDuration values", Here()));
+    }
+}
+
 
 inline long convertToSeconds(const metkit::mars2grib::backend::deductions::TimeDuration& duration) {
     using metkit::mars2grib::backend::tables::TimeUnit;
