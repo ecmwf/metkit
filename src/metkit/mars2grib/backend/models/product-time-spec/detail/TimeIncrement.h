@@ -50,7 +50,7 @@ inline metkit::mars2grib::backend::deductions::TimeDuration missingIncrement() {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return {0, TimeUnit::Second};
+        return {0, TimeUnit::Missing};
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `missingIncrement`", Here()));
