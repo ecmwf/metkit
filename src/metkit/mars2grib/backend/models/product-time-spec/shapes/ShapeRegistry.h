@@ -232,9 +232,9 @@ inline ProductTimeSpecShapeKind classify_Shape_or_throw(const ProductTimeSpecInp
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 /// If the classification is invalid or the selected stage-1 builder fails.
 ///
-inline ProductTimeSpecOuterTimeRange build_ShapeOuterTimeRange_or_throw(ProductTimeSpecShapeKind classification,
-                                                                        const ProductTimeSpecInput& input,
-                                                                        const ProductTimeSpecClassification& fullClassification) {
+inline ProductTimeSpecOuterTimeRange build_ShapeOuterTimeRange_or_throw(
+    ProductTimeSpecShapeKind classification, const ProductTimeSpecInput& input,
+    const ProductTimeSpecClassification& fullClassification) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {

@@ -31,8 +31,8 @@
 #include "eckit/types/Time.h"
 
 #include "metkit/mars2grib/backend/deductions/common.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ForecastLeadUtils.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainUtils.h"
@@ -60,9 +60,9 @@ inline bool match_Forecast_Domain(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const bool isNotSynoptic = !input.isSynoptic;
-        const bool isNotSeasonal = !product_time_spec::detail::isSeasonal(input);
-        const bool isForecast    = input.simulationType == SimulationType::Forecast;
+        const bool isNotSynoptic  = !input.isSynoptic;
+        const bool isNotSeasonal  = !product_time_spec::detail::isSeasonal(input);
+        const bool isForecast     = input.simulationType == SimulationType::Forecast;
         const bool isNotFromStart = input.timespan.kind != TimespanKind::FromStart;
 
         return isNotSynoptic && isNotSeasonal && isForecast && isNotFromStart;
@@ -87,8 +87,8 @@ inline ProductTimeSpecDomain build_Forecast_Domain(const ProductTimeSpecInput& i
                                                    const ProductTimeSpecClassification& classification,
                                                    const anchor::ProductTimeSpecAnchor& anchor,
                                                    const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
-    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::offsetHoursFromReference;
+    using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::addDuration;
     using metkit::mars2grib::utils::time_arithmetic::subtractDuration;
@@ -104,18 +104,17 @@ inline ProductTimeSpecDomain build_Forecast_Domain(const ProductTimeSpecInput& i
                                           Here());
         }
 
-        const auto forecastLead      = detail::resolvedForecastStep(input);
-        const auto domainEndDateTime = addDuration(anchor.referenceDateTime, forecastLead);
-        const auto outerRange        = *outerTimeRange.timeRange;
+        const auto forecastLead        = detail::resolvedForecastStep(input);
+        const auto domainEndDateTime   = addDuration(anchor.referenceDateTime, forecastLead);
+        const auto outerRange          = *outerTimeRange.timeRange;
         const auto domainStartDateTime = subtractDuration(domainEndDateTime, outerRange);
         const bool isSynoptic          = false;
-        const long startOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime,
-                                                                            domainStartDateTime);
-        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime,
-                                                                          domainEndDateTime);
+        const long startOffsetHoursFromReference =
+            offsetHoursFromReference(anchor.referenceDateTime, domainStartDateTime);
+        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime, domainEndDateTime);
 
-        return ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic,
-                                     startOffsetHoursFromReference, endOffsetHoursFromReference};
+        return ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic, startOffsetHoursFromReference,
+                                     endOffsetHoursFromReference};
     }
     catch (...) {
         std::throw_with_nested(

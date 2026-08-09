@@ -264,10 +264,9 @@ inline long offsetHoursFromReference(const eckit::DateTime& referenceDateTime, c
 
     try {
         const bool targetFollowsReference = targetDateTime >= referenceDateTime;
-        const auto elapsedDuration =
-            targetFollowsReference ? durationBetween(referenceDateTime, targetDateTime)
-                                   : durationBetween(targetDateTime, referenceDateTime);
-        const long elapsedSeconds = convertToSeconds(elapsedDuration);
+        const auto elapsedDuration        = targetFollowsReference ? durationBetween(referenceDateTime, targetDateTime)
+                                                                   : durationBetween(targetDateTime, referenceDateTime);
+        const long elapsedSeconds         = convertToSeconds(elapsedDuration);
 
         if (elapsedSeconds % 3600L != 0) {
             throw Mars2GribModelException("Reference-relative offset is not an exact whole number of hours", Here());

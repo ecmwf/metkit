@@ -60,8 +60,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_IFSFromStartSingleLoopAtZero_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_IFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -81,8 +80,8 @@ inline bool match_IFSFromStartSingleLoopAtZero_Shape(
         const bool operationIsAllowed = input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero;
 
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && usesFromStartTimespan &&
-               hasNoStattypeBlocks && hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
+        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && usesFromStartTimespan && hasNoStattypeBlocks &&
+               hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_IFSFromStartSingleLoopAtZero_Shape`",
@@ -118,8 +117,8 @@ inline ProductTimeSpecOuterTimeRange build_IFSFromStartSingleLoopAtZero_ShapeOut
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Deferred, std::nullopt};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -143,8 +142,8 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopAtZero_ShapeWindows(
 
         const bool isZeroLengthFromStart = timeRange.length == 0;
 
-        const ResolvedInnerIncrement resolvedIncrement = resolveIfsInnerIncrement(input, timeRange, false,
-                                                                                  isZeroLengthFromStart);
+        const ResolvedInnerIncrement resolvedIncrement =
+            resolveIfsInnerIncrement(input, timeRange, false, isZeroLengthFromStart);
 
         ProductTimeSpecWindow window{input.innerMostTypeOfStatisticalProcessing, resolvedIncrement.typeOfTimeIncrement,
                                      timeRange, resolvedIncrement.timeIncrement};
@@ -152,8 +151,8 @@ inline ProductTimeSpecShape build_IFSFromStartSingleLoopAtZero_ShapeWindows(
         return ProductTimeSpecShape{{window}};
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSFromStartSingleLoopAtZero_ShapeWindows`",
-                                                       input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSFromStartSingleLoopAtZero_ShapeWindows`", input.to_json(), Here()));
     }
 }
 

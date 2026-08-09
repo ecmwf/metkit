@@ -215,9 +215,9 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals typeOfTimeIncreme
             isAnalysis && isMultiLoop && isInnermost && isOneHour(input, timeRange);
 
         // if (isForecast || isOneHourInnermostAnalysisLoop) {
-            return forecastTypeOfTimeIncrement();
+        return forecastTypeOfTimeIncrement();
         //}
-        //if (isAnalysis) {
+        // if (isAnalysis) {
         //    return analysisTypeOfTimeIncrement();
         //}
 

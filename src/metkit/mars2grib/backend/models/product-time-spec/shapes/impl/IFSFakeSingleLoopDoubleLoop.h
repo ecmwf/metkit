@@ -60,8 +60,7 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented facts hold.
  * @throws Mars2GribModelException If matcher evaluation unexpectedly fails.
  */
-inline bool match_IFSFakeSingleLoopDoubleLoop_Shape(
-    const ProductTimeSpecInput& input) {
+inline bool match_IFSFakeSingleLoopDoubleLoop_Shape(const ProductTimeSpecInput& input) {
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -79,8 +78,8 @@ inline bool match_IFSFakeSingleLoopDoubleLoop_Shape(
         const bool doesNotRequireFakeDoubleLoop = !requiresFakeDoubleLoop;
         const bool requiresFakeSecondLoop       = input.requiresFakeSingleLoopDoubleLoopRepresentation;
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan &&
-               hasNoStattypeBlocks && doesNotRequireFakeDoubleLoop && requiresFakeSecondLoop;
+        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
+               doesNotRequireFakeDoubleLoop && requiresFakeSecondLoop;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_IFSFakeSingleLoopDoubleLoop_Shape`",
@@ -109,9 +108,9 @@ inline ProductTimeSpecOuterTimeRange build_IFSFakeSingleLoopDoubleLoop_ShapeOute
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
     using metkit::mars2grib::backend::deductions::TimeDuration;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
-    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -121,9 +120,8 @@ inline ProductTimeSpecOuterTimeRange build_IFSFakeSingleLoopDoubleLoop_ShapeOute
         return ProductTimeSpecOuterTimeRange{ProductTimeSpecOuterTimeRangeAvailability::Available, sharedTimeRange};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange`",
-                                    input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
     }
 }
 
@@ -133,10 +131,10 @@ inline ProductTimeSpecShape build_IFSFakeSingleLoopDoubleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
     using metkit::mars2grib::backend::models::product_time_spec::detail::resolveIfsInnerIncrement;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::typeOfTimeIncrementForWindow;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::timespanDuration;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)classification;
@@ -161,9 +159,8 @@ inline ProductTimeSpecShape build_IFSFakeSingleLoopDoubleLoop_ShapeWindows(
         return ProductTimeSpecShape{{outerWindow, innermostWindow}};
     }
     catch (...) {
-        std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows`",
-                                    input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows`", input.to_json(), Here()));
     }
 }
 
