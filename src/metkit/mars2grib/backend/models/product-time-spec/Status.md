@@ -25,6 +25,7 @@ It must be updated at each significant implementation step.
 - one additional early normalized-input refinement has been identified before
   the callback-by-callback rewrite;
 - point `0` has been implemented in code;
+- point `1.0` has been implemented in code;
 - callback-by-callback review not started yet.
 
 ## Completed Tasks
@@ -34,6 +35,7 @@ It must be updated at each significant implementation step.
 - `0.2` Add precomputed step-zero allowance to `ProductTimeSpecInput`.
 - `0.3` Compute the new input member during `make_ProductTimeSpecInput_or_throw`.
 - `0.4` Update zero-step shape callbacks to consume the input member.
+- `1.0` Extend raw domain artifact.
 
 ## Agreed Decisions
 

@@ -84,6 +84,7 @@ inline ProductTimeSpecDomain build_Analysis_Domain(const ProductTimeSpecInput& i
                                                    const anchor::ProductTimeSpecAnchor& anchor,
                                                    const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
+    using metkit::mars2grib::backend::models::product_time_spec::domain::detail::offsetHoursFromReference;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::addDuration;
 
@@ -99,7 +100,16 @@ inline ProductTimeSpecDomain build_Analysis_Domain(const ProductTimeSpecInput& i
         }
 
         const auto outerRange = *outerTimeRange.timeRange;
-        return ProductTimeSpecDomain{anchor.referenceDateTime, addDuration(anchor.referenceDateTime, outerRange)};
+        const auto domainStartDateTime = anchor.referenceDateTime;
+        const auto domainEndDateTime   = addDuration(anchor.referenceDateTime, outerRange);
+        const bool isSynoptic          = false;
+        const long startOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime,
+                                                                            domainStartDateTime);
+        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime,
+                                                                          domainEndDateTime);
+
+        return ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic,
+                                     startOffsetHoursFromReference, endOffsetHoursFromReference};
     }
     catch (...) {
         std::throw_with_nested(
