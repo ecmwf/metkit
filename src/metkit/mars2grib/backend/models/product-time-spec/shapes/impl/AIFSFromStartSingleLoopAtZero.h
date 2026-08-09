@@ -81,8 +81,7 @@ inline bool match_AIFSFromStartSingleLoopAtZero_Shape(
         const bool hasZeroStep              = product_time_spec::detail::stepIsZero(input);
 
         const bool stepZeroIsAllowed  = input.allowZeroLengthFsWindow;
-        const bool operationIsAllowed = isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
-            input.innerMostTypeOfStatisticalProcessing, input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
+        const bool operationIsAllowed = input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero;
 
         return isAifs && isForecast && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
                usesFromStartTimespan && hasNoStattypeBlocks && hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
