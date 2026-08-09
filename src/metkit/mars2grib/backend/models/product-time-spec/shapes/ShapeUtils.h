@@ -77,52 +77,5 @@ inline bool timespanIsMissingAndAllowed(const ProductTimeSpecInput& input, const
     }
 }
 
-/**
- * @brief Verify whether the innermost statistical processing is allowed at step zero.
- *
- * The operation is accepted when:
- * - the processing type is `Accumulation`; or
- * - the extended zero-length from-start operation set is enabled and the
- *   processing type is `Average`, `Minimum`, or `Maximum`.
- *
- * @param[in] innerTypeOfStatisticalProcessing Innermost processing type to validate.
- * @param[in] allowExtendedSetOfOperationsForZeroLengthFsWindow Whether the
- *            extended zero-length from-start operation set is enabled.
- * @return `true` when the processing type is allowed at step zero; otherwise `false`.
- * @throws Mars2GribModelException If evaluation unexpectedly fails.
- */
-inline bool isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
-    const metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing& innerTypeOfStatisticalProcessing,
-    const bool allowExtendedSetOfOperationsForZeroLengthFsWindow) {
-
-    using metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing;
-    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
-
-    try {
-
-        static constexpr std::array<TypeOfStatisticalProcessing, 3> extendedSetOfOperation = {
-            {TypeOfStatisticalProcessing::Average, TypeOfStatisticalProcessing::Minimum,
-             TypeOfStatisticalProcessing::Maximum}};
-
-        const bool isAccumulation = innerTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Accumulation;
-        const bool isInExtendedOperationSet = std::any_of(
-            extendedSetOfOperation.begin(), extendedSetOfOperation.end(),
-            [&innerTypeOfStatisticalProcessing](auto value) { return innerTypeOfStatisticalProcessing == value; });
-
-        if (isAccumulation) {
-            return true;
-        }
-
-        if (isInExtendedOperationSet) {
-            return allowExtendedSetOfOperationsForZeroLengthFsWindow;
-        }
-
-        return false;
-    }
-    catch (...) {
-        std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `isAllowed_InnerTypeOfStatisticalProcessingAtStepZero`", Here()));
-    }
-}
 
 }  // namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail

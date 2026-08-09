@@ -24,8 +24,16 @@ It must be updated at each significant implementation step.
   `Constraints.md`;
 - one additional early normalized-input refinement has been identified before
   the callback-by-callback rewrite;
-- code not modified yet under this rewrite plan;
+- point `0` has been implemented in code;
 - callback-by-callback review not started yet.
+
+## Completed Tasks
+
+- `0.0` Extend normalized input with precomputed step-zero statistical-processing allowance.
+- `0.1` Update `isAllowed_InnerTypeOfStatisticalProcessingAtStepZero` semantics.
+- `0.2` Add precomputed step-zero allowance to `ProductTimeSpecInput`.
+- `0.3` Compute the new input member during `make_ProductTimeSpecInput_or_throw`.
+- `0.4` Update zero-step shape callbacks to consume the input member.
 
 ## Agreed Decisions
 
@@ -199,8 +207,7 @@ Target change:
 
 Current status:
 
-- identified;
-- not implemented.
+- implemented.
 
 ## Cross-Check Tracker
 

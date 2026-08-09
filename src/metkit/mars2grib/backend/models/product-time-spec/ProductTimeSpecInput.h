@@ -155,6 +155,60 @@ bool requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(const MarsDict_t& m
     }
 }
 
+/**
+ * @brief Verify whether the innermost statistical processing is allowed at step zero.
+ *
+ * The operation is accepted when:
+ * - the processing type is `Missing`, representing the instant case; or
+ * - the processing type is `Accumulation`; or
+ * - the extended zero-length from-start operation set is enabled and the
+ *   processing type is `Average`, `Minimum`, or `Maximum`.
+ *
+ * @param[in] innerTypeOfStatisticalProcessing Innermost processing type to validate.
+ * @param[in] allowExtendedSetOfOperationsForZeroLengthFsWindow Whether the
+ *            extended zero-length from-start operation set is enabled.
+ * @return `true` when the processing type is allowed at step zero; otherwise `false`.
+ * @throws Mars2GribModelException If evaluation unexpectedly fails.
+ */
+inline bool isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
+    const metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing& innerTypeOfStatisticalProcessing,
+    const bool allowExtendedSetOfOperationsForZeroLengthFsWindow) {
+
+    using metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing;
+    using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
+
+    try {
+
+        static constexpr std::array<TypeOfStatisticalProcessing, 3> extendedSetOfOperation = {
+            {TypeOfStatisticalProcessing::Average, TypeOfStatisticalProcessing::Minimum,
+             TypeOfStatisticalProcessing::Maximum}};
+
+        const bool isMissing = innerTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
+        const bool isAccumulation = innerTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Accumulation;
+        const bool isInExtendedOperationSet = std::any_of(
+            extendedSetOfOperation.begin(), extendedSetOfOperation.end(),
+            [&innerTypeOfStatisticalProcessing](auto value) { return innerTypeOfStatisticalProcessing == value; });
+
+        if (isMissing) {
+            return true;
+        }
+
+        if (isAccumulation) {
+            return true;
+        }
+
+        if (isInExtendedOperationSet) {
+            return allowExtendedSetOfOperationsForZeroLengthFsWindow;
+        }
+
+        return false;
+    }
+    catch (...) {
+        std::throw_with_nested(Mars2GribModelException(
+            "Failed to execute `isAllowed_InnerTypeOfStatisticalProcessingAtStepZero`", Here()));
+    }
+}
+
 }  // namespace detail
 
 struct ProductTimeSpecInput {
@@ -244,6 +298,9 @@ struct ProductTimeSpecInput {
     tables::TypeOfStatisticalProcessing innerMostTypeOfStatisticalProcessing{
         tables::TypeOfStatisticalProcessing::Missing};
 
+    /// @brief Whether the innermost statistical processing is allowed in the step-zero from-start special case.
+    bool isAllowedInnerTypeOfStatisticalProcessingAtStepZero{false};
+
     ///
     /// @brief Serialize this normalized input snapshot as JSON.
     ///
@@ -302,6 +359,8 @@ struct ProductTimeSpecInput {
                 << detail::jsonQuote_modelInput("innerMostTypeOfStatisticalProcessing") << ':'
                 << detail::jsonQuote_modelInput(
                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerMostTypeOfStatisticalProcessing))
+                << ',' << detail::jsonQuote_modelInput("isAllowedInnerTypeOfStatisticalProcessingAtStepZero") << ':'
+                << (isAllowedInnerTypeOfStatisticalProcessingAtStepZero ? "true" : "false")
                 << '}';
             return out.str();
         }
@@ -349,6 +408,9 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t>
 ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
     tables::TypeOfStatisticalProcessing innerMostTypeOfStatisticalProcessing, const MarsDict_t& mars,
     const ParDict_t& par, const OptDict_t& opt) {
+    using metkit::mars2grib::backend::models::product_time_spec::detail::requiresFakeDoubleLoopSingleLoopRepresentation_or_throw;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::requiresFakeSingleLoopDoubleLoopRepresentation_or_throw;
+    using metkit::mars2grib::backend::models::product_time_spec::detail::isAllowed_InnerTypeOfStatisticalProcessingAtStepZero;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -359,9 +421,9 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
         input.marsType    = deductions::resolve_Type_or_throw(mars, par, opt);
         input.marsParamId = deductions::resolve_ParamId_or_throw(mars, par, opt);
         input.requiresFakeDoubleLoopSingleLoopRepresentation =
-            detail::requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(mars, par, opt);
+            requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(mars, par, opt);
         input.requiresFakeSingleLoopDoubleLoopRepresentation =
-            detail::requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(mars, par, opt);
+            requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(mars, par, opt);
         input.marsYear    = deductions::resolve_Year_opt(mars, par, opt);
         input.marsMonth   = deductions::resolve_Month_opt(mars, par, opt);
         input.marsDate    = deductions::resolve_Date_opt(mars, par, opt);
@@ -390,6 +452,10 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
         input.allowMissingTimespanForStatisticalProduct =
             get_or_throw<bool>(opt, "allowMissingTimespanForStatisticalProduct");
         input.innerMostTypeOfStatisticalProcessing = innerMostTypeOfStatisticalProcessing;
+        input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero =
+            isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
+                input.innerMostTypeOfStatisticalProcessing,
+                input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
 
 
         MARS2GRIB_LOG_RESOLVE(
