@@ -37,153 +37,6 @@ This file applies to:
 
 ## Task Tree
 
-- `0.0` Extend normalized input with precomputed step-zero statistical-processing allowance.
-  Add a dedicated derived input member before the callback-by-callback rewrite.
-- `0.1` Update `isAllowed_InnerTypeOfStatisticalProcessingAtStepZero` semantics.
-  Treat `TypeOfStatisticalProcessing::Missing` as always valid because it is the
-  instant case.
-- `0.2` Add precomputed step-zero allowance to `ProductTimeSpecInput`.
-  Store the derived boolean directly in the normalized input artifact.
-- `0.3` Compute the new input member during `make_ProductTimeSpecInput_or_throw`.
-  Resolve the policy fact during input assembly instead of recomputing it in
-  callbacks.
-- `0.4` Update zero-step shape callbacks to consume the input member.
-  Replace local recomputation in the step-zero shape matchers with the derived
-  normalized input fact.
-- `1.0` Extend raw domain artifact.
-  Add `isSynoptic` and reference-relative hour offsets while keeping the
-  existing absolute domain datetimes.
-- `1.1` Review `match_Analysis_Domain`.
-  Verify matcher boundaries, readability, and whether hidden helper logic should
-  be made local.
-- `1.2` Review `build_Analysis_Domain`.
-  Rework the builder so it visibly computes each output field as leaf logic.
-- `1.3` Review `match_Forecast_Domain`.
-  Verify matcher boundaries and ensure the non-seasonal forecast rule is fully
-  explicit.
-- `1.4` Review `build_Forecast_Domain`.
-  Rework the builder so it visibly computes start, end, synoptic flag, and
-  offsets.
-- `1.5` Review `match_FromStartForecast_Domain`.
-  Verify matcher boundaries and from-start exclusivity.
-- `1.6` Review `build_FromStartForecast_Domain`.
-  Rework the builder so it visibly computes the raw from-start domain fields.
-- `1.7` Review `match_SeasonalForecast_Domain`.
-  Verify matcher boundaries and seasonal semantics.
-- `1.8` Review `build_SeasonalForecast_Domain`.
-  Rework the builder so it visibly computes month-based raw domain fields.
-- `1.9` Review `match_SynopticAnalysis_Domain`.
-  Verify matcher boundaries and explicit synoptic semantics.
-- `1.10` Review `build_SynopticAnalysis_Domain`.
-  Rework the builder so it visibly computes the raw synoptic domain fields.
-- `2.0` Add per-anchor check callbacks.
-  Add one explicit checker for every anchor case and dispatch them after raw
-  anchor construction.
-- `2.1` Review `match_ForecastAnalysis_Anchor`.
-  Verify matcher boundaries and clarity.
-- `2.2` Review `build_ForecastAnalysis_Anchor`.
-  Rework the builder so it visibly computes every anchor field locally.
-- `2.3` Review `match_Hindcast_Anchor`.
-  Verify matcher boundaries and clarity.
-- `2.4` Review `build_Hindcast_Anchor`.
-  Rework the builder so it visibly computes every anchor field locally.
-- `2.5` Review `match_SeasonalClimate_Anchor`.
-  Verify matcher boundaries and clarity.
-- `2.6` Review `build_SeasonalClimate_Anchor`.
-  Rework the builder so it visibly computes every anchor field locally.
-- `3.0` Add per-domain check callbacks.
-  Add one explicit checker for every domain case and dispatch them after raw
-  domain construction.
-- `4.0` Add per-shape check callbacks.
-  Add one explicit checker for every shape case and dispatch them after raw
-  shape construction.
-- `4.1` Review `match_Instant_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.2` Review `build_Instant_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.3` Review `build_Instant_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.4` Review `match_IFSStandardSingleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.5` Review `build_IFSStandardSingleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.6` Review `build_IFSStandardSingleLoop_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.7` Review `match_IFSFakeDoubleLoopSingleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.8` Review `build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.9` Review `build_IFSFakeDoubleLoopSingleLoop_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.10` Review `match_IFSFromStartSingleLoopAtZero_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.11` Review `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.12` Review `build_IFSFromStartSingleLoopAtZero_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.13` Review `match_IFSFromStartSingleLoopPositive_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.14` Review `build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.15` Review `build_IFSFromStartSingleLoopPositive_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.16` Review `match_IFSSynopticSingleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.17` Review `build_IFSSynopticSingleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.18` Review `build_IFSSynopticSingleLoop_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.19` Review `match_AIFSStandardSingleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.20` Review `build_AIFSStandardSingleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.21` Review `build_AIFSStandardSingleLoop_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.22` Review `match_AIFSFakeDoubleLoopSingleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.23` Review `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.24` Review `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.25` Review `match_AIFSFromStartSingleLoopAtZero_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.26` Review `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.27` Review `build_AIFSFromStartSingleLoopAtZero_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.28` Review `match_AIFSFromStartSingleLoopPositive_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.29` Review `build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.30` Review `build_AIFSFromStartSingleLoopPositive_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.31` Review `match_SeasonalSingleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.32` Review `build_SeasonalSingleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.33` Review `build_SeasonalSingleLoop_ShapeWindows`.
-  Rework the window builder to follow the mandatory block structure.
-- `4.34` Review `match_SeasonalMultiloop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.35` Review `build_SeasonalMultiloop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.36` Review `build_SeasonalMultiloop_ShapeWindows`.
-  Rework the multi-window builder to follow the mandatory loop block
-  structure.
-- `4.37` Review `match_IFSStandardMultiLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.38` Review `build_IFSStandardMultiLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.39` Review `build_IFSStandardMultiLoop_ShapeWindows`.
-  Rework the multi-window builder to follow the mandatory loop block
-  structure.
-- `4.40` Review `match_IFSFakeSingleLoopDoubleLoop_Shape`.
-  Verify matcher boundaries and clarity.
-- `4.41` Review `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange`.
-  Rework the outer-range builder as visible leaf logic.
-- `4.42` Review `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows`.
-  Rework the multi-window builder to follow the mandatory loop block
-  structure.
 - `5.0` Add raw-to-normalized artifact layer.
   Normalize callback outputs only after raw build and raw checks succeed.
 - `5.1` Normalize time ranges to hours.
@@ -224,6 +77,9 @@ This file applies to:
   stabilized.
 
 ## Task Details
+
+Tasks `0.x` through `4.x` are implemented in code. The remaining active work in
+this file begins at the raw-to-normalized artifact layer.
 
 ### `0.0` Extend normalized input with precomputed step-zero statistical-processing allowance
 
@@ -524,6 +380,12 @@ artifacts.
 Raw callback outputs are allowed to preserve natural case semantics.
 
 Normalized artifacts must be encoder-facing and canonical.
+
+This stage should run only after:
+
+- raw anchor checks succeed;
+- raw domain checks succeed;
+- raw shape checks succeed.
 
 ### `5.1` Normalize time ranges to hours
 
