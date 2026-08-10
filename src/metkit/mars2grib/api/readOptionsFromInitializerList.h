@@ -5,64 +5,34 @@
  */
 
 ///
-/// @file readOptionsFromInitializerList.cc
+/// @file readOptionsFromInitializerList.h
 /// @brief Parse Mars2Grib Options from a compact initializer list.
 ///
-/// The supported public representation is:
+/// This file is intended to be included into `Mars2Grib.cc` so the parser can
+/// remain implementation-only while still being the single source of truth.
 ///
-/// @code
-/// using OptionEntry = std::pair<std::string, eckit::Value>;
-/// using OptionList  = std::initializer_list<OptionEntry>;
-/// @endcode
-///
-/// This permits calls such as:
-///
-/// @code
-/// Mars2Grib{{
-///     {"skipSection3", true},
-///     {"allowDefaultTimeIncrementInSeconds", true},
-///     {"allowRedundantTimeIncrement", false}
-/// }};
-/// @endcode
-///
-/// `eckit::Value` is used deliberately:
-///
-/// - boolean values remain distinguishable from integers;
-/// - string literals remain strings rather than accidentally selecting a
-///   boolean alternative in a `std::variant`;
-/// - the public initializer syntax stays compact.
-///
-#include <initializer_list>
-#include <string>
+
 #include <string_view>
 #include <unordered_set>
-#include <utility>
 
 #include "eckit/value/Value.h"
 
+#include "metkit/mars2grib/api/Mars2Grib.h"
 #include "metkit/mars2grib/api/Options.h"
-#include "metkit/mars2grib/backend/tables/typeOfTimeIntervals.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
-namespace metkit::mars2grib {
+namespace metkit::mars2grib::detail {
 
-namespace {
-
-namespace tables     = metkit::mars2grib::backend::tables;
 namespace exceptions = metkit::mars2grib::utils::exceptions;
 
-using OptionEntry = std::pair<std::string, eckit::Value>;
-using OptionList  = std::initializer_list<OptionEntry>;
-
-[[noreturn]] void throwInvalidOptionType(std::string_view key, const eckit::Value& value, std::string_view expected) {
-
+[[noreturn]] inline void throwInvalidOptionType(std::string_view key, const eckit::Value& value,
+                                                std::string_view expected) {
     throw exceptions::Mars2GribDictException("Option `" + std::string(key) + "` has value type `" + value.typeName() +
                                                  "`; expected " + std::string(expected),
                                              Here());
 }
 
-bool readBool(std::string_view key, const eckit::Value& value) {
-
+inline bool readBool(std::string_view key, const eckit::Value& value) {
     if (!value.isBool()) {
         throwInvalidOptionType(key, value, "bool");
     }
@@ -70,18 +40,15 @@ bool readBool(std::string_view key, const eckit::Value& value) {
     return value.as<bool>();
 }
 
-///
-/// @brief Apply one initializer-list entry to an Options object.
-///
-/// Unknown keys are rejected. This avoids silently accepting misspelled option
-/// names.
-///
-/// The function performs representation-level type checks only. Semantic
-/// relationships between options remain the responsibility of the
-/// ProductTimeSpec extraction/validation path.
-///
-void applyOption(Options& opts, std::string_view key, const eckit::Value& value) {
+inline std::string readString(std::string_view key, const eckit::Value& value) {
+    if (!value.isString()) {
+        throwInvalidOptionType(key, value, "string");
+    }
 
+    return value.as<std::string>();
+}
+
+inline void applyOption(metkit::mars2grib::Options& opts, std::string_view key, const eckit::Value& value) {
     if (key == "applyChecks") {
         opts.applyChecks = readBool(key, value);
         return;
@@ -114,6 +81,21 @@ void applyOption(Options& opts, std::string_view key, const eckit::Value& value)
 
     if (key == "skipSection3") {
         opts.skipSection3 = readBool(key, value);
+        return;
+    }
+
+    if (key == "saveErrorStack") {
+        opts.saveErrorStack = readBool(key, value);
+        return;
+    }
+
+    if (key == "errorStackPath") {
+        opts.errorStackPath = readString(key, value);
+        return;
+    }
+
+    if (key == "printErrorStackToStdErr") {
+        opts.printErrorStackToStdErr = readBool(key, value);
         return;
     }
 
@@ -155,22 +137,8 @@ void applyOption(Options& opts, std::string_view key, const eckit::Value& value)
     throw exceptions::Mars2GribDictException("Unknown Mars2Grib option `" + std::string(key) + "`", Here());
 }
 
-///
-/// @brief Read Mars2Grib options from an initializer list.
-///
-/// A default-constructed Options object is created first. Each entry then
-/// overwrites the corresponding member.
-///
-/// Duplicate keys are rejected rather than applying last-value-wins semantics.
-/// Duplicate rejection makes accidental contradictory configuration visible at
-/// the API boundary.
-///
-/// @param[in] entries Initializer-list option entries.
-///
-/// @return A complete strongly typed Options object.
-///
-Options readOptions(OptionList entries) {
-    Options opts;
+inline metkit::mars2grib::Options readOptions(metkit::mars2grib::Mars2Grib::OptionList entries) {
+    metkit::mars2grib::Options opts;
     std::unordered_set<std::string> seen;
     seen.reserve(entries.size());
 
@@ -185,27 +153,4 @@ Options readOptions(OptionList entries) {
     return opts;
 }
 
-}  // namespace
-
-}  // namespace metkit::mars2grib
-
-/*
- * Public API integration:
- *
- * In Mars2Grib.h:
- *
- *   #include <initializer_list>
- *   #include <string>
- *   #include <utility>
- *   #include "eckit/value/Value.h"
- *
- *   using OptionEntry = std::pair<std::string, eckit::Value>;
- *   using OptionList  = std::initializer_list<OptionEntry>;
- *
- *   explicit Mars2Grib(OptionList opts);
- *
- * In Mars2Grib.cc, after the anonymous-namespace readOptions overload:
- *
- *   Mars2Grib::Mars2Grib(OptionList opts) :
- *       opts_{readOptions(opts)} {}
- */
+}  // namespace metkit::mars2grib::detail

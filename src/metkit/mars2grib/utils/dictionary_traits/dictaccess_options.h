@@ -11,7 +11,7 @@
 /// This adapter exposes the strongly typed `Options` aggregate through the
 /// generic Mars2Grib dictionary API.
 ///
-/// Supported operations for the bool-backed option keys:
+/// Supported operations for the bool-backed and string-backed option keys:
 ///
 /// - `has(options, key)`
 /// - `has<bool>(options, key)`
@@ -24,7 +24,7 @@
 /// - mutation through dictionary traits;
 /// - cloning through dictionary traits;
 /// - construction from a sample;
-/// - non-bool typed access through dictionary traits.
+/// - typed access beyond the explicitly supported bool/string keys.
 ///
 /// The Options object is already a complete policy snapshot. The adapter is
 /// therefore read-only.
@@ -77,17 +77,41 @@ inline void appendJsonBool(std::string& json, std::string_view key, bool value, 
     }
 }
 
+inline void appendJsonString(std::string& json, std::string_view key, std::string_view value, bool trailingComma) {
+
+    json += '"';
+    json += key;
+    json += "\":\"";
+
+    for (const char c : value) {
+        if (c == '\\' || c == '"') {
+            json += '\\';
+        }
+        json += c;
+    }
+
+    json += '"';
+
+    if (trailingComma) {
+        json += ',';
+    }
+}
+
 inline bool isBoolKey(std::string_view key) noexcept {
     return key == "applyChecks" || key == "enableOverride" || key == "enableBitsPerValueCompression" ||
            key == "normalizeMars" || key == "normalizeMisc" || key == "fixMarsGrid" || key == "skipSection3" ||
-           key == "allowDefaultTimeIncrement" || key == "allowZeroLengthFsWindow" ||
-           key == "allowExtendedSetOfOperationsForZeroLengthFsWindow" ||
+           key == "saveErrorStack" || key == "printErrorStackToStdErr" || key == "allowDefaultTimeIncrement" ||
+           key == "allowZeroLengthFsWindow" || key == "allowExtendedSetOfOperationsForZeroLengthFsWindow" ||
            key == "allowNonEnumeratedPositiveIntegerTimespanHours" || key == "allowRedundantTimeIncrement" ||
            key == "allowMissingTimespanForInstantProduct" || key == "allowMissingTimespanForStatisticalProduct";
 }
 
+inline bool isStringKey(std::string_view key) noexcept {
+    return key == "errorStackPath";
+}
+
 inline bool isKnownKey(std::string_view key) noexcept {
-    return isBoolKey(key);
+    return isBoolKey(key) || isStringKey(key);
 }
 
 
@@ -129,6 +153,14 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
         return opts.skipSection3;
     }
 
+    if (key == "saveErrorStack") {
+        return opts.saveErrorStack;
+    }
+
+    if (key == "printErrorStackToStdErr") {
+        return opts.printErrorStackToStdErr;
+    }
+
     if (key == "allowDefaultTimeIncrement") {
         return opts.allowDefaultTimeIncrement;
     }
@@ -162,6 +194,17 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
                                              Here());
 }
 
+inline std::string getStringOrThrow(const Options& opts, std::string_view key) {
+
+    if (key == "errorStackPath") {
+        return opts.errorStackPath;
+    }
+
+    throw exceptions::Mars2GribDictException("Key `" + std::string(key) + "` cannot be read as `" + "std::string" +
+                                                 "` from dictionary type `metkit::mars2grib::Options`",
+                                             Here());
+}
+
 }  // namespace options_detail
 
 // -----------------------------------------------------------------------------
@@ -184,6 +227,9 @@ struct DictToJsonTraits<Options> {
             options_detail::appendJsonBool(json, "normalizeMisc", opts.normalizeMisc, true);
             options_detail::appendJsonBool(json, "fixMarsGrid", opts.fixMarsGrid, true);
             options_detail::appendJsonBool(json, "skipSection3", opts.skipSection3, true);
+            options_detail::appendJsonBool(json, "saveErrorStack", opts.saveErrorStack, true);
+            options_detail::appendJsonString(json, "errorStackPath", opts.errorStackPath, true);
+            options_detail::appendJsonBool(json, "printErrorStackToStdErr", opts.printErrorStackToStdErr, true);
             options_detail::appendJsonBool(json, "allowDefaultTimeIncrement", opts.allowDefaultTimeIncrement, true);
             options_detail::appendJsonBool(json, "allowZeroLengthFsWindow", opts.allowZeroLengthFsWindow, true);
             options_detail::appendJsonBool(json, "allowExtendedSetOfOperationsForZeroLengthFsWindow",
@@ -211,8 +257,8 @@ struct DictToJsonTraits<Options> {
 ///
 /// @brief Report whether an option has a readable materialised value.
 ///
-/// Every supported Options key is a non-optional bool member and is therefore
-/// always present. Unknown keys are absent.
+/// Every supported Options key is a non-optional bool or string member and is
+/// therefore always present. Unknown keys are absent.
 ///
 /// This definition gives the untyped `has(options, key)` operation normal
 /// dictionary semantics rather than merely reporting whether the C++ structure
@@ -223,7 +269,7 @@ struct DictHas<Options> {
 
     static bool has(const Options& opts, std::string_view key) noexcept(false) {
 
-        if (options_detail::isBoolKey(key)) {
+        if (options_detail::isKnownKey(key)) {
             return true;
         }
 
@@ -257,6 +303,28 @@ struct DictGetOpt<Options, bool> {
     }
 };
 
+template <>
+struct DictGetOrThrow<Options, std::string> {
+
+    static std::string get_or_throw(const Options& opts, std::string_view key) noexcept(false) {
+
+        return options_detail::getStringOrThrow(opts, key);
+    }
+};
+
+template <>
+struct DictGetOpt<Options, std::string> {
+
+    static std::optional<std::string> get_opt(const Options& opts, std::string_view key) noexcept(false) {
+
+        if (!options_detail::isStringKey(key)) {
+            return std::nullopt;
+        }
+
+        return options_detail::getStringOrThrow(opts, key);
+    }
+};
+
 /*
  * No explicit function-template specialisation is required for `has<T>()`.
  *
@@ -271,5 +339,6 @@ struct DictGetOpt<Options, bool> {
  * Therefore the DictGetOpt specialisation above provides:
  *
  * - has<bool>(options, key)
+ * - has<std::string>(options, key)
  */
 }  // namespace metkit::mars2grib::utils::dict_traits

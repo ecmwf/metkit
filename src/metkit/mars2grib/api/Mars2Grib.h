@@ -73,7 +73,10 @@
 #pragma once
 
 // System includes
+#include <initializer_list>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 // eckit
@@ -129,6 +132,9 @@ namespace metkit::mars2grib {
 class Mars2Grib {
 public:
 
+    using OptionEntry = std::pair<std::string, eckit::Value>;
+    using OptionList  = std::initializer_list<OptionEntry>;
+
     template <typename T>
     using Span = metkit::codes::Span<T>;
 
@@ -159,6 +165,20 @@ public:
     /// Configuration object describing encoder options.
     ///
     explicit Mars2Grib(const eckit::LocalConfiguration& opts);
+
+    ///
+    /// @brief Construct a Mars2Grib encoder from inline option entries.
+    ///
+    /// This constructor supports compact inline configuration such as:
+    ///
+    /// @code
+    /// Mars2Grib{{"saveErrorStack", false}, {"errorStackPath", "./errors"}}
+    /// @endcode
+    ///
+    /// @param[in] opts
+    /// Initializer-list option entries.
+    ///
+    explicit Mars2Grib(OptionList opts);
 
     Mars2Grib(const Mars2Grib&)           = delete;
     Mars2Grib(Mars2Grib&&)                = delete;
