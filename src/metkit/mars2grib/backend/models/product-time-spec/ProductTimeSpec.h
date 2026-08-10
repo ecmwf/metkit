@@ -55,6 +55,7 @@
 #include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ShapeNormalization.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec {
 
@@ -380,8 +381,11 @@ private:
                 shape::build_ShapeOuterTimeRange_or_throw(shapeType, input, classification);
             domain::ProductTimeSpecDomain domain =
                 domain::build_Domain_or_throw(domainType, input, classification, anchor, outerTimeRange);
-            const shape::ProductTimeSpecShape windows =
+            const shape::ProductTimeSpecShape rawWindows =
                 shape::build_ShapeWindows_or_throw(shapeType, input, classification, anchor, outerTimeRange, domain);
+
+            const shape::ProductTimeSpecShape normalisedWindows =
+                detail::normalizeShape_or_throw( input, domain, rawWindows );
 
             ProductTimeSpecComponents result;
             result.anchorType = anchorType;
@@ -389,7 +393,7 @@ private:
             result.domainType = domainType;
             result.anchor     = std::move(anchor);
             result.domain     = std::move(domain);
-            result.windows    = std::move(windows);
+            result.windows    = std::move(normalisedWindows);
             return result;
         }
         catch (...) {
