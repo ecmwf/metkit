@@ -81,6 +81,10 @@ This file applies to:
 Tasks `0.x` through `4.x` are implemented in code. The remaining active work in
 this file begins at the raw-to-normalized artifact layer.
 
+The normalization stage currently targets only the final shape windows. The
+domain artifact remains unchanged and supplies the real placement needed for
+month-based range normalization.
+
 ### `0.0` Extend normalized input with precomputed step-zero statistical-processing allowance
 
 Before the callback-by-callback rewrite begins, extend the normalized input
@@ -387,6 +391,12 @@ This stage should run only after:
 - raw domain checks succeed;
 - raw shape checks succeed.
 
+Current implementation direction:
+
+- normalize only `shape::ProductTimeSpecShape`;
+- keep `domain::ProductTimeSpecDomain` unchanged;
+- store only normalized windows in the final `ProductTimeSpec` object.
+
 ### `5.1` Normalize time ranges to hours
 
 All final time ranges must be normalized to hours.
@@ -396,6 +406,14 @@ Sub-monthly ranges must be normalized to the allowed hour values.
 Month-based ranges must be normalized using the exact placed interval and the
 real month length in that exact year and month.
 
+For month-based shape windows, the placed interval begins at the real domain
+start:
+
+- non-synoptic: `domain.domainStartDateTime`;
+- synoptic: midnight of `domain.domainStartDateTime.date()`.
+
+The outermost normalized window range must equal the real domain span in hours.
+
 ### `5.2` Normalize time increments to seconds or missing
 
 All final time increments must be represented as either:
@@ -404,6 +422,10 @@ All final time increments must be represented as either:
 - missing.
 
 No final normalized increment should remain in hour, day, or month units.
+
+Trivially convertible units should be converted directly to seconds.
+
+Month-valued final increments are not supported and must be rejected.
 
 ### `5.3` Validate normalized sub-monthly time ranges
 

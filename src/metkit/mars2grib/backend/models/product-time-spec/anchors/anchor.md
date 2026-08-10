@@ -322,3 +322,5 @@ checker dispatch entry point.
 
 Top-level normalization and cross-artifact final checks still remain later
 pipeline stages outside the anchor folder.
+
+The anchor artifact itself is not normalized in the raw-to-normalized stage.

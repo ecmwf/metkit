@@ -29,7 +29,8 @@ It must be updated at each significant implementation step.
 - shape callback review and rewrite completed in code;
 - anchor, domain, and shape local raw check callbacks implemented in code;
 - shape registry checker dispatch implemented in code;
-- normalization not started yet.
+- normalization helper added in code but not wired yet;
+- final cross-check stage not started yet.
 
 ## Completed Tasks
 
@@ -104,70 +105,70 @@ Use the following status values:
 
 ### Anchor callbacks
 
-- `match_ForecastAnalysis_Anchor` : rewritten
-- `build_ForecastAnalysis_Anchor` : rewritten
-- `match_Hindcast_Anchor` : rewritten
-- `build_Hindcast_Anchor` : rewritten
-- `match_SeasonalClimate_Anchor` : rewritten
-- `build_SeasonalClimate_Anchor` : rewritten
+- `match_ForecastAnalysis_Anchor` : checked
+- `build_ForecastAnalysis_Anchor` : checked
+- `match_Hindcast_Anchor` : checked
+- `build_Hindcast_Anchor` : checked
+- `match_SeasonalClimate_Anchor` : checked
+- `build_SeasonalClimate_Anchor` : checked
 
 ### Domain callbacks
 
-- `match_Analysis_Domain` : rewritten
-- `build_Analysis_Domain` : rewritten
-- `match_Forecast_Domain` : rewritten
-- `build_Forecast_Domain` : rewritten
-- `match_FromStartForecast_Domain` : rewritten
-- `build_FromStartForecast_Domain` : rewritten
-- `match_SeasonalForecast_Domain` : rewritten
-- `build_SeasonalForecast_Domain` : rewritten
-- `match_SynopticAnalysis_Domain` : rewritten
-- `build_SynopticAnalysis_Domain` : rewritten
+- `match_Analysis_Domain` : checked
+- `build_Analysis_Domain` : checked
+- `match_Forecast_Domain` : checked
+- `build_Forecast_Domain` : checked
+- `match_FromStartForecast_Domain` : checked
+- `build_FromStartForecast_Domain` : checked
+- `match_SeasonalForecast_Domain` : checked
+- `build_SeasonalForecast_Domain` : checked
+- `match_SynopticAnalysis_Domain` : checked
+- `build_SynopticAnalysis_Domain` : checked
 
 ### Shape callbacks
 
-- `match_Instant_Shape` : rewritten
-- `build_Instant_ShapeOuterTimeRange` : rewritten
-- `build_Instant_ShapeWindows` : rewritten
-- `match_IFSStandardSingleLoop_Shape` : rewritten
-- `build_IFSStandardSingleLoop_ShapeOuterTimeRange` : rewritten
-- `build_IFSStandardSingleLoop_ShapeWindows` : rewritten
-- `match_IFSFakeDoubleLoopSingleLoop_Shape` : rewritten
-- `build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : rewritten
-- `build_IFSFakeDoubleLoopSingleLoop_ShapeWindows` : rewritten
-- `match_IFSFromStartSingleLoopAtZero_Shape` : rewritten
-- `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : rewritten
-- `build_IFSFromStartSingleLoopAtZero_ShapeWindows` : rewritten
-- `match_IFSFromStartSingleLoopPositive_Shape` : rewritten
-- `build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : rewritten
-- `build_IFSFromStartSingleLoopPositive_ShapeWindows` : rewritten
-- `match_IFSSynopticSingleLoop_Shape` : rewritten
-- `build_IFSSynopticSingleLoop_ShapeOuterTimeRange` : rewritten
-- `build_IFSSynopticSingleLoop_ShapeWindows` : rewritten
-- `match_AIFSStandardSingleLoop_Shape` : rewritten
-- `build_AIFSStandardSingleLoop_ShapeOuterTimeRange` : rewritten
-- `build_AIFSStandardSingleLoop_ShapeWindows` : rewritten
-- `match_AIFSFakeDoubleLoopSingleLoop_Shape` : rewritten
-- `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : rewritten
-- `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows` : rewritten
-- `match_AIFSFromStartSingleLoopAtZero_Shape` : rewritten
-- `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : rewritten
-- `build_AIFSFromStartSingleLoopAtZero_ShapeWindows` : rewritten
-- `match_AIFSFromStartSingleLoopPositive_Shape` : rewritten
-- `build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : rewritten
-- `build_AIFSFromStartSingleLoopPositive_ShapeWindows` : rewritten
-- `match_SeasonalSingleLoop_Shape` : rewritten
-- `build_SeasonalSingleLoop_ShapeOuterTimeRange` : rewritten
-- `build_SeasonalSingleLoop_ShapeWindows` : rewritten
-- `match_SeasonalMultiloop_Shape` : rewritten
-- `build_SeasonalMultiloop_ShapeOuterTimeRange` : rewritten
-- `build_SeasonalMultiloop_ShapeWindows` : rewritten
-- `match_IFSStandardMultiLoop_Shape` : rewritten
-- `build_IFSStandardMultiLoop_ShapeOuterTimeRange` : rewritten
-- `build_IFSStandardMultiLoop_ShapeWindows` : rewritten
-- `match_IFSFakeSingleLoopDoubleLoop_Shape` : rewritten
-- `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange` : rewritten
-- `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows` : rewritten
+- `match_Instant_Shape` : checked
+- `build_Instant_ShapeOuterTimeRange` : checked
+- `build_Instant_ShapeWindows` : checked
+- `match_IFSStandardSingleLoop_Shape` : checked
+- `build_IFSStandardSingleLoop_ShapeOuterTimeRange` : checked
+- `build_IFSStandardSingleLoop_ShapeWindows` : checked
+- `match_IFSFakeDoubleLoopSingleLoop_Shape` : checked
+- `build_IFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : checked
+- `build_IFSFakeDoubleLoopSingleLoop_ShapeWindows` : checked
+- `match_IFSFromStartSingleLoopAtZero_Shape` : checked
+- `build_IFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : checked
+- `build_IFSFromStartSingleLoopAtZero_ShapeWindows` : checked
+- `match_IFSFromStartSingleLoopPositive_Shape` : checked
+- `build_IFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : checked
+- `build_IFSFromStartSingleLoopPositive_ShapeWindows` : checked
+- `match_IFSSynopticSingleLoop_Shape` : checked
+- `build_IFSSynopticSingleLoop_ShapeOuterTimeRange` : checked
+- `build_IFSSynopticSingleLoop_ShapeWindows` : checked
+- `match_AIFSStandardSingleLoop_Shape` : checked
+- `build_AIFSStandardSingleLoop_ShapeOuterTimeRange` : checked
+- `build_AIFSStandardSingleLoop_ShapeWindows` : checked
+- `match_AIFSFakeDoubleLoopSingleLoop_Shape` : checked
+- `build_AIFSFakeDoubleLoopSingleLoop_ShapeOuterTimeRange` : checked
+- `build_AIFSFakeDoubleLoopSingleLoop_ShapeWindows` : checked
+- `match_AIFSFromStartSingleLoopAtZero_Shape` : checked
+- `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange` : checked
+- `build_AIFSFromStartSingleLoopAtZero_ShapeWindows` : checked
+- `match_AIFSFromStartSingleLoopPositive_Shape` : checked
+- `build_AIFSFromStartSingleLoopPositive_ShapeOuterTimeRange` : checked
+- `build_AIFSFromStartSingleLoopPositive_ShapeWindows` : checked
+- `match_SeasonalSingleLoop_Shape` : checked
+- `build_SeasonalSingleLoop_ShapeOuterTimeRange` : checked
+- `build_SeasonalSingleLoop_ShapeWindows` : checked
+- `match_SeasonalMultiloop_Shape` : checked
+- `build_SeasonalMultiloop_ShapeOuterTimeRange` : checked
+- `build_SeasonalMultiloop_ShapeWindows` : checked
+- `match_IFSStandardMultiLoop_Shape` : checked
+- `build_IFSStandardMultiLoop_ShapeOuterTimeRange` : checked
+- `build_IFSStandardMultiLoop_ShapeWindows` : checked
+- `match_IFSFakeSingleLoopDoubleLoop_Shape` : checked
+- `build_IFSFakeSingleLoopDoubleLoop_ShapeOuterTimeRange` : checked
+- `build_IFSFakeSingleLoopDoubleLoop_ShapeWindows` : checked
 
 ## Future Raw Check Callback Tracker
 
@@ -213,7 +214,7 @@ Target invariants:
 
 Current status:
 
-- not implemented.
+- helper added in `detail/ShapeNormalization.h`, top-level wiring not implemented yet.
 
 ## Early Input-Contract Refinement Tracker
 
