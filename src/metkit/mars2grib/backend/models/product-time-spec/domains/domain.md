@@ -363,3 +363,6 @@ checker dispatch entry point.
 
 The remaining major work after the callback rewrite is now the raw-to-
 normalized artifact layer and the later post-normalization cross checks.
+
+During normalization, the domain artifact remains unchanged and supplies the
+real placement used to normalize month-based shape ranges to hours.

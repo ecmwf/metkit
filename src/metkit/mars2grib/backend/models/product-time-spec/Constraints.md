@@ -138,6 +138,13 @@ When multiple windows are needed:
 
 - Final encoder-facing time ranges must be in hours.
 - Final encoder-facing time increments must be in seconds or missing.
+- Trivially convertible time-range units may be converted directly, but
+  sub-hour final ranges are not supported.
+- Month-valued final time ranges must be converted to hours using the exact
+  placed interval starting at the real domain start.
+- For synoptic domains, the real domain start used by normalization is midnight
+  of `domainStartDateTime.date()`.
+- Final month-valued time increments are not supported.
 - Monthly hour values must be derived from the exact placed interval, not from
   a fixed approximation.
 - Sub-monthly normalized hour validation source of truth is the language
