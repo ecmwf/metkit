@@ -50,12 +50,12 @@
 
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorRegistry.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ProductTimeSpecJsonUtils.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/detail/ShapeNormalization.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainRegistry.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/shapes/ShapeRegistry.h"
 #include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
-#include "metkit/mars2grib/backend/models/product-time-spec/detail/ShapeNormalization.h"
 
 namespace metkit::mars2grib::backend::models::product_time_spec {
 
@@ -385,7 +385,7 @@ private:
                 shape::build_ShapeWindows_or_throw(shapeType, input, classification, anchor, outerTimeRange, domain);
 
             const shape::ProductTimeSpecShape normalisedWindows =
-                detail::normalizeShape_or_throw( input, domain, rawWindows );
+                detail::normalizeShape_or_throw(input, domain, rawWindows);
 
             ProductTimeSpecComponents result;
             result.anchorType = anchorType;

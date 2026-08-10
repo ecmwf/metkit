@@ -30,11 +30,10 @@
 ///
 /// ## Error propagation
 ///
-/// The current implementation propagates all exceptions across the API
-/// boundary after printing extended diagnostic information.
-///
-/// This behavior is intentional for early integration phases and may be
-/// revised in the future to provide API-stable error wrapping.
+/// User-facing API calls are wrapped in a stable mars2grib error boundary.
+/// On mars2grib failures, the boundary rethrows an `eckit::UserError` that
+/// exposes the innermost exception text and optionally persists and/or prints
+/// the full structured nested stack according to the active `Options`.
 ///
 /// ---
 ///
@@ -72,92 +71,15 @@
 
 // encode header/values implementation
 #include "metkit/mars2grib/CoreOperations.h"
+#include "metkit/mars2grib/api/Mars2GribApiErrorHandling.h"
+#include "metkit/mars2grib/api/readOptionsFromInitializerList.h"
+#include "metkit/mars2grib/api/readOptionsFromLocalConfiguration.h"
 
 namespace metkit::mars2grib {
-namespace {
 
 namespace tables     = metkit::mars2grib::backend::tables;
-namespace dict       = metkit::mars2grib::utils::dict_traits;
 namespace exceptions = metkit::mars2grib::utils::exceptions;
 
-
-///
-/// @brief Read Mars2Grib options from an eckit configuration.
-///
-/// A default-constructed `Options` object is created first. Every explicitly
-/// present key is then read with its required type and applied to that object.
-///
-/// The untyped `has(conf, key)` check is intentional. It distinguishes an absent
-/// key from a present key with the wrong type. A present key with the wrong type
-/// reaches `get_or_throw<T>()` and produces a hard configuration error instead
-/// of silently preserving the default.
-///
-/// @param[in] conf Configuration containing zero or more Mars2Grib options.
-///
-/// @return A complete strongly typed Options object.
-///
-Options readOptions(const eckit::LocalConfiguration& conf) {
-    Options opts;
-
-    if (dict::has(conf, "applyChecks")) {
-        opts.applyChecks = dict::get_or_throw<bool>(conf, "applyChecks");
-    }
-
-    if (dict::has(conf, "enableOverride")) {
-        opts.enableOverride = dict::get_or_throw<bool>(conf, "enableOverride");
-    }
-
-    if (dict::has(conf, "enableBitsPerValueCompression")) {
-        opts.enableBitsPerValueCompression = dict::get_or_throw<bool>(conf, "enableBitsPerValueCompression");
-    }
-
-    if (dict::has(conf, "normalizeMars")) {
-        opts.normalizeMars = dict::get_or_throw<bool>(conf, "normalizeMars");
-    }
-
-    if (dict::has(conf, "normalizeMisc")) {
-        opts.normalizeMisc = dict::get_or_throw<bool>(conf, "normalizeMisc");
-    }
-
-    if (dict::has(conf, "fixMarsGrid")) {
-        opts.fixMarsGrid = dict::get_or_throw<bool>(conf, "fixMarsGrid");
-    }
-
-    if (dict::has(conf, "skipSection3")) {
-        opts.skipSection3 = dict::get_or_throw<bool>(conf, "skipSection3");
-    }
-
-    if (dict::has(conf, "allowDefaultTimeIncrement")) {
-        opts.allowDefaultTimeIncrement = dict::get_or_throw<bool>(conf, "allowDefaultTimeIncrement");
-    }
-
-    if (dict::has(conf, "allowZeroLengthFsWindow")) {
-        opts.allowZeroLengthFsWindow = dict::get_or_throw<bool>(conf, "allowZeroLengthFsWindow");
-    }
-
-    if (dict::has(conf, "allowNonEnumeratedPositiveIntegerTimespanHours")) {
-        opts.allowNonEnumeratedPositiveIntegerTimespanHours =
-            dict::get_or_throw<bool>(conf, "allowNonEnumeratedPositiveIntegerTimespanHours");
-    }
-
-    if (dict::has(conf, "allowRedundantTimeIncrement")) {
-        opts.allowRedundantTimeIncrement = dict::get_or_throw<bool>(conf, "allowRedundantTimeIncrement");
-    }
-
-    if (dict::has(conf, "allowMissingTimespanForInstantProduct")) {
-        opts.allowMissingTimespanForInstantProduct =
-            dict::get_or_throw<bool>(conf, "allowMissingTimespanForInstantProduct");
-    }
-
-    if (dict::has(conf, "allowMissingTimespanForStatisticalProduct")) {
-        opts.allowMissingTimespanForStatisticalProduct =
-            dict::get_or_throw<bool>(conf, "allowMissingTimespanForStatisticalProduct");
-    }
-
-    return opts;
-}
-
-}  // namespace
 
 ///
 /// @brief Concrete specialization of the generic core cache entry.
@@ -264,10 +186,15 @@ void Mars2Grib::CacheEntryDeleter::operator()(const CacheEntry* p) const {
 ///
 Mars2Grib::CacheEntryPtr Mars2Grib::prepare(const eckit::LocalConfiguration& mars,
                                             const eckit::LocalConfiguration& misc) {
-    auto coreCache = CoreOperations::prepare<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                             metkit::codes::CodesHandle>(mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<CacheEntryPtr>(
+        "Mars2Grib::prepare", opts_,
+        [&]() {
+            auto coreCache = CoreOperations::prepare<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                                     metkit::codes::CodesHandle>(mars, misc, opts_, language_);
 
-    return CacheEntryPtr(new CacheEntry(std::move(coreCache)));
+            return CacheEntryPtr(new CacheEntry(std::move(coreCache)));
+        },
+        Here());
 }
 
 
@@ -307,9 +234,14 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
                                                                         const std::vector<double>& values,
                                                                         const eckit::LocalConfiguration& mars,
                                                                         const eckit::LocalConfiguration& misc) {
-    return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                            metkit::codes::CodesHandle>(
-        *(cacheEntry->impl_), Span<const double>{values}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::finaliseEncoding", opts_,
+        [&]() {
+            return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                    Options, metkit::codes::CodesHandle>(
+                *(cacheEntry->impl_), Span<const double>{values}, mars, misc, opts_, language_);
+        },
+        Here());
 }
 
 
@@ -354,9 +286,14 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
                                                                         const double* values, size_t length,
                                                                         const eckit::LocalConfiguration& mars,
                                                                         const eckit::LocalConfiguration& misc) {
-    return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                            metkit::codes::CodesHandle>(
-        *(cacheEntry->impl_), Span<const double>{values, length}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::finaliseEncoding", opts_,
+        [&]() {
+            return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                    Options, metkit::codes::CodesHandle>(
+                *(cacheEntry->impl_), Span<const double>{values, length}, mars, misc, opts_, language_);
+        },
+        Here());
 }
 
 ///
@@ -394,9 +331,14 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
                                                                         const std::vector<float>& values,
                                                                         const eckit::LocalConfiguration& mars,
                                                                         const eckit::LocalConfiguration& misc) {
-    return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                            metkit::codes::CodesHandle>(*(cacheEntry->impl_), Span<const float>{values},
-                                                                        mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::finaliseEncoding", opts_,
+        [&]() {
+            return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                    Options, metkit::codes::CodesHandle>(
+                *(cacheEntry->impl_), Span<const float>{values}, mars, misc, opts_, language_);
+        },
+        Here());
 }
 
 ///
@@ -440,9 +382,14 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
                                                                         const float* values, size_t length,
                                                                         const eckit::LocalConfiguration& mars,
                                                                         const eckit::LocalConfiguration& misc) {
-    return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                            metkit::codes::CodesHandle>(
-        *(cacheEntry->impl_), Span<const float>{values, length}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::finaliseEncoding", opts_,
+        [&]() {
+            return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                    Options, metkit::codes::CodesHandle>(
+                *(cacheEntry->impl_), Span<const float>{values, length}, mars, misc, opts_, language_);
+        },
+        Here());
 }
 
 
@@ -454,7 +401,9 @@ Mars2Grib::Mars2Grib() : opts_{} {}
 
 Mars2Grib::Mars2Grib(const Options& opts) : opts_{opts} {}
 
-Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{readOptions(opts)} {}
+Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {}
+
+Mars2Grib::Mars2Grib(OptionList opts) : opts_{detail::readOptions(opts)} {}
 
 
 // -----------------------------------------------------------------------------
@@ -463,61 +412,105 @@ Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{readOptions(
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_,
+                                                                      language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_,
+                                                                      language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_,
+                                                                      language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_, language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_,
+                                                                      language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc, opts_,
-                                                              language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc,
+                                                                      opts_, language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
                                                               const eckit::LocalConfiguration& mars,
                                                               const eckit::LocalConfiguration& misc) {
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc, opts_,
-                                                              language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc,
+                                                                      opts_, language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc, opts_,
-                                                              language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc,
+                                                                      opts_, language_);
+        },
+        Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
-    return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                  metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc, opts_,
-                                                              language_);
+    return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
+        "Mars2Grib::encode", opts_,
+        [&]() {
+            return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
+                                          metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc,
+                                                                      opts_, language_);
+        },
+        Here());
 }
 
 }  // namespace metkit::mars2grib

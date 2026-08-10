@@ -37,6 +37,8 @@
 ///
 #pragma once
 
+#include <string>
+
 namespace metkit::mars2grib {
 
 namespace defaults {
@@ -56,6 +58,9 @@ inline constexpr bool allowNonEnumeratedPositiveIntegerTimespanHours    = false;
 inline constexpr bool allowRedundantTimeIncrement                       = true;
 inline constexpr bool allowMissingTimespanForInstantProduct             = true;
 inline constexpr bool allowMissingTimespanForStatisticalProduct         = false;
+inline constexpr bool saveErrorStack                                    = true;
+inline constexpr const char* errorStackPath                             = "./";
+inline constexpr bool printErrorStackToStdErr                           = false;
 
 }  // namespace defaults
 
@@ -156,6 +161,36 @@ struct Options {
     /// @default false
     ///
     bool skipSection3 = defaults::skipSection3;
+
+    ///
+    /// @brief Save the detailed API error stack to a file.
+    ///
+    /// When enabled, user-facing API failures persist the detailed structured
+    /// exception stack to a file under `errorStackPath`, and the thrown public
+    /// exception includes the full path to that file.
+    ///
+    /// @default true
+    ///
+    bool saveErrorStack = defaults::saveErrorStack;
+
+    ///
+    /// @brief Directory where API error-stack files are written.
+    ///
+    /// This path is used only when `saveErrorStack` is enabled.
+    ///
+    /// @default "./"
+    ///
+    std::string errorStackPath = defaults::errorStackPath;
+
+    ///
+    /// @brief Print the detailed API error stack to standard error.
+    ///
+    /// When enabled, user-facing API failures also emit the structured nested
+    /// exception stack to `std::cerr`.
+    ///
+    /// @default false
+    ///
+    bool printErrorStackToStdErr = defaults::printErrorStackToStdErr;
 
     // -------------------------------------------------------------------------
     // ProductTimeSpec policies
