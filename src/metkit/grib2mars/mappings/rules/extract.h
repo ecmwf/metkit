@@ -13,6 +13,7 @@
 #include "metkit/grib2mars/mappings/rules/activity.h"
 #include "metkit/grib2mars/mappings/rules/anoffset.h"
 #include "metkit/grib2mars/mappings/rules/channel.h"
+#include "metkit/grib2mars/mappings/rules/chem.h"
 #include "metkit/grib2mars/mappings/rules/class.h"
 #include "metkit/grib2mars/mappings/rules/dataset.h"
 #include "metkit/grib2mars/mappings/rules/date.h"
@@ -60,6 +61,7 @@ const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& extrac
         {"type", extractType<MarsDict, MiscDict>},
         {"expver", extractExpver<MarsDict, MiscDict>},
         {"param", extractParam<MarsDict, MiscDict>},
+        {"chem", extractChem<MarsDict, MiscDict>},
         {"levtype", extractLevtype<MarsDict, MiscDict>},
         {"levelist", extractLevelist<MarsDict, MiscDict>},
         {"frequency", extractFrequency<MarsDict, MiscDict>},
