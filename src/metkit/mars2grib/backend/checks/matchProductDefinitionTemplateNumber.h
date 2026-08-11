@@ -86,7 +86,8 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
 
                 // Throw if no match
                 if (!match) {
-                    std::string errMsg = "Product Definition Template Number does not match any of the expected values: ";
+                    std::string errMsg =
+                        "Product Definition Template Number does not match any of the expected values: ";
                     errMsg += "actual=" + std::to_string(actualProductDefinitionTemplateNumber);
                     errMsg += ", expected=" + joinNumbers(expectedProductDefinitionTemplateNumbers);
                     throw Mars2GribValidationException(errMsg, Here());

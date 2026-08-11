@@ -275,7 +275,8 @@ Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator() : opts_{} {}
 
 Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(const Options& opts) : opts_{opts} {}
 
-Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(const eckit::LocalConfiguration& opts) : opts_{readOptions(opts)} {}
+Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(const eckit::LocalConfiguration& opts) :
+    opts_{readOptions(opts)} {}
 
 Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(OptionList opts) : opts_{readOptions(opts)} {}
 
@@ -284,10 +285,10 @@ std::string Mars2GribTestCaseGenerator::generate(const eckit::LocalConfiguration
     return exceptions::withMars2GribApiErrorHandling<std::string>(
         "Mars2GribTestCaseGenerator::generate", opts_,
         [&]() {
-            auto out = CoreOperations::encodeHeaderWithNormalization<eckit::LocalConfiguration,
-                                                                     eckit::LocalConfiguration, Options,
-                                                                     testing_utils::RecordingDictionary>(mars, misc,
-                                                                                                         opts_, language_);
+            auto out =
+                CoreOperations::encodeHeaderWithNormalization<eckit::LocalConfiguration, eckit::LocalConfiguration,
+                                                              Options, testing_utils::RecordingDictionary>(
+                    mars, misc, opts_, language_);
 
             return makeTestCaseJson(mars, misc, opts_, *out);
         },

@@ -76,8 +76,8 @@ void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const
 
                 // Ensemble forecast needs to have all 3 fields defined in the Product Definition Section
                 if (!(hasTypeOfEnsembleForecast && hasPerturbationNumber && hasNumberOfForecastsInEnsemble)) {
-                    throw Mars2GribValidationException("Product Definition Section does not represent an Ensemble forecast",
-                                                       Here());
+                    throw Mars2GribValidationException(
+                        "Product Definition Section does not represent an Ensemble forecast", Here());
                 }
 
                 // Useful for debugging

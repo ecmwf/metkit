@@ -74,8 +74,8 @@ void check_DerivedProductDefinitionSection_or_throw(const OptDict_t& opt, const 
 
                 // Derived forecast needs to have all 2 fields defined in the Product Definition Section
                 if (!(hasDerivedForecast && hasNumberOfForecastsInEnsemble)) {
-                    throw Mars2GribValidationException("Product Definition Section does not represent a Derived forecast",
-                                                       Here());
+                    throw Mars2GribValidationException(
+                        "Product Definition Section does not represent a Derived forecast", Here());
                 }
 
                 // Useful for debugging
