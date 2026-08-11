@@ -4,7 +4,7 @@
 //! - `vendored` (default): Clone and build metkit from source using ecbuild
 //! - `system`: Use `CMake` `find_package` to find system-installed metkit
 
-const METKIT_VERSION: &str = "1.18.1";
+const METKIT_VERSION: &str = "1.19.1";
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -71,6 +71,8 @@ fn build_cxx_bridge(include: &std::path::Path) {
     let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"));
     let eckit_include = std::env::var("DEP_ECKIT_SYS_INCLUDE")
         .expect("DEP_ECKIT_SYS_INCLUDE not set — eckit-sys must be a dependency");
+    let eccodes_include = std::env::var("DEP_ECCODES_SYS_INCLUDE")
+        .expect("DEP_ECCODES_SYS_INCLUDE not set — eccodes-sys must be a dependency");
 
     println!("cargo:rerun-if-changed=cpp/MetkitBridge.h");
     println!("cargo:rerun-if-changed=cpp/MarsRequest.h");
@@ -97,6 +99,7 @@ fn build_cxx_bridge(include: &std::path::Path) {
         .include(include)
         .include(crate_dir.join("cpp"))
         .include(&eckit_include)
+        .include(&eccodes_include) // metkit/codes/api/CodesAPI.h includes eccodes.h
         .include(&out_dir); // for metkit_exceptions.h (generated)
 
     // Include eckit's cpp dir for EckitBridge.h (needed for StreamWrapper)
