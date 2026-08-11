@@ -183,6 +183,51 @@ struct CoreOperations {
         }
     }
 
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    static std::unique_ptr<OutDict_t> encodeHeaderWithNormalization(const MarsDict_t& inputMars,
+                                                                    const ParDict_t& inputMisc,
+                                                                    const OptDict_t& options,
+                                                                    const eckit::Value& language) {
+
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+
+            return encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
+        }
+        catch (...) {
+            const auto contextJson = [&]() {
+                try {
+                    using metkit::mars2grib::utils::dict_traits::dict_to_json;
+
+                    std::string json;
+                    json += "{";
+                    json += "\"operation\":\"encodeHeaderWithNormalization\",";
+                    json += "\"inputMars\":";
+                    json += dict_to_json(inputMars);
+                    json += ",";
+                    json += "\"inputMisc\":";
+                    json += dict_to_json(inputMisc);
+                    json += ",";
+                    json += "\"options\":";
+                    json += dict_to_json(options);
+                    json += "}";
+                    return json;
+                }
+                catch (...) {
+                    return std::string{"Failed to generate the context"};
+                }
+            }();
+
+            std::throw_with_nested(
+                mars2grib::utils::exceptions::Mars2GribCoreOperationsException("Error during normalized header encoding",
+                                                                               contextJson, Here()));
+        }
+    }
+
 
     ///
     /// @brief Inject numeric field values into a GRIB handle.

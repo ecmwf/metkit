@@ -68,28 +68,30 @@ void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& o
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            // If Local Use Section is present, validate production status
-            if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
+                // If Local Use Section is present, validate production status
+                if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
 
-                long actualProductionStatusOfProcessedData = get_or_throw<long>(out, "productionStatusOfProcessedData");
+                    long actualProductionStatusOfProcessedData = get_or_throw<long>(out, "productionStatusOfProcessedData");
 
-                // Throw if no match
-                constexpr long kDestinEProductionStatus = 12;
-                if (actualProductionStatusOfProcessedData != kDestinEProductionStatus) {
-                    std::string errMsg = "Invalid DestinE Local Use Section (wrong productionStatusOfProcessedData): ";
-                    errMsg += "actual=" + std::to_string(actualProductionStatusOfProcessedData);
-                    errMsg += ", expected=" + std::to_string(kDestinEProductionStatus);
-                    throw Mars2GribValidationException(errMsg, Here());
+                    // Throw if no match
+                    constexpr long kDestinEProductionStatus = 12;
+                    if (actualProductionStatusOfProcessedData != kDestinEProductionStatus) {
+                        std::string errMsg = "Invalid DestinE Local Use Section (wrong productionStatusOfProcessedData): ";
+                        errMsg += "actual=" + std::to_string(actualProductionStatusOfProcessedData);
+                        errMsg += ", expected=" + std::to_string(kDestinEProductionStatus);
+                        throw Mars2GribValidationException(errMsg, Here());
+                    }
                 }
-            }
-            else {
-                throw Mars2GribValidationException("DestinE Local Use Section not allocated in the sample", Here());
-            }
+                else {
+                    throw Mars2GribValidationException("DestinE Local Use Section not allocated in the sample", Here());
+                }
 
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Validated DestinE Local Use Section");
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Validated DestinE Local Use Section");
+            }
         }
 
         // Exit on success

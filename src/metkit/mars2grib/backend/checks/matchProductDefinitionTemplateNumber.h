@@ -74,27 +74,29 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            // Get the productDefinitionTemplateNumber
-            long actualProductDefinitionTemplateNumber = get_or_throw<long>(out, "productDefinitionTemplateNumber");
+                // Get the productDefinitionTemplateNumber
+                long actualProductDefinitionTemplateNumber = get_or_throw<long>(out, "productDefinitionTemplateNumber");
 
-            // Compare against expected values
-            const bool match =
-                std::find(expectedProductDefinitionTemplateNumbers.begin(),
-                          expectedProductDefinitionTemplateNumbers.end(),
-                          actualProductDefinitionTemplateNumber) != expectedProductDefinitionTemplateNumbers.end();
+                // Compare against expected values
+                const bool match =
+                    std::find(expectedProductDefinitionTemplateNumbers.begin(),
+                              expectedProductDefinitionTemplateNumbers.end(),
+                              actualProductDefinitionTemplateNumber) != expectedProductDefinitionTemplateNumbers.end();
 
-            // Throw if no match
-            if (!match) {
-                std::string errMsg = "Product Definition Template Number does not match any of the expected values: ";
-                errMsg += "actual=" + std::to_string(actualProductDefinitionTemplateNumber);
-                errMsg += ", expected=" + joinNumbers(expectedProductDefinitionTemplateNumbers);
-                throw Mars2GribValidationException(errMsg, Here());
+                // Throw if no match
+                if (!match) {
+                    std::string errMsg = "Product Definition Template Number does not match any of the expected values: ";
+                    errMsg += "actual=" + std::to_string(actualProductDefinitionTemplateNumber);
+                    errMsg += ", expected=" + joinNumbers(expectedProductDefinitionTemplateNumbers);
+                    throw Mars2GribValidationException(errMsg, Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_MATCH("Product Definition Template Number matches expected values");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_MATCH("Product Definition Template Number matches expected values");
         }
 
         // Exit on success

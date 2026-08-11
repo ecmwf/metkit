@@ -65,16 +65,18 @@ void check_LocalUseSection_or_throw(const OptDict_t& opt, const OutDict_t& out) 
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            long localUsePresent = get_or_throw<long>(out, "localUsePresent");
+                long localUsePresent = get_or_throw<long>(out, "localUsePresent");
 
-            if (localUsePresent == 0) {
-                throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
+                if (localUsePresent == 0) {
+                    throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Local Use Section is present in the sample");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Local Use Section is present in the sample");
         }
 
         // Exit point with success

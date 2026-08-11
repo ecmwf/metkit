@@ -73,26 +73,28 @@ void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const Out
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            // Get the gridDefinitionTemplateNumber
-            long actualGridDefinitionTemplateNumber = get_or_throw<long>(out, "gridDefinitionTemplateNumber");
+                // Get the gridDefinitionTemplateNumber
+                long actualGridDefinitionTemplateNumber = get_or_throw<long>(out, "gridDefinitionTemplateNumber");
 
-            // Compare against expected values
-            const bool match =
-                std::find(expectedGridDefinitionTemplateNumber.begin(), expectedGridDefinitionTemplateNumber.end(),
-                          actualGridDefinitionTemplateNumber) != expectedGridDefinitionTemplateNumber.end();
+                // Compare against expected values
+                const bool match =
+                    std::find(expectedGridDefinitionTemplateNumber.begin(), expectedGridDefinitionTemplateNumber.end(),
+                              actualGridDefinitionTemplateNumber) != expectedGridDefinitionTemplateNumber.end();
 
-            // Throw if no match
-            if (!match) {
-                std::string errMsg = "Grid Definition Template Number does not match any of the expected values: ";
-                errMsg += "actual=" + std::to_string(actualGridDefinitionTemplateNumber);
-                errMsg += ", expected=" + joinNumbers(expectedGridDefinitionTemplateNumber);
-                throw Mars2GribValidationException(errMsg, Here());
+                // Throw if no match
+                if (!match) {
+                    std::string errMsg = "Grid Definition Template Number does not match any of the expected values: ";
+                    errMsg += "actual=" + std::to_string(actualGridDefinitionTemplateNumber);
+                    errMsg += ", expected=" + joinNumbers(expectedGridDefinitionTemplateNumber);
+                    throw Mars2GribValidationException(errMsg, Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_MATCH("Grid Definition Template Number matches expected values");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_MATCH("Grid Definition Template Number matches expected values");
         }
 
         // Exit on success

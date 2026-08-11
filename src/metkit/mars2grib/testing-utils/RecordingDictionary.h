@@ -179,9 +179,8 @@ inline std::string element_to_json(const T& value) {
     if constexpr (std::is_same_v<T, std::string>) {
         return quote_json(value);
     }
-    else {
-        return numeric_to_json(value);
-    }
+
+    return numeric_to_json(value);
 }
 
 template <>

@@ -68,20 +68,22 @@ void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            bool hasTypeOfEnsembleForecast      = has(out, "typeOfEnsembleForecast");
-            bool hasPerturbationNumber          = has(out, "perturbationNumber");
-            bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
+                bool hasTypeOfEnsembleForecast      = has(out, "typeOfEnsembleForecast");
+                bool hasPerturbationNumber          = has(out, "perturbationNumber");
+                bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
 
-            // Ensemble forecast needs to have all 3 fields defined in the Product Definition Section
-            if (!(hasTypeOfEnsembleForecast && hasPerturbationNumber && hasNumberOfForecastsInEnsemble)) {
-                throw Mars2GribValidationException("Product Definition Section does not represent an Ensemble forecast",
-                                                   Here());
+                // Ensemble forecast needs to have all 3 fields defined in the Product Definition Section
+                if (!(hasTypeOfEnsembleForecast && hasPerturbationNumber && hasNumberOfForecastsInEnsemble)) {
+                    throw Mars2GribValidationException("Product Definition Section does not represent an Ensemble forecast",
+                                                       Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Validated Ensemble Product Definition Section");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Validated Ensemble Product Definition Section");
         }
 
         // Exit point with success

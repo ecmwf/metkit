@@ -67,18 +67,20 @@ void check_StatisticsProductDefinitionSection_or_throw(const OptDict_t& opt, con
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            bool hasNumberOfTimeRanges          = has(out, "numberOfTimeRanges");
-            bool hasTypeOfStatisticalProcessing = has(out, "typeOfStatisticalProcessing");
+                bool hasNumberOfTimeRanges          = has(out, "numberOfTimeRanges");
+                bool hasTypeOfStatisticalProcessing = has(out, "typeOfStatisticalProcessing");
 
-            // Statistics product needs to have numberOfTimeRanges defined in the Product Definition Section
-            if (!hasNumberOfTimeRanges || !hasTypeOfStatisticalProcessing) {
-                throw Mars2GribValidationException("Product Definition Section is not of Statistics type", Here());
+                // Statistics product needs to have numberOfTimeRanges defined in the Product Definition Section
+                if (!hasNumberOfTimeRanges || !hasTypeOfStatisticalProcessing) {
+                    throw Mars2GribValidationException("Product Definition Section is not of Statistics type", Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Product Definition Section is of Statistics type");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Product Definition Section is of Statistics type");
         }
 
         // Exit point with success
