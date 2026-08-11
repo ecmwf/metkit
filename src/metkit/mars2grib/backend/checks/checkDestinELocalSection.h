@@ -15,7 +15,6 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -62,14 +61,13 @@ namespace metkit::mars2grib::backend::validation {
 template <class OptDict_t, class OutDict_t>
 void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 
-    using metkit::mars2grib::utils::checksEnabled;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
 
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (checksEnabled<OutDict_t>(opt)) {
+            if (get_or_throw<bool>(opt, "applyChecks")) {
 
                 // If Local Use Section is present, validate production status
                 if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {

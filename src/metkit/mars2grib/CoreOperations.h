@@ -246,7 +246,7 @@ struct CoreOperations {
                                                    std::unique_ptr<OutDict_t> handle) {
 
         try {
-            if (metkit::mars2grib::utils::skipSection3(opt)) {
+            if (metkit::mars2grib::utils::dict_traits::get_or_throw<bool>(opt, "skipSection3")) {
                 metkit::mars2grib::backend::encodeValuesGridSpec(values, mars, misc, opt, *handle);
                 return handle;
             }
