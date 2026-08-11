@@ -72,12 +72,14 @@ void check_DestinELocalSection_or_throw(const OptDict_t& opt, const OutDict_t& o
                 // If Local Use Section is present, validate production status
                 if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
 
-                    long actualProductionStatusOfProcessedData = get_or_throw<long>(out, "productionStatusOfProcessedData");
+                    long actualProductionStatusOfProcessedData =
+                        get_or_throw<long>(out, "productionStatusOfProcessedData");
 
                     // Throw if no match
                     constexpr long kDestinEProductionStatus = 12;
                     if (actualProductionStatusOfProcessedData != kDestinEProductionStatus) {
-                        std::string errMsg = "Invalid DestinE Local Use Section (wrong productionStatusOfProcessedData): ";
+                        std::string errMsg =
+                            "Invalid DestinE Local Use Section (wrong productionStatusOfProcessedData): ";
                         errMsg += "actual=" + std::to_string(actualProductionStatusOfProcessedData);
                         errMsg += ", expected=" + std::to_string(kDestinEProductionStatus);
                         throw Mars2GribValidationException(errMsg, Here());

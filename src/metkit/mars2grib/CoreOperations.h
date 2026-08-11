@@ -222,9 +222,8 @@ struct CoreOperations {
                 }
             }();
 
-            std::throw_with_nested(
-                mars2grib::utils::exceptions::Mars2GribCoreOperationsException("Error during normalized header encoding",
-                                                                               contextJson, Here()));
+            std::throw_with_nested(mars2grib::utils::exceptions::Mars2GribCoreOperationsException(
+                "Error during normalized header encoding", contextJson, Here()));
         }
     }
 
