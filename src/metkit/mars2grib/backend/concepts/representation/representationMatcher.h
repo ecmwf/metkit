@@ -66,7 +66,7 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
         using metkit::mars2grib::utils::dict_traits::has;
 
         // This is used to fully delegate section3 setting to gridSpec
-        if (metkit::mars2grib::utils::skipSection3(opt)) {
+        if (get_or_throw<bool>(opt, "skipSection3")) {
             return static_cast<std::size_t>(RepresentationType::Dummy);
         }
 

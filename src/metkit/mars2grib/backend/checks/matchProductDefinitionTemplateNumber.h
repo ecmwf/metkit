@@ -17,7 +17,6 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -67,7 +66,6 @@ template <class OptDict_t, class OutDict_t>
 void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,
                                                     const std::vector<long>& expectedProductDefinitionTemplateNumbers) {
 
-    using metkit::mars2grib::utils::checksEnabled;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::joinNumbers;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
@@ -75,7 +73,7 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (checksEnabled<OutDict_t>(opt)) {
+            if (get_or_throw<bool>(opt, "applyChecks")) {
 
                 // Get the productDefinitionTemplateNumber
                 long actualProductDefinitionTemplateNumber = get_or_throw<long>(out, "productDefinitionTemplateNumber");
