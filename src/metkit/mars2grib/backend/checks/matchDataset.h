@@ -65,35 +65,37 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            // Convert the expected 'dataset' from string to integer
-            long expectedDataset;
-            if (expectedDatasetString == "climate-dt") {
-                expectedDataset = 1;
-            }
-            else if (expectedDatasetString == "extremes-dt") {
-                expectedDataset = 2;
-            }
-            else {
-                throw Mars2GribValidationException(
-                    "Expected dataset '" + expectedDatasetString + "' cannot be mapped to integer representation",
-                    Here());
-            }
+                // Convert the expected 'dataset' from string to integer
+                long expectedDataset;
+                if (expectedDatasetString == "climate-dt") {
+                    expectedDataset = 1;
+                }
+                else if (expectedDatasetString == "extremes-dt") {
+                    expectedDataset = 2;
+                }
+                else {
+                    throw Mars2GribValidationException(
+                        "Expected dataset '" + expectedDatasetString + "' cannot be mapped to integer representation",
+                        Here());
+                }
 
-            // Get the `dataset` entry (expected in DestinE local use sections)
-            const auto actualDataset = get_or_throw<long>(out, "dataset");
+                // Get the `dataset` entry (expected in DestinE local use sections)
+                const auto actualDataset = get_or_throw<long>(out, "dataset");
 
-            // Compare against expected values
-            if (actualDataset != expectedDataset) {
-                throw Mars2GribValidationException(
-                    "Dataset does not match the expected value: actual=" + std::to_string(actualDataset) +
-                        ", expected=" + std::to_string(expectedDataset),
-                    Here());
+                // Compare against expected values
+                if (actualDataset != expectedDataset) {
+                    throw Mars2GribValidationException(
+                        "Dataset does not match the expected value: actual=" + std::to_string(actualDataset) +
+                            ", expected=" + std::to_string(expectedDataset),
+                        Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_MATCH("Dataset matches expected value");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_MATCH("Dataset matches expected value");
         }
 
         // Exit on success

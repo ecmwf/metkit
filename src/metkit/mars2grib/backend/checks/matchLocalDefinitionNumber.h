@@ -77,31 +77,33 @@ void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t&
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            // If Local Use Section is present, check definition number
-            if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
+                // If Local Use Section is present, check definition number
+                if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
 
-                long actualLocalDefinitionNumber = get_or_throw<long>(out, "localDefinitionNumber");
+                    long actualLocalDefinitionNumber = get_or_throw<long>(out, "localDefinitionNumber");
 
-                // Compare against expected values
-                bool match = std::find(expectedLocalDefinitionNumber.begin(), expectedLocalDefinitionNumber.end(),
-                                       actualLocalDefinitionNumber) != expectedLocalDefinitionNumber.end();
+                    // Compare against expected values
+                    bool match = std::find(expectedLocalDefinitionNumber.begin(), expectedLocalDefinitionNumber.end(),
+                                           actualLocalDefinitionNumber) != expectedLocalDefinitionNumber.end();
 
-                // Throw if no match
-                if (!match) {
-                    std::string errMsg = "Local Definition Number mismatch in Local Use Section: ";
-                    errMsg += "actual=" + std::to_string(actualLocalDefinitionNumber);
-                    errMsg += ", expected=" + joinNumbers(expectedLocalDefinitionNumber);
-                    throw Mars2GribValidationException(errMsg, Here());
+                    // Throw if no match
+                    if (!match) {
+                        std::string errMsg = "Local Definition Number mismatch in Local Use Section: ";
+                        errMsg += "actual=" + std::to_string(actualLocalDefinitionNumber);
+                        errMsg += ", expected=" + joinNumbers(expectedLocalDefinitionNumber);
+                        throw Mars2GribValidationException(errMsg, Here());
+                    }
                 }
-            }
-            else {
-                throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
-            }
+                else {
+                    throw Mars2GribValidationException("Local Use Section not present in the sample", Here());
+                }
 
-            // Useful for debugging
-            MARS2GRIB_LOG_MATCH("Local Definition Number matches expected values");
+                // Useful for debugging
+                MARS2GRIB_LOG_MATCH("Local Definition Number matches expected values");
+            }
         }
 
         // Exit on success

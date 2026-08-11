@@ -109,10 +109,11 @@ template <>
 struct DictSetOrThrow<metkit::mars2grib::testing_utils::RecordingDictionary, metkit::codes::Span<const double>> {
     static void set_or_throw(metkit::mars2grib::testing_utils::RecordingDictionary& dict, std::string_view key,
                              const metkit::codes::Span<const double>& value) noexcept(false) {
+        auto span = value;
         std::vector<double> owned;
-        owned.reserve(value.size());
-        const double* raw = value.data();
-        for (std::size_t i = 0; i < value.size(); ++i) {
+        owned.reserve(span.size());
+        const double* raw = span.data();
+        for (std::size_t i = 0; i < span.size(); ++i) {
             owned.push_back(raw[i]);
         }
         dict.record_set(key, std::move(owned));
@@ -123,10 +124,11 @@ template <>
 struct DictSetOrIgnore<metkit::mars2grib::testing_utils::RecordingDictionary, metkit::codes::Span<const double>> {
     static void set_or_ignore(metkit::mars2grib::testing_utils::RecordingDictionary& dict, std::string_view key,
                               const metkit::codes::Span<const double>& value) noexcept(false) {
+        auto span = value;
         std::vector<double> owned;
-        owned.reserve(value.size());
-        const double* raw = value.data();
-        for (std::size_t i = 0; i < value.size(); ++i) {
+        owned.reserve(span.size());
+        const double* raw = span.data();
+        for (std::size_t i = 0; i < span.size(); ++i) {
             owned.push_back(raw[i]);
         }
         dict.record_set(key, std::move(owned));

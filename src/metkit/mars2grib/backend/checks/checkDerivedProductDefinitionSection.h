@@ -67,19 +67,21 @@ void check_DerivedProductDefinitionSection_or_throw(const OptDict_t& opt, const 
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            bool hasDerivedForecast             = has(out, "derivedForecast");
-            bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
+                bool hasDerivedForecast             = has(out, "derivedForecast");
+                bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
 
-            // Derived forecast needs to have all 2 fields defined in the Product Definition Section
-            if (!(hasDerivedForecast && hasNumberOfForecastsInEnsemble)) {
-                throw Mars2GribValidationException("Product Definition Section does not represent a Derived forecast",
-                                                   Here());
+                // Derived forecast needs to have all 2 fields defined in the Product Definition Section
+                if (!(hasDerivedForecast && hasNumberOfForecastsInEnsemble)) {
+                    throw Mars2GribValidationException("Product Definition Section does not represent a Derived forecast",
+                                                       Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Validated Derived Product Definition Section");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Validated Derived Product Definition Section");
         }
 
         // Exit point with success

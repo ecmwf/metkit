@@ -73,27 +73,29 @@ void match_DataRepresentationTemplateNumber_or_throw(
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (checksEnabled<OutDict_t>(opt)) {
 
-            // Get the dataRepresentationTemplateNumber
-            long actualDataRepresentationTemplateNumber = get_or_throw<long>(out, "dataRepresentationTemplateNumber");
+                // Get the dataRepresentationTemplateNumber
+                long actualDataRepresentationTemplateNumber = get_or_throw<long>(out, "dataRepresentationTemplateNumber");
 
-            // Compare against expected values
-            bool match =
-                std::find(expectedDataRepresentationTemplateNumber.begin(),
-                          expectedDataRepresentationTemplateNumber.end(),
-                          actualDataRepresentationTemplateNumber) != expectedDataRepresentationTemplateNumber.end();
+                // Compare against expected values
+                bool match =
+                    std::find(expectedDataRepresentationTemplateNumber.begin(),
+                              expectedDataRepresentationTemplateNumber.end(),
+                              actualDataRepresentationTemplateNumber) != expectedDataRepresentationTemplateNumber.end();
 
-            // Throw if no match
-            if (!match) {
-                std::string errMsg = "Data Representation Template Number does not match any of the expected values: ";
-                errMsg += "actual=" + std::to_string(actualDataRepresentationTemplateNumber);
-                errMsg += ", expected=" + joinNumbers(expectedDataRepresentationTemplateNumber);
-                throw Mars2GribValidationException(errMsg, Here());
+                // Throw if no match
+                if (!match) {
+                    std::string errMsg = "Data Representation Template Number does not match any of the expected values: ";
+                    errMsg += "actual=" + std::to_string(actualDataRepresentationTemplateNumber);
+                    errMsg += ", expected=" + joinNumbers(expectedDataRepresentationTemplateNumber);
+                    throw Mars2GribValidationException(errMsg, Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_MATCH("Data Representation Template Number matches expected values");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_MATCH("Data Representation Template Number matches expected values");
         }
 
         // Exit on success
