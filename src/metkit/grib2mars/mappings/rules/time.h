@@ -27,16 +27,14 @@ void extractTime(const std::string& keyword, const metkit::codes::CodesHandle& g
                 "Missing GRIB key `minute` required to extract MARS keyword `" + keyword + "`", Here());
         }
 
-        if (!grib.has("second")) {
-            throw Grib2MarsGenericException(
-                "Missing GRIB key `second` required to extract MARS keyword `" + keyword + "`", Here());
+        if (grib.has("second") && grib.getLong("second") != 0) {
+            throw Grib2MarsGenericException("Non-zero GRIB key `second` is not supported!", Here());
         }
 
         const long hour   = grib.getLong("hour");
         const long minute = grib.getLong("minute");
-        const long second = grib.getLong("second");
 
-        const long value = hour * 10000 + minute * 100 + second;
+        const long value = hour * 100 + minute;
 
         set_or_throw<long>(mars, keyword, value);
     }
