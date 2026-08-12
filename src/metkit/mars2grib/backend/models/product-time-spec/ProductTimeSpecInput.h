@@ -277,7 +277,7 @@ struct ProductTimeSpecInput {
     bool allowDefaultTimeIncrement{false};
 
     /// @brief Permit the zero-length from-start window case.
-    bool allowZeroLengthFsWindow{false};
+    bool allowZeroLengthFsWindow{true};
 
     /// @brief Permit extended set of operations for zero-length from-start window.
     bool allowExtendedSetOfOperationsForZeroLengthFsWindow{false};

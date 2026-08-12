@@ -52,7 +52,7 @@ inline constexpr bool fixMarsGrid                   = true;
 inline constexpr bool skipSection3                  = false;
 
 inline constexpr bool allowDefaultTimeIncrement                         = false;
-inline constexpr bool allowZeroLengthFsWindow                           = false;
+inline constexpr bool allowZeroLengthFsWindow                           = true;
 inline constexpr bool allowExtendedSetOfOperationsForZeroLengthFsWindow = false;
 inline constexpr bool allowNonEnumeratedPositiveIntegerTimespanHours    = false;
 inline constexpr bool allowRedundantTimeIncrement                       = true;
