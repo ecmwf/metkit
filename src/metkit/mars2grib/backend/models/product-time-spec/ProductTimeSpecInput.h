@@ -283,7 +283,7 @@ struct ProductTimeSpecInput {
     bool allowExtendedSetOfOperationsForZeroLengthFsWindow{false};
 
     /// @brief Retained only as diagnostic input context; not used by model logic.
-    bool allowNonEnumeratedPositiveIntegerTimespanHours{false};
+    bool allowNonEnumeratedPositiveIntegerTimespanHours{true};
 
     /// @brief Permit explicit increments that are semantically redundant.
     bool allowRedundantTimeIncrement{false};

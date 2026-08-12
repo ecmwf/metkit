@@ -207,7 +207,7 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
 
             const bool rawTimeRangeIsMonthly = rawWindow.timeRange.unit == TimeUnit::Month;
 
-            if (normalizedTimeRange.length > 0) {
+            if (!input.allowNonEnumeratedPositiveIntegerTimespanHours && normalizedTimeRange.length > 0) {
 
                 const bool allowedHourValue =
                     rawTimeRangeIsMonthly ? std::find(allowedMonthlyHours.begin(), allowedMonthlyHours.end(),
