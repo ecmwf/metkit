@@ -225,6 +225,19 @@ fn build_vendored() -> std::path::PathBuf {
     let ecbuild_src = bindman_utils::git_clone(ECBUILD_REPO, ECBUILD_TAG, &src_dir.join("ecbuild"));
     let metkit_src = resolve_metkit_src(&src_dir);
 
+    // CMakeCache.txt pins the source path the build dir was configured with;
+    // cmake hard-errors if it changes (e.g. switching between cloned and
+    // in-tree sources). Wipe the build dir when the cached path is stale.
+    if let Ok(cache) = fs::read_to_string(build_dir.join("CMakeCache.txt")) {
+        let cached_src = cache
+            .lines()
+            .find_map(|l| l.strip_prefix("CMAKE_HOME_DIRECTORY:INTERNAL="));
+        if cached_src != metkit_src.to_str() {
+            fs::remove_dir_all(&build_dir).expect("Failed to remove stale metkit build directory");
+            fs::create_dir_all(&build_dir).expect("Failed to create build directory");
+        }
+    }
+
     let ecbuild_bin = ecbuild_src.join("bin/ecbuild");
     let num_jobs = bindman_utils::build_parallelism();
 
