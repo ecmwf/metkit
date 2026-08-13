@@ -4,8 +4,6 @@
 //! - `vendored` (default): Clone and build metkit from source using ecbuild
 //! - `system`: Use `CMake` `find_package` to find system-installed metkit
 
-const METKIT_VERSION: &str = "1.18.1";
-
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=METKIT_DIR");
@@ -126,7 +124,9 @@ fn build_cxx_bridge(include: &std::path::Path) {
 
 #[cfg(feature = "system")]
 fn build_system() -> std::path::PathBuf {
-    let (root, include, lib_dir) = bindman_utils::cmake_find_package("metkit", METKIT_VERSION);
+    // Minimum supported system version, independent of the crate version
+    // (which tracks the vendored metkit release).
+    let (root, include, lib_dir) = bindman_utils::cmake_find_package("metkit", "1.18.1");
 
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
     println!("cargo:rustc-link-lib=dylib=metkit");
@@ -144,6 +144,52 @@ fn build_system() -> std::path::PathBuf {
     unreachable!("build_system called without system feature");
 }
 
+/// Locate the metkit C++ sources. When the crate lives inside the metkit
+/// repository (path dependency, or a git dependency — cargo checks out the
+/// whole repo), the sources are three levels up from the crate and we build
+/// them directly: branch changes take effect and no tag/network is required.
+/// Cloning the release tag is the fallback for the packaged (crates.io) case,
+/// where the crate ships without the C++ tree.
+#[cfg(feature = "vendored")]
+fn resolve_metkit_src(src_dir: &std::path::Path) -> std::path::PathBuf {
+    const METKIT_REPO: &str = "https://github.com/ecmwf/metkit.git";
+    const METKIT_TAG: &str = env!("CARGO_PKG_VERSION");
+
+    let manifest_dir = std::path::PathBuf::from(
+        std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
+    );
+    if let Some(root) = manifest_dir.ancestors().nth(3)
+        && root.join("CMakeLists.txt").exists()
+        && root.join("VERSION").exists()
+        && root.join("src/metkit").is_dir()
+    {
+        eprintln!("metkit-sys: building in-tree sources at {}", root.display());
+
+        // Retrigger on C++ source edits.
+        println!("cargo:rerun-if-changed={}", root.join("src").display());
+        println!(
+            "cargo:rerun-if-changed={}",
+            root.join("CMakeLists.txt").display()
+        );
+        println!("cargo:rerun-if-changed={}", root.join("VERSION").display());
+
+        // Diverging is legitimate mid-development (unreleased C++ changes are
+        // the point of in-tree builds), but should never go unnoticed. The
+        // crate-version test enforces equality at release time.
+        let tree_version = std::fs::read_to_string(root.join("VERSION"))
+            .map(|s| s.trim().to_string())
+            .unwrap_or_default();
+        if tree_version != METKIT_TAG {
+            println!(
+                "cargo:warning=metkit-sys {METKIT_TAG} is building in-tree metkit {tree_version} (versions differ)"
+            );
+        }
+
+        return root.to_path_buf();
+    }
+    bindman_utils::git_clone(METKIT_REPO, METKIT_TAG, &src_dir.join("metkit"))
+}
+
 /// Build metkit from source using ecbuild
 #[cfg(feature = "vendored")]
 #[allow(clippy::too_many_lines)]
@@ -155,8 +201,6 @@ fn build_vendored() -> std::path::PathBuf {
 
     const ECBUILD_REPO: &str = "https://github.com/ecmwf/ecbuild.git";
     const ECBUILD_TAG: &str = "3.13.1";
-
-    const METKIT_REPO: &str = "https://github.com/ecmwf/metkit.git";
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
     let src_dir = out_dir.join("src");
@@ -172,9 +216,10 @@ fn build_vendored() -> std::path::PathBuf {
     let eccodes_root = env::var("DEP_ECCODES_SYS_ROOT")
         .expect("DEP_ECCODES_SYS_ROOT not set - eccodes-sys must be a dependency");
 
-    // Clone sources
+    // Clone ecbuild (always external); metkit comes from the in-tree checkout
+    // when available, falling back to a clone of the release tag.
     let ecbuild_src = bindman_utils::git_clone(ECBUILD_REPO, ECBUILD_TAG, &src_dir.join("ecbuild"));
-    let metkit_src = bindman_utils::git_clone(METKIT_REPO, METKIT_VERSION, &src_dir.join("metkit"));
+    let metkit_src = resolve_metkit_src(&src_dir);
 
     let ecbuild_bin = ecbuild_src.join("bin/ecbuild");
     let num_jobs = bindman_utils::build_parallelism();
