@@ -92,15 +92,21 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
                                             Here());
         }
 
-        if (endStep == startStep && endStep != 0) {
-            throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep == startStep (" +
-                                                std::to_string(endStep) + " == " + std::to_string(startStep) +
-                                                ") is only allowed for step 0",
-                                            Here());
-        }
+        if (endStep == startStep) {
+            if (endStep != 0) {
+                throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep == startStep (" +
+                                                    std::to_string(endStep) + " == " + std::to_string(startStep) +
+                                                    ") is only allowed for step 0",
+                                                Here());
+            }
 
-        set_or_throw<long>(out, "step", endStep);
-        set_or_throw<std::string>(out, "timespan", std::to_string(endStep - startStep) + "h");
+            set_or_throw<long>(out, "step", endStep);
+            set_or_throw<std::string>(out, "timespan", "fs");
+        }
+        else {
+            set_or_throw<long>(out, "step", endStep);
+            set_or_throw<std::string>(out, "timespan", std::to_string(endStep - startStep) + "h");
+        }
     }
     catch (...) {
         // Rethrow nested exceptions
@@ -111,13 +117,14 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
 
 /// @brief Fix timespan of statistical fields that have been wrongly encoded as instant at step 0.
 template <class InDict_t, class OutDict_t>
-inline void fixStep0Timespan(const InDict_t& in, OutDict_t& out) {
+inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::has;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
-    static const std::unordered_set<long> paramIdsWithTimespan{
+    // List of params that have been wrongly encoded as instant fields
+    static const std::unordered_set<long> paramsWithTimespanFS{
         8,      9,      20,     44,     45,     47,     49,     50,     57,     58,     121,    122,
         123,    142,    143,    144,    146,    145,    147,    169,    175,    176,    177,    178,
         179,    180,    181,    182,    189,    195,    196,    197,    201,    202,    205,    208,
@@ -125,20 +132,14 @@ inline void fixStep0Timespan(const InDict_t& in, OutDict_t& out) {
         228130, 228216, 228222, 228223, 228224, 228225, 228226, 228227, 228026, 228027, 228028, 228251};
 
     try {
+        const long param = get_or_throw<long>(in, "param");
 
-        // This fix should only be applied if step == 0.
-        // Note that when step is the range 0-0, timespan is already set to 0 in convertStepRangeToTimespan.
-        if (has<long>(in, "step") && get_or_throw<long>(in, "step") != 0) {
-            return;
+        const bool isTimespanNone      = get_or_throw<std::string>(out, "timespan") == "none";
+        const bool isTimespanFSAllowed = paramsWithTimespanFS.find(param) != paramsWithTimespanFS.end();
+
+        if (isTimespanNone && isTimespanFSAllowed) {
+            set_or_throw<std::string>(out, "timespan", "fs");
         }
-
-        const long paramId = get_or_throw<long>(in, "param");
-
-        if (paramIdsWithTimespan.find(paramId) == paramIdsWithTimespan.end()) {
-            return;
-        }
-
-        set_or_throw<std::string>(out, "timespan", "0h");
     }
     catch (...) {
         // Rethrow nested exceptions
@@ -160,7 +161,7 @@ inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfigur
         convertStepRangeToTimespan(in, out);
 
         // Fix statistical fields that are wrongly encoded as instant fields at step 0.
-        fixStep0Timespan(in, out);
+        fixTimespanFS(in, out);
 
         const auto param = get_or_throw<long>(in, "param");
 
