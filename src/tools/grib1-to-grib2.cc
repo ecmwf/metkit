@@ -403,6 +403,14 @@ bool isDiscipline192(const long param, const bool ignoreIfMappable = true) {
            (!ignoreIfMappable || (discipline192MappableParams.find(param) == discipline192MappableParams.end()));
 }
 
+bool skipStepZero(const long param) {
+    static const std::unordered_set<long> skipStepZeroParams{49,     121,    122,    123,    201,    202,
+                                                             228026, 228027, 228028, 228057, 228058, 228222,
+                                                             228223, 228224, 228225, 228226, 228227, 228251};
+
+    return skipStepZeroParams.find(param) != skipStepZeroParams.end();
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
@@ -435,6 +443,10 @@ void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
         if (skipDiscipline192_ &&
             ((codesHandle->getLong("edition") == 1 && isDiscipline192(codesHandle->getLong("paramId"))) ||
              codesHandle->getLong("discipline") == 192)) {
+            continue;
+        }
+
+        if (codesHandle->getLong("endStep") == 0 && skipStepZero(codesHandle->getLong("paramId"))) {
             continue;
         }
 
