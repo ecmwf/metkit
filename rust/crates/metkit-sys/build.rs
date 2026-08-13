@@ -13,6 +13,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=DOCS_RS");
 
     if bindman_utils::is_docs_rs() {
+        generate_exceptions(&docs_source_include());
         return;
     }
 
@@ -61,6 +62,18 @@ fn generate_exceptions(include: &std::path::Path) {
     });
 
     bindman_build::publish_exception_sources(&own, &out_dir);
+}
+
+/// Header root for docs builds (`DOCS_RS=1`), where the native metkit build
+/// — normally the provider of the include tree — is skipped. `docs-headers/`
+/// mirrors the include-tree layout, holding a symlink into this repo's
+/// `src/`; `cargo package` embeds the linked file's content, so the same
+/// path serves in-repo checkouts and published crates alike. Docs builds
+/// consume only the generated Rust side; the C++ catch-block header (where
+/// the eckit-inherited sources would matter) is never compiled.
+fn docs_source_include() -> std::path::PathBuf {
+    std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"))
+        .join("docs-headers")
 }
 
 /// Compile the CXX bridge.
