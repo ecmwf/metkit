@@ -87,6 +87,7 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
+    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -96,7 +97,7 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         // subSetTruncation must not be larger than any pentagonalResolutionParameter
         // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
-        const auto marsTruncation = get_or_throw<long>(mars, "truncation");
+        const long marsTruncation = get_opt<long>(mars, "truncation").value_or(20L);
         if (marsTruncation < 0) {
             std::string logMsg = "Invalid MARS truncation: value='" + std::to_string(marsTruncation) + "' is negative";
             throw Mars2GribDeductionException(logMsg, Here());
