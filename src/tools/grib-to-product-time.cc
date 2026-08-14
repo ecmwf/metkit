@@ -40,18 +40,17 @@
 #include "metkit/codes/api/CodesAPI.h"
 #include "metkit/grib2mars/api/Grib2Mars.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
-#include "metkit/mars2grib/api/Mars2Grib.h"
 #include "metkit/mars2mars/api/Mars2Mars.h"
 
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
 
-#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_options.h"
+#include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
-#include "metkit/mars2grib/backend/concepts/statistics/statisticsMatcher.h"
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsMatcher.h"
 #include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 
 using namespace eckit;
@@ -158,7 +157,8 @@ eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& bas
     return result;
 }
 
-metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing mars2TypeOfStatisticalProcessing(const eckit::LocalConfiguration& mars, const metkit::mars2grib::Options& opt) {
+metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing mars2TypeOfStatisticalProcessing(
+    const eckit::LocalConfiguration& mars, const metkit::mars2grib::Options& opt) {
 
     using metkit::mars2grib::backend::concepts_::statisticsMatcher;
     using metkit::mars2grib::backend::concepts_::StatisticsType;
@@ -212,9 +212,7 @@ metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing mars2TypeOfStati
 
         throw eckit::UserError("Unexpected StatisticsType value: " + std::to_string(static_cast<std::size_t>(sel)),
                                Here());
-
     }
-
 }
 
 
@@ -282,7 +280,8 @@ void GribToProductTime::execute(const CmdArgs& args) {
         const auto innerTypeOfStatisticalProcessing = mars2TypeOfStatisticalProcessing(mars, opts);
 
         // Generate productTimeSpec
-        auto timeSpec = metkit::mars2grib::backend::models::ProductTimeSpec(innerTypeOfStatisticalProcessing, mars, misc, opts);
+        auto timeSpec =
+            metkit::mars2grib::backend::models::ProductTimeSpec(innerTypeOfStatisticalProcessing, mars, misc, opts);
 
         // Generate a json out dictionary
         {
@@ -290,12 +289,12 @@ void GribToProductTime::execute(const CmdArgs& args) {
             std::string jsonMisc = metkit::mars2grib::utils::dict_traits::dict_to_json<eckit::LocalConfiguration>(misc);
             std::string jsonTimeSpec = timeSpec.to_json();
 
-            std::string jsonOut = "{ \"mars\": " + jsonMars + ", \"misc\": " + jsonMisc + ", \"productTimeSpec\": " + jsonTimeSpec + " }";
+            std::string jsonOut =
+                "{ \"mars\": " + jsonMars + ", \"misc\": " + jsonMisc + ", \"productTimeSpec\": " + jsonTimeSpec + " }";
 
             outFile << separator << jsonOut;
             separator = ",\n";
         }
-
     }
     outFile << "]" << std::endl;
 
