@@ -90,11 +90,12 @@ SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const Par
 
     constexpr std::array<std::string_view, 17> analysisTypes = {
         {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
-    constexpr std::array<std::string_view, 39> forecastTypes = {
-        {"fc",  "cf",  "pf", "cm",  "fp",     "em",   "ep", "es",  "fa",  "efi",    "efic",  "bf",    "cd",
-         "wem", "wes", "cr", "ses", "taem",   "taes", "sg", "sf",  "if",  "fcmean", "fcmax", "fcmin", "fcstdev",
-         "ssd", "tf",  "bf", "cd",  "hcmean", "s3",   "si", "gbf", "gwt", "est",    "icp",   "pfc",   "sot"}};
-    constexpr std::array<std::string_view, 4> startOfDataAssimilationTypes = {{"4i", "4v", "me", "eme"}};
+    constexpr std::array<std::string_view, 40> forecastTypes = {
+        {"fc",     "cf", "pf",     "cm",    "fp",    "em",      "ep",  "es",   "fa",   "efi",
+         "efic",   "bf", "cd",     "wem",   "wes",   "cr",      "ses", "taem", "taes", "sg",
+         "sf",     "if", "fcmean", "fcmax", "fcmin", "fcstdev", "ssd", "tf",   "bf",   "cd",
+         "hcmean", "s3", "si",     "gbf",   "gwt",   "est",     "icp", "pfc",  "sot",  "4v"}};
+    constexpr std::array<std::string_view, 3> startOfDataAssimilationTypes = {{"4i", "me", "eme"}};
 
     try {
         const std::string type = get_or_throw<std::string>(mars, "type");
