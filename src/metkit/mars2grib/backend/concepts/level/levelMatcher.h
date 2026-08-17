@@ -39,6 +39,9 @@ inline std::size_t matchSFC(const long param) {
                  238288, 238290, 238326, 239087, 239088, 239137, 239287, 239288, 239290, 239326, 260132)) {
         return static_cast<std::size_t>(LevelType::EntireAtmosphere);
     }
+    if ( matchAny(param, 235292,237292,238292, 239292, 235295, 237295, 238295, 239295) ){
+        return static_cast<std::size_t>(LevelType::EntireAtmosphere);
+    }   
     if (matchAny(param, 228007, 228011)) {
         return static_cast<std::size_t>(LevelType::EntireLake);
     }
