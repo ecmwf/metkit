@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <cctype>
+#include <cstdlib>
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -34,6 +35,22 @@
 namespace metkit::mars2mars::utils::exceptions {
 
 namespace detail {
+
+inline bool envVarEnablesStackMode(const char* name) {
+    const char* value = std::getenv(name);
+
+    if (value == nullptr) {
+        return false;
+    }
+
+    std::string normalized;
+
+    for (const unsigned char* p = reinterpret_cast<const unsigned char*>(value); *p != '\0'; ++p) {
+        normalized.push_back(static_cast<char>(std::tolower(*p)));
+    }
+
+    return normalized == "1" || normalized == "true" || normalized == "on" || normalized == "yes";
+}
 
 /// @brief Sanitize a string for use in a generated filename.
 inline std::string sanitizeForFileName(const std::string& value) {
@@ -303,12 +320,16 @@ Result withMars2MarsApiErrorHandling(const std::string& apiName, const metkit::m
     }
     catch (const Mars2marsGenericException& e) {
         const detail::InnermostExceptionInfo inner = detail::innermostExceptionInfo(e, loc);
+        const bool printErrorStackToStdErr =
+            opts.printErrorStackToStdErr || detail::envVarEnablesStackMode("MARS2MARS_PRINT_STACK_TO_STDERR");
+        const bool saveErrorStack =
+            opts.saveErrorStack || detail::envVarEnablesStackMode("MARS2MARS_WRITE_STACK_TO_FILE");
 
-        if (opts.printErrorStackToStdErr) {
+        if (printErrorStackToStdErr) {
             detail::writeMars2MarsExceptionStackToStdErr(e, apiName, loc);
         }
 
-        if (!opts.saveErrorStack) {
+        if (!saveErrorStack) {
             throw eckit::UserError(detail::buildPublicErrorMessage(inner), inner.location);
         }
 
