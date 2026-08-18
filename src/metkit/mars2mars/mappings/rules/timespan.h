@@ -94,9 +94,14 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
 
         if (endStep == startStep) {
             if (endStep != 0) {
+                const long marsParamId = get_or_throw<long>(in, "param");
+                const std::string marsClass = get_or_throw<std::string>(in, "class");
+                const std::string marsStream = get_or_throw<std::string>(in, "stream");
+                const std::string marsType = get_or_throw<std::string>(in, "type");
                 throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep == startStep (" +
                                                     std::to_string(endStep) + " == " + std::to_string(startStep) +
-                                                    ") is only allowed for step 0",
+                                                    ") is only allowed for step 0" +
+                                                    " (param=" + std::to_string(marsParamId) + ", class=" +marsClass + ", stream=" + marsStream + ", type=" + marsType + ")",
                                                 Here());
             }
 

@@ -14,7 +14,7 @@ void extractLegNumber(const std::string& keyword, const metkit::codes::CodesHand
     (void)mars;
     (void)misc;
 
-    std::cerr << "WARNING: ignoring unsupported grib2mars MARS keyword `" << keyword << "`" << std::endl;
+    // std::cerr << "WARNING: ignoring unsupported grib2mars MARS keyword `" << keyword << "`" << std::endl;
 }
 
 }  // namespace metkit::grib2mars::rules::impl
