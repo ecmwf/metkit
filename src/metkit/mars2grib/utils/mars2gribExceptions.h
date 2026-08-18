@@ -514,9 +514,21 @@ inline void printExceptionStack(const std::exception& e, std::ostream& os, std::
     // stampa tipo + messaggio
     os << indent << "- [" << typeid(e).name() << "] " << e.what() << '\n';
 
+    const auto* nested = dynamic_cast<const std::nested_exception*>(&e);
+
+    if (nested == nullptr) {
+        return;
+    }
+
+    const std::exception_ptr nestedPtr = nested->nested_ptr();
+
+    if (!nestedPtr) {
+        return;
+    }
+
     // verifica eccezione annidata
     try {
-        std::rethrow_if_nested(e);
+        std::rethrow_exception(nestedPtr);
     }
     catch (const std::exception& nested) {
         printExceptionStack(nested, os, level + 1);
@@ -566,8 +578,20 @@ inline void printExtendedStack(const std::exception& e, std::size_t level = 0, s
 
     LOG_DEBUG_LIB(LibMetkit) << pad << "+ " << std::string(lineSize, '+') << std::endl;
 
+    const auto* nested = dynamic_cast<const std::nested_exception*>(&e);
+
+    if (nested == nullptr) {
+        return;
+    }
+
+    const std::exception_ptr nestedPtr = nested->nested_ptr();
+
+    if (!nestedPtr) {
+        return;
+    }
+
     try {
-        std::rethrow_if_nested(e);
+        std::rethrow_exception(nestedPtr);
     }
     catch (const std::exception& nested) {
         printExtendedStack(nested, level + 1, frame + 1);

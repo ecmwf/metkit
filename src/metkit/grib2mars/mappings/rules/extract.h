@@ -27,6 +27,7 @@
 #include "metkit/grib2mars/mappings/rules/ident.h"
 #include "metkit/grib2mars/mappings/rules/instrument.h"
 #include "metkit/grib2mars/mappings/rules/iteration.h"
+#include "metkit/grib2mars/mappings/rules/leg_number.h"
 #include "metkit/grib2mars/mappings/rules/levelist.h"
 #include "metkit/grib2mars/mappings/rules/levtype.h"
 #include "metkit/grib2mars/mappings/rules/method.h"
@@ -69,6 +70,7 @@ const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& extrac
         {"ident", extractIdent<MarsDict, MiscDict>},
         {"channel", extractChannel<MarsDict, MiscDict>},
         {"instrument", extractInstrument<MarsDict, MiscDict>},
+        {"_leg_number", extractLegNumber<MarsDict, MiscDict>},
         {"anoffset", extractAnoffset<MarsDict, MiscDict>},
         {"number", extractNumber<MarsDict, MiscDict>},
         {"grid", extractGrid<MarsDict, MiscDict>},

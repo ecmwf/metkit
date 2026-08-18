@@ -58,7 +58,7 @@ inline constexpr bool allowNonEnumeratedPositiveIntegerTimespanHours    = true;
 inline constexpr bool allowRedundantTimeIncrement                       = true;
 inline constexpr bool allowMissingTimespanForInstantProduct             = true;
 inline constexpr bool allowMissingTimespanForStatisticalProduct         = false;
-inline constexpr bool saveErrorStack                                    = true;
+inline constexpr bool saveErrorStack                                    = false;
 inline constexpr const char* errorStackPath                             = "./";
 inline constexpr bool printErrorStackToStdErr                           = false;
 
@@ -93,7 +93,7 @@ struct Options {
     /// Disabling this option may improve performance, but malformed or
     /// inconsistent input may then fail later and with less useful diagnostics.
     ///
-    /// @default true
+    /// @default false
     ///
     bool applyChecks = defaults::applyChecks;
 
@@ -148,7 +148,7 @@ struct Options {
     /// When enabled, the encoder converts supported legacy MARS grid
     /// specifications into the form expected by the GRIB geometry encoding.
     ///
-    /// @default true
+    /// @default false
     ///
     bool fixMarsGrid = defaults::fixMarsGrid;
 

@@ -28,10 +28,13 @@
 // dictionary access traits
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_mars_request.h"
+#include "metkit/grib2mars/utils/dictionary_traits/dictaccess_options.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictionary_access_traits.h"
 
 // Error handling utilities
 #include "Grib2MarsApiErrorHandling.h"
+#include "metkit/grib2mars/api/readOptionsFromInitializerList.h"
+#include "metkit/grib2mars/api/readOptionsFromLocalConfiguration.h"
 
 namespace metkit::grib2mars {
 
@@ -40,7 +43,13 @@ namespace metkit::grib2mars {
 // -----------------------------------------------------------------------------
 
 /// @brief Default construct a Grib2Mars converter.
-Grib2Mars::Grib2Mars() {}
+Grib2Mars::Grib2Mars() : opts_{} {}
+
+Grib2Mars::Grib2Mars(const Options& opts) : opts_{opts} {}
+
+Grib2Mars::Grib2Mars(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {}
+
+Grib2Mars::Grib2Mars(OptionList opts) : opts_{detail::readOptions(opts)} {}
 
 /// @brief Convert an `eckit::LocalConfiguration` request.
 template <>
@@ -50,7 +59,7 @@ Grib2MarsResult<eckit::LocalConfiguration> Grib2Mars::convert<eckit::LocalConfig
     using metkit::grib2mars::utils::exceptions::withGrib2MarsApiErrorHandling;
 
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<eckit::LocalConfiguration>>(
-        "Grib2Mars::convert<eckit::LocalConfiguration>",
+        "Grib2Mars::convert<eckit::LocalConfiguration>", opts_,
         [&]() { return rules::convertAll<eckit::LocalConfiguration>(grib); }, Here());
 }
 
@@ -62,7 +71,7 @@ Grib2MarsResult<metkit::mars::MarsRequest> Grib2Mars::convert<metkit::mars::Mars
     using metkit::grib2mars::utils::exceptions::withGrib2MarsApiErrorHandling;
 
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<metkit::mars::MarsRequest>>(
-        "Grib2Mars::convert<metkit::mars::MarsRequest>",
+        "Grib2Mars::convert<metkit::mars::MarsRequest>", opts_,
         [&]() { return rules::convertAll<metkit::mars::MarsRequest>(grib); }, Here());
 }
 

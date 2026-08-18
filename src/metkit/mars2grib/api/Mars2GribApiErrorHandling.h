@@ -125,8 +125,20 @@ inline InnermostExceptionInfo innermostExceptionInfo(const std::exception& excep
         exceptionLocationOrFallback(exception, fallbackLocation),
     };
 
+    const auto* nested = dynamic_cast<const std::nested_exception*>(&exception);
+
+    if (nested == nullptr) {
+        return current;
+    }
+
+    const std::exception_ptr nestedPtr = nested->nested_ptr();
+
+    if (!nestedPtr) {
+        return current;
+    }
+
     try {
-        std::rethrow_if_nested(exception);
+        std::rethrow_exception(nestedPtr);
     }
     catch (const std::exception& nested) {
         return innermostExceptionInfo(nested, current.location);
@@ -159,8 +171,20 @@ inline void writeStructuredExceptionFrame(const std::exception& exception, std::
 
     out << pad << "+ " << std::string(lineSize, '+') << '\n';
 
+    const auto* nested = dynamic_cast<const std::nested_exception*>(&exception);
+
+    if (nested == nullptr) {
+        return;
+    }
+
+    const std::exception_ptr nestedPtr = nested->nested_ptr();
+
+    if (!nestedPtr) {
+        return;
+    }
+
     try {
-        std::rethrow_if_nested(exception);
+        std::rethrow_exception(nestedPtr);
     }
     catch (const std::exception& nested) {
         writeStructuredExceptionFrame(nested, out, level + 1, frame + 1);
