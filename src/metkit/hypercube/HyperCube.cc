@@ -14,6 +14,7 @@
 
 #include "eckit/exception/Exceptions.h"
 #include "eckit/parser/YAMLParser.h"
+#include "eckit/utils/Tokenizer.h"
 
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsRequest.h"
@@ -55,7 +56,24 @@ public:
     const std::string& name() const { return name_; }
 
     int indexOf(const std::string& v) const {
+        static eckit::Tokenizer tokenize{"|"};
         auto j = std::find(values_.begin(), values_.end(), v);
+        if (j == values_.end() && v.find('|') == std::string::npos) {
+            // identical value not found - look for matching values
+            bool found = false;
+            for (j = values_.begin(); j != values_.end(); ++j) {
+                std::vector<std::string> vv;
+                tokenize(*j, vv);
+                for (const auto& v2 : vv) {
+                    if (v2 == v) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    break;
+            }
+        }
         if (j == values_.end()) {
             return -1;
         }
@@ -136,6 +154,7 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
     std::vector<eckit::Ordinal> coords;
 
     for (auto& a : axes_) {
+        // check that the request has a single value for this axis
         const std::vector<std::string>& values = r.values(a->name(), true);
         if (values.size() == 0) {
             std::ostringstream oss;
@@ -146,6 +165,13 @@ int HyperCube::indexOf(const metkit::mars::MarsRequest& r) const {
         if (values.size() > 1) {
             std::ostringstream oss;
             oss << "HyperCube::indexOf too many values for [" << a->name() << "] in request " << r;
+            throw eckit::UserError(oss.str());
+        }
+
+        // check that the value in r is not a list of alternatives
+        if (values[0].find('|') != std::string::npos) {
+            std::ostringstream oss;
+            oss << "HyperCube::indexOf value for [" << a->name() << "] in request " << r << " contains '|'";
             throw eckit::UserError(oss.str());
         }
 
