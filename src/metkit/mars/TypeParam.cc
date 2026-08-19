@@ -21,6 +21,8 @@
 #include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypesFactory.h"
 
+#include <unordered_set>
+
 using eckit::Log;
 using metkit::LibMetkit;
 
@@ -81,7 +83,7 @@ class Rule {
     std::vector<std::string> values_;
     mutable std::map<std::string, std::string> mapping_;
 
-    static std::vector<std::string> defaultValues_;
+    static std::unordered_set<std::string> defaultValues_;
     static std::map<std::string, std::string> defaultMapping_;
 
 public:
@@ -109,7 +111,7 @@ public:
     }
 };
 
-std::vector<std::string> Rule::defaultValues_;
+std::unordered_set<std::string> Rule::defaultValues_;
 std::map<std::string, std::string> Rule::defaultMapping_;
 
 void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
@@ -121,7 +123,7 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
         const eckit::Value& id = values[i];
 
         std::string first = id;
-        defaultValues_.push_back(first);
+        defaultValues_.insert(first);
 
         const eckit::Value& aliases = ids[id];
 
@@ -158,7 +160,7 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
             }
 
             defaultMapping_[v] = first;
-            defaultValues_.push_back(v);
+            // defaultValues_.insert(v);
         }
     }
     // for (const auto& v : defaultValues_)
@@ -288,10 +290,9 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
             }
         }
 
-        for (std::vector<std::string>::const_iterator j = defaultValues_.begin(); j != defaultValues_.end(); ++j) {
-            if ((*j) == p) {
-                return p;
-            }
+        auto it = defaultValues_.find(p);
+        if (it != defaultValues_.end()) {
+            return p;
         }
 
         throw eckit::UserError("Cannot match parameter " + p, Here());
@@ -300,31 +301,21 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
 
     std::string paramid;
     std::string pp = eckit::StringTools::lower(s);
-    for (const auto& v : values_) {
-        if (v == pp) {
-            auto it = mapping_.find(pp);
-            if (it != mapping_.end())
-                return it->second;
-            return pp;
-        }
+    auto it = mapping_.find(pp);
+    if (it != mapping_.end()) {
+        return it->second;
     }
     // = metkit::mars::MarsLanguage::bestMatch(s, values_, false, false, true, mapping_);
     // if (!paramid.empty()) {
     //     return paramid;
     // }
-
-    for (const auto& v : defaultValues_) {
-        if (v == pp) {
-            auto it = defaultMapping_.find(pp);
-            if (it != defaultMapping_.end())
-                return it->second;
-            return pp;
-        }
+    // not numeric... check the aliases
+    auto itDefault = defaultMapping_.find(pp);
+    if (itDefault != defaultMapping_.end()) {
+        return itDefault->second;
     }
 
-    std::ostringstream oss;
-    oss << "Cannot match [" << s << "] in " << defaultValues_;
-    throw eckit::UserError(oss.str());
+    throw eckit::UserError("Cannot match parameter " + s, Here());
 }
 
 static std::vector<Rule>* rules = nullptr;
