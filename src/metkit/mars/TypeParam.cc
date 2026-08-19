@@ -22,6 +22,9 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/TypesFactory.h"
 
+#include <fstream>
+#include <iostream>
+#include <string>
 #include <unordered_set>
 
 using eckit::Log;
@@ -33,30 +36,33 @@ namespace {
 
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
-
 class Matcher {
 
     std::string name_;
-    eckit::Value values_;
+    std::vector<std::string> values_;
+
+    friend class Rule;
 
 public:
 
-    Matcher(const std::string& name, const eckit::Value values);
+    // Matcher(const std::string& name, const eckit::Value values);
+    Matcher(const std::string& name, std::vector<std::string>&& values);
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
 
     friend std::ostream& operator<<(std::ostream& out, const Matcher& matcher) {
-        out << matcher.name_ << "=" << matcher.values_;
+        out << matcher.name_ << "=[";
+        std::string separator{};
+        for (const auto& v: matcher.values_) {
+            out << separator << v;
+            separator = ",";
+        }
+        out << "]";
         return out;
     }
 };
 
-Matcher::Matcher(const std::string& name, const eckit::Value values) : name_(name), values_(values) {
-
-    if (!values_.isList()) {
-        values_ = eckit::Value::makeList(values_);
-    }
-}
+Matcher::Matcher(const std::string& name, std::vector<std::string>&& values) : name_(name), values_(std::move(values)) {}
 
 bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) const {
 
@@ -65,9 +71,7 @@ bool Matcher::match(const metkit::mars::MarsRequest& request, bool partial) cons
         return partial;
     }
 
-    for (size_t i = 0; i < values_.size(); i++) {
-        std::string v = values_[i];
-
+    for (const auto& v : values_) {
         if (v == vals[0]) {
             return true;
         }
@@ -88,14 +92,21 @@ class Rule {
     static std::unordered_set<uint32_t> defaultValues_;
     static std::map<std::string, std::string> defaultMapping_;
 
+private:
+
+    Rule(std::vector<Matcher>&& matchers, std::unordered_set<uint32_t>&& values, std::map<std::string, std::string>&& mapping) :
+        matchers_(std::move(matchers)), values_(std::move(values)), mapping_(std::move(mapping)) {}
+
 public:
+
+    static void init();
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
     std::string lookup(const std::string& s) const;
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const ParamIdAliases& ids);
-    static void setDefault(const eckit::Value& setters, const eckit::Value& ids);
+    static void setDefault(const eckit::Value& setters, const ParamIdAliases& ids);
 
     void print(std::ostream& out) const {
         out << "matchers=[";
@@ -110,6 +121,12 @@ public:
             out << sep << v;
             sep = ",";
         }
+        out << "],aliases=[";
+        sep = "";
+        for (const auto& [s,k] : mapping_) {
+            out << sep <<s<<"->"<<k;
+            sep = ",";
+        }
         out << "]";
     }
 
@@ -119,10 +136,14 @@ public:
     }
 };
 
+static void initRules() {
+    Rule::init();
+}
+
 std::unordered_set<uint32_t> Rule::defaultValues_;
 std::map<std::string, std::string> Rule::defaultMapping_;
 
-void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
+void Rule::setDefault(const eckit::Value& values, const ParamIdAliases& ids) {
 
     std::map<std::string, size_t> precedence;
 
@@ -133,17 +154,16 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
         std::string first = id;
         defaultValues_.insert(std::stoi(first));
 
-        const eckit::Value& aliases = ids[id];
-
-        if (aliases.isNil()) {
+        auto it = ids.find(id);
+        if (it == ids.end()) {
 
             LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << std::endl;
             continue;
         }
 
 
-        for (size_t j = 0; j < aliases.size(); ++j) {
-            std::string v = aliases[j];
+        for (size_t j = 0; j < it->second.size(); ++j) {
+            std::string v = it->second.at(j);
 
             if (defaultMapping_.find(v) != defaultMapping_.end()) {
 
@@ -179,7 +199,20 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const Param
     const eckit::Value& keys = matchers.keys();
     for (size_t i = 0; i < keys.size(); ++i) {
         std::string name = keys[i];
-        matchers_.push_back(Matcher(name, matchers[name]));
+
+        auto rawValues = matchers[name];
+        std::vector<std::string> values;
+        if (!rawValues.isList()) {
+            values.push_back(rawValues);
+        }
+        else {
+            for (size_t i = 0; i < rawValues.size(); i++) {
+                std::string v = rawValues[i];
+                values.push_back(v);
+            }
+        }
+        
+        matchers_.emplace_back(name, std::move(values));
     }
 
     for (size_t i = 0; i < values.size(); ++i) {
@@ -308,25 +341,116 @@ std::string Rule::lookup(const std::string& s) const {
 
     // not numeric... check just the aliases
     auto it = mapping_.find(pp);
-    if (it != mapping_.end()) {
-        return it->second;
+    if (it == mapping_.end()) {
+        it = defaultMapping_.find(pp);
+        if (it == defaultMapping_.end()) {
+            throw eckit::UserError("Cannot match parameter " + s, Here());
+        }
     }
-    auto itDefault = defaultMapping_.find(pp);
-    if (itDefault != defaultMapping_.end()) {
-        return itDefault->second;
-    }
-
-    throw eckit::UserError("Cannot match parameter " + s, Here());
+    return it->second;
 }
 
 static std::vector<Rule>* rules = nullptr;
 
 }  // namespace
 
-static void init() {
+void Rule::init() {
+
+    static bool metkitLegacyParamCheck =
+        eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
+    static bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
 
     local_mutex = new eckit::Mutex();
     rules       = new std::vector<Rule>();
+
+    if (!metkitLegacyParamCheck && !metkitRawParam) {
+        eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
+        if (paramBinFile.exists()) {
+            size_t numRules;
+            size_t size;
+            size_t numValues;
+            size_t stringSize;
+            std::fstream file(paramBinFile.localPath(), std::ios::binary | std::ios::in);
+
+            // read defaultValues_
+            file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+            uint32_t v;
+            for (size_t i = 0; i < size; i++) {
+                file.read(reinterpret_cast<char*>(&v), sizeof(uint32_t));
+                defaultValues_.insert(v);
+            }
+
+            // read defaultMapping_
+            file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+            std::string key;
+            std::string value;
+            for (size_t i = 0; i < size; i++) {
+                file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+                key.resize(stringSize);
+                file.read(key.data(), sizeof(char) * stringSize);
+                file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+                value.resize(stringSize);
+                file.read(value.data(), sizeof(char) * stringSize);
+                defaultMapping_.emplace(key, value);
+            }
+
+            // read rules
+            file.read(reinterpret_cast<char*>(&numRules), sizeof(size_t));
+            for (size_t ruleIdx = 0; ruleIdx < numRules; ruleIdx++) {
+                // read Matchers
+                std::vector<Matcher> matchers;
+                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+                for (size_t matcherIdx = 0; matcherIdx < size; matcherIdx++) {
+                    std::unordered_set<uint32_t> values;
+                    file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+                    key.resize(stringSize);
+                    file.read(key.data(), sizeof(char) * stringSize);
+                    file.read(reinterpret_cast<char*>(&numValues), sizeof(size_t));
+                    std::vector<std::string> matcherValues;
+                    matcherValues.resize(numValues);
+                    for (size_t valueIdx = 0; valueIdx < numValues; valueIdx++) {
+                        file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+                        value.resize(stringSize);
+                        file.read(value.data(), sizeof(char) * stringSize);
+                        matcherValues.push_back(value);
+                    }
+                    matchers.emplace_back(key, std::move(matcherValues));
+                }
+
+                // read values
+                std::unordered_set<uint32_t> values;
+                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+                uint32_t v;
+                for (size_t valueIdx = 0; valueIdx < size; valueIdx++) {
+                    file.read(reinterpret_cast<char*>(&v), sizeof(uint32_t));
+                    values.insert(v);
+                }
+
+                // read alias mapping
+                std::map<std::string, std::string> mapping;
+                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+                for (size_t mapperIdx = 0; mapperIdx < size; mapperIdx++) {
+                    file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+                    key.resize(stringSize);
+                    file.read(key.data(), sizeof(char) * stringSize);
+                    file.read(reinterpret_cast<char*>(&stringSize), sizeof(size_t));
+                    value.resize(stringSize);
+                    file.read(value.data(), sizeof(char) * stringSize);
+                    mapping.emplace(key,value);
+                }
+                auto rule = Rule{std::move(matchers), std::move(values), std::move(mapping)};
+                rules->push_back(std::move(rule));
+            }
+            file.close();
+
+            // std::cout << "#############################  " << rules->size() << " rules  #############################" << std::endl;
+            // for (const auto& r : *rules) {
+            //     std::cout << r << std::endl;
+            // }
+            
+            return;
+        }
+    }
 
     const eckit::Value rawIds = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
     ASSERT(rawIds.isOrderedMap());
@@ -355,12 +479,7 @@ static void init() {
         // std::cout << "]"<< std::endl;
     }
 
-
     eckit::ValueMap merge;
-
-    static bool metkitLegacyParamCheck =
-        eckit::Resource<bool>("metkitLegacyParamCheck;$METKIT_LEGACY_PARAM_CHECK", false);
-    static bool metkitRawParam = eckit::Resource<bool>("metkitRawParam;$METKIT_RAW_PARAM", false);
 
     if (metkitLegacyParamCheck || (!metkitRawParam)) {
         eckit::Value r = eckit::YAMLParser::decodeFile(LibMetkit::paramYamlFile());
@@ -408,7 +527,7 @@ static void init() {
         return;
     }
 
-    Rule::setDefault(keys, rawIds);
+    Rule::setDefault(keys, ids);
 
     if (metkitRawParam) {
         // empty rule, to enable default
@@ -450,6 +569,81 @@ static void init() {
 
     (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), ParamIdAliases{}});
 
+    if (!metkitLegacyParamCheck && !metkitRawParam) { // creating the binary file
+        eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
+        if (!paramBinFile.exists()) {
+
+            std::fstream file{paramBinFile.localPath(), std::ios::binary | std::ios::out};
+            
+            size_t numRules;
+            size_t size = Rule::defaultValues_.size();
+            size_t numValues;
+            size_t stringSize;
+            file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            for (auto v : defaultValues_) {
+                file.write(reinterpret_cast<const char*>(&v), sizeof(uint32_t));
+            }
+            size = Rule::defaultMapping_.size();
+            file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            for (const auto& [name,id] : defaultMapping_) {
+                {
+                    size_t stringSize = name.size();
+                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
+                    file.write(name.c_str(), sizeof(char)*stringSize);
+                }
+                {
+                    size_t stringSize = id.size();
+                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
+                    file.write(id.c_str(), sizeof(char)*stringSize);
+                }
+            }
+        
+            numRules = rules->size();
+            file.write(reinterpret_cast<const char*>(&numRules), sizeof(size_t));
+            for (const auto& r: *rules) {
+                // write matchers
+                size = r.matchers_.size();
+                file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+                for (const auto& m : r.matchers_) {
+                    // std::string name_;
+                    size_t stringSize = m.name_.size();
+                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
+                    file.write(m.name_.c_str(), sizeof(char)*stringSize);
+
+                    // std::vector<std::string> values_;
+                    numValues = m.values_.size();
+                    file.write(reinterpret_cast<const char*>(&numValues), sizeof(size_t));
+                    for (const auto& v : m.values_) {
+                        size_t stringSize = v.size();
+                        file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
+                        file.write(v.c_str(), sizeof(char)*stringSize);
+                    }
+                }
+
+                // write values
+                size = r.values_.size();
+                file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+                for (const auto& v : r.values_) {
+                    file.write(reinterpret_cast<const char*>(&v), sizeof(uint32_t));
+                }
+
+                // write mapping
+                size = r.mapping_.size();
+                file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+                for (const auto& [name,id] : r.mapping_) {
+                    size_t stringSize = name.size();
+                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
+                    file.write(name.c_str(), sizeof(char)*stringSize);
+                    stringSize = id.size();
+                    file.write(reinterpret_cast<const char*>(&stringSize), sizeof(size_t));
+                    file.write(id.c_str(), sizeof(char)*stringSize);
+                }
+            }
+            file.close();
+        }
+    }
+
+
     // std::cout << "#############################  " << rules->size() << " rules  #############################" << std::endl;
     // for (const auto& r : *rules) {
     //     std::cout << r << std::endl;
@@ -477,7 +671,7 @@ void TypeParam::print(std::ostream& out) const {
 
 void TypeParam::pass2(MarsRequest& request) {
 
-    pthread_once(&once, init);
+    pthread_once(&once, initRules);
 
     const Rule* rule                = 0;
     std::vector<std::string> values = request.values(name_, true);
