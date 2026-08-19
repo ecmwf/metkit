@@ -10,6 +10,8 @@
 
 #include "metkit/mars/TypeParam.h"
 
+#include <unordered_map>
+
 #include "eckit/config/Resource.h"
 #include "eckit/log/Log.h"
 #include "eckit/parser/YAMLParser.h"
@@ -25,11 +27,12 @@
 using eckit::Log;
 using metkit::LibMetkit;
 
+using ParamIdAliases = std::unordered_map<uint32_t, std::vector<std::string>>;
+
 namespace {
 
 static eckit::Mutex* local_mutex = 0;
 static pthread_once_t once       = PTHREAD_ONCE_INIT;
-
 
 class Matcher {
 
@@ -91,17 +94,23 @@ public:
     std::string lookup(const std::string& s) const;
     long toParamid(const std::string& param) const;
 
-    Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
+    Rule(const eckit::Value& matchers, const eckit::Value& setters, const ParamIdAliases& ids);
     static void setDefault(const eckit::Value& setters, const eckit::Value& ids);
 
     void print(std::ostream& out) const {
-        out << "{";
-        const char* sep = "";
-        for (std::vector<Matcher>::const_iterator j = matchers_.begin(); j != matchers_.end(); ++j) {
-            out << sep << (*j);
+        out << "matchers=[";
+        std::string sep = "";
+        for (const auto& m : matchers_) {
+            out << sep << m;
             sep = ",";
         }
-        out << "}";
+        out << "],values=[";
+        sep = "";
+        for (const auto& v : values_) {
+            out << sep << v;
+            sep = ",";
+        }
+        out << "]";
     }
 
     friend std::ostream& operator<<(std::ostream& out, const Rule& rule) {
@@ -163,7 +172,7 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
     }
 }
 
-Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
+Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const ParamIdAliases& ids) {
 
     std::map<std::string, size_t> precedence;
 
@@ -180,9 +189,9 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         std::string first = id;
         values_.insert(std::stoi(first));
 
-        const eckit::Value& aliases = ids[id];
+        const auto& aliases = ids.find(std::stoi(id))->second;
 
-        if (aliases.isNil()) {
+        if (aliases.size() == 0) {
 
             LOG_DEBUG_LIB(LibMetkit) << "No aliases for " << id << " " << *this << std::endl;
             continue;
@@ -319,8 +328,33 @@ static void init() {
     local_mutex = new eckit::Mutex();
     rules       = new std::vector<Rule>();
 
-    const eckit::Value ids = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
-    ASSERT(ids.isOrderedMap());
+    const eckit::Value rawIds = eckit::YAMLParser::decodeFile(LibMetkit::paramIDYamlFile());
+    ASSERT(rawIds.isOrderedMap());
+    auto keys = rawIds.keys();
+    ParamIdAliases ids;
+    ASSERT(keys.isList());
+    for (size_t i = 0; i < keys.size(); ++i) {
+        uint32_t id = keys[i];
+        auto rawAliases = rawIds[keys[i]];
+        size_t idx = 0;
+        std::vector<std::string> aliases;
+        for (size_t j = 0; j < rawAliases.size(); j++) {
+            std::string alias = rawAliases[j];
+            if (idx != 1 && alias.size() < 20 && alias.find(" ") == -1) { // short string, no blanks --> it should be a shortname
+                aliases.push_back(alias);
+            }
+            idx++;
+        }
+        ids.emplace(id, aliases);
+        // std::cout << id << "->[";
+        // std::string separator;
+        // for (const auto& a : aliases) {
+        //     std::cout << separator << a;
+        //     separator=",";
+        // }
+        // std::cout << "]"<< std::endl;
+    }
+
 
     eckit::ValueMap merge;
 
@@ -374,12 +408,11 @@ static void init() {
         return;
     }
 
-    auto keys = ids.keys();
-    Rule::setDefault(keys, ids);
+    Rule::setDefault(keys, rawIds);
 
     if (metkitRawParam) {
         // empty rule, to enable default
-        (*rules).push_back(Rule(eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()));
+        (*rules).push_back(Rule(eckit::Value::makeMap(), eckit::Value::makeList(), ParamIdAliases{}));
         return;
     }
 
@@ -394,7 +427,7 @@ static void init() {
     }
 
     for (size_t i = 0; i < keys.size(); i++) {
-        auto el = ids.element(keys[i]);
+        auto el = rawIds.element(keys[i]);
         for (size_t j = 0; j < el.size(); j++) {
             if (shortnames.find(el[j]) != shortnames.end()) {
                 associatedIDs.emplace(keys[i]);
@@ -415,7 +448,12 @@ static void init() {
         }
     }
 
-    (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), eckit::Value::makeMap()});
+    (*rules).push_back(Rule{eckit::Value::makeMap(), eckit::Value::makeList(), ParamIdAliases{}});
+
+    // std::cout << "#############################  " << rules->size() << " rules  #############################" << std::endl;
+    // for (const auto& r : *rules) {
+    //     std::cout << r << std::endl;
+    // }
 }
 
 namespace metkit::mars {
