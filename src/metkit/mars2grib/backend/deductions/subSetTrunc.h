@@ -44,6 +44,7 @@
 
 // System includes
 #include <algorithm>
+#include <regex>
 #include <string>
 
 // Core deduction includes
@@ -87,65 +88,72 @@ namespace metkit::mars2grib::backend::deductions {
 template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
-    using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
+
+    static const std::regex tGridRegex("^T(0|[1-9][0-9]*)$");
 
     try {
 
         // subSetTruncation must not be larger than any pentagonalResolutionParameter
         // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
-        const long marsTruncation = get_opt<long>(mars, "truncation").value_or(20L);
-        if (marsTruncation < 0) {
-            std::string logMsg = "Invalid MARS truncation: value='" + std::to_string(marsTruncation) + "' is negative";
-            throw Mars2GribDeductionException(logMsg, Here());
+
+        const long truncation = [&]() {
+            if (get_or_throw<bool>(opt, "skipSection3")) {
+                const std::string grid = get_or_throw<std::string>(mars, "grid");
+                std::smatch tGridMatch;
+                if (!std::regex_match(grid, tGridMatch, tGridRegex) || tGridMatch.size() != 2) {
+                    throw Mars2GribDeductionException("Cannot extract truncation from MARS grid '" + grid + "'",
+                                                      Here());
+                }
+                return std::stol(tGridMatch[1].str());
+            }
+            return get_or_throw<long>(mars, "truncation");
+        }();
+
+        if (truncation < 0) {
+            throw Mars2GribDeductionException(
+                "Invalid MARS truncation: value='" + std::to_string(truncation) + "' is negative", Here());
         }
-        long defaultSubSetTrunc = std::min(20L, marsTruncation);
 
         if (has(par, "subSetTruncation")) {
 
             // Retrieve subSetTruncation from parameter dictionary
             long subSetTrunc = get_or_throw<long>(par, "subSetTruncation");
 
-            // Validate that subSetTruncation does not exceed MARS truncation
+            // Validate subSetTruncation
             if (subSetTrunc < 0) {
-                std::string logMsg = "Invalid `subSetTruncation`:";
-                logMsg += " value='" + std::to_string(subSetTrunc);
-                logMsg += "' is negative";
-                throw Mars2GribDeductionException(logMsg, Here());
+                throw Mars2GribDeductionException(
+                    "Invalid `subSetTruncation`: value='" + std::to_string(subSetTrunc) + "' is negative", Here());
             }
-            if (subSetTrunc > marsTruncation) {
-                std::string logMsg = "Invalid `subSetTruncation`:";
-                logMsg += " value='" + std::to_string(subSetTrunc) + "'";
-                logMsg += " exceeds MARS truncation='" + std::to_string(marsTruncation) + "'";
-                throw Mars2GribDeductionException(logMsg, Here());
+            if (subSetTrunc > truncation) {
+                throw Mars2GribDeductionException("Invalid `subSetTruncation`: value='" + std::to_string(subSetTrunc) +
+                                                      "' exceeds MARS truncation='" + std::to_string(truncation) + "'",
+                                                  Here());
             }
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`subSetTruncation` overridden from parameter dictionary: value='";
-                logMsg += std::to_string(subSetTrunc);
-                logMsg += "'";
-                return logMsg;
+                return "`subSetTruncation` overridden from parameter dictionary: value='" +
+                       std::to_string(subSetTrunc) + "'";
             }());
 
             // Success exit point
             return subSetTrunc;
         }
         else {
+            // Note: This logic for default subSetTruncation reflects the behaviour of IFS
+            const long defaultSubSetTruncation = truncation >= 213 ? 20L : std::min(10L, truncation);
 
             // Emit DEFAULT log entry for defaulting
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`subSetTruncation` defaulted: value='";
-                logMsg += std::to_string(defaultSubSetTrunc);
-                logMsg += "'";
-                return logMsg;
+                return "`subSetTruncation` defaulted: value='" + std::to_string(defaultSubSetTruncation) + "'";
             }());
 
             // Success exit point
-            return defaultSubSetTrunc;
+            return defaultSubSetTruncation;
         }
     }
     catch (...) {
