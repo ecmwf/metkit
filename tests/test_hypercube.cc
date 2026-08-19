@@ -176,6 +176,52 @@ CASE("test_metkit_hypercube_request METK-132") {
     }
 }
 
+
+CASE("test_metkit_hypercube_alternative_paramids") {
+    std::vector<std::string> keys = {"levelist", "param"};
+
+    MarsRequest r = MarsRequest::parse("retrieve,levelist=1/2,param=228228|228/167");
+    metkit::hypercube::HyperCube cube{r};
+    EXPECT_EQUAL(cube.count(), 4);
+
+    cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228228"));
+    EXPECT_EQUAL(cube.count(), 3);
+
+    cube.clear(MarsRequest::parse("retrieve,levelist=1,param=228"));
+    EXPECT_EQUAL(cube.count(), 3);
+
+    std::vector<MarsRequest> expected_flat_requests = {
+        MarsRequest::parse("retrieve,levelist=2,param=228228|228"),
+        MarsRequest::parse("retrieve,levelist=1,param=167"),
+        MarsRequest::parse("retrieve,levelist=2,param=167"),
+    };
+
+    auto dense_requests = cube.vacantRequests();
+    EXPECT_EQUAL(dense_requests.size(), 2);
+
+    std::vector<MarsRequest> flattened_requests;
+    for (const auto& req : dense_requests) {
+        auto flattened = req.split(keys);
+        for (const auto& f : flattened) {
+            flattened_requests.push_back(f);
+        }
+    }
+
+    EXPECT_EQUAL(flattened_requests.size(), 3);
+    EXPECT_EQUAL(flattened_requests.size(), expected_flat_requests.size());
+
+    // compare both vectors
+    std::sort(flattened_requests.begin(), flattened_requests.end());
+    std::sort(expected_flat_requests.begin(), expected_flat_requests.end());
+    for (size_t i = 0; i < expected_flat_requests.size(); ++i) {
+        EXPECT_EQUAL(flattened_requests[i].values("levelist"), expected_flat_requests[i].values("levelist"));
+        EXPECT_EQUAL(flattened_requests[i].values("param"), expected_flat_requests[i].values("param"));
+    }
+
+    cube.clear(MarsRequest::parse("retrieve,levelist=2,param=228"));
+    EXPECT_EQUAL(cube.count(), 2);
+}
+
 }  // namespace metkit::mars::test
 
 int main(int argc, char** argv) {

@@ -71,11 +71,6 @@
     - 217009
 - - class: od
     levtype: sfc
-    stream: oper
-    type: fc
-  - - 3100
-- - class: od
-    levtype: sfc
     stream: enfo
     type: pf
   - - 3100
@@ -230,6 +225,7 @@
     - 163
     - 3062
     - 3099
+    - 3100
     - 160198
     - 228032
     - 228143
