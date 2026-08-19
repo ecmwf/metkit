@@ -15,10 +15,12 @@
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/TypesFactory.h"
+
+#include <unordered_set>
 
 using eckit::Log;
 using metkit::LibMetkit;
@@ -77,16 +79,16 @@ class Rule {
 
     std::vector<Matcher> matchers_;
 
-    std::vector<std::string> values_;
+    std::unordered_set<uint32_t> values_;
     mutable std::map<std::string, std::string> mapping_;
 
-    static std::vector<std::string> defaultValues_;
+    static std::unordered_set<uint32_t> defaultValues_;
     static std::map<std::string, std::string> defaultMapping_;
 
 public:
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
-    std::string lookup(const std::string& s, bool fail) const;
+    std::string lookup(const std::string& s) const;
     long toParamid(const std::string& param) const;
 
     Rule(const eckit::Value& matchers, const eckit::Value& setters, const eckit::Value& ids);
@@ -108,7 +110,7 @@ public:
     }
 };
 
-std::vector<std::string> Rule::defaultValues_;
+std::unordered_set<uint32_t> Rule::defaultValues_;
 std::map<std::string, std::string> Rule::defaultMapping_;
 
 void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
@@ -120,7 +122,7 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
         const eckit::Value& id = values[i];
 
         std::string first = id;
-        defaultValues_.push_back(first);
+        defaultValues_.insert(std::stoi(first));
 
         const eckit::Value& aliases = ids[id];
 
@@ -157,7 +159,6 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
             }
 
             defaultMapping_[v] = first;
-            defaultValues_.push_back(v);
         }
     }
 }
@@ -177,7 +178,7 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
         const eckit::Value& id = values[i];
 
         std::string first = id;
-        values_.push_back(first);
+        values_.insert(std::stoi(first));
 
         const eckit::Value& aliases = ids[id];
 
@@ -214,7 +215,6 @@ Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit
             }
 
             mapping_[v] = {first};
-            values_.push_back(v);
         }
     }
 }
@@ -229,12 +229,12 @@ bool Rule::match(const metkit::mars::MarsRequest& request, bool partial) const {
     return true;
 }
 
-std::string Rule::lookup(const std::string& s, bool fail) const {
+std::string Rule::lookup(const std::string& s) const {
 
     size_t table = 0;
     size_t param = 0;
     size_t* n    = &param;
-    bool ok      = true;
+    bool numeric = true;
 
     for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
@@ -257,18 +257,17 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
                     n = &table;
                 }
                 else {
-                    ok = false;
+                    numeric = false;
                 }
                 break;
 
             default:
-                ok = false;
+                numeric = false;
                 break;
         }
     }
 
-    if (ok && param > 0) {
-        std::ostringstream oss;
+    if (numeric && param > 0) {
         if (table == 128) {
             table = 0;
         }
@@ -276,30 +275,39 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
         if (table > 0 && param >= 1000) {
             throw eckit::UserError("Unrecognised format for parameter " + s, Here());
         }
-        oss << table * 1000 + param;
 
-        std::string p = oss.str();
-        for (std::vector<std::string>::const_iterator j = values_.begin(); j != values_.end(); ++j) {
-            if ((*j) == p) {
-                return p;
+        uint32_t pp = table * 1000 + param;
+
+        auto it = values_.find(pp);
+        if (it == values_.end()) {
+            it = defaultValues_.find(pp);
+            if (it == defaultValues_.end()) {
+                std::ostringstream ss;
+                ss << "Cannot match parameter " << pp;
+                throw eckit::UserError(ss.str(), Here());
             }
         }
 
-        for (std::vector<std::string>::const_iterator j = defaultValues_.begin(); j != defaultValues_.end(); ++j) {
-            if ((*j) == p) {
-                return p;
-            }
-        }
-
-        throw eckit::UserError("Cannot match parameter " + p, Here());
+        std::ostringstream ss;
+        ss << pp;
+        return ss.str();
     }
 
-    std::string paramid = metkit::mars::MarsLanguage::bestMatch(s, values_, false, false, true, mapping_);
-    if (!paramid.empty()) {
-        return paramid;
+
+    std::string paramid;
+    std::string pp = eckit::StringTools::lower(s);
+
+    // not numeric... check just the aliases
+    auto it = mapping_.find(pp);
+    if (it != mapping_.end()) {
+        return it->second;
+    }
+    auto itDefault = defaultMapping_.find(pp);
+    if (itDefault != defaultMapping_.end()) {
+        return itDefault->second;
     }
 
-    return metkit::mars::MarsLanguage::bestMatch(s, defaultValues_, fail, false, false, defaultMapping_);
+    throw eckit::UserError("Cannot match parameter " + s, Here());
 }
 
 static std::vector<Rule>* rules = nullptr;
@@ -433,7 +441,6 @@ void TypeParam::pass2(MarsRequest& request) {
 
     pthread_once(&once, init);
 
-    bool fail                       = true;
     const Rule* rule                = 0;
     std::vector<std::string> values = request.values(name_, true);
 
@@ -459,7 +466,7 @@ void TypeParam::pass2(MarsRequest& request) {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s    = r.lookup(s, fail);
+                            s    = r.lookup(s);
                             rule = &r;
                             Log::warning() << "TypeParam: using 'first matching rule' option " << r << std::endl;
                         }
@@ -495,7 +502,7 @@ void TypeParam::pass2(MarsRequest& request) {
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
         try {
-            s = rule->lookup(s, fail);
+            s = rule->lookup(s);
         }
         catch (...) {
             Log::error() << *rule << std::endl;
