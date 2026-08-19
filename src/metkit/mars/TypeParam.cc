@@ -15,6 +15,7 @@
 #include "eckit/parser/YAMLParser.h"
 #include "eckit/thread/AutoLock.h"
 #include "eckit/types/Types.h"
+#include "eckit/utils/StringTools.h"
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars/MarsLanguage.h"
@@ -160,6 +161,8 @@ void Rule::setDefault(const eckit::Value& values, const eckit::Value& ids) {
             defaultValues_.push_back(v);
         }
     }
+    // for (const auto& v : defaultValues_)
+    //     std::cout << v << std::endl;
 }
 
 Rule::Rule(const eckit::Value& matchers, const eckit::Value& values, const eckit::Value& ids) {
@@ -234,7 +237,7 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
     size_t table = 0;
     size_t param = 0;
     size_t* n    = &param;
-    bool ok      = true;
+    bool numeric = true;
 
     for (std::string::const_iterator k = s.begin(); k != s.end(); ++k) {
         switch (*k) {
@@ -257,17 +260,17 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
                     n = &table;
                 }
                 else {
-                    ok = false;
+                    numeric = false;
                 }
                 break;
 
             default:
-                ok = false;
+                numeric = false;
                 break;
         }
     }
 
-    if (ok && param > 0) {
+    if (numeric && param > 0) {
         std::ostringstream oss;
         if (table == 128) {
             table = 0;
@@ -294,12 +297,34 @@ std::string Rule::lookup(const std::string& s, bool fail) const {
         throw eckit::UserError("Cannot match parameter " + p, Here());
     }
 
-    std::string paramid = metkit::mars::MarsLanguage::bestMatch(s, values_, false, false, true, mapping_);
-    if (!paramid.empty()) {
-        return paramid;
+
+    std::string paramid;
+    std::string pp = eckit::StringTools::lower(s);
+    for (const auto& v : values_) {
+        if (v == pp) {
+            auto it = mapping_.find(pp);
+            if (it != mapping_.end())
+                return it->second;
+            return pp;
+        }
+    }
+    // = metkit::mars::MarsLanguage::bestMatch(s, values_, false, false, true, mapping_);
+    // if (!paramid.empty()) {
+    //     return paramid;
+    // }
+
+    for (const auto& v : defaultValues_) {
+        if (v == pp) {
+            auto it = defaultMapping_.find(pp);
+            if (it != defaultMapping_.end())
+                return it->second;
+            return pp;
+        }
     }
 
-    return metkit::mars::MarsLanguage::bestMatch(s, defaultValues_, fail, false, false, defaultMapping_);
+    std::ostringstream oss;
+    oss << "Cannot match [" << s << "] in " << defaultValues_;
+    throw eckit::UserError(oss.str());
 }
 
 static std::vector<Rule>* rules = nullptr;
