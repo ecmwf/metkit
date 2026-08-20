@@ -66,6 +66,9 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
+        // Check for standardised anomaly parameters
+
+
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {

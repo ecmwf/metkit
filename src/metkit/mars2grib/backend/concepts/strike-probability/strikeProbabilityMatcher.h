@@ -67,9 +67,16 @@ std::size_t strikeProbabilityMatcher(const MarsDict_t& mars, const OptDict_t& op
 
         const auto param = get_or_throw<long>(mars, "param");
 
+        // Standard Probability
+        // TODO: Add probability matching semantics when they are defined.
+        // if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        //     return static_cast<std::size_t>(StrikeProbabilityType::Default);
+        // }
+
+        // Strike Probability
         if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
                      131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
-                     131100, 133093, 133094, 133095, 133096, 133097, 133098)) {
+                     131100)) {
             return static_cast<std::size_t>(StrikeProbabilityType::Default);
         }
         else {

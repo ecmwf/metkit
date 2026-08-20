@@ -22,14 +22,16 @@ namespace metkit::mars2mars::rules::impl {
 
 
 /// @brief Convert wave streams
-template <class InDict_t, class OutDict_t>
-inline void convertWaveStreams(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void convertWaveStreams(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc,
+                               const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        (void)opts;
 
         if (get_or_throw<std::string>(in, "stream") == "wave") {
             set_or_throw<std::string>(out, "stream", "oper");

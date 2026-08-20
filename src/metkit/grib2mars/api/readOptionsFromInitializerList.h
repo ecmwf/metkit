@@ -64,6 +64,16 @@ inline void applyOption(metkit::grib2mars::Options& opts, std::string_view key, 
         return;
     }
 
+    if (key == "skipSection3") {
+        opts.skipSection3 = readBool(key, value);
+        return;
+    }
+
+    if (key == "tryFixBadInput_ZeroAccumulation") {
+        opts.tryFixBadInput_ZeroAccumulation = readBool(key, value);
+        return;
+    }
+
     throw exceptions::Grib2MarsDictException("Unknown Grib2Mars option `" + std::string(key) + "`", Here());
 }
 

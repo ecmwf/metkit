@@ -49,8 +49,8 @@ inline void setParamTimespan(OutDict_t& out, long param, const std::string& time
 /// @brief Detect a `step` of the form "<startStep>-<endStep>" and rewrite
 /// `step` + `timespan` on `out`. When `step` is a single value, default the
 /// output `timespan` to "none" if it is not already set on `in`.
-template <class InDict_t, class OutDict_t>
-inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out, const OptDict_t& opts) {
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::has;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
@@ -95,14 +95,20 @@ inline void convertStepRangeToTimespan(const InDict_t& in, OutDict_t& out) {
         if (endStep == startStep) {
             if (endStep != 0) {
                 const long marsParamId = get_or_throw<long>(in, "param");
-                const std::string marsClass = get_or_throw<std::string>(in, "class");
-                const std::string marsStream = get_or_throw<std::string>(in, "stream");
-                const std::string marsType = get_or_throw<std::string>(in, "type");
-                throw Mars2marsGenericException("Invalid step range `" + step + "`: endStep == startStep (" +
-                                                    std::to_string(endStep) + " == " + std::to_string(startStep) +
-                                                    ") is only allowed for step 0" +
-                                                    " (param=" + std::to_string(marsParamId) + ", class=" +marsClass + ", stream=" + marsStream + ", type=" + marsType + ")",
-                                                Here());
+                const bool canFixZeroAccumulation =
+                    marsParamId == 162110 && get_or_throw<bool>(opts, "tryFixBadInput_ZeroAccumulation");
+
+                if (!canFixZeroAccumulation) {
+                    const std::string marsClass  = get_or_throw<std::string>(in, "class");
+                    const std::string marsStream = get_or_throw<std::string>(in, "stream");
+                    const std::string marsType   = get_or_throw<std::string>(in, "type");
+                    throw Mars2marsGenericException(
+                        "Invalid step range `" + step + "`: endStep == startStep (" + std::to_string(endStep) +
+                            " == " + std::to_string(startStep) + ") is only allowed for step 0" +
+                            " (param=" + std::to_string(marsParamId) + ", class=" + marsClass +
+                            ", stream=" + marsStream + ", type=" + marsType + ")",
+                        Here());
+                }
             }
 
             set_or_throw<long>(out, "step", endStep);
@@ -154,8 +160,8 @@ inline void fixTimespanFS(const InDict_t& in, OutDict_t& out) {
 }
 
 /// @brief Convert surface-like legacy requests into sol layer output.
-template <class InDict_t, class OutDict_t>
-inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc, const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
@@ -163,7 +169,7 @@ inline void fixTimespan(const InDict_t& in, OutDict_t& out, eckit::LocalConfigur
 
     try {
         // Handle step ranges (e.g. "0-6") and default timespan to "none" for single-value steps.
-        convertStepRangeToTimespan(in, out);
+        convertStepRangeToTimespan(in, out, opts);
 
         // Fix statistical fields that are wrongly encoded as instant fields at step 0.
         fixTimespanFS(in, out);

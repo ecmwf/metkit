@@ -145,6 +145,16 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(StatisticsType::IndexProcessing);
         }
 
+        // event probability standardised anomaly products
+        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+            return static_cast<std::size_t>(StatisticsType::StandardizedAnomaly);
+        }
+
+        // event probability maximum
+        if (matchAny(param, 131089, 131090, 131091)) {
+            return static_cast<std::size_t>(StatisticsType::Maximum);
+        }
+
         return compile_time_registry_engine::MISSING;
     }
     catch (...) {

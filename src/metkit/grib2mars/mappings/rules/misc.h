@@ -8,13 +8,14 @@
 
 namespace metkit::grib2mars::rules::impl {
 
-template <class MarsDict, class MiscDict>
-void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
+template <class MarsDict, class MiscDict, class OptDict_t>
+void extractMisc(const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc, const OptDict_t& opts) {
     using metkit::grib2mars::utils::dict_traits::get_or_throw;
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
+        (void)opts;
         if (grib.has("generatingProcessIdentifier")) {
             const auto generatingProcessIdentifier = grib.getLong("generatingProcessIdentifier");
             misc.set("generatingProcessIdentifier", generatingProcessIdentifier);

@@ -22,14 +22,15 @@ namespace metkit::mars2mars::rules::impl {
 
 
 /// @brief Remove MARS key number if no longer used
-template <class InDict_t, class OutDict_t>
-inline void removeNumber(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void removeNumber(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc, const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::setMissing_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        (void)opts;
         if (get_or_throw<std::string>(in, "type") == "me") {
             setMissing_or_throw(out, "number");
         }

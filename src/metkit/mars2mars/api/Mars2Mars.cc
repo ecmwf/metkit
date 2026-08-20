@@ -60,7 +60,7 @@ Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert<eckit::LocalConfig
 
     return withMars2MarsApiErrorHandling<Mars2MarsResult<eckit::LocalConfiguration>>(
         "Mars2Mars::convert<eckit::LocalConfiguration>", opts_,
-        [&]() { return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars); }, Here());
+        [&]() { return rules::convertAll<eckit::LocalConfiguration, eckit::LocalConfiguration>(mars, opts_); }, Here());
 }
 
 /// @brief Convert a `metkit::mars::MarsRequest` request.
@@ -72,7 +72,7 @@ Mars2MarsResult<metkit::mars::MarsRequest> Mars2Mars::convert<metkit::mars::Mars
 
     return withMars2MarsApiErrorHandling<Mars2MarsResult<metkit::mars::MarsRequest>>(
         "Mars2Mars::convert<metkit::mars::MarsRequest>", opts_,
-        [&]() { return rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars); }, Here());
+        [&]() { return rules::convertAll<metkit::mars::MarsRequest, metkit::mars::MarsRequest>(mars, opts_); }, Here());
 }
 
 }  // namespace metkit::mars2mars

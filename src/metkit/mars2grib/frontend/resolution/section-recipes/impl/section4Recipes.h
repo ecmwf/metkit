@@ -51,6 +51,16 @@ inline const Recipe S4_R8 =
         Select<ParamConcept>
     >();
 
+
+// inline const Recipe S4_R9 =
+//     make_recipe<9,
+//         Select<GeneratingProcessConcept>,
+//         Select<StatisticsConcept>,
+//         Select<LevelConcept>,
+//           Select<ProbabilityConcept::Default>,
+//         Select<ParamConcept>
+//     >();
+
 inline const Recipe S4_R11 =
     make_recipe<11,
         Select<GeneratingProcessConcept>,

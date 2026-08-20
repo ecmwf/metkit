@@ -60,7 +60,7 @@ Grib2MarsResult<eckit::LocalConfiguration> Grib2Mars::convert<eckit::LocalConfig
 
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<eckit::LocalConfiguration>>(
         "Grib2Mars::convert<eckit::LocalConfiguration>", opts_,
-        [&]() { return rules::convertAll<eckit::LocalConfiguration>(grib); }, Here());
+        [&]() { return rules::convertAll<eckit::LocalConfiguration>(grib, opts_); }, Here());
 }
 
 /// @brief Convert a `metkit::mars::MarsRequest` request.
@@ -72,7 +72,7 @@ Grib2MarsResult<metkit::mars::MarsRequest> Grib2Mars::convert<metkit::mars::Mars
 
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<metkit::mars::MarsRequest>>(
         "Grib2Mars::convert<metkit::mars::MarsRequest>", opts_,
-        [&]() { return rules::convertAll<metkit::mars::MarsRequest>(grib); }, Here());
+        [&]() { return rules::convertAll<metkit::mars::MarsRequest>(grib, opts_); }, Here());
 }
 
 }  // namespace metkit::grib2mars

@@ -9,13 +9,14 @@
 
 namespace metkit::grib2mars::rules::impl {
 
-template <class MarsDict, class MiscDict>
+template <class MarsDict, class MiscDict, class OptDict_t>
 void extractTruncation(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
-                       MiscDict& misc) {
+                       MiscDict& misc, const OptDict_t& opts) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
+        (void)opts;
         if (!grib.has("gridType")) {
             throw Grib2MarsGenericException(
                 "Missing GRIB key `gridType` required to extract MARS keyword `" + keyword + "`", Here());

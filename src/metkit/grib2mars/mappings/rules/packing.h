@@ -39,9 +39,9 @@ inline std::string convertPackingType(const std::string& packingType) {
 
 }  // namespace detail
 
-template <class MarsDict, class MiscDict>
-void extractPacking(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
-                    MiscDict& misc) {
+template <class MarsDict, class MiscDict, class OptDict_t>
+void extractPacking(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc,
+                    const OptDict_t& opts) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 

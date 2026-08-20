@@ -32,8 +32,8 @@
 namespace metkit::mars2mars::rules {
 
 /// @brief Apply all registered conversion rules and return a result object.
-template <class InDict_t, class OutDict_t>
-Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in, const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::clone_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
@@ -43,16 +43,16 @@ Mars2MarsResult<OutDict_t> convertAll(const InDict_t& in) {
         std::unique_ptr<eckit::LocalConfiguration> misc = std::make_unique<eckit::LocalConfiguration>();
 
         // Apply all conversions in sequence
-        impl::convertWaveStreams(in, *out, *misc);
-        impl::convertECC1806(in, *out, *misc);
-        impl::convertSFC2SOL(in, *out, *misc);
-        impl::convertLocal2WMO(in, *out, *misc);
-        impl::fixTimespan(in, *out, *misc);
-        impl::fixWindspeed(in, *out, *misc);
-        impl::convertChemical(in, *out, *misc);
-        impl::convertIncremental(in, *out, *misc);
-        impl::convertMiscParams(in, *out, *misc);
-        impl::removeNumber(in, *out, *misc);
+        impl::convertWaveStreams(in, *out, *misc, opts);
+        impl::convertECC1806(in, *out, *misc, opts);
+        impl::convertSFC2SOL(in, *out, *misc, opts);
+        impl::convertLocal2WMO(in, *out, *misc, opts);
+        impl::fixTimespan(in, *out, *misc, opts);
+        impl::fixWindspeed(in, *out, *misc, opts);
+        impl::convertChemical(in, *out, *misc, opts);
+        impl::convertIncremental(in, *out, *misc, opts);
+        impl::convertMiscParams(in, *out, *misc, opts);
+        impl::removeNumber(in, *out, *misc, opts);
 
         return Mars2MarsResult<OutDict_t>{std::move(*out), std::move(*misc)};
     }

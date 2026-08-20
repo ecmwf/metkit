@@ -17,8 +17,8 @@
 
 namespace metkit::grib2mars::rules {
 
-template <class OutDict_t>
-Grib2MarsResult<OutDict_t> convertAll(const metkit::codes::CodesHandle& grib) {
+template <class OutDict_t, class OptDict_t>
+Grib2MarsResult<OutDict_t> convertAll(const metkit::codes::CodesHandle& grib, const OptDict_t& opts) {
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
@@ -33,11 +33,11 @@ Grib2MarsResult<OutDict_t> convertAll(const metkit::codes::CodesHandle& grib) {
         //
         // This is used to inject the values
         for (const std::string& keyword : topology) {
-            impl::extract(keyword, grib, *mars, *misc);
+            impl::extract(keyword, grib, *mars, *misc, opts);
         }
 
         // Extract the remaining miscelanious values which are not attached to a MARS mapping
-        impl::extractMisc(grib, *mars, *misc);
+        impl::extractMisc(grib, *mars, *misc, opts);
 
         return Grib2MarsResult<OutDict_t>{std::move(*mars), std::move(*misc)};
     }

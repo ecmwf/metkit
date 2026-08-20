@@ -313,8 +313,7 @@ inline std::string buildPublicErrorMessageWithoutStackFile(const InnermostExcept
 /// Source location attached to user-facing failures.
 template <typename Result, typename Callable>
 Result withMars2MarsApiErrorHandling(const std::string& apiName, const metkit::mars2mars::Options& opts,
-                                     Callable&& callable,
-                                     const eckit::CodeLocation& loc = eckit::CodeLocation()) {
+                                     Callable&& callable, const eckit::CodeLocation& loc = eckit::CodeLocation()) {
     try {
         return std::forward<Callable>(callable)();
     }

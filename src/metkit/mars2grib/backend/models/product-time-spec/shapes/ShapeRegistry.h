@@ -206,8 +206,8 @@ inline ProductTimeSpecShapeKind classify_Shape_or_throw(const ProductTimeSpecInp
                     std::ostringstream oss;
                     oss << "Shape classification failed: expected exactly one match, but found " << numberOfMatches
                         << " matches. Match results: ";
-                    oss << "{param=" << input.marsParamId << ", class=" << input.marsClass << ", stream=" << input.marsStream
-                        << ", type=" << input.marsType << "}, [";
+                    oss << "{param=" << input.marsParamId << ", class=" << input.marsClass
+                        << ", stream=" << input.marsStream << ", type=" << input.marsType << "}, [";
                     for (std::size_t i = 0; i < matches.size(); ++i) {
                         oss << detail::shapeCases[i].name << "=" << (matches[i] ? "true" : "false");
                         if (i < matches.size() - 1) {

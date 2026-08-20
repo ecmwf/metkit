@@ -47,12 +47,20 @@ inline Options readOptions(const eckit::LocalConfiguration& conf) {
         opts.saveErrorStack = readBoolOption(conf, "saveErrorStack");
     }
 
+    if (conf.has("skipSection3")) {
+        opts.skipSection3 = readBoolOption(conf, "skipSection3");
+    }
+
     if (conf.has("errorStackPath")) {
         opts.errorStackPath = readStringOption(conf, "errorStackPath");
     }
 
     if (conf.has("printErrorStackToStdErr")) {
         opts.printErrorStackToStdErr = readBoolOption(conf, "printErrorStackToStdErr");
+    }
+
+    if (conf.has("tryFixBadInput_ZeroAccumulation")) {
+        opts.tryFixBadInput_ZeroAccumulation = readBoolOption(conf, "tryFixBadInput_ZeroAccumulation");
     }
 
     return opts;

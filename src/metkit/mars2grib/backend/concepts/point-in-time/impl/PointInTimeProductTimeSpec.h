@@ -26,6 +26,11 @@
 #pragma once
 
 #include <exception>
+#include <iostream>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <string_view>
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/backend/deductions/common.h"
@@ -77,7 +82,9 @@ inline PointInTimeProductTimeSpec build_PointInTimeProductTimeSpec_or_throw(
 
     try {
         if (spec.shapeType() != ProductTimeSpecShapeKind::Instant) {
-            throw Mars2GribGenericException("Point-in-time backend requires an Instant `ProductTimeSpec`", Here());
+            std::ostringstream oss;
+            oss << "Point-in-time backend requires an Instant `ProductTimeSpec`. Timespec is: " << spec.to_json();
+            throw Mars2GribGenericException(oss.str(), Here());
         }
 
         const long forecastTimeInSeconds = static_cast<long>(

@@ -54,6 +54,11 @@ inline void applyOption(metkit::mars2mars::Options& opts, std::string_view key, 
         return;
     }
 
+    if (key == "skipSection3") {
+        opts.skipSection3 = readBool(key, value);
+        return;
+    }
+
     if (key == "errorStackPath") {
         opts.errorStackPath = readString(key, value);
         return;
@@ -61,6 +66,11 @@ inline void applyOption(metkit::mars2mars::Options& opts, std::string_view key, 
 
     if (key == "printErrorStackToStdErr") {
         opts.printErrorStackToStdErr = readBool(key, value);
+        return;
+    }
+
+    if (key == "tryFixBadInput_ZeroAccumulation") {
+        opts.tryFixBadInput_ZeroAccumulation = readBool(key, value);
         return;
     }
 

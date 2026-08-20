@@ -7,9 +7,9 @@
 
 namespace metkit::grib2mars::rules::impl {
 
-template <class MarsDict, class MiscDict>
+template <class MarsDict, class MiscDict, class OptDict_t>
 void extractLegNumber(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
-                      MiscDict& misc) {
+                      MiscDict& misc, const OptDict_t& opts) {
     (void)grib;
     (void)mars;
     (void)misc;

@@ -39,9 +39,11 @@ namespace metkit::grib2mars {
 
 namespace defaults {
 
-inline constexpr bool saveErrorStack          = false;
-inline constexpr const char* errorStackPath   = "./";
-inline constexpr bool printErrorStackToStdErr = false;
+inline constexpr bool saveErrorStack                  = false;
+inline constexpr const char* errorStackPath           = "./";
+inline constexpr bool printErrorStackToStdErr         = false;
+inline constexpr bool skipSection3                    = false;
+inline constexpr bool tryFixBadInput_ZeroAccumulation = false;
 
 }  // namespace defaults
 
@@ -87,6 +89,28 @@ struct Options {
     /// @default false
     ///
     bool printErrorStackToStdErr = defaults::printErrorStackToStdErr;
+
+
+    ///
+    /// @brief Skip explicit encoding of GRIB Section 3.
+    ///
+    /// When enabled, the encoder does not encode the Grid Definition Section
+    /// itself and leaves geometry handling to gridSpec/ecCodes.
+    ///
+    /// @default false
+    ///
+    bool skipSection3 = defaults::skipSection3;
+
+
+    ///
+    /// @brief Attempt to fix bad input when the accumulation period is zero.
+    ///
+    /// When enabled, the encoder attempts to fix bad input when the accumulation
+    /// period is zero.
+    ///
+    /// @default false
+    ///
+    bool tryFixBadInput_ZeroAccumulation = defaults::tryFixBadInput_ZeroAccumulation;
 };
 
 }  // namespace metkit::grib2mars
