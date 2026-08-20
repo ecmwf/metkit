@@ -219,7 +219,8 @@ inline std::size_t matchSFC(const long param) {
 
         // Wave period
         if (matchAny(param, range(140114, 140120))) {
-            return compile_time_registry_engine::MISSING;
+            // return compile_time_registry_engine::MISSING;
+            return static_cast<std::size_t>(LevelType::Surface);
         }
 
         // ECMWF covariance paramIds (254001..254017) are defined in
