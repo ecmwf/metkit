@@ -10,8 +10,8 @@
  */
 
 ///
-/// @file grib1-to-grib2.cc
-/// @brief CLI tool for converting grib1 to grib2 files.
+/// @file grib-to-mtg2.cc
+/// @brief CLI tool for converting GRIB1 to MTG2 compliant GRIB2 files.
 ///
 
 #include <cstddef>

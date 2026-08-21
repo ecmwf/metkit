@@ -8,8 +8,8 @@
 # )
 
 ecbuild_add_executable(
-    TARGET        metkit-grib1-to-grib2
-    SOURCES       grib1-to-grib2.cc
+    TARGET        grib-to-mtg2
+    SOURCES       grib-to-mtg2.cc
     CONDITION     HAVE_MARS2GRIB AND HAVE_MARS2MARS AND HAVE_BUILD_GRIB2_TOOLS
     INCLUDES      ${ECKIT_INCLUDE_DIRS}
     NO_AS_NEEDED
