@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -58,15 +59,20 @@ template <class MarsDict_t, class OptDict_t>
 std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
 
+        using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
         const auto marsType = get_or_throw<std::string>(mars, "type");
+        const auto param = get_or_throw<long>(mars, "param");
 
         if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
             return static_cast<std::size_t>(ReferencePeriodType::Default);
         }
 
         // Check for standardised anomaly parameters
+        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+            return static_cast<std::size_t>(ReferencePeriodType::Default);
+        }
 
 
         return compile_time_registry_engine::MISSING;

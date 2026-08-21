@@ -9,11 +9,11 @@
  */
 
 ///
-/// @file strikeProbabilityMatcher.h
-/// @brief Entry-level matcher for the GRIB `strikeProbability` concept.
+/// @file probabilityMatcher.h
+/// @brief Entry-level matcher for the GRIB `probability` concept.
 ///
 /// This header defines the runtime matcher used by the concept registry to
-/// decide whether strike-probability semantics are active for a request.
+/// decide which probability semantics are active for a request.
 ///
 /// The matcher follows the standard mars2grib matching contract:
 /// - return a local concept variant index when the concept is active,
@@ -32,7 +32,7 @@
 #include <exception>
 
 // Utils
-#include "metkit/mars2grib/backend/concepts/strike-probability/strikeProbabilityEnum.h"
+#include "metkit/mars2grib/backend/concepts/probability/probabilityEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
@@ -40,10 +40,9 @@
 namespace metkit::mars2grib::backend::concepts_ {
 
 ///
-/// @brief Match the `strikeProbability` concept variant.
+/// @brief Match the `probability` concept variant.
 ///
-/// The strikeProbability concept is currently inactive and therefore never
-/// selects a variant.
+/// The probability concept currently selects strike-probability products.
 ///
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -51,7 +50,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @param[in] mars MARS input dictionary
 /// @param[in] opt  Options dictionary
 ///
-/// @return Local `StrikeProbabilityType` variant index or
+/// @return Local `ProbabilityType` variant index or
 /// `compile_time_registry_engine::MISSING` when the concept is inactive.
 ///
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
@@ -59,7 +58,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// `std::throw_with_nested`.
 ///
 template <class MarsDict_t, class OptDict_t>
-std::size_t strikeProbabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+std::size_t probabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     try {
         using metkit::mars2grib::util::param_matcher::matchAny;
         using metkit::mars2grib::util::param_matcher::range;
@@ -69,15 +68,15 @@ std::size_t strikeProbabilityMatcher(const MarsDict_t& mars, const OptDict_t& op
 
         // Standard Probability
         // TODO: Add probability matching semantics when they are defined.
-        // if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-        //     return static_cast<std::size_t>(StrikeProbabilityType::Default);
-        // }
+        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+            return static_cast<std::size_t>(ProbabilityType::StandardisedAnomaly);
+        }
 
         // Strike Probability
         if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
                      131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
                      131100)) {
-            return static_cast<std::size_t>(StrikeProbabilityType::Default);
+            return static_cast<std::size_t>(ProbabilityType::StrikeProbability);
         }
         else {
             return compile_time_registry_engine::MISSING;
@@ -85,7 +84,7 @@ std::size_t strikeProbabilityMatcher(const MarsDict_t& mars, const OptDict_t& op
     }
     catch (...) {
         std::throw_with_nested(
-            utils::exceptions::Mars2GribMatcherException("Unable to match `strikeProbability` concept", Here()));
+            utils::exceptions::Mars2GribMatcherException("Unable to match `probability` concept", Here()));
     }
 }
 

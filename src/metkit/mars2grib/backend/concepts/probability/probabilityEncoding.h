@@ -9,20 +9,20 @@
  */
 
 ///
-/// @file strikeProbabilityEncoding.h
-/// @brief Implementation of the GRIB `strikeProbability` concept operation.
+/// @file probabilityEncoding.h
+/// @brief Implementation of the GRIB `probability` concept operation.
 ///
-/// This header defines the **strikeProbability concept** infrastructure within
+/// This header defines the **probability concept** infrastructure within
 /// the mars2grib backend.
 ///
-/// The strikeProbability concept currently exists only as a registered semantic
+/// The probability concept currently exists only as a registered semantic
 /// placeholder:
 /// - it defines the standard compile-time concept interface,
 /// - it participates in the registry infrastructure,
 /// - it is intentionally inactive until matching and encoding rules are defined.
 ///
 /// This implementation therefore follows the conservative placeholder model:
-/// - Compile-time applicability via `strikeProbabilityApplicable`
+/// - Compile-time applicability via `probabilityApplicable`
 /// - No active encoding domain
 /// - Explicit failure if the concept is invoked unexpectedly
 ///
@@ -39,7 +39,7 @@
 
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
-#include "metkit/mars2grib/backend/concepts/strike-probability/strikeProbabilityEnum.h"
+#include "metkit/mars2grib/backend/concepts/probability/probabilityEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Utils
@@ -50,9 +50,9 @@
 namespace metkit::mars2grib::backend::concepts_ {
 
 ///
-/// @brief Compile-time applicability predicate for the `strikeProbability` concept.
+/// @brief Compile-time applicability predicate for the `probability` concept.
 ///
-/// The strikeProbability concept is intentionally inactive until its runtime
+/// The probability concept is intentionally inactive until its runtime
 /// semantics are defined.
 ///
 /// This predicate always evaluates to `false` and exists to satisfy the
@@ -60,28 +60,28 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @tparam Stage   Encoding stage (compile-time constant)
 /// @tparam Section GRIB section index (compile-time constant)
-/// @tparam Variant Strike-probability concept variant
+/// @tparam Variant Probability concept variant
 ///
 /// @return Always `false`.
 ///
-template <std::size_t Stage, std::size_t Section, StrikeProbabilityType Variant>
-constexpr bool strikeProbabilityApplicable() {
-    return false;
+template <std::size_t Stage, std::size_t Section, ProbabilityType Variant>
+constexpr bool probabilityApplicable() {
+    return Stage == StagePreset && Section == SecProductDefinitionSection;
 }
 
 
 ///
-/// @brief Execute the `strikeProbability` concept operation.
+/// @brief Execute the `probability` concept operation.
 ///
 /// This function implements the registered runtime hook for the
-/// `strikeProbability` concept.
+/// `probability` concept.
 ///
 /// Because the concept is currently a placeholder, it must never perform any
 /// encoding and any invocation is treated as a programming error.
 ///
 /// @tparam Stage      Encoding stage (compile-time constant)
 /// @tparam Section    GRIB section index (compile-time constant)
-/// @tparam Variant    Strike-probability concept variant
+/// @tparam Variant    Probability concept variant
 /// @tparam MarsDict_t Type of the MARS input dictionary
 /// @tparam ParDict_t  Type of the parameter dictionary
 /// @tparam OptDict_t  Type of the options dictionary
@@ -99,24 +99,32 @@ constexpr bool strikeProbabilityApplicable() {
 /// This function intentionally does not provide a silent no-op.
 /// Any invocation is treated as an unexpected use of incomplete concept logic.
 ///
-template <std::size_t Stage, std::size_t Section, StrikeProbabilityType Variant, class MarsDict_t, class ParDict_t,
+template <std::size_t Stage, std::size_t Section, ProbabilityType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
-void StrikeProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
-                         OutDict_t& out) noexcept(false) {
+void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
+                   OutDict_t& out) noexcept(false) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
-    if constexpr (strikeProbabilityApplicable<Stage, Section, Variant>()) {
+    if constexpr (probabilityApplicable<Stage, Section, Variant>()) {
 
         // Debug output
-        MARS2GRIB_LOG_CONCEPT(strikeProbability);
+        MARS2GRIB_LOG_CONCEPT(probability);
+
+        if constexpr ( Variant == ProbabilityType::StrikeProbability ) {
+            std::cerr << "WARNING:: Probability::StrikeProbability not implemented, stub only" << std::endl;
+        }
+
+        if constexpr ( Variant == ProbabilityType::StandardisedAnomaly ) {
+            std::cerr << "WARNING:: Probability::StandardisedAnomaly not implemented, stub only" << std::endl;
+        }
 
         // Successful no-op
         return;
     }
 
     // Concept invoked outside its applicability domain
-    MARS2GRIB_CONCEPT_THROW(strikeProbability, "Concept called when not applicable...");
+    MARS2GRIB_CONCEPT_THROW(probability, "Concept called when not applicable...");
 
     // Remove compiler warning
     mars2gribUnreachable();

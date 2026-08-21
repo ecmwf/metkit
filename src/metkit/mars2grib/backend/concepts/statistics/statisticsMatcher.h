@@ -126,9 +126,9 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(StatisticsType::StandardDeviation);
         }
         // Strike-probability products
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-            return static_cast<std::size_t>(StatisticsType::StandardDeviation);
-        }
+        // if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        //     return static_cast<std::size_t>(StatisticsType::StandardDeviation);
+        // }
 
         // Chemical products
         if (matchAny(param, range(228080, 228082), range(233032, 233035), range(235062, 235064))) {
@@ -146,9 +146,9 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         }
 
         // event probability standardised anomaly products
-        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-            return static_cast<std::size_t>(StatisticsType::StandardizedAnomaly);
-        }
+        // if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+        //     return static_cast<std::size_t>(StatisticsType::StandardizedAnomaly);
+        // }
 
         // event probability maximum
         // if (matchAny(param, 131089, 131090, 131091)) {

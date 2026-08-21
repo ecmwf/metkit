@@ -140,6 +140,7 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
     {107, &allocateTemplateNumber4<4, 107, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {121, &allocateTemplateNumber4<4, 121, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {122, &allocateTemplateNumber4<4, 122, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
+    {131, &allocateTemplateNumber4<4, 131, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {142, &allocateTemplateNumber4<4, 142, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {143, &allocateTemplateNumber4<4, 143, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {144, &allocateTemplateNumber4<4, 144, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},

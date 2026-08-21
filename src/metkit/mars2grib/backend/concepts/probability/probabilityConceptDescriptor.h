@@ -9,11 +9,11 @@
  */
 
 ///
-/// @file strikeProbabilityConceptDescriptor.h
-/// @brief Compile-time registry entry for the GRIB `strikeProbability` concept.
+/// @file probabilityConceptDescriptor.h
+/// @brief Compile-time registry entry for the GRIB `probability` concept.
 ///
-/// This header defines `StrikeProbabilityConcept`, the **compile-time descriptor**
-/// that registers the GRIB `strikeProbability` concept into the mars2grib
+/// This header defines `ProbabilityConcept`, the **compile-time descriptor**
+/// that registers the GRIB `probability` concept into the mars2grib
 /// compile-time registry engine.
 ///
 /// The descriptor provides:
@@ -38,9 +38,9 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 // Core concept includes
-#include "metkit/mars2grib/backend/concepts/strike-probability/strikeProbabilityEncoding.h"
-#include "metkit/mars2grib/backend/concepts/strike-probability/strikeProbabilityEnum.h"
-#include "metkit/mars2grib/backend/concepts/strike-probability/strikeProbabilityMatcher.h"
+#include "metkit/mars2grib/backend/concepts/probability/probabilityEncoding.h"
+#include "metkit/mars2grib/backend/concepts/probability/probabilityEnum.h"
+#include "metkit/mars2grib/backend/concepts/probability/probabilityMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -50,9 +50,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 
 ///
-/// @brief Compile-time descriptor for the `strikeProbability` concept.
+/// @brief Compile-time descriptor for the `probability` concept.
 ///
-/// `StrikeProbabilityConcept` registers the GRIB `strikeProbability` concept
+/// `ProbabilityConcept` registers the GRIB `probability` concept
 /// into the compile-time registry engine.
 ///
 /// The descriptor defines:
@@ -64,7 +64,7 @@ using namespace metkit::mars2grib::backend::compile_time_registry_engine;
 /// All functions in this descriptor are `constexpr` and are evaluated
 /// entirely at compile time.
 ///
-struct StrikeProbabilityConcept : RegisterEntryDescriptor<StrikeProbabilityType, StrikeProbabilityList> {
+struct ProbabilityConcept : RegisterEntryDescriptor<ProbabilityType, ProbabilityList> {
 
     ///
     /// @brief Return the canonical name of the concept.
@@ -74,7 +74,7 @@ struct StrikeProbabilityConcept : RegisterEntryDescriptor<StrikeProbabilityType,
     /// - Diagnostics and logging
     /// - Debug and introspection facilities
     ///
-    static constexpr std::string_view entryName() { return strikeProbabilityName; }
+    static constexpr std::string_view entryName() { return probabilityName; }
 
     ///
     /// @brief Return the symbolic name of a concept variant.
@@ -83,16 +83,16 @@ struct StrikeProbabilityConcept : RegisterEntryDescriptor<StrikeProbabilityType,
     ///
     /// @return String view representing the variant name
     ///
-    template <StrikeProbabilityType T>
+    template <ProbabilityType T>
     static constexpr std::string_view variantName() {
-        return strikeProbabilityTypeName<T>();
+        return probabilityTypeName<T>();
     }
 
     ///
     /// @brief Return the callback associated with a specific encoding phase.
     ///
     /// This function is queried by the registry engine to obtain the
-    /// callback implementing the `strikeProbability` concept for a given:
+    /// callback implementing the `probability` concept for a given:
     ///
     /// - Capability
     /// - Encoding stage
@@ -114,14 +114,14 @@ struct StrikeProbabilityConcept : RegisterEntryDescriptor<StrikeProbabilityType,
     ///
     /// @return Function pointer implementing the phase, or `nullptr`
     ///
-    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, StrikeProbabilityType Variant,
+    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, ProbabilityType Variant,
               class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
 
-            if constexpr (strikeProbabilityApplicable<Stage, Sec, Variant>()) {
-                return &StrikeProbabilityOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+            if constexpr (probabilityApplicable<Stage, Sec, Variant>()) {
+                return &ProbabilityOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
             }
             else {
                 return nullptr;
@@ -137,7 +137,7 @@ struct StrikeProbabilityConcept : RegisterEntryDescriptor<StrikeProbabilityType,
     ///
     /// @brief Variant-specific callbacks (not used for this concept).
     ///
-    template <std::size_t Capability, StrikeProbabilityType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
+    template <std::size_t Capability, ProbabilityType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
               class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
         return nullptr;
@@ -149,7 +149,7 @@ struct StrikeProbabilityConcept : RegisterEntryDescriptor<StrikeProbabilityType,
     template <std::size_t Capability, class MarsDict_t, class OptDict_t>
     static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
         if constexpr (Capability == 0) {
-            return &strikeProbabilityMatcher<MarsDict_t, OptDict_t>;
+            return &probabilityMatcher<MarsDict_t, OptDict_t>;
         }
         else {
             return nullptr;

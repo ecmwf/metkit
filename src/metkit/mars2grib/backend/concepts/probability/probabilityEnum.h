@@ -9,15 +9,15 @@
  */
 
 ///
-/// @file strikeProbabilityEnum.h
-/// @brief Definition of the `strikeProbability` concept variants and compile-time metadata.
+/// @file probabilityEnum.h
+/// @brief Definition of the `probability` concept variants and compile-time metadata.
 ///
-/// This header defines the **static description** of the GRIB `strikeProbability`
+/// This header defines the **static description** of the GRIB `probability`
 /// concept used by the mars2grib backend. It contains:
 ///
-/// - the canonical concept name (`strikeProbabilityName`)
-/// - the enumeration of supported strike-probability variants (`StrikeProbabilityType`)
-/// - a compile-time typelist of all variants (`StrikeProbabilityList`)
+/// - the canonical concept name (`probabilityName`)
+/// - the enumeration of supported probability variants (`ProbabilityType`)
+/// - a compile-time typelist of all variants (`ProbabilityList`)
 /// - a compile-time mapping from variant to string identifier
 ///
 /// This file intentionally contains **no runtime logic** and **no encoding
@@ -31,7 +31,7 @@
 /// @note
 /// This header is part of the **concept definition layer**.
 /// Runtime behavior is implemented separately in the corresponding
-/// `strikeProbabilityEncoding.h` implementation.
+/// `probabilityEncoding.h` implementation.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -51,23 +51,22 @@ template <auto... Vals>
 using ValueList = metkit::mars2grib::backend::compile_time_registry_engine::ValueList<Vals...>;
 
 ///
-/// @brief Canonical name of the `strikeProbability` concept.
+/// @brief Canonical name of the `probability` concept.
 ///
 /// This identifier is used:
 /// - as the logical concept key in the concept registry
 /// - for logging and debugging output
-/// - to associate variants and capabilities with the `strikeProbability` concept
+/// - to associate variants and capabilities with the `probability` concept
 ///
 /// The value must remain stable across releases.
 ///
-inline constexpr std::string_view strikeProbabilityName{"strikeProbability"};
+inline constexpr std::string_view probabilityName{"probability"};
 
 
 ///
-/// @brief Enumeration of all supported `strikeProbability` concept variants.
+/// @brief Enumeration of all supported `probability` concept variants.
 ///
-/// The concept currently defines a single default variant because the
-/// runtime matching and encoding logic is intentionally left unspecified.
+/// The concept defines variants for the supported probability products.
 ///
 /// The numeric values of the enumerators are **not semantically relevant**;
 /// they are required only to:
@@ -75,20 +74,22 @@ inline constexpr std::string_view strikeProbabilityName{"strikeProbability"};
 /// - allow array indexing and table generation
 ///
 /// @note
-/// Additional variants may be introduced later once the strike-probability
+/// Additional variants may be introduced later once the probability
 /// semantics are finalized.
 ///
 /// @warning
 /// Do not reorder existing enumerators, as they are used in compile-time
 /// tables and registries.
 ///
-enum class StrikeProbabilityType : std::size_t {
-    Default = 0
+enum class ProbabilityType : std::size_t {
+    StrikeProbability = 0,
+    StandardisedAnomaly,
+    Default
 };
 
 
 ///
-/// @brief Compile-time list of all `strikeProbability` concept variants.
+/// @brief Compile-time list of all `probability` concept variants.
 ///
 /// This typelist is used to:
 /// - generate concept capability tables at compile time
@@ -99,37 +100,40 @@ enum class StrikeProbabilityType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using StrikeProbabilityList = ValueList<StrikeProbabilityType::Default>;
+using ProbabilityList = ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly,
+                                  ProbabilityType::Default>;
 
 
 ///
-/// @brief Compile-time mapping from `StrikeProbabilityType` to human-readable name.
+/// @brief Compile-time mapping from `ProbabilityType` to human-readable name.
 ///
 /// This function returns the canonical string identifier associated
-/// with a given strike-probability variant.
+/// with a given probability variant.
 ///
 /// The returned value is used for:
 /// - logging and debugging output
 /// - error reporting
 /// - concept registry diagnostics
 ///
-/// @tparam T Strike-probability variant
+/// @tparam T Probability variant
 /// @return String view identifying the variant
 ///
 /// @note
 /// The returned string must remain stable across releases, as it may
 /// appear in logs, tests, and diagnostic output.
 ///
-template <StrikeProbabilityType T>
-constexpr std::string_view strikeProbabilityTypeName();
+template <ProbabilityType T>
+constexpr std::string_view probabilityTypeName();
 
-#define DEF(T, NAME)                                            \
-    template <>                                                 \
-    constexpr std::string_view strikeProbabilityTypeName<T>() { \
-        return NAME;                                            \
+#define DEF(T, NAME)                                      \
+    template <>                                           \
+    constexpr std::string_view probabilityTypeName<T>() { \
+        return NAME;                                      \
     }
 
-DEF(StrikeProbabilityType::Default, "default");
+DEF(ProbabilityType::StrikeProbability, "strikeProbability");
+DEF(ProbabilityType::StandardisedAnomaly, "standardisedAnomaly");
+DEF(ProbabilityType::Default, "default");
 
 #undef DEF
 
