@@ -63,6 +63,15 @@ inline Options readOptions(const eckit::LocalConfiguration& conf) {
         opts.tryFixBadInput_ZeroAccumulation = readBoolOption(conf, "tryFixBadInput_ZeroAccumulation");
     }
 
+    if (conf.has("tryFixBadInput_RemoveStepRangeForStrikeProbability")) {
+        opts.tryFixBadInput_RemoveStepRangeForStrikeProbability =
+            readBoolOption(conf, "tryFixBadInput_RemoveStepRangeForStrikeProbability");
+    }
+
+    if (conf.has("tryFixBadInput_StandardisedAnomalyAsInstant")) {
+        opts.tryFixBadInput_StandardisedAnomalyAsInstant = readBoolOption(conf, "tryFixBadInput_StandardisedAnomalyAsInstant");
+    }
+
     return opts;
 }
 

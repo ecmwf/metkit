@@ -151,9 +151,9 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         }
 
         // event probability maximum
-        if (matchAny(param, 131089, 131090, 131091)) {
-            return static_cast<std::size_t>(StatisticsType::Maximum);
-        }
+        // if (matchAny(param, 131089, 131090, 131091)) {
+        //     return static_cast<std::size_t>(StatisticsType::Maximum);
+        // }
 
         return compile_time_registry_engine::MISSING;
     }

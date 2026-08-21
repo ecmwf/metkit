@@ -74,6 +74,16 @@ inline void applyOption(metkit::grib2mars::Options& opts, std::string_view key, 
         return;
     }
 
+    if (key == "tryFixBadInput_RemoveStepRangeForStrikeProbability") {
+        opts.tryFixBadInput_RemoveStepRangeForStrikeProbability = readBool(key, value);
+        return;
+    }
+
+    if (key == "tryFixBadInput_StandardisedAnomalyAsInstant") {
+        opts.tryFixBadInput_StandardisedAnomalyAsInstant = readBool(key, value);
+        return;
+    }
+
     throw exceptions::Grib2MarsDictException("Unknown Grib2Mars option `" + std::string(key) + "`", Here());
 }
 

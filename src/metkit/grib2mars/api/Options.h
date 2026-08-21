@@ -39,11 +39,13 @@ namespace metkit::grib2mars {
 
 namespace defaults {
 
-inline constexpr bool saveErrorStack                  = false;
-inline constexpr const char* errorStackPath           = "./";
-inline constexpr bool printErrorStackToStdErr         = false;
-inline constexpr bool skipSection3                    = false;
-inline constexpr bool tryFixBadInput_ZeroAccumulation = false;
+inline constexpr bool saveErrorStack                                     = false;
+inline constexpr const char* errorStackPath                              = "./";
+inline constexpr bool printErrorStackToStdErr                            = false;
+inline constexpr bool skipSection3                                       = false;
+inline constexpr bool tryFixBadInput_ZeroAccumulation                    = false;
+inline constexpr bool tryFixBadInput_RemoveStepRangeForStrikeProbability = false;
+inline constexpr bool tryFixBadInput_StandardisedAnomalyAsInstant        = false;
 
 }  // namespace defaults
 
@@ -111,6 +113,28 @@ struct Options {
     /// @default false
     ///
     bool tryFixBadInput_ZeroAccumulation = defaults::tryFixBadInput_ZeroAccumulation;
+
+
+    ///
+    /// @brief Attempt to fix bad input for strike probability parameters.
+    ///
+    /// When enabled, the encoder attempts to fix bad input for strike probability parameters.
+    ///
+    /// @default false
+    ///
+    bool tryFixBadInput_RemoveStepRangeForStrikeProbability = defaults::tryFixBadInput_RemoveStepRangeForStrikeProbability;
+
+
+    ///
+    ///
+    /// @brief Attempt to fix bad input for standard anomaly parameters encoded as instant.
+    ///
+    /// When enabled, the encoder attempts to fix bad input for standard anomaly parameters encoded as instant.
+    ///
+    /// @default false
+    ///
+    bool tryFixBadInput_StandardisedAnomalyAsInstant = defaults::tryFixBadInput_StandardisedAnomalyAsInstant;
+
 };
 
 }  // namespace metkit::grib2mars

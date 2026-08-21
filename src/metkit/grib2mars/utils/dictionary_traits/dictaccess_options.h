@@ -90,7 +90,8 @@ inline void appendJsonString(std::string& json, std::string_view key, std::strin
 
 inline bool isBoolKey(std::string_view key) noexcept {
     return key == "saveErrorStack" || key == "printErrorStackToStdErr" || key == "skipSection3" ||
-           key == "tryFixBadInput_ZeroAccumulation";
+           key == "tryFixBadInput_ZeroAccumulation" || key == "tryFixBadInput_RemoveStepRangeForStrikeProbability"
+           || key == "tryFixBadInput_StandardisedAnomalyAsInstant";
 }
 
 inline bool isStringKey(std::string_view key) noexcept {
@@ -117,6 +118,14 @@ inline bool getBoolOrThrow(const Options& opts, std::string_view key) {
 
     if (key == "tryFixBadInput_ZeroAccumulation") {
         return opts.tryFixBadInput_ZeroAccumulation;
+    }
+
+    if (key == "tryFixBadInput_RemoveStepRangeForStrikeProbability") {
+        return opts.tryFixBadInput_RemoveStepRangeForStrikeProbability;
+    }
+
+    if (key == "tryFixBadInput_StandardisedAnomalyAsInstant") {
+        return opts.tryFixBadInput_StandardisedAnomalyAsInstant;
     }
 
     throw exceptions::Grib2MarsDictException("Key `" + std::string(key) + "` cannot be read as `" + "bool" +
@@ -149,6 +158,11 @@ struct DictToJsonTraits<Options> {
             options_detail::appendJsonBool(json, "skipSection3", opts.skipSection3, true);
             options_detail::appendJsonBool(json, "tryFixBadInput_ZeroAccumulation",
                                            opts.tryFixBadInput_ZeroAccumulation, true);
+            options_detail::appendJsonBool(json, "tryFixBadInput_RemoveStepRangeForStrikeProbability",
+                                           opts.tryFixBadInput_RemoveStepRangeForStrikeProbability, true);
+            options_detail::appendJsonBool(json, "tryFixBadInput_StandardisedAnomalyAsInstant",
+                                           opts.tryFixBadInput_StandardisedAnomalyAsInstant, true);
+
             options_detail::appendJsonString(json, "errorStackPath", opts.errorStackPath, true);
             options_detail::appendJsonBool(json, "printErrorStackToStdErr", opts.printErrorStackToStdErr, false);
             json += '}';
