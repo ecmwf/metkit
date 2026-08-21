@@ -77,7 +77,7 @@ inline void convertLocal2WMO(const InDict_t& in, OutDict_t& out, eckit::LocalCon
 
             // Snowfall water equivalent (m -> kg m-2)
             case 144:
-                return setParamScale(out, misc, 228144, 10000.0);
+                return setParamScale(out, misc, 228144, 1000.0);
 
             // Runoff and water cycle (m -> kg m-2)
             case 8:
