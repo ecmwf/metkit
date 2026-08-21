@@ -14,6 +14,7 @@
 #include "metkit/grib2mars/mappings/rules/anoffset.h"
 #include "metkit/grib2mars/mappings/rules/channel.h"
 #include "metkit/grib2mars/mappings/rules/class.h"
+#include "metkit/grib2mars/mappings/rules/coeffindex.h"
 #include "metkit/grib2mars/mappings/rules/dataset.h"
 #include "metkit/grib2mars/mappings/rules/date.h"
 #include "metkit/grib2mars/mappings/rules/direction.h"
@@ -25,6 +26,8 @@
 #include "metkit/grib2mars/mappings/rules/hdate.h"
 #include "metkit/grib2mars/mappings/rules/ident.h"
 #include "metkit/grib2mars/mappings/rules/instrument.h"
+#include "metkit/grib2mars/mappings/rules/iteration.h"
+#include "metkit/grib2mars/mappings/rules/leg_number.h"
 #include "metkit/grib2mars/mappings/rules/levelist.h"
 #include "metkit/grib2mars/mappings/rules/levtype.h"
 #include "metkit/grib2mars/mappings/rules/method.h"
@@ -48,68 +51,71 @@ namespace metkit::grib2mars::rules::impl {
 
 namespace detail {
 
-template <class MarsDict, class MiscDict>
+template <class MarsDict, class MiscDict, class OptDict_t>
 using MarsExtractor = void (*)(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars,
-                               MiscDict& misc);
+                               MiscDict& misc, const OptDict_t& opts);
 
-template <class MarsDict, class MiscDict>
-const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& extractorRegistry() {
-    static const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>> registry = {
-        {"class", extractClass<MarsDict, MiscDict>},
-        {"stream", extractStream<MarsDict, MiscDict>},
-        {"type", extractType<MarsDict, MiscDict>},
-        {"expver", extractExpver<MarsDict, MiscDict>},
-        {"param", extractParam<MarsDict, MiscDict>},
-        {"levtype", extractLevtype<MarsDict, MiscDict>},
-        {"levelist", extractLevelist<MarsDict, MiscDict>},
-        {"frequency", extractFrequency<MarsDict, MiscDict>},
-        {"direction", extractDirection<MarsDict, MiscDict>},
-        {"ident", extractIdent<MarsDict, MiscDict>},
-        {"channel", extractChannel<MarsDict, MiscDict>},
-        {"instrument", extractInstrument<MarsDict, MiscDict>},
-        {"anoffset", extractAnoffset<MarsDict, MiscDict>},
-        {"number", extractNumber<MarsDict, MiscDict>},
-        {"grid", extractGrid<MarsDict, MiscDict>},
-        {"truncation", extractTruncation<MarsDict, MiscDict>},
-        {"packing", extractPacking<MarsDict, MiscDict>},
-        {"date", extractDate<MarsDict, MiscDict>},
-        {"hdate", extractHdate<MarsDict, MiscDict>},
-        {"time", extractTime<MarsDict, MiscDict>},
-        {"step", extractStep<MarsDict, MiscDict>},
-        {"system", extractSystem<MarsDict, MiscDict>},
-        {"method", extractMethod<MarsDict, MiscDict>},
-        {"origin", extractOrigin<MarsDict, MiscDict>},
-        {"timespan", extractTimespan<MarsDict, MiscDict>},
-        {"stattype", extractStatType<MarsDict, MiscDict>},
-        {"domain", extractDomain<MarsDict, MiscDict>},
-        {"activity", extractActivity<MarsDict, MiscDict>},
-        {"dataset", extractDataset<MarsDict, MiscDict>},
-        {"experiment", extractExperiment<MarsDict, MiscDict>},
-        {"resolution", extractResolution<MarsDict, MiscDict>},
-        {"model", extractModel<MarsDict, MiscDict>},
-        {"wavelength", extractWavelength<MarsDict, MiscDict>},
+template <class MarsDict, class MiscDict, class OptDict_t>
+const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict, OptDict_t>>& extractorRegistry() {
+    static const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict, OptDict_t>> registry = {
+        {"class", extractClass<MarsDict, MiscDict, OptDict_t>},
+        {"stream", extractStream<MarsDict, MiscDict, OptDict_t>},
+        {"type", extractType<MarsDict, MiscDict, OptDict_t>},
+        {"expver", extractExpver<MarsDict, MiscDict, OptDict_t>},
+        {"param", extractParam<MarsDict, MiscDict, OptDict_t>},
+        {"levtype", extractLevtype<MarsDict, MiscDict, OptDict_t>},
+        {"levelist", extractLevelist<MarsDict, MiscDict, OptDict_t>},
+        {"frequency", extractFrequency<MarsDict, MiscDict, OptDict_t>},
+        {"direction", extractDirection<MarsDict, MiscDict, OptDict_t>},
+        {"ident", extractIdent<MarsDict, MiscDict, OptDict_t>},
+        {"channel", extractChannel<MarsDict, MiscDict, OptDict_t>},
+        {"instrument", extractInstrument<MarsDict, MiscDict, OptDict_t>},
+        {"_leg_number", extractLegNumber<MarsDict, MiscDict, OptDict_t>},
+        {"anoffset", extractAnoffset<MarsDict, MiscDict, OptDict_t>},
+        {"number", extractNumber<MarsDict, MiscDict, OptDict_t>},
+        {"grid", extractGrid<MarsDict, MiscDict, OptDict_t>},
+        {"truncation", extractTruncation<MarsDict, MiscDict, OptDict_t>},
+        {"packing", extractPacking<MarsDict, MiscDict, OptDict_t>},
+        {"date", extractDate<MarsDict, MiscDict, OptDict_t>},
+        {"hdate", extractHdate<MarsDict, MiscDict, OptDict_t>},
+        {"time", extractTime<MarsDict, MiscDict, OptDict_t>},
+        {"step", extractStep<MarsDict, MiscDict, OptDict_t>},
+        {"system", extractSystem<MarsDict, MiscDict, OptDict_t>},
+        {"method", extractMethod<MarsDict, MiscDict, OptDict_t>},
+        {"origin", extractOrigin<MarsDict, MiscDict, OptDict_t>},
+        {"timespan", extractTimespan<MarsDict, MiscDict, OptDict_t>},
+        {"stattype", extractStatType<MarsDict, MiscDict, OptDict_t>},
+        {"domain", extractDomain<MarsDict, MiscDict, OptDict_t>},
+        {"activity", extractActivity<MarsDict, MiscDict, OptDict_t>},
+        {"dataset", extractDataset<MarsDict, MiscDict, OptDict_t>},
+        {"experiment", extractExperiment<MarsDict, MiscDict, OptDict_t>},
+        {"resolution", extractResolution<MarsDict, MiscDict, OptDict_t>},
+        {"model", extractModel<MarsDict, MiscDict, OptDict_t>},
+        {"wavelength", extractWavelength<MarsDict, MiscDict, OptDict_t>},
+        {"iteration", extractIteration<MarsDict, MiscDict, OptDict_t>},
+        {"coeffindex", extractCoeffindex<MarsDict, MiscDict, OptDict_t>},
     };
 
     return registry;
 }
 
-template <class MarsDict, class MiscDict>
-MarsExtractor<MarsDict, MiscDict> resolveExtractor(const std::string& keyword) {
+template <class MarsDict, class MiscDict, class OptDict_t>
+MarsExtractor<MarsDict, MiscDict, OptDict_t> resolveExtractor(const std::string& keyword) {
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
-        const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>& registry =
-            extractorRegistry<MarsDict, MiscDict>();
+        const std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict, OptDict_t>>& registry =
+            extractorRegistry<MarsDict, MiscDict, OptDict_t>();
 
-        const typename std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict>>::const_iterator it =
-            registry.find(keyword);
+        const typename std::unordered_map<std::string, MarsExtractor<MarsDict, MiscDict, OptDict_t>>::const_iterator
+            it = registry.find(keyword);
 
         if (it == registry.end()) {
             throw Grib2MarsGenericException("No grib2mars extractor registered for MARS keyword `" + keyword + "`",
                                             Here());
         }
 
-        const MarsExtractor<MarsDict, MiscDict> extractor = it->second;
+        const MarsExtractor<MarsDict, MiscDict, OptDict_t> extractor = it->second;
         return extractor;
     }
     catch (...) {
@@ -120,15 +126,16 @@ MarsExtractor<MarsDict, MiscDict> resolveExtractor(const std::string& keyword) {
 
 }  // namespace detail
 
-template <class MarsDict, class MiscDict>
-void extract(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
+template <class MarsDict, class MiscDict, class OptDict_t>
+void extract(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc,
+             const OptDict_t& opts) {
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
-        const detail::MarsExtractor<MarsDict, MiscDict> extractor =
-            detail::resolveExtractor<MarsDict, MiscDict>(keyword);
+        const detail::MarsExtractor<MarsDict, MiscDict, OptDict_t> extractor =
+            detail::resolveExtractor<MarsDict, MiscDict, OptDict_t>(keyword);
 
-        extractor(keyword, grib, mars, misc);
+        extractor(keyword, grib, mars, misc, opts);
     }
     catch (...) {
         std::throw_with_nested(

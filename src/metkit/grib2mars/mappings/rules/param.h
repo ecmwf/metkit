@@ -8,12 +8,15 @@
 
 namespace metkit::grib2mars::rules::impl {
 
-template <class MarsDict, class MiscDict>
-void extractParam(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict&) {
+template <class MarsDict, class MiscDict, class OptDict_t>
+void extractParam(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc,
+                  const OptDict_t& opts) {
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
+        (void)misc;
+        (void)opts;
         if (!grib.has("paramId")) {
             throw Grib2MarsGenericException(
                 "GRIB message is missing required key `paramId` for MARS keyword `" + keyword + "`", Here());

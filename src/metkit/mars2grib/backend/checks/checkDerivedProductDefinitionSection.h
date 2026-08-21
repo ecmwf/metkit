@@ -15,7 +15,6 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/config/LibMetkit.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
@@ -61,25 +60,27 @@ namespace metkit::mars2grib::backend::validation {
 template <class OptDict_t, class OutDict_t>
 void check_DerivedProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
 
-    using metkit::mars2grib::utils::checksEnabled;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
 
     try {
 
-        if (checksEnabled<OutDict_t>(opt)) {
+        if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
+            if (get_or_throw<bool>(opt, "applyChecks")) {
 
-            bool hasDerivedForecast             = has(out, "derivedForecast");
-            bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
+                bool hasDerivedForecast             = has(out, "derivedForecast");
+                bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
 
-            // Derived forecast needs to have all 2 fields defined in the Product Definition Section
-            if (!(hasDerivedForecast && hasNumberOfForecastsInEnsemble)) {
-                throw Mars2GribValidationException("Product Definition Section does not represent a Derived forecast",
-                                                   Here());
+                // Derived forecast needs to have all 2 fields defined in the Product Definition Section
+                if (!(hasDerivedForecast && hasNumberOfForecastsInEnsemble)) {
+                    throw Mars2GribValidationException(
+                        "Product Definition Section does not represent a Derived forecast", Here());
+                }
+
+                // Useful for debugging
+                MARS2GRIB_LOG_CHECK("Validated Derived Product Definition Section");
             }
-
-            // Useful for debugging
-            MARS2GRIB_LOG_CHECK("Validated Derived Product Definition Section");
         }
 
         // Exit point with success
