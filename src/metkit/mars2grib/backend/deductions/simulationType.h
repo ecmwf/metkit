@@ -116,8 +116,7 @@ SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const Par
 
         // const SimulationType result =
         //     (isAnalysis || isAssimilationStart) ? SimulationType::Analysis : SimulationType::Forecast;
-        const SimulationType result =
-            (isAnalysis) ? SimulationType::Analysis : SimulationType::Forecast;
+        const SimulationType result = (isAnalysis) ? SimulationType::Analysis : SimulationType::Forecast;
 
 
         MARS2GRIB_LOG_RESOLVE([&]() {

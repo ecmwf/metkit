@@ -122,7 +122,8 @@ struct Options {
     ///
     /// @default false
     ///
-    bool tryFixBadInput_RemoveStepRangeForStrikeProbability = defaults::tryFixBadInput_RemoveStepRangeForStrikeProbability;
+    bool tryFixBadInput_RemoveStepRangeForStrikeProbability =
+        defaults::tryFixBadInput_RemoveStepRangeForStrikeProbability;
 
 
     ///
@@ -134,7 +135,6 @@ struct Options {
     /// @default false
     ///
     bool tryFixBadInput_StandardisedAnomalyAsInstant = defaults::tryFixBadInput_StandardisedAnomalyAsInstant;
-
 };
 
 }  // namespace metkit::grib2mars

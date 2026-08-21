@@ -69,7 +69,8 @@ inline Options readOptions(const eckit::LocalConfiguration& conf) {
     }
 
     if (conf.has("tryFixBadInput_StandardisedAnomalyAsInstant")) {
-        opts.tryFixBadInput_StandardisedAnomalyAsInstant = readBoolOption(conf, "tryFixBadInput_StandardisedAnomalyAsInstant");
+        opts.tryFixBadInput_StandardisedAnomalyAsInstant =
+            readBoolOption(conf, "tryFixBadInput_StandardisedAnomalyAsInstant");
     }
 
     return opts;

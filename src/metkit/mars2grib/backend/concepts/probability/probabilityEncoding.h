@@ -101,8 +101,7 @@ constexpr bool probabilityApplicable() {
 ///
 template <std::size_t Stage, std::size_t Section, ProbabilityType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
-void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
-                   OutDict_t& out) noexcept(false) {
+void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) noexcept(false) {
 
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -111,11 +110,11 @@ void ProbabilityOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
         // Debug output
         MARS2GRIB_LOG_CONCEPT(probability);
 
-        if constexpr ( Variant == ProbabilityType::StrikeProbability ) {
+        if constexpr (Variant == ProbabilityType::StrikeProbability) {
             std::cerr << "WARNING:: Probability::StrikeProbability not implemented, stub only" << std::endl;
         }
 
-        if constexpr ( Variant == ProbabilityType::StandardisedAnomaly ) {
+        if constexpr (Variant == ProbabilityType::StandardisedAnomaly) {
             std::cerr << "WARNING:: Probability::StandardisedAnomaly not implemented, stub only" << std::endl;
         }
 

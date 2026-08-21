@@ -100,8 +100,8 @@ enum class ProbabilityType : std::size_t {
 /// The order of this list must match the intended iteration order
 /// for registry construction and diagnostics.
 ///
-using ProbabilityList = ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly,
-                                  ProbabilityType::Default>;
+using ProbabilityList =
+    ValueList<ProbabilityType::StrikeProbability, ProbabilityType::StandardisedAnomaly, ProbabilityType::Default>;
 
 
 ///

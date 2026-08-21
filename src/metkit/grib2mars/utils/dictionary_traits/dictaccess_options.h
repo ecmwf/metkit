@@ -90,8 +90,8 @@ inline void appendJsonString(std::string& json, std::string_view key, std::strin
 
 inline bool isBoolKey(std::string_view key) noexcept {
     return key == "saveErrorStack" || key == "printErrorStackToStdErr" || key == "skipSection3" ||
-           key == "tryFixBadInput_ZeroAccumulation" || key == "tryFixBadInput_RemoveStepRangeForStrikeProbability"
-           || key == "tryFixBadInput_StandardisedAnomalyAsInstant";
+           key == "tryFixBadInput_ZeroAccumulation" || key == "tryFixBadInput_RemoveStepRangeForStrikeProbability" ||
+           key == "tryFixBadInput_StandardisedAnomalyAsInstant";
 }
 
 inline bool isStringKey(std::string_view key) noexcept {

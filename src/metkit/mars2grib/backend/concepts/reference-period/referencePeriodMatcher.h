@@ -63,7 +63,7 @@ std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt)
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
         const auto marsType = get_or_throw<std::string>(mars, "type");
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto param    = get_or_throw<long>(mars, "param");
 
         if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
             return static_cast<std::size_t>(ReferencePeriodType::Default);

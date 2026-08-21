@@ -114,8 +114,8 @@ struct ProbabilityConcept : RegisterEntryDescriptor<ProbabilityType, Probability
     ///
     /// @return Function pointer implementing the phase, or `nullptr`
     ///
-    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, ProbabilityType Variant,
-              class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <std::size_t Capability, std::size_t Stage, std::size_t Sec, ProbabilityType Variant, class MarsDict_t,
+              class ParDict_t, class OptDict_t, class OutDict_t>
     static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
