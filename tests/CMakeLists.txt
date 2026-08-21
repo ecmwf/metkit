@@ -94,6 +94,14 @@ foreach( test
                       LIBS         metkit)
 endforeach()
 
+ecbuild_add_test( TARGET       "metkit_test_expand_param_multivalue"
+                  SOURCES      "test_expand_param_multivalue.cc"
+                  INCLUDES     "${ECKIT_INCLUDE_DIRS}"
+                  ENVIRONMENT  "${metkit_env}"
+                  NO_AS_NEEDED
+                  LIBS         metkit)
+        
+
 # Compile C test
 ecbuild_add_test( TARGET        metkit_test_c_compiled
                   SOURCES       test_c_api.c
