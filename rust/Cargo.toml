@@ -18,7 +18,7 @@ metkit = { path = "crates/metkit" }
 
 # Foundation crates
 eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
-eccodes-sys = { git = "ssh://git@github.com/ecmwf/eccodes.git", branch = "develop", default-features = false }
+eccodes-sys = { git = "ssh://git@github.com/ecmwf/rust-wrappers-playground.git", rev = "d6b582fd", default-features = false }
 # High-level wrappers
 eckit = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop" }
 
