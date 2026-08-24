@@ -269,6 +269,49 @@ struct DictHas<eckit::LocalConfiguration> {
     }
 };
 
+// -----------------------------------------------------------------------------
+// DictMissing
+// -----------------------------------------------------------------------------
+template <>
+struct DictMissing<eckit::LocalConfiguration> {
+    static bool isMissing(const eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {
+        const std::string k{key};
+
+        try {
+            return !cfg.has(k);
+        }
+        catch (const exceptions::Mars2marsGenericException&) {
+            throw;
+        }
+        catch (...) {
+            std::throw_with_nested(exceptions::Mars2marsDictException(
+                "Internal error while checking absence of key `"s + k + "` in dictionary type `"s +
+                    std::string(type_name<eckit::LocalConfiguration>()) + "`",
+                Here()));
+        }
+        mars2marsUnreachable();
+    }
+
+    static void setMissing(eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {
+        const std::string k{key};
+        cfg.remove(k);
+
+        try {
+            cfg.remove(k);
+        }
+        catch (const exceptions::Mars2marsGenericException&) {
+            throw;
+        }
+        catch (...) {
+            std::throw_with_nested(exceptions::Mars2marsDictException(
+                "Internal error while removing key `"s + k + "` in dictionary type `"s +
+                    std::string(type_name<eckit::LocalConfiguration>()) + "`",
+                Here()));
+        }
+        mars2marsUnreachable();
+    }
+};
+
 // ============================================================
 //  eckit::LocalConfiguration specializations via macros
 // ============================================================

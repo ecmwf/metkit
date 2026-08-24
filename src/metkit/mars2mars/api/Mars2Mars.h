@@ -34,9 +34,15 @@
 
 #pragma once
 
+#include <initializer_list>
+#include <string>
+#include <utility>
+
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/value/Value.h"
 #include "metkit/mars/MarsRequest.h"
 
+#include "metkit/mars2mars/api/Options.h"
 #include "metkit/mars2mars/mappings/Mars2MarsReturnValue.h"
 
 namespace metkit::mars2mars {
@@ -45,18 +51,60 @@ namespace metkit::mars2mars {
 ///
 /// @brief Main API for converting MARS requests.
 ///
-/// The converter owns no runtime configuration state. It is a thin façade
+/// The converter stores a fixed runtime options snapshot. It is a thin façade
 /// around the conversion rules and the shared API error handling layer.
 ///
 class Mars2Mars {
 public:
 
+    using OptionEntry = std::pair<std::string, eckit::Value>;
+    using OptionList  = std::initializer_list<OptionEntry>;
+
     ///
-    /// @brief Construct a Mars2Mars converter.
+    /// @brief Construct a Mars2Mars converter with default options.
     ///
-    /// No configuration is stored in the object itself.
+    /// Default options correspond to standard mars2mars behavior.
     ///
     Mars2Mars();
+
+    ///
+    /// @brief Construct a Mars2Mars converter with explicit options.
+    ///
+    /// @param[in] opts
+    /// API options controlling error-stack persistence and diagnostics.
+    ///
+    explicit Mars2Mars(const Options& opts);
+
+    ///
+    /// @brief Construct a Mars2Mars converter from a configuration object.
+    ///
+    /// This constructor allows options to be provided via an
+    /// `eckit::LocalConfiguration`, typically originating from YAML
+    /// or JSON configuration files.
+    ///
+    /// @param[in] opts
+    /// Configuration object describing converter options.
+    ///
+    explicit Mars2Mars(const eckit::LocalConfiguration& opts);
+
+    ///
+    /// @brief Construct a Mars2Mars converter from inline option entries.
+    ///
+    /// This constructor supports compact inline configuration such as:
+    ///
+    /// @code
+    /// Mars2Mars{{"saveErrorStack", true}, {"errorStackPath", "./errors"}}
+    /// @endcode
+    ///
+    /// @param[in] opts
+    /// Initializer-list option entries.
+    ///
+    explicit Mars2Mars(OptionList opts);
+
+    Mars2Mars(const Mars2Mars&)           = delete;
+    Mars2Mars(Mars2Mars&&)                = delete;
+    Mars2Mars operator=(const Mars2Mars&) = delete;
+    Mars2Mars operator=(Mars2Mars&&)      = delete;
 
     ~Mars2Mars() = default;
 
@@ -75,6 +123,10 @@ public:
     /// A converted result for the supported dictionary type.
     template <typename Dict_t>
     Mars2MarsResult<Dict_t> convert(const Dict_t& mars) = delete;
+
+private:
+
+    const Options opts_;
 };
 
 

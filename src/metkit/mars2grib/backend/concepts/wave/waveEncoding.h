@@ -207,7 +207,7 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
                 validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100});
             }
             else if constexpr (Variant == WaveType::Period) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104, 144, 145});
             }
 
             if constexpr (Stage == StageAllocate) {

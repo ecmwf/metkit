@@ -18,29 +18,36 @@
 ///
 /// ### StageAllocate
 /// - Validates that the Product Definition Section supports statistics.
-/// - Encodes `numberOfTimeRanges` (from `ProductTime`).
+/// - Builds one final immutable `ProductTimeSpec`.
+/// - Encodes `numberOfTimeRanges` from the corresponding
+///   `StatisticsProductTimeSpec` transport.
 /// - Sets `hoursAfterDataCutoff` / `minutesAfterDataCutoff` to missing.
 ///
 /// ### StagePreset
-/// - Computes the per-loop statistical processing descriptor from a
-///   `ProductTime` and writes the 6 SoA vectors verbatim:
+/// - Builds one final immutable `ProductTimeSpec`.
+/// - Builds one `StatisticsProductTimeSpec` transport from that model.
+/// - Writes the 6 SoA vectors verbatim:
 ///     * `typeOfStatisticalProcessing`
 ///     * `typeOfTimeIncrement`
 ///     * `indicatorOfUnitForTimeRange`
 ///     * `lengthOfTimeRange`
 ///     * `indicatorOfUnitForTimeIncrement`
 ///     * `lengthOfTimeIncrement`
-///   No instant / single-window / multi-window branching: a single uniform
-///   path covers all cases (including the AIFS no-increment hack which is
-///   handled inside `compute_StatisticalProcessing`).
+///   No instant / single-window / multi-window branching is needed in the
+///   encoding layer because the transport already materializes the canonical
+///   vectors.
 ///
 /// ### StageRuntime
-/// - Encodes the time-dependent keys from the resolved `ProductTime`:
-///   - `forecastTime` (hours between `pt.referenceDateTime` and `pt.windowStart`)
-///   - `<year|month|day|hour|minute|second>OfEndOfOverallTimeInterval` (from `pt.windowEnd`)
+/// - Builds one final immutable `ProductTimeSpec`.
+/// - Builds one `StatisticsProductTimeSpec` transport from that model.
+/// - Encodes the time-dependent keys from that transport:
+///   - `forecastTime`
+///   - `<year|month|day|hour|minute|second>OfEndOfOverallTimeInterval`
 ///
-/// All temporal data is sourced exclusively from the `ProductTime`
-/// produced by `resolve_ProductTime_or_throw` (§15 of `timeProducts.md`).
+/// All temporal data is sourced exclusively from the final immutable
+/// `backend::models::product_time_spec::ProductTimeSpec` model through the
+/// statistics-facing transport struct built by
+/// `build_StatisticsProductTimeSpec_or_throw(...)`.
 ///
 /// @ingroup mars2grib_backend_concepts
 ///
@@ -52,13 +59,15 @@
 
 // Core concept includes
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
-#include "metkit/mars2grib/backend/concepts/statistics/impl/statisticsDescriptor.h"
+#include "metkit/mars2grib/backend/concepts/statistics/impl/StatisticsProductTimeSpec.h"
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
-// Deductions (ProductTime + per-loop type-of-statistical-processing resolver)
-#include "metkit/mars2grib/backend/deductions/productTime.h"
-#include "metkit/mars2grib/backend/deductions/typeOfStatisticalProcessing.h"
+// Models (new product time implementation)
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
+
+// Deductions
+#include "metkit/mars2grib/backend/deductions/common.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/checkStatisticsProductDefinitionSection.h"
@@ -91,6 +100,10 @@ constexpr bool statisticsApplicable() {
 ///
 /// See file-level documentation for stage-by-stage semantics.
 ///
+/// All encoded temporal payload values and GRIB statistical-processing arrays
+/// are sourced from `StatisticsProductTimeSpec`, which is itself built from one
+/// final immutable `backend::models::product_time_spec::ProductTimeSpec`.
+///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant, class MarsDict_t, class ParDict_t,
           class OptDict_t, class OutDict_t>
 void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
@@ -111,7 +124,9 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StageAllocate) {
 
-                auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
+                                                                             mars, par, opt);
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
                 // Checks/Validation
                 validation::check_StatisticsProductDefinitionSection_or_throw(opt, out);
@@ -119,31 +134,29 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
                 // Encoding
                 setMissing_or_throw(out, "hoursAfterDataCutoff");
                 setMissing_or_throw(out, "minutesAfterDataCutoff");
-                set_or_throw<long>(out, "numberOfTimeRanges", deductions::numberOfTimeRanges(pt));
+                set_or_throw<long>(out, "numberOfTimeRanges", pts.numberOfTimeRanges);
             }
 
             // =============================================================
             // StagePreset
             //
-            // Single uniform path. No branching for instant / single-window
-            // / multi-window: `compute_StatisticalProcessing` handles all
-            // cases (including the AIFS no-increment hack) internally.
+            // Single uniform path. No branching for instant / single-window /
+            // multi-window: the resolved `StatisticsProductTimeSpec` transport
+            // already materializes the canonical vectors.
             // =============================================================
             if constexpr (Stage == StagePreset) {
 
-                auto pt    = deductions::resolve_ProductTime_or_throw(mars, par, opt);
-                auto inner = typeOfStatisticalProcessingEnum<Variant>();
-                auto types = deductions::resolve_TypeOfStatisticalProcessing_or_throw(inner, mars, par, opt);
+                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
+                                                                             mars, par, opt);
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
-                auto desc = impl::compute_StatisticalProcessing(pt, types);
-
-                set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", desc.typeOfStatisticalProcessing);
-                set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", desc.typeOfTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", desc.indicatorOfUnitForTimeRange);
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", desc.lengthOfTimeRange);
+                set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing);
+                set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", pts.typeOfTimeIncrement);
+                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange);
+                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
                 set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeIncrement",
-                                                desc.indicatorOfUnitForTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "timeIncrement", desc.lengthOfTimeIncrement);
+                                                pts.indicatorOfUnitForTimeIncrement);
+                set_or_throw<std::vector<long>>(out, "timeIncrement", pts.lengthOfTimeIncrement);
             }
 
             // =============================================================
@@ -152,29 +165,13 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // Time-dependent keys: forecastTime and end-of-interval date/time.
             // =============================================================
             if constexpr (Stage == StageRuntime) {
-                auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
+                const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
+                                                                             mars, par, opt);
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
 
-                // forecastTime is the distance in hours between reference time
-                // and WindowBegin (pt.windowStart). It must be a non-negative
-                // integer number of hours.
-                const long deltaSeconds =
-                    static_cast<long>(static_cast<eckit::Second>(pt.windowStart - pt.referenceDateTime));
+                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
 
-                if (deltaSeconds < 0) {
-                    throw Mars2GribConceptException(
-                        std::string(statisticsName), std::string(statisticsTypeName<Variant>()), std::to_string(Stage),
-                        std::to_string(Section), "statistics: forecastTime must be non-negative", Here());
-                }
-
-                if (deltaSeconds % 3600 != 0) {
-                    throw Mars2GribConceptException(
-                        std::string(statisticsName), std::string(statisticsTypeName<Variant>()), std::to_string(Stage),
-                        std::to_string(Section), "statistics: forecastTime must be a whole number of hours", Here());
-                }
-
-                set_or_throw<long>(out, "forecastTime", deltaSeconds / 3600);
-
-                const eckit::DateTime& end = pt.windowEnd;
+                const eckit::DateTime& end = pts.endOfOverallTimeInterval;
                 set_or_throw<long>(out, "yearOfEndOfOverallTimeInterval", end.date().year());
                 set_or_throw<long>(out, "monthOfEndOfOverallTimeInterval", end.date().month());
                 set_or_throw<long>(out, "dayOfEndOfOverallTimeInterval", end.date().day());

@@ -34,12 +34,18 @@
 
 #pragma once
 
+#include <initializer_list>
+#include <string>
+#include <utility>
+
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/value/Value.h"
 #include "metkit/mars/MarsRequest.h"
 
 // Codes wrapper types
 #include "metkit/codes/api/CodesAPI.h"
 
+#include "metkit/grib2mars/api/Options.h"
 #include "metkit/grib2mars/mappings/Grib2MarsReturnValue.h"
 
 namespace metkit::grib2mars {
@@ -48,18 +54,60 @@ namespace metkit::grib2mars {
 ///
 /// @brief Main API for converting MARS requests.
 ///
-/// The converter owns no runtime configuration state. It is a thin façade
+/// The converter stores a fixed runtime options snapshot. It is a thin façade
 /// around the conversion rules and the shared API error handling layer.
 ///
 class Grib2Mars {
 public:
 
+    using OptionEntry = std::pair<std::string, eckit::Value>;
+    using OptionList  = std::initializer_list<OptionEntry>;
+
     ///
-    /// @brief Construct a Grib2Mars converter.
+    /// @brief Construct a Grib2Mars converter with default options.
     ///
-    /// No configuration is stored in the object itself.
+    /// Default options correspond to standard grib2mars behavior.
     ///
     Grib2Mars();
+
+    ///
+    /// @brief Construct a Grib2Mars converter with explicit options.
+    ///
+    /// @param[in] opts
+    /// API options controlling error-stack persistence and diagnostics.
+    ///
+    explicit Grib2Mars(const Options& opts);
+
+    ///
+    /// @brief Construct a Grib2Mars converter from a configuration object.
+    ///
+    /// This constructor allows options to be provided via an
+    /// `eckit::LocalConfiguration`, typically originating from YAML
+    /// or JSON configuration files.
+    ///
+    /// @param[in] opts
+    /// Configuration object describing converter options.
+    ///
+    explicit Grib2Mars(const eckit::LocalConfiguration& opts);
+
+    ///
+    /// @brief Construct a Grib2Mars converter from inline option entries.
+    ///
+    /// This constructor supports compact inline configuration such as:
+    ///
+    /// @code
+    /// Grib2Mars{{"printErrorStackToStdErr", true}, {"saveErrorStack", true}}
+    /// @endcode
+    ///
+    /// @param[in] opts
+    /// Initializer-list option entries.
+    ///
+    explicit Grib2Mars(OptionList opts);
+
+    Grib2Mars(const Grib2Mars&)           = delete;
+    Grib2Mars(Grib2Mars&&)                = delete;
+    Grib2Mars operator=(const Grib2Mars&) = delete;
+    Grib2Mars operator=(Grib2Mars&&)      = delete;
 
     ~Grib2Mars() = default;
 
@@ -78,6 +126,10 @@ public:
     /// A converted result for the supported dictionary type.
     template <typename Dict_t>
     Grib2MarsResult<Dict_t> convert(const metkit::codes::CodesHandle& grib) = delete;
+
+private:
+
+    const Options opts_;
 };
 
 

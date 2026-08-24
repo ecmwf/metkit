@@ -26,9 +26,14 @@
 ///
 /// The implementation follows the standard mars2grib concept model:
 /// - Compile-time applicability via `pointInTimeApplicable`
-/// - Runtime deduction of forecast time
+/// - Runtime extraction of forecast time from one final immutable
+///   `backend::models::product_time_spec::ProductTimeSpec`
 /// - Stage-specific encoding logic
 /// - Strict error handling with contextual concept exceptions
+///
+/// All encoded temporal payload values are sourced exclusively from the
+/// point-in-time-facing transport built by
+/// `impl::build_PointInTimeProductTimeSpec_or_throw(...)`.
 ///
 /// @note
 /// The namespace name `concepts_` is intentionally used instead of `concepts`
@@ -51,9 +56,11 @@
 
 // Tables
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
+#include "metkit/mars2grib/backend/tables/typeOfStatisticalProcessing.h"
 
-// Deductions
-#include "metkit/mars2grib/backend/deductions/productTime.h"
+// Local details
+#include "metkit/mars2grib/backend/concepts/point-in-time/impl/PointInTimeProductTimeSpec.h"
+
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -98,7 +105,8 @@ constexpr bool pointInTimeApplicable() {
 /// This function implements the runtime logic of the GRIB `pointInTime` concept.
 /// When applicable, it:
 ///
-/// - Deduces the forecast time offset from the input dictionaries
+/// - Resolves one final immutable `ProductTimeSpec`
+/// - Extracts the forecast-time offset through the point-in-time transport
 /// - Validates that the offset is an integer number of hours
 /// - Encodes time-related GRIB keys according to the current encoding stage
 ///
@@ -154,24 +162,6 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             MARS2GRIB_LOG_CONCEPT(pointInTime);
 
-            // Deductions: temporal data is sourced exclusively from the
-            // resolved `ProductTime` (§15 of timeProducts.md).
-            auto pt = deductions::resolve_ProductTime_or_throw(mars, par, opt);
-
-            // For an instant product `windowStart == windowEnd`; the
-            // forecast-time offset is `windowEnd - referenceDateTime` (in
-            // seconds, returned by eckit::DateTime::operator-).
-            const long marsStepInSeconds =
-                static_cast<long>(static_cast<eckit::Second>(pt.windowEnd - pt.referenceDateTime));
-
-            // Basic checks
-            if (marsStepInSeconds % 3600 != 0) {
-                throw Mars2GribConceptException(
-                    std::string(pointInTimeName), std::string(pointInTimeTypeName<Variant>()), std::to_string(Stage),
-                    std::to_string(Section), "Only full hour steps are supported currently", Here());
-            }
-            long marsStepInHours = marsStepInSeconds / 3600;
-
             // =============================================================
             // Variant-specific logic
             // =============================================================
@@ -184,14 +174,25 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             if constexpr (Stage == StagePreset) {
 
+                // Resolve the `ProductTimeSpec` to ensure that the forecast
+                // time is valid and can be expressed in hours.
+                const auto spec = models::product_time_spec::ProductTimeSpec(
+                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec);
+
+                (void)pts;
+
                 // Encoding
                 set_or_throw<long>(out, "indicatorOfUnitOfTimeRange", static_cast<long>(TimeUnit::Hour));
             }
 
             if constexpr (Stage == StageRuntime) {
+                const auto spec = models::product_time_spec::ProductTimeSpec(
+                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
+                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec);
 
                 // Encoding
-                set_or_throw<long>(out, "forecastTime", marsStepInHours);
+                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
             }
         }
         catch (...) {
