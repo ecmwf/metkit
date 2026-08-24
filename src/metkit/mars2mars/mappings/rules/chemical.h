@@ -63,14 +63,16 @@ inline void setParamChemWavelength(OutDict_t& out, long param, long chem, double
 
 
 /// @brief Convert surface-like legacy requests into sol layer output.
-template <class InDict_t, class OutDict_t>
-inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc) {
+template <class InDict_t, class OutDict_t, class OptDict_t>
+inline void convertChemical(const InDict_t& in, OutDict_t& out, eckit::LocalConfiguration& misc,
+                            const OptDict_t& opts) {
 
     using metkit::mars2mars::utils::dict_traits::get_or_throw;
     using metkit::mars2mars::utils::dict_traits::set_or_throw;
     using metkit::mars2mars::utils::exceptions::Mars2marsGenericException;
 
     try {
+        (void)opts;
         const auto param = get_or_throw<long>(in, "param");
 
         switch (param) {

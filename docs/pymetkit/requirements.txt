@@ -1,0 +1,7 @@
+Sphinx
+sphinxcontrib-mermaid
+pydata-sphinx-theme
+sphinx-autoapi
+autoapi
+sybil
+pytest

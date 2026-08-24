@@ -109,6 +109,10 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(PointInTimeType::Default);
         }
 
+        if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
+            return static_cast<std::size_t>(PointInTimeType::Default);
+        }
+
         // ECMWF covariance / analysis-uncertainty paramIds (254001..254017).
         // These are point-in-time products living on the abstractLevel
         // (typeOfFirstFixedSurface=254) and are used with MARS type=est

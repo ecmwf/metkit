@@ -111,3 +111,7 @@ add_subdirectory(marsgen)
 add_subdirectory(mars2grib)
 add_subdirectory(mars2mars)
 add_subdirectory(tools)
+
+if( HAVE_PYTHON_METKIT_INTERFACE )
+    add_subdirectory(pymetkit)
+endif()

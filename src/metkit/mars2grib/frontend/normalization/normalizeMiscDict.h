@@ -22,7 +22,6 @@
 
 // Project includes
 #include "eckit/value/Value.h"
-#include "metkit/mars2grib/utils/enableOptions.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 namespace metkit::mars2grib::frontend::normalization {
@@ -49,10 +48,10 @@ template <class MiscDict_t, class OptDict_t>
 const MiscDict_t& normalize_MiscDict_if_enabled(const MiscDict_t& miscDict, const OptDict_t& optDict,
                                                 const eckit::Value& language, MiscDict_t& scratch) {
 
-    using metkit::mars2grib::utils::normalizeMiscEnabled;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
     // TODO: Implement sanitization trigger logic based on optDict settings
-    if (normalizeMiscEnabled(optDict)) {
+    if (get_or_throw<bool>(optDict, "normalizeMisc")) {
 
         // [Development Stub]
         // Example: logic to prune illegal keys or normalize units
