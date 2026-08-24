@@ -18,9 +18,7 @@ metkit = { path = "crates/metkit" }
 
 # Foundation crates
 eckit-sys = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop", default-features = false }
-# Pinned: playground HEAD (e46c4d3b) moved eckit-sys back to the rust-bindings
-# branch, which conflicts with our eckit-sys develop dependency (links collision)
-eccodes-sys = { git = "ssh://git@github.com/ecmwf/rust-wrappers-playground.git", rev = "d6b582fd", default-features = false }
+eccodes-sys = { git = "ssh://git@github.com/ecmwf/eccodes.git", branch = "develop", default-features = false }
 # High-level wrappers
 eckit = { git = "ssh://git@github.com/ecmwf/eckit.git", branch = "develop" }
 
