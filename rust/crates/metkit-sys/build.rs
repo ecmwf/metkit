@@ -4,8 +4,6 @@
 //! - `vendored` (default): Clone and build metkit from source using ecbuild
 //! - `system`: Use `CMake` `find_package` to find system-installed metkit
 
-const METKIT_VERSION: &str = "1.18.1";
-
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=METKIT_DIR");
@@ -13,6 +11,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=DOCS_RS");
 
     if bindman_utils::is_docs_rs() {
+        generate_exceptions(&docs_source_include());
         return;
     }
 
@@ -63,6 +62,14 @@ fn generate_exceptions(include: &std::path::Path) {
     bindman_build::publish_exception_sources(&own, &out_dir);
 }
 
+/// Header root for docs builds (`DOCS_RS=1`), where the native metkit build
+/// is skipped. `docs-headers/` mirrors the include-tree layout with a symlink
+/// into this repo's `src/`; `cargo package` embeds the linked file's content.
+fn docs_source_include() -> std::path::PathBuf {
+    std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"))
+        .join("docs-headers")
+}
+
 /// Compile the CXX bridge.
 fn build_cxx_bridge(include: &std::path::Path) {
     let crate_dir = std::path::PathBuf::from(
@@ -71,6 +78,9 @@ fn build_cxx_bridge(include: &std::path::Path) {
     let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"));
     let eckit_include = std::env::var("DEP_ECKIT_SYS_INCLUDE")
         .expect("DEP_ECKIT_SYS_INCLUDE not set — eckit-sys must be a dependency");
+    // metkit >= 1.19 public headers (CodesAPI.h) include eccodes.h directly.
+    let eccodes_include = std::env::var("DEP_ECCODES_SYS_INCLUDE")
+        .expect("DEP_ECCODES_SYS_INCLUDE not set — eccodes-sys must be a dependency");
 
     println!("cargo:rerun-if-changed=cpp/MetkitBridge.h");
     println!("cargo:rerun-if-changed=cpp/MarsRequest.h");
@@ -97,6 +107,7 @@ fn build_cxx_bridge(include: &std::path::Path) {
         .include(include)
         .include(crate_dir.join("cpp"))
         .include(&eckit_include)
+        .include(&eccodes_include)
         .include(&out_dir); // for metkit_exceptions.h (generated)
 
     // Include eckit's cpp dir for EckitBridge.h (needed for StreamWrapper)
@@ -113,7 +124,8 @@ fn build_cxx_bridge(include: &std::path::Path) {
 
 #[cfg(feature = "system")]
 fn build_system() -> std::path::PathBuf {
-    let (root, include, lib_dir) = bindman_utils::cmake_find_package("metkit", METKIT_VERSION);
+    // Minimum supported system version; the crate version tracks the vendored release.
+    let (root, include, lib_dir) = bindman_utils::cmake_find_package("metkit", "1.18.1");
 
     println!("cargo:rustc-link-search=native={}", lib_dir.display());
     println!("cargo:rustc-link-lib=dylib=metkit");
@@ -131,6 +143,47 @@ fn build_system() -> std::path::PathBuf {
     unreachable!("build_system called without system feature");
 }
 
+/// Locate the metkit C++ sources: prefer the in-tree checkout when the crate
+/// lives inside the metkit repository (path or git dependency), falling back
+/// to cloning the release tag (packaged crates.io case).
+#[cfg(feature = "vendored")]
+fn resolve_metkit_src(src_dir: &std::path::Path) -> std::path::PathBuf {
+    const METKIT_REPO: &str = "https://github.com/ecmwf/metkit.git";
+    const METKIT_TAG: &str = env!("CARGO_PKG_VERSION");
+
+    let manifest_dir = std::path::PathBuf::from(
+        std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
+    );
+    if let Some(root) = manifest_dir.ancestors().nth(3)
+        && root.join("CMakeLists.txt").exists()
+        && root.join("VERSION").exists()
+        && root.join("src/metkit").is_dir()
+    {
+        eprintln!("metkit-sys: building in-tree sources at {}", root.display());
+
+        // Retrigger on C++ source edits.
+        println!("cargo:rerun-if-changed={}", root.join("src").display());
+        println!(
+            "cargo:rerun-if-changed={}",
+            root.join("CMakeLists.txt").display()
+        );
+        println!("cargo:rerun-if-changed={}", root.join("VERSION").display());
+
+        // Diverging is fine mid-development, but should never go unnoticed.
+        let tree_version = std::fs::read_to_string(root.join("VERSION"))
+            .map(|s| s.trim().to_string())
+            .unwrap_or_default();
+        if tree_version != METKIT_TAG {
+            println!(
+                "cargo:warning=metkit-sys {METKIT_TAG} is building in-tree metkit {tree_version} (versions differ)"
+            );
+        }
+
+        return root.to_path_buf();
+    }
+    bindman_utils::git_clone(METKIT_REPO, METKIT_TAG, &src_dir.join("metkit"))
+}
+
 /// Build metkit from source using ecbuild
 #[cfg(feature = "vendored")]
 #[allow(clippy::too_many_lines)]
@@ -142,8 +195,6 @@ fn build_vendored() -> std::path::PathBuf {
 
     const ECBUILD_REPO: &str = "https://github.com/ecmwf/ecbuild.git";
     const ECBUILD_TAG: &str = "3.13.1";
-
-    const METKIT_REPO: &str = "https://github.com/ecmwf/metkit.git";
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
     let src_dir = out_dir.join("src");
@@ -159,9 +210,20 @@ fn build_vendored() -> std::path::PathBuf {
     let eccodes_root = env::var("DEP_ECCODES_SYS_ROOT")
         .expect("DEP_ECCODES_SYS_ROOT not set - eccodes-sys must be a dependency");
 
-    // Clone sources
     let ecbuild_src = bindman_utils::git_clone(ECBUILD_REPO, ECBUILD_TAG, &src_dir.join("ecbuild"));
-    let metkit_src = bindman_utils::git_clone(METKIT_REPO, METKIT_VERSION, &src_dir.join("metkit"));
+    let metkit_src = resolve_metkit_src(&src_dir);
+
+    // cmake hard-errors if the source path recorded in CMakeCache.txt changes
+    // (e.g. cloned <-> in-tree); wipe the build dir when it is stale.
+    if let Ok(cache) = fs::read_to_string(build_dir.join("CMakeCache.txt")) {
+        let cached_src = cache
+            .lines()
+            .find_map(|l| l.strip_prefix("CMAKE_HOME_DIRECTORY:INTERNAL="));
+        if cached_src != metkit_src.to_str() {
+            fs::remove_dir_all(&build_dir).expect("Failed to remove stale metkit build directory");
+            fs::create_dir_all(&build_dir).expect("Failed to create build directory");
+        }
+    }
 
     let ecbuild_bin = ecbuild_src.join("bin/ecbuild");
     let num_jobs = bindman_utils::build_parallelism();
