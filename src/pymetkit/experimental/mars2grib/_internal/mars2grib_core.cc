@@ -96,7 +96,7 @@ py::bytes encode(Mars2Grib& encoder, const std::vector<double>& values, const py
     return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
 }
 
-PYBIND11_MODULE(mars2grib_core, m) {
+PYBIND11_MODULE(mars2grib_bindings, m) {
     m.def("init_bindings", []() {
         const char* args[] = {"mars2grib", ""};
         eckit::Main::initialise(1, const_cast<char**>(args));

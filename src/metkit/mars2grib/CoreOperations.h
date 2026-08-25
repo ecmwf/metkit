@@ -35,7 +35,7 @@
 /// At the current stage, the staged API exists to support benchmarking,
 /// comparison, and incremental integration of the future cache design.
 ///
-/// @ingroup mars2grib_core
+/// @ingroup mars2grib_bindings
 ///
 #pragma once
 

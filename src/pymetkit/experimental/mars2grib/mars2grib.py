@@ -1,13 +1,14 @@
-from .mars2grib_core import init_bindings, Mars2GribCore
+from ._internal import init_bindings, Mars2Grib as _Mars2Grib
 
-class Mars2Grib():
+
+class Mars2Grib:
     """
     Mars2Grib encoder object
     """
 
     def __init__(self, options: dict = {}):
         init_bindings()
-        self._mars2grib = Mars2GribCore(options)
+        self._mars2grib = _Mars2Grib(options)
 
     def encode(self, values: list[float], mars: dict, misc: dict = {}) -> bytes:
         """
