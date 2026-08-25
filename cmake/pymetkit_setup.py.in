@@ -27,19 +27,34 @@ ext_kwargs = {
     "linux": {"cmdclass": {"bdist_wheel": bdist_wheel_ext}},
 }
 
+packages = [
+    "pymetkit",
+    "pymetkit._internal",
+    "pymetkit_bindings",
+    "pymetkit.experimental",
+]
+package_data = {"pymetkit_bindings": ["*.so", "*.pyd"]}
+
+if os.path.isdir(os.path.join("pymetkit", "experimental", "mars2grib")):
+    packages.extend(
+        [
+            "pymetkit.experimental.mars2grib",
+            "pymetkit.experimental.mars2grib._internal",
+        ]
+    )
+    package_data["pymetkit.experimental.mars2grib._internal"] = ["*.so", "*.pyd"]
+
 setup(
     name="pymetkit",
     version=f"@metkit_VERSION_STR@{version_suffix}",
-    packages=["pymetkit", "pymetkit._internal", "pymetkit_bindings"],
-    package_data={
-        "pymetkit_bindings": ["*.so", "*.pyd"],
-    },
+    packages=packages,
+    package_data=package_data,
     license="Apache 2.0",
     license_files=["LICENSE"],
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=["findlibs>=0.1.2"] + requires_extra,
-    python_requires=">3.10",
+    python_requires=">3.11",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

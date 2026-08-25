@@ -22,10 +22,25 @@
 
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit_version.h"
 
 namespace py   = pybind11;
 namespace mars = metkit::mars;
 
+metkit::mars::MarsRequest mars_request_from_map(const std::string& verb,
+                                                const std::map<std::string, std::vector<std::string>>& map) {
+    eckit::ValueMap value_map;
+
+    for (const auto& pair : map) {
+        eckit::ValueList value_list;
+        for (const auto& value : pair.second) {
+            value_list.emplace_back(value);
+        }
+        value_map.emplace(eckit::Value(pair.first), value_list);
+    }
+
+    return metkit::mars::MarsRequest(verb, value_map);
+}
 
 PYBIND11_MODULE(pymetkit_bindings, m) {
 
@@ -46,6 +61,10 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
         return dependencyInformation;
     });
 
+    // Compile-time metkit version
+    m.attr("__pymetkit_build_version__") = metkit_VERSION_STR;
+
+
     //--------------------------------------------------
     // @brief MarsRequest
     //--------------------------------------------------
@@ -56,6 +75,9 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
             mars::MarsRequest request;
             request.verb(verb);
             return request;
+        }))
+        .def(py::init([](const std::string& verb, const std::map<std::string, std::vector<std::string>>& values) {
+            return mars_request_from_map(verb, values);
         }))
         .def("verb", [](const mars::MarsRequest& request) { return request.verb(); })
         .def("set_verb", [](mars::MarsRequest& request, const std::string& verb) { request.verb(verb); })
@@ -74,6 +96,8 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
                  mars::MarsExpansion expansion(inherit, strict);
                  return expansion.expand(request);
              })
+        .def("split",
+             [](const mars::MarsRequest& request, const std::vector<std::string>& keys) { return request.split(keys); })
         .def("__repr__", [](const mars::MarsRequest& request) { return request.asString(); });
 
     //--------------------------------------------------

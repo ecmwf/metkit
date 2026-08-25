@@ -4,3 +4,5 @@ pydata-sphinx-theme
 myst-parser
 sphinxcontrib-mermaid
 sphinx-autoapi
+
+GitPython
