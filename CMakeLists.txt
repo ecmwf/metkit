@@ -75,6 +75,7 @@ ecbuild_add_option( FEATURE ODB
 
 ecbuild_add_option( FEATURE GRIB2MARS
                     DEFAULT ON
+                    CONDITION HAVE_GRIB
                     DESCRIPTION "Build the GRIB2MARS converter" )
 
 ecbuild_add_option( FEATURE MARS2MARS
@@ -87,11 +88,19 @@ ecbuild_add_option( FEATURE MARS2GRIB
                     DESCRIPTION "Build the MARS2GRIB encoder" )
 
 # Python bindings for mars2grib encoder
-
 ecbuild_add_option( FEATURE MARS2GRIB_PYTHON
                     DEFAULT OFF
                     CONDITION HAVE_MARS2GRIB
                     DESCRIPTION "Build mars2grib python library"
+                    REQUIRED_PACKAGES
+                        "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
+                        "NAME pybind11 VERSION 3.0.1" )
+
+# Python bindings for mars2mars
+ecbuild_add_option( FEATURE MARS2MARS_PYTHON
+                    DEFAULT OFF
+                    CONDITION HAVE_MARS2MARS
+                    DESCRIPTION "Build mars2mars python library"
                     REQUIRED_PACKAGES
                         "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
                         "NAME pybind11 VERSION 3.0.1" )
@@ -104,6 +113,13 @@ ecbuild_add_option( FEATURE PYTHON_METKIT_INTERFACE
                     REQUIRED_PACKAGES
                         "NAME Python VERSION 3.11 COMPONENTS Interpreter Development"
                         "NAME pybind11 VERSION 3.0.1" )
+
+# We need PyMetkit in case MARS2GRIB python is enabled
+if((HAVE_MARS2GRIB_PYTHON OR HAVE_MARS2MARS_PYTHON) AND NOT HAVE_PYTHON_METKIT_INTERFACE)
+    message( WARN "MARS2GRIB or MARS2MARS python interface requires metkit python interface. I enable ENABLE_PYTHON_METKIT_INTERFACE to build the PyMetkit interface" )
+    set(ENABLE_PYTHON_METKIT_INTERFACE "ON")
+endif()
+
 
 # METKIT config files support
 

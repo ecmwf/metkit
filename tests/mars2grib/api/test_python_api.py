@@ -4,9 +4,9 @@ import sys
 
 print(sys.path)
 
-import pymars2grib
+from pymetkit.experimental.mars2grib import Mars2Grib
 
-encoder = pymars2grib.Mars2Grib()
+encoder = Mars2Grib()
 
 mars = {
     "origin": "ecmf",

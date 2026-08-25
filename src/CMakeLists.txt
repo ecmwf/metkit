@@ -11,57 +11,60 @@ if( HAVE_PYTHON_METKIT_INTERFACE )
     # to put this path on the PYTHONPATH to allow direct use of
     # pymetkit, e.g. for testing or local exploration.
     set(PYMETKIT_STAGING "${CMAKE_BINARY_DIR}/pymetkit-python-package-staging")
-    file(MAKE_DIRECTORY "${PYMETKIT_STAGING}")
-    file(CREATE_LINK
-        "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit"
-        "${PYMETKIT_STAGING}/pymetkit" SYMBOLIC
+
+    # The whole staging tree is generated. Wipe it so a layout left over from an
+    # earlier configuration cannot reach the wheel: setup.py probes the tree to
+    # decide which packages to include, e.g. it picks up a mars2grib staged
+    # before MARS2GRIB_PYTHON was turned off.
+    file(REMOVE_RECURSE "${PYMETKIT_STAGING}")
+
+    # Create all staging subdirectories at configure time so build-time copy
+    # commands do not need to worry about missing parent directories.
+    file(MAKE_DIRECTORY
+        "${PYMETKIT_STAGING}"
+        "${PYMETKIT_STAGING}/pymetkit"
+        "${PYMETKIT_STAGING}/pymetkit/_internal"
+        "${PYMETKIT_STAGING}/pymetkit/experimental"
     )
-    # Copy README.md and LICENSE at build time so changes are picked up
-    # without needing to re-run cmake configure
-    add_custom_command(
-        OUTPUT ${PYMETKIT_STAGING}/README.md
-        COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit/README.md"
-            "${PYMETKIT_STAGING}/README.md"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit/README.md"
-        COMMENT "Copying pymetkit README.md to staging..."
-    )
-    add_custom_command(
-        OUTPUT ${PYMETKIT_STAGING}/LICENSE
-        COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-            "${PYMETKIT_STAGING}/LICENSE"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-        COMMENT "Copying LICENSE to staging..."
-    )
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pymetkit_setup.py.in
-        ${PYMETKIT_STAGING}/setup.py
-        @ONLY
-    )
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pymetkit_setup.cfg.in
-        ${PYMETKIT_STAGING}/setup.cfg
-        @ONLY
-    )
+
+    set(PYMETKIT_STAGING_PYMETKIT "${PYMETKIT_STAGING}/pymetkit")
+    set(PYMETKIT_STAGING_PYMETKIT_INTERNAL "${PYMETKIT_STAGING}/pymetkit/_internal")
+    set(PYMETKIT_STAGING_PYMETKIT_EXPERIMENTAL "${PYMETKIT_STAGING}/pymetkit/experimental")
+
+    add_subdirectory(pymetkit)
     add_subdirectory(pymetkit_bindings)
-    file(GLOB_RECURSE
-        _pymetkit_package_files
-        "pymetkit/*.py"
-        "pymetkit/_internal/*.py"
-    )
-    list(APPEND _pymetkit_package_files
+    
+    # setup.py and setup.cfg read both files from the staging root, so they are
+    # staged there rather than inside the package. Declared here because a
+    # custom command output can only be consumed in its own directory.
+    set(_pymetkit_staging_root_srcs
         "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit/README.md"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
+        "${PROJECT_SOURCE_DIR}/LICENSE"
     )
+
+    foreach(_src IN LISTS _pymetkit_staging_root_srcs)
+        get_filename_component(_name "${_src}" NAME)
+        add_custom_command(
+            OUTPUT  "${PYMETKIT_STAGING}/${_name}"
+            COMMAND ${CMAKE_COMMAND} -E copy "${_src}" "${PYMETKIT_STAGING}/${_name}"
+            DEPENDS "${_src}"
+            COMMENT "Copying ${_name} to pymetkit staging..."
+        )
+    endforeach()
+
+    # The pymetkit target pulls in every staged .py file, one target per staging
+    # directory. A variable cannot carry that list up to here: set() in a
+    # subdirectory does not reach the parent scope.
     add_custom_command(
         OUTPUT ${CMAKE_BINARY_DIR}/pymetkit.wheel.stamp
         COMMAND ${Python_EXECUTABLE} -m build --wheel ${PYMETKIT_STAGING} -o .
         COMMAND ${CMAKE_COMMAND} -E touch pymetkit.wheel.stamp
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS ${_pymetkit_package_files} pymetkit_bindings
-                ${PYMETKIT_STAGING}/README.md ${PYMETKIT_STAGING}/LICENSE
+        DEPENDS ${PYMETKIT_STAGING}/README.md ${PYMETKIT_STAGING}/LICENSE
+                pymetkit
+                pymetkit_bindings
         COMMENT "Building Python wheel for pymetkit..."
     )
     add_custom_target(pymetkit-wheel ALL DEPENDS ${CMAKE_BINARY_DIR}/pymetkit.wheel.stamp)
 endif()
+

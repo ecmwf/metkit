@@ -20,7 +20,7 @@ NAME="metkit"
 # this whole part around October 2026 when 3.10 goes EoL if [ "True" =
 # "$(python -c 'import sys; print(sys.version_info[0:2] >= (3, 11))')" ] ; then
 if [ "3.10" != "$PYVERSION" ] ; then
-    PYMETKIT_IFACE="-DENABLE_PYTHON_METKIT_INTERFACE=ON"
+    PYMETKIT_IFACE="-DENABLE_PYTHON_METKIT_INTERFACE=ON -DENABLE_MARS2GRIB_PYTHON=ON"
 else
     >&2 echo "Not enabling pymetkit interface because python version is $PYVERSION"
     PYMETKIT_IFACE=""
