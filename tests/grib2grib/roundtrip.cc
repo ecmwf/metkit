@@ -11,6 +11,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <ios>
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
@@ -26,6 +27,10 @@
 #include "metkit/mars2grib/api/Mars2Grib.h"
 
 
+// Note: not in eccodes.h
+extern "C" int codes_compare_key(codes_handle*, codes_handle*, const char* key, int compare_flags);
+
+
 void get_vector_double(codes_handle* h, const std::string& k, std::vector<double>& v) {
     size_t size1 = 0;
     ASSERT(CODES_SUCCESS == codes_get_size(h, k.c_str(), &size1));
@@ -36,6 +41,65 @@ void get_vector_double(codes_handle* h, const std::string& k, std::vector<double
     ASSERT(CODES_SUCCESS == codes_get_double_array(h, k.c_str(), v.data(), &size2));
     ASSERT(size2 == size1);
 }
+
+
+auto print_key_value = [](const codes_handle* h, const char* key, eckit::Channel& out) {
+    int type = CODES_TYPE_UNDEFINED;
+    ASSERT(codes_get_native_type(h, key, &type) == CODES_SUCCESS);
+
+    out << "'" << key << "': ";
+    if (type == CODES_TYPE_UNDEFINED) {
+        out << "undefined" << std::endl;
+    }
+    else if (type == CODES_TYPE_LONG) {
+        long value = 0;
+        codes_get_long(h, key, &value);
+        if (value == CODES_MISSING_LONG) {
+            out << "MISSING" << std::endl;
+        }
+        else {
+            out << "long=" << value << std::endl;
+        }
+    }
+    else if (type == CODES_TYPE_DOUBLE) {
+        double value = 0;
+        codes_get_double(h, key, &value);
+        if (value == CODES_MISSING_DOUBLE) {
+            out << "MISSING" << std::endl;
+        }
+        else {
+            out << "double=" << value << std::endl;
+        }
+    }
+    else if (type == CODES_TYPE_STRING) {
+        std::string str(512, '\0');
+        size_t size = str.size();
+        codes_get_string(h, key, str.data(), &size);
+        str.resize(std::strlen(str.c_str()));  // 'size' may include the trailing '\0'
+        out << "string='" << str << "'" << std::endl;
+    }
+    else if (type == CODES_TYPE_BYTES) {
+        std::vector<unsigned char> bytes(512, '\0');
+        size_t size = bytes.size();
+        codes_get_bytes(h, key, bytes.data(), &size);
+        bytes.resize(size);
+        out << std::hex;
+        out << "bytes=[";
+        for (size_t i = 0; i < size; ++i) {
+            out << bytes[i];
+        }
+        out << std::dec << "]" << std::endl;
+    }
+    else if (type == CODES_TYPE_SECTION) {
+        out << "section" << std::endl;
+    }
+    else if (type == CODES_TYPE_LABEL) {
+        out << "label" << std::endl;
+    }
+    else if (type == CODES_TYPE_MISSING) {
+        out << "missing" << std::endl;
+    }
+};
 
 
 template <typename T>
@@ -58,6 +122,7 @@ class Roundtrip : public eckit::Tool {
         options.push_back(new Option<bool>("gridspec", "Set grid as gridSpec"));
         options.push_back(new Option<bool>("valid", "Check isMessageValid (deafult true)"));
         options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (deafult false)"));
+        options.push_back(new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (deafult false)"));
 
         eckit::option::CmdArgs args(usage, options, 1, 1);
         ASSERT(args.count() == 1);
@@ -127,6 +192,31 @@ class Roundtrip : public eckit::Tool {
                 auto encoded = h->messageData();
                 ASSERT(encoded.size() == size);
                 ASSERT(std::memcmp(input_message, encoded.data(), size) == 0);
+            }
+
+            if (args.getBool("keys", false)) {
+                auto& out = eckit::Log::error();
+
+                // release() is the last use of h, so ownership transfer is safe
+                auto* h2    = reinterpret_cast<codes_handle*>(h->release());
+                auto* kiter = codes_keys_iterator_new(g, CODES_KEYS_ITERATOR_SKIP_READ_ONLY, nullptr);
+
+                auto diff = false;
+                while (codes_keys_iterator_next(kiter) != 0) {
+                    const auto* key = codes_keys_iterator_get_name(kiter);
+                    auto err        = codes_compare_key(g, h2, key, 0);
+                    if (err != CODES_SUCCESS && err != CODES_NOT_IMPLEMENTED /*key doesn't support comparison*/) {
+                        out << "Key differs: '" << key << "' (" << codes_get_error_message(err) << ")" << std::endl;
+                        print_key_value(g, key, out);
+                        print_key_value(h2, key, out);
+                        diff = true;
+                    }
+                }
+
+                codes_keys_iterator_delete(kiter);
+                codes_handle_delete(h2);
+
+                ASSERT(!diff);
             }
         }
 
