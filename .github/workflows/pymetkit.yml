@@ -130,7 +130,8 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=dependencies \
             -DCMAKE_PREFIX_PATH=dependencies \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DENABLE_PYTHON_METKIT_INTERFACE=ON
+            -DENABLE_PYTHON_METKIT_INTERFACE=ON \
+            -DENABLE_MARS2GRIB_PYTHON=ON
           cmake --build metkit-build -j
           cd metkit-build
           ctest -j $(nproc) --output-on-failure -L pymetkit

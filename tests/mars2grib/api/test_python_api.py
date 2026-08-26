@@ -4,7 +4,7 @@ import sys
 
 print(sys.path)
 
-from mars2grib import Mars2Grib
+from pymetkit.experimental.mars2grib import Mars2Grib
 
 encoder = Mars2Grib()
 

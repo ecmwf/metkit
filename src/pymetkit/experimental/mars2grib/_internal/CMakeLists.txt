@@ -9,7 +9,7 @@ target_link_libraries(mars2grib_bindings
 
 if(NOT MSVC AND NOT "${CMAKE_BUILD_TYPE}" MATCHES "Debug|RelWithDebInfo")
     # Strip unnecessary sections of the binary on Linux/macOS
-    pybind11_strip(pymars2grib_bindings)
+    pybind11_strip(mars2grib_bindings)
 endif()
 
 set(INTERNAL_PATH ${PYMETKIT_STAGING_PYMETKIT_EXPERIMENTAL}/mars2grib/_internal)

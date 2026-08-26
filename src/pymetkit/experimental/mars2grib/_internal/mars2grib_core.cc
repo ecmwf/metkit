@@ -17,8 +17,11 @@
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "eckit/runtime/Main.h"
+#include "eckit/system/Library.h"
+#include "eckit/system/LibraryManager.h"
 
 #include "metkit/mars2grib/api/Mars2Grib.h"
+#include "metkit_version.h"
 
 namespace py = pybind11;
 
@@ -101,6 +104,21 @@ PYBIND11_MODULE(mars2grib_bindings, m) {
         const char* args[] = {"mars2grib", ""};
         eckit::Main::initialise(1, const_cast<char**>(args));
     });
+
+    m.def("version_info", []() {
+        std::vector<std::tuple<std::string, std::string, std::string, std::string>> dependencyInformation;
+
+        for (const std::string& libname : eckit::system::LibraryManager::list()) {
+            const eckit::system::Library& lib = eckit::system::LibraryManager::lookup(libname);
+            dependencyInformation.emplace_back(lib.name(), lib.version(), lib.gitsha1(), lib.libraryPath());
+        }
+
+        return dependencyInformation;
+    });
+
+    // Compile-time mars2grib version
+    m.attr("__mars2grib_build_version__") = metkit_VERSION_STR;
+
     auto mars2grib =
         py::class_<Mars2Grib>(m, "Mars2GribCore")
             .def(py::init<>())
