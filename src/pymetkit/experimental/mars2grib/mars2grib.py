@@ -1,4 +1,4 @@
-from ._internal import init_bindings, Mars2Grib as _Mars2Grib
+from ._internal import Mars2Grib as _Mars2Grib
 
 
 class Mars2Grib:
@@ -7,7 +7,6 @@ class Mars2Grib:
     """
 
     def __init__(self, options: dict = {}):
-        init_bindings()
         self._mars2grib = _Mars2Grib(options)
 
     def encode(self, values: list[float], mars: dict, misc: dict = {}) -> bytes:

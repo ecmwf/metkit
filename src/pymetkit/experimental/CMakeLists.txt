@@ -40,3 +40,8 @@ if( HAVE_MARS2GRIB_PYTHON )
     add_subdirectory(mars2grib)
     add_dependencies(pymetkit-experimental pymetkit-mars2grib)
 endif()
+
+if( HAVE_MARS2MARS_PYTHON )
+    add_subdirectory(mars2mars)
+    add_dependencies(pymetkit-experimental pymetkit-mars2mars)
+endif()
