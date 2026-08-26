@@ -132,6 +132,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DENABLE_PYTHON_METKIT_INTERFACE=ON \
             -DENABLE_MARS2GRIB_PYTHON=ON
+            -DENABLE_MARS2MARS_PYTHON=ON
           cmake --build metkit-build -j
           cd metkit-build
           ctest -j $(nproc) --output-on-failure -L pymetkit
