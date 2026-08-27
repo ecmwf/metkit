@@ -88,17 +88,6 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     return config;
 }
 
-py::bytes encode(Mars2Grib& encoder, const std::vector<double>& values, const py::dict& mars, const py::dict& misc) {
-    const auto message = encoder.encode(values, dictToLocalConfig(mars), dictToLocalConfig(misc));
-
-    const auto size = message->messageSize();
-
-    std::vector<uint8_t> buffer(message->messageSize());
-    message->copyInto(buffer.data(), buffer.size());
-
-    return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-}
-
 PYBIND11_MODULE(mars2grib_bindings, m) {
     m.def("init_bindings", []() {
         const char* args[] = {"mars2grib", ""};
@@ -123,5 +112,16 @@ PYBIND11_MODULE(mars2grib_bindings, m) {
         py::class_<Mars2Grib>(m, "Mars2GribCore")
             .def(py::init<>())
             .def(py::init([](py::dict dict) { return std::make_unique<Mars2Grib>(dictToLocalConfig(dict)); }))
-            .def("encode", &encode, py::arg("values"), py::arg("mars"), py::arg("misc"));
+            .def(
+                "encode",
+                [](Mars2Grib& encoder, const std::vector<double>& values, const py::dict& mars, const py::dict& misc) {
+                    const auto message = encoder.encode(values, dictToLocalConfig(mars), dictToLocalConfig(misc));
+                    const auto size    = message->messageSize();
+                    std::vector<uint8_t> buffer(message->messageSize());
+
+                    message->copyInto(buffer.data(), buffer.size());
+
+                    return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+                },
+                py::arg("values"), py::arg("mars"), py::arg("misc"));
 }

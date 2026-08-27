@@ -1,4 +1,4 @@
-pybind11_add_module(mars2grib_bindings MODULE mars2grib_core.cc)
+pybind11_add_module(mars2grib_bindings MODULE mars2grib_bindings.cc)
 
 target_link_libraries(mars2grib_bindings
     PRIVATE pybind11::module

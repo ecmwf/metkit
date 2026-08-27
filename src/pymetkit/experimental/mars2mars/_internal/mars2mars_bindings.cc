@@ -12,6 +12,7 @@
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 #include <memory>
+#include <sstream>
 
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
@@ -19,6 +20,7 @@
 #include "eckit/system/Library.h"
 #include "eckit/system/LibraryManager.h"
 
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars2mars/api/Mars2Mars.h"
 #include "metkit_version.h"
 
@@ -87,7 +89,44 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     return config;
 }
 
+std::map<std::string, std::vector<std::string>> to_dict(const metkit::mars::MarsRequest& mars_request) {
+    std::map<std::string, std::vector<std::string>> res;
+
+    const auto& parameters = mars_request.parameters();
+
+    for (const auto& parameter : parameters) {
+        res.emplace(parameter.name(), parameter.values());
+    }
+
+    return res;
+}
+
+std::map<std::string, std::vector<std::string>> to_dict(const eckit::LocalConfiguration& local_config) {
+    std::map<std::string, std::vector<std::string>> res;
+
+    const auto& keys = local_config.keys();
+
+    for (const auto& key : keys) {
+        const bool convertible = local_config.isConvertible<std::string>(key);
+
+        // if (!convertible) {
+        //     std::ostringstream buf;
+        //     buf << "Element in local configuration not convertible to string: " << key;
+        //     throw eckit::UserError(buf.str());
+        // }
+
+        std::string value{};
+        local_config.get(key, value);
+        res.emplace(std::pair<std::string, std::vector<std::string>>(key, {value}));
+    }
+
+    return res;
+}
+
+
 PYBIND11_MODULE(mars2mars_bindings, m) {
+    py::module_::import("pymetkit_bindings");
+
     m.def("init_bindings", []() {
         const char* args[] = {"mars2mars", ""};
         eckit::Main::initialise(1, const_cast<char**>(args));
@@ -107,8 +146,20 @@ PYBIND11_MODULE(mars2mars_bindings, m) {
     // Compile-time mars2mars version
     m.attr("__mars2mars_build_version__") = metkit_VERSION_STR;
 
-    auto mars2mars =
-        py::class_<metkit::mars2mars::Mars2Mars>(m, "Mars2Mars").def(py::init<>()).def(py::init([](py::dict dict) {
-            return std::make_unique<metkit::mars2mars::Mars2Mars>(dictToLocalConfig(dict));
-        }));
+    auto mars2mars = py::class_<metkit::mars2mars::Mars2Mars>(m, "Mars2Mars")
+                         .def(py::init<>())
+                         .def(py::init([](py::dict dict) {
+                             return std::make_unique<metkit::mars2mars::Mars2Mars>(dictToLocalConfig(dict));
+                         }))
+                         .def("convert",
+                              [](Mars2Mars& mars2mars, const eckit::LocalConfiguration& configuration) {
+                                  const auto& result = mars2mars.convert<eckit::LocalConfiguration>(configuration);
+                                  return std::make_pair(to_dict(result.mars), to_dict(result.misc));
+                              })
+                         .def("convert", [](Mars2Mars& mars2mars, const metkit::mars::MarsRequest& mars_request) {
+                             const metkit::mars2mars::Mars2MarsResult<metkit::mars::MarsRequest> result =
+                                 mars2mars.convert<metkit::mars::MarsRequest>(mars_request);
+
+                             return std::pair(to_dict(result.mars), to_dict(result.misc));
+                         });
 }
