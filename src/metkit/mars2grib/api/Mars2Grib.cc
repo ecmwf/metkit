@@ -60,6 +60,8 @@
 ///
 #include "Mars2Grib.h"
 
+#include <cstdlib>
+
 // other libraries
 #include "eckit/exception/Exceptions.h"
 
@@ -397,13 +399,37 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 // Mars2Grib construction
 // -----------------------------------------------------------------------------
 
-Mars2Grib::Mars2Grib() : opts_{} {}
+namespace {
 
-Mars2Grib::Mars2Grib(const Options& opts) : opts_{opts} {}
+/// @brief Apply environment side effects implied by a set of options.
+///
+/// When `skipSection3` is enabled the encoder delegates geometry handling to
+/// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
+/// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
+/// variable, so force it to "1" whenever `skipSection3` is requested.
+inline void applyOptionSideEffects(const Options& opts) {
+    if (opts.skipSection3) {
+        ::setenv("ECCODES_ECKIT_GEO", "1", 1);
+    }
+}
 
-Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {}
+}  // namespace
 
-Mars2Grib::Mars2Grib(OptionList opts) : opts_{detail::readOptions(opts)} {}
+Mars2Grib::Mars2Grib() : opts_{} {
+    applyOptionSideEffects(opts_);
+}
+
+Mars2Grib::Mars2Grib(const Options& opts) : opts_{opts} {
+    applyOptionSideEffects(opts_);
+}
+
+Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {
+    applyOptionSideEffects(opts_);
+}
+
+Mars2Grib::Mars2Grib(OptionList opts) : opts_{detail::readOptions(opts)} {
+    applyOptionSideEffects(opts_);
+}
 
 
 // -----------------------------------------------------------------------------
