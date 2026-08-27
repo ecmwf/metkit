@@ -1,3 +1,4 @@
+import pytest
 import logging
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from pymetkit import MarsRequest, MarsSelection
 from pymetkit.experimental.mars2mars import Mars2Mars
 
 
-def test_convert_to_json():
+def test_convert_mars_request_to_json():
 
     mars_selection: MarsSelection = {
         "class": "od",
@@ -29,6 +30,59 @@ def test_convert_to_json():
 
     logger.debug(json.dumps(mars))
     logger.debug(json.dumps(misc))
+
+
+def test_convert_typed_dict_to_json():
+
+    request = {
+        "origin": "ecmf",
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "0001",
+        "grid": "N200",
+        "packing": "ccsds",
+        "param": 130,
+        "levtype": "hl",
+        "levelist": 2,
+        "date": 20260205,
+        "time": 000000,
+        "step": 0,
+    }
+
+    [request, misc] = Mars2Mars().convert(mars_request=request)
+
+    import json
+
+    logger.debug(json.dumps(request))
+    logger.debug(json.dumps(misc))
+
+
+def test_convert_string_dict_to_json():
+
+    request = {
+        "origin": "ecmf",
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "0001",
+        "grid": "N200",
+        "packing": "ccsds",
+        "param": "130",
+        "levtype": "hl",
+        "levelist": "2",
+        "date": "20260205",
+        "time": "000000",
+        "step": "0",
+    }
+
+    with pytest.raises(RuntimeError, match="Key `param` is not of expected type `long` for dictionary"):
+        [request, misc] = Mars2Mars().convert(mars_request=request)
+
+        import json
+
+        logger.debug(json.dumps(request))
+        logger.debug(json.dumps(misc))
 
 
 def test_flatten_convert_append_to_json():
@@ -65,13 +119,15 @@ def test_flatten_convert_append_to_json():
 
     for req in requests:
         expanded = req.expand()
-        points = expanded.split(splitting_keys)
+        identifiers = expanded.split(splitting_keys)
 
-        assert len(points) != 0, "Expecting points not to be empty"
+        assert len(identifiers) != 0, "Expecting points not to be empty"
 
-        logger.debug(f"Points: {points[0:2]} ... {points[-1]}")
+        logger.debug(f"Points: {identifiers[0:2]} ... {identifiers[-1]}")
 
-        convertedPoints.extend([mars for [mars, _] in [mars2mars.convert(mars_request=point) for point in points]])
+        convertedPoints.extend(
+            [mars for [mars, _] in [mars2mars.convert(mars_request=identifier) for identifier in identifiers]]
+        )
 
     import json
 

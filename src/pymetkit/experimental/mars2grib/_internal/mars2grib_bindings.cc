@@ -20,6 +20,7 @@
 #include "eckit/system/Library.h"
 #include "eckit/system/LibraryManager.h"
 
+#include "metkit/mars/MarsRequest.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
 #include "metkit_version.h"
 
@@ -89,6 +90,8 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
 }
 
 PYBIND11_MODULE(mars2grib_bindings, m) {
+    py::module_::import("pymetkit_bindings");
+
     m.def("init_bindings", []() {
         const char* args[] = {"mars2grib", ""};
         eckit::Main::initialise(1, const_cast<char**>(args));
@@ -122,6 +125,13 @@ PYBIND11_MODULE(mars2grib_bindings, m) {
                     message->copyInto(buffer.data(), buffer.size());
 
                     return py::bytes(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+                },
+                py::arg("values"), py::arg("mars"), py::arg("misc"))
+            .def(
+                "encode",
+                [](Mars2Grib& encoder, const std::vector<double>& values, const metkit::mars::MarsRequest& mars,
+                   const metkit::mars::MarsRequest& misc) {
+                    throw py::value_error("Mars2Grib::encode: Currently metkit::mars::MarsRequest is not supported.");
                 },
                 py::arg("values"), py::arg("mars"), py::arg("misc"));
 }
