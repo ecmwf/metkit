@@ -85,11 +85,11 @@ def test_convert_string_dict_to_json():
         logger.debug(json.dumps(misc))
 
 
-def test_flatten_convert_append_to_json():
+def test_flatten_convert_append_to_json(data_path):
 
     from pymetkit import parse_mars_request
 
-    with Path("mars2mars-test-requests.mars").open() as file:
+    with (data_path / "mars2mars-test-requests.mars").open() as file:
         requests = parse_mars_request(file)
 
     assert len(requests) != 0, "Expected requests from request file"

@@ -31,13 +31,16 @@ def test_typed_dict_mars2mars_then_mars2grib():
 
     import json
 
-    logger.debug(json.dumps(request))
-    logger.debug(json.dumps(misc))
+    logger.debug(f"Request: {json.dumps(request)}")
+    logger.debug(f"Misc: {json.dumps(misc)}")
 
     encoder = Mars2Grib()
 
     vals = [237.15] * 200
-    encoder.encode(vals, request)
+    return_bytes = encoder.encode(vals, request, misc)
+
+    assert return_bytes
+    logger.debug(return_bytes)
 
 
 def test_mars_request_mars2mars_then_mars2grib():
@@ -69,5 +72,5 @@ def test_mars_request_mars2mars_then_mars2grib():
     encoder = Mars2Grib()
 
     vals = [237.15] * 200
-    with pytest.raises(ValueError, match="not supported"):
+    with pytest.raises(RuntimeError, match="type"):
         encoder.encode(vals, request)

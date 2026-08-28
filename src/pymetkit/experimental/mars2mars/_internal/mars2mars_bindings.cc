@@ -89,18 +89,6 @@ static eckit::LocalConfiguration dictToLocalConfig(const py::dict& dict) {
     return config;
 }
 
-// std::map<std::string, std::vector<std::string>> to_dict(const metkit::mars::MarsRequest& mars_request) {
-//     std::map<std::string, std::vector<std::string>> res;
-//
-//     const auto& parameters = mars_request.parameters();
-//
-//     for (const auto& parameter : parameters) {
-//         res.emplace(parameter.name(), parameter.values());
-//     }
-//
-//     return res;
-// }
-
 py::dict to_dict(const eckit::LocalConfiguration& local_config) {
 
     py::dict result{};

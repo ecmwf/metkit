@@ -114,7 +114,7 @@ jobs:
       - name: Display Python version
         run: python --version
       - name: Install 'build'
-        run: pip install build pytest findlibs Sybil[pytest]
+        run: pip install build pytest findlibs Sybil[pytest] GitPython
       - name: Build metkit
         run: |
           export PATH=$(pwd)/dependencies/bin:$PATH

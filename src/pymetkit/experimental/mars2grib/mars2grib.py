@@ -24,28 +24,27 @@ class Mars2Grib:
 
     def encode(self, values: list[float], mars, misc=None) -> bytes:
         """
-        Encode values, described by mars and (optionally) misc dictionaries, as a GRIB2 message
+                Encode values, described by mars and (optionally) misc dictionaries, as a GRIB2 message
 
-        Note:
-        -----
-        If you plan to encode the output of Mars2Mars, call its convert method with a typed
-        python dictionary, as the types are internally needed. Hand the result of that operation
-        to this encode method (it currently doesn't support MarsRequests).
-
+                Note:
+                -----
+                If you plan to encode the output of Mars2Mars, call its convert method with a typed
+                python dictionary, as the types are internally needed. Hand the result of that operation
+                to this encode method (it currently doesn't support MarsRequests).
         :param values: Values to encode
-        :type values: list[float]
-        :param mars: Mars keys describing the values
-        :type mars: dict
-        :param misc: Miscellaneous (non-mars) keys describing the values, may be empty
-        :type misc: dict
-        :return: Encoded GRIB2 message as bytes object
-        :rtype: bytes
+                :type values: list[float]
+                :param mars: Mars keys describing the values
+                :type mars: dict
+                :param misc: Miscellaneous (non-mars) keys describing the values, may be empty
+                :type misc: dict
+                :return: Encoded GRIB2 message as bytes object
+                :rtype: bytes
         """
         if isinstance(mars, MarsRequest) and (isinstance(misc, MarsRequest) or misc is None):
             # mars_internal = mars._internal
             # misc_internal = MarsRequest("retrieve", {})._internal if misc is None else misc._internal
             # return self._mars2grib.encode(values, mars_internal, misc_internal)
-            raise ValueError("Mars2Grib:encode:: Encoding of MarsRequests is currently not supported.")
+            raise ValueError("Mars2Grib::encode: Currently metkit::mars::MarsRequest is not supported.")
         elif isinstance(mars, dict) and (isinstance(misc, dict) or misc is None):
             misc_internal = {} if misc is None else misc
             try:

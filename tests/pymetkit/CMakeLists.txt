@@ -43,6 +43,9 @@ set(test_files
     integration/mars_request/test_equality.py
     integration/mars_request/test_parse.py
     cli/test_cli.py
+    experimental/integration/test_mars2mars2grib.py
+    experimental/mars2grib/test_mars2grib_api.py
+    experimental/mars2mars/test_mars2mars_api.py
 )
 
 foreach(test_file ${test_files})
