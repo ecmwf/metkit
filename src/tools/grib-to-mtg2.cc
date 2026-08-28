@@ -416,9 +416,9 @@ bool skipStepZero(const long param) {
 void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
 
     // Handles to conversion libraries
-    metkit::grib2mars::Grib2Mars grib2mars;
-    metkit::mars2mars::Mars2Mars mars2mars;
-    metkit::mars2grib::Mars2Grib mars2grib;
+    metkit::grib2mars::Grib2Mars grib2mars{{"skipSection3", true}};
+    metkit::mars2mars::Mars2Mars mars2mars{{"skipSection3", true}};
+    metkit::mars2grib::Mars2Grib mars2grib{{"skipSection3", true}};
 
     auto inputPath  = eckit::PathName(args(0));
     auto outputPath = eckit::PathName(args(1));
