@@ -738,6 +738,18 @@ _field: &_field
     default: none
     multiple: true
 
+  paramtype:
+    category: derived
+    type: enum
+    values:
+    - [chemical]
+    - [chemical_optical]
+    - [base]
+    - [wave]
+    - [wave_spectra]
+    - [optical]
+    - [tile]
+
   stattype:
     category: data
     type: enum
