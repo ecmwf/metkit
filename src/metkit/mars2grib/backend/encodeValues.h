@@ -130,13 +130,21 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
         }
 
         // 3. Set operation(s) to be applied on the values
+        const bool isSH = get_or_throw<std::string>(handle, "gridType") == "sh";
+
         if (has(misc, "scaleValuesBy")) {
             const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy");
+            if (scaleValuesBy != 1.0 && isSH) {
+                throw Mars2GribGenericException("Value scaling is not implemented for spherical harmonics!", Here());
+            }
             set_or_throw(handle, "scaleValuesBy", scaleValuesBy);
         }
 
         if (has(misc, "offsetValuesBy")) {
             const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy");
+            if (offsetValuesBy != 0.0 && isSH) {
+                throw Mars2GribGenericException("Value offsetting is not implemented for spherical harmonics!", Here());
+            }
             set_or_throw(handle, "offsetValuesBy", offsetValuesBy);
         }
     }
@@ -238,13 +246,21 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
         }
 
         // 3. Set operation(s) to be applied on the values
+        const bool isSH = get_or_throw<std::string>(handle, "gridType") == "sh";
+
         if (has(misc, "scaleValuesBy")) {
             const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy");
+            if (scaleValuesBy != 1.0 && isSH) {
+                throw Mars2GribGenericException("Value scaling is not implemented for spherical harmonics!", Here());
+            }
             set_or_throw(handle, "scaleValuesBy", scaleValuesBy);
         }
 
         if (has(misc, "offsetValuesBy")) {
             const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy");
+            if (offsetValuesBy != 0.0 && isSH) {
+                throw Mars2GribGenericException("Value offsetting is not implemented for spherical harmonics!", Here());
+            }
             set_or_throw(handle, "offsetValuesBy", offsetValuesBy);
         }
     }
