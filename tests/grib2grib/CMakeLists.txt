@@ -1,7 +1,7 @@
 ecbuild_add_executable(
     TARGET  roundtrip
     SOURCES roundtrip.cc
-    LIBS    metkit
+    LIBS    metkit eccodes
     NOINSTALL
 )
 
@@ -22,13 +22,9 @@ endmacro()
 
 add_roundtrip_test("mtg2-sfc.grib2")
 add_roundtrip_test("mtg2-sfc.grib2" "--grid=O1280")
-add_roundtrip_test("mtg2-sfc.grib2" "--grid=O1280" "--gridspec=1")
 add_roundtrip_test("mtg2-o2d.grib2")
 add_roundtrip_test("mtg2-o2d.grib2" "--grid=eORCA025_T")
-add_roundtrip_test("mtg2-o2d.grib2" "--grid=eORCA025_T" "--gridspec=1")
 add_roundtrip_test("mtg2-t.grib2")
-add_roundtrip_test("mtg2-t.grib2" "--truncation=20")
-add_roundtrip_test("mtg2-t.grib2" "--grid=T20" "--gridspec=1")
+add_roundtrip_test("mtg2-t.grib2" "--grid=T20")
 add_roundtrip_test("mtg2-vod.grib2")
-add_roundtrip_test("mtg2-vod.grib2" "--truncation=20")
-add_roundtrip_test("mtg2-vod.grib2" "--grid=T20" "--gridspec=1")
+add_roundtrip_test("mtg2-vod.grib2" "--grid=T20")

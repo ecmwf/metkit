@@ -15,14 +15,13 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
-#include "eckit/geo/Grid.h"
 #include "eckit/log/Log.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
 #include "eckit/runtime/Main.h"
 #include "eckit/runtime/Tool.h"
 
-#include "eccodes/eccodes.h"
+#include "eccodes.h"
 #include "metkit/grib2mars/api/Grib2Mars.h"
 #include "metkit/mars2grib/api/Mars2Grib.h"
 
@@ -118,8 +117,6 @@ class Roundtrip : public eckit::Tool {
 
         std::vector<eckit::option::Option*> options;
         options.push_back(new Option<std::string>("grid", "MARS grid"));
-        options.push_back(new Option<long>("truncation", "MARS truncation (for gridType=sh)"));
-        options.push_back(new Option<bool>("gridspec", "Set grid as gridSpec"));
         options.push_back(new Option<bool>("valid", "Check isMessageValid (deafult true)"));
         options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (deafult false)"));
         options.push_back(new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (deafult false)"));
@@ -140,17 +137,9 @@ class Roundtrip : public eckit::Tool {
 
         {
             eckit::LocalConfiguration cfg;
+            cfg.set("skipSection3", true);
 
-            if (args.getBool("gridspec", false)) {
-                cfg.set("skipSection3", true);
-
-                std::unique_ptr<const eckit::geo::Grid> grid(
-                    eckit::geo::GridFactory::make_from_string(args.getString("grid")));
-                eckit::Log::info() << "Using gridSpec for grid definition, grid.spec_str(): " << grid->spec_str()
-                                   << std::endl;
-            }
-
-            metkit::grib2mars::Grib2Mars grib2mars;
+            metkit::grib2mars::Grib2Mars grib2mars(cfg);
             metkit::mars2grib::Mars2Grib mars2grib(cfg);
 
             auto ch = metkit::codes::codesHandleFromGRIBHandle(g);
@@ -159,16 +148,9 @@ class Roundtrip : public eckit::Tool {
             auto [mars, misc] = grib2mars.convert<eckit::LocalConfiguration>(*ch);
 
             if (args.has("grid")) {
+                mars.remove("area");
+                mars.remove("rotation");
                 mars.set("grid", args.getString("grid"));
-                mars.remove("area");
-                mars.remove("rotation");
-                mars.remove("truncation");
-            }
-            else if (args.has("truncation")) {
-                mars.set("truncation", args.getLong("truncation"));
-                mars.remove("area");
-                mars.remove("grid");
-                mars.remove("rotation");
             }
 
             const auto h = mars2grib.encode(values, mars, misc);
