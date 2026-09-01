@@ -43,9 +43,6 @@ set(test_files
     integration/mars_request/test_equality.py
     integration/mars_request/test_parse.py
     cli/test_cli.py
-    experimental/integration/test_mars2mars2grib.py
-    experimental/mars2grib/test_mars2grib_api.py
-    experimental/mars2mars/test_mars2mars_api.py
 )
 
 foreach(test_file ${test_files})
@@ -59,3 +56,36 @@ set(doc_test_files
 foreach(test_file ${doc_test_files})
     add_pymetkit_test("pymetkit_doc" ${test_file})
 endforeach()
+
+
+if( HAVE_MARS2MARS AND HAVE_PYTHON_METKIT_INTERFACE )
+    set(test_files_mars2mars
+        experimental/mars2mars/test_mars2mars_api.py
+    )
+    foreach(test_file ${test_files_mars2mars})
+        add_pymetkit_test("pymetkit_experimental_mars2mars" ${test_file})
+    endforeach()
+endif()
+
+
+if( HAVE_MARS2GRIB AND HAVE_PYTHON_METKIT_INTERFACE )
+    set(test_files_mars2grib
+        experimental/mars2grib/test_mars2grib_api.py
+    )
+    foreach(test_file ${test_files_mars2grib})
+        add_pymetkit_test("pymetkit_experimental_mars2grib" ${test_file})
+    endforeach()
+endif()
+
+
+if( HAVE_MARS2MARS AND HAVE_MARS2GRIB AND HAVE_PYTHON_METKIT_INTERFACE )
+    set(test_files_mars2mars2grib
+        experimental/integration/test_mars2mars2grib.py
+    )
+
+    foreach(test_file ${test_files_mars2mars2grib})
+        add_pymetkit_test("pymetkit_experimental_mars2mars2grib" ${test_file})
+    endforeach()
+
+endif()
+
