@@ -36,12 +36,12 @@ endforeach()
 # Own target for the copies declared above, chained into pymetkit by the parent.
 add_custom_target(pymetkit-experimental DEPENDS ${_pymetkit_experimental_staged_py_files})
 
-if( HAVE_MARS2GRIB_PYTHON )
+if( HAVE_MARS2GRIB AND HAVE_PYTHON_METKIT_INTERFACE )
     add_subdirectory(mars2grib)
     add_dependencies(pymetkit-experimental pymetkit-mars2grib)
 endif()
 
-if( HAVE_MARS2MARS_PYTHON )
+if(HAVE_MARS2MARS AND HAVE_PYTHON_METKIT_INTERFACE )
     add_subdirectory(mars2mars)
     add_dependencies(pymetkit-experimental pymetkit-mars2mars)
 endif()
