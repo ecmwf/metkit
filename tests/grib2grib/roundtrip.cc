@@ -119,7 +119,8 @@ class Roundtrip : public eckit::Tool {
         options.push_back(new Option<std::string>("grid", "MARS grid"));
         options.push_back(new Option<bool>("valid", "Check isMessageValid (deafult true)"));
         options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (deafult false)"));
-        options.push_back(new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (deafult false)"));
+        options.push_back(
+            new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (deafult false)"));
 
         eckit::option::CmdArgs args(usage, options, 1, 1);
         ASSERT(args.count() == 1);
