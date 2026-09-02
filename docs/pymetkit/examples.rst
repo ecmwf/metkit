@@ -110,8 +110,8 @@ Equality and hashing
 --------------------
 
 Two requests are equal when they expand to the same result. The MARS language
-defines aliases, so ``"od"`` and ``"operational"`` for ``class`` refer to the same
-dataset — equality reflects that:
+defines aliases, so ``"od"`` and ``"operations"`` for ``class`` refer to the same
+dataset. Equality reflects that:
 
 .. code-block:: python
 

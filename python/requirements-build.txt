@@ -1,0 +1,21 @@
+# Build dependencies: pymetkit runtime plus everything needed to build the
+# wheel, the docs in docs/ (metkit, breathe/doxygen) and docs/pymetkit/
+# (sybil doctests).
+-r requirements.txt
+
+# Wheel build, invoked by the CMake pymetkit target
+build~=1.6.0
+
+# Sphinx and theme
+Sphinx~=8.2.3
+pydata-sphinx-theme~=0.21.0
+
+# Sphinx extensions
+breathe~=4.36.0
+myst-parser~=5.1.0
+sphinx-autoapi~=3.8.1
+sphinxcontrib-mermaid~=2.1.1
+
+# Executing the documentation examples as tests
+pytest~=9.1.1
+sybil[pytest]~=10.1.0

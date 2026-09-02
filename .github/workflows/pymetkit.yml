@@ -113,8 +113,8 @@ jobs:
           path: metkit-src
       - name: Display Python version
         run: python --version
-      - name: Install 'build'
-        run: pip install build pytest findlibs Sybil[pytest]
+      - name: Install python dependencies
+        run: pip install -r metkit-src/python/requirements-build.txt
       - name: Build metkit
         run: |
           export PATH=$(pwd)/dependencies/bin:$PATH
