@@ -30,6 +30,7 @@ namespace mars = metkit::mars;
 
 PYBIND11_MODULE(pymetkit_bindings, m) {
 
+    // Internal functions
     m.def("init_bindings", []() {
         char arg0[]  = "pymetkit";
         char* argv[] = {arg0, nullptr};
@@ -50,10 +51,7 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
     // Compile-time metkit version
     m.attr("__metkit_build_version__") = metkit_VERSION_STR;
 
-    //--------------------------------------------------
     // @brief MarsRequest
-    //--------------------------------------------------
-
     py::class_<mars::MarsRequest>(m, "MarsRequest")
         .def(py::init())
         .def(py::init([](const std::string& verb) {
@@ -80,10 +78,17 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
              })
         .def("__repr__", [](const mars::MarsRequest& request) { return request.asString(); });
 
-    //--------------------------------------------------
-    // @brief Parsing
-    //--------------------------------------------------
+    // @brief Bulk expansion
+    //
+    // One MarsExpansion serves the whole batch, so the per-verb MarsLanguage is
+    // built once instead of once per request.
+    m.def("expand_marsrequests",
+          [](const std::vector<mars::MarsRequest>& requests, bool inherit, bool strict) {
+              mars::MarsExpansion expansion(inherit, strict);
+              return expansion.expand(requests);
+          });
 
+    // @brief Parsing
     m.def("parse_marsrequests", [](const std::string& str, bool strict) {
         std::istringstream in(str);
         return mars::MarsRequest::parse(in, strict);

@@ -83,23 +83,7 @@ class MarsRequest:
         return len(self.selection[param])
 
     # -- Operations backed by the MARS language engine --------------------
-
-    def expand(self, inherit: bool = True, strict: bool = False) -> "MarsRequest":
-        """
-        Return the expanded request.
-
-        Parameters
-        ----------
-        inherit : bool
-            If True, populate the expanded request with default values.
-        strict : bool
-            If True, raise an error instead of a warning for invalid values.
-
-        Returns
-        -------
-        MarsRequest
-            The request resulting from expansion.
-        """
+    def _expand(self, inherit: bool = True, strict: bool = False) -> "MarsRequest":
         try:
             expanded = self._to_internal().expand(inherit, strict)
         except RuntimeError as error:
@@ -116,7 +100,7 @@ class MarsRequest:
         MetKitException
             If the request is incompatible with the MARS language definition.
         """
-        self.expand(inherit=False, strict=True)
+        self._expand(inherit=False, strict=True)
 
     def merge(self, other: "MarsRequest") -> "MarsRequest":
         """
@@ -173,10 +157,10 @@ class MarsRequest:
             return NotImplemented
         if self.verb() != other.verb():
             return False
-        return dict(self.expand()) == dict(other.expand())
+        return dict(self._expand()) == dict(other._expand())
 
     def __hash__(self) -> int:
-        expanded = self.expand()
+        expanded = self._expand()
         return hash(
             (
                 expanded.verb(),

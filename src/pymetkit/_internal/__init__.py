@@ -15,6 +15,7 @@ from pymetkit_bindings.pymetkit_bindings import (
     MarsRequest as _MarsRequest,
 )
 from pymetkit_bindings.pymetkit_bindings import (
+    expand_marsrequests,
     init_bindings,
     parse_marsrequest,
     parse_marsrequests,
@@ -51,6 +52,7 @@ __all__ = [
     "version_info",
     "parse_marsrequest",
     "parse_marsrequests",
+    "expand_marsrequests",
     "_MarsRequest",
     "MetKitException",
 ]
