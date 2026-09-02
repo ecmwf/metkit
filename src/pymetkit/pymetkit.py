@@ -52,6 +52,7 @@ class MarsRequest:
             raise ValueError(f"MarsRequest: expected a mapping, got {type(selection).__name__}.")
         combined: MarsSelection = selection if selection is not None else {}
         self.selection: InternalMarsSelection = UserInputMapper.map_selection_to_internal(combined)
+        self._expanded_cache: "MarsRequest | None" = None
 
     # -- Construction / conversion helpers ---------------------------------
 
@@ -84,11 +85,17 @@ class MarsRequest:
 
     # -- Operations backed by the MARS language engine --------------------
     def _expand(self, inherit: bool = True, strict: bool = False) -> "MarsRequest":
+        # Cache the default-args call used by __hash__ / __eq__.
+        use_cache = inherit and not strict
+        if use_cache and self._expanded_cache is not None:
+            return self._expanded_cache
         try:
-            expanded = self._to_internal().expand(inherit, strict)
+            expanded = MarsRequest._from_internal(self._to_internal().expand(inherit, strict))
         except RuntimeError as error:
             raise MetKitException(str(error)) from error
-        return MarsRequest._from_internal(expanded)
+        if use_cache:
+            self._expanded_cache = expanded
+        return expanded
 
     def validate(self) -> None:
         """
@@ -147,6 +154,7 @@ class MarsRequest:
         return UserInputMapper.map_values_to_external(self.selection[param])
 
     def __setitem__(self, param: str, values) -> None:
+        self._expanded_cache = None
         self.selection[param] = UserInputMapper._normalize_values(param, values)
 
     def __contains__(self, param: str) -> bool:
