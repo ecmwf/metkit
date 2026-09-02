@@ -38,14 +38,24 @@ Run the tests by switching to the ``pymetkit`` tests folder and executing ``pyte
    cd <path_to_metkit>/tests/pymetkit
    pytest
 
-Building the documentation
-**************************
-
-Install the documentation requirements and run the build script:
+The code examples in :doc:`examples` are executed as tests via
+`sybil <https://sybil.readthedocs.io>`__. They run from the build directory under their
+own ctest label, so you can exercise them separately from the unit tests:
 
 .. code-block:: sh
 
-   uv pip install -r docs/pymetkit/requirements.txt
+   cd build
+   ctest --output-on-failure -L pymetkit_doc
+
+Building the documentation
+**************************
+
+Install the build requirements and run the build script:
+
+.. code-block:: sh
+
+   uv pip install -r python/requirements-build.txt
    ./docs/pymetkit/build_docs.sh
 
-The rendered documentation is written to ``docs/pymetkit/doc-build``.
+The rendered documentation is written to ``docs/pymetkit/doc-build/sphinx``. Pass a path
+as the first argument to write it elsewhere.

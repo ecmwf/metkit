@@ -1,23 +1,15 @@
 # pymetkit
 
+[![Static Badge](https://github.com/ecmwf/codex/raw/refs/heads/main/Project%20Maturity/emerging_badge.svg)](https://github.com/ecmwf/codex/raw/refs/heads/main/Project%20Maturity#emerging)
+
+> \[!IMPORTANT\]
+> This software is **Emerging** and subject to ECMWF's guidelines on [Software Maturity](https://github.com/ecmwf/codex/raw/refs/heads/main/Project%20Maturity).
+
 `pymetkit` is a Python interface to [metkit](https://github.com/ecmwf/metkit), ECMWF's
-meteorological toolkit. It exposes the MARS request model in a Pythonic way, built on a
-[pybind11](https://github.com/pybind/pybind11) extension module (`pymetkit_bindings`) that binds the
-metkit C++ library directly.
+meteorological toolkit. It exposes the MARS request model in a Pythonic way. 
 
 The native `libmetkit` shared library and its dependencies are located at runtime via
 [findlibs](https://github.com/ecmwf/findlibs).
-
-## Architecture
-
-- `pymetkit_bindings` — compiled pybind11 module binding `metkit::mars::MarsRequest` and
-  `metkit::mars::MarsExpansion`.
-- `pymetkit._internal` — loads the native library via `findlibs`, initialises the bindings, and
-  re-exports the raw symbols.
-- `pymetkit` — the Pythonic layer: `MarsRequest` (a verb plus a `MarsSelection`),
-  `MarsSelection` (a type alias for the user-facing key-value mapping),
-  `UserInputMapper` (normalises `MarsSelection` values to and from the internal
-  `dict[str, list[str]]` representation), and `parse_mars_request`.
 
 ## Usage
 
@@ -50,3 +42,14 @@ requests = parse_mars_request("retrieve,class=od,date=-1,param=129,step=12")
 python -m pymetkit --print-home        # metkit library home
 python -m pymetkit --print-home-deps   # all dependency homes and versions
 ```
+
+## Documentation
+
+For implementation details and tooling, see the [Metkit project pages](https://sites.ecmwf.int/docs/metkit).
+
+To build the latest documentation locally, follow the guide at [Metkit](https://github.com/ecmwf/metkit).
+
+
+## License
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ecmwf/metkit/blob/develop/LICENSE)
