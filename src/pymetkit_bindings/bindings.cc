@@ -22,6 +22,7 @@
 
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit_version.h"
 
 namespace py   = pybind11;
 namespace mars = metkit::mars;
@@ -45,6 +46,9 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
 
         return dependencyInformation;
     });
+
+    // Compile-time metkit version
+    m.attr("__metkit_build_version__") = metkit_VERSION_STR;
 
     //--------------------------------------------------
     // @brief MarsRequest
