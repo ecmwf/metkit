@@ -14,9 +14,13 @@ MarsRequest
 .. autoapiclass:: pymetkit.pymetkit.MarsRequest
    :members:
 
+Expansion
+---------
+.. autoapifunction:: pymetkit.pymetkit_batch.expand
+
 Parsing
 -------
-.. autoapifunction:: pymetkit.pymetkit.parse_mars_request
+.. autoapifunction:: pymetkit.pymetkit_batch.parse_mars_request
 
 MarsSelection
 -------------
@@ -27,6 +31,6 @@ Exceptions
 .. py:exception:: pymetkit.MetKitException
 
    Raised when the underlying ``metkit`` library reports an error, for example when
-   :meth:`~pymetkit.pymetkit.MarsRequest.validate` or
-   :meth:`~pymetkit.pymetkit.MarsRequest.expand` encounters a request that is
+   :func:`~pymetkit.pymetkit_batch.expand` or
+   :meth:`~pymetkit.pymetkit.MarsRequest.validate` encounters a request that is
    incompatible with the MARS language definition. Subclasses :class:`RuntimeError`.

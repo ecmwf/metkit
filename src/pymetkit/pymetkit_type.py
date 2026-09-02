@@ -5,41 +5,34 @@ from collections.abc import Collection, Mapping
 
 InternalMarsSelection = dict[str, list[str]]
 """
-Internal representation of a MARS selection.
+Bindings-layer representation of a MARS selection: ``{key: [str, ...]}``.
 
-A key-value map, mapping MARS keys to a list of string values. This is the form
-handed to the ``pymetkit_bindings`` layer.
+All values are lists of strings. This is the form passed to and received from
+the ``pymetkit_bindings`` extension module.
 """
 
 MarsSelection = Mapping[str, "str | int | float | Collection[str | int | float]"]
 """
-Selection part of a MARS request: a mapping from MARS keys to user-supplied values.
+User-facing MARS selection: a mapping from parameter names to values.
 
-Values may be a scalar (``str``, ``int``, ``float``) or a collection of those.
-A ``str`` containing ``/`` is treated as a MARS range/list expression and split
-on ``/`` by :meth:`UserInputMapper.map_selection_to_internal`.
+Each value may be a scalar (``str``, ``int``, ``float``) or a collection of
+those. A ``str`` containing ``/`` is treated as a MARS range expression and
+split by :meth:`UserInputMapper.map_selection_to_internal`.
 """
 
 
 class UserInputMapper:
     """
-    Normalises user-supplied MARS selections to and from the internal
-    ``dict[str, list[str]]`` representation used by the bindings layer.
-
-    - :meth:`map_selection_to_internal` converts a user-facing
-      :data:`MarsSelection` (scalars, collections, range expressions) to an
-      :data:`InternalMarsSelection`.
-    - :meth:`map_selection_to_external` converts an :data:`InternalMarsSelection`
-      back to a user-friendly form, collapsing single-element lists to scalars.
+    Converts between user-supplied :data:`MarsSelection` values and the
+    ``dict[str, list[str]]`` form required by the bindings layer.
     """
 
     @classmethod
     def map_selection_to_internal(cls, selection: MarsSelection) -> InternalMarsSelection:
-        """Normalise a user-supplied selection to ``dict[str, list[str]]``.
+        """Convert a :data:`MarsSelection` to ``dict[str, list[str]]``.
 
-        Each value is converted to a list of strings: scalars are wrapped in a
-        one-element list, collections are stringified element-by-element, and
-        ``str`` values containing ``/`` are split on ``/``.
+        Scalars are wrapped in a single-element list, collections are
+        stringified element-by-element, and ``/``-separated strings are split.
         """
         result: InternalMarsSelection = {}
 
@@ -50,10 +43,10 @@ class UserInputMapper:
 
     @classmethod
     def map_selection_to_external(cls, selection: InternalMarsSelection) -> MarsSelection:
-        """Convert an internal selection back to a user-friendly form.
+        """Convert an :data:`InternalMarsSelection` to a user-friendly form.
 
-        Each ``list[str]`` value is collapsed to a plain ``str`` if it contains
-        a single element, or left as a ``list[str]`` if it contains multiple.
+        Single-element lists are collapsed to a plain ``str``; multi-element
+        lists are returned as-is.
         """
         result = {}
 
@@ -64,7 +57,7 @@ class UserInputMapper:
 
     @staticmethod
     def map_values_to_external(values: Collection[str]) -> str | list[str]:
-        """Collapse a single-element list to a scalar; return multi-element lists as-is."""
+        """Return a scalar for single-element lists, or the list unchanged."""
         values = list(values)
         if len(values) == 1:
             return values[0]

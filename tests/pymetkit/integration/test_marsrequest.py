@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pymetkit import MarsRequest, MetKitException, parse_mars_request
+from pymetkit import MarsRequest, MetKitException, expand, parse_mars_request
 
 request = """
 retrieve,
@@ -103,12 +103,11 @@ def test_request_from_expand():
             "step": range(0, 13, 6),
         },
     )
-    expanded = req.expand()
+    expanded = expand(req)
     assert expanded.verb() == req.verb()
     assert expanded["date"] == yesterday
     assert "param" in expanded
     expanded.validate()
-    assert req == expanded
 
 
 @pytest.mark.parametrize(

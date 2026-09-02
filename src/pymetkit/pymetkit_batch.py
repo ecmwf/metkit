@@ -3,8 +3,39 @@
 
 """Bulk operations over :class:`~pymetkit.pymetkit.MarsRequest` objects."""
 
-from pymetkit._internal import MetKitException, expand_marsrequests
+from typing import IO
+
+from pymetkit._internal import MetKitException, expand_marsrequests, parse_marsrequests
 from pymetkit.pymetkit import MarsRequest
+
+
+def parse_mars_request(file_or_str: IO | str, strict: bool = False) -> list[MarsRequest]:
+    """
+    Parse one or more MARS requests from a string or file-like object.
+
+    Parameters
+    ----------
+    file_or_str : str | IO
+        MARS request text, or an open file containing it.
+    strict : bool
+        If True, raise on invalid values instead of discarding them.
+
+    Returns
+    -------
+    list[MarsRequest]
+        The parsed requests, in the order they appear in the input.
+
+    Raises
+    ------
+    MetKitException
+        If the input cannot be parsed.
+    """
+    text = file_or_str if isinstance(file_or_str, str) else file_or_str.read()
+    try:
+        requests = parse_marsrequests(text, strict)
+    except RuntimeError as error:
+        raise MetKitException(str(error)) from error
+    return [MarsRequest._from_internal(request) for request in requests]
 
 
 def expand(
@@ -15,25 +46,25 @@ def expand(
     """
     Expand one or more requests against the MARS language definition.
 
-    Calling :meth:`~pymetkit.pymetkit.MarsRequest.expand` per request rebuilds
-    the language definition for its verb every time. Expanding a batch through
-    this method shares one expansion across all of them, so the per-verb
-    language is built once.
+    Internal language checks are performed once for the whole batch rather than
+    once per request. Pass a list whenever expanding more than one request.
+
+    A single :class:`MarsRequest` may also be passed directly; the return type
+    matches the input shape.
 
     Parameters
     ----------
-    mars_requests : list[MarsRequest] | MarsRequest
-        The request, or requests, to expand.
+    mars_requests : MarsRequest | list[MarsRequest]
+        The request or requests to expand.
     inherit : bool
-        If True, populate the expanded requests with default values.
+        If True, populate the result with default values for missing parameters.
     strict : bool
-        If True, raise an error instead of a warning for invalid values.
+        If True, raise on invalid values instead of issuing a warning.
 
     Returns
     -------
-    list[MarsRequest] | MarsRequest
-        The expanded requests, matching the shape of the input: a single
-        request in returns a single request out.
+    MarsRequest | list[MarsRequest]
+        The expanded request(s). A single input returns a single output.
 
     Raises
     ------

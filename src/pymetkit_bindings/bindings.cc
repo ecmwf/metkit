@@ -20,6 +20,7 @@
 #include "eckit/system/Library.h"
 #include "eckit/system/LibraryManager.h"
 
+#include "eckit/utils/MD5.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
 #include "metkit_version.h"
@@ -76,17 +77,22 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
                  mars::MarsExpansion expansion(inherit, strict);
                  return expansion.expand(request);
              })
+        .def("md5",
+             [](const mars::MarsRequest& request) {
+                 eckit::MD5 md5;
+                 request.md5(md5);
+                 return md5.digest();
+             })
         .def("__repr__", [](const mars::MarsRequest& request) { return request.asString(); });
 
     // @brief Bulk expansion
     //
     // One MarsExpansion serves the whole batch, so the per-verb MarsLanguage is
     // built once instead of once per request.
-    m.def("expand_marsrequests",
-          [](const std::vector<mars::MarsRequest>& requests, bool inherit, bool strict) {
-              mars::MarsExpansion expansion(inherit, strict);
-              return expansion.expand(requests);
-          });
+    m.def("expand_marsrequests", [](const std::vector<mars::MarsRequest>& requests, bool inherit, bool strict) {
+        mars::MarsExpansion expansion(inherit, strict);
+        return expansion.expand(requests);
+    });
 
     // @brief Parsing
     m.def("parse_marsrequests", [](const std::string& str, bool strict) {

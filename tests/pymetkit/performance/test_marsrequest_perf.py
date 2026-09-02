@@ -50,10 +50,11 @@ BUDGET_CHEAP_QUERY = 3.0
 BUDGET_ITERATE = 3.0
 BUDGET_DICT = 3.0
 BUDGET_REPR = 10.0
-BUDGET_EXPAND = 60.0
-BUDGET_HASH = 60.0
-BUDGET_SET = 90.0
-BUDGET_COMPARE = 30.0
+BUDGET_EXPAND_SINGLE = 60.0
+BUDGET_EXPAND_BATCH = 5.0
+BUDGET_HASH = 1.0
+BUDGET_SET = 0.5
+BUDGET_COMPARE = 1.0
 BUDGET_MERGE = 30.0
 
 
@@ -97,11 +98,18 @@ def expandable_requests():
     return _requests()
 
 
-# ---------------------------------------------------------------------------
+@pytest.fixture(scope="module")
+def expandable_requests_small():
+    """Requests for the expansion tier; skips when the language defs are absent."""
+    try:
+        expand(MarsRequest("retrieve", _selection(0)))
+    except Exception as error:
+        pytest.skip(f"MARS language definitions unavailable: {error}")
+
+    return _requests(100)
+
+
 # Pure Python layer: construction
-# ---------------------------------------------------------------------------
-
-
 def test_construct_requests():
     with timed("construct", BUDGET_CONSTRUCT, REQUEST_COUNT):
         _requests()
@@ -128,11 +136,7 @@ def test_construct_large_value_lists():
             MarsRequest("retrieve", {"step": as_range_expression})
 
 
-# ---------------------------------------------------------------------------
 # Pure Python layer: accessors
-# ---------------------------------------------------------------------------
-
-
 def test_getitem_churn():
     requests = _requests()
     keys = list(requests[0].keys())
@@ -200,14 +204,19 @@ def test_repr_marshalling():
             repr(request)
 
 
-# ---------------------------------------------------------------------------
 # Expansion-backed: needs the MARS language definitions
-# ---------------------------------------------------------------------------
+def test_expand_single(expandable_requests_small):
+    # Baseline: one MarsExpansion instance per request.
+    with timed(
+        f"expand() {len(expandable_requests_small)} single", BUDGET_EXPAND_SINGLE, len(expandable_requests_small)
+    ):
+        for request in expandable_requests_small:
+            request.expand()
 
 
-def test_expand(expandable_requests):
-    # Batch expand: one MarsExpansion instance for all requests.
-    with timed("expand()", BUDGET_EXPAND, REQUEST_COUNT):
+def test_expand_batch(expandable_requests):
+    # Batch: one MarsExpansion instance shared across all requests.
+    with timed(f"expand() {len(expandable_requests)} batch", BUDGET_EXPAND_BATCH, REQUEST_COUNT):
         expand(expandable_requests)
 
 
