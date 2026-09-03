@@ -133,7 +133,8 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
 
             tables::TypeOfEnsembleForecast typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Missing;
 
-            if (marsType == "cf") {
+            // NOTE: MARS type 'cf' is deprecated since CY50r1
+            if (marsType == "cf" || marsType == "fc") {
                 typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Unperturbed;
             }
             else if (marsType == "pf") {

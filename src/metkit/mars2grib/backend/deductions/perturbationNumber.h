@@ -80,12 +80,20 @@ template <class MarsDict_t, class ParDict_t, class OptDict_t>
 long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
         // Retrieve mandatory perturbation number from input dictionaries
-        auto perturbationNumber = get_or_throw<long>(mars, "number");
+        // NOTE: MARS number is implied to be 0 if oper/fc data
+        const auto perturbationNumber = [&]() {
+            if (has(mars, "stream") && has(mars, "type") && get_or_throw<std::string>(mars, "stream") == "oper" &&
+                get_or_throw<std::string>(mars, "type") == "fc") {
+                return 0L;
+            }
+            return get_or_throw<long>(mars, "number");
+        }();
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
