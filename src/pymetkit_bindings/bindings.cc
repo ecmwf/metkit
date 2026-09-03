@@ -20,8 +20,10 @@
 #include "eckit/system/Library.h"
 #include "eckit/system/LibraryManager.h"
 
+#include "eckit/utils/MD5.h"
 #include "metkit/mars/MarsExpansion.h"
 #include "metkit/mars/MarsRequest.h"
+#include "metkit_version.h"
 
 namespace py   = pybind11;
 namespace mars = metkit::mars;
@@ -29,6 +31,7 @@ namespace mars = metkit::mars;
 
 PYBIND11_MODULE(pymetkit_bindings, m) {
 
+    // Internal functions
     m.def("init_bindings", []() {
         char arg0[]  = "pymetkit";
         char* argv[] = {arg0, nullptr};
@@ -46,12 +49,13 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
         return dependencyInformation;
     });
 
-    //--------------------------------------------------
-    // @brief MarsRequest
-    //--------------------------------------------------
+    // Compile-time metkit version
+    m.attr("__metkit_build_version__") = metkit_VERSION_STR;
 
+    // @brief MarsRequest
     py::class_<mars::MarsRequest>(m, "MarsRequest")
         .def(py::init())
+        .def(py::init<const mars::MarsRequest&>())
         .def(py::init([](const std::string& verb) {
             mars::MarsRequest request;
             request.verb(verb);
@@ -69,22 +73,43 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
                  return std::vector<std::string>{values.begin(), values.end()};
              })
         .def("merge", [](mars::MarsRequest& request, const mars::MarsRequest& other) { request.merge(other); })
-        .def("expand",
-             [](const mars::MarsRequest& request, bool inherit, bool strict) {
-                 mars::MarsExpansion expansion(inherit, strict);
-                 return expansion.expand(request);
+        .def(
+            "expand",
+            [](const mars::MarsRequest& request, bool inherit, bool strict) {
+                mars::MarsExpansion expansion(inherit, strict);
+                return expansion.expand(request);
+            },
+            py::call_guard<py::gil_scoped_release>())
+        .def("md5",
+             [](const mars::MarsRequest& request) {
+                 eckit::MD5 md5;
+                 request.md5(md5);
+                 return md5.digest();
              })
         .def("__repr__", [](const mars::MarsRequest& request) { return request.asString(); });
 
-    //--------------------------------------------------
+    // @brief Bulk expansion
+    //
+    // One MarsExpansion serves the whole batch, so the per-verb MarsLanguage is
+    // built once instead of once per request.
+    m.def(
+        "expand_marsrequests",
+        [](const std::vector<mars::MarsRequest>& requests, bool inherit, bool strict) {
+            mars::MarsExpansion expansion(inherit, strict);
+            return expansion.expand(requests);
+        },
+        py::call_guard<py::gil_scoped_release>());
+
     // @brief Parsing
-    //--------------------------------------------------
+    m.def(
+        "parse_marsrequests",
+        [](const std::string& str, bool strict) {
+            std::istringstream in(str);
+            return mars::MarsRequest::parse(in, strict);
+        },
+        py::call_guard<py::gil_scoped_release>());
 
-    m.def("parse_marsrequests", [](const std::string& str, bool strict) {
-        std::istringstream in(str);
-        return mars::MarsRequest::parse(in, strict);
-    });
-
-    m.def("parse_marsrequest",
-          [](const std::string& str, bool strict) { return mars::MarsRequest::parse(str, strict); });
+    m.def(
+        "parse_marsrequest", [](const std::string& str, bool strict) { return mars::MarsRequest::parse(str, strict); },
+        py::call_guard<py::gil_scoped_release>());
 }

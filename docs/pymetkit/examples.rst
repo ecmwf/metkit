@@ -106,32 +106,35 @@ Use ``in`` to guard access to parameters that may not be present:
    step = request["step"] if "step" in request else "0"
    assert step == "0"
 
-Equality and hashing
---------------------
+Equality
+--------
 
-Two requests are equal when they expand to the same result. The MARS language
-defines aliases, so ``"od"`` and ``"operational"`` for ``class`` refer to the same
-dataset — equality reflects that:
+Two requests are equal when they expand to the same result. MARS language aliases
+are resolved, so ``"od"`` and ``"operations"`` compare equal. Equality requires
+the MARS language definitions to be present.
 
 .. code-block:: python
 
    from pymetkit import MarsRequest
 
-   r1 = MarsRequest("retrieve", {"class": "od",          "date": "20230101", "param": "130"})
-   r2 = MarsRequest("retrieve", {"class": "operations",  "date": "20230101", "param": "130"})
+   r1 = MarsRequest("retrieve", {"class": "od",         "date": "20230101", "param": "130"})
+   r2 = MarsRequest("retrieve", {"class": "operations", "date": "20230101", "param": "130"})
+   r3 = MarsRequest("retrieve", {"class": "od",         "date": "20230101", "param": "131"})
 
-   assert r1 == r2
+   assert r1 == r2   # "od" and "operations" are aliases
+   assert r1 != r3
 
 Expanding and validating
--------------------------
+------------------------
 
-:meth:`~pymetkit.pymetkit.MarsRequest.expand` returns a new request expanded against the
-MARS language definition; :meth:`~pymetkit.pymetkit.MarsRequest.validate` checks a request
-without inheriting defaults and raises :class:`~pymetkit.MetKitException` on invalid input.
+:func:`~pymetkit.pymetkit_batch.expand` returns one or more requests expanded
+against the MARS language definition.
+:meth:`~pymetkit.pymetkit.MarsRequest.validate` checks a request without
+inheriting defaults and raises :class:`~pymetkit.MetKitException` on invalid input.
 
 .. code-block:: python
 
-   from pymetkit import MarsRequest
+   from pymetkit import MarsRequest, expand
 
    request = MarsRequest(
        "retrieve",
@@ -144,10 +147,24 @@ without inheriting defaults and raises :class:`~pymetkit.MetKitException` on inv
        },
    )
 
-   expanded = request.expand()          # inherit=True: fills in default values
+   expanded = expand(request)           # inherit=True: fills in default values
    assert expanded.verb() == "retrieve"
 
    request.validate()                   # raises MetKitException if invalid
+
+When expanding multiple requests, pass them as a list. Internal language checks
+are performed once for the whole batch rather than once per request:
+
+.. code-block:: python
+
+   from pymetkit import MarsRequest, expand
+
+   requests = [
+       MarsRequest("retrieve", {"class": "od", "date": "-1", "param": str(p)})
+       for p in [129, 130, 131]
+   ]
+   expanded = expand(requests)
+   assert len(expanded) == 3
 
 Merging requests
 ----------------

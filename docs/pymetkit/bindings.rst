@@ -104,13 +104,6 @@ Classes
 
       :rtype: list[str]
 
-   .. py:method:: count_values(param)
-
-      Return the number of values held for ``param``.
-
-      :param str param: the parameter name.
-      :rtype: int
-
    .. py:method:: values(param)
 
       Return the values held for ``param``.

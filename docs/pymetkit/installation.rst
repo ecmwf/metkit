@@ -25,10 +25,28 @@ Runtime Dependencies
 +----------+---------------------------------------------+
 |Dependency|Link                                         |
 +----------+---------------------------------------------+
+|metkit    |https://github.com/ecmwf/metkit              |
++----------+---------------------------------------------+
 |eckit     |https://github.com/ecmwf/eckit               |
 +----------+---------------------------------------------+
 |eccodes   |https://github.com/ecmwf/eccodes             |
 +----------+---------------------------------------------+
+
+``eccodes`` is optional. The CLI reports it as ``[Optional]`` and a missing
+``eccodes`` does not cause a non-zero exit.
+
+Python Dependencies
+^^^^^^^^^^^^^^^^^^^
+
+``pymetkit`` requires ``Python >= 3.11``. The runtime dependencies are pinned in
+``python/requirements.txt``:
+
+.. code-block:: sh
+
+   uv pip install -r python/requirements.txt
+
+``python/requirements-build.txt`` additionally covers everything needed to build the
+documentation and run the doctests.
 
 Build from sources (recommended)
 ********************************
@@ -104,6 +122,21 @@ variables that suppress specific search paths:
 
    python -m pymetkit --print-home-deps
 
+Add ``-v`` / ``--verbose`` to either command to raise the log level from ``INFO`` to
+``DEBUG``.
+
 ``ERROR`` lines indicate dependencies ``findlibs`` could not locate — set the
 corresponding ``<LIBNAME>_HOME`` environment variable to resolve them explicitly.
-``eccodes`` is optional and is reported as such.
+
+The exit code tells you whether the resolution succeeded:
+
++---------+--------------------------------------------------------------+
+|Exit code|Meaning                                                       |
++---------+--------------------------------------------------------------+
+|0        |All required dependencies resolved. A missing optional        |
+|         |dependency (``eccodes``) still exits ``0``.                   |
++---------+--------------------------------------------------------------+
+|1        |A required dependency could not be located.                   |
++---------+--------------------------------------------------------------+
+|2        |No flag given; the help text is printed instead.              |
++---------+--------------------------------------------------------------+

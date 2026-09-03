@@ -18,11 +18,13 @@ It exposes the MARS request model as Pythonic objects built on a
 ``metkit`` C++ library directly. The interface is organized in three layers:
 
 - :doc:`api` — the Pythonic layer: :class:`~pymetkit.pymetkit.MarsRequest`
-  (a verb plus a :data:`~pymetkit.pymetkit_type.MarsSelection`) and
-  :func:`~pymetkit.pymetkit.parse_mars_request`.
-- ``pymetkit._internal`` — glue that locates and loads ``libmetkit`` via
-  `findlibs <https://github.com/ecmwf/findlibs>`__, initialises the bindings, and
-  re-exports the raw symbols. Not intended for direct use.
+  (a verb plus a :data:`~pymetkit.pymetkit_type.MarsSelection`),
+  :func:`~pymetkit.pymetkit.parse_mars_request`, and
+  :func:`~pymetkit.pymetkit_batch.expand`.
+- ``pymetkit._internal`` — locates and loads ``libmetkit`` at import time via
+  `findlibs <https://github.com/ecmwf/findlibs>`__, verifies the runtime version
+  against the build-time version, initialises the bindings, and re-exports the
+  low-level symbols. Internal; not part of the public API.
 - :doc:`bindings` — the compiled ``pymetkit_bindings`` module that binds
   ``metkit::mars::MarsRequest`` and ``metkit::mars::MarsExpansion``.
 
@@ -54,7 +56,7 @@ Quick start
 
 .. code-block:: python
 
-   from pymetkit import MarsRequest, parse_mars_request
+   from pymetkit import MarsRequest, expand, parse_mars_request
 
    request = MarsRequest(
        "retrieve",
@@ -67,8 +69,17 @@ Quick start
        },
    )
 
-   expanded = request.expand()
+   # Expand a single request.
+   expanded = expand(request)
    print(expanded.verb(), dict(expanded))
+
+   # Expand a batch. Internal language checks are performed once for the
+   # whole batch, rather than once per request.
+   requests = [
+       MarsRequest("retrieve", {"class": "od", "date": "-1", "param": str(p)})
+       for p in [129, 130, 131]
+   ]
+   expanded_batch = expand(requests)
 
    for req in parse_mars_request("retrieve,class=od,date=-1,param=129,step=12"):
        print(req.verb(), req["param"])
