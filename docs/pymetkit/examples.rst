@@ -106,35 +106,23 @@ Use ``in`` to guard access to parameters that may not be present:
    step = request["step"] if "step" in request else "0"
    assert step == "0"
 
-Equality and hashing
---------------------
+Equality
+--------
 
-Two requests are equal when their verb and parameter values are identical.
-Equality is based on the pre-expansion form of the request: MARS language aliases
-are not resolved, so ``"od"`` and ``"operations"`` are considered distinct values.
+Two requests are equal when they expand to the same result. MARS language aliases
+are resolved, so ``"od"`` and ``"operations"`` compare equal. Equality requires
+the MARS language definitions to be present.
 
 .. code-block:: python
 
    from pymetkit import MarsRequest
 
-   r1 = MarsRequest("retrieve", {"class": "od", "date": "20230101", "param": "130"})
-   r2 = MarsRequest("retrieve", {"class": "od", "date": "20230101", "param": "130"})
-   r3 = MarsRequest("retrieve", {"class": "od", "date": "20230101", "param": "131"})
+   r1 = MarsRequest("retrieve", {"class": "od",         "date": "20230101", "param": "130"})
+   r2 = MarsRequest("retrieve", {"class": "operations", "date": "20230101", "param": "130"})
+   r3 = MarsRequest("retrieve", {"class": "od",         "date": "20230101", "param": "131"})
 
-   assert r1 == r2
+   assert r1 == r2   # "od" and "operations" are aliases
    assert r1 != r3
-
-Requests are hashable and can be used as dictionary keys or stored in sets:
-
-.. code-block:: python
-
-   from pymetkit import MarsRequest
-
-   r1 = MarsRequest("retrieve", {"class": "od", "param": "130"})
-   r2 = MarsRequest("retrieve", {"class": "od", "param": "130"})
-   r3 = MarsRequest("retrieve", {"class": "od", "param": "131"})
-
-   assert len({r1, r2, r3}) == 2
 
 Expanding and validating
 ------------------------

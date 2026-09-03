@@ -55,6 +55,7 @@ PYBIND11_MODULE(pymetkit_bindings, m) {
     // @brief MarsRequest
     py::class_<mars::MarsRequest>(m, "MarsRequest")
         .def(py::init())
+        .def(py::init<const mars::MarsRequest&>())
         .def(py::init([](const std::string& verb) {
             mars::MarsRequest request;
             request.verb(verb);

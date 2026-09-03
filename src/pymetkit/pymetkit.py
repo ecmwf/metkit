@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Mapping
-from typing import IO, Iterator
+from typing import Iterator
 
 from pymetkit._internal import MetKitException, _MarsRequest
-from pymetkit.pymetkit_type import InternalMarsSelection, MarsSelection, UserInputMapper
+from pymetkit.pymetkit_type import MarsSelection, UserInputMapper
 
 
 class MarsRequest:
@@ -45,43 +45,43 @@ class MarsRequest:
     """
 
     def __init__(self, verb: str, selection: MarsSelection | None = None, /):
-        self._verb = verb
         if selection is not None and not isinstance(selection, Mapping):
             raise ValueError(f"MarsRequest: expected a mapping, got {type(selection).__name__}.")
-        combined: MarsSelection = selection if selection is not None else {}
-        self.selection: InternalMarsSelection = UserInputMapper.map_selection_to_internal(combined)
-        self._hash_cache: "int | None" = None
+        self._internal = _MarsRequest(verb)
+        if selection:
+            for param, values in UserInputMapper.map_selection_to_internal(selection).items():
+                self._internal.set(param, values)
 
     # -- Construction / conversion helpers ---------------------------------
 
     def _to_internal(self) -> _MarsRequest:
-        internal = _MarsRequest(self._verb)
-        for param, values in self.selection.items():
-            internal.set(param, list(values))
-        return internal
+        return self._internal
 
     @classmethod
     def _from_internal(cls, internal: _MarsRequest) -> "MarsRequest":
-        request = cls(internal.verb())
-        for param in internal.params():
-            request.selection[param] = internal.values(param)
+        request = cls.__new__(cls)
+        request._internal = internal
         return request
 
     # -- Queries -----------------------------------------------------------
 
     def verb(self) -> str:
         """Return the verb of the request."""
-        return self._verb
+        return self._internal.verb()
 
     def keys(self) -> Iterator[str]:
         """Return an iterator over the parameter names."""
-        return iter(self.selection.keys())
+        return iter(self._internal.params())
 
     def num_values(self, param: str) -> int:
         """Return the number of values stored for *param*."""
-        return len(self.selection[param])
+        try:
+            return len(self._internal.values(param))
+        except RuntimeError:
+            raise KeyError(param)
 
     # -- Operations backed by the MARS language engine --------------------
+
     def expand(self, inherit: bool = True, strict: bool = False) -> "MarsRequest":
         """
         Return the expanded request.
@@ -109,10 +109,9 @@ class MarsRequest:
             If the request is incompatible with the MARS language definition.
         """
         try:
-            expanded = MarsRequest._from_internal(self._to_internal().expand(inherit, strict))
+            return MarsRequest._from_internal(self._internal.expand(inherit, strict))
         except RuntimeError as error:
             raise MetKitException(str(error)) from error
-        return expanded
 
     def validate(self) -> None:
         """
@@ -154,61 +153,56 @@ class MarsRequest:
         """
         if set(self.keys()) != set(other.keys()):
             raise ValueError("Cannot merge requests with different parameters.")
-        internal = self._to_internal()
+
+        # C++ merge() modifies the receiver in-place; work on a copy.
+        copy = _MarsRequest(self._internal)
         try:
-            internal.merge(other._to_internal())
+            copy.merge(other._internal)
         except RuntimeError as error:
             raise MetKitException(str(error)) from error
-        result = MarsRequest._from_internal(internal)
+
+        result = MarsRequest._from_internal(copy)
         result.validate()
         return result
 
     # -- Mapping-like interface -------------------------------------------
 
-    def __iter__(self) -> Iterator[tuple[str, str | list[str]]]:
+    def __iter__(self) -> Iterator[tuple[str, "str | list[str]"]]:
         """Yield ``(name, value)`` pairs. Single-value parameters yield a scalar."""
-        for key in self.selection:
-            yield key, UserInputMapper.map_values_to_external(self.selection[key])
+        for key in self._internal.params():
+            yield key, UserInputMapper.map_values_to_external(self._internal.values(key))
 
-    def __getitem__(self, param: str) -> str | list[str]:
+    def __getitem__(self, param: str) -> "str | list[str]":
         """Return the value(s) for *param*. Single-value parameters return a scalar."""
-        return UserInputMapper.map_values_to_external(self.selection[param])
+        try:
+            return UserInputMapper.map_values_to_external(self._internal.values(param))
+        except RuntimeError:
+            raise KeyError(param)
 
     def __setitem__(self, param: str, values) -> None:
         """Set *param* to *values*. Accepts the same value forms as the constructor."""
-        self._hash_cache = None
-        self.selection[param] = UserInputMapper._normalize_values(param, values)
+        self._internal.set(param, UserInputMapper._normalize_values(param, values))
 
     def __contains__(self, param: str) -> bool:
         """Return ``True`` if *param* is present in the request."""
-        return param in self.selection
+        return self._internal.has(param)
 
     def __eq__(self, other: object) -> bool:
         """
-        Return ``True`` if both requests have identical verb and parameter values.
+        Return ``True`` if both requests are equivalent after expansion.
 
-        Equality is based on the pre-expansion form of the request. MARS language
-        aliases are not resolved: ``"od"`` and ``"operations"`` are distinct values.
+        MARS language aliases are resolved: ``"od"`` and ``"operations"`` compare
+        equal. Raises :exc:`MetKitException` if either request cannot be expanded.
         """
         if not isinstance(other, MarsRequest):
             return NotImplemented
-        if self._hash_cache is None:
-            self._hash_cache = hash(self)
-        if other._hash_cache is None:
-            other._hash_cache = hash(other)
-        return self._hash_cache == other._hash_cache
-
-    def __hash__(self) -> int:
-        """
-        Return a hash of the pre-expansion form of the request.
-
-        Computed on first access and cached. Mutating the request via
-        ``__setitem__`` invalidates the cache.
-        """
-        if self._hash_cache is None:
-            self._hash_cache = hash(self._to_internal().md5())
-        return hash(self._hash_cache)
+        try:
+            left = self._internal.expand(True, False)
+            right = other._internal.expand(True, False)
+        except RuntimeError as error:
+            raise MetKitException(str(error)) from error
+        return left.md5() == right.md5()
 
     def __repr__(self) -> str:
         """Return the MARS request string."""
-        return repr(self._to_internal())
+        return repr(self._internal)

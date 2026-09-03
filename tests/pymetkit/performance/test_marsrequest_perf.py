@@ -17,8 +17,7 @@ ctest normally injects; without them those cases skip:
 Two costs are easy to incur without noticing, and this test makes both visible:
 
 - ``__getitem__`` and ``__iter__`` copy the value list on *every* read.
-- ``__hash__`` expands once and ``__eq__`` expands twice, so putting requests in
-  a ``set`` drives one C++ expansion per element.
+- ``__eq__`` expands both sides, so comparing requests drives two C++ expansions.
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -55,9 +54,7 @@ BUDGET_EXPAND_SINGLE = 60.0
 BUDGET_EXPAND_BATCH = 5.0
 BUDGET_EXPAND_PARALLEL = 3.0
 PARALLEL_WORKER_COUNT = 20
-BUDGET_HASH = 1.0
-BUDGET_SET = 0.5
-BUDGET_COMPARE = 1.0
+BUDGET_COMPARE = 15.0
 BUDGET_MERGE = 30.0
 
 
@@ -237,23 +234,8 @@ def test_expand_parallel_batches(expandable_requests):
     assert sum(len(batch) for batch in results) == REQUEST_COUNT
 
 
-def test_hash(expandable_requests):
-    # One hidden expansion per call.
-    with timed("hash()", BUDGET_HASH, REQUEST_COUNT):
-        for request in expandable_requests:
-            hash(request)
-
-
-def test_set_construction(expandable_requests):
-    # Hashing every element, plus __eq__ (two more expansions) on collision.
-    with timed("set(requests)", BUDGET_SET, REQUEST_COUNT):
-        result = set(expandable_requests)
-
-    assert result
-
-
 def test_equality(expandable_requests):
-    # Two expansions per comparison.
+    # Two expansions per comparison (one per side).
     left = expandable_requests[:COMPARE_COUNT]
     right = _requests(COMPARE_COUNT)
 
