@@ -143,6 +143,8 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
         }
         else if (marsTypeVal == "fc") {
 
+            return TypeOfGeneratingProcess::EnsembleForecast;
+
             // Detect ensemble evidence even when MARS `type` is the generic
             // `fc`. Legacy GRIB1 data (and some rewritten streams) may carry
             // `type=fc` together with ensemble-describing keys; in that case
