@@ -21,6 +21,7 @@ Two costs are easy to incur without noticing, and this test makes both visible:
   a ``set`` drives one C++ expansion per element.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from time import perf_counter
 
@@ -52,6 +53,8 @@ BUDGET_DICT = 3.0
 BUDGET_REPR = 10.0
 BUDGET_EXPAND_SINGLE = 60.0
 BUDGET_EXPAND_BATCH = 5.0
+BUDGET_EXPAND_PARALLEL = 3.0
+PARALLEL_WORKER_COUNT = 20
 BUDGET_HASH = 1.0
 BUDGET_SET = 0.5
 BUDGET_COMPARE = 1.0
@@ -218,6 +221,20 @@ def test_expand_batch(expandable_requests):
     # Batch: one MarsExpansion instance shared across all requests.
     with timed(f"expand() {len(expandable_requests)} batch", BUDGET_EXPAND_BATCH, REQUEST_COUNT):
         expand(expandable_requests)
+
+
+def test_expand_parallel_batches(expandable_requests):
+    # Parallel: GIL released during C++ expansion, so threads run concurrently.
+    # Each worker gets an equal sub-batch; MarsExpansion instances are independent.
+    batch_size = len(expandable_requests) // PARALLEL_WORKER_COUNT
+    batches = [expandable_requests[i * batch_size : (i + 1) * batch_size] for i in range(PARALLEL_WORKER_COUNT)]
+
+    with timed(f"expand() {PARALLEL_WORKER_COUNT}x parallel batch", BUDGET_EXPAND_PARALLEL, REQUEST_COUNT):
+        with ThreadPoolExecutor(max_workers=PARALLEL_WORKER_COUNT) as pool:
+            futures = [pool.submit(expand, batch) for batch in batches]
+            results = [future.result() for future in futures]
+
+    assert sum(len(batch) for batch in results) == REQUEST_COUNT
 
 
 def test_hash(expandable_requests):
