@@ -1,11 +1,51 @@
-import pytest
 import logging
-from pathlib import Path
+
+import pytest
 
 logger = logging.getLogger(__name__)
 
 from pymetkit import MarsRequest, MarsSelection
 from pymetkit.experimental.mars2mars import Mars2Mars
+
+
+def test_convert_mars_request_multi_value():
+
+    mars_selection: MarsSelection = {
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "1",
+        "date": "2026-02-09",
+        "time": "00:00:00",
+        "levtype": "sfc",
+        "param": "261018/261019",
+        "step": "0",
+    }
+
+    request = MarsRequest("retrieve", mars_selection).expand()
+
+    with pytest.raises(RuntimeError, match="expects a single MARS point"):
+        Mars2Mars().convert(mars_request=request)
+
+
+def test_convert_mars_request_multi_value_dict():
+
+    mars_selection: MarsSelection = {
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "1",
+        "date": "2026-02-09",
+        "time": "00:00:00",
+        "levtype": "sfc",
+        "param": ["261018", "261019"],
+        "step": "0",
+    }
+
+    request = MarsRequest("retrieve", mars_selection).expand()
+
+    with pytest.raises(RuntimeError, match="expects a single MARS point"):
+        Mars2Mars().convert(mars_request=request)
 
 
 def test_convert_mars_request_to_json():
@@ -56,6 +96,28 @@ def test_convert_typed_dict_to_json():
 
     logger.debug(json.dumps(request))
     logger.debug(json.dumps(misc))
+
+
+def test_convert_typed_dict_multiple_values_to_json():
+
+    request = {
+        "origin": "ecmf",
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "0001",
+        "grid": "N200",
+        "packing": "ccsds",
+        "param": [130, 131],
+        "levtype": "hl",
+        "levelist": 2,
+        "date": 20260205,
+        "time": 000000,
+        "step": 0,
+    }
+
+    with pytest.raises(RuntimeError, match="is not of expected type"):
+        Mars2Mars().convert(mars_request=request)
 
 
 def test_convert_string_dict_to_json():
