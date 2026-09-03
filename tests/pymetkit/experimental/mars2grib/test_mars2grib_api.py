@@ -28,6 +28,31 @@ def test_encode_dict():
     encoder.encode(vals, mars)
 
 
+def test_encode_dict_multi_values():
+    encoder = Mars2Grib()
+
+    mars = {
+        "origin": "ecmf",
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "0001",
+        "grid": "N200",
+        "packing": "ccsds",
+        "param": [130, 131],
+        "levtype": "hl",
+        "levelist": 2,
+        "date": 20260205,
+        "time": 000000,
+        "step": 0,
+    }
+
+    vals = [237.15] * 200
+
+    with pytest.raises(RuntimeError, match="not of expected type"):
+        encoder.encode(vals, mars)
+
+
 def test_encode_dict_string():
     encoder = Mars2Grib()
 
@@ -40,6 +65,32 @@ def test_encode_dict_string():
         "grid": "N200",
         "packing": "ccsds",
         "param": "130",
+        "levtype": "hl",
+        "levelist": "2",
+        "date": "20260205",
+        "time": "000000",
+        "step": "0",
+    }
+
+    vals = [237.15] * 200
+
+    # We don't support dict[str, str] yet
+    with pytest.raises(RuntimeError):
+        encoder.encode(vals, mars)
+
+
+def test_encode_dict_string_multiple_values():
+    encoder = Mars2Grib()
+
+    mars = {
+        "origin": "ecmf",
+        "class": "od",
+        "stream": "oper",
+        "type": "fc",
+        "expver": "0001",
+        "grid": "N200",
+        "packing": "ccsds",
+        "param": ["129", "130"],
         "levtype": "hl",
         "levelist": "2",
         "date": "20260205",
