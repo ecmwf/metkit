@@ -496,6 +496,8 @@ class ParamDB:
     #: Default HTTP request timeout in seconds for online API calls.
     _REQUEST_TIMEOUT = 30
 
+    #: Set once the deferred-context notice has been emitted (process-wide).
+    _context_notice_emitted = False
     #: Ordered list of WMO originating centre IDs tried when resolving a
     #: colliding shortname with no explicit ``origin=`` context.
     #: 98 = ECMWF, 0 = WMO.
@@ -827,6 +829,26 @@ class ParamDB:
                     break
         return best  # None when nothing distinguishes *entry*
 
+    @staticmethod
+    def _warn_context_unavailable() -> None:
+        """Notify that per-candidate MARS context computation is deferred.
+
+        The ``mars_request_context`` field of returned/raised candidates is
+        currently always ``None``. This is emitted once per process on the
+        ambiguous path so callers know the context is not yet advertised (but
+        that ``context=`` narrowing still works, and full context will come in
+        a future release).
+        """
+        if ParamDB._context_notice_emitted:
+            return
+        ParamDB._context_notice_emitted = True
+        warnings.warn(
+            "MARS context for ambiguous candidates is not currently computed "
+            "(mars_request_context is None); this will be added in a future "
+            "release. You can still pass context= to narrow the lookup.",
+            stacklevel=3,
+        )
+
     def _make_candidate(
         self,
         entry: dict,
@@ -836,22 +858,25 @@ class ParamDB:
     ) -> ParamIDCandidate:
         """Build a :class:`ParamIDCandidate` from a metadata *entry*.
 
-        When *minimal* is ``False`` the (expensive, expand-oracle) minimal
-        distinguishing context is skipped and left as ``None`` — used when the
-        entry is already unambiguous so no disambiguating context is required.
+        The candidate's ``param_id``, ``table``, ``origin`` and ``access`` (the
+        hard-filter metadata) are always populated. ``mars_request_context`` is
+        currently left as ``None``: per-candidate MARS context computation is
+        deferred (see :meth:`_minimal_distinguishing_context`, dormant), so we
+        no longer advertise which context selects each candidate. Callers can
+        still pass ``context=`` to :meth:`shortname_to_param_id` /
+        :meth:`shortname_to_param_id_candidates` to narrow the lookup.
+
+        The *minimal* parameter is retained for forward compatibility (it will
+        re-enable the expand-oracle context computation once that ships) but is
+        currently ignored.
         """
         param_id = int(entry["id"])
-        ctx = (
-            self._minimal_distinguishing_context(entry, siblings, shortname)
-            if minimal
-            else None
-        )
         return ParamIDCandidate(
             param_id=param_id,
             table=self._table_from_id(param_id),
             origin=list(entry.get("origin_ids", [])),
             access=list(entry.get("access_ids", [])),
-            mars_request_context=ctx,
+            mars_request_context=None,
         )
 
     @staticmethod
@@ -1213,10 +1238,11 @@ class ParamDB:
         entries, siblings = self._filter_shortname_entries(
             shortname, context, table=table, origin=origin, access=access
         )
-        # A single surviving candidate is unambiguous: no distinguishing
-        # context is needed, so skip the (expensive) expand-oracle computation.
         if len(entries) == 1:
-            return [self._make_candidate(entries[0], siblings, shortname, minimal=False)]
+            return [self._make_candidate(entries[0], siblings, shortname)]
+        # Ambiguous: candidates carry hard-filter metadata only;
+        # ``mars_request_context`` is left ``None`` (deferred functionality).
+        self._warn_context_unavailable()
         candidates = [
             self._make_candidate(e, siblings, shortname) for e in entries
         ]
@@ -1291,17 +1317,31 @@ class ParamDB:
         shortname: str,
         context: "dict | None" = None,
         *,
+        default: bool = False,
         table: "int | None" = None,
         origin: "int | None" = None,
         access: "str | None" = None,
     ) -> int:
         """Return the single param ID for *shortname*, given optional context.
 
-        Ambiguity is never resolved by guessing. When more than one candidate
+        Ambiguity is not resolved by guessing. When more than one candidate
         remains after applying ``context`` and the ``table``/``origin``/
-        ``access`` filters, :class:`AmbiguousParamError` is raised; its
-        ``.candidates`` attribute lists every remaining id with the context
-        needed to select it.
+        ``access`` filters, the behaviour depends on ``default``:
+
+        * ``default=False`` (the default) — :class:`AmbiguousParamError` is
+          raised; its ``.candidates`` attribute lists every remaining
+          :class:`ParamIDCandidate` (``mars_request_context`` is currently
+          ``None`` — see note below).
+        * ``default=True`` — the canonical candidate is returned: the first in
+          the sorted candidate order (lowest table / lowest id). For ``tp``
+          this is ``228``.
+
+        .. note::
+            Per-candidate MARS context computation is temporarily deferred, so
+            every returned/raised :class:`ParamIDCandidate` carries
+            ``mars_request_context=None``. Passing ``context=`` to narrow the
+            lookup still works; only the *advertised* selecting context is
+            unavailable for now.
 
         Parameters
         ----------
@@ -1311,6 +1351,9 @@ class ParamDB:
             Optional dict of MARS keys resolved via the C++ ``expand`` engine
             (e.g. ``{"class": "ai"}``). Partial context is usually sufficient —
             ``expand`` fills defaults for unspecified keys.
+        default:
+            When ``True``, return the canonical (first-sorted) candidate instead
+            of raising on ambiguity. Off by default.
         table:
             Optional hard filter — GRIB parameter table number.
         origin:
@@ -1321,14 +1364,16 @@ class ParamDB:
         Returns
         -------
         int
-            The uniquely resolved paramid.
+            The uniquely resolved paramid (or the canonical one when
+            ``default=True`` and the lookup is ambiguous).
 
         Raises
         ------
         KeyError
             If *shortname* is unknown, or no candidate survives the filters.
         AmbiguousParamError
-            If more than one candidate remains after applying context/filters.
+            If more than one candidate remains after applying context/filters
+            and ``default=False``.
         """
         self._ensure_loaded()
         entries, siblings = self._filter_shortname_entries(
@@ -1336,12 +1381,16 @@ class ParamDB:
         )
         if len(entries) == 1:
             return int(entries[0]["id"])
-        # Ambiguous: only now pay the cost of computing per-candidate
-        # distinguishing contexts for the error payload.
+        # Ambiguous. Build the candidate list (hard-filter metadata only;
+        # mars_request_context is left None — deferred functionality).
         candidates = [
             self._make_candidate(e, siblings, shortname) for e in entries
         ]
         candidates.sort(key=self._candidate_sort_key)
+        if default:
+            # Canonical pick: first in sorted order (lowest table / id).
+            return candidates[0].param_id
+        self._warn_context_unavailable()
         raise AmbiguousParamError(shortname, candidates)
 
 

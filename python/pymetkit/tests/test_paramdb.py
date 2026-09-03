@@ -759,6 +759,25 @@ def test_ambiguous_error_carries_candidates(db):
     assert {c.param_id for c in exc.value.candidates} == {228, 228228}
 
 
+def test_ambiguous_candidates_have_none_context(db):
+    """Candidates (in the error and the discovery API) carry no MARS context."""
+    with pytest.raises(AmbiguousParamError) as exc:
+        db.shortname_to_param_id("tp")
+    assert all(c.mars_request_context is None for c in exc.value.candidates)
+    cands = db.shortname_to_param_id_candidates("tp")
+    assert all(c.mars_request_context is None for c in cands)
+
+
+def test_default_true_returns_canonical(db):
+    """default=True returns the first-sorted (canonical) id instead of raising."""
+    assert db.shortname_to_param_id("tp", default=True) == 228
+
+
+def test_default_true_unique_still_int(db):
+    """default=True on a unique shortname is a no-op (still returns the int)."""
+    assert db.shortname_to_param_id("msl", default=True) == 151
+
+
 def test_candidates_table_filter_narrows_to_one(db):
     """A table hard-filter reduces the candidate list to a single entry."""
     cands = db.shortname_to_param_id_candidates("tp", table=228)
@@ -829,15 +848,20 @@ def test_empty_context_resolves_default_but_bare_raises(db):
 
 @_needs_lib
 def test_candidate_context_none_and_default(db):
-    """The default candidate carries {}, context-irreducible ones carry None."""
+    """Candidate context is temporarily deferred: all carry None for now.
+
+    Per-candidate MARS context computation is disabled, so every candidate's
+    ``mars_request_context`` is ``None`` regardless of whether it is the
+    default. The hard-filter selector still identifies each id.
+    """
     from pymetkit import AmbiguousParamError
 
     try:
         db.shortname_to_param_id("sst")
     except AmbiguousParamError as e:
         by_id = {c.param_id: c for c in e.candidates}
-        assert by_id[34].mars_request_context == {}          # default
-        assert by_id[151159].mars_request_context is None    # no MARS context
+        assert by_id[34].mars_request_context is None
+        assert by_id[151159].mars_request_context is None
         assert by_id[151159].hard_filter_selector["table"] == 151
 
 
