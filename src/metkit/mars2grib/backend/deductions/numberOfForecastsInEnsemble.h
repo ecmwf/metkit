@@ -73,8 +73,7 @@ namespace metkit::mars2grib::backend::deductions {
 /// Type of the MARS dictionary. Optionally provide `number`.
 ///
 /// @tparam ParDict_t
-/// Type of the parameter dictionary. Must provide `numberOfForecastsInEnsemble`.
-/// Since no defaulting is implemented for this key yet, it must be explicitly provided.
+/// Type of the parameter dictionary. Optionally provide `numberOfForecastsInEnsemble`.
 ///
 /// @tparam OptDict_t
 /// Type of the options dictionary (unused).
@@ -109,46 +108,37 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
 
     try {
 
-        if (has(par, "numberOfForecastsInEnsemble")) {
-            // The only way to infer this is from parametrization
-            const auto numberOfForecastsInEnsemble = get_or_throw<long>(par, "numberOfForecastsInEnsemble");
-            const auto perturbationNumber          = get_opt<long>(mars, "number");
+        // Read from misc, or default to 51
+        const auto numberOfForecastsInEnsemble = get_opt<long>(par, "numberOfForecastsInEnsemble").value_or(51L);
+        const auto perturbationNumber          = get_opt<long>(mars, "number");
 
-            // Basic validation
-            if (perturbationNumber.has_value()) {
-                if (*perturbationNumber < 0) {
-                    std::string errMsg = "`perturbationNumber` (";
-                    errMsg += std::to_string(*perturbationNumber);
-                    errMsg += ") is negative";
-                    throw Mars2GribDeductionException(errMsg, Here());
-                }
-                if (*perturbationNumber > numberOfForecastsInEnsemble) {
-                    std::string errMsg = "`perturbationNumber` (";
-                    errMsg += std::to_string(*perturbationNumber);
-                    errMsg += ") is bigger than `numberOfForecastsInEnsemble` (";
-                    errMsg += std::to_string(numberOfForecastsInEnsemble);
-                    errMsg += ")";
-                    throw Mars2GribDeductionException(errMsg, Here());
-                }
+        // Basic validation
+        if (perturbationNumber.has_value()) {
+            if (*perturbationNumber < 0) {
+                std::string errMsg = "`perturbationNumber` (";
+                errMsg += std::to_string(*perturbationNumber);
+                errMsg += ") is negative";
+                throw Mars2GribDeductionException(errMsg, Here());
             }
-
-            // Logging of the par::numberOfForecastsInEnsemble
-            MARS2GRIB_LOG_RESOLVE([&]() {
-                std::string logMsg = "`numberOfForecastsInEnsemble` resolved from input dictionaries: value='";
-                logMsg += std::to_string(numberOfForecastsInEnsemble);
-                logMsg += "'";
-                return logMsg;
-            }());
-
-            return numberOfForecastsInEnsemble;
+            if (*perturbationNumber > numberOfForecastsInEnsemble) {
+                std::string errMsg = "`perturbationNumber` (";
+                errMsg += std::to_string(*perturbationNumber);
+                errMsg += ") is bigger than `numberOfForecastsInEnsemble` (";
+                errMsg += std::to_string(numberOfForecastsInEnsemble);
+                errMsg += ")";
+                throw Mars2GribDeductionException(errMsg, Here());
+            }
         }
-        else {
 
-            /// @todo Implement a defaulting strategy for `numberOfForecastsInEnsemble` when the key is missing from the
-            /// parameter dictionary.
-            std::string errMsg = "Default value for `numberOfForecastsInEnsemble` not implemented";
-            throw Mars2GribDeductionException(errMsg, Here());
-        }
+        // Logging of the par::numberOfForecastsInEnsemble
+        MARS2GRIB_LOG_RESOLVE([&]() {
+            std::string logMsg = "`numberOfForecastsInEnsemble` resolved from input dictionaries: value='";
+            logMsg += std::to_string(numberOfForecastsInEnsemble);
+            logMsg += "'";
+            return logMsg;
+        }());
+
+        return numberOfForecastsInEnsemble;
     }
     catch (...) {
 
