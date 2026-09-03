@@ -1,7 +1,7 @@
 //! Error types for metkit operations.
 //!
 //! Wraps both the auto-generated [`metkit_sys::Error`] (metkit's own
-//! `metkit::codes::CodesException` family) and the [`eckit_sys::Error`]
+//! `metkit::codes::CodesException` family) and the [`eckit::Error`]
 //! exceptions that surface through the same bridge. A bare `cxx::Exception`
 //! whose message matches neither namespace is preserved as `Other`.
 //!
