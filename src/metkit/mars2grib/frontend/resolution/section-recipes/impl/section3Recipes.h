@@ -75,6 +75,15 @@ inline const Recipe S3_R1000 =
             RepresentationType::Dummy>
     >();
 
+// Same as above, but with prepping of the sample for spherical harmonics still enabled
+inline const Recipe S3_R1001 =
+    make_recipe<1001,
+        Select<ShapeOfTheEarthConcept,
+            ShapeOfTheEarthType::Dummy>,
+        Select<RepresentationConcept,
+            RepresentationType::DummySH>
+    >();
+
 //------------------------------------------------------------------------------
 // Section 3 – Aggregated Recipes
 //------------------------------------------------------------------------------
@@ -87,7 +96,8 @@ inline const Recipes Section3Recipes{ 3,
         &S3_R101,
         &S3_R101_ORCA,
         &S3_R150,
-        &S3_R1000
+        &S3_R1000,
+        &S3_R1001
     }
 };
 

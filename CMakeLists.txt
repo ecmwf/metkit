@@ -75,7 +75,7 @@ ecbuild_add_option( FEATURE ODB
 
 ecbuild_add_option( FEATURE GRIB2MARS
                     DEFAULT ON
-                    CONDITION HAVE_GRIB
+                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO AND eccodes_HAVE_ECKIT_GEO
                     DESCRIPTION "Build the GRIB2MARS converter" )
 
 ecbuild_add_option( FEATURE MARS2MARS
@@ -84,7 +84,7 @@ ecbuild_add_option( FEATURE MARS2MARS
 
 ecbuild_add_option( FEATURE MARS2GRIB
                     DEFAULT ON
-                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO
+                    CONDITION HAVE_GRIB AND eckit_HAVE_ECKIT_GEO AND eccodes_HAVE_ECKIT_GEO
                     DESCRIPTION "Build the MARS2GRIB encoder" )
 
 # Pythonic pybind11 interface (pymetkit)

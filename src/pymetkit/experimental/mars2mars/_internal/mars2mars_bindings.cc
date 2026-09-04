@@ -160,20 +160,20 @@ PYBIND11_MODULE(mars2mars_bindings, m) {
     // Compile-time mars2mars version
     m.attr("__mars2mars_build_version__") = metkit_VERSION_STR;
 
-    auto mars2mars =
-        py::class_<metkit::mars2mars::Mars2Mars>(m, "Mars2Mars")
-            .def(py::init<>())
-            .def(py::init(
-                [](py::dict dict) { return std::make_unique<metkit::mars2mars::Mars2Mars>(dictToLocalConfig(dict)); }))
-            .def("convert",
-                 [](Mars2Mars& mars2mars, py::dict& dict) {
-                     const auto& result = mars2mars.convert<eckit::LocalConfiguration>(dictToLocalConfig(dict));
-                     return std::make_pair(to_dict(result.mars), to_dict(result.misc));
-                 })
-            .def("convert", [](Mars2Mars& mars2mars, const metkit::mars::MarsRequest& mars_request) {
-                const metkit::mars2mars::Mars2MarsResult<metkit::mars::MarsRequest> result =
-                    mars2mars.convert<metkit::mars::MarsRequest>(mars_request);
+    auto mars2mars = py::class_<metkit::mars2mars::Mars2Mars>(m, "Mars2Mars")
+                         .def(py::init<>())
+                         .def(py::init([](py::dict dict) {
+                             return std::make_unique<metkit::mars2mars::Mars2Mars>(dictToLocalConfig(dict));
+                         }))
+                         .def("convert",
+                              [](Mars2Mars& mars2mars, py::dict& dict) {
+                                  const auto& result = mars2mars.convert(dictToLocalConfig(dict));
+                                  return std::make_pair(to_dict(result.mars), to_dict(result.misc));
+                              })
+                         .def("convert", [](Mars2Mars& mars2mars, const metkit::mars::MarsRequest& mars_request) {
+                             const metkit::mars2mars::Mars2MarsResult<metkit::mars::MarsRequest> result =
+                                 mars2mars.convert(mars_request);
 
-                return std::pair(to_dict(result.mars), to_dict(result.misc));
-            });
+                             return std::pair(to_dict(result.mars), to_dict(result.misc));
+                         });
 }

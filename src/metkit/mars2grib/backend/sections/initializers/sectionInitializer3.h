@@ -85,7 +85,7 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
 
     try {
         // Special handling for spectral grids (Template 50)
-        if constexpr (TemplateNumber == 50) {
+        if constexpr (TemplateNumber == 50 || TemplateNumber == 1001) {
             // Precondition GRIB handle for spectral representation
             set_or_throw<long>(out, "numberOfDataPoints", 6L);
             set_or_throw<long>(out, "numberOfValues", 6L);
@@ -105,7 +105,7 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
             set_or_throw<long>(out, "dataRepresentationTemplateNumber", 51L);
         }
 
-        if constexpr (TemplateNumber != 50 && TemplateNumber != 1000) {
+        if constexpr (TemplateNumber != 50 && TemplateNumber != 1000 && TemplateNumber != 1001) {
             // Standard grid definition template
             long drt = static_cast<long>(TemplateNumber);
             set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt);

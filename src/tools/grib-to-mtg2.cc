@@ -120,32 +120,6 @@ std::unique_ptr<metkit::codes::CodesHandle> readCodesHandle(eckit::message::Mess
     return metkit::codes::codesHandleFromMessageCopy(metkit::codes::Span<const uint8_t>(data, size));
 }
 
-eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& base,
-                                            const eckit::LocalConfiguration& overwrite) {
-    eckit::LocalConfiguration result{base};
-    for (const auto& key : overwrite.keys()) {
-        if (overwrite.isString(key)) {
-            result.set(key, overwrite.getString(key));
-        }
-        else if (overwrite.isIntegral(key)) {
-            result.set(key, overwrite.getLong(key));
-        }
-        else if (overwrite.isFloatingPoint(key)) {
-            result.set(key, overwrite.getDouble(key));
-        }
-        else if (overwrite.isBoolean(key)) {
-            result.set(key, overwrite.getBool(key));
-        }
-        else if (overwrite.isFloatingPointList(key)) {
-            result.set(key, overwrite.getDoubleVector(key));
-        }
-        else {
-            throw eckit::NotImplemented("Unexpected type for '" + key + "'", Here());
-        }
-    }
-    return result;
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 
 bool isDiscipline192(const long param, const bool ignoreIfMappable = true) {
@@ -416,9 +390,9 @@ bool skipStepZero(const long param) {
 void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
 
     // Handles to conversion libraries
-    metkit::grib2mars::Grib2Mars grib2mars;
-    metkit::mars2mars::Mars2Mars mars2mars;
-    metkit::mars2grib::Mars2Grib mars2grib;
+    metkit::grib2mars::Grib2Mars grib2mars{{"skipSection3", true}};
+    metkit::mars2mars::Mars2Mars mars2mars{{"skipSection3", true}};
+    metkit::mars2grib::Mars2Grib mars2grib{{"skipSection3", true}};
 
     auto inputPath  = eckit::PathName(args(0));
     auto outputPath = eckit::PathName(args(1));
@@ -457,10 +431,10 @@ void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
         const std::vector<double> values = codesHandle->getDoubleArray("values");
 
         // Apply mappings to convert pre-MTG2 MARS/Misc to post-MTG2 MARS/Misc
-        const auto mappedMarsMisc = mars2mars.convert<eckit::LocalConfiguration>(originalMarsMisc.mars);
+        const auto mappedMarsMisc = mars2mars.convert(originalMarsMisc.mars, originalMarsMisc.misc);
 
         auto mars = mappedMarsMisc.mars;
-        auto misc = mergeLocalConfigs(mappedMarsMisc.misc, originalMarsMisc.misc);
+        auto misc = mappedMarsMisc.misc;
 
         // Override values if specified by the user in the arguments
         if (expver_) {
