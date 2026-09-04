@@ -467,6 +467,8 @@ _field: &_field
           - [mhm]
           - [pcr-globwb]
           - [vic-wur]
+          - [geff]
+          - [sparky]
 
   forcing:
     category: data
@@ -735,6 +737,18 @@ _field: &_field
     - [none, inst, instantaneous]
     default: none
     multiple: true
+
+  paramtype:
+    category: derived
+    type: enum
+    values:
+    - [chemical]
+    - [chemical_optical]
+    - [base]
+    - [wave]
+    - [wave_spectra]
+    - [optical]
+    - [tile]
 
   stattype:
     category: data
@@ -1514,7 +1528,7 @@ _postproc: &_postproc
       - [F4000, 4000]
       - [F8000, 8000]
     regex:
-      - '^[oOfF][1-9][0-9]*$'
+      - '^[oOfFtT][1-9][0-9]*$'
       - '^[nN](32|48|64|80|96|128|160|200|256|320|400|512|640|800|1024|1280|8000)$'
       - '^[hH][rRnN]?(1|2|4|8|16|32|64|128|256|512|1024|2048|4096|8192)$'
     uppercase: true

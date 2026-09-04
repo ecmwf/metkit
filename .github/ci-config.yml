@@ -1,7 +1,9 @@
+dependency_cmake_options: |
+  ecmwf/eccodes: "-DENABLE_ECKIT_GEO=ON"
 dependencies: |
   ecmwf/ecbuild
   Deutsches-Klimarechenzentrum/libaec@refs/tags/v1.1.6
-  ecmwf/eccodes
   ecmwf/eckit
+  ecmwf/eccodes
 dependency_branch: develop
 parallelism_factor: 8

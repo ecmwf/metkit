@@ -37,7 +37,6 @@
 ///
 /// Related deductions:
 /// - @ref bitsPerValue.h
-/// - @ref laplacianOperator.h
 ///
 /// @ingroup mars2grib_backend_deductions
 ///
@@ -46,6 +45,8 @@
 // System includes
 #include <algorithm>
 #include <string>
+
+#include "eckit/geo/Grid.h"
 
 // Core deduction includes
 #include "metkit/config/LibMetkit.h"
@@ -97,55 +98,57 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         // subSetTruncation must not be larger than any pentagonalResolutionParameter
         // NOTE: Mars keyword truncation is equivalent to pentagonalResolutionParameter{J,K,M}
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
-        const auto marsTruncation = get_or_throw<long>(mars, "truncation");
-        if (marsTruncation < 0) {
-            std::string logMsg = "Invalid MARS truncation: value='" + std::to_string(marsTruncation) + "' is negative";
-            throw Mars2GribDeductionException(logMsg, Here());
+
+        const long truncation = [&]() {
+            if (get_or_throw<bool>(opt, "skipSection3")) {
+                const std::string grid           = get_or_throw<std::string>(mars, "grid");
+                const eckit::geo::Grid* gridSpec = eckit::geo::GridFactory::make_from_string(grid);
+                return static_cast<long>(gridSpec->truncation());
+            }
+            return get_or_throw<long>(mars, "truncation");
+        }();
+
+        if (truncation < 0) {
+            throw Mars2GribDeductionException(
+                "Invalid MARS truncation: value='" + std::to_string(truncation) + "' is negative", Here());
         }
-        long defaultSubSetTrunc = std::min(20L, marsTruncation);
 
         if (has(par, "subSetTruncation")) {
 
             // Retrieve subSetTruncation from parameter dictionary
             long subSetTrunc = get_or_throw<long>(par, "subSetTruncation");
 
-            // Validate that subSetTruncation does not exceed MARS truncation
+            // Validate subSetTruncation
             if (subSetTrunc < 0) {
-                std::string logMsg = "Invalid `subSetTruncation`:";
-                logMsg += " value='" + std::to_string(subSetTrunc);
-                logMsg += "' is negative";
-                throw Mars2GribDeductionException(logMsg, Here());
+                throw Mars2GribDeductionException(
+                    "Invalid `subSetTruncation`: value='" + std::to_string(subSetTrunc) + "' is negative", Here());
             }
-            if (subSetTrunc > marsTruncation) {
-                std::string logMsg = "Invalid `subSetTruncation`:";
-                logMsg += " value='" + std::to_string(subSetTrunc) + "'";
-                logMsg += " exceeds MARS truncation='" + std::to_string(marsTruncation) + "'";
-                throw Mars2GribDeductionException(logMsg, Here());
+            if (subSetTrunc > truncation) {
+                throw Mars2GribDeductionException("Invalid `subSetTruncation`: value='" + std::to_string(subSetTrunc) +
+                                                      "' exceeds MARS truncation='" + std::to_string(truncation) + "'",
+                                                  Here());
             }
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
-                std::string logMsg = "`subSetTruncation` overridden from parameter dictionary: value='";
-                logMsg += std::to_string(subSetTrunc);
-                logMsg += "'";
-                return logMsg;
+                return "`subSetTruncation` overridden from parameter dictionary: value='" +
+                       std::to_string(subSetTrunc) + "'";
             }());
 
             // Success exit point
             return subSetTrunc;
         }
         else {
+            // Note: This logic for default subSetTruncation reflects the behaviour of IFS
+            const long defaultSubSetTruncation = truncation >= 213 ? 20L : std::min(10L, truncation);
 
             // Emit DEFAULT log entry for defaulting
             MARS2GRIB_LOG_DEFAULT([&]() {
-                std::string logMsg = "`subSetTruncation` defaulted: value='";
-                logMsg += std::to_string(defaultSubSetTrunc);
-                logMsg += "'";
-                return logMsg;
+                return "`subSetTruncation` defaulted: value='" + std::to_string(defaultSubSetTruncation) + "'";
             }());
 
             // Success exit point
-            return defaultSubSetTrunc;
+            return defaultSubSetTruncation;
         }
     }
     catch (...) {

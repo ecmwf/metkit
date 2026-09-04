@@ -12,8 +12,3 @@ jobs:
   wheel-wrapper:
     uses: ./.github/workflows/build-wheel-wrapper.yml
     secrets: inherit
-  wheel-python:
-    uses: ecmwf/reusable-workflows/.github/workflows/cd-pypi.yml@v2
-    secrets: inherit
-    needs:
-      - wheel-wrapper

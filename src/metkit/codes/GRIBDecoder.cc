@@ -16,6 +16,7 @@
 
 #include "metkit/codes/GRIBDecoder.h"
 #include "metkit/codes/api/CodesAPI.h"
+#include "metkit/config/LibMetkit.h"
 
 #include "eccodes.h"
 
@@ -60,7 +61,10 @@ void GRIBDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
         // Get key size to see if it is an array
         // Only continue for scalar values
-        if (h->size(name) != 1) {
+        const auto keySize = h->size(name);
+        if (keySize != 1) {
+            LOG_DEBUG_LIB(LibMetkit) << "GRIBDecoder::getMetadata skipping non-scalar key '" << name
+                                     << "' (size=" << keySize << ")" << std::endl;
             continue;
         }
 

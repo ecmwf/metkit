@@ -20,6 +20,8 @@
 
 #include "Grib2Mars.h"
 
+#include <cstdlib>
+
 #include "eckit/config/LocalConfiguration.h"
 #include "eckit/exception/Exceptions.h"
 #include "metkit/grib2mars/mappings/mappings.h"
@@ -28,19 +30,52 @@
 // dictionary access traits
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictaccess_mars_request.h"
+#include "metkit/grib2mars/utils/dictionary_traits/dictaccess_options.h"
 #include "metkit/grib2mars/utils/dictionary_traits/dictionary_access_traits.h"
 
 // Error handling utilities
 #include "Grib2MarsApiErrorHandling.h"
+#include "metkit/grib2mars/api/readOptionsFromInitializerList.h"
+#include "metkit/grib2mars/api/readOptionsFromLocalConfiguration.h"
 
 namespace metkit::grib2mars {
+
+namespace {
+
+/// @brief Apply environment side effects implied by a set of options.
+///
+/// When `skipSection3` is enabled the encoder delegates geometry handling to
+/// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
+/// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
+/// variable, so force it to "1" whenever `skipSection3` is requested.
+inline void applyOptionSideEffects(const Options& opts) {
+    if (opts.skipSection3) {
+        ::setenv("ECCODES_ECKIT_GEO", "1", 1);
+    }
+}
+
+}  // namespace
 
 // -----------------------------------------------------------------------------
 // Grib2Mars construction
 // -----------------------------------------------------------------------------
 
 /// @brief Default construct a Grib2Mars converter.
-Grib2Mars::Grib2Mars() {}
+Grib2Mars::Grib2Mars() : opts_{} {
+    applyOptionSideEffects(opts_);
+}
+
+Grib2Mars::Grib2Mars(const Options& opts) : opts_{opts} {
+    applyOptionSideEffects(opts_);
+}
+
+Grib2Mars::Grib2Mars(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {
+    applyOptionSideEffects(opts_);
+}
+
+Grib2Mars::Grib2Mars(OptionList opts) : opts_{detail::readOptions(opts)} {
+    applyOptionSideEffects(opts_);
+}
 
 /// @brief Convert an `eckit::LocalConfiguration` request.
 template <>
@@ -50,8 +85,8 @@ Grib2MarsResult<eckit::LocalConfiguration> Grib2Mars::convert<eckit::LocalConfig
     using metkit::grib2mars::utils::exceptions::withGrib2MarsApiErrorHandling;
 
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<eckit::LocalConfiguration>>(
-        "Grib2Mars::convert<eckit::LocalConfiguration>",
-        [&]() { return rules::convertAll<eckit::LocalConfiguration>(grib); }, Here());
+        "Grib2Mars::convert<eckit::LocalConfiguration>", opts_,
+        [&]() { return rules::convertAll<eckit::LocalConfiguration>(grib, opts_); }, Here());
 }
 
 /// @brief Convert a `metkit::mars::MarsRequest` request.
@@ -62,8 +97,8 @@ Grib2MarsResult<metkit::mars::MarsRequest> Grib2Mars::convert<metkit::mars::Mars
     using metkit::grib2mars::utils::exceptions::withGrib2MarsApiErrorHandling;
 
     return withGrib2MarsApiErrorHandling<Grib2MarsResult<metkit::mars::MarsRequest>>(
-        "Grib2Mars::convert<metkit::mars::MarsRequest>",
-        [&]() { return rules::convertAll<metkit::mars::MarsRequest>(grib); }, Here());
+        "Grib2Mars::convert<metkit::mars::MarsRequest>", opts_,
+        [&]() { return rules::convertAll<metkit::mars::MarsRequest>(grib, opts_); }, Here());
 }
 
 }  // namespace metkit::grib2mars

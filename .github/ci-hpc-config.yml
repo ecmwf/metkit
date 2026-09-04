@@ -3,8 +3,10 @@ build:
     - ninja
   dependencies:
     - ecmwf/ecbuild@develop
-    - ecmwf/eccodes@develop
     - ecmwf/eckit@develop
+    - ecmwf/eccodes@develop
+  dependency_cmake_options:
+    - "ecmwf/eccodes: '-DENABLE_ECKIT_GEO=ON'"
   parallel: 64
   env:
     - ECCODES_SAMPLES_PATH=$ECCODES_DIR/share/eccodes/samples

@@ -213,7 +213,7 @@ template <std::size_t Stage, std::size_t Section, RepresentationType Variant>
 constexpr bool representationApplicable() {
 
     // Disable the concept for the Dummy variant
-    if constexpr (Variant == RepresentationType::Dummy) {
+    if constexpr (Variant == RepresentationType::Dummy || Variant == RepresentationType::DummySH) {
         return false;
     }
 

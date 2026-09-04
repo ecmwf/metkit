@@ -178,6 +178,7 @@ if ( HAVE_GRIB2MARS )
     list( APPEND metkit_srcs
         grib2mars/api/Grib2Mars.cc
         grib2mars/api/Grib2Mars.h
+        grib2mars/api/Options.h
         grib2mars/mappings/Grib2MarsReturnValue.h
     )
 endif()
@@ -186,6 +187,8 @@ if ( HAVE_MARS2MARS )
     list( APPEND metkit_srcs
         mars2mars/api/Mars2Mars.cc
         mars2mars/api/Mars2Mars.h
+        mars2mars/api/Options.h
+        mars2mars/mappings/Mars2MarsReturnValue.h
     )
 endif()
 
@@ -193,6 +196,8 @@ if ( HAVE_MARS2GRIB )
     list( APPEND metkit_srcs
         mars2grib/api/Mars2Grib.cc
         mars2grib/api/Mars2Grib.h
+        mars2grib/api/Mars2GribTestCaseGenerator.cc
+        mars2grib/api/Mars2GribTestCaseGenerator.h
         mars2grib/api/Options.h
     )
     set( mars2grib_libs eckit_geo )
@@ -228,6 +233,3 @@ ecbuild_add_library(
         ${mars2grib_libs}
 )
 
-if( HAVE_MARS2GRIB_PYTHON )
-    add_subdirectory(mars2grib/api/pymars2grib)
-endif()

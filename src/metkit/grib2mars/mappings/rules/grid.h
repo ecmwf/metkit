@@ -9,13 +9,30 @@
 
 namespace metkit::grib2mars::rules::impl {
 
-template <class MarsDict, class MiscDict>
-void extractGrid(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc) {
+template <class MarsDict, class MiscDict, class OptDict_t>
+void extractGrid(const std::string& keyword, const metkit::codes::CodesHandle& grib, MarsDict& mars, MiscDict& misc,
+                 const OptDict_t& opts) {
+    using metkit::grib2mars::utils::dict_traits::get_or_throw;
     using metkit::grib2mars::utils::dict_traits::set_or_throw;
     using metkit::grib2mars::utils::exceptions::Grib2MarsGenericException;
 
     try {
-        (void)misc;
+        if (get_or_throw<bool>(opts, "skipSection3")) {
+            if (!grib.has("gridSpec")) {
+                throw Grib2MarsGenericException("Missing GRIB key `gridSpec` required to extract MARS keyword `grid`",
+                                                Here());
+            }
+
+            const auto gridSpec = grib.getString("gridSpec");
+            set_or_throw<std::string>(mars, "grid", gridSpec);
+
+            if (grib.has("shapeOfTheEarth")) {
+                const long shapeOfTheEarth = grib.getLong("shapeOfTheEarth");
+                misc.set("shapeOfTheEarth", shapeOfTheEarth);
+            }
+
+            return;
+        }
 
         if (!grib.has("gridType")) {
             throw Grib2MarsGenericException(

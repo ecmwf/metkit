@@ -91,6 +91,8 @@ template <typename Val_t, class MiscDict_t, class OptDict_t, class OutDict_t>
 void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDict_t& opt, OutDict_t& handle) {
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
@@ -125,6 +127,25 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
             }
 
             set_or_throw(handle, "values", Span<const double>{dValues});
+        }
+
+        // 3. Set operation(s) to be applied on the values
+        const bool isSH = get_or_throw<std::string>(handle, "gridType") == "sh";
+
+        if (has(misc, "scaleValuesBy")) {
+            const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy");
+            if (scaleValuesBy != 1.0 && isSH) {
+                throw Mars2GribGenericException("Value scaling is not implemented for spherical harmonics!", Here());
+            }
+            set_or_throw(handle, "scaleValuesBy", scaleValuesBy);
+        }
+
+        if (has(misc, "offsetValuesBy")) {
+            const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy");
+            if (offsetValuesBy != 0.0 && isSH) {
+                throw Mars2GribGenericException("Value offsetting is not implemented for spherical harmonics!", Here());
+            }
+            set_or_throw(handle, "offsetValuesBy", offsetValuesBy);
         }
     }
     catch (...) {
@@ -181,6 +202,7 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
+    using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
@@ -221,6 +243,25 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
             }
 
             set_or_throw(handle, "values", Span<const double>{dValues});
+        }
+
+        // 3. Set operation(s) to be applied on the values
+        const bool isSH = get_or_throw<std::string>(handle, "gridType") == "sh";
+
+        if (has(misc, "scaleValuesBy")) {
+            const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy");
+            if (scaleValuesBy != 1.0 && isSH) {
+                throw Mars2GribGenericException("Value scaling is not implemented for spherical harmonics!", Here());
+            }
+            set_or_throw(handle, "scaleValuesBy", scaleValuesBy);
+        }
+
+        if (has(misc, "offsetValuesBy")) {
+            const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy");
+            if (offsetValuesBy != 0.0 && isSH) {
+                throw Mars2GribGenericException("Value offsetting is not implemented for spherical harmonics!", Here());
+            }
+            set_or_throw(handle, "offsetValuesBy", offsetValuesBy);
         }
     }
     catch (...) {

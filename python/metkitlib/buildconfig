@@ -6,11 +6,27 @@
 # granted to it by virtue of its status as an intergovernmental organisation
 # nor does it submit to any jurisdiction.
 
-# to be source'd by wheelmaker's compile.sh *and* wheel-linux.sh
-# NOTE replace the whole thing with pyproject.toml? Less powerful, and quaint to use for sourcing ecbuild invocation
-# TODO we duplicate information -- pyproject.toml's `name` and `packages` are derivable from $NAME and must stay consistent
+# to be source'd by wheelmaker's compile.sh *and* wheel-linux.sh 
+# NOTE 
+# replace the whole thing with pyproject.toml? Less powerful, and quaint to use
+# for sourcing ecbuild invocation 
+# TODO 
+# we duplicate information -- pyproject.toml's `name` and `packages` are
+# derivable from $NAME and must stay consistent
 
 NAME="metkit"
-CMAKE_PARAMS="-Deckit_ROOT=/tmp/metkit/prereqs/eckitlib -Deccodes_ROOT=/tmp/metkit/prereqs/eccodeslib -DENABLE_GRIB=1"
+# NOTE zarr interface is dependent on python 3.11+ -- but we dont activate the
+# venv at the time this is sourced, that's why we rely on PYVERSION. Remove
+# this whole part around October 2026 when 3.10 goes EoL if [ "True" =
+# "$(python -c 'import sys; print(sys.version_info[0:2] >= (3, 11))')" ] ; then
+if [ "3.10" != "$PYVERSION" ] ; then
+    PYMETKIT_IFACE="-DENABLE_PYTHON_METKIT_INTERFACE=ON -DENABLE_MARS2GRIB_PYTHON=ON"
+else
+    >&2 echo "Not enabling pymetkit interface because python version is $PYVERSION"
+    PYMETKIT_IFACE=""
+fi
+
+CMAKE_PARAMS="-Deckit_ROOT=/tmp/metkit/prereqs/eckitlib -Deccodes_ROOT=/tmp/metkit/prereqs/eccodeslib -DENABLE_GRIB=1 $PYMETKIT_IFACE"
 PYPROJECT_DIR="python/metkitlib"
 DEPENDENCIES='["eckitlib", "eccodeslib"]'
+

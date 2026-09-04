@@ -98,7 +98,10 @@ void BUFRDecoder::getMetadata(const eckit::message::Message& msg, eckit::message
 
         // Get key size to see if it is an array
         // Only continue for scalar values
-        if (h->size(name) != 1) {
+        const auto keySize = h->size(name);
+        if (keySize != 1) {
+            LOG_DEBUG_LIB(LibMetkit) << "BUFRDecoder::getMetadata skipping non-scalar key '" << name
+                                     << "' (size=" << keySize << ")" << std::endl;
             continue;
         }
 
