@@ -16,24 +16,14 @@ if( HAVE_PYTHON_METKIT_INTERFACE )
         "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit"
         "${PYMETKIT_STAGING}/pymetkit" SYMBOLIC
     )
-    # Copy README.md and LICENSE at build time so changes are picked up
-    # without needing to re-run cmake configure
-    add_custom_command(
-        OUTPUT ${PYMETKIT_STAGING}/README.md
-        COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit/README.md"
-            "${PYMETKIT_STAGING}/README.md"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit/README.md"
-        COMMENT "Copying pymetkit README.md to staging..."
-    )
-    add_custom_command(
-        OUTPUT ${PYMETKIT_STAGING}/LICENSE
-        COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-            "${PYMETKIT_STAGING}/LICENSE"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-        COMMENT "Copying LICENSE to staging..."
-    )
+    file(CREATE_LINK
+        "${CMAKE_CURRENT_SOURCE_DIR}/pymetkit/README.md"
+        "${PYMETKIT_STAGING}/README.md"
+        SYMBOLIC RESULT _ignored)
+    file(CREATE_LINK
+        "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
+        "${PYMETKIT_STAGING}/LICENSE"
+        SYMBOLIC RESULT _ignored)
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pymetkit_setup.py.in
         ${PYMETKIT_STAGING}/setup.py
@@ -60,7 +50,6 @@ if( HAVE_PYTHON_METKIT_INTERFACE )
         COMMAND ${CMAKE_COMMAND} -E touch pymetkit.wheel.stamp
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS ${_pymetkit_package_files} pymetkit_bindings
-                ${PYMETKIT_STAGING}/README.md ${PYMETKIT_STAGING}/LICENSE
         COMMENT "Building Python wheel for pymetkit..."
     )
     add_custom_target(pymetkit-wheel ALL DEPENDS ${CMAKE_BINARY_DIR}/pymetkit.wheel.stamp)
