@@ -4,10 +4,17 @@
 from pymetkit._internal import MetKitException
 from pymetkit.pymetkit import MarsRequest, parse_mars_request
 from pymetkit.pymetkit_type import MarsSelection
+from pymetkit.paramdb import ParamDB, ParamIDCandidate, AmbiguousParamError
+from pymetkit.models import ParameterEntry, MarsRequestContext
 
 __all__ = [
     "MarsRequest",
     "MarsSelection",
     "parse_mars_request",
     "MetKitException",
+    "ParamDB",
+    "ParamIDCandidate",
+    "AmbiguousParamError",
+    "ParameterEntry",
+    "MarsRequestContext",
 ]
