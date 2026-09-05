@@ -93,8 +93,9 @@ void OdbMetadataDecoder::visit(const std::string& columnName, const std::set<T>&
 
 
 OdbMetadataDecoder::OdbMetadataDecoder(eckit::message::MetadataGatherer& gather,
-                                       const eckit::message::GetMetadataOptions& options, const std::string& verb) :
-    language_(verb), gather_(gather), options_(options) {}
+                                       const eckit::message::GetMetadataOptions& options,
+                                       metkit::mars::MarsLanguage& language) :
+    language_(language), gather_(gather), options_(options) {}
 
 void OdbMetadataDecoder::operator()(const std::string& columnName, const std::set<long>& vals) {
     LOG_DEBUG_LIB(LibMetkit) << "OdbMetadataDecoder::operator() columnName: " << columnName << " vals: " << vals
