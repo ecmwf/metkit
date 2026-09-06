@@ -196,6 +196,8 @@ if ( HAVE_MARS2GRIB )
     list( APPEND metkit_srcs
         mars2grib/api/Mars2Grib.cc
         mars2grib/api/Mars2Grib.h
+        mars2grib/api/Mars2GribClassify.cc
+        mars2grib/api/Mars2GribClassify.h
         mars2grib/api/Mars2GribTestCaseGenerator.cc
         mars2grib/api/Mars2GribTestCaseGenerator.h
         mars2grib/api/Options.h
