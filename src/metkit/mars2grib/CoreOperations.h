@@ -40,6 +40,8 @@
 #pragma once
 
 // System includes
+#include <array>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -51,20 +53,111 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
+#include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 #include "metkit/mars2grib/backend/encodeValues.h"
+#include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
 #include "metkit/mars2grib/frontend/header/SpecializedEncoder.h"
 #include "metkit/mars2grib/frontend/make_HeaderLayout.h"
 #include "metkit/mars2grib/frontend/normalization/normalization.h"
+#include "metkit/mars2grib/frontend/resolution/resolveActiveConcepts.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 // clang-format on
 
 namespace metkit::mars2grib {
+
+namespace detail {
+
+inline std::string activeConceptsToJson(
+    const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+    using Registry = backend::concepts_::GeneralRegistry;
+
+    std::ostringstream out;
+    out << "{\"concepts\":[";
+    for (std::size_t i = 0; i < activeConcepts.count; ++i) {
+        const std::size_t conceptId = activeConcepts.activeConceptsIndices[i];
+        const std::size_t variantId = activeConcepts.activeVariantIndices[conceptId];
+        if (i != 0) {
+            out << ',';
+        }
+        out << "{\"concept\":\"" << Registry::conceptNameArr[variantId] << "\",\"variant\":\""
+            << Registry::variantNameArr[variantId] << "\"}";
+    }
+    out << "]}";
+    return out.str();
+}
+
+inline backend::tables::TypeOfStatisticalProcessing innerStatisticalProcessing(
+    const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+    using backend::concepts_::GeneralRegistry;
+    using backend::concepts_::StatisticsType;
+    using Type = backend::tables::TypeOfStatisticalProcessing;
+
+    constexpr std::array<Type, 18> types{
+        Type::Average,                 Type::Accumulation, Type::Maximum,          Type::Minimum,
+        Type::DifferenceEndMinusStart, Type::RootMeanSquare, Type::StandardDeviation, Type::Covariance,
+        Type::DifferenceStartMinusEnd, Type::Ratio, Type::StandardizedAnomaly, Type::Summation,
+        Type::ReturnPeriod,            Type::Median, Type::Severity, Type::Mode,
+        Type::IndexProcessing,         Type::Missing};
+    constexpr std::size_t conceptId = GeneralRegistry::conceptId(StatisticsType::Default);
+
+    const std::size_t variantId = activeConcepts.activeVariantIndices[conceptId];
+    if (variantId == GeneralRegistry::missing) {
+        return Type::Missing;
+    }
+
+    return types.at(variantId - GeneralRegistry::offset(StatisticsType::Default));
+}
+
+}  // namespace detail
 
 
 ///
 /// @brief Internal engine providing atomic encoding and diagnostic services.
 ///
 struct CoreOperations {
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    static std::string computeActiveConcepts(const MarsDict_t& inputMars, const ParDict_t& inputMisc,
+                                             const OptDict_t& options, const eckit::Value& language) {
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+            (void)activeMisc;
+            return detail::activeConceptsToJson(
+                frontend::resolution::resolve_ActiveConcepts_or_throw(activeMars, options));
+        }
+        catch (...) {
+            std::throw_with_nested(utils::exceptions::Mars2GribCoreOperationsException(
+                "Error while computing active concepts", "{\"operation\":\"computeActiveConcepts\"}", Here()));
+        }
+
+        mars2gribUnreachable();
+    }
+
+    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    static std::string computeProductTimeSpec(const MarsDict_t& inputMars, const ParDict_t& inputMisc,
+                                              const OptDict_t& options, const eckit::Value& language) {
+        MarsDict_t scratchMars;
+        ParDict_t scratchMisc;
+
+        try {
+            auto [activeMars, activeMisc] =
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+            const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(activeMars, options);
+            const auto innerType      = detail::innerStatisticalProcessing(activeConcepts);
+            return backend::models::product_time_spec::ProductTimeSpec(innerType, activeMars, activeMisc, options)
+                .to_json();
+        }
+        catch (...) {
+            std::throw_with_nested(utils::exceptions::Mars2GribCoreOperationsException(
+                "Error while computing ProductTimeSpec", "{\"operation\":\"computeProductTimeSpec\"}", Here()));
+        }
+
+        mars2gribUnreachable();
+    }
 
     ///
     /// @brief Normalize input dictionaries against the library language definition.
