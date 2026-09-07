@@ -14,6 +14,8 @@
 #include <utility>
 #include <vector>
 
+#include "eckit/config/LocalConfiguration.h"
+
 namespace metkit::mars2grib::testing_utils {
 
 namespace detail {
@@ -344,6 +346,7 @@ public:
     };
 
     RecordingDictionary()                                          = default;
+    explicit RecordingDictionary(const eckit::LocalConfiguration& configuration);
     RecordingDictionary(const RecordingDictionary&)                = default;
     RecordingDictionary& operator=(const RecordingDictionary&)     = default;
     RecordingDictionary(RecordingDictionary&&) noexcept            = default;

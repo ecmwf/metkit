@@ -19,6 +19,7 @@
 #include "eckit/value/Value.h"
 
 #include "metkit/mars2grib/api/Options.h"
+#include "metkit/mars2grib/testing-utils/RecordingDictionary.h"
 
 namespace metkit::mars2grib {
 
@@ -42,6 +43,9 @@ public:
 
     std::string generate(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc);
     std::string generate(const eckit::LocalConfiguration& mars);
+    testing_utils::RecordingDictionary generateOutput(const eckit::LocalConfiguration& mars,
+                                                       const eckit::LocalConfiguration& misc);
+    testing_utils::RecordingDictionary generateOutput(const eckit::LocalConfiguration& mars);
 
 private:
 
