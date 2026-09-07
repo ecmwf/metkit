@@ -14,7 +14,7 @@ build = "build.rs"
 
 [features]
 # Defaults: core features
-default = ["vendored", "grib", "bufr", "mars2grib", "metkit-config"]
+default = ["vendored", "grib", "bufr", "metkit-config"]
 
 # Build strategy (mutually exclusive)
 vendored = ["eckit-sys/vendored", "eccodes-sys/vendored", "eccodes-sys/eccodes-threads"]
