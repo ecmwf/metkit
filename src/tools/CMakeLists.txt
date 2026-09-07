@@ -17,6 +17,27 @@ ecbuild_add_executable(
 )
 
 ecbuild_add_executable(
+    TARGET        mars2grib-run-tests
+    SOURCES       mars2grib-run-tests.cc
+                  ../metkit/mars2grib/testing-utils/Producer.cc
+                  ../metkit/mars2grib/testing-utils/Consumer.cc
+    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_option eckit zstd
+)
+
+ecbuild_add_executable(
+    TARGET        mars2grib-run-tests-scalar
+    SOURCES       mars2grib-run-tests-scalar.cc
+                  ../metkit/mars2grib/testing-utils/Consumer.cc
+    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_option eckit
+)
+
+ecbuild_add_executable(
     TARGET        convert-mars-request
     CONDITION     HAVE_MARS2MARS AND HAVE_BUILD_GRIB2_TOOLS
     SOURCES       convert-mars-request.cc ParseRequest.cc ParseRequest.h
@@ -110,4 +131,3 @@ if(HAVE_BUILD_TOOLS)
         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ )
 
 endif()
-
