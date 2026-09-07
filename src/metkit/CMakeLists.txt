@@ -201,6 +201,8 @@ if ( HAVE_MARS2GRIB )
         mars2grib/api/Mars2GribTestCaseGenerator.cc
         mars2grib/api/Mars2GribTestCaseGenerator.h
         mars2grib/api/Options.h
+        mars2grib/testing-utils/RecordingDictionary.cc
+        mars2grib/testing-utils/RecordingDictionary.h
     )
     set( mars2grib_libs eckit_geo )
 endif()
