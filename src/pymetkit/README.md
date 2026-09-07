@@ -44,6 +44,65 @@ print(expanded.verb(), dict(expanded))
 requests = parse_mars_request("retrieve,class=od,date=-1,param=129,step=12")
 ```
 
+## ParamDB — parameter database
+
+`ParamDB` maps between ECMWF short names, long names and numeric parameter IDs, backed by a
+bundled `parameter_metadata.json` (with a `parameter_metadata.yaml` fallback) or, in
+`mode="online"`, the ECMWF parameter API.
+
+```python
+from pymetkit import ParamDB, AmbiguousParamError
+
+db = ParamDB()                       # mode="offline" by default; data loads lazily
+
+db.shortname_to_param_id("msl")      # 151  — unambiguous
+db.param_id_to_shortname(151)        # "msl"
+db.shortname_to_longname("2t")       # "2 metre temperature"
+db.get_units(167)                    # "K"
+```
+
+### Ambiguous short names
+
+Some short names map to more than one parameter ID (e.g. `tp` → `228` and `228228`). ParamDB
+never guesses — an ambiguous lookup **raises** by default:
+
+```python
+try:
+    db.shortname_to_param_id("tp")
+except AmbiguousParamError as exc:
+    print(exc.shortname)             # "tp"
+    for cand in exc.candidates:      # every ParamIDCandidate, sorted
+        print(cand.param_id, cand.table)
+```
+
+You can resolve the ambiguity in three ways:
+
+```python
+# 1. Narrow with a MARS context (resolved via the C++ expand engine)
+db.shortname_to_param_id("tp", context={"class": "od"})   # 228
+
+# 2. Narrow with hard metadata filters (no MARS request constructed)
+db.shortname_to_param_id("tp", table=128)                 # 228
+
+# 3. Accept the canonical (first-sorted, lowest-table/id) candidate
+db.shortname_to_param_id("tp", default=True)              # 228
+```
+
+To inspect the options programmatically instead of catching the error, use
+`shortname_to_param_id_candidates`, which returns a list of `ParamIDCandidate`
+(`param_id`, `table`, `origin`, `access`, `mars_request_context`):
+
+```python
+for cand in db.shortname_to_param_id_candidates("tp"):
+    print(cand.param_id, cand.hard_filter_selector)
+```
+
+> **Note:** Per-candidate MARS context computation is temporarily deferred, so every returned
+> or raised `ParamIDCandidate` currently carries `mars_request_context=None`. Passing
+> `context=` to *narrow* a lookup still works; only the *advertised* selecting context is
+> unavailable for now. The `context=` path additionally requires the compiled
+> `pymetkit._internal` extension — without it, ParamDB falls back to the baked metadata.
+
 ## Command line
 
 ```bash
