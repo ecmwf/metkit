@@ -401,7 +401,7 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 
 namespace {
 
-/// @brief Apply environment side effects implied by a set of options.
+/// @brief Check if the environment variables are setup correctly at runtime.
 ///
 /// When `skipSection3` is enabled the encoder delegates geometry handling to
 /// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
