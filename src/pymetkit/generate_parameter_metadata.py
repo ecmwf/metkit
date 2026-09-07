@@ -22,10 +22,9 @@ UNIT_URL = "https://codes.ecmwf.int/parameter-database/api/v1/unit/"
 ORIGIN_URL = "https://codes.ecmwf.int/parameter-database/api/v1/origin/"
 
 # Output paths: canonical location is share/metkit/ at the repo root, which is
-# four parent directories above this module file:
-#   python/pymetkit/src/pymetkit/ -> python/pymetkit/src/ -> python/pymetkit/
-#   -> python/ -> <repo_root>
-_REPO_ROOT = Path(__file__).parents[4]
+# two parent directories above this module file:
+#   src/pymetkit/ -> src/ -> <repo_root>
+_REPO_ROOT = Path(__file__).parents[2]
 PARAM_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.yaml"
 PARAM_JSON_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.json"
 UNIT_OUTPUT = _REPO_ROOT / "share" / "metkit" / "unit_metadata.yaml"

@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from pymetkit import ParamDB, ParameterEntry, ParamIDCandidate, AmbiguousParamError
-import pymetkit.pymetkit as _mod
+import pymetkit.paramdb as _mod
 import pydantic
 
 
@@ -722,7 +722,8 @@ def test_get_all_by_shortname_returns_all_candidates(db):
 # ---------------------------------------------------------------------------
 
 _needs_lib = pytest.mark.skipif(
-    _mod.lib is None, reason="requires the MetKit C library for context= resolution"
+    not _mod._HAVE_EXPAND,
+    reason="requires the pymetkit extension (MarsRequest.expand) for context= resolution",
 )
 
 

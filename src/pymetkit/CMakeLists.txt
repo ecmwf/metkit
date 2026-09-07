@@ -6,8 +6,19 @@ set(_pymetkit_py_sources
     __main__.py
     _internal/__init__.py
     _internal/pymetkit_internal.py
+    generate_parameter_metadata.py
+    models.py
+    paramdb.py
     pymetkit.py
     pymetkit_type.py
+)
+
+# Data files shipped inside the pymetkit package (consumed at runtime via
+# importlib.resources). These are symlinks in src/ pointing at share/metkit/;
+# cmake -E copy dereferences them into the staging tree.
+set(_pymetkit_data_files
+    parameter_metadata.json
+    parameter_metadata.yaml
 )
 
 # A module that exists in src/ but is missing from the list above is silently absent from
@@ -38,6 +49,18 @@ foreach(_rel IN LISTS _pymetkit_py_sources)
         COMMAND ${CMAKE_COMMAND} -E copy "${_src}" "${_dst}"
         DEPENDS "${_src}"
         COMMENT "Copying ${_rel} to pymetkit staging..."
+    )
+    list(APPEND _pymetkit_staged_py_files "${_dst}")
+endforeach()
+
+foreach(_rel IN LISTS _pymetkit_data_files)
+    set(_src "${CMAKE_CURRENT_SOURCE_DIR}/${_rel}")
+    set(_dst "${PYMETKIT_STAGING}/pymetkit/${_rel}")
+    add_custom_command(
+        OUTPUT  "${_dst}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${_src}" "${_dst}"
+        DEPENDS "${_src}"
+        COMMENT "Copying data file ${_rel} to pymetkit staging..."
     )
     list(APPEND _pymetkit_staged_py_files "${_dst}")
 endforeach()

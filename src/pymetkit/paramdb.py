@@ -701,7 +701,7 @@ class ParamDB:
         # Candidates 2 & 3: filesystem heuristics (dev tree / editable install)
         candidates = [
             Path(__file__).parent / "parameter_metadata.yaml",
-            Path(__file__).parents[4] / "share" / "metkit" / "parameter_metadata.yaml",
+            Path(__file__).parents[2] / "share" / "metkit" / "parameter_metadata.yaml",
         ]
         for path in candidates:
             if path.exists():
@@ -733,7 +733,7 @@ class ParamDB:
         # Candidates 2 & 3: filesystem heuristics
         candidates = [
             Path(__file__).parent / "parameter_metadata.json",
-            Path(__file__).parents[4] / "share" / "metkit" / "parameter_metadata.json",
+            Path(__file__).parents[2] / "share" / "metkit" / "parameter_metadata.json",
         ]
         for path in candidates:
             if path.exists():
