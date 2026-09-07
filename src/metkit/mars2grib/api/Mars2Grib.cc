@@ -401,34 +401,43 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 
 namespace {
 
-/// @brief Apply environment side effects implied by a set of options.
+/// @brief Check if the environment variables are setup correctly at runtime.
 ///
 /// When `skipSection3` is enabled the encoder delegates geometry handling to
 /// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
 /// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
-/// variable, so force it to "1" whenever `skipSection3` is requested.
-inline void applyOptionSideEffects(const Options& opts) {
-    if (opts.skipSection3) {
-        ::setenv("ECCODES_ECKIT_GEO", "1", 1);
+/// variable.
+inline void checkEnvironment(const Options& opts) {
+    if (!opts.skipSection3) {
+        return;
     }
+
+    const auto eccodesEckitGeo = std::string(::getenv("ECCODES_ECKIT_GEO"));
+    if (eccodesEckitGeo == "1" || eccodesEckitGeo == "2") {
+        return;
+    }
+
+    throw eckit::UserError(
+        "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is enabled!",
+        Here());
 }
 
 }  // namespace
 
 Mars2Grib::Mars2Grib() : opts_{} {
-    applyOptionSideEffects(opts_);
+    checkEnvironment(opts_);
 }
 
 Mars2Grib::Mars2Grib(const Options& opts) : opts_{opts} {
-    applyOptionSideEffects(opts_);
+    checkEnvironment(opts_);
 }
 
 Mars2Grib::Mars2Grib(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {
-    applyOptionSideEffects(opts_);
+    checkEnvironment(opts_);
 }
 
 Mars2Grib::Mars2Grib(OptionList opts) : opts_{detail::readOptions(opts)} {
-    applyOptionSideEffects(opts_);
+    checkEnvironment(opts_);
 }
 
 
