@@ -4,9 +4,10 @@
 """ParamDB: ECMWF parameter metadata lookup (shortname <-> paramid).
 
 Pure-Python offline lookup plus an optional ``context=`` resolution path that
-defers to the compiled MetKit ``expand`` engine. The expand path is wired to
-develop's pybind11 ``MarsRequest`` in Phase B; in this Phase-A merge state it is
-stubbed (``lib = None``) so the module imports without the compiled extension.
+defers to the compiled MetKit ``expand`` engine via develop's pybind11
+``MarsRequest``. When the compiled ``pymetkit._internal`` extension is
+unavailable (``_HAVE_EXPAND`` is False), the ``context=`` path falls back to the
+baked ``mars_request_context`` metadata.
 """
 
 import json
@@ -36,6 +37,21 @@ try:
     import platformdirs as _platformdirs
 except ImportError:
     _platformdirs = None
+
+# --- Expand-path availability ----------------------------------------------
+# The ``context=`` resolution path defers to the compiled MetKit ``expand``
+# engine via develop's pybind11 ``MarsRequest``. Availability is determined by
+# whether ``pymetkit._internal`` (the compiled extension) imports. When it does
+# not, ``_HAVE_EXPAND`` is False and ParamDB falls back to the baked
+# ``mars_request_context`` metadata.
+try:
+    from pymetkit.pymetkit_type import MarsRequest as _MarsRequest
+    from pymetkit._internal import MetKitException as _MetKitException
+    _HAVE_EXPAND = True
+except Exception:  # pragma: no cover - extension not built / cannot load
+    _MarsRequest = None
+    _MetKitException = Exception
+    _HAVE_EXPAND = False
 
 
 @dataclass(frozen=True)
@@ -373,20 +389,25 @@ class ParamDB:
         Returns
         -------
         set[int] | None
-            The set of resolved numeric ids, or ``None`` if the MetKit C
-            library is unavailable (caller should fall back to baked contexts).
+            The set of resolved numeric ids, or ``None`` if the compiled
+            ``pymetkit._internal`` extension is unavailable (caller should fall
+            back to baked contexts).
         """
-        if lib is None:
+        if not _HAVE_EXPAND:
             return None
         cache_key = (shortname, tuple(sorted((str(k).rstrip("_"), str(v)) for k, v in context.items())))
         cached = self._ctx_cache.get(cache_key)
         if cached is not None:
             return cached
-        req = MarsRequest(verb="retrieve")
-        req["param"] = shortname
+        selection = {"param": shortname}
         for key, value in context.items():
-            req[key.rstrip("_")] = value
-        expanded = req.expand()
+            selection[key.rstrip("_")] = value
+        try:
+            expanded = _MarsRequest("retrieve", selection).expand()
+        except _MetKitException:
+            # An invalid selection cannot resolve to a paramid; treat as empty.
+            self._ctx_cache[cache_key] = set()
+            return set()
         if "param" not in expanded:
             self._ctx_cache[cache_key] = set()
             return set()
@@ -444,7 +465,7 @@ class ParamDB:
               ambiguity, or no baked context / no oracle).
         """
         entry_id = int(entry["id"])
-        use_oracle = lib is not None
+        use_oracle = _HAVE_EXPAND
 
         # Oracle: is this the default candidate? An empty context resolving
         # uniquely to this id means ``context={}`` selects it.
@@ -1209,12 +1230,3 @@ class ParamDB:
             raise KeyError(f"Short name {shortname!r} not found in database")
         return len(self._by_shortname_all[shortname]) > 1
 
-
-# --- Expand-path availability (Phase A stub) -------------------------------
-# Phase B replaces this with develop's pybind11 MarsRequest:
-#   from pymetkit.pymetkit_type import MarsRequest
-#   from pymetkit._internal import MetKitException
-# and sets ``lib`` / ``_HAVE_EXPAND`` from whether the compiled extension loads.
-# Until then the ``context=`` resolution path is disabled (falls back to the
-# baked mars_request_context metadata).
-lib = None
