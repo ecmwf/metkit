@@ -1,0 +1,60 @@
+{
+  "additionalProperties": true,
+  "description": "A MARS-key context that (partly) selects a parameter id.\n\nThis mirrors a single matcher rule from ``share/metkit/params.yaml``. Its\nschema is kept **separate** from :class:`ParameterEntry` so the context\ncontract can evolve independently and so user-supplied context schemas can\nvalidate against it. All fields are optional because ``params.yaml`` rules\ndo not always constrain every key (e.g. ``levtype`` is occasionally absent).",
+  "properties": {
+    "class": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "MARS class (e.g. 'od', 'ai')",
+      "title": "Class"
+    },
+    "stream": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "MARS stream (e.g. 'oper', 'enfo')",
+      "title": "Stream"
+    },
+    "type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "MARS type (e.g. 'fc', 'cf')",
+      "title": "Type"
+    },
+    "levtype": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "MARS level type (e.g. 'sfc', 'pl')",
+      "title": "Levtype"
+    }
+  },
+  "title": "MarsRequestContext",
+  "type": "object"
+}
