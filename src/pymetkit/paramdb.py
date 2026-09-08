@@ -710,80 +710,74 @@ class ParamDB:
         else:
             # Bundled data: prefer JSON (fast) over YAML (slow).
             # Both contain identical data — JSON loads ~10-50× faster.
-            json_path = self._find_offline_json()
-            if json_path is not None:
-                with json_path.open("r") as fh:
-                    params = json.load(fh)
-            else:
-                resolved = self._find_offline_yaml()
-                with resolved.open("r") as fh:
-                    params = yaml.safe_load(fh)
+            params = self._load_bundled_json()
+            if params is None:
+                params = self._load_bundled_yaml()
             for raw in params:
                 self._index(raw)
 
     @staticmethod
-    def _find_offline_yaml() -> Path:
-        """Locate ``parameter_metadata.yaml``, searching in order:
+    def _read_bundled_text(filename: str) -> "str | None":
+        """Return the text of a bundled data file, or ``None`` if not found.
+
+        The resource is read **while** the ``importlib.resources`` context is
+        active, so zip-safe (materialised-to-temp) resources are read before the
+        temporary file is removed. Falls back to the dev-tree / editable-install
+        filesystem locations.
+
+        Searches, in order:
 
         1. Via ``importlib.resources`` from the installed package (reliable in
            both regular installs and zip-safe wheels).
         2. Next to this module file (editable / development install layout).
         3. ``<repo_root>/share/metkit/`` (development tree layout after the
-           YAML files were moved out of the Python package directory).
+           data files were moved out of the Python package directory).
         """
-        # Candidate 1: importlib.resources (correct path for installed packages)
+        # Candidate 1: importlib.resources. Read the contents *inside* the
+        # as_file context so a materialised temp file still exists during read.
         try:
-            ref = importlib.resources.files("pymetkit").joinpath(
-                "parameter_metadata.yaml"
-            )
-            # Materialise to a real filesystem path so callers can open() it.
+            ref = importlib.resources.files("pymetkit").joinpath(filename)
             with importlib.resources.as_file(ref) as p:
                 if p.exists():
-                    return p
+                    return p.read_text(encoding="utf-8")
         except (FileNotFoundError, TypeError, AttributeError):
             pass
 
         # Candidates 2 & 3: filesystem heuristics (dev tree / editable install)
         candidates = [
-            Path(__file__).parent / "parameter_metadata.yaml",
-            Path(__file__).parents[2] / "share" / "metkit" / "parameter_metadata.yaml",
+            Path(__file__).parent / filename,
+            Path(__file__).parents[2] / "share" / "metkit" / filename,
         ]
         for path in candidates:
             if path.exists():
-                return path
-        raise FileNotFoundError(
-            "parameter_metadata.yaml not found. Searched:\n"
-            + "\n".join(f"  {p}" for p in candidates)
-        )
+                return path.read_text(encoding="utf-8")
+        return None
 
-    @staticmethod
-    def _find_offline_json() -> "Path | None":
-        """Locate ``parameter_metadata.json`` (fast-load format).
+    @classmethod
+    def _load_bundled_json(cls) -> "list | None":
+        """Load and parse bundled ``parameter_metadata.json``.
 
         Returns ``None`` if the JSON file is not found — caller should fall
-        back to the YAML file.  Searches the same locations as
-        :meth:`_find_offline_yaml`.
+        back to the YAML file.
         """
-        # Candidate 1: importlib.resources
-        try:
-            ref = importlib.resources.files("pymetkit").joinpath(
-                "parameter_metadata.json"
-            )
-            with importlib.resources.as_file(ref) as p:
-                if p.exists():
-                    return p
-        except (FileNotFoundError, TypeError, AttributeError):
-            pass
+        text = cls._read_bundled_text("parameter_metadata.json")
+        if text is None:
+            return None
+        return json.loads(text)
 
-        # Candidates 2 & 3: filesystem heuristics
-        candidates = [
-            Path(__file__).parent / "parameter_metadata.json",
-            Path(__file__).parents[2] / "share" / "metkit" / "parameter_metadata.json",
-        ]
-        for path in candidates:
-            if path.exists():
-                return path
-        return None
+    @classmethod
+    def _load_bundled_yaml(cls) -> list:
+        """Load and parse bundled ``parameter_metadata.yaml``.
+
+        Raises ``FileNotFoundError`` if the YAML file cannot be located.
+        """
+        text = cls._read_bundled_text("parameter_metadata.yaml")
+        if text is None:
+            raise FileNotFoundError(
+                "parameter_metadata.yaml not found in the installed package, "
+                "next to the module, or under <repo_root>/share/metkit/."
+            )
+        return yaml.safe_load(text)
 
     # ------------------------------------------------------------------
     # Cache helpers (online mode only)
