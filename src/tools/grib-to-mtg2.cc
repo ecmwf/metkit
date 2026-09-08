@@ -61,6 +61,7 @@ private:
     void usage(const std::string& tool) const override;
 
     bool skipDiscipline192_                          = false;
+    bool skipSection3_                               = false;
     std::optional<std::string> expver_               = std::nullopt;
     std::optional<long> generatingProcessIdentifier_ = std::nullopt;
 };
@@ -74,6 +75,9 @@ Grib1ToGrib2Tool::Grib1ToGrib2Tool(int argc, char** argv) : eckit::EckitTool(arg
     options_.push_back(
         new eckit::option::SimpleOption<bool>("skip-discipline-192", "Skip discipline 192 input messages"));
 
+    // Encoding behaviour
+    options_.push_back(new eckit::option::SimpleOption<bool>("skip-section-3", "Read and write key `gridSpec`"));
+
     // Override values
     options_.push_back(new eckit::option::SimpleOption<std::string>("expver", "Override expver"));
     options_.push_back(
@@ -82,6 +86,7 @@ Grib1ToGrib2Tool::Grib1ToGrib2Tool(int argc, char** argv) : eckit::EckitTool(arg
 
 void Grib1ToGrib2Tool::init(const CmdArgs& args) {
     skipDiscipline192_ = args.has("skip-discipline-192");
+    skipSection3_      = args.has("skip-section-3");
 
     if (args.has("expver")) {
         std::string expver;
@@ -390,9 +395,9 @@ bool skipStepZero(const long param) {
 void Grib1ToGrib2Tool::execute(const CmdArgs& args) {
 
     // Handles to conversion libraries
-    metkit::grib2mars::Grib2Mars grib2mars{{"skipSection3", true}};
-    metkit::mars2mars::Mars2Mars mars2mars{{"skipSection3", true}};
-    metkit::mars2grib::Mars2Grib mars2grib{{"skipSection3", true}};
+    metkit::grib2mars::Grib2Mars grib2mars{{"skipSection3", skipSection3_}};
+    metkit::mars2mars::Mars2Mars mars2mars{{"skipSection3", skipSection3_}};
+    metkit::mars2grib::Mars2Grib mars2grib{{"skipSection3", skipSection3_}};
 
     auto inputPath  = eckit::PathName(args(0));
     auto outputPath = eckit::PathName(args(1));
