@@ -1161,10 +1161,74 @@ class TestParameterEntryModel:
 
     def test_normalise_uses_model(self):
         """ParamDB._normalise round-trips through ParameterEntry and returns a dict."""
-        raw = {"id": "130", "shortName": "t", "name": "Temperature", "units": "K"}
+        raw = {"id": "130", "shortname": "t", "longname": "Temperature", "units": "K"}
         result = ParamDB._normalise(raw)
         assert isinstance(result, dict)
         assert result["id"] == 130
         assert result["shortname"] == "t"
         assert result["longname"] == "Temperature"
         assert result["units"] == "K"
+
+    def test_normalise_rejects_aliases(self):
+        """Only canonical keys are accepted; raw API aliases are rejected."""
+        raw = {"id": "130", "shortName": "t", "name": "Temperature", "units": "K"}
+        with pytest.raises(pydantic.ValidationError):
+            ParamDB._normalise(raw)
+
+
+# ---------------------------------------------------------------------------
+# param_id_to_context (bundled contexts + C++-source preference)
+# ---------------------------------------------------------------------------
+
+
+def test_param_id_to_context_returns_bundled_contexts(db):
+    """An id referenced in params.yaml returns its baked MARS contexts."""
+    contexts = db.param_id_to_context(1)
+    assert isinstance(contexts, list)
+    assert len(contexts) > 0
+    # Every context is a dict of MARS keys.
+    assert all(isinstance(c, dict) for c in contexts)
+    assert all("class" in c for c in contexts)
+
+
+def test_param_id_to_context_empty_for_id_without_contexts(db):
+    """An id with no recorded context returns an empty list (not an error)."""
+    assert db.param_id_to_context(4) == []
+
+
+def test_param_id_to_context_unknown_id_raises(db):
+    """An unknown id raises KeyError."""
+    with pytest.raises(KeyError):
+        db.param_id_to_context(999_999_999)
+
+
+def test_param_id_to_context_returns_copy(db):
+    """The returned list is a copy — mutating it must not corrupt the index."""
+    first = db.param_id_to_context(1)
+    n = len(first)
+    first.append({"class": "bogus"})
+    assert len(db.param_id_to_context(1)) == n
+
+
+def test_param_id_to_context_prefers_cpp_source(db, monkeypatch):
+    """When the C++ layer provides contexts, they take precedence over bundled."""
+    db._ensure_loaded()
+    sentinel = [{"class": "od", "stream": "oper", "type": "fc", "levtype": "sfc"}]
+    monkeypatch.setattr(
+        _mod.ParamDB, "_param_context_from_cpp", staticmethod(lambda pid: sentinel)
+    )
+    # id 4 has no bundled context; the C++ source must still be returned.
+    assert db.param_id_to_context(4) == sentinel
+    # For an id that *does* have bundled context, C++ still wins.
+    assert db.param_id_to_context(1) == sentinel
+
+
+def test_param_id_to_context_falls_back_when_cpp_absent(db, monkeypatch):
+    """When the C++ layer returns None, the bundled contexts are used."""
+    db._ensure_loaded()
+    monkeypatch.setattr(
+        _mod.ParamDB, "_param_context_from_cpp", staticmethod(lambda pid: None)
+    )
+    bundled = list(db._by_id[1].get("mars_request_context", []))
+    assert db.param_id_to_context(1) == bundled
+
