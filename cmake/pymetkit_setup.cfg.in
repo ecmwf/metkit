@@ -19,6 +19,7 @@ install_requires =
     findlibs>=0.1.2
     pydantic>=2
     PyYAML>=5.1
+    requests
 
 [options.extras_require]
 test =
