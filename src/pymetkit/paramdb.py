@@ -138,17 +138,28 @@ class ParamDB:
     Shortname collision resolution
     --------------------------------
     Some short names (e.g. ``t``, ``tp``, ``u``) are reused across different
-    GRIB parameter tables and originating centres.  When no context is given
-    the default resolution priority is:
+    GRIB parameter tables and originating centres. Collisions are not
+    silently guessed by :meth:`shortname_to_param_id`:
 
-    1. Prefer parameters with ``"dissemination"`` in their ``access_ids``.
-    2. Among those, prefer parameters whose ``origin_ids`` include an origin
-       from ``_DEFAULT_ORIGIN_PREFERENCE`` (tried in order).
-    3. Fall back to the lowest param ID.
+    * :meth:`shortname_to_param_id` raises :class:`AmbiguousParamError` when
+      more than one candidate remains after applying any ``context`` and the
+      ``table``/``origin``/``access`` hard filters. The error's ``.candidates``
+      attribute lists every remaining :class:`ParamIDCandidate` so the caller
+      can narrow the lookup. Pass ``default=True`` to instead return a
+      single candidate — the first in sorted order (lowest table, then
+      origin/access, then lowest id); for ``tp`` this is ``228``.
+      Note this is not the canonical paramID as without mars context this
+      cannot be determined.
+    * :meth:`shortname_to_longname` behaves the same way: it raises
+      :class:`AmbiguousParamError` when more than one candidate remains after
+      applying any ``context`` and the ``table``/``origin``/``access`` hard
+      filters. Pass ``default=True`` to instead return a single candidate — the
+      first in sorted order (lowest table, then origin/access, then lowest id).
 
-    Pass ``table=``, ``origin=``, or ``access=`` to
-    :meth:`shortname_to_param_id` / :meth:`shortname_to_longname` to override
-    this behaviour explicitly.
+    To resolve a collision explicitly, narrow the lookup with a MARS
+    ``context=`` (resolved via the C++ ``expand`` engine) or the
+    ``table=``/``origin=``/``access=`` hard filters, both accepted by
+    :meth:`shortname_to_param_id` and :meth:`shortname_to_longname`.
     """
 
     _API_URL = "https://codes.ecmwf.int/parameter-database/api/v1/param/"
