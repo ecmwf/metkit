@@ -182,7 +182,7 @@ The new package keeps the same core concepts, so migration is largely mechanical
   ``__contains__`` and ``__eq__`` behaviours are preserved.
 - ``num_values`` and ``__getitem__`` now raise ``KeyError`` for a missing parameter
   instead of returning ``0`` / ``[]`` as the legacy C-API layer did.
-- :data:`~pymetkit.pymetkit_type.MarsSelection` is now a type alias for a user-supplied
+- :data:`~pymetkit.MarsSelection` is now a type alias for a user-supplied
   mapping; value normalisation is handled internally rather than ad hoc.
 - ``MetKitException`` is still raised for MARS language errors and is importable as
   ``pymetkit.MetKitException``.
