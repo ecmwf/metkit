@@ -94,8 +94,19 @@ To inspect the options programmatically instead of catching the error, use
 
 ```python
 for cand in db.shortname_to_param_id_candidates("tp"):
-    print(cand.param_id, cand.hard_filter_selector)
+    if cand.hard_filter_selector is not None:
+        # A hard-filter selector proven to select exactly this candidate.
+        print(cand.param_id, cand.hard_filter_selector)
+    else:
+        # No hard filter uniquely identifies this candidate (e.g. two ids
+        # share the same table, origin and access); use context= instead.
+        print(cand.param_id, "no unique hard-filter selector")
 ```
+
+> **Note:** `hard_filter_selector` is either a dict of `table`/`origin`/`access`
+> kwargs **proven to select exactly one** candidate, or `None` when no
+> combination of the available hard filters disambiguates it. The API never
+> advertises a selector that would remain ambiguous.
 
 > **Note:** Per-candidate MARS context computation is temporarily deferred, so every returned
 > or raised `ParamIDCandidate` currently carries `mars_request_context=None`. Passing

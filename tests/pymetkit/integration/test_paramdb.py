@@ -824,10 +824,15 @@ def test_candidate_context_roundtrips(db):
 
     ``{}`` (default) and any non-empty context must round-trip through
     ``context=``; a ``None`` context means no MARS context can select it, so
-    it is validated via its hard-filter selector instead.
+    it is validated via its hard-filter selector instead. A ``None``
+    hard-filter selector means no hard filter uniquely identifies the
+    candidate, so that candidate is skipped (nothing to round-trip).
     """
     for cand in db.shortname_to_param_id_candidates("tp"):
         if cand.mars_request_context is None:
+            if cand.hard_filter_selector is None:
+                # No unique hard-filter selector exists for this candidate.
+                continue
             got = db.shortname_to_param_id("tp", **cand.hard_filter_selector)
         else:
             got = db.shortname_to_param_id("tp", context=cand.mars_request_context)

@@ -77,8 +77,18 @@ class ParamIDCandidate:
         * ``{}`` — this candidate is the **default**: an empty ``context={}``
           resolves to it via the C++ ``expand`` layer.
         * ``None`` — **no** MARS context can select this candidate; use the
-          hard filters instead (see :attr:`hard_filter_selector`, typically
-          ``table=<table>``).
+          hard filters instead (see :attr:`hard_filter_selector`).
+    hard_filter_selector:
+        The minimal ``table``/``origin``/``access`` kwargs that, when passed to
+        :meth:`ParamDB.shortname_to_param_id`, are **proven to select exactly
+        this candidate** among all parameters sharing the short name. Special
+        value:
+
+        * ``None`` — no combination of the available hard filters uniquely
+          identifies this candidate (e.g. two ids share the same table, origin
+          and access). In that case there is no hard-filter selector to
+          advertise, and the collision cannot be resolved by hard filters
+          alone.
     """
 
     param_id: int
@@ -86,21 +96,7 @@ class ParamIDCandidate:
     origin: "list[int]"
     access: "list[str]"
     mars_request_context: "dict | None" = None
-
-    @property
-    def hard_filter_selector(self) -> dict:
-        """Hard-filter kwargs that select this candidate when no MARS context can.
-
-        Returns the ``table``/``origin``/``access`` filter arguments to pass to
-        :meth:`ParamDB.shortname_to_param_id` — useful when
-        :attr:`mars_request_context` is ``None`` (context cannot disambiguate).
-        """
-        sel: dict = {"table": self.table}
-        if self.origin:
-            sel["origin"] = self.origin[0]
-        if self.access:
-            sel["access"] = self.access[0]
-        return sel
+    hard_filter_selector: "dict | None" = None
 
 
 class AmbiguousParamError(KeyError):
@@ -552,7 +548,56 @@ class ParamDB:
             origin=list(entry.get("origin_ids", [])),
             access=list(entry.get("access_ids", [])),
             mars_request_context=None,
+            hard_filter_selector=self._unique_hard_filter_selector(entry, siblings),
         )
+
+    def _unique_hard_filter_selector(
+        self, entry: dict, siblings: "list[dict]"
+    ) -> "dict | None":
+        """Return the minimal hard-filter selector proven to select *entry* alone.
+
+        Builds ``table``/``origin``/``access`` selectors of increasing
+        specificity and returns the first one that matches **exactly** this
+        entry among *siblings* (all parameters sharing the short name). Returns
+        ``None`` when no combination of the available hard filters uniquely
+        identifies the entry — e.g. two ids sharing the same table, origin and
+        access (such as short name ``~`` with ids 24 and 25). This ensures the
+        API only ever advertises a selector that genuinely disambiguates, and
+        otherwise honestly represents that no hard-filter selector exists.
+        """
+        param_id = int(entry["id"])
+        table = self._table_from_id(param_id)
+        origins = list(entry.get("origin_ids", []))
+        accesses = list(entry.get("access_ids", []))
+
+        def matches(e: dict, sel: dict) -> bool:
+            if self._table_from_id(int(e["id"])) != sel["table"]:
+                return False
+            if "origin" in sel and sel["origin"] not in e.get("origin_ids", []):
+                return False
+            if "access" in sel and sel["access"] not in e.get("access_ids", []):
+                return False
+            return True
+
+        def is_unique(sel: dict) -> bool:
+            hits = [e for e in siblings if matches(e, sel)]
+            return len(hits) == 1 and int(hits[0]["id"]) == param_id
+
+        # Try selectors least specific first: table, then +origin, then
+        # +access, then +origin+access. Return the first proven-unique one.
+        selectors: "list[dict]" = [{"table": table}]
+        selectors += [{"table": table, "origin": o} for o in origins]
+        selectors += [{"table": table, "access": a} for a in accesses]
+        selectors += [
+            {"table": table, "origin": o, "access": a}
+            for o in origins
+            for a in accesses
+        ]
+        for sel in selectors:
+            if is_unique(sel):
+                return sel
+        return None
+
 
     @staticmethod
     def _candidate_sort_key(cand: ParamIDCandidate) -> tuple:
