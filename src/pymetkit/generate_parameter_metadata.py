@@ -344,10 +344,10 @@ if __name__ == "__main__":
     # Write the JSON schemas so downstream tools can validate YAML.
     # The MARS context schema is kept SEPARATE from the parameter schema so the
     # context contract can evolve independently (and back user-supplied schemas).
-    from .models import (  # noqa: E402 (local import to avoid circular at module level)
-        MarsRequestContext,
-        ParameterEntry,
-    )
+    if __package__:
+        from .models import MarsRequestContext, ParameterEntry  # noqa: E402
+    else:
+        from models import MarsRequestContext, ParameterEntry  # noqa: E402
 
     schema = ParameterEntry.model_json_schema()
     SCHEMA_OUTPUT.write_text(json.dumps(schema, indent=2), encoding="utf-8")
