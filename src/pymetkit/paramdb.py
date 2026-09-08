@@ -876,29 +876,76 @@ class ParamDB:
     def shortname_to_longname(
         self,
         shortname: str,
+        context: "dict | None" = None,
+        *,
+        default: bool = False,
         table: "int | None" = None,
         origin: "int | None" = None,
         access: "str | None" = None,
     ) -> str:
-        """Return the long name for *shortname*.
+        """Return the long name for *shortname*, given optional context.
+
+        Mirrors :meth:`shortname_to_param_id`: ambiguity is not resolved by
+        guessing. When more than one candidate remains after applying
+        ``context`` and the ``table``/``origin``/``access`` filters, the
+        behaviour depends on ``default``:
+
+        * ``default=False`` (the default) — :class:`AmbiguousParamError` is
+          raised; its ``.candidates`` attribute lists every remaining
+          :class:`ParamIDCandidate` so the caller can narrow the lookup.
+        * ``default=True`` — the long name of the canonical candidate is
+          returned: the first in sorted order (lowest table, then
+          origin/access, then lowest id).
 
         Parameters
         ----------
         shortname:
             ECMWF short name (e.g. ``"t"``, ``"tp"``).
+        context:
+            Optional dict of MARS keys resolved via the C++ ``expand`` engine
+            (e.g. ``{"class": "ai"}``). Partial context is usually sufficient.
+        default:
+            When ``True``, return the canonical (first-sorted) candidate's long
+            name instead of raising on ambiguity. Off by default.
         table:
-            Optional GRIB parameter table number to disambiguate collisions
-            (e.g. ``128`` for classic ECMWF, ``140`` for ocean waves).
+            Optional hard filter — GRIB parameter table number.
         origin:
-            Optional WMO originating centre ID (e.g. ``98`` for ECMWF,
-            ``0`` for WMO, ``7`` for NCEP).
+            Optional hard filter — WMO originating centre id (membership).
         access:
-            Optional access category filter (e.g. ``"dissemination"``).
+            Optional hard filter — access category string (membership).
+
+        Returns
+        -------
+        str
+            The uniquely resolved long name (or the canonical one when
+            ``default=True`` and the lookup is ambiguous).
+
+        Raises
+        ------
+        KeyError
+            If *shortname* is unknown, or no candidate survives the filters.
+        AmbiguousParamError
+            If more than one candidate remains after applying context/filters
+            and ``default=False``.
         """
         self._ensure_loaded()
-        return self._resolve_shortname_with_context(
-            shortname, table, origin, access
-        )["longname"]
+        entries, siblings = self._filter_shortname_entries(
+            shortname, context, table=table, origin=origin, access=access
+        )
+        if len(entries) == 1:
+            return str(entries[0]["longname"])
+        # Ambiguous. Build the candidate list (hard-filter metadata only;
+        # mars_request_context is left None — deferred functionality).
+        candidates = [
+            self._make_candidate(e, siblings, shortname) for e in entries
+        ]
+        candidates.sort(key=self._candidate_sort_key)
+        if default:
+            # Canonical pick: first in sorted order (lowest table / id).
+            return str(self._by_id[candidates[0].param_id]["longname"])
+        self._warn_context_unavailable()
+        raise AmbiguousParamError(shortname, candidates)
+
 
     def longname_to_shortname(self, longname: str) -> str:
         self._ensure_loaded()
