@@ -47,11 +47,14 @@
 # Any extra keys (e.g. "url", "version", "notes") are allowed and are preserved
 # verbatim in the dict returned by db.get_metadata().
 #
-# Key aliases
-# ~~~~~~~~~~~
-# The following raw API spellings are accepted and normalised automatically:
-#   shortName / short_name  →  shortname
-#   longName / long_name / name  →  longname
+# Canonical keys only
+# ~~~~~~~~~~~~~~~~~~~~
+# Only the canonical field spellings are accepted (by both the Pydantic
+# loader and the bundled JSON schema):
+#   shortname   (not shortName / short_name)
+#   longname    (not longName / long_name / name)
+# Raw API alias spellings are NOT accepted; normalise them to canonical
+# keys before loading.
 #
 #
 # Validation
@@ -108,10 +111,13 @@
   origin_ids: [98, 0]        # ECMWF + WMO
   access_ids: [dissemination]
 
-# --- Entry using raw API key spellings (also accepted) ----------------------
+# --- Entry using canonical keys ---------------------------------------------
+# (Raw API spellings like shortName / name are accepted by the Pydantic
+#  loader, but the JSON schema validates canonical keys only, so this file
+#  uses shortname / longname throughout.)
 - id: 900005
-  shortName: myrain          # shortName / short_name also accepted
-  name: My Custom Rainfall   # name / longName / long_name also accepted
+  shortname: myrain
+  longname: My Custom Rainfall
   units: kg m**-2
 
 # --- Entry with extra metadata fields (preserved in get_metadata()) ---------

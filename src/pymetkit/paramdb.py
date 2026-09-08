@@ -205,8 +205,8 @@ class ParamDB:
             Path to a custom YAML file to load instead of the bundled
             ``parameter_metadata.yaml``.  The file must be a YAML list where
             each entry contains at minimum an ``id`` (integer), a short name
-            (``shortname`` / ``shortName`` / ``short_name``), and a long name
-            (``longname`` / ``longName`` / ``long_name`` / ``name``).
+            (``shortname``), and a long name (``longname``). Only the canonical
+            key spellings are accepted.
             Only valid with ``mode="offline"``; raises ``ValueError`` if
             combined with ``mode="online"``.
         """
@@ -657,7 +657,7 @@ class ParamDB:
             resolved = Path(yaml_path)
             if not resolved.exists():
                 raise FileNotFoundError(f"Custom YAML file not found: {resolved}")
-            # Custom YAML: run Pydantic validation to normalise aliases/types
+            # Custom YAML: run Pydantic validation to coerce/validate types
             with resolved.open("r") as fh:
                 params = yaml.safe_load(fh)
             for raw in params:

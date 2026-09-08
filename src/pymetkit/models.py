@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MarsRequestContext(BaseModel):
@@ -41,23 +41,26 @@ class ParameterEntry(BaseModel):
     """
     A single entry from the ECMWF parameter database.
 
-    Accepts both the canonical field names produced by ``_normalise`` and the
-    raw aliases that may appear in YAML or API responses.
+    This model accepts the **canonical** field names only (``shortname`` /
+    ``longname``). Raw API alias spellings (e.g. ``shortName``, ``name``) are
+    NOT accepted and must be normalised to canonical keys before validation.
+
+    The JSON schema emitted from this model (and bundled as
+    ``parameter_entry_schema.json``) mirrors this contract: it validates the
+    canonical keys only.
     """
 
-    model_config = {"populate_by_name": True, "extra": "allow"}
+    model_config = {"extra": "allow"}
 
     id: int = Field(..., description="Numeric ECMWF/GRIB parameter ID")
 
     shortname: str = Field(
         ...,
-        alias="shortname",
         description="Short name (e.g. 't', 'tp')",
     )
 
     longname: str = Field(
         ...,
-        alias="longname",
         description="Human-readable long name (e.g. 'Temperature')",
     )
 
@@ -142,24 +145,3 @@ class ParameterEntry(BaseModel):
         if v is None:
             return []
         return [str(x) for x in v]
-
-    @model_validator(mode="before")
-    @classmethod
-    def _normalise_aliases(cls, data: Any) -> Any:
-        """Accept legacy key spellings from raw YAML / API payloads."""
-        if not isinstance(data, dict):
-            return data
-        d = dict(data)
-        # shortname aliases
-        if "shortname" not in d:
-            for alias in ("shortName", "short_name"):
-                if alias in d:
-                    d["shortname"] = d.pop(alias)
-                    break
-        # longname aliases
-        if "longname" not in d:
-            for alias in ("longName", "long_name", "name"):
-                if alias in d:
-                    d["longname"] = d.pop(alias)
-                    break
-        return d

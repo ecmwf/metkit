@@ -62,7 +62,7 @@
     }
   },
   "additionalProperties": true,
-  "description": "A single entry from the ECMWF parameter database.\n\nAccepts both the canonical field names produced by ``_normalise`` and the\nraw aliases that may appear in YAML or API responses.",
+  "description": "A single entry from the ECMWF parameter database.\n\nThis model accepts the **canonical** field names only (``shortname``/``longname``). Raw API alias spellings (e.g. ``shortName``, ``name``) are NOT accepted and must be normalised to canonical keys before validation.\n\nThe JSON schema emitted from this model (and bundled as ``parameter_entry_schema.json``) mirrors this contract: it validates the canonical keys only.",
   "properties": {
     "id": {
       "description": "Numeric ECMWF/GRIB parameter ID",
