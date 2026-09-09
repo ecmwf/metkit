@@ -8,7 +8,13 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <exception>
+#include <fstream>
+#include <string>
 
+#include "eckit/config/YAMLConfiguration.h"
+#include "eckit/exception/Exceptions.h"
 #include "metkit/mars2grib/CoreOperations.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
 #include "metkit/mars2grib/frontend/resolution/resolveActiveConcepts.h"
@@ -19,6 +25,16 @@ namespace {
 
 bool option(const eckit::LocalConfiguration& options, const std::string& name) {
     return options.has(name) ? options.getBool(name) : true;
+}
+
+eckit::LocalConfiguration requiredObject(const eckit::LocalConfiguration& root, const std::string& key,
+                                         std::size_t lineNumber) {
+    if (!root.has(key) || !root.isSubConfiguration(key)) {
+        throw eckit::Exception("Test-case record at line " + std::to_string(lineNumber) + " requires object `" + key +
+                                   "`",
+                               Here());
+    }
+    return root.getSubConfiguration(key);
 }
 
 }  // namespace
@@ -45,6 +61,72 @@ bool TestsFilter::filter(const eckit::LocalConfiguration& mars, const eckit::Loc
     };
 
     return std::all_of(conditions.begin(), conditions.end(), [](bool condition) { return condition; });
+}
+
+void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& outputPath,
+                    const eckit::LocalConfiguration& options) {
+    std::ifstream input{inputPath.asString()};
+    if (!input) {
+        throw eckit::Exception("Unable to open input test-case file `" + inputPath.asString() + "`", Here());
+    }
+
+    std::ofstream output{outputPath.asString(), std::ios::out | std::ios::trunc};
+    if (!output) {
+        throw eckit::Exception("Unable to open output test-case file `" + outputPath.asString() + "`", Here());
+    }
+
+    TestsFilter filter{options};
+    std::string record;
+    std::size_t lineNumber = 0;
+    while (std::getline(input, record)) {
+        ++lineNumber;
+        if (!record.empty() && record.back() == '\r') {
+            record.pop_back();
+        }
+        if (record.empty()) {
+            throw eckit::Exception("Empty test-case record at line " + std::to_string(lineNumber), Here());
+        }
+
+        try {
+            const eckit::LocalConfiguration root{eckit::YAMLConfiguration{record}};
+            const auto mars = requiredObject(root, "mars", lineNumber);
+            const auto misc = requiredObject(root, "misc", lineNumber);
+            const auto opt  = requiredObject(root, "opt", lineNumber);
+            (void)requiredObject(root, "out", lineNumber);
+
+            if (filter.filter(mars, misc, opt)) {
+                output << record << '\n';
+                if (!output) {
+                    throw eckit::Exception("Unable to write output test-case file `" + outputPath.asString() + "`",
+                                           Here());
+                }
+            }
+        }
+        catch (const eckit::Exception& exception) {
+            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
+                                       ": " + exception.what(),
+                                   Here());
+        }
+        catch (const std::exception& exception) {
+            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
+                                       ": " + exception.what(),
+                                   Here());
+        }
+        catch (...) {
+            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
+                                       ": unknown exception",
+                                   Here());
+        }
+    }
+
+    if (input.bad()) {
+        throw eckit::Exception("Error while reading input test-case file `" + inputPath.asString() + "`", Here());
+    }
+
+    output.close();
+    if (!output) {
+        throw eckit::Exception("Unable to complete output test-case file `" + outputPath.asString() + "`", Here());
+    }
 }
 
 }  // namespace metkit::mars2grib::testing_utils

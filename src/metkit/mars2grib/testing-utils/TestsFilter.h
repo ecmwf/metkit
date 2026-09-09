@@ -7,6 +7,7 @@
 #pragma once
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/filesystem/PathName.h"
 
 namespace metkit::mars2grib::testing_utils {
 
@@ -22,5 +23,8 @@ private:
     bool filterModelLevel_{true};
     bool filterFrequencyDirection_{true};
 };
+
+void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& outputPath,
+                    const eckit::LocalConfiguration& options);
 
 }  // namespace metkit::mars2grib::testing_utils
