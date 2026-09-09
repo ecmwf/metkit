@@ -329,56 +329,6 @@ class ParamDB:
         self._ctx_cache[cache_key] = resolved
         return resolved
 
-    def _minimal_distinguishing_context(
-        self, entry: dict, siblings: "list[dict]", shortname: str
-    ) -> "dict | None":
-        """Return the smallest MARS key-subset that selects *entry* over siblings.
-
-        Searches the key-subsets of *entry*'s baked ``mars_request_context``
-        dicts for the smallest subset that uniquely selects this id.
-
-        Uses ``expand`` as the authoritative oracle: a subset qualifies only if
-        ``MarsRequest(param=shortname, **subset).expand()`` resolves to exactly
-        this id. This guarantees the advertised context actually round-trips
-        (bare ``{"class": "ai"}`` is rejected for ``tp`` because ``expand``'s
-        inherited defaults resolve it to 228, not 228228).
-
-        Returns
-        -------
-        dict | None
-            * ``{}`` — *entry* is the default: an empty ``context={}`` already
-              resolves uniquely to it.
-            * a non-empty dict — the minimal distinguishing MARS context.
-            * ``None`` — no MARS context can uniquely select *entry* (residual
-              ambiguity, or no baked context).
-        """
-        entry_id = int(entry["id"])
-
-        # Is this the default candidate? An empty context resolving uniquely to
-        # this id means ``context={}`` selects it.
-        if self._context_resolved_ids(shortname, {}) == {entry_id}:
-            return {}
-
-        def selects(subctx: dict) -> bool:
-            return self._context_resolved_ids(shortname, subctx) == {entry_id}
-
-        best: "dict | None" = None
-        for ctx in entry.get("mars_request_context", []):
-            keys = sorted(ctx.keys())
-            for size in range(1, len(keys) + 1):
-                if best is not None and size >= len(best):
-                    break
-                found_at_size = None
-                for combo in combinations(keys, size):
-                    subctx = {k: ctx[k] for k in combo}
-                    if selects(subctx):
-                        found_at_size = subctx
-                        break
-                if found_at_size is not None:
-                    best = found_at_size
-                    break
-        return best  # None when nothing distinguishes *entry*
-
     @staticmethod
     def _warn_context_unavailable() -> None:
         """Notify that per-candidate MARS context computation is deferred.
@@ -411,9 +361,10 @@ class ParamDB:
         The candidate's ``param_id``, ``table``, ``origin`` and ``access`` (the
         hard-filter metadata) are always populated. ``mars_request_context`` is
         currently left as ``None``: per-candidate MARS context computation is
-        deferred (see :meth:`_minimal_distinguishing_context`, dormant), so we
-        no longer advertise which context selects each candidate. Callers can
-        still pass ``context=`` to :meth:`shortname_to_param_id` /
+        deferred (see the "NOT YET IMPLEMENTED" section at the end of this class,
+        :meth:`_minimal_distinguishing_context`, dormant), so we no longer
+        advertise which context selects each candidate. Callers can still pass
+        ``context=`` to :meth:`shortname_to_param_id` /
         :meth:`shortname_to_param_id_candidates` to narrow the lookup.
 
         The *minimal* parameter is retained for forward compatibility (it will
@@ -840,7 +791,7 @@ class ParamDB:
         Two independent narrowing mechanisms are available and may be combined:
 
         * ``context`` — a dict of MARS keys resolved via the C++ ``expand``
-          engine (authoritative, cycle-correct). When the MetKit C library is
+          engine (authoritative, cycle-correct). When the libmetkit is
           unavailable, the baked ``mars_request_context`` metadata is used as a
           fallback.
         * ``table`` / ``origin`` / ``access`` — direct hard filters on the
@@ -1189,4 +1140,67 @@ class ParamDB:
         if shortname not in self._by_shortname_all:
             raise KeyError(f"Short name {shortname!r} not found in database")
         return len(self._by_shortname_all[shortname]) > 1
+
+    # ======================================================================
+    # NOT YET IMPLEMENTED — dormant code, pending libmetkit support
+    # ----------------------------------------------------------------------
+    #
+    # TODO(metkit): expose a context-enumeration API in metkit, then wire this
+    # method back into ``_make_candidate`` (honour its ``minimal=`` flag) and
+    # remove ``_warn_context_unavailable``. See PR review (caraghbiner, Sep 2026).
+    # ======================================================================
+
+    def _minimal_distinguishing_context(
+        self, entry: dict, siblings: "list[dict]", shortname: str
+    ) -> "dict | None":
+        """Return the smallest MARS key-subset that selects *entry* over siblings.
+
+        .. warning::
+            DORMANT — not currently called from any public API. See the
+            "NOT YET IMPLEMENTED" banner above this method.
+
+        Searches the key-subsets of *entry*'s baked ``mars_request_context``
+        dicts for the smallest subset that uniquely selects this id.
+
+        Uses ``expand`` as the authoritative oracle: a subset qualifies only if
+        ``MarsRequest(param=shortname, **subset).expand()`` resolves to exactly
+        this id. This guarantees the advertised context actually round-trips
+        (bare ``{"class": "ai"}`` is rejected for ``tp`` because ``expand``'s
+        inherited defaults resolve it to 228, not 228228).
+
+        Returns
+        -------
+        dict | None
+            * ``{}`` — *entry* is the default: an empty ``context={}`` already
+              resolves uniquely to it.
+            * a non-empty dict — the minimal distinguishing MARS context.
+            * ``None`` — no MARS context can uniquely select *entry* (residual
+              ambiguity, or no baked context).
+        """
+        entry_id = int(entry["id"])
+
+        # Is this the default candidate? An empty context resolving uniquely to
+        # this id means ``context={}`` selects it.
+        if self._context_resolved_ids(shortname, {}) == {entry_id}:
+            return {}
+
+        def selects(subctx: dict) -> bool:
+            return self._context_resolved_ids(shortname, subctx) == {entry_id}
+
+        best: "dict | None" = None
+        for ctx in entry.get("mars_request_context", []):
+            keys = sorted(ctx.keys())
+            for size in range(1, len(keys) + 1):
+                if best is not None and size >= len(best):
+                    break
+                found_at_size = None
+                for combo in combinations(keys, size):
+                    subctx = {k: ctx[k] for k in combo}
+                    if selects(subctx):
+                        found_at_size = subctx
+                        break
+                if found_at_size is not None:
+                    best = found_at_size
+                    break
+        return best  # None when nothing distinguishes *entry*
 
