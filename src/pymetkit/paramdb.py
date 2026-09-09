@@ -3,20 +3,17 @@
 
 """ParamDB: ECMWF parameter metadata lookup (shortname <-> paramid).
 
-Pure-Python offline lookup plus a ``context=`` resolution path that defers to
-the compiled MetKit ``expand`` engine via develop's pybind11 ``MarsRequest``.
-The ``pymetkit`` package imports its native ``_internal`` extension
-unconditionally, so a failed library load surfaces loudly at import time.
+Python interface for manipulation of parameters and their metadata. 
+uses metkit expansion engine to resolve shortname collisions when mars 
+context is provided. Libmetkit is required.
 """
 
 import json
-import os
 import importlib.metadata
 import importlib.resources
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from itertools import combinations
-from typing import IO, Iterator
 import warnings
 from pathlib import Path
 import yaml
@@ -39,10 +36,9 @@ except ImportError:
 
 # --- Expand-path availability ----------------------------------------------
 # The ``context=`` resolution path defers to the compiled MetKit ``expand``
-# engine via develop's pybind11 ``MarsRequest``. The ``pymetkit`` package
-# ``__init__`` already imports ``pymetkit._internal`` unconditionally, so if the
-# native library fails to load the whole package import fails loudly — we do NOT
-# suppress that here. ``_HAVE_EXPAND`` is always True and retained as an explicit
+# engine via the pybind11 ``MarsRequest``. If the
+# native library fails to load the whole package import fails loudly. 
+# ``_HAVE_EXPAND`` is always True and retained as an explicit
 # capability flag referenced by the test suite.
 from pymetkit.pymetkit_type import MarsRequest as _MarsRequest
 from pymetkit._internal import MetKitException as _MetKitException
@@ -73,7 +69,7 @@ class ParamIDCandidate:
 
         * ``{}`` — this candidate is the **default**: an empty ``context={}``
           resolves to it via the C++ ``expand`` layer.
-        * ``None`` — **no** MARS context can select this candidate; use the
+        * ``None`` — no MARS context can select this candidate; use the
           hard filters instead (see :attr:`hard_filter_selector`).
     hard_filter_selector:
         The minimal ``table``/``origin``/``access`` kwargs that, when passed to
@@ -279,7 +275,7 @@ class ParamDB:
         return None
 
     # ------------------------------------------------------------------
-    # Context-aware resolution helpers (v2 API)
+    # Context-aware resolution helpers
     # ------------------------------------------------------------------
 
     def _context_resolved_ids(self, shortname: str, context: dict) -> "set[int]":
@@ -795,7 +791,7 @@ class ParamDB:
           unavailable, the baked ``mars_request_context`` metadata is used as a
           fallback.
         * ``table`` / ``origin`` / ``access`` — direct hard filters on the
-          candidate metadata, applied WITHOUT constructing a MARS request.
+          candidate metadata, applied without constructing a MARS request.
 
         Parameters
         ----------
@@ -852,8 +848,8 @@ class ParamDB:
         """Return ``(surviving_entries, all_siblings)`` for *shortname*.
 
         Applies the ``table``/``origin``/``access`` hard filters and the MARS
-        ``context`` filter (via the C++ ``expand`` engine, or the baked-context
-        offline fallback). Does NOT compute minimal contexts — that expensive
+        ``context`` filter (via the C++ ``expand`` engine). 
+        Does NOT compute minimal contexts — that expensive
         step is deferred to :meth:`_make_candidate`. Raises ``KeyError`` if the
         shortname is unknown or no entry survives the filters.
         """
@@ -872,11 +868,10 @@ class ParamDB:
             entries = [e for e in entries if access in e.get("access_ids", [])]
 
         # --- MARS context filter (C++ expand engine) ----------------------
-        # ``context is not None`` (rather than truthiness) so an *explicit*
-        # empty ``context={}`` still runs ``expand``: that resolves the
-        # shortname to its canonical/default paramid via the C++ layer. A bare
-        # ``context=None`` (no context argument) skips this and leaves the
-        # collision ambiguous, as documented.
+        # ``context is not None`` so an *explicit* empty ``context={}`` 
+        # still runs ``expand``: that resolves the shortname to its canonical/default 
+        # paramid via the C++ layer. A bare ``context=None`` (no context argument) 
+        # skips this and leaves the collision ambiguous.
         if context is not None:
             resolved = self._context_resolved_ids(shortname, context)
             entries = [e for e in entries if int(e["id"]) in resolved]
@@ -990,10 +985,10 @@ class ParamDB:
     def _param_context_from_cpp(param_id: int) -> "list[dict] | None":
         """Return MARS contexts for *param_id* from the C++ layer, if available.
 
-        Placeholder for the future ``metkit_param_context`` C API (outcomes §4).
+        Placeholder for the future ``metkit_param_context`` C API.
         That hook does not exist yet, so this always returns ``None`` to signal
         "not available", causing :meth:`param_id_to_context` to fall back to the
-        precomputed YAML data. Once the C API lands, implement it here and the
+        precomputed YAML data. Once implemented, add it here and the
         public method will transparently prefer it.
         """
         return None
@@ -1147,7 +1142,7 @@ class ParamDB:
     #
     # TODO(metkit): expose a context-enumeration API in metkit, then wire this
     # method back into ``_make_candidate`` (honour its ``minimal=`` flag) and
-    # remove ``_warn_context_unavailable``. See PR review (caraghbiner, Sep 2026).
+    # remove ``_warn_context_unavailable``.
     # ======================================================================
 
     def _minimal_distinguishing_context(
