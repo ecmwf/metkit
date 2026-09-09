@@ -38,6 +38,16 @@ ecbuild_add_executable(
 )
 
 ecbuild_add_executable(
+    TARGET        mars2grib-prune-tests
+    SOURCES       mars2grib-prune-tests.cc
+                  ../metkit/mars2grib/testing-utils/TestsFilter.cc
+    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+    INCLUDES      ${ECKIT_INCLUDE_DIRS}
+    NO_AS_NEEDED
+    LIBS          metkit eckit_option eckit
+)
+
+ecbuild_add_executable(
     TARGET        convert-mars-request
     CONDITION     HAVE_MARS2MARS AND HAVE_BUILD_GRIB2_TOOLS
     SOURCES       convert-mars-request.cc ParseRequest.cc ParseRequest.h
