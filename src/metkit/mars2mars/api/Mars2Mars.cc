@@ -48,19 +48,30 @@ namespace {
 /// gridSpec/ecCodes, which requires ecCodes to be configured with eckit_geo
 /// support enabled. This is controlled by the `ECCODES_ECKIT_GEO` environment
 /// variable.
-inline void checkEnvironment(const Options& opts) {
-    if (!opts.skipSection3) {
-        return;
+Options checkEnvironment(Options opts) {
+    const auto eccodesEckitGeoValue = []() {
+        const auto* eccodesEckitGeo = ::getenv("ECCODES_ECKIT_GEO");
+        if (eccodesEckitGeo) {
+            const std::string eccodesEckitGeoValue(eccodesEckitGeo);
+            if (eccodesEckitGeoValue == "1" || eccodesEckitGeoValue == "2") {
+                return true;
+            }
+        }
+        return false;
+    }();
+
+    if (opts.skipSection3 && !eccodesEckitGeoValue) {
+        throw eckit::UserError(
+            "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is "
+            "enabled!",
+            Here());
     }
 
-    const auto eccodesEckitGeo = std::string(::getenv("ECCODES_ECKIT_GEO"));
-    if (eccodesEckitGeo == "1" || eccodesEckitGeo == "2") {
-        return;
+    if (!opts.skipSection3 && eccodesEckitGeoValue) {
+        opts.skipSection3 = true;
     }
 
-    throw eckit::UserError(
-        "Environment variable `ECCODES_ECKIT_GEO` must be set to \"1\" or \"2\" when option `skipSection3` is enabled!",
-        Here());
+    return opts;
 }
 
 eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& base,
@@ -96,21 +107,14 @@ eckit::LocalConfiguration mergeLocalConfigs(const eckit::LocalConfiguration& bas
 // -----------------------------------------------------------------------------
 
 /// @brief Default construct a Mars2Mars converter.
-Mars2Mars::Mars2Mars() : opts_{} {
-    checkEnvironment(opts_);
-}
+Mars2Mars::Mars2Mars() : opts_{checkEnvironment({})} {}
 
-Mars2Mars::Mars2Mars(const Options& opts) : opts_{opts} {
-    checkEnvironment(opts_);
-}
+Mars2Mars::Mars2Mars(const Options& opts) : opts_{checkEnvironment(opts)} {}
 
-Mars2Mars::Mars2Mars(const eckit::LocalConfiguration& opts) : opts_{detail::readOptions(opts)} {
-    checkEnvironment(opts_);
-}
+Mars2Mars::Mars2Mars(const eckit::LocalConfiguration& opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
 
-Mars2Mars::Mars2Mars(OptionList opts) : opts_{detail::readOptions(opts)} {
-    checkEnvironment(opts_);
-}
+Mars2Mars::Mars2Mars(OptionList opts) : opts_{checkEnvironment(detail::readOptions(opts))} {}
+
 
 /// @brief Convert an `eckit::LocalConfiguration` request.
 Mars2MarsResult<eckit::LocalConfiguration> Mars2Mars::convert(const eckit::LocalConfiguration& mars) {
