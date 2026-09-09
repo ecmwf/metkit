@@ -184,6 +184,30 @@ def test_shortname_to_longname_unknown(db):
         db.shortname_to_longname("not_a_real_shortname_xyz")
 
 
+def test_shortname_to_longname_ambiguous_raises(db):
+    """An unqualified collision raises AmbiguousParamError with candidates."""
+    with pytest.raises(AmbiguousParamError) as exc:
+        db.shortname_to_longname("t")
+    assert len(exc.value.candidates) > 1
+    assert all(isinstance(c, ParamIDCandidate) for c in exc.value.candidates)
+
+
+def test_shortname_to_longname_default_picks_canonical(db):
+    """default=True returns the canonical (first-sorted) candidate's long name.
+
+    This must match the id chosen by shortname_to_param_id(default=True).
+    """
+    canonical_id = db.shortname_to_param_id("t", default=True)
+    expected = db.param_id_to_longname(canonical_id)
+    assert db.shortname_to_longname("t", default=True) == expected
+
+
+def test_shortname_to_longname_filter_disambiguates(db):
+    """A hard filter that narrows to one candidate resolves without raising."""
+    # 't' id=130 encodes to table 128; the table filter selects it uniquely.
+    assert db.shortname_to_longname("t", table=128) == "Temperature"
+
+
 @pytest.mark.parametrize(
     "shortname, expected_id",
     [
@@ -701,12 +725,6 @@ def test_shortname_to_param_id_unknown_access_raises(db):
         db.shortname_to_param_id("strf", access="nonexistent_access")
 
 
-def test_shortname_to_param_id_center_context(db):
-    """origin context filters to the correct originating centre."""
-    entry = db._resolve_shortname_with_context("t", origin=98)
-    assert entry["id"] == 130
-
-
 def test_get_all_by_shortname_returns_all_candidates(db):
     """get_all_by_shortname returns every entry for a colliding shortname."""
     entries = db.get_all_by_shortname("t")
@@ -1003,7 +1021,7 @@ def test_lazy_loaded_only_once():
         ("param_id_to_shortname", (130,)),
         ("param_id_to_longname", (130,)),
         ("shortname_to_param_id", ("msl",)),
-        ("shortname_to_longname", ("t",)),
+        ("shortname_to_longname", ("strf",)),
         ("longname_to_param_id", ("Temperature",)),
         ("longname_to_shortname", ("Temperature",)),
         ("get_metadata", (130,)),

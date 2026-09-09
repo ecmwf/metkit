@@ -3,11 +3,10 @@
 
 """ParamDB: ECMWF parameter metadata lookup (shortname <-> paramid).
 
-Pure-Python offline lookup plus an optional ``context=`` resolution path that
-defers to the compiled MetKit ``expand`` engine via develop's pybind11
-``MarsRequest``. When the compiled ``pymetkit._internal`` extension is
-unavailable (``_HAVE_EXPAND`` is False), the ``context=`` path falls back to the
-baked ``mars_request_context`` metadata.
+Pure-Python offline lookup plus a ``context=`` resolution path that defers to
+the compiled MetKit ``expand`` engine via develop's pybind11 ``MarsRequest``.
+The ``pymetkit`` package imports its native ``_internal`` extension
+unconditionally, so a failed library load surfaces loudly at import time.
 """
 
 import json
@@ -40,18 +39,16 @@ except ImportError:
 
 # --- Expand-path availability ----------------------------------------------
 # The ``context=`` resolution path defers to the compiled MetKit ``expand``
-# engine via develop's pybind11 ``MarsRequest``. Availability is determined by
-# whether ``pymetkit._internal`` (the compiled extension) imports. When it does
-# not, ``_HAVE_EXPAND`` is False and ParamDB falls back to the baked
-# ``mars_request_context`` metadata.
-try:
-    from pymetkit.pymetkit_type import MarsRequest as _MarsRequest
-    from pymetkit._internal import MetKitException as _MetKitException
-    _HAVE_EXPAND = True
-except Exception:  # pragma: no cover - extension not built / cannot load
-    _MarsRequest = None
-    _MetKitException = Exception
-    _HAVE_EXPAND = False
+# engine via develop's pybind11 ``MarsRequest``. The ``pymetkit`` package
+# ``__init__`` already imports ``pymetkit._internal`` unconditionally, so if the
+# native library fails to load the whole package import fails loudly — we do NOT
+# suppress that here. ``_HAVE_EXPAND`` is always True and retained as an explicit
+# capability flag referenced by the test suite.
+from pymetkit.pymetkit_type import MarsRequest as _MarsRequest
+from pymetkit._internal import MetKitException as _MetKitException
+
+_HAVE_EXPAND = True
+
 
 
 @dataclass(frozen=True)
@@ -175,10 +172,6 @@ class ParamDB:
 
     #: Set once the deferred-context notice has been emitted (process-wide).
     _context_notice_emitted = False
-    #: Ordered list of WMO originating centre IDs tried when resolving a
-    #: colliding shortname with no explicit ``origin=`` context.
-    #: 98 = ECMWF, 0 = WMO.
-    _DEFAULT_ORIGIN_PREFERENCE: list[int] = [98, 0]
 
     def __init__(
         self,
@@ -285,102 +278,11 @@ class ParamDB:
             return param_id // 1_000_000
         return None
 
-    def _resolve_shortname_with_context(
-        self,
-        shortname: str,
-        table: "int | None" = None,
-        origin: "int | None" = None,
-        access: "str | None" = None,
-    ) -> dict:
-        """Return the best-matching entry for *shortname* given optional context.
-
-        Parameters
-        ----------
-        shortname:
-            The ECMWF short name to look up.
-        table:
-            GRIB parameter table number (e.g. ``128`` for classic ECMWF,
-            ``140`` for ocean waves, ``228`` for "Standard 2").  When
-            provided, only candidates whose encoded param ID belongs to this
-            table are considered.
-        origin:
-            WMO originating centre ID (e.g. ``98`` for ECMWF, ``0`` for WMO,
-            ``7`` for NCEP).  When provided, only candidates whose
-            ``origin_ids`` list includes this value are considered.
-        access:
-            Access category string (e.g. ``"dissemination"``).  When
-            provided, only candidates whose ``access_ids`` list includes this
-            value are considered.
-
-        Returns
-        -------
-        dict
-            The matched parameter metadata entry.
-
-        Raises
-        ------
-        KeyError
-            If *shortname* is not found, or if no candidate matches the
-            supplied context.
-        """
-        if shortname not in self._by_shortname_all:
-            raise KeyError(f"Short name {shortname!r} not found in database")
-
-        candidates = self._by_shortname_all[shortname]
-
-        # --- Explicit context filters (hard constraints) ---
-        if table is not None:
-            candidates = [
-                e for e in candidates if self._table_from_id(e["id"]) == table
-            ]
-        if origin is not None:
-            candidates = [
-                e for e in candidates if origin in e.get("origin_ids", [])
-            ]
-        if access is not None:
-            candidates = [
-                e for e in candidates if access in e.get("access_ids", [])
-            ]
-
-        if not candidates:
-            ctx_parts = []
-            if table is not None:
-                ctx_parts.append(f"table={table}")
-            if origin is not None:
-                ctx_parts.append(f"origin={origin}")
-            if access is not None:
-                ctx_parts.append(f"access={access!r}")
-            raise KeyError(
-                f"Short name {shortname!r} not found for context "
-                f"{', '.join(ctx_parts)}"
-            )
-
-        # If any explicit context was given, return the lowest-id match among
-        # the filtered set and skip the default priority logic.
-        if table is not None or origin is not None or access is not None:
-            return min(candidates, key=lambda e: e["id"])
-
-        # --- Default priority logic (no explicit context) ---
-        # 1. Prefer dissemination parameters.
-        dissem = [e for e in candidates if "dissemination" in e.get("access_ids", [])]
-        pool = dissem if dissem else candidates
-
-        # 2. Among the pool, prefer origins in _DEFAULT_ORIGIN_PREFERENCE order.
-        for preferred_origin in self._DEFAULT_ORIGIN_PREFERENCE:
-            origin_match = [
-                e for e in pool if preferred_origin in e.get("origin_ids", [])
-            ]
-            if origin_match:
-                return min(origin_match, key=lambda e: e["id"])
-
-        # 3. Fall back to lowest id.
-        return min(pool, key=lambda e: e["id"])
-
     # ------------------------------------------------------------------
     # Context-aware resolution helpers (v2 API)
     # ------------------------------------------------------------------
 
-    def _context_resolved_ids(self, shortname: str, context: dict) -> "set[int] | None":
+    def _context_resolved_ids(self, shortname: str, context: dict) -> "set[int]":
         """Resolve *shortname* + *context* to paramid(s) via the C++ engine.
 
         Builds ``MarsRequest(param=shortname, **context)``, expands it (which
@@ -395,13 +297,10 @@ class ParamDB:
 
         Returns
         -------
-        set[int] | None
-            The set of resolved numeric ids, or ``None`` if the compiled
-            ``pymetkit._internal`` extension is unavailable (caller should fall
-            back to baked contexts).
+        set[int]
+            The set of resolved numeric ids (empty if the selection is invalid
+            or resolves to no ``param`` value).
         """
-        if not _HAVE_EXPAND:
-            return None
         cache_key = (shortname, tuple(sorted((str(k).rstrip("_"), str(v)) for k, v in context.items())))
         cached = self._ctx_cache.get(cache_key)
         if cached is not None:
@@ -430,20 +329,6 @@ class ParamDB:
         self._ctx_cache[cache_key] = resolved
         return resolved
 
-    @staticmethod
-    def _entry_matches_context(entry: dict, context: dict) -> bool:
-        """Offline fallback: does any baked context of *entry* satisfy *context*?
-
-        Used only when the C++ library is unavailable. An entry matches when at
-        least one of its ``mars_request_context`` dicts contains every
-        ``key == value`` pair in *context*.
-        """
-        wanted = {k.rstrip("_"): str(v) for k, v in context.items()}
-        for baked in entry.get("mars_request_context", []):
-            if all(str(baked.get(k)) == v for k, v in wanted.items()):
-                return True
-        return False
-
     def _minimal_distinguishing_context(
         self, entry: dict, siblings: "list[dict]", shortname: str
     ) -> "dict | None":
@@ -452,47 +337,30 @@ class ParamDB:
         Searches the key-subsets of *entry*'s baked ``mars_request_context``
         dicts for the smallest subset that uniquely selects this id.
 
-        When the MetKit C library is available, ``expand`` is used as the
-        authoritative oracle: a subset qualifies only if
+        Uses ``expand`` as the authoritative oracle: a subset qualifies only if
         ``MarsRequest(param=shortname, **subset).expand()`` resolves to exactly
         this id. This guarantees the advertised context actually round-trips
         (bare ``{"class": "ai"}`` is rejected for ``tp`` because ``expand``'s
         inherited defaults resolve it to 228, not 228228).
 
-        Offline (no library), it falls back to a set-membership heuristic
-        against the baked contexts of the sibling candidates.
-
         Returns
         -------
         dict | None
             * ``{}`` — *entry* is the default: an empty ``context={}`` already
-              resolves uniquely to it (oracle only).
+              resolves uniquely to it.
             * a non-empty dict — the minimal distinguishing MARS context.
             * ``None`` — no MARS context can uniquely select *entry* (residual
-              ambiguity, or no baked context / no oracle).
+              ambiguity, or no baked context).
         """
         entry_id = int(entry["id"])
-        use_oracle = _HAVE_EXPAND
 
-        # Oracle: is this the default candidate? An empty context resolving
-        # uniquely to this id means ``context={}`` selects it.
-        if use_oracle and self._context_resolved_ids(shortname, {}) == {entry_id}:
+        # Is this the default candidate? An empty context resolving uniquely to
+        # this id means ``context={}`` selects it.
+        if self._context_resolved_ids(shortname, {}) == {entry_id}:
             return {}
 
-        other_contexts: list[dict] = []
-        if not use_oracle:
-            for sib in siblings:
-                if sib.get("id") == entry_id:
-                    continue
-                other_contexts.extend(sib.get("mars_request_context", []))
-
         def selects(subctx: dict) -> bool:
-            if use_oracle:
-                return self._context_resolved_ids(shortname, subctx) == {entry_id}
-            return not any(
-                all(str(o.get(k)) == str(v) for k, v in subctx.items())
-                for o in other_contexts
-            )
+            return self._context_resolved_ids(shortname, subctx) == {entry_id}
 
         best: "dict | None" = None
         for ctx in entry.get("mars_request_context", []):
@@ -1052,7 +920,7 @@ class ParamDB:
         if access is not None:
             entries = [e for e in entries if access in e.get("access_ids", [])]
 
-        # --- MARS context filter (C++ expand, with offline fallback) -------
+        # --- MARS context filter (C++ expand engine) ----------------------
         # ``context is not None`` (rather than truthiness) so an *explicit*
         # empty ``context={}`` still runs ``expand``: that resolves the
         # shortname to its canonical/default paramid via the C++ layer. A bare
@@ -1060,12 +928,7 @@ class ParamDB:
         # collision ambiguous, as documented.
         if context is not None:
             resolved = self._context_resolved_ids(shortname, context)
-            if resolved is not None:
-                entries = [e for e in entries if int(e["id"]) in resolved]
-            else:
-                entries = [
-                    e for e in entries if self._entry_matches_context(e, context)
-                ]
+            entries = [e for e in entries if int(e["id"]) in resolved]
 
         if not entries:
             ctx_parts = []
