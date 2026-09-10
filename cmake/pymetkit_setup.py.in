@@ -35,7 +35,7 @@ packages = [
 ]
 package_data = {
     "pymetkit_bindings": ["*.so", "*.pyd"],
-    "pymetkit": ["parameter_metadata.json", "parameter_metadata.yaml"],
+    "pymetkit": ["parameter_metadata.json"],
 }
 
 if os.path.isdir(os.path.join("pymetkit", "experimental", "mars2grib")):

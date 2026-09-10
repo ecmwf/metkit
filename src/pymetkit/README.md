@@ -47,8 +47,7 @@ requests = parse_mars_request("retrieve,class=od,date=-1,param=129,step=12")
 ## ParamDB — parameter database
 
 `ParamDB` maps between ECMWF short names, long names and numeric parameter IDs, backed by a
-bundled `parameter_metadata.json` (with a `parameter_metadata.yaml` fallback) or, in
-`mode="online"`, the ECMWF parameter API.
+bundled `parameter_metadata.json` or, in `mode="online"`, the ECMWF parameter API.
 
 ```python
 from pymetkit import ParamDB, AmbiguousParamError
@@ -111,8 +110,9 @@ for cand in db.shortname_to_param_id_candidates("tp"):
 > **Note:** Per-candidate MARS context computation is temporarily deferred, so every returned
 > or raised `ParamIDCandidate` currently carries `mars_request_context=None`. Passing
 > `context=` to *narrow* a lookup still works; only the *advertised* selecting context is
-> unavailable for now. The `context=` path additionally requires the compiled
-> `pymetkit._internal` extension — without it, ParamDB falls back to the baked metadata.
+> unavailable for now. The `context=` path is resolved by the compiled MetKit `expand`
+> engine, which is always available (`pymetkit` imports the native `pymetkit._internal`
+> extension unconditionally).
 
 ## Command line
 

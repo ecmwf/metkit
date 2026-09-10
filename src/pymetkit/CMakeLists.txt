@@ -14,11 +14,10 @@ set(_pymetkit_py_sources
 )
 
 # Data files shipped inside the pymetkit package (consumed at runtime via
-# importlib.resources). These are symlinks in src/ pointing at share/metkit/;
-# cmake -E copy dereferences them into the staging tree.
+# importlib.resources). This is a symlink in src/ pointing at share/metkit/;
+# cmake -E copy dereferences it into the staging tree.
 set(_pymetkit_data_files
     parameter_metadata.json
-    parameter_metadata.yaml
 )
 
 # A module that exists in src/ but is missing from the list above is silently absent from

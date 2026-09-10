@@ -1,2 +1,6 @@
 *.list
 tmp
+
+# Generator outputs kept out of version control (regenerated locally / at build time)
+parameter_metadata.yaml
+unit_metadata.yaml
