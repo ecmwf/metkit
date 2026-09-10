@@ -30,7 +30,6 @@ CASE("T1279") {
         auto encoder = metkit::mars2grib::Mars2Grib();
 
         eckit::LocalConfiguration mars;
-        // mars.set("origin", "ecmf");
         mars.set("class", "od");
         mars.set("stream", "oper");
         mars.set("type", "fc");
@@ -46,7 +45,7 @@ CASE("T1279") {
         mars.set("levtype", "pl");
         mars.set("levelist", 1000);
         mars.set("date", 2026'09'09);
-        mars.set("time", 00'00'00);
+        mars.set("time", 00'00);
         mars.set("step", 0);
 
         std::vector<double> vals(1639680, 237.15);
@@ -57,16 +56,25 @@ CASE("T1279") {
 
         // GRIB
         EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
+        // referenceValue
+        // binaryScaleFactor
+        // decimalScaleFactor
+        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);  // Default
+        // laplacianScalingFactor
         EXPECT_EQUAL(handle->getLong("J"), 1279);
         EXPECT_EQUAL(handle->getLong("K"), 1279);
         EXPECT_EQUAL(handle->getLong("M"), 1279);
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
+        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
+        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
 
         EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
         EXPECT_EQUAL(handle->getLong("JS"), 20);
         EXPECT_EQUAL(handle->getLong("KS"), 20);
         EXPECT_EQUAL(handle->getLong("MS"), 20);
         EXPECT_EQUAL(handle->getLong("TS"), 462);
+        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
+
+        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
     }
     catch (const std::exception& e) {
         metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
@@ -80,7 +88,6 @@ CASE("T1279 (custom subset)") {
         auto encoder = metkit::mars2grib::Mars2Grib();
 
         eckit::LocalConfiguration mars;
-        // mars.set("origin", "ecmf");
         mars.set("class", "od");
         mars.set("stream", "oper");
         mars.set("type", "fc");
@@ -96,7 +103,7 @@ CASE("T1279 (custom subset)") {
         mars.set("levtype", "pl");
         mars.set("levelist", 1000);
         mars.set("date", 2026'09'09);
-        mars.set("time", 00'00'00);
+        mars.set("time", 00'00);
         mars.set("step", 0);
 
         eckit::LocalConfiguration misc;
@@ -110,16 +117,25 @@ CASE("T1279 (custom subset)") {
 
         // GRIB
         EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
+        // referenceValue
+        // binaryScaleFactor
+        // decimalScaleFactor
+        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);  // Default
+        // laplacianScalingFactor
         EXPECT_EQUAL(handle->getLong("J"), 1279);
         EXPECT_EQUAL(handle->getLong("K"), 1279);
         EXPECT_EQUAL(handle->getLong("M"), 1279);
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
+        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
+        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
 
         EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
         EXPECT_EQUAL(handle->getLong("JS"), 42);
         EXPECT_EQUAL(handle->getLong("KS"), 42);
         EXPECT_EQUAL(handle->getLong("MS"), 42);
         EXPECT_EQUAL(handle->getLong("TS"), 1892);
+        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
+
+        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 1639680);
     }
     catch (const std::exception& e) {
         metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
@@ -148,7 +164,7 @@ CASE("T20") {
         mars.set("levtype", "pl");
         mars.set("levelist", 1000);
         mars.set("date", 2026'09'09);
-        mars.set("time", 00'00'00);
+        mars.set("time", 00'00);
         mars.set("step", 0);
 
         std::vector<double> vals(462, 237.15);
@@ -159,16 +175,25 @@ CASE("T20") {
 
         // GRIB
         EXPECT_EQUAL(handle->getLong("gridDefinitionTemplateNumber"), 50L);  // Spherical harmonic coefficients
+        // referenceValue
+        // binaryScaleFactor
+        // decimalScaleFactor
+        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);  // Default
+        // laplacianScalingFactor
         EXPECT_EQUAL(handle->getLong("J"), 20);
         EXPECT_EQUAL(handle->getLong("K"), 20);
         EXPECT_EQUAL(handle->getLong("M"), 20);
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 462);
+        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
+        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
 
         EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
         EXPECT_EQUAL(handle->getLong("JS"), 10);
         EXPECT_EQUAL(handle->getLong("KS"), 10);
         EXPECT_EQUAL(handle->getLong("MS"), 10);
         EXPECT_EQUAL(handle->getLong("TS"), 132);
+        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
+
+        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 462);
     }
     catch (const std::exception& e) {
         metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
@@ -197,7 +222,7 @@ CASE("T20 (no subset)") {
         mars.set("levtype", "pl");
         mars.set("levelist", 1000);
         mars.set("date", 2026'09'09);
-        mars.set("time", 00'00'00);
+        mars.set("time", 00'00);
         mars.set("step", 0);
 
         eckit::LocalConfiguration misc;
@@ -214,13 +239,22 @@ CASE("T20 (no subset)") {
         EXPECT_EQUAL(handle->getLong("J"), 20);
         EXPECT_EQUAL(handle->getLong("K"), 20);
         EXPECT_EQUAL(handle->getLong("M"), 20);
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 462);
+        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
+        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
 
         EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
+        EXPECT_EQUAL(handle->getLong("referenceValue"), 0L);                     // Unused
+        EXPECT_EQUAL(handle->getLong("binaryScaleFactor"), 0L);                  // Unused
+        EXPECT_EQUAL(handle->getLong("decimalScaleFactor"), 0L);                 // Unused
+        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);                      // Default
+        EXPECT_EQUAL(handle->getLong("laplacianScalingFactor"), 0L);             // Unused
         EXPECT_EQUAL(handle->getLong("JS"), 20);
         EXPECT_EQUAL(handle->getLong("KS"), 20);
         EXPECT_EQUAL(handle->getLong("MS"), 20);
         EXPECT_EQUAL(handle->getLong("TS"), 462);
+        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
+
+        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 462);
     }
     catch (const std::exception& e) {
         metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
@@ -234,7 +268,6 @@ CASE("T1 (no subset)") {
         auto encoder = metkit::mars2grib::Mars2Grib();
 
         eckit::LocalConfiguration mars;
-        // mars.set("origin", "ecmf");
         mars.set("class", "od");
         mars.set("stream", "oper");
         mars.set("type", "fc");
@@ -250,7 +283,7 @@ CASE("T1 (no subset)") {
         mars.set("levtype", "pl");
         mars.set("levelist", 1000);
         mars.set("date", 2026'09'09);
-        mars.set("time", 00'00'00);
+        mars.set("time", 00'00);
         mars.set("step", 0);
 
         std::vector<double> vals(6, 237.15);
@@ -264,13 +297,22 @@ CASE("T1 (no subset)") {
         EXPECT_EQUAL(handle->getLong("J"), 1);
         EXPECT_EQUAL(handle->getLong("K"), 1);
         EXPECT_EQUAL(handle->getLong("M"), 1);
-        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 6);
+        EXPECT_EQUAL(handle->getLong("spectralType"), 1L);
+        EXPECT_EQUAL(handle->getLong("spectralMode"), 1L);
 
         EXPECT_EQUAL(handle->getLong("dataRepresentationTemplateNumber"), 51L);  // Spherical harmonic data
+        EXPECT_EQUAL(handle->getLong("referenceValue"), 0L);                     // Unused
+        EXPECT_EQUAL(handle->getLong("binaryScaleFactor"), 0L);                  // Unused
+        EXPECT_EQUAL(handle->getLong("decimalScaleFactor"), 0L);                 // Unused
+        EXPECT_EQUAL(handle->getLong("bitsPerValue"), 16L);                      // Default
+        EXPECT_EQUAL(handle->getLong("laplacianScalingFactor"), 0L);             // Unused
         EXPECT_EQUAL(handle->getLong("JS"), 1);
         EXPECT_EQUAL(handle->getLong("KS"), 1);
         EXPECT_EQUAL(handle->getLong("MS"), 1);
         EXPECT_EQUAL(handle->getLong("TS"), 6);
+        EXPECT_EQUAL(handle->getLong("unpackedSubsetPrecision"), 1L);  // IEEE 32-bit
+
+        EXPECT_EQUAL(handle->getLong("numberOfDataPoints"), 6);
     }
     catch (const std::exception& e) {
         metkit::mars2grib::utils::exceptions::printExceptionStack(e, eckit::Log::error());
