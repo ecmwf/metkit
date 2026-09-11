@@ -27,6 +27,7 @@
 #include "metkit/mars/MarsRequest.h"
 #include "metkit/mars/Type.h"
 
+#include "eckit/config/Resource.h"
 #include "eckit/testing/Test.h"
 #include "eckit/utils/Tokenizer.h"
 
@@ -630,6 +631,8 @@ CASE("test_metkit_expand_lowercase") {
 }
 
 CASE("test_metkit_expand_param") {
+    static bool multiParamValues = eckit::Resource<bool>("metkitMultiParamValues;$METKIT_MULTI_PARAM_VALUES", false);
+
     {
         const char* text =
             "retrieve,class=od,expver=0079,stream=enfo,date=-1,time=00/12,type=pf,levtype=sfc,step=24,number=1/to/"
@@ -696,12 +699,22 @@ CASE("test_metkit_expand_param") {
         auto params   = r.values("param");
         EXPECT_EQUAL(params.size(), 6);
 
-        EXPECT_EQUAL(params[0], "32");
-        EXPECT_EQUAL(params[1], "143");
-        EXPECT_EQUAL(params[2], "142");
-        EXPECT_EQUAL(params[3], "144");
-        EXPECT_EQUAL(params[4], "164");
-        EXPECT_EQUAL(params[5], "228");
+        if (multiParamValues) {
+            EXPECT_EQUAL(params[0], "228032|32");
+            EXPECT_EQUAL(params[1], "228143|143");
+            EXPECT_EQUAL(params[2], "3062|142");
+            EXPECT_EQUAL(params[3], "228144|144");
+            EXPECT_EQUAL(params[4], "228164|164");
+            EXPECT_EQUAL(params[5], "228228|228");
+        }
+        else {
+            EXPECT_EQUAL(params[0], "32");
+            EXPECT_EQUAL(params[1], "143");
+            EXPECT_EQUAL(params[2], "142");
+            EXPECT_EQUAL(params[3], "144");
+            EXPECT_EQUAL(params[4], "164");
+            EXPECT_EQUAL(params[5], "228");
+        }
     }
     {
         const char* text =
