@@ -242,7 +242,7 @@ inline std::size_t matchSOL(const long param) {
                  235080, 237080, 238080, 239080, 235238, 237238, 238238, 239238)) {
         return static_cast<std::size_t>(LevelType::SnowLayer);
     }
-    if (matchAny(param, 183, 235077, 260199, 260360)) {
+    if (matchAny(param, 183, 235077, 235094, 237077, 237094, 238077, 238094, 239077, 239094, 260199, 260360)) {
         return static_cast<std::size_t>(LevelType::SoilLayer);
     }
 
