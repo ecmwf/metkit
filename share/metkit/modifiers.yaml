@@ -199,10 +199,10 @@
   unset: [step]
 
 - context:
-    stream: ['!', lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, efsr]
+    stream: ['!', lwda, lwwv, elda, ewla, wfas, wfcl, wfse, wfrf, wfsr, efas, efcl, efse, efrf, enfo, oper, ldas, ldst, xwda, efsr]
   unset: [anoffset]
 - context:
-    stream: [efas, efcl, efse, efrf, efsr, wfas, wfcl, wfse, wfrf, wfsr]
+    stream: [efas, efcl, efse, efrf, efsr, enfo, oper, wfas, wfcl, wfse, wfrf, wfsr]
     type: ['!', go, sfo, fu]
   unset: [anoffset]
 
