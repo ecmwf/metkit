@@ -42,6 +42,7 @@ set(test_files
     integration/mars_request/test_merge.py
     integration/mars_request/test_equality.py
     integration/mars_request/test_parse.py
+    integration/test_paramdb.py
     cli/test_cli.py
 )
 
