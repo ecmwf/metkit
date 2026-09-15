@@ -24,6 +24,7 @@ struct ProductTimeSpecResult {
 
 class Mars2GribClassify {
 public:
+
     using OptionEntry = std::pair<std::string, eckit::Value>;
     using OptionList  = std::initializer_list<OptionEntry>;
 
@@ -39,19 +40,18 @@ public:
 
     ~Mars2GribClassify() = default;
 
-    std::string computeActiveConcepts(const eckit::LocalConfiguration& mars,
-                                      const eckit::LocalConfiguration& misc);
+    std::string computeActiveConcepts(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc);
     std::string computeActiveConcepts(const eckit::LocalConfiguration& mars);
 
     ProductTimeSpecResult computeProductTimeSpec(const eckit::LocalConfiguration& mars,
                                                  const eckit::LocalConfiguration& misc);
     ProductTimeSpecResult computeProductTimeSpec(const eckit::LocalConfiguration& mars);
 
-    long computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars,
-                                      const eckit::LocalConfiguration& misc);
+    long computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc);
     long computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars);
 
 private:
+
     const eckit::Value language_;
     const Options opts_;
 };

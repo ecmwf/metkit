@@ -144,8 +144,8 @@ inline std::optional<long> get_misc_default<long>(const eckit::LocalConfiguratio
 
 template <>
 inline std::optional<double> get_misc_default<double>(const eckit::LocalConfiguration&, std::string_view key) {
-    if (key == "missingValue" || key == "scaleValuesBy" || key == "offsetValuesBy" ||
-        key == "referenceWaveFrequency" || key == "waveFrequencySpacingRatio") {
+    if (key == "missingValue" || key == "scaleValuesBy" || key == "offsetValuesBy" || key == "referenceWaveFrequency" ||
+        key == "waveFrequencySpacingRatio") {
         // TODO: Populate defaults that are meaningful independently of the encoded values.
         return std::nullopt;
     }
@@ -155,7 +155,7 @@ inline std::optional<double> get_misc_default<double>(const eckit::LocalConfigur
 
 template <>
 inline std::optional<std::string> get_misc_default<std::string>(const eckit::LocalConfiguration&,
-                                                                 std::string_view key) {
+                                                                std::string_view key) {
     if (key == "typeOfProcessedData" || key == "timeIncrementInSeconds") {
         // TODO: Populate string defaults where this representation is preferred.
         return std::nullopt;
@@ -165,8 +165,8 @@ inline std::optional<std::string> get_misc_default<std::string>(const eckit::Loc
 }
 
 template <>
-inline std::optional<std::vector<double>> get_misc_default<std::vector<double>>(
-    const eckit::LocalConfiguration&, std::string_view key) {
+inline std::optional<std::vector<double>> get_misc_default<std::vector<double>>(const eckit::LocalConfiguration&,
+                                                                                std::string_view key) {
     if (key == "pv" || key == "waveDirections" || key == "waveFrequencies") {
         // TODO: Populate vector defaults where they can be represented safely.
         return std::nullopt;

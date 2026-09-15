@@ -63,25 +63,23 @@ std::vector<eckit::PathName> readInputPaths(const eckit::PathName& listPath) {
     while (std::getline(input, line)) {
         ++lineNumber;
         if (line.empty()) {
-            throw eckit::Exception("Empty filename at line " + std::to_string(lineNumber) + " in `" +
-                                       listPath.asString() + "`",
-                                   Here());
+            throw eckit::Exception(
+                "Empty filename at line " + std::to_string(lineNumber) + " in `" + listPath.asString() + "`", Here());
         }
         if (line.back() == '\r') {
-            throw eckit::Exception("Invalid carriage return at line " + std::to_string(lineNumber) + " in `" +
-                                       listPath.asString() + "`",
-                                   Here());
+            throw eckit::Exception(
+                "Invalid carriage return at line " + std::to_string(lineNumber) + " in `" + listPath.asString() + "`",
+                Here());
         }
         if (line.find('\0') != std::string::npos) {
-            throw eckit::Exception("Invalid filename at line " + std::to_string(lineNumber) + " in `" +
-                                       listPath.asString() + "`",
-                                   Here());
+            throw eckit::Exception(
+                "Invalid filename at line " + std::to_string(lineNumber) + " in `" + listPath.asString() + "`", Here());
         }
 
         const eckit::PathName path{line};
         if (path.fullName().asString() != line) {
-            throw eckit::Exception("Filename at line " + std::to_string(lineNumber) + " in `" +
-                                       listPath.asString() + "` is not a full path: `" + line + "`",
+            throw eckit::Exception("Filename at line " + std::to_string(lineNumber) + " in `" + listPath.asString() +
+                                       "` is not a full path: `" + line + "`",
                                    Here());
         }
         if (!uniquePaths.insert(path).second) {
@@ -116,18 +114,21 @@ std::vector<std::vector<eckit::PathName>> distributePaths(const std::vector<ecki
 
 class Mars2GribPruneTestsMpiTool final : public metkit::MetkitTool {
 public:
+
     Mars2GribPruneTestsMpiTool(int argc, char** argv) : MetkitTool(argc, argv) {
-        options_.push_back(new eckit::option::SimpleOption<std::string>(
-            "input-file-list", "Text file containing one full path per line"));
+        options_.push_back(new eckit::option::SimpleOption<std::string>("input-file-list",
+                                                                        "Text file containing one full path per line"));
         options_.push_back(new eckit::option::SimpleOption<bool>(
             "filter-perturbed-forecast", "Keep only perturbation number 1 for perturbed forecasts (default true)"));
         options_.push_back(new eckit::option::SimpleOption<bool>(
             "filter-model-level", "Keep only model level 1 when levelist is present (default true)"));
         options_.push_back(new eckit::option::SimpleOption<bool>(
-            "filter-frequency-direction", "Keep only frequency=1 and direction=1 when both are present (default true)"));
+            "filter-frequency-direction",
+            "Keep only frequency=1 and direction=1 when both are present (default true)"));
     }
 
 private:
+
     int numberOfPositionalArguments() const override { return 0; }
     void init(const eckit::option::CmdArgs& args) override;
     void execute(const eckit::option::CmdArgs&) override;
@@ -159,7 +160,7 @@ void Mars2GribPruneTestsMpiTool::init(const eckit::option::CmdArgs& args) {
 }
 
 void Mars2GribPruneTestsMpiTool::execute(const eckit::option::CmdArgs&) {
-    eckit::mpi::Comm& comm = eckit::mpi::comm();
+    eckit::mpi::Comm& comm      = eckit::mpi::comm();
     const std::size_t rank      = comm.rank();
     const std::size_t taskCount = comm.size();
 
@@ -186,8 +187,7 @@ void Mars2GribPruneTestsMpiTool::execute(const eckit::option::CmdArgs&) {
         int valid = 0;
         comm.receive(valid, static_cast<int>(rootRank), validationTag);
         if (!valid) {
-            validationError = receiveString(comm, static_cast<int>(rootRank), validationTextTag,
-                                            validationTextTag + 1);
+            validationError = receiveString(comm, static_cast<int>(rootRank), validationTextTag, validationTextTag + 1);
         }
     }
     if (!validationError.empty()) {

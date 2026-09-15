@@ -35,24 +35,24 @@ struct DictHas<testing_utils::MiscRequirementsDictionary> {
     }
 };
 
-#define M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(CTYPE)                                                        \
-    template <>                                                                                                \
-    struct DictGetOpt<testing_utils::MiscRequirementsDictionary, CTYPE> {                                     \
-        static std::optional<CTYPE> get_opt(const testing_utils::MiscRequirementsDictionary& dict,           \
-                                            std::string_view key) noexcept(false) {                            \
-            dict.record_optional<CTYPE>(key);                                                                 \
-            return std::nullopt;                                                                               \
-        }                                                                                                      \
-    };                                                                                                         \
-                                                                                                               \
-    template <>                                                                                                \
-    struct DictGetOrThrow<testing_utils::MiscRequirementsDictionary, CTYPE> {                                 \
-        static CTYPE get_or_throw(const testing_utils::MiscRequirementsDictionary& dict,                      \
-                                  std::string_view key) noexcept(false) {                                      \
-            const auto value = misc_defaults::get_misc_default<CTYPE>(dict.mars(), key);                      \
-            dict.record_mandatory<CTYPE>(key, value);                                                         \
-            return value.value_or(CTYPE{});                                                                   \
-        }                                                                                                      \
+#define M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(CTYPE)                                             \
+    template <>                                                                                    \
+    struct DictGetOpt<testing_utils::MiscRequirementsDictionary, CTYPE> {                          \
+        static std::optional<CTYPE> get_opt(const testing_utils::MiscRequirementsDictionary& dict, \
+                                            std::string_view key) noexcept(false) {                \
+            dict.record_optional<CTYPE>(key);                                                      \
+            return std::nullopt;                                                                   \
+        }                                                                                          \
+    };                                                                                             \
+                                                                                                   \
+    template <>                                                                                    \
+    struct DictGetOrThrow<testing_utils::MiscRequirementsDictionary, CTYPE> {                      \
+        static CTYPE get_or_throw(const testing_utils::MiscRequirementsDictionary& dict,           \
+                                  std::string_view key) noexcept(false) {                          \
+            const auto value = misc_defaults::get_misc_default<CTYPE>(dict.mars(), key);           \
+            dict.record_mandatory<CTYPE>(key, value);                                              \
+            return value.value_or(CTYPE{});                                                        \
+        }                                                                                          \
     };
 
 M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(bool)
@@ -74,8 +74,8 @@ struct DictToJsonTraits<testing_utils::MiscRequirementsDictionary> {
                 out << ',';
             }
             first = false;
-            out << "{\"key\":\"" << requirement.key << "\",\"mandatory\":"
-                << (requirement.mandatory ? "true" : "false");
+            out << "{\"key\":\"" << requirement.key
+                << "\",\"mandatory\":" << (requirement.mandatory ? "true" : "false");
             if (requirement.type) {
                 out << ",\"type\":\"" << *requirement.type << '"';
             }

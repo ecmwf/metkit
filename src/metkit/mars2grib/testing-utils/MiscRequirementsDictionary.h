@@ -29,6 +29,7 @@ struct MiscKeyRequirement {
 
 class MiscRequirementsDictionary {
 public:
+
     explicit MiscRequirementsDictionary(const eckit::LocalConfiguration& mars) : mars_{mars} {}
 
     const eckit::LocalConfiguration& mars() const { return mars_; }
@@ -49,6 +50,7 @@ public:
     }
 
 private:
+
     template <typename T>
     static std::string stringify(const T& value) {
         if constexpr (std::is_same_v<T, bool>) {

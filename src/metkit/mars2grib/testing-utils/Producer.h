@@ -14,6 +14,7 @@ namespace metkit::mars2grib::testing_utils::run_tests {
 
 class Producer {
 public:
+
     explicit Producer(const std::string& archivePath);
     ~Producer();
 
@@ -25,6 +26,7 @@ public:
     std::optional<std::string> readNextRecord();
 
 private:
+
     class Impl;
     std::unique_ptr<Impl> impl_;
 };
