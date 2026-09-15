@@ -103,6 +103,25 @@ ProductTimeSpecResult computeProductTimeSpecResult(const eckit::LocalConfigurati
     return ProductTimeSpecResult{spec.to_json(), productTimeSpecClassification(spec)};
 }
 
+long computeProductTimeSpecOuterTimeRangeInHours(const eckit::LocalConfiguration& inputMars,
+                                                 const eckit::LocalConfiguration& inputMisc, const Options& options,
+                                                 const eckit::Value& language) {
+    using backend::tables::TimeUnit;
+
+    eckit::LocalConfiguration scratchMars;
+    eckit::LocalConfiguration scratchMisc;
+    auto [mars, misc] = CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars,
+                                                              scratchMisc);
+    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(mars, options);
+    const ProductTimeSpec spec{detail::innerStatisticalProcessing(activeConcepts), mars, misc, options};
+    const auto& windows = spec.windows().values;
+    if (windows.empty() || windows.front().timeRange.unit != TimeUnit::Hour) {
+        throw exceptions::Mars2GribGenericException("ProductTimeSpec outer time range is not available in hours",
+                                                    Here());
+    }
+    return windows.front().timeRange.length;
+}
+
 }  // namespace
 
 Mars2GribClassify::Mars2GribClassify() : opts_{} {}
@@ -133,6 +152,17 @@ ProductTimeSpecResult Mars2GribClassify::computeProductTimeSpec(const eckit::Loc
 
 ProductTimeSpecResult Mars2GribClassify::computeProductTimeSpec(const eckit::LocalConfiguration& mars) {
     return computeProductTimeSpec(mars, eckit::LocalConfiguration{});
+}
+
+long Mars2GribClassify::computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars,
+                                                     const eckit::LocalConfiguration& misc) {
+    return exceptions::withMars2GribApiErrorHandling<long>(
+        "Mars2GribClassify::computeOuterTimeRangeInHours", opts_,
+        [&]() { return computeProductTimeSpecOuterTimeRangeInHours(mars, misc, opts_, language_); }, Here());
+}
+
+long Mars2GribClassify::computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars) {
+    return computeOuterTimeRangeInHours(mars, eckit::LocalConfiguration{});
 }
 
 }  // namespace metkit::mars2grib
