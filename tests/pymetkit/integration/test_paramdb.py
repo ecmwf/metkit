@@ -71,39 +71,31 @@ def test_online_requires_requests(monkeypatch):
 # ---------------------------------------------------------------------------
 
 
+def test_normalise_accepts_canonical_keys():
+    """Canonical ``shortname``/``longname`` keys validate and round-trip."""
+    result = ParamDB._normalise(
+        {"id": 1, "shortname": "strf", "longname": "Stream function"}
+    )
+    assert result["shortname"] == "strf"
+    assert result["longname"] == "Stream function"
+
+
 @pytest.mark.parametrize(
-    "raw, expected_shortname, expected_longname",
+    "raw, missing_field",
     [
-        # Already canonical keys
-        [
-            {"id": 1, "shortname": "strf", "longname": "Stream function"},
-            "strf",
-            "Stream function",
-        ],
-        # CamelCase aliases
-        [
-            {"id": 1, "shortName": "strf", "longName": "Stream function"},
-            "strf",
-            "Stream function",
-        ],
-        # snake_case aliases
-        [
-            {"id": 1, "short_name": "strf", "long_name": "Stream function"},
-            "strf",
-            "Stream function",
-        ],
-        # 'name' as longname fallback
-        [
-            {"id": 1, "shortname": "strf", "name": "Stream function"},
-            "strf",
-            "Stream function",
-        ],
+        # CamelCase aliases are NOT accepted — canonical keys only.
+        [{"id": 1, "shortName": "strf", "longName": "Stream function"}, "shortname"],
+        # snake_case aliases are NOT accepted.
+        [{"id": 1, "short_name": "strf", "long_name": "Stream function"}, "shortname"],
+        # 'name' is not a longname fallback.
+        [{"id": 1, "shortname": "strf", "name": "Stream function"}, "longname"],
     ],
 )
-def test_normalise_key_aliases(raw, expected_shortname, expected_longname):
-    result = ParamDB._normalise(raw)
-    assert result["shortname"] == expected_shortname
-    assert result["longname"] == expected_longname
+def test_normalise_rejects_key_aliases(raw, missing_field):
+    """Raw API alias spellings are rejected; only canonical keys are valid."""
+    with pytest.raises(pydantic.ValidationError) as excinfo:
+        ParamDB._normalise(raw)
+    assert excinfo.value.errors()[0]["loc"] == (missing_field,)
 
 
 def test_normalise_coerces_id_to_int():
@@ -549,7 +541,8 @@ _CUSTOM_YAML = """\
   description: Second custom parameter
 """
 
-#: Same data with alternate key names to exercise _normalise.
+#: Same data with alternate (non-canonical) key names. These alias spellings are
+#: rejected: ParamDB accepts canonical ``shortname``/``longname`` keys only.
 _CUSTOM_YAML_ALIASES = """\
 - id: 201
   shortName: alias1
@@ -631,13 +624,12 @@ def test_yaml_path_get_units(custom_yaml):
     assert db.get_units(102) == "K"
 
 
-def test_yaml_path_normalises_key_aliases(custom_yaml_aliases):
-    """Alternate key names (shortName, longName, etc.) are normalised correctly."""
+def test_yaml_path_rejects_key_aliases(custom_yaml_aliases):
+    """Alternate key names (shortName, longName, etc.) are rejected on load."""
     db = ParamDB(yaml_path=custom_yaml_aliases)
-    assert db.param_id_to_shortname(201) == "alias1"
-    assert db.param_id_to_longname(201) == "Alias param one"
-    assert db.param_id_to_shortname(202) == "alias2"
-    assert db.param_id_to_longname(202) == "Alias param two"
+    # Loading is lazy; the alias entries fail canonical validation on first access.
+    with pytest.raises(pydantic.ValidationError):
+        db.param_id_to_shortname(201)
 
 
 def test_yaml_path_missing_file_raises(tmp_path):
@@ -1056,27 +1048,32 @@ class TestParameterEntryModel:
         assert entry.origin_ids == []
         assert entry.access_ids == []
 
-    def test_shortname_alias(self):
-        """Raw API alias 'shortName' is accepted and normalised to 'shortname'."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "shortName": "t", "longname": "Temperature"}
-        )
-        assert entry.shortname == "t"
-
-    def test_short_name_underscore_alias(self):
-        """Snake-case alias 'short_name' is accepted and normalised."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "short_name": "t", "longname": "Temperature"}
-        )
-        assert entry.shortname == "t"
-
-    def test_longname_aliases(self):
-        """'longName', 'long_name', and 'name' are all normalised to 'longname'."""
-        for key in ("longName", "long_name", "name"):
-            entry = ParameterEntry.model_validate(
-                {"id": 130, "shortname": "t", key: "Temperature"}
+    def test_shortname_alias_rejected(self):
+        """Raw API alias 'shortName' is rejected — canonical keys only."""
+        with pytest.raises(pydantic.ValidationError) as excinfo:
+            ParameterEntry.model_validate(
+                {"id": 130, "shortName": "t", "longname": "Temperature"}
             )
-            assert entry.longname == "Temperature", f"alias {key!r} not normalised"
+        assert excinfo.value.errors()[0]["loc"] == ("shortname",)
+
+    def test_short_name_underscore_alias_rejected(self):
+        """Snake-case alias 'short_name' is rejected — canonical keys only."""
+        with pytest.raises(pydantic.ValidationError) as excinfo:
+            ParameterEntry.model_validate(
+                {"id": 130, "short_name": "t", "longname": "Temperature"}
+            )
+        assert excinfo.value.errors()[0]["loc"] == ("shortname",)
+
+    def test_longname_aliases_rejected(self):
+        """'longName', 'long_name', and 'name' are rejected — canonical keys only."""
+        for key in ("longName", "long_name", "name"):
+            with pytest.raises(pydantic.ValidationError) as excinfo:
+                ParameterEntry.model_validate(
+                    {"id": 130, "shortname": "t", key: "Temperature"}
+                )
+            assert excinfo.value.errors()[0]["loc"] == (
+                "longname",
+            ), f"alias {key!r} should be rejected"
 
     def test_id_coercion_from_string(self):
         """String id values are coerced to int."""
