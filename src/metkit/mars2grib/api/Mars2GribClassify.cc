@@ -107,8 +107,8 @@ long computeProductTimeSpecOuterTimeRangeInHours(const eckit::LocalConfiguration
 
     eckit::LocalConfiguration scratchMars;
     eckit::LocalConfiguration scratchMisc;
-    auto [mars, misc] = CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars,
-                                                              scratchMisc);
+    auto [mars, misc] =
+        CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
     const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(mars, options);
     const ProductTimeSpec spec{detail::innerStatisticalProcessing(activeConcepts), mars, misc, options};
     const auto& windows = spec.windows().values;

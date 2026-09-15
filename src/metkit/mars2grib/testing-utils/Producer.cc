@@ -18,6 +18,7 @@ namespace metkit::mars2grib::testing_utils::run_tests {
 
 class Producer::Impl {
 public:
+
     explicit Impl(const std::string& archivePath) : archivePath_{archivePath} {
         file_ = std::fopen(archivePath.c_str(), "rb");
         if (file_ == nullptr) {
@@ -31,8 +32,7 @@ public:
             throw eckit::Exception("Unable to create zstd decompression stream", Here());
         }
 
-        std::size_t resultOpt =
-            ZSTD_DCtx_setParameter(stream_, ZSTD_d_windowLogMax, 29);
+        std::size_t resultOpt = ZSTD_DCtx_setParameter(stream_, ZSTD_d_windowLogMax, 29);
 
         if (ZSTD_isError(resultOpt)) {
             ZSTD_freeDStream(stream_);
@@ -41,9 +41,7 @@ public:
             file_ = nullptr;
 
             throw eckit::Exception(
-                "Unable to configure zstd decompression stream: " +
-                    std::string{ZSTD_getErrorName(resultOpt)},
-                Here());
+                "Unable to configure zstd decompression stream: " + std::string{ZSTD_getErrorName(resultOpt)}, Here());
         }
 
         const std::size_t result = ZSTD_initDStream(stream_);
@@ -52,9 +50,8 @@ public:
             stream_ = nullptr;
             std::fclose(file_);
             file_ = nullptr;
-            throw eckit::Exception("Unable to initialise zstd decompression stream: " +
-                                       std::string{ZSTD_getErrorName(result)},
-                                   Here());
+            throw eckit::Exception(
+                "Unable to initialise zstd decompression stream: " + std::string{ZSTD_getErrorName(result)}, Here());
         }
 
         inputStorage_.resize(ZSTD_DStreamInSize());
@@ -100,6 +97,7 @@ public:
     }
 
 private:
+
     void decompressMore() {
         if (pendingOffset_ != 0) {
             pending_.erase(0, pendingOffset_);
@@ -125,8 +123,8 @@ private:
         remaining_ = ZSTD_decompressStream(stream_, &output, &input_);
         started_   = true;
         if (ZSTD_isError(remaining_)) {
-            throw eckit::Exception("Unable to decompress test-case archive `" + archivePath_ + "`: " +
-                                       std::string{ZSTD_getErrorName(remaining_)},
+            throw eckit::Exception("Unable to decompress test-case archive `" + archivePath_ +
+                                       "`: " + std::string{ZSTD_getErrorName(remaining_)},
                                    Here());
         }
         pending_.append(outputStorage_.data(), output.pos);

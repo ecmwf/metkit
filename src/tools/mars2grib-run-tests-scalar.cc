@@ -22,11 +22,13 @@ namespace {
 
 class Mars2GribRunTestsScalarTool final : public metkit::MetkitTool {
 public:
+
     Mars2GribRunTestsScalarTool(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<std::string>("test-cases", "Plain JSONL test-case file"));
     }
 
 private:
+
     int numberOfPositionalArguments() const override { return 0; }
     void init(const eckit::option::CmdArgs& args) override;
     void execute(const eckit::option::CmdArgs&) override;

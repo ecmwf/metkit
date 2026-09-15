@@ -21,6 +21,7 @@ namespace {
 
 class Mars2GribPruneTestsTool final : public metkit::MetkitTool {
 public:
+
     Mars2GribPruneTestsTool(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<std::string>("input-file", "Input JSONL test-case file"));
         options_.push_back(new eckit::option::SimpleOption<std::string>("output-file", "Output JSONL test-case file"));
@@ -29,10 +30,12 @@ public:
         options_.push_back(new eckit::option::SimpleOption<bool>(
             "filter-model-level", "Keep only model level 1 when levelist is present (default true)"));
         options_.push_back(new eckit::option::SimpleOption<bool>(
-            "filter-frequency-direction", "Keep only frequency=1 and direction=1 when both are present (default true)"));
+            "filter-frequency-direction",
+            "Keep only frequency=1 and direction=1 when both are present (default true)"));
     }
 
 private:
+
     int numberOfPositionalArguments() const override { return 0; }
     void init(const eckit::option::CmdArgs& args) override;
     void execute(const eckit::option::CmdArgs&) override;

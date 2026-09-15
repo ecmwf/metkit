@@ -4,6 +4,8 @@
  * This software is licensed under the terms of the Apache Licence Version 2.0.
  */
 
+#include <pthread.h>
+#include <sched.h>
 #include <atomic>
 #include <condition_variable>
 #include <cstddef>
@@ -13,8 +15,6 @@
 #include <iostream>
 #include <mutex>
 #include <optional>
-#include <pthread.h>
-#include <sched.h>
 #include <string>
 #include <thread>
 #include <utility>
@@ -35,6 +35,7 @@ namespace {
 template <typename T>
 class BoundedQueue {
 public:
+
     explicit BoundedQueue(std::size_t capacity) : capacity_{capacity} {}
 
     bool push(T value) {
@@ -75,6 +76,7 @@ public:
     }
 
 private:
+
     const std::size_t capacity_;
     std::deque<T> queue_;
     std::mutex mutex_;
@@ -154,6 +156,7 @@ using metkit::mars2grib::testing_utils::run_tests::Producer;
 
 class Mars2GribRunTestsTool final : public metkit::MetkitTool {
 public:
+
     Mars2GribRunTestsTool(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<std::string>("test-cases", "Zstd-compressed JSONL archive"));
         options_.push_back(new eckit::option::SimpleOption<long>("num-threads", "Total threads, including producer"));
@@ -165,6 +168,7 @@ public:
     }
 
 private:
+
     int numberOfPositionalArguments() const override { return 0; }
     void init(const eckit::option::CmdArgs& args) override;
     void execute(const eckit::option::CmdArgs&) override;
@@ -244,11 +248,10 @@ void Mars2GribRunTestsTool::execute(const eckit::option::CmdArgs&) {
             return;
         }
 
-        const std::size_t hundredths = static_cast<std::size_t>(
-            10000.0L * static_cast<long double>(current) / static_cast<long double>(*expectedMessages_));
-        std::size_t displayed = displayedHundredths.load();
-        while (displayed < hundredths && !displayedHundredths.compare_exchange_weak(displayed, hundredths)) {
-        }
+        const std::size_t hundredths = static_cast<std::size_t>(10000.0L * static_cast<long double>(current) /
+                                                                static_cast<long double>(*expectedMessages_));
+        std::size_t displayed        = displayedHundredths.load();
+        while (displayed < hundredths && !displayedHundredths.compare_exchange_weak(displayed, hundredths)) {}
         if (displayed >= hundredths) {
             return;
         }

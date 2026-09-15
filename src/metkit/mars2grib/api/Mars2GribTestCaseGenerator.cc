@@ -278,8 +278,8 @@ std::string Mars2GribTestCaseGenerator::generate(const eckit::LocalConfiguration
     return makeTestCaseJson(mars, misc, opts_, out);
 }
 
-testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(
-    const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc) {
+testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(const eckit::LocalConfiguration& mars,
+                                                                              const eckit::LocalConfiguration& misc) {
     return exceptions::withMars2GribApiErrorHandling<testing_utils::RecordingDictionary>(
         "Mars2GribTestCaseGenerator::generateOutput", opts_,
         [&]() {
@@ -297,8 +297,7 @@ std::string Mars2GribTestCaseGenerator::generate(const eckit::LocalConfiguration
     return generate(mars, misc);
 }
 
-testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(
-    const eckit::LocalConfiguration& mars) {
+testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
     return generateOutput(mars, misc);
 }
