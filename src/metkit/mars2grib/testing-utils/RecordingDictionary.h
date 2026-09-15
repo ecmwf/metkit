@@ -345,7 +345,7 @@ public:
         Operation& operator=(Operation&&) noexcept = default;
     };
 
-    RecordingDictionary()                                          = default;
+    RecordingDictionary() = default;
     explicit RecordingDictionary(const eckit::LocalConfiguration& configuration);
     RecordingDictionary(const RecordingDictionary&)                = default;
     RecordingDictionary& operator=(const RecordingDictionary&)     = default;

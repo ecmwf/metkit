@@ -82,12 +82,12 @@ RecordingDictionary::RecordingDictionary(const eckit::LocalConfiguration& config
             throw eckit::UserError("RecordingDictionary operation must contain exactly one operation", Here());
         }
 
-        const auto set        = requireObject(operation, "set");
-        const std::string key = requireString(set, "key");
-        const auto datatype   = requireObject(set, "datatype");
+        const auto set         = requireObject(operation, "set");
+        const std::string key  = requireString(set, "key");
+        const auto datatype    = requireObject(set, "datatype");
         const std::string type = requireString(datatype, "type");
-        const long rank         = requireLong(datatype, "rank");
-        const long size         = requireLong(datatype, "size");
+        const long rank        = requireLong(datatype, "rank");
+        const long size        = requireLong(datatype, "size");
 
         if (size < 0 || (rank == 0 && size != 1)) {
             throw eckit::UserError("Invalid RecordingDictionary datatype size", Here());
@@ -99,10 +99,9 @@ RecordingDictionary::RecordingDictionary(const eckit::LocalConfiguration& config
         else if (rank == 0 && type == "integer" && set.isIntegral("value")) {
             record_set(key, set.getLong("value"));
         }
-        else if (rank == 0 && type == "double" &&
-                 (set.isFloatingPoint("value") || set.isIntegral("value"))) {
-            record_set(key, set.isFloatingPoint("value") ? set.getDouble("value")
-                                                          : static_cast<double>(set.getLong("value")));
+        else if (rank == 0 && type == "double" && (set.isFloatingPoint("value") || set.isIntegral("value"))) {
+            record_set(
+                key, set.isFloatingPoint("value") ? set.getDouble("value") : static_cast<double>(set.getLong("value")));
         }
         else if (rank == 0 && type == "string" && set.isString("value")) {
             record_set(key, set.getString("value"));
@@ -116,18 +115,17 @@ RecordingDictionary::RecordingDictionary(const eckit::LocalConfiguration& config
         }
         else if (rank == 1 && type == "double" && key == "values" && set.isSubConfiguration("value")) {
             const auto summary = set.getSubConfiguration("value");
-            if (!summary.has("average") ||
-                !(summary.isFloatingPoint("average") || summary.isIntegral("average")) || size < 0) {
+            if (!summary.has("average") || !(summary.isFloatingPoint("average") || summary.isIntegral("average")) ||
+                size < 0) {
                 throw eckit::UserError("Invalid RecordingDictionary values summary", Here());
             }
             const double average = summary.isFloatingPoint("average") ? summary.getDouble("average")
-                                                                        : static_cast<double>(summary.getLong("average"));
+                                                                      : static_cast<double>(summary.getLong("average"));
             operations_.emplace_back(OperationKind::Set, key,
                                      std::make_unique<TypedRecordedValue<ValuesSummary>>(
                                          ValuesSummary{static_cast<std::size_t>(size), average}));
         }
-        else if (rank == 1 && type == "double" &&
-                 (set.isFloatingPointList("value") || set.isIntegralList("value"))) {
+        else if (rank == 1 && type == "double" && (set.isFloatingPointList("value") || set.isIntegralList("value"))) {
             const auto values = set.getDoubleVector("value");
             if (values.size() != static_cast<std::size_t>(size)) {
                 throw eckit::UserError("RecordingDictionary vector size does not match datatype", Here());

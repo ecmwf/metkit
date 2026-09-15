@@ -33,12 +33,14 @@ eckit::LocalConfiguration requiredObject(const eckit::LocalConfiguration& root, 
 
 class Mars2GribPruneTestsOtrTool final : public metkit::MetkitTool {
 public:
+
     Mars2GribPruneTestsOtrTool(int argc, char** argv) : MetkitTool(argc, argv) {
         options_.push_back(new eckit::option::SimpleOption<std::string>("input-file", "Input JSONL test-case file"));
         options_.push_back(new eckit::option::SimpleOption<std::string>("output-file", "Output JSONL test-case file"));
     }
 
 private:
+
     int numberOfPositionalArguments() const override { return 0; }
     void init(const eckit::option::CmdArgs& args) override;
     void execute(const eckit::option::CmdArgs&) override;
@@ -116,19 +118,19 @@ void Mars2GribPruneTestsOtrTool::execute(const eckit::option::CmdArgs&) {
             }
         }
         catch (const eckit::Exception& exception) {
-            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
-                                       ": " + exception.what(),
-                                   Here());
+            throw eckit::Exception(
+                "Unable to process test-case record at line " + std::to_string(lineNumber) + ": " + exception.what(),
+                Here());
         }
         catch (const std::exception& exception) {
-            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
-                                       ": " + exception.what(),
-                                   Here());
+            throw eckit::Exception(
+                "Unable to process test-case record at line " + std::to_string(lineNumber) + ": " + exception.what(),
+                Here());
         }
         catch (...) {
-            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
-                                       ": unknown exception",
-                                   Here());
+            throw eckit::Exception(
+                "Unable to process test-case record at line " + std::to_string(lineNumber) + ": unknown exception",
+                Here());
         }
     }
 
@@ -143,8 +145,7 @@ void Mars2GribPruneTestsOtrTool::execute(const eckit::option::CmdArgs&) {
 }
 
 void Mars2GribPruneTestsOtrTool::usage(const std::string& tool) const {
-    eckit::Log::info() << "Usage: " << tool << " --input-file <input.jsonl> --output-file <output.jsonl>"
-                       << std::endl;
+    eckit::Log::info() << "Usage: " << tool << " --input-file <input.jsonl> --output-file <output.jsonl>" << std::endl;
 }
 
 }  // namespace

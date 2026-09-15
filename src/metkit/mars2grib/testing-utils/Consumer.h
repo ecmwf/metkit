@@ -47,11 +47,13 @@ ComparisonResult compareOutputs(const RecordingDictionary& expected, const Recor
 
 class Consumer {
 public:
+
     explicit Consumer(ConsumerOptions options);
 
     bool run(const std::string& json);
 
 private:
+
     bool failed(const std::string& json, const std::string& reason);
 
     ConsumerOptions options_;

@@ -30,9 +30,8 @@ bool option(const eckit::LocalConfiguration& options, const std::string& name) {
 eckit::LocalConfiguration requiredObject(const eckit::LocalConfiguration& root, const std::string& key,
                                          std::size_t lineNumber) {
     if (!root.has(key) || !root.isSubConfiguration(key)) {
-        throw eckit::Exception("Test-case record at line " + std::to_string(lineNumber) + " requires object `" + key +
-                                   "`",
-                               Here());
+        throw eckit::Exception(
+            "Test-case record at line " + std::to_string(lineNumber) + " requires object `" + key + "`", Here());
     }
     return root.getSubConfiguration(key);
 }
@@ -103,19 +102,19 @@ void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& out
             }
         }
         catch (const eckit::Exception& exception) {
-            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
-                                       ": " + exception.what(),
-                                   Here());
+            throw eckit::Exception(
+                "Unable to process test-case record at line " + std::to_string(lineNumber) + ": " + exception.what(),
+                Here());
         }
         catch (const std::exception& exception) {
-            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
-                                       ": " + exception.what(),
-                                   Here());
+            throw eckit::Exception(
+                "Unable to process test-case record at line " + std::to_string(lineNumber) + ": " + exception.what(),
+                Here());
         }
         catch (...) {
-            throw eckit::Exception("Unable to process test-case record at line " + std::to_string(lineNumber) +
-                                       ": unknown exception",
-                                   Here());
+            throw eckit::Exception(
+                "Unable to process test-case record at line " + std::to_string(lineNumber) + ": unknown exception",
+                Here());
         }
     }
 

@@ -44,7 +44,7 @@ public:
     std::string generate(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc);
     std::string generate(const eckit::LocalConfiguration& mars);
     testing_utils::RecordingDictionary generateOutput(const eckit::LocalConfiguration& mars,
-                                                       const eckit::LocalConfiguration& misc);
+                                                      const eckit::LocalConfiguration& misc);
     testing_utils::RecordingDictionary generateOutput(const eckit::LocalConfiguration& mars);
 
 private:
