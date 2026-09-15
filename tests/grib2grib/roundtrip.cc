@@ -15,6 +15,8 @@
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "eckit/io/AutoCloser.h"
+#include "eckit/io/FileHandle.h"
 #include "eckit/log/Log.h"
 #include "eckit/option/CmdArgs.h"
 #include "eckit/option/SimpleOption.h"
@@ -117,10 +119,12 @@ class Roundtrip : public eckit::Tool {
 
         std::vector<eckit::option::Option*> options;
         options.push_back(new Option<std::string>("grid", "MARS grid"));
-        options.push_back(new Option<bool>("valid", "Check isMessageValid (deafult true)"));
-        options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (deafult false)"));
+        options.push_back(new Option<bool>("valid", "Check isMessageValid (default true)"));
+        options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (default false)"));
         options.push_back(
-            new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (deafult false)"));
+            new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (default false)"));
+        
+        options.push_back(new Option<std::string>("out", "Write encoded message to file (default empty, no output)"));
 
         eckit::option::CmdArgs args(usage, options, 1, 1);
         ASSERT(args.count() == 1);
@@ -156,6 +160,16 @@ class Roundtrip : public eckit::Tool {
 
             const auto h = mars2grib.encode(values, mars, misc);
             ASSERT(h);
+
+            if (auto path = args.getString("out", ""); !path.empty()) {
+                auto data = h->messageData();
+
+                eckit::FileHandle out(path);
+                out.openForWrite(static_cast<eckit::Length>(data.size()));
+                eckit::AutoCloser closer(out);
+
+                ASSERT(out.write(data.data(), data.size()) == static_cast<long>(data.size()));
+            }
 
             if (args.getBool("valid", true)) {
                 ASSERT(h->getLong("isMessageValid") != 0);
