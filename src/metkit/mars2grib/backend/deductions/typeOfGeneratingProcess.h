@@ -234,6 +234,57 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Success exit point
             return {result};
         }
+        else if (marsTypeVal == "gbf") {
+
+            // GRIB best forecast (gbf) fields. Generated as part of the forecast
+            // system; the canonical ECMWF GRIB2 value is BiasCorrectedEnsembleForecast (11).
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=gbf)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (marsTypeVal == "gwt") {
+
+            // GRIB generated with time (gwt) fields. Generated as part of the forecast
+            // system; the canonical ECMWF GRIB2 value is Forecast (13).
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=gwt)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
+        else if (marsTypeVal == "ssd") {
+
+            // GRIB single site deterministic (ssd) fields. Generated as part of the forecast
+            // system; the canonical ECMWF GRIB2 value is SingleSiteForecast (4).
+            tables::TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+
+            // Emit RESOLVE log entry
+            MARS2GRIB_LOG_RESOLVE([&]() {
+                std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += "' (type=ssd)";
+                return logMsg;
+            }());
+
+            // Success exit point
+            return {result};
+        }
         else {
 
             // Emit RESOLVE log entry
