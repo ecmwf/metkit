@@ -44,6 +44,10 @@ public:
                                                  const eckit::LocalConfiguration& misc);
     ProductTimeSpecResult computeProductTimeSpec(const eckit::LocalConfiguration& mars);
 
+    long computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars,
+                                      const eckit::LocalConfiguration& misc);
+    long computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars);
+
 private:
 
     const eckit::Value language_;
