@@ -38,12 +38,12 @@ def test_expand_normalizes_relative_date():
     assert valid_request().expand()["date"] == yesterday
 
 
-def expansion_of_short_names():
+def test_expand_resolves_aliases():
+    # "od" and "operations" are aliases; they must compare equal after expansion.
     request = valid_request()
-    request_different = valid_request()
-    request_different["class"] = "operational"
-    request_different["domain"] = "global"
-    assert request == request_different
+    aliased = valid_request()
+    aliased["class"] = "operations"
+    assert request == aliased
 
 
 def test_expand_inherits_default_values():

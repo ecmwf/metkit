@@ -1,4 +1,2 @@
-pytest~=9.1
-findlibs~=0.1
-Sybil[pytest]~=10.1
-GitPython~=3.1
+# Runtime dependencies for pymetkit.
+findlibs~=0.1.3

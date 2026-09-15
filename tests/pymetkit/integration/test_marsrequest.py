@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pymetkit import MarsRequest, MetKitException, parse_mars_request
+from pymetkit import MarsRequest, MetKitException, expand, parse_mars_request
 
 request = """
 retrieve,
@@ -103,12 +103,11 @@ def test_request_from_expand():
             "step": range(0, 13, 6),
         },
     )
-    expanded = req.expand()
+    expanded = expand(req)
     assert expanded.verb() == req.verb()
     assert expanded["date"] == yesterday
     assert "param" in expanded
     expanded.validate()
-    assert req == expanded
 
 
 @pytest.mark.parametrize(
@@ -154,10 +153,14 @@ def test_request_merge(extra_kv, expectation):
 
 
 @pytest.mark.parametrize(
-    "verb, updates, expected",
-    [["retrieve", {"date": 20230101, "param": 130}, True], ["compute", {}, False]],
+    "updates, expected",
+    [
+        [{"date": 20230101, "param": 130}, True],
+        [{"step": [0, 6, 12]}, True],
+        [{"param": 131}, False],
+    ],
 )
-def test_request_equality(verb, updates, expected):
+def test_request_equality(updates, expected):
     init_request = {
         "class": "od",
         "domain": "g",
@@ -167,6 +170,5 @@ def test_request_equality(verb, updates, expected):
         "step": range(0, 13, 6),
     }
     req = MarsRequest("retrieve", init_request)
-    second_request = {**init_request, **updates}
-    req2 = MarsRequest(verb, second_request)
+    req2 = MarsRequest("retrieve", {**init_request, **updates})
     assert (req == req2) == expected

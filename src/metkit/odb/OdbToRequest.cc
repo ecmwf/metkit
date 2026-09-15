@@ -64,13 +64,14 @@ std::vector<MarsRequest> OdbToRequest::odbToRequest(DataHandle& dh) const {
     Frame frame;
 
     std::vector<MarsRequest> requests;
+    MarsLanguage language(verb_);
 
     while ((frame = reader.next())) {
         Span span = frame.span(OdbMetadataDecoder::columnNames(), onlyConstantColumns_);
 
         MarsRequest r(verb_);
         MarsRequestSetter setter(r);
-        OdbMetadataDecoder decoder(setter, {}, verb_);
+        OdbMetadataDecoder decoder(setter, {}, language);
         span.visit(decoder);
 
         if (one_ and requests.size()) {
