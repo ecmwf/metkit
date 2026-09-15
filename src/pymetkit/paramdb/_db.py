@@ -562,7 +562,7 @@ class ParamDB:
         # Candidate 1: importlib.resources. Read the contents *inside* the
         # as_file context so a materialised temp file still exists during read.
         try:
-            ref = importlib.resources.files("pymetkit").joinpath(filename)
+            ref = importlib.resources.files("pymetkit").joinpath("share", filename)
             with importlib.resources.as_file(ref) as p:
                 if p.exists():
                     return p.read_text(encoding="utf-8")
@@ -571,8 +571,8 @@ class ParamDB:
 
         # Candidates 2 & 3: filesystem heuristics (dev tree / editable install)
         candidates = [
-            Path(__file__).parent / filename,
-            Path(__file__).parents[2] / "share" / "metkit" / filename,
+            Path(__file__).parents[1] / "share" / filename,
+            Path(__file__).parents[3] / "share" / "metkit" / filename,
         ]
         for path in candidates:
             if path.exists():

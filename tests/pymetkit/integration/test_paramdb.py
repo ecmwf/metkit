@@ -4,8 +4,9 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 import pytest
 
-from pymetkit import ParamDB, ParameterEntry, ParamIDCandidate, AmbiguousParamError
-import pymetkit.paramdb as _mod
+import pymetkit
+import pymetkit.paramdb._db as _mod
+from pymetkit.paramdb import ParamDB, ParameterEntry, ParamIDCandidate, AmbiguousParamError
 import pydantic
 
 
@@ -40,7 +41,7 @@ def test_constructor_mode_validation(mode, expectation):
     The online case is patched so that no real HTTP request is made; only the
     mode-parsing logic is exercised here.
     """
-    with patch.object(_mod.ParamDB, "_load_online", return_value=None):
+    with patch.object(pymetkit.paramdb.ParamDB, "_load_online", return_value=None):
         with expectation:
             ParamDB(mode=mode)
 
@@ -732,7 +733,7 @@ def test_get_all_by_shortname_returns_all_candidates(db):
 # ---------------------------------------------------------------------------
 
 _needs_lib = pytest.mark.skipif(
-    not _mod._HAVE_EXPAND,
+    not pymetkit.paramdb._HAVE_EXPAND,
     reason="requires the pymetkit extension (MarsRequest.expand) for context= resolution",
 )
 
@@ -823,9 +824,7 @@ def test_context_resolves_tp_full_ai(db):
 def test_context_and_filter_combined(db):
     """context and hard filters compose to a single result."""
     ctx = {"class": "ai", "stream": "oper", "type": "fc", "levtype": "sfc"}
-    assert (
-        db.shortname_to_param_id("tp", context=ctx, access="dissemination") == 228228
-    )
+    assert db.shortname_to_param_id("tp", context=ctx, access="dissemination") == 228228
 
 
 @_needs_lib
@@ -852,7 +851,7 @@ def test_candidate_context_roundtrips(db):
 @_needs_lib
 def test_empty_context_resolves_default_but_bare_raises(db):
     """context={} resolves the canonical id; no context stays ambiguous."""
-    from pymetkit import AmbiguousParamError
+    from pymetkit.paramdb import AmbiguousParamError
 
     # explicit empty context -> canonical/default via C++ expand
     assert db.shortname_to_param_id("sst", context={}) == 34
@@ -870,7 +869,7 @@ def test_candidate_context_none_and_default(db):
     ``mars_request_context`` is ``None`` regardless of whether it is the
     default. The hard-filter selector still identifies each id.
     """
-    from pymetkit import AmbiguousParamError
+    from pymetkit.paramdb import AmbiguousParamError
 
     try:
         db.shortname_to_param_id("sst")
@@ -968,9 +967,7 @@ def test_first_write_wins_for_shortname(db):
     for sn, entry in db._by_shortname.items():
         all_entries = db._by_shortname_all[sn]
         min_id = min(e["id"] for e in all_entries)
-        assert entry["id"] == min_id, (
-            f"_by_shortname[{sn!r}] has id={entry['id']} but min is {min_id}"
-        )
+        assert entry["id"] == min_id, f"_by_shortname[{sn!r}] has id={entry['id']} but min is {min_id}"
 
 
 # ---------------------------------------------------------------------------
@@ -1077,38 +1074,28 @@ class TestParameterEntryModel:
 
     def test_id_coercion_from_string(self):
         """String id values are coerced to int."""
-        entry = ParameterEntry.model_validate(
-            {"id": "130", "shortname": "t", "longname": "Temperature"}
-        )
+        entry = ParameterEntry.model_validate({"id": "130", "shortname": "t", "longname": "Temperature"})
         assert entry.id == 130
         assert isinstance(entry.id, int)
 
     def test_units_defaults_to_unknown_when_absent(self):
         """Missing 'units' field defaults to 'unknown'."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature"}
-        )
+        entry = ParameterEntry.model_validate({"id": 130, "shortname": "t", "longname": "Temperature"})
         assert entry.units == "unknown"
 
     def test_units_defaults_to_unknown_when_empty(self):
         """Empty-string 'units' is normalised to 'unknown'."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature", "units": ""}
-        )
+        entry = ParameterEntry.model_validate({"id": 130, "shortname": "t", "longname": "Temperature", "units": ""})
         assert entry.units == "unknown"
 
     def test_units_defaults_to_unknown_when_none(self):
         """None 'units' is normalised to 'unknown'."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature", "units": None}
-        )
+        entry = ParameterEntry.model_validate({"id": 130, "shortname": "t", "longname": "Temperature", "units": None})
         assert entry.units == "unknown"
 
     def test_origin_ids_default_empty_list(self):
         """Absent 'origin_ids' defaults to []."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature"}
-        )
+        entry = ParameterEntry.model_validate({"id": 130, "shortname": "t", "longname": "Temperature"})
         assert entry.origin_ids == []
 
     def test_origin_ids_none_becomes_empty_list(self):
@@ -1120,24 +1107,20 @@ class TestParameterEntryModel:
 
     def test_access_ids_default_empty_list(self):
         """Absent 'access_ids' defaults to []."""
-        entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature"}
-        )
+        entry = ParameterEntry.model_validate({"id": 130, "shortname": "t", "longname": "Temperature"})
         assert entry.access_ids == []
 
     def test_origin_ids_coercion(self):
         """String elements in origin_ids are coerced to int."""
         entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature",
-             "origin_ids": ["98", "0"]}
+            {"id": 130, "shortname": "t", "longname": "Temperature", "origin_ids": ["98", "0"]}
         )
         assert entry.origin_ids == [98, 0]
 
     def test_extra_fields_preserved(self):
         """Extra keys not in the schema are preserved in model_dump()."""
         entry = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature",
-             "url": "https://example.com/130"}
+            {"id": 130, "shortname": "t", "longname": "Temperature", "url": "https://example.com/130"}
         )
         dumped = entry.model_dump()
         assert dumped["url"] == "https://example.com/130"
@@ -1160,15 +1143,19 @@ class TestParameterEntryModel:
     def test_empty_shortname_raises(self):
         """Empty shortname raises ValidationError."""
         with pytest.raises(pydantic.ValidationError):
-            ParameterEntry.model_validate(
-                {"id": 130, "shortname": "", "longname": "Temperature"}
-            )
+            ParameterEntry.model_validate({"id": 130, "shortname": "", "longname": "Temperature"})
 
     def test_model_dump_round_trip(self):
         """model_dump() produces a dict that can be validated back into the model."""
         original = ParameterEntry.model_validate(
-            {"id": 130, "shortname": "t", "longname": "Temperature",
-             "units": "K", "origin_ids": [98], "access_ids": ["dissemination"]}
+            {
+                "id": 130,
+                "shortname": "t",
+                "longname": "Temperature",
+                "units": "K",
+                "origin_ids": [98],
+                "access_ids": ["dissemination"],
+            }
         )
         dumped = original.model_dump()
         restored = ParameterEntry.model_validate(dumped)
@@ -1229,9 +1216,7 @@ def test_param_id_to_context_prefers_cpp_source(db, monkeypatch):
     """When the C++ layer provides contexts, they take precedence over bundled."""
     db._ensure_loaded()
     sentinel = [{"class": "od", "stream": "oper", "type": "fc", "levtype": "sfc"}]
-    monkeypatch.setattr(
-        _mod.ParamDB, "_param_context_from_cpp", staticmethod(lambda pid: sentinel)
-    )
+    monkeypatch.setattr(_mod.ParamDB, "_param_context_from_cpp", staticmethod(lambda pid: sentinel))
     # id 4 has no bundled context; the C++ source must still be returned.
     assert db.param_id_to_context(4) == sentinel
     # For an id that *does* have bundled context, C++ still wins.
@@ -1241,9 +1226,6 @@ def test_param_id_to_context_prefers_cpp_source(db, monkeypatch):
 def test_param_id_to_context_falls_back_when_cpp_absent(db, monkeypatch):
     """When the C++ layer returns None, the bundled contexts are used."""
     db._ensure_loaded()
-    monkeypatch.setattr(
-        _mod.ParamDB, "_param_context_from_cpp", staticmethod(lambda pid: None)
-    )
+    monkeypatch.setattr(_mod.ParamDB, "_param_context_from_cpp", staticmethod(lambda pid: None))
     bundled = list(db._by_id[1].get("mars_request_context", []))
     assert db.param_id_to_context(1) == bundled
-

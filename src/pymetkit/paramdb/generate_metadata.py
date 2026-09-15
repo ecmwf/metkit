@@ -7,9 +7,7 @@ Standalone script to generate:
 
 Usage
 -----
-    python -m pymetkit.generate_parameter_metadata
-    # or directly:
-    python generate_parameter_metadata.py
+    python -m pymetkit.paramdb.generate_metadata
 """
 
 import json
@@ -22,9 +20,9 @@ UNIT_URL = "https://codes.ecmwf.int/parameter-database/api/v1/unit/"
 ORIGIN_URL = "https://codes.ecmwf.int/parameter-database/api/v1/origin/"
 
 # Output paths: canonical location is share/metkit/ at the repo root, which is
-# two parent directories above this module file:
-#   src/pymetkit/ -> src/ -> <repo_root>
-_REPO_ROOT = Path(__file__).parents[2]
+# three parent directories above this module file:
+#   src/pymetkit/paramdb/ -> src/pymetkit/ -> src/ -> <repo_root>
+_REPO_ROOT = Path(__file__).parents[3]
 PARAM_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.yaml"
 PARAM_JSON_OUTPUT = _REPO_ROOT / "share" / "metkit" / "parameter_metadata.json"
 UNIT_OUTPUT = _REPO_ROOT / "share" / "metkit" / "unit_metadata.yaml"
@@ -347,7 +345,7 @@ if __name__ == "__main__":
     if __package__:
         from .models import MarsRequestContext, ParameterEntry  # noqa: E402
     else:
-        from models import MarsRequestContext, ParameterEntry  # noqa: E402
+        from pymetkit.paramdb.models import MarsRequestContext, ParameterEntry  # noqa: E402
 
     schema = ParameterEntry.model_json_schema()
     SCHEMA_OUTPUT.write_text(json.dumps(schema, indent=2), encoding="utf-8")

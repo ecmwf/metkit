@@ -48,6 +48,7 @@ It exposes the MARS request model as Pythonic objects built on a
    :hidden:
 
    bindings
+   paramdb
    development
    legacy
 
