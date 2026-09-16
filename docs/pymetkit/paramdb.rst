@@ -109,13 +109,3 @@ access.
 Commit the updated files to keep the bundled metadata in sync with the upstream
 database.
 
-The generator can also be invoked via the ``pymetkit`` CLI, which defaults to
-``share/metkit/`` inside the repository root but accepts a custom output directory:
-
-.. code-block:: sh
-
-   # Write to the default share/metkit/ location
-   python -m pymetkit --generate-metadata
-
-   # Write to a custom directory
-   python -m pymetkit --generate-metadata --metadata-dir /path/to/output

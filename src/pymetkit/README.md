@@ -109,10 +109,8 @@ for cand in db.shortname_to_param_id_candidates("tp"):
 ## Command line
 
 ```bash
-python -m pymetkit --print-home                             # metkit library home
-python -m pymetkit --print-home-deps                        # all dependency homes and versions
-python -m pymetkit --generate-metadata                      # fetch and write bundled parameter metadata
-python -m pymetkit --generate-metadata --metadata-dir DIR   # write to a custom directory
+python -m pymetkit --print-home        # metkit library home
+python -m pymetkit --print-home-deps   # all dependency homes and versions
 ```
 
 ## Technical details
@@ -127,8 +125,8 @@ Run the generator script when the upstream database changes:
 python -m pymetkit.paramdb.generate_metadata
 ```
 
-This requires network access, the `requests` and `yaml` packages, and a checkout of this
-repository so the script can resolve `share/metkit/` relative to its own location. It writes:
+This requires network access and the `requests` and `pyyaml` packages. It writes the
+following files relative to the repository root:
 
 | File | Description |
 |------|-------------|
@@ -137,10 +135,6 @@ repository so the script can resolve `share/metkit/` relative to its own locatio
 | `share/metkit/unit_metadata.yaml` | Unit definitions |
 | `share/metkit/parameter_entry_schema.json` | JSON Schema for `ParameterEntry` validation |
 | `share/metkit/mars_context_schema.json` | JSON Schema for `MarsRequestContext` validation |
-
-The generator also enriches each entry with a `table` field (decoded from the param ID) and
-`mars_request_context` (inverted from `share/metkit/params.yaml`) — both derived locally
-without network access.
 
 Commit the updated files to keep the bundled metadata in sync with the upstream database.
 

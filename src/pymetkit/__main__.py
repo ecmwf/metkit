@@ -2,11 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import json
 import logging
 import os
 import sys
-from pathlib import Path
 
 import findlibs
 
@@ -16,41 +14,6 @@ import pymetkit._internal as _internal
 # tell which order the dependencies are in. This needs to be available in findlibs
 DEPENDENCY_ORDER = ["eckit", "eccodes", "metkit"]
 OPTIONAL_DEPENDENCIES = ["eccodes"]
-
-# src/pymetkit/__main__.py -> src/ -> <repo_root>
-_DEFAULT_METADATA_DIR = Path(__file__).parents[2] / "share" / "metkit"
-
-
-def _generate_metadata(output_dir: Path) -> None:
-    """Fetch parameter metadata from the ECMWF API and write it to output_dir."""
-    import pymetkit.paramdb.generate_metadata as _gen
-    from pymetkit.paramdb.models import MarsRequestContext, ParameterEntry
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    units, unit_map = _gen.fetch_units()
-    _gen.write_unit_yaml(units, output_dir / "unit_metadata.yaml")
-
-    _, param_origin_map = _gen.fetch_origin_map()
-    parameters = _gen.fetch_parameters(unit_map=unit_map, param_origin_map=param_origin_map)
-
-    context_map = _gen.build_param_context_map(_gen.LANGUAGE_PARAMS_YAML)
-    _gen.enrich_parameters(parameters, context_map)
-
-    _gen.write_param_yaml(parameters, output_dir / "parameter_metadata.yaml")
-    _gen.write_param_json(parameters, output_dir / "parameter_metadata.json")
-
-    schema = ParameterEntry.model_json_schema()
-    (output_dir / "parameter_entry_schema.json").write_text(
-        json.dumps(schema, indent=2), encoding="utf-8"
-    )
-    print(f"Written JSON schema to {output_dir / 'parameter_entry_schema.json'}")
-
-    ctx_schema = MarsRequestContext.model_json_schema()
-    (output_dir / "mars_context_schema.json").write_text(
-        json.dumps(ctx_schema, indent=2), encoding="utf-8"
-    )
-    print(f"Written MARS context schema to {output_dir / 'mars_context_schema.json'}")
 
 
 def main():
@@ -64,20 +27,6 @@ def main():
         "--print-home-deps",
         action="store_true",
         help="Print the home directories of all pymetkit dependencies",
-    )
-
-    meta_group = parser.add_argument_group("metadata generation")
-    meta_group.add_argument(
-        "--generate-metadata",
-        action="store_true",
-        help="Fetch parameter metadata from the ECMWF API and write bundled data files",
-    )
-    meta_group.add_argument(
-        "--metadata-dir",
-        type=Path,
-        default=_DEFAULT_METADATA_DIR,
-        metavar="DIR",
-        help=f"Output directory for --generate-metadata (default: {_DEFAULT_METADATA_DIR})",
     )
 
     parser.add_argument(
@@ -94,13 +43,9 @@ def main():
         level=logging.DEBUG if args.verbose else logging.INFO,
     )
 
-    if not (args.print_home or args.print_home_deps or args.generate_metadata):
+    if not (args.print_home or args.print_home_deps):
         parser.print_help()
         sys.exit(2)
-
-    if args.generate_metadata:
-        _generate_metadata(args.metadata_dir)
-        return
 
     def _lib_home(lib_path):
         lib_dir = os.path.dirname(os.path.realpath(lib_path))
