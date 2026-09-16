@@ -572,6 +572,8 @@ void Rule::init() {
         eckit::PathName paramBinFile = LibMetkit::paramsBinaryFile();
         if (!paramBinFile.exists()) {
 
+            // std::cout << "Creating binary parameter file: " << paramBinFile.localPath() << std::endl;
+
             std::fstream file{paramBinFile.localPath(), std::ios::binary | std::ios::out};
 
             size_t numRules;
@@ -741,11 +743,6 @@ void TypeParam::pass2(MarsRequest& request) {
 bool TypeParam::expand(std::string&, const MarsRequest&) const {
     // Work done on pass2()
     return true;
-}
-
-void TypeParam::reset() {
-    // cache_.clear();
-    Type::reset();
 }
 
 static TypeBuilder<TypeParam> type("param");

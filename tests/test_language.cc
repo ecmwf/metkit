@@ -237,15 +237,17 @@ CASE("check defaults and _clear_defaults") {
 }
 
 CASE("check method: isData()") {
+    const MarsLanguage& retrieveLanguage = MarsLanguageRegistry::instance().language("retrieve");
+    const MarsLanguage& disseminateLanguage = MarsLanguageRegistry::instance().language("disseminate");
 
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("class"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("date"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("time"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("step"), true);
-    EXPECT_EQUAL(MarsLanguage("retrieve").isData("number"), true);
+    EXPECT_EQUAL(retrieveLanguage.isData("class"), true);
+    EXPECT_EQUAL(retrieveLanguage.isData("date"), true);
+    EXPECT_EQUAL(retrieveLanguage.isData("time"), true);
+    EXPECT_EQUAL(retrieveLanguage.isData("step"), true);
+    EXPECT_EQUAL(retrieveLanguage.isData("number"), true);
 
-    EXPECT_EQUAL(MarsLanguage("disseminate").isData("accuracy"), false);
-    EXPECT_EQUAL(MarsLanguage("disseminate").isData("grid"), false);
+    EXPECT_EQUAL(disseminateLanguage.isData("accuracy"), false);
+    EXPECT_EQUAL(disseminateLanguage.isData("grid"), false);
 }
 
 CASE("check method: flatten()") {
@@ -262,7 +264,7 @@ CASE("check method: flatten()") {
         "500,date=20250717",
         true);
 
-    MarsLanguage("retrieve").flatten(request, output);
+    MarsLanguageRegistry::instance().language("retrieve").flatten(request, output);
 
     EXPECT_EQUAL(output.oss.str(),
                  "retrieve,class=od,type=an,stream=oper,levtype=pl,date=20250717,time=1200,step=10,levelist=300,param="
@@ -288,15 +290,15 @@ CASE("check method: flatten()") {
 CASE("check some types") {
 
     {
-        EXPECT_THROWS(MarsLanguage("read").type("unknown"));
+        EXPECT_THROWS(MarsLanguageRegistry::instance().language("read").type("unknown"));
 
-        EXPECT_THROWS(MarsLanguage("retrieve").type("unknown"));
+        EXPECT_THROWS(MarsLanguageRegistry::instance().language("retrieve").type("unknown"));
 
-        EXPECT_NO_THROW(MarsLanguage("retrieve").type("_hidden"));
+        EXPECT_NO_THROW(MarsLanguageRegistry::instance().language("retrieve").type("_hidden"));
     }
 
     {
-        auto language = MarsLanguage("retrieve");
+        const auto& language = MarsLanguageRegistry::instance().language("retrieve");
 
         auto* type = language.type("class");
         EXPECT(dynamic_cast<TypeEnum*>(type) != nullptr);
@@ -328,7 +330,7 @@ CASE("check some types") {
         EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
     }
     {
-        auto language = MarsLanguage("archive");
+        const auto& language = MarsLanguageRegistry::instance().language("archive");
 
         auto* type = language.type("resol");
         EXPECT(dynamic_cast<TypeAny*>(type) != nullptr);

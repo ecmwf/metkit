@@ -6,14 +6,14 @@
 namespace metkit::mars::test {
 
 CASE("retrieve_best_match_param_not_matching") {
-    const auto language = MarsLanguage("retrieve");
+    const auto& language = MarsLanguageRegistry::instance().language("retrieve");
 
     // Strict is defaulted to true and this is not matching
     EXPECT_THROWS(language.bestMatch("param", {"parameter"}, false, false, true, {}));
 };
 
 CASE("retrieve_best_match_param_matching") {
-    const auto language = MarsLanguage("retrieve");
+    const auto& language = MarsLanguageRegistry::instance().language("retrieve");
 
     // Strict is defaulted to true and this is not matching
     auto match = language.bestMatch("param", {"parameter", "param"}, false, false, true, {});

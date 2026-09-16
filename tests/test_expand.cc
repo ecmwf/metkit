@@ -256,7 +256,7 @@ CASE("test_metkit_expand_1") {
     expand(text, expectedStr, false, {-5, -4, -3, -2, -1});
 }
 
-CASE("test_metkit_expand_2") {
+CASE("test_metkit_expand_2a") {
     {
         const char* text = "ret,date=-1";
         ExpectedVals expected{{"class", {"od"}},    {"domain", {"g"}},
@@ -266,6 +266,8 @@ CASE("test_metkit_expand_2") {
                               {"time", {"1200"}},   {"type", {"an"}}};
         expand(text, "retrieve", expected, {-1});
     }
+}
+CASE("test_metkit_expand_2b") {
     {
         const char* text = "ret,levtype=ml";
         ExpectedVals expected{{"class", {"od"}},   {"domain", {"g"}},  {"expver", {"0001"}}, {"levelist", {"1"}},
@@ -446,12 +448,12 @@ CASE("test_metkit_expand_multirequest-3") {
 }
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
-    static metkit::mars::MarsLanguage language("retrieve");
+    const metkit::mars::MarsLanguage& language = metkit::mars::MarsLanguageRegistry::instance().language("retrieve");
     metkit::mars::Type* t = language.type(key);
     EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
-    static metkit::mars::MarsLanguage language("retrieve");
+    const metkit::mars::MarsLanguage& language = metkit::mars::MarsLanguageRegistry::instance().language("retrieve");
     metkit::mars::Type* t = language.type(key);
     t->expand(values);
     EXPECT_EQUAL(expected, values);

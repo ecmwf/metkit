@@ -37,20 +37,129 @@ static std::set<std::string> verbs_;
 static std::map<std::string, std::string> verbAliases_;
 
 static void init() {
-    languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
-    for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
-        modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
-    }
-    const eckit::Value verbs = languages_.keys();
-    for (size_t i = 0; i < verbs.size(); ++i) {
-        verbs_.insert(verbs[i]);
-        eckit::Value lang = languages_[verbs[i]];
-        if (lang.contains("_aliases")) {
-            eckit::Value aliases = lang["_aliases"];
-            ASSERT(aliases.isList());
-            for (size_t j = 0; j < aliases.size(); ++j) {
-                verbAliases_.emplace(aliases[j], verbs[i]);
+
+    static bool precomputedLanguage = eckit::Resource<bool>("metkitPrecomputedLanguage;$METKIT_PRECOMPUTED_LANGUAGE", true);
+
+    if (false && precomputedLanguage) {
+        eckit::PathName languageBinaryFile = metkit::LibMetkit::languageBinaryFile();
+        if (languageBinaryFile.exists()) {
+            std::fstream file(languageBinaryFile.localPath(), std::ios::binary | std::ios::in);
+
+            // read verbs_
+            size_t size;
+            size_t length;
+            file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+            for (size_t i = 0; i < size; ++i) {
+
+                file.read(reinterpret_cast<char*>(&length), sizeof(size_t));
+                std::string verb(length, '\0');
+                file.read(&verb[0], length);
+
+                verbs_.insert(verb);
             }
+            // read verbAliases_
+            file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+            for (size_t i = 0; i < size; ++i) {
+
+                file.read(reinterpret_cast<char*>(&length), sizeof(size_t));
+                std::string key(length, '\0');
+                file.read(&key[0], length);
+
+                file.read(reinterpret_cast<char*>(&length), sizeof(size_t));
+                std::string value(length, '\0');
+                file.read(&value[0], length);
+
+                verbAliases_.emplace(key, value);
+            }
+
+
+
+            file.close();
+        }
+    }
+    else {
+        // Fallback to YAML file if binary file is not used or does not exist
+    
+        languages_ = eckit::YAMLParser::decodeFile(metkit::LibMetkit::languageYamlFile());
+        for (const auto& file : metkit::LibMetkit::modifiersYamlFiles()) {
+            modifiers_.push_back(eckit::YAMLParser::decodeFile(file));
+        }
+        const eckit::Value verbs = languages_.keys();
+        for (size_t i = 0; i < verbs.size(); ++i) {
+            verbs_.insert(verbs[i]);
+            eckit::Value lang = languages_[verbs[i]];
+            if (lang.contains("_aliases")) {
+                eckit::Value aliases = lang["_aliases"];
+                ASSERT(aliases.isList());
+                for (size_t j = 0; j < aliases.size(); ++j) {
+                    verbAliases_.emplace(aliases[j], verbs[i]);
+                }
+            }
+        }
+        if (precomputedLanguage) { // Save precomputed language to binary file
+            eckit::PathName languageBinaryFile = metkit::LibMetkit::languageBinaryFile();
+            // std::cout << "Creating binary language file: " << languageBinaryFile.localPath() << std::endl;
+
+            std::fstream file{languageBinaryFile.localPath(), std::ios::binary | std::ios::out};
+
+            // write verbs_
+            size_t size = verbs_.size();
+            size_t length;
+            file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            for (const auto& verb : verbs_) {
+                length = verb.size();
+                file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+                file.write(verb.data(), length);
+            }
+            // write verbAliases_
+            size = verbAliases_.size();
+            file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            for (const auto& [key, value] : verbAliases_) {
+                length = key.size();
+                file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+                file.write(key.data(), length);
+
+                length = value.size();
+                file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+                file.write(value.data(), length);
+            }
+
+            // // write modifiers_
+            // size = modifiers_.size();
+            // file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            // for (const auto& modifier : modifiers_) {
+            //     std::ostringstream oss;
+            //     eckit::YAMLParser::encode(modifier, oss);
+            //     std::string str = oss.str();
+            //     length = str.size();
+            //     file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+            //     file.write(str.data(), length);
+            // }
+            // // write defaultValues_
+            // size = defaultValues_.size();
+            // file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            // for (const auto& [key, value] : defaultValues_) {
+            //     length = key.size();
+            //     file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+            //     file.write(key.data(), length);
+
+            //     length = value.size();
+            //     file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+            //     file.write(value.data(), length);
+            // }
+            // // write data_
+            // size = data_.size();
+            // file.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
+            // for (const auto& [key, value] : data_) {
+            //     length = key.size();
+            //     file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+            //     file.write(key.data(), length);
+
+            //     length = value.size();
+            //     file.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+            //     file.write(value.data(), length);
+            // }
+            file.close();
         }
     }
 }
@@ -77,7 +186,7 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
             ASSERT(!isData(key) || maxIndex <= metkit::hypercube::AxisOrder::instance().index(key));
 
             if (typ == ModifierType::UNSET) {
-                it->second->unset(ctx);
+                it->second.type->unset(ctx);
             }
             else {
                 eckit::Value vv = mod[key];
@@ -92,9 +201,9 @@ void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx,
                 }
 
                 if (typ == ModifierType::DEFAULT)
-                    it->second->defaults(ctx, vals);
+                    it->second.type->defaults(ctx, vals);
                 else if (typ == ModifierType::SET)
-                    it->second->set(ctx, vals);
+                    it->second.type->set(ctx, vals);
             }
         }
     }
@@ -108,6 +217,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
     eckit::Value params  = lang.keys();
     eckit::Value options = lang["_options"];
 
+    std::vector<std::string> keywords;
     for (size_t i = 0; i < params.size(); ++i) {
         std::string keyword   = params[i];
         eckit::Value settings = lang[keyword];
@@ -125,42 +235,30 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
             }
         }
 
-        auto [it, success] = types_.emplace(keyword, TypesFactory::build(keyword, settings));
-        it->second->attach();
-        keywords_.push_back(keyword);
+        auto [it, success] = types_.emplace(keyword, MetadataType{MetadataGroup::None, TypesFactory::build(keyword, settings)});
+        it->second.type->attach();
+        keywords.push_back(keyword);
 
         std::optional<eckit::Value> aliases;
         if (settings.contains("aliases")) {
             aliases = settings["aliases"];
         }
         if (settings.contains("category") && settings["category"] == "data") {
-            dataKeywords_.insert(keyword);
-            if (aliases) {
-                for (size_t j = 0; j < aliases->size(); ++j) {
-                    dataKeywords_.insert((*aliases)[j]);
-                }
-            }
+            it->second.group = MetadataGroup::Data;
+        }
+        if (settings.contains("category") && settings["category"] == "derived") {
+            it->second.group = MetadataGroup::Derived;
         }
         if (settings.contains("category") && settings["category"] == "postproc") {
-            postProcKeywords_.insert(keyword);
-            if (aliases) {
-                for (auto j = 0; j < aliases->size(); ++j) {
-                    postProcKeywords_.insert((*aliases)[j]);
-                }
-            }
+            it->second.group = MetadataGroup::PostProc;
         }
         if (settings.contains("category") && settings["category"] == "sink") {
-            sinkKeywords_.insert(keyword);
-            if (aliases) {
-                for (auto j = 0; j < aliases->size(); ++j) {
-                    sinkKeywords_.insert((*aliases)[j]);
-                }
-            }
+            it->second.group = MetadataGroup::Sink;
         }
         if (aliases) {
             for (size_t j = 0; j < aliases->size(); ++j) {
                 aliases_[(*aliases)[j]] = keyword;
-                keywords_.push_back((*aliases)[j]);
+                keywords.push_back((*aliases)[j]);
             }
         }
     }
@@ -190,7 +288,7 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         const auto& keywords = lang["_clear_defaults"];
         for (auto i = 0; i < keywords.size(); ++i) {
             if (auto iter = types_.find(keywords[i]); iter != types_.end()) {
-                iter->second->clearDefaults();
+                iter->second.type->clearDefaults();
             }
         }
     }
@@ -199,45 +297,48 @@ MarsLanguage::MarsLanguage(const std::string& verb) {
         Type* t = nullptr;
         auto it = types_.find(a);
         if (it != types_.end()) {
-            t = it->second;
+            t = it->second.type;
         }
         typesByAxisOrder_.emplace_back(a, t);
     }
     for (auto& [k, t] : types_) {
-        if (dataKeywords_.find(k) == dataKeywords_.end()) {
-            typesByAxisOrder_.emplace_back(k, t);
+        if (t.group != MetadataGroup::Data) {
+            typesByAxisOrder_.emplace_back(k, t.type);
         }
     }
 }
 
+MetadataGroup MarsLanguage::group(const std::string& keyword) const {
+    auto it = types_.find(keyword);
+    if (it == types_.end()) {
+        if (auto aliasIt = aliases_.find(keyword); aliasIt != aliases_.end()) {
+            it = types_.find(aliasIt->second);
+        }
+    }
+    if (it != types_.end()) {
+        return it->second.group;
+    }
+    throw eckit::UserError("Cannot find keyword: " + keyword);
+}
 bool MarsLanguage::isData(const std::string& keyword) const {
-    return (dataKeywords_.find(keyword) != dataKeywords_.end());
+    return group(keyword) == MetadataGroup::Data;
 }
-
+bool MarsLanguage::isDerived(const std::string& keyword) const {
+    return group(keyword) == MetadataGroup::Derived;
+}
 bool MarsLanguage::isPostProc(const std::string& keyword) const {
-    return (postProcKeywords_.find(keyword) != postProcKeywords_.end());
+    return group(keyword) == MetadataGroup::PostProc;
 }
-
 bool MarsLanguage::isSink(const std::string& keyword) const {
-    return (sinkKeywords_.find(keyword) != sinkKeywords_.end());
+    return group(keyword) == MetadataGroup::Sink;
 }
-const std::set<std::string>& MarsLanguage::sinkKeywords() const {
-    return sinkKeywords_;
-}
+// const std::set<std::string>& MarsLanguage::sinkKeywords() const {
+//     return sinkKeywords_;
+// }
 
 MarsLanguage::~MarsLanguage() {
     for (auto& [k, t] : types_) {
-        t->detach();
-    }
-}
-
-eckit::PathName MarsLanguage::languageYamlFile() {
-    return metkit::LibMetkit::languageYamlFile();
-}
-
-void MarsLanguage::reset() {
-    for (auto& [k, t] : types_) {
-        t->reset();
+        t.type->detach();
     }
 }
 
@@ -267,7 +368,6 @@ static bool isnumeric(const std::string& s) {
 
     return s.length() > 0;
 }
-
 
 std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail,
                                     bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
@@ -424,6 +524,18 @@ public:
     TypeHidden() : Type("hidden", eckit::Value()) { attach(); }
 };
 
+// MarsLanguage::MarsLanguage(const MarsLanguage& other) : verb_(other.verb_), aliases_(other.aliases_) {
+//     for (const auto& [key, value] : other.types_) {
+//         types_.emplace(key, value);
+//     }
+//     typesByAxisOrder_.reserve(other.typesByAxisOrder_.size());
+//     for (const auto& [key, value] : other.typesByAxisOrder_) {
+//         auto it = types_.find(key);
+//         if (it != types_.end() && it->second.type) {
+//             typesByAxisOrder_.emplace_back(key, it->second.type);
+//         }
+//     }
+// }
 
 Type* MarsLanguage::type(const std::string& name) const {
     auto k = types_.find(name);
@@ -435,11 +547,11 @@ Type* MarsLanguage::type(const std::string& name) const {
 
         throw eckit::SeriousBug("Cannot find a type for '" + name + "'");
     }
-    return k->second;
+    return k->second.type;
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool inherit, bool strict) const {
     MarsRequest result(verb_);
 
     try {
@@ -454,7 +566,22 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
             }
             else {
                 std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(p, keywords_, true, false, true, aliases_), PP);
+                bool found = false;
+                auto it = types_.find(p);
+                if (it != types_.end()) {
+                    found = true;
+                }
+                else {
+                    auto itAlias = aliases_.find(p);
+                    if (itAlias != aliases_.end()) {
+                        p = itAlias->second;
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    throw eckit::UserError("Cannot find a definition for '" + PP + "'");
+                }
+                paramSet.emplace(cache_[p] = p, PP);
             }
         }
 
@@ -478,7 +605,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
                     result.unsetValues(p);
-                    type(p)->reset();
+                    ctx.unsetValues(p);
                     continue;
                 }
                 if (s == "all" && type(p)->multiple()) {
@@ -495,14 +622,15 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
 
         if (inherit) {
             for (const auto& [k, t] : typesByAxisOrder_) {
+                auto rr = result;
                 if (t != nullptr && result.countValues(k) == 0) {
-                    t->setDefaults(result);
+                    if (ctx.has(k)) {
+                        result.setValuesTyped(t, ctx.values(k));
+                    }
+                    else {
+                        t->setDefaults(result);
+                    }
                 }
-            }
-
-            result.getParams(params);
-            for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-                type(*k)->setInheritance(result.values(*k));
             }
         }
 
@@ -513,6 +641,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         }
 
         for (const auto& [k, t] : typesByAxisOrder_) {
+            // std::cout << "expand THREE processing: " << k << " in " << r << " result=" << result << std::endl;
             if (t != nullptr)
                 t->finalise(result, strict);
         }
@@ -521,6 +650,9 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         std::ostringstream oss;
         oss << e.what() << " request=" << r << ", expanded=" << result;
         throw eckit::UserError(oss.str());
+    }
+    if (inherit) {
+        ctx = result;
     }
     return result;
 }
@@ -531,7 +663,7 @@ const std::string& MarsLanguage::verb() const {
 }
 
 void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
-                           MarsRequest& result, FlattenCallback& callback) {
+                           MarsRequest& result, FlattenCallback& callback) const {
     if (i == params.size()) {
         callback(result);
         return;
@@ -553,12 +685,30 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
     }
 }
 
-void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
+void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
     std::vector<std::string> params;
     request.getParams(params);
 
     MarsRequest result(request);
     flatten(request, params, 0, result, callback);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+MarsLanguageRegistry& MarsLanguageRegistry::instance() {
+    static MarsLanguageRegistry instance;
+    return instance;
+}
+
+const MarsLanguage& MarsLanguageRegistry::language(const std::string& verb) const {
+    std::lock_guard lock(mutex_);
+    auto it = languages_.find(verb);
+    if (it == languages_.end()) {
+        auto [newit, success] = languages_.emplace(verb, new MarsLanguage(verb));
+        ASSERT(success);
+        it = newit;
+    }
+    return *(it->second);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -58,6 +58,9 @@ eckit::PathName LibMetkit::configFile(const std::string& filename) {
 eckit::PathName LibMetkit::languageYamlFile() {
     return LibMetkit::configFile("language.yaml");
 }
+eckit::PathName LibMetkit::languageBinaryFile() {
+    return LibMetkit::configFile("language.bin");
+}
 std::vector<eckit::PathName> LibMetkit::modifiersYamlFiles() {
     return std::vector<eckit::PathName>{LibMetkit::configFile("modifiers.yaml"),
                                         LibMetkit::configFile("reportype.yaml")};

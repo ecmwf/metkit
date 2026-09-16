@@ -89,7 +89,12 @@ public:
 
 protected:
 
-    void print(std::ostream& out) const override { out << "TypeToByListFloat[name=" << name() << "]"; }
+    void print(std::ostream& out) const override {
+        out << "TypeToByListFloat[name=" << name() << ", category=" << category_ << ", flatten=" << flatten_ << ", multiple=" << multiple_ << ", duplicates=" << duplicates_ << ", defaults=" << defaults_.size() << ", sets=" << sets_.size() << ", unsets=" << unsets_.size() << "]";
+        for (const auto& [key, value] : defaults_) {
+            out << "\n  default: " << *key << " -> " << value;
+        }
+    }
 };
 
 static TypeBuilder<TypeToByListFloat> typeList("to-by-list-float");

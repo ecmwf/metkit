@@ -36,7 +36,7 @@ CASE("test_metkit_exists_to-by-list-float") {
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    static MarsLanguage language("retrieve");
+    const auto& language = MarsLanguageRegistry::instance().language("retrieve");
     language.type(name)->expand(values);
     EXPECT_EQUAL(values, expected);
 }
