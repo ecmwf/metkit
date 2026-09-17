@@ -455,15 +455,15 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool in
 
         for (const auto& PP : r.params()) {
             std::string p = eckit::StringTools::lower(PP);
-            bool found = false;
-            auto it = types_.find(p);
+            bool found    = false;
+            auto it       = types_.find(p);
             if (it != types_.end()) {
                 found = true;
             }
             else {
                 auto itAlias = aliases_.find(p);
                 if (itAlias != aliases_.end()) {
-                    p = itAlias->second;
+                    p     = itAlias->second;
                     found = true;
                 }
             }
