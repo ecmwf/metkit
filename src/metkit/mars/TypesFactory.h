@@ -13,34 +13,33 @@
 /// @author Tiago Quintino
 /// @date   April 2016
 
-#ifndef metkit_TypesFactory_H
-#define metkit_TypesFactory_H
+#pragma once
 
 #include <string>
 
-#include "eckit/memory/NonCopyable.h"
 #include "eckit/types/Types.h"
 
 namespace eckit {
 class Value;
 }
 
-namespace metkit {
-namespace mars {
+namespace metkit::mars {
 
 class Type;
 class TypesFactory;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
-class TypesRegistry : private eckit::NonCopyable {
-    eckit::Mutex mutex_;
-    std::map<std::string, TypesFactory*> m_;
+class TypesRegistry {
 
 public:
 
     static TypesRegistry& instance();
+
+    TypesRegistry(const TypesRegistry&)            = delete;
+    TypesRegistry(TypesRegistry&&)                 = delete;
+    TypesRegistry& operator=(const TypesRegistry&) = delete;
+    TypesRegistry& operator=(TypesRegistry&&)      = delete;
 
     void add(const std::string& name, TypesFactory* f);
     void remove(const std::string& name);
@@ -48,6 +47,15 @@ public:
     Type* build(const std::string& keyword, const eckit::Value&);
 
     void list(std::ostream& s);
+
+private:  // methods
+
+    TypesRegistry() = default;
+
+private:  // members
+
+    eckit::Mutex mutex_;
+    std::map<std::string, TypesFactory*> m_;
 };
 
 /// A self-registering factory for producing TypesFactory instances
@@ -86,7 +94,4 @@ public:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-}  // namespace mars
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::mars

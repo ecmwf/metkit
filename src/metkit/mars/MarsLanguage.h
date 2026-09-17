@@ -22,10 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "eckit/memory/NonCopyable.h"
-
 #include "metkit/mars/MarsRequest.h"
-
 
 namespace metkit::mars {
 
@@ -43,7 +40,7 @@ enum class ModifierType {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsLanguage : private eckit::NonCopyable {
+class MarsLanguage {
 
 public:  // methods
 
@@ -57,7 +54,7 @@ public:  // methods
 
     void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
-    Type* type(const std::string& name) const;
+    const Type* type(const std::string& name) const;
 
     bool isData(const std::string& keyword) const;
 

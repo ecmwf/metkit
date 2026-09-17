@@ -298,40 +298,40 @@ CASE("check some types") {
     {
         const auto& language = MarsLanguage::get("retrieve");
 
-        auto* type = language.type("class");
-        EXPECT(dynamic_cast<TypeEnum*>(type) != nullptr);
+        const auto* type = language.type("class");
+        EXPECT(dynamic_cast<const TypeEnum*>(type) != nullptr);
 
         type = language.type("param");
-        EXPECT(dynamic_cast<TypeParam*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeParam*>(type) != nullptr);
 
         type = language.type("expver");
-        EXPECT(dynamic_cast<TypeExpver*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeExpver*>(type) != nullptr);
 
         type = language.type("domain");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
 
         type = language.type("date");
-        EXPECT(dynamic_cast<TypeDate*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeDate*>(type) != nullptr);
 
         type = language.type("grid");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
         EXPECT_EQUAL(type->multiple(), true);
 
         type = language.type("area");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
         EXPECT_EQUAL(type->multiple(), true);
 
         type = language.type("accuracy");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
 
         type = language.type("resol");
-        EXPECT(dynamic_cast<TypeMixed*>(type) != nullptr);
+        EXPECT(dynamic_cast<const TypeMixed*>(type) != nullptr);
     }
     {
         const auto& language = MarsLanguage::get("archive");
 
-        auto* type = language.type("resol");
-        EXPECT(dynamic_cast<TypeAny*>(type) != nullptr);
+        const auto* type = language.type("resol");
+        EXPECT(dynamic_cast<const TypeAny*>(type) != nullptr);
 
         EXPECT_THROWS_AS(language.type("grid"), eckit::SeriousBug);
         EXPECT_THROWS_AS(language.type("area"), eckit::SeriousBug);

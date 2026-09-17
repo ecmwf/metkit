@@ -435,7 +435,7 @@ public:
     TypeHidden() : Type("hidden", eckit::Value()) { attach(); }
 };
 
-Type* MarsLanguage::type(const std::string& name) const {
+const Type* MarsLanguage::type(const std::string& name) const {
     auto k = types_.find(name);
     if (k == types_.end()) {
         if (name[0] == '_') {
@@ -559,7 +559,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
 
     const std::string& param = params[i];
 
-    Type* t = type(param);
+    const Type* t = type(param);
     if (!t->flatten()) {
         flatten(request, params, i + 1, result, callback);
         return;

@@ -14,10 +14,7 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsExpansion_H
-#define metkit_MarsExpansion_H
-
-#include "eckit/memory/NonCopyable.h"
+#pragma once
 
 #include <map>
 #include <string>
@@ -54,7 +51,7 @@ protected:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpansion : public eckit::NonCopyable {
+class MarsExpansion {
 public:
 
     MarsExpansion(bool inherit, bool strict = false);
@@ -75,5 +72,3 @@ private:
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif
