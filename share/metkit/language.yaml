@@ -90,6 +90,7 @@ _field: &_field
       - [uk, united kingdom]
       - [ul, ulysses]
       - [ur, uerra]
+      - [we, Wildfire emissions]
       - [yp, yopp]
       - [yt, yotc]
 
@@ -245,6 +246,7 @@ _field: &_field
       - [ewmm, ensemble wave data assimilation monthly means]
       - [ewmo, ensemble wave data assimilation monthly means of daily means]
       - [fgge, fg]
+      - [frcd, Forcing data]
       - [fsob, forecast sensitivity to observations]
       - [fsow, forecast sensitivity to observations wave]
       - [gfas, global fire assimilation system]
