@@ -68,8 +68,6 @@ public:
 
 private:
 
-    const MarsLanguage& language(const std::string& verb);
-
     bool inherit_;
     bool strict_;
 };

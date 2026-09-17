@@ -94,8 +94,6 @@ private:  // members
     std::vector<std::string> keywords_;
 
     std::map<std::string, std::string> aliases_;
-
-    mutable std::map<std::string, std::string> cache_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

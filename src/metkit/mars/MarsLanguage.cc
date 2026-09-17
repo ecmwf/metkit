@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <mutex>
 #include <optional>
 
 #include "eckit/config/Resource.h"
@@ -453,16 +454,24 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool in
         std::vector<std::string> params;
 
         for (const auto& PP : r.params()) {
-            auto c = cache_.find(PP);
-            if (c != cache_.end()) {
-                paramSet.emplace((*c).second, PP);
+            std::string p = eckit::StringTools::lower(PP);
+            bool found = false;
+            auto it = types_.find(p);
+            if (it != types_.end()) {
+                found = true;
             }
             else {
-                std::string p = eckit::StringTools::lower(PP);
-                paramSet.emplace(cache_[p] = bestMatch(p, keywords_, true, false, true, aliases_), PP);
+                auto itAlias = aliases_.find(p);
+                if (itAlias != aliases_.end()) {
+                    p = itAlias->second;
+                    found = true;
+                }
             }
+            if (!found) {
+                throw eckit::UserError("Cannot find a definition for '" + PP + "'");
+            }
+            paramSet.emplace(p, PP);
         }
-
         {  // sort the parameters, following the AxisOrder
             for (const auto& k : metkit::hypercube::AxisOrder::instance().axes()) {
                 auto it = paramSet.find(k);
