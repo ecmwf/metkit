@@ -445,13 +445,11 @@ CASE("test_metkit_expand_multirequest-3") {
 }
 
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type(key);
+    metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
     EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type(key);
+    metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
     t->expand(values);
     EXPECT_EQUAL(expected, values);
 }

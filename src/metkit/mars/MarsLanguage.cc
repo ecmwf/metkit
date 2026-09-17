@@ -231,14 +231,18 @@ MarsLanguage::~MarsLanguage() {
     }
 }
 
-eckit::PathName MarsLanguage::languageYamlFile() {
-    return metkit::LibMetkit::languageYamlFile();
-}
+const MarsLanguage& MarsLanguage::get(const std::string& verb) {
+    static std::mutex mutex;
+    static std::map<std::string, MarsLanguage*> instances;
 
-void MarsLanguage::reset() {
-    for (auto& [k, t] : types_) {
-        t->reset();
+    std::lock_guard lock(mutex);
+    auto it = instances.find(verb);
+    if (it != instances.end()) {
+        return *(it->second);
     }
+    auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb));
+    ASSERT(inserted);
+    return *(newIt->second);
 }
 
 eckit::Value MarsLanguage::jsonFile(const std::string& name) {
@@ -439,7 +443,8 @@ Type* MarsLanguage::type(const std::string& name) const {
 }
 
 
-MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
+// MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool inherit, bool strict) const {
     MarsRequest result(verb_);
 
     try {
@@ -478,7 +483,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
                     result.unsetValues(p);
-                    type(p)->reset();
+                    ctx.unsetValues(p);
                     continue;
                 }
                 if (s == "all" && type(p)->multiple()) {
@@ -496,13 +501,13 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         if (inherit) {
             for (const auto& [k, t] : typesByAxisOrder_) {
                 if (t != nullptr && result.countValues(k) == 0) {
-                    t->setDefaults(result);
+                    if (ctx.has(k)) {
+                        result.setValuesTyped(t, ctx.values(k));
+                    }
+                    else {
+                        t->setDefaults(result);
+                    }
                 }
-            }
-
-            result.getParams(params);
-            for (std::vector<std::string>::const_iterator k = params.begin(); k != params.end(); ++k) {
-                type(*k)->setInheritance(result.values(*k));
             }
         }
 
@@ -522,6 +527,9 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict
         oss << e.what() << " request=" << r << ", expanded=" << result;
         throw eckit::UserError(oss.str());
     }
+    if (inherit) {
+        ctx = result;
+    }
     return result;
 }
 
@@ -531,7 +539,7 @@ const std::string& MarsLanguage::verb() const {
 }
 
 void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i,
-                           MarsRequest& result, FlattenCallback& callback) {
+                           MarsRequest& result, FlattenCallback& callback) const {
     if (i == params.size()) {
         callback(result);
         return;
@@ -553,7 +561,7 @@ void MarsLanguage::flatten(const MarsRequest& request, const std::vector<std::st
     }
 }
 
-void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) {
+void MarsLanguage::flatten(const MarsRequest& request, FlattenCallback& callback) const {
     std::vector<std::string> params;
     request.getParams(params);
 

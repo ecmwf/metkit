@@ -511,11 +511,6 @@ bool TypeParam::expand(std::string&, const MarsRequest&) const {
     return true;
 }
 
-void TypeParam::reset() {
-    // cache_.clear();
-    Type::reset();
-}
-
 static TypeBuilder<TypeParam> type("param");
 
 //----------------------------------------------------------------------------------------------------------------------

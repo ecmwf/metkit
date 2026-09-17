@@ -315,30 +315,21 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
 }
 
 void Type::setDefaults(MarsRequest& request) {
-    if (inheritance_) {
-        request.setValuesTyped(this, inheritance_.value());
+    bool unset = false;
+    for (const auto& unsetContext : unsets_) {
+        if (unsetContext->matches(request)) {
+            unset = true;
+            break;
+        }
     }
-    else {
-        bool unset = false;
-        for (const auto& unsetContext : unsets_) {
-            if (unsetContext->matches(request)) {
-                unset = true;
+    if (!unset) {
+        for (const auto& [defaultContext, values] : defaults_) {
+            if (defaultContext->matches(request)) {
+                patchRequest(request, values);
                 break;
             }
         }
-        if (!unset) {
-            for (const auto& [defaultContext, values] : defaults_) {
-                if (defaultContext->matches(request)) {
-                    patchRequest(request, values);
-                    break;
-                }
-            }
-        }
     }
-}
-
-void Type::setInheritance(const std::vector<std::string>& inheritance) {
-    inheritance_ = inheritance;
 }
 
 const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) {
@@ -347,10 +338,6 @@ const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) 
 
 void Type::clearDefaults() {
     defaults_.clear();
-}
-
-void Type::reset() {
-    inheritance_.reset();
 }
 
 const std::string& Type::name() const {

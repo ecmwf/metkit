@@ -70,10 +70,11 @@ static void test_param_axis(const std::vector<std::string>& user, const std::vec
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    static MarsLanguage language("retrieve");
+    const MarsLanguage& language = MarsLanguage::get("retrieve");
     MarsRequest req;
+    MarsRequest ctx;
     req.setValuesTyped(language.type(name), values);
-    req = language.expand(req, false, true);
+    req = language.expand(req, ctx, false, true);
     EXPECT_EQUAL(expected, req.values(name));
 }
 

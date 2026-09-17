@@ -51,15 +51,11 @@ public:  // methods
 
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsRequest& r, bool inherit, bool strict);
-
-    void reset();
+    MarsRequest expand(const MarsRequest& r, MarsRequest& ctx, bool inherit, bool strict) const;
 
     const std::string& verb() const;
 
-    void flatten(const MarsRequest& request, FlattenCallback& callback);
-
-    static eckit::PathName languageYamlFile();
+    void flatten(const MarsRequest& request, FlattenCallback& callback) const;
 
     Type* type(const std::string& name) const;
 
@@ -73,6 +69,7 @@ public:  // methods
 public:  // class methods
 
     static std::string expandVerb(const std::string& verb);
+    static const MarsLanguage& get(const std::string& verb);
 
     static std::string bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail, bool quiet,
                                  bool fullMatch, const std::map<std::string, std::string>& aliases = {});
@@ -83,7 +80,7 @@ public:  // class methods
 private:  // methods
 
     void flatten(const MarsRequest& request, const std::vector<std::string>& params, size_t i, MarsRequest& result,
-                 FlattenCallback& callback);
+                 FlattenCallback& callback) const;
     void parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex, const eckit::Value& mod);
 
 private:  // members

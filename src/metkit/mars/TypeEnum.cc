@@ -138,11 +138,6 @@ std::optional<std::reference_wrapper<const std::vector<std::string>>> TypeEnum::
     return std::nullopt;
 }
 
-
-void TypeEnum::reset() {
-    Type::reset();
-}
-
 static TypeBuilder<TypeEnum> type("enum");
 
 //----------------------------------------------------------------------------------------------------------------------

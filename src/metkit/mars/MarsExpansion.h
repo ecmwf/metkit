@@ -58,9 +58,6 @@ class MarsExpansion : public eckit::NonCopyable {
 public:
 
     MarsExpansion(bool inherit, bool strict = false);
-    ~MarsExpansion();
-
-    void reset();
 
     MarsRequest expand(const MarsRequest&);
     std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
@@ -71,9 +68,8 @@ public:
 
 private:
 
-    MarsLanguage& language(const std::string& verb);
+    const MarsLanguage& language(const std::string& verb);
 
-    std::map<std::string, MarsLanguage*> languages_;
     bool inherit_;
     bool strict_;
 };

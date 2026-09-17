@@ -35,7 +35,6 @@ private:  // methods
     bool firstRule_;
 
     void print(std::ostream& out) const override;
-    void reset() override;
     void pass2(MarsRequest& request) override;
     bool expand(std::string& value, const MarsRequest& request) const override;
 };
