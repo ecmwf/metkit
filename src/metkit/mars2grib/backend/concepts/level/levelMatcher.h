@@ -500,7 +500,7 @@ inline std::size_t matchSOL(const long param) {
         if (matchAny(param, 262000, 262024)) {
             return static_cast<std::size_t>(LevelType::SeaIceLayer);
         }
-        if (matchAny(param, 33, 74, 238, 228038, 228141, 235078, 235080, 235238, 235406, 237078, 237080, 237238, 237406,
+        if (matchAny(param, 33, 238, 228038, 228141, 235078, 235080, 235238, 235406, 237078, 237080, 237238, 237406,
                      238078, 238080, 238238, 238406, 239078, 239080, 239238, 239406)) {
             return static_cast<std::size_t>(LevelType::SnowLayer);
         }
