@@ -45,6 +45,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <cstddef>
 #include <string>
@@ -99,13 +101,25 @@ namespace impl {
 /// @throws Mars2GribDeductionException on unknown token (§10.16) or
 ///         narrow-allow-list violation (§10.18 (a)).
 ///
-inline StatisticalWindow decodePeriod_or_throw(std::string_view s, const std::string& fullStatType) {
+template <class Cntx_t>
+inline StatisticalWindow decodePeriod_or_throw(std::string_view s, const std::string& fullStatType, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
-    if (s == "da")
-        return StatisticalWindow{tables::TimeUnit::Day, 1};
-    if (s == "mo")
-        return StatisticalWindow{tables::TimeUnit::Month, 1};
+    if (s == "da") {
+        {
+            StatisticalWindow result = StatisticalWindow{tables::TimeUnit::Day, 1};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (s == "mo") {
+        {
+            StatisticalWindow result = StatisticalWindow{tables::TimeUnit::Month, 1};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     throw Mars2GribDeductionException("Invalid stattype period token [§10.16/§10.18(a)]: actual='" + std::string(s) +
                                           "', expected={'da','mo'} (in stattype='" + fullStatType + "')",
@@ -118,17 +132,39 @@ inline StatisticalWindow decodePeriod_or_throw(std::string_view s, const std::st
 ///
 /// @throws Mars2GribDeductionException on unknown token (§10.16).
 ///
-inline tables::TypeOfStatisticalProcessing decodeOp_or_throw(std::string_view s, const std::string& fullStatType) {
+template <class Cntx_t>
+inline tables::TypeOfStatisticalProcessing decodeOp_or_throw(std::string_view s, const std::string& fullStatType, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
-    if (s == "av")
-        return tables::TypeOfStatisticalProcessing::Average;
-    if (s == "mn")
-        return tables::TypeOfStatisticalProcessing::Minimum;
-    if (s == "mx")
-        return tables::TypeOfStatisticalProcessing::Maximum;
-    if (s == "sd")
-        return tables::TypeOfStatisticalProcessing::StandardDeviation;
+    if (s == "av") {
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Average;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (s == "mn") {
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Minimum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (s == "mx") {
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Maximum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (s == "sd") {
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::StandardDeviation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     throw Mars2GribDeductionException("Invalid stattype operation token [§10.16]: actual='" + std::string(s) +
                                           "', expected={'av','mn','mx','sd'} (in stattype='" + fullStatType + "')",
@@ -174,7 +210,9 @@ inline tables::TypeOfStatisticalProcessing decodeOp_or_throw(std::string_view s,
 ///       value of GRIB Code Table 4.10; consumers do not need to perform
 ///       any further mapping.
 ///
-inline std::vector<ParsedStatTypeBlock> parse_StatType_or_throw(const std::string& stattype) {
+template <class Cntx_t>
+inline std::vector<ParsedStatTypeBlock> parse_StatType_or_throw(const std::string& stattype, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -198,8 +236,8 @@ inline std::vector<ParsedStatTypeBlock> parse_StatType_or_throw(const std::strin
                 Here());
         }
 
-        StatisticalWindow window               = impl::decodePeriod_or_throw(stattype.substr(pos, 2), stattype);
-        tables::TypeOfStatisticalProcessing op = impl::decodeOp_or_throw(stattype.substr(pos + 2, 2), stattype);
+        StatisticalWindow window               = impl::decodePeriod_or_throw(stattype.substr(pos, 2), stattype, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        tables::TypeOfStatisticalProcessing op = impl::decodeOp_or_throw(stattype.substr(pos + 2, 2), stattype, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         blocks.push_back(ParsedStatTypeBlock{window, op});
 
@@ -248,7 +286,11 @@ inline std::vector<ParsedStatTypeBlock> parse_StatType_or_throw(const std::strin
                                           Here());
     }
 
-    return blocks;
+    {
+        std::vector<ParsedStatTypeBlock> result = blocks;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::deductions::detail

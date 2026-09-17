@@ -10,28 +10,38 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #include "eckit/config/LocalConfiguration.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::misc_defaults {
 
 namespace detail {
 
-inline std::optional<long> integral(const eckit::LocalConfiguration& mars, std::string_view key) {
+template <class Cntx_t>
+inline std::optional<long> integral(const eckit::LocalConfiguration& mars, std::string_view key, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     const std::string name{key};
+    std::optional<long> result;
     if (mars.has(name) && mars.isIntegral(name)) {
-        return mars.getLong(name);
+        result = mars.getLong(name);
     }
-    return std::nullopt;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-inline std::optional<std::string> string(const eckit::LocalConfiguration& mars, std::string_view key) {
+template <class Cntx_t>
+inline std::optional<std::string> string(const eckit::LocalConfiguration& mars, std::string_view key, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     const std::string name{key};
+    std::optional<std::string> result;
     if (mars.has(name) && mars.isString(name)) {
-        return mars.getString(name);
+        result = mars.getString(name);
     }
-    return std::nullopt;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace detail
@@ -39,140 +49,50 @@ inline std::optional<std::string> string(const eckit::LocalConfiguration& mars, 
 /// Return the value used to continue a requirements-discovery run when a
 /// mandatory misc key is read. A missing result means that no default policy
 /// has been defined yet for the key and type.
-template <typename T>
-std::optional<T> get_misc_default(const eckit::LocalConfiguration&, std::string_view) {
-    return std::nullopt;
-}
+template <typename T, class Cntx_t>
+std::optional<T> get_misc_default(const eckit::LocalConfiguration& mars, std::string_view key, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    std::optional<T> result;
 
-template <>
-inline std::optional<bool> get_misc_default<bool>(const eckit::LocalConfiguration&, std::string_view key) {
-    if (key == "bitmapPresent") {
-        return false;
-    }
-
-    return std::nullopt;
-}
-
-template <>
-inline std::optional<long> get_misc_default<long>(const eckit::LocalConfiguration& mars, std::string_view key) {
-    if (key == "numberOfForecastsInEnsemble") {
-        return 51L;
-    }
-    if (key == "subCentre") {
-        return 0L;
-    }
-    if (key == "scaleFactorOfWaveDirections") {
-        return 2L;
-    }
-    if (key == "scaleFactorOfWaveFrequencies") {
-        return 6L;
-    }
-    if (key == "pvSize") {
-        return 137L;
-    }
-    if (key == "shapeOfTheEarth") {
-        return 6L;
-    }
-    if (key == "numberOfFrequencies") {
-        return 54L;
-    }
-    if (key == "subSetTruncation") {
-        if (const auto truncation = detail::integral(mars, "truncation")) {
-            return *truncation >= 213L ? 20L : std::min(10L, *truncation);
+    if constexpr (std::is_same_v<T, bool>) {
+        if (key == "bitmapPresent") {
+            result = false;
         }
-        return std::nullopt;
     }
-    if (key == "typeOfProcessedData") {
-        const auto marsClass = detail::string(mars, "class");
-        const auto marsType  = detail::string(mars, "type");
-        if (marsClass && *marsClass == "ai") {
-            return 10L;
+    else if constexpr (std::is_same_v<T, long>) {
+        if (key == "numberOfForecastsInEnsemble") result = 51L;
+        else if (key == "subCentre") result = 0L;
+        else if (key == "scaleFactorOfWaveDirections") result = 2L;
+        else if (key == "scaleFactorOfWaveFrequencies") result = 6L;
+        else if (key == "pvSize") result = 137L;
+        else if (key == "shapeOfTheEarth") result = 6L;
+        else if (key == "numberOfFrequencies") result = 54L;
+        else if (key == "subSetTruncation") {
+            if (const auto truncation =
+                    detail::integral(mars, "truncation", utils::profiling::callSite(cntx, Here()))) {
+                result = *truncation >= 213L ? 20L : std::min(10L, *truncation);
+            }
         }
-        if (!marsType) {
-            return std::nullopt;
+        else if (key == "typeOfProcessedData") {
+            const auto marsClass = detail::string(mars, "class", utils::profiling::callSite(cntx, Here()));
+            const auto marsType  = detail::string(mars, "type", utils::profiling::callSite(cntx, Here()));
+            if (marsClass && *marsClass == "ai") result = 10L;
+            else if (marsType && (*marsType == "an" || *marsType == "me" || *marsType == "4i")) result = 0L;
+            else if (marsType && *marsType == "ssd") result = 1L;
+            else if (marsType && (*marsType == "fc" || *marsType == "cf")) result = 3L;
+            else if (marsType && *marsType == "pf") result = 4L;
+            else if (marsType && *marsType == "gsd") result = 6L;
+            else if (marsType) result = 255L;
         }
-        if (*marsType == "an" || *marsType == "me" || *marsType == "4i") {
-            return 0L;
+        else if (key == "typeOfEnsembleForecast") {
+            const auto marsType = detail::string(mars, "type", utils::profiling::callSite(cntx, Here()));
+            if (marsType && (*marsType == "cf" || *marsType == "fc")) result = 5L;
+            else if (marsType && *marsType == "pf") result = 6L;
         }
-        if (*marsType == "ssd") {
-            return 1L;
-        }
-        if (*marsType == "fc" || *marsType == "cf") {
-            return 3L;
-        }
-        if (*marsType == "pf") {
-            return 4L;
-        }
-        if (*marsType == "gsd") {
-            return 6L;
-        }
-        return 255L;
-    }
-    if (key == "typeOfEnsembleForecast") {
-        const auto marsType = detail::string(mars, "type");
-        if (!marsType) {
-            return std::nullopt;
-        }
-        if (*marsType == "cf" || *marsType == "fc") {
-            return 5L;
-        }
-        if (*marsType == "pf") {
-            return 6L;
-        }
-        return std::nullopt;
-    }
-    if (key == "derivedForecast") {
-        // TODO: Populate the complete MARS type to derived-forecast mapping.
-        return std::nullopt;
-    }
-    if (key == "bitsPerValue") {
-        // TODO: This default also depends on packing options and the active representation.
-        return std::nullopt;
-    }
-    if (key == "satelliteSeries" || key == "scaleFactorOfCentralWaveNumber" ||
-        key == "scaledValueOfCentralWaveNumber" || key == "modelErrorType" || key == "numberOfComponents" ||
-        key == "numberOfFourierCoefficients" || key == "tablesVersion" || key == "numberOfWaveDirections" ||
-        key == "numberOfWaveFrequencies" || key == "indexOfReferenceWaveFrequency" || key == "iTmin" ||
-        key == "iTmax" || key == "timeIncrementInSeconds" || key == "generatingProcessIdentifier" ||
-        key == "lengthOfTimeWindow" || key == "totalNumberOfIterations") {
-        // TODO: Populate mandatory defaults, where a real default policy exists.
-        return std::nullopt;
     }
 
-    return std::nullopt;
-}
-
-template <>
-inline std::optional<double> get_misc_default<double>(const eckit::LocalConfiguration&, std::string_view key) {
-    if (key == "missingValue" || key == "scaleValuesBy" || key == "offsetValuesBy" || key == "referenceWaveFrequency" ||
-        key == "waveFrequencySpacingRatio") {
-        // TODO: Populate defaults that are meaningful independently of the encoded values.
-        return std::nullopt;
-    }
-
-    return std::nullopt;
-}
-
-template <>
-inline std::optional<std::string> get_misc_default<std::string>(const eckit::LocalConfiguration&,
-                                                                std::string_view key) {
-    if (key == "typeOfProcessedData" || key == "timeIncrementInSeconds") {
-        // TODO: Populate string defaults where this representation is preferred.
-        return std::nullopt;
-    }
-
-    return std::nullopt;
-}
-
-template <>
-inline std::optional<std::vector<double>> get_misc_default<std::vector<double>>(const eckit::LocalConfiguration&,
-                                                                                std::string_view key) {
-    if (key == "pv" || key == "waveDirections" || key == "waveFrequencies") {
-        // TODO: Populate vector defaults where they can be represented safely.
-        return std::nullopt;
-    }
-
-    return std::nullopt;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::misc_defaults

@@ -43,6 +43,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/param/paramEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/paramId.h"
@@ -122,8 +123,9 @@ constexpr bool paramApplicable() {
 /// @see paramApplicable
 ///
 template <std::size_t Stage, std::size_t Section, ParamType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void ParamOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void ParamOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::dump_or_ignore;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
@@ -138,18 +140,19 @@ void ParamOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
             MARS2GRIB_LOG_CONCEPT(param);
 
             // Deductions
-            paramId = deductions::resolve_ParamId_or_throw(mars, par, opt);
+            paramId = deductions::resolve_ParamId_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<long>(out, "paramId", paramId);
+            set_or_throw<long>(out, "paramId", paramId, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
         }
         catch (...) {
-            dump_or_ignore(out, "mars2grib_param_concept_failure.grib");
+            dump_or_ignore(out, "mars2grib_param_concept_failure.grib", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             MARS2GRIB_CONCEPT_RETHROW(
                 param, [&]() { return "Unable to set `param` concept with paramId=" + std::to_string(paramId); }());
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

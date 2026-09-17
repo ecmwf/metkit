@@ -34,6 +34,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -58,36 +59,53 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// cannot be read, or lower-level matcher evaluation fails. Lower-level
 /// exceptions are preserved through `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t waveMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t waveMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
         using metkit::mars2grib::utils::exceptions::Mars2GribMatcherException;
 
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto param = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
 
         if (matchAny(param, range(140114, 140120), 141231, 143231, 144231, 145231)) {
-            return static_cast<std::size_t>(WaveType::Period);
+            const std::size_t result = static_cast<std::size_t>(WaveType::Period);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         if (matchAny(param, 140251)) {
-            if (!has(mars, "frequency")) {
+            if (!has(mars, "frequency", utils::profiling::callSite(cntx, Here()))) {
                 throw Mars2GribMatcherException("Missing required mars keyword `frequency` for wave spectra", Here());
             }
-            if (!has(mars, "direction")) {
+            if (!has(mars, "direction", utils::profiling::callSite(cntx, Here()))) {
                 throw Mars2GribMatcherException("Missing required mars keyword `direction` for wave spectra", Here());
             }
-            return static_cast<std::size_t>(WaveType::Spectra);
+            const std::size_t result = static_cast<std::size_t>(WaveType::Spectra);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `wave` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t waveMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = waveMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

@@ -57,6 +57,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -139,7 +141,9 @@ namespace details {
 /// requires additional parameters, and in this case the override can
 /// be used anyway.
 ///
-inline long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool enableCompression) {
+template <class Cntx_t>
+inline long lookup_bitsPerValueGridded_default(long paramId, std::string prefix, bool enableCompression, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     // Parameter IDs (hard-coded)
     constexpr long CLOUD_COVER                      = 248;
@@ -152,28 +156,60 @@ inline long lookup_bitsPerValueGridded_default(long paramId, std::string prefix,
     constexpr long CLEAR_SKY_BRIGHTNESS_TEMPERATURE = 260511;
 
     if (paramId == CLOUD_COVER) {
-        return 8;
+        {
+            long result = 8;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (paramId == SNOW_DEPTH_BACKWARD_COMPAT || paramId == SNOW_DEPTH || paramId == FORECAST_SURFACE_ROUGHNESS) {
-        return 24;
+        {
+            long result = 24;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (paramId == CLOUD_LIQUID_WATER_CONTENT && prefix == "pl") {
-        return 12;
+        {
+            long result = 12;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (paramId == CLOUD_ICE_WATER_CONTENT && prefix == "pl") {
-        return 12;
+        {
+            long result = 12;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (paramId > 210000 && paramId < 228000) {
-        return 24;
+        {
+            long result = 24;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (paramId == CLOUDY_BRIGHTNESS_TEMPERATURE || paramId == CLEAR_SKY_BRIGHTNESS_TEMPERATURE) {
-        return 10;
+        {
+            long result = 10;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (enableCompression && prefix == "ml") {
-        return 10;
+        {
+            long result = 10;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else {
-        return 16;
+        {
+            long result = 16;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 }
 
@@ -237,8 +273,9 @@ inline long lookup_bitsPerValueGridded_default(long paramId, std::string prefix,
 /// attempt to optimize packing precision based on data statistics
 /// or parameter semantics.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -248,10 +285,10 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
     try {
 
         long bitsPerValue;
-        if (has(par, "bitsPerValue")) {
+        if (has(par, "bitsPerValue", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
             // Retrieve mandatory bitsPerValue from parameter dictionary
-            bitsPerValue = get_or_throw<long>(par, "bitsPerValue");
+            bitsPerValue = get_or_throw<long>(par, "bitsPerValue", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
@@ -263,12 +300,12 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
         else {
 
             // Retrieve auxiliary values for default lookup
-            long param            = get_or_throw<long>(mars, "param");
-            std::string levtype   = get_or_throw<std::string>(mars, "levtype");
-            bool applyCompression = get_or_throw<bool>(opt, "enableBitsPerValueCompression");
+            long param            = get_or_throw<long>(mars, "param", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            std::string levtype   = get_or_throw<std::string>(mars, "levtype", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            bool applyCompression = get_or_throw<bool>(opt, "enableBitsPerValueCompression", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Resolve bitsPerValue from default mapping
-            bitsPerValue = details::lookup_bitsPerValueGridded_default(param, levtype, applyCompression);
+            bitsPerValue = details::lookup_bitsPerValueGridded_default(param, levtype, applyCompression, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
@@ -286,7 +323,11 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
         }
 
         // Success exit point
-        return bitsPerValue;
+        {
+            long result = bitsPerValue;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 
@@ -348,8 +389,9 @@ long resolve_BitsPerValueGridded_or_throw(const MarsDict_t& mars, const ParDict_
 /// This deduction applies a fixed default packing precision for
 /// spectral data and enforces strict numeric validation.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -358,10 +400,10 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
     try {
 
         long bitsPerValue;
-        if (has(par, "bitsPerValue")) {
+        if (has(par, "bitsPerValue", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
             // Retrieve mandatory bitsPerValue from parameter dictionary
-            bitsPerValue = get_or_throw<long>(par, "bitsPerValue");
+            bitsPerValue = get_or_throw<long>(par, "bitsPerValue", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
@@ -391,7 +433,11 @@ long resolve_BitsPerValueSpectral_or_throw(const MarsDict_t& mars, const ParDict
         }
 
         // Success exit point
-        return bitsPerValue;
+        {
+            long result = bitsPerValue;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

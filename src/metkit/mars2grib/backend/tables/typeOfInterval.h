@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -63,37 +65,91 @@ enum class TypeOfInterval : long {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the enumeration value is invalid.
 ///
-inline std::string enum2name_TypeOfInterval_or_throw(TypeOfInterval value) {
+template <class Cntx_t>
+inline std::string enum2name_TypeOfInterval_or_throw(TypeOfInterval value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TypeOfInterval::SmallerThanFirstLimit:
-            return "smaller-than-first-limit";
+            {
+                std::string result = "smaller-than-first-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::GreaterThanSecondLimit:
-            return "greater-than-second-limit";
+            {
+                std::string result = "greater-than-second-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::BetweenFirstInclusiveSecondExclusive:
-            return "between-first-inclusive-second-exclusive";
+            {
+                std::string result = "between-first-inclusive-second-exclusive";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::GreaterThanFirstLimit:
-            return "greater-than-first-limit";
+            {
+                std::string result = "greater-than-first-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::SmallerThanSecondLimit:
-            return "smaller-than-second-limit";
+            {
+                std::string result = "smaller-than-second-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::SmallerOrEqualFirstLimit:
-            return "smaller-or-equal-first-limit";
+            {
+                std::string result = "smaller-or-equal-first-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::GreaterOrEqualSecondLimit:
-            return "greater-or-equal-second-limit";
+            {
+                std::string result = "greater-or-equal-second-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::BetweenFirstInclusiveSecondInclusive:
-            return "between-first-inclusive-second-inclusive";
+            {
+                std::string result = "between-first-inclusive-second-inclusive";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::GreaterOrEqualFirstLimit:
-            return "greater-or-equal-first-limit";
+            {
+                std::string result = "greater-or-equal-first-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::SmallerOrEqualSecondLimit:
-            return "smaller-or-equal-second-limit";
+            {
+                std::string result = "smaller-or-equal-second-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::BetweenFirstExclusiveSecondInclusive:
-            return "between-first-exclusive-second-inclusive";
+            {
+                std::string result = "between-first-exclusive-second-inclusive";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::EqualFirstLimit:
-            return "equal-first-limit";
+            {
+                std::string result = "equal-first-limit";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfInterval::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid TypeOfInterval enum value", Here());
     }
@@ -110,36 +166,103 @@ inline std::string enum2name_TypeOfInterval_or_throw(TypeOfInterval value) {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the name is not recognized.
 ///
-inline TypeOfInterval name2enum_TypeOfInterval_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline TypeOfInterval name2enum_TypeOfInterval_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "smaller-than-first-limit")
-        return TypeOfInterval::SmallerThanFirstLimit;
-    else if (name == "greater-than-second-limit")
-        return TypeOfInterval::GreaterThanSecondLimit;
-    else if (name == "between-first-inclusive-second-exclusive")
-        return TypeOfInterval::BetweenFirstInclusiveSecondExclusive;
-    else if (name == "greater-than-first-limit")
-        return TypeOfInterval::GreaterThanFirstLimit;
-    else if (name == "smaller-than-second-limit")
-        return TypeOfInterval::SmallerThanSecondLimit;
-    else if (name == "smaller-or-equal-first-limit")
-        return TypeOfInterval::SmallerOrEqualFirstLimit;
-    else if (name == "greater-or-equal-second-limit")
-        return TypeOfInterval::GreaterOrEqualSecondLimit;
-    else if (name == "between-first-inclusive-second-inclusive")
-        return TypeOfInterval::BetweenFirstInclusiveSecondInclusive;
-    else if (name == "greater-or-equal-first-limit")
-        return TypeOfInterval::GreaterOrEqualFirstLimit;
-    else if (name == "smaller-or-equal-second-limit")
-        return TypeOfInterval::SmallerOrEqualSecondLimit;
-    else if (name == "between-first-exclusive-second-inclusive")
-        return TypeOfInterval::BetweenFirstExclusiveSecondInclusive;
-    else if (name == "equal-first-limit")
-        return TypeOfInterval::EqualFirstLimit;
-    else if (name == "missing")
-        return TypeOfInterval::Missing;
+    if (name == "smaller-than-first-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::SmallerThanFirstLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "greater-than-second-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::GreaterThanSecondLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "between-first-inclusive-second-exclusive") {
+        {
+            TypeOfInterval result = TypeOfInterval::BetweenFirstInclusiveSecondExclusive;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "greater-than-first-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::GreaterThanFirstLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "smaller-than-second-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::SmallerThanSecondLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "smaller-or-equal-first-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::SmallerOrEqualFirstLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "greater-or-equal-second-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::GreaterOrEqualSecondLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "between-first-inclusive-second-inclusive") {
+        {
+            TypeOfInterval result = TypeOfInterval::BetweenFirstInclusiveSecondInclusive;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "greater-or-equal-first-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::GreaterOrEqualFirstLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "smaller-or-equal-second-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::SmallerOrEqualSecondLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "between-first-exclusive-second-inclusive") {
+        {
+            TypeOfInterval result = TypeOfInterval::BetweenFirstExclusiveSecondInclusive;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "equal-first-limit") {
+        {
+            TypeOfInterval result = TypeOfInterval::EqualFirstLimit;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "missing") {
+        {
+            TypeOfInterval result = TypeOfInterval::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
     else
         throw Mars2GribTableException("Invalid TypeOfInterval name: '" + name + "'", Here());
 }
@@ -155,37 +278,91 @@ inline TypeOfInterval name2enum_TypeOfInterval_or_throw(const std::string& name)
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the value is not defined in the GRIB table.
 ///
-inline TypeOfInterval long2enum_TypeOfInterval_or_throw(long value) {
+template <class Cntx_t>
+inline TypeOfInterval long2enum_TypeOfInterval_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return TypeOfInterval::SmallerThanFirstLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::SmallerThanFirstLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return TypeOfInterval::GreaterThanSecondLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::GreaterThanSecondLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return TypeOfInterval::BetweenFirstInclusiveSecondExclusive;
+            {
+                TypeOfInterval result = TypeOfInterval::BetweenFirstInclusiveSecondExclusive;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return TypeOfInterval::GreaterThanFirstLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::GreaterThanFirstLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return TypeOfInterval::SmallerThanSecondLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::SmallerThanSecondLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return TypeOfInterval::SmallerOrEqualFirstLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::SmallerOrEqualFirstLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 6:
-            return TypeOfInterval::GreaterOrEqualSecondLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::GreaterOrEqualSecondLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 7:
-            return TypeOfInterval::BetweenFirstInclusiveSecondInclusive;
+            {
+                TypeOfInterval result = TypeOfInterval::BetweenFirstInclusiveSecondInclusive;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 8:
-            return TypeOfInterval::GreaterOrEqualFirstLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::GreaterOrEqualFirstLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 9:
-            return TypeOfInterval::SmallerOrEqualSecondLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::SmallerOrEqualSecondLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 10:
-            return TypeOfInterval::BetweenFirstExclusiveSecondInclusive;
+            {
+                TypeOfInterval result = TypeOfInterval::BetweenFirstExclusiveSecondInclusive;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 11:
-            return TypeOfInterval::EqualFirstLimit;
+            {
+                TypeOfInterval result = TypeOfInterval::EqualFirstLimit;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return TypeOfInterval::Missing;
+            {
+                TypeOfInterval result = TypeOfInterval::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException(
                 "Invalid TypeOfInterval numeric value: actual='" + std::to_string(value) + "', expected={0..11,255}",

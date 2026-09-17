@@ -30,6 +30,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
 
@@ -54,7 +56,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::anchor::detail 
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the anchor matcher fails unexpectedly.
  */
-inline bool match_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -63,11 +67,15 @@ inline bool match_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input) {
         const bool hasNoYear  = !input.marsYear.has_value();
         const bool hasNoMonth = !input.marsMonth.has_value();
 
-        return hasDate && hasNoHdate && hasNoYear && hasNoMonth;
+        {
+            bool result = hasDate && hasNoHdate && hasNoYear && hasNoMonth;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_ForecastAnalysis_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_ForecastAnalysis_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -83,8 +91,10 @@ inline bool match_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input) {
  *
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecAnchor build_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input,
-                                                           const ProductTimeSpecClassification& classification) {
+                                                           const ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchorKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::makeDateTime;
@@ -93,7 +103,7 @@ inline ProductTimeSpecAnchor build_ForecastAnalysis_Anchor(const ProductTimeSpec
 
         // This case requires a MARS date and optionally a MARS time.
         if (!input.marsDate.has_value()) {
-            throw Mars2GribModelException("ForecastAnalysis anchor construction requires MARS date", input.to_json(),
+            throw Mars2GribModelException("ForecastAnalysis anchor construction requires MARS date", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
@@ -101,17 +111,21 @@ inline ProductTimeSpecAnchor build_ForecastAnalysis_Anchor(const ProductTimeSpec
         // the product exposes only one direct source datetime.
         // `makeDateTime(...)` injects the canonical `00:00:00` default when the
         // optional MARS time is absent.
-        const eckit::DateTime labelDateTime             = makeDateTime(input.marsDate.value(), input.marsTime);
-        const eckit::DateTime initialConditionsDateTime = makeDateTime(input.marsDate.value(), input.marsTime);
-        const eckit::DateTime referenceDateTime         = makeDateTime(input.marsDate.value(), input.marsTime);
+        const eckit::DateTime labelDateTime             = makeDateTime(input.marsDate.value(), input.marsTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const eckit::DateTime initialConditionsDateTime = makeDateTime(input.marsDate.value(), input.marsTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const eckit::DateTime referenceDateTime         = makeDateTime(input.marsDate.value(), input.marsTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Validate the canonical ordering invariant and return the final anchor.
-        return checkedAnchor(labelDateTime, initialConditionsDateTime, referenceDateTime,
-                             ProductTimeSpecAnchorKind::ForecastAnalysis);
+        {
+            ProductTimeSpecAnchor result = checkedAnchor(labelDateTime, initialConditionsDateTime, referenceDateTime,
+                             ProductTimeSpecAnchorKind::ForecastAnalysis, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_ForecastAnalysis_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_ForecastAnalysis_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -127,39 +141,45 @@ inline ProductTimeSpecAnchor build_ForecastAnalysis_Anchor(const ProductTimeSpec
 /// @return `true` when the anchor is valid for the ForecastAnalysis case.
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException if
 ///         the resolved anchor is inconsistent with the input or case semantics.
-inline bool check_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input, const ProductTimeSpecAnchor& anchor) {
+template <class Cntx_t>
+inline bool check_ForecastAnalysis_Anchor(const ProductTimeSpecInput& input, const ProductTimeSpecAnchor& anchor, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchorKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
 
         if (anchor.anchorType != ProductTimeSpecAnchorKind::ForecastAnalysis) {
-            throw Mars2GribModelException("Anchor type mismatch: expected ForecastAnalysis", input.to_json(), Here());
+            throw Mars2GribModelException("Anchor type mismatch: expected ForecastAnalysis", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (anchor.labelDateTime != anchor.initialConditionsDateTime ||
             anchor.initialConditionsDateTime != anchor.referenceDateTime) {
-            throw Mars2GribModelException("Anchor datetimes are not equal for ForecastAnalysis", input.to_json(),
+            throw Mars2GribModelException("Anchor datetimes are not equal for ForecastAnalysis", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (!input.marsDate.has_value()) {
-            throw Mars2GribModelException("Input missing MARS date for ForecastAnalysis", input.to_json(), Here());
+            throw Mars2GribModelException("Input missing MARS date for ForecastAnalysis", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (input.marsDate.value() != anchor.labelDateTime.date()) {
-            throw Mars2GribModelException("Anchor label date does not match input MARS date", input.to_json(), Here());
+            throw Mars2GribModelException("Anchor label date does not match input MARS date", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (input.marsTime.value_or(eckit::Time{0, 0, 0}) != anchor.labelDateTime.time()) {
-            throw Mars2GribModelException("Anchor label time does not match input MARS time", input.to_json(), Here());
+            throw Mars2GribModelException("Anchor label time does not match input MARS time", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_ForecastAnalysis_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_ForecastAnalysis_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

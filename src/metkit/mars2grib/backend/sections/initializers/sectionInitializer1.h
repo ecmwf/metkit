@@ -37,6 +37,7 @@
 
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
@@ -68,9 +69,12 @@ namespace metkit::mars2grib::backend::sections::initializers {
 /// handled explicitly.
 ///
 template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void allocateTemplateNumber1(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void allocateTemplateNumber1(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out,
+                             Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
     // No-op for Section 1 — placeholder initializer
+    metkit::mars2grib::utils::profiling::profileExitSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
 }
 
 }  // namespace metkit::mars2grib::backend::sections::initializers

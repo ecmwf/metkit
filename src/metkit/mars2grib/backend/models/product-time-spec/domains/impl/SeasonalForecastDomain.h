@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
 
@@ -59,7 +61,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the domain matcher fails unexpectedly.
  */
-inline bool match_SeasonalForecast_Domain(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_SeasonalForecast_Domain(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -72,11 +76,15 @@ inline bool match_SeasonalForecast_Domain(const ProductTimeSpecInput& input) {
         const bool isSeasonalProduct        = hasSeasonalClassStream && hasSeasonalLeadSemantics;
         const bool isForecast               = input.simulationType == SimulationType::Forecast;
 
-        return isNotSynoptic && isSeasonalProduct && isForecast;
+        {
+            bool result = isNotSynoptic && isSeasonalProduct && isForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_SeasonalForecast_Domain`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_SeasonalForecast_Domain`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -97,10 +105,12 @@ inline bool match_SeasonalForecast_Domain(const ProductTimeSpecInput& input) {
  * @return Constructed ProductTimeSpec domain for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpecInput& input,
                                                            const ProductTimeSpecClassification& classification,
                                                            const anchor::ProductTimeSpecAnchor& anchor,
-                                                           const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+                                                           const shape::ProductTimeSpecOuterTimeRange& outerTimeRange, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::offsetHoursFromReference;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
@@ -117,7 +127,7 @@ inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpec
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("SeasonalForecastDomain requires an available outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool hasSeasonalClassStream =
@@ -129,29 +139,29 @@ inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpec
         if (!isSeasonalProduct) {
             throw Mars2GribModelException(
                 "SeasonalForecastDomain construction requires both seasonal class/stream and seasonal lead semantics",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (!input.marsFcmonth.has_value()) {
-            throw Mars2GribModelException("SeasonalForecastDomain construction requires fcmonth", input.to_json(),
+            throw Mars2GribModelException("SeasonalForecastDomain construction requires fcmonth", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         const long fcmonth = *input.marsFcmonth;
         if (fcmonth <= 0) {
             throw Mars2GribModelException("SeasonalForecastDomain construction requires a strictly positive fcmonth",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         // The support end is the anchor reference datetime extended by the
         // resolved seasonal forecast lead expressed in calendar months.
         const TimeDuration forecastLead{fcmonth, TimeUnit::Month};
-        const auto domainEndDateTime = addDuration(anchor.referenceDateTime, forecastLead);
+        const auto domainEndDateTime = addDuration(anchor.referenceDateTime, forecastLead, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // The support start is the support end shifted backward by the resolved
         // outer range.
         const auto outerRange          = *outerTimeRange.timeRange;
-        const auto domainStartDateTime = subtractDuration(domainEndDateTime, outerRange);
+        const auto domainStartDateTime = subtractDuration(domainEndDateTime, outerRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // This domain case is never synoptic.
         const bool isSynoptic = false;
@@ -159,18 +169,22 @@ inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpec
         // The start offset is measured from the reference datetime to the real
         // support start.
         const long startOffsetHoursFromReference =
-            offsetHoursFromReference(anchor.referenceDateTime, domainStartDateTime);
+            offsetHoursFromReference(anchor.referenceDateTime, domainStartDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // The end offset is measured from the reference datetime to the real
         // support end.
-        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime, domainEndDateTime);
+        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime, domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        return ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic, startOffsetHoursFromReference,
+        {
+            ProductTimeSpecDomain result = ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic, startOffsetHoursFromReference,
                                      endOffsetHoursFromReference};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_SeasonalForecast_Domain`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_SeasonalForecast_Domain`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -190,46 +204,52 @@ inline ProductTimeSpecDomain build_SeasonalForecast_Domain(const ProductTimeSpec
  * @throws Mars2GribModelException if the resolved domain is inconsistent with
  *         the input, anchor, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_SeasonalForecast_Domain(const ProductTimeSpecInput& input,
                                           const anchor::ProductTimeSpecAnchor& anchor,
-                                          const ProductTimeSpecDomain& domain) {
+                                          const ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::offsetHoursFromReference;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         if (domain.isSynoptic) {
-            throw Mars2GribModelException("SeasonalForecastDomain must not be synoptic", input.to_json(), Here());
+            throw Mars2GribModelException("SeasonalForecastDomain must not be synoptic", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (domain.domainStartDateTime > domain.domainEndDateTime) {
-            throw Mars2GribModelException("SeasonalForecastDomain start must not follow domain end", input.to_json(),
+            throw Mars2GribModelException("SeasonalForecastDomain start must not follow domain end", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (domain.domainEndDateTime < anchor.referenceDateTime) {
             throw Mars2GribModelException("SeasonalForecastDomain end must not precede anchor reference datetime",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (domain.startOffsetHoursFromReference !=
-            offsetHoursFromReference(anchor.referenceDateTime, domain.domainStartDateTime)) {
+            offsetHoursFromReference(anchor.referenceDateTime, domain.domainStartDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "SeasonalForecastDomain start offset does not match resolved datetime placement", input.to_json(),
+                "SeasonalForecastDomain start offset does not match resolved datetime placement", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (domain.endOffsetHoursFromReference !=
-            offsetHoursFromReference(anchor.referenceDateTime, domain.domainEndDateTime)) {
+            offsetHoursFromReference(anchor.referenceDateTime, domain.domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "SeasonalForecastDomain end offset does not match resolved datetime placement", input.to_json(),
+                "SeasonalForecastDomain end offset does not match resolved datetime placement", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_SeasonalForecast_Domain`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_SeasonalForecast_Domain`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

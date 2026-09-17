@@ -24,6 +24,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <algorithm>
 #include <array>
 
@@ -42,15 +44,21 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` when `timespan.kind` is `None`; otherwise `false`.
  * @throws Mars2GribModelException If evaluation unexpectedly fails.
  */
-inline bool timespanIsNone(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool timespanIsNone(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return input.timespan.kind == TimespanKind::None;
+        {
+            bool result = input.timespan.kind == TimespanKind::None;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `timespanIsNone`", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `timespanIsNone`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -64,16 +72,22 @@ inline bool timespanIsNone(const ProductTimeSpecInput& input) {
  *         otherwise `false`.
  * @throws Mars2GribModelException If evaluation unexpectedly fails.
  */
-inline bool timespanIsMissingAndAllowed(const ProductTimeSpecInput& input, const bool allowMissingTimespan) {
+template <class Cntx_t>
+inline bool timespanIsMissingAndAllowed(const ProductTimeSpecInput& input, const bool allowMissingTimespan, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return input.timespan.kind == TimespanKind::Missing && allowMissingTimespan;
+        {
+            bool result = input.timespan.kind == TimespanKind::Missing && allowMissingTimespan;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `timespanIsMissingAndAllowed`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `timespanIsMissingAndAllowed`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -105,8 +107,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// A return value of `0` explicitly signals that
 /// no local GRIB tables are active.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_LocalTablesVersion_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_LocalTablesVersion_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     // Defaulting local Tables version to 0
     long localTablesVersion = 0L;
@@ -119,7 +122,11 @@ long resolve_LocalTablesVersion_or_throw(const MarsDict_t& mars, const ParDict_t
     }());
 
     // Success exit point
-    return localTablesVersion;
+    {
+        long result = localTablesVersion;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 };
 
 }  // namespace metkit::mars2grib::backend::deductions

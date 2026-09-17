@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -90,38 +92,105 @@ enum class TimeUnit : long {
 /// - Mapping is case-sensitive by design.
 /// - No normalization or aliasing is performed.
 ///
-inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "minute")
-        return TimeUnit::Minute;
-    if (name == "hour")
-        return TimeUnit::Hour;
-    if (name == "day")
-        return TimeUnit::Day;
-    if (name == "month")
-        return TimeUnit::Month;
-    if (name == "year")
-        return TimeUnit::Year;
-    if (name == "decade")
-        return TimeUnit::Decade;
-    if (name == "normal")
-        return TimeUnit::Normal;
-    if (name == "century")
-        return TimeUnit::Century;
+    if (name == "minute") {
+        {
+            TimeUnit result = TimeUnit::Minute;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "hour") {
+        {
+            TimeUnit result = TimeUnit::Hour;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "day") {
+        {
+            TimeUnit result = TimeUnit::Day;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "month") {
+        {
+            TimeUnit result = TimeUnit::Month;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "year") {
+        {
+            TimeUnit result = TimeUnit::Year;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "decade") {
+        {
+            TimeUnit result = TimeUnit::Decade;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "normal") {
+        {
+            TimeUnit result = TimeUnit::Normal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "century") {
+        {
+            TimeUnit result = TimeUnit::Century;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
-    if (name == "3h")
-        return TimeUnit::Hours3;
-    if (name == "6h")
-        return TimeUnit::Hours6;
-    if (name == "12h")
-        return TimeUnit::Hours12;
+    if (name == "3h") {
+        {
+            TimeUnit result = TimeUnit::Hours3;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "6h") {
+        {
+            TimeUnit result = TimeUnit::Hours6;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "12h") {
+        {
+            TimeUnit result = TimeUnit::Hours12;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
-    if (name == "second")
-        return TimeUnit::Second;
-    if (name == "missing")
-        return TimeUnit::Missing;
+    if (name == "second") {
+        {
+            TimeUnit result = TimeUnit::Second;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "missing") {
+        {
+            TimeUnit result = TimeUnit::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     std::string err = "Invalid TimeUnit name: actual='" + name +
                       "', expected={minute,hour,day,month,year,decade,normal,century,"
@@ -148,39 +217,93 @@ inline TimeUnit name2enum_TimeUnit_or_throw(const std::string& name) {
 /// - Returned strings are stable and suitable for logging, YAML,
 /// diagnostics, and round-tripping via `name2enum_TimeUnit_or_throw`.
 ///
-inline std::string enum2name_TimeUnit_or_throw(TimeUnit value) {
+template <class Cntx_t>
+inline std::string enum2name_TimeUnit_or_throw(TimeUnit value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TimeUnit::Minute:
-            return "minute";
+            {
+                std::string result = "minute";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Hour:
-            return "hour";
+            {
+                std::string result = "hour";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Day:
-            return "day";
+            {
+                std::string result = "day";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Month:
-            return "month";
+            {
+                std::string result = "month";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Year:
-            return "year";
+            {
+                std::string result = "year";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Decade:
-            return "decade";
+            {
+                std::string result = "decade";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Normal:
-            return "normal";
+            {
+                std::string result = "normal";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Century:
-            return "century";
+            {
+                std::string result = "century";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
 
         case TimeUnit::Hours3:
-            return "3h";
+            {
+                std::string result = "3h";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Hours6:
-            return "6h";
+            {
+                std::string result = "6h";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Hours12:
-            return "12h";
+            {
+                std::string result = "12h";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
 
         case TimeUnit::Second:
-            return "second";
+            {
+                std::string result = "second";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TimeUnit::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
     }
 
     std::string err = "Invalid TimeUnit enum value: actual='" + std::to_string(static_cast<long>(value)) + "'";

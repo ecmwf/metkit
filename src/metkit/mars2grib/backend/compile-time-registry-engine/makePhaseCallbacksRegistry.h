@@ -187,8 +187,8 @@ namespace detail {
 /// PhaseRow[section] -> Fn | nullptr
 /// @endcode
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using PhaseRow = std::array<Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, NUM_SECTIONS>;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+using PhaseRow = std::array<Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, NUM_SECTIONS>;
 
 ///
 /// @brief One plane of phase callbacks for a fixed variant.
@@ -200,8 +200,8 @@ using PhaseRow = std::array<Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, NUM
 /// PhasePlane[stage][section] -> Fn | nullptr
 /// @endcode
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using PhasePlane = std::array<PhaseRow<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, NUM_STAGES>;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+using PhasePlane = std::array<PhaseRow<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, NUM_STAGES>;
 
 
 ///
@@ -216,10 +216,10 @@ using PhasePlane = std::array<PhaseRow<MarsDict_t, ParDict_t, OptDict_t, OutDict
 /// The resulting PhaseRow has exactly `NUM_SECTIONS` elements.
 ///
 template <class Entry, std::size_t Capability, auto Stage, auto Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t, std::size_t... Secs>
-constexpr PhaseRow<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> makePhaseRow(std::index_sequence<Secs...>) {
+           class OptDict_t, class OutDict_t, class Cntx_t, std::size_t... Secs>
+constexpr PhaseRow<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> makePhaseRow(std::index_sequence<Secs...>) {
     return {{Entry::template phaseCallbacks<Capability, Stage, Secs, Variant, MarsDict_t, ParDict_t, OptDict_t,
-                                            OutDict_t>()...}};
+                                             OutDict_t, Cntx_t>()...}};
 }
 
 ///
@@ -231,10 +231,10 @@ constexpr PhaseRow<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> makePhaseRow(std
 /// producing a complete PhasePlane.
 ///
 template <class Entry, std::size_t Capability, auto Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t, std::size_t... Stages>
-constexpr PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> makePhasePlane(std::index_sequence<Stages...>) {
+           class OutDict_t, class Cntx_t, std::size_t... Stages>
+constexpr PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> makePhasePlane(std::index_sequence<Stages...>) {
     return {{// For every stage in Stages..., build a full row of sections
-             makePhaseRow<Entry, Capability, Stages, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(
+             makePhaseRow<Entry, Capability, Stages, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
                  std::make_index_sequence<NUM_SECTIONS>{})...}};
 }
 
@@ -247,16 +247,17 @@ constexpr PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> makePhasePlane
 /// The order of planes exactly matches the VariantList order.
 ///
 template <class Entry, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t,
-          auto... Variants>
-constexpr std::array<PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, sizeof...(Variants)>
+           class Cntx_t, auto... Variants>
+constexpr std::array<PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, sizeof...(Variants)>
 makeEntryPhaseCallbacks(ValueList<Variants...>) {
-    return {{makePhasePlane<Entry, Capability, Variants, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(
+    return {{makePhasePlane<Entry, Capability, Variants, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
         std::make_index_sequence<NUM_STAGES>{})...}};
 }
 
-template <class Entry, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class Entry, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t,
+          class Cntx_t>
 constexpr auto makeEntryPhaseCallbacks() {
-    return makeEntryPhaseCallbacks<Entry, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(
+    return makeEntryPhaseCallbacks<Entry, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
         typename Entry::VariantList{});
 }
 
@@ -272,7 +273,7 @@ constexpr auto makeEntryPhaseCallbacks() {
 /// - total size equal to the total number of variants across all entries.
 ///
 template <class EntriesList, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
+           class OutDict_t, class Cntx_t>
 struct BuildPhaseCallbacks;
 
 ///
@@ -280,9 +281,9 @@ struct BuildPhaseCallbacks;
 ///
 /// Terminates recursion and produces an empty registry.
 ///
-template <std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-struct BuildPhaseCallbacks<TypeList<>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t> {
-    static constexpr std::array<PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, 0> value() { return {}; }
+template <std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+struct BuildPhaseCallbacks<TypeList<>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> {
+    static constexpr std::array<PhasePlane<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, 0> value() { return {}; }
 };
 
 ///
@@ -295,13 +296,15 @@ struct BuildPhaseCallbacks<TypeList<>, Capability, MarsDict_t, ParDict_t, OptDic
 /// - Section ordering.
 ///
 template <class Head, class... Tail, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-struct BuildPhaseCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t> {
+           class OutDict_t, class Cntx_t>
+struct BuildPhaseCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> {
     static constexpr auto value() {
-        constexpr auto head = makeEntryPhaseCallbacks<Head, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>();
+        constexpr auto head =
+            makeEntryPhaseCallbacks<Head, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>();
 
         constexpr auto tail =
-            BuildPhaseCallbacks<TypeList<Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::value();
+            BuildPhaseCallbacks<TypeList<Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t,
+                                Cntx_t>::value();
 
         return concat(head, tail);
     }
@@ -339,9 +342,10 @@ struct BuildPhaseCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, ParD
 /// - never modified.
 ///
 template <class EntriesList, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
+           class OutDict_t, class Cntx_t>
 constexpr auto makePhaseCallbacksRegistry() {
-    return detail::BuildPhaseCallbacks<EntriesList, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::value();
+    return detail::BuildPhaseCallbacks<EntriesList, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t,
+                                       Cntx_t>::value();
 }
 
 }  // namespace metkit::mars2grib::backend::compile_time_registry_engine

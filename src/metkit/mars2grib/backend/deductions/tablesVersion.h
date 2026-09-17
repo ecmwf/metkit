@@ -47,6 +47,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -86,8 +88,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// @note
 /// The returned value is deterministic for a given ecCodes installation.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -105,7 +108,11 @@ long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_
         }());
 
         // Success exit point
-        return tablesVersionLatestVal;
+        {
+            long result = tablesVersionLatestVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
@@ -141,8 +148,9 @@ long resolve_TablesVersionLatest_or_throw(const MarsDict_t& mars, const ParDict_
 /// Callers requiring strict reproducibility must ensure compatibility
 /// with the ecCodes runtime environment.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -150,7 +158,7 @@ long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_
     try {
 
         // Retrieve mandatory tablesVersion from parameter dictionary
-        long tablesVersionCustomVal = get_or_throw<long>(par, "tablesVersion");
+        long tablesVersionCustomVal = get_or_throw<long>(par, "tablesVersion", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit OVERRIDE log entry
         MARS2GRIB_LOG_OVERRIDE([&]() {
@@ -161,7 +169,11 @@ long resolve_TablesVersionCustom_or_throw(const MarsDict_t& mars, const ParDict_
         }());
 
         // Success exit point
-        return tablesVersionCustomVal;
+        {
+            long result = tablesVersionCustomVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(

@@ -41,6 +41,7 @@
 #include "metkit/codes/api/CodesTypes.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend {
 
@@ -87,8 +88,10 @@ using Span = metkit::codes::Span<T>;
 ///
 /// @return The updated GRIB handle containing the encoded payload
 ///
-template <typename Val_t, class MiscDict_t, class OptDict_t, class OutDict_t>
-void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDict_t& opt, OutDict_t& handle) {
+template <typename Val_t, class MiscDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDict_t& opt, OutDict_t& handle,
+                  Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -100,21 +103,21 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
         static_assert(std::is_floating_point_v<Val_t>, "encodeValues: Val_t must be float or double");
 
         // 1. Configure Bitmap and Metadata State
-        const bool bitmapPresent = get_opt<bool>(misc, "bitmapPresent").value_or(false);
-        set_or_throw(handle, "bitmapPresent", bitmapPresent);
+        const bool bitmapPresent = get_opt<bool>(misc, "bitmapPresent", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(false);
+        set_or_throw(handle, "bitmapPresent", bitmapPresent, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (bitmapPresent) {
             // Resolve missing value sentinel cast to double for ecCodes compatibility
             const double missingValue =
-                get_opt<double>(misc, "missingValue").value_or(static_cast<double>(std::numeric_limits<Val_t>::max()));
-            set_or_throw(handle, "missingValue", missingValue);
+                get_opt<double>(misc, "missingValue", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(static_cast<double>(std::numeric_limits<Val_t>::max()));
+            set_or_throw(handle, "missingValue", missingValue, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // 2. Physical Value Injection
         // Current ecCodes implementation requires double-precision for the 'values' key.
         // If input is float, we perform an explicit deep-copy cast to double.
         if constexpr (std::is_same_v<Val_t, double>) {
-            set_or_throw(handle, "values", values);
+            set_or_throw(handle, "values", values, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             // Deep copy-cast from float to double for legacy API support
@@ -126,19 +129,21 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
                 dValues.push_back(static_cast<double>(raw[i]));
             }
 
-            set_or_throw(handle, "values", Span<const double>{dValues});
+            set_or_throw(handle, "values", Span<const double>{dValues}, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // 3. Set operation(s) to be applied on the values
-        if (has(misc, "scaleValuesBy")) {
-            const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy");
-            set_or_throw(handle, "scaleValuesBy", scaleValuesBy);
+        if (has(misc, "scaleValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            set_or_throw(handle, "scaleValuesBy", scaleValuesBy, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
-        if (has(misc, "offsetValuesBy")) {
-            const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy");
-            set_or_throw(handle, "offsetValuesBy", offsetValuesBy);
+        if (has(misc, "offsetValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            set_or_throw(handle, "offsetValuesBy", offsetValuesBy, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
+        profileExitFunction(cntx, Here());
+        return;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Critical failure in SpecializedEncoder execution", Here()));
@@ -188,9 +193,10 @@ void encodeValues(Span<const Val_t> values, const MiscDict_t& misc, const OptDic
 ///
 /// @return The updated GRIB handle containing the encoded payload
 ///
-template <typename Val_t, class MarsDict_t, class MiscDict_t, class OptDict_t, class OutDict_t>
+template <typename Val_t, class MarsDict_t, class MiscDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
 void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, const MiscDict_t& misc,
-                          const OptDict_t& opt, OutDict_t& handle) {
+                          const OptDict_t& opt, OutDict_t& handle, Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -201,28 +207,28 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
     try {
 
         // Recover the value of the gridSpec from Mars dictionary
-        auto GridSpec = get_or_throw<std::string>(mars, "grid");
-        set_or_throw(handle, "gridSpec", GridSpec);
+        auto GridSpec = get_or_throw<std::string>(mars, "grid", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        set_or_throw(handle, "gridSpec", GridSpec, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
 
         static_assert(std::is_floating_point_v<Val_t>, "encodeValues: Val_t must be float or double");
 
         // 1. Configure Bitmap and Metadata State
-        const bool bitmapPresent = get_opt<bool>(misc, "bitmapPresent").value_or(false);
-        set_or_throw(handle, "bitmapPresent", bitmapPresent);
+        const bool bitmapPresent = get_opt<bool>(misc, "bitmapPresent", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(false);
+        set_or_throw(handle, "bitmapPresent", bitmapPresent, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (bitmapPresent) {
             // Resolve missing value sentinel cast to double for ecCodes compatibility
             const double missingValue =
-                get_opt<double>(misc, "missingValue").value_or(static_cast<double>(std::numeric_limits<Val_t>::max()));
-            set_or_throw(handle, "missingValue", missingValue);
+                get_opt<double>(misc, "missingValue", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(static_cast<double>(std::numeric_limits<Val_t>::max()));
+            set_or_throw(handle, "missingValue", missingValue, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // 2. Physical Value Injection
         // Current ecCodes implementation requires double-precision for the 'values' key.
         // If input is float, we perform an explicit deep-copy cast to double.
         if constexpr (std::is_same_v<Val_t, double>) {
-            set_or_throw(handle, "values", values);
+            set_or_throw(handle, "values", values, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             // Deep copy-cast from float to double for legacy API support
@@ -234,19 +240,21 @@ void encodeValuesGridSpec(Span<const Val_t> values, const MarsDict_t& mars, cons
                 dValues.push_back(static_cast<double>(raw[i]));
             }
 
-            set_or_throw(handle, "values", Span<const double>{dValues});
+            set_or_throw(handle, "values", Span<const double>{dValues}, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // 3. Set operation(s) to be applied on the values
-        if (has(misc, "scaleValuesBy")) {
-            const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy");
-            set_or_throw(handle, "scaleValuesBy", scaleValuesBy);
+        if (has(misc, "scaleValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            const double scaleValuesBy = get_or_throw<double>(misc, "scaleValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            set_or_throw(handle, "scaleValuesBy", scaleValuesBy, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
-        if (has(misc, "offsetValuesBy")) {
-            const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy");
-            set_or_throw(handle, "offsetValuesBy", offsetValuesBy);
+        if (has(misc, "offsetValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            const double offsetValuesBy = get_or_throw<double>(misc, "offsetValuesBy", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            set_or_throw(handle, "offsetValuesBy", offsetValuesBy, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
+        profileExitFunction(cntx, Here());
+        return;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Critical failure in SpecializedEncoder execution", Here()));

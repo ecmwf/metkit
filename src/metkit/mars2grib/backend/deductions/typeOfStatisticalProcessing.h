@@ -43,6 +43,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <cstddef>
 #include <optional>
@@ -148,10 +150,11 @@ namespace metkit::mars2grib::backend::deductions {
 ///       this deduction only on inputs that also resolve cleanly through
 ///       `resolve_ProductTime_or_throw`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 std::vector<tables::TypeOfStatisticalProcessing> resolve_TypeOfStatisticalProcessing_or_throw(
     tables::TypeOfStatisticalProcessing innerTypeOfStatisticalProcessing, const MarsDict_t& mars, const ParDict_t& par,
-    const OptDict_t& opt) {
+    const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -175,15 +178,15 @@ std::vector<tables::TypeOfStatisticalProcessing> resolve_TypeOfStatisticalProces
         // only needs enough classification to size its output.
         // =========================================================
 
-        const bool hasStatType = has(mars, "stattype");
+        const bool hasStatType = has(mars, "stattype", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Classify timespan: missing | "none" | Duration.
         // We do NOT parse the duration value here; only its presence and
         // the literal "none" matter for §23.5 sizing.
         bool hasTimespanNone     = false;
         bool hasTimespanDuration = false;
-        if (has(mars, "timespan")) {
-            std::optional<std::string> tsStr = get_opt<std::string>(mars, "timespan");
+        if (has(mars, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            std::optional<std::string> tsStr = get_opt<std::string>(mars, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             if (tsStr.has_value()) {
                 if (tsStr.value() == "none") {
                     hasTimespanNone = true;
@@ -204,8 +207,8 @@ std::vector<tables::TypeOfStatisticalProcessing> resolve_TypeOfStatisticalProces
 
         std::vector<detail::ParsedStatTypeBlock> blocks;
         if (hasStatType) {
-            const std::string statTypeVal = get_or_throw<std::string>(mars, "stattype");
-            blocks                        = detail::parse_StatType_or_throw(statTypeVal);
+            const std::string statTypeVal = get_or_throw<std::string>(mars, "stattype", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            blocks                        = detail::parse_StatType_or_throw(statTypeVal, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // =========================================================
@@ -261,9 +264,9 @@ std::vector<tables::TypeOfStatisticalProcessing> resolve_TypeOfStatisticalProces
                     std::string("typeOfStatisticalProcessing invariant violated "
                                 "[§10.12]: fakeDoubleLoop disagreement: parsed "
                                 "stattype block operation ('") +
-                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(parsedOp) +
+                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(parsedOp, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) +
                         "') != innerTypeOfStatisticalProcessing argument ('" +
-                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerTypeOfStatisticalProcessing) + "')",
+                        tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerTypeOfStatisticalProcessing, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) + "')",
                     Here());
             }
 
@@ -291,20 +294,24 @@ std::vector<tables::TypeOfStatisticalProcessing> resolve_TypeOfStatisticalProces
         MARS2GRIB_LOG_RESOLVE([&]() {
             std::string msg = "`typeOfStatisticalProcessing` resolved from input dictionaries: ";
             msg += "innerTypeOfStatisticalProcessing='" +
-                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerTypeOfStatisticalProcessing) + "'";
+                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerTypeOfStatisticalProcessing, cntx) + "'";
             msg += " size='" + std::to_string(out.size()) + "'";
             msg += " typesOfStatisticalProcessing=[";
             for (std::size_t i = 0; i < out.size(); ++i) {
                 if (i) {
                     msg += ",";
                 }
-                msg += "'" + tables::enum2name_TypeOfStatisticalProcessing_or_throw(out[i]) + "'";
+                msg += "'" + tables::enum2name_TypeOfStatisticalProcessing_or_throw(out[i], cntx) + "'";
             }
             msg += "]";
             return msg;
         }());
 
-        return out;
+        {
+            std::vector<tables::TypeOfStatisticalProcessing> result = out;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

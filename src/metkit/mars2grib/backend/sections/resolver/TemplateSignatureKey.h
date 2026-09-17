@@ -47,6 +47,7 @@
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::detail {
 
@@ -163,7 +164,10 @@ namespace debug {
 /// @param[in]  prefix Line prefix used for indentation
 /// @param[out] os     Output stream
 ///
-inline void debug_print_Key(const TemplateSignatureKey& key, std::string_view prefix, std::ostream& os) {
+template <class Cntx_t>
+inline void debug_print_Key(const TemplateSignatureKey& key, std::string_view prefix, std::ostream& os, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using GeneralRegistry = TemplateSignatureKey::GeneralRegistry;
 
@@ -195,6 +199,7 @@ inline void debug_print_Key(const TemplateSignatureKey& key, std::string_view pr
     }
 
     os << " ]\n";
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
 }
 
 ///
@@ -206,7 +211,10 @@ inline void debug_print_Key(const TemplateSignatureKey& key, std::string_view pr
 ///
 /// @return JSON-style string representation
 ///
-inline std::string debug_convert_Key_to_json(const TemplateSignatureKey& key) {
+template <class Cntx_t>
+inline std::string debug_convert_Key_to_json(const TemplateSignatureKey& key, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using GeneralRegistry = TemplateSignatureKey::GeneralRegistry;
 
@@ -238,7 +246,9 @@ inline std::string debug_convert_Key_to_json(const TemplateSignatureKey& key) {
 
     oss << " ] } }";
 
-    return oss.str();
+    std::string result = oss.str();
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace debug

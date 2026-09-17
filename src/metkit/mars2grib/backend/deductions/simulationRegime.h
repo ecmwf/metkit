@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -71,8 +73,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///         on missing, malformed, or unsupported raw `class` input, with the
 ///         original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-SimulationRegime resolve_SimulationRegime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+SimulationRegime resolve_SimulationRegime_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -80,13 +83,14 @@ SimulationRegime resolve_SimulationRegime_or_throw(const MarsDict_t& mars, const
     (void)opt;
 
     try {
-        const std::string klass       = get_or_throw<std::string>(mars, "class");
+        const std::string klass       = get_or_throw<std::string>(mars, "class", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const SimulationRegime result = klass == "ml" ? SimulationRegime::AIFS : SimulationRegime::IFS;
 
         MARS2GRIB_LOG_RESOLVE([&]() {
             return std::string{"`simulationRegime` resolved from input dictionaries: value='"} +
                    (result == SimulationRegime::AIFS ? "AIFS" : "IFS") + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

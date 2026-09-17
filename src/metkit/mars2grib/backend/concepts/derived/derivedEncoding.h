@@ -49,6 +49,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/derived/derivedEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/channel.h"
@@ -148,8 +149,9 @@ constexpr bool derivedApplicable() {
 /// @see derivedApplicable
 ///
 template <std::size_t Stage, std::size_t Section, DerivedType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -163,17 +165,17 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
             if constexpr (Variant == DerivedType::Default) {
                 if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
                     // Structural validation
-                    validation::check_DerivedProductDefinitionSection_or_throw(opt, out);
+                    validation::check_DerivedProductDefinitionSection_or_throw(opt, out, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Deductions
                     tables::DerivedForecast derivedForecast =
-                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     long numberOfForecastsInEnsemble =
-                        deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
+                        deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
-                    set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
+                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
             }
 
@@ -184,12 +186,12 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
 
                     // Deductions
                     tables::DerivedForecast derivedForecast =
-                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt);
+                        deductions::resolve_DerivedForecast_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     // long numberOfForecastsInEnsemble =
                     //    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
 
                     // Encoding
-                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast));
+                    set_or_throw<long>(out, "derivedForecast", static_cast<long>(derivedForecast), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     // set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
                 }
             }
@@ -198,6 +200,8 @@ void DerivedOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
 
             MARS2GRIB_CONCEPT_RETHROW(derived, "Unable to set `derived` concept...");
         }
+
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
 
         return;
     }

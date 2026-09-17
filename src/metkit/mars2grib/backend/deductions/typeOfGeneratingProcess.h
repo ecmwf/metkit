@@ -47,6 +47,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <optional>
 #include <string>
@@ -92,9 +94,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction does not rely on pre-existing GRIB header state and
 /// does not apply defaults.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_opt(
-    const MarsDict_t& mars, const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt) {
+    const MarsDict_t& mars, const ParDict_t& par, [[maybe_unused]] const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::tables::TypeOfGeneratingProcess;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -105,10 +108,10 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
     try {
 
         // Retrieve mandatory type from MARS dictionary
-        std::string marsTypeVal = get_or_throw<std::string>(mars, "type");
-        // std::string marsStreamVal = get_or_throw<std::string>(mars, "stream");
-        // std::string marsClassVal = get_or_throw<std::string>(mars, "class");
-        // long paramIdVal = get_or_throw<long>(mars, "param");
+        std::string marsTypeVal = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        // std::string marsStreamVal = get_or_throw<std::string>(mars, "stream", cntx);
+        // std::string marsClassVal = get_or_throw<std::string>(mars, "class", cntx);
+        // long paramIdVal = get_or_throw<long>(mars, "param", cntx);
 
         // Deduce the typeOfGeneratingProcess
         if (marsTypeVal == "4i") {
@@ -118,13 +121,17 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "pf" || marsTypeVal == "cf") {
 
@@ -133,17 +140,25 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "fc") {
 
-            return TypeOfGeneratingProcess::EnsembleForecast;
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result = TypeOfGeneratingProcess::EnsembleForecast;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
 
             // Detect ensemble evidence even when MARS `type` is the generic
             // `fc`. Legacy GRIB1 data (and some rewritten streams) may carry
@@ -156,9 +171,9 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             //   - par.typeOfEnsembleForecast present
             //   - mars.number > 0
             const bool hasEnsembleSize =
-                has(par, "numberOfForecastsInEnsemble") && (get_or_throw<long>(par, "numberOfForecastsInEnsemble") > 1);
-            const bool hasEnsembleType   = has(par, "typeOfEnsembleForecast");
-            const bool hasEnsembleNumber = has(mars, "number") && (get_or_throw<long>(mars, "number") > 0);
+                has(par, "numberOfForecastsInEnsemble", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) && (get_or_throw<long>(par, "numberOfForecastsInEnsemble", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) > 1);
+            const bool hasEnsembleType   = has(par, "typeOfEnsembleForecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            const bool hasEnsembleNumber = has(mars, "number", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) && (get_or_throw<long>(mars, "number", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) > 0);
 
             const bool isEnsemble = hasEnsembleSize || hasEnsembleType || hasEnsembleNumber;
 
@@ -168,7 +183,7 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "'";
                 if (isEnsemble) {
                     logMsg += " (type='fc' with ensemble evidence:";
@@ -190,7 +205,11 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "est" || marsTypeVal == "es" || marsTypeVal == "em" || marsTypeVal == "ses") {
 
@@ -204,13 +223,17 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "' (type=" + marsTypeVal + ")";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "eme" || marsTypeVal == "me") {
 
@@ -226,13 +249,17 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "' (type=eme/me)";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "gbf") {
 
@@ -243,13 +270,17 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "' (type=gbf)";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "gwt") {
 
@@ -260,13 +291,17 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "' (type=gwt)";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else if (marsTypeVal == "ssd") {
 
@@ -277,13 +312,17 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfGeneratingProcess` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result);
+                logMsg += tables::enum2name_TypeOfGeneratingProcess_or_throw(result, cntx);
                 logMsg += "' (type=ssd)";
                 return logMsg;
             }());
 
             // Success exit point
-            return {result};
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result{result};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
 
@@ -295,7 +334,11 @@ std::optional<tables::TypeOfGeneratingProcess> resolve_TypeOfGeneratingProcess_o
             }());
 
             // Success exit point
-            return std::nullopt;
+            {
+                std::optional<tables::TypeOfGeneratingProcess> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

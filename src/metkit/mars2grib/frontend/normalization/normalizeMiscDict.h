@@ -23,6 +23,7 @@
 // Project includes
 #include "eckit/value/Value.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend::normalization {
 
@@ -44,24 +45,30 @@ namespace metkit::mars2grib::frontend::normalization {
 ///
 /// @return A const reference to either the original or the sanitized dictionary
 ///
-template <class MiscDict_t, class OptDict_t>
+template <class MiscDict_t, class OptDict_t, class Cntx_t>
 const MiscDict_t& normalize_MiscDict_if_enabled(const MiscDict_t& miscDict, const OptDict_t& optDict,
-                                                const eckit::Value& language, MiscDict_t& scratch) {
+                                                 const eckit::Value& language, MiscDict_t& scratch, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
     // TODO: Implement sanitization trigger logic based on optDict settings
-    if (get_or_throw<bool>(optDict, "normalizeMisc")) {
+    if (get_or_throw<bool>(optDict, "normalizeMisc", utils::profiling::callSite(cntx, Here()))) {
 
         // [Development Stub]
         // Example: logic to prune illegal keys or normalize units
         // scratch = perform_transform(miscDict);
 
-        return scratch;
+        const MiscDict_t& result = scratch;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
     // Default path: zero-copy pass-through
-    return miscDict;
+    const MiscDict_t& result = miscDict;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::frontend::normalization

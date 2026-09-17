@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -62,35 +64,85 @@ enum class DerivedForecast : long {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the enumeration value is invalid.
 ///
-inline std::string enum2name_DerivedForecast_or_throw(DerivedForecast value) {
+template <class Cntx_t>
+inline std::string enum2name_DerivedForecast_or_throw(DerivedForecast value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case DerivedForecast::UnweightedMeanAllMembers:
-            return "unweighted-mean-all-members";
+            {
+                std::string result = "unweighted-mean-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::WeightedMeanAllMembers:
-            return "weighted-mean-all-members";
+            {
+                std::string result = "weighted-mean-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::StdDevClusterMean:
-            return "stddev-cluster-mean";
+            {
+                std::string result = "stddev-cluster-mean";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::StdDevClusterMeanNormalized:
-            return "stddev-cluster-mean-normalized";
+            {
+                std::string result = "stddev-cluster-mean-normalized";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::SpreadAllMembers:
-            return "spread-all-members";
+            {
+                std::string result = "spread-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::LargeAnomalyIndexAllMembers:
-            return "large-anomaly-index-all-members";
+            {
+                std::string result = "large-anomaly-index-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::UnweightedMeanClusterMembers:
-            return "unweighted-mean-cluster-members";
+            {
+                std::string result = "unweighted-mean-cluster-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::InterquartileRange:
-            return "interquartile-range";
+            {
+                std::string result = "interquartile-range";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::MinimumAllMembers:
-            return "minimum-all-members";
+            {
+                std::string result = "minimum-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::MaximumAllMembers:
-            return "maximum-all-members";
+            {
+                std::string result = "maximum-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::VarianceAllMembers:
-            return "variance-all-members";
+            {
+                std::string result = "variance-all-members";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case DerivedForecast::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid DerivedForecast enum value", Here());
     }
@@ -107,34 +159,96 @@ inline std::string enum2name_DerivedForecast_or_throw(DerivedForecast value) {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the name is not recognized.
 ///
-inline DerivedForecast name2enum_DerivedForecast_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline DerivedForecast name2enum_DerivedForecast_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "unweighted-mean-all-members")
-        return DerivedForecast::UnweightedMeanAllMembers;
-    else if (name == "weighted-mean-all-members")
-        return DerivedForecast::WeightedMeanAllMembers;
-    else if (name == "stddev-cluster-mean")
-        return DerivedForecast::StdDevClusterMean;
-    else if (name == "stddev-cluster-mean-normalized")
-        return DerivedForecast::StdDevClusterMeanNormalized;
-    else if (name == "spread-all-members")
-        return DerivedForecast::SpreadAllMembers;
-    else if (name == "large-anomaly-index-all-members")
-        return DerivedForecast::LargeAnomalyIndexAllMembers;
-    else if (name == "unweighted-mean-cluster-members")
-        return DerivedForecast::UnweightedMeanClusterMembers;
-    else if (name == "interquartile-range")
-        return DerivedForecast::InterquartileRange;
-    else if (name == "minimum-all-members")
-        return DerivedForecast::MinimumAllMembers;
-    else if (name == "maximum-all-members")
-        return DerivedForecast::MaximumAllMembers;
-    else if (name == "variance-all-members")
-        return DerivedForecast::VarianceAllMembers;
-    else if (name == "missing")
-        return DerivedForecast::Missing;
+    if (name == "unweighted-mean-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::UnweightedMeanAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "weighted-mean-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::WeightedMeanAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "stddev-cluster-mean") {
+        {
+            DerivedForecast result = DerivedForecast::StdDevClusterMean;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "stddev-cluster-mean-normalized") {
+        {
+            DerivedForecast result = DerivedForecast::StdDevClusterMeanNormalized;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "spread-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::SpreadAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "large-anomaly-index-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::LargeAnomalyIndexAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "unweighted-mean-cluster-members") {
+        {
+            DerivedForecast result = DerivedForecast::UnweightedMeanClusterMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "interquartile-range") {
+        {
+            DerivedForecast result = DerivedForecast::InterquartileRange;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "minimum-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::MinimumAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "maximum-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::MaximumAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "variance-all-members") {
+        {
+            DerivedForecast result = DerivedForecast::VarianceAllMembers;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "missing") {
+        {
+            DerivedForecast result = DerivedForecast::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
     else
         throw Mars2GribTableException("Invalid DerivedForecast name: '" + name + "'", Here());
 }
@@ -150,35 +264,85 @@ inline DerivedForecast name2enum_DerivedForecast_or_throw(const std::string& nam
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the value is not defined in the GRIB table.
 ///
-inline DerivedForecast long2enum_DerivedForecast_or_throw(long value) {
+template <class Cntx_t>
+inline DerivedForecast long2enum_DerivedForecast_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return DerivedForecast::UnweightedMeanAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::UnweightedMeanAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return DerivedForecast::WeightedMeanAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::WeightedMeanAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return DerivedForecast::StdDevClusterMean;
+            {
+                DerivedForecast result = DerivedForecast::StdDevClusterMean;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return DerivedForecast::StdDevClusterMeanNormalized;
+            {
+                DerivedForecast result = DerivedForecast::StdDevClusterMeanNormalized;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return DerivedForecast::SpreadAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::SpreadAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return DerivedForecast::LargeAnomalyIndexAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::LargeAnomalyIndexAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 6:
-            return DerivedForecast::UnweightedMeanClusterMembers;
+            {
+                DerivedForecast result = DerivedForecast::UnweightedMeanClusterMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 7:
-            return DerivedForecast::InterquartileRange;
+            {
+                DerivedForecast result = DerivedForecast::InterquartileRange;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 8:
-            return DerivedForecast::MinimumAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::MinimumAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 9:
-            return DerivedForecast::MaximumAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::MaximumAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 10:
-            return DerivedForecast::VarianceAllMembers;
+            {
+                DerivedForecast result = DerivedForecast::VarianceAllMembers;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return DerivedForecast::Missing;
+            {
+                DerivedForecast result = DerivedForecast::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException(
                 "Invalid DerivedForecast numeric value: actual='" + std::to_string(value) + "', expected={0..10,255}",

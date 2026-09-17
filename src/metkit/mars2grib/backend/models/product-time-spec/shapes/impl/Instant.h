@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
@@ -58,7 +60,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
-inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_Instant_Shape(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsMissingAndAllowed;
     using metkit::mars2grib::backend::models::product_time_spec::shape::detail::timespanIsNone;
     using metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing;
@@ -71,17 +75,21 @@ inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
         const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
         const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
         const bool hasAcceptedTimespanRepresentation =
-            timespanIsNone(input) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct);
+            timespanIsNone(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const bool hasNoStattypeBlocks = input.stattype.empty();
         const bool hasMissingStatisticalProcessing =
             input.innerMostTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
 
-        return isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
+        {
+            bool result = isNotSeasonal && hasAcceptedTimespanRepresentation && hasNoStattypeBlocks &&
                hasMissingStatisticalProcessing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_Instant_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_Instant_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -98,9 +106,11 @@ inline bool match_Instant_Shape(const ProductTimeSpecInput& input) {
  * @return Constructed stage-1 outer time range for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecOuterTimeRange build_Instant_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -117,18 +127,22 @@ inline ProductTimeSpecOuterTimeRange build_Instant_ShapeOuterTimeRange(
 
         if (hasIncrement && !redundantIncrementIsAllowed) {
             throw Mars2GribModelException(
-                "Instant timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(),
+                "Instant timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         const auto availability = ProductTimeSpecOuterTimeRangeAvailability::Available;
-        const auto timeRange    = zeroDuration();
+        const auto timeRange    = zeroDuration(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        return ProductTimeSpecOuterTimeRange{availability, timeRange};
+        {
+            ProductTimeSpecOuterTimeRange result = ProductTimeSpecOuterTimeRange{availability, timeRange};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_Instant_ShapeOuterTimeRange`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_Instant_ShapeOuterTimeRange`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -149,12 +163,14 @@ inline ProductTimeSpecOuterTimeRange build_Instant_ShapeOuterTimeRange(
  * @return Constructed ProductTimeSpec shape for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecShape build_Instant_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
     using metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing;
@@ -171,21 +187,25 @@ inline ProductTimeSpecShape build_Instant_ShapeWindows(
         const TypeOfStatisticalProcessing typeOfStatisticalProcessing = TypeOfStatisticalProcessing::Missing;
 
         // Instant products therefore expose no increment-kind semantics.
-        const auto typeOfTimeIncrement = missingTypeOfTimeIncrement();
+        const auto typeOfTimeIncrement = missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // The canonical instant window has zero temporal extent.
-        const auto timeRange = zeroDuration();
+        const auto timeRange = zeroDuration(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Instant products do not encode a time increment value.
-        const auto timeIncrement = missingIncrement();
+        const auto timeIncrement = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, timeRange, timeIncrement};
 
-        return ProductTimeSpecShape{{window}};
+        {
+            ProductTimeSpecShape result = ProductTimeSpecShape{{window}};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_Instant_ShapeWindows`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_Instant_ShapeWindows`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -209,13 +229,15 @@ inline ProductTimeSpecShape build_Instant_ShapeWindows(
  * @throws Mars2GribModelException if the resolved shape is inconsistent with
  *         the input, classification, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_Instant_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
-    const ProductTimeSpecShape& shape) {
+    const ProductTimeSpecShape& shape, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecShapeKind;
@@ -232,7 +254,7 @@ inline bool check_Instant_Shape(
         (void)domain;
 
         if (classification.shapeType != ProductTimeSpecShapeKind::Instant) {
-            throw Mars2GribModelException("Shape classification mismatch: expected Instant", input.to_json(), Here());
+            throw Mars2GribModelException("Shape classification mismatch: expected Instant", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool hasSeasonalClassStream =
@@ -241,66 +263,70 @@ inline bool check_Instant_Shape(
         const bool hasSeasonalLeadSemantics = !input.step.has_value() && input.marsFcmonth.has_value();
         const bool isNotSeasonal            = !(hasSeasonalClassStream && hasSeasonalLeadSemantics);
         const bool hasAcceptedTimespanRepresentation =
-            timespanIsNone(input) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct);
+            timespanIsNone(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) || timespanIsMissingAndAllowed(input, input.allowMissingTimespanForInstantProduct, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const bool hasNoStattypeBlocks = input.stattype.empty();
         const bool hasMissingStatisticalProcessing =
             input.innerMostTypeOfStatisticalProcessing == TypeOfStatisticalProcessing::Missing;
 
         if (!isNotSeasonal || !hasAcceptedTimespanRepresentation || !hasNoStattypeBlocks ||
             !hasMissingStatisticalProcessing) {
-            throw Mars2GribModelException("Instant input semantics are not satisfied", input.to_json(), Here());
+            throw Mars2GribModelException("Instant input semantics are not satisfied", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (outerTimeRange.availability != ProductTimeSpecOuterTimeRangeAvailability::Available) {
-            throw Mars2GribModelException("Instant shape requires an available outer time range", input.to_json(),
+            throw Mars2GribModelException("Instant shape requires an available outer time range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (!outerTimeRange.timeRange.has_value()) {
-            throw Mars2GribModelException("Instant shape requires a present outer time range value", input.to_json(),
+            throw Mars2GribModelException("Instant shape requires a present outer time range value", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
-        if (!compareTimeDuration(*outerTimeRange.timeRange, zeroDuration())) {
+        if (!compareTimeDuration(*outerTimeRange.timeRange, zeroDuration(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("Instant outer time range must be the canonical zero duration",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (shape.values.size() != 1) {
-            throw Mars2GribModelException("Instant shape must contain exactly one window", input.to_json(), Here());
+            throw Mars2GribModelException("Instant shape must contain exactly one window", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const ProductTimeSpecWindow& window = shape.values.front();
 
         if (window.typeOfStatisticalProcessing != TypeOfStatisticalProcessing::Missing) {
-            throw Mars2GribModelException("Instant window must use missing statistical processing", input.to_json(),
+            throw Mars2GribModelException("Instant window must use missing statistical processing", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (window.typeOfTimeIncrement != TypeOfTimeIntervals::Missing) {
-            throw Mars2GribModelException("Instant window must use missing typeOfTimeIncrement", input.to_json(),
+            throw Mars2GribModelException("Instant window must use missing typeOfTimeIncrement", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
-        if (!compareTimeDuration(window.timeRange, zeroDuration())) {
+        if (!compareTimeDuration(window.timeRange, zeroDuration(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("Instant window timeRange must be the canonical zero duration",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(window.timeIncrement, missingIncrement())) {
-            throw Mars2GribModelException("Instant window timeIncrement must be missing", input.to_json(), Here());
+        if (!compareTimeDuration(window.timeIncrement, missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("Instant window timeIncrement must be missing", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(window.timeRange, *outerTimeRange.timeRange)) {
-            throw Mars2GribModelException("Instant window timeRange must match the outer time range", input.to_json(),
+        if (!compareTimeDuration(window.timeRange, *outerTimeRange.timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("Instant window timeRange must match the outer time range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_Instant_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_Instant_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

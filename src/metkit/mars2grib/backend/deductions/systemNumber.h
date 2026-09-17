@@ -45,6 +45,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -83,8 +85,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is deterministic and does not rely on any
 /// pre-existing GRIB header state.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_SystemNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_SystemNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -92,7 +95,7 @@ long resolve_SystemNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
     try {
 
         // Retrieve mandatory systemNumber from MARS dictionary
-        auto systemNumber = get_or_throw<long>(mars, "system");
+        auto systemNumber = get_or_throw<long>(mars, "system", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -103,7 +106,11 @@ long resolve_SystemNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
         }());
 
         // Success exit point
-        return systemNumber;
+        {
+            long result = systemNumber;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

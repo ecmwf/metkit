@@ -54,8 +54,6 @@ public:
 
 private:
 
-    bool failed(const std::string& json, const std::string& reason);
-
     ConsumerOptions options_;
     std::ofstream failedTests_;
 };

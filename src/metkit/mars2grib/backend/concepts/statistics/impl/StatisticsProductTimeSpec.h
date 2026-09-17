@@ -39,6 +39,7 @@
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::concepts_::impl {
 
@@ -101,26 +102,32 @@ struct StatisticsProductTimeSpec {
 ///   outermost -> innermost order.
 ///
 /// @param[in] spec Final immutable backend-model `ProductTimeSpec`.
+/// @param[in,out] cntx Profiling context.
 /// @return Fully populated `StatisticsProductTimeSpec`.
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException on
 ///         instant input, invalid forecast-time arithmetic, or any unexpected
 ///         failure, with the original cause preserved through nested
 ///         exceptions.
 ///
+template <class Cntx_t>
 inline StatisticsProductTimeSpec build_StatisticsProductTimeSpec_or_throw(
-    const models::product_time_spec::ProductTimeSpec& spec) {
+    const models::product_time_spec::ProductTimeSpec& spec, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecShapeKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        if (spec.shapeType() == ProductTimeSpecShapeKind::Instant) {
+        if (spec.shapeType(metkit::mars2grib::utils::profiling::callSite(cntx, Here())) ==
+            ProductTimeSpecShapeKind::Instant) {
             throw Mars2GribGenericException(
                 "Statistics backend cannot build a `StatisticsProductTimeSpec` from an Instant `ProductTimeSpec`",
                 Here());
         }
 
         const long forecastTimeInSeconds = static_cast<long>(
-            static_cast<eckit::Second>(spec.domain().domainStartDateTime - spec.anchor().referenceDateTime));
+            static_cast<eckit::Second>(
+                spec.domain(metkit::mars2grib::utils::profiling::callSite(cntx, Here())).domainStartDateTime -
+                spec.anchor(metkit::mars2grib::utils::profiling::callSite(cntx, Here())).referenceDateTime));
 
         if (forecastTimeInSeconds < 0) {
             throw Mars2GribGenericException("`StatisticsProductTimeSpec` forecastTime must be non-negative", Here());
@@ -133,9 +140,10 @@ inline StatisticsProductTimeSpec build_StatisticsProductTimeSpec_or_throw(
 
         StatisticsProductTimeSpec out;
         out.forecastTime             = deductions::TimeDuration{forecastTimeInSeconds / 3600, tables::TimeUnit::Hour};
-        out.endOfOverallTimeInterval = spec.domain().domainEndDateTime;
+        out.endOfOverallTimeInterval =
+            spec.domain(metkit::mars2grib::utils::profiling::callSite(cntx, Here())).domainEndDateTime;
 
-        const auto& windows    = spec.windows().values;
+        const auto& windows = spec.windows(metkit::mars2grib::utils::profiling::callSite(cntx, Here())).values;
         out.numberOfTimeRanges = static_cast<long>(windows.size());
 
         out.typeOfStatisticalProcessing.reserve(windows.size());
@@ -154,6 +162,7 @@ inline StatisticsProductTimeSpec build_StatisticsProductTimeSpec_or_throw(
             out.lengthOfTimeIncrement.push_back(window.timeIncrement.length);
         }
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return out;
     }
     catch (...) {

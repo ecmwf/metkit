@@ -50,6 +50,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/mars/marsEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/class.h"
@@ -158,8 +159,9 @@ constexpr bool marsApplicable() {
 /// @see marsApplicable
 ///
 template <std::size_t Stage, std::size_t Section, MarsType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void MarsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void MarsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
@@ -173,26 +175,27 @@ void MarsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
             MARS2GRIB_LOG_CONCEPT(mars);
 
             // Preconditions/contracts
-            validation::check_LocalUseSection_or_throw(opt, out);
+            validation::check_LocalUseSection_or_throw(opt, out, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
 
             // Deductions
-            std::string marsClassVal  = deductions::resolve_Class_or_throw(mars, par, opt);
-            std::string marsTypeVal   = deductions::resolve_Type_or_throw(mars, par, opt);
-            std::string marsStreamVal = deductions::resolve_Stream_or_throw(mars, par, opt);
-            std::string marsExpverVal = deductions::resolve_Expver_or_throw(mars, par, opt);
+            std::string marsClassVal  = deductions::resolve_Class_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            std::string marsTypeVal   = deductions::resolve_Type_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            std::string marsStreamVal = deductions::resolve_Stream_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            std::string marsExpverVal = deductions::resolve_Expver_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<std::string>(out, "marsClass", marsClassVal);
-            set_or_throw<std::string>(out, "marsType", marsTypeVal);
-            set_or_throw<std::string>(out, "marsStream", marsStreamVal);
-            set_or_throw<std::string>(out, "expver", marsExpverVal);
+            set_or_throw<std::string>(out, "marsClass", marsClassVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw<std::string>(out, "marsType", marsTypeVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw<std::string>(out, "marsStream", marsStreamVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw<std::string>(out, "expver", marsExpverVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(mars, "Unable to set `mars` concept...");
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

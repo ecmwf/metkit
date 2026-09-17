@@ -54,6 +54,7 @@
 #include "metkit/mars2grib/backend/sections/resolver/ResolvedTemplateData.h"
 #include "metkit/mars2grib/backend/sections/resolver/Select.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
@@ -105,7 +106,13 @@ public:
     ///
     /// @brief Return the total number of valid variant combinations.
     ///
-    std::size_t numberOfCombinations() const noexcept { return nCombinations_; }
+    template <class Cntx_t>
+    std::size_t numberOfCombinations(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        std::size_t result = nCombinations_;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 
     ///
     /// @brief Materialize a resolved recipe entry.
@@ -124,7 +131,10 @@ public:
     /// @throws std::out_of_range
     /// If @p i is greater than or equal to the number of combinations
     ///
-    ResolvedTemplateData getEntry(std::size_t i) const {
+    template <class Cntx_t>
+    ResolvedTemplateData getEntry(std::size_t i, Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         if (i >= nCombinations_) {
             throw std::out_of_range("Recipe::getEntry index out of range");
@@ -147,6 +157,7 @@ public:
             entry.variantIndices[d] = variants_[d][idx];
         }
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return entry;
     }
 
@@ -156,7 +167,10 @@ public:
     /// @param[in]  prefix Line prefix used for indentation
     /// @param[out] os     Output stream
     ///
-    void debug_print(const std::string& prefix, std::ostream& os) const {
+    template <class Cntx_t>
+    void debug_print(const std::string& prefix, std::ostream& os, Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -189,6 +203,7 @@ public:
             }
             os << " ]" << std::endl;
         }
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
     }
 
     ///
@@ -198,7 +213,10 @@ public:
     ///
     /// @return JSON-style string representation
     ///
-    std::string debug_to_json() const {
+    template <class Cntx_t>
+    std::string debug_to_json(Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -236,7 +254,9 @@ public:
         }
         oss << "]}}";
 
-        return oss.str();
+        std::string result = oss.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
 

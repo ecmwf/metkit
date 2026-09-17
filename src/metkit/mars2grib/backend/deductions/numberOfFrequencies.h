@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -53,8 +55,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribDeductionException
 /// If an unexpected error occurs while accessing the parameter dictionary.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -62,8 +65,8 @@ long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_
 
     try {
 
-        if (has(par, "numberOfFrequencies")) {
-            long numberOfFrequencies = get_or_throw<long>(par, "numberOfFrequencies");
+        if (has(par, "numberOfFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            long numberOfFrequencies = get_or_throw<long>(par, "numberOfFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             MARS2GRIB_LOG_OVERRIDE([&]() {
                 std::string logMsg = "`numberOfFrequencies` resolved from input dictionaries: value=";
@@ -71,7 +74,11 @@ long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_
                 return logMsg;
             }());
 
-            return numberOfFrequencies;
+            {
+                long result = numberOfFrequencies;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
             long numberOfFrequencies = 54;
@@ -82,7 +89,11 @@ long resolve_NumberOfFrequencies_or_throw(const MarsDict_t& mars, const ParDict_
                 return logMsg;
             }());
 
-            return numberOfFrequencies;
+            {
+                long result = numberOfFrequencies;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

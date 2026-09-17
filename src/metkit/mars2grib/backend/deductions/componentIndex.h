@@ -51,6 +51,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "eckit/log/Log.h"
@@ -113,8 +115,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// provided by the MARS dictionary and does not attempt any semantic
 /// interpretation or consistency checking.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -126,7 +129,7 @@ long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         // indicates a serious upstream contract violation (wrong recipe,
         // matcher bypass, etc.) and must be surfaced as a hard failure
         // with an unambiguous diagnostic.
-        const std::string typeVal = get_or_throw<std::string>(mars, "type");
+        const std::string typeVal = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         if (typeVal != "eme" && typeVal != "me") {
             throw Mars2GribDeductionException(
                 std::string("`componentIndex` requested for a non-`eme` or non-`me` request: "
@@ -148,7 +151,7 @@ long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         }
 
         // Retrieve mandatory MARS number (model-error realization id)
-        long componentIndex = get_or_throw<long>(mars, "number");
+        long componentIndex = get_or_throw<long>(mars, "number", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -158,7 +161,11 @@ long resolve_ComponentIndex_or_throw(const MarsDict_t& mars, const ParDict_t& pa
         }());
 
         // Success exit point
-        return componentIndex;
+        {
+            long result = componentIndex;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

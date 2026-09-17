@@ -16,6 +16,7 @@
 // Exceptions
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 #include "metkit/mars2grib/utils/type_traits_name.h"
 
 
@@ -30,10 +31,19 @@ struct dependent_false : std::false_type {};
 template <typename Dict>
 struct DictToJsonTraits {
 
-    static std::string to_json(const Dict&) { return std::string{"[to_json not supported for this dictionary type]"}; }
+    template <class Cntx_t>
+    static std::string to_json(const Dict&, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
+        std::string result{"[to_json not supported for this dictionary type]"};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 
-    static void dump_or_ignore(const Dict&, const std::string&) {
-        LOG_DEBUG_LIB(LibMetkit) << to_json(std::declval<Dict>());
+    template <class Cntx_t>
+    static void dump_or_ignore(const Dict& dict, const std::string&, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
+        LOG_DEBUG_LIB(LibMetkit) << to_json(dict, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
     }
 };
 
@@ -41,11 +51,13 @@ template <typename Dict>
 struct DictTraits {
     static constexpr bool support_checks = false;
 
-    static std::unique_ptr<Dict> make_from_sample_or_throw(std::string_view) {
+    template <class Cntx_t>
+    static std::unique_ptr<Dict> make_from_sample_or_throw(std::string_view, Cntx_t&) {
         static_assert(dependent_false<Dict>::value, "DictTraits::make_from_sample_or_throw not specialized");
     }
 
-    static std::unique_ptr<Dict> clone_or_throw(const Dict&) {
+    template <class Cntx_t>
+    static std::unique_ptr<Dict> clone_or_throw(const Dict&, Cntx_t&) {
         static_assert(dependent_false<Dict>::value, "DictTraits::clone_or_throw not specialized");
     }
 };
@@ -53,7 +65,8 @@ struct DictTraits {
 template <class Dict>
 struct DictHas {
 
-    static bool has(const Dict&, std::string_view) noexcept(false) {
+    template <class Cntx_t>
+    static bool has(const Dict&, std::string_view, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictHas not specialized for this Dict");
         mars2gribUnreachable();
     }
@@ -63,12 +76,14 @@ struct DictHas {
 template <class Dict>
 struct DictMissing {
 
-    static bool isMissing(const Dict&, std::string_view) noexcept(false) {
+    template <class Cntx_t>
+    static bool isMissing(const Dict&, std::string_view, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictMissing not specialized for this Dict");
         mars2gribUnreachable();
     }
 
-    static void setMissing(Dict&, std::string_view) noexcept(false) {
+    template <class Cntx_t>
+    static void setMissing(Dict&, std::string_view, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictMissing not specialized for this Dict");
         mars2gribUnreachable();
     }
@@ -77,7 +92,8 @@ struct DictMissing {
 template <class Dict, class T>
 struct DictGetOpt {
 
-    static std::optional<T> get_opt(const Dict&, std::string_view) noexcept(false) {
+    template <class Cntx_t>
+    static std::optional<T> get_opt(const Dict&, std::string_view, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictGetOpt not specialized for this Dict and type");
         mars2gribUnreachable();
     }
@@ -86,7 +102,8 @@ struct DictGetOpt {
 template <class Dict, class T>
 struct DictGetOrThrow {
 
-    static T get_or_throw(const Dict&, std::string_view) noexcept(false) {
+    template <class Cntx_t>
+    static T get_or_throw(const Dict&, std::string_view, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictGetOrThrow not specialized for this Dict and type");
         mars2gribUnreachable();
     }
@@ -94,7 +111,8 @@ struct DictGetOrThrow {
 
 template <class Dict, class T>
 struct DictSetOrIgnore {
-    static void set_or_ignore(Dict&, std::string_view, const T&) noexcept(false) {
+    template <class Cntx_t>
+    static void set_or_ignore(Dict&, std::string_view, const T&, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictSetOrIgnore not specialized for this Dict and type");
         mars2gribUnreachable();
     }
@@ -103,7 +121,8 @@ struct DictSetOrIgnore {
 
 template <class Dict, class T>
 struct DictSetOrThrow {
-    static void set_or_throw(Dict&, std::string_view, const T&) noexcept(false) {
+    template <class Cntx_t>
+    static void set_or_throw(Dict&, std::string_view, const T&, Cntx_t&) noexcept(false) {
         static_assert(dependent_false<Dict>::value, "DictSetOrThrow not specialized for this Dict and type");
         mars2gribUnreachable();
     }
@@ -113,9 +132,12 @@ struct DictSetOrThrow {
 // ============================================================
 //  dict_to_json
 // ============================================================
-template <typename Dict>
-std::string dict_to_json(const Dict& d) {
-    return DictToJsonTraits<Dict>::to_json(d);
+template <typename Dict, class Cntx_t>
+std::string dict_to_json(const Dict& d, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    std::string result = DictToJsonTraits<Dict>::to_json(d, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 // ============================================================
@@ -125,19 +147,28 @@ std::string dict_to_json(const Dict& d) {
 template <typename Dict>
 inline constexpr bool dict_supports_checks_v = DictTraits<Dict>::support_checks;
 
-template <typename Dict>
-std::unique_ptr<Dict> make_from_sample_or_throw(std::string_view name) {
-    return DictTraits<Dict>::make_from_sample_or_throw(name);
+template <typename Dict, class Cntx_t>
+std::unique_ptr<Dict> make_from_sample_or_throw(std::string_view name, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    std::unique_ptr<Dict> result =
+        DictTraits<Dict>::make_from_sample_or_throw(name, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-template <typename Dict>
-std::unique_ptr<Dict> clone_or_throw(const Dict& d) {
-    return DictTraits<Dict>::clone_or_throw(d);
+template <typename Dict, class Cntx_t>
+std::unique_ptr<Dict> clone_or_throw(const Dict& d, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    std::unique_ptr<Dict> result = DictTraits<Dict>::clone_or_throw(d, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-template <typename Dict>
-void dump_or_ignore(const Dict& d, const std::string& f) {
-    DictToJsonTraits<Dict>::dump_or_ignore(d, f);
+template <typename Dict, class Cntx_t>
+void dump_or_ignore(const Dict& d, const std::string& f, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    DictToJsonTraits<Dict>::dump_or_ignore(d, f, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
 }
 
 // ============================================================
@@ -145,37 +176,50 @@ void dump_or_ignore(const Dict& d, const std::string& f) {
 // ============================================================
 
 // has<Dict>(dict,key)
-template <class Dict>
-inline bool has(const Dict& dict, std::string_view key) {
-    return DictHas<Dict>::has(dict, key);
+template <class Dict, class Cntx_t>
+inline bool has(const Dict& dict, std::string_view key, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    const bool result = DictHas<Dict>::has(dict, key, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 // has<T>(dict,key)
-template <class T, class Dict>
-inline bool has(const Dict& dict, std::string_view key) {
-    return DictGetOpt<Dict, T>::get_opt(dict, key).has_value();
+template <class T, class Dict, class Cntx_t>
+inline bool has(const Dict& dict, std::string_view key, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    const bool result = DictGetOpt<Dict, T>::get_opt(dict, key, profiling::callSite(cntx, Here())).has_value();
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 // isMissing<Dict>(dict,key)
-template <class Dict>
-inline bool isMissing(const Dict& dict, std::string_view key) {
-    return DictMissing<Dict>::isMissing(dict, key);
+template <class Dict, class Cntx_t>
+inline bool isMissing(const Dict& dict, std::string_view key, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    const bool result = DictMissing<Dict>::isMissing(dict, key, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 // setMissing<Dict>(dict,key)
-template <class Dict>
-inline void setMissing_or_throw(Dict& dict, std::string_view key) {
-    DictMissing<Dict>::setMissing(dict, key);
-    return;
+template <class Dict, class Cntx_t>
+inline void setMissing_or_throw(Dict& dict, std::string_view key, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    DictMissing<Dict>::setMissing(dict, key, profiling::callSite(cntx, Here()));
+    profiling::profileExitFunction(cntx, Here());
 }
 
 // check<T>(dict,key,cond) -> bool
-template <class T, class Dict, class Cond>
-inline bool check(const Dict& dict, std::string_view key, Cond&& condition) {
-    if (auto v = DictGetOpt<Dict, T>::get_opt(dict, key); v.has_value()) {
-        return std::forward<Cond>(condition)(*v);
+template <class T, class Dict, class Cond, class Cntx_t>
+inline bool check(const Dict& dict, std::string_view key, Cond&& condition, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    bool result = false;
+    if (auto v = DictGetOpt<Dict, T>::get_opt(dict, key, profiling::callSite(cntx, Here())); v.has_value()) {
+        result = std::forward<Cond>(condition)(*v);
     }
-    return false;
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 
@@ -184,10 +228,13 @@ inline bool check(const Dict& dict, std::string_view key, Cond&& condition) {
 // ============================================================
 
 // get_or_throw<T>(dict,key) -> T
-template <class T, class Dict>
-inline T get_or_throw(const Dict& dict, std::string_view key) {
+template <class T, class Dict, class Cntx_t>
+inline T get_or_throw(const Dict& dict, std::string_view key, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     try {
-        return DictGetOrThrow<Dict, T>::get_or_throw(dict, key);
+        T result = DictGetOrThrow<Dict, T>::get_or_throw(dict, key, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
@@ -200,13 +247,18 @@ inline T get_or_throw(const Dict& dict, std::string_view key) {
 }
 
 // get<T>(dict,key) -> std::optional<T>
-template <class T, class Dict>
-inline std::optional<T> get_opt(const Dict& dict, std::string_view key) {
+template <class T, class Dict, class Cntx_t>
+inline std::optional<T> get_opt(const Dict& dict, std::string_view key, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     try {
-        return DictGetOpt<Dict, T>::get_opt(dict, key);
+        std::optional<T> result = DictGetOpt<Dict, T>::get_opt(dict, key, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
-        return std::nullopt;
+        std::optional<T> result = std::nullopt;
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     mars2gribUnreachable();
 }
@@ -217,10 +269,12 @@ inline std::optional<T> get_opt(const Dict& dict, std::string_view key) {
 // ============================================================
 
 // set<T>(dict,key,value)
-template <class T, class Dict>
-inline void set_or_throw(Dict& dict, std::string_view key, const T& value) {
+template <class T, class Dict, class Cntx_t>
+inline void set_or_throw(Dict& dict, std::string_view key, const T& value, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     try {
-        DictSetOrThrow<Dict, T>::set_or_throw(dict, key, value);
+        DictSetOrThrow<Dict, T>::set_or_throw(dict, key, value, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {
@@ -233,10 +287,12 @@ inline void set_or_throw(Dict& dict, std::string_view key, const T& value) {
     mars2gribUnreachable();
 }
 
-template <class T, class Dict>
-inline void set_or_ignore(Dict& dict, std::string_view key, const T& value) {
+template <class T, class Dict, class Cntx_t>
+inline void set_or_ignore(Dict& dict, std::string_view key, const T& value, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     try {
-        DictSetOrIgnore<Dict, T>::set_or_ignore(dict, key, value);
+        DictSetOrIgnore<Dict, T>::set_or_ignore(dict, key, value, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {

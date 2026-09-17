@@ -34,6 +34,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -57,50 +58,71 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t ensembleMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     // Skip model-error products: in that case "number" identifies the
     // model-error realization, not an ensemble member.
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
-        const auto stream = get_opt<std::string>(mars, "stream");
-        const auto type   = get_opt<std::string>(mars, "type");
+        const auto stream = get_opt<std::string>(mars, "stream", utils::profiling::callSite(cntx, Here()));
+        const auto type   = get_opt<std::string>(mars, "type", utils::profiling::callSite(cntx, Here()));
 
         // NOTE: oper/fc was previously enfo/cf, number is implied to be 0 here, as it is a control forecast.
         if (stream && *stream == "oper" && type && *type == "fc") {
-            return static_cast<std::size_t>(EnsembleType::Individual);
+            const std::size_t result = static_cast<std::size_t>(EnsembleType::Individual);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        long param = get_or_throw<long>(mars, "param");
+        long param = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
 
-        if (has(mars, "number") &&
+        if (has(mars, "number", utils::profiling::callSite(cntx, Here())) &&
             !(type && (*type == "me" || *type == "eme" || *type == "efi" || *type == "efic" || *type == "sot"))) {
-            return static_cast<std::size_t>(EnsembleType::Individual);
+            const std::size_t result = static_cast<std::size_t>(EnsembleType::Individual);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         else if (type && (*type == "ep")) {
             if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
                          131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
                          131100)) {  // }, 133093, 133094, 133095, 133096, 133097, 133098)) {
-                return static_cast<std::size_t>(EnsembleType::ProbabilityLargeEnsemble);
+                const std::size_t result = static_cast<std::size_t>(EnsembleType::ProbabilityLargeEnsemble);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
             else {
-                return compile_time_registry_engine::MISSING;
+                const std::size_t result = compile_time_registry_engine::MISSING;
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
         }
         else {
-            return compile_time_registry_engine::MISSING;
+            const std::size_t result = compile_time_registry_engine::MISSING;
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `ensemble` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t ensembleMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = ensembleMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

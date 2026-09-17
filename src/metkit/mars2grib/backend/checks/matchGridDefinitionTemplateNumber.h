@@ -19,6 +19,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::validation {
 
@@ -61,9 +62,11 @@ namespace metkit::mars2grib::backend::validation {
 /// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
 /// - The function returns normally on success and does not produce any output.
 ///
-template <class OptDict_t, class OutDict_t>
+template <class OptDict_t, class OutDict_t, class Cntx_t>
 void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,
-                                                 const std::vector<long>& expectedGridDefinitionTemplateNumber) {
+                                                 const std::vector<long>& expectedGridDefinitionTemplateNumber,
+                                                 Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::joinNumbers;
@@ -72,10 +75,10 @@ void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const Out
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (get_or_throw<bool>(opt, "applyChecks")) {
+            if (get_or_throw<bool>(opt, "applyChecks", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
                 // Get the gridDefinitionTemplateNumber
-                long actualGridDefinitionTemplateNumber = get_or_throw<long>(out, "gridDefinitionTemplateNumber");
+                long actualGridDefinitionTemplateNumber = get_or_throw<long>(out, "gridDefinitionTemplateNumber", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 // Compare against expected values
                 const bool match =
@@ -96,6 +99,7 @@ void match_GridDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const Out
         }
 
         // Exit on success
+        profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {

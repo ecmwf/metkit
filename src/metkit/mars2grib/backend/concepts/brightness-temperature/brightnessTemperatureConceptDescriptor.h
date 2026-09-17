@@ -107,11 +107,11 @@ struct BrightnessTemperatureConcept : RegisterEntryDescriptor<BrightnessTemperat
     ///
     /// @return Function pointer implementing the phase, or `nullptr`
     template <std::size_t Capability, std::size_t Stage, std::size_t Sec, BrightnessTemperatureType Variant,
-              class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
+              class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> phaseCallbacks() {
         if constexpr (Capability == 0) {
             if constexpr (brightnessTemperatureApplicable<Stage, Sec, Variant>()) {
-                return &BrightnessTemperatureOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+                return &BrightnessTemperatureOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
             }
             else {
                 return nullptr;
@@ -132,8 +132,8 @@ struct BrightnessTemperatureConcept : RegisterEntryDescriptor<BrightnessTemperat
     ///
     /// @return Always `nullptr`
     template <std::size_t Capability, BrightnessTemperatureType Variant, class MarsDict_t, class ParDict_t,
-              class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
+              class OptDict_t, class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> variantCallbacks() {
         return nullptr;
     }
 
@@ -147,10 +147,10 @@ struct BrightnessTemperatureConcept : RegisterEntryDescriptor<BrightnessTemperat
     /// @tparam OptDict_t Type of options dictionary
     ///
     /// @return Function pointer to the matcher, or `nullptr`
-    template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-    static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
+    template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+    static constexpr Fm<MarsDict_t, OptDict_t, Cntx_t> entryCallbacks() {
         if constexpr (Capability == 0) {
-            return &brightnessTemperatureMatcher<MarsDict_t, OptDict_t>;
+            return &brightnessTemperatureMatcher<MarsDict_t, OptDict_t, Cntx_t>;
         }
         else {
             return nullptr;

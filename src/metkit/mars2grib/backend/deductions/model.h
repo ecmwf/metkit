@@ -50,6 +50,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -104,8 +106,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction assumes that the model identifier is explicitly
 /// provided by MARS and does not attempt any inference or defaulting.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::string resolve_Model_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::string resolve_Model_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -113,7 +116,7 @@ std::string resolve_Model_or_throw(const MarsDict_t& mars, const ParDict_t& par,
     try {
 
         // Retrieve mandatory MARS model
-        std::string marsModelVal = get_or_throw<std::string>(mars, "model");
+        std::string marsModelVal = get_or_throw<std::string>(mars, "model", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -122,7 +125,11 @@ std::string resolve_Model_or_throw(const MarsDict_t& mars, const ParDict_t& par,
         }());
 
         // Success exit point
-        return marsModelVal;
+        {
+            std::string result = marsModelVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

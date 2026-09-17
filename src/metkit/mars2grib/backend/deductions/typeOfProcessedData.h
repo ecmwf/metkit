@@ -46,6 +46,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -96,9 +98,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// - dictionary access fails
 /// - any unexpected error occurs during deduction
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                                 const OptDict_t& opt) {
+                                                                 const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -107,31 +110,31 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
     try {
 
         // Retrieve mandatory class from MARS dictionary
-        std::string marsClass = get_or_throw<std::string>(mars, "class");
+        std::string marsClass = get_or_throw<std::string>(mars, "class", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Retrieve mandatory type from MARS dictionary
-        std::string marsType = get_or_throw<std::string>(mars, "type");
+        std::string marsType = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Retrieve mandatory stream from MARS dictionary
-        std::string marsStream = get_or_throw<std::string>(mars, "stream");
+        std::string marsStream = get_or_throw<std::string>(mars, "stream", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Return value
         tables::TypeOfProcessedData result = tables::TypeOfProcessedData::Missing;
 
-        if (has(par, "typeOfProcessedData")) {
+        if (has(par, "typeOfProcessedData", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
             // Retrieve mandatory override from parameter dictionary
-            if (has<long>(par, "typeOfProcessedData")) {
-                long typeOfProcessedDataVal = get_or_throw<long>(par, "typeOfProcessedData");
+            if (has<long>(par, "typeOfProcessedData", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+                long typeOfProcessedDataVal = get_or_throw<long>(par, "typeOfProcessedData", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 // Convert long to enum (validate)
-                result = tables::long2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal);
+                result = tables::long2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             }
-            else if (has<std::string>(par, "typeOfProcessedData")) {
-                std::string typeOfProcessedDataVal = get_or_throw<std::string>(par, "typeOfProcessedData");
+            else if (has<std::string>(par, "typeOfProcessedData", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+                std::string typeOfProcessedDataVal = get_or_throw<std::string>(par, "typeOfProcessedData", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 // Convert string to enum (validate)
-                result = tables::name2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal);
+                result = tables::name2enum_TypeOfProcessedData_or_throw(typeOfProcessedDataVal, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             }
             else {
                 throw Mars2GribDeductionException(
@@ -141,7 +144,7 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
                 std::string logMsg = "`typeOfProcessedData` overridden from parameter dictionary: value='";
-                logMsg += enum2name_TypeOfProcessedData_or_throw(result);
+                logMsg += enum2name_TypeOfProcessedData_or_throw(result, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
@@ -176,13 +179,14 @@ tables::TypeOfProcessedData resolve_TypeOfProcessedData_or_throw(const MarsDict_
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfProcessedData` resolved from input dictionaries: value='";
-                logMsg += enum2name_TypeOfProcessedData_or_throw(result);
+                logMsg += enum2name_TypeOfProcessedData_or_throw(result, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
         }
 
         // Success exit point
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

@@ -51,6 +51,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "eckit/log/Log.h"
@@ -111,8 +113,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// key in the parameter dictionary is considered a contract violation
 /// by the upstream tool.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_NumberOfComponents_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_NumberOfComponents_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -120,7 +123,7 @@ long resolve_NumberOfComponents_or_throw(const MarsDict_t& mars, const ParDict_t
     try {
 
         // Retrieve mandatory parameter-dictionary numberOfComponents
-        long numberOfComponents = get_or_throw<long>(par, "numberOfComponents");
+        long numberOfComponents = get_or_throw<long>(par, "numberOfComponents", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -130,7 +133,11 @@ long resolve_NumberOfComponents_or_throw(const MarsDict_t& mars, const ParDict_t
         }());
 
         // Success exit point
-        return numberOfComponents;
+        {
+            long result = numberOfComponents;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

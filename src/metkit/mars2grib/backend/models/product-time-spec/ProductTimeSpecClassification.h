@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <cstddef>
 #include <sstream>
 #include <string>
@@ -256,20 +258,30 @@ struct ProductTimeSpecClassification {
 /// @brief Serialize one resolved ProductTimeSpec classification as diagnostic JSON.
 /// @param[in] value Resolved classification bundle.
 /// @return One JSON object describing the classification, or a fallback error object.
-inline std::string productTimeSpecClassificationJson(const ProductTimeSpecClassification& value) noexcept {
+template <class Cntx_t>
+inline std::string productTimeSpecClassificationJson(const ProductTimeSpecClassification& value, Cntx_t& cntx) noexcept {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     try {
         std::ostringstream out;
-        out << '{' << detail::jsonQuote_modelInput("anchorType") << ':'
-            << detail::jsonQuote_modelInput(anchor::productTimeSpecAnchorTypeName(value.anchorType)) << ','
-            << detail::jsonQuote_modelInput("shapeType") << ':'
-            << detail::jsonQuote_modelInput(shape::productTimeSpecShapeTypeName(value.shapeType)) << ','
-            << detail::jsonQuote_modelInput("domainType") << ':'
-            << detail::jsonQuote_modelInput(domain::productTimeSpecDomainTypeName(value.domainType)) << '}';
-        return out.str();
+        out << '{' << detail::jsonQuote_modelInput("anchorType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::jsonQuote_modelInput(anchor::productTimeSpecAnchorTypeName(value.anchorType), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("shapeType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::jsonQuote_modelInput(shape::productTimeSpecShapeTypeName(value.shapeType), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("domainType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::jsonQuote_modelInput(domain::productTimeSpecDomainTypeName(value.domainType), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << '}';
+        {
+            std::string result = out.str();
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
-        return std::string{
+        {
+            std::string result = std::string{
             "{\"error\":\"ProductTimeSpecClassificationJson failed while building diagnostic context\"}"};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 }
 

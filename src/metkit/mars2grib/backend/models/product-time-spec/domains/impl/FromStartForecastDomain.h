@@ -27,6 +27,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
 
@@ -57,7 +59,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the domain matcher fails unexpectedly.
  */
-inline bool match_FromStartForecast_Domain(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_FromStartForecast_Domain(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -72,11 +76,15 @@ inline bool match_FromStartForecast_Domain(const ProductTimeSpecInput& input) {
         const bool isForecast               = input.simulationType == SimulationType::Forecast;
         const bool usesFromStartTimespan    = input.timespan.kind == TimespanKind::FromStart;
 
-        return isNotSynoptic && isNotSeasonal && isForecast && usesFromStartTimespan;
+        {
+            bool result = isNotSynoptic && isNotSeasonal && isForecast && usesFromStartTimespan;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_FromStartForecast_Domain`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_FromStartForecast_Domain`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -100,9 +108,11 @@ inline bool match_FromStartForecast_Domain(const ProductTimeSpecInput& input) {
  * @return Constructed ProductTimeSpec domain for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecDomain build_FromStartForecast_Domain(
     const ProductTimeSpecInput& input, const ProductTimeSpecClassification& classification,
-    const anchor::ProductTimeSpecAnchor& anchor, const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+    const anchor::ProductTimeSpecAnchor& anchor, const shape::ProductTimeSpecOuterTimeRange& outerTimeRange, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::offsetHoursFromReference;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -117,23 +127,23 @@ inline ProductTimeSpecDomain build_FromStartForecast_Domain(
 
         if (!outerTimeRangeIsDeferred || outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("FromStartForecastDomain requires a deferred outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (!input.step.has_value()) {
             throw Mars2GribModelException("FromStartForecastDomain construction requires a resolved step",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         // The support end is the anchor reference datetime extended by the
         // resolved non-seasonal forecast lead.
         const auto forecastLead      = *input.step;
-        const auto domainEndDateTime = addDuration(anchor.referenceDateTime, forecastLead);
+        const auto domainEndDateTime = addDuration(anchor.referenceDateTime, forecastLead, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // In the current from-start forecast semantics, the support start is
         // reconstructed by subtracting the same lead from the support end.
         const auto outerRange          = *input.step;
-        const auto domainStartDateTime = subtractDuration(domainEndDateTime, outerRange);
+        const auto domainStartDateTime = subtractDuration(domainEndDateTime, outerRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // This domain case is never synoptic.
         const bool isSynoptic = false;
@@ -142,18 +152,22 @@ inline ProductTimeSpecDomain build_FromStartForecast_Domain(
         // support start. For the current from-start semantics, this should
         // resolve back to zero.
         const long startOffsetHoursFromReference =
-            offsetHoursFromReference(anchor.referenceDateTime, domainStartDateTime);
+            offsetHoursFromReference(anchor.referenceDateTime, domainStartDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // The end offset is measured from the reference datetime to the real
         // support end.
-        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime, domainEndDateTime);
+        const long endOffsetHoursFromReference = offsetHoursFromReference(anchor.referenceDateTime, domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        return ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic, startOffsetHoursFromReference,
+        {
+            ProductTimeSpecDomain result = ProductTimeSpecDomain{domainStartDateTime, domainEndDateTime, isSynoptic, startOffsetHoursFromReference,
                                      endOffsetHoursFromReference};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_FromStartForecast_Domain`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_FromStartForecast_Domain`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -174,46 +188,52 @@ inline ProductTimeSpecDomain build_FromStartForecast_Domain(
  * @throws Mars2GribModelException if the resolved domain is inconsistent with
  *         the input, anchor, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_FromStartForecast_Domain(const ProductTimeSpecInput& input,
                                            const anchor::ProductTimeSpecAnchor& anchor,
-                                           const ProductTimeSpecDomain& domain) {
+                                           const ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::domain::detail::offsetHoursFromReference;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         if (domain.isSynoptic) {
-            throw Mars2GribModelException("FromStartForecastDomain must not be synoptic", input.to_json(), Here());
+            throw Mars2GribModelException("FromStartForecastDomain must not be synoptic", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (domain.domainStartDateTime > domain.domainEndDateTime) {
-            throw Mars2GribModelException("FromStartForecastDomain start must not follow domain end", input.to_json(),
+            throw Mars2GribModelException("FromStartForecastDomain start must not follow domain end", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (domain.domainStartDateTime != anchor.referenceDateTime) {
             throw Mars2GribModelException("FromStartForecastDomain start must equal anchor reference datetime",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (domain.startOffsetHoursFromReference !=
-            offsetHoursFromReference(anchor.referenceDateTime, domain.domainStartDateTime)) {
+            offsetHoursFromReference(anchor.referenceDateTime, domain.domainStartDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "FromStartForecastDomain start offset does not match resolved datetime placement", input.to_json(),
+                "FromStartForecastDomain start offset does not match resolved datetime placement", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (domain.endOffsetHoursFromReference !=
-            offsetHoursFromReference(anchor.referenceDateTime, domain.domainEndDateTime)) {
+            offsetHoursFromReference(anchor.referenceDateTime, domain.domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "FromStartForecastDomain end offset does not match resolved datetime placement", input.to_json(),
+                "FromStartForecastDomain end offset does not match resolved datetime placement", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_FromStartForecast_Domain`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_FromStartForecast_Domain`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

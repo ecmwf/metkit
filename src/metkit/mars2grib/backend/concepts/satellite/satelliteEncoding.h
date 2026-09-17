@@ -109,6 +109,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/satellite/satelliteEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchLocalDefinitionNumber.h"
@@ -201,8 +202,9 @@ constexpr bool satelliteApplicable() {
 /// @see satelliteApplicable
 ///
 template <std::size_t Stage, std::size_t Section, SatelliteType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -216,47 +218,47 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             if constexpr (Section == SecLocalUseSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {24, 37}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
-                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt);
+                long channelNumber = deductions::resolve_Channel_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 // long numberOfFrequencies = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
 
                 // Encoding
-                set_or_throw<long>(out, "channelNumber", channelNumber);
+                set_or_throw<long>(out, "channelNumber", channelNumber, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 // set_or_throw<long>(out, "numberOfFrequencies", numberOfFrequencies);
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StageAllocate) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "numberOfContributingSpectralBands", 1L);
+                set_or_throw<long>(out, "numberOfContributingSpectralBands", 1L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Section == SecProductDefinitionSection && Stage == StagePreset) {
 
                 // Check/Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {32, 33}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
-                long satelliteNumber = deductions::resolve_satelliteNumber_or_throw(mars, par, opt);
-                long instrumentType  = deductions::resolve_InstrumentType_or_throw(mars, par, opt);
+                long satelliteNumber = deductions::resolve_satelliteNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                long instrumentType  = deductions::resolve_InstrumentType_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
-                long satelliteSeries = deductions::resolve_SatelliteSeries_or_throw(mars, par, opt);
+                long satelliteSeries = deductions::resolve_SatelliteSeries_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 long scaleFactorOfCentralWaveNumber =
-                    deductions::resolve_ScaleFactorOfCentralWaveNumber_or_throw(mars, par, opt);
+                    deductions::resolve_ScaleFactorOfCentralWaveNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 long scaledValueOfCentralWaveNumber =
-                    deductions::resolve_ScaledValueOfCentralWaveNumber_or_throw(mars, par, opt);
+                    deductions::resolve_ScaledValueOfCentralWaveNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "satelliteSeries", satelliteSeries);
-                set_or_throw<long>(out, "satelliteNumber", satelliteNumber);
-                set_or_throw<long>(out, "instrumentType", instrumentType);
-                set_or_throw<long>(out, "scaleFactorOfCentralWaveNumber", scaleFactorOfCentralWaveNumber);
-                set_or_throw<long>(out, "scaledValueOfCentralWaveNumber", scaledValueOfCentralWaveNumber);
+                set_or_throw<long>(out, "satelliteSeries", satelliteSeries, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "satelliteNumber", satelliteNumber, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "instrumentType", instrumentType, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "scaleFactorOfCentralWaveNumber", scaleFactorOfCentralWaveNumber, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "scaledValueOfCentralWaveNumber", scaledValueOfCentralWaveNumber, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -264,6 +266,7 @@ void SatelliteOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

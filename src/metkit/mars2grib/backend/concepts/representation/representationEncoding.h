@@ -136,6 +136,7 @@
 #include "eckit/geo/grid/regular/RegularLL.h"
 #include "eckit/spec/Custom.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Defintion of Span
 #include "metkit/codes/api/CodesTypes.h"
@@ -176,7 +177,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 ///
 /// @return Span containing exactly `requiredSize` entries set to `value`.
 ///
-static metkit::codes::Span<const double> constValueSpan(std::size_t requiredSize, double value) {
+template <class Cntx_t>
+static metkit::codes::Span<const double> constValueSpan(std::size_t requiredSize, double value, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     static thread_local std::vector<double> values;
 
     if (values.size() < requiredSize) {
@@ -185,7 +188,9 @@ static metkit::codes::Span<const double> constValueSpan(std::size_t requiredSize
 
     std::transform(values.begin(), values.begin() + requiredSize, values.begin(), [value](double) { return value; });
 
-    return metkit::codes::Span<const double>{values.data(), requiredSize};
+    metkit::codes::Span<const double> result{values.data(), requiredSize};
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 
@@ -262,8 +267,10 @@ constexpr bool representationApplicable() {
 /// - the representation variant is unsupported
 ///
 template <std::size_t Stage, std::size_t Section, RepresentationType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out,
+                      Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -285,26 +292,26 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                 if constexpr (Variant == RepresentationType::Latlon) {
 
                     // Checks/Validation
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {0});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {0}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<std::string>(out, "gridType", "regular_ll");
+                    set_or_throw<std::string>(out, "gridType", "regular_ll", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::RegularGaussian) {
 
                     // Checks/Validation
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {40});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {40}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<std::string>(out, "gridType", "regular_gg");
+                    set_or_throw<std::string>(out, "gridType", "regular_gg", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::ReducedGaussian) {
 
                     // Checks/Validation
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {40});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {40}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Deductions
-                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid =
@@ -314,42 +321,42 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const long numberOfParallelsBetweenAPoleAndTheEquator = grid->ny() / 2;
 
                     // Encoding
-                    set_or_throw<std::string>(out, "gridType", "reduced_gg");
-                    set_or_throw<long>(out, "interpretationOfNumberOfPoints", 1L);
+                    set_or_throw<std::string>(out, "gridType", "reduced_gg", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "interpretationOfNumberOfPoints", 1L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Set already, because it is the size of the PL array!
                     set_or_throw<long>(out, "numberOfParallelsBetweenAPoleAndTheEquator",
-                                       numberOfParallelsBetweenAPoleAndTheEquator);
-                    set_or_throw<std::vector<long>>(out, "pl", plArray);
+                                       numberOfParallelsBetweenAPoleAndTheEquator, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<std::vector<long>>(out, "pl", plArray, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
 
                     // Checks/Validation
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {50});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {50}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<std::string>(out, "gridType", "sh");
+                    set_or_throw<std::string>(out, "gridType", "sh", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::Healpix) {
 
                     // Checks/Validation
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {150});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {150}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<std::string>(out, "gridType", "healpix");
+                    set_or_throw<std::string>(out, "gridType", "healpix", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
 
                     // Checks/Validation
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {101});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {101}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<std::string>(out, "gridType", "unstructured_grid");
+                    set_or_throw<std::string>(out, "gridType", "unstructured_grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::Fesom) {
 
                     // Checks
-                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {101});
+                    validation::match_GridDefinitionTemplateNumber_or_throw(opt, out, {101}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Not implemented error
                     MARS2GRIB_CONCEPT_THROW(representation, "Support for Fesom representation not implemented...");
@@ -364,12 +371,12 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
             if constexpr (Stage == StagePreset) {
 
                 // Resolve allowed reference value deduction
-                double allowedReferenceValue = deductions::resolve_AllowedReferenceValue_or_throw(mars, par, opt);
+                double allowedReferenceValue = deductions::resolve_AllowedReferenceValue_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 if constexpr (Variant == RepresentationType::Latlon) {
 
                     // Deductions
-                    auto marsGrid                      = get_or_throw<std::string>(mars, "grid");
+                    auto marsGrid                      = get_or_throw<std::string>(mars, "grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid = dynamic_cast<const eckit::geo::grid::regular::RegularLL*>(genericGrid.get());
@@ -389,24 +396,24 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const auto jDirectionIncrementInDegrees = std::abs(grid->dlat());
 
                     // Encoding
-                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
-                    set_or_throw<long>(out, "Ni", Ni);
-                    set_or_throw<long>(out, "Nj", Nj);
-                    set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
-                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
-                    set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
-                    set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
-                    set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
-                    set_or_throw(out, "jDirectionIncrementInDegrees", jDirectionIncrementInDegrees);
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));  // Flag table 3.3
+                    set_or_throw<long>(out, "Ni", Ni, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "Nj", Nj, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "jDirectionIncrementInDegrees", jDirectionIncrementInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here())), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::RegularGaussian) {
 
                     // Deductions
-                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid =
@@ -427,24 +434,24 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const auto iDirectionIncrementInDegrees = std::abs(grid->dx());
 
                     // Encoding
-                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
-                    set_or_throw<long>(out, "Ni", Ni);
-                    set_or_throw<long>(out, "Nj", Nj);
-                    set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
-                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
-                    set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
-                    set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
-                    set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees);
-                    set_or_throw(out, "N", N);
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));  // Flag table 3.3
+                    set_or_throw<long>(out, "Ni", Ni, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "Nj", Nj, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "iDirectionIncrementInDegrees", iDirectionIncrementInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "N", N, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here())), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::ReducedGaussian) {
 
                     // Deductions
-                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid =
@@ -463,21 +470,21 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     // TODO (GEOM): numberOfPointsAlongAMeridian ?
 
                     // Encoding
-                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
-                    set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees);
-                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
-                    set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees);
-                    set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees);
-                    setMissing_or_throw(out, "iDirectionIncrement");
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));  // Flag table 3.3
+                    set_or_throw(out, "latitudeOfFirstGridPointInDegrees", latitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "latitudeOfLastGridPointInDegrees", latitudeOfLastGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfLastGridPointInDegrees", longitudeOfLastGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    setMissing_or_throw(out, "iDirectionIncrement", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here())), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::Healpix) {
 
                     // Deductions
-                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid = dynamic_cast<const eckit::geo::grid::reduced::HEALPix*>(genericGrid.get());
@@ -488,19 +495,19 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                         std::get<eckit::geo::PointLonLat>(grid->first_point()).lon();
 
                     // Encoding
-                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0);  // Flag table 3.3
-                    set_or_throw(out, "Nside", nside);
-                    set_or_throw<std::string>(out, "orderingConvention", orderingConvention);
-                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees);
+                    set_or_throw<long>(out, "resolutionAndComponentFlags", 0, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));  // Flag table 3.3
+                    set_or_throw(out, "Nside", nside, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<std::string>(out, "orderingConvention", orderingConvention, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "longitudeOfFirstGridPointInDegrees", longitudeOfFirstGridPointInDegrees, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here())), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::Orca) {
 
                     // Deductions
-                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid");
+                    const auto marsGrid                = get_or_throw<std::string>(mars, "grid", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     const eckit::spec::Custom gridSpec = {{"grid", marsGrid}};
                     const std::unique_ptr<const eckit::geo::Grid> genericGrid(eckit::geo::GridFactory::build(gridSpec));
                     const auto* grid = dynamic_cast<const eckit::geo::grid::ORCA*>(genericGrid.get());
@@ -510,13 +517,13 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                     const auto uuid        = grid->uid();
 
                     // Encoding
-                    set_or_throw(out, "unstructuredGridType", gridType);
-                    set_or_throw(out, "unstructuredGridSubtype", gridSubType);
-                    set_or_throw(out, "uuidOfHGrid", uuid);
+                    set_or_throw(out, "unstructuredGridType", gridType, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "unstructuredGridSubtype", gridSubType, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw(out, "uuidOfHGrid", uuid, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = grid->size();
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here())), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == RepresentationType::Fesom) {
                     MARS2GRIB_CONCEPT_THROW(representation, "Support for Fesom representation not implemented...");
@@ -524,20 +531,20 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
                 else if constexpr (Variant == RepresentationType::SphericalHarmonics) {
 
                     // Deductions
-                    const auto marsTruncation = get_or_throw<long>(mars, "truncation");
+                    const auto marsTruncation = get_or_throw<long>(mars, "truncation", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     const auto pentagonalResolutionParameterJ = marsTruncation;
                     const auto pentagonalResolutionParameterK = marsTruncation;
                     const auto pentagonalResolutionParameterM = marsTruncation;
 
                     // Encoding
-                    set_or_throw<long>(out, "pentagonalResolutionParameterJ", pentagonalResolutionParameterJ);
-                    set_or_throw<long>(out, "pentagonalResolutionParameterK", pentagonalResolutionParameterK);
-                    set_or_throw<long>(out, "pentagonalResolutionParameterM", pentagonalResolutionParameterM);
+                    set_or_throw<long>(out, "pentagonalResolutionParameterJ", pentagonalResolutionParameterJ, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "pentagonalResolutionParameterK", pentagonalResolutionParameterK, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "pentagonalResolutionParameterM", pentagonalResolutionParameterM, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Initialize values with the deduced reference value
                     std::size_t numberOfCoefficients = (marsTruncation + 1) * (marsTruncation + 2);
-                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue));
+                    set_or_throw(out, "values", constValueSpan(numberOfCoefficients, allowedReferenceValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here())), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else {
                     MARS2GRIB_CONCEPT_THROW(representation, "Unknown `representation` variant...");
@@ -549,6 +556,7 @@ void RepresentationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDic
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

@@ -30,6 +30,7 @@
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/backend/sections/resolver/SectionLayoutData.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend {
 
@@ -74,7 +75,10 @@ namespace debug {
 /// @param data The layout data to serialize.
 /// @return A JSON formatted string containing the section-variant map.
 ///
-inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLayoutData& data) {
+template <class Cntx_t>
+inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLayoutData& data, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_SectionLayoutData_to_json;
 
@@ -83,7 +87,8 @@ inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLa
 
     for (std::size_t sid = 0; sid < GribHeaderLayoutData::nSections; ++sid) {
         // Delegate to the resolution::debug helper to get the "Concept::Variant" names
-        oss << debug_convert_SectionLayoutData_to_json(data.sectionLayouts[sid]);
+        oss << debug_convert_SectionLayoutData_to_json(data.sectionLayouts[sid],
+                                                       utils::profiling::callSite(cntx, Here()));
 
         if (sid + 1 < GribHeaderLayoutData::nSections) {
             oss << ", ";
@@ -91,7 +96,9 @@ inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLa
     }
 
     oss << " ] } }";
-    return oss.str();
+    std::string result = oss.str();
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 ///
@@ -105,8 +112,10 @@ inline std::string debug_convert_GribHeaderLayoutData_to_json(const GribHeaderLa
 /// @param prefix Leading string for each line (used for indentation/log headers).
 /// @param os     The output stream.
 ///
+template <class Cntx_t>
 inline void debug_print_GribHeaderLayoutData(const GribHeaderLayoutData& data, std::string_view prefix,
-                                             std::ostream& os) {
+                                              std::ostream& os, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
     os << prefix << " :: GribHeaderLayoutData Summary\n";
@@ -120,6 +129,7 @@ inline void debug_print_GribHeaderLayoutData(const GribHeaderLayoutData& data, s
                << "::" << GeneralRegistry::variantNameArr[id] << "\n";
         }
     }
+    utils::profiling::profileExitFunction(cntx, Here());
 }
 
 }  // namespace debug

@@ -153,6 +153,12 @@ Encoding is performed by iterating over the dispatch table.
     - all function pointers associated with that stage and section are invoked
       in deterministic order
 
+All runtime pipeline calls carry a final operation context reference. The
+context type controls profiling at compile time; `NoProfileContext` removes the
+hooks for existing API calls. Concept callbacks report stage, section, and
+variant metadata, while section initializers report section and template
+numbers. Exit events are emitted only for successful returns.
+
 Because the dispatch table contains no null entries:
 - execution is purely linear over the precomputed table
 

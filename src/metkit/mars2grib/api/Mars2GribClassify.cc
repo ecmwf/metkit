@@ -17,6 +17,7 @@
 #include "metkit/mars2grib/utils/TemporalArithmetic.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_options.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib {
 
@@ -27,99 +28,146 @@ namespace {
 using StatisticalProcessing = backend::tables::TypeOfStatisticalProcessing;
 using ProductTimeSpec       = backend::models::product_time_spec::ProductTimeSpec;
 
-const char* statisticalProcessingName(StatisticalProcessing value) {
+const char* statisticalProcessingName(StatisticalProcessing value, utils::profiling::NoProfileContext& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const char* result = nullptr;
     switch (value) {
         case StatisticalProcessing::Average:
-            return "Average";
+            result = "Average";
+            break;
         case StatisticalProcessing::Accumulation:
-            return "Accumulation";
+            result = "Accumulation";
+            break;
         case StatisticalProcessing::Maximum:
-            return "Maximum";
+            result = "Maximum";
+            break;
         case StatisticalProcessing::Minimum:
-            return "Minimum";
+            result = "Minimum";
+            break;
         case StatisticalProcessing::DifferenceEndMinusStart:
-            return "DifferenceEndMinusStart";
+            result = "DifferenceEndMinusStart";
+            break;
         case StatisticalProcessing::RootMeanSquare:
-            return "RootMeanSquare";
+            result = "RootMeanSquare";
+            break;
         case StatisticalProcessing::StandardDeviation:
-            return "StandardDeviation";
+            result = "StandardDeviation";
+            break;
         case StatisticalProcessing::Covariance:
-            return "Covariance";
+            result = "Covariance";
+            break;
         case StatisticalProcessing::DifferenceStartMinusEnd:
-            return "DifferenceStartMinusEnd";
+            result = "DifferenceStartMinusEnd";
+            break;
         case StatisticalProcessing::Ratio:
-            return "Ratio";
+            result = "Ratio";
+            break;
         case StatisticalProcessing::StandardizedAnomaly:
-            return "StandardizedAnomaly";
+            result = "StandardizedAnomaly";
+            break;
         case StatisticalProcessing::Summation:
-            return "Summation";
+            result = "Summation";
+            break;
         case StatisticalProcessing::ReturnPeriod:
-            return "ReturnPeriod";
+            result = "ReturnPeriod";
+            break;
         case StatisticalProcessing::Median:
-            return "Median";
+            result = "Median";
+            break;
         case StatisticalProcessing::Severity:
-            return "Severity";
+            result = "Severity";
+            break;
         case StatisticalProcessing::Mode:
-            return "Mode";
+            result = "Mode";
+            break;
         case StatisticalProcessing::IndexProcessing:
-            return "IndexProcessing";
+            result = "IndexProcessing";
+            break;
         case StatisticalProcessing::Missing:
-            return "Instant";
+            result = "Instant";
+            break;
     }
 
-    mars2gribUnreachable();
+    if (result == nullptr) {
+        mars2gribUnreachable();
+    }
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-std::string productTimeSpecClassification(const ProductTimeSpec& spec) {
+std::string productTimeSpecClassification(const ProductTimeSpec& spec, utils::profiling::NoProfileContext& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using backend::models::product_time_spec::shape::ProductTimeSpecShapeKind;
     using utils::time_arithmetic::convertToSeconds;
 
-    if (spec.shapeType() == ProductTimeSpecShapeKind::Instant) {
-        return "Instant()";
+    if (spec.shapeType(utils::profiling::callSite(cntx, Here())) == ProductTimeSpecShapeKind::Instant) {
+        std::string result{"Instant()"};
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
     std::string classification;
-    for (auto it = spec.windows().values.rbegin(); it != spec.windows().values.rend(); ++it) {
+    for (auto it = spec.windows(utils::profiling::callSite(cntx, Here())).values.rbegin();
+         it != spec.windows(utils::profiling::callSite(cntx, Here())).values.rend(); ++it) {
         std::ostringstream out;
-        out << statisticalProcessingName(it->typeOfStatisticalProcessing) << '(' << convertToSeconds(it->timeRange);
+        out << statisticalProcessingName(it->typeOfStatisticalProcessing, utils::profiling::callSite(cntx, Here()))
+            << '(' << convertToSeconds(it->timeRange, utils::profiling::callSite(cntx, Here()));
         if (!classification.empty()) {
             out << ',' << classification;
         }
         out << ')';
         classification = out.str();
     }
+    utils::profiling::profileExitFunction(cntx, Here());
     return classification;
 }
 
 ProductTimeSpecResult computeProductTimeSpecResult(const eckit::LocalConfiguration& inputMars,
                                                    const eckit::LocalConfiguration& inputMisc, const Options& options,
-                                                   const eckit::Value& language) {
+                                                   const eckit::Value& language,
+                                                   utils::profiling::NoProfileContext& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     eckit::LocalConfiguration scratchMars;
     eckit::LocalConfiguration scratchMisc;
     auto [mars, misc] =
-        CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
-    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(mars, options);
-    const ProductTimeSpec spec{detail::innerStatisticalProcessing(activeConcepts), mars, misc, options};
-    return ProductTimeSpecResult{spec.to_json(), productTimeSpecClassification(spec)};
+        CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                             utils::profiling::callSite(cntx, Here()));
+    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(
+        mars, options, utils::profiling::callSite(cntx, Here()));
+    const ProductTimeSpec spec{
+        detail::innerStatisticalProcessing(activeConcepts, utils::profiling::callSite(cntx, Here())), mars, misc,
+        options, utils::profiling::callSite(cntx, Here())};
+    ProductTimeSpecResult result{spec.to_json(utils::profiling::callSite(cntx, Here())),
+                                 productTimeSpecClassification(spec, utils::profiling::callSite(cntx, Here()))};
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 long computeProductTimeSpecOuterTimeRangeInHours(const eckit::LocalConfiguration& inputMars,
-                                                 const eckit::LocalConfiguration& inputMisc, const Options& options,
-                                                 const eckit::Value& language) {
+                                                  const eckit::LocalConfiguration& inputMisc, const Options& options,
+                                                   const eckit::Value& language,
+                                                   utils::profiling::NoProfileContext& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using backend::tables::TimeUnit;
 
     eckit::LocalConfiguration scratchMars;
     eckit::LocalConfiguration scratchMisc;
     auto [mars, misc] =
-        CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
-    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(mars, options);
-    const ProductTimeSpec spec{detail::innerStatisticalProcessing(activeConcepts), mars, misc, options};
-    const auto& windows = spec.windows().values;
+        CoreOperations::normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                             utils::profiling::callSite(cntx, Here()));
+    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(
+        mars, options, utils::profiling::callSite(cntx, Here()));
+    const ProductTimeSpec spec{
+        detail::innerStatisticalProcessing(activeConcepts, utils::profiling::callSite(cntx, Here())), mars, misc,
+        options, utils::profiling::callSite(cntx, Here())};
+    const auto& windows = spec.windows(utils::profiling::callSite(cntx, Here())).values;
     if (windows.empty() || windows.front().timeRange.unit != TimeUnit::Hour) {
         throw exceptions::Mars2GribGenericException("ProductTimeSpec outer time range is not available in hours",
-                                                    Here());
+                                                     Here());
     }
-    return windows.front().timeRange.length;
+    const long result = windows.front().timeRange.length;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace
@@ -133,10 +181,15 @@ Mars2GribClassify::Mars2GribClassify(const eckit::LocalConfiguration& opts) : op
 Mars2GribClassify::Mars2GribClassify(OptionList opts) : opts_{detail::readOptions(opts)} {}
 
 std::string Mars2GribClassify::computeActiveConcepts(const eckit::LocalConfiguration& mars,
-                                                     const eckit::LocalConfiguration& misc) {
+                                                      const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::string>(
         "Mars2GribClassify::computeActiveConcepts", opts_,
-        [&]() { return CoreOperations::computeActiveConcepts(mars, misc, opts_, language_); }, Here());
+        [&]() {
+            return CoreOperations::computeActiveConcepts(mars, misc, opts_, language_,
+                                                         utils::profiling::callSite(cntx, Here()));
+        },
+        Here());
 }
 
 std::string Mars2GribClassify::computeActiveConcepts(const eckit::LocalConfiguration& mars) {
@@ -144,10 +197,15 @@ std::string Mars2GribClassify::computeActiveConcepts(const eckit::LocalConfigura
 }
 
 ProductTimeSpecResult Mars2GribClassify::computeProductTimeSpec(const eckit::LocalConfiguration& mars,
-                                                                const eckit::LocalConfiguration& misc) {
+                                                                 const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<ProductTimeSpecResult>(
         "Mars2GribClassify::computeProductTimeSpec", opts_,
-        [&]() { return computeProductTimeSpecResult(mars, misc, opts_, language_); }, Here());
+        [&]() {
+            return computeProductTimeSpecResult(mars, misc, opts_, language_,
+                                                utils::profiling::callSite(cntx, Here()));
+        },
+        Here());
 }
 
 ProductTimeSpecResult Mars2GribClassify::computeProductTimeSpec(const eckit::LocalConfiguration& mars) {
@@ -155,10 +213,15 @@ ProductTimeSpecResult Mars2GribClassify::computeProductTimeSpec(const eckit::Loc
 }
 
 long Mars2GribClassify::computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars,
-                                                     const eckit::LocalConfiguration& misc) {
+                                                      const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<long>(
         "Mars2GribClassify::computeOuterTimeRangeInHours", opts_,
-        [&]() { return computeProductTimeSpecOuterTimeRangeInHours(mars, misc, opts_, language_); }, Here());
+        [&]() {
+            return computeProductTimeSpecOuterTimeRangeInHours(mars, misc, opts_, language_,
+                                                               utils::profiling::callSite(cntx, Here()));
+        },
+        Here());
 }
 
 long Mars2GribClassify::computeOuterTimeRangeInHours(const eckit::LocalConfiguration& mars) {

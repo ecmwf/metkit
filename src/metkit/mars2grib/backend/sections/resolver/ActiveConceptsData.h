@@ -41,6 +41,7 @@
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver {
 
@@ -170,7 +171,11 @@ namespace debug {
 /// @param[in]  prefix Line prefix used for indentation
 /// @param[out] os     Output stream
 ///
-inline void debug_print_ActiveConceptsData(const ActiveConceptsData& data, std::string_view prefix, std::ostream& os) {
+template <class Cntx_t>
+inline void debug_print_ActiveConceptsData(const ActiveConceptsData& data, std::string_view prefix, std::ostream& os,
+                                           Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using GeneralRegistry = ActiveConceptsData::GeneralRegistry;
 
@@ -191,6 +196,7 @@ inline void debug_print_ActiveConceptsData(const ActiveConceptsData& data, std::
     }
 
     os << std::flush;
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
 }
 
 ///
@@ -203,7 +209,10 @@ inline void debug_print_ActiveConceptsData(const ActiveConceptsData& data, std::
 ///
 /// @return JSON-style string representation
 ///
-inline std::string debug_convert_ActiveConceptsData_to_json(const ActiveConceptsData& data) {
+template <class Cntx_t>
+inline std::string debug_convert_ActiveConceptsData_to_json(const ActiveConceptsData& data, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using GeneralRegistry = ActiveConceptsData::GeneralRegistry;
 
@@ -233,7 +242,9 @@ inline std::string debug_convert_ActiveConceptsData_to_json(const ActiveConcepts
 
     oss << " ] } }";
 
-    return oss.str();
+    std::string result = oss.str();
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace debug

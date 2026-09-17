@@ -66,6 +66,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/reference-time/referenceTimeEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/significanceOfReferenceTime.h"
@@ -176,8 +177,9 @@ constexpr bool referenceTimeApplicable() {
 /// @see referenceTimeApplicable
 ///
 template <std::size_t Stage, std::size_t Section, ReferenceTimeType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -191,8 +193,8 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
             // Resolve the canonical ProductTimeSpec anchor state once per
             // concept invocation. All three date/time branches below source
             // their encoded values exclusively from this object.
-            const auto anchorSpec = models::product_time_spec::ProductTimeAnchorSpec(mars, par, opt);
-            const auto rt         = impl::build_ReferenceTimeProductTimeSpec_or_throw(anchorSpec);
+            const auto anchorSpec = models::product_time_spec::ProductTimeAnchorSpec(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            const auto rt         = impl::build_ReferenceTimeProductTimeSpec_or_throw(anchorSpec, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // =============================================================
             // Variant-specific logic
@@ -202,10 +204,10 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
                 // Deductions: significanceOfReferenceTime is orthogonal to the
                 // resolved ProductTimeSpec anchor state.
                 tables::SignificanceOfReferenceTime significanceOfReferenceTime =
-                    deductions::resolve_SignificanceOfReferenceTime_or_throw(mars, par, opt);
+                    deductions::resolve_SignificanceOfReferenceTime_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "significanceOfReferenceTime", static_cast<long>(significanceOfReferenceTime));
+                set_or_throw<long>(out, "significanceOfReferenceTime", static_cast<long>(significanceOfReferenceTime), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Standard)) {
@@ -215,12 +217,12 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
                 const eckit::DateTime& dateTime = rt.referenceDateTime;
 
                 // Encoding
-                set_or_throw<long>(out, "year", dateTime.date().year());
-                set_or_throw<long>(out, "month", dateTime.date().month());
-                set_or_throw<long>(out, "day", dateTime.date().day());
-                set_or_throw<long>(out, "hour", dateTime.time().hours());
-                set_or_throw<long>(out, "minute", dateTime.time().minutes());
-                set_or_throw<long>(out, "second", dateTime.time().seconds());
+                set_or_throw<long>(out, "year", dateTime.date().year(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "month", dateTime.date().month(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "day", dateTime.date().day(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "hour", dateTime.time().hours(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "minute", dateTime.time().minutes(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "second", dateTime.time().seconds(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr ((Section == SecIdentificationSection) && (Variant == ReferenceTimeType::Reforecast)) {
@@ -233,30 +235,30 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
                 const eckit::DateTime& referenceDateTime = rt.labelDateTime;
 
                 // Encoding
-                set_or_throw<long>(out, "year", referenceDateTime.date().year());
-                set_or_throw<long>(out, "month", referenceDateTime.date().month());
-                set_or_throw<long>(out, "day", referenceDateTime.date().day());
-                set_or_throw<long>(out, "hour", referenceDateTime.time().hours());
-                set_or_throw<long>(out, "minute", referenceDateTime.time().minutes());
-                set_or_throw<long>(out, "second", referenceDateTime.time().seconds());
+                set_or_throw<long>(out, "year", referenceDateTime.date().year(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "month", referenceDateTime.date().month(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "day", referenceDateTime.date().day(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "hour", referenceDateTime.time().hours(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "minute", referenceDateTime.time().minutes(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "second", referenceDateTime.time().seconds(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr ((Section == SecProductDefinitionSection) && (Variant == ReferenceTimeType::Reforecast)) {
 
                 // Validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {60L, 61L});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {60L, 61L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Model-version date/time is the resolved ProductTimeSpec
                 // reference datetime.
                 const eckit::DateTime& dateTime = rt.referenceDateTime;
 
                 // Encoding
-                set_or_throw<long>(out, "YearOfModelVersion", dateTime.date().year());
-                set_or_throw<long>(out, "MonthOfModelVersion", dateTime.date().month());
-                set_or_throw<long>(out, "DayOfModelVersion", dateTime.date().day());
-                set_or_throw<long>(out, "HourOfModelVersion", dateTime.time().hours());
-                set_or_throw<long>(out, "MinuteOfModelVersion", dateTime.time().minutes());
-                set_or_throw<long>(out, "SecondOfModelVersion", dateTime.time().seconds());
+                set_or_throw<long>(out, "YearOfModelVersion", dateTime.date().year(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "MonthOfModelVersion", dateTime.date().month(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "DayOfModelVersion", dateTime.date().day(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "HourOfModelVersion", dateTime.time().hours(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "MinuteOfModelVersion", dateTime.time().minutes(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "SecondOfModelVersion", dateTime.time().seconds(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -265,6 +267,7 @@ void ReferenceTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

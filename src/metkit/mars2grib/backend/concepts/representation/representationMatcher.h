@@ -36,6 +36,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -59,46 +60,63 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t representationMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
         // This is used to fully delegate section3 setting to gridSpec
-        if (get_or_throw<bool>(opt, "skipSection3")) {
-            const auto marsGrid = get_or_throw<std::string>(mars, "grid");
+        if (get_or_throw<bool>(opt, "skipSection3", utils::profiling::callSite(cntx, Here()))) {
+            const auto marsGrid = get_or_throw<std::string>(mars, "grid", utils::profiling::callSite(cntx, Here()));
             const auto gridType =
                 std::unique_ptr<const eckit::geo::Grid>(eckit::geo::GridFactory::make_from_string(marsGrid))->type();
 
             if (gridType == "sh") {
-                return static_cast<std::size_t>(RepresentationType::DummySH);
+                const std::size_t result = static_cast<std::size_t>(RepresentationType::DummySH);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
-            return static_cast<std::size_t>(RepresentationType::Dummy);
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::Dummy);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        if (has(mars, "truncation")) {
-            return static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
+        if (has(mars, "truncation", utils::profiling::callSite(cntx, Here()))) {
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::SphericalHarmonics);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        const auto marsGrid = get_or_throw<std::string>(mars, "grid");
+        const auto marsGrid = get_or_throw<std::string>(mars, "grid", utils::profiling::callSite(cntx, Here()));
         const auto gridType = std::unique_ptr<const eckit::geo::Grid>(
                                   eckit::geo::GridFactory::build(eckit::spec::Custom{{"grid", marsGrid}}))
                                   ->type();
         if (gridType == "regular_gg") {
-            return static_cast<std::size_t>(RepresentationType::RegularGaussian);
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::RegularGaussian);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         else if (gridType == "reduced_gg") {
-            return static_cast<std::size_t>(RepresentationType::ReducedGaussian);
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::ReducedGaussian);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         else if (gridType == "regular_ll") {
-            return static_cast<std::size_t>(RepresentationType::Latlon);
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::Latlon);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         else if (gridType == "ORCA") {
-            return static_cast<std::size_t>(RepresentationType::Orca);
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::Orca);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         else if (gridType == "HEALPix") {
-            return static_cast<std::size_t>(RepresentationType::Healpix);
+            const std::size_t result = static_cast<std::size_t>(RepresentationType::Healpix);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -108,6 +126,14 @@ std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt) 
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `representation` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t representationMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = representationMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

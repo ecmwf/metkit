@@ -42,6 +42,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <algorithm>
 #include <string>
@@ -86,8 +88,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is fully deterministic and does not depend on
 /// any pre-existing GRIB header state.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -100,12 +103,12 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
         //       At ECMWF we cannot produce spherical harmonics with different values for J/K/M
 
         const long truncation = [&]() {
-            if (get_or_throw<bool>(opt, "skipSection3")) {
-                const std::string grid           = get_or_throw<std::string>(mars, "grid");
+            if (get_or_throw<bool>(opt, "skipSection3", cntx)) {
+                const std::string grid           = get_or_throw<std::string>(mars, "grid", cntx);
                 const eckit::geo::Grid* gridSpec = eckit::geo::GridFactory::make_from_string(grid);
                 return static_cast<long>(gridSpec->truncation());
             }
-            return get_or_throw<long>(mars, "truncation");
+            return get_or_throw<long>(mars, "truncation", cntx);
         }();
 
         if (truncation < 0) {
@@ -113,10 +116,10 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
                 "Invalid MARS truncation: value='" + std::to_string(truncation) + "' is negative", Here());
         }
 
-        if (has(par, "subSetTruncation")) {
+        if (has(par, "subSetTruncation", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
             // Retrieve subSetTruncation from parameter dictionary
-            long subSetTrunc = get_or_throw<long>(par, "subSetTruncation");
+            long subSetTrunc = get_or_throw<long>(par, "subSetTruncation", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Validate subSetTruncation
             if (subSetTrunc < 0) {
@@ -136,7 +139,11 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
             }());
 
             // Success exit point
-            return subSetTrunc;
+            {
+                long result = subSetTrunc;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
             // Note: This logic for default subSetTruncation reflects the behaviour of IFS
@@ -148,7 +155,11 @@ long resolve_SubSetTruncation_or_throw(const MarsDict_t& mars, const ParDict_t& 
             }());
 
             // Success exit point
-            return defaultSubSetTruncation;
+            {
+                long result = defaultSubSetTruncation;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

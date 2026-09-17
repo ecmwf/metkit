@@ -56,6 +56,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/destine/destineEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/activity.h"
@@ -164,8 +165,9 @@ constexpr bool destineApplicable() {
 /// @see destineApplicable
 ///
 template <std::size_t Stage, std::size_t Section, DestineType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void DestineOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void DestineOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -179,7 +181,7 @@ void DestineOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
             // =============================================================
             // Structural validation
             // =============================================================
-            validation::check_DestinELocalSection_or_throw(opt, out);
+            validation::check_DestinELocalSection_or_throw(opt, out, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // =============================================================
             // Variant-specific logic
@@ -187,35 +189,35 @@ void DestineOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
             if constexpr (Variant == DestineType::ExtremesDT) {
 
                 // Enforce dataset consistency
-                validation::match_Dataset_or_throw(opt, out, "extremes-dt");
+                validation::match_Dataset_or_throw(opt, out, "extremes-dt", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encode dataset identifier
-                set_or_throw<std::string>(out, "dataset", "extremes-dt");
+                set_or_throw<std::string>(out, "dataset", "extremes-dt", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else if constexpr (Variant == DestineType::ClimateDT) {
 
                 // Enforce dataset consistency
-                validation::match_Dataset_or_throw(opt, out, "climate-dt");
+                validation::match_Dataset_or_throw(opt, out, "climate-dt", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encode dataset identifier
-                set_or_throw<std::string>(out, "dataset", "climate-dt");
+                set_or_throw<std::string>(out, "dataset", "climate-dt", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
-                std::string activityVal   = deductions::resolve_Activity_or_throw(mars, par, opt);
-                std::string experimentVal = deductions::resolve_Experiment_or_throw(mars, par, opt);
-                std::string resolutionVal = deductions::resolve_Resolution_or_throw(mars, par, opt);
-                std::string modelVal      = deductions::resolve_Model_or_throw(mars, par, opt);
+                std::string activityVal   = deductions::resolve_Activity_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                std::string experimentVal = deductions::resolve_Experiment_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                std::string resolutionVal = deductions::resolve_Resolution_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                std::string modelVal      = deductions::resolve_Model_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
-                long generationVal  = deductions::resolve_Generation_or_throw(mars, par, opt);
-                long realizationVal = deductions::resolve_Realization_or_throw(mars, par, opt);
+                long generationVal  = deductions::resolve_Generation_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                long realizationVal = deductions::resolve_Realization_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<std::string>(out, "activity", activityVal);
-                set_or_throw<std::string>(out, "experiment", experimentVal);
-                set_or_throw<std::string>(out, "resolution", resolutionVal);
-                set_or_throw<std::string>(out, "model", modelVal);
-                set_or_throw<long>(out, "generation", generationVal);
-                set_or_throw<long>(out, "realization", realizationVal);
+                set_or_throw<std::string>(out, "activity", activityVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::string>(out, "experiment", experimentVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::string>(out, "resolution", resolutionVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::string>(out, "model", modelVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "generation", generationVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "realization", realizationVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -224,6 +226,7 @@ void DestineOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

@@ -41,6 +41,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "eckit/log/Log.h"
@@ -98,8 +100,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is fully deterministic and does not depend on
 /// pre-existing GRIB header state.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -109,8 +112,8 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
     try {
 
         // Read from misc, or default to 51
-        const auto numberOfForecastsInEnsemble = get_opt<long>(par, "numberOfForecastsInEnsemble").value_or(51L);
-        const auto perturbationNumber          = get_opt<long>(mars, "number");
+        const auto numberOfForecastsInEnsemble = get_opt<long>(par, "numberOfForecastsInEnsemble", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(51L);
+        const auto perturbationNumber          = get_opt<long>(mars, "number", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Basic validation
         if (perturbationNumber.has_value()) {
@@ -138,7 +141,11 @@ long resolve_NumberOfForecastsInEnsemble_or_throw(const MarsDict_t& mars, const 
             return logMsg;
         }());
 
-        return numberOfForecastsInEnsemble;
+        {
+            long result = numberOfForecastsInEnsemble;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

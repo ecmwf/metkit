@@ -41,6 +41,7 @@
 #include "metkit/mars2grib/frontend/GribHeaderLayoutData.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend::header::detail {
 
@@ -81,16 +82,24 @@ struct FixedVector {
     /// @throws Mars2GribGenericException
     /// If the fixed capacity is exceeded
     ///
-    void push_back(const T& value) {
+    template <class Cntx_t>
+    void push_back(const T& value, Cntx_t& cntx) {
+        utils::profiling::profileEnterFunction(cntx, Here());
         using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
         if (current_size >= Capacity) {
             throw Mars2GribGenericException("FixedVector capacity exceeded", Here());
         }
         data[current_size++] = value;
+        utils::profiling::profileExitFunction(cntx, Here());
     }
 
     /// Remove all elements
-    void clear() { current_size = 0; }
+    template <class Cntx_t>
+    void clear(Cntx_t& cntx) {
+        utils::profiling::profileEnterFunction(cntx, Here());
+        current_size = 0;
+        utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     /// Return the number of stored elements
     std::size_t size() const { return current_size; }
@@ -145,17 +154,18 @@ using GeneralRegistry = metkit::mars2grib::backend::concepts_::GeneralRegistry;
 /// The underscore namespace is used to avoid clashes with the C++20
 /// `concepts` keyword.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
 using EncodingRegistry =
-    metkit::mars2grib::backend::concepts_::EncodingCallbacksRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+    metkit::mars2grib::backend::concepts_::EncodingCallbacksRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t,
+                                                                     Cntx_t>;
 
 ///
 /// @brief Alias for the encoding callback function type.
 ///
 /// Extracted from the encoding callbacks registry.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using Fn_t = typename EncodingRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::Fn_t;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+using Fn_t = typename EncodingRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>::Fn_t;
 
 ///
 /// @brief Encoding execution plan.
@@ -177,9 +187,10 @@ using Fn_t = typename EncodingRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict
 /// Stage `0` is reserved for **section initializers**.
 /// Stages `1..N` contain concept encoding callbacks.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
 using EncodingPlan =
-    std::array<std::array<FixedVector<Fn_t<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, GeneralRegistry::NConcepts>,
+    std::array<std::array<FixedVector<Fn_t<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>,
+                                       GeneralRegistry::NConcepts>,
                           GeneralRegistry::NSections>,
                GeneralRegistry::NStages + 1>;
 
@@ -208,23 +219,27 @@ using EncodingPlan =
 /// @throws Mars2GribFrontendException
 /// If plan construction fails
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> make_EncodingPlan_or_throw(
-    const GribHeaderLayoutData& headerLayout) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> make_EncodingPlan_or_throw(
+    const GribHeaderLayoutData& headerLayout, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
         // Access the static callback registry
-        const auto& callbacks = EncodingRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::encodingCallbacks;
-        EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> table;
+        const auto& callbacks = EncodingRegistry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>::encodingCallbacks;
+        EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> table;
 
         // Stage 0: Populate section initializers (always one initializer per section)
         for (std::size_t sid = 0; sid < GeneralRegistry::NSections; ++sid) {
             std::size_t templ = headerLayout.sectionLayouts[sid].templateNumber;
             table[0][sid].push_back(
                 metkit::mars2grib::backend::sections::initializers::sectionRegistry<MarsDict_t, ParDict_t, OptDict_t,
-                                                                                    OutDict_t>(sid, templ));
+                                                                                     OutDict_t, Cntx_t>(
+                    sid, templ, utils::profiling::callSite(cntx, Here())),
+                utils::profiling::callSite(cntx, Here()));
         }
 
         // Stages 1 to N: Populate encoding callbacks
@@ -234,19 +249,21 @@ EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> make_EncodingPlan_or_t
 
                 // Index pid+1 because stage 0 is reserved for initializers
                 auto& cell = table[pid + 1][sid];
-                cell.clear();
+                cell.clear(utils::profiling::callSite(cntx, Here()));
 
                 for (std::size_t cid = 0; cid < section.count; ++cid) {
                     std::size_t vid = section.variantIndices[cid];
                     const auto& f   = callbacks[vid][pid][sid];
 
                     if (f) {
-                        cell.push_back(f);
+                        cell.push_back(f, utils::profiling::callSite(cntx, Here()));
                     }
                 }
             }
         }
-        return table;
+        EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> result = table;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Unable to create encoding plan", Here()));

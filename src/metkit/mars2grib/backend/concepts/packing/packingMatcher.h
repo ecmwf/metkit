@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/backend/concepts/packing/packingEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -56,21 +57,28 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t packingMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t packingMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::exceptions::Mars2GribMatcherException;
 
-        const auto& packing = get_or_throw<std::string>(mars, "packing");
+        const auto& packing = get_or_throw<std::string>(mars, "packing", utils::profiling::callSite(cntx, Here()));
         if (packing == "simple") {
-            return static_cast<std::size_t>(PackingType::Simple);
+            const std::size_t result = static_cast<std::size_t>(PackingType::Simple);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (packing == "ccsds") {
-            return static_cast<std::size_t>(PackingType::Ccsds);
+            const std::size_t result = static_cast<std::size_t>(PackingType::Ccsds);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (packing == "complex") {
-            return static_cast<std::size_t>(PackingType::SpectralComplex);
+            const std::size_t result = static_cast<std::size_t>(PackingType::SpectralComplex);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw Mars2GribMatcherException{"Unknown value \"" + packing + "\" for mars keyword \"packing\"!", Here()};
@@ -79,6 +87,14 @@ std::size_t packingMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `packing` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t packingMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = packingMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

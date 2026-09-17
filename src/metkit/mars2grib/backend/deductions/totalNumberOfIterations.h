@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System Include
 #include <exception>
 #include <optional>
@@ -119,9 +121,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// - Logging intentionally emits RESOLVE/DEFAULT entries to highlight implicit assumptions.
 ///
 
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 std::optional<long> resolve_TotalNumberOfIterations_opt(const MarsDict_t& mars, const ParDict_t& par,
-                                                        const OptDict_t& opt) {
+                                                        const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -132,8 +135,8 @@ std::optional<long> resolve_TotalNumberOfIterations_opt(const MarsDict_t& mars, 
 
         // Big assumption here:
         // - totalNumberOfIterations is in hours
-        if (has(par, "totalNumberOfIterations")) {
-            long totalNumberOfIterationsVal = get_or_throw<long>(par, "totalNumberOfIterations");
+        if (has(par, "totalNumberOfIterations", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            long totalNumberOfIterationsVal = get_or_throw<long>(par, "totalNumberOfIterations", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -143,7 +146,11 @@ std::optional<long> resolve_TotalNumberOfIterations_opt(const MarsDict_t& mars, 
             }());
 
             // Success exit point
-            return {totalNumberOfIterationsVal};  // Convert hours to seconds
+            {
+                std::optional<long> result{totalNumberOfIterationsVal};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // Convert hours to seconds
         }
         else {
 
@@ -154,7 +161,11 @@ std::optional<long> resolve_TotalNumberOfIterations_opt(const MarsDict_t& mars, 
             }());
 
             // Success exit point
-            return std::nullopt;
+            {
+                std::optional<long> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

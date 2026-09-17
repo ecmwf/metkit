@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -105,8 +107,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction enforces presence-only validation and does not
 /// consult GRIB centre code tables.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -114,7 +117,7 @@ std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par
     try {
 
         // Retrieve (optional) MARS origin
-        std::string origin = get_opt<std::string>(mars, "origin").value_or("ecmf");
+        std::string origin = get_opt<std::string>(mars, "origin", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or("ecmf");
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -124,7 +127,11 @@ std::string resolve_Centre_or_throw(const MarsDict_t& mars, const ParDict_t& par
         }());
 
         // Success exit point
-        return origin;
+        {
+            std::string result = origin;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

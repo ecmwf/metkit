@@ -97,13 +97,13 @@ struct PointInTimeConcept : RegisterEntryDescriptor<PointInTimeType, PointInTime
     /// @tparam Variant    Concept variant
     ///
     template <std::size_t Capability, std::size_t Stage, std::size_t Sec, PointInTimeType Variant, class MarsDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
+              class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
 
             if constexpr (pointInTimeApplicable<Stage, Sec, Variant>()) {
-                return &PointInTimeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+                return &PointInTimeOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
             }
             else {
                 return nullptr;
@@ -117,8 +117,8 @@ struct PointInTimeConcept : RegisterEntryDescriptor<PointInTimeType, PointInTime
     }
 
     template <std::size_t Capability, PointInTimeType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-              class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
+              class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> variantCallbacks() {
         return nullptr;
     }
 
@@ -131,10 +131,10 @@ struct PointInTimeConcept : RegisterEntryDescriptor<PointInTimeType, PointInTime
     /// @tparam Capability Matching/encoding capability index
     /// @return Matcher function pointer, or `nullptr` if not participating.
     ///
-    template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-    static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
+    template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+    static constexpr Fm<MarsDict_t, OptDict_t, Cntx_t> entryCallbacks() {
         if constexpr (Capability == 0) {
-            return &pointInTimeMatcher<MarsDict_t, OptDict_t>;
+            return &pointInTimeMatcher<MarsDict_t, OptDict_t, Cntx_t>;
         }
         else {
             return nullptr;

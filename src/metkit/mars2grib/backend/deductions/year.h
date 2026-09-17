@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <string>
 
@@ -73,8 +75,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///         on malformed or unsupported raw `year` input, with the original
 ///         cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<long> resolve_Year_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<long> resolve_Year_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -83,16 +86,20 @@ std::optional<long> resolve_Year_opt(const MarsDict_t& mars, const ParDict_t& pa
     (void)opt;
 
     try {
-        if (!has(mars, "year")) {
-            return std::nullopt;
+        if (!has(mars, "year", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<long> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         long result = 0;
-        if (auto value = get_opt<long>(mars, "year")) {
+        if (auto value = get_opt<long>(mars, "year", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             result = *value;
         }
-        else if (auto value = get_opt<std::string>(mars, "year")) {
-            result = detail::parseLongStrict(*value, "year");
+        else if (auto value = get_opt<std::string>(mars, "year", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::parseLongStrict(*value, "year", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribDeductionException("Unsupported type for `year`", Here());
@@ -101,6 +108,7 @@ std::optional<long> resolve_Year_opt(const MarsDict_t& mars, const ParDict_t& pa
         MARS2GRIB_LOG_RESOLVE([&]() {
             return std::string{"`year` resolved from input dictionaries: value='"} + std::to_string(result) + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

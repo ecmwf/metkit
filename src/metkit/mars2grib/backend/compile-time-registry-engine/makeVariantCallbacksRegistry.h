@@ -173,8 +173,8 @@ namespace detail {
 /// @tparam OptDict_t  Type of the options dictionary
 /// @tparam OutDict_t  Type of the output dictionary
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using VariantCallback = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+using VariantCallback = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
 
 
 ///
@@ -206,10 +206,11 @@ using VariantCallback = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
 /// for the corresponding variant.
 ///
 template <class Entry, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t,
-          auto... Variants>
-constexpr std::array<VariantCallback<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, sizeof...(Variants)>
+          class Cntx_t, auto... Variants>
+constexpr std::array<VariantCallback<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, sizeof...(Variants)>
 makeEntryVariantCallbacks(ValueList<Variants...>) {
-    return {{Entry::template variantCallbacks<Capability, Variants, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>()...}};
+    return {{Entry::template variantCallbacks<Capability, Variants, MarsDict_t, ParDict_t, OptDict_t, OutDict_t,
+                                              Cntx_t>()...}};
 }
 
 ///
@@ -218,9 +219,10 @@ makeEntryVariantCallbacks(ValueList<Variants...>) {
 /// This overload extracts `Entry::VariantList` automatically and forwards
 /// to the ValueList-based implementation.
 ///
-template <class Entry, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class Entry, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t,
+          class Cntx_t>
 constexpr auto makeEntryVariantCallbacks() {
-    return makeEntryVariantCallbacks<Entry, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(
+    return makeEntryVariantCallbacks<Entry, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
         typename Entry::VariantList{});
 }
 
@@ -245,7 +247,7 @@ constexpr auto makeEntryVariantCallbacks() {
 /// @tparam OutDict_t   Output dictionary type
 ///
 template <class EntriesList, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
+          class OutDict_t, class Cntx_t>
 struct BuildVariantCallbacks;
 
 ///
@@ -255,9 +257,9 @@ struct BuildVariantCallbacks;
 ///
 /// This specialization terminates the recursion.
 ///
-template <std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-struct BuildVariantCallbacks<TypeList<>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t> {
-    static constexpr std::array<VariantCallback<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, 0> value() { return {}; }
+template <std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+struct BuildVariantCallbacks<TypeList<>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> {
+    static constexpr std::array<VariantCallback<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, 0> value() { return {}; }
 };
 
 ///
@@ -271,14 +273,15 @@ struct BuildVariantCallbacks<TypeList<>, Capability, MarsDict_t, ParDict_t, OptD
 /// The order of the resulting array is strictly deterministic.
 ///
 template <class Head, class... Tail, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-struct BuildVariantCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t> {
+          class OutDict_t, class Cntx_t>
+struct BuildVariantCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> {
     static constexpr auto value() {
         constexpr auto head =
-            makeEntryVariantCallbacks<Head, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>();
+            makeEntryVariantCallbacks<Head, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>();
 
         constexpr auto tail =
-            BuildVariantCallbacks<TypeList<Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::value();
+            BuildVariantCallbacks<TypeList<Tail...>, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t,
+                                  Cntx_t>::value();
 
         return concat(head, tail);
     }
@@ -316,9 +319,10 @@ struct BuildVariantCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, Pa
 /// - never modified
 ///
 template <class EntriesList, std::size_t Capability, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
+          class OutDict_t, class Cntx_t>
 constexpr auto makeVariantCallbacksRegistry() {
-    return detail::BuildVariantCallbacks<EntriesList, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>::value();
+    return detail::BuildVariantCallbacks<EntriesList, Capability, MarsDict_t, ParDict_t, OptDict_t, OutDict_t,
+                                         Cntx_t>::value();
 }
 
 }  // namespace metkit::mars2grib::backend::compile_time_registry_engine

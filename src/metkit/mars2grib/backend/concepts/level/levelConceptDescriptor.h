@@ -115,13 +115,13 @@ struct LevelConcept : RegisterEntryDescriptor<LevelType, LevelList> {
     /// @return Function pointer implementing the phase, or `nullptr`
     ///
     template <std::size_t Capability, std::size_t Stage, std::size_t Sec, LevelType Variant, class MarsDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
+              class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
 
             if constexpr (levelApplicable<Stage, Sec, Variant>()) {
-                return &LevelOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+                return &LevelOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
             }
             else {
                 return nullptr;
@@ -152,8 +152,8 @@ struct LevelConcept : RegisterEntryDescriptor<LevelType, LevelList> {
     /// @return Always `nullptr`
     ///
     template <std::size_t Capability, LevelType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-              class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
+              class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> variantCallbacks() {
         return nullptr;
     }
 
@@ -168,10 +168,10 @@ struct LevelConcept : RegisterEntryDescriptor<LevelType, LevelList> {
     ///
     /// @return Matcher function pointer
     ///
-    template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-    static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
+    template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+    static constexpr Fm<MarsDict_t, OptDict_t, Cntx_t> entryCallbacks() {
         if constexpr (Capability == 0) {
-            return &levelMatcher<MarsDict_t, OptDict_t>;
+            return &levelMatcher<MarsDict_t, OptDict_t, Cntx_t>;
         }
         else {
             return nullptr;

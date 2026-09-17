@@ -30,6 +30,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
 
@@ -54,7 +56,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::anchor::detail 
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the anchor matcher fails unexpectedly.
  */
-inline bool match_Hindcast_Anchor(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_Hindcast_Anchor(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -63,11 +67,15 @@ inline bool match_Hindcast_Anchor(const ProductTimeSpecInput& input) {
         const bool hasNoYear  = !input.marsYear.has_value();
         const bool hasNoMonth = !input.marsMonth.has_value();
 
-        return hasDate && hasHdate && hasNoYear && hasNoMonth;
+        {
+            bool result = hasDate && hasHdate && hasNoYear && hasNoMonth;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_Hindcast_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_Hindcast_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -86,8 +94,10 @@ inline bool match_Hindcast_Anchor(const ProductTimeSpecInput& input) {
  *
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecAnchor build_Hindcast_Anchor(const ProductTimeSpecInput& input,
-                                                   const ProductTimeSpecClassification& classification) {
+                                                   const ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchorKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::defaultMarsTime;
@@ -97,26 +107,30 @@ inline ProductTimeSpecAnchor build_Hindcast_Anchor(const ProductTimeSpecInput& i
         (void)classification;
 
         if (!input.marsHdate.has_value()) {
-            throw Mars2GribModelException("Hindcast anchor construction requires hdate", input.to_json(), Here());
+            throw Mars2GribModelException("Hindcast anchor construction requires hdate", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (!input.marsDate.has_value()) {
-            throw Mars2GribModelException("Hindcast anchor construction requires MARS date", input.to_json(), Here());
+            throw Mars2GribModelException("Hindcast anchor construction requires MARS date", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         // In the Hindcast case, the label is the hindcast date at midnight,
         // while the initial conditions and reference are derived from the MARS
         // date plus optional MARS time.
-        const eckit::DateTime labelDateTime             = makeDateTime(*input.marsHdate, defaultMarsTime());
-        const eckit::DateTime initialConditionsDateTime = makeDateTime(*input.marsDate, input.marsTime);
+        const eckit::DateTime labelDateTime             = makeDateTime(*input.marsHdate, defaultMarsTime(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const eckit::DateTime initialConditionsDateTime = makeDateTime(*input.marsDate, input.marsTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const eckit::DateTime referenceDateTime         = initialConditionsDateTime;
 
-        return checkedAnchor(labelDateTime, initialConditionsDateTime, referenceDateTime,
-                             ProductTimeSpecAnchorKind::Hindcast);
+        {
+            ProductTimeSpecAnchor result = checkedAnchor(labelDateTime, initialConditionsDateTime, referenceDateTime,
+                             ProductTimeSpecAnchorKind::Hindcast, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_Hindcast_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_Hindcast_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -132,7 +146,9 @@ inline ProductTimeSpecAnchor build_Hindcast_Anchor(const ProductTimeSpecInput& i
 /// @return `true` when the anchor is valid for the Hindcast case.
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException if
 ///         the resolved anchor is inconsistent with the input or case semantics.
-inline bool check_Hindcast_Anchor(const ProductTimeSpecInput& input, const ProductTimeSpecAnchor& anchor) {
+template <class Cntx_t>
+inline bool check_Hindcast_Anchor(const ProductTimeSpecInput& input, const ProductTimeSpecAnchor& anchor, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchorKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::defaultMarsTime;
@@ -140,51 +156,55 @@ inline bool check_Hindcast_Anchor(const ProductTimeSpecInput& input, const Produ
     try {
 
         if (anchor.anchorType != ProductTimeSpecAnchorKind::Hindcast) {
-            throw Mars2GribModelException("Anchor type mismatch: expected Hindcast", input.to_json(), Here());
+            throw Mars2GribModelException("Anchor type mismatch: expected Hindcast", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (anchor.initialConditionsDateTime != anchor.referenceDateTime) {
             throw Mars2GribModelException(
-                "Initial conditions datetime and reference datetime must be equal for Hindcast", input.to_json(),
+                "Initial conditions datetime and reference datetime must be equal for Hindcast", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (anchor.labelDateTime > anchor.initialConditionsDateTime) {
             throw Mars2GribModelException("Label datetime must not follow initial conditions datetime for Hindcast",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (!input.marsHdate.has_value()) {
-            throw Mars2GribModelException("Input missing hdate for Hindcast", input.to_json(), Here());
+            throw Mars2GribModelException("Input missing hdate for Hindcast", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (!input.marsDate.has_value()) {
-            throw Mars2GribModelException("Input missing MARS date for Hindcast", input.to_json(), Here());
+            throw Mars2GribModelException("Input missing MARS date for Hindcast", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (anchor.labelDateTime.date() != *input.marsHdate) {
-            throw Mars2GribModelException("Anchor label date does not match input hdate", input.to_json(), Here());
+            throw Mars2GribModelException("Anchor label date does not match input hdate", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (anchor.labelDateTime.time() != defaultMarsTime()) {
-            throw Mars2GribModelException("Anchor label time must be 00:00:00 for Hindcast", input.to_json(), Here());
+        if (anchor.labelDateTime.time() != defaultMarsTime(metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("Anchor label time must be 00:00:00 for Hindcast", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (anchor.initialConditionsDateTime.date() != *input.marsDate) {
             throw Mars2GribModelException("Anchor initial conditions date does not match input MARS date",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (anchor.initialConditionsDateTime.time() != input.marsTime.value_or(defaultMarsTime())) {
+        if (anchor.initialConditionsDateTime.time() != input.marsTime.value_or(defaultMarsTime(metkit::mars2grib::utils::profiling::callSite(cntx, Here())))) {
             throw Mars2GribModelException("Anchor initial conditions time does not match input MARS time",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_Hindcast_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_Hindcast_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

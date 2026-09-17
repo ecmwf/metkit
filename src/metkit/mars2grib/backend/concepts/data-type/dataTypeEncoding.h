@@ -50,6 +50,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/data-type/dataTypeEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/productionStatusOfProcessedData.h"
@@ -146,8 +147,9 @@ constexpr bool dataTypeApplicable() {
 /// @see dataTypeApplicable
 ///
 template <std::size_t Stage, std::size_t Section, DataTypeType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void DataTypeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void DataTypeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
@@ -161,20 +163,22 @@ void DataTypeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
 
             // Deductions
             tables::TypeOfProcessedData typeOfProcessedData =
-                deductions::resolve_TypeOfProcessedData_or_throw(mars, par, opt);
+                deductions::resolve_TypeOfProcessedData_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             tables::ProductionStatusOfProcessedData productionStatusOfProcessedData =
-                deductions::resolve_ProductionStatusOfProcessedData_or_throw(mars, par, opt);
+                deductions::resolve_ProductionStatusOfProcessedData_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
             // @todo -> set_or_throw<std::string>(out, "typeOfProcessedData",
             // enum2name_TypeOfProcessedData_or_throw(typeOfProcessedData));
-            set_or_throw<long>(out, "typeOfProcessedData", static_cast<long>(typeOfProcessedData));
+            set_or_throw<long>(out, "typeOfProcessedData", static_cast<long>(typeOfProcessedData), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             set_or_throw<long>(out, "productionStatusOfProcessedData",
-                               static_cast<long>(productionStatusOfProcessedData));
+                               static_cast<long>(productionStatusOfProcessedData), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(dataType, "Unable to set `dataType` concept...");
         }
+
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
 
         return;
     }

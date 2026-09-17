@@ -39,6 +39,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -103,8 +104,9 @@ constexpr bool referencePeriodApplicable() {
 /// @see referencePeriodApplicable
 ///
 template <std::size_t Stage, std::size_t Section, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     static_cast<void>(mars);
     static_cast<void>(par);
@@ -124,6 +126,7 @@ void ReferencePeriodOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

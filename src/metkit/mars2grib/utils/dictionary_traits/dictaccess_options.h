@@ -214,7 +214,9 @@ inline std::string getStringOrThrow(const Options& opts, std::string_view key) {
 template <>
 struct DictToJsonTraits<Options> {
 
-    static std::string to_json(const Options& opts) noexcept(true) {
+    template <class Cntx_t>
+    static std::string to_json(const Options& opts, Cntx_t& cntx) noexcept(true) {
+        profiling::profileEnterFunction(cntx, Here());
         try {
             std::string json;
             json.reserve(512);
@@ -242,10 +244,13 @@ struct DictToJsonTraits<Options> {
             options_detail::appendJsonBool(json, "allowMissingTimespanForStatisticalProduct",
                                            opts.allowMissingTimespanForStatisticalProduct, false);
             json += '}';
+            profiling::profileExitFunction(cntx, Here());
             return json;
         }
         catch (...) {
-            return "[to_json failed for metkit::mars2grib::Options]";
+            std::string result{"[to_json failed for metkit::mars2grib::Options]"};
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
     }
 };
@@ -267,13 +272,13 @@ struct DictToJsonTraits<Options> {
 template <>
 struct DictHas<Options> {
 
-    static bool has(const Options& opts, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static bool has(const Options& opts, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
 
-        if (options_detail::isKnownKey(key)) {
-            return true;
-        }
-
-        return false;
+        const bool result = options_detail::isKnownKey(key);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
@@ -284,44 +289,65 @@ struct DictHas<Options> {
 template <>
 struct DictGetOrThrow<Options, bool> {
 
-    static bool get_or_throw(const Options& opts, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static bool get_or_throw(const Options& opts, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
 
-        return options_detail::getBoolOrThrow(opts, key);
+        const bool result = options_detail::getBoolOrThrow(opts, key);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
 template <>
 struct DictGetOpt<Options, bool> {
 
-    static std::optional<bool> get_opt(const Options& opts, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static std::optional<bool> get_opt(const Options& opts, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
 
         if (!options_detail::isBoolKey(key)) {
-            return std::nullopt;
+            std::optional<bool> result = std::nullopt;
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        return options_detail::getBoolOrThrow(opts, key);
+        std::optional<bool> result = options_detail::getBoolOrThrow(opts, key);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
 template <>
 struct DictGetOrThrow<Options, std::string> {
 
-    static std::string get_or_throw(const Options& opts, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static std::string get_or_throw(const Options& opts, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
 
-        return options_detail::getStringOrThrow(opts, key);
+        std::string result = options_detail::getStringOrThrow(opts, key);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
 template <>
 struct DictGetOpt<Options, std::string> {
 
-    static std::optional<std::string> get_opt(const Options& opts, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static std::optional<std::string> get_opt(const Options& opts, std::string_view key,
+                                               Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
 
         if (!options_detail::isStringKey(key)) {
-            return std::nullopt;
+            std::optional<std::string> result = std::nullopt;
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        return options_detail::getStringOrThrow(opts, key);
+        std::optional<std::string> result = options_detail::getStringOrThrow(opts, key);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 

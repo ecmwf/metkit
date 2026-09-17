@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -90,58 +92,180 @@ enum class TypeOfGeneratingProcess : long {
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes GRIB code tables.
 ///
-inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const std::string& value) {
+template <class Cntx_t>
+inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (value == "analysis")
-        return TypeOfGeneratingProcess::Analysis;
-    else if (value == "initialization")
-        return TypeOfGeneratingProcess::Initialization;
-    else if (value == "forecast")
-        return TypeOfGeneratingProcess::Forecast;
-    else if (value == "biasCorrectedForecast")
-        return TypeOfGeneratingProcess::BiasCorrectedForecast;
-    else if (value == "ensembleForecast")
-        return TypeOfGeneratingProcess::EnsembleForecast;
-    else if (value == "probabilityForecast")
-        return TypeOfGeneratingProcess::ProbabilityForecast;
-    else if (value == "forecastError")
-        return TypeOfGeneratingProcess::ForecastError;
-    else if (value == "analysisError")
-        return TypeOfGeneratingProcess::AnalysisError;
-    else if (value == "observation")
-        return TypeOfGeneratingProcess::Observation;
-    else if (value == "climatological")
-        return TypeOfGeneratingProcess::Climatological;
-    else if (value == "probabilityWeightedForecast")
-        return TypeOfGeneratingProcess::ProbabilityWeightedForecast;
-    else if (value == "biasCorrectedEnsembleForecast")
-        return TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
-    else if (value == "postProcessedAnalysis")
-        return TypeOfGeneratingProcess::PostProcessedAnalysis;
-    else if (value == "postProcessedForecast")
-        return TypeOfGeneratingProcess::PostProcessedForecast;
-    else if (value == "nowcast")
-        return TypeOfGeneratingProcess::Nowcast;
-    else if (value == "hindcast")
-        return TypeOfGeneratingProcess::Hindcast;
-    else if (value == "physicalRetrieval")
-        return TypeOfGeneratingProcess::PhysicalRetrieval;
-    else if (value == "regressionAnalysis")
-        return TypeOfGeneratingProcess::RegressionAnalysis;
-    else if (value == "differenceBetweenTwoForecasts")
-        return TypeOfGeneratingProcess::DifferenceBetweenTwoForecasts;
-    else if (value == "firstGuess")
-        return TypeOfGeneratingProcess::FirstGuess;
-    else if (value == "analysisIncrement")
-        return TypeOfGeneratingProcess::AnalysisIncrement;
-    else if (value == "initializationIncrementForAnalysis")
-        return TypeOfGeneratingProcess::InitializationIncrementForAnalysis;
-    else if (value == "blendedForecast")
-        return TypeOfGeneratingProcess::BlendedForecast;
-    else if (value == "missing")
-        return TypeOfGeneratingProcess::Missing;
+    if (value == "analysis") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Analysis;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "initialization") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Initialization;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "forecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Forecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "biasCorrectedForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "ensembleForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::EnsembleForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "probabilityForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::ProbabilityForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "forecastError") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::ForecastError;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "analysisError") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::AnalysisError;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "observation") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Observation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "climatological") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Climatological;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "probabilityWeightedForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::ProbabilityWeightedForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "biasCorrectedEnsembleForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "postProcessedAnalysis") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedAnalysis;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "postProcessedForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PostProcessedForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "nowcast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Nowcast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "hindcast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Hindcast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "physicalRetrieval") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::PhysicalRetrieval;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "regressionAnalysis") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::RegressionAnalysis;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "differenceBetweenTwoForecasts") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::DifferenceBetweenTwoForecasts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "firstGuess") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::FirstGuess;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "analysisIncrement") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::AnalysisIncrement;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "initializationIncrementForAnalysis") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::InitializationIncrementForAnalysis;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "blendedForecast") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::BlendedForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "missing") {
+        {
+            TypeOfGeneratingProcess result = TypeOfGeneratingProcess::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
     else {
         std::string errMsg = "Invalid TypeOfGeneratingProcess value: ";
         errMsg += "actual='" + value + "'";
@@ -173,59 +297,157 @@ inline TypeOfGeneratingProcess name2enum_TypeOfGeneratingProcess_or_throw(const 
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes GRIB code tables.
 ///
-inline std::string enum2name_TypeOfGeneratingProcess_or_throw(TypeOfGeneratingProcess value) {
+template <class Cntx_t>
+inline std::string enum2name_TypeOfGeneratingProcess_or_throw(TypeOfGeneratingProcess value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TypeOfGeneratingProcess::Analysis:
-            return "analysis";
+            {
+                std::string result = "analysis";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Initialization:
-            return "initialization";
+            {
+                std::string result = "initialization";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Forecast:
-            return "forecast";
+            {
+                std::string result = "forecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::BiasCorrectedForecast:
-            return "biasCorrectedForecast";
+            {
+                std::string result = "biasCorrectedForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::EnsembleForecast:
-            return "ensembleForecast";
+            {
+                std::string result = "ensembleForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::ProbabilityForecast:
-            return "probabilityForecast";
+            {
+                std::string result = "probabilityForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::ForecastError:
-            return "forecastError";
+            {
+                std::string result = "forecastError";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::AnalysisError:
-            return "analysisError";
+            {
+                std::string result = "analysisError";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Observation:
-            return "observation";
+            {
+                std::string result = "observation";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Climatological:
-            return "climatological";
+            {
+                std::string result = "climatological";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::ProbabilityWeightedForecast:
-            return "probabilityWeightedForecast";
+            {
+                std::string result = "probabilityWeightedForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::BiasCorrectedEnsembleForecast:
-            return "biasCorrectedEnsembleForecast";
+            {
+                std::string result = "biasCorrectedEnsembleForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::PostProcessedAnalysis:
-            return "postProcessedAnalysis";
+            {
+                std::string result = "postProcessedAnalysis";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::PostProcessedForecast:
-            return "postProcessedForecast";
+            {
+                std::string result = "postProcessedForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Nowcast:
-            return "nowcast";
+            {
+                std::string result = "nowcast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Hindcast:
-            return "hindcast";
+            {
+                std::string result = "hindcast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::PhysicalRetrieval:
-            return "physicalRetrieval";
+            {
+                std::string result = "physicalRetrieval";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::RegressionAnalysis:
-            return "regressionAnalysis";
+            {
+                std::string result = "regressionAnalysis";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::DifferenceBetweenTwoForecasts:
-            return "differenceBetweenTwoForecasts";
+            {
+                std::string result = "differenceBetweenTwoForecasts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::FirstGuess:
-            return "firstGuess";
+            {
+                std::string result = "firstGuess";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::AnalysisIncrement:
-            return "analysisIncrement";
+            {
+                std::string result = "analysisIncrement";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::InitializationIncrementForAnalysis:
-            return "initializationIncrementForAnalysis";
+            {
+                std::string result = "initializationIncrementForAnalysis";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::BlendedForecast:
-            return "blendedForecast";
+            {
+                std::string result = "blendedForecast";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfGeneratingProcess::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             std::string errMsg = "Invalid TypeOfGeneratingProcess enum value: ";
             errMsg += std::to_string(static_cast<long>(value));

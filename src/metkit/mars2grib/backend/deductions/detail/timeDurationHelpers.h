@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
 
@@ -41,16 +43,26 @@ namespace metkit::mars2grib::backend::deductions::detail {
 /// @return Canonical elapsed duration.
 /// @throws Mars2GribDeductionException if `seconds` is negative.
 ///
-inline TimeDuration canonicalElapsedDuration(long seconds, const std::string& key) {
+template <class Cntx_t>
+inline TimeDuration canonicalElapsedDuration(long seconds, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     if (seconds < 0) {
         throw Mars2GribDeductionException("`" + key + "` must be non-negative", Here());
     }
     if (seconds > 0 && seconds % 3600L == 0) {
-        return TimeDuration{seconds / 3600L, tables::TimeUnit::Hour};
+        {
+            TimeDuration result = TimeDuration{seconds / 3600L, tables::TimeUnit::Hour};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
-    return TimeDuration{seconds, tables::TimeUnit::Second};
+    {
+        TimeDuration result = TimeDuration{seconds, tables::TimeUnit::Second};
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::deductions::detail

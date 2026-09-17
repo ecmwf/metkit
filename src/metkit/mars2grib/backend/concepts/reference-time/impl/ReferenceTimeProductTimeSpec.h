@@ -35,6 +35,7 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::concepts_::impl {
 
@@ -72,17 +73,20 @@ struct ReferenceTimeProductTimeSpec {
 ///   anchor artifact.
 ///
 /// @param[in] spec Final immutable backend-model `ProductTimeAnchorSpec`.
+/// @param[in,out] cntx Profiling context.
 /// @return Fully populated `ReferenceTimeProductTimeSpec`.
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribGenericException on
 ///         invalid anchor semantics or any unexpected failure, with the
 ///         original cause preserved through nested exceptions.
 ///
+template <class Cntx_t>
 inline ReferenceTimeProductTimeSpec build_ReferenceTimeProductTimeSpec_or_throw(
-    const models::product_time_spec::ProductTimeAnchorSpec& spec) {
+    const models::product_time_spec::ProductTimeAnchorSpec& spec, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        const auto& anchor = spec.anchor();
+        const auto& anchor = spec.anchor(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (anchor.referenceDateTime != anchor.initialConditionsDateTime) {
             throw Mars2GribGenericException(
@@ -94,6 +98,7 @@ inline ReferenceTimeProductTimeSpec build_ReferenceTimeProductTimeSpec_or_throw(
         out.labelDateTime             = anchor.labelDateTime;
         out.initialConditionsDateTime = anchor.initialConditionsDateTime;
         out.referenceDateTime         = anchor.referenceDateTime;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return out;
     }
     catch (...) {

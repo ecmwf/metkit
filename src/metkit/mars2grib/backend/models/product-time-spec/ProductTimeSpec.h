@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 #include <utility>
 
@@ -91,15 +93,37 @@ public:
     ///         any deduction or anchor-build failure, with the original cause
     ///         attached via `std::throw_with_nested`.
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t>
-    ProductTimeAnchorSpec(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) :
-        ProductTimeAnchorSpec(make_ProductTimeAnchorSpecInput_or_throw(mars, par, opt)) {}
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+    ProductTimeAnchorSpec(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) :
+        ProductTimeAnchorSpec(
+            make_ProductTimeAnchorSpecInput_or_throw(
+                mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here())) {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     /// @brief Return the resolved anchor classification.
-    anchor::ProductTimeSpecAnchorKind anchorType() const noexcept { return anchorType_; }
+    template <class Cntx_t>
+    anchor::ProductTimeSpecAnchorKind anchorType(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            anchor::ProductTimeSpecAnchorKind result = anchorType_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     /// @brief Return the resolved anchor artifact.
-    const anchor::ProductTimeSpecAnchor& anchor() const noexcept { return anchor_; }
+    template <class Cntx_t>
+    const anchor::ProductTimeSpecAnchor& anchor(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            const anchor::ProductTimeSpecAnchor& result = anchor_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     ///
     /// @brief Serialize the final immutable ProductTimeAnchorSpec as diagnostic
@@ -112,17 +136,27 @@ public:
     /// @return One JSON object string on success, or a stable fallback JSON
     ///         error object if serialization itself fails.
     ///
-    std::string to_json() const noexcept {
+    template <class Cntx_t>
+    std::string to_json(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         try {
             std::ostringstream out;
-            out << '{' << detail::jsonQuote_modelInput("anchorType") << ':'
-                << detail::jsonQuote_modelInput(anchor::productTimeSpecAnchorTypeName(anchorType_)) << ','
-                << detail::jsonQuote_modelInput("anchor") << ':' << anchor::productTimeSpecAnchorJson(anchor_) << '}';
-            return out.str();
+            out << '{' << detail::jsonQuote_modelInput("anchorType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::jsonQuote_modelInput(anchor::productTimeSpecAnchorTypeName(anchorType_), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("anchor", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << anchor::productTimeSpecAnchorJson(anchor_, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << '}';
+            {
+                std::string result = out.str();
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         catch (...) {
-            return std::string{
+            {
+                std::string result = std::string{
                 "{\"error\":\"ProductTimeAnchorSpec::to_json() failed while building diagnostic context\"}"};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
 
@@ -153,25 +187,30 @@ private:
     ///         any deduction failure, with the original cause attached via
     ///         `std::throw_with_nested`.
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
     static ProductTimeSpecInput make_ProductTimeAnchorSpecInput_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                                         const OptDict_t& opt) {
+                                                                         const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
         try {
             ProductTimeSpecInput input;
-            input.marsYear                             = deductions::resolve_Year_opt(mars, par, opt);
-            input.marsMonth                            = deductions::resolve_Month_opt(mars, par, opt);
-            input.marsDate                             = deductions::resolve_Date_opt(mars, par, opt);
-            input.marsTime                             = deductions::resolve_Time_opt(mars, par, opt);
-            input.marsHdate                            = deductions::resolve_Hdate_opt(mars, par, opt);
+            input.marsYear                             = deductions::resolve_Year_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            input.marsMonth                            = deductions::resolve_Month_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            input.marsDate                             = deductions::resolve_Date_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            input.marsTime                             = deductions::resolve_Time_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            input.marsHdate                            = deductions::resolve_Hdate_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             input.innerMostTypeOfStatisticalProcessing = tables::TypeOfStatisticalProcessing::Missing;
 
             MARS2GRIB_LOG_RESOLVE([&]() {
-                return std::string{"`ProductTimeAnchorSpecInput` built from deductions: "} + input.to_json();
+                return std::string{"`ProductTimeAnchorSpecInput` built from deductions: "} + input.to_json(cntx);
             }());
 
-            return input;
+            {
+                ProductTimeSpecInput result = input;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         catch (...) {
             std::throw_with_nested(
@@ -196,23 +235,26 @@ private:
     ///         any classification or build failure, with the original cause
     ///         attached via `std::throw_with_nested`.
     ///
-    static ProductTimeAnchorSpecComponents build_ProductTimeAnchorSpecComponents_or_throw(ProductTimeSpecInput input) {
+template <class Cntx_t>
+    static ProductTimeAnchorSpecComponents build_ProductTimeAnchorSpecComponents_or_throw(ProductTimeSpecInput input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
         try {
-            const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input);
+            const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             ProductTimeSpecClassification classification;
             classification.anchorType            = anchorType;
-            anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification);
+            anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             ProductTimeAnchorSpecComponents result;
             result.anchorType = anchorType;
             result.anchor     = std::move(anchor);
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
             return result;
         }
         catch (...) {
             std::throw_with_nested(Mars2GribModelException(
-                "Failed to build `ProductTimeAnchorSpec` staged components from normalized input", input.to_json(),
+                "Failed to build `ProductTimeAnchorSpec` staged components from normalized input", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here()));
         }
 
@@ -225,8 +267,15 @@ private:
     ///
     /// @param[in] input Complete normalized anchor-only input snapshot.
     ///
-    explicit ProductTimeAnchorSpec(ProductTimeSpecInput input) :
-        ProductTimeAnchorSpec(build_ProductTimeAnchorSpecComponents_or_throw(std::move(input))) {}
+    template <class Cntx_t>
+    explicit ProductTimeAnchorSpec(ProductTimeSpecInput input, Cntx_t& cntx) :
+        ProductTimeAnchorSpec(
+            build_ProductTimeAnchorSpecComponents_or_throw(
+                std::move(input), metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here())) {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     ///
     /// @brief Final private construction stage from staged components.
@@ -234,8 +283,12 @@ private:
     /// @param[in] components Staged component bundle used for final member
     ///            initialization.
     ///
-    explicit ProductTimeAnchorSpec(ProductTimeAnchorSpecComponents components) :
-        anchorType_(components.anchorType), anchor_(std::move(components.anchor)) {}
+    template <class Cntx_t>
+    explicit ProductTimeAnchorSpec(ProductTimeAnchorSpecComponents components, Cntx_t& cntx) :
+        anchorType_(components.anchorType), anchor_(std::move(components.anchor)) {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     const anchor::ProductTimeSpecAnchorKind anchorType_;
     const anchor::ProductTimeSpecAnchor anchor_;
@@ -278,28 +331,82 @@ public:
     ///         any deduction or normalized-input assembly failure, with the
     ///         original cause attached via `std::throw_with_nested`.
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
     ProductTimeSpec(tables::TypeOfStatisticalProcessing innerMostTypeOfStatisticalProcessing, const MarsDict_t& mars,
-                    const ParDict_t& par, const OptDict_t& opt) :
-        ProductTimeSpec(make_ProductTimeSpecInput_or_throw(innerMostTypeOfStatisticalProcessing, mars, par, opt)) {}
+                    const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) :
+        ProductTimeSpec(
+            make_ProductTimeSpecInput_or_throw(innerMostTypeOfStatisticalProcessing, mars, par, opt,
+                                               metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here())) {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     /// @brief Return the resolved anchor classification.
-    anchor::ProductTimeSpecAnchorKind anchorType() const noexcept { return anchorType_; }
+    template <class Cntx_t>
+    anchor::ProductTimeSpecAnchorKind anchorType(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            anchor::ProductTimeSpecAnchorKind result = anchorType_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     /// @brief Return the resolved shape classification.
-    shape::ProductTimeSpecShapeKind shapeType() const noexcept { return shapeType_; }
+    template <class Cntx_t>
+    shape::ProductTimeSpecShapeKind shapeType(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            shape::ProductTimeSpecShapeKind result = shapeType_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     /// @brief Return the resolved domain classification.
-    domain::ProductTimeSpecDomainKind domainType() const noexcept { return domainType_; }
+    template <class Cntx_t>
+    domain::ProductTimeSpecDomainKind domainType(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            domain::ProductTimeSpecDomainKind result = domainType_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     /// @brief Return the resolved anchor artifact.
-    const anchor::ProductTimeSpecAnchor& anchor() const noexcept { return anchor_; }
+    template <class Cntx_t>
+    const anchor::ProductTimeSpecAnchor& anchor(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            const anchor::ProductTimeSpecAnchor& result = anchor_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     /// @brief Return the resolved absolute support domain.
-    const domain::ProductTimeSpecDomain& domain() const noexcept { return domain_; }
+    template <class Cntx_t>
+    const domain::ProductTimeSpecDomain& domain(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            const domain::ProductTimeSpecDomain& result = domain_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     /// @brief Return the resolved canonical window sequence.
-    const shape::ProductTimeSpecShape& windows() const noexcept { return windows_; }
+    template <class Cntx_t>
+    const shape::ProductTimeSpecShape& windows(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        {
+            const shape::ProductTimeSpecShape& result = windows_;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     ///
     /// @brief Serialize the final immutable ProductTimeSpec as diagnostic JSON.
@@ -311,22 +418,32 @@ public:
     /// @return One JSON object string on success, or a stable fallback JSON
     ///         error object if serialization itself fails.
     ///
-    std::string to_json() const noexcept {
+    template <class Cntx_t>
+    std::string to_json(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         try {
             std::ostringstream out;
-            out << '{' << detail::jsonQuote_modelInput("anchorType") << ':'
-                << detail::jsonQuote_modelInput(anchor::productTimeSpecAnchorTypeName(anchorType_)) << ','
-                << detail::jsonQuote_modelInput("shapeType") << ':'
-                << detail::jsonQuote_modelInput(shape::productTimeSpecShapeTypeName(shapeType_)) << ','
-                << detail::jsonQuote_modelInput("domainType") << ':'
-                << detail::jsonQuote_modelInput(domain::productTimeSpecDomainTypeName(domainType_)) << ','
-                << detail::jsonQuote_modelInput("anchor") << ':' << anchor::productTimeSpecAnchorJson(anchor_) << ','
-                << detail::jsonQuote_modelInput("domain") << ':' << domain::productTimeSpecDomainJson(domain_) << ','
-                << detail::jsonQuote_modelInput("windows") << ':' << shape::productTimeSpecShapeJson(windows_) << '}';
-            return out.str();
+            out << '{' << detail::jsonQuote_modelInput("anchorType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::jsonQuote_modelInput(anchor::productTimeSpecAnchorTypeName(anchorType_), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("shapeType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::jsonQuote_modelInput(shape::productTimeSpecShapeTypeName(shapeType_), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("domainType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::jsonQuote_modelInput(domain::productTimeSpecDomainTypeName(domainType_), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("anchor", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << anchor::productTimeSpecAnchorJson(anchor_, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("domain", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << domain::productTimeSpecDomainJson(domain_, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("windows", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << shape::productTimeSpecShapeJson(windows_, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << '}';
+            {
+                std::string result = out.str();
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         catch (...) {
-            return std::string{"{\"error\":\"ProductTimeSpec::to_json() failed while building diagnostic context\"}"};
+            {
+                std::string result = std::string{"{\"error\":\"ProductTimeSpec::to_json() failed while building diagnostic context\"}"};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
 
@@ -363,29 +480,31 @@ private:
     ///         any classification or build failure, with the original cause
     ///         attached via `std::throw_with_nested`.
     ///
-    static ProductTimeSpecComponents build_ProductTimeSpecComponents_or_throw(ProductTimeSpecInput input) {
+template <class Cntx_t>
+    static ProductTimeSpecComponents build_ProductTimeSpecComponents_or_throw(ProductTimeSpecInput input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
         try {
-            const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input);
-            const domain::ProductTimeSpecDomainKind domainType = domain::classify_Domain_or_throw(input);
-            const shape::ProductTimeSpecShapeKind shapeType    = shape::classify_Shape_or_throw(input);
+            const anchor::ProductTimeSpecAnchorKind anchorType = anchor::classify_Anchor_or_throw(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            const domain::ProductTimeSpecDomainKind domainType = domain::classify_Domain_or_throw(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            const shape::ProductTimeSpecShapeKind shapeType    = shape::classify_Shape_or_throw(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             ProductTimeSpecClassification classification;
             classification.anchorType = anchorType;
             classification.shapeType  = shapeType;
             classification.domainType = domainType;
 
-            anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification);
+            anchor::ProductTimeSpecAnchor anchor = anchor::build_Anchor_or_throw(anchorType, input, classification, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             const shape::ProductTimeSpecOuterTimeRange outerTimeRange =
-                shape::build_ShapeOuterTimeRange_or_throw(shapeType, input, classification);
+                shape::build_ShapeOuterTimeRange_or_throw(shapeType, input, classification, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             domain::ProductTimeSpecDomain domain =
-                domain::build_Domain_or_throw(domainType, input, classification, anchor, outerTimeRange);
+                domain::build_Domain_or_throw(domainType, input, classification, anchor, outerTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             const shape::ProductTimeSpecShape rawWindows =
-                shape::build_ShapeWindows_or_throw(shapeType, input, classification, anchor, outerTimeRange, domain);
+                shape::build_ShapeWindows_or_throw(shapeType, input, classification, anchor, outerTimeRange, domain, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             const shape::ProductTimeSpecShape normalisedWindows =
-                detail::normalizeShape_or_throw(input, domain, rawWindows);
+                detail::normalizeShape_or_throw(input, domain, rawWindows, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             ProductTimeSpecComponents result;
             result.anchorType = anchorType;
@@ -394,11 +513,12 @@ private:
             result.anchor     = std::move(anchor);
             result.domain     = std::move(domain);
             result.windows    = std::move(normalisedWindows);
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
             return result;
         }
         catch (...) {
             std::throw_with_nested(Mars2GribModelException(
-                "Failed to build `ProductTimeSpec` staged components from normalized input", input.to_json(), Here()));
+                "Failed to build `ProductTimeSpec` staged components from normalized input", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
         }
 
         mars2gribUnreachable();
@@ -413,8 +533,15 @@ private:
     ///
     /// @param[in] input Complete normalized ProductTimeSpec input snapshot.
     ///
-    explicit ProductTimeSpec(ProductTimeSpecInput input) :
-        ProductTimeSpec(build_ProductTimeSpecComponents_or_throw(std::move(input))) {}
+    template <class Cntx_t>
+    explicit ProductTimeSpec(ProductTimeSpecInput input, Cntx_t& cntx) :
+        ProductTimeSpec(
+            build_ProductTimeSpecComponents_or_throw(
+                std::move(input), metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here())) {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     ///
     /// @brief Final private construction stage from staged components.
@@ -425,13 +552,17 @@ private:
     /// @param[in] components Staged component bundle used for final member
     ///            initialization.
     ///
-    explicit ProductTimeSpec(ProductTimeSpecComponents components) :
+    template <class Cntx_t>
+    explicit ProductTimeSpec(ProductTimeSpecComponents components, Cntx_t& cntx) :
         anchorType_(components.anchorType),
         shapeType_(components.shapeType),
         domainType_(components.domainType),
         anchor_(std::move(components.anchor)),
         domain_(std::move(components.domain)),
-        windows_(std::move(components.windows)) {}
+        windows_(std::move(components.windows)) {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     const anchor::ProductTimeSpecAnchorKind anchorType_;
     const shape::ProductTimeSpecShapeKind shapeType_;

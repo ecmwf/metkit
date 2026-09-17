@@ -64,6 +64,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <algorithm>
 #include <array>
@@ -193,10 +195,16 @@ constexpr std::array<PvEntry, 1> pv_tables = {{{137, 1002, data::pv_137_1002_be.
 /// The caller is responsible for ensuring that `p` points to at least
 /// `sizeof(double)` valid bytes.
 ///
-inline double bytesToDouble(const uint8_t* p) {
+template <class Cntx_t>
+inline double bytesToDouble(const uint8_t* p, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     double v;
     std::memcpy(&v, p, sizeof(double));
-    return v;
+    {
+        double result = v;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -226,10 +234,16 @@ inline double bytesToDouble(const uint8_t* p) {
 /// No validation of the input byte sequence is performed. The caller is
 /// responsible for ensuring that `p` points to at least 8 valid bytes.
 ///
-inline double bytesToDoubleSwapped(const uint8_t* p) {
+template <class Cntx_t>
+inline double bytesToDoubleSwapped(const uint8_t* p, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     uint8_t tmp[8];
     std::reverse_copy(p, p + 8, tmp);
-    return bytesToDouble(tmp);
+    {
+        double result = bytesToDouble(tmp, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 
@@ -264,20 +278,32 @@ inline double bytesToDoubleSwapped(const uint8_t* p) {
 /// The detection is runtime-based and should typically be executed once and
 /// cached, as the result is invariant for the lifetime of the process.
 ///
-inline bool hostIsLittleEndian_or_throw() {
+template <class Cntx_t>
+inline bool hostIsLittleEndian_or_throw(Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     constexpr double sentinel                    = 1.23456789;
     constexpr std::array<uint8_t, 8> sentinel_be = {0x3F, 0xF3, 0xC0, 0xCA, 0x42, 0x83, 0xDE, 0x1B};
 
-    const double v0 = bytesToDouble(sentinel_be.data());
-    if (v0 == sentinel)
-        return false;  // host BE
+    const double v0 = bytesToDouble(sentinel_be.data(), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+    if (v0 == sentinel) {
+        {
+            bool result = false;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }  // host BE
+    }
 
-    const double v1 = bytesToDoubleSwapped(sentinel_be.data());
-    if (v1 == sentinel)
-        return true;  // host LE
+    const double v1 = bytesToDoubleSwapped(sentinel_be.data(), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+    if (v1 == sentinel) {
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }  // host LE
+    }
 
     throw Mars2GribDeductionException("Unsupported floating-point representation (non IEEE754 double?)", Here());
 
@@ -315,8 +341,14 @@ inline bool hostIsLittleEndian_or_throw() {
 /// No validation of the floating-point representation is performed here; the
 /// correctness of the input bytes is assumed.
 ///
-inline double readDoubleMaybeSwapped(const std::array<uint8_t, 8>& p, bool swap) {
-    return swap ? bytesToDoubleSwapped(p.data()) : bytesToDouble(p.data());
+template <class Cntx_t>
+inline double readDoubleMaybeSwapped(const std::array<uint8_t, 8>& p, bool swap, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    {
+        double result = swap ? bytesToDoubleSwapped(p.data(), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) : bytesToDouble(p.data(), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -361,7 +393,9 @@ inline double readDoubleMaybeSwapped(const std::array<uint8_t, 8>& p, bool swap)
 /// This function is intended for use at API or backend boundaries and follows
 /// a fail-fast strategy with rich error context propagation.
 ///
-inline std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
+template <class Cntx_t>
+inline std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -383,18 +417,22 @@ inline std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
         }
 
         // 2) Sentinel endian detection (need to be done only once, hence `static`)
-        static const bool swap = hostIsLittleEndian_or_throw();
+        static const bool swap = hostIsLittleEndian_or_throw(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // 3) Decode
         std::vector<double> out;
         out.reserve(entry->size);
 
         for (long i = 0; i < entry->size; ++i) {
-            out.push_back(readDoubleMaybeSwapped(entry->data[i], swap));
+            out.push_back(readDoubleMaybeSwapped(entry->data[i], swap, metkit::mars2grib::utils::profiling::callSite(cntx, Here())));
         }
 
         // RReturn decoded sentinel
-        return out;
+        {
+            std::vector<double> result = out;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribDeductionException("Unable to lookup PV array from size", Here()));
@@ -420,12 +458,14 @@ inline std::vector<double> lookup_PvArrayFromSize_or_throw(long pvArraySize) {
 /// @throws Mars2GribDeductionException
 /// If the host floating-point representation is unsupported.
 ///
-inline std::vector<HexDouble> toHexDoubleBE(const std::vector<double>& values) {
+template <class Cntx_t>
+inline std::vector<HexDouble> toHexDoubleBE(const std::vector<double>& values, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     static_assert(sizeof(double) == 8, "Unsupported double size");
 
     // Determine host endian once
-    static const bool host_is_le = hostIsLittleEndian_or_throw();
+    static const bool host_is_le = hostIsLittleEndian_or_throw(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
     std::vector<HexDouble> out;
     out.reserve(values.size());
@@ -452,7 +492,11 @@ inline std::vector<HexDouble> toHexDoubleBE(const std::vector<double>& values) {
         out.push_back(h);
     }
 
-    return out;
+    {
+        std::vector<HexDouble> result = out;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -476,8 +520,10 @@ inline std::vector<HexDouble> toHexDoubleBE(const std::vector<double>& values) {
 /// @throws std::runtime_error
 /// If the output file cannot be created or written.
 ///
+template <class Cntx_t>
 inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const std::string& array_name,
-                                 const std::string& filename) {
+                                 const std::string& filename, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     std::ofstream os(filename);
     if (!os) {
@@ -503,6 +549,9 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
     }
 
     os << "}};\n";
+
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return;
 }
 
 }  // namespace pv_detail
@@ -575,8 +624,9 @@ inline void writeHexTableInclude(const std::vector<HexDouble>& hex_data, const s
 /// - This deduction is deterministic for a given parameter dictionary.
 /// - The returned PV array is passed verbatim to GRIB encoding logic.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -585,14 +635,14 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
     try {
 
         // Checks for presence of keys
-        bool hasPV     = has(par, "pv");
-        bool hasPVSize = has(par, "pvSize");
+        bool hasPV     = has(par, "pv", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        bool hasPVSize = has(par, "pvSize", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         std::vector<double> pvArrayVal;
 
         if (hasPV && !hasPVSize) {
             // Get the pv array directly
-            pvArrayVal = get_or_throw<std::vector<double>>(par, "pv");
+            pvArrayVal = get_or_throw<std::vector<double>>(par, "pv", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
@@ -605,10 +655,10 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
         else if (!hasPV && hasPVSize) {
 
             // Get the pvArray size for lookup
-            long pvArraySize = get_or_throw<long>(par, "pvSize");
+            long pvArraySize = get_or_throw<long>(par, "pvSize", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Lookup of the pv array from size
-            pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize);
+            pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -624,7 +674,7 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
             long pvArraySize = 137;
 
             // Lookup of the pv array from size
-            pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize);
+            pvArrayVal = pv_detail::lookup_PvArrayFromSize_or_throw(pvArraySize, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
@@ -642,7 +692,11 @@ std::vector<double> resolve_PvArray_or_throw(const MarsDict_t& mars, const ParDi
         }
 
         // Exit with success
-        return pvArrayVal;
+        {
+            std::vector<double> result = pvArrayVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

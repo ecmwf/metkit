@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -121,43 +123,93 @@ enum class BackgroundProcess : long {
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes definitions to prevent divergence between software stacks.
 ///
-inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string& value) {
+template <class Cntx_t>
+inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
     if (value == "aifs-single") {
-        return BackgroundProcess::aifs_single;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_single;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-ens") {
-        return BackgroundProcess::aifs_ens;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_ens;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-single-mse") {
-        return BackgroundProcess::aifs_single_mse;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_single_mse;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-ens-crps") {
-        return BackgroundProcess::aifs_ens_crps;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_ens_crps;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-ens-diff") {
-        return BackgroundProcess::aifs_ens_diff;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_ens_diff;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-compo-single") {
-        return BackgroundProcess::aifs_compo_single;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_compo_single;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-compo-ens") {
-        return BackgroundProcess::aifs_compo_ens;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_compo_ens;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-compo-single-mse") {
-        return BackgroundProcess::aifs_compo_single_mse;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_compo_single_mse;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-compo-ens-crps") {
-        return BackgroundProcess::aifs_compo_ens_crps;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_compo_ens_crps;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-subs") {
-        return BackgroundProcess::aifs_subs;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_subs;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "aifs-subs-crps") {
-        return BackgroundProcess::aifs_subs_crps;
+        {
+            BackgroundProcess result = BackgroundProcess::aifs_subs_crps;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (value == "IFS") {
-        return BackgroundProcess::ifs;
+        {
+            BackgroundProcess result = BackgroundProcess::ifs;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else {
         std::string errMsg = "Invalid BackgroundProcess value: ";
@@ -226,35 +278,85 @@ inline BackgroundProcess name2enum_BackgroundProcess_or_throw(const std::string&
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes definitions to guarantee bidirectional consistency.
 ///
-inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value) {
+template <class Cntx_t>
+inline std::string enum2name_BackgroundProcess_or_throw(BackgroundProcess value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case BackgroundProcess::aifs_single:
-            return "aifs-single";  // 1
+            {
+                std::string result = "aifs-single";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 1
         case BackgroundProcess::aifs_ens:
-            return "aifs-ens";  // 2
+            {
+                std::string result = "aifs-ens";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 2
         case BackgroundProcess::aifs_single_mse:
-            return "aifs-single-mse";  // 3
+            {
+                std::string result = "aifs-single-mse";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 3
         case BackgroundProcess::aifs_ens_crps:
-            return "aifs-ens-crps";  // 4
+            {
+                std::string result = "aifs-ens-crps";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 4
         case BackgroundProcess::aifs_ens_diff:
-            return "aifs-ens-diff";  // 5
+            {
+                std::string result = "aifs-ens-diff";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 5
         case BackgroundProcess::aifs_compo_single:
-            return "aifs-compo-single";  // 6
+            {
+                std::string result = "aifs-compo-single";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 6
         case BackgroundProcess::aifs_compo_ens:
-            return "aifs-compo-ens";  // 7
+            {
+                std::string result = "aifs-compo-ens";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 7
         case BackgroundProcess::aifs_compo_single_mse:
-            return "aifs-compo-single-mse";  // 8
+            {
+                std::string result = "aifs-compo-single-mse";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 8
         case BackgroundProcess::aifs_compo_ens_crps:
-            return "aifs-compo-ens-crps";  // 9
+            {
+                std::string result = "aifs-compo-ens-crps";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 9
         case BackgroundProcess::aifs_subs:
-            return "aifs-subs";  // 10
+            {
+                std::string result = "aifs-subs";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 10
         case BackgroundProcess::aifs_subs_crps:
-            return "aifs-subs-crps";  // 11
+            {
+                std::string result = "aifs-subs-crps";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 11
         case BackgroundProcess::ifs:
-            return "IFS";  // 255
+            {
+                std::string result = "IFS";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // 255
         default:
             std::string errMsg = "Invalid BackgroundProcess enum value: ";
             errMsg += std::to_string(static_cast<long>(value));

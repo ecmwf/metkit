@@ -34,6 +34,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <array>
 #include <optional>
 #include <string>
@@ -59,9 +61,15 @@ namespace detail {
 /// @param[in] hours Integer-hour duration.
 /// @return `true` when `hours` is language-enumerated for the supported domain.
 ///
-inline bool isSupportedTimespanHours(long hours) {
+template <class Cntx_t>
+inline bool isSupportedTimespanHours(long hours, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     constexpr std::array<long, 12> supported{1, 3, 6, 12, 18, 24, 48, 72, 120, 168, 240, 360};
-    return std::find(supported.begin(), supported.end(), hours) != supported.end();
+    {
+        bool result = std::find(supported.begin(), supported.end(), hours) != supported.end();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -70,10 +78,16 @@ inline bool isSupportedTimespanHours(long hours) {
 /// @param[in] value Lowercase `timespan` token.
 /// @return `true` when `value` is language-enumerated for the supported domain.
 ///
-inline bool isSupportedTimespanString(const std::string& value) {
+template <class Cntx_t>
+inline bool isSupportedTimespanString(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     constexpr std::array<std::string_view, 12> supported{"1h",  "3h",  "6h",   "12h",  "18h",  "24h",
                                                          "48h", "72h", "120h", "168h", "240h", "360h"};
-    return std::find(supported.begin(), supported.end(), value) != supported.end();
+    {
+        bool result = std::find(supported.begin(), supported.end(), value) != supported.end();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -83,9 +97,15 @@ inline bool isSupportedTimespanString(const std::string& value) {
 /// @return `true` when `value` is known but intentionally outside the current
 ///         supported domain.
 ///
-inline bool isRecognizedUnsupportedTimespan(const std::string& value) {
-    return value == "inst" || value == "instantaneous" || value == "10m" || value == "15m" || value == "20m" ||
+template <class Cntx_t>
+inline bool isRecognizedUnsupportedTimespan(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    {
+        bool result = value == "inst" || value == "instantaneous" || value == "10m" || value == "15m" || value == "20m" ||
            value == "30m";
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 
@@ -100,18 +120,27 @@ inline bool isRecognizedUnsupportedTimespan(const std::string& value) {
 /// @throws Mars2GribDeductionException if the option is present but not a valid
 ///         boolean representation.
 ///
-template <class OptDict_t>
-inline bool allowNonEnumeratedPositiveIntegerTimespanHours(const OptDict_t& opt) {
+template <class OptDict_t, class Cntx_t>
+inline bool allowNonEnumeratedPositiveIntegerTimespanHours(const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     constexpr std::string_view key = "allowNonEnumeratedPositiveIntegerTimespanHours";
-    if (!has(opt, key)) {
-        return metkit::mars2grib::defaults::allowNonEnumeratedPositiveIntegerTimespanHours;
+    if (!has(opt, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+        {
+            bool result = metkit::mars2grib::defaults::allowNonEnumeratedPositiveIntegerTimespanHours;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
-    if (auto value = get_opt<bool>(opt, key)) {
-        return *value;
+    if (auto value = get_opt<bool>(opt, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+        {
+            bool result = *value;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 
     throw Mars2GribDeductionException("Invalid boolean option `allowNonEnumeratedPositiveIntegerTimespanHours`",
@@ -154,8 +183,9 @@ inline bool allowNonEnumeratedPositiveIntegerTimespanHours(const OptDict_t& opt)
 ///         on malformed, unsupported, or locally invalid `timespan` input, with
 ///         the original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<Timespan> resolve_Timespan_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<Timespan> resolve_Timespan_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -163,13 +193,17 @@ std::optional<Timespan> resolve_Timespan_opt(const MarsDict_t& mars, const ParDi
     (void)par;
 
     try {
-        if (!has(mars, "timespan")) {
-            return std::nullopt;
+        if (!has(mars, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<Timespan> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         Timespan result;
-        if (auto value = get_opt<std::string>(mars, "timespan")) {
-            const std::string normalized = detail::lower(*value);
+        if (auto value = get_opt<std::string>(mars, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            const std::string normalized = detail::lower(*value, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             if (normalized == "none") {
                 result.kind = TimespanKind::None;
             }
@@ -177,31 +211,31 @@ std::optional<Timespan> resolve_Timespan_opt(const MarsDict_t& mars, const ParDi
                 result.kind = TimespanKind::FromStart;
             }
             else {
-                if (detail::isRecognizedUnsupportedTimespan(normalized)) {
+                if (detail::isRecognizedUnsupportedTimespan(normalized, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
                     throw Mars2GribDeductionException("Recognized but unsupported `timespan`: '" + *value + "'",
                                                       Here());
                 }
-                if (!detail::isSupportedTimespanString(normalized)) {
+                if (!detail::isSupportedTimespanString(normalized, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
                     throw Mars2GribDeductionException(
                         "String `timespan` is not in the supported language-defined set: '" + *value + "'", Here());
                 }
 
-                const long seconds = detail::parseDurationStringSeconds(normalized, "timespan");
+                const long seconds = detail::parseDurationStringSeconds(normalized, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
                 if (seconds <= 0 || seconds % 3600L != 0) {
                     throw Mars2GribDeductionException(
                         "String `timespan` is not in the supported language-defined set: '" + *value + "'", Here());
                 }
 
                 result.kind     = TimespanKind::Duration;
-                result.duration = detail::canonicalElapsedDuration(seconds, "timespan");
+                result.duration = detail::canonicalElapsedDuration(seconds, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             }
         }
-        else if (auto value = get_opt<long>(mars, "timespan")) {
+        else if (auto value = get_opt<long>(mars, "timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             if (*value < 1) {
                 throw Mars2GribDeductionException("Integer `timespan` must be >= 1 hour", Here());
             }
-            if (!detail::allowNonEnumeratedPositiveIntegerTimespanHours(opt) &&
-                !detail::isSupportedTimespanHours(*value)) {
+            if (!detail::allowNonEnumeratedPositiveIntegerTimespanHours(opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) &&
+                !detail::isSupportedTimespanHours(*value, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
                 throw Mars2GribDeductionException(
                     "Integer `timespan` is not language-enumerated and compatibility option is disabled", Here());
             }
@@ -232,10 +266,11 @@ std::optional<Timespan> resolve_Timespan_opt(const MarsDict_t& mars, const ParDi
             msg += "'";
             if (result.duration.has_value()) {
                 msg += " length='" + std::to_string(result.duration->length) + "' unit='" +
-                       tables::enum2name_TimeUnit_or_throw(result.duration->unit) + "'";
+                       tables::enum2name_TimeUnit_or_throw(result.duration->unit, cntx) + "'";
             }
             return msg;
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {
@@ -266,17 +301,27 @@ std::optional<Timespan> resolve_Timespan_opt(const MarsDict_t& mars, const ParDi
 ///         if the source is absent, malformed, unsupported, or locally invalid;
 ///         failures are wrapped via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-Timespan resolve_Timespan_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+Timespan resolve_Timespan_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
-        const auto result = resolve_Timespan_opt(mars, par, opt);
-        if (result.has_value()) {
-            return *result;
+        const std::optional<Timespan> resolved =
+            resolve_Timespan_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        if (resolved.has_value()) {
+            {
+                Timespan result = *resolved;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
-            return Timespan{TimespanKind::Missing, std::nullopt};
+            {
+                Timespan result = Timespan{TimespanKind::Missing, std::nullopt};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

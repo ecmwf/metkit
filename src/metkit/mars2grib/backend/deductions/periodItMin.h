@@ -46,6 +46,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <optional>
 #include <string>
@@ -103,8 +105,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction performs no semantic validation of the retrieved
 /// value.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<long> resolve_PeriodItMin_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<long> resolve_PeriodItMin_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -112,7 +115,7 @@ std::optional<long> resolve_PeriodItMin_opt(const MarsDict_t& mars, const ParDic
     try {
 
         // Retrieve optional minimum wave period index from parameter dictionary
-        std::optional<long> itMinOpt = get_opt<long>(par, "iTmin");
+        std::optional<long> itMinOpt = get_opt<long>(par, "iTmin", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (itMinOpt.has_value()) {
             // Emit RESOLVE log entry
@@ -132,7 +135,11 @@ std::optional<long> resolve_PeriodItMin_opt(const MarsDict_t& mars, const ParDic
         }
 
         // Success exit point
-        return itMinOpt;
+        {
+            std::optional<long> result = itMinOpt;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

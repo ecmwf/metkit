@@ -10,29 +10,57 @@
 
 #pragma once
 
+#include <tuple>
+#include <utility>
+
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 namespace metkit::mars2grib::util::param_matcher {
 
 struct Range {
     int first;
     int last;
+    Range(int first_, int last_) : first(first_), last(last_) {}
     bool contains(int x) const { return x >= first && x <= last; }
 };
 
-inline Range range(int first, int last) {
-    return {first, last};
+using range = Range;
+
+template <class Cntx_t>
+inline bool matchSingle(int x, const Range& arg, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const bool result = arg.contains(x);
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-inline bool matchSingle(int x, const Range& arg) {
-    return arg.contains(x);
+template <class Cntx_t>
+inline bool matchSingle(int x, int y, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const bool result = x == y;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-inline bool matchSingle(int x, int y) {
-    return x == y;
+template <typename Tuple, class Cntx_t, std::size_t... I>
+bool matchAnyImpl(int value, Tuple& args, std::index_sequence<I...>, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const bool result =
+        (matchSingle(value, std::get<I>(args), utils::profiling::callSite(cntx, Here())) || ...);
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-template <typename... T>
-bool matchAny(int value, T... arg) {
-    return (matchSingle(value, arg) || ...);
+template <typename... Args>
+bool matchAny(int value, Args&&... args) {
+    static_assert(sizeof...(Args) >= 2, "matchAny requires at least one matcher and a context");
+    auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
+    auto& cntx = std::get<sizeof...(Args) - 1>(tuple);
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const bool result = matchAnyImpl(value, tuple, std::make_index_sequence<sizeof...(Args) - 1>{},
+                                     utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::util::param_matcher

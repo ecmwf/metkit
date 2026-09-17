@@ -147,6 +147,7 @@
 #include "metkit/mars2grib/backend/sections/resolver/TemplateSignatureKey.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::detail {
 
@@ -171,7 +172,13 @@ public:
     ///
     /// @brief Number of variants retained after compression.
     ///
-    std::size_t compressedSize() const noexcept { return compressedSize_; }
+    template <class Cntx_t>
+    std::size_t compressedSize(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+        std::size_t result = compressedSize_;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 
     ///
     /// @brief Compress a signature key while preserving variant order.
@@ -183,7 +190,10 @@ public:
     ///
     /// @return Compressed key with preserved order
     ///
-    TemplateSignatureKey compressUnsortedKey(const TemplateSignatureKey& in) const noexcept {
+    template <class Cntx_t>
+    TemplateSignatureKey compressUnsortedKey(const TemplateSignatureKey& in, Cntx_t& cntx) const noexcept {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         TemplateSignatureKey out{};
         out.size = 0;
@@ -195,6 +205,7 @@ public:
             }
         }
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return out;
     }
 
@@ -211,7 +222,10 @@ public:
     ///
     /// @return Sorted, compressed key
     ///
-    TemplateSignatureKey compressKey(const TemplateSignatureKey& in) const noexcept {
+    template <class Cntx_t>
+    TemplateSignatureKey compressKey(const TemplateSignatureKey& in, Cntx_t& cntx) const noexcept {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         TemplateSignatureKey out{};
         out.size = 0;
@@ -233,6 +247,28 @@ public:
             ++out.size;
         }
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return out;
+    }
+
+    TemplateSignatureKey compressKeyForBuild(const TemplateSignatureKey& in) const noexcept {
+        TemplateSignatureKey out{};
+        out.size = 0;
+
+        for (std::size_t i = 0; i < in.size; ++i) {
+            const std::size_t v = in.data[i];
+            if (mask_[v] == GeneralRegistry::missing) {
+                continue;
+            }
+
+            std::size_t j = out.size;
+            while (j > 0 && out.data[j - 1] > v) {
+                out.data[j] = out.data[j - 1];
+                --j;
+            }
+            out.data[j] = v;
+            ++out.size;
+        }
         return out;
     }
 
@@ -242,7 +278,10 @@ public:
     /// @param[in]  prefix Line prefix used for indentation
     /// @param[out] os     Output stream
     ///
-    void debug_print(const std::string& prefix, std::ostream& os) const {
+    template <class Cntx_t>
+    void debug_print(const std::string& prefix, std::ostream& os, Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -276,6 +315,7 @@ public:
         }
 
         os << " ]" << std::endl;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
     }
 
     ///
@@ -294,7 +334,10 @@ public:
     ///
     /// @return JSON-style string describing the compression mask
     ///
-    std::string debug_to_json() const {
+    template <class Cntx_t>
+    std::string debug_to_json(Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -332,7 +375,9 @@ public:
 
         oss << " ] } }";
 
-        return oss.str();
+        std::string result = oss.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
 private:
@@ -346,8 +391,9 @@ private:
     CompressionMask(std::array<std::size_t, GeneralRegistry::NVariants>&& mask, std::size_t compressedSize) :
         mask_(std::move(mask)), compressedSize_(compressedSize) {}
 
+    template <class Cntx_t>
     friend CompressionMask make_CompressionMask_or_throw(
-        const std::vector<metkit::mars2grib::backend::sections::resolver::dsl::ResolvedTemplateData>&);
+        const std::vector<metkit::mars2grib::backend::sections::resolver::dsl::ResolvedTemplateData>&, Cntx_t&);
 };
 
 ///
@@ -364,8 +410,12 @@ private:
 /// @throws Mars2GribGenericException
 /// If the payload is empty or inconsistent
 ///
+template <class Cntx_t>
 inline CompressionMask make_CompressionMask_or_throw(
-    const std::vector<metkit::mars2grib::backend::sections::resolver::dsl::ResolvedTemplateData>& payload) {
+    const std::vector<metkit::mars2grib::backend::sections::resolver::dsl::ResolvedTemplateData>& payload,
+    Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
@@ -397,7 +447,9 @@ inline CompressionMask make_CompressionMask_or_throw(
         }
     }
 
-    return CompressionMask{std::move(mask), cnt};
+    CompressionMask result{std::move(mask), cnt};
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::sections::resolver::detail

@@ -32,6 +32,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
@@ -59,7 +61,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
-inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -75,11 +79,15 @@ inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input)
         const bool isAnalysis               = input.simulationType == SimulationType::Analysis;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
 
-        return isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasNoStattypeBlocks;
+        {
+            bool result = isIfs && isNotSeasonal && isSynoptic && isAnalysis && hasNoStattypeBlocks;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_IFSSynopticSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_IFSSynopticSingleLoop_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -96,9 +104,11 @@ inline bool match_IFSSynopticSingleLoop_Shape(const ProductTimeSpecInput& input)
  * @return Constructed stage-1 outer time range for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecOuterTimeRange build_IFSSynopticSingleLoop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
@@ -109,13 +119,17 @@ inline ProductTimeSpecOuterTimeRange build_IFSSynopticSingleLoop_ShapeOuterTimeR
         (void)classification;
 
         const auto availability      = ProductTimeSpecOuterTimeRangeAvailability::Available;
-        const TimeDuration timeRange = oneMonth();
+        const TimeDuration timeRange = oneMonth(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        return ProductTimeSpecOuterTimeRange{availability, timeRange};
+        {
+            ProductTimeSpecOuterTimeRange result = ProductTimeSpecOuterTimeRange{availability, timeRange};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `build_IFSSynopticSingleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
+            "Failed to execute `build_IFSSynopticSingleLoop_ShapeOuterTimeRange`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -137,12 +151,14 @@ inline ProductTimeSpecOuterTimeRange build_IFSSynopticSingleLoop_ShapeOuterTimeR
  * @return Constructed ProductTimeSpec shape for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::analysisTypeOfTimeIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
@@ -162,14 +178,14 @@ inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("IFSSynopticSingleLoop requires an available outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        const TimeDuration expectedTimeRange = oneMonth();
+        const TimeDuration expectedTimeRange = oneMonth(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedTimeRange)) {
+        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("IFSSynopticSingleLoop outer time range must be one calendar month",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         constexpr long expectedIncrementInSeconds = 86400L;
@@ -177,16 +193,16 @@ inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
         const bool hasExplicitIncrement        = input.timeIncrement.has_value();
         const bool redundantIncrementIsAllowed = input.allowRedundantTimeIncrement;
         const bool explicitIncrementHasExpectedValue =
-            !hasExplicitIncrement || convertToSeconds(*input.timeIncrement) == expectedIncrementInSeconds;
+            !hasExplicitIncrement || convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) == expectedIncrementInSeconds;
 
         if (hasExplicitIncrement && !redundantIncrementIsAllowed) {
             throw Mars2GribModelException(
-                "Synoptic timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(),
+                "Synoptic timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (!explicitIncrementHasExpectedValue) {
-            throw Mars2GribModelException("Synoptic timeIncrementInSeconds must equal 86400", input.to_json(), Here());
+            throw Mars2GribModelException("Synoptic timeIncrementInSeconds must equal 86400", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         // This case carries the normalized innermost statistical processing
@@ -194,21 +210,25 @@ inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
         const auto typeOfStatisticalProcessing = input.innerMostTypeOfStatisticalProcessing;
 
         // Synoptic analysis uses the dedicated analysis increment-kind code.
-        const auto typeOfTimeIncrement = analysisTypeOfTimeIncrement();
+        const auto typeOfTimeIncrement = analysisTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // The canonical range of a synoptic analysis window is one calendar month.
         const auto timeRange = expectedTimeRange;
 
         // The canonical synoptic increment is always twenty-four hours.
-        const auto timeIncrement = twentyFourHours();
+        const auto timeIncrement = twentyFourHours(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, timeRange, timeIncrement};
 
-        return ProductTimeSpecShape{{window}};
+        {
+            ProductTimeSpecShape result = ProductTimeSpecShape{{window}};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSSynopticSingleLoop_ShapeWindows`",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -232,13 +252,15 @@ inline ProductTimeSpecShape build_IFSSynopticSingleLoop_ShapeWindows(
  * @throws Mars2GribModelException if the resolved shape is inconsistent with
  *         the input, classification, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_IFSSynopticSingleLoop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
-    const ProductTimeSpecShape& shape) {
+    const ProductTimeSpecShape& shape, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimeDuration;
@@ -257,7 +279,7 @@ inline bool check_IFSSynopticSingleLoop_Shape(
 
         if (classification.shapeType != ProductTimeSpecShapeKind::IFSSynopticSingleLoop) {
             throw Mars2GribModelException("Shape classification mismatch: expected IFSSynopticSingleLoop",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool isIfs = input.regime == SimulationRegime::IFS;
@@ -271,13 +293,13 @@ inline bool check_IFSSynopticSingleLoop_Shape(
         const bool hasNoStattypeBlocks      = input.stattype.empty();
 
         if (!isIfs || !isNotSeasonal || !isSynoptic || !isAnalysis || !hasNoStattypeBlocks) {
-            throw Mars2GribModelException("IFSSynopticSingleLoop input semantics are not satisfied", input.to_json(),
+            throw Mars2GribModelException("IFSSynopticSingleLoop input semantics are not satisfied", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (!domain.isSynoptic) {
             throw Mars2GribModelException("IFSSynopticSingleLoop shape must be paired with a synoptic domain",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool outerTimeRangeIsAvailable =
@@ -285,19 +307,19 @@ inline bool check_IFSSynopticSingleLoop_Shape(
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("IFSSynopticSingleLoop requires an available outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        const TimeDuration expectedTimeRange = oneMonth();
+        const TimeDuration expectedTimeRange = oneMonth(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedTimeRange)) {
+        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("IFSSynopticSingleLoop outer time range must be one calendar month",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (shape.values.size() != 1) {
             throw Mars2GribModelException("IFSSynopticSingleLoop shape must contain exactly one window",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         constexpr long expectedIncrementInSeconds = 86400L;
@@ -305,16 +327,16 @@ inline bool check_IFSSynopticSingleLoop_Shape(
         const bool hasExplicitIncrement        = input.timeIncrement.has_value();
         const bool redundantIncrementIsAllowed = input.allowRedundantTimeIncrement;
         const bool explicitIncrementHasExpectedValue =
-            !hasExplicitIncrement || convertToSeconds(*input.timeIncrement) == expectedIncrementInSeconds;
+            !hasExplicitIncrement || convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) == expectedIncrementInSeconds;
 
         if (hasExplicitIncrement && !redundantIncrementIsAllowed) {
             throw Mars2GribModelException(
-                "Synoptic timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(),
+                "Synoptic timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (!explicitIncrementHasExpectedValue) {
-            throw Mars2GribModelException("Synoptic timeIncrementInSeconds must equal 86400", input.to_json(), Here());
+            throw Mars2GribModelException("Synoptic timeIncrementInSeconds must equal 86400", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const ProductTimeSpecWindow& window = shape.values.front();
@@ -322,29 +344,33 @@ inline bool check_IFSSynopticSingleLoop_Shape(
         if (window.typeOfStatisticalProcessing != input.innerMostTypeOfStatisticalProcessing) {
             throw Mars2GribModelException(
                 "IFSSynopticSingleLoop window statistical processing does not match the innermost input processing",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (window.typeOfTimeIncrement != analysisTypeOfTimeIncrement()) {
+        if (window.typeOfTimeIncrement != analysisTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("IFSSynopticSingleLoop window typeOfTimeIncrement is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(window.timeRange, expectedTimeRange)) {
-            throw Mars2GribModelException("IFSSynopticSingleLoop window timeRange is inconsistent", input.to_json(),
+        if (!compareTimeDuration(window.timeRange, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("IFSSynopticSingleLoop window timeRange is inconsistent", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
-        if (!compareTimeDuration(window.timeIncrement, twentyFourHours())) {
+        if (!compareTimeDuration(window.timeIncrement, twentyFourHours(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("IFSSynopticSingleLoop window timeIncrement must be twenty-four hours",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_IFSSynopticSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_IFSSynopticSingleLoop_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

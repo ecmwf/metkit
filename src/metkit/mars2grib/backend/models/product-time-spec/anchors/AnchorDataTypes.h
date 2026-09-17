@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <sstream>
 #include <string>
 
@@ -70,8 +72,10 @@ struct ProductTimeSpecAnchor {
 /// @param[in] anchorType Resolved anchor classification.
 /// @return Complete and order-validated ProductTimeSpec anchor.
 /// @throws Mars2GribGenericException If ordering is invalid or construction fails.
+template <class Cntx_t>
 inline ProductTimeSpecAnchor checkedAnchor(const eckit::DateTime& label, const eckit::DateTime& initialConditions,
-                                           const eckit::DateTime& reference, ProductTimeSpecAnchorKind anchorType) {
+                                           const eckit::DateTime& reference, ProductTimeSpecAnchorKind anchorType, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
@@ -84,7 +88,11 @@ inline ProductTimeSpecAnchor checkedAnchor(const eckit::DateTime& label, const e
                                             Here());
         }
 
-        return ProductTimeSpecAnchor{label, initialConditions, reference, anchorType};
+        {
+            ProductTimeSpecAnchor result = ProductTimeSpecAnchor{label, initialConditions, reference, anchorType};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
@@ -101,21 +109,31 @@ inline ProductTimeSpecAnchor checkedAnchor(const eckit::DateTime& label, const e
 /// @param[in] value Resolved anchor artifact.
 /// @return One JSON object describing the final anchor state, or a stable
 ///         fallback error object if serialization fails.
-inline std::string productTimeSpecAnchorJson(const ProductTimeSpecAnchor& value) noexcept {
+template <class Cntx_t>
+inline std::string productTimeSpecAnchorJson(const ProductTimeSpecAnchor& value, Cntx_t& cntx) noexcept {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     try {
         std::ostringstream out;
-        out << '{' << detail::jsonQuote_modelInput("labelDateTime") << ':'
-            << detail::productTimeSpecDateTimeJson(value.labelDateTime) << ','
-            << detail::jsonQuote_modelInput("initialConditionsDateTime") << ':'
-            << detail::productTimeSpecDateTimeJson(value.initialConditionsDateTime) << ','
-            << detail::jsonQuote_modelInput("referenceDateTime") << ':'
-            << detail::productTimeSpecDateTimeJson(value.referenceDateTime) << ','
-            << detail::jsonQuote_modelInput("anchorType") << ':'
-            << detail::jsonQuote_modelInput(productTimeSpecAnchorTypeName(value.anchorType)) << '}';
-        return out.str();
+        out << '{' << detail::jsonQuote_modelInput("labelDateTime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::productTimeSpecDateTimeJson(value.labelDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("initialConditionsDateTime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::productTimeSpecDateTimeJson(value.initialConditionsDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("referenceDateTime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::productTimeSpecDateTimeJson(value.referenceDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("anchorType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::jsonQuote_modelInput(productTimeSpecAnchorTypeName(value.anchorType), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << '}';
+        {
+            std::string result = out.str();
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
-        return std::string{"{\"error\":\"productTimeSpecAnchorJson failed while building diagnostic context\"}"};
+        {
+            std::string result = std::string{"{\"error\":\"productTimeSpecAnchorJson failed while building diagnostic context\"}"};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 }
 

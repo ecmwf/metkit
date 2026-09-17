@@ -39,6 +39,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -95,8 +97,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction assumes that the offset is explicitly provided by
 /// MARS and does not attempt any inference or defaulting.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_IterationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_IterationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -104,7 +107,7 @@ long resolve_IterationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& p
     try {
 
         // Retrieve mandatory MARS iteration
-        auto iterationNumber = get_or_throw<long>(mars, "iteration");
+        auto iterationNumber = get_or_throw<long>(mars, "iteration", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -114,7 +117,11 @@ long resolve_IterationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& p
         }());
 
         // Success exit point
-        return iterationNumber;
+        {
+            long result = iterationNumber;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

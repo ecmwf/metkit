@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <string>
 
@@ -56,13 +58,19 @@ namespace detail {
 /// @return `value` unchanged when it lies in `[1,12]`.
 /// @throws Mars2GribDeductionException if `value` lies outside `[1,12]`.
 ///
-inline long checkedMonthEnumValue(long value, const std::string& key) {
+template <class Cntx_t>
+inline long checkedMonthEnumValue(long value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     if (value < 1 || value > 12) {
         throw Mars2GribDeductionException("`" + key + "` must be in [1,12]", Here());
     }
-    return value;
+    {
+        long result = value;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace detail
@@ -100,8 +108,9 @@ inline long checkedMonthEnumValue(long value, const std::string& key) {
 ///         on malformed, unsupported, or out-of-range raw `month` input, with
 ///         the original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<long> resolve_Month_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<long> resolve_Month_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -110,16 +119,20 @@ std::optional<long> resolve_Month_opt(const MarsDict_t& mars, const ParDict_t& p
     (void)opt;
 
     try {
-        if (!has(mars, "month")) {
-            return std::nullopt;
+        if (!has(mars, "month", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<long> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         long result = 0;
-        if (auto value = get_opt<long>(mars, "month")) {
-            result = detail::checkedMonthEnumValue(*value, "month");
+        if (auto value = get_opt<long>(mars, "month", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::checkedMonthEnumValue(*value, "month", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
-        else if (auto value = get_opt<std::string>(mars, "month")) {
-            result = detail::checkedMonthEnumValue(detail::parseMonthEnum(*value, "month"), "month");
+        else if (auto value = get_opt<std::string>(mars, "month", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::checkedMonthEnumValue(detail::parseMonthEnum(*value, "month", metkit::mars2grib::utils::profiling::callSite(cntx, Here())), "month", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribDeductionException("Unsupported type for `month`", Here());
@@ -128,6 +141,7 @@ std::optional<long> resolve_Month_opt(const MarsDict_t& mars, const ParDict_t& p
         MARS2GRIB_LOG_RESOLVE([&]() {
             return std::string{"`month` resolved from input dictionaries: value='"} + std::to_string(result) + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

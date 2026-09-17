@@ -25,6 +25,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <string>
 
@@ -91,10 +93,11 @@ namespace metkit::mars2grib::backend::deductions {
 /// - Consider replacing this with a validated, table-driven deduction.
 ///
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] const MarsDict_t& mars,
                                                             const ParDict_t& par,
-                                                            [[maybe_unused]] const OptDict_t& opt) {
+                                                            [[maybe_unused]] const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -102,7 +105,7 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
     try {
 
         // Get generatingProcessIdentifier from mars dictionary
-        std::optional<long> generatingProcessIdentifierVal = get_opt<long>(par, "generatingProcessIdentifier");
+        std::optional<long> generatingProcessIdentifierVal = get_opt<long>(par, "generatingProcessIdentifier", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (generatingProcessIdentifierVal.has_value()) {
 
@@ -115,7 +118,11 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
             }());
 
             // Return the generatingProcessIdentifier from the parameter dictionary
-            return {generatingProcessIdentifierVal};
+            {
+                std::optional<long> result{generatingProcessIdentifierVal};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
 
@@ -127,8 +134,12 @@ std::optional<long> resolve_GeneratingProcessIdentifier_opt([[maybe_unused]] con
                 return logMsg;
             }());
 
-            // Key not present; return std::nullopt
-            return std::nullopt;
+            // Key not present
+            {
+                std::optional<long> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <sstream>
 #include <string>
@@ -29,7 +31,9 @@
 
 namespace metkit::mars2grib::backend::models::product_time_spec::detail {
 
-inline std::string jsonQuote_modelInput(const std::string& value) {
+template <class Cntx_t>
+inline std::string jsonQuote_modelInput(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     std::ostringstream out;
     out << '"';
     for (unsigned char c : value) {
@@ -55,86 +59,178 @@ inline std::string jsonQuote_modelInput(const std::string& value) {
         }
     }
     out << '"';
-    return out.str();
-}
-
-inline std::string productTimeSpecDateTimeJson(const eckit::DateTime& value) {
-    return jsonQuote_modelInput(value.iso(true));
-}
-
-inline std::string optionalDateTimeJson_modelInput(const std::optional<eckit::DateTime>& value) {
-    if (!value.has_value()) {
-        return "null";
+    {
+        std::string result = out.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
-    return jsonQuote_modelInput(value->iso(true));
+}
+
+template <class Cntx_t>
+inline std::string productTimeSpecDateTimeJson(const eckit::DateTime& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    {
+        std::string result = jsonQuote_modelInput(value.iso(true), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
+}
+
+template <class Cntx_t>
+inline std::string optionalDateTimeJson_modelInput(const std::optional<eckit::DateTime>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    if (!value.has_value()) {
+        {
+            std::string result = "null";
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    {
+        std::string result = jsonQuote_modelInput(value->iso(true), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 /// @brief Serialize an optional `eckit::Date` as JSON.
 /// @param[in] value Optional normalized date value.
 /// @return JSON `null` when absent, otherwise one quoted date string.
-inline std::string optionalDateJson_modelInput(const std::optional<eckit::Date>& value) {
+template <class Cntx_t>
+inline std::string optionalDateJson_modelInput(const std::optional<eckit::Date>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (!value.has_value()) {
-        return "null";
+        {
+            std::string result = "null";
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
-    return std::to_string(value->yyyymmdd());
+    {
+        std::string result = std::to_string(value->yyyymmdd());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 /// @brief Serialize an optional `eckit::Time` as JSON.
 /// @param[in] value Optional normalized time value.
 /// @return JSON `null` when absent, otherwise one quoted time string.
-inline std::string optionalTimeJson_modelInput(const std::optional<eckit::Time>& value) {
+template <class Cntx_t>
+inline std::string optionalTimeJson_modelInput(const std::optional<eckit::Time>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (!value.has_value()) {
-        return "null";
+        {
+            std::string result = "null";
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
-    return std::to_string(value->hhmmss());
+    {
+        std::string result = std::to_string(value->hhmmss());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 /// @brief Serialize an optional `long` as JSON.
 /// @param[in] value Optional normalized integer value.
 /// @return JSON `null` when absent, otherwise one decimal integer.
-inline std::string optionalLongJson_modelInput(const std::optional<long>& value) {
-    return value.has_value() ? std::to_string(*value) : std::string{"null"};
+template <class Cntx_t>
+inline std::string optionalLongJson_modelInput(const std::optional<long>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    {
+        std::string result = value.has_value() ? std::to_string(*value) : std::string{"null"};
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
-inline std::string durationJson_modelInput(const deductions::TimeDuration& value) {
+template <class Cntx_t>
+inline std::string durationJson_modelInput(const deductions::TimeDuration& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     std::ostringstream out;
-    out << '{' << jsonQuote_modelInput("length") << ':' << value.length << ',' << jsonQuote_modelInput("unit") << ':'
-        << jsonQuote_modelInput(tables::enum2name_TimeUnit_or_throw(value.unit)) << '}';
-    return out.str();
+    out << '{' << jsonQuote_modelInput("length", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << value.length << ',' << jsonQuote_modelInput("unit", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+        << jsonQuote_modelInput(tables::enum2name_TimeUnit_or_throw(value.unit, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << '}';
+    {
+        std::string result = out.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
-inline std::string optionalDurationJson_modelInput(const std::optional<deductions::TimeDuration>& value) {
-    return value.has_value() ? durationJson_modelInput(*value) : std::string{"null"};
+template <class Cntx_t>
+inline std::string optionalDurationJson_modelInput(const std::optional<deductions::TimeDuration>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    {
+        std::string result = value.has_value() ? durationJson_modelInput(*value, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) : std::string{"null"};
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
-inline std::string timespanKindName_modelInput(deductions::TimespanKind value) {
+template <class Cntx_t>
+inline std::string timespanKindName_modelInput(deductions::TimespanKind value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     switch (value) {
         case deductions::TimespanKind::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case deductions::TimespanKind::Duration:
-            return "duration";
+            {
+                std::string result = "duration";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case deductions::TimespanKind::None:
-            return "none";
+            {
+                std::string result = "none";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case deductions::TimespanKind::FromStart:
-            return "from-start";
+            {
+                std::string result = "from-start";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
     }
 
-    return "invalid";
+    {
+        std::string result = "invalid";
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
-inline std::string optionalTimespanJson_modelInput(const std::optional<deductions::Timespan>& value) {
+template <class Cntx_t>
+inline std::string optionalTimespanJson_modelInput(const std::optional<deductions::Timespan>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (!value.has_value()) {
-        return "null";
+        {
+            std::string result = "null";
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 
     std::ostringstream out;
-    out << '{' << jsonQuote_modelInput("kind") << ':' << jsonQuote_modelInput(timespanKindName_modelInput(value->kind))
-        << ',' << jsonQuote_modelInput("duration") << ':'
-        << (value->duration.has_value() ? durationJson_modelInput(*value->duration) : std::string{"null"}) << '}';
-    return out.str();
+    out << '{' << jsonQuote_modelInput("kind", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << jsonQuote_modelInput(timespanKindName_modelInput(value->kind, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+        << ',' << jsonQuote_modelInput("duration", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+        << (value->duration.has_value() ? durationJson_modelInput(*value->duration, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) : std::string{"null"}) << '}';
+    {
+        std::string result = out.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
-inline std::string parsedStattypeBlocksJson_modelInput(const deductions::ParsedStatTypeBlocks& value) {
+template <class Cntx_t>
+inline std::string parsedStattypeBlocksJson_modelInput(const deductions::ParsedStatTypeBlocks& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     std::ostringstream out;
     out << '[';
     for (std::size_t i = 0; i < value.size(); ++i) {
@@ -142,18 +238,28 @@ inline std::string parsedStattypeBlocksJson_modelInput(const deductions::ParsedS
             out << ',';
         }
 
-        out << '{' << jsonQuote_modelInput("timeRange") << ':' << durationJson_modelInput(value[i].timeRange) << ','
-            << jsonQuote_modelInput("typeOfStatisticalProcessing") << ':'
+        out << '{' << jsonQuote_modelInput("timeRange", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << durationJson_modelInput(value[i].timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << jsonQuote_modelInput("typeOfStatisticalProcessing", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
             << jsonQuote_modelInput(
-                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(value[i].typeOfStatisticalProcessing))
+                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(value[i].typeOfStatisticalProcessing, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
             << '}';
     }
     out << ']';
-    return out.str();
+    {
+        std::string result = out.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
-inline std::string optionalStattypeJson_modelInput(const std::optional<deductions::ParsedStatTypeBlocks>& value) {
-    return value.has_value() ? parsedStattypeBlocksJson_modelInput(*value) : std::string{"null"};
+template <class Cntx_t>
+inline std::string optionalStattypeJson_modelInput(const std::optional<deductions::ParsedStatTypeBlocks>& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    {
+        std::string result = value.has_value() ? parsedStattypeBlocksJson_modelInput(*value, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) : std::string{"null"};
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::models::product_time_spec::detail

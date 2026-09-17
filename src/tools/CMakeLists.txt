@@ -16,16 +16,16 @@ ecbuild_add_executable(
     LIBS          metkit eckit_option eckit
 )
 
-ecbuild_add_executable(
-    TARGET        mars2grib-run-tests
-    SOURCES       mars2grib-run-tests.cc
-                  ../metkit/mars2grib/testing-utils/Producer.cc
-                  ../metkit/mars2grib/testing-utils/Consumer.cc
-    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
-    INCLUDES      ${ECKIT_INCLUDE_DIRS}
-    NO_AS_NEEDED
-    LIBS          metkit eckit_option eckit zstd
-)
+# ecbuild_add_executable(
+#     TARGET        mars2grib-run-tests
+#     SOURCES       mars2grib-run-tests.cc
+#                   ../metkit/mars2grib/testing-utils/Producer.cc
+#                   ../metkit/mars2grib/testing-utils/Consumer.cc
+#     CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit eckit_option eckit zstd
+# )
 
 ecbuild_add_executable(
     TARGET        mars2grib-run-tests-scalar
@@ -37,34 +37,34 @@ ecbuild_add_executable(
     LIBS          metkit eckit_option eckit
 )
 
-ecbuild_add_executable(
-    TARGET        mars2grib-prune-tests
-    SOURCES       mars2grib-prune-tests.cc
-                  ../metkit/mars2grib/testing-utils/TestsFilter.cc
-    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
-    INCLUDES      ${ECKIT_INCLUDE_DIRS}
-    NO_AS_NEEDED
-    LIBS          metkit eckit_option eckit
-)
-
-ecbuild_add_executable(
-    TARGET        mars2grib-prune-tests-otr
-    SOURCES       mars2grib-prune-tests-otr.cc
-    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
-    INCLUDES      ${ECKIT_INCLUDE_DIRS}
-    NO_AS_NEEDED
-    LIBS          metkit eckit_option eckit
-)
-
-ecbuild_add_executable(
-    TARGET        mars2grib-prune-tests-mpi
-    SOURCES       mars2grib-prune-tests-mpi.cc
-                  ../metkit/mars2grib/testing-utils/TestsFilter.cc
-    CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS AND eckit_HAVE_MPI
-    INCLUDES      ${ECKIT_INCLUDE_DIRS}
-    NO_AS_NEEDED
-    LIBS          metkit eckit_option eckit_mpi eckit
-)
+# ecbuild_add_executable(
+#     TARGET        mars2grib-prune-tests
+#     SOURCES       mars2grib-prune-tests.cc
+#                   ../metkit/mars2grib/testing-utils/TestsFilter.cc
+#     CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit eckit_option eckit
+# )
+# 
+# ecbuild_add_executable(
+#     TARGET        mars2grib-prune-tests-otr
+#     SOURCES       mars2grib-prune-tests-otr.cc
+#     CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit eckit_option eckit
+# )
+# 
+# ecbuild_add_executable(
+#     TARGET        mars2grib-prune-tests-mpi
+#     SOURCES       mars2grib-prune-tests-mpi.cc
+#                   ../metkit/mars2grib/testing-utils/TestsFilter.cc
+#     CONDITION     HAVE_MARS2GRIB AND HAVE_BUILD_GRIB2_TOOLS AND eckit_HAVE_MPI
+#     INCLUDES      ${ECKIT_INCLUDE_DIRS}
+#     NO_AS_NEEDED
+#     LIBS          metkit eckit_option eckit_mpi eckit
+# )
 
 ecbuild_add_executable(
     TARGET        convert-mars-request

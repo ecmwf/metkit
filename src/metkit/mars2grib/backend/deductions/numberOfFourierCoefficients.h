@@ -51,6 +51,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "eckit/log/Log.h"
@@ -112,8 +114,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// key in the parameter dictionary is considered a contract violation
 /// by the upstream tool.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_NumberOfFourierCoefficients_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_NumberOfFourierCoefficients_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -121,7 +124,7 @@ long resolve_NumberOfFourierCoefficients_or_throw(const MarsDict_t& mars, const 
     try {
 
         // Retrieve mandatory parameter-dictionary numberOfFourierCoefficients
-        long numberOfFourierCoefficients = get_or_throw<long>(par, "numberOfFourierCoefficients");
+        long numberOfFourierCoefficients = get_or_throw<long>(par, "numberOfFourierCoefficients", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -131,7 +134,11 @@ long resolve_NumberOfFourierCoefficients_or_throw(const MarsDict_t& mars, const 
         }());
 
         // Success exit point
-        return numberOfFourierCoefficients;
+        {
+            long result = numberOfFourierCoefficients;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

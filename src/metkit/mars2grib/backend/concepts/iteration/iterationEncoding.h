@@ -45,6 +45,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/iteration/iterationEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/iterationNumber.h"
@@ -132,8 +133,9 @@ constexpr bool iterationApplicable() {
 /// @see iterationApplicable
 ///
 template <std::size_t Stage, std::size_t Section, IterationType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void IterationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void IterationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -146,16 +148,16 @@ void IterationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             MARS2GRIB_LOG_CONCEPT(iteration);
 
             // Preconditions / contracts
-            validation::match_LocalDefinitionNumber_or_throw(opt, out, {20L, 38L});
+            validation::match_LocalDefinitionNumber_or_throw(opt, out, {20L, 38L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Deductions
-            auto iterationNumberVal         = deductions::resolve_IterationNumber_or_throw(mars, par, opt);
-            auto totalNumberOfIterationsVal = deductions::resolve_TotalNumberOfIterations_opt(mars, par, opt);
+            auto iterationNumberVal         = deductions::resolve_IterationNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            auto totalNumberOfIterationsVal = deductions::resolve_TotalNumberOfIterations_opt(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<long>(out, "iterationNumber", iterationNumberVal);
+            set_or_throw<long>(out, "iterationNumber", iterationNumberVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             if (totalNumberOfIterationsVal.has_value()) {
-                set_or_throw<long>(out, "totalNumberOfIterations", totalNumberOfIterationsVal.value());
+                set_or_throw<long>(out, "totalNumberOfIterations", totalNumberOfIterationsVal.value(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -163,6 +165,7 @@ void IterationOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

@@ -48,6 +48,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -109,9 +111,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// missing, if automatic deduction is not supported, or if any
 /// unexpected error occurs.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                         const OptDict_t& opt) {
+                                                         const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -122,26 +125,30 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
         // Default to Missing
         tables::DerivedForecast derivedForecast = tables::DerivedForecast::Missing;
 
-        if (has(par, "derivedForecast")) {
+        if (has(par, "derivedForecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             // Retrieve override from parameter dictionary
-            const auto derivedForecastVal = get_or_throw<long>(par, "derivedForecast");
+            const auto derivedForecastVal = get_or_throw<long>(par, "derivedForecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Lookup and validate enum value
-            derivedForecast = tables::long2enum_DerivedForecast_or_throw(derivedForecastVal);
+            derivedForecast = tables::long2enum_DerivedForecast_or_throw(derivedForecastVal, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit OVERRIDE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
                 std::string logMsg = "`derivedForecast` overridden from parameter dictionary: value='";
-                logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast);
+                logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return derivedForecast;
+            {
+                tables::DerivedForecast result = derivedForecast;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
-            const auto marsType = get_or_throw<std::string>(mars, "type");
+            const auto marsType = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (marsType == "em" || marsType == "taem") {
                 derivedForecast = tables::DerivedForecast::UnweightedMeanAllMembers;
@@ -160,13 +167,17 @@ tables::DerivedForecast resolve_DerivedForecast_or_throw(const MarsDict_t& mars,
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`derivedForecast` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast);
+                logMsg += tables::enum2name_DerivedForecast_or_throw(derivedForecast, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return derivedForecast;
+            {
+                tables::DerivedForecast result = derivedForecast;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

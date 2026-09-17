@@ -24,6 +24,7 @@
 #include "metkit/mars2grib/backend/sections/resolver/ActiveConceptsData.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend::resolution {
 
@@ -52,13 +53,15 @@ using ActiveConceptsData = metkit::mars2grib::backend::sections::resolver::Activ
 ///
 /// @return An `ActiveConceptsData` object containing the indices of all triggered variants.
 ///
-template <class MarsDict_t, class OptDict_t>
-ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, const OptDict_t& optDict) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, const OptDict_t& optDict, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     // bring in GeneralRegistry and MatchersRegistry
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
-    using Registry = metkit::mars2grib::backend::concepts_::MatchingCallbacksRegistry<MarsDict_t, OptDict_t>;
+    using Registry = metkit::mars2grib::backend::concepts_::MatchingCallbacksRegistry<MarsDict_t, OptDict_t, Cntx_t>;
     using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_ActiveConceptsData_to_json;
 
     try {
@@ -78,7 +81,8 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
         ActiveConceptsData activeConceptsData{};
         activeConceptsData.count = 0;
         for (std::size_t i = 0; i < GeneralRegistry::NConcepts; ++i) {
-            std::size_t localVariantId  = callbacks[i](marsDict, optDict);
+            std::size_t localVariantId =
+                callbacks[i](marsDict, optDict, utils::profiling::callSite(cntx, Here()));
             std::size_t globalVariantId = GeneralRegistry::conceptOffsets[i] + localVariantId;
             if (localVariantId != GeneralRegistry::missing) {
                 activeConceptsData.activeVariantIndices[i]                           = globalVariantId;
@@ -90,10 +94,14 @@ ActiveConceptsData resolve_ActiveConcepts_or_throw(const MarsDict_t& marsDict, c
         }
 
         eckit::Log::debug<LibMetkit>() << "Resolved ActiveConceptsData: "
-                                       << debug_convert_ActiveConceptsData_to_json(activeConceptsData) << std::endl;
+                                       << debug_convert_ActiveConceptsData_to_json(
+                                              activeConceptsData, utils::profiling::callSite(cntx, Here()))
+                                       << std::endl;
 
         // Return the active concepts
-        return activeConceptsData;
+        ActiveConceptsData result = activeConceptsData;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Unable to match ActiveConcepts", Here()));

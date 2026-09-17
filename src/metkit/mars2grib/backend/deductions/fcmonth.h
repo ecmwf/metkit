@@ -32,6 +32,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <string>
 
@@ -57,7 +59,9 @@ namespace detail {
 /// @return `value` unchanged when it is strictly positive.
 /// @throws Mars2GribDeductionException if `value` is not strictly positive.
 ///
-inline long checkedPositiveFcmonthLeadCount(long value, const std::string& key) {
+template <class Cntx_t>
+inline long checkedPositiveFcmonthLeadCount(long value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
@@ -65,7 +69,11 @@ inline long checkedPositiveFcmonthLeadCount(long value, const std::string& key) 
             throw Mars2GribDeductionException("`" + key + "` must be a strictly positive integer", Here());
         }
 
-        return value;
+        {
+            long result = value;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
@@ -108,8 +116,9 @@ inline long checkedPositiveFcmonthLeadCount(long value, const std::string& key) 
 ///         on malformed, unsupported, or locally invalid raw `fcmonth` input,
 ///         with the original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<long> resolve_Fcmonth_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<long> resolve_Fcmonth_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -118,16 +127,20 @@ std::optional<long> resolve_Fcmonth_opt(const MarsDict_t& mars, const ParDict_t&
     (void)opt;
 
     try {
-        if (!has(mars, "fcmonth")) {
-            return std::nullopt;
+        if (!has(mars, "fcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<long> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         long result = 0;
-        if (auto value = get_opt<long>(mars, "fcmonth")) {
-            result = detail::checkedPositiveFcmonthLeadCount(*value, "fcmonth");
+        if (auto value = get_opt<long>(mars, "fcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::checkedPositiveFcmonthLeadCount(*value, "fcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
-        else if (auto value = get_opt<std::string>(mars, "fcmonth")) {
-            result = detail::checkedPositiveFcmonthLeadCount(detail::parseLongStrict(*value, "fcmonth"), "fcmonth");
+        else if (auto value = get_opt<std::string>(mars, "fcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::checkedPositiveFcmonthLeadCount(detail::parseLongStrict(*value, "fcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here())), "fcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribDeductionException("Unsupported type for `fcmonth`", Here());
@@ -136,6 +149,7 @@ std::optional<long> resolve_Fcmonth_opt(const MarsDict_t& mars, const ParDict_t&
         MARS2GRIB_LOG_RESOLVE([&]() {
             return std::string{"`fcmonth` resolved from input dictionaries: value='"} + std::to_string(result) + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

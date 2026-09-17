@@ -100,7 +100,7 @@ namespace exceptions = metkit::mars2grib::utils::exceptions;
 /// This staged cache path is temporary and not intended for public use.
 ///
 using CoreCacheEntry = CoreOperations::CacheEntry<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                                  metkit::codes::CodesHandle>;
+                                                   metkit::codes::CodesHandle, utils::profiling::NoProfileContext>;
 
 ///
 /// @brief Opaque API wrapper around the concrete core cache entry.
@@ -187,12 +187,14 @@ void Mars2Grib::CacheEntryDeleter::operator()(const CacheEntry* p) const {
 /// purposes and may be changed or removed without notice.
 ///
 Mars2Grib::CacheEntryPtr Mars2Grib::prepare(const eckit::LocalConfiguration& mars,
-                                            const eckit::LocalConfiguration& misc) {
+                                             const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<CacheEntryPtr>(
         "Mars2Grib::prepare", opts_,
         [&]() {
             auto coreCache = CoreOperations::prepare<eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
-                                                     metkit::codes::CodesHandle>(mars, misc, opts_, language_);
+                                                       metkit::codes::CodesHandle>(
+                mars, misc, opts_, language_, utils::profiling::callSite(cntx, Here()));
 
             return CacheEntryPtr(new CacheEntry(std::move(coreCache)));
         },
@@ -234,14 +236,16 @@ Mars2Grib::CacheEntryPtr Mars2Grib::prepare(const eckit::LocalConfiguration& mar
 ///
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const CacheEntryPtr& cacheEntry,
                                                                         const std::vector<double>& values,
-                                                                        const eckit::LocalConfiguration& mars,
-                                                                        const eckit::LocalConfiguration& misc) {
+                                                                         const eckit::LocalConfiguration& mars,
+                                                                         const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::finaliseEncoding", opts_,
         [&]() {
             return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration,
                                                     Options, metkit::codes::CodesHandle>(
-                *(cacheEntry->impl_), Span<const double>{values}, mars, misc, opts_, language_);
+                *(cacheEntry->impl_), Span<const double>{values}, mars, misc, opts_, language_,
+                utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
@@ -286,14 +290,16 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 ///
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const CacheEntryPtr& cacheEntry,
                                                                         const double* values, size_t length,
-                                                                        const eckit::LocalConfiguration& mars,
-                                                                        const eckit::LocalConfiguration& misc) {
+                                                                         const eckit::LocalConfiguration& mars,
+                                                                         const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::finaliseEncoding", opts_,
         [&]() {
             return CoreOperations::finaliseEncoding<double, eckit::LocalConfiguration, eckit::LocalConfiguration,
                                                     Options, metkit::codes::CodesHandle>(
-                *(cacheEntry->impl_), Span<const double>{values, length}, mars, misc, opts_, language_);
+                *(cacheEntry->impl_), Span<const double>{values, length}, mars, misc, opts_, language_,
+                utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
@@ -331,14 +337,16 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 ///
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const CacheEntryPtr& cacheEntry,
                                                                         const std::vector<float>& values,
-                                                                        const eckit::LocalConfiguration& mars,
-                                                                        const eckit::LocalConfiguration& misc) {
+                                                                         const eckit::LocalConfiguration& mars,
+                                                                         const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::finaliseEncoding", opts_,
         [&]() {
             return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration,
                                                     Options, metkit::codes::CodesHandle>(
-                *(cacheEntry->impl_), Span<const float>{values}, mars, misc, opts_, language_);
+                *(cacheEntry->impl_), Span<const float>{values}, mars, misc, opts_, language_,
+                utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
@@ -382,14 +390,16 @@ std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const Ca
 ///
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::finaliseEncoding(const CacheEntryPtr& cacheEntry,
                                                                         const float* values, size_t length,
-                                                                        const eckit::LocalConfiguration& mars,
-                                                                        const eckit::LocalConfiguration& misc) {
+                                                                         const eckit::LocalConfiguration& mars,
+                                                                         const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::finaliseEncoding", opts_,
         [&]() {
             return CoreOperations::finaliseEncoding<float, eckit::LocalConfiguration, eckit::LocalConfiguration,
                                                     Options, metkit::codes::CodesHandle>(
-                *(cacheEntry->impl_), Span<const float>{values, length}, mars, misc, opts_, language_);
+                *(cacheEntry->impl_), Span<const float>{values, length}, mars, misc, opts_, language_,
+                utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
@@ -448,105 +458,121 @@ Mars2Grib::Mars2Grib(OptionList opts) : opts_{checkEnvironment(detail::readOptio
 // Encoding interfaces
 // -----------------------------------------------------------------------------
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
-                                                              const eckit::LocalConfiguration& mars,
-                                                              const eckit::LocalConfiguration& misc) {
+                                                               const eckit::LocalConfiguration& mars,
+                                                               const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_,
-                                                                      language_);
+                                                                       language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
-                                                              const eckit::LocalConfiguration& mars,
-                                                              const eckit::LocalConfiguration& misc) {
+                                                               const eckit::LocalConfiguration& mars,
+                                                               const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_,
-                                                                      language_);
+                                                                       language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<double>& values,
-                                                              const eckit::LocalConfiguration& mars) {
+                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const double>{values}, mars, misc, opts_,
-                                                                      language_);
+                                                                       language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const std::vector<float>& values,
-                                                              const eckit::LocalConfiguration& mars) {
+                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const float>{values}, mars, misc, opts_,
-                                                                      language_);
+                                                                       language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
-                                                              const eckit::LocalConfiguration& mars,
-                                                              const eckit::LocalConfiguration& misc) {
+                                                               const eckit::LocalConfiguration& mars,
+                                                               const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc,
-                                                                      opts_, language_);
+                                                                       opts_, language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
-                                                              const eckit::LocalConfiguration& mars,
-                                                              const eckit::LocalConfiguration& misc) {
+                                                               const eckit::LocalConfiguration& mars,
+                                                               const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc,
-                                                                      opts_, language_);
+                                                                       opts_, language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const double* values, size_t length,
-                                                              const eckit::LocalConfiguration& mars) {
+                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<double, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const double>{values, length}, mars, misc,
-                                                                      opts_, language_);
+                                                                       opts_, language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }
 
 std::unique_ptr<metkit::codes::CodesHandle> Mars2Grib::encode(const float* values, size_t length,
-                                                              const eckit::LocalConfiguration& mars) {
+                                                               const eckit::LocalConfiguration& mars) {
     const eckit::LocalConfiguration misc{};
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<std::unique_ptr<metkit::codes::CodesHandle>>(
         "Mars2Grib::encode", opts_,
         [&]() {
             return CoreOperations::encode<float, eckit::LocalConfiguration, eckit::LocalConfiguration, Options,
                                           metkit::codes::CodesHandle>(Span<const float>{values, length}, mars, misc,
-                                                                      opts_, language_);
+                                                                       opts_, language_,
+                                                                       utils::profiling::callSite(cntx, Here()));
         },
         Here());
 }

@@ -62,6 +62,7 @@
 #include "metkit/mars2grib/backend/concepts/statistics/impl/StatisticsProductTimeSpec.h"
 #include "metkit/mars2grib/backend/concepts/statistics/statisticsEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Models (new product time implementation)
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
@@ -105,8 +106,9 @@ constexpr bool statisticsApplicable() {
 /// final immutable `backend::models::product_time_spec::ProductTimeSpec`.
 ///
 template <std::size_t Stage, std::size_t Section, StatisticsType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::dict_traits::setMissing_or_throw;
@@ -125,16 +127,16 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             if constexpr (Stage == StageAllocate) {
 
                 const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
-                                                                             mars, par, opt);
-                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                                                                             mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Checks/Validation
-                validation::check_StatisticsProductDefinitionSection_or_throw(opt, out);
+                validation::check_StatisticsProductDefinitionSection_or_throw(opt, out, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                setMissing_or_throw(out, "hoursAfterDataCutoff");
-                setMissing_or_throw(out, "minutesAfterDataCutoff");
-                set_or_throw<long>(out, "numberOfTimeRanges", pts.numberOfTimeRanges);
+                setMissing_or_throw(out, "hoursAfterDataCutoff", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                setMissing_or_throw(out, "minutesAfterDataCutoff", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "numberOfTimeRanges", pts.numberOfTimeRanges, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             // =============================================================
@@ -147,16 +149,16 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             if constexpr (Stage == StagePreset) {
 
                 const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
-                                                                             mars, par, opt);
-                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                                                                             mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
-                set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing);
-                set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", pts.typeOfTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange);
-                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange);
+                set_or_throw<std::vector<long>>(out, "typeOfStatisticalProcessing", pts.typeOfStatisticalProcessing, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::vector<long>>(out, "typeOfTimeIncrement", pts.typeOfTimeIncrement, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeRange", pts.indicatorOfUnitForTimeRange, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::vector<long>>(out, "lengthOfTimeRange", pts.lengthOfTimeRange, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 set_or_throw<std::vector<long>>(out, "indicatorOfUnitForTimeIncrement",
-                                                pts.indicatorOfUnitForTimeIncrement);
-                set_or_throw<std::vector<long>>(out, "timeIncrement", pts.lengthOfTimeIncrement);
+                                                pts.indicatorOfUnitForTimeIncrement, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::vector<long>>(out, "timeIncrement", pts.lengthOfTimeIncrement, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             // =============================================================
@@ -166,18 +168,18 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             // =============================================================
             if constexpr (Stage == StageRuntime) {
                 const auto spec = models::product_time_spec::ProductTimeSpec(typeOfStatisticalProcessingEnum<Variant>(),
-                                                                             mars, par, opt);
-                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec);
+                                                                             mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto pts  = impl::build_StatisticsProductTimeSpec_or_throw(spec, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
-                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
+                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 const eckit::DateTime& end = pts.endOfOverallTimeInterval;
-                set_or_throw<long>(out, "yearOfEndOfOverallTimeInterval", end.date().year());
-                set_or_throw<long>(out, "monthOfEndOfOverallTimeInterval", end.date().month());
-                set_or_throw<long>(out, "dayOfEndOfOverallTimeInterval", end.date().day());
-                set_or_throw<long>(out, "hourOfEndOfOverallTimeInterval", end.time().hours());
-                set_or_throw<long>(out, "minuteOfEndOfOverallTimeInterval", end.time().minutes());
-                set_or_throw<long>(out, "secondOfEndOfOverallTimeInterval", end.time().seconds());
+                set_or_throw<long>(out, "yearOfEndOfOverallTimeInterval", end.date().year(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "monthOfEndOfOverallTimeInterval", end.date().month(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "dayOfEndOfOverallTimeInterval", end.date().day(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "hourOfEndOfOverallTimeInterval", end.time().hours(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "minuteOfEndOfOverallTimeInterval", end.time().minutes(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "secondOfEndOfOverallTimeInterval", end.time().seconds(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -185,6 +187,7 @@ void StatisticsOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

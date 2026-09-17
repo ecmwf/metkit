@@ -115,13 +115,13 @@ struct ReferencePeriodConcept : RegisterEntryDescriptor<ReferencePeriodType, Ref
     /// @return Function pointer implementing the phase, or `nullptr`
     ///
     template <std::size_t Capability, std::size_t Stage, std::size_t Sec, ReferencePeriodType Variant, class MarsDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks() {
+              class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> phaseCallbacks() {
 
         if constexpr (Capability == 0) {
 
             if constexpr (referencePeriodApplicable<Stage, Sec, Variant>()) {
-                return &ReferencePeriodOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+                return &ReferencePeriodOp<Stage, Sec, Variant, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
             }
             else {
                 return nullptr;
@@ -138,18 +138,18 @@ struct ReferencePeriodConcept : RegisterEntryDescriptor<ReferencePeriodType, Ref
     /// @brief Variant-specific callbacks (not used for this concept).
     ///
     template <std::size_t Capability, ReferencePeriodType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-              class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks() {
+              class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> variantCallbacks() {
         return nullptr;
     }
 
     ///
     /// @brief Entry-level matcher callback.
     ///
-    template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-    static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks() {
+    template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+    static constexpr Fm<MarsDict_t, OptDict_t, Cntx_t> entryCallbacks() {
         if constexpr (Capability == 0) {
-            return &referencePeriodMatcher<MarsDict_t, OptDict_t>;
+            return &referencePeriodMatcher<MarsDict_t, OptDict_t, Cntx_t>;
         }
         else {
             return nullptr;

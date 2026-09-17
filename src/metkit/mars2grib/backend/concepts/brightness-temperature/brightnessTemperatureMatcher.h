@@ -38,6 +38,7 @@
 #include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -71,30 +72,37 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribMatcherException
 /// If the request is identified as a brightness-temperature request but the
 /// mandatory `channel` key is missing.
-template <class MarsDict_t, class OptDict_t>
-std::size_t brightnessTemperatureMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t brightnessTemperatureMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
 
     // Concept does not apply unless "param" is present and equals 194
-    if (!has(mars, "param") || get_or_throw<long>(mars, "param") != 194) {
-        return compile_time_registry_engine::MISSING;
+    if (!has(mars, "param", utils::profiling::callSite(cntx, Here())) || get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here())) != 194) {
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
     // Concept does not apply unless the stream is explicitly supported
-    if (!has(mars, "stream")) {
-        return compile_time_registry_engine::MISSING;
+    if (!has(mars, "stream", utils::profiling::callSite(cntx, Here()))) {
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    const auto& stream = get_or_throw<std::string>(mars, "stream");
+    const auto& stream = get_or_throw<std::string>(mars, "stream", utils::profiling::callSite(cntx, Here()));
 
     if (stream != "oper" && stream != "elda") {
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
     // At this point the request is a brightness-temperature request:
     // "channel" is mandatory
-    if (!has(mars, "channel")) {
+    if (!has(mars, "channel", utils::profiling::callSite(cntx, Here()))) {
         throw utils::exceptions::Mars2GribMatcherException(
             "brightnessTemperature concept requires MARS key \"channel\" "
             "when param=194 and stream is either \"oper\" or \"elda\"",
@@ -102,13 +110,28 @@ std::size_t brightnessTemperatureMatcher(const MarsDict_t& mars, const OptDict_t
     }
 
     if (stream == "elda") {
-        return static_cast<std::size_t>(BrightnessTemperatureType::EnsembleMean);
+        const std::size_t result = static_cast<std::size_t>(BrightnessTemperatureType::EnsembleMean);
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     else if (stream == "oper") {
-        return static_cast<std::size_t>(BrightnessTemperatureType::Default);
+        const std::size_t result = static_cast<std::size_t>(BrightnessTemperatureType::Default);
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    return compile_time_registry_engine::MISSING;
+    const std::size_t result = compile_time_registry_engine::MISSING;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t brightnessTemperatureMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result =
+        brightnessTemperatureMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

@@ -82,6 +82,11 @@ Two canonical function pointer types are used:
 * `Fn<...>` — encoding / transformation callbacks
 * `Fm<...>` — matcher / predicate callbacks
 
+Both callback families are parameterized by an operation context type. Registry
+construction propagates that type at compile time; the resulting runtime
+callbacks receive the corresponding `Cntx_t&` as their final argument. No
+context object is used while the constexpr tables themselves are built.
+
 All dispatch tables store one of these two types (or `nullptr`).
 
 ### Compile-Time Containers
@@ -251,7 +256,7 @@ There is no runtime capability switching.
 
    * computes indices once,
    * indexes into constexpr tables,
-   * calls function pointers.
+   * calls function pointers and forwards the operation context.
 
 No maps. No conditionals. No polymorphism.
 

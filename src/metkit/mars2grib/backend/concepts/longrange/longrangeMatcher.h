@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -59,25 +60,28 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t longrangeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t longrangeMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
-        const auto marsStream = get_or_throw<std::string>(mars, "stream");
-        const auto marsClass  = get_or_throw<std::string>(mars, "class");
+        const auto marsStream = get_or_throw<std::string>(mars, "stream", utils::profiling::callSite(cntx, Here()));
+        const auto marsClass  = get_or_throw<std::string>(mars, "class", utils::profiling::callSite(cntx, Here()));
 
         auto isSeasonal = [](const std::string& klass, const std::string& stream) {
             return (klass == "od" || klass == "rd" || klass == "c3") && (stream == "sfmd" || stream == "shmd");
         };
 
-        if (has(mars, "method") && has(mars, "system")) {
+        if (has(mars, "method", utils::profiling::callSite(cntx, Here())) && has(mars, "system", utils::profiling::callSite(cntx, Here()))) {
 
             /// @todo review this logic
-            if (has(mars, "fcmonth")) {
+            if (has(mars, "fcmonth", utils::profiling::callSite(cntx, Here()))) {
                 if (isSeasonal(marsClass, marsStream)) {
-                    return static_cast<size_t>(LongrangeType::SeasonalForecastMonthlyMean);
+                    const std::size_t result = static_cast<size_t>(LongrangeType::SeasonalForecastMonthlyMean);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
                 else {
                     std::ostringstream os;
@@ -87,16 +91,28 @@ std::size_t longrangeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                 }
             }
             else {
-                return static_cast<size_t>(LongrangeType::SeasonalForecast);
+                const std::size_t result = static_cast<size_t>(LongrangeType::SeasonalForecast);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
         }
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `longrange` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t longrangeMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = longrangeMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

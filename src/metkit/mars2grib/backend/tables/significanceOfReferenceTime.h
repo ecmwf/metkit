@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -94,26 +96,68 @@ enum class SignificanceOfReferenceTime : long {
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes GRIB code tables.
 ///
-inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_throw(const std::string& value) {
+template <class Cntx_t>
+inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_throw(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (value == "analysis")
-        return SignificanceOfReferenceTime::Analysis;
-    else if (value == "forecastStart")
-        return SignificanceOfReferenceTime::ForecastStart;
-    else if (value == "forecastVerification")
-        return SignificanceOfReferenceTime::ForecastVerification;
-    else if (value == "observationTime")
-        return SignificanceOfReferenceTime::ObservationTime;
-    else if (value == "localTime")
-        return SignificanceOfReferenceTime::LocalTime;
-    else if (value == "simulationStart")
-        return SignificanceOfReferenceTime::SimulationStart;
-    else if (value == "assimilationStart")
-        return SignificanceOfReferenceTime::SimulationStart;
-    else if (value == "missing")
-        return SignificanceOfReferenceTime::Missing;
+    if (value == "analysis") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::Analysis;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "forecastStart") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::ForecastStart;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "forecastVerification") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::ForecastVerification;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "observationTime") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::ObservationTime;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "localTime") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::LocalTime;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "simulationStart") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::SimulationStart;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "assimilationStart") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::SimulationStart;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (value == "missing") {
+        {
+            SignificanceOfReferenceTime result = SignificanceOfReferenceTime::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
     else {
         std::string errMsg = "Invalid SignificanceOfReferenceTime value: ";
         errMsg += "actual='" + value + "'";
@@ -144,27 +188,61 @@ inline SignificanceOfReferenceTime name2enum_SignificanceOfReferenceTime_or_thro
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes GRIB code tables.
 ///
-inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOfReferenceTime value) {
+template <class Cntx_t>
+inline std::string enum2name_SignificanceOfReferenceTime_or_throw(SignificanceOfReferenceTime value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case SignificanceOfReferenceTime::Analysis:
-            return "analysis";
+            {
+                std::string result = "analysis";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::ForecastStart:
-            return "forecastStart";
+            {
+                std::string result = "forecastStart";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::ForecastVerification:
-            return "forecastVerification";
+            {
+                std::string result = "forecastVerification";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::ObservationTime:
-            return "observationTime";
+            {
+                std::string result = "observationTime";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::LocalTime:
-            return "localTime";
+            {
+                std::string result = "localTime";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::SimulationStart:
-            return "simulationStart";
+            {
+                std::string result = "simulationStart";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::AssimilationStart:
-            return "assimilationStart";
+            {
+                std::string result = "assimilationStart";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case SignificanceOfReferenceTime::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default: {
             std::string errMsg = "Invalid SignificanceOfReferenceTime enum value: ";
             errMsg += std::to_string(static_cast<unsigned>(value));

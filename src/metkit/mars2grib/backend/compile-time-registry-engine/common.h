@@ -126,16 +126,16 @@ inline constexpr std::size_t SecDataRepresentationSection = 5;
 /// Each dispatch table cell contains a pointer to a fully specialized concept operation
 /// for a fixed (stage, section, variant). Inapplicable combinations return nullptr.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using Fn = void (*)(const MarsDict_t&, const ParDict_t&, const OptDict_t&, OutDict_t&);
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+using Fn = void (*)(const MarsDict_t&, const ParDict_t&, const OptDict_t&, OutDict_t&, Cntx_t&);
 
 ///
 /// @brief Canonical function pointer type for concept matcher operations.
 ///
 /// Matchers are dictionary-specialized (no stage/section/variant dimensions).
 ///
-template <class MarsDict_t, class OptDict_t>
-using Fm = std::size_t (*)(const MarsDict_t&, const OptDict_t&);
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+using Fm = std::size_t (*)(const MarsDict_t&, const OptDict_t&, Cntx_t&);
 
 
 ///

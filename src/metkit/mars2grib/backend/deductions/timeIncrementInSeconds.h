@@ -48,6 +48,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <algorithm>
 #include <array>
@@ -83,15 +85,16 @@ namespace metkit::mars2grib::backend::deductions {
 ///         is strictly negative, or if any underlying dictionary access
 ///         throws (rethrown nested with diagnostic context).
 ///
-template <class MarsDict_t, class ParDict_t>
-std::optional<long> timeIncrementInSeconds_opt(const MarsDict_t& mars, const ParDict_t& par) {
+template <class MarsDict_t, class ParDict_t, class Cntx_t>
+std::optional<long> timeIncrementInSeconds_opt(const MarsDict_t& mars, const ParDict_t& par, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
-        auto lengthOfTimeStepInSeconds_opt = get_opt<long>(par, "timeIncrementInSeconds");
+        auto lengthOfTimeStepInSeconds_opt = get_opt<long>(par, "timeIncrementInSeconds", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (lengthOfTimeStepInSeconds_opt.has_value()) {
             if (lengthOfTimeStepInSeconds_opt.value() < 0) {
@@ -102,7 +105,11 @@ std::optional<long> timeIncrementInSeconds_opt(const MarsDict_t& mars, const Par
             }
         }
 
-        return lengthOfTimeStepInSeconds_opt;
+        {
+            std::optional<long> result = lengthOfTimeStepInSeconds_opt;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 
@@ -132,17 +139,22 @@ std::optional<long> timeIncrementInSeconds_opt(const MarsDict_t& mars, const Par
 ///         or normalized to `std::nullopt`), strictly negative, or if any
 ///         underlying dictionary access throws.
 ///
-template <class MarsDict_t, class ParDict_t>
-long timeIncrementInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par) {
+template <class MarsDict_t, class ParDict_t, class Cntx_t>
+long timeIncrementInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
 
-        std::optional<long> timeIncrementInSecondsOpt = timeIncrementInSeconds_opt(mars, par);
+        std::optional<long> timeIncrementInSecondsOpt = timeIncrementInSeconds_opt(mars, par, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (timeIncrementInSecondsOpt.has_value()) {
-            return timeIncrementInSecondsOpt.value();
+            {
+                long result = timeIncrementInSecondsOpt.value();
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
             throw Mars2GribDeductionException("`timeIncrementInSeconds` is not defined in Mars/Par dictionary", Here());

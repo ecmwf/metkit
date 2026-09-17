@@ -47,6 +47,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <algorithm>
 #include <string>
@@ -98,10 +100,11 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is fully deterministic and does not rely on any
 /// pre-existing GRIB header state.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw(const MarsDict_t& mars,
                                                                                  const ParDict_t& par,
-                                                                                 const OptDict_t& opt) {
+                                                                                 const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -111,8 +114,8 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         auto significanceOfReferenceTime = tables::SignificanceOfReferenceTime::Missing;
 
         // Retrieve mandatory type from Mars dictionary
-        auto marsStream = get_or_throw<std::string>(mars, "stream");
-        auto marsType   = get_or_throw<std::string>(mars, "type");
+        auto marsStream = get_or_throw<std::string>(mars, "stream", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        auto marsType   = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         constexpr std::array<std::string_view, 17> analysisTypes = {
             {"an", "ia", "oi", "3v", "3g", "4g", "ea", "pa", "tpa", "ga", "gai", "ai", "af", "ab", "oai", "ga", "gai"}};
@@ -149,13 +152,17 @@ tables::SignificanceOfReferenceTime resolve_SignificanceOfReferenceTime_or_throw
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
             std::string logMsg = "`significanceOfReferenceTime` resolved from input dictionaries: value='";
-            logMsg += tables::enum2name_SignificanceOfReferenceTime_or_throw(significanceOfReferenceTime);
+            logMsg += tables::enum2name_SignificanceOfReferenceTime_or_throw(significanceOfReferenceTime, cntx);
             logMsg += "'";
             return logMsg;
         }());
 
         /// Success exit point
-        return significanceOfReferenceTime;
+        {
+            tables::SignificanceOfReferenceTime result = significanceOfReferenceTime;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribDeductionException(

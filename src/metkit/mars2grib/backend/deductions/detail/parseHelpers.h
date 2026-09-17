@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <algorithm>
 #include <cctype>
 #include <limits>
@@ -41,10 +43,16 @@ using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 /// @param[in] value Source token.
 /// @return Lowercased token.
 ///
-inline std::string lower(std::string value) {
+template <class Cntx_t>
+inline std::string lower(std::string value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     std::transform(value.begin(), value.end(), value.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-    return value;
+    {
+        std::string result = value;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -57,9 +65,15 @@ inline std::string lower(std::string value) {
 /// @param[in] ignored Separator character to remove.
 /// @return `value` with every occurrence of `ignored` removed.
 ///
-inline std::string digitsOnly(std::string value, char ignored) {
+template <class Cntx_t>
+inline std::string digitsOnly(std::string value, char ignored, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     value.erase(std::remove(value.begin(), value.end(), ignored), value.end());
-    return value;
+    {
+        std::string result = value;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -74,7 +88,9 @@ inline std::string digitsOnly(std::string value, char ignored) {
 /// @throws Mars2GribDeductionException if the token is not a valid complete
 ///         `long` representation.
 ///
-inline long parseLongStrict(const std::string& value, const std::string& key) {
+template <class Cntx_t>
+inline long parseLongStrict(const std::string& value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     std::size_t used = 0;
     long result      = 0;
 
@@ -89,6 +105,7 @@ inline long parseLongStrict(const std::string& value, const std::string& key) {
         throw Mars2GribDeductionException("Invalid trailing characters in `" + key + "`: '" + value + "'", Here());
     }
 
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
     return result;
 }
 
@@ -100,12 +117,18 @@ inline long parseLongStrict(const std::string& value, const std::string& key) {
 /// @return `hours * 3600`.
 /// @throws Mars2GribDeductionException if the multiplication overflows `long`.
 ///
-inline long checkedHoursToSeconds(long hours, const std::string& key) {
+template <class Cntx_t>
+inline long checkedHoursToSeconds(long hours, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (hours > std::numeric_limits<long>::max() / 3600L || hours < std::numeric_limits<long>::min() / 3600L) {
         throw Mars2GribDeductionException("Duration overflow while converting `" + key + "` from hours", Here());
     }
 
-    return hours * 3600L;
+    {
+        long result = hours * 3600L;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -136,47 +159,101 @@ inline long checkedHoursToSeconds(long hours, const std::string& key) {
 /// @throws Mars2GribDeductionException if the token is neither a supported
 ///         month alias nor a valid decimal integer.
 ///
-inline long parseMonthEnum(const std::string& value, const std::string& key) {
-    const std::string normalized = lower(value);
+template <class Cntx_t>
+inline long parseMonthEnum(const std::string& value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    const std::string normalized = lower(value, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
     if (normalized == "jan" || normalized == "january") {
-        return 1;
+        {
+            long result = 1;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "feb" || normalized == "february") {
-        return 2;
+        {
+            long result = 2;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "mar" || normalized == "march") {
-        return 3;
+        {
+            long result = 3;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "apr" || normalized == "april") {
-        return 4;
+        {
+            long result = 4;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "may") {
-        return 5;
+        {
+            long result = 5;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "jun" || normalized == "june") {
-        return 6;
+        {
+            long result = 6;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "jul" || normalized == "july") {
-        return 7;
+        {
+            long result = 7;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "aug" || normalized == "august") {
-        return 8;
+        {
+            long result = 8;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "sep" || normalized == "september") {
-        return 9;
+        {
+            long result = 9;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "oct" || normalized == "october") {
-        return 10;
+        {
+            long result = 10;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "nov" || normalized == "november") {
-        return 11;
+        {
+            long result = 11;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (normalized == "dec" || normalized == "december") {
-        return 12;
+        {
+            long result = 12;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 
-    return parseLongStrict(normalized, key);
+    {
+        long result = parseLongStrict(normalized, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -196,35 +273,53 @@ inline long parseMonthEnum(const std::string& value, const std::string& key) {
 /// @throws Mars2GribDeductionException for empty input, invalid integer syntax,
 ///         unsupported units, or arithmetic overflow.
 ///
-inline long parseDurationStringSeconds(const std::string& raw, const std::string& key) {
+template <class Cntx_t>
+inline long parseDurationStringSeconds(const std::string& raw, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (raw.empty()) {
         throw Mars2GribDeductionException("Empty duration for `" + key + "`", Here());
     }
 
-    std::string value = lower(raw);
+    std::string value = lower(raw, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
     char unit         = 'h';
     if (std::isalpha(static_cast<unsigned char>(value.back()))) {
         unit = value.back();
         value.pop_back();
     }
 
-    const long count = parseLongStrict(value, key);
+    const long count = parseLongStrict(value, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
     switch (unit) {
         case 'h':
-            return checkedHoursToSeconds(count, key);
+            {
+                long result = checkedHoursToSeconds(count, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 'm':
             if (count > std::numeric_limits<long>::max() / 60L || count < std::numeric_limits<long>::min() / 60L) {
                 throw Mars2GribDeductionException("Duration overflow in `" + key + "`", Here());
             }
-            return count * 60L;
+            {
+                long result = count * 60L;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 's':
-            return count;
+            {
+                long result = count;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 'd':
             if (count > std::numeric_limits<long>::max() / 86400L ||
                 count < std::numeric_limits<long>::min() / 86400L) {
                 throw Mars2GribDeductionException("Duration overflow in `" + key + "`", Here());
             }
-            return count * 86400L;
+            {
+                long result = count * 86400L;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribDeductionException("Unsupported duration unit in `" + key + "`: '" + raw + "'", Here());
     }

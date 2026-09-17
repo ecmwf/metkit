@@ -41,6 +41,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -97,9 +99,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// @note
 /// This deduction is deterministic and independent of GRIB header state.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 long resolve_ScaleFactorOfCentralWaveNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                     const OptDict_t& opt) {
+                                                     const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -107,7 +110,7 @@ long resolve_ScaleFactorOfCentralWaveNumber_or_throw(const MarsDict_t& mars, con
     try {
 
         // Retrieve scale factor of central wave number from parameter dictionary
-        auto scaleFactorOfCentralWaveNumberVal = get_or_throw<long>(par, "scaleFactorOfCentralWaveNumber");
+        auto scaleFactorOfCentralWaveNumberVal = get_or_throw<long>(par, "scaleFactorOfCentralWaveNumber", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -118,7 +121,11 @@ long resolve_ScaleFactorOfCentralWaveNumber_or_throw(const MarsDict_t& mars, con
         }());
 
         // Success exit point
-        return scaleFactorOfCentralWaveNumberVal;
+        {
+            long result = scaleFactorOfCentralWaveNumberVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

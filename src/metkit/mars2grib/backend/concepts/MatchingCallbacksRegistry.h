@@ -148,7 +148,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// Any change to the concept list or its ordering constitutes a breaking
 /// structural change.
 ///
-template <class MarsDict_t, class OptDict_t>
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
 struct MatchingCallbacksRegistry {
 
     ///
@@ -170,7 +170,7 @@ struct MatchingCallbacksRegistry {
     /// - consistency with higher-level abstractions,
     /// - avoiding repetition of long qualified names.
     ///
-    using Fm_t = metkit::mars2grib::backend::compile_time_registry_engine::Fm<MarsDict_t, OptDict_t>;
+    using Fm_t = metkit::mars2grib::backend::compile_time_registry_engine::Fm<MarsDict_t, OptDict_t, Cntx_t>;
 
     ///
     /// @brief Fully materialized matching dispatch table.
@@ -197,7 +197,8 @@ struct MatchingCallbacksRegistry {
     ///
     static constexpr auto matchingCallbacks =
         metkit::mars2grib::backend::compile_time_registry_engine::makeEntryCallbacksRegistry<detail::AllConcepts, 0,
-                                                                                             MarsDict_t, OptDict_t>();
+                                                                                             MarsDict_t, OptDict_t,
+                                                                                             Cntx_t>();
 
     ///
     /// @brief Compile-time structural verification.

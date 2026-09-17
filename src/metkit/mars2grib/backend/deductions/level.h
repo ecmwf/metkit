@@ -54,6 +54,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -112,8 +114,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction performs presence-only validation and does not
 /// consult level definition tables or apply unit conversions.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_Level_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_Level_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -121,7 +124,7 @@ long resolve_Level_or_throw(const MarsDict_t& mars, const ParDict_t& par, const 
     try {
 
         // Retrieve mandatory MARS level identifier
-        long marsLevelistVal = get_or_throw<long>(mars, "levelist");
+        long marsLevelistVal = get_or_throw<long>(mars, "levelist", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -131,7 +134,11 @@ long resolve_Level_or_throw(const MarsDict_t& mars, const ParDict_t& par, const 
         }());
 
         // Success exit point
-        return marsLevelistVal;
+        {
+            long result = marsLevelistVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

@@ -50,6 +50,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "eckit/log/Log.h"
@@ -107,8 +109,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// provided by the MARS dictionary and does not attempt any semantic
 /// interpretation or consistency checking.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_MethodNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_MethodNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -116,7 +119,7 @@ long resolve_MethodNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
     try {
 
         // Retrieve mandatory MARS method
-        long methodNumber = get_or_throw<long>(mars, "method");
+        long methodNumber = get_or_throw<long>(mars, "method", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -126,7 +129,11 @@ long resolve_MethodNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par,
         }());
 
         // Success exit point
-        return methodNumber;
+        {
+            long result = methodNumber;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

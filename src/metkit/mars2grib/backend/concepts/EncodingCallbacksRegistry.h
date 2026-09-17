@@ -149,7 +149,7 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// Any change to these inputs results in a structurally different dispatch
 /// table and must be treated as a breaking change.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
 struct EncodingCallbacksRegistry {
 
     ///
@@ -199,7 +199,7 @@ struct EncodingCallbacksRegistry {
     /// - avoiding repetition of long qualified names.
     ///
     using Fn_t =
-        metkit::mars2grib::backend::compile_time_registry_engine::Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+        metkit::mars2grib::backend::compile_time_registry_engine::Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
 
     ///
     /// @brief Fully materialized encoding dispatch table.
@@ -227,7 +227,7 @@ struct EncodingCallbacksRegistry {
     ///
     static constexpr auto encodingCallbacks =
         metkit::mars2grib::backend::compile_time_registry_engine::makePhaseCallbacksRegistry<
-            detail::AllConcepts, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>();
+            detail::AllConcepts, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>();
 
 
     ///

@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -57,15 +58,18 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t pointInTimeMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
 
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto param = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
         if (matchAny(param, range(1, 3), 10, range(15, 18), range(21, 23), range(26, 43), 53, 54, 59, 60, 66, 67,
                      range(74, 79), range(129, 139), 141, 148, 151, 152, range(155, 157), range(159, 168), 170,
                      range(172, 174), 183, range(186, 188), 198, 203, 206, 207, range(229, 232), range(234, 236), 238,
@@ -81,36 +85,50 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
                      260688, 261001, 261002, range(261014, 261016), 261018, 261023, range(262000, 262009), 262011,
                      262014, 262015, 262017, 262018, 262023, 262024, range(262100, 262106), range(262108, 262112),
                      range(262113, 262116), range(262118, 262125), 262130, range(262139, 262141), 262143, 262144,
-                     range(262146, 262149), range(262500, 262502), range(262505, 262507), 262900, 262906, 262907)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+                      range(262146, 262149), range(262500, 262502), range(262505, 262507), 262900, 262906, 262907)) {
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Wave products
         if (matchAny(param, range(140114, 140120), 140251)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Satellite products
         if (matchAny(param, 194, range(260510, 260512))) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Chemical products
         if (matchAny(param, range(228083, 228085), range(400000, 499999))) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Strike-probability products
         if (matchAny(param, 131068, 131069, 131073, range(131074, 131077), 131089, 131090, 131091)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // Probability products
         if (matchAny(param, 131020, 131021, 131022, 131023, 131024, 131025)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // ECMWF covariance / analysis-uncertainty paramIds (254001..254017).
@@ -120,15 +138,27 @@ std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         // analyses (PDT=0). Without this mapping, PointInTimeConcept is left
         // inactive and Section 4 recipe selection fails with "No matching recipe".
         if (matchAny(param, range(254001, 254017))) {
-            return static_cast<std::size_t>(PointInTimeType::Default);
+            const std::size_t result = static_cast<std::size_t>(PointInTimeType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `pointInTime` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t pointInTimeMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = pointInTimeMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

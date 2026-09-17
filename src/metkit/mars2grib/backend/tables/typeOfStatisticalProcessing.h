@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -93,48 +95,140 @@ enum class TypeOfStatisticalProcessing : long {
 /// - Case-sensitive
 /// - No aliasing or normalization
 ///
-inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "average")
-        return TypeOfStatisticalProcessing::Average;
-    if (name == "accumulation")
-        return TypeOfStatisticalProcessing::Accumulation;
-    if (name == "maximum")
-        return TypeOfStatisticalProcessing::Maximum;
-    if (name == "minimum")
-        return TypeOfStatisticalProcessing::Minimum;
-    if (name == "difference_end_minus_start")
-        return TypeOfStatisticalProcessing::DifferenceEndMinusStart;
-    if (name == "root_mean_square")
-        return TypeOfStatisticalProcessing::RootMeanSquare;
-    if (name == "standard_deviation")
-        return TypeOfStatisticalProcessing::StandardDeviation;
-    if (name == "covariance")
-        return TypeOfStatisticalProcessing::Covariance;
-    if (name == "difference_start_minus_end")
-        return TypeOfStatisticalProcessing::DifferenceStartMinusEnd;
-    if (name == "ratio")
-        return TypeOfStatisticalProcessing::Ratio;
-    if (name == "standardized_anomaly")
-        return TypeOfStatisticalProcessing::StandardizedAnomaly;
-    if (name == "summation")
-        return TypeOfStatisticalProcessing::Summation;
-    if (name == "return_period")
-        return TypeOfStatisticalProcessing::ReturnPeriod;
-    if (name == "median")
-        return TypeOfStatisticalProcessing::Median;
+    if (name == "average") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Average;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "accumulation") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Accumulation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "maximum") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Maximum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "minimum") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Minimum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "difference_end_minus_start") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::DifferenceEndMinusStart;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "root_mean_square") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::RootMeanSquare;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "standard_deviation") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::StandardDeviation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "covariance") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Covariance;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "difference_start_minus_end") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::DifferenceStartMinusEnd;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "ratio") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Ratio;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "standardized_anomaly") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::StandardizedAnomaly;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "summation") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Summation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "return_period") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::ReturnPeriod;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "median") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Median;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
-    if (name == "severity")
-        return TypeOfStatisticalProcessing::Severity;
-    if (name == "mode")
-        return TypeOfStatisticalProcessing::Mode;
-    if (name == "index_processing")
-        return TypeOfStatisticalProcessing::IndexProcessing;
+    if (name == "severity") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Severity;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "mode") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Mode;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "index_processing") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::IndexProcessing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
-    if (name == "missing")
-        return TypeOfStatisticalProcessing::Missing;
+    if (name == "missing") {
+        {
+            TypeOfStatisticalProcessing result = TypeOfStatisticalProcessing::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     std::string err = "Invalid TypeOfStatisticalProcessing name: actual='" + name +
                       "', expected={average,accumulation,maximum,minimum,"
@@ -159,49 +253,123 @@ inline TypeOfStatisticalProcessing name2enum_TypeOfStatisticalProcessing_or_thro
 /// @note
 /// - Returned strings are stable and suitable for round-tripping
 ///
-inline std::string enum2name_TypeOfStatisticalProcessing_or_throw(TypeOfStatisticalProcessing value) {
+template <class Cntx_t>
+inline std::string enum2name_TypeOfStatisticalProcessing_or_throw(TypeOfStatisticalProcessing value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TypeOfStatisticalProcessing::Average:
-            return "average";
+            {
+                std::string result = "average";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Accumulation:
-            return "accumulation";
+            {
+                std::string result = "accumulation";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Maximum:
-            return "maximum";
+            {
+                std::string result = "maximum";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Minimum:
-            return "minimum";
+            {
+                std::string result = "minimum";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::DifferenceEndMinusStart:
-            return "difference_end_minus_start";
+            {
+                std::string result = "difference_end_minus_start";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::RootMeanSquare:
-            return "root_mean_square";
+            {
+                std::string result = "root_mean_square";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::StandardDeviation:
-            return "standard_deviation";
+            {
+                std::string result = "standard_deviation";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Covariance:
-            return "covariance";
+            {
+                std::string result = "covariance";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::DifferenceStartMinusEnd:
-            return "difference_start_minus_end";
+            {
+                std::string result = "difference_start_minus_end";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Ratio:
-            return "ratio";
+            {
+                std::string result = "ratio";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::StandardizedAnomaly:
-            return "standardized_anomaly";
+            {
+                std::string result = "standardized_anomaly";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Summation:
-            return "summation";
+            {
+                std::string result = "summation";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::ReturnPeriod:
-            return "return_period";
+            {
+                std::string result = "return_period";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Median:
-            return "median";
+            {
+                std::string result = "median";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
 
         case TypeOfStatisticalProcessing::Severity:
-            return "severity";
+            {
+                std::string result = "severity";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::Mode:
-            return "mode";
+            {
+                std::string result = "mode";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfStatisticalProcessing::IndexProcessing:
-            return "index_processing";
+            {
+                std::string result = "index_processing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
 
         case TypeOfStatisticalProcessing::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
     }
 
     std::string err =

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <algorithm>
 #include <array>
 #include <string>
@@ -42,13 +44,19 @@ namespace metkit::mars2grib::backend::deductions::detail {
 /// @throws Mars2GribDeductionException if the extracted fields do not form a
 ///         valid `eckit::Date`.
 ///
-inline eckit::Date parseDateLong(long value, const std::string& key) {
+template <class Cntx_t>
+inline eckit::Date parseDateLong(long value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     const long year  = value / 10000L;
     const long month = (value / 100L) % 100L;
     const long day   = value % 100L;
 
     try {
-        return eckit::Date(year, month, day);
+        {
+            eckit::Date result = eckit::Date(year, month, day);
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         throw Mars2GribDeductionException("Invalid date in `" + key + "`: '" + std::to_string(value) + "'", Here());
@@ -66,14 +74,20 @@ inline eckit::Date parseDateLong(long value, const std::string& key) {
 /// @throws Mars2GribDeductionException for invalid syntax or invalid calendar
 ///         values.
 ///
-inline eckit::Date parseDateString(std::string value, const std::string& key) {
-    value = digitsOnly(std::move(value), '-');
+template <class Cntx_t>
+inline eckit::Date parseDateString(std::string value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
+    value = digitsOnly(std::move(value), '-', metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
     if (value.size() != 8 ||
         !std::all_of(value.begin(), value.end(), [](unsigned char c) { return std::isdigit(c); })) {
         throw Mars2GribDeductionException("Invalid date syntax in `" + key + "`", Here());
     }
 
-    return parseDateLong(parseLongStrict(value, key), key);
+    {
+        eckit::Date result = parseDateLong(parseLongStrict(value, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -92,7 +106,9 @@ inline eckit::Date parseDateString(std::string value, const std::string& key) {
 /// @return Validated time of day.
 /// @throws Mars2GribDeductionException for negative or invalid time values.
 ///
-inline eckit::Time parseTimeLong(long value, const std::string& key) {
+template <class Cntx_t>
+inline eckit::Time parseTimeLong(long value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (value < 0) {
         throw Mars2GribDeductionException("Negative time in `" + key + "`", Here());
     }
@@ -105,7 +121,11 @@ inline eckit::Time parseTimeLong(long value, const std::string& key) {
     const long minute = value % 100L;
 
     try {
-        return eckit::Time(hour, minute, 0);
+        {
+            eckit::Time result = eckit::Time(hour, minute, 0);
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         throw Mars2GribDeductionException("Invalid time in `" + key + "`: '" + std::to_string(value) + "'", Here());
@@ -126,7 +146,9 @@ inline eckit::Time parseTimeLong(long value, const std::string& key) {
 /// @throws Mars2GribDeductionException for malformed syntax or invalid time
 ///         values.
 ///
-inline eckit::Time parseTimeString(std::string value, const std::string& key) {
+template <class Cntx_t>
+inline eckit::Time parseTimeString(std::string value, const std::string& key, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     if (value.find(':') != std::string::npos) {
         const std::size_t separator = value.find(':');
         const bool hasExactlyOneColon =
@@ -146,7 +168,11 @@ inline eckit::Time parseTimeString(std::string value, const std::string& key) {
         }
 
         try {
-            return eckit::Time(parseLongStrict(hourToken, key), parseLongStrict(minuteToken, key), 0);
+            {
+                eckit::Time result = eckit::Time(parseLongStrict(hourToken, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), parseLongStrict(minuteToken, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), 0);
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         catch (...) {
             throw Mars2GribDeductionException("Invalid time in `" + key + "`: '" + value + "'", Here());
@@ -159,7 +185,11 @@ inline eckit::Time parseTimeString(std::string value, const std::string& key) {
         throw Mars2GribDeductionException("Invalid time syntax in `" + key + "`", Here());
     }
 
-    return parseTimeLong(parseLongStrict(value, key), key);
+    {
+        eckit::Time result = parseTimeLong(parseLongStrict(value, key, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), key, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///

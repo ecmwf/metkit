@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <array>
 
 #include "metkit/mars2grib/backend/deductions/common.h"
@@ -56,9 +58,11 @@ namespace metkit::mars2grib::backend::models::product_time_spec::detail {
 /// @param[in] rawShape Resolved raw ProductTimeSpec windows.
 /// @return Normalized ProductTimeSpec windows.
 /// @throws Mars2GribModelException If normalization or validation fails.
+template <class Cntx_t>
 inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpecInput& input,
                                                            const domain::ProductTimeSpecDomain& domain,
-                                                           const shape::ProductTimeSpecShape& rawShape) {
+                                                           const shape::ProductTimeSpecShape& rawShape, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::tables::TimeUnit;
@@ -70,7 +74,7 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
 
     try {
         if (rawShape.values.empty()) {
-            throw Mars2GribModelException("Cannot normalize an empty ProductTimeSpec shape", input.to_json(), Here());
+            throw Mars2GribModelException("Cannot normalize an empty ProductTimeSpec shape", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const auto convertTriviallyConvertibleDurationToSeconds = [&](const TimeDuration& duration, const char* name) {
@@ -101,33 +105,33 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
                     case TimeUnit::Month:
                         throw Mars2GribModelException(
                             std::string{"Cannot trivially convert month-valued `"} + name + "` to seconds",
-                            input.to_json(), Here());
+                            input.to_json(cntx), Here());
                     case TimeUnit::Year:
                     case TimeUnit::Decade:
                     case TimeUnit::Normal:
                     case TimeUnit::Century:
                         throw Mars2GribModelException(
                             std::string{"Cannot trivially convert calendar-valued `"} + name + "` to seconds",
-                            input.to_json(), Here());
+                            input.to_json(cntx), Here());
                     case TimeUnit::Missing:
                         throw Mars2GribModelException(std::string{"Cannot normalize missing `"} + name + "`",
-                                                      input.to_json(), Here());
+                                                      input.to_json(cntx), Here());
                     default:
                         throw Mars2GribModelException(std::string{"Unsupported time unit in `"} + name + "`",
-                                                      input.to_json(), Here());
+                                                      input.to_json(cntx), Here());
                 }
 
                 if (seconds > static_cast<long long>(std::numeric_limits<long>::max()) ||
                     seconds < static_cast<long long>(std::numeric_limits<long>::min())) {
                     throw Mars2GribModelException(std::string{"Normalized `"} + name + "` in seconds is out of range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(cntx), Here());
                 }
 
                 return static_cast<long>(seconds);
             }
             catch (...) {
                 std::throw_with_nested(Mars2GribModelException(
-                    std::string{"Failed to normalize `"} + name + "` to seconds", input.to_json(), Here()));
+                    std::string{"Failed to normalize `"} + name + "` to seconds", input.to_json(cntx), Here()));
             }
         };
 
@@ -135,20 +139,20 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
             try {
                 if (rawTimeRange.unit == TimeUnit::Month) {
                     const eckit::DateTime normalizationStart =
-                        domain.isSynoptic ? makeDateTime(domain.domainStartDateTime.date(), defaultMarsTime())
+                        domain.isSynoptic ? makeDateTime(domain.domainStartDateTime.date(), defaultMarsTime(cntx), cntx)
                                           : domain.domainStartDateTime;
-                    const eckit::DateTime normalizationEnd = addDuration(normalizationStart, rawTimeRange);
-                    const TimeDuration placedDuration      = durationBetween(normalizationStart, normalizationEnd);
+                    const eckit::DateTime normalizationEnd = addDuration(normalizationStart, rawTimeRange, cntx);
+                    const TimeDuration placedDuration      = durationBetween(normalizationStart, normalizationEnd, cntx);
 
                     if (placedDuration.unit != TimeUnit::Second) {
                         throw Mars2GribModelException(
-                            "Placed month-based ProductTimeSpec range did not resolve to seconds", input.to_json(),
+                            "Placed month-based ProductTimeSpec range did not resolve to seconds", input.to_json(cntx),
                             Here());
                     }
 
                     if (placedDuration.length % 3600 != 0) {
                         throw Mars2GribModelException(
-                            "Month-based ProductTimeSpec range does not convert to whole hours", input.to_json(),
+                            "Month-based ProductTimeSpec range does not convert to whole hours", input.to_json(cntx),
                             Here());
                     }
 
@@ -159,26 +163,26 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
 
                 if (seconds % 3600 != 0) {
                     throw Mars2GribModelException("Sub-hour ProductTimeSpec timeRange values are not supported",
-                                                  input.to_json(), Here());
+                                                  input.to_json(cntx), Here());
                 }
 
                 return TimeDuration{seconds / 3600, TimeUnit::Hour};
             }
             catch (...) {
                 std::throw_with_nested(Mars2GribModelException("Failed to normalize ProductTimeSpec timeRange to hours",
-                                                               input.to_json(), Here()));
+                                                               input.to_json(cntx), Here()));
             }
         };
 
         const auto normalizeTimeIncrementToSecondsOrMissing = [&](const TimeDuration& rawTimeIncrement) {
             try {
                 if (rawTimeIncrement.unit == TimeUnit::Missing) {
-                    return missingIncrement();
+                    return missingIncrement(cntx);
                 }
 
                 if (rawTimeIncrement.unit == TimeUnit::Month) {
                     throw Mars2GribModelException("Month-valued ProductTimeSpec timeIncrement is not supported",
-                                                  input.to_json(), Here());
+                                                  input.to_json(cntx), Here());
                 }
 
                 const long seconds = convertTriviallyConvertibleDurationToSeconds(rawTimeIncrement, "timeIncrement");
@@ -187,7 +191,7 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
             catch (...) {
                 std::throw_with_nested(
                     Mars2GribModelException("Failed to normalize ProductTimeSpec timeIncrement to seconds or missing",
-                                            input.to_json(), Here()));
+                                            input.to_json(cntx), Here()));
             }
         };
 
@@ -223,7 +227,7 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
                                   std::to_string(normalizedTimeRange.length)
                             : "Normalized sub-monthly ProductTimeSpec timeRange is not in the allowed hour set: " +
                                   std::to_string(normalizedTimeRange.length),
-                        input.to_json(), Here());
+                        input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
@@ -233,18 +237,18 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
         }
 
         const eckit::DateTime realDomainStart = domain.isSynoptic
-                                                    ? makeDateTime(domain.domainStartDateTime.date(), defaultMarsTime())
+                                                     ? makeDateTime(domain.domainStartDateTime.date(), defaultMarsTime(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
                                                     : domain.domainStartDateTime;
-        const TimeDuration realDomainSpan     = durationBetween(realDomainStart, domain.domainEndDateTime);
+        const TimeDuration realDomainSpan = durationBetween(realDomainStart, domain.domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (realDomainSpan.unit != TimeUnit::Second) {
             throw Mars2GribModelException("Real ProductTimeSpec domain span did not resolve to seconds",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (realDomainSpan.length % 3600 != 0) {
             throw Mars2GribModelException("Real ProductTimeSpec domain span does not convert to whole hours",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const long realDomainSpanInHours                    = realDomainSpan.length / 3600;
@@ -253,15 +257,19 @@ inline shape::ProductTimeSpecShape normalizeShape_or_throw(const ProductTimeSpec
         if (outermostWindow.timeRange.unit != TimeUnit::Hour ||
             outermostWindow.timeRange.length != realDomainSpanInHours) {
             throw Mars2GribModelException(
-                "Normalized outermost ProductTimeSpec timeRange does not match the real domain span", input.to_json(),
+                "Normalized outermost ProductTimeSpec timeRange does not match the real domain span", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
-        return normalizedShape;
+        {
+            shape::ProductTimeSpecShape result = normalizedShape;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to normalize the ProductTimeSpec shape", input.to_json(), Here()));
+            Mars2GribModelException("Failed to normalize the ProductTimeSpec shape", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

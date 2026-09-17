@@ -51,6 +51,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/wave/waveEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/periodItMax.h"
@@ -190,8 +191,9 @@ constexpr bool waveApplicable() {
 /// @see deductions::resolve_PeriodItMax_opt
 ///
 template <std::size_t Stage, std::size_t Section, WaveType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -204,10 +206,10 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
 
             // Checks/Validation
             if constexpr (Variant == WaveType::Spectra) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {99, 100}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else if constexpr (Variant == WaveType::Period) {
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104, 144, 145});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {103, 104, 144, 145}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Stage == StageAllocate) {
@@ -216,22 +218,22 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
 
                     // Deductions
                     deductions::WaveDirectionGrid directionGrid =
-                        deductions::resolve_WaveDirectionGrid_or_throw(mars, par, opt);
+                        deductions::resolve_WaveDirectionGrid_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     deductions::WaveFrequencyGrid frequencyGrid =
-                        deductions::resolve_WaveFrequencyGrid_or_throw(mars, par, opt);
+                        deductions::resolve_WaveFrequencyGrid_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
 
                     // Encoding
-                    set_or_throw<long>(out, "numberOfWaveDirections", directionGrid.numDirections);
-                    set_or_throw<long>(out, "scaleFactorOfWaveDirections", directionGrid.scaleFactorDirections);
+                    set_or_throw<long>(out, "numberOfWaveDirections", directionGrid.numDirections, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "scaleFactorOfWaveDirections", directionGrid.scaleFactorDirections, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     set_or_throw<std::vector<long>>(out, "scaledValuesOfWaveDirections",
-                                                    directionGrid.scaledValuesDirections);
+                                                    directionGrid.scaledValuesDirections, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
-                    set_or_throw<long>(out, "numberOfWaveFrequencies", frequencyGrid.numFrequencies);
-                    set_or_throw<long>(out, "scaleFactorOfWaveFrequencies", frequencyGrid.scaleFactorFrequencies);
+                    set_or_throw<long>(out, "numberOfWaveFrequencies", frequencyGrid.numFrequencies, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "scaleFactorOfWaveFrequencies", frequencyGrid.scaleFactorFrequencies, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     set_or_throw<std::vector<long>>(out, "scaledValuesOfWaveFrequencies",
-                                                    frequencyGrid.scaledValuesFrequencies);
+                                                    frequencyGrid.scaledValuesFrequencies, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
             }
 
@@ -240,8 +242,8 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
                 if constexpr (Variant == WaveType::Period) {
 
                     // Deductions
-                    std::optional<long> itMin = deductions::resolve_PeriodItMin_opt(mars, par, opt);
-                    std::optional<long> itMax = deductions::resolve_PeriodItMax_opt(mars, par, opt);
+                    std::optional<long> itMin = deductions::resolve_PeriodItMin_opt(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    std::optional<long> itMax = deductions::resolve_PeriodItMax_opt(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
                     /// @note:
@@ -250,23 +252,23 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
                     if (itMin.has_value() && itMax.has_value()) {
                         set_or_throw<long>(
                             out, "typeOfWavePeriodInterval",
-                            static_cast<long>(tables::TypeOfInterval::BetweenFirstInclusiveSecondInclusive));
-                        set_or_throw<long>(out, "scaleFactorOfLowerWavePeriodLimit", 0L);
-                        set_or_throw<long>(out, "scaledValueOfLowerWavePeriodLimit", itMin.value());
-                        set_or_throw<long>(out, "scaleFactorOfUpperWavePeriodLimit", 0L);
-                        set_or_throw<long>(out, "scaledValueOfUpperWavePeriodLimit", itMax.value());
+                            static_cast<long>(tables::TypeOfInterval::BetweenFirstInclusiveSecondInclusive), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaleFactorOfLowerWavePeriodLimit", 0L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaledValueOfLowerWavePeriodLimit", itMin.value(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaleFactorOfUpperWavePeriodLimit", 0L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaledValueOfUpperWavePeriodLimit", itMax.value(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     }
                     else if (itMin.has_value() && !itMax.has_value()) {
                         set_or_throw<long>(out, "typeOfWavePeriodInterval",
-                                           static_cast<long>(tables::TypeOfInterval::GreaterThanFirstLimit));
-                        set_or_throw<long>(out, "scaleFactorOfLowerWavePeriodLimit", 0L);
-                        set_or_throw<long>(out, "scaledValueOfLowerWavePeriodLimit", itMin.value());
+                                           static_cast<long>(tables::TypeOfInterval::GreaterThanFirstLimit), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaleFactorOfLowerWavePeriodLimit", 0L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaledValueOfLowerWavePeriodLimit", itMin.value(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     }
                     else if (!itMin.has_value() && itMax.has_value()) {
                         set_or_throw<long>(out, "typeOfWavePeriodInterval",
-                                           static_cast<long>(tables::TypeOfInterval::SmallerThanSecondLimit));
-                        set_or_throw<long>(out, "scaleFactorOfUpperWavePeriodLimit", 0L);
-                        set_or_throw<long>(out, "scaledValueOfUpperWavePeriodLimit", itMax.value());
+                                           static_cast<long>(tables::TypeOfInterval::SmallerThanSecondLimit), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaleFactorOfUpperWavePeriodLimit", 0L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "scaledValueOfUpperWavePeriodLimit", itMax.value(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     }
 
                 }  // if constexpr ( Variant == WaveType::Period )
@@ -277,12 +279,12 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
                 if constexpr (Variant == WaveType::Spectra) {
 
                     // Deduction
-                    long marsDir  = deductions::resolve_WaveDirectionNumber_or_throw(mars, par, opt);
-                    long marsFreq = deductions::resolve_WaveFrequencyNumber_or_throw(mars, par, opt);
+                    long marsDir  = deductions::resolve_WaveDirectionNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    long marsFreq = deductions::resolve_WaveFrequencyNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                     // Encoding
-                    set_or_throw<long>(out, "waveDirectionNumber", marsDir);
-                    set_or_throw<long>(out, "waveFrequencyNumber", marsFreq);
+                    set_or_throw<long>(out, "waveDirectionNumber", marsDir, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "waveFrequencyNumber", marsFreq, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
             }
         }
@@ -291,6 +293,7 @@ void WaveOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, 
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

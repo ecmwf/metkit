@@ -32,6 +32,7 @@
 // Utils
 #include "metkit/mars2grib/backend/concepts/reference-period/referencePeriodEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
@@ -55,32 +56,49 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t referencePeriodMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
 
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-        const auto marsType = get_or_throw<std::string>(mars, "type");
-        const auto param    = get_or_throw<long>(mars, "param");
+        const auto marsType = get_or_throw<std::string>(mars, "type", utils::profiling::callSite(cntx, Here()));
+        const auto param    = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
 
         if (marsType == "efi" || marsType == "efic" || marsType == "sot") {
-            return static_cast<std::size_t>(ReferencePeriodType::Default);
+            const std::size_t result = static_cast<std::size_t>(ReferencePeriodType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Check for standardised anomaly parameters
         if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-            return static_cast<std::size_t>(ReferencePeriodType::Default);
+            const std::size_t result = static_cast<std::size_t>(ReferencePeriodType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `referencePeriod` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t referencePeriodMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = referencePeriodMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

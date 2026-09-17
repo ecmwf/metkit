@@ -46,6 +46,7 @@
 #include "metkit/mars2grib/backend/sections/resolver/TemplateSignatureKey.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver {
 
@@ -73,6 +74,7 @@ namespace metkit::mars2grib::backend::sections::resolver {
 ///
 /// After construction, the selector is fully immutable.
 ///
+template <class Cntx_t = metkit::mars2grib::utils::profiling::NoProfileContext>
 class SectionTemplateSelector {
 public:
 
@@ -104,10 +106,15 @@ public:
     /// @throws Mars2GribGenericException
     /// If no matching template can be found
     ///
-    const SectionLayoutData select_or_throw(const ActiveConcepts& active) const {
+    const SectionLayoutData select_or_throw(const ActiveConcepts& active, Cntx_t& cntx) const {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         using metkit::mars2grib::backend::sections::resolver::detail::make_SectionLayoutData_or_throw;
-        const std::size_t id = searchFn_(*this, active);
-        return make_SectionLayoutData_or_throw(sectionNumber_, payloads_[id]);
+        const std::size_t id =
+            searchFn_(*this, active, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const SectionLayoutData result = make_SectionLayoutData_or_throw(
+            sectionNumber_, payloads_[id], metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
     ///
@@ -122,7 +129,9 @@ public:
     /// @throws Mars2GribGenericException
     /// If recipe expansion or index construction fails
     ///
-    static SectionTemplateSelector make(const Recipes& recipes) {
+    static SectionTemplateSelector make(const Recipes& recipes, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::sections::resolver::detail::make_CompressionMask_or_throw;
         using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
@@ -130,7 +139,8 @@ public:
         // --------------------------------------------------------------------
         // 1. Expand recipes → resolved payload
         // --------------------------------------------------------------------
-        std::vector<ResolvedTemplateData> payload = recipes.getPayload();
+        std::vector<ResolvedTemplateData> payload =
+            recipes.getPayload(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (payload.empty()) {
             throw Mars2GribGenericException("SectionTemplateSelector: empty payload", Here());
@@ -139,7 +149,8 @@ public:
         // --------------------------------------------------------------------
         // 2. Build section-specific compression mask
         // --------------------------------------------------------------------
-        CompressionMask compressionMask = make_CompressionMask_or_throw(payload);
+        CompressionMask compressionMask =
+            make_CompressionMask_or_throw(payload, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // --------------------------------------------------------------------
         // 3. Build (compressedKey, payloadIndex) lookup index
@@ -157,7 +168,7 @@ public:
                 globalKey.data[k] = entry.variantIndices[k];
             }
 
-            TemplateSignatureKey compressedKey = compressionMask.compressKey(globalKey);
+            TemplateSignatureKey compressedKey = compressionMask.compressKeyForBuild(globalKey);
 
             index.emplace_back(std::move(compressedKey), i);
         }
@@ -227,8 +238,10 @@ public:
         // --------------------------------------------------------------------
         // 6. Construct immutable selector
         // --------------------------------------------------------------------
-        return SectionTemplateSelector{recipes.sectionId(), std::move(compressionMask), std::move(orderedPayload),
+        SectionTemplateSelector result{recipes.sectionId(), std::move(compressionMask), std::move(orderedPayload),
                                        std::move(indexVariant), searchFn};
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
 private:
@@ -247,7 +260,7 @@ private:
     /// - Are stateless
     /// - Throw if no matching template is found
     ///
-    using SearchFn = std::size_t (*)(const SectionTemplateSelector&, const ActiveConcepts&);
+    using SearchFn = std::size_t (*)(const SectionTemplateSelector&, const ActiveConcepts&, Cntx_t&);
 
     ///
     /// @brief Index optimized for a single template.
@@ -344,7 +357,7 @@ private:
     /// If the compressed key does not match the stored key
     ///
     SectionTemplateSelector(std::size_t sectionNumber, CompressionMask&& mask,
-                            std::vector<ResolvedTemplateData>&& payloads, Index&& index, SearchFn fn) :
+                             std::vector<ResolvedTemplateData>&& payloads, Index&& index, SearchFn fn) :
         sectionNumber_(sectionNumber),
         compressionMask_(std::move(mask)),
         payloads_(std::move(payloads)),
@@ -368,15 +381,21 @@ private:
     /// @throws Mars2GribGenericException
     /// If the compressed key does not match the stored key
     ///
-    static std::size_t search_single(const SectionTemplateSelector& self, const ActiveConcepts& active) {
+    static std::size_t search_single(const SectionTemplateSelector& self, const ActiveConcepts& active, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
         const auto& [key, id]  = std::get<SingleIndex>(self.index_);
-        TemplateSignatureKey k = self.compressionMask_.compressKey(make_key(active));
+        TemplateSignatureKey k = self.compressionMask_.compressKey(
+            make_key(active, metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (k == key) {
-            return id;
+            std::size_t result = id;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw Mars2GribGenericException("No matching recipe", Here());
@@ -399,16 +418,22 @@ private:
     /// @throws Mars2GribGenericException
     /// If no matching key is found
     ///
-    static std::size_t search_linear(const SectionTemplateSelector& self, const ActiveConcepts& active) {
+    static std::size_t search_linear(const SectionTemplateSelector& self, const ActiveConcepts& active, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
         const auto& vec        = std::get<ArrayIndex>(self.index_);
-        TemplateSignatureKey k = self.compressionMask_.compressKey(make_key(active));
+        TemplateSignatureKey k = self.compressionMask_.compressKey(
+            make_key(active, metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         for (const auto& [kk, id] : vec) {
             if (kk == k) {
-                return id;
+                std::size_t result = id;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
         }
 
@@ -432,18 +457,24 @@ private:
     /// @throws Mars2GribGenericException
     /// If no matching key is found
     ///
-    static std::size_t search_binary(const SectionTemplateSelector& self, const ActiveConcepts& active) {
+    static std::size_t search_binary(const SectionTemplateSelector& self, const ActiveConcepts& active, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
         const auto& vec        = std::get<ArrayIndex>(self.index_);
-        TemplateSignatureKey k = self.compressionMask_.compressKey(make_key(active));
+        TemplateSignatureKey k = self.compressionMask_.compressKey(
+            make_key(active, metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         auto it = std::lower_bound(vec.begin(), vec.end(), k,
                                    [](const auto& p, const TemplateSignatureKey& key) { return p.first < key; });
 
         if (it != vec.end() && it->first == k) {
-            return it->second;
+            std::size_t result = it->second;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw Mars2GribGenericException("No matching recipe", Here());
@@ -466,16 +497,22 @@ private:
     /// @throws Mars2GribGenericException
     /// If no matching key is found
     ///
-    static std::size_t search_hash(const SectionTemplateSelector& self, const ActiveConcepts& active) {
+    static std::size_t search_hash(const SectionTemplateSelector& self, const ActiveConcepts& active, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
         const auto& map        = std::get<HashIndex>(self.index_);
-        TemplateSignatureKey k = self.compressionMask_.compressKey(make_key(active));
+        TemplateSignatureKey k = self.compressionMask_.compressKey(
+            make_key(active, metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+            metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         auto it = map.find(k);
         if (it != map.end()) {
-            return it->second;
+            std::size_t result = it->second;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw Mars2GribGenericException("No matching recipe", Here());
@@ -497,7 +534,9 @@ private:
     ///
     /// @return Uncompressed template signature key
     ///
-    static TemplateSignatureKey make_key(const ActiveConcepts& active) {
+    static TemplateSignatureKey make_key(const ActiveConcepts& active, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         TemplateSignatureKey key{};
         key.size = 0;
@@ -508,6 +547,7 @@ private:
             key.data[key.size++] = active.activeVariantIndices[conceptId];
         }
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return key;
     }
 };

@@ -34,6 +34,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -57,23 +58,28 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// encountered, or lower-level matcher evaluation fails. Lower-level exceptions
 /// are preserved through `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t destineMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
         using metkit::mars2grib::utils::exceptions::Mars2GribMatcherException;
 
-        if (!has(mars, "anoffset") && get_or_throw<std::string>(mars, "class") == "d1") {
-            if (has(mars, "dataset")) {
-                if (get_or_throw<std::string>(mars, "dataset") == "extremes-dt") {
-                    return static_cast<std::size_t>(DestineType::ExtremesDT);
+        if (!has(mars, "anoffset", utils::profiling::callSite(cntx, Here())) && get_or_throw<std::string>(mars, "class", utils::profiling::callSite(cntx, Here())) == "d1") {
+            if (has(mars, "dataset", utils::profiling::callSite(cntx, Here()))) {
+                if (get_or_throw<std::string>(mars, "dataset", utils::profiling::callSite(cntx, Here())) == "extremes-dt") {
+                    const std::size_t result = static_cast<std::size_t>(DestineType::ExtremesDT);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
-                else if (get_or_throw<std::string>(mars, "dataset") == "climate-dt") {
-                    return static_cast<std::size_t>(DestineType::ClimateDT);
+                else if (get_or_throw<std::string>(mars, "dataset", utils::profiling::callSite(cntx, Here())) == "climate-dt") {
+                    const std::size_t result = static_cast<std::size_t>(DestineType::ClimateDT);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
                 else {
-                    throw Mars2GribMatcherException{"Unknown value \"" + get_or_throw<std::string>(mars, "dataset") +
+                    throw Mars2GribMatcherException{"Unknown value \"" + get_or_throw<std::string>(mars, "dataset", utils::profiling::callSite(cntx, Here())) +
                                                         "\" for mars keyword \"dataset\"!",
                                                     Here()};
                 }
@@ -84,12 +90,22 @@ std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             }
         }
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `destine` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t destineMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = destineMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

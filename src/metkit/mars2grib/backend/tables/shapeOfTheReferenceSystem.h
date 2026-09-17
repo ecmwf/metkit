@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -63,37 +65,91 @@ enum class ShapeOfTheReferenceSystem : long {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the enumeration value is invalid.
 ///
-inline std::string enum2name_ShapeOfTheReferenceSystem_or_throw(ShapeOfTheReferenceSystem value) {
+template <class Cntx_t>
+inline std::string enum2name_ShapeOfTheReferenceSystem_or_throw(ShapeOfTheReferenceSystem value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case ShapeOfTheReferenceSystem::EarthSphericalRadius6367470:
-            return "earth-spherical-radius-6367470";
+            {
+                std::string result = "earth-spherical-radius-6367470";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthSphericalRadiusSpecified:
-            return "earth-spherical-radius-specified";
+            {
+                std::string result = "earth-spherical-radius-specified";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthOblateIAU1965:
-            return "earth-oblate-iau-1965";
+            {
+                std::string result = "earth-oblate-iau-1965";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthOblateAxesKmSpecified:
-            return "earth-oblate-axes-km-specified";
+            {
+                std::string result = "earth-oblate-axes-km-specified";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthOblateIAGGRS80:
-            return "earth-oblate-iag-grs80";
+            {
+                std::string result = "earth-oblate-iag-grs80";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthWGS84:
-            return "earth-wgs84";
+            {
+                std::string result = "earth-wgs84";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthSphericalRadius6371229:
-            return "earth-spherical-radius-6371229";
+            {
+                std::string result = "earth-spherical-radius-6371229";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthOblateAxesMetersSpecified:
-            return "earth-oblate-axes-m-specified";
+            {
+                std::string result = "earth-oblate-axes-m-specified";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthSphericalRadius6371200WGS84Datum:
-            return "earth-spherical-radius-6371200-wgs84-datum";
+            {
+                std::string result = "earth-spherical-radius-6371200-wgs84-datum";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthOSGB1936Airy1830:
-            return "earth-osgb1936-airy1830";
+            {
+                std::string result = "earth-osgb1936-airy1830";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::EarthWGS84CorrectedGeomagnetic:
-            return "earth-wgs84-corrected-geomagnetic";
+            {
+                std::string result = "earth-wgs84-corrected-geomagnetic";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::SunSphericalStonyhurst:
-            return "sun-spherical-stonyhurst";
+            {
+                std::string result = "sun-spherical-stonyhurst";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ShapeOfTheReferenceSystem::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid ShapeOfTheReferenceSystem enum value", Here());
     }
@@ -110,36 +166,103 @@ inline std::string enum2name_ShapeOfTheReferenceSystem_or_throw(ShapeOfTheRefere
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the name is not recognized.
 ///
-inline ShapeOfTheReferenceSystem name2enum_ShapeOfTheReferenceSystem_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline ShapeOfTheReferenceSystem name2enum_ShapeOfTheReferenceSystem_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "earth-spherical-radius-6367470")
-        return ShapeOfTheReferenceSystem::EarthSphericalRadius6367470;
-    else if (name == "earth-spherical-radius-specified")
-        return ShapeOfTheReferenceSystem::EarthSphericalRadiusSpecified;
-    else if (name == "earth-oblate-iau-1965")
-        return ShapeOfTheReferenceSystem::EarthOblateIAU1965;
-    else if (name == "earth-oblate-axes-km-specified")
-        return ShapeOfTheReferenceSystem::EarthOblateAxesKmSpecified;
-    else if (name == "earth-oblate-iag-grs80")
-        return ShapeOfTheReferenceSystem::EarthOblateIAGGRS80;
-    else if (name == "earth-wgs84")
-        return ShapeOfTheReferenceSystem::EarthWGS84;
-    else if (name == "earth-spherical-radius-6371229")
-        return ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
-    else if (name == "earth-oblate-axes-m-specified")
-        return ShapeOfTheReferenceSystem::EarthOblateAxesMetersSpecified;
-    else if (name == "earth-spherical-radius-6371200-wgs84-datum")
-        return ShapeOfTheReferenceSystem::EarthSphericalRadius6371200WGS84Datum;
-    else if (name == "earth-osgb1936-airy1830")
-        return ShapeOfTheReferenceSystem::EarthOSGB1936Airy1830;
-    else if (name == "earth-wgs84-corrected-geomagnetic")
-        return ShapeOfTheReferenceSystem::EarthWGS84CorrectedGeomagnetic;
-    else if (name == "sun-spherical-stonyhurst")
-        return ShapeOfTheReferenceSystem::SunSphericalStonyhurst;
-    else if (name == "missing")
-        return ShapeOfTheReferenceSystem::Missing;
+    if (name == "earth-spherical-radius-6367470") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadius6367470;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-spherical-radius-specified") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadiusSpecified;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-oblate-iau-1965") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateIAU1965;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-oblate-axes-km-specified") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateAxesKmSpecified;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-oblate-iag-grs80") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateIAGGRS80;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-wgs84") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthWGS84;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-spherical-radius-6371229") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-oblate-axes-m-specified") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateAxesMetersSpecified;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-spherical-radius-6371200-wgs84-datum") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadius6371200WGS84Datum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-osgb1936-airy1830") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOSGB1936Airy1830;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "earth-wgs84-corrected-geomagnetic") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthWGS84CorrectedGeomagnetic;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "sun-spherical-stonyhurst") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::SunSphericalStonyhurst;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "missing") {
+        {
+            ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
     else
         throw Mars2GribTableException("Invalid ShapeOfTheReferenceSystem name: '" + name + "'", Here());
 }
@@ -155,37 +278,91 @@ inline ShapeOfTheReferenceSystem name2enum_ShapeOfTheReferenceSystem_or_throw(co
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the value is not defined in the GRIB table.
 ///
-inline ShapeOfTheReferenceSystem long2enum_ShapeOfTheReferenceSystem_or_throw(long value) {
+template <class Cntx_t>
+inline ShapeOfTheReferenceSystem long2enum_ShapeOfTheReferenceSystem_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return ShapeOfTheReferenceSystem::EarthSphericalRadius6367470;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadius6367470;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return ShapeOfTheReferenceSystem::EarthSphericalRadiusSpecified;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadiusSpecified;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return ShapeOfTheReferenceSystem::EarthOblateIAU1965;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateIAU1965;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return ShapeOfTheReferenceSystem::EarthOblateAxesKmSpecified;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateAxesKmSpecified;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return ShapeOfTheReferenceSystem::EarthOblateIAGGRS80;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateIAGGRS80;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return ShapeOfTheReferenceSystem::EarthWGS84;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthWGS84;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 6:
-            return ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadius6371229;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 7:
-            return ShapeOfTheReferenceSystem::EarthOblateAxesMetersSpecified;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOblateAxesMetersSpecified;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 8:
-            return ShapeOfTheReferenceSystem::EarthSphericalRadius6371200WGS84Datum;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthSphericalRadius6371200WGS84Datum;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 9:
-            return ShapeOfTheReferenceSystem::EarthOSGB1936Airy1830;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthOSGB1936Airy1830;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 10:
-            return ShapeOfTheReferenceSystem::EarthWGS84CorrectedGeomagnetic;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::EarthWGS84CorrectedGeomagnetic;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 11:
-            return ShapeOfTheReferenceSystem::SunSphericalStonyhurst;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::SunSphericalStonyhurst;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return ShapeOfTheReferenceSystem::Missing;
+            {
+                ShapeOfTheReferenceSystem result = ShapeOfTheReferenceSystem::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid ShapeOfTheReferenceSystem numeric value: actual='" +
                                               std::to_string(value) + "', expected={0..11,255}",

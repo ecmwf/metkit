@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -54,20 +55,33 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t tablesMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t tablesMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
 
-        return static_cast<size_t>(TablesType::Default);
+        const std::size_t result = static_cast<size_t>(TablesType::Default);
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `tables` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t tablesMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = tablesMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

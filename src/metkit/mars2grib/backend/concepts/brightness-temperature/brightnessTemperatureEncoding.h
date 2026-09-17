@@ -46,6 +46,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/brightness-temperature/brightnessTemperatureEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/channel.h"
@@ -131,8 +132,9 @@ constexpr bool brightnessTemperatureApplicable() {
 ///
 /// @see brightnessTemperatureApplicable
 template <std::size_t Stage, std::size_t Section, BrightnessTemperatureType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void BrightnessTemperatureOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void BrightnessTemperatureOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -141,17 +143,17 @@ void BrightnessTemperatureOp(const MarsDict_t& mars, const ParDict_t& par, const
             MARS2GRIB_LOG_CONCEPT(brightnessTemperature);
 
             // Preconditions / contracts
-            validation::match_LocalDefinitionNumber_or_throw(opt, out, {37L});
+            validation::match_LocalDefinitionNumber_or_throw(opt, out, {37L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // number of frequencies is always 1 for brightness temperature products
-            auto numberOfFrequenciesVal = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt);
-            set_or_throw(out, "numberOfFrequencies", numberOfFrequenciesVal);
+            auto numberOfFrequenciesVal = deductions::resolve_NumberOfFrequencies_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw(out, "numberOfFrequencies", numberOfFrequenciesVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // In Ensemble Mean variant, channel number is required; in Default variant it is already set by the
             // satellite concept
             if constexpr (Variant == BrightnessTemperatureType::EnsembleMean) {
-                auto channelNumberVal = deductions::resolve_Channel_or_throw(mars, par, opt);
-                set_or_throw(out, "channelNumber", channelNumberVal);
+                auto channelNumberVal = deductions::resolve_Channel_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw(out, "channelNumber", channelNumberVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -159,6 +161,7 @@ void BrightnessTemperatureOp(const MarsDict_t& mars, const ParDict_t& par, const
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

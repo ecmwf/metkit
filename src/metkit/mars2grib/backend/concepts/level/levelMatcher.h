@@ -43,6 +43,7 @@
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
@@ -67,23 +68,33 @@ namespace impl {
 /// If no surface-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchSFC(const long param) {
+template <class Cntx_t>
+inline std::size_t matchSFC(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, 228023)) {
-            return static_cast<std::size_t>(LevelType::CloudBase);
+            const std::size_t result = static_cast<std::size_t>(LevelType::CloudBase);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262118)) {
-            return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 59, 78, 79, 136, 137, 164, 194, 206, range(162059, 162063), 162071, 162072, 162093, 228001,
                      228044, 228050, 228052, range(228088, 228090), 228164, 235087, 235088, 235136, 235137, 235287,
                      235288, 235290, 235326, 235383, 237087, 237088, 237137, 237287, 237288, 237290, 237326, 238087,
                      238088, 238137, 238287, 238288, 238290, 238326, 239087, 239088, 239137, 239287, 239288, 239290,
                      239326, 260132)) {
-            return static_cast<std::size_t>(LevelType::EntireAtmosphere);
+            const std::size_t result = static_cast<std::size_t>(LevelType::EntireAtmosphere);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // ClimateDT
         if (matchAny(param, 235292, 235295, 237292, 237295, 238292, 238295, 239292, 239295)) {
@@ -91,84 +102,132 @@ inline std::size_t matchSFC(const long param) {
         }
         // efi
         if (matchAny(param, 132045)) {
-            return static_cast<std::size_t>(LevelType::EntireAtmosphere);
+            const std::size_t result = static_cast<std::size_t>(LevelType::EntireAtmosphere);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 228007, 228011)) {
-            return static_cast<std::size_t>(LevelType::EntireLake);
+            const std::size_t result = static_cast<std::size_t>(LevelType::EntireLake);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 49, 123, 165, 166, 207, 228005, 228028, 228029, 228131, 228132, 235165, 235166, 237165,
                      237166, 237207, 237318, 238165, 238166, 238207, 239165, 239166, 239207, 260260)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // Strike-probability
         if (matchAny(param, 131068, 131069, 131070, 131071, 131072, 131100)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // efi
         if (matchAny(param, 132049, 132165)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGroundAt10M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         if (matchAny(param, 121, 122, 167, 168, 201, 202, 174096, 228004, 228037, 235168, 237167, 237168, 238167,
                      238168, 239167, 239168, 260242)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // Strike-probability
         if (matchAny(param, 131073)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // efi
         if (matchAny(param, 132167, 132201, 132202)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGroundAt2M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 140233, 140245, 140249, 141233, 141245, 143233, 143245, 144233, 144245, 145233, 145245)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveSeaAt10M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveSeaAt10M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 235320, 237320, 238320, 239320)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveSeaAt2M);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveSeaAt2M);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 188, 3075)) {
-            return static_cast<std::size_t>(LevelType::HighCloudLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HighCloudLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 228014, 235309, 237309, 238309, 239309)) {
-            return static_cast<std::size_t>(LevelType::IceLayerOnWater);
+            const std::size_t result = static_cast<std::size_t>(LevelType::IceLayerOnWater);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 228013)) {
-            return static_cast<std::size_t>(LevelType::IceTopOnWater);
+            const std::size_t result = static_cast<std::size_t>(LevelType::IceTopOnWater);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262104)) {
-            return static_cast<std::size_t>(LevelType::Isothermal);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Isothermal);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 228010, 235305, 237305, 238305, 239305)) {
-            return static_cast<std::size_t>(LevelType::LakeBottom);
+            const std::size_t result = static_cast<std::size_t>(LevelType::LakeBottom);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 186, 3073, 235108, 237108, 238108, 239108)) {
-            return static_cast<std::size_t>(LevelType::LowCloudLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::LowCloudLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 151, 235151, 237151, 238151, 239151)) {
-            return static_cast<std::size_t>(LevelType::MeanSea);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MeanSea);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 187, 3074)) {
-            return static_cast<std::size_t>(LevelType::MediumCloudLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MediumCloudLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, range(228231, 228234))) {
-            return static_cast<std::size_t>(LevelType::MixedLayerParcel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MixedLayerParcel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 228008, 228009, 235090, 235091, 237090, 237091, 238090, 238091, 239090, 239091)) {
-            return static_cast<std::size_t>(LevelType::MixingLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MixingLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, range(228235, 228237), 235117, 237117, 238117, 239117)) {
-            return static_cast<std::size_t>(LevelType::MostUnstableParcel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MostUnstableParcel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // efi
         if (matchAny(param, 132044, 132059)) {
-            return static_cast<std::size_t>(LevelType::MostUnstableParcel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MostUnstableParcel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 178, 179, 208, 209, 212, 235039, 235040, 235049, 235050, 235053)) {
-            return static_cast<std::size_t>(LevelType::NominalTop);
+            const std::size_t result = static_cast<std::size_t>(LevelType::NominalTop);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 263024, 265024, 266024, 267024)) {
-            return static_cast<std::size_t>(LevelType::SeaIceLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::SeaIceLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 235077, 235094, 237077, 237094, 238077, 238094, 239077, 239094, 260199, 260360)) {
             return static_cast<std::size_t>(LevelType::SoilLayer);
@@ -202,27 +261,37 @@ inline std::size_t matchSFC(const long param) {
         // Strike-probability
         if (matchAny(param, 131022, 131024, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067,
                      range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099, 133096, 133097)) {
-            return static_cast<std::size_t>(LevelType::Surface);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Surface);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // efi
         if (matchAny(param, 132228, 132144)) {
-            return static_cast<std::size_t>(LevelType::Surface);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Surface);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         if (matchAny(param, 228045, 235322, 237322, 238322, 239322)) {
-            return static_cast<std::size_t>(LevelType::Tropopause);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Tropopause);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Chemical
         if (matchAny(param, range(228080, 228085), range(233032, 233035), range(235062, 235064),
-                     range(400000, 499999))) {
-            return static_cast<std::size_t>(LevelType::Surface);
+                      range(400000, 499999))) {
+            const std::size_t result = static_cast<std::size_t>(LevelType::Surface);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Wave period
         if (matchAny(param, range(140114, 140120))) {
             // return compile_time_registry_engine::MISSING;
-            return static_cast<std::size_t>(LevelType::Surface);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Surface);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // ECMWF covariance paramIds (254001..254017) are defined in
@@ -230,7 +299,9 @@ inline std::size_t matchSFC(const long param) {
         // typeOfFirstFixedSurface=254, which maps to the eccodes typeOfLevel
         // concept "abstractLevel".
         if (matchAny(param, range(254001, 254017))) {
-            return static_cast<std::size_t>(LevelType::AbstractLevel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::AbstractLevel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -255,14 +326,20 @@ inline std::size_t matchSFC(const long param) {
 /// If no height-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchHL(const long param) {
+template <class Cntx_t>
+inline std::size_t matchHL(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, 10, 54, range(130, 132), 157, 246, 247, 3031, 235097, 235131, 235132, 237097, 237131,
                      237132, 238097, 238131, 238132, 239097, 239131, 239132)) {
-            return static_cast<std::size_t>(LevelType::HeightAboveGround);
+            const std::size_t result = static_cast<std::size_t>(LevelType::HeightAboveGround);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -287,9 +364,13 @@ inline std::size_t matchHL(const long param) {
 /// If no model-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchML(const long param) {
+template <class Cntx_t>
+inline std::size_t matchML(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         // Single-level subset of ML params: 2D fields published on the
@@ -297,7 +378,9 @@ inline std::size_t matchML(const long param) {
         // guard fires before the multi-level rule below; params listed here
         // are removed from the multi-level set.
         if (matchAny(param, 22, 127, 128, 129, 152)) {
-            return static_cast<std::size_t>(LevelType::ModelSingleLevel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::ModelSingleLevel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
 
@@ -305,7 +388,9 @@ inline std::size_t matchML(const long param) {
         // and population of the PV array describing the hybrid coordinate.
         if (matchAny(param, 21, 23, range(75, 77), range(130, 133), 135, 138, range(155, 157), 203, range(246, 248),
                      range(162100, 162113), 260290, 260292, 260293, range(400000, 499999))) {
-            return static_cast<std::size_t>(LevelType::ModelMultipleLevel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::ModelMultipleLevel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
 
@@ -334,9 +419,13 @@ inline std::size_t matchML(const long param) {
 /// If no pressure-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchPL(const long param, const long level) {
+template <class Cntx_t>
+inline std::size_t matchPL(const long param, const long level, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
 
@@ -344,10 +433,14 @@ inline std::size_t matchPL(const long param, const long level) {
                      235100, range(235129, 235133), 235135, 235138, 235152, 235155, 235157, 235203, 235246, 260290,
                      263107, range(400000, 499999))) {
             if (level >= 100) {
-                return static_cast<std::size_t>(LevelType::IsobaricInHpa);
+                const std::size_t result = static_cast<std::size_t>(LevelType::IsobaricInHpa);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
             else {
-                return static_cast<std::size_t>(LevelType::IsobaricInPa);
+                const std::size_t result = static_cast<std::size_t>(LevelType::IsobaricInPa);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
         }
 
@@ -355,10 +448,14 @@ inline std::size_t matchPL(const long param, const long level) {
         if (matchAny(param, 131020, 131021, 131022, 131023, 131024, 131025, 133093, 133094, 133095, 133096, 133097,
                      133098)) {
             if (level >= 100) {
-                return static_cast<std::size_t>(LevelType::IsobaricInHpa);
+                const std::size_t result = static_cast<std::size_t>(LevelType::IsobaricInHpa);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
             else {
-                return static_cast<std::size_t>(LevelType::IsobaricInPa);
+                const std::size_t result = static_cast<std::size_t>(LevelType::IsobaricInPa);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
         }
 
@@ -391,14 +488,19 @@ inline std::size_t matchPL(const long param, const long level) {
 /// If no flight-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchFL(const long param) {
-
+template <class Cntx_t>
+inline std::size_t matchFL(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, 260290)) {
-            return static_cast<std::size_t>(LevelType::FlightLevel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::FlightLevel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -424,15 +526,21 @@ inline std::size_t matchFL(const long param) {
 /// If no potential-temperature-level mapping exists. Lower-level exceptions are
 /// preserved through `std::throw_with_nested`.
 ///
-inline std::size_t matchPT(const long param) {
+template <class Cntx_t>
+inline std::size_t matchPT(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
 
         if (matchAny(param, 53, 54, 60, range(131, 133), 138, 155, 203, 235100, 235203, 237203, 238203, 239203,
                      range(400000, 499999))) {
-            return static_cast<std::size_t>(LevelType::Theta);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Theta);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
 
@@ -459,14 +567,20 @@ inline std::size_t matchPT(const long param) {
 /// If no potential-vorticity-level mapping exists. Lower-level exceptions are
 /// preserved through `std::throw_with_nested`.
 ///
-inline std::size_t matchPV(const long param) {
+template <class Cntx_t>
+inline std::size_t matchPV(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
 
         if (matchAny(param, 3, 54, 129, range(131, 133), 203, 235098, 235269, range(400000, 499999))) {
-            return static_cast<std::size_t>(LevelType::PotentialVorticity);
+            const std::size_t result = static_cast<std::size_t>(LevelType::PotentialVorticity);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
 
@@ -492,13 +606,19 @@ inline std::size_t matchPV(const long param) {
 /// If no soil-level mapping exists. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-inline std::size_t matchSOL(const long param) {
+template <class Cntx_t>
+inline std::size_t matchSOL(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, 262000, 262024)) {
-            return static_cast<std::size_t>(LevelType::SeaIceLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::SeaIceLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 33, 238, 228038, 228141, 235078, 235080, 235238, 235406, 237078, 237080, 237238, 237406,
                      238078, 238080, 238238, 238406, 239078, 239080, 239238, 239406)) {
@@ -530,13 +650,19 @@ inline std::size_t matchSOL(const long param) {
 /// If no abstract-level mapping exists. Lower-level exceptions are preserved
 /// through `std::throw_with_nested`.
 ///
-inline std::size_t matchAL(const long param) {
+template <class Cntx_t>
+inline std::size_t matchAL(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, range(213101, 213160))) {
-            return static_cast<std::size_t>(LevelType::AbstractSingleLevel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::AbstractSingleLevel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -561,45 +687,71 @@ inline std::size_t matchAL(const long param) {
 /// If no two-dimensional ocean-level mapping exists. Lower-level exceptions are
 /// preserved through `std::throw_with_nested`.
 ///
-inline std::size_t matchO2D(const long param) {
+template <class Cntx_t>
+inline std::size_t matchO2D(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, 262000, 262003, 262004, 262008, 262014, 262023)) {
-            return static_cast<std::size_t>(LevelType::IceLayerOnWater);
+            const std::size_t result = static_cast<std::size_t>(LevelType::IceLayerOnWater);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262001, 262005, 262006, 262906, 262907)) {
-            return static_cast<std::size_t>(LevelType::IceTopOnWater);
+            const std::size_t result = static_cast<std::size_t>(LevelType::IceTopOnWater);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262002, 262009, 262011, 262015)) {
-            return static_cast<std::size_t>(LevelType::SnowLayerOverIceOnWater);
+            const std::size_t result = static_cast<std::size_t>(LevelType::SnowLayerOverIceOnWater);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262017, 262018)) {
-            return static_cast<std::size_t>(LevelType::EntireMeltPond);
+            const std::size_t result = static_cast<std::size_t>(LevelType::EntireMeltPond);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262100, 262101, range(262108, 262112), 262124, 262125, 262130, 262139, 262140, 262143,
                      262900)) {
-            return static_cast<std::size_t>(LevelType::OceanSurface);
+            const std::size_t result = static_cast<std::size_t>(LevelType::OceanSurface);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, range(262102, 262106))) {
             // Note: We assume that these fields already have the level encoded as soon as the paramId is set!
-            return static_cast<std::size_t>(LevelType::Isothermal);
+            const std::size_t result = static_cast<std::size_t>(LevelType::Isothermal);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, range(262113, 262115))) {
-            return static_cast<std::size_t>(LevelType::MixedLayerDepthByDensity);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MixedLayerDepthByDensity);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262116)) {
-            return static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
+            const std::size_t result = static_cast<std::size_t>(LevelType::MixedLayerDepthByTemperature);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262118, 262119, 262121, 262122, 262146, 262147)) {
-            return static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::DepthBelowSeaLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262120, 262123, 262148)) {
-            return static_cast<std::size_t>(LevelType::OceanSurfaceToBottom);
+            const std::size_t result = static_cast<std::size_t>(LevelType::OceanSurfaceToBottom);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262141)) {
-            return static_cast<std::size_t>(LevelType::WaterSurfaceToIsothermalOceanLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::WaterSurfaceToIsothermalOceanLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -624,16 +776,24 @@ inline std::size_t matchO2D(const long param) {
 /// If no three-dimensional ocean-level mapping exists. Lower-level exceptions
 /// are preserved through `std::throw_with_nested`.
 ///
-inline std::size_t matchO3D(const long param) {
+template <class Cntx_t>
+inline std::size_t matchO3D(const long param, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
 
         if (matchAny(param, range(262500, 262502), 262505, 262506)) {
-            return static_cast<std::size_t>(LevelType::OceanModelLayer);
+            const std::size_t result = static_cast<std::size_t>(LevelType::OceanModelLayer);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 262507)) {
-            return static_cast<std::size_t>(LevelType::OceanModel);
+            const std::size_t result = static_cast<std::size_t>(LevelType::OceanModel);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         throw utils::exceptions::Mars2GribMatcherException(
@@ -670,55 +830,80 @@ inline std::size_t matchO3D(const long param) {
 /// evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t levelMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
         // Skip wave spectra and satellite products
-        if ((has(mars, "frequency") && has(mars, "direction")) ||                    // Wave spectra
-            (has(mars, "channel") && has(mars, "ident") && has(mars, "instrument"))  // Satellite
+        if ((has(mars, "frequency", utils::profiling::callSite(cntx, Here())) && has(mars, "direction", utils::profiling::callSite(cntx, Here()))) ||                    // Wave spectra
+            (has(mars, "channel", utils::profiling::callSite(cntx, Here())) && has(mars, "ident", utils::profiling::callSite(cntx, Here())) && has(mars, "instrument", utils::profiling::callSite(cntx, Here())))  // Satellite
         ) {
-            return compile_time_registry_engine::MISSING;
+            const std::size_t result = compile_time_registry_engine::MISSING;
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        const auto param   = get_or_throw<long>(mars, "param");
-        const auto levtype = get_or_throw<std::string>(mars, "levtype");
+        const auto param   = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
+        const auto levtype = get_or_throw<std::string>(mars, "levtype", utils::profiling::callSite(cntx, Here()));
 
         if (levtype == "sfc") {
-            return impl::matchSFC(param);
+            const std::size_t result = impl::matchSFC(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "hl") {
-            return impl::matchHL(param);
+            const std::size_t result = impl::matchHL(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "ml") {
-            return impl::matchML(param);
+            const std::size_t result = impl::matchML(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "pl") {
-            const auto level = get_or_throw<long>(mars, "levelist");
-            return impl::matchPL(param, level);
+            const auto level = get_or_throw<long>(mars, "levelist", utils::profiling::callSite(cntx, Here()));
+            const std::size_t result = impl::matchPL(param, level, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "fl") {
-            return impl::matchFL(param);
+            const std::size_t result = impl::matchFL(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "pt") {
-            return impl::matchPT(param);
+            const std::size_t result = impl::matchPT(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "pv") {
-            return impl::matchPV(param);
+            const std::size_t result = impl::matchPV(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "sol") {
-            return impl::matchSOL(param);
+            const std::size_t result = impl::matchSOL(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "al") {
-            return impl::matchAL(param);
+            const std::size_t result = impl::matchAL(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "o2d") {
-            return impl::matchO2D(param);
+            const std::size_t result = impl::matchO2D(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (levtype == "o3d") {
-            return impl::matchO3D(param);
+            const std::size_t result = impl::matchO3D(param, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
 
@@ -727,6 +912,14 @@ std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
     catch (...) {
         std::throw_with_nested(utils::exceptions::Mars2GribMatcherException("Unable to match `level` concept", Here()));
     }
-};
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t levelMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = levelMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
+}
 
 }  // namespace metkit::mars2grib::backend::concepts_

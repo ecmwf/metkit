@@ -18,12 +18,14 @@
 ///
 /// Every function has a documented contract, catches all failures, and rethrows
 /// `Mars2GribModelException` directly at the function boundary. Functions that
-/// receive `ProductTimeSpecInput` attach `input.to_json()`; lower-level
+/// receive `ProductTimeSpecInput` attach `input.to_json(cntx)`; lower-level
 /// functions use the location-only constructor.
 ///
 /// @ingroup mars2grib_product_time_spec_detail
 ///
 #pragma once
+
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 #include <limits>
 
@@ -42,15 +44,22 @@ namespace metkit::mars2grib::backend::models::product_time_spec::detail {
  * The ProductTimeSpec representation stores a zero-second duration together with
  * `TypeOfTimeIntervals::Missing` when the increment is absent.
  *
+ * @param[in,out] cntx Profiling context.
  * @return Canonical missing-increment duration.
  * @throws Mars2GribModelException If construction of the duration unexpectedly fails.
  */
-inline metkit::mars2grib::backend::deductions::TimeDuration missingIncrement() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration missingIncrement(Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return {0, TimeUnit::Missing};
+        {
+            metkit::mars2grib::backend::deductions::TimeDuration result{0, TimeUnit::Missing};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `missingIncrement`", Here()));
@@ -65,11 +74,14 @@ inline metkit::mars2grib::backend::deductions::TimeDuration missingIncrement() {
  *
  * @param[in] input Normalized input used to enrich exception diagnostics.
  * @param[in] duration Duration to inspect.
+ * @param[in,out] cntx Profiling context.
  * @return `true` when the duration is exactly one hour.
  * @throws Mars2GribModelException If evaluation unexpectedly fails.
  */
+template <class Cntx_t>
 inline bool isOneHour(const ProductTimeSpecInput& input,
-                      const metkit::mars2grib::backend::deductions::TimeDuration& duration) {
+                      const metkit::mars2grib::backend::deductions::TimeDuration& duration, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -77,10 +89,14 @@ inline bool isOneHour(const ProductTimeSpecInput& input,
         const bool isOneHourInHours   = duration.unit == TimeUnit::Hour && duration.length == 1;
         const bool isOneHourInSeconds = duration.unit == TimeUnit::Second && duration.length == 3600;
 
-        return isOneHourInHours || isOneHourInSeconds;
+        {
+            bool result = isOneHourInHours || isOneHourInSeconds;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
-        std::throw_with_nested(Mars2GribModelException("Failed to execute `isOneHour`", input.to_json(), Here()));
+        std::throw_with_nested(Mars2GribModelException("Failed to execute `isOneHour`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -92,11 +108,14 @@ inline bool isOneHour(const ProductTimeSpecInput& input,
  *
  * @param[in] input Normalized input used to enrich exception diagnostics.
  * @param[in] duration Duration to convert.
+ * @param[in,out] cntx Profiling context.
  * @return Duration expressed in seconds.
  * @throws Mars2GribModelException For unsupported or calendar units.
  */
+template <class Cntx_t>
 inline long durationInSecondsForValidation(const ProductTimeSpecInput& input,
-                                           const metkit::mars2grib::backend::deductions::TimeDuration& duration) {
+                                           const metkit::mars2grib::backend::deductions::TimeDuration& duration, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::detail::checkedSecondsFromUnits;
@@ -106,47 +125,62 @@ inline long durationInSecondsForValidation(const ProductTimeSpecInput& input,
 
         switch (duration.unit) {
             case TimeUnit::Second:
-                return duration.length;
+                {
+                    long result = duration.length;
+                    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
             case TimeUnit::Hour:
-                seconds = checkedSecondsFromUnits(duration.length, 3600LL);
+                seconds = checkedSecondsFromUnits(duration.length, 3600LL, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
                 break;
             case TimeUnit::Day:
-                seconds = checkedSecondsFromUnits(duration.length, 86400LL);
+                seconds = checkedSecondsFromUnits(duration.length, 86400LL, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
                 break;
             case TimeUnit::Month:
                 throw Mars2GribModelException("Month-range increment validation requires calendar-aware comparison",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             default:
                 throw Mars2GribModelException(
                     "Unsupported metkit::mars2grib::backend::deductions::TimeDuration unit during increment validation",
-                    input.to_json(), Here());
+                    input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (seconds > static_cast<long long>(std::numeric_limits<long>::max()) ||
             seconds < static_cast<long long>(std::numeric_limits<long>::min())) {
             throw Mars2GribModelException("Increment-validation duration in seconds is out of range for a long",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return static_cast<long>(seconds);
+        {
+            long result = static_cast<long>(seconds);
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `durationInSecondsForValidation`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `durationInSecondsForValidation`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
 /**
  * @brief Return the GRIB missing sentinel for typeOfTimeIncrement.
+ * @param[in,out] cntx Profiling context.
  * @return `TypeOfTimeIntervals::Missing`.
  * @throws Mars2GribModelException If obtaining the sentinel unexpectedly fails.
  */
-inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals missingTypeOfTimeIncrement() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals missingTypeOfTimeIncrement(Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TypeOfTimeIntervals;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return TypeOfTimeIntervals::Missing;
+        {
+            metkit::mars2grib::backend::tables::TypeOfTimeIntervals result = TypeOfTimeIntervals::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `missingTypeOfTimeIncrement`", Here()));
@@ -155,15 +189,22 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals missingTypeOfTime
 
 /**
  * @brief Return GRIB typeOfTimeIncrement value 2 used by forecast semantics.
+ * @param[in,out] cntx Profiling context.
  * @return GRIB code-table value 2.
  * @throws Mars2GribModelException If conversion unexpectedly fails.
  */
-inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals forecastTypeOfTimeIncrement() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals forecastTypeOfTimeIncrement(Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TypeOfTimeIntervals;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return TypeOfTimeIntervals::SameForecastTimeStartIncremented;
+        {
+            metkit::mars2grib::backend::tables::TypeOfTimeIntervals result = TypeOfTimeIntervals::SameForecastTimeStartIncremented;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `forecastTypeOfTimeIncrement`", Here()));
@@ -172,15 +213,22 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals forecastTypeOfTim
 
 /**
  * @brief Return GRIB typeOfTimeIncrement value 1 used by analysis semantics.
+ * @param[in,out] cntx Profiling context.
  * @return GRIB code-table value 1.
  * @throws Mars2GribModelException If conversion unexpectedly fails.
  */
-inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals analysisTypeOfTimeIncrement() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals analysisTypeOfTimeIncrement(Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TypeOfTimeIntervals;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+        {
+            metkit::mars2grib::backend::tables::TypeOfTimeIntervals result = TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `analysisTypeOfTimeIncrement`", Here()));
@@ -198,12 +246,15 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals analysisTypeOfTim
  * @param[in] isMultiLoop `true` when the final shape contains multiple windows.
  * @param[in] isInnermost `true` for the innermost canonical window.
  * @param[in] timeRange Canonical range of the inspected window.
+ * @param[in,out] cntx Profiling context.
  * @return GRIB typeOfTimeIncrement for the window.
  * @throws Mars2GribModelException For unsupported `Other` semantics.
  */
+template <class Cntx_t>
 inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals typeOfTimeIncrementForWindow(
     const ProductTimeSpecInput& input, bool isMultiLoop, bool isInnermost,
-    const metkit::mars2grib::backend::deductions::TimeDuration& timeRange) {
+    const metkit::mars2grib::backend::deductions::TimeDuration& timeRange, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -212,21 +263,26 @@ inline metkit::mars2grib::backend::tables::TypeOfTimeIntervals typeOfTimeIncreme
         const bool isAnalysis =
             input.simulationType == metkit::mars2grib::backend::deductions::SimulationType::Analysis;
         const bool isOneHourInnermostAnalysisLoop =
-            isAnalysis && isMultiLoop && isInnermost && isOneHour(input, timeRange);
+            isAnalysis && isMultiLoop && isInnermost && isOneHour(input, timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // if (isForecast || isOneHourInnermostAnalysisLoop) {
-        return forecastTypeOfTimeIncrement();
+        {
+            metkit::mars2grib::backend::tables::TypeOfTimeIntervals result = forecastTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
         //}
         // if (isAnalysis) {
-        //    return analysisTypeOfTimeIncrement();
+        //    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        //    return analysisTypeOfTimeIncrement(cntx);
         //}
 
         throw Mars2GribModelException("typeOfTimeIncrement cannot be assigned to AnalysisOrForecast::Other",
-                                      input.to_json(), Here());
+                                      input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `typeOfTimeIncrementForWindow`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `typeOfTimeIncrementForWindow`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -249,11 +305,14 @@ struct ResolvedInnerIncrement {
  * @param[in] incrementInSeconds Increment to validate.
  * @param[in] innerRange Innermost canonical time range.
  * @param[in] allowZeroLengthFromStart Whether the zero-length from-start exception applies.
+ * @param[in,out] cntx Profiling context.
  * @throws Mars2GribModelException If validation fails.
  */
+template <class Cntx_t>
 inline void validateExplicitIncrement(const ProductTimeSpecInput& input, long incrementInSeconds,
                                       const metkit::mars2grib::backend::deductions::TimeDuration& innerRange,
-                                      bool allowZeroLengthFromStart) {
+                                      bool allowZeroLengthFromStart, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
@@ -264,20 +323,24 @@ inline void validateExplicitIncrement(const ProductTimeSpecInput& input, long in
 
         if (!isPositive) {
             throw Mars2GribModelException("Explicit or defaulted timeIncrementInSeconds must be positive",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
         if (isAllowedZeroLengthFromStart) {
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
             return;
         }
-        if (!isCalendarMonth && incrementInSeconds > durationInSecondsForValidation(input, innerRange)) {
-            throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range", input.to_json(),
+        if (!isCalendarMonth && incrementInSeconds > durationInSecondsForValidation(input, innerRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `validateExplicitIncrement`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `validateExplicitIncrement`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
+
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return;
 }
 
 /**
@@ -290,22 +353,25 @@ inline void validateExplicitIncrement(const ProductTimeSpecInput& input, long in
  *
  * @param[in] input Normalized input and embedded options.
  * @param[in] innerRange Innermost canonical time range.
+ * @param[in,out] cntx Profiling context.
  * @return Positive default increment expressed in seconds.
  * @throws Mars2GribModelException If no valid default can be deduced.
  */
+template <class Cntx_t>
 inline long deduceDefaultTimeIncrement(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::deductions::TimeDuration& innerRange) {
+    const metkit::mars2grib::backend::deductions::TimeDuration& innerRange, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)innerRange;
 
-        throw Mars2GribModelException("Default time-increment deduction not implemented", input.to_json(), Here());
+        throw Mars2GribModelException("Default time-increment deduction not implemented", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `deduceDefaultTimeIncrement`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `deduceDefaultTimeIncrement`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -323,13 +389,16 @@ inline long deduceDefaultTimeIncrement(
  * @param[in] innerRange Innermost canonical time range.
  * @param[in] isMultiLoop Whether the final shape contains multiple windows.
  * @param[in] allowZeroLengthFromStart Whether the zero-length from-start exception applies.
+ * @param[in,out] cntx Profiling context.
  * @return Fully resolved innermost increment semantics.
  * @throws Mars2GribModelException If explicit or defaulted values are invalid.
  */
+template <class Cntx_t>
 inline ResolvedInnerIncrement resolveIfsInnerIncrement(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::deductions::TimeDuration& innerRange, bool isMultiLoop,
-    bool allowZeroLengthFromStart = false) {
+    bool allowZeroLengthFromStart, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
@@ -339,29 +408,41 @@ inline ResolvedInnerIncrement resolveIfsInnerIncrement(
         const bool defaultingIsEnabled  = input.allowDefaultTimeIncrement;
 
         if (hasExplicitIncrement) {
-            auto incrementInSeconds = convertToSeconds(*input.timeIncrement);
-            validateExplicitIncrement(input, incrementInSeconds, innerRange, allowZeroLengthFromStart);
+            auto incrementInSeconds = convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            validateExplicitIncrement(input, incrementInSeconds, innerRange, allowZeroLengthFromStart, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-            return ResolvedInnerIncrement{
+            {
+                ResolvedInnerIncrement result = ResolvedInnerIncrement{
                 metkit::mars2grib::backend::deductions::TimeDuration{incrementInSeconds, TimeUnit::Second},
-                typeOfTimeIncrementForWindow(input, isMultiLoop, true, innerRange)};
+                typeOfTimeIncrementForWindow(input, isMultiLoop, true, innerRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         if (!defaultingIsEnabled) {
-            return ResolvedInnerIncrement{missingIncrement(), missingTypeOfTimeIncrement()};
+            {
+                ResolvedInnerIncrement result = ResolvedInnerIncrement{missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()))};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
-        const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innerRange);
+        const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innerRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        validateExplicitIncrement(input, defaultIncrementInSeconds, innerRange, allowZeroLengthFromStart);
+        validateExplicitIncrement(input, defaultIncrementInSeconds, innerRange, allowZeroLengthFromStart, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        return ResolvedInnerIncrement{
+        {
+            ResolvedInnerIncrement result = ResolvedInnerIncrement{
             metkit::mars2grib::backend::deductions::TimeDuration{defaultIncrementInSeconds, TimeUnit::Second},
-            typeOfTimeIncrementForWindow(input, isMultiLoop, true, innerRange)};
+            typeOfTimeIncrementForWindow(input, isMultiLoop, true, innerRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `resolveIfsInnerIncrement`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `resolveIfsInnerIncrement`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -373,11 +454,14 @@ inline ResolvedInnerIncrement resolveIfsInnerIncrement(
  * is always twenty-four hours with typeOfTimeIncrement value 1.
  *
  * @param[in] input Normalized synoptic input and embedded options.
+ * @param[in,out] cntx Profiling context.
  * @return Intrinsic synoptic increment semantics.
  * @throws Mars2GribModelException If a redundant value is forbidden or wrong.
  */
+template <class Cntx_t>
 inline ResolvedInnerIncrement resolveSynopticIncrement(
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
 
@@ -387,23 +471,27 @@ inline ResolvedInnerIncrement resolveSynopticIncrement(
         const bool hasExplicitIncrement        = input.timeIncrement.has_value();
         const bool redundantIncrementIsAllowed = input.allowRedundantTimeIncrement;
         const bool explicitIncrementHasExpectedValue =
-            !hasExplicitIncrement || convertToSeconds(*input.timeIncrement) == expectedIncrementInSeconds;
+            !hasExplicitIncrement || convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) == expectedIncrementInSeconds;
 
         if (hasExplicitIncrement && !redundantIncrementIsAllowed) {
             throw Mars2GribModelException(
-                "Synoptic timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(),
+                "Synoptic timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
         if (!explicitIncrementHasExpectedValue) {
-            throw Mars2GribModelException("Synoptic timeIncrementInSeconds must equal 86400", input.to_json(), Here());
+            throw Mars2GribModelException("Synoptic timeIncrementInSeconds must equal 86400", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return ResolvedInnerIncrement{metkit::mars2grib::utils::time_arithmetic::twentyFourHours(),
-                                      analysisTypeOfTimeIncrement()};
+        {
+            ResolvedInnerIncrement result = ResolvedInnerIncrement{metkit::mars2grib::utils::time_arithmetic::twentyFourHours(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
+                                      analysisTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()))};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `resolveSynopticIncrement`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `resolveSynopticIncrement`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -414,10 +502,13 @@ inline ResolvedInnerIncrement resolveSynopticIncrement(
  * therefore accepted only when redundant increments are explicitly enabled.
  *
  * @param[in] input Normalized instant input and embedded options.
+ * @param[in,out] cntx Profiling context.
  * @throws Mars2GribModelException If a redundant value is forbidden.
  */
+template <class Cntx_t>
 inline void validateInstantIncrement(
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -426,14 +517,17 @@ inline void validateInstantIncrement(
 
         if (hasIncrement && !redundantIncrementIsAllowed) {
             throw Mars2GribModelException(
-                "Instant timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(),
+                "Instant timeIncrementInSeconds is redundant but redundant values are disabled", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `validateInstantIncrement`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `validateInstantIncrement`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
+
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return;
 }
 
 }  // namespace metkit::mars2grib::backend::models::product_time_spec::detail

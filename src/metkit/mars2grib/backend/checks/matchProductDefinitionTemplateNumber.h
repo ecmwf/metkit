@@ -19,6 +19,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::validation {
 
@@ -62,9 +63,11 @@ namespace metkit::mars2grib::backend::validation {
 /// - The function returns normally on success and does not produce any output.
 ///
 
-template <class OptDict_t, class OutDict_t>
+template <class OptDict_t, class OutDict_t, class Cntx_t>
 void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,
-                                                    const std::vector<long>& expectedProductDefinitionTemplateNumbers) {
+                                                    const std::vector<long>& expectedProductDefinitionTemplateNumbers,
+                                                    Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::joinNumbers;
@@ -73,10 +76,10 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (get_or_throw<bool>(opt, "applyChecks")) {
+            if (get_or_throw<bool>(opt, "applyChecks", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
                 // Get the productDefinitionTemplateNumber
-                long actualProductDefinitionTemplateNumber = get_or_throw<long>(out, "productDefinitionTemplateNumber");
+                long actualProductDefinitionTemplateNumber = get_or_throw<long>(out, "productDefinitionTemplateNumber", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 // Compare against expected values
                 const bool match =
@@ -99,6 +102,7 @@ void match_ProductDefinitionTemplateNumber_or_throw(const OptDict_t& opt, const 
         }
 
         // Exit on success
+        profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {

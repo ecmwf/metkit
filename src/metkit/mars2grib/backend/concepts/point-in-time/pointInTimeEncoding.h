@@ -53,6 +53,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/point-in-time/pointInTimeEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/timeUnits.h"
@@ -148,8 +149,9 @@ constexpr bool pointInTimeApplicable() {
 /// @see pointInTimeApplicable
 ///
 template <std::size_t Stage, std::size_t Section, PointInTimeType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
@@ -168,8 +170,8 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
             if constexpr (Stage == StageAllocate) {
 
                 // Encoding
-                setMissing_or_throw(out, "hoursAfterDataCutoff");
-                setMissing_or_throw(out, "minutesAfterDataCutoff");
+                setMissing_or_throw(out, "hoursAfterDataCutoff", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                setMissing_or_throw(out, "minutesAfterDataCutoff", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Stage == StagePreset) {
@@ -177,22 +179,22 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
                 // Resolve the `ProductTimeSpec` to ensure that the forecast
                 // time is valid and can be expressed in hours.
                 const auto spec = models::product_time_spec::ProductTimeSpec(
-                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
-                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec);
+                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 (void)pts;
 
                 // Encoding
-                set_or_throw<long>(out, "indicatorOfUnitOfTimeRange", static_cast<long>(TimeUnit::Hour));
+                set_or_throw<long>(out, "indicatorOfUnitOfTimeRange", static_cast<long>(TimeUnit::Hour), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Stage == StageRuntime) {
                 const auto spec = models::product_time_spec::ProductTimeSpec(
-                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt);
-                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec);
+                    metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing::Missing, mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto pts = impl::build_PointInTimeProductTimeSpec_or_throw(spec, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length);
+                set_or_throw<long>(out, "forecastTime", pts.forecastTime.length, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -200,6 +202,7 @@ void PointInTimeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

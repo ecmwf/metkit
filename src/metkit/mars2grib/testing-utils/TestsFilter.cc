@@ -19,51 +19,62 @@
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpec.h"
 #include "metkit/mars2grib/frontend/resolution/resolveActiveConcepts.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictaccess_eckit_configuration.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::testing_utils {
 namespace {
 
-bool option(const eckit::LocalConfiguration& options, const std::string& name) {
-    return options.has(name) ? options.getBool(name) : true;
+template <class Cntx_t>
+bool option(const eckit::LocalConfiguration& options, const std::string& name, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const bool result = options.has(name) ? options.getBool(name) : true;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
+template <class Cntx_t>
 eckit::LocalConfiguration requiredObject(const eckit::LocalConfiguration& root, const std::string& key,
-                                         std::size_t lineNumber) {
+                                          std::size_t lineNumber, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     if (!root.has(key) || !root.isSubConfiguration(key)) {
         throw eckit::Exception(
             "Test-case record at line " + std::to_string(lineNumber) + " requires object `" + key + "`", Here());
     }
-    return root.getSubConfiguration(key);
+    eckit::LocalConfiguration result = root.getSubConfiguration(key);
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-}  // namespace
-
-TestsFilter::TestsFilter(const eckit::LocalConfiguration& options) :
-    filterPerturbedForecast_{option(options, "filter-perturbed-forecast")},
-    filterModelLevel_{option(options, "filter-model-level")},
-    filterFrequencyDirection_{option(options, "filter-frequency-direction")} {}
-
-bool TestsFilter::filter(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc,
-                         const eckit::LocalConfiguration& opt) const {
-    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(mars, opt);
+template <class Cntx_t>
+bool filterImpl(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc,
+                const eckit::LocalConfiguration& opt, bool filterPerturbedForecast, bool filterModelLevel,
+                bool filterFrequencyDirection, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(
+        mars, opt, utils::profiling::callSite(cntx, Here()));
     const backend::models::product_time_spec::ProductTimeSpec productTimeSpec{
-        detail::innerStatisticalProcessing(activeConcepts), mars, misc, opt};
+        detail::innerStatisticalProcessing(activeConcepts, utils::profiling::callSite(cntx, Here())), mars, misc, opt,
+        utils::profiling::callSite(cntx, Here())};
     (void)productTimeSpec;
 
     const std::array conditions{
-        !filterPerturbedForecast_ || !mars.has("type") || mars.getString("type") != "pf" ||
+        !filterPerturbedForecast || !mars.has("type") || mars.getString("type") != "pf" ||
             (mars.has("number") && mars.getLong("number") == 1),
-        !filterModelLevel_ || !mars.has("levtype") || mars.getString("levtype") != "ml" || !mars.has("levelist") ||
+        !filterModelLevel || !mars.has("levtype") || mars.getString("levtype") != "ml" || !mars.has("levelist") ||
             mars.getLong("levelist") == 1,
-        !filterFrequencyDirection_ || !mars.has("frequency") || !mars.has("direction") ||
+        !filterFrequencyDirection || !mars.has("frequency") || !mars.has("direction") ||
             (mars.getLong("frequency") == 1 && mars.getLong("direction") == 1),
     };
 
-    return std::all_of(conditions.begin(), conditions.end(), [](bool condition) { return condition; });
+    const bool result = std::all_of(conditions.begin(), conditions.end(), [](bool condition) { return condition; });
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& outputPath,
-                    const eckit::LocalConfiguration& options) {
+template <class Cntx_t>
+void pruneTestsFileImpl(const eckit::PathName& inputPath, const eckit::PathName& outputPath,
+                        const eckit::LocalConfiguration& options, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     std::ifstream input{inputPath.asString()};
     if (!input) {
         throw eckit::Exception("Unable to open input test-case file `" + inputPath.asString() + "`", Here());
@@ -74,7 +85,11 @@ void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& out
         throw eckit::Exception("Unable to open output test-case file `" + outputPath.asString() + "`", Here());
     }
 
-    TestsFilter filter{options};
+    const bool filterPerturbedForecast =
+        option(options, "filter-perturbed-forecast", utils::profiling::callSite(cntx, Here()));
+    const bool filterModelLevel = option(options, "filter-model-level", utils::profiling::callSite(cntx, Here()));
+    const bool filterFrequencyDirection =
+        option(options, "filter-frequency-direction", utils::profiling::callSite(cntx, Here()));
     std::string record;
     std::size_t lineNumber = 0;
     while (std::getline(input, record)) {
@@ -88,12 +103,13 @@ void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& out
 
         try {
             const eckit::LocalConfiguration root{eckit::YAMLConfiguration{record}};
-            const auto mars = requiredObject(root, "mars", lineNumber);
-            const auto misc = requiredObject(root, "misc", lineNumber);
-            const auto opt  = requiredObject(root, "opt", lineNumber);
-            (void)requiredObject(root, "out", lineNumber);
+            const auto mars = requiredObject(root, "mars", lineNumber, utils::profiling::callSite(cntx, Here()));
+            const auto misc = requiredObject(root, "misc", lineNumber, utils::profiling::callSite(cntx, Here()));
+            const auto opt  = requiredObject(root, "opt", lineNumber, utils::profiling::callSite(cntx, Here()));
+            (void)requiredObject(root, "out", lineNumber, utils::profiling::callSite(cntx, Here()));
 
-            if (filter.filter(mars, misc, opt)) {
+            if (filterImpl(mars, misc, opt, filterPerturbedForecast, filterModelLevel, filterFrequencyDirection,
+                            utils::profiling::callSite(cntx, Here()))) {
                 output << record << '\n';
                 if (!output) {
                     throw eckit::Exception("Unable to write output test-case file `" + outputPath.asString() + "`",
@@ -126,6 +142,38 @@ void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& out
     if (!output) {
         throw eckit::Exception("Unable to complete output test-case file `" + outputPath.asString() + "`", Here());
     }
+    utils::profiling::profileExitFunction(cntx, Here());
+}
+
+}  // namespace
+
+TestsFilter::TestsFilter(const eckit::LocalConfiguration& options) {
+    utils::profiling::NoProfileContext cntx;
+    utils::profiling::profileEnterFunction(cntx, Here());
+    filterPerturbedForecast_ =
+        option(options, "filter-perturbed-forecast", utils::profiling::callSite(cntx, Here()));
+    filterModelLevel_ = option(options, "filter-model-level", utils::profiling::callSite(cntx, Here()));
+    filterFrequencyDirection_ =
+        option(options, "filter-frequency-direction", utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+}
+
+bool TestsFilter::filter(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc,
+                         const eckit::LocalConfiguration& opt) const {
+    utils::profiling::NoProfileContext cntx;
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const bool result = filterImpl(mars, misc, opt, filterPerturbedForecast_, filterModelLevel_,
+                                   filterFrequencyDirection_, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
+}
+
+void pruneTestsFile(const eckit::PathName& inputPath, const eckit::PathName& outputPath,
+                    const eckit::LocalConfiguration& options) {
+    utils::profiling::NoProfileContext cntx;
+    utils::profiling::profileEnterFunction(cntx, Here());
+    pruneTestsFileImpl(inputPath, outputPath, options, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
 }
 
 }  // namespace metkit::mars2grib::testing_utils

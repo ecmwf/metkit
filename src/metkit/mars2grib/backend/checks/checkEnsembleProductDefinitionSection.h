@@ -17,6 +17,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::validation {
 
@@ -58,8 +59,9 @@ namespace metkit::mars2grib::backend::validation {
 /// - If `applyChecks` is absent or evaluates to `false`, no validation is performed.
 /// - The function returns normally on success and does not produce any output.
 ///
-template <class OptDict_t, class OutDict_t>
-void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out) {
+template <class OptDict_t, class OutDict_t, class Cntx_t>
+void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const OutDict_t& out, Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -68,11 +70,11 @@ void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (get_or_throw<bool>(opt, "applyChecks")) {
+            if (get_or_throw<bool>(opt, "applyChecks", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
-                bool hasTypeOfEnsembleForecast      = has(out, "typeOfEnsembleForecast");
-                bool hasPerturbationNumber          = has(out, "perturbationNumber");
-                bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble");
+                bool hasTypeOfEnsembleForecast      = has(out, "typeOfEnsembleForecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                bool hasPerturbationNumber          = has(out, "perturbationNumber", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                bool hasNumberOfForecastsInEnsemble = has(out, "numberOfForecastsInEnsemble", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 // Ensemble forecast needs to have all 3 fields defined in the Product Definition Section
                 if (!(hasTypeOfEnsembleForecast && hasPerturbationNumber && hasNumberOfForecastsInEnsemble)) {
@@ -86,6 +88,7 @@ void check_EnsembleProductDefinitionSection_or_throw(const OptDict_t& opt, const
         }
 
         // Exit point with success
+        profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {

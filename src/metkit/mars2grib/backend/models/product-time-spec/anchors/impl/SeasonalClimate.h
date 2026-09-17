@@ -30,6 +30,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "eckit/types/Time.h"
 
@@ -53,7 +55,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::anchor::detail 
  * @throws Mars2GribModelException if the seasonal-climate source pattern is
  *         encountered, because the case is intentionally not implemented.
  */
-inline bool match_SeasonalClimate_Anchor(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_SeasonalClimate_Anchor(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -61,14 +65,18 @@ inline bool match_SeasonalClimate_Anchor(const ProductTimeSpecInput& input) {
         const bool hasMonth = input.marsMonth.has_value();
 
         if (hasYear || hasMonth) {
-            throw Mars2GribModelException("SeasonalClimate anchor is not implemented", input.to_json(), Here());
+            throw Mars2GribModelException("SeasonalClimate anchor is not implemented", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return false;
+        {
+            bool result = false;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_SeasonalClimate_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_SeasonalClimate_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -84,18 +92,20 @@ inline bool match_SeasonalClimate_Anchor(const ProductTimeSpecInput& input) {
  * @throws Mars2GribModelException always, because SeasonalClimate anchor
  *         construction is intentionally not implemented.
  */
+template <class Cntx_t>
 inline ProductTimeSpecAnchor build_SeasonalClimate_Anchor(const ProductTimeSpecInput& input,
-                                                          const ProductTimeSpecClassification& classification) {
+                                                          const ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)classification;
 
-        throw Mars2GribModelException("SeasonalClimate anchor is not implemented", input.to_json(), Here());
+        throw Mars2GribModelException("SeasonalClimate anchor is not implemented", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `build_SeasonalClimate_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `build_SeasonalClimate_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -110,17 +120,19 @@ inline ProductTimeSpecAnchor build_SeasonalClimate_Anchor(const ProductTimeSpecI
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 ///         always, because SeasonalClimate anchor validation is intentionally
 ///         not implemented.
-inline bool check_SeasonalClimate_Anchor(const ProductTimeSpecInput& input, const ProductTimeSpecAnchor& anchor) {
+template <class Cntx_t>
+inline bool check_SeasonalClimate_Anchor(const ProductTimeSpecInput& input, const ProductTimeSpecAnchor& anchor, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         (void)anchor;
 
-        throw Mars2GribModelException("SeasonalClimate anchor is not implemented", input.to_json(), Here());
+        throw Mars2GribModelException("SeasonalClimate anchor is not implemented", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_SeasonalClimate_Anchor`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_SeasonalClimate_Anchor`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

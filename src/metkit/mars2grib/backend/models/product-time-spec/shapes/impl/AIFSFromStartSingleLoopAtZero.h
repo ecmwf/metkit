@@ -31,6 +31,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
@@ -63,7 +65,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
-inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -82,16 +86,20 @@ inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput
         const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
         const bool usesFromStartTimespan    = input.timespan.kind == TimespanKind::FromStart;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
-        const bool hasZeroStep              = stepIsZero(input);
+        const bool hasZeroStep              = stepIsZero(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const bool stepZeroIsAllowed        = input.allowZeroLengthFsWindow;
         const bool operationIsAllowed       = input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero;
 
-        return isAifs && isForecast && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
+        {
+            bool result = isAifs && isForecast && isNotSeasonal && isNotSynoptic && sourceIncrementIsMissing &&
                usesFromStartTimespan && hasNoStattypeBlocks && hasZeroStep && stepZeroIsAllowed && operationIsAllowed;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `match_AIFSFromStartSingleLoopAtZero_Shape`",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -107,9 +115,11 @@ inline bool match_AIFSFromStartSingleLoopAtZero_Shape(const ProductTimeSpecInput
  * @return Constructed stage-1 outer time range for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecOuterTimeRange build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -119,11 +129,15 @@ inline ProductTimeSpecOuterTimeRange build_AIFSFromStartSingleLoopAtZero_ShapeOu
 
         const auto availability = ProductTimeSpecOuterTimeRangeAvailability::Deferred;
 
-        return ProductTimeSpecOuterTimeRange{availability, std::nullopt};
+        {
+            ProductTimeSpecOuterTimeRange result = ProductTimeSpecOuterTimeRange{availability, std::nullopt};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`", input.to_json(), Here()));
+            "Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeOuterTimeRange`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -145,12 +159,14 @@ inline ProductTimeSpecOuterTimeRange build_AIFSFromStartSingleLoopAtZero_ShapeOu
  * @return Constructed ProductTimeSpec shape for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecShape build_AIFSFromStartSingleLoopAtZero_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingIncrement;
     using metkit::mars2grib::backend::models::product_time_spec::detail::missingTypeOfTimeIncrement;
@@ -167,37 +183,41 @@ inline ProductTimeSpecShape build_AIFSFromStartSingleLoopAtZero_ShapeWindows(
 
         if (!outerTimeRangeIsDeferred || outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero requires a deferred outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (input.timeIncrement.has_value()) {
             throw Mars2GribModelException("AIFS statistics require timeIncrementInSeconds to be missing",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
+        const TimeDuration timeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // This case carries the normalized innermost statistical processing
         // directly into the one canonical window.
         const auto typeOfStatisticalProcessing = input.innerMostTypeOfStatisticalProcessing;
 
         // Pure AIFS from-start products always encode missing increment-kind semantics.
-        const auto typeOfTimeIncrement = missingTypeOfTimeIncrement();
+        const auto typeOfTimeIncrement = missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // The canonical range is the real domain span for the zero-step from-start case.
         const auto canonicalTimeRange = timeRange;
 
         // Pure AIFS from-start products always encode a missing increment value.
-        const auto timeIncrement = missingIncrement();
+        const auto timeIncrement = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, canonicalTimeRange,
                                      timeIncrement};
 
-        return ProductTimeSpecShape{{window}};
+        {
+            ProductTimeSpecShape result = ProductTimeSpecShape{{window}};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeWindows`", input.to_json(), Here()));
+            "Failed to execute `build_AIFSFromStartSingleLoopAtZero_ShapeWindows`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -221,13 +241,15 @@ inline ProductTimeSpecShape build_AIFSFromStartSingleLoopAtZero_ShapeWindows(
  * @throws Mars2GribModelException if the resolved shape is inconsistent with
  *         the input, classification, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
-    const ProductTimeSpecShape& shape) {
+    const ProductTimeSpecShape& shape, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimeDuration;
@@ -247,7 +269,7 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
 
         if (classification.shapeType != ProductTimeSpecShapeKind::AIFSFromStartSingleLoopAtZero) {
             throw Mars2GribModelException("Shape classification mismatch: expected AIFSFromStartSingleLoopAtZero",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool isAifs     = input.regime == SimulationRegime::AIFS;
@@ -261,7 +283,7 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
         const bool sourceIncrementIsMissing = !input.timeIncrement.has_value();
         const bool usesFromStartTimespan    = input.timespan.kind == TimespanKind::FromStart;
         const bool hasNoStattypeBlocks      = input.stattype.empty();
-        const bool hasZeroStep              = stepIsZero(input);
+        const bool hasZeroStep              = stepIsZero(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const bool stepZeroIsAllowed        = input.allowZeroLengthFsWindow;
         const bool operationIsAllowed       = input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero;
 
@@ -269,12 +291,12 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
             !usesFromStartTimespan || !hasNoStattypeBlocks || !hasZeroStep || !stepZeroIsAllowed ||
             !operationIsAllowed) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero input semantics are not satisfied",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (domain.isSynoptic) {
             throw Mars2GribModelException(
-                "AIFSFromStartSingleLoopAtZero shape must not be paired with a synoptic domain", input.to_json(),
+                "AIFSFromStartSingleLoopAtZero shape must not be paired with a synoptic domain", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
@@ -283,14 +305,14 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
 
         if (!outerTimeRangeIsDeferred || outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero requires a deferred outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        const TimeDuration expectedTimeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime);
+        const TimeDuration expectedTimeRange = durationBetween(domain.domainStartDateTime, domain.domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (shape.values.size() != 1) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero shape must contain exactly one window",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const ProductTimeSpecWindow& window = shape.values.front();
@@ -299,29 +321,33 @@ inline bool check_AIFSFromStartSingleLoopAtZero_Shape(
             throw Mars2GribModelException(
                 "AIFSFromStartSingleLoopAtZero window statistical processing does not match the innermost input "
                 "processing",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (window.typeOfTimeIncrement != missingTypeOfTimeIncrement()) {
+        if (window.typeOfTimeIncrement != missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero window typeOfTimeIncrement is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(window.timeRange, expectedTimeRange)) {
+        if (!compareTimeDuration(window.timeRange, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero window timeRange is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(window.timeIncrement, missingIncrement())) {
+        if (!compareTimeDuration(window.timeIncrement, missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("AIFSFromStartSingleLoopAtZero window timeIncrement must be missing",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `check_AIFSFromStartSingleLoopAtZero_Shape`",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

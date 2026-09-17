@@ -15,6 +15,7 @@
 
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 
 namespace metkit::mars2grib::utils::cfg {
@@ -29,12 +30,18 @@ inline constexpr std::array<std::string_view, NUM_SECTIONS> sectionNames = {
      "product-definition-section", "data-representation-section"}};
 
 
-inline std::string strip_descriptor(std::string_view name) {
+template <class Cntx_t>
+inline std::string strip_descriptor(std::string_view name, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     constexpr std::string_view suffix = "-configurator";
     if (name.size() >= suffix.size() && name.substr(name.size() - suffix.size()) == suffix) {
-        return std::string{name.substr(0, name.size() - suffix.size())};
+        std::string result{name.substr(0, name.size() - suffix.size())};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
-    return std::string{name};
+    std::string result{name};
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 struct Section {
@@ -46,7 +53,9 @@ struct EncoderCfg {
     std::array<Section, NUM_SECTIONS> sec_;
 };
 
-Section lookupCfgSection(const eckit::LocalConfiguration& cfg, long SecId) {
+template <class Cntx_t>
+Section lookupCfgSection(const eckit::LocalConfiguration& cfg, long SecId, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
 
     // Get section name from Id
     std::string sectionName = std::string(sectionNames[SecId]);
@@ -79,7 +88,7 @@ Section lookupCfgSection(const eckit::LocalConfiguration& cfg, long SecId) {
         };
 
         // Get the key in the concept map
-        std::string key = strip_descriptor(name);
+        std::string key = strip_descriptor(name, profiling::callSite(cntx, Here()));
 
         // Get the type
         eckit::LocalConfiguration conceptCfg = sectionCfg.getSubConfiguration(name);
@@ -177,12 +186,15 @@ Section lookupCfgSection(const eckit::LocalConfiguration& cfg, long SecId) {
 
     }  // for concept name
 
+    profiling::profileExitFunction(cntx, Here());
     return sec;
 
 };  // lookupCfgSection
 
 
-Section lookupExpectedSection(const eckit::LocalConfiguration& cfg, long SecId) {
+template <class Cntx_t>
+Section lookupExpectedSection(const eckit::LocalConfiguration& cfg, long SecId, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::sections::ConceptList;
     using metkit::mars2grib::backend::sections::resolveSectionTemplateConcepts;
@@ -210,7 +222,8 @@ Section lookupExpectedSection(const eckit::LocalConfiguration& cfg, long SecId) 
     sec.templateNumber_ = static_cast<uint16_t>(sectionCfg.getLong("template-number"));
 
     // Populate concepts
-    const std::optional<ConceptList> concepts = resolveSectionTemplateConcepts(SecId, sec.templateNumber_);
+    const std::optional<ConceptList> concepts =
+        resolveSectionTemplateConcepts(SecId, sec.templateNumber_, profiling::callSite(cntx, Here()));
 
     // Insert into the map
     if (concepts) {
@@ -225,11 +238,14 @@ Section lookupExpectedSection(const eckit::LocalConfiguration& cfg, long SecId) 
             "No concepts found for " + sectionName + " template number " + std::to_string(sec.templateNumber_), Here());
     }
 
+    profiling::profileExitFunction(cntx, Here());
     return sec;
 };
 
 
-EncoderCfg parseEncoderCfg(const eckit::LocalConfiguration& cfg) {
+template <class Cntx_t>
+EncoderCfg parseEncoderCfg(const eckit::LocalConfiguration& cfg, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
 
     // Initialize EncoderCfg
     EncoderCfg encoderCfg;
@@ -238,8 +254,8 @@ EncoderCfg parseEncoderCfg(const eckit::LocalConfiguration& cfg) {
 
     // Populate all sections
     for (size_t i = 0; i < NUM_SECTIONS; ++i) {
-        encoderCfg.sec_[i]  = lookupCfgSection(cfg, i);
-        expectedCfg.sec_[i] = lookupExpectedSection(cfg, i);
+        encoderCfg.sec_[i]  = lookupCfgSection(cfg, i, profiling::callSite(cntx, Here()));
+        expectedCfg.sec_[i] = lookupExpectedSection(cfg, i, profiling::callSite(cntx, Here()));
     }
 
     // Combine configurations
@@ -274,16 +290,20 @@ EncoderCfg parseEncoderCfg(const eckit::LocalConfiguration& cfg) {
 
 
     // Validate concepts against expected
+    profiling::profileExitFunction(cntx, Here());
     return combinedCfg;
 };
 
-void print_encoder_cfg(const EncoderCfg& cfg) {
+template <class Cntx_t>
+void print_encoder_cfg(const EncoderCfg& cfg, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     for (uint32_t i = 0; i < NUM_SECTIONS; ++i) {
         std::cout << "Section " << i << " (template " << cfg.sec_[i].templateNumber_ << "):" << std::endl;
         for (const auto& [key, type] : cfg.sec_[i].concepts_) {
             std::cout << "  Concept: " << key << ", Type: " << type << std::endl;
         }
     }
+    profiling::profileExitFunction(cntx, Here());
 };
 
 }  // namespace metkit::mars2grib::utils::cfg

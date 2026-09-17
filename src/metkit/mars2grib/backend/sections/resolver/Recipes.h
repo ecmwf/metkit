@@ -48,6 +48,7 @@
 #include "metkit/mars2grib/backend/sections/resolver/Recipe.h"
 #include "metkit/mars2grib/backend/sections/resolver/ResolvedTemplateData.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 
@@ -96,12 +97,15 @@ public:
     ///
     /// @return Vector of resolved template payloads
     ///
-    std::vector<ResolvedTemplateData> getPayload() const {
+    template <class Cntx_t>
+    std::vector<ResolvedTemplateData> getPayload(Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         // ---- compute total size ----
         std::size_t total = 0;
         for (const Recipe* r : recipes_) {
-            total += r->numberOfCombinations();
+            total += r->numberOfCombinations(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // ---- allocate payload ----
@@ -110,12 +114,14 @@ public:
 
         // ---- expand recipes in order ----
         for (const Recipe* r : recipes_) {
-            const std::size_t n = r->numberOfCombinations();
+            const std::size_t n =
+                r->numberOfCombinations(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             for (std::size_t i = 0; i < n; ++i) {
-                payload.push_back(r->getEntry(i));
+                payload.push_back(r->getEntry(i, metkit::mars2grib::utils::profiling::callSite(cntx, Here())));
             }
         }
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return payload;
     }
 
@@ -128,7 +134,10 @@ public:
     /// @param[in]  prefix Line prefix used for indentation
     /// @param[out] os     Output stream
     ///
-    void debug_print(const std::string& prefix, std::ostream& os) const {
+    template <class Cntx_t>
+    void debug_print(const std::string& prefix, std::ostream& os, Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         os << prefix << " :: Recipes\n";
         os << prefix << " ::   sectionId : " << sectionId_ << "\n";
@@ -136,8 +145,10 @@ public:
 
         for (std::size_t i = 0; i < recipes_.size(); ++i) {
             os << prefix << " ::   recipe[" << i << "]\n";
-            recipes_[i]->debug_print(prefix + std::string(" ::   "), os);
+            recipes_[i]->debug_print(prefix + std::string(" ::   "), os,
+                                     metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
     }
 
     ///
@@ -148,7 +159,10 @@ public:
     ///
     /// @return JSON-style string representation
     ///
-    std::string debug_to_json() const {
+    template <class Cntx_t>
+    std::string debug_to_json(Cntx_t& cntx) const {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         std::ostringstream oss;
 
@@ -157,7 +171,7 @@ public:
             << "\"recipes\": [ ";
 
         for (std::size_t i = 0; i < recipes_.size(); ++i) {
-            oss << recipes_[i]->debug_to_json();
+            oss << recipes_[i]->debug_to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             if (i + 1 < recipes_.size()) {
                 oss << ", ";
             }
@@ -165,7 +179,9 @@ public:
 
         oss << " ] } }";
 
-        return oss.str();
+        std::string result = oss.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
 private:

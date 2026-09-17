@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/backend/tables/typeOfTimeIntervals.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
@@ -56,10 +58,11 @@ namespace metkit::mars2grib::backend::deductions {
 /// `tables::TypeOfTimeIntervals::SameStartTimeForecastIncremented` and does not
 /// perform any deduction logic.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 metkit::mars2grib::backend::tables::TypeOfTimeIntervals resolve_TypeOfTimeIncrement_or_throw(const MarsDict_t& mars,
                                                                                              const ParDict_t& par,
-                                                                                             const OptDict_t& opt) {
+                                                                                             const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -67,13 +70,13 @@ metkit::mars2grib::backend::tables::TypeOfTimeIntervals resolve_TypeOfTimeIncrem
     try {
 
         // Retrieve mandatory class from MARS dictionary
-        std::string marsClass = get_or_throw<std::string>(mars, "class");
+        std::string marsClass = get_or_throw<std::string>(mars, "class", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Retrieve mandatory type from MARS dictionary
-        std::string marsType = get_or_throw<std::string>(mars, "type");
+        std::string marsType = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Retrieve mandatory stream from MARS dictionary
-        std::string marsStream = get_or_throw<std::string>(mars, "stream");
+        std::string marsStream = get_or_throw<std::string>(mars, "stream", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         /// Initialize default
         metkit::mars2grib::backend::tables::TypeOfTimeIntervals result =
@@ -92,6 +95,7 @@ metkit::mars2grib::backend::tables::TypeOfTimeIntervals resolve_TypeOfTimeIncrem
         }
 
         // Success exit point
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {
@@ -101,7 +105,11 @@ metkit::mars2grib::backend::tables::TypeOfTimeIntervals resolve_TypeOfTimeIncrem
             Mars2GribDeductionException("Failed to resolve `typeOfTimeIncrement` from input dictionaries", Here()));
     }
 
-    return metkit::mars2grib::backend::tables::TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+    {
+        metkit::mars2grib::backend::tables::TypeOfTimeIntervals result = metkit::mars2grib::backend::tables::TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::deductions

@@ -43,6 +43,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/analysis/analysisEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/lengthOfTimeWindow.h"
@@ -137,8 +138,9 @@ constexpr bool analysisApplicable() {
 /// @see analysisApplicable
 ///
 template <std::size_t Stage, std::size_t Section, AnalysisType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -150,27 +152,29 @@ void AnalysisOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
             MARS2GRIB_LOG_CONCEPT(analysis);
 
             // Structural validation
-            validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L, 37L, 38L, 39L});
+            validation::match_LocalDefinitionNumber_or_throw(opt, out, {36L, 37L, 38L, 39L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Deductions
-            long offsetToEndOf4DvarWindowVal = deductions::resolve_offsetToEndOf4DvarWindow_or_throw(mars, par, opt);
+            long offsetToEndOf4DvarWindowVal = deductions::resolve_offsetToEndOf4DvarWindow_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             std::optional<long> lengthOfTimeWindowVal =
-                deductions::resolve_LengthOfTimeWindowInSeconds_or_throw(mars, par, opt);
+                deductions::resolve_LengthOfTimeWindowInSeconds_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<long>(out, "offsetToEndOf4DvarWindow", offsetToEndOf4DvarWindowVal);
+            set_or_throw<long>(out, "offsetToEndOf4DvarWindow", offsetToEndOf4DvarWindowVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             if (lengthOfTimeWindowVal.has_value()) {
-                set_or_throw<long>(out, "lengthOf4DvarWindow", lengthOfTimeWindowVal.value() / 3600);
+                set_or_throw<long>(out, "lengthOf4DvarWindow", lengthOfTimeWindowVal.value() / 3600, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else {
                 long missingLengthOfTimeWindowInHours = 0xFFFF;  // Missing sentinel in hours
-                set_or_throw<long>(out, "lengthOf4DvarWindow", missingLengthOfTimeWindowInHours);  // Missing
+                set_or_throw<long>(out, "lengthOf4DvarWindow", missingLengthOfTimeWindowInHours, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));  // Missing
             }
         }
         catch (...) {
 
             MARS2GRIB_CONCEPT_RETHROW(analysis, "Unable to set `analysis` concept...");
         }
+
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
 
         return;
     }

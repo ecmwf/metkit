@@ -61,13 +61,17 @@
 #include "metkit/mars2grib/frontend/normalization/normalization.h"
 #include "metkit/mars2grib/frontend/resolution/resolveActiveConcepts.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 // clang-format on
 
 namespace metkit::mars2grib {
 
 namespace detail {
 
-inline std::string activeConceptsToJson(const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+template <class Cntx_t>
+inline std::string activeConceptsToJson(const backend::sections::resolver::ActiveConceptsData& activeConcepts,
+                                        Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using Registry = backend::concepts_::GeneralRegistry;
 
     std::ostringstream out;
@@ -82,11 +86,15 @@ inline std::string activeConceptsToJson(const backend::sections::resolver::Activ
             << Registry::variantNameArr[variantId] << "\"}";
     }
     out << "]}";
-    return out.str();
+    std::string result = out.str();
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
+template <class Cntx_t>
 inline backend::tables::TypeOfStatisticalProcessing innerStatisticalProcessing(
-    const backend::sections::resolver::ActiveConceptsData& activeConcepts) {
+    const backend::sections::resolver::ActiveConceptsData& activeConcepts, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using backend::concepts_::GeneralRegistry;
     using backend::concepts_::StatisticsType;
     using Type = backend::tables::TypeOfStatisticalProcessing;
@@ -113,10 +121,14 @@ inline backend::tables::TypeOfStatisticalProcessing innerStatisticalProcessing(
 
     const std::size_t variantId = activeConcepts.activeVariantIndices[conceptId];
     if (variantId == GeneralRegistry::missing) {
-        return Type::Missing;
+        Type result = Type::Missing;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    return types.at(variantId - GeneralRegistry::offset(StatisticsType::Default));
+    Type result = types.at(variantId - GeneralRegistry::offset(StatisticsType::Default));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace detail
@@ -127,18 +139,24 @@ inline backend::tables::TypeOfStatisticalProcessing innerStatisticalProcessing(
 ///
 struct CoreOperations {
 
-    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
     static std::string computeActiveConcepts(const MarsDict_t& inputMars, const ParDict_t& inputMisc,
-                                             const OptDict_t& options, const eckit::Value& language) {
+                                              const OptDict_t& options, const eckit::Value& language, Cntx_t& cntx) {
+        utils::profiling::profileEnterFunction(cntx, Here());
         MarsDict_t scratchMars;
         ParDict_t scratchMisc;
 
         try {
             auto [activeMars, activeMisc] =
-                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                     utils::profiling::callSite(cntx, Here()));
             (void)activeMisc;
-            return detail::activeConceptsToJson(
-                frontend::resolution::resolve_ActiveConcepts_or_throw(activeMars, options));
+            std::string result = detail::activeConceptsToJson(
+                frontend::resolution::resolve_ActiveConcepts_or_throw(
+                    activeMars, options, utils::profiling::callSite(cntx, Here())),
+                utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             std::throw_with_nested(utils::exceptions::Mars2GribCoreOperationsException(
@@ -148,19 +166,27 @@ struct CoreOperations {
         mars2gribUnreachable();
     }
 
-    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
     static std::string computeProductTimeSpec(const MarsDict_t& inputMars, const ParDict_t& inputMisc,
-                                              const OptDict_t& options, const eckit::Value& language) {
+                                               const OptDict_t& options, const eckit::Value& language, Cntx_t& cntx) {
+        utils::profiling::profileEnterFunction(cntx, Here());
         MarsDict_t scratchMars;
         ParDict_t scratchMisc;
 
         try {
             auto [activeMars, activeMisc] =
-                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
-            const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(activeMars, options);
-            const auto innerType      = detail::innerStatisticalProcessing(activeConcepts);
-            return backend::models::product_time_spec::ProductTimeSpec(innerType, activeMars, activeMisc, options)
-                .to_json();
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                     utils::profiling::callSite(cntx, Here()));
+            const auto activeConcepts = frontend::resolution::resolve_ActiveConcepts_or_throw(
+                activeMars, options, utils::profiling::callSite(cntx, Here()));
+            const auto innerType =
+                detail::innerStatisticalProcessing(activeConcepts, utils::profiling::callSite(cntx, Here()));
+            std::string result = backend::models::product_time_spec::ProductTimeSpec(
+                                     innerType, activeMars, activeMisc, options,
+                                     utils::profiling::callSite(cntx, Here()))
+                                     .to_json(utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             std::throw_with_nested(utils::exceptions::Mars2GribCoreOperationsException(
@@ -191,18 +217,24 @@ struct CoreOperations {
     ///
     /// @return A tuple containing const references to the active (sanitized) data
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
     static std::tuple<const MarsDict_t&, const ParDict_t&> normalize_if_enabled(
         const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& opt, const eckit::Value& lang,
-        MarsDict_t& scratchMars, ParDict_t& scratchMisc) {
+        MarsDict_t& scratchMars, ParDict_t& scratchMisc, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         try {
             const MarsDict_t& activeMars =
-                frontend::normalization::normalize_MarsDict_if_enabled(inputMars, opt, lang, scratchMars);
+                frontend::normalization::normalize_MarsDict_if_enabled(
+                    inputMars, opt, lang, scratchMars, utils::profiling::callSite(cntx, Here()));
             const ParDict_t& activePar =
-                frontend::normalization::normalize_MiscDict_if_enabled(inputMisc, opt, lang, scratchMisc);
+                frontend::normalization::normalize_MiscDict_if_enabled(
+                    inputMisc, opt, lang, scratchMisc, utils::profiling::callSite(cntx, Here()));
 
-            return {activeMars, activePar};
+            std::tuple<const MarsDict_t&, const ParDict_t&> result{activeMars, activePar};
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             const auto contextJson = [&]() {
@@ -213,13 +245,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"normalize_if_enabled\",";
                     json += "\"inputMars\":";
-                    json += dict_to_json(inputMars);
+                    json += dict_to_json(inputMars, cntx);
                     json += ",";
                     json += "\"inputMisc\":";
-                    json += dict_to_json(inputMisc);
+                    json += dict_to_json(inputMisc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(opt);
+                    json += dict_to_json(opt, cntx);
                     json += "}";
                     return json;
                 }
@@ -245,18 +277,25 @@ struct CoreOperations {
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
     static std::unique_ptr<OutDict_t> encodeHeader(const MarsDict_t& mars, const ParDict_t& misc,
-                                                   const OptDict_t& opt) {
+                                                    const OptDict_t& opt, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         try {
             using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
             using metkit::mars2grib::frontend::header::SpecializedEncoder;
 
-            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(mars, opt);
+            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t, Cntx_t>(
+                mars, opt, utils::profiling::callSite(cntx, Here()));
 
-            return SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>{std::move(layout)}.encode(mars, misc,
-                                                                                                             opt);
+            std::unique_ptr<OutDict_t> result =
+                SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>{
+                    std::move(layout), utils::profiling::callSite(cntx, Here())}
+                    .encode(mars, misc, opt, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             const auto contextJson = [&]() {
@@ -267,13 +306,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"encodeHeader\",";
                     json += "\"mars\":";
-                    json += dict_to_json(mars);
+                    json += dict_to_json(mars, cntx);
                     json += ",";
                     json += "\"misc\":";
-                    json += dict_to_json(misc);
+                    json += dict_to_json(misc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(opt);
+                    json += dict_to_json(opt, cntx);
                     json += "}";
                     return json;
                 }
@@ -287,20 +326,27 @@ struct CoreOperations {
         }
     }
 
-    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
     static std::unique_ptr<OutDict_t> encodeHeaderWithNormalization(const MarsDict_t& inputMars,
                                                                     const ParDict_t& inputMisc,
                                                                     const OptDict_t& options,
-                                                                    const eckit::Value& language) {
+                                                                    const eckit::Value& language, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         MarsDict_t scratchMars;
         ParDict_t scratchMisc;
 
         try {
             auto [activeMars, activeMisc] =
-                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                     utils::profiling::callSite(cntx, Here()));
 
-            return encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
+            std::unique_ptr<OutDict_t> result =
+                encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
+                    activeMars, activeMisc, options, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             const auto contextJson = [&]() {
@@ -311,13 +357,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"encodeHeaderWithNormalization\",";
                     json += "\"inputMars\":";
-                    json += dict_to_json(inputMars);
+                    json += dict_to_json(inputMars, cntx);
                     json += ",";
                     json += "\"inputMisc\":";
-                    json += dict_to_json(inputMisc);
+                    json += dict_to_json(inputMisc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(options);
+                    json += dict_to_json(options, cntx);
                     json += "}";
                     return json;
                 }
@@ -343,19 +389,28 @@ struct CoreOperations {
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
-    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
     static std::unique_ptr<OutDict_t> encodeValues(backend::Span<const Val_t> values, const MarsDict_t& mars,
                                                    const ParDict_t& misc, const OptDict_t& opt,
-                                                   std::unique_ptr<OutDict_t> handle) {
+                                                   std::unique_ptr<OutDict_t> handle, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         try {
-            if (metkit::mars2grib::utils::dict_traits::get_or_throw<bool>(opt, "skipSection3")) {
-                metkit::mars2grib::backend::encodeValuesGridSpec(values, mars, misc, opt, *handle);
-                return handle;
+            if (metkit::mars2grib::utils::dict_traits::get_or_throw<bool>(
+                    opt, "skipSection3", utils::profiling::callSite(cntx, Here()))) {
+                metkit::mars2grib::backend::encodeValuesGridSpec(
+                    values, mars, misc, opt, *handle, utils::profiling::callSite(cntx, Here()));
+                std::unique_ptr<OutDict_t> result = std::move(handle);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
             else {
-                metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle);
-                return handle;
+                metkit::mars2grib::backend::encodeValues(values, misc, opt, *handle,
+                                                         utils::profiling::callSite(cntx, Here()));
+                std::unique_ptr<OutDict_t> result = std::move(handle);
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
         }
         catch (...) {
@@ -367,13 +422,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"encodeValues\",";
                     json += "\"mars\":";
-                    json += dict_to_json(mars);
+                    json += dict_to_json(mars, cntx);
                     json += ",";
                     json += "\"misc\":";
-                    json += dict_to_json(misc);
+                    json += dict_to_json(misc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(opt);
+                    json += dict_to_json(opt, cntx);
                     json += "}";
                     return json;
                 }
@@ -454,10 +509,12 @@ struct CoreOperations {
     /// @throws mars2grib::Exception
     /// If normalization, header encoding, or value encoding fails.
     ///
-    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
     static std::unique_ptr<OutDict_t> encode(const metkit::codes::Span<const Val_t>& values,
                                              const MarsDict_t& inputMars, const ParDict_t& inputMisc,
-                                             const OptDict_t& options, const eckit::Value& language) {
+                                             const OptDict_t& options, const eckit::Value& language, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         // 1. Prepare Scratches for Normalization
         MarsDict_t scratchMars;
@@ -477,14 +534,20 @@ struct CoreOperations {
             // Their lifetime is bounded by `scratchMars` / `scratchMisc`.
             // -----------------------------------------------------------------
             auto [activeMars, activeMisc] =
-                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                     utils::profiling::callSite(cntx, Here()));
 
             // 3. Encode Header (SpecializedEncoder creates the CodesHandle here)
             auto gribHeader =
-                encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(activeMars, activeMisc, options);
+                encodeHeader<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
+                    activeMars, activeMisc, options, utils::profiling::callSite(cntx, Here()));
 
             // 4. Inject Values
-            return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
+            std::unique_ptr<OutDict_t> result = encodeValues(
+                values, activeMars, activeMisc, options, std::move(gribHeader),
+                utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             const auto contextJson = [&]() {
@@ -495,13 +558,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"encode\",";
                     json += "\"inputMars\":";
-                    json += dict_to_json(inputMars);
+                    json += dict_to_json(inputMars, cntx);
                     json += ",";
                     json += "\"inputMisc\":";
-                    json += dict_to_json(inputMisc);
+                    json += dict_to_json(inputMisc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(options);
+                    json += dict_to_json(options, cntx);
                     json += "}";
                     return json;
                 }
@@ -562,11 +625,11 @@ struct CoreOperations {
     /// @tparam OptDict_t  Encoding options dictionary type
     /// @tparam OutDict_t  Output GRIB handle/dictionary type
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
     struct CacheEntry {
 
         using Encoder =
-            metkit::mars2grib::frontend::header::SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+            metkit::mars2grib::frontend::header::SpecializedEncoder<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
         using Layout = metkit::mars2grib::frontend::GribHeaderLayoutData;
 
         ///
@@ -595,8 +658,14 @@ struct CoreOperations {
         /// This constructor is part of the temporary staged-cache path and
         /// prepares the structure required for a future internal cache design.
         ///
-        CacheEntry(Layout&& layout, const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options) :
-            encoder_{std::move(layout)}, preparedSample_{encoder_.prepare(inputMars, inputMisc, options)} {};
+        CacheEntry(Layout&& layout, const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options,
+                   Cntx_t& cntx) :
+            encoder_{std::move(layout), utils::profiling::callSite(cntx, Here())},
+            preparedSample_{encoder_.prepare(inputMars, inputMisc, options,
+                                             utils::profiling::callSite(cntx, Here()))} {
+            utils::profiling::profileEnterFunction(cntx, Here());
+            utils::profiling::profileExitFunction(cntx, Here());
+        };
 
         CacheEntry(const CacheEntry&)            = delete;
         CacheEntry& operator=(const CacheEntry&) = delete;
@@ -682,10 +751,12 @@ struct CoreOperations {
     /// implementation where cache lifecycle and reuse are fully
     /// internalized inside the core encoding layer.
     ///
-    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-    static std::unique_ptr<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>> prepare(
+    template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+    static std::unique_ptr<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>> prepare(
         const MarsDict_t& inputMars, const ParDict_t& inputMisc, const OptDict_t& options,
-        const eckit::Value& language) {
+        const eckit::Value& language, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         // 1. Prepare Scratches for Normalization
         MarsDict_t scratchMars;
@@ -695,12 +766,17 @@ struct CoreOperations {
             using metkit::mars2grib::frontend::make_HeaderLayout_or_throw;
 
             auto [activeMars, activeMisc] =
-                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                     utils::profiling::callSite(cntx, Here()));
 
-            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t>(activeMars, options);
+            auto layout = make_HeaderLayout_or_throw<MarsDict_t, OptDict_t, Cntx_t>(
+                activeMars, options, utils::profiling::callSite(cntx, Here()));
 
-            return std::make_unique<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>>(
-                std::move(layout), activeMars, activeMisc, options);
+            std::unique_ptr<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>> result =
+                std::make_unique<const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>>(
+                    std::move(layout), activeMars, activeMisc, options, utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             const auto contextJson = [&]() {
@@ -711,13 +787,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"prepare\",";
                     json += "\"inputMars\":";
-                    json += dict_to_json(inputMars);
+                    json += dict_to_json(inputMars, cntx);
                     json += ",";
                     json += "\"inputMisc\":";
-                    json += dict_to_json(inputMisc);
+                    json += dict_to_json(inputMisc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(options);
+                    json += dict_to_json(options, cntx);
                     json += "}";
                     return json;
                 }
@@ -794,11 +870,13 @@ struct CoreOperations {
     /// implementation where cache lifecycle and reuse are fully
     /// internalized inside the core encoding layer.
     ///
-    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+    template <typename Val_t, class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
     static std::unique_ptr<OutDict_t> finaliseEncoding(
-        const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>& cacheEntry,
+        const CacheEntry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>& cacheEntry,
         const metkit::codes::Span<const Val_t>& values, const MarsDict_t& inputMars, const ParDict_t& inputMisc,
-        const OptDict_t& options, const eckit::Value& language) {
+        const OptDict_t& options, const eckit::Value& language, Cntx_t& cntx) {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         // 1. Prepare Scratches for Normalization
         MarsDict_t scratchMars;
@@ -807,12 +885,18 @@ struct CoreOperations {
         try {
 
             auto [activeMars, activeMisc] =
-                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc);
+                normalize_if_enabled(inputMars, inputMisc, options, language, scratchMars, scratchMisc,
+                                     utils::profiling::callSite(cntx, Here()));
 
             auto gribHeader =
-                cacheEntry.encoder_.finaliseEncoding(*(cacheEntry.preparedSample_), activeMars, activeMisc, options);
+                cacheEntry.encoder_.finaliseEncoding(*(cacheEntry.preparedSample_), activeMars, activeMisc, options,
+                                                     utils::profiling::callSite(cntx, Here()));
 
-            return encodeValues(values, activeMars, activeMisc, options, std::move(gribHeader));
+            std::unique_ptr<OutDict_t> result = encodeValues(
+                values, activeMars, activeMisc, options, std::move(gribHeader),
+                utils::profiling::callSite(cntx, Here()));
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             const auto contextJson = [&]() {
@@ -823,13 +907,13 @@ struct CoreOperations {
                     json += "{";
                     json += "\"operation\":\"finaliseEncoding\",";
                     json += "\"inputMars\":";
-                    json += dict_to_json(inputMars);
+                    json += dict_to_json(inputMars, cntx);
                     json += ",";
                     json += "\"inputMisc\":";
-                    json += dict_to_json(inputMisc);
+                    json += dict_to_json(inputMisc, cntx);
                     json += ",";
                     json += "\"options\":";
-                    json += dict_to_json(options);
+                    json += dict_to_json(options, cntx);
                     json += "}";
                     return json;
                 }

@@ -50,6 +50,7 @@
 // Project includes
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 
@@ -115,8 +116,11 @@ struct ResolvedTemplateData {
 
 namespace debug {
 
+template <class Cntx_t>
 inline void debug_print_ResolvedTemplateData(const ResolvedTemplateData& tdata, const std::string& prefix,
-                                             std::ostream& os) {
+                                             std::ostream& os, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -145,10 +149,14 @@ inline void debug_print_ResolvedTemplateData(const ResolvedTemplateData& tdata, 
     }
 
     os << " ]" << std::endl;
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
 }
 
 
-inline std::string debug_convert_ResolvedTemplateData_to_json(const ResolvedTemplateData& tdata) {
+template <class Cntx_t>
+inline std::string debug_convert_ResolvedTemplateData_to_json(const ResolvedTemplateData& tdata, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -180,7 +188,9 @@ inline std::string debug_convert_ResolvedTemplateData_to_json(const ResolvedTemp
 
     oss << " ]}}";
 
-    return oss.str();
+    std::string result = oss.str();
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace debug

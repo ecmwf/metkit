@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -69,41 +71,103 @@ enum class ProductionStatusOfProcessedData : long {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the enumeration value is not recognised
 ///
-inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(ProductionStatusOfProcessedData value) {
+template <class Cntx_t>
+inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(ProductionStatusOfProcessedData value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case ProductionStatusOfProcessedData::OperationalProducts:
-            return "OperationalProducts";
+            {
+                std::string result = "OperationalProducts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::OperationalTestProducts:
-            return "OperationalTestProducts";
+            {
+                std::string result = "OperationalTestProducts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::ResearchProducts:
-            return "ResearchProducts";
+            {
+                std::string result = "ResearchProducts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::ReanalysisProducts:
-            return "ReanalysisProducts";
+            {
+                std::string result = "ReanalysisProducts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::TiggeOperational:
-            return "TiggeOperational";
+            {
+                std::string result = "TiggeOperational";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::TiggeTest:
-            return "TiggeTest";
+            {
+                std::string result = "TiggeTest";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::S2SOperationalProducts:
-            return "S2SOperationalProducts";
+            {
+                std::string result = "S2SOperationalProducts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::S2STestProducts:
-            return "S2STestProducts";
+            {
+                std::string result = "S2STestProducts";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::UerraOperational:
-            return "UerraOperational";
+            {
+                std::string result = "UerraOperational";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::UerraTest:
-            return "UerraTest";
+            {
+                std::string result = "UerraTest";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::CopernicusRegionalReanalysis:
-            return "CopernicusRegionalReanalysis";
+            {
+                std::string result = "CopernicusRegionalReanalysis";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::CopernicusRegionalReanalysisTest:
-            return "CopernicusRegionalReanalysisTest";
+            {
+                std::string result = "CopernicusRegionalReanalysisTest";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::DestinationEarth:
-            return "DestinationEarth";
+            {
+                std::string result = "DestinationEarth";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::DestinationEarthTest:
-            return "DestinationEarthTest";
+            {
+                std::string result = "DestinationEarthTest";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case ProductionStatusOfProcessedData::Missing:
-            return "Missing";
+            {
+                std::string result = "Missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid ProductionStatusOfProcessedData enum value", Here());
     }
@@ -121,40 +185,117 @@ inline std::string enum2name_ProductionStatusOfProcessedData_or_throw(Production
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the name is not recognised
 ///
-inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "OperationalProducts")
-        return ProductionStatusOfProcessedData::OperationalProducts;
-    if (name == "OperationalTestProducts")
-        return ProductionStatusOfProcessedData::OperationalTestProducts;
-    if (name == "ResearchProducts")
-        return ProductionStatusOfProcessedData::ResearchProducts;
-    if (name == "ReanalysisProducts")
-        return ProductionStatusOfProcessedData::ReanalysisProducts;
-    if (name == "TiggeOperational")
-        return ProductionStatusOfProcessedData::TiggeOperational;
-    if (name == "TiggeTest")
-        return ProductionStatusOfProcessedData::TiggeTest;
-    if (name == "S2SOperationalProducts")
-        return ProductionStatusOfProcessedData::S2SOperationalProducts;
-    if (name == "S2STestProducts")
-        return ProductionStatusOfProcessedData::S2STestProducts;
-    if (name == "UerraOperational")
-        return ProductionStatusOfProcessedData::UerraOperational;
-    if (name == "UerraTest")
-        return ProductionStatusOfProcessedData::UerraTest;
-    if (name == "CopernicusRegionalReanalysis")
-        return ProductionStatusOfProcessedData::CopernicusRegionalReanalysis;
-    if (name == "CopernicusRegionalReanalysisTest")
-        return ProductionStatusOfProcessedData::CopernicusRegionalReanalysisTest;
-    if (name == "DestinationEarth")
-        return ProductionStatusOfProcessedData::DestinationEarth;
-    if (name == "DestinationEarthTest")
-        return ProductionStatusOfProcessedData::DestinationEarthTest;
-    if (name == "Missing")
-        return ProductionStatusOfProcessedData::Missing;
+    if (name == "OperationalProducts") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::OperationalProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "OperationalTestProducts") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::OperationalTestProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "ResearchProducts") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::ResearchProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "ReanalysisProducts") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::ReanalysisProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "TiggeOperational") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::TiggeOperational;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "TiggeTest") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::TiggeTest;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "S2SOperationalProducts") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::S2SOperationalProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "S2STestProducts") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::S2STestProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "UerraOperational") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::UerraOperational;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "UerraTest") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::UerraTest;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "CopernicusRegionalReanalysis") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::CopernicusRegionalReanalysis;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "CopernicusRegionalReanalysisTest") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::CopernicusRegionalReanalysisTest;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "DestinationEarth") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::DestinationEarth;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "DestinationEarthTest") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::DestinationEarthTest;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (name == "Missing") {
+        {
+            ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     throw Mars2GribTableException("Invalid ProductionStatusOfProcessedData name: '" + name + "'", Here());
 
@@ -171,41 +312,103 @@ inline ProductionStatusOfProcessedData name2enum_ProductionStatusOfProcessedData
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the numeric value is not valid
 ///
-inline ProductionStatusOfProcessedData long2enum_ProductionStatusOfProcessedData_or_throw(long value) {
+template <class Cntx_t>
+inline ProductionStatusOfProcessedData long2enum_ProductionStatusOfProcessedData_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return ProductionStatusOfProcessedData::OperationalProducts;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::OperationalProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return ProductionStatusOfProcessedData::OperationalTestProducts;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::OperationalTestProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return ProductionStatusOfProcessedData::ResearchProducts;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::ResearchProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return ProductionStatusOfProcessedData::ReanalysisProducts;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::ReanalysisProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return ProductionStatusOfProcessedData::TiggeOperational;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::TiggeOperational;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return ProductionStatusOfProcessedData::TiggeTest;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::TiggeTest;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 6:
-            return ProductionStatusOfProcessedData::S2SOperationalProducts;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::S2SOperationalProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 7:
-            return ProductionStatusOfProcessedData::S2STestProducts;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::S2STestProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 8:
-            return ProductionStatusOfProcessedData::UerraOperational;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::UerraOperational;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 9:
-            return ProductionStatusOfProcessedData::UerraTest;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::UerraTest;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 10:
-            return ProductionStatusOfProcessedData::CopernicusRegionalReanalysis;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::CopernicusRegionalReanalysis;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 11:
-            return ProductionStatusOfProcessedData::CopernicusRegionalReanalysisTest;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::CopernicusRegionalReanalysisTest;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 12:
-            return ProductionStatusOfProcessedData::DestinationEarth;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::DestinationEarth;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 13:
-            return ProductionStatusOfProcessedData::DestinationEarthTest;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::DestinationEarthTest;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return ProductionStatusOfProcessedData::Missing;
+            {
+                ProductionStatusOfProcessedData result = ProductionStatusOfProcessedData::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException(
                 "Invalid ProductionStatusOfProcessedData numeric value: " + std::to_string(value), Here());

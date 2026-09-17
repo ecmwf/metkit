@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -106,8 +108,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction assumes that the MARS `wavelength` value is expressed
 /// in nanometers. Alternative units are not supported.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-double resolve_FirstWavelength_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+double resolve_FirstWavelength_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -115,7 +118,7 @@ double resolve_FirstWavelength_or_throw(const MarsDict_t& mars, const ParDict_t&
     try {
 
         // Retrieve mandatory MARS wavelength (in nanometers)
-        long wavelengthInNanometers = get_or_throw<long>(mars, "wavelength");
+        long wavelengthInNanometers = get_or_throw<long>(mars, "wavelength", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Convert nanometers to meters
         double wavelengthInMeters = static_cast<double>(wavelengthInNanometers) / 1000000000.0;
@@ -129,7 +132,11 @@ double resolve_FirstWavelength_or_throw(const MarsDict_t& mars, const ParDict_t&
         }());
 
         // Success exit point
-        return wavelengthInMeters;
+        {
+            double result = wavelengthInMeters;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

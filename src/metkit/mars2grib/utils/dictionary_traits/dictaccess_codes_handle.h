@@ -33,7 +33,10 @@
     template <>                                                                                                \
     struct DictGetOrThrow<metkit::codes::CodesHandle, CTYPE> {                                                 \
                                                                                                                \
-        static CTYPE get_or_throw(const metkit::codes::CodesHandle& h, std::string_view key) noexcept(false) { \
+        template <class Cntx_t>                                                                                \
+        static CTYPE get_or_throw(const metkit::codes::CodesHandle& h, std::string_view key,                   \
+                                  Cntx_t& cntx) noexcept(false) {                                               \
+            profiling::profileEnterFunction(cntx, Here());                                                    \
             const std::string k{key};                                                                          \
             try {                                                                                              \
                 /* key exists? */                                                                              \
@@ -53,7 +56,9 @@
                         Here());                                                                               \
                 }                                                                                              \
                                                                                                                \
-                return h.GETFUNC(k);                                                                           \
+                CTYPE result = h.GETFUNC(k);                                                                   \
+                profiling::profileExitFunction(cntx, Here());                                                  \
+                return result;                                                                                 \
             }                                                                                                  \
             catch (const exceptions::Mars2GribGenericException&) {                                             \
                 throw;                                                                                         \
@@ -76,21 +81,33 @@
     template <>                                                                     \
     struct DictGetOpt<metkit::codes::CodesHandle, CTYPE> {                          \
                                                                                     \
-        static std::optional<CTYPE> get_opt(const metkit::codes::CodesHandle& h,    \
-                                            std::string_view key) noexcept(false) { \
+        template <class Cntx_t>                                                         \
+        static std::optional<CTYPE> get_opt(const metkit::codes::CodesHandle& h,       \
+                                             std::string_view key, Cntx_t& cntx) noexcept(false) { \
+            profiling::profileEnterFunction(cntx, Here());                             \
             const std::string k{key};                                               \
             try {                                                                   \
-                if (!h.isDefined(k))                                                \
-                    return std::nullopt;                                            \
+                if (!h.isDefined(k)) {                                              \
+                    std::optional<CTYPE> result = std::nullopt;                     \
+                    profiling::profileExitFunction(cntx, Here());                   \
+                    return result;                                                  \
+                }                                                                   \
                                                                                     \
                 auto t = h.type(k);                                                 \
-                if (!(CHECK_NATIVE))                                                \
-                    return std::nullopt;                                            \
+                if (!(CHECK_NATIVE)) {                                              \
+                    std::optional<CTYPE> result = std::nullopt;                     \
+                    profiling::profileExitFunction(cntx, Here());                   \
+                    return result;                                                  \
+                }                                                                   \
                                                                                     \
-                return h.GETFUNC(k);                                                \
+                std::optional<CTYPE> result = h.GETFUNC(k);                         \
+                profiling::profileExitFunction(cntx, Here());                       \
+                return result;                                                      \
             }                                                                       \
             catch (...) {                                                           \
-                return std::nullopt;                                                \
+                std::optional<CTYPE> result = std::nullopt;                         \
+                profiling::profileExitFunction(cntx, Here());                       \
+                return result;                                                     \
             }                                                                       \
             mars2gribUnreachable();                                                 \
         }                                                                           \
@@ -104,11 +121,14 @@
     template <>                                                                                            \
     struct DictSetOrThrow<metkit::codes::CodesHandle, CTYPE> {                                             \
                                                                                                            \
-        static void set_or_throw(metkit::codes::CodesHandle& h, std::string_view key,                      \
-                                 const CTYPE& v) noexcept(false) {                                         \
+        template <class Cntx_t>                                                                              \
+        static void set_or_throw(metkit::codes::CodesHandle& h, std::string_view key,                       \
+                                  const CTYPE& v, Cntx_t& cntx) noexcept(false) {                             \
+            profiling::profileEnterFunction(cntx, Here());                                                  \
             const std::string k{key};                                                                      \
             try {                                                                                          \
                 h.SETFUNC(k, v);                                                                           \
+                profiling::profileExitFunction(cntx, Here());                                             \
                 return;                                                                                    \
             }                                                                                              \
             catch (const exceptions::Mars2GribGenericException&) {                                         \
@@ -132,14 +152,18 @@
     template <>                                                                        \
     struct DictSetOrIgnore<metkit::codes::CodesHandle, CTYPE> {                        \
                                                                                        \
+        template <class Cntx_t>                                                        \
         static void set_or_ignore(metkit::codes::CodesHandle& h, std::string_view key, \
-                                  const CTYPE& v) noexcept(false) {                    \
+                                   const CTYPE& v, Cntx_t& cntx) noexcept(false) {      \
+            profiling::profileEnterFunction(cntx, Here());                             \
             const std::string k{key};                                                  \
             try {                                                                      \
                 h.SETFUNC(k, v);                                                       \
+                profiling::profileExitFunction(cntx, Here());                          \
                 return;                                                                \
             }                                                                          \
             catch (...) {                                                              \
+                profiling::profileExitFunction(cntx, Here());                          \
                 return;                                                                \
             }                                                                          \
             mars2gribUnreachable();                                                    \
@@ -170,11 +194,17 @@ using std::operator""s;
 template <>
 struct DictToJsonTraits<metkit::codes::CodesHandle> {
 
-    static std::string to_json(const metkit::codes::CodesHandle& sample) {
-        return std::string{"[to_json not supported for codeHandle this dictionary type]"};
+    template <class Cntx_t>
+    static std::string to_json(const metkit::codes::CodesHandle& sample, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
+        std::string result{"[to_json not supported for codeHandle this dictionary type]"};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    static void dump_or_ignore(const metkit::codes::CodesHandle& sample, const std::string& fname) {
+    template <class Cntx_t>
+    static void dump_or_ignore(const metkit::codes::CodesHandle& sample, const std::string& fname, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
 
         try {
             eckit::Buffer buf{sample.messageSize()};
@@ -182,15 +212,18 @@ struct DictToJsonTraits<metkit::codes::CodesHandle> {
 
             std::ofstream out(fname, std::ios::binary | std::ios::out);
             if (!out) {
+                profiling::profileExitFunction(cntx, Here());
                 return;  // fail silently
             }
 
             out.write(static_cast<const char*>(buf.data()), buf.size());
             out.flush();
+            profiling::profileExitFunction(cntx, Here());
             // ofstream destructor closes the file
         }
         catch (...) {
             LOG_DEBUG_LIB(LibMetkit) << "dump_or_ignore: unable to dump CodesHandle to file " << fname << std::endl;
+            profiling::profileExitFunction(cntx, Here());
             // nothrow guarantee: swallow everything
         }
     }
@@ -204,17 +237,26 @@ struct DictTraits<metkit::codes::CodesHandle> {
 
     static constexpr bool support_checks = true;
 
-    static std::unique_ptr<metkit::codes::CodesHandle> make_from_sample_or_throw(std::string_view name) {
+    template <class Cntx_t>
+    static std::unique_ptr<metkit::codes::CodesHandle> make_from_sample_or_throw(std::string_view name, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
 
-        auto h = metkit::codes::codesHandleFromSample(std::string(name));
-        if (!h) {
+        std::unique_ptr<metkit::codes::CodesHandle> result =
+            metkit::codes::codesHandleFromSample(std::string(name));
+        if (!result) {
             throw eckit::SeriousBug("codesHandleFromSample failed", Here());
         }
-        return h;
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    static std::unique_ptr<metkit::codes::CodesHandle> clone_or_throw(const metkit::codes::CodesHandle& h) {
-        return h.clone();
+    template <class Cntx_t>
+    static std::unique_ptr<metkit::codes::CodesHandle> clone_or_throw(const metkit::codes::CodesHandle& h,
+                                                                       Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
+        std::unique_ptr<metkit::codes::CodesHandle> result = h.clone();
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
@@ -224,9 +266,13 @@ struct DictTraits<metkit::codes::CodesHandle> {
 template <>
 struct DictHas<metkit::codes::CodesHandle> {
 
-    static bool has(const metkit::codes::CodesHandle& h, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static bool has(const metkit::codes::CodesHandle& h, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
         try {
-            return h.has(std::string(key));
+            const bool result = h.has(std::string(key));
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (const exceptions::Mars2GribGenericException&) {
             throw;
@@ -248,9 +294,13 @@ struct DictHas<metkit::codes::CodesHandle> {
 template <>
 struct DictMissing<metkit::codes::CodesHandle> {
 
-    static bool isMissing(const metkit::codes::CodesHandle& h, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static bool isMissing(const metkit::codes::CodesHandle& h, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
         try {
-            return h.isMissing(std::string(key));
+            const bool result = h.isMissing(std::string(key));
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             std::throw_with_nested(exceptions::Mars2GribDictException(
@@ -261,9 +311,12 @@ struct DictMissing<metkit::codes::CodesHandle> {
         mars2gribUnreachable();
     }
 
-    static void setMissing(metkit::codes::CodesHandle& h, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static void setMissing(metkit::codes::CodesHandle& h, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
         try {
             h.setMissing(std::string(key));
+            profiling::profileExitFunction(cntx, Here());
             return;
         }
         catch (...) {

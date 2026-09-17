@@ -35,6 +35,7 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend {
 
@@ -67,8 +68,10 @@ namespace metkit::mars2grib::frontend {
 /// * @return A fully resolved @ref GribHeaderLayoutData.
 /// @throws Mars2GribHeaderLayoutException if any phase of the resolution fails.
 ///
-template <class MarsDict_t, class OptDict_t>
-GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, const OptDict_t& optDict) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, const OptDict_t& optDict, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using metkit::mars2grib::backend::sections::resolver::ActiveConceptsData;
@@ -81,22 +84,28 @@ GribHeaderLayoutData make_HeaderLayout_or_throw(const MarsDict_t& marsDict, cons
 
     try {
         // Step 1: Semantic Analysis (What concepts are we encoding?)
-        ActiveConceptsData activeConcepts = resolve_ActiveConcepts_or_throw<MarsDict_t, OptDict_t>(marsDict, optDict);
+        ActiveConceptsData activeConcepts =
+            resolve_ActiveConcepts_or_throw<MarsDict_t, OptDict_t, Cntx_t>(
+                marsDict, optDict, utils::profiling::callSite(cntx, Here()));
 
         // Step 2: Structural Mapping (Where do these concepts live in the GRIB sections?)
         std::array<SectionLayoutData, GeneralRegistry::NSections> sectionsLayout =
-            resolve_SectionsLayout_or_throw(activeConcepts);
+            resolve_SectionsLayout_or_throw(activeConcepts, utils::profiling::callSite(cntx, Here()));
 
         // Step 3: Blueprint Aggregation
         // We move the resolved array into the layout carrier to ensure zero-copy transfer.
-        return GribHeaderLayoutData{{std::move(sectionsLayout)}};
+        GribHeaderLayoutData result{{std::move(sectionsLayout)}};
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribHeaderLayoutException("Critical failure: Unable to resolve GRIB HeaderLayout",
-                                                              dict_to_json<MarsDict_t>(marsDict), Here()));
+                                                               dict_to_json<MarsDict_t>(
+                                                                   marsDict, utils::profiling::callSite(cntx, Here())),
+                                                               Here()));
     }
 
-    return {};
+    mars2gribUnreachable();
 }
 
 
@@ -110,8 +119,10 @@ namespace tests {
 /// 3. The resolved GribHeaderLayout (Structural layer).
 /// * @return std::string A single JSON object string.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::string capture_resolution_state_json(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::string capture_resolution_state_json(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_ActiveConceptsData_to_json;
     using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
@@ -119,18 +130,23 @@ std::string capture_resolution_state_json(const MarsDict_t& mars, const OptDict_
 
     // 1. Resolve states
     // Note: In a real test, you'd likely catch exceptions here to log failures
-    auto activeConcepts = resolution::resolve_ActiveConcepts_or_throw(mars, opt);
-    auto headerLayout   = make_HeaderLayout_or_throw(mars, opt);
+    auto activeConcepts =
+        resolution::resolve_ActiveConcepts_or_throw(mars, opt, utils::profiling::callSite(cntx, Here()));
+    auto headerLayout = make_HeaderLayout_or_throw(mars, opt, utils::profiling::callSite(cntx, Here()));
 
     // 2. Build the aggregate JSON string
     // We leverage the debug helpers we built in previous steps
     std::ostringstream oss;
     oss << "{ "
-        << "\"mars\": " << dict_to_json<MarsDict_t>(mars) << ", "
-        << "\"activeConcepts\": " << debug_convert_ActiveConceptsData_to_json(activeConcepts) << ", "
-        << "\"headerLayout\": " << debug_convert_GribHeaderLayoutData_to_json(headerLayout) << " }";
+        << "\"mars\": " << dict_to_json<MarsDict_t>(mars, utils::profiling::callSite(cntx, Here())) << ", "
+        << "\"activeConcepts\": "
+        << debug_convert_ActiveConceptsData_to_json(activeConcepts, utils::profiling::callSite(cntx, Here())) << ", "
+        << "\"headerLayout\": "
+        << debug_convert_GribHeaderLayoutData_to_json(headerLayout, utils::profiling::callSite(cntx, Here())) << " }";
 
-    return oss.str();
+    std::string result = oss.str();
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace tests

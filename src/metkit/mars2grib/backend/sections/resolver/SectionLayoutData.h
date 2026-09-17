@@ -42,6 +42,7 @@
 #include "metkit/mars2grib/backend/sections/resolver/ResolvedTemplateData.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver {
 
@@ -129,8 +130,11 @@ namespace detail {
 /// @throws Mars2GribGenericException
 /// If construction fails for any reason
 ///
+template <class Cntx_t>
 inline SectionLayoutData make_SectionLayoutData_or_throw(std::size_t sectionNumber,
-                                                         const dsl::ResolvedTemplateData& recipeEntry) {
+                                                         const dsl::ResolvedTemplateData& recipeEntry, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
@@ -145,6 +149,7 @@ inline SectionLayoutData make_SectionLayoutData_or_throw(std::size_t sectionNumb
         layoutData.templateNumber = recipeEntry.templateNumber;
         layoutData.sectionNumber  = sectionNumber;
 
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return layoutData;
     }
     catch (...) {
@@ -174,7 +179,11 @@ namespace debug {
 /// @param[in]  prefix Line prefix used for indentation
 /// @param[out] os     Output stream
 ///
-inline void debug_print_SectionLayoutData(const SectionLayoutData& data, std::string_view prefix, std::ostream& os) {
+template <class Cntx_t>
+inline void debug_print_SectionLayoutData(const SectionLayoutData& data, std::string_view prefix, std::ostream& os,
+                                          Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -206,6 +215,7 @@ inline void debug_print_SectionLayoutData(const SectionLayoutData& data, std::st
     }
 
     os << " ]\n";
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
 }
 
 ///
@@ -217,7 +227,10 @@ inline void debug_print_SectionLayoutData(const SectionLayoutData& data, std::st
 ///
 /// @return JSON-style string representation
 ///
-inline std::string debug_convert_SectionLayoutData_to_json(const SectionLayoutData& data) {
+template <class Cntx_t>
+inline std::string debug_convert_SectionLayoutData_to_json(const SectionLayoutData& data, Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -248,7 +261,9 @@ inline std::string debug_convert_SectionLayoutData_to_json(const SectionLayoutDa
 
     oss << " ] } }";
 
-    return oss.str();
+    std::string result = oss.str();
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace debug

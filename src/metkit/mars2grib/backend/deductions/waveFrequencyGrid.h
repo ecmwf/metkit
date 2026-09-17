@@ -50,6 +50,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <cmath>
 #include <string>
@@ -173,8 +175,10 @@ namespace wave_frequency_detail {
 /// This implementation assumes geometric spacing of frequencies and does
 /// not perform validation of the physical consistency of the input values.
 ///
+template <class Cntx_t>
 inline std::vector<double> compute_WaveFrequencyGrid(long numberOfWaveFrequencies, long indexOfReferenceWaveFrequency,
-                                                     double referenceWaveFrequency, double waveFrequencySpacingRatio) {
+                                                     double referenceWaveFrequency, double waveFrequencySpacingRatio, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     if (indexOfReferenceWaveFrequency == 0 || indexOfReferenceWaveFrequency > numberOfWaveFrequencies) {
         throw std::out_of_range("indexOfReferenceWaveFrequency out of range");
@@ -198,7 +202,11 @@ inline std::vector<double> compute_WaveFrequencyGrid(long numberOfWaveFrequencie
         waveFrequencies[i] = waveFrequencySpacingRatio * waveFrequencies[i - 1];
     }
 
-    return waveFrequencies;
+    {
+        std::vector<double> result = waveFrequencies;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -248,8 +256,10 @@ inline std::vector<double> compute_WaveFrequencyGrid(long numberOfWaveFrequencie
 /// ensuring that the provided values are physically meaningful and that
 /// the scaled values fit within the range of the target integer type.
 ///
+template <class Cntx_t>
 inline WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<double>& waveFrequenciesInHz,
-                                                         long scaleFactorOfWaveFrequencies) {
+                                                         long scaleFactorOfWaveFrequencies, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     WaveFrequencyGrid out{};
 
@@ -261,7 +271,11 @@ inline WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<doubl
             static_cast<long>(std::round(waveFrequenciesInHz[i] * std::pow(10.0, scaleFactorOfWaveFrequencies)));
     }
 
-    return out;
+    {
+        WaveFrequencyGrid result = out;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 
@@ -308,9 +322,10 @@ inline WaveFrequencyGrid compute_WaveScaledFrequencyGrid(const std::vector<doubl
 /// - a required key is missing or has an invalid type
 /// - reconstruction or scaling fails
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                     const OptDict_t& opt) {
+                                                     const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -323,23 +338,23 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
         std::vector<double> waveFrequenciesInHz;
 
         // Retrieve optional scaling factor from parameter dictionary
-        long scaleFactorOfWaveFrequencies = get_opt<long>(par, "scaleFactorOfWaveFrequencies").value_or(6L);
+        long scaleFactorOfWaveFrequencies = get_opt<long>(par, "scaleFactorOfWaveFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(6L);
 
         // Check for explicit frequency grid
-        bool hasWaveFrequencies = has(par, "waveFrequencies");
+        bool hasWaveFrequencies = has(par, "waveFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Check for reconstruction parameters
-        bool hasNumberOfWaveFrequencies       = has(par, "numberOfWaveFrequencies");
-        bool hasIndexOfReferenceWaveFrequency = has(par, "indexOfReferenceWaveFrequency");
-        bool hasReferenceWaveFrequency        = has(par, "referenceWaveFrequency");
-        bool hasWaveFrequencySpacingRatio     = has(par, "waveFrequencySpacingRatio");
+        bool hasNumberOfWaveFrequencies       = has(par, "numberOfWaveFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        bool hasIndexOfReferenceWaveFrequency = has(par, "indexOfReferenceWaveFrequency", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        bool hasReferenceWaveFrequency        = has(par, "referenceWaveFrequency", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        bool hasWaveFrequencySpacingRatio     = has(par, "waveFrequencySpacingRatio", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         bool canReconstructWaveFrequencies = hasNumberOfWaveFrequencies && hasIndexOfReferenceWaveFrequency &&
                                              hasReferenceWaveFrequency && hasWaveFrequencySpacingRatio;
 
         if (hasWaveFrequencies) {
             // Retrieve mandatory wave frequencies from parameter dictionary
-            waveFrequenciesInHz = get_or_throw<std::vector<double>>(par, "waveFrequencies");
+            waveFrequenciesInHz = get_or_throw<std::vector<double>>(par, "waveFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -349,15 +364,15 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
         }
         else if (canReconstructWaveFrequencies && !hasWaveFrequencies) {
             // Retrieve mandatory reconstruction parameters from parameter dictionary
-            long numberOfWaveFrequencies       = get_or_throw<long>(par, "numberOfWaveFrequencies");
-            long indexOfReferenceWaveFrequency = get_or_throw<long>(par, "indexOfReferenceWaveFrequency");
-            double referenceWaveFrequency      = get_or_throw<double>(par, "referenceWaveFrequency");
-            double waveFrequencySpacingRatio   = get_or_throw<double>(par, "waveFrequencySpacingRatio");
+            long numberOfWaveFrequencies       = get_or_throw<long>(par, "numberOfWaveFrequencies", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            long indexOfReferenceWaveFrequency = get_or_throw<long>(par, "indexOfReferenceWaveFrequency", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            double referenceWaveFrequency      = get_or_throw<double>(par, "referenceWaveFrequency", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            double waveFrequencySpacingRatio   = get_or_throw<double>(par, "waveFrequencySpacingRatio", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Reconstruct frequency grid deterministically
             waveFrequenciesInHz =
                 wave_frequency_detail::compute_WaveFrequencyGrid(numberOfWaveFrequencies, indexOfReferenceWaveFrequency,
-                                                                 referenceWaveFrequency, waveFrequencySpacingRatio);
+                                                                 referenceWaveFrequency, waveFrequencySpacingRatio, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -379,10 +394,14 @@ WaveFrequencyGrid resolve_WaveFrequencyGrid_or_throw(const MarsDict_t& mars, con
         }
 
         // Build the scaled frequency grid
-        out = wave_frequency_detail::compute_WaveScaledFrequencyGrid(waveFrequenciesInHz, scaleFactorOfWaveFrequencies);
+        out = wave_frequency_detail::compute_WaveScaledFrequencyGrid(waveFrequenciesInHz, scaleFactorOfWaveFrequencies, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Success exit point
-        return out;
+        {
+            WaveFrequencyGrid result = out;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

@@ -40,6 +40,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/nil/nilEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Utils
 #include "metkit/config/LibMetkit.h"
@@ -102,8 +103,9 @@ constexpr bool nilApplicable() {
 /// Any invocation is treated as a programming error.
 ///
 template <std::size_t Stage, std::size_t Section, NilType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void NilOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) noexcept(false) {
+          class OutDict_t, class Cntx_t>
+void NilOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) noexcept(false) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
 
@@ -113,6 +115,7 @@ void NilOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, O
         MARS2GRIB_LOG_CONCEPT(nil);
 
         // Successful no-op
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

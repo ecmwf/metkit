@@ -32,6 +32,7 @@
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
@@ -62,16 +63,22 @@ namespace metkit::mars2grib::backend::sections::initializers {
 /// If setting the data representation template number fails.
 ///
 template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void allocateTemplateNumber5(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void allocateTemplateNumber5(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out,
+                             Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
     // Dictionary traits
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
         long pdt = static_cast<long>(TemplateNumber);
-        set_or_throw<long>(out, "dataRepresentationTemplateNumber", pdt);
+        set_or_throw<long>(out, "dataRepresentationTemplateNumber", pdt,
+                           metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                          TemplateNumber>(cntx,
+                                                                                                          Here()));
 
+        metkit::mars2grib::utils::profiling::profileExitSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
         return;
     }
     catch (...) {

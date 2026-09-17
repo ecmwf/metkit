@@ -54,6 +54,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <cmath>
 #include <string>
@@ -190,7 +192,9 @@ namespace wave_direction_detail {
 /// This function assumes a full directional coverage of \f$2\pi\f$ and
 /// does not support partial angular sectors.
 ///
-inline std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections) {
+template <class Cntx_t>
+inline std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     std::vector<double> th;
     th.resize(numberOfWaveDirections);
@@ -201,7 +205,11 @@ inline std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections
         th[k] = static_cast<double>(k) * delth + 0.5 * delth;
     }
 
-    return th;
+    {
+        std::vector<double> result = th;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -252,8 +260,10 @@ inline std::vector<double> compute_WaveDirectionGrid(long numberOfWaveDirections
 /// meaningful and that the scaled values fit within the range of the
 /// target integer type.
 ///
+template <class Cntx_t>
 inline WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<double>& waveDirectionsInRadians,
-                                                         long scaleFactorOfWaveDirections) {
+                                                         long scaleFactorOfWaveDirections, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     WaveDirectionGrid out{};
 
@@ -265,7 +275,11 @@ inline WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<doubl
             std::round(waveDirectionsInRadians[i] * std::pow(10.0, scaleFactorOfWaveDirections) * math::rad2deg));
     }
 
-    return out;
+    {
+        WaveDirectionGrid result = out;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace wave_direction_detail
@@ -312,9 +326,10 @@ inline WaveDirectionGrid compute_WaveScaledDirectionGrid(const std::vector<doubl
 /// - dictionary access fails
 /// - any unexpected error occurs during deduction
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                     const OptDict_t& opt) {
+                                                     const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -327,18 +342,18 @@ WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, con
         std::vector<double> waveDirectionsInRadians;
 
         // Retrieve optional scale factor from parameter dictionary
-        long scaleFactorOfWaveDirections = get_opt<long>(par, "scaleFactorOfWaveDirections").value_or(2L);
+        long scaleFactorOfWaveDirections = get_opt<long>(par, "scaleFactorOfWaveDirections", metkit::mars2grib::utils::profiling::callSite(cntx, Here())).value_or(2L);
 
         // Check presence of explicit wave directions
-        bool hasWaveDirections = has(par, "waveDirections");
+        bool hasWaveDirections = has(par, "waveDirections", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Check presence of number of wave directions
-        bool hasNumberOfWaveDirections = has(par, "numberOfWaveDirections");
+        bool hasNumberOfWaveDirections = has(par, "numberOfWaveDirections", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (hasWaveDirections) {
 
             // Retrieve mandatory wave directions from parameter dictionary
-            waveDirectionsInRadians = get_or_throw<std::vector<double>>(par, "waveDirections");
+            waveDirectionsInRadians = get_or_throw<std::vector<double>>(par, "waveDirections", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -349,10 +364,10 @@ WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, con
         else if (hasNumberOfWaveDirections) {
 
             // Retrieve mandatory number of wave directions from parameter dictionary
-            long numberOfWaveDirections = get_or_throw<long>(par, "numberOfWaveDirections");
+            long numberOfWaveDirections = get_or_throw<long>(par, "numberOfWaveDirections", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             waveDirectionsInRadians =
-                wave_direction_detail::compute_WaveDirectionGrid(static_cast<std::size_t>(numberOfWaveDirections));
+                wave_direction_detail::compute_WaveDirectionGrid(static_cast<std::size_t>(numberOfWaveDirections), metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -368,10 +383,14 @@ WaveDirectionGrid resolve_WaveDirectionGrid_or_throw(const MarsDict_t& mars, con
 
         // Build the scaled direction grid
         out = wave_direction_detail::compute_WaveScaledDirectionGrid(waveDirectionsInRadians,
-                                                                     scaleFactorOfWaveDirections);
+                                                                     scaleFactorOfWaveDirections, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Success exit point
-        return out;
+        {
+            WaveDirectionGrid result = out;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

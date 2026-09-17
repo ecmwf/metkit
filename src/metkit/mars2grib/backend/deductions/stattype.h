@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <array>
 #include <optional>
 #include <string>
@@ -66,13 +68,19 @@ namespace detail {
 /// @return `true` when the token belongs to the currently supported MARS
 ///         whitelist.
 ///
-inline bool isWhitelistedStatType(const std::string& value) {
+template <class Cntx_t>
+inline bool isWhitelistedStatType(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     constexpr std::array<std::string_view, 25> whitelist{
         "moav",      "momn",      "momx",      "mosd",      "daac",      "daav",      "damn",
         "damx",      "dasd",      "moav_daav", "moav_damn", "moav_damx", "moav_dasd", "momn_daav",
         "momn_damn", "momn_damx", "momn_dasd", "momx_daav", "momx_damn", "momx_damx", "momx_dasd",
         "mosd_daav", "mosd_damn", "mosd_damx", "mosd_dasd"};
-    return std::find(whitelist.begin(), whitelist.end(), value) != whitelist.end();
+    {
+        bool result = std::find(whitelist.begin(), whitelist.end(), value) != whitelist.end();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 ///
@@ -82,23 +90,45 @@ inline bool isWhitelistedStatType(const std::string& value) {
 /// @return Corresponding GRIB statistical processing type.
 /// @throws Mars2GribDeductionException if the operation code is unsupported.
 ///
-inline tables::TypeOfStatisticalProcessing parseStatOperation(const std::string& operation) {
+template <class Cntx_t>
+inline tables::TypeOfStatisticalProcessing parseStatOperation(const std::string& operation, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     if (operation == "av") {
-        return tables::TypeOfStatisticalProcessing::Average;
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Average;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (operation == "ac") {
-        return tables::TypeOfStatisticalProcessing::Accumulation;
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Accumulation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (operation == "mn") {
-        return tables::TypeOfStatisticalProcessing::Minimum;
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Minimum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (operation == "mx") {
-        return tables::TypeOfStatisticalProcessing::Maximum;
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::Maximum;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     if (operation == "sd") {
-        return tables::TypeOfStatisticalProcessing::StandardDeviation;
+        {
+            tables::TypeOfStatisticalProcessing result = tables::TypeOfStatisticalProcessing::StandardDeviation;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 
     throw Mars2GribDeductionException("Unsupported stattype operation: '" + operation + "'", Here());
@@ -116,11 +146,13 @@ inline tables::TypeOfStatisticalProcessing parseStatOperation(const std::string&
 /// @throws Mars2GribDeductionException if the value is malformed, unsupported,
 ///         or not in the supported whitelist.
 ///
-inline ParsedStatTypeBlocks parseStattypeValue(const std::string& raw) {
+template <class Cntx_t>
+inline ParsedStatTypeBlocks parseStattypeValue(const std::string& raw, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
-    const std::string value = lower(raw);
-    if (!isWhitelistedStatType(value)) {
+    const std::string value = lower(raw, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+    if (!isWhitelistedStatType(value, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
         throw Mars2GribDeductionException("`stattype` is not in the supported MARS whitelist: '" + raw + "'", Here());
     }
 
@@ -147,13 +179,14 @@ inline ParsedStatTypeBlocks parseStattypeValue(const std::string& raw) {
             throw Mars2GribDeductionException("Unsupported stattype period: '" + period + "'", Here());
         }
 
-        result.push_back(ParsedStatTypeBlock00{range, parseStatOperation(operation)});
+        result.push_back(ParsedStatTypeBlock00{range, parseStatOperation(operation, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))});
         if (end == std::string::npos) {
             break;
         }
         start = end + 1;
     }
 
+    metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
     return result;
 }
 
@@ -191,9 +224,10 @@ inline ParsedStatTypeBlocks parseStattypeValue(const std::string& raw) {
 ///         on malformed, unsupported, or non-whitelisted `stattype` input, with
 ///         the original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 std::optional<ParsedStatTypeBlocks> resolve_Stattype_opt(const MarsDict_t& mars, const ParDict_t& par,
-                                                         const OptDict_t& opt) {
+                                                         const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -202,15 +236,21 @@ std::optional<ParsedStatTypeBlocks> resolve_Stattype_opt(const MarsDict_t& mars,
     (void)opt;
 
     try {
-        if (!has(mars, "stattype")) {
-            return std::nullopt;
+        if (!has(mars, "stattype", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<ParsedStatTypeBlocks> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
-        if (auto value = get_opt<std::string>(mars, "stattype")) {
-            auto result = detail::parseStattypeValue(*value);
+        if (auto value = get_opt<std::string>(mars, "stattype", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            ParsedStatTypeBlocks result =
+                detail::parseStattypeValue(*value, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
             MARS2GRIB_LOG_RESOLVE([&]() {
                 return std::string{"`stattype` resolved from input dictionaries: blocks='"} +
                        std::to_string(result.size()) + "'";
             }());
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
             return result;
         }
 
@@ -244,17 +284,27 @@ std::optional<ParsedStatTypeBlocks> resolve_Stattype_opt(const MarsDict_t& mars,
 ///         if the source is absent, malformed, unsupported, or non-whitelisted;
 ///         failures are wrapped via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-ParsedStatTypeBlocks resolve_Stattype_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+ParsedStatTypeBlocks resolve_Stattype_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
-        const auto result = resolve_Stattype_opt(mars, par, opt);
-        if (result.has_value()) {
-            return *result;
+        const std::optional<ParsedStatTypeBlocks> resolved =
+            resolve_Stattype_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        if (resolved.has_value()) {
+            {
+                ParsedStatTypeBlocks result = *resolved;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
-            return ParsedStatTypeBlocks{};
+            {
+                ParsedStatTypeBlocks result = ParsedStatTypeBlocks{};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

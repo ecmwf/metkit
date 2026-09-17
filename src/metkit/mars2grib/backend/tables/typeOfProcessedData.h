@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -81,34 +83,96 @@ enum class TypeOfProcessedData : long {
 /// - No normalization or fallback is performed.
 /// - Intended for configuration, testing, and diagnostics.
 ///
-inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::string& value) {
+template <class Cntx_t>
+inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::string& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (value == "an")
-        return TypeOfProcessedData::AnalysisProducts;
-    if (value == "fc")
-        return TypeOfProcessedData::ForecastProducts;
-    if (value == "af")
-        return TypeOfProcessedData::AnalysisAndForecastProducts;
-    if (value == "cf")
-        return TypeOfProcessedData::ControlForecastProducts;
-    if (value == "pf")
-        return TypeOfProcessedData::PerturbedForecastProducts;
-    if (value == "cp")
-        return TypeOfProcessedData::ControlAndPerturbedForecastProducts;
-    if (value == "sa")
-        return TypeOfProcessedData::ProcessedSatelliteObservations;
-    if (value == "ra")
-        return TypeOfProcessedData::ProcessedRadarObservations;
-    if (value == "ep")
-        return TypeOfProcessedData::EventProbability;
-    if (value == "9")
-        return TypeOfProcessedData::ExperimentalData;
-    if (value == "10")
-        return TypeOfProcessedData::MlBasedForecast;
-    if (value == "missing")
-        return TypeOfProcessedData::Missing;
+    if (value == "an") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::AnalysisProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "fc") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::ForecastProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "af") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::AnalysisAndForecastProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "cf") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::ControlForecastProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "pf") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::PerturbedForecastProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "cp") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::ControlAndPerturbedForecastProducts;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "sa") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::ProcessedSatelliteObservations;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "ra") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::ProcessedRadarObservations;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "ep") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::EventProbability;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "9") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::ExperimentalData;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "10") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::MlBasedForecast;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    if (value == "missing") {
+        {
+            TypeOfProcessedData result = TypeOfProcessedData::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
 
     std::string errMsg = "Invalid TypeOfProcessedData name: ";
     errMsg += "actual='" + value + "'";
@@ -169,35 +233,85 @@ inline TypeOfProcessedData name2enum_TypeOfProcessedData_or_throw(const std::str
 /// - Replace this hard-coded mapping with code generated automatically
 /// from ecCodes GRIB tables to prevent divergence between software stacks.
 ///
-inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value) {
+template <class Cntx_t>
+inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return TypeOfProcessedData::AnalysisProducts;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::AnalysisProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return TypeOfProcessedData::ForecastProducts;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::ForecastProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return TypeOfProcessedData::AnalysisAndForecastProducts;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::AnalysisAndForecastProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return TypeOfProcessedData::ControlForecastProducts;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::ControlForecastProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return TypeOfProcessedData::PerturbedForecastProducts;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::PerturbedForecastProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return TypeOfProcessedData::ControlAndPerturbedForecastProducts;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::ControlAndPerturbedForecastProducts;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 6:
-            return TypeOfProcessedData::ProcessedSatelliteObservations;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::ProcessedSatelliteObservations;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 7:
-            return TypeOfProcessedData::ProcessedRadarObservations;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::ProcessedRadarObservations;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 8:
-            return TypeOfProcessedData::EventProbability;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::EventProbability;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 9:
-            return TypeOfProcessedData::ExperimentalData;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::ExperimentalData;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 10:
-            return TypeOfProcessedData::MlBasedForecast;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::MlBasedForecast;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return TypeOfProcessedData::Missing;
+            {
+                TypeOfProcessedData result = TypeOfProcessedData::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid GRIB value for `typeOfProcessedData`: " + std::to_string(value),
                                           Here());
@@ -224,35 +338,85 @@ inline TypeOfProcessedData long2enum_TypeOfProcessedData_or_throw(long value) {
 /// - Intended for logging, debugging, and diagnostics.
 /// - The returned names are stable identifiers, not user-facing text.
 ///
-inline std::string enum2name_TypeOfProcessedData_or_throw(TypeOfProcessedData value) {
+template <class Cntx_t>
+inline std::string enum2name_TypeOfProcessedData_or_throw(TypeOfProcessedData value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TypeOfProcessedData::AnalysisProducts:
-            return "an";
+            {
+                std::string result = "an";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::ForecastProducts:
-            return "fc";
+            {
+                std::string result = "fc";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::AnalysisAndForecastProducts:
-            return "af";
+            {
+                std::string result = "af";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::ControlForecastProducts:
-            return "cf";
+            {
+                std::string result = "cf";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::PerturbedForecastProducts:
-            return "pf";
+            {
+                std::string result = "pf";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::ControlAndPerturbedForecastProducts:
-            return "cp";
+            {
+                std::string result = "cp";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::ProcessedSatelliteObservations:
-            return "sa";
+            {
+                std::string result = "sa";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::ProcessedRadarObservations:
-            return "ra";
+            {
+                std::string result = "ra";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::EventProbability:
-            return "ep";
+            {
+                std::string result = "ep";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::ExperimentalData:
-            return "9";
+            {
+                std::string result = "9";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::MlBasedForecast:
-            return "10";
+            {
+                std::string result = "10";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfProcessedData::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
     }
 
     throw Mars2GribTableException("Invalid TypeOfProcessedData enum value", Here());

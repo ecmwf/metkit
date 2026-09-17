@@ -46,6 +46,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -94,9 +96,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// - Introduce inference or configuration-based selection when
 /// non-spherical Earth representations are required.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                                   const OptDict_t& opt) {
+                                                                   const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -105,25 +108,29 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
 
     try {
 
-        if (has(par, "shapeOfTheEarth")) {
+        if (has(par, "shapeOfTheEarth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
             // Retrieve the value from the parameter dictionary
-            long shapeOfTheEarthId = get_or_throw<long>(par, "shapeOfTheEarth");
+            long shapeOfTheEarthId = get_or_throw<long>(par, "shapeOfTheEarth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Convert to enumeration
             tables::ShapeOfTheReferenceSystem shapeOfTheEarth =
-                tables::long2enum_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarthId);
+                tables::long2enum_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarthId, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Logging of the channel
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`shapeOfTheEarth` resolved from PAR dictionary: value='";
-                logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth);
+                logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return shapeOfTheEarth;
+            {
+                tables::ShapeOfTheReferenceSystem result = shapeOfTheEarth;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
 
@@ -134,13 +141,17 @@ tables::ShapeOfTheReferenceSystem resolve_ShapeOfTheEarth_or_throw(const MarsDic
             // Logging of the channel
             MARS2GRIB_LOG_DEFAULT([&]() {
                 std::string logMsg = "`shapeOfTheEarth` defaulted with value='";
-                logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth);
+                logMsg += tables::enum2name_ShapeOfTheReferenceSystem_or_throw(shapeOfTheEarth, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return shapeOfTheEarth;
+            {
+                tables::ShapeOfTheReferenceSystem result = shapeOfTheEarth;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

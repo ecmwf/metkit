@@ -46,6 +46,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/composition/compositionEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/chemId.h"
@@ -132,8 +133,9 @@ constexpr bool compositionApplicable() {
 /// @see compositionApplicable
 ///
 template <std::size_t Stage, std::size_t Section, CompositionType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
@@ -150,23 +152,23 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
             if constexpr (Variant == CompositionType::AerosolOptical) {
 
                 // Deductions
-                const auto chemId          = deductions::resolve_ChemId_or_throw(mars, par, opt);
-                const auto firstWavelength = deductions::resolve_FirstWavelength_or_throw(mars, par, opt);
+                const auto chemId          = deductions::resolve_ChemId_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto firstWavelength = deductions::resolve_FirstWavelength_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw(out, "enableChemSplit", true);
-                set_or_throw(out, "chemId", chemId);
-                set_or_throw(out, "firstWavelength", firstWavelength);
+                set_or_throw(out, "enableChemSplit", true, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw(out, "chemId", chemId, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw(out, "firstWavelength", firstWavelength, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else if constexpr (Variant == CompositionType::Chem || Variant == CompositionType::Aerosol ||
                                Variant == CompositionType::ChemicalSource) {
 
                 // Deductions
-                const auto chemId = deductions::resolve_ChemId_or_throw(mars, par, opt);
+                const auto chemId = deductions::resolve_ChemId_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw(out, "enableChemSplit", true);
-                set_or_throw(out, "chemId", chemId);
+                set_or_throw(out, "enableChemSplit", true, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw(out, "chemId", chemId, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else {
                 MARS2GRIB_CONCEPT_THROW(composition, "Concept variant is not implemented!");
@@ -176,6 +178,8 @@ void CompositionOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t
 
             MARS2GRIB_CONCEPT_RETHROW(composition, "Unable to set `composition` concept...");
         }
+
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
 
         return;
     }

@@ -44,6 +44,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/origin/originEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/centre.h"
@@ -115,8 +116,9 @@ constexpr bool originApplicable() {
 /// @see metkit::mars2grib::backend::deductions::resolve_SubCentre_or_throw
 ///
 template <std::size_t Stage, std::size_t Section, OriginType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void OriginOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) noexcept(false) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void OriginOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) noexcept(false) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -128,12 +130,12 @@ void OriginOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
             MARS2GRIB_LOG_CONCEPT(origin);
 
             // Deductions
-            std::string centre = deductions::resolve_Centre_or_throw(mars, par, opt);
-            long subCentre     = deductions::resolve_SubCentre_or_throw(mars, par, opt);
+            std::string centre = deductions::resolve_Centre_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            long subCentre     = deductions::resolve_SubCentre_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<std::string>(out, "centre", centre);
-            set_or_throw<long>(out, "subCentre", subCentre);
+            set_or_throw<std::string>(out, "centre", centre, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw<long>(out, "subCentre", subCentre, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
         }
         catch (...) {
 
@@ -141,6 +143,7 @@ void OriginOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

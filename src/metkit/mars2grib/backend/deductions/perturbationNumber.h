@@ -65,6 +65,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -76,8 +78,9 @@
 
 namespace metkit::mars2grib::backend::deductions {
 
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -88,11 +91,11 @@ long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t
         // Retrieve mandatory perturbation number from input dictionaries
         // NOTE: MARS number is implied to be 0 if oper/fc data
         const auto perturbationNumber = [&]() {
-            if (has(mars, "stream") && has(mars, "type") && get_or_throw<std::string>(mars, "stream") == "oper" &&
-                get_or_throw<std::string>(mars, "type") == "fc") {
+            if (has(mars, "stream", cntx) && has(mars, "type", cntx) && get_or_throw<std::string>(mars, "stream", cntx) == "oper" &&
+                get_or_throw<std::string>(mars, "type", cntx) == "fc") {
                 return 0L;
             }
-            return get_or_throw<long>(mars, "number");
+            return get_or_throw<long>(mars, "number", cntx);
         }();
 
         // Emit RESOLVE log entry
@@ -104,7 +107,11 @@ long resolve_PerturbationNumber_or_throw(const MarsDict_t& mars, const ParDict_t
         }());
 
         // Success exit point
-        return perturbationNumber;
+        {
+            long result = perturbationNumber;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

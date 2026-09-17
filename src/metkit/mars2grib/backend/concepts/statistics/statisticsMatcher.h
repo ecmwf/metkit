@@ -35,6 +35,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -60,25 +61,32 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t statisticsMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto param = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
 
         if (matchAny(param, 8, 9, 20, 44, 45, 47, 50, 57, 58, range(142, 147), 169, range(175, 182), 189,
                      range(195, 197), 205, range(208, 213), 228, 239, 240, 3062, 3099, range(162100, 162113),
                      range(222001, 222256), 228021, 228022, 228129, 228130, 228143, 228144, 228216, 228228, 228251,
-                     range(231001, 231003), 231005, 231010, 231012, 231057, 231058, range(233000, 233031), 260259)) {
-            return static_cast<std::size_t>(StatisticsType::Accumulation);
+                      range(231001, 231003), 231005, 231010, 231012, 231057, 231058, range(233000, 233031), 260259)) {
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::Accumulation);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         // Strike-probability products
         if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131085, 131098, 131099)) {
-            return static_cast<std::size_t>(StatisticsType::Accumulation);
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::Accumulation);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, range(141101, 141105), 141208, 141209, 141215, 141216, 141220, 141229, 141231, 141232,
                      141233, 141245, 228004, 228005, 228051, 228053, range(228057, 228060), 235020, 235021,
@@ -92,7 +100,9 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         }
         // Strike-probability products
         if (matchAny(param, 131065, 131066, 131067)) {
-            return static_cast<std::size_t>(StatisticsType::Average);
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::Average);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 49, 121, 123, 201, range(143101, 143105), 143208, 143209, 143215, 143216, 143220, 143229,
                      143231, 143232, 143233, 143245, 228026, 228028, 228035, 228036, 228222, 228224, 228226, 237013,
@@ -104,7 +114,9 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         }
         // Strike-probability products
         if (matchAny(param, 131071, 131072, 131100)) {
-            return static_cast<std::size_t>(StatisticsType::Maximum);
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::Maximum);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 122, 202, range(144101, 144105), 144208, 144209, 144215, 144216, 144220, 144229, 144231,
                      144232, 144233, 144245, 228027, 228223, 228225, 228227, 238013, 238041, 238042, 238055, 238077,
@@ -115,10 +127,14 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             return static_cast<std::size_t>(StatisticsType::Minimum);
         }
         if (matchAny(param, 260320, 260321, 260339, 260683)) {
-            return static_cast<std::size_t>(StatisticsType::Mode);
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::Mode);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, 260318, 260319, 260338, 260682)) {
-            return static_cast<std::size_t>(StatisticsType::Severity);
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::Severity);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         if (matchAny(param, range(145101, 145105), 145208, 145209, 145215, 145216, 145220, 145229, 145231, 145232,
                      145233, 145245, 239041, 239042, 239077, 239078, 239079, 239080, 239083, 239084, 239087, 239088,
@@ -144,7 +160,9 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         // }
 
         if (matchAny(param, 132044, 132045, 132049, 132059, 132144, 132165, 132167, 132201, 132202, 132228)) {
-            return static_cast<std::size_t>(StatisticsType::IndexProcessing);
+            const std::size_t result = static_cast<std::size_t>(StatisticsType::IndexProcessing);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // event probability standardised anomaly products
@@ -157,12 +175,22 @@ std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         //     return static_cast<std::size_t>(StatisticsType::Maximum);
         // }
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `statistics` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t statisticsMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = statisticsMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

@@ -31,7 +31,10 @@
     template <>                                                                                                        \
     struct DictGetOrThrow<eckit::LocalConfiguration, CTYPE> {                                                          \
                                                                                                                        \
-        static CTYPE get_or_throw(const eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {        \
+        template <class Cntx_t>                                                                                       \
+        static CTYPE get_or_throw(const eckit::LocalConfiguration& cfg, std::string_view key,                         \
+                                  Cntx_t& cntx) noexcept(false) {                                                      \
+            profiling::profileEnterFunction(cntx, Here());                                                           \
             const std::string k{key};                                                                                  \
                                                                                                                        \
             try {                                                                                                      \
@@ -45,7 +48,9 @@
                                                                                                                        \
                 /* Check type */                                                                                       \
                 if (hacks::ISFUNC(cfg, k)) {                                                                           \
-                    return cfg.GETFUNC(k);                                                                             \
+                    CTYPE result = cfg.GETFUNC(k);                                                                     \
+                    profiling::profileExitFunction(cntx, Here());                                                     \
+                    return result;                                                                                    \
                 }                                                                                                      \
                 else {                                                                                                 \
                     throw exceptions::Mars2GribDictException(                                                          \
@@ -73,24 +78,34 @@
 #define M2G_DEFINE_LOCALCONFIG_DICT_GET_OPT(CTYPE, ISFUNC, GETFUNC)                 \
     template <>                                                                     \
     struct DictGetOpt<eckit::LocalConfiguration, CTYPE> {                           \
-        static std::optional<CTYPE> get_opt(const eckit::LocalConfiguration& cfg,   \
-                                            std::string_view key) noexcept(false) { \
+        template <class Cntx_t>                                                        \
+        static std::optional<CTYPE> get_opt(const eckit::LocalConfiguration& cfg,     \
+                                             std::string_view key, Cntx_t& cntx) noexcept(false) { \
+            profiling::profileEnterFunction(cntx, Here());                            \
             const std::string k{key};                                               \
                                                                                     \
             try {                                                                   \
                 if (!cfg.has(k)) {                                                  \
-                    return std::nullopt;                                            \
+                    std::optional<CTYPE> result = std::nullopt;                    \
+                    profiling::profileExitFunction(cntx, Here());                   \
+                    return result;                                                 \
                 }                                                                   \
                                                                                     \
                 if (hacks::ISFUNC(cfg, k)) {                                        \
-                    return cfg.GETFUNC(k);                                          \
+                    std::optional<CTYPE> result = cfg.GETFUNC(k);                   \
+                    profiling::profileExitFunction(cntx, Here());                   \
+                    return result;                                                  \
                 }                                                                   \
                 else {                                                              \
-                    return std::nullopt;                                            \
+                    std::optional<CTYPE> result = std::nullopt;                    \
+                    profiling::profileExitFunction(cntx, Here());                   \
+                    return result;                                                 \
                 }                                                                   \
             }                                                                       \
             catch (...) {                                                           \
-                return std::nullopt;                                                \
+                std::optional<CTYPE> result = std::nullopt;                        \
+                profiling::profileExitFunction(cntx, Here());                       \
+                return result;                                                     \
             }                                                                       \
             mars2gribUnreachable();                                                 \
         }                                                                           \
@@ -102,17 +117,21 @@
 #define M2G_DEFINE_LOCALCONFIG_DICT_SET_OR_IGNORE(CTYPE, SETFUNC)                       \
     template <>                                                                         \
     struct DictSetOrIgnore<eckit::LocalConfiguration, CTYPE> {                          \
-        static void set_or_ignore(eckit::LocalConfiguration& cfg, std::string_view key, \
-                                  const CTYPE& value) noexcept(false) {                 \
+        template <class Cntx_t>                                                           \
+        static void set_or_ignore(eckit::LocalConfiguration& cfg, std::string_view key,  \
+                                   const CTYPE& value, Cntx_t& cntx) noexcept(false) {    \
+            profiling::profileEnterFunction(cntx, Here());                               \
             const std::string k{key};                                                   \
                                                                                         \
             try {                                                                       \
                 cfg.SETFUNC(k, value);                                                  \
+                profiling::profileExitFunction(cntx, Here());                           \
                 return;                                                                 \
             }                                                                           \
             catch (...) {                                                               \
+                profiling::profileExitFunction(cntx, Here());                           \
+                return;                                                                 \
             }                                                                           \
-            mars2gribUnreachable();                                                     \
         }                                                                               \
     };
 
@@ -124,12 +143,15 @@
     template <>                                                                                                \
     struct DictSetOrThrow<eckit::LocalConfiguration, CTYPE> {                                                  \
                                                                                                                \
-        static void set_or_throw(eckit::LocalConfiguration& cfg, std::string_view key,                         \
-                                 const CTYPE& value) noexcept(false) {                                         \
+        template <class Cntx_t>                                                                               \
+        static void set_or_throw(eckit::LocalConfiguration& cfg, std::string_view key,                        \
+                                  const CTYPE& value, Cntx_t& cntx) noexcept(false) {                           \
+            profiling::profileEnterFunction(cntx, Here());                                                    \
             const std::string k{key};                                                                          \
                                                                                                                \
             try {                                                                                              \
                 cfg.SETFUNC(k, value);                                                                         \
+                profiling::profileExitFunction(cntx, Here());                                                 \
                 return;                                                                                        \
             }                                                                                                  \
             catch (const exceptions::Mars2GribGenericException&) {                                             \
@@ -213,15 +235,21 @@ inline bool isSubConfigurationList(const eckit::LocalConfiguration& conf, std::s
 template <>
 struct DictToJsonTraits<eckit::LocalConfiguration> {
 
-    static std::string to_json(const eckit::LocalConfiguration& cfg) noexcept(true) {
+    template <class Cntx_t>
+    static std::string to_json(const eckit::LocalConfiguration& cfg, Cntx_t& cntx) noexcept(true) {
+        profiling::profileEnterFunction(cntx, Here());
         try {
             std::ostringstream os;
             eckit::JSON json(os);
             json << cfg;
-            return os.str();
+            std::string result = os.str();
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
-            return "[to_json failed for eckit::LocalConfiguration]";
+            profiling::profileExitFunction(cntx, Here());
+            std::string result{"[to_json failed for eckit::LocalConfiguration]"};
+            return result;
         }
     }
 };
@@ -234,15 +262,23 @@ struct DictTraits<eckit::LocalConfiguration> {
 
     static constexpr bool support_checks = false;
 
-    static std::unique_ptr<eckit::LocalConfiguration> make_from_sample_or_throw(std::string_view name) {
+    template <class Cntx_t>
+    static std::unique_ptr<eckit::LocalConfiguration> make_from_sample_or_throw(std::string_view name, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
 
-        auto cfg = std::make_unique<eckit::LocalConfiguration>();
-        cfg->set("SampleName", std::string(name));
-        return cfg;
+        std::unique_ptr<eckit::LocalConfiguration> result = std::make_unique<eckit::LocalConfiguration>();
+        result->set("SampleName", std::string(name));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    static std::unique_ptr<eckit::LocalConfiguration> clone_or_throw(const eckit::LocalConfiguration& cfg) {
-        return std::make_unique<eckit::LocalConfiguration>(cfg);
+    template <class Cntx_t>
+    static std::unique_ptr<eckit::LocalConfiguration> clone_or_throw(const eckit::LocalConfiguration& cfg,
+                                                                      Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
+        std::unique_ptr<eckit::LocalConfiguration> result = std::make_unique<eckit::LocalConfiguration>(cfg);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
@@ -252,11 +288,15 @@ struct DictTraits<eckit::LocalConfiguration> {
 template <>
 struct DictHas<eckit::LocalConfiguration> {
 
-    static bool has(const eckit::LocalConfiguration& cfg, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static bool has(const eckit::LocalConfiguration& cfg, std::string_view key, Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
         const std::string k{key};
 
         try {
-            return cfg.has(k);
+            const bool result = cfg.has(k);
+            profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (const exceptions::Mars2GribGenericException&) {
             throw;

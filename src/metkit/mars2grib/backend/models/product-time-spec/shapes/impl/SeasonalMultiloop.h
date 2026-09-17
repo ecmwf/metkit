@@ -31,6 +31,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <sstream>
 
 #include "metkit/mars2grib/backend/deductions/common.h"
@@ -65,7 +67,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
-inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -81,12 +85,16 @@ inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
         const bool hasTimespanDuration = input.timespan.duration.has_value();
         const bool hasOuterStattypeBlocks = !input.stattype.empty();
 
-        return hasSeasonalClass && hasSeasonalStream && hasNoStep && hasFcmonth && isForecast && isNotSynoptic &&
+        {
+            bool result = hasSeasonalClass && hasSeasonalStream && hasNoStep && hasFcmonth && isForecast && isNotSynoptic &&
                hasDurationTimespan && hasTimespanDuration && hasOuterStattypeBlocks;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_SeasonalMultiloop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_SeasonalMultiloop_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -104,9 +112,11 @@ inline bool match_SeasonalMultiloop_Shape(const ProductTimeSpecInput& input) {
  * @return Constructed stage-1 outer time range for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecOuterTimeRange build_SeasonalMultiloop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRangeAvailability;
@@ -117,7 +127,7 @@ inline ProductTimeSpecOuterTimeRange build_SeasonalMultiloop_ShapeOuterTimeRange
         (void)classification;
 
         if (input.stattype.empty()) {
-            throw Mars2GribModelException("SeasonalMultiloop requires at least one stattype block", input.to_json(),
+            throw Mars2GribModelException("SeasonalMultiloop requires at least one stattype block", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
@@ -126,7 +136,7 @@ inline ProductTimeSpecOuterTimeRange build_SeasonalMultiloop_ShapeOuterTimeRange
 
         if (!outerRangeIsMonthly) {
             throw Mars2GribModelException("SeasonalMultiloop outermost stattype range must be one calendar month",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         for (std::size_t i = 1; i < input.stattype.size(); ++i) {
@@ -135,17 +145,21 @@ inline ProductTimeSpecOuterTimeRange build_SeasonalMultiloop_ShapeOuterTimeRange
 
             if (isMonthly) {
                 throw Mars2GribModelException("SeasonalMultiloop must not contain a second monthly stattype block",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
         }
 
         const auto availability = ProductTimeSpecOuterTimeRangeAvailability::Available;
 
-        return ProductTimeSpecOuterTimeRange{availability, outerTimeRange};
+        {
+            ProductTimeSpecOuterTimeRange result = ProductTimeSpecOuterTimeRange{availability, outerTimeRange};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `build_SeasonalMultiloop_ShapeOuterTimeRange`", input.to_json(), Here()));
+            "Failed to execute `build_SeasonalMultiloop_ShapeOuterTimeRange`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -168,12 +182,14 @@ inline ProductTimeSpecOuterTimeRange build_SeasonalMultiloop_ShapeOuterTimeRange
  * @return Constructed ProductTimeSpec shape for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::detail::deduceDefaultTimeIncrement;
@@ -193,17 +209,17 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
         (void)domain;
 
         if (input.timespan.kind != TimespanKind::Duration) {
-            throw Mars2GribModelException("SeasonalMultiloop requires a duration-valued timespan", input.to_json(),
+            throw Mars2GribModelException("SeasonalMultiloop requires a duration-valued timespan", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (!input.timespan.duration.has_value()) {
             throw Mars2GribModelException("SeasonalMultiloop duration-valued timespan must contain a duration",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (input.stattype.empty()) {
-            throw Mars2GribModelException("SeasonalMultiloop requires at least one stattype block", input.to_json(),
+            throw Mars2GribModelException("SeasonalMultiloop requires at least one stattype block", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
@@ -211,7 +227,7 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
             outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Available;
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
-            throw Mars2GribModelException("SeasonalMultiloop requires an available outer time range", input.to_json(),
+            throw Mars2GribModelException("SeasonalMultiloop requires an available outer time range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
@@ -221,12 +237,12 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
 
         if (!outerRangeIsMonthly) {
             throw Mars2GribModelException("SeasonalMultiloop outermost stattype range must be one calendar month",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedOuterTimeRange)) {
+        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedOuterTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "SeasonalMultiloop outer time range does not match the outermost stattype range", input.to_json(),
+                "SeasonalMultiloop outer time range does not match the outermost stattype range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
@@ -236,7 +252,7 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
 
             if (isMonthly) {
                 throw Mars2GribModelException("SeasonalMultiloop must not contain a second monthly stattype block",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
         }
 
@@ -251,13 +267,13 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
             const auto typeOfStatisticalProcessing = stattypeBlock.typeOfStatisticalProcessing;
 
             // Outer-loop increment-kind semantics follow the multi-loop outer-window rules.
-            const auto typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, true, false, timeRange);
+            const auto typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, true, false, timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Each outer loop range comes directly from its stattype block.
             const auto outerWindowTimeRange = timeRange;
 
             // The increment is filled later from the next inner window range.
-            const auto timeIncrement = missingIncrement();
+            const auto timeIncrement = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             windows.push_back(ProductTimeSpecWindow{typeOfStatisticalProcessing, typeOfTimeIncrement,
                                                     outerWindowTimeRange, timeIncrement});
@@ -268,53 +284,53 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
         ResolvedInnerIncrement resolvedInnermostIncrement{};
 
         if (input.timeIncrement.has_value()) {
-            const long incrementInSeconds = convertToSeconds(*input.timeIncrement);
+            const long incrementInSeconds = convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (incrementInSeconds <= 0) {
-                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (innermostTimeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange);
+                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (incrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             resolvedInnermostIncrement.timeIncrement = TimeDuration{incrementInSeconds, TimeUnit::Second};
             resolvedInnermostIncrement.typeOfTimeIncrement =
-                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange);
+                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else if (!input.allowDefaultTimeIncrement) {
-            resolvedInnermostIncrement.timeIncrement       = missingIncrement();
-            resolvedInnermostIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement();
+            resolvedInnermostIncrement.timeIncrement       = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            resolvedInnermostIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribModelException("Default time-increment deduction for SeasonalMultiloop is not implemented",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
 
-            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innermostTimeRange);
+            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (defaultIncrementInSeconds <= 0) {
-                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (innermostTimeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange);
+                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (defaultIncrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             resolvedInnermostIncrement.timeIncrement = TimeDuration{defaultIncrementInSeconds, TimeUnit::Second};
             resolvedInnermostIncrement.typeOfTimeIncrement =
-                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange);
+                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // The innermost loop uses the real normalized innermost processing and the
@@ -327,11 +343,15 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
             windows[windowIndex].timeIncrement = windows[windowIndex + 1].timeRange;
         }
 
-        return ProductTimeSpecShape{windows};
+        {
+            ProductTimeSpecShape result = ProductTimeSpecShape{windows};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_SeasonalMultiloop_ShapeWindows`",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -356,13 +376,15 @@ inline ProductTimeSpecShape build_SeasonalMultiloop_ShapeWindows(
  * @throws Mars2GribModelException if the resolved shape is inconsistent with
  *         the input, classification, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_SeasonalMultiloop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
-    const ProductTimeSpecShape& shape) {
+    const ProductTimeSpecShape& shape, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -383,7 +405,7 @@ inline bool check_SeasonalMultiloop_Shape(
         (void)anchor;
 
         if (classification.shapeType != ProductTimeSpecShapeKind::SeasonalMultiloop) {
-            throw Mars2GribModelException("Shape classification mismatch: expected SeasonalMultiloop", input.to_json(),
+            throw Mars2GribModelException("Shape classification mismatch: expected SeasonalMultiloop", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
@@ -399,20 +421,20 @@ inline bool check_SeasonalMultiloop_Shape(
 
         if (!hasSeasonalClass || !hasSeasonalStream || !hasNoStep || !hasFcmonth || !isForecast || !isNotSynoptic ||
             !hasDurationTimespan || !hasTimespanDuration || !hasOuterStattypeBlocks) {
-            throw Mars2GribModelException("SeasonalMultiloop input semantics are not satisfied", input.to_json(),
+            throw Mars2GribModelException("SeasonalMultiloop input semantics are not satisfied", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (domain.isSynoptic) {
             throw Mars2GribModelException("SeasonalMultiloop shape must not be paired with a synoptic domain",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool outerTimeRangeIsAvailable =
             outerTimeRange.availability == ProductTimeSpecOuterTimeRangeAvailability::Available;
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
-            throw Mars2GribModelException("SeasonalMultiloop requires an available outer time range", input.to_json(),
+            throw Mars2GribModelException("SeasonalMultiloop requires an available outer time range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
@@ -422,7 +444,7 @@ inline bool check_SeasonalMultiloop_Shape(
 
         if (!outerRangeIsMonthly) {
             throw Mars2GribModelException("SeasonalMultiloop outermost stattype range must be one calendar month",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         for (std::size_t i = 1; i < input.stattype.size(); ++i) {
@@ -431,20 +453,20 @@ inline bool check_SeasonalMultiloop_Shape(
 
             if (isMonthly) {
                 throw Mars2GribModelException("SeasonalMultiloop must not contain a second monthly stattype block",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
         }
 
-        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedOuterTimeRange)) {
+        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedOuterTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "SeasonalMultiloop outer time range does not match the outermost stattype range", input.to_json(),
+                "SeasonalMultiloop outer time range does not match the outermost stattype range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (shape.values.size() != input.stattype.size() + 1) {
             throw Mars2GribModelException(
                 "SeasonalMultiloop shape must contain one window per stattype block plus one innermost window",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const TimeDuration innermostTimeRange = *input.timespan.duration;
@@ -452,53 +474,53 @@ inline bool check_SeasonalMultiloop_Shape(
         ResolvedInnerIncrement expectedInnermostIncrement{};
 
         if (input.timeIncrement.has_value()) {
-            const long incrementInSeconds = convertToSeconds(*input.timeIncrement);
+            const long incrementInSeconds = convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (incrementInSeconds <= 0) {
-                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (innermostTimeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange);
+                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (incrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             expectedInnermostIncrement.timeIncrement = TimeDuration{incrementInSeconds, TimeUnit::Second};
             expectedInnermostIncrement.typeOfTimeIncrement =
-                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange);
+                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else if (!input.allowDefaultTimeIncrement) {
-            expectedInnermostIncrement.timeIncrement       = missingIncrement();
-            expectedInnermostIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement();
+            expectedInnermostIncrement.timeIncrement       = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            expectedInnermostIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribModelException("Default time-increment deduction for SeasonalMultiloop is not implemented",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
 
-            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innermostTimeRange);
+            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (defaultIncrementInSeconds <= 0) {
-                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (innermostTimeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange);
+                const long timeRangeInSeconds = convertToSeconds(innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (defaultIncrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             expectedInnermostIncrement.timeIncrement = TimeDuration{defaultIncrementInSeconds, TimeUnit::Second};
             expectedInnermostIncrement.typeOfTimeIncrement =
-                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange);
+                typeOfTimeIncrementForWindow(input, true, true, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         for (std::size_t i = 0; i < input.stattype.size(); ++i) {
@@ -507,24 +529,24 @@ inline bool check_SeasonalMultiloop_Shape(
 
             if (window.typeOfStatisticalProcessing != stattypeBlock.typeOfStatisticalProcessing) {
                 throw Mars2GribModelException("SeasonalMultiloop outer window statistical processing is inconsistent",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
 
             if (window.typeOfTimeIncrement !=
-                typeOfTimeIncrementForWindow(input, true, false, stattypeBlock.timeRange)) {
+                typeOfTimeIncrementForWindow(input, true, false, stattypeBlock.timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
                 throw Mars2GribModelException("SeasonalMultiloop outer window typeOfTimeIncrement is inconsistent",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
 
-            if (!compareTimeDuration(window.timeRange, stattypeBlock.timeRange)) {
+            if (!compareTimeDuration(window.timeRange, stattypeBlock.timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
                 throw Mars2GribModelException("SeasonalMultiloop outer window timeRange is inconsistent",
-                                              input.to_json(), Here());
+                                              input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
 
-            if (!compareTimeDuration(window.timeIncrement, shape.values[i + 1].timeRange)) {
+            if (!compareTimeDuration(window.timeIncrement, shape.values[i + 1].timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
                 throw Mars2GribModelException(
                     "SeasonalMultiloop outer window timeIncrement must equal the next inner window range",
-                    input.to_json(), Here());
+                    input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
             }
         }
 
@@ -534,29 +556,33 @@ inline bool check_SeasonalMultiloop_Shape(
             throw Mars2GribModelException(
                 "SeasonalMultiloop innermost window statistical processing does not match the innermost input "
                 "processing",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (innermostWindow.typeOfTimeIncrement != expectedInnermostIncrement.typeOfTimeIncrement) {
             throw Mars2GribModelException("SeasonalMultiloop innermost window typeOfTimeIncrement is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(innermostWindow.timeRange, innermostTimeRange)) {
+        if (!compareTimeDuration(innermostWindow.timeRange, innermostTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("SeasonalMultiloop innermost window timeRange is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(innermostWindow.timeIncrement, expectedInnermostIncrement.timeIncrement)) {
+        if (!compareTimeDuration(innermostWindow.timeIncrement, expectedInnermostIncrement.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException("SeasonalMultiloop innermost window timeIncrement is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_SeasonalMultiloop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_SeasonalMultiloop_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

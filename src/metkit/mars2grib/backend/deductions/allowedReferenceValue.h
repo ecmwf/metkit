@@ -52,6 +52,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 #include <unordered_map>
@@ -123,8 +125,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction applies a local, table-driven rule and does not
 /// consult GRIB metadata tables or apply parameter-specific semantics.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -198,8 +201,8 @@ double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParD
             {263501, {173.0, 1000.0}},
         };
 
-        const bool hasGrid       = has(mars, "grid");
-        const bool hasTruncation = has(mars, "truncation");
+        const bool hasGrid       = has(mars, "grid", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const bool hasTruncation = has(mars, "truncation", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (hasGrid == hasTruncation) {
             throw Mars2GribDeductionException(
@@ -211,14 +214,18 @@ double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParD
                 return std::string{"`allowedReferenceValue` resolved for spectral representation: value='0.000000'"};
             }());
 
-            return 0.0;
+            {
+                double result = 0.0;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         // Default reference value for grid-point products
         double ret = 0.0;
 
         // Retrieve mandatory MARS parameter identifier
-        long marsParamVal = get_or_throw<long>(mars, "param");
+        long marsParamVal = get_or_throw<long>(mars, "param", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Lookup allowed value in the mid of the allowed range
         if (auto rangeIt = param_ranges.find(marsParamVal); rangeIt != param_ranges.end()) {
@@ -235,7 +242,11 @@ double resolve_AllowedReferenceValue_or_throw(const MarsDict_t& mars, const ParD
         }());
 
         // Success exit point
-        return ret;
+        {
+            double result = ret;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

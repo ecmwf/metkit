@@ -46,6 +46,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <optional>
 #include <string>
@@ -103,8 +105,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction performs no semantic validation of the retrieved
 /// value.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -112,7 +115,7 @@ std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDic
     try {
 
         // Retrieve optional maximum wave period index from parameter dictionary
-        std::optional<long> itMaxOpt = get_opt<long>(par, "iTmax");
+        std::optional<long> itMaxOpt = get_opt<long>(par, "iTmax", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (itMaxOpt.has_value()) {
 
@@ -134,7 +137,11 @@ std::optional<long> resolve_PeriodItMax_opt(const MarsDict_t& mars, const ParDic
         }
 
         // Success exit point
-        return itMaxOpt;
+        {
+            std::optional<long> result = itMaxOpt;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

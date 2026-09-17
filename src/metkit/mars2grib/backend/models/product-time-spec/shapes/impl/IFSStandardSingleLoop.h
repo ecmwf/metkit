@@ -32,6 +32,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
@@ -62,7 +64,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::shape::detail {
  * @return `true` only when all documented conditions are satisfied; otherwise `false`.
  * @throws Mars2GribModelException If evaluating the shape matcher fails unexpectedly.
  */
-inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -84,12 +88,16 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
         const bool doesNotRequireFakeDoubleLoop           = !requiresFakeDoubleLoop;
         const bool doesNotRequireFakeSingleLoopDoubleLoop = !requiresFakeSecondLoop;
 
-        return isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
+        {
+            bool result = isIfs && isForecast && isNotSeasonal && isNotSynoptic && hasDurationTimespan && hasNoStattypeBlocks &&
                doesNotRequireFakeDoubleLoop && doesNotRequireFakeSingleLoopDoubleLoop;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `match_IFSStandardSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `match_IFSStandardSingleLoop_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -106,9 +114,11 @@ inline bool match_IFSStandardSingleLoop_Shape(const ProductTimeSpecInput& input)
  * @return Constructed stage-1 outer time range for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecOuterTimeRange build_IFSStandardSingleLoop_ShapeOuterTimeRange(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
-    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification) {
+    const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::shape::ProductTimeSpecOuterTimeRange;
@@ -119,23 +129,27 @@ inline ProductTimeSpecOuterTimeRange build_IFSStandardSingleLoop_ShapeOuterTimeR
         (void)classification;
 
         if (input.timespan.kind != TimespanKind::Duration) {
-            throw Mars2GribModelException("IFSStandardSingleLoop requires a duration-valued timespan", input.to_json(),
+            throw Mars2GribModelException("IFSStandardSingleLoop requires a duration-valued timespan", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (!input.timespan.duration.has_value()) {
             throw Mars2GribModelException("IFSStandardSingleLoop duration-valued timespan must contain a duration",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const TimeDuration timeRange = *input.timespan.duration;
         const auto availability      = ProductTimeSpecOuterTimeRangeAvailability::Available;
 
-        return ProductTimeSpecOuterTimeRange{availability, timeRange};
+        {
+            ProductTimeSpecOuterTimeRange result = ProductTimeSpecOuterTimeRange{availability, timeRange};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to execute `build_IFSStandardSingleLoop_ShapeOuterTimeRange`", input.to_json(), Here()));
+            "Failed to execute `build_IFSStandardSingleLoop_ShapeOuterTimeRange`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -157,12 +171,14 @@ inline ProductTimeSpecOuterTimeRange build_IFSStandardSingleLoop_ShapeOuterTimeR
  * @return Constructed ProductTimeSpec shape for this unique case.
  * @throws Mars2GribModelException If construction detects an invalid or inconsistent state.
  */
+template <class Cntx_t>
 inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
-    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain) {
+    const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::backend::models::product_time_spec::detail::deduceDefaultTimeIncrement;
@@ -182,13 +198,13 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
         (void)domain;
 
         if (input.timespan.kind != TimespanKind::Duration) {
-            throw Mars2GribModelException("IFSStandardSingleLoop requires a duration-valued timespan", input.to_json(),
+            throw Mars2GribModelException("IFSStandardSingleLoop requires a duration-valued timespan", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (!input.timespan.duration.has_value()) {
             throw Mars2GribModelException("IFSStandardSingleLoop duration-valued timespan must contain a duration",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool outerTimeRangeIsAvailable =
@@ -196,66 +212,66 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("IFSStandardSingleLoop requires an available outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const TimeDuration timeRange = *input.timespan.duration;
 
-        if (!compareTimeDuration(timeRange, *outerTimeRange.timeRange)) {
+        if (!compareTimeDuration(timeRange, *outerTimeRange.timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "IFSStandardSingleLoop timespan duration does not match the resolved outer time range", input.to_json(),
+                "IFSStandardSingleLoop timespan duration does not match the resolved outer time range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         ResolvedInnerIncrement resolvedIncrement{};
 
         if (input.timeIncrement.has_value()) {
-            const long incrementInSeconds = convertToSeconds(*input.timeIncrement);
+            const long incrementInSeconds = convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (incrementInSeconds <= 0) {
-                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (timeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(timeRange);
+                const long timeRangeInSeconds = convertToSeconds(timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (incrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             resolvedIncrement.timeIncrement       = TimeDuration{incrementInSeconds, TimeUnit::Second};
-            resolvedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, timeRange);
+            resolvedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else if (!input.allowDefaultTimeIncrement) {
-            resolvedIncrement.timeIncrement       = missingIncrement();
-            resolvedIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement();
+            resolvedIncrement.timeIncrement       = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            resolvedIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribModelException(
-                "Default time-increment deduction for IFSStandardSingleLoop is not implemented", input.to_json(),
+                "Default time-increment deduction for IFSStandardSingleLoop is not implemented", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
 
-            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, timeRange);
+            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (defaultIncrementInSeconds <= 0) {
-                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (timeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(timeRange);
+                const long timeRangeInSeconds = convertToSeconds(timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (defaultIncrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             resolvedIncrement.timeIncrement       = TimeDuration{defaultIncrementInSeconds, TimeUnit::Second};
-            resolvedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, timeRange);
+            resolvedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         // This case carries the normalized innermost statistical processing
@@ -274,11 +290,15 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
         ProductTimeSpecWindow window{typeOfStatisticalProcessing, typeOfTimeIncrement, canonicalTimeRange,
                                      timeIncrement};
 
-        return ProductTimeSpecShape{{window}};
+        {
+            ProductTimeSpecShape result = ProductTimeSpecShape{{window}};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to execute `build_IFSStandardSingleLoop_ShapeWindows`",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -302,13 +322,15 @@ inline ProductTimeSpecShape build_IFSStandardSingleLoop_ShapeWindows(
  * @throws Mars2GribModelException if the resolved shape is inconsistent with
  *         the input, classification, or case semantics.
  */
+template <class Cntx_t>
 inline bool check_IFSStandardSingleLoop_Shape(
     const ProductTimeSpecInput& input,
     const metkit::mars2grib::backend::models::product_time_spec::ProductTimeSpecClassification& classification,
     const metkit::mars2grib::backend::models::product_time_spec::anchor::ProductTimeSpecAnchor& anchor,
     const ProductTimeSpecOuterTimeRange& outerTimeRange,
     const metkit::mars2grib::backend::models::product_time_spec::domain::ProductTimeSpecDomain& domain,
-    const ProductTimeSpecShape& shape) {
+    const ProductTimeSpecShape& shape, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::SimulationRegime;
     using metkit::mars2grib::backend::deductions::SimulationType;
     using metkit::mars2grib::backend::deductions::TimeDuration;
@@ -330,7 +352,7 @@ inline bool check_IFSStandardSingleLoop_Shape(
 
         if (classification.shapeType != ProductTimeSpecShapeKind::IFSStandardSingleLoop) {
             throw Mars2GribModelException("Shape classification mismatch: expected IFSStandardSingleLoop",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool isIfs      = input.regime == SimulationRegime::IFS;
@@ -351,13 +373,13 @@ inline bool check_IFSStandardSingleLoop_Shape(
 
         if (!isIfs || !isForecast || !isNotSeasonal || !isNotSynoptic || !hasDurationTimespan || !hasDurationValue ||
             !hasNoStattypeBlocks || !doesNotRequireFakeDoubleLoop || !doesNotRequireFakeSingleLoopDoubleLoop) {
-            throw Mars2GribModelException("IFSStandardSingleLoop input semantics are not satisfied", input.to_json(),
+            throw Mars2GribModelException("IFSStandardSingleLoop input semantics are not satisfied", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
         if (domain.isSynoptic) {
             throw Mars2GribModelException("IFSStandardSingleLoop shape must not be paired with a synoptic domain",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool outerTimeRangeIsAvailable =
@@ -365,71 +387,71 @@ inline bool check_IFSStandardSingleLoop_Shape(
 
         if (!outerTimeRangeIsAvailable || !outerTimeRange.timeRange.has_value()) {
             throw Mars2GribModelException("IFSStandardSingleLoop requires an available outer time range",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const TimeDuration expectedTimeRange = *input.timespan.duration;
 
-        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedTimeRange)) {
+        if (!compareTimeDuration(*outerTimeRange.timeRange, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
             throw Mars2GribModelException(
-                "IFSStandardSingleLoop outer time range does not match the direct timespan duration", input.to_json(),
+                "IFSStandardSingleLoop outer time range does not match the direct timespan duration", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
         }
 
         if (shape.values.size() != 1) {
             throw Mars2GribModelException("IFSStandardSingleLoop shape must contain exactly one window",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         ResolvedInnerIncrement expectedIncrement{};
 
         if (input.timeIncrement.has_value()) {
-            const long incrementInSeconds = convertToSeconds(*input.timeIncrement);
+            const long incrementInSeconds = convertToSeconds(*input.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (incrementInSeconds <= 0) {
-                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Explicit timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (expectedTimeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(expectedTimeRange);
+                const long timeRangeInSeconds = convertToSeconds(expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (incrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             expectedIncrement.timeIncrement       = TimeDuration{incrementInSeconds, TimeUnit::Second};
-            expectedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, expectedTimeRange);
+            expectedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else if (!input.allowDefaultTimeIncrement) {
-            expectedIncrement.timeIncrement       = missingIncrement();
-            expectedIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement();
+            expectedIncrement.timeIncrement       = missingIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            expectedIncrement.typeOfTimeIncrement = missingTypeOfTimeIncrement(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribModelException(
-                "Default time-increment deduction for IFSStandardSingleLoop is not implemented", input.to_json(),
+                "Default time-increment deduction for IFSStandardSingleLoop is not implemented", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                 Here());
 
-            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, expectedTimeRange);
+            const long defaultIncrementInSeconds = deduceDefaultTimeIncrement(input, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (defaultIncrementInSeconds <= 0) {
-                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(),
+                throw Mars2GribModelException("Defaulted timeIncrementInSeconds must be positive", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                               Here());
             }
 
             if (expectedTimeRange.unit != TimeUnit::Month) {
-                const long timeRangeInSeconds = convertToSeconds(expectedTimeRange);
+                const long timeRangeInSeconds = convertToSeconds(expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 if (defaultIncrementInSeconds > timeRangeInSeconds) {
                     throw Mars2GribModelException("timeIncrementInSeconds exceeds the innermost time range",
-                                                  input.to_json(), Here());
+                                                  input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
                 }
             }
 
             expectedIncrement.timeIncrement       = TimeDuration{defaultIncrementInSeconds, TimeUnit::Second};
-            expectedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, expectedTimeRange);
+            expectedIncrement.typeOfTimeIncrement = typeOfTimeIncrementForWindow(input, false, true, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
 
         const ProductTimeSpecWindow& window = shape.values.front();
@@ -437,29 +459,33 @@ inline bool check_IFSStandardSingleLoop_Shape(
         if (window.typeOfStatisticalProcessing != input.innerMostTypeOfStatisticalProcessing) {
             throw Mars2GribModelException(
                 "IFSStandardSingleLoop window statistical processing does not match the innermost input processing",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         if (window.typeOfTimeIncrement != expectedIncrement.typeOfTimeIncrement) {
             throw Mars2GribModelException("IFSStandardSingleLoop window typeOfTimeIncrement is inconsistent",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        if (!compareTimeDuration(window.timeRange, expectedTimeRange)) {
-            throw Mars2GribModelException("IFSStandardSingleLoop window timeRange is inconsistent", input.to_json(),
+        if (!compareTimeDuration(window.timeRange, expectedTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("IFSStandardSingleLoop window timeRange is inconsistent", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
-        if (!compareTimeDuration(window.timeIncrement, expectedIncrement.timeIncrement)) {
-            throw Mars2GribModelException("IFSStandardSingleLoop window timeIncrement is inconsistent", input.to_json(),
+        if (!compareTimeDuration(window.timeIncrement, expectedIncrement.timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            throw Mars2GribModelException("IFSStandardSingleLoop window timeIncrement is inconsistent", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
 
-        return true;
+        {
+            bool result = true;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to execute `check_IFSStandardSingleLoop_Shape`", input.to_json(), Here()));
+            Mars2GribModelException("Failed to execute `check_IFSStandardSingleLoop_Shape`", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

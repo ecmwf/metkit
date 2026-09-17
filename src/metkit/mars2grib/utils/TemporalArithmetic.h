@@ -39,6 +39,7 @@
 #include "metkit/mars2grib/backend/deductions/common.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 
 namespace metkit::mars2grib::utils::time_arithmetic {
@@ -52,7 +53,9 @@ namespace detail {
 /// seconds only. Any value that is not (within tolerance) integral, or that
 /// cannot be represented as a `long`, is rejected.
 ///
-inline long toWholeSeconds(eckit::Second value) {
+template <class Cntx_t>
+inline long toWholeSeconds(eckit::Second value, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
@@ -67,7 +70,9 @@ inline long toWholeSeconds(eckit::Second value) {
             throw Mars2GribGenericException("Whole-second value is out of range for a long", Here());
         }
 
-        return static_cast<long>(rounded);
+        const long result = static_cast<long>(rounded);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
@@ -81,7 +86,9 @@ inline long toWholeSeconds(eckit::Second value) {
 /// The multiplication is performed in `long long` and is rejected if it would
 /// overflow.
 ///
-inline long long checkedSecondsFromUnits(long length, long long secondsPerUnit) {
+template <class Cntx_t>
+inline long long checkedSecondsFromUnits(long length, long long secondsPerUnit, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
@@ -95,49 +102,72 @@ inline long long checkedSecondsFromUnits(long length, long long secondsPerUnit) 
             throw Mars2GribGenericException("TimeDuration length underflows when converted to seconds", Here());
         }
 
-        return lengthWide * secondsPerUnit;
+        const long long result = lengthWide * secondsPerUnit;
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to convert a TimeDuration length to seconds", Here()));
     }
 }
 
-inline bool isLeapYear(long year) {
-    return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+template <class Cntx_t>
+inline bool isLeapYear(long year, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
+    const bool result = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
-inline long daysInMonth(long year, long month) {
+template <class Cntx_t>
+inline long daysInMonth(long year, long month, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
+        long result;
         switch (month) {
             case 1:
-                return 31;
+                result = 31;
+                break;
             case 2:
-                return isLeapYear(year) ? 29 : 28;
+                result = isLeapYear(year, profiling::callSite(cntx, Here())) ? 29 : 28;
+                break;
             case 3:
-                return 31;
+                result = 31;
+                break;
             case 4:
-                return 30;
+                result = 30;
+                break;
             case 5:
-                return 31;
+                result = 31;
+                break;
             case 6:
-                return 30;
+                result = 30;
+                break;
             case 7:
-                return 31;
+                result = 31;
+                break;
             case 8:
-                return 31;
+                result = 31;
+                break;
             case 9:
-                return 30;
+                result = 30;
+                break;
             case 10:
-                return 31;
+                result = 31;
+                break;
             case 11:
-                return 30;
+                result = 30;
+                break;
             case 12:
-                return 31;
+                result = 31;
+                break;
             default:
                 throw Mars2GribGenericException("Invalid calendar month in daysInMonth", Here());
         }
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
@@ -145,13 +175,16 @@ inline long daysInMonth(long year, long month) {
     }
 }
 
-inline eckit::DateTime shiftDateTimeBySeconds(const eckit::DateTime& dateTime, long long deltaSeconds) {
+template <class Cntx_t>
+inline eckit::DateTime shiftDateTimeBySeconds(const eckit::DateTime& dateTime, long long deltaSeconds, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
         constexpr long long secondsPerDay = 86400LL;
 
-        const long long currentTimeInSeconds = static_cast<long long>(toWholeSeconds(dateTime.time()));
+        const long long currentTimeInSeconds =
+            static_cast<long long>(toWholeSeconds(dateTime.time(), profiling::callSite(cntx, Here())));
 
         if (deltaSeconds > 0 && currentTimeInSeconds > std::numeric_limits<long long>::max() - deltaSeconds) {
             throw Mars2GribGenericException("DateTime second shift overflows", Here());
@@ -179,14 +212,18 @@ inline eckit::DateTime shiftDateTimeBySeconds(const eckit::DateTime& dateTime, l
         eckit::Date shiftedDate = dateTime.date();
         shiftedDate += static_cast<long>(dayOffset);
 
-        return eckit::DateTime{shiftedDate, eckit::Time{static_cast<long>(normalizedSeconds)}};
+        eckit::DateTime result{shiftedDate, eckit::Time{static_cast<long>(normalizedSeconds)}};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to shift DateTime by elapsed seconds", Here()));
     }
 }
 
-inline eckit::DateTime shiftCalendarMonths(const eckit::DateTime& dateTime, long deltaMonths) {
+template <class Cntx_t>
+inline eckit::DateTime shiftCalendarMonths(const eckit::DateTime& dateTime, long deltaMonths, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
@@ -216,9 +253,12 @@ inline eckit::DateTime shiftCalendarMonths(const eckit::DateTime& dateTime, long
                 "Calendar-month shift produced a year outside the eckit-safe range (>= 100)", Here());
         }
 
-        const long targetDay = std::min(date.day(), daysInMonth(targetYear, targetMonth));
+        const long targetDay =
+            std::min(date.day(), daysInMonth(targetYear, targetMonth, profiling::callSite(cntx, Here())));
 
-        return eckit::DateTime{eckit::Date{targetYear, targetMonth, targetDay}, dateTime.time()};
+        eckit::DateTime result{eckit::Date{targetYear, targetMonth, targetDay}, dateTime.time()};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to shift DateTime by calendar months", Here()));
@@ -233,11 +273,15 @@ inline eckit::DateTime shiftCalendarMonths(const eckit::DateTime& dateTime, long
 /// @return `00:00:00` as an `eckit::Time`.
 /// @throws Mars2GribGenericException If construction fails unexpectedly.
 ///
-inline eckit::Time defaultMarsTime() {
+template <class Cntx_t>
+inline eckit::Time defaultMarsTime(Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return eckit::Time{0};
+        eckit::Time result{0};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to construct the default MARS time", Here()));
@@ -252,11 +296,15 @@ inline eckit::Time defaultMarsTime() {
 /// @return Combined eckit DateTime.
 /// @throws Mars2GribGenericException If eckit construction fails.
 ///
-inline eckit::DateTime makeDateTime(const eckit::Date& date, const eckit::Time& time) {
+template <class Cntx_t>
+inline eckit::DateTime makeDateTime(const eckit::Date& date, const eckit::Time& time, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return eckit::DateTime{date, time};
+        eckit::DateTime result{date, time};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
@@ -274,13 +322,18 @@ inline eckit::DateTime makeDateTime(const eckit::Date& date, const eckit::Time& 
 /// @return Combined eckit DateTime.
 /// @throws Mars2GribGenericException If defaulting or construction fails.
 ///
-inline eckit::DateTime makeDateTime(const eckit::Date& date, const std::optional<eckit::Time>& time) {
+template <class Cntx_t>
+inline eckit::DateTime makeDateTime(const eckit::Date& date, const std::optional<eckit::Time>& time, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        const eckit::Time resolvedTime = time.has_value() ? *time : defaultMarsTime();
+        const eckit::Time resolvedTime =
+            time.has_value() ? *time : defaultMarsTime(profiling::callSite(cntx, Here()));
 
-        return makeDateTime(date, resolvedTime);
+        eckit::DateTime result = makeDateTime(date, resolvedTime, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to construct DateTime from optional time", Here()));
@@ -293,13 +346,17 @@ inline eckit::DateTime makeDateTime(const eckit::Date& date, const std::optional
 /// @return ProductTimeDuration represented as zero seconds.
 /// @throws Mars2GribGenericException If construction fails unexpectedly.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration zeroDuration() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration zeroDuration(Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return TimeDuration{0, TimeUnit::Second};
+        TimeDuration result{0, TimeUnit::Second};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to construct a zero ProductTimeDuration", Here()));
@@ -312,12 +369,16 @@ inline metkit::mars2grib::backend::deductions::TimeDuration zeroDuration() {
 /// @return Duration `{1, Month}`.
 /// @throws Mars2GribGenericException If construction of the duration unexpectedly fails.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration oneMonth() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration oneMonth(Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return {1, TimeUnit::Month};
+        metkit::mars2grib::backend::deductions::TimeDuration result{1, TimeUnit::Month};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to execute `oneMonth`", Here()));
@@ -330,12 +391,16 @@ inline metkit::mars2grib::backend::deductions::TimeDuration oneMonth() {
 /// @return Duration `{24, Hour}`.
 /// @throws Mars2GribGenericException If construction of the duration unexpectedly fails.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration twentyFourHours() {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration twentyFourHours(Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return {24, TimeUnit::Hour};
+        metkit::mars2grib::backend::deductions::TimeDuration result{24, TimeUnit::Hour};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to execute `twentyFourHours`", Here()));
@@ -357,12 +422,16 @@ inline metkit::mars2grib::backend::deductions::TimeDuration twentyFourHours() {
 /// @return `true` when both `length` and `unit` are identical; otherwise `false`.
 /// @throws Mars2GribGenericException If comparison fails unexpectedly.
 ///
+template <class Cntx_t>
 inline bool compareTimeDuration(const metkit::mars2grib::backend::deductions::TimeDuration& lhs,
-                                const metkit::mars2grib::backend::deductions::TimeDuration& rhs) {
+                                 const metkit::mars2grib::backend::deductions::TimeDuration& rhs, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return lhs.length == rhs.length && lhs.unit == rhs.unit;
+        const bool result = lhs.length == rhs.length && lhs.unit == rhs.unit;
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to compare two TimeDuration values", Here()));
@@ -370,7 +439,9 @@ inline bool compareTimeDuration(const metkit::mars2grib::backend::deductions::Ti
 }
 
 
-inline long convertToSeconds(const metkit::mars2grib::backend::deductions::TimeDuration& duration) {
+template <class Cntx_t>
+inline long convertToSeconds(const metkit::mars2grib::backend::deductions::TimeDuration& duration, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
@@ -379,14 +450,20 @@ inline long convertToSeconds(const metkit::mars2grib::backend::deductions::TimeD
 
         switch (duration.unit) {
             case TimeUnit::Second:
-                return duration.length;
+            {
+                const long result = duration.length;
+                profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
 
             case TimeUnit::Hour:
-                seconds = detail::checkedSecondsFromUnits(duration.length, 3600LL);
+                seconds = detail::checkedSecondsFromUnits(duration.length, 3600LL,
+                                                          profiling::callSite(cntx, Here()));
                 break;
 
             case TimeUnit::Day:
-                seconds = detail::checkedSecondsFromUnits(duration.length, 86400LL);
+                seconds = detail::checkedSecondsFromUnits(duration.length, 86400LL,
+                                                          profiling::callSite(cntx, Here()));
                 break;
 
             case TimeUnit::Month:
@@ -401,7 +478,9 @@ inline long convertToSeconds(const metkit::mars2grib::backend::deductions::TimeD
             throw Mars2GribGenericException("Converted duration in seconds is out of range for a long", Here());
         }
 
-        return static_cast<long>(seconds);
+        const long result = static_cast<long>(seconds);
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to convert ProductTimeDuration to seconds", Here()));
@@ -416,11 +495,16 @@ inline long convertToSeconds(const metkit::mars2grib::backend::deductions::TimeD
 /// @return Shifted DateTime.
 /// @throws Mars2GribGenericException If eckit arithmetic fails.
 ///
-inline eckit::DateTime addSeconds(const eckit::DateTime& dateTime, long seconds) {
+template <class Cntx_t>
+inline eckit::DateTime addSeconds(const eckit::DateTime& dateTime, long seconds, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
-        return detail::shiftDateTimeBySeconds(dateTime, seconds);
+        eckit::DateTime result =
+            detail::shiftDateTimeBySeconds(dateTime, seconds, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to add seconds to DateTime", Here()));
@@ -435,7 +519,9 @@ inline eckit::DateTime addSeconds(const eckit::DateTime& dateTime, long seconds)
 /// @return Shifted DateTime.
 /// @throws Mars2GribGenericException If eckit arithmetic fails.
 ///
-inline eckit::DateTime subtractSeconds(const eckit::DateTime& dateTime, long seconds) {
+template <class Cntx_t>
+inline eckit::DateTime subtractSeconds(const eckit::DateTime& dateTime, long seconds, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
@@ -443,7 +529,10 @@ inline eckit::DateTime subtractSeconds(const eckit::DateTime& dateTime, long sec
             throw Mars2GribGenericException("Cannot subtract the minimum representable second count", Here());
         }
 
-        return detail::shiftDateTimeBySeconds(dateTime, -seconds);
+        eckit::DateTime result =
+            detail::shiftDateTimeBySeconds(dateTime, -seconds, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to subtract seconds from DateTime", Here()));
@@ -461,8 +550,11 @@ inline eckit::DateTime subtractSeconds(const eckit::DateTime& dateTime, long sec
 /// @return Shifted DateTime.
 /// @throws Mars2GribGenericException For unsupported units or arithmetic failures.
 ///
+template <class Cntx_t>
 inline eckit::DateTime addDuration(const eckit::DateTime& dateTime,
-                                   const metkit::mars2grib::backend::deductions::TimeDuration& duration) {
+                                    const metkit::mars2grib::backend::deductions::TimeDuration& duration,
+                                    Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
@@ -470,22 +562,44 @@ inline eckit::DateTime addDuration(const eckit::DateTime& dateTime,
     try {
         switch (duration.unit) {
             case TimeUnit::Second:
-                return addSeconds(dateTime, duration.length);
+                {
+                    eckit::DateTime result =
+                        addSeconds(dateTime, duration.length, profiling::callSite(cntx, Here()));
+                    profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
 
             case TimeUnit::Hour:
-                return detail::shiftDateTimeBySeconds(dateTime,
-                                                      detail::checkedSecondsFromUnits(duration.length, 3600LL));
+                {
+                    const long long seconds = detail::checkedSecondsFromUnits(
+                        duration.length, 3600LL, profiling::callSite(cntx, Here()));
+                    eckit::DateTime result =
+                        detail::shiftDateTimeBySeconds(dateTime, seconds, profiling::callSite(cntx, Here()));
+                    profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
 
             case TimeUnit::Day:
-                return detail::shiftDateTimeBySeconds(dateTime,
-                                                      detail::checkedSecondsFromUnits(duration.length, 86400LL));
+                {
+                    const long long seconds = detail::checkedSecondsFromUnits(
+                        duration.length, 86400LL, profiling::callSite(cntx, Here()));
+                    eckit::DateTime result =
+                        detail::shiftDateTimeBySeconds(dateTime, seconds, profiling::callSite(cntx, Here()));
+                    profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
 
             case TimeUnit::Month:
                 if (duration.length == std::numeric_limits<long>::min()) {
                     throw Mars2GribGenericException("Cannot add the minimum representable month count", Here());
                 }
 
-                return detail::shiftCalendarMonths(dateTime, duration.length);
+                {
+                    eckit::DateTime result =
+                        detail::shiftCalendarMonths(dateTime, duration.length, profiling::callSite(cntx, Here()));
+                    profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
 
             default:
                 throw Mars2GribGenericException("Unsupported TimeDuration unit in addDuration", Here());
@@ -507,30 +621,46 @@ inline eckit::DateTime addDuration(const eckit::DateTime& dateTime,
 /// @return Shifted DateTime.
 /// @throws Mars2GribGenericException For unsupported units or arithmetic failures.
 ///
+template <class Cntx_t>
 inline eckit::DateTime subtractDuration(const eckit::DateTime& dateTime,
-                                        const metkit::mars2grib::backend::deductions::TimeDuration& duration) {
+                                         const metkit::mars2grib::backend::deductions::TimeDuration& duration,
+                                         Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
         switch (duration.unit) {
             case TimeUnit::Second:
-                return subtractSeconds(dateTime, duration.length);
+                {
+                    eckit::DateTime result =
+                        subtractSeconds(dateTime, duration.length, profiling::callSite(cntx, Here()));
+                    profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
 
             case TimeUnit::Hour: {
-                const long long seconds = detail::checkedSecondsFromUnits(duration.length, 3600LL);
+                const long long seconds = detail::checkedSecondsFromUnits(
+                    duration.length, 3600LL, profiling::callSite(cntx, Here()));
                 if (seconds == std::numeric_limits<long long>::min()) {
                     throw Mars2GribGenericException("Cannot subtract the minimum representable second count", Here());
                 }
-                return detail::shiftDateTimeBySeconds(dateTime, -seconds);
+                eckit::DateTime result =
+                    detail::shiftDateTimeBySeconds(dateTime, -seconds, profiling::callSite(cntx, Here()));
+                profiling::profileExitFunction(cntx, Here());
+                return result;
             }
 
             case TimeUnit::Day: {
-                const long long seconds = detail::checkedSecondsFromUnits(duration.length, 86400LL);
+                const long long seconds = detail::checkedSecondsFromUnits(
+                    duration.length, 86400LL, profiling::callSite(cntx, Here()));
                 if (seconds == std::numeric_limits<long long>::min()) {
                     throw Mars2GribGenericException("Cannot subtract the minimum representable second count", Here());
                 }
-                return detail::shiftDateTimeBySeconds(dateTime, -seconds);
+                eckit::DateTime result =
+                    detail::shiftDateTimeBySeconds(dateTime, -seconds, profiling::callSite(cntx, Here()));
+                profiling::profileExitFunction(cntx, Here());
+                return result;
             }
 
             case TimeUnit::Month:
@@ -538,7 +668,12 @@ inline eckit::DateTime subtractDuration(const eckit::DateTime& dateTime,
                     throw Mars2GribGenericException("Cannot subtract the minimum representable month count", Here());
                 }
 
-                return detail::shiftCalendarMonths(dateTime, -duration.length);
+                {
+                    eckit::DateTime result = detail::shiftCalendarMonths(
+                        dateTime, -duration.length, profiling::callSite(cntx, Here()));
+                    profiling::profileExitFunction(cntx, Here());
+                    return result;
+                }
 
             default:
                 throw Mars2GribGenericException("Unsupported TimeDuration unit in subtractDuration", Here());
@@ -559,7 +694,9 @@ inline eckit::DateTime subtractDuration(const eckit::DateTime& dateTime,
 /// @return First day of the following month at `00:00:00`.
 /// @throws Mars2GribGenericException If calendar-month resolution fails.
 ///
-inline eckit::DateTime beginningOfNextCalendarMonth(const eckit::DateTime& dateTime) {
+template <class Cntx_t>
+inline eckit::DateTime beginningOfNextCalendarMonth(const eckit::DateTime& dateTime, Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
@@ -571,7 +708,11 @@ inline eckit::DateTime beginningOfNextCalendarMonth(const eckit::DateTime& dateT
         const long nextYear   = isDecember ? year + 1 : year;
         const long nextMonth  = isDecember ? 1 : month + 1;
 
-        return makeDateTime(eckit::Date{nextYear, nextMonth, 1}, defaultMarsTime());
+        const eckit::Time time = defaultMarsTime(profiling::callSite(cntx, Here()));
+        eckit::DateTime result =
+            makeDateTime(eckit::Date{nextYear, nextMonth, 1}, time, profiling::callSite(cntx, Here()));
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to resolve the next calendar-month boundary", Here()));
@@ -586,8 +727,11 @@ inline eckit::DateTime beginningOfNextCalendarMonth(const eckit::DateTime& dateT
 /// @return Elapsed interval represented in seconds.
 /// @throws Mars2GribGenericException If `end` precedes `begin` or arithmetic fails.
 ///
+template <class Cntx_t>
 inline metkit::mars2grib::backend::deductions::TimeDuration durationBetween(const eckit::DateTime& begin,
-                                                                            const eckit::DateTime& end) {
+                                                                             const eckit::DateTime& end,
+                                                                             Cntx_t& cntx) {
+    profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
@@ -600,9 +744,11 @@ inline metkit::mars2grib::backend::deductions::TimeDuration durationBetween(cons
             throw Mars2GribGenericException("ProductTimeSpec domain duration cannot be negative", Here());
         }
 
-        const long seconds = detail::toWholeSeconds(elapsedSeconds);
+        const long seconds = detail::toWholeSeconds(elapsedSeconds, profiling::callSite(cntx, Here()));
 
-        return TimeDuration{seconds, TimeUnit::Second};
+        TimeDuration result{seconds, TimeUnit::Second};
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Failed to compute elapsed ProductTimeSpec duration", Here()));

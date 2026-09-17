@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/backend/concepts/shape-of-the-earth/shapeOfTheEarthEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -56,29 +57,44 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t shapeOfTheEarthMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t shapeOfTheEarthMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
 
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
 
         // This is used to fully delegate section3 setting to gridSpec
-        if (get_or_throw<bool>(opt, "skipSection3")) {
-            return static_cast<std::size_t>(ShapeOfTheEarthType::Dummy);
+        if (get_or_throw<bool>(opt, "skipSection3", utils::profiling::callSite(cntx, Here()))) {
+            const std::size_t result = static_cast<std::size_t>(ShapeOfTheEarthType::Dummy);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // NOTE: Spherical harmonics is encoded without shape of the earth
-        if (has(mars, "truncation")) {
-            return compile_time_registry_engine::MISSING;
+        if (has(mars, "truncation", utils::profiling::callSite(cntx, Here()))) {
+            const std::size_t result = compile_time_registry_engine::MISSING;
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        return static_cast<std::size_t>(ShapeOfTheEarthType::Default);
+        const std::size_t result = static_cast<std::size_t>(ShapeOfTheEarthType::Default);
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `shapeOfTheEarth` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t shapeOfTheEarthMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = shapeOfTheEarthMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

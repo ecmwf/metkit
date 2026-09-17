@@ -131,6 +131,7 @@
 #include "metkit/mars2grib/frontend/header/EncodingPlan.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend::header {
 
@@ -153,7 +154,7 @@ namespace metkit::mars2grib::frontend::header {
 /// The encoder is **logically immutable** and safe to reuse across multiple
 /// encoding calls with different input dictionaries.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
 class SpecializedEncoder {
 public:
 
@@ -172,7 +173,7 @@ public:
     /// The plan is generated once at construction time and never modified.
     ///
     using Plan_t =
-        metkit::mars2grib::frontend::header::detail::EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+        metkit::mars2grib::frontend::header::detail::EncodingPlan<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
 
     ///
     /// @brief Alias for resolved header layout data.
@@ -210,9 +211,13 @@ public:
     /// @note
     /// After construction, both the layout and the plan are immutable.
     ///
-    explicit SpecializedEncoder(HeaderLayout_t&& headerLayout) :
+    explicit SpecializedEncoder(HeaderLayout_t&& headerLayout, Cntx_t& cntx) :
         layout_{std::move(headerLayout)},
-        plan_{detail::make_EncodingPlan_or_throw<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>(layout_)} {}
+        plan_{detail::make_EncodingPlan_or_throw<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>(
+            layout_, utils::profiling::callSite(cntx, Here()))} {
+        utils::profiling::profileEnterFunction(cntx, Here());
+        utils::profiling::profileExitFunction(cntx, Here());
+    }
 
     ///
     /// @name Special member functions
@@ -294,7 +299,10 @@ public:
     /// - serialized header layout
     /// - full nested exception chain
     ///
-    std::unique_ptr<OutDict_t> encode(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) const {
+    std::unique_ptr<OutDict_t> encode(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
+                                      Cntx_t& cntx) const {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
         using metkit::mars2grib::utils::dict_traits::clone_or_throw;
@@ -303,27 +311,33 @@ public:
         using metkit::mars2grib::utils::exceptions::Mars2GribEncoderException;
 
         try {
-            auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
+            auto samplePtr =
+                make_from_sample_or_throw<OutDict_t>("GRIB2", utils::profiling::callSite(cntx, Here()));
 
             // Encoding loop as a dense set of optimized operations
             for (const auto& stage : plan_) {
                 for (const auto& section : stage) {
-                    for (const auto& conceptCallback : section) {
+                    for (std::size_t i = 0; i < section.size(); ++i) {
+                        const auto& conceptCallback = section[i];
                         if (conceptCallback) {
-                            conceptCallback(mars, par, opt, *samplePtr);
+                            conceptCallback(mars, par, opt, *samplePtr, utils::profiling::callSite(cntx, Here()));
                         }
                     }
                 }
-                samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+                samplePtr = clone_or_throw<OutDict_t>(*samplePtr, utils::profiling::callSite(cntx, Here()));
             }
 
-            return samplePtr;
+            std::unique_ptr<OutDict_t> result = std::move(samplePtr);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             std::throw_with_nested(Mars2GribEncoderException(
-                "Critical failure in SpecializedEncoder execution", dict_to_json<MarsDict_t>(mars),
-                dict_to_json<ParDict_t>(par), dict_to_json<OptDict_t>(opt),
-                debug_convert_GribHeaderLayoutData_to_json(layout_), Here()));
+                "Critical failure in SpecializedEncoder execution",
+                dict_to_json<MarsDict_t>(mars, utils::profiling::callSite(cntx, Here())),
+                dict_to_json<ParDict_t>(par, utils::profiling::callSite(cntx, Here())),
+                dict_to_json<OptDict_t>(opt, utils::profiling::callSite(cntx, Here())),
+                debug_convert_GribHeaderLayoutData_to_json(layout_, utils::profiling::callSite(cntx, Here())), Here()));
         }
     }
 
@@ -379,7 +393,10 @@ public:
     /// This function is part of a temporary staged interface added in
     /// preparation for a cache that will soon be implemented.
     ///
-    std::unique_ptr<const OutDict_t> prepare(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) const {
+    std::unique_ptr<const OutDict_t> prepare(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
+                                             Cntx_t& cntx) const {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::compile_time_registry_engine::StageOverride;
         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
@@ -389,37 +406,44 @@ public:
         using metkit::mars2grib::utils::exceptions::Mars2GribEncoderException;
 
         try {
-            auto samplePtr = make_from_sample_or_throw<OutDict_t>("GRIB2");
+            auto samplePtr =
+                make_from_sample_or_throw<OutDict_t>("GRIB2", utils::profiling::callSite(cntx, Here()));
 
             // Initialization of the sample
             for (const auto& section : plan_[0]) {
-                for (const auto& conceptCallback : section) {
+                for (std::size_t i = 0; i < section.size(); ++i) {
+                    const auto& conceptCallback = section[i];
                     if (conceptCallback) {
-                        conceptCallback(mars, par, opt, *samplePtr);
+                        conceptCallback(mars, par, opt, *samplePtr, utils::profiling::callSite(cntx, Here()));
                     }
                 }
             }
-            samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+            samplePtr = clone_or_throw<OutDict_t>(*samplePtr, utils::profiling::callSite(cntx, Here()));
 
             // Encoding loop as a dense set of optimized operations
             for (std::size_t s = 0; s <= StageOverride; ++s) {
                 for (const auto& section : plan_[s + 1]) {
-                    for (const auto& conceptCallback : section) {
+                    for (std::size_t i = 0; i < section.size(); ++i) {
+                        const auto& conceptCallback = section[i];
                         if (conceptCallback) {
-                            conceptCallback(mars, par, opt, *samplePtr);
+                            conceptCallback(mars, par, opt, *samplePtr, utils::profiling::callSite(cntx, Here()));
                         }
                     }
                 }
-                samplePtr = clone_or_throw<OutDict_t>(*samplePtr);
+                samplePtr = clone_or_throw<OutDict_t>(*samplePtr, utils::profiling::callSite(cntx, Here()));
             }
 
-            return samplePtr;
+            std::unique_ptr<const OutDict_t> result = std::move(samplePtr);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             std::throw_with_nested(Mars2GribEncoderException(
-                "Critical failure in SpecializedEncoder execution", dict_to_json<MarsDict_t>(mars),
-                dict_to_json<ParDict_t>(par), dict_to_json<OptDict_t>(opt),
-                debug_convert_GribHeaderLayoutData_to_json(layout_), Here()));
+                "Critical failure in SpecializedEncoder execution",
+                dict_to_json<MarsDict_t>(mars, utils::profiling::callSite(cntx, Here())),
+                dict_to_json<ParDict_t>(par, utils::profiling::callSite(cntx, Here())),
+                dict_to_json<OptDict_t>(opt, utils::profiling::callSite(cntx, Here())),
+                debug_convert_GribHeaderLayoutData_to_json(layout_, utils::profiling::callSite(cntx, Here())), Here()));
         }
     }
 
@@ -476,7 +500,9 @@ public:
     /// preparation for a cache that will soon be implemented.
     ///
     std::unique_ptr<OutDict_t> finaliseEncoding(const OutDict_t& sample, const MarsDict_t& mars, const ParDict_t& par,
-                                                const OptDict_t& opt) const {
+                                                 const OptDict_t& opt, Cntx_t& cntx) const {
+
+        utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::compile_time_registry_engine::StageRuntime;
         using metkit::mars2grib::frontend::debug::debug_convert_GribHeaderLayoutData_to_json;
@@ -485,25 +511,30 @@ public:
         using metkit::mars2grib::utils::exceptions::Mars2GribEncoderException;
 
         try {
-            auto samplePtr = clone_or_throw<OutDict_t>(sample);
+            auto samplePtr = clone_or_throw<OutDict_t>(sample, utils::profiling::callSite(cntx, Here()));
 
             // Encoding loop as a dense set of optimized operations
             for (const auto& section : plan_[StageRuntime + 1]) {
-                for (const auto& conceptCallback : section) {
+                for (std::size_t i = 0; i < section.size(); ++i) {
+                    const auto& conceptCallback = section[i];
                     if (conceptCallback) {
-                        conceptCallback(mars, par, opt, *samplePtr);
+                        conceptCallback(mars, par, opt, *samplePtr, utils::profiling::callSite(cntx, Here()));
                     }
                 }
             }
 
             // @todo eventually need to return another clone to commit modifications
-            return samplePtr;
+            std::unique_ptr<OutDict_t> result = std::move(samplePtr);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         catch (...) {
             std::throw_with_nested(Mars2GribEncoderException(
-                "Critical failure in SpecializedEncoder execution", dict_to_json<MarsDict_t>(mars),
-                dict_to_json<ParDict_t>(par), dict_to_json<OptDict_t>(opt),
-                debug_convert_GribHeaderLayoutData_to_json(layout_), Here()));
+                "Critical failure in SpecializedEncoder execution",
+                dict_to_json<MarsDict_t>(mars, utils::profiling::callSite(cntx, Here())),
+                dict_to_json<ParDict_t>(par, utils::profiling::callSite(cntx, Here())),
+                dict_to_json<OptDict_t>(opt, utils::profiling::callSite(cntx, Here())),
+                debug_convert_GribHeaderLayoutData_to_json(layout_, utils::profiling::callSite(cntx, Here())), Here()));
         }
     }
 

@@ -40,6 +40,7 @@
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
@@ -77,8 +78,10 @@ namespace metkit::mars2grib::backend::sections::initializers {
 /// https://confluence.ecmwf.int/display/ECC/ecCodes+developer+FAQ+-+GRIB#ecCodesdeveloperFAQGRIB-GRIB:HowcanIconvertthesampleGRIB2.tmpltosphericalharmonics?
 ///
 template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out,
+                             Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
     // Dictionary traits
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
@@ -87,30 +90,81 @@ void allocateTemplateNumber3(const MarsDict_t& mars, const ParDict_t& par, const
         // Special handling for spectral grids (Template 50)
         if constexpr (TemplateNumber == 50 || TemplateNumber == 1001) {
             // Precondition GRIB handle for spectral representation
-            set_or_throw<long>(out, "numberOfDataPoints", 6L);
-            set_or_throw<long>(out, "numberOfValues", 6L);
-            set_or_throw<long>(out, "bitsPerValue", 16L);
-            set_or_throw<long>(out, "typeOfFirstFixedSurface", 105L);
-            set_or_throw<std::vector<double>>(out, "values", std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
-            set_or_throw<long>(out, "scaleFactorOfFirstFixedSurface", 0L);
-            set_or_throw<long>(out, "scaledValueOfFirstFixedSurface", 0L);
-            set_or_throw<long>(out, "gridDefinitionTemplateNumber", 50L);
-            set_or_throw<long>(out, "J", 1L);
-            set_or_throw<long>(out, "K", 1L);
-            set_or_throw<long>(out, "M", 1L);
-            set_or_throw<long>(out, "spectralType", 1L);
-            set_or_throw<long>(out, "spectralMode", 1L);
-            set_or_throw<long>(out, "numberOfOctectsForNumberOfPoints", 0L);
-            set_or_throw<long>(out, "interpretationOfNumberOfPoints", 0L);
-            set_or_throw<long>(out, "dataRepresentationTemplateNumber", 51L);
+            set_or_throw<long>(out, "numberOfDataPoints", 6L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "numberOfValues", 6L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "bitsPerValue", 16L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "typeOfFirstFixedSurface", 105L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<std::vector<double>>(out, "values", std::vector<double>{1.0, 2.0, 3.0, 4.0, 5.0, 6.0},
+                                              metkit::mars2grib::utils::profiling::sectionInitializerCallSite<
+                                                  SectionNumber, TemplateNumber>(cntx, Here()));
+            set_or_throw<long>(out, "scaleFactorOfFirstFixedSurface", 0L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "scaledValueOfFirstFixedSurface", 0L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "gridDefinitionTemplateNumber", 50L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "J", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "K", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "M", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "spectralType", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "spectralMode", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "numberOfOctectsForNumberOfPoints", 0L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "interpretationOfNumberOfPoints", 0L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
+            set_or_throw<long>(out, "dataRepresentationTemplateNumber", 51L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
         }
 
         if constexpr (TemplateNumber != 50 && TemplateNumber != 1000 && TemplateNumber != 1001) {
             // Standard grid definition template
             long drt = static_cast<long>(TemplateNumber);
-            set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt);
+            set_or_throw<long>(out, "gridDefinitionTemplateNumber", drt,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
         }
 
+        metkit::mars2grib::utils::profiling::profileExitSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
         return;
     }
     catch (...) {

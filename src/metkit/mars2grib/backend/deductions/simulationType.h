@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <algorithm>
 #include <array>
 #include <string>
@@ -80,8 +82,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///         input, with the original cause attached via
 ///         `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -98,7 +101,7 @@ SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const Par
     constexpr std::array<std::string_view, 3> startOfDataAssimilationTypes = {{"4i", "me", "eme"}};
 
     try {
-        const std::string type = get_or_throw<std::string>(mars, "type");
+        const std::string type = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         const bool isAnalysis =
             std::any_of(analysisTypes.begin(), analysisTypes.end(), [&type](auto value) { return type == value; });
@@ -123,6 +126,7 @@ SimulationType resolve_SimulationType_or_throw(const MarsDict_t& mars, const Par
             return std::string{"`simulationType` resolved from input dictionaries: value='"} +
                    (result == SimulationType::Analysis ? "Analysis" : "Forecast") + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

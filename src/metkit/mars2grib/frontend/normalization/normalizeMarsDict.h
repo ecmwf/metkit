@@ -22,6 +22,7 @@
 #include "eckit/value/Value.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend::normalization {
 
@@ -32,26 +33,37 @@ namespace hack {
 /// @brief Normalizes legacy MARS grid strings in-place.
 /// @return true if the dictionary was actually modified.
 ///
-template <class MarsDict_t>
-bool needFixMarsGrid(const MarsDict_t& mars) {
+template <class MarsDict_t, class Cntx_t>
+bool needFixMarsGrid(const MarsDict_t& mars, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
 
-    auto marsGrid = get_opt<std::string>(mars, "grid");
-    if (!marsGrid)
-        return false;
+    auto marsGrid = get_opt<std::string>(mars, "grid", utils::profiling::callSite(cntx, Here()));
+    if (!marsGrid) {
+        bool result = false;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 
     static const std::regex pattern{R"(L(\d+)x(\d+))"};
-    return std::regex_match(*marsGrid, pattern);
+    const bool result = std::regex_match(*marsGrid, pattern);
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 
-template <class MarsDict_t>
-bool fixMarsGrid(MarsDict_t& mars) {
+template <class MarsDict_t, class Cntx_t>
+bool fixMarsGrid(MarsDict_t& mars, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
+    using metkit::mars2grib::utils::dict_traits::set_or_throw;
 
-    auto marsGrid = get_opt<std::string>(mars, "grid");
-    if (!marsGrid)
-        return false;
+    auto marsGrid = get_opt<std::string>(mars, "grid", utils::profiling::callSite(cntx, Here()));
+    if (!marsGrid) {
+        bool result = false;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 
     // Matches legacy LxN format (e.g., L640x320)
     static const std::regex pattern{R"(L(\d+)x(\d+))"};
@@ -63,11 +75,16 @@ bool fixMarsGrid(MarsDict_t& mars) {
         const double deltaLon = 360.0 / static_cast<double>(ni);
         const double deltaLat = 180.0 / static_cast<double>(nj - 1);
 
-        mars.set("grid", std::to_string(deltaLon) + "/" + std::to_string(deltaLat));
-        return true;
+        set_or_throw(mars, "grid", std::to_string(deltaLon) + "/" + std::to_string(deltaLat),
+                     utils::profiling::callSite(cntx, Here()));
+        bool result = true;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    return false;
+    bool result = false;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace hack
@@ -89,9 +106,11 @@ bool fixMarsGrid(MarsDict_t& mars) {
 ///
 /// @return A const reference to the sanitized or original dictionary
 ///
-template <class MarsDict_t, class OptDict_t>
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
 const MarsDict_t& normalize_MarsDict_if_enabled(const MarsDict_t& mars, const OptDict_t& opt,
-                                                const eckit::Value& language, MarsDict_t& scratch) {
+                                                 const eckit::Value& language, MarsDict_t& scratch, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -99,8 +118,9 @@ const MarsDict_t& normalize_MarsDict_if_enabled(const MarsDict_t& mars, const Op
     // Track if we have moved data into scratch yet
     bool modified = false;
 
-    bool needsFix      = get_or_throw<bool>(opt, "fixMarsGrid") && hack::needFixMarsGrid(mars);
-    bool needsSanitize = get_or_throw<bool>(opt, "normalizeMars");
+    bool needsFix = get_or_throw<bool>(opt, "fixMarsGrid", utils::profiling::callSite(cntx, Here())) &&
+                    hack::needFixMarsGrid(mars, utils::profiling::callSite(cntx, Here()));
+    bool needsSanitize = get_or_throw<bool>(opt, "normalizeMars", utils::profiling::callSite(cntx, Here()));
 
     if (needsFix || needsSanitize) {
         // We pay the performance debt here for the user's convenience
@@ -111,14 +131,18 @@ const MarsDict_t& normalize_MarsDict_if_enabled(const MarsDict_t& mars, const Op
         }
 
         if (needsFix) {
-            hack::fixMarsGrid(scratch);
+            hack::fixMarsGrid(scratch, utils::profiling::callSite(cntx, Here()));
         }
 
-        return scratch;
+        const MarsDict_t& result = scratch;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
     // No flags enabled: zero overhead, return original reference
-    return mars;
+    const MarsDict_t& result = mars;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::frontend::normalization

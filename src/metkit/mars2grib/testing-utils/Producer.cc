@@ -13,13 +13,16 @@
 #include <zstd.h>
 
 #include "eckit/exception/Exceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::testing_utils::run_tests {
 
 class Producer::Impl {
 public:
 
-    explicit Impl(const std::string& archivePath) : archivePath_{archivePath} {
+    template <class Cntx_t>
+    explicit Impl(const std::string& archivePath, Cntx_t& cntx) : archivePath_{archivePath} {
+        utils::profiling::profileEnterFunction(cntx, Here());
         file_ = std::fopen(archivePath.c_str(), "rb");
         if (file_ == nullptr) {
             throw eckit::UserError("Unable to open test-case archive `" + archivePath + "`", Here());
@@ -56,6 +59,7 @@ public:
 
         inputStorage_.resize(ZSTD_DStreamInSize());
         outputStorage_.resize(ZSTD_DStreamOutSize());
+        utils::profiling::profileExitFunction(cntx, Here());
     }
 
     ~Impl() {
@@ -67,38 +71,47 @@ public:
         }
     }
 
-    std::optional<std::string> readNextRecord() {
+    template <class Cntx_t>
+    std::optional<std::string> readNextRecord(Cntx_t& cntx) {
+        utils::profiling::profileEnterFunction(cntx, Here());
         while (true) {
             const std::size_t newline = pending_.find('\n', pendingOffset_);
             if (newline != std::string::npos) {
-                std::string record = pending_.substr(pendingOffset_, newline - pendingOffset_);
+                std::optional<std::string> result =
+                    pending_.substr(pendingOffset_, newline - pendingOffset_);
                 pendingOffset_     = newline + 1;
-                if (!record.empty() && record.back() == '\r') {
-                    record.pop_back();
+                if (!result->empty() && result->back() == '\r') {
+                    result->pop_back();
                 }
-                return record;
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
 
             if (inputFinished_) {
                 if (pendingOffset_ == pending_.size()) {
-                    return std::nullopt;
+                    std::optional<std::string> result = std::nullopt;
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
-                std::string record = pending_.substr(pendingOffset_);
+                std::optional<std::string> result = pending_.substr(pendingOffset_);
                 pending_.clear();
                 pendingOffset_ = 0;
-                if (!record.empty() && record.back() == '\r') {
-                    record.pop_back();
+                if (!result->empty() && result->back() == '\r') {
+                    result->pop_back();
                 }
-                return record;
+                utils::profiling::profileExitFunction(cntx, Here());
+                return result;
             }
 
-            decompressMore();
+            decompressMore(utils::profiling::callSite(cntx, Here()));
         }
     }
 
 private:
 
-    void decompressMore() {
+    template <class Cntx_t>
+    void decompressMore(Cntx_t& cntx) {
+        utils::profiling::profileEnterFunction(cntx, Here());
         if (pendingOffset_ != 0) {
             pending_.erase(0, pendingOffset_);
             pendingOffset_ = 0;
@@ -114,6 +127,7 @@ private:
                     throw eckit::Exception("Truncated zstd test-case archive `" + archivePath_ + "`", Here());
                 }
                 inputFinished_ = true;
+                utils::profiling::profileExitFunction(cntx, Here());
                 return;
             }
             input_ = ZSTD_inBuffer{inputStorage_.data(), bytesRead, 0};
@@ -128,6 +142,7 @@ private:
                                    Here());
         }
         pending_.append(outputStorage_.data(), output.pos);
+        utils::profiling::profileExitFunction(cntx, Here());
     }
 
     std::string archivePath_;
@@ -143,12 +158,21 @@ private:
     bool inputFinished_{false};
 };
 
-Producer::Producer(const std::string& archivePath) : impl_{std::make_unique<Impl>(archivePath)} {}
+Producer::Producer(const std::string& archivePath) {
+    utils::profiling::NoProfileContext cntx;
+    utils::profiling::profileEnterFunction(cntx, Here());
+    impl_ = std::make_unique<Impl>(archivePath, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+}
 
 Producer::~Producer() = default;
 
 std::optional<std::string> Producer::readNextRecord() {
-    return impl_->readNextRecord();
+    utils::profiling::NoProfileContext cntx;
+    utils::profiling::profileEnterFunction(cntx, Here());
+    std::optional<std::string> result = impl_->readNextRecord(utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::testing_utils::run_tests

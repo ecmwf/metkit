@@ -20,12 +20,14 @@
 /// not perform any temporal arithmetic.
 ///
 /// Every function catches all failures and rethrows `Mars2GribModelException`
-/// directly. Functions receiving normalized input attach `input.to_json()`.
+/// directly. Functions receiving normalized input attach `input.to_json(cntx)`.
 ///
 /// @ingroup mars2grib_product_time_spec_detail
 ///
 
 #pragma once
+
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
@@ -40,15 +42,21 @@ namespace metkit::mars2grib::backend::models::product_time_spec::detail {
 /// @return `true` when `input.step` is present, otherwise `false`.
 /// @throws Mars2GribModelException If the check cannot be completed.
 ///
-inline bool hasStep(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool hasStep(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return input.step.has_value();
+        {
+            bool result = input.step.has_value();
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input contains step",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -59,15 +67,21 @@ inline bool hasStep(const ProductTimeSpecInput& input) {
 /// @return `true` when `input.marsFcmonth` is present, otherwise `false`.
 /// @throws Mars2GribModelException If the check cannot be completed.
 ///
-inline bool hasFcmonth(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool hasFcmonth(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return input.marsFcmonth.has_value();
+        {
+            bool result = input.marsFcmonth.has_value();
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input contains fcmonth",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -78,15 +92,21 @@ inline bool hasFcmonth(const ProductTimeSpecInput& input) {
 /// @return `true` when `input.step` is absent, otherwise `false`.
 /// @throws Mars2GribModelException If the check cannot be completed.
 ///
-inline bool stepIsMissing(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool stepIsMissing(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return !hasStep(input);
+        {
+            bool result = !hasStep(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input lacks step",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -98,15 +118,21 @@ inline bool stepIsMissing(const ProductTimeSpecInput& input) {
 ///         otherwise `false`.
 /// @throws Mars2GribModelException If the check cannot be completed.
 ///
-inline bool stepIsZero(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool stepIsZero(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return hasStep(input) && input.step->length == 0;
+        {
+            bool result = hasStep(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) && input.step->length == 0;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to test whether ProductTimeSpec input contains a zero step", input.to_json(), Here()));
+            "Failed to test whether ProductTimeSpec input contains a zero step", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -118,15 +144,21 @@ inline bool stepIsZero(const ProductTimeSpecInput& input) {
 ///         positive, otherwise `false`.
 /// @throws Mars2GribModelException If the check cannot be completed.
 ///
-inline bool stepIsPositive(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool stepIsPositive(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return hasStep(input) && input.step->length > 0;
+        {
+            bool result = hasStep(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) && input.step->length > 0;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to test whether ProductTimeSpec input contains a positive step", input.to_json(), Here()));
+            "Failed to test whether ProductTimeSpec input contains a positive step", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -140,15 +172,21 @@ inline bool stepIsPositive(const ProductTimeSpecInput& input) {
 /// @return `true` when `input.marsFcmonth` is present, otherwise `false`.
 /// @throws Mars2GribModelException If the check cannot be completed.
 ///
-inline bool fcmonthIsPresent(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline bool fcmonthIsPresent(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        return hasFcmonth(input);
+        {
+            bool result = hasFcmonth(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to test whether ProductTimeSpec input contains fcmonth",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

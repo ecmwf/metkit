@@ -46,6 +46,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/domains/DomainDataTypes.h"
@@ -63,7 +65,8 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain {
 namespace detail {
 
 /// @brief Function-pointer type shared by all domain matchers.
-using DomainMatcher = bool (*)(const ProductTimeSpecInput&);
+template <class Cntx_t>
+using DomainMatcher = bool (*)(const ProductTimeSpecInput&, Cntx_t&);
 
 ///
 /// @brief Function-pointer type shared by all domain builders.
@@ -72,52 +75,45 @@ using DomainMatcher = bool (*)(const ProductTimeSpecInput&);
 /// bundle, the already constructed anchor, and the stage-1 outer time range. It
 /// returns the complete raw absolute support interval.
 ///
+template <class Cntx_t>
 using DomainBuilder = ProductTimeSpecDomain (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&,
-                                                const anchor::ProductTimeSpecAnchor&,
-                                                const shape::ProductTimeSpecOuterTimeRange&);
+                                                 const anchor::ProductTimeSpecAnchor&,
+                                                 const shape::ProductTimeSpecOuterTimeRange&, Cntx_t&);
 
 ///
 /// @brief Function-pointer type shared by all domain check callbacks.
+template <class Cntx_t>
 using DomainChecker = bool (*)(const ProductTimeSpecInput&, const anchor::ProductTimeSpecAnchor&,
-                               const ProductTimeSpecDomain&);
+                               const ProductTimeSpecDomain&, Cntx_t&);
 
 /// @brief Immutable registry row for one domain case.
 ///
 /// The row keeps the classification value, diagnostic name, matcher, builder,
 /// and checker together so that independent arrays cannot become misaligned.
 ///
+template <class Cntx_t>
 struct DomainCase {
     ProductTimeSpecDomainKind classification;
     std::string_view name;
-    DomainMatcher matcher;
-    DomainBuilder builder;
-    DomainChecker checker;
+    DomainMatcher<Cntx_t> matcher;
+    DomainBuilder<Cntx_t> builder;
+    DomainChecker<Cntx_t> checker;
 };
 
 /// @brief Immutable domain registry ordered exactly like `ProductTimeSpecDomainKind`.
-inline constexpr std::array<DomainCase, static_cast<std::size_t>(ProductTimeSpecDomainKind::Count)> domainCases{{
-    {ProductTimeSpecDomainKind::ForecastDomain, "ForecastDomain", &match_Forecast_Domain, &build_Forecast_Domain,
-     &check_Forecast_Domain},
-    {ProductTimeSpecDomainKind::FromStartForecastDomain, "FromStartForecastDomain", &match_FromStartForecast_Domain,
-     &build_FromStartForecast_Domain, &check_FromStartForecast_Domain},
-    {ProductTimeSpecDomainKind::SeasonalForecastDomain, "SeasonalForecastDomain", &match_SeasonalForecast_Domain,
-     &build_SeasonalForecast_Domain, &check_SeasonalForecast_Domain},
-    {ProductTimeSpecDomainKind::AnalysisDomain, "AnalysisDomain", &match_Analysis_Domain, &build_Analysis_Domain,
-     &check_Analysis_Domain},
-    {ProductTimeSpecDomainKind::SynopticAnalysisDomain, "SynopticAnalysisDomain", &match_SynopticAnalysis_Domain,
-     &build_SynopticAnalysis_Domain, &check_SynopticAnalysis_Domain},
+template <class Cntx_t>
+inline constexpr std::array<DomainCase<Cntx_t>, static_cast<std::size_t>(ProductTimeSpecDomainKind::Count)> domainCases{{
+    {ProductTimeSpecDomainKind::ForecastDomain, "ForecastDomain", &match_Forecast_Domain<Cntx_t>,
+     &build_Forecast_Domain<Cntx_t>, &check_Forecast_Domain<Cntx_t>},
+    {ProductTimeSpecDomainKind::FromStartForecastDomain, "FromStartForecastDomain", &match_FromStartForecast_Domain<Cntx_t>,
+     &build_FromStartForecast_Domain<Cntx_t>, &check_FromStartForecast_Domain<Cntx_t>},
+    {ProductTimeSpecDomainKind::SeasonalForecastDomain, "SeasonalForecastDomain", &match_SeasonalForecast_Domain<Cntx_t>,
+     &build_SeasonalForecast_Domain<Cntx_t>, &check_SeasonalForecast_Domain<Cntx_t>},
+    {ProductTimeSpecDomainKind::AnalysisDomain, "AnalysisDomain", &match_Analysis_Domain<Cntx_t>,
+     &build_Analysis_Domain<Cntx_t>, &check_Analysis_Domain<Cntx_t>},
+    {ProductTimeSpecDomainKind::SynopticAnalysisDomain, "SynopticAnalysisDomain", &match_SynopticAnalysis_Domain<Cntx_t>,
+     &build_SynopticAnalysis_Domain<Cntx_t>, &check_SynopticAnalysis_Domain<Cntx_t>},
 }};
-
-static_assert(static_cast<std::size_t>(detail::domainCases[0].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::ForecastDomain));
-static_assert(static_cast<std::size_t>(detail::domainCases[1].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::FromStartForecastDomain));
-static_assert(static_cast<std::size_t>(detail::domainCases[2].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::SeasonalForecastDomain));
-static_assert(static_cast<std::size_t>(detail::domainCases[3].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::AnalysisDomain));
-static_assert(static_cast<std::size_t>(detail::domainCases[4].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecDomainKind::SynopticAnalysisDomain));
 
 }  // namespace detail
 
@@ -140,16 +136,19 @@ static_assert(static_cast<std::size_t>(detail::domainCases[4].classification) ==
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 /// If matcher evaluation fails or classification is not unique.
 ///
-inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        std::array<bool, detail::domainCases.size()> matches{};
+        const auto& cases = detail::domainCases<Cntx_t>;
+        std::array<bool, static_cast<std::size_t>(ProductTimeSpecDomainKind::Count)> matches{};
         std::size_t numberOfMatches = 0;
         std::size_t matchedIndex    = 0;
 
-        for (std::size_t i = 0; i < detail::domainCases.size(); ++i) {
-            matches[i] = detail::domainCases[i].matcher(input);
+        for (std::size_t i = 0; i < cases.size(); ++i) {
+            matches[i] = cases[i].matcher(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             if (matches[i]) {
                 ++numberOfMatches;
@@ -160,14 +159,18 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
         if (numberOfMatches != 1) {
             throw Mars2GribModelException("ProductTimeSpec domain classification is not unique or is unsupported (" +
                                               std::to_string(numberOfMatches) + " matches)",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return detail::domainCases[matchedIndex].classification;
+        {
+            ProductTimeSpecDomainKind result = cases[matchedIndex].classification;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to classify the ProductTimeSpec domain", input.to_json(), Here()));
+            Mars2GribModelException("Failed to classify the ProductTimeSpec domain", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -192,26 +195,33 @@ inline ProductTimeSpecDomainKind classify_Domain_or_throw(const ProductTimeSpecI
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 /// If the classification is invalid or the selected builder fails.
 ///
+template <class Cntx_t>
 inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind classification,
                                                    const ProductTimeSpecInput& input,
                                                    const ProductTimeSpecClassification& fullClassification,
                                                    const anchor::ProductTimeSpecAnchor& anchor,
-                                                   const shape::ProductTimeSpecOuterTimeRange& outerTimeRange) {
+                                                   const shape::ProductTimeSpecOuterTimeRange& outerTimeRange, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         const std::size_t index          = static_cast<std::size_t>(classification);
-        const bool classificationIsValid = index < detail::domainCases.size();
+        const auto& cases                 = detail::domainCases<Cntx_t>;
+        const bool classificationIsValid = index < cases.size();
 
         if (!classificationIsValid) {
-            throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(), Here());
+            throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return detail::domainCases[index].builder(input, fullClassification, anchor, outerTimeRange);
+        {
+            ProductTimeSpecDomain result = cases[index].builder(input, fullClassification, anchor, outerTimeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to build the ProductTimeSpec domain", input.to_json(), Here()));
+            Mars2GribModelException("Failed to build the ProductTimeSpec domain", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -236,23 +246,30 @@ inline ProductTimeSpecDomain build_Domain_or_throw(ProductTimeSpecDomainKind cla
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 /// If the classification is invalid or the selected checker fails.
 ///
+template <class Cntx_t>
 inline bool check_Domain_or_throw(ProductTimeSpecDomainKind classification, const ProductTimeSpecInput& input,
-                                  const anchor::ProductTimeSpecAnchor& anchor, const ProductTimeSpecDomain& domain) {
+                                  const anchor::ProductTimeSpecAnchor& anchor, const ProductTimeSpecDomain& domain, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         const std::size_t index          = static_cast<std::size_t>(classification);
-        const bool classificationIsValid = index < detail::domainCases.size();
+        const auto& cases                 = detail::domainCases<Cntx_t>;
+        const bool classificationIsValid = index < cases.size();
 
         if (!classificationIsValid) {
-            throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(), Here());
+            throw Mars2GribModelException("Invalid ProductTimeSpecDomainKind value", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return detail::domainCases[index].checker(input, anchor, domain);
+        {
+            bool result = cases[index].checker(input, anchor, domain, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to check the ProductTimeSpec domain", input.to_json(), Here()));
+            Mars2GribModelException("Failed to check the ProductTimeSpec domain", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

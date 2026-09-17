@@ -47,6 +47,7 @@
 #include "metkit/mars2grib/utils/generalUtils.h"
 
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
@@ -56,15 +57,15 @@ namespace metkit::mars2grib::backend::sections::initializers {
 /// Section 0 does not require initialization logic; this registry
 /// contains a single placeholder entry.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec0Reg[] = {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> Sec0Reg[] = {
     {0, &allocateTemplateNumber0<0, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
 /// @brief Registry for GRIB Section 1 initializers.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec1Reg[] = {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> Sec1Reg[] = {
     {0, &allocateTemplateNumber1<1, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
 
 ///
@@ -73,8 +74,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec1Reg[] = 
 /// Includes both official and *virtual* template numbers used internally
 /// by the encoder (e.g. DestinE extensions).
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> Sec2Reg[] = {
     {1, &allocateTemplateNumber2<2, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {15, &allocateTemplateNumber2<2, 15, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {16, &allocateTemplateNumber2<2, 16, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -94,8 +95,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec2Reg[] = 
 ///
 /// @brief Registry for GRIB Section 3 (Grid Definition Section) initializers.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> Sec3Reg[] = {
     {0, &allocateTemplateNumber3<3, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {40, &allocateTemplateNumber3<3, 40, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {50, &allocateTemplateNumber3<3, 50, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -107,8 +108,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec3Reg[] = 
 ///
 /// @brief Registry for GRIB Section 4 (Product Definition Section) initializers.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> Sec4Reg[] = {
     {0, &allocateTemplateNumber4<4, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {1, &allocateTemplateNumber4<4, 1, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {2, &allocateTemplateNumber4<4, 2, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
@@ -150,8 +151,8 @@ inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec4Reg[] = 
 ///
 /// @brief Registry for GRIB Section 5 (Data Representation Section) initializers.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> Sec5Reg[] = {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+inline constexpr Entry<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> Sec5Reg[] = {
     {0, &allocateTemplateNumber5<5, 0, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {42, &allocateTemplateNumber5<5, 42, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>},
     {51, &allocateTemplateNumber5<5, 51, MarsDict_t, ParDict_t, OptDict_t, OutDict_t>}};
@@ -199,28 +200,40 @@ constexpr auto lookup(const EntryT (&table)[N], std::size_t templ) -> decltype(t
 /// @throws Mars2GribGenericException
 /// If an error occurs during dispatch.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> sectionRegistry(std::size_t section, std::size_t templ) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> sectionRegistry(std::size_t section, std::size_t templ,
+                                                                       Cntx_t& cntx) {
+
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
+        Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> callback = nullptr;
         switch (section) {
             case 0:
-                return lookup(Sec0Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, templ);
+                callback = lookup(Sec0Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, templ);
+                break;
             case 1:
-                return lookup(Sec1Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, templ);
+                callback = lookup(Sec1Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, templ);
+                break;
             case 2:
-                return lookup(Sec2Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, templ);
+                callback = lookup(Sec2Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, templ);
+                break;
             case 3:
-                return lookup(Sec3Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, templ);
+                callback = lookup(Sec3Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, templ);
+                break;
             case 4:
-                return lookup(Sec4Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, templ);
+                callback = lookup(Sec4Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, templ);
+                break;
             case 5:
-                return lookup(Sec5Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>, templ);
+                callback = lookup(Sec5Reg<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>, templ);
+                break;
             default:
-                return nullptr;
+                break;
         }
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return callback;
     }
     catch (...) {
         std::throw_with_nested(Mars2GribGenericException("Error getting section initializer function for section " +

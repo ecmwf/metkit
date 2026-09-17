@@ -50,6 +50,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/generating-process/generatingProcessEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Tables
 #include "metkit/mars2grib/backend/tables/backgroundProcess.h"
@@ -155,8 +156,9 @@ constexpr bool generatingProcessApplicable() {
 /// @see generatingProcessApplicable
 ///
 template <std::size_t Stage, std::size_t Section, GeneratingProcessType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::backend::tables::TypeOfGeneratingProcess;
     using metkit::mars2grib::utils::dict_traits::get_opt;
@@ -172,13 +174,13 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
 
             // Retrieve the information
             std::optional<long> generatingProcessIdentifier =
-                deductions::resolve_GeneratingProcessIdentifier_opt(mars, par, opt);
+                deductions::resolve_GeneratingProcessIdentifier_opt(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             std::optional<TypeOfGeneratingProcess> typeOfGeneratingProcess =
-                deductions::resolve_TypeOfGeneratingProcess_opt(mars, par, opt);
+                deductions::resolve_TypeOfGeneratingProcess_opt(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             tables::BackgroundProcess backgroundProcess =
-                deductions::resolve_BackgroundProcess_or_throw(mars, par, opt);
-            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess));
+                deductions::resolve_BackgroundProcess_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw<long>(out, "backgroundProcess", static_cast<long>(backgroundProcess), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
             /// Remove this logic.
@@ -189,7 +191,7 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
             ///   - apply a DGOV-approved default,
             ///   - or throw if the value is mandatory.
             if (generatingProcessIdentifier.has_value()) {
-                set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier.value());
+                set_or_throw<long>(out, "generatingProcessIdentifier", generatingProcessIdentifier.value(), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             /// @todo [owner: mds,dgov][scope: concept][reason: legacy][prio: high]
@@ -198,7 +200,7 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
             /// Relying on pre-existing GRIB header values is not reproducible
             /// and must be eliminated.
             if (typeOfGeneratingProcess.has_value()) {
-                set_or_throw<long>(out, "typeOfGeneratingProcess", static_cast<long>(typeOfGeneratingProcess.value()));
+                set_or_throw<long>(out, "typeOfGeneratingProcess", static_cast<long>(typeOfGeneratingProcess.value()), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -206,6 +208,7 @@ void GeneratingProcessOp(const MarsDict_t& mars, const ParDict_t& par, const Opt
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

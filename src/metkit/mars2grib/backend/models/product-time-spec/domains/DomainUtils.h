@@ -25,11 +25,13 @@
 /// classification.
 ///
 /// Every function catches all failures and rethrows `Mars2GribModelException`
-/// directly. Functions receiving input attach `input.to_json()`.
+/// directly. Functions receiving input attach `input.to_json(cntx)`.
 ///
 /// @ingroup mars2grib_product_time_spec_detail
 ///
 #pragma once
+
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 #include <limits>
 
@@ -47,7 +49,9 @@ namespace metkit::mars2grib::backend::models::product_time_spec::domain::detail 
 /// @return Resolved `step` duration.
 /// @throws Mars2GribModelException If the normalized `step` is missing.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
@@ -55,14 +59,18 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep
 
         if (!hasResolvedStep) {
             throw Mars2GribModelException("Non-seasonal forecast-domain construction requires a resolved step",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return *input.step;
+        {
+            metkit::mars2grib::backend::deductions::TimeDuration result = *input.step;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to retrieve the non-seasonal ProductTimeSpec forecast lead", input.to_json(), Here()));
+            "Failed to retrieve the non-seasonal ProductTimeSpec forecast lead", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -73,8 +81,10 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolvedForecastStep
 /// @return Resolved `fcmonth` duration represented as `{length, Month}`.
 /// @throws Mars2GribModelException If `fcmonth` is missing or locally invalid.
 ///
+template <class Cntx_t>
 inline metkit::mars2grib::backend::deductions::TimeDuration resolvedSeasonalForecastLead(
-    const ProductTimeSpecInput& input) {
+    const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::tables::TimeUnit;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -89,21 +99,25 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolvedSeasonalFore
         if (!seasonalInputIsPresent) {
             throw Mars2GribModelException(
                 "Seasonal forecast-domain construction requires both seasonal class/stream and seasonal lead semantics",
-                input.to_json(), Here());
+                input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const long fcmonth = *input.marsFcmonth;
 
         if (fcmonth <= 0) {
             throw Mars2GribModelException("Seasonal forecast-domain construction requires a strictly positive fcmonth",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return TimeDuration{fcmonth, TimeUnit::Month};
+        {
+            metkit::mars2grib::backend::deductions::TimeDuration result = TimeDuration{fcmonth, TimeUnit::Month};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException("Failed to retrieve the seasonal ProductTimeSpec forecast lead",
-                                                       input.to_json(), Here()));
+                                                       input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -114,7 +128,9 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolvedSeasonalFore
 /// @return Timespan represented as seconds.
 /// @throws Mars2GribModelException If no duration value is available.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration timespanDuration(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration timespanDuration(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::Timespan;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -127,22 +143,26 @@ inline metkit::mars2grib::backend::deductions::TimeDuration timespanDuration(con
         const auto timespanKind = input.timespan.kind;
 
         if (timespanKind != TimespanKind::Duration) {
-            throw Mars2GribModelException("Timespan is not duration-valued", input.to_json(), Here());
+            throw Mars2GribModelException("Timespan is not duration-valued", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
         const bool hasDuration = input.timespan.duration.has_value();
         if (!hasDuration) {
-            throw Mars2GribModelException("Duration-valued timespan does not contain a duration", input.to_json(),
+            throw Mars2GribModelException("Duration-valued timespan does not contain a duration", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                           Here());
         }
         const auto duration = input.timespan.duration.value();
 
-        long timespanInSeconds = convertToSeconds(duration);
-        return TimeDuration{timespanInSeconds, TimeUnit::Second};
+        long timespanInSeconds = convertToSeconds(duration, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        {
+            metkit::mars2grib::backend::deductions::TimeDuration result = TimeDuration{timespanInSeconds, TimeUnit::Second};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to retrieve ProductTimeSpec timespan duration", input.to_json(), Here()));
+            Mars2GribModelException("Failed to retrieve ProductTimeSpec timespan duration", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -160,7 +180,9 @@ inline metkit::mars2grib::backend::deductions::TimeDuration timespanDuration(con
 /// @return Outer range used to place normal forecast or analysis domains.
 /// @throws Mars2GribModelException If no supported range source is available.
 ///
-inline metkit::mars2grib::backend::deductions::TimeDuration resolveOuterDomainRange(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline metkit::mars2grib::backend::deductions::TimeDuration resolveOuterDomainRange(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::Timespan;
     using metkit::mars2grib::backend::deductions::TimespanKind;
@@ -177,27 +199,47 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveOuterDomainRa
         const bool hasDurationTimespan   = input.timespan.kind == TimespanKind::Duration;
 
         if (isInstant) {
-            return metkit::mars2grib::utils::time_arithmetic::zeroDuration();
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = metkit::mars2grib::utils::time_arithmetic::zeroDuration(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (isFromStart) {
-            return resolvedForecastStep(input);
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = resolvedForecastStep(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (isSynoptic) {
-            return TimeDuration{1, TimeUnit::Month};
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = TimeDuration{1, TimeUnit::Month};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (hasOuterStattypeBlock) {
-            return input.stattype.front().timeRange;
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = input.stattype.front().timeRange;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (hasDurationTimespan) {
-            return timespanDuration(input);
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = timespanDuration(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
-        throw Mars2GribModelException("No outer domain range can be resolved from normalized input", input.to_json(),
+        throw Mars2GribModelException("No outer domain range can be resolved from normalized input", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())),
                                       Here());
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to resolve ProductTimeSpec outer domain range", input.to_json(), Here()));
+            Mars2GribModelException("Failed to resolve ProductTimeSpec outer domain range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -219,8 +261,10 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveOuterDomainRa
 /// @return Outer range used to place the seasonal forecast domain.
 /// @throws Mars2GribModelException If no supported range source is available.
 ///
+template <class Cntx_t>
 inline metkit::mars2grib::backend::deductions::TimeDuration resolveSeasonalForecastOuterDomainRange(
-    const ProductTimeSpecInput& input) {
+    const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::deductions::TimeDuration;
     using metkit::mars2grib::backend::deductions::TimespanKind;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -235,27 +279,47 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveSeasonalForec
         const bool hasDurationTimespan   = input.timespan.kind == TimespanKind::Duration;
 
         if (isInstant) {
-            return metkit::mars2grib::utils::time_arithmetic::zeroDuration();
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = metkit::mars2grib::utils::time_arithmetic::zeroDuration(metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (isFromStart) {
-            return resolvedSeasonalForecastLead(input);
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = resolvedSeasonalForecastLead(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (isSynoptic) {
-            return TimeDuration{1, tables::TimeUnit::Month};
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = TimeDuration{1, tables::TimeUnit::Month};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (hasOuterStattypeBlock) {
-            return input.stattype.front().timeRange;
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = input.stattype.front().timeRange;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         if (hasDurationTimespan) {
-            return timespanDuration(input);
+            {
+                metkit::mars2grib::backend::deductions::TimeDuration result = timespanDuration(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         throw Mars2GribModelException("No seasonal forecast outer domain range can be resolved from normalized input",
-                                      input.to_json(), Here());
+                                      input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
-            "Failed to resolve the seasonal ProductTimeSpec outer domain range", input.to_json(), Here()));
+            "Failed to resolve the seasonal ProductTimeSpec outer domain range", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -271,16 +335,18 @@ inline metkit::mars2grib::backend::deductions::TimeDuration resolveSeasonalForec
 /// @throws Mars2GribModelException If the elapsed duration is not an exact
 ///         whole number of hours.
 ///
-inline long offsetHoursFromReference(const eckit::DateTime& referenceDateTime, const eckit::DateTime& targetDateTime) {
+template <class Cntx_t>
+inline long offsetHoursFromReference(const eckit::DateTime& referenceDateTime, const eckit::DateTime& targetDateTime, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
     using metkit::mars2grib::utils::time_arithmetic::convertToSeconds;
     using metkit::mars2grib::utils::time_arithmetic::durationBetween;
 
     try {
         const bool targetFollowsReference = targetDateTime >= referenceDateTime;
-        const auto elapsedDuration        = targetFollowsReference ? durationBetween(referenceDateTime, targetDateTime)
-                                                                   : durationBetween(targetDateTime, referenceDateTime);
-        const long elapsedSeconds         = convertToSeconds(elapsedDuration);
+        const auto elapsedDuration = targetFollowsReference ? durationBetween(referenceDateTime, targetDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                                                            : durationBetween(targetDateTime, referenceDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const long elapsedSeconds  = convertToSeconds(elapsedDuration, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         if (elapsedSeconds % 3600L != 0) {
             throw Mars2GribModelException("Reference-relative offset is not an exact whole number of hours", Here());
@@ -289,14 +355,22 @@ inline long offsetHoursFromReference(const eckit::DateTime& referenceDateTime, c
         const long elapsedHours = elapsedSeconds / 3600L;
 
         if (targetFollowsReference) {
-            return elapsedHours;
+            {
+                long result = elapsedHours;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         if (elapsedHours == std::numeric_limits<long>::min()) {
             throw Mars2GribModelException("Negative whole-hour offset is out of range for a long", Here());
         }
 
-        return -elapsedHours;
+        {
+            long result = -elapsedHours;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(

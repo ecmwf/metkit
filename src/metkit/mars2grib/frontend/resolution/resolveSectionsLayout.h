@@ -33,6 +33,7 @@
 #include "metkit/mars2grib/frontend/resolution/section-recipes/SectionTemplateSelectors.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::frontend::resolution {
 
@@ -64,8 +65,11 @@ using ActiveConceptsData = metkit::mars2grib::backend::sections::resolver::Activ
 /// @throws Mars2GribGenericException if a section returns invalid data.
 /// @throws Mars2GribSectionResolutionException if any section fails to resolve.
 ///
+template <class Cntx_t>
 inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSections> resolve_SectionsLayout_or_throw(
-    const ActiveConceptsData& activeConcepts) {
+    const ActiveConceptsData& activeConcepts, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::concepts_::GeneralRegistry;
     using metkit::mars2grib::backend::sections::resolver::debug::debug_convert_ActiveConceptsData_to_json;
@@ -77,7 +81,7 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
 
     try {
         // Recover the static structural recipes (Stage 1 resolution)
-        const auto& selectors = SectionTemplateSelectors::value;
+        const auto& selectors = SectionTemplateSelectors::get(utils::profiling::callSite(cntx, Here()));
 
         // Pre-allocate the layout container on the stack
         std::array<SectionLayoutData, GeneralRegistry::NSections> sectionsLayout;
@@ -86,7 +90,8 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
         for (section = 0; section < GeneralRegistry::NSections; ++section) {
 
             // Apply the recipe for this specific section index
-            SectionLayoutData sectionData = selectors[section].select_or_throw(activeConcepts);
+            SectionLayoutData sectionData =
+                selectors[section].select_or_throw(activeConcepts, utils::profiling::callSite(cntx, Here()));
 
             // Validation: Ensure the recipe actually targetted the expected section index
             if (sectionData.sectionNumber != section) {
@@ -99,12 +104,15 @@ inline std::array<SectionLayoutData, backend::concepts_::GeneralRegistry::NSecti
             sectionsLayout[section] = std::move(sectionData);
         }
 
+        utils::profiling::profileExitFunction(cntx, Here());
         return sectionsLayout;
     }
     catch (...) {
         std::throw_with_nested(
             Mars2GribSectionResolutionException("Critical failure: Unable to resolve GRIB HeaderLayout", section,
-                                                debug_convert_ActiveConceptsData_to_json(activeConcepts), Here()));
+                                                 debug_convert_ActiveConceptsData_to_json(
+                                                     activeConcepts, utils::profiling::callSite(cntx, Here())),
+                                                 Here()));
     }
 
     mars2gribUnreachable();
@@ -121,15 +129,19 @@ namespace debug {
 /// * @param[in] layout Resolved section layouts
 /// @param[out] os    Target output stream
 ///
+template <class Cntx_t>
 inline void debug_print_resolved_layout(
     const std::array<SectionLayoutData, metkit::mars2grib::backend::concepts_::GeneralRegistry::NSections>& layout,
-    std::ostream& os) {
+    std::ostream& os, Cntx_t& cntx) {
+
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     os << "--- GRIB Layout Resolution Debug ---" << std::endl;
     for (const auto& s : layout) {
         os << "Section " << s.sectionNumber << " -> Template " << s.templateNumber << " (Concepts: " << s.count << ")"
            << std::endl;
     }
+    utils::profiling::profileExitFunction(cntx, Here());
 }
 
 }  // namespace debug

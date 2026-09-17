@@ -44,6 +44,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/shape-of-the-earth/shapeOfTheEarthEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/shapeOfTheEarth.h"
@@ -130,8 +131,9 @@ constexpr bool shapeOfTheEarthApplicable() {
 /// @see deductions::resolve_ShapeOfTheEarth_or_throw
 ///
 template <std::size_t Stage, std::size_t Section, ShapeOfTheEarthType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void ShapeOfTheEarthOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void ShapeOfTheEarthOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -144,16 +146,17 @@ void ShapeOfTheEarthOp(const MarsDict_t& mars, const ParDict_t& par, const OptDi
 
             // Deductions
             tables::ShapeOfTheReferenceSystem shapeOfTheEarth =
-                deductions::resolve_ShapeOfTheEarth_or_throw(mars, par, opt);
+                deductions::resolve_ShapeOfTheEarth_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<long>(out, "shapeOfTheEarth", static_cast<long>(shapeOfTheEarth));
+            set_or_throw<long>(out, "shapeOfTheEarth", static_cast<long>(shapeOfTheEarth), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(shapeOfTheEarth, "Unable to set `shapeOfTheEarth` concept...");
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

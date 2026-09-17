@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ProductTimeSpecJsonUtils.h"
@@ -80,26 +82,32 @@ struct ProductTimeSpecOuterTimeRange {
 /// @brief Serialize one resolved shape artifact as diagnostic JSON.
 /// @param[in] value Resolved canonical window sequence.
 /// @return One JSON object describing the final shape state.
-inline std::string productTimeSpecShapeJson(const ProductTimeSpecShape& value) {
+template <class Cntx_t>
+inline std::string productTimeSpecShapeJson(const ProductTimeSpecShape& value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     std::ostringstream out;
-    out << '{' << detail::jsonQuote_modelInput("windows") << ':' << '[';
+    out << '{' << detail::jsonQuote_modelInput("windows", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << '[';
     for (std::size_t i = 0; i < value.values.size(); ++i) {
         if (i != 0) {
             out << ',';
         }
-        out << '{' << detail::jsonQuote_modelInput("typeOfStatisticalProcessing") << ':'
+        out << '{' << detail::jsonQuote_modelInput("typeOfStatisticalProcessing", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
             << detail::jsonQuote_modelInput(
-                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(value.values[i].typeOfStatisticalProcessing))
-            << ',' << detail::jsonQuote_modelInput("typeOfTimeIncrement") << ':'
+                   tables::enum2name_TypeOfStatisticalProcessing_or_throw(value.values[i].typeOfStatisticalProcessing, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+            << ',' << detail::jsonQuote_modelInput("typeOfTimeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
             << detail::jsonQuote_modelInput(
-                   tables::enum2name_TypeOfTimeIntervals_or_throw(value.values[i].typeOfTimeIncrement))
-            << ',' << detail::jsonQuote_modelInput("timeRange") << ':'
-            << detail::durationJson_modelInput(value.values[i].timeRange) << ','
-            << detail::jsonQuote_modelInput("timeIncrement") << ':'
-            << detail::durationJson_modelInput(value.values[i].timeIncrement) << '}';
+                   tables::enum2name_TypeOfTimeIntervals_or_throw(value.values[i].typeOfTimeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+            << ',' << detail::jsonQuote_modelInput("timeRange", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::durationJson_modelInput(value.values[i].timeRange, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("timeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::durationJson_modelInput(value.values[i].timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << '}';
     }
     out << ']' << '}';
-    return out.str();
+    {
+        std::string result = out.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
+    }
 }
 
 }  // namespace metkit::mars2grib::backend::models::product_time_spec::shape

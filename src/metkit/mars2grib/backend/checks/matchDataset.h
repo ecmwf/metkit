@@ -17,6 +17,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::validation {
 
@@ -55,8 +56,10 @@ namespace metkit::mars2grib::backend::validation {
 /// - The function returns normally on success and does not produce any output.
 ///
 
-template <class OptDict_t, class OutDict_t>
-void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const std::string& expectedDatasetString) {
+template <class OptDict_t, class OutDict_t, class Cntx_t>
+void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const std::string& expectedDatasetString,
+                            Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribValidationException;
@@ -64,7 +67,7 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (get_or_throw<bool>(opt, "applyChecks")) {
+            if (get_or_throw<bool>(opt, "applyChecks", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
                 // Convert the expected 'dataset' from string to integer
                 long expectedDataset;
@@ -81,7 +84,7 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
                 }
 
                 // Get the `dataset` entry (expected in DestinE local use sections)
-                const auto actualDataset = get_or_throw<long>(out, "dataset");
+                const auto actualDataset = get_or_throw<long>(out, "dataset", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                 // Compare against expected values
                 if (actualDataset != expectedDataset) {
@@ -97,6 +100,7 @@ void match_Dataset_or_throw(const OptDict_t& opt, const OutDict_t& out, const st
         }
 
         // Exit on success
+        profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {

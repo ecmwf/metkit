@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -104,8 +106,9 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is deterministic and does not depend on any
 /// pre-existing GRIB header state.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -113,7 +116,7 @@ std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t&
     try {
 
         // Retrieve mandatory resolution identifier from MARS dictionary
-        std::string marsResolutionVal = get_or_throw<std::string>(mars, "resolution");
+        std::string marsResolutionVal = get_or_throw<std::string>(mars, "resolution", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Emit RESOLVE log entry
         MARS2GRIB_LOG_RESOLVE([&]() {
@@ -124,7 +127,11 @@ std::string resolve_Resolution_or_throw(const MarsDict_t& mars, const ParDict_t&
         }());
 
         // Success exit point
-        return marsResolutionVal;
+        {
+            std::string result = marsResolutionVal;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
 

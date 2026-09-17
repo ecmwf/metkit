@@ -50,6 +50,7 @@
 #include "metkit/mars2grib/backend/concepts/GeneralRegistry.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::resolver::dsl {
 
@@ -160,7 +161,10 @@ public:
     /// @param[in] prefix Prefix string prepended to each output line
     /// @param[in,out] os Output stream
     ///
-    static void debug_print(const std::string& prefix, std::ostream& os) {
+    template <class Cntx_t>
+    static void debug_print(const std::string& prefix, std::ostream& os, Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -189,6 +193,7 @@ public:
         }
 
         os << " ]" << std::endl;
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
     }
 
     ///
@@ -203,7 +208,10 @@ public:
     /// The returned string is not guaranteed to be valid strict JSON and
     /// must not be used for machine parsing.
     ///
-    static std::string debug_to_json() {
+    template <class Cntx_t>
+    static std::string debug_to_json(Cntx_t& cntx) {
+
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
         using metkit::mars2grib::backend::concepts_::GeneralRegistry;
 
@@ -234,7 +242,9 @@ public:
 
         oss << "]}}";
 
-        return oss.str();
+        std::string result = oss.str();
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 

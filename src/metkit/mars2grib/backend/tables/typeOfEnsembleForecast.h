@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -77,33 +79,79 @@ enum class TypeOfEnsembleForecast : long {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the enum value is not recognized.
 ///
-inline std::string enum2name_TypeOfEnsembleForecast_or_throw(TypeOfEnsembleForecast value) {
+template <class Cntx_t>
+inline std::string enum2name_TypeOfEnsembleForecast_or_throw(TypeOfEnsembleForecast value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TypeOfEnsembleForecast::UnperturbedHighResControl:
-            return "unperturbed-high-res-control";
+            {
+                std::string result = "unperturbed-high-res-control";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::UnperturbedLowResControl:
-            return "unperturbed-low-res-control";
+            {
+                std::string result = "unperturbed-low-res-control";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::NegativelyPerturbed:
-            return "negatively-perturbed";
+            {
+                std::string result = "negatively-perturbed";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::PositivelyPerturbed:
-            return "positively-perturbed";
+            {
+                std::string result = "positively-perturbed";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::MultiModel:
-            return "multi-model";
+            {
+                std::string result = "multi-model";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::Unperturbed:
-            return "unperturbed";
+            {
+                std::string result = "unperturbed";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::Perturbed:
-            return "perturbed";
+            {
+                std::string result = "perturbed";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::InitialConditionsPerturbations:
-            return "initial-conditions-perturbations";
+            {
+                std::string result = "initial-conditions-perturbations";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::ModelPhysicsPerturbations:
-            return "model-physics-perturbations";
+            {
+                std::string result = "model-physics-perturbations";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations:
-            return "initial-and-model-physics-perturbations";
+            {
+                std::string result = "initial-and-model-physics-perturbations";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfEnsembleForecast::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid TypeOfEnsembleForecast enum value", Here());
     }
@@ -123,42 +171,88 @@ inline std::string enum2name_TypeOfEnsembleForecast_or_throw(TypeOfEnsembleForec
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the provided name is not supported.
 ///
-inline TypeOfEnsembleForecast name2enum_TypeOfEnsembleForecast_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline TypeOfEnsembleForecast name2enum_TypeOfEnsembleForecast_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     if (name == "unperturbed-high-res-control") {
-        return TypeOfEnsembleForecast::UnperturbedHighResControl;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::UnperturbedHighResControl;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "unperturbed-low-res-control") {
-        return TypeOfEnsembleForecast::UnperturbedLowResControl;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::UnperturbedLowResControl;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "negatively-perturbed") {
-        return TypeOfEnsembleForecast::NegativelyPerturbed;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::NegativelyPerturbed;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "positively-perturbed") {
-        return TypeOfEnsembleForecast::PositivelyPerturbed;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::PositivelyPerturbed;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "multi-model") {
-        return TypeOfEnsembleForecast::MultiModel;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::MultiModel;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "unperturbed") {
-        return TypeOfEnsembleForecast::Unperturbed;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::Unperturbed;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "perturbed") {
-        return TypeOfEnsembleForecast::Perturbed;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::Perturbed;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "initial-conditions-perturbations") {
-        return TypeOfEnsembleForecast::InitialConditionsPerturbations;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::InitialConditionsPerturbations;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "model-physics-perturbations") {
-        return TypeOfEnsembleForecast::ModelPhysicsPerturbations;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::ModelPhysicsPerturbations;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "initial-and-model-physics-perturbations") {
-        return TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else if (name == "missing") {
-        return TypeOfEnsembleForecast::Missing;
+        {
+            TypeOfEnsembleForecast result = TypeOfEnsembleForecast::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     else {
         throw Mars2GribTableException("Invalid TypeOfEnsembleForecast name: '" + name + "'", Here());
@@ -195,33 +289,79 @@ inline TypeOfEnsembleForecast name2enum_TypeOfEnsembleForecast_or_throw(const st
 /// - Replace this hard-coded mapping with code generated directly from
 /// ecCodes GRIB code tables.
 ///
-inline TypeOfEnsembleForecast long2enum_TypeOfEnsembleForecast_or_throw(long value) {
+template <class Cntx_t>
+inline TypeOfEnsembleForecast long2enum_TypeOfEnsembleForecast_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return TypeOfEnsembleForecast::UnperturbedHighResControl;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::UnperturbedHighResControl;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return TypeOfEnsembleForecast::UnperturbedLowResControl;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::UnperturbedLowResControl;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return TypeOfEnsembleForecast::NegativelyPerturbed;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::NegativelyPerturbed;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return TypeOfEnsembleForecast::PositivelyPerturbed;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::PositivelyPerturbed;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return TypeOfEnsembleForecast::MultiModel;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::MultiModel;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return TypeOfEnsembleForecast::Unperturbed;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::Unperturbed;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 6:
-            return TypeOfEnsembleForecast::Perturbed;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::Perturbed;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 7:
-            return TypeOfEnsembleForecast::InitialConditionsPerturbations;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::InitialConditionsPerturbations;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 8:
-            return TypeOfEnsembleForecast::ModelPhysicsPerturbations;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::ModelPhysicsPerturbations;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 9:
-            return TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::InitialAndModelPhysicsPerturbations;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return TypeOfEnsembleForecast::Missing;
+            {
+                TypeOfEnsembleForecast result = TypeOfEnsembleForecast::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid TypeOfEnsembleForecast numeric value: actual='" +
                                               std::to_string(value) + "', expected={0..9,255}",

@@ -48,6 +48,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <string>
 
@@ -95,9 +97,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction is deterministic and authoritative for
 /// `typeOfEnsembleForecast`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                                       const OptDict_t& opt) {
+                                                                       const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::dict_traits::has;
@@ -106,30 +109,34 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
     try {
         // Get mars type from dictionary
 
-        if (has(par, "typeOfEnsembleForecast")) {
+        if (has(par, "typeOfEnsembleForecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
             // Retrieve mandatory typeOfEnsembleForecast from parameter dictionary
-            long typeOfEnsembleForecastVal = get_or_throw<long>(par, "typeOfEnsembleForecast");
+            long typeOfEnsembleForecastVal = get_or_throw<long>(par, "typeOfEnsembleForecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Get the enum value
             tables::TypeOfEnsembleForecast typeOfEnsembleForecast =
-                tables::long2enum_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecastVal);
+                tables::long2enum_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecastVal, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_OVERRIDE([&]() {
                 std::string logMsg = "`typeOfEnsembleForecast` overridden from parameter dictionary: value='";
-                logMsg += tables::enum2name_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecast);
+                logMsg += tables::enum2name_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecast, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return typeOfEnsembleForecast;
+            {
+                tables::TypeOfEnsembleForecast result = typeOfEnsembleForecast;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
 
             // Retrieve mandatory type from MARS dictionary
-            std::string marsType = get_or_throw<std::string>(mars, "type");
+            std::string marsType = get_or_throw<std::string>(mars, "type", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             tables::TypeOfEnsembleForecast typeOfEnsembleForecast = tables::TypeOfEnsembleForecast::Missing;
 
@@ -148,13 +155,17 @@ tables::TypeOfEnsembleForecast resolve_TypeOfEnsembleForecast_or_throw(const Mar
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`typeOfEnsembleForecast` resolved from input dictionaries: value='";
-                logMsg += tables::enum2name_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecast);
+                logMsg += tables::enum2name_TypeOfEnsembleForecast_or_throw(typeOfEnsembleForecast, cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return typeOfEnsembleForecast;
+            {
+                tables::TypeOfEnsembleForecast result = typeOfEnsembleForecast;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

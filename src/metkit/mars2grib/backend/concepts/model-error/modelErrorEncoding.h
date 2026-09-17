@@ -46,6 +46,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/model-error/modelErrorEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/componentIndex.h"
@@ -136,8 +137,9 @@ constexpr bool modelErrorApplicable() {
 /// @see modelErrorApplicable
 ///
 template <std::size_t Stage, std::size_t Section, ModelErrorType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -150,32 +152,32 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
             MARS2GRIB_LOG_CONCEPT(modelError);
 
             if (Variant == ModelErrorType::ComponentIndex) {
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {25L, 39L});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {25L, 39L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
-                const auto componentIndexVal     = deductions::resolve_ComponentIndex_or_throw(mars, par, opt);
-                const auto numberOfComponentsVal = deductions::resolve_NumberOfComponents_or_throw(mars, par, opt);
-                const auto modelErrorTypeVal     = deductions::resolve_ModelErrorType_or_throw(mars, par, opt);
+                const auto componentIndexVal     = deductions::resolve_ComponentIndex_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto numberOfComponentsVal = deductions::resolve_NumberOfComponents_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto modelErrorTypeVal     = deductions::resolve_ModelErrorType_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "componentIndex", componentIndexVal);
-                set_or_throw<long>(out, "numberOfComponents", numberOfComponentsVal);
-                set_or_throw<long>(out, "modelErrorType", modelErrorTypeVal);
+                set_or_throw<long>(out, "componentIndex", componentIndexVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "numberOfComponents", numberOfComponentsVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "modelErrorType", modelErrorTypeVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else if (Variant == ModelErrorType::FourierCoefficients) {
-                validation::match_LocalDefinitionNumber_or_throw(opt, out, {45L});
+                validation::match_LocalDefinitionNumber_or_throw(opt, out, {45L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
                 const auto fourierCoefficientIndex =
-                    deductions::resolve_FourierCoefficientIndex_or_throw(mars, par, opt);
+                    deductions::resolve_FourierCoefficientIndex_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 const auto numberOfFourierCoefficients =
-                    deductions::resolve_NumberOfFourierCoefficients_or_throw(mars, par, opt);
-                const auto modelErrorTypeVal = deductions::resolve_ModelErrorType_or_throw(mars, par, opt);
+                    deductions::resolve_NumberOfFourierCoefficients_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                const auto modelErrorTypeVal = deductions::resolve_ModelErrorType_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "fourierCoefficientIndex", fourierCoefficientIndex);
-                set_or_throw<long>(out, "numberOfFourierCoefficients", numberOfFourierCoefficients);
-                set_or_throw<long>(out, "modelErrorType", modelErrorTypeVal);
+                set_or_throw<long>(out, "fourierCoefficientIndex", fourierCoefficientIndex, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "numberOfFourierCoefficients", numberOfFourierCoefficients, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "modelErrorType", modelErrorTypeVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else {
                 MARS2GRIB_CONCEPT_THROW(modelError, "Unknown variant...");
@@ -186,6 +188,7 @@ void ModelErrorOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t&
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

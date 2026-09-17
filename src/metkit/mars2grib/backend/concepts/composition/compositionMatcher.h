@@ -34,6 +34,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
@@ -57,96 +58,127 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t compositionMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
 
     try {
 
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_opt;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
         using metkit::mars2grib::utils::dict_traits::has;
         using metkit::mars2grib::utils::exceptions::Mars2GribMatcherException;
 
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto param = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
 
         // TODO: This is the range for CAMS, there are some unmapped parameters that may need to be supported for ERA6,
         // etc.
         if (param < 400000 || param >= 500000) {
-            return compile_time_registry_engine::MISSING;
+            const std::size_t result = compile_time_registry_engine::MISSING;
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        const auto chem          = get_or_throw<long>(mars, "chem");
-        const auto hasWavelength = has(mars, "wavelength");
+        const auto chem          = get_or_throw<long>(mars, "chem", utils::profiling::callSite(cntx, Here()));
+        const auto hasWavelength = has(mars, "wavelength", utils::profiling::callSite(cntx, Here()));
 
         if (hasWavelength) {
             if (matchAny(param, 457000)) {
                 if (matchAny(chem, range(900, 914), 918, 922, 923, range(933, 936))) {
-                    return static_cast<std::size_t>(CompositionType::AerosolOptical);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::AerosolOptical);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 458000, 459000, 460000, 461000, 462000, 472000)) {
                 if (matchAny(chem, 922)) {
-                    return static_cast<std::size_t>(CompositionType::AerosolOptical);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::AerosolOptical);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
         }
         else {
             if (matchAny(param, 401000)) {
                 if (matchAny(chem, range(900, 916))) {
-                    return static_cast<std::size_t>(CompositionType::Aerosol);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Aerosol);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
                 if (matchAny(chem, 2, 3, range(5, 24), range(26, 30), range(32, 50), 52, 53, range(55, 58),
                              range(63, 80), 82, 83, 85, 86, range(99, 101), 107, 112, 159, 161, 169, range(173, 178),
                              range(186, 204), 222, range(224, 231), 233, 311, 359, 404, 917)) {
-                    return static_cast<std::size_t>(CompositionType::Chem);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Chem);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 402000)) {
                 if (matchAny(chem, range(900, 917), 924)) {
-                    return static_cast<std::size_t>(CompositionType::Aerosol);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Aerosol);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
                 if (matchAny(chem, range(2, 24), range(26, 30), range(32, 50), 52, 53, range(55, 59), range(63, 80), 82,
                              83, 85, 86, range(99, 101), 107, 112, 118, 159, 161, 169, range(173, 178), range(186, 204),
-                             222, range(224, 230), 233, 236, 311)) {
-                    return static_cast<std::size_t>(CompositionType::Chem);
+                              222, range(224, 230), 233, 236, 311)) {
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Chem);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 406000, 407000, 410000, 411000, 451000)) {
                 if (matchAny(chem, range(901, 916))) {
-                    return static_cast<std::size_t>(CompositionType::Aerosol);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Aerosol);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 453000)) {
                 if (matchAny(chem, range(901, 916), 922)) {
-                    return static_cast<std::size_t>(CompositionType::Aerosol);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Aerosol);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 400000)) {
                 if (matchAny(chem, range(929, 931))) {
-                    return static_cast<std::size_t>(CompositionType::Aerosol);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Aerosol);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 444000)) {
                 if (matchAny(chem, 6, 8, 13, 15, 17, 19, 26, 27, 33)) {
-                    return static_cast<std::size_t>(CompositionType::Chem);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Chem);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 445000)) {
                 if (matchAny(chem, 6, 8, 13, 15, 17, 19, 27, 33, 236)) {
-                    return static_cast<std::size_t>(CompositionType::Chem);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Chem);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 479000)) {
                 if (matchAny(chem, 404)) {
-                    return static_cast<std::size_t>(CompositionType::Chem);
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::Chem);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
             else if (matchAny(param, 469000)) {
                 if (matchAny(chem, 2, 5, 9, 10, 12, 16, 18, 19, 42, range(45, 48), 52, 99, 100, 129, 224, 226, 233, 311,
-                             933, 934)) {
-                    return static_cast<std::size_t>(CompositionType::ChemicalSource);
+                              933, 934)) {
+                    const std::size_t result = static_cast<std::size_t>(CompositionType::ChemicalSource);
+                    utils::profiling::profileExitFunction(cntx, Here());
+                    return result;
                 }
             }
         }
@@ -160,6 +192,14 @@ std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `composition` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t compositionMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = compositionMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

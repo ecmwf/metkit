@@ -49,6 +49,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/ensemble/ensembleEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/numberOfForecastsInEnsemble.h"
@@ -148,8 +149,9 @@ constexpr bool ensembleApplicable() {
 /// @see ensembleApplicable
 ///
 template <std::size_t Stage, std::size_t Section, EnsembleType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -167,25 +169,25 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
             if constexpr (Variant == EnsembleType::Individual) {
 
                 // Structural validation
-                validation::check_EnsembleProductDefinitionSection_or_throw(opt, out);
+                validation::check_EnsembleProductDefinitionSection_or_throw(opt, out, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
                 tables::TypeOfEnsembleForecast typeOfEnsembleForecast =
-                    deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt);
+                    deductions::resolve_TypeOfEnsembleForecast_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 long numberOfForecastsInEnsemble =
-                    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt);
-                long marsNumber = deductions::resolve_PerturbationNumber_or_throw(mars, par, opt);
+                    deductions::resolve_NumberOfForecastsInEnsemble_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                long marsNumber = deductions::resolve_PerturbationNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "typeOfEnsembleForecast", static_cast<long>(typeOfEnsembleForecast));
-                set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble);
-                set_or_throw<long>(out, "perturbationNumber", marsNumber);
+                set_or_throw<long>(out, "typeOfEnsembleForecast", static_cast<long>(typeOfEnsembleForecast), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "numberOfForecastsInEnsemble", numberOfForecastsInEnsemble, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "perturbationNumber", marsNumber, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Variant == EnsembleType::ProbabilityLargeEnsemble) {
 
                 // Structural validation
-                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L});
+                validation::match_ProductDefinitionTemplateNumber_or_throw(opt, out, {121L, 122L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Deductions
                 std::cout << "TODO:: Resolving TypeOfEnsembleForecast for ProbabilityLargeEnsemble..." << std::endl;
@@ -196,6 +198,7 @@ void EnsembleOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& o
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

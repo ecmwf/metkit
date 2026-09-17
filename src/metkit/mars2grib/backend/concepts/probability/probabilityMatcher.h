@@ -34,6 +34,7 @@
 // Utils
 #include "metkit/mars2grib/backend/concepts/probability/probabilityEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
 #include "metkit/mars2grib/utils/paramMatcher.h"
 
@@ -57,35 +58,52 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t probabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t probabilityMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     try {
-        using metkit::mars2grib::util::param_matcher::matchAny;
+        const auto matchAny = [&cntx](auto&&... args) {
+            return metkit::mars2grib::util::param_matcher::matchAny(args..., cntx);
+        };
         using metkit::mars2grib::util::param_matcher::range;
         using metkit::mars2grib::utils::dict_traits::get_or_throw;
 
-        const auto param = get_or_throw<long>(mars, "param");
+        const auto param = get_or_throw<long>(mars, "param", utils::profiling::callSite(cntx, Here()));
 
         // Standard Probability
         // TODO: Add probability matching semantics when they are defined.
         if (matchAny(param, 133093, 133094, 133095, 133096, 133097, 133098)) {
-            return static_cast<std::size_t>(ProbabilityType::StandardisedAnomaly);
+            const std::size_t result = static_cast<std::size_t>(ProbabilityType::StandardisedAnomaly);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         // Strike Probability
         if (matchAny(param, 131060, 131061, 131062, 131063, 131064, 131065, 131066, 131067, 131068, 131069, 131070,
                      131071, 131072, 131073, range(131074, 131077), 131085, 131089, 131090, 131091, 131098, 131099,
                      131100)) {
-            return static_cast<std::size_t>(ProbabilityType::StrikeProbability);
+            const std::size_t result = static_cast<std::size_t>(ProbabilityType::StrikeProbability);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
         else {
-            return compile_time_registry_engine::MISSING;
+            const std::size_t result = compile_time_registry_engine::MISSING;
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `probability` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t probabilityMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = probabilityMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

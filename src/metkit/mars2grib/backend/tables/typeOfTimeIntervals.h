@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -57,25 +59,55 @@ enum class TypeOfTimeIntervals : long {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the enumeration value is invalid.
 ///
-inline std::string enum2name_TypeOfTimeIntervals_or_throw(TypeOfTimeIntervals value) {
+template <class Cntx_t>
+inline std::string enum2name_TypeOfTimeIntervals_or_throw(TypeOfTimeIntervals value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case TypeOfTimeIntervals::Reserved:
-            return "reserved";
+            {
+                std::string result = "reserved";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfTimeIntervals::SameForecastTimeStartIncremented:
-            return "same-forecast-time-start-incremented";
+            {
+                std::string result = "same-forecast-time-start-incremented";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfTimeIntervals::SameStartTimeForecastIncremented:
-            return "same-start-time-forecast-incremented";
+            {
+                std::string result = "same-start-time-forecast-incremented";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfTimeIntervals::StartIncrementedForecastDecrementedConstantValid:
-            return "start-incremented-forecast-decremented-constant-valid";
+            {
+                std::string result = "start-incremented-forecast-decremented-constant-valid";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfTimeIntervals::StartDecrementedForecastIncrementedConstantValid:
-            return "start-decremented-forecast-incremented-constant-valid";
+            {
+                std::string result = "start-decremented-forecast-incremented-constant-valid";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfTimeIntervals::FloatingSubinterval:
-            return "floating-subinterval";
+            {
+                std::string result = "floating-subinterval";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case TypeOfTimeIntervals::Missing:
-            return "missing";
+            {
+                std::string result = "missing";
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid TypeOfTimeIntervals enum value", Here());
     }
@@ -92,24 +124,61 @@ inline std::string enum2name_TypeOfTimeIntervals_or_throw(TypeOfTimeIntervals va
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the name is not recognized.
 ///
-inline TypeOfTimeIntervals name2enum_TypeOfTimeIntervals_or_throw(const std::string& name) {
+template <class Cntx_t>
+inline TypeOfTimeIntervals name2enum_TypeOfTimeIntervals_or_throw(const std::string& name, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
-    if (name == "reserved")
-        return TypeOfTimeIntervals::Reserved;
-    else if (name == "same-forecast-time-start-incremented")
-        return TypeOfTimeIntervals::SameForecastTimeStartIncremented;
-    else if (name == "same-start-time-forecast-incremented")
-        return TypeOfTimeIntervals::SameStartTimeForecastIncremented;
-    else if (name == "start-incremented-forecast-decremented-constant-valid")
-        return TypeOfTimeIntervals::StartIncrementedForecastDecrementedConstantValid;
-    else if (name == "start-decremented-forecast-incremented-constant-valid")
-        return TypeOfTimeIntervals::StartDecrementedForecastIncrementedConstantValid;
-    else if (name == "floating-subinterval")
-        return TypeOfTimeIntervals::FloatingSubinterval;
-    else if (name == "missing")
-        return TypeOfTimeIntervals::Missing;
+    if (name == "reserved") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::Reserved;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "same-forecast-time-start-incremented") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::SameForecastTimeStartIncremented;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "same-start-time-forecast-incremented") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "start-incremented-forecast-decremented-constant-valid") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::StartIncrementedForecastDecrementedConstantValid;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "start-decremented-forecast-incremented-constant-valid") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::StartDecrementedForecastIncrementedConstantValid;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "floating-subinterval") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::FloatingSubinterval;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
+    else if (name == "missing") {
+        {
+            TypeOfTimeIntervals result = TypeOfTimeIntervals::Missing;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
+    }
     else
         throw Mars2GribTableException("Invalid TypeOfTimeIntervals name: '" + name + "'", Here());
 }
@@ -125,25 +194,55 @@ inline TypeOfTimeIntervals name2enum_TypeOfTimeIntervals_or_throw(const std::str
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribTableException
 /// If the value is not defined in the GRIB table.
 ///
-inline TypeOfTimeIntervals long2enum_TypeOfTimeIntervals_or_throw(long value) {
+template <class Cntx_t>
+inline TypeOfTimeIntervals long2enum_TypeOfTimeIntervals_or_throw(long value, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::exceptions::Mars2GribTableException;
 
     switch (value) {
         case 0:
-            return TypeOfTimeIntervals::Reserved;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::Reserved;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 1:
-            return TypeOfTimeIntervals::SameForecastTimeStartIncremented;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::SameForecastTimeStartIncremented;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 2:
-            return TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::SameStartTimeForecastIncremented;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 3:
-            return TypeOfTimeIntervals::StartIncrementedForecastDecrementedConstantValid;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::StartIncrementedForecastDecrementedConstantValid;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 4:
-            return TypeOfTimeIntervals::StartDecrementedForecastIncrementedConstantValid;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::StartDecrementedForecastIncrementedConstantValid;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 5:
-            return TypeOfTimeIntervals::FloatingSubinterval;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::FloatingSubinterval;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         case 255:
-            return TypeOfTimeIntervals::Missing;
+            {
+                TypeOfTimeIntervals result = TypeOfTimeIntervals::Missing;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         default:
             throw Mars2GribTableException("Invalid TypeOfTimeIntervals numeric value: actual='" +
                                               std::to_string(value) + "', expected={0..5,255}",

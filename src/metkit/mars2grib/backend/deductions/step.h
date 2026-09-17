@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <string>
 
@@ -79,8 +81,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///         on malformed, unsupported, or locally invalid step input, with the
 ///         original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<TimeDuration> resolve_Step_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<TimeDuration> resolve_Step_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -89,16 +92,20 @@ std::optional<TimeDuration> resolve_Step_opt(const MarsDict_t& mars, const ParDi
     (void)opt;
 
     try {
-        if (!has(mars, "step")) {
-            return std::nullopt;
+        if (!has(mars, "step", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<TimeDuration> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         long seconds = 0;
-        if (auto value = get_opt<std::string>(mars, "step")) {
-            seconds = detail::parseDurationStringSeconds(*value, "step");
+        if (auto value = get_opt<std::string>(mars, "step", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            seconds = detail::parseDurationStringSeconds(*value, "step", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
-        else if (auto value = get_opt<long>(mars, "step")) {
-            seconds = detail::checkedHoursToSeconds(*value, "step");
+        else if (auto value = get_opt<long>(mars, "step", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            seconds = detail::checkedHoursToSeconds(*value, "step", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribDeductionException("Unsupported type for `step`", Here());
@@ -112,11 +119,12 @@ std::optional<TimeDuration> resolve_Step_opt(const MarsDict_t& mars, const ParDi
                 "Positive sub-hourly or non-hour-aligned `step` is recognized but unsupported", Here());
         }
 
-        const TimeDuration result = detail::canonicalElapsedDuration(seconds, "step");
+        const TimeDuration result = detail::canonicalElapsedDuration(seconds, "step", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         MARS2GRIB_LOG_RESOLVE([&]() {
             return std::string{"`step` resolved from input dictionaries: value='"} + std::to_string(result.length) +
-                   "' unit='" + tables::enum2name_TimeUnit_or_throw(result.unit) + "'";
+                   "' unit='" + tables::enum2name_TimeUnit_or_throw(result.unit, cntx) + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {
@@ -146,14 +154,20 @@ std::optional<TimeDuration> resolve_Step_opt(const MarsDict_t& mars, const ParDi
 ///         if the source is absent, malformed, unsupported, or locally invalid;
 ///         failures are wrapped via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-TimeDuration resolve_Step_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+TimeDuration resolve_Step_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
     try {
-        const auto result = resolve_Step_opt(mars, par, opt);
-        if (result.has_value()) {
-            return *result;
+        const std::optional<TimeDuration> resolved =
+            resolve_Step_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        if (resolved.has_value()) {
+            {
+                TimeDuration result = *resolved;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         throw Mars2GribDeductionException("`step` is not defined in the Mars dictionary", Here());
     }

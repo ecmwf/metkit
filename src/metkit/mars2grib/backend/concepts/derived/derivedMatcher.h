@@ -34,6 +34,7 @@
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
@@ -56,8 +57,9 @@ namespace metkit::mars2grib::backend::concepts_ {
 /// If matcher evaluation fails. Lower-level exceptions are preserved through
 /// `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class OptDict_t>
-std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t derivedMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
 
 
     try {
@@ -66,7 +68,7 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
         using metkit::mars2grib::utils::dict_traits::has;
 
 
-        const auto& type = get_or_throw<std::string>(mars, "type");
+        const auto& type = get_or_throw<std::string>(mars, "type", utils::profiling::callSite(cntx, Here()));
 
         if (type == "em" ||    // Ensemble mean
             type == "es" ||    // Ensemble standard deviation
@@ -76,19 +78,33 @@ std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
             type == "efi" ||   // Extreme forecast index
             type == "efic"     // Extreme forecast index
         ) {
-            return static_cast<std::size_t>(DerivedType::Default);
+            const std::size_t result = static_cast<std::size_t>(DerivedType::Default);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
         if (type == "sot") {
-            return static_cast<std::size_t>(DerivedType::ShiftOfTails);
+            const std::size_t result = static_cast<std::size_t>(DerivedType::ShiftOfTails);
+            utils::profiling::profileExitFunction(cntx, Here());
+            return result;
         }
 
-        return compile_time_registry_engine::MISSING;
+        const std::size_t result = compile_time_registry_engine::MISSING;
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
     catch (...) {
         std::throw_with_nested(
             utils::exceptions::Mars2GribMatcherException("Unable to match `derived` concept", Here()));
     }
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t derivedMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = derivedMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

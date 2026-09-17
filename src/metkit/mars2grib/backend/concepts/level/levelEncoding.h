@@ -69,6 +69,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/level/levelEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/level.h"
@@ -259,8 +260,9 @@ constexpr bool levelApplicable() {
 /// @see needPv
 ///
 template <std::size_t Stage, std::size_t Section, LevelType Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -277,11 +279,11 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
             if constexpr (Stage == StageAllocate && needPv<Variant>()) {
 
                 // Allocate space for pv array
-                std::vector<double> pv_array = deductions::resolve_PvArray_or_throw(mars, par, opt);
+                std::vector<double> pv_array = deductions::resolve_PvArray_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Set the PV array
-                set_or_throw<long>(out, "PVPresent", 1L);
-                set_or_throw<std::vector<double>>(out, "pv", pv_array);
+                set_or_throw<long>(out, "PVPresent", 1L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<std::vector<double>>(out, "pv", pv_array, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
 
@@ -292,38 +294,38 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
 
                 // Set level type (and level)
                 if constexpr (Variant == LevelType::HeightAboveGroundAt2M) {
-                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveGround");
-                    set_or_throw<long>(out, "level", 2L);
+                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveGround", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "level", 2L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == LevelType::HeightAboveGroundAt10M) {
-                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveGround");
-                    set_or_throw<long>(out, "level", 10L);
+                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveGround", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "level", 10L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == LevelType::HeightAboveSeaAt2M) {
-                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveSea");
-                    set_or_throw<long>(out, "level", 2L);
+                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveSea", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "level", 2L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == LevelType::HeightAboveSeaAt10M) {
-                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveSea");
-                    set_or_throw<long>(out, "level", 10L);
+                    set_or_throw<std::string>(out, "typeOfLevel", "heightAboveSea", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "level", 10L, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else if constexpr (Variant == LevelType::IsobaricInHpa) {
-                    long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
-                    set_or_throw<std::string>(out, "typeOfLevel", "isobaricInhPa");
-                    set_or_throw<long>(out, "level", levelVal / 100);
+                    long levelVal = deductions::resolve_Level_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<std::string>(out, "typeOfLevel", "isobaricInhPa", utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                    set_or_throw<long>(out, "level", levelVal/100 , utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                 }
                 else {
-                    set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()));
+                    set_or_throw<std::string>(out, "typeOfLevel", std::string(levelTypeName<Variant>()), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     if constexpr (needLevel<Variant>()) {
-                        long levelVal = deductions::resolve_Level_or_throw(mars, par, opt);
-                        set_or_throw<long>(out, "level", levelVal);
+                        long levelVal = deductions::resolve_Level_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "level", levelVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     }
                     if constexpr (needTopBottomLevel<Variant>()) {
-                        long levelVal    = deductions::resolve_Level_or_throw(mars, par, opt);
+                        long levelVal    = deductions::resolve_Level_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                         long topLevel    = levelVal - 1;
                         long bottomLevel = levelVal;
-                        set_or_throw<long>(out, "topLevel", topLevel);
-                        set_or_throw<long>(out, "bottomLevel", bottomLevel);
+                        set_or_throw<long>(out, "topLevel", topLevel, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                        set_or_throw<long>(out, "bottomLevel", bottomLevel, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
                     }
                 }
             }
@@ -334,6 +336,7 @@ void LevelOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt,
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

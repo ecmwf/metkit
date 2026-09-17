@@ -49,6 +49,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/packing/packingEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Checks
 #include "metkit/mars2grib/backend/checks/matchDataRepresentationTemplateNumber.h"
@@ -143,8 +144,9 @@ constexpr bool packingApplicable() {
 /// @see packingApplicable
 ///
 template <std::size_t Stage, std::size_t Section, PackingType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -161,37 +163,37 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
             if constexpr (Variant == PackingType::Simple) {
 
                 // Check sample structure
-                validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0});
+                validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {0}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Set bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "bitsPerValue", bitsPerValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Variant == PackingType::Ccsds) {
 
                 // Check sample structure
-                validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42});
+                validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {42}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Set bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
+                long bitsPerValue = deductions::resolve_BitsPerValueGridded_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "bitsPerValue", bitsPerValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
 
             if constexpr (Variant == PackingType::SpectralComplex) {
 
                 // Check sample structure
-                validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51});
+                validation::match_DataRepresentationTemplateNumber_or_throw(opt, out, {51}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Set bits per value
-                long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "bitsPerValue", bitsPerValue);
+                long bitsPerValue = deductions::resolve_BitsPerValueSpectral_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "bitsPerValue", bitsPerValue, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
-                long subSetTruncation = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt);
-                set_or_throw<long>(out, "subSetJ", subSetTruncation);
-                set_or_throw<long>(out, "subSetK", subSetTruncation);
-                set_or_throw<long>(out, "subSetM", subSetTruncation);
-                set_or_throw<long>(out, "TS", (subSetTruncation + 1) * (subSetTruncation + 2));
+                long subSetTruncation = deductions::resolve_SubSetTruncation_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "subSetJ", subSetTruncation, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "subSetK", subSetTruncation, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "subSetM", subSetTruncation, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "TS", (subSetTruncation + 1) * (subSetTruncation + 2), utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
         }
         catch (...) {
@@ -199,6 +201,7 @@ void PackingOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& op
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

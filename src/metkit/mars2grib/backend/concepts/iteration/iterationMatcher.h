@@ -37,18 +37,32 @@
 #include "metkit/mars2grib/backend/concepts/iteration/iterationEnum.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 namespace metkit::mars2grib::backend::concepts_ {
 
-template <class MarsDict_t, class OptDict_t>
-std::size_t iterationMatcher(const MarsDict_t& mars, const OptDict_t& opt) {
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t iterationMatcherImpl(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::has;
 
-    if (has(mars, "iteration")) {
-        return static_cast<size_t>(IterationType::Default);
+    if (has(mars, "iteration", utils::profiling::callSite(cntx, Here()))) {
+        const std::size_t result = static_cast<size_t>(IterationType::Default);
+        utils::profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 
-    return compile_time_registry_engine::MISSING;
+    const std::size_t result = compile_time_registry_engine::MISSING;
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
+}
+
+template <class MarsDict_t, class OptDict_t, class Cntx_t>
+std::size_t iterationMatcher(const MarsDict_t& mars, const OptDict_t& opt, Cntx_t& cntx) {
+    utils::profiling::profileEnterFunction(cntx, Here());
+    const std::size_t result = iterationMatcherImpl(mars, opt, utils::profiling::callSite(cntx, Here()));
+    utils::profiling::profileExitFunction(cntx, Here());
+    return result;
 }
 
 }  // namespace metkit::mars2grib::backend::concepts_

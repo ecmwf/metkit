@@ -45,6 +45,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/longrange/longrangeEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/methodNumber.h"
@@ -133,8 +134,9 @@ constexpr bool longrangeApplicable() {
 /// @see longrangeApplicable
 ///
 template <std::size_t Stage, std::size_t Section, LongrangeType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void LongrangeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void LongrangeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -147,21 +149,22 @@ void LongrangeOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& 
             MARS2GRIB_LOG_CONCEPT(longrange);
 
             // Preconditions / contracts
-            validation::match_LocalDefinitionNumber_or_throw(opt, out, {15L, 16L});
+            validation::match_LocalDefinitionNumber_or_throw(opt, out, {15L, 16L}, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Deductions
-            auto methodVal = deductions::resolve_MethodNumber_or_throw(mars, par, opt);
-            auto systemVal = deductions::resolve_SystemNumber_or_throw(mars, par, opt);
+            auto methodVal = deductions::resolve_MethodNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            auto systemVal = deductions::resolve_SystemNumber_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // Encoding
-            set_or_throw<long>(out, "methodNumber", methodVal);
-            set_or_throw<long>(out, "systemNumber", systemVal);
+            set_or_throw<long>(out, "methodNumber", methodVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+            set_or_throw<long>(out, "systemNumber", systemVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
         }
         catch (...) {
             MARS2GRIB_CONCEPT_RETHROW(longrange, "Unable to set `longrange` concept...");
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

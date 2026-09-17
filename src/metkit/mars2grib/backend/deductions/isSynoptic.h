@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <string>
 
 #include "metkit/config/LibMetkit.h"
@@ -71,8 +73,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///         on missing, malformed, or unsupported raw `stream` input, with the
 ///         original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-bool resolve_IsSynoptic_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+bool resolve_IsSynoptic_or_throw(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
 
@@ -80,13 +83,14 @@ bool resolve_IsSynoptic_or_throw(const MarsDict_t& mars, const ParDict_t& par, c
     (void)opt;
 
     try {
-        const std::string stream = get_or_throw<std::string>(mars, "stream");
+        const std::string stream = get_or_throw<std::string>(mars, "stream", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         const bool result        = stream == "mnth";
 
         MARS2GRIB_LOG_RESOLVE([&]() {
             return std::string{"`isSynoptic` resolved from input dictionaries: value='"} + (result ? "true" : "false") +
                    "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {

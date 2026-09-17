@@ -19,6 +19,7 @@
 #include "metkit/config/LibMetkit.h"
 #include "metkit/mars2grib/utils/logUtils.h"
 #include "metkit/mars2grib/utils/mars2gribExceptions.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::validation {
 
@@ -65,9 +66,10 @@ namespace metkit::mars2grib::backend::validation {
 /// - The function returns normally on success and does not produce any output.
 ///
 
-template <class OptDict_t, class OutDict_t>
+template <class OptDict_t, class OutDict_t, class Cntx_t>
 void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t& out,
-                                          const std::vector<long>& expectedLocalDefinitionNumber) {
+                                          const std::vector<long>& expectedLocalDefinitionNumber, Cntx_t& cntx) {
+    using namespace metkit::mars2grib::utils::profiling; profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::joinNumbers;
@@ -76,12 +78,12 @@ void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t&
     try {
 
         if constexpr (metkit::mars2grib::utils::dict_traits::dict_supports_checks_v<OutDict_t>) {
-            if (get_or_throw<bool>(opt, "applyChecks")) {
+            if (get_or_throw<bool>(opt, "applyChecks", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
 
                 // If Local Use Section is present, check definition number
-                if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent"); hasLocalUseSection != 0) {
+                if (long hasLocalUseSection = get_or_throw<long>(out, "localUsePresent", metkit::mars2grib::utils::profiling::callSite(cntx, Here())); hasLocalUseSection != 0) {
 
-                    long actualLocalDefinitionNumber = get_or_throw<long>(out, "localDefinitionNumber");
+                    long actualLocalDefinitionNumber = get_or_throw<long>(out, "localDefinitionNumber", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
                     // Compare against expected values
                     bool match = std::find(expectedLocalDefinitionNumber.begin(), expectedLocalDefinitionNumber.end(),
@@ -105,6 +107,7 @@ void match_LocalDefinitionNumber_or_throw(const OptDict_t& opt, const OutDict_t&
         }
 
         // Exit on success
+        profileExitFunction(cntx, Here());
         return;
     }
     catch (...) {

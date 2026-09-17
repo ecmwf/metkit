@@ -37,6 +37,7 @@
 
 #include "metkit/mars2grib/backend/sections/initializers/sectionInitializerCore.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::backend::sections::initializers {
 
@@ -79,38 +80,65 @@ namespace metkit::mars2grib::backend::sections::initializers {
 /// Existing local definition content is not checked and may be overwritten.
 ///
 template <std::size_t SectionNumber, std::size_t TemplateNumber, class MarsDict_t, class ParDict_t, class OptDict_t,
-          class OutDict_t>
-void allocateTemplateNumber2(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OutDict_t, class Cntx_t>
+void allocateTemplateNumber2(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out,
+                             Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
     // Dictionary traits
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribGenericException;
 
     try {
         // Enable local definition section (overwrite if already present)
-        set_or_throw<long>(out, "setLocalDefinition", 1);
+        set_or_throw<long>(out, "setLocalDefinition", 1,
+                           metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                          TemplateNumber>(cntx,
+                                                                                                          Here()));
 
         // Select local definition number based on template number
         // Special handling for DestinE virtual templates
         if constexpr (TemplateNumber == 1001) {
             // Minimal Section 2
-            set_or_throw<long>(out, "localDefinitionNumber", 1L);
+            set_or_throw<long>(out, "localDefinitionNumber", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
             // DestinE metadata
-            set_or_throw<long>(out, "productionStatusOfProcessedData", 12L);
+            set_or_throw<long>(out, "productionStatusOfProcessedData", 12L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
             // ClimateDT dataset tag
-            set_or_throw<std::string>(out, "dataset", "climate-dt");
+            set_or_throw<std::string>(out, "dataset", "climate-dt",
+                                      metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                                     TemplateNumber>(
+                                          cntx, Here()));
         }
         else if constexpr (TemplateNumber == 1002) {
             // Minimal Section 2
-            set_or_throw<long>(out, "localDefinitionNumber", 1L);
+            set_or_throw<long>(out, "localDefinitionNumber", 1L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
             // DestinE metadata
-            set_or_throw<long>(out, "productionStatusOfProcessedData", 12L);
+            set_or_throw<long>(out, "productionStatusOfProcessedData", 12L,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
             // ExtremesDT dataset tag
-            set_or_throw<std::string>(out, "dataset", "extremes-dt");
+            set_or_throw<std::string>(out, "dataset", "extremes-dt",
+                                      metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                                     TemplateNumber>(
+                                          cntx, Here()));
         }
         else {
-            set_or_throw<long>(out, "localDefinitionNumber", TemplateNumber);
+            set_or_throw<long>(out, "localDefinitionNumber", TemplateNumber,
+                               metkit::mars2grib::utils::profiling::sectionInitializerCallSite<SectionNumber,
+                                                                                              TemplateNumber>(cntx,
+                                                                                                              Here()));
         }
 
+        metkit::mars2grib::utils::profiling::profileExitSectionInitializer<SectionNumber, TemplateNumber>(cntx, Here());
         return;
     }
     catch (...) {

@@ -60,8 +60,8 @@ namespace metkit::mars2grib::backend::sections::initializers {
 /// @tparam OptDict_t  Type of the options dictionary
 /// @tparam OutDict_t  Type of the output GRIB dictionary
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
-using Fn = metkit::mars2grib::backend::compile_time_registry_engine::Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+using Fn = void (*)(const MarsDict_t&, const ParDict_t&, const OptDict_t&, OutDict_t&, Cntx_t&);
 
 ///
 /// @brief Registry entry associating a GRIB template number with an initializer.
@@ -80,9 +80,9 @@ using Fn = metkit::mars2grib::backend::compile_time_registry_engine::Fn<MarsDict
 /// @tparam OptDict_t  Type of the options dictionary
 /// @tparam OutDict_t  Type of the output GRIB dictionary
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
 struct Entry {
-    using Fn_t = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t>;
+    using Fn_t = Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t>;
     std::size_t templateNumber;
     Fn_t callback;
 };

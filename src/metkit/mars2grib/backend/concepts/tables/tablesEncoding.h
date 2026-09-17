@@ -49,6 +49,7 @@
 #include "metkit/mars2grib/backend/compile-time-registry-engine/common.h"
 #include "metkit/mars2grib/backend/concepts/tables/tablesEnum.h"
 #include "metkit/mars2grib/utils/generalUtils.h"
+#include "metkit/mars2grib/utils/Profiling.h"
 
 // Deductions
 #include "metkit/mars2grib/backend/deductions/localTablesVersion.h"
@@ -151,8 +152,9 @@ constexpr bool tablesApplicable() {
 /// @see deductions::resolve_LocalTablesVersion_or_throw
 ///
 template <std::size_t Stage, std::size_t Section, TablesType Variant, class MarsDict_t, class ParDict_t,
-          class OptDict_t, class OutDict_t>
-void TablesOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out) {
+          class OptDict_t, class OutDict_t, class Cntx_t>
+void TablesOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, OutDict_t& out, Cntx_t& cntx) {
+    utils::profiling::profileEnterConcept<Stage, Section, Variant>(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::set_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribConceptException;
@@ -164,26 +166,26 @@ void TablesOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
             MARS2GRIB_LOG_CONCEPT(tables);
 
             // Global deductions
-            long localTablesVersionVal = deductions::resolve_LocalTablesVersion_or_throw(mars, par, opt);
+            long localTablesVersionVal = deductions::resolve_LocalTablesVersion_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
             // set in output dictionary
             if constexpr (Variant == TablesType::Custom) {
 
                 // Deductions
-                long tablesVersionVal = deductions::resolve_TablesVersionCustom_or_throw(mars, par, opt);
+                long tablesVersionVal = deductions::resolve_TablesVersionCustom_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "tablesVersion", tablesVersionVal);
-                set_or_throw<long>(out, "localTablesVersion", localTablesVersionVal);
+                set_or_throw<long>(out, "tablesVersion", tablesVersionVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "localTablesVersion", localTablesVersionVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else if constexpr (Variant == TablesType::Default) {
 
                 // Deductions
-                long tablesVersionVal = deductions::resolve_TablesVersionLatest_or_throw(mars, par, opt);
+                long tablesVersionVal = deductions::resolve_TablesVersionLatest_or_throw(mars, par, opt, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
 
                 // Encoding
-                set_or_throw<long>(out, "tablesVersion", tablesVersionVal);
-                set_or_throw<long>(out, "localTablesVersion", localTablesVersionVal);
+                set_or_throw<long>(out, "tablesVersion", tablesVersionVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
+                set_or_throw<long>(out, "localTablesVersion", localTablesVersionVal, utils::profiling::conceptCallSite<Stage, Section, Variant>(cntx, Here()));
             }
             else {
                 MARS2GRIB_CONCEPT_THROW(tables, "Unsupported variant for `tables` concept...");
@@ -194,6 +196,7 @@ void TablesOp(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt
         }
 
         // Successful operation
+        utils::profiling::profileExitConcept<Stage, Section, Variant>(cntx, Here());
         return;
     }
 

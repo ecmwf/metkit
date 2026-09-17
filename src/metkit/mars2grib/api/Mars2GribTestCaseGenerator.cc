@@ -252,17 +252,18 @@ Options readOptions(const eckit::LocalConfiguration& conf) {
 }
 
 std::string makeTestCaseJson(const eckit::LocalConfiguration& mars, const eckit::LocalConfiguration& misc,
-                             const Options& opts, const testing_utils::RecordingDictionary& out) {
+                             const Options& opts, const testing_utils::RecordingDictionary& out,
+                             utils::profiling::NoProfileContext& cntx) {
     using metkit::mars2grib::utils::dict_traits::dict_to_json;
 
     std::string json;
     json += "{";
     json += "\"mars\":";
-    json += dict_to_json(mars);
+    json += dict_to_json(mars, utils::profiling::callSite(cntx, Here()));
     json += ",\"misc\":";
-    json += dict_to_json(misc);
+    json += dict_to_json(misc, utils::profiling::callSite(cntx, Here()));
     json += ",\"opt\":";
-    json += dict_to_json(opts);
+    json += dict_to_json(opts, utils::profiling::callSite(cntx, Here()));
     json += ",\"out\":";
     json += out.to_json();
     json += "}";
@@ -282,19 +283,21 @@ Mars2GribTestCaseGenerator::Mars2GribTestCaseGenerator(OptionList opts) : opts_{
 
 std::string Mars2GribTestCaseGenerator::generate(const eckit::LocalConfiguration& mars,
                                                  const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     const auto out = generateOutput(mars, misc);
-    return makeTestCaseJson(mars, misc, opts_, out);
+    return makeTestCaseJson(mars, misc, opts_, out, cntx);
 }
 
 testing_utils::RecordingDictionary Mars2GribTestCaseGenerator::generateOutput(const eckit::LocalConfiguration& mars,
-                                                                              const eckit::LocalConfiguration& misc) {
+                                                                               const eckit::LocalConfiguration& misc) {
+    utils::profiling::NoProfileContext cntx;
     return exceptions::withMars2GribApiErrorHandling<testing_utils::RecordingDictionary>(
         "Mars2GribTestCaseGenerator::generateOutput", opts_,
         [&]() {
             auto out =
                 CoreOperations::encodeHeaderWithNormalization<eckit::LocalConfiguration, eckit::LocalConfiguration,
                                                               Options, testing_utils::RecordingDictionary>(
-                    mars, misc, opts_, language_);
+                    mars, misc, opts_, language_, utils::profiling::callSite(cntx, Here()));
             return std::move(*out);
         },
         Here());

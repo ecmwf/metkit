@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "eckit/types/DateTime.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecClassification.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/detail/ProductTimeSpecJsonUtils.h"
@@ -64,21 +66,31 @@ struct ProductTimeSpecDomain {
 /// @param[in] value Resolved domain artifact.
 /// @return One JSON object describing the final domain state, or a stable
 ///         fallback error object if serialization fails.
-inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value) noexcept {
+template <class Cntx_t>
+inline std::string productTimeSpecDomainJson(const ProductTimeSpecDomain& value, Cntx_t& cntx) noexcept {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     try {
         std::ostringstream out;
-        out << '{' << detail::jsonQuote_modelInput("domainStartDateTime") << ':'
-            << detail::productTimeSpecDateTimeJson(value.domainStartDateTime) << ','
-            << detail::jsonQuote_modelInput("domainEndDateTime") << ':'
-            << detail::productTimeSpecDateTimeJson(value.domainEndDateTime) << ','
-            << detail::jsonQuote_modelInput("isSynoptic") << ':' << (value.isSynoptic ? "true" : "false") << ','
-            << detail::jsonQuote_modelInput("startOffsetHoursFromReference") << ':'
-            << value.startOffsetHoursFromReference << ',' << detail::jsonQuote_modelInput("endOffsetHoursFromReference")
+        out << '{' << detail::jsonQuote_modelInput("domainStartDateTime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::productTimeSpecDateTimeJson(value.domainStartDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("domainEndDateTime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << detail::productTimeSpecDateTimeJson(value.domainEndDateTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+            << detail::jsonQuote_modelInput("isSynoptic", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << (value.isSynoptic ? "true" : "false") << ','
+            << detail::jsonQuote_modelInput("startOffsetHoursFromReference", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+            << value.startOffsetHoursFromReference << ',' << detail::jsonQuote_modelInput("endOffsetHoursFromReference", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
             << ':' << value.endOffsetHoursFromReference << '}';
-        return out.str();
+        {
+            std::string result = out.str();
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
-        return std::string{"{\"error\":\"productTimeSpecDomainJson failed while building diagnostic context\"}"};
+        {
+            std::string result = std::string{"{\"error\":\"productTimeSpecDomainJson failed while building diagnostic context\"}"};
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
 }
 

@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System Include
 #include <exception>
 #include <optional>
@@ -119,9 +121,10 @@ namespace metkit::mars2grib::backend::deductions {
 /// - Logging intentionally emits RESOLVE/DEFAULT entries to highlight implicit assumptions.
 ///
 
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                                 const OptDict_t& opt) {
+                                                                 const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
@@ -132,8 +135,8 @@ std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_
 
         // Big assumption here:
         // - lengthOfTimeWindow is in hours
-        if (has(par, "lengthOfTimeWindow")) {
-            long lengthOfTimeWindowInHoursVal = get_or_throw<long>(par, "lengthOfTimeWindow");
+        if (has(par, "lengthOfTimeWindow", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            long lengthOfTimeWindowInHoursVal = get_or_throw<long>(par, "lengthOfTimeWindow", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
@@ -143,7 +146,11 @@ std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_
             }());
 
             // Success exit point
-            return {lengthOfTimeWindowInHoursVal * 3600};  // Convert hours to seconds
+            {
+                std::optional<long> result{lengthOfTimeWindowInHoursVal * 3600};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }  // Convert hours to seconds
         }
         else {
 
@@ -154,7 +161,11 @@ std::optional<long> resolve_LengthOfTimeWindowInSeconds_or_throw(const MarsDict_
             }());
 
             // Success exit point
-            return std::nullopt;
+            {
+                std::optional<long> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

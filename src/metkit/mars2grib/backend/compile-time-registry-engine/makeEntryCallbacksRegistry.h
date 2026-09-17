@@ -129,9 +129,9 @@ namespace detail {
 /// This function is `constexpr` and intended to be invoked only during
 /// compile-time table construction.
 ///
-template <class Entry, std::size_t Capability, class MarsDict_t, class OptDict_t>
-constexpr Fm<MarsDict_t, OptDict_t> makeEntryCallback() {
-    return Entry::template entryCallbacks<Capability, MarsDict_t, OptDict_t>();
+template <class Entry, std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+constexpr Fm<MarsDict_t, OptDict_t, Cntx_t> makeEntryCallback() {
+    return Entry::template entryCallbacks<Capability, MarsDict_t, OptDict_t, Cntx_t>();
 }
 
 ///
@@ -149,7 +149,7 @@ constexpr Fm<MarsDict_t, OptDict_t> makeEntryCallback() {
 /// @tparam MarsDict_t  MARS dictionary type
 /// @tparam OptDict_t   Options dictionary type
 ///
-template <class EntriesList, std::size_t Capability, class MarsDict_t, class OptDict_t>
+template <class EntriesList, std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
 struct BuildEntryCallbacks;
 
 
@@ -158,9 +158,9 @@ struct BuildEntryCallbacks;
 ///
 /// Produces an empty constexpr array.
 ///
-template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-struct BuildEntryCallbacks<TypeList<>, Capability, MarsDict_t, OptDict_t> {
-    static constexpr std::array<Fm<MarsDict_t, OptDict_t>, 0> value() { return {}; }
+template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+struct BuildEntryCallbacks<TypeList<>, Capability, MarsDict_t, OptDict_t, Cntx_t> {
+    static constexpr std::array<Fm<MarsDict_t, OptDict_t, Cntx_t>, 0> value() { return {}; }
 };
 
 ///
@@ -173,13 +173,13 @@ struct BuildEntryCallbacks<TypeList<>, Capability, MarsDict_t, OptDict_t> {
 ///
 /// The order of Entries in the TypeList is strictly preserved.
 ///
-template <class Head, class... Tail, std::size_t Capability, class MarsDict_t, class OptDict_t>
-struct BuildEntryCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, OptDict_t> {
+template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t, class Head, class... Tail>
+struct BuildEntryCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, OptDict_t, Cntx_t> {
     static constexpr auto value() {
         constexpr auto head =
-            std::array<Fm<MarsDict_t, OptDict_t>, 1>{makeEntryCallback<Head, Capability, MarsDict_t, OptDict_t>()};
+            std::array<Fm<MarsDict_t, OptDict_t, Cntx_t>, 1>{makeEntryCallback<Head, Capability, MarsDict_t, OptDict_t, Cntx_t>()};
 
-        constexpr auto tail = BuildEntryCallbacks<TypeList<Tail...>, Capability, MarsDict_t, OptDict_t>::value();
+        constexpr auto tail = BuildEntryCallbacks<TypeList<Tail...>, Capability, MarsDict_t, OptDict_t, Cntx_t>::value();
 
         return concat(head, tail);
     }
@@ -210,9 +210,9 @@ struct BuildEntryCallbacks<TypeList<Head, Tail...>, Capability, MarsDict_t, OptD
 /// - stored as a `static constexpr` object
 /// - indexed directly in hot paths without branching
 ///
-template <class EntriesList, std::size_t Capability, class MarsDict_t, class OptDict_t>
+template <class EntriesList, std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
 constexpr auto makeEntryCallbacksRegistry() {
-    return detail::BuildEntryCallbacks<EntriesList, Capability, MarsDict_t, OptDict_t>::value();
+    return detail::BuildEntryCallbacks<EntriesList, Capability, MarsDict_t, OptDict_t, Cntx_t>::value();
 }
 
 }  // namespace metkit::mars2grib::backend::compile_time_registry_engine

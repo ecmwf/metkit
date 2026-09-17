@@ -43,6 +43,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 // System includes
 #include <optional>
 #include <string>
@@ -103,10 +105,11 @@ namespace metkit::mars2grib::backend::deductions {
 /// This deduction currently does not implement any override path via `par`.
 /// If an override mechanism is introduced, successful override must emit an OVERRIDE log entry.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_or_throw(const MarsDict_t& mars,
                                                                                          const ParDict_t& par,
-                                                                                         const OptDict_t& opt) {
+                                                                                         const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::utils::dict_traits::get_or_throw;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -119,7 +122,7 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
         std::optional<tables::ProductionStatusOfProcessedData> productionStatusOfProcessedData = std::nullopt;
 
         // Retrieve mandatory MARS class
-        const auto marsClass = get_or_throw<std::string>(mars, "class");
+        const auto marsClass = get_or_throw<std::string>(mars, "class", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         // Deduce productionStatusOfProcessedData from mars class
         if (marsClass == "d1") {
@@ -137,13 +140,17 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
             // Emit RESOLVE log entry
             MARS2GRIB_LOG_RESOLVE([&]() {
                 std::string logMsg = "`productionStatusOfProcessedData` resolved from input dictionaries: value='";
-                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData.value());
+                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData.value(), cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return productionStatusOfProcessedData.value();
+            {
+                tables::ProductionStatusOfProcessedData result = productionStatusOfProcessedData.value();
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         else {
             // Default to operational product
@@ -152,13 +159,17 @@ tables::ProductionStatusOfProcessedData resolve_ProductionStatusOfProcessedData_
             // Emit DEFAULT log entry
             MARS2GRIB_LOG_DEFAULT([&]() {
                 std::string logMsg = "`productionStatusOfProcessedData` defaulted to operational product: value='";
-                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData.value());
+                logMsg += enum2name_ProductionStatusOfProcessedData_or_throw(productionStatusOfProcessedData.value(), cntx);
                 logMsg += "'";
                 return logMsg;
             }());
 
             // Success exit point
-            return productionStatusOfProcessedData.value();
+            {
+                tables::ProductionStatusOfProcessedData result = productionStatusOfProcessedData.value();
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
     catch (...) {

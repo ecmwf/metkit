@@ -242,8 +242,8 @@ struct RegisterEntryDescriptor {
     /// or `nullptr` if the combination is not supported.
     ///
     template <std::size_t Capability, std::size_t Stage, std::size_t Section, VariantEnum Variant, class MarsDict_t,
-              class ParDict_t, class OptDict_t, class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> phaseCallbacks();
+               class ParDict_t, class OptDict_t, class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> phaseCallbacks();
 
     ///
     /// @brief Variant-level dispatch interface.
@@ -261,8 +261,8 @@ struct RegisterEntryDescriptor {
     /// or `nullptr` if unsupported.
     ///
     template <std::size_t Capability, VariantEnum Variant, class MarsDict_t, class ParDict_t, class OptDict_t,
-              class OutDict_t>
-    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t> variantCallbacks();
+               class OutDict_t, class Cntx_t>
+    static constexpr Fn<MarsDict_t, ParDict_t, OptDict_t, OutDict_t, Cntx_t> variantCallbacks();
 
     ///
     /// @brief Entry-level dispatch interface.
@@ -281,8 +281,8 @@ struct RegisterEntryDescriptor {
     /// A function pointer implementing the entry-level behavior,
     /// or `nullptr` if unsupported.
     ///
-    template <std::size_t Capability, class MarsDict_t, class OptDict_t>
-    static constexpr Fm<MarsDict_t, OptDict_t> entryCallbacks();
+    template <std::size_t Capability, class MarsDict_t, class OptDict_t, class Cntx_t>
+    static constexpr Fm<MarsDict_t, OptDict_t, Cntx_t> entryCallbacks();
 };
 
 }  // namespace metkit::mars2grib::backend::compile_time_registry_engine

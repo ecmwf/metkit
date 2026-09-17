@@ -15,6 +15,7 @@
 #include "metkit/mars2grib/misc-defaults/get_misc_default.h"
 #include "metkit/mars2grib/testing-utils/MiscRequirementsDictionary.h"
 #include "metkit/mars2grib/utils/dictionary_traits/dictionary_access_traits.h"
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
 
 namespace metkit::mars2grib::utils {
 
@@ -29,30 +30,44 @@ namespace metkit::mars2grib::utils::dict_traits {
 
 template <>
 struct DictHas<testing_utils::MiscRequirementsDictionary> {
-    static bool has(const testing_utils::MiscRequirementsDictionary& dict, std::string_view key) noexcept(false) {
+    template <class Cntx_t>
+    static bool has(const testing_utils::MiscRequirementsDictionary& dict, std::string_view key,
+                    Cntx_t& cntx) noexcept(false) {
+        profiling::profileEnterFunction(cntx, Here());
         dict.record_optional(key);
-        return false;
+        const bool result = false;
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 
-#define M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(CTYPE)                                             \
-    template <>                                                                                    \
-    struct DictGetOpt<testing_utils::MiscRequirementsDictionary, CTYPE> {                          \
-        static std::optional<CTYPE> get_opt(const testing_utils::MiscRequirementsDictionary& dict, \
-                                            std::string_view key) noexcept(false) {                \
-            dict.record_optional<CTYPE>(key);                                                      \
-            return std::nullopt;                                                                   \
-        }                                                                                          \
-    };                                                                                             \
-                                                                                                   \
-    template <>                                                                                    \
-    struct DictGetOrThrow<testing_utils::MiscRequirementsDictionary, CTYPE> {                      \
-        static CTYPE get_or_throw(const testing_utils::MiscRequirementsDictionary& dict,           \
-                                  std::string_view key) noexcept(false) {                          \
-            const auto value = misc_defaults::get_misc_default<CTYPE>(dict.mars(), key);           \
-            dict.record_mandatory<CTYPE>(key, value);                                              \
-            return value.value_or(CTYPE{});                                                        \
-        }                                                                                          \
+#define M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(CTYPE)                                              \
+    template <>                                                                                     \
+    struct DictGetOpt<testing_utils::MiscRequirementsDictionary, CTYPE> {                           \
+        template <class Cntx_t>                                                                     \
+        static std::optional<CTYPE> get_opt(const testing_utils::MiscRequirementsDictionary& dict,  \
+                                            std::string_view key, Cntx_t& cntx) noexcept(false) {   \
+            profiling::profileEnterFunction(cntx, Here());                                         \
+            dict.record_optional<CTYPE>(key);                                                       \
+            std::optional<CTYPE> result = std::nullopt;                                             \
+            profiling::profileExitFunction(cntx, Here());                                          \
+            return result;                                                                          \
+        }                                                                                           \
+    };                                                                                              \
+                                                                                                    \
+    template <>                                                                                     \
+    struct DictGetOrThrow<testing_utils::MiscRequirementsDictionary, CTYPE> {                       \
+        template <class Cntx_t>                                                                     \
+        static CTYPE get_or_throw(const testing_utils::MiscRequirementsDictionary& dict,            \
+                                  std::string_view key, Cntx_t& cntx) noexcept(false) {             \
+            profiling::profileEnterFunction(cntx, Here());                                         \
+            const auto value = misc_defaults::get_misc_default<CTYPE>(                              \
+                dict.mars(), key, profiling::callSite(cntx, Here()));                               \
+            dict.record_mandatory<CTYPE>(key, value);                                               \
+            CTYPE result = value.value_or(CTYPE{});                                                 \
+            profiling::profileExitFunction(cntx, Here());                                          \
+            return result;                                                                          \
+        }                                                                                           \
     };
 
 M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(bool)
@@ -65,7 +80,9 @@ M2G_DEFINE_MISC_REQUIREMENTS_GET_TRAITS(std::vector<double>)
 
 template <>
 struct DictToJsonTraits<testing_utils::MiscRequirementsDictionary> {
-    static std::string to_json(const testing_utils::MiscRequirementsDictionary& dict) {
+    template <class Cntx_t>
+    static std::string to_json(const testing_utils::MiscRequirementsDictionary& dict, Cntx_t& cntx) {
+        profiling::profileEnterFunction(cntx, Here());
         std::ostringstream out;
         out << "{\"requirements\":[";
         bool first = true;
@@ -85,7 +102,9 @@ struct DictToJsonTraits<testing_utils::MiscRequirementsDictionary> {
             out << '}';
         }
         out << "]}";
-        return out.str();
+        std::string result = out.str();
+        profiling::profileExitFunction(cntx, Here());
+        return result;
     }
 };
 

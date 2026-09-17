@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <algorithm>
 #include <array>
 #include <optional>
@@ -92,14 +94,15 @@ namespace detail {
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException on
 ///         evaluation failure.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 bool requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                             const OptDict_t& opt) {
+                                                             const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        const std::string marsClass  = deductions::resolve_Class_or_throw(mars, par, opt);
-        const std::string marsStream = deductions::resolve_Stream_or_throw(mars, par, opt);
+        const std::string marsClass  = deductions::resolve_Class_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const std::string marsStream = deductions::resolve_Stream_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         const bool isE6Statistics = marsClass == "e6" && (marsStream == "sttd" || marsStream == "stte");
 
@@ -109,7 +112,11 @@ bool requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(const MarsDict_t& m
         const bool isHistoricalStatistics =
             (marsClass == "gh" || marsClass == "eh") && (marsStream == "msmm" || marsStream == "rfsd");
 
-        return isE6Statistics || isSeas6Statistics || isHistoricalStatistics;
+        {
+            bool result = isE6Statistics || isSeas6Statistics || isHistoricalStatistics;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(utils::exceptions::Mars2GribModelException(
@@ -132,22 +139,27 @@ bool requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(const MarsDict_t& m
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException on
 ///         evaluation failure.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 bool requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(const MarsDict_t& mars, const ParDict_t& par,
-                                                             const OptDict_t& opt) {
+                                                             const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         constexpr std::array<std::string_view, 4> indexStatisticsTypes = {{"efi", "efic", "sot", "cpf"}};
 
-        const std::string marsType = deductions::resolve_Type_or_throw(mars, par, opt);
-        const long marsParamId     = deductions::resolve_ParamId_or_throw(mars, par, opt);
+        const std::string marsType = deductions::resolve_Type_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        const long marsParamId     = deductions::resolve_ParamId_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
         const bool typeIsValid    = std::any_of(indexStatisticsTypes.begin(), indexStatisticsTypes.end(),
                                                 [&marsType](auto value) { return marsType == value; });
         const bool paramIdIsValid = marsParamId / 1000 == 132;
 
-        return typeIsValid && paramIdIsValid;
+        {
+            bool result = typeIsValid && paramIdIsValid;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(utils::exceptions::Mars2GribModelException(
@@ -170,9 +182,11 @@ bool requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(const MarsDict_t& m
  * @return `true` when the processing type is allowed at step zero; otherwise `false`.
  * @throws Mars2GribModelException If evaluation unexpectedly fails.
  */
+template <class Cntx_t>
 inline bool isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
     const metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing& innerTypeOfStatisticalProcessing,
-    const bool allowExtendedSetOfOperationsForZeroLengthFsWindow) {
+    const bool allowExtendedSetOfOperationsForZeroLengthFsWindow, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
 
     using metkit::mars2grib::backend::tables::TypeOfStatisticalProcessing;
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
@@ -190,18 +204,34 @@ inline bool isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
             [&innerTypeOfStatisticalProcessing](auto value) { return innerTypeOfStatisticalProcessing == value; });
 
         if (isMissing) {
-            return true;
+            {
+                bool result = true;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         if (isAccumulation) {
-            return true;
+            {
+                bool result = true;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         if (isInExtendedOperationSet) {
-            return allowExtendedSetOfOperationsForZeroLengthFsWindow;
+            {
+                bool result = allowExtendedSetOfOperationsForZeroLengthFsWindow;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
-        return false;
+        {
+            bool result = false;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(Mars2GribModelException(
@@ -311,61 +341,71 @@ struct ProductTimeSpecInput {
     /// @return One JSON object string on success, or a stable fallback sentence
     ///         if serialization itself fails.
     ///
-    std::string to_json() const noexcept {
+    template <class Cntx_t>
+    std::string to_json(Cntx_t& cntx) const noexcept {
+        metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
         try {
             std::ostringstream out;
-            out << '{' << detail::jsonQuote_modelInput("marsClass") << ':' << detail::jsonQuote_modelInput(marsClass)
-                << ',' << detail::jsonQuote_modelInput("marsStream") << ':' << detail::jsonQuote_modelInput(marsStream)
-                << ',' << detail::jsonQuote_modelInput("marsType") << ':' << detail::jsonQuote_modelInput(marsType)
-                << ',' << detail::jsonQuote_modelInput("marsParamId") << ':' << marsParamId << ','
-                << detail::jsonQuote_modelInput("requiresFakeDoubleLoopSingleLoopRepresentation") << ':'
+            out << '{' << detail::jsonQuote_modelInput("marsClass", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << detail::jsonQuote_modelInput(marsClass, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("marsStream", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << detail::jsonQuote_modelInput(marsStream, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("marsType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << detail::jsonQuote_modelInput(marsType, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("marsParamId", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << marsParamId << ','
+                << detail::jsonQuote_modelInput("requiresFakeDoubleLoopSingleLoopRepresentation", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (requiresFakeDoubleLoopSingleLoopRepresentation ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("requiresFakeSingleLoopDoubleLoopRepresentation") << ':'
+                << detail::jsonQuote_modelInput("requiresFakeSingleLoopDoubleLoopRepresentation", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (requiresFakeSingleLoopDoubleLoopRepresentation ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("marsYear") << ':' << detail::optionalLongJson_modelInput(marsYear)
-                << ',' << detail::jsonQuote_modelInput("marsMonth") << ':'
-                << detail::optionalLongJson_modelInput(marsMonth) << ',' << detail::jsonQuote_modelInput("marsDate")
-                << ':' << detail::optionalDateJson_modelInput(marsDate) << ','
-                << detail::jsonQuote_modelInput("marsTime") << ':' << detail::optionalTimeJson_modelInput(marsTime)
-                << ',' << detail::jsonQuote_modelInput("marsHdate") << ':'
-                << detail::optionalDateJson_modelInput(marsHdate) << ',' << detail::jsonQuote_modelInput("marsFcmonth")
-                << ':' << detail::optionalLongJson_modelInput(marsFcmonth) << ','
-                << detail::jsonQuote_modelInput("isSynoptic") << ':' << (isSynoptic ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("regime") << ':'
-                << detail::jsonQuote_modelInput(regime == deductions::SimulationRegime::AIFS ? "AIFS" : "IFS") << ','
-                << detail::jsonQuote_modelInput("simulationType") << ':'
+                << detail::jsonQuote_modelInput("marsYear", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << detail::optionalLongJson_modelInput(marsYear, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("marsMonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::optionalLongJson_modelInput(marsMonth, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ',' << detail::jsonQuote_modelInput("marsDate", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ':' << detail::optionalDateJson_modelInput(marsDate, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("marsTime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << detail::optionalTimeJson_modelInput(marsTime, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("marsHdate", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::optionalDateJson_modelInput(marsHdate, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ',' << detail::jsonQuote_modelInput("marsFcmonth", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ':' << detail::optionalLongJson_modelInput(marsFcmonth, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("isSynoptic", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << (isSynoptic ? "true" : "false") << ','
+                << detail::jsonQuote_modelInput("regime", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::jsonQuote_modelInput(regime == deductions::SimulationRegime::AIFS ? "AIFS" : "IFS", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("simulationType", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << detail::jsonQuote_modelInput(simulationType == deductions::SimulationType::Analysis ? "Analysis"
-                                                                                                       : "Forecast")
-                << ',' << detail::jsonQuote_modelInput("step") << ':' << detail::optionalDurationJson_modelInput(step)
-                << ',' << detail::jsonQuote_modelInput("timespan") << ':'
-                << detail::optionalTimespanJson_modelInput(timespan) << ',' << detail::jsonQuote_modelInput("stattype")
-                << ':' << detail::optionalStattypeJson_modelInput(stattype) << ','
-                << detail::jsonQuote_modelInput("timeIncrement") << ':'
-                << detail::optionalDurationJson_modelInput(timeIncrement) << ','
-                << detail::jsonQuote_modelInput("allowDefaultTimeIncrement") << ':'
+                                                                                                       : "Forecast", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("step", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':' << detail::optionalDurationJson_modelInput(step, metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("timespan", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::optionalTimespanJson_modelInput(timespan, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ',' << detail::jsonQuote_modelInput("stattype", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ':' << detail::optionalStattypeJson_modelInput(stattype, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("timeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
+                << detail::optionalDurationJson_modelInput(timeIncrement, metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ','
+                << detail::jsonQuote_modelInput("allowDefaultTimeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowDefaultTimeIncrement ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("allowZeroLengthFsWindow") << ':'
+                << detail::jsonQuote_modelInput("allowZeroLengthFsWindow", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowZeroLengthFsWindow ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("allowExtendedSetOfOperationsForZeroLengthFsWindow") << ':'
+                << detail::jsonQuote_modelInput("allowExtendedSetOfOperationsForZeroLengthFsWindow", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowExtendedSetOfOperationsForZeroLengthFsWindow ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("allowNonEnumeratedPositiveIntegerTimespanHours") << ':'
+                << detail::jsonQuote_modelInput("allowNonEnumeratedPositiveIntegerTimespanHours", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowNonEnumeratedPositiveIntegerTimespanHours ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("allowRedundantTimeIncrement") << ':'
+                << detail::jsonQuote_modelInput("allowRedundantTimeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowRedundantTimeIncrement ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("allowMissingTimespanForInstantProduct") << ':'
+                << detail::jsonQuote_modelInput("allowMissingTimespanForInstantProduct", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowMissingTimespanForInstantProduct ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("allowMissingTimespanForStatisticalProduct") << ':'
+                << detail::jsonQuote_modelInput("allowMissingTimespanForStatisticalProduct", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (allowMissingTimespanForStatisticalProduct ? "true" : "false") << ','
-                << detail::jsonQuote_modelInput("innerMostTypeOfStatisticalProcessing") << ':'
+                << detail::jsonQuote_modelInput("innerMostTypeOfStatisticalProcessing", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << detail::jsonQuote_modelInput(
-                       tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerMostTypeOfStatisticalProcessing))
-                << ',' << detail::jsonQuote_modelInput("isAllowedInnerTypeOfStatisticalProcessingAtStepZero") << ':'
+                       tables::enum2name_TypeOfStatisticalProcessing_or_throw(innerMostTypeOfStatisticalProcessing, metkit::mars2grib::utils::profiling::callSite(cntx, Here())), metkit::mars2grib::utils::profiling::callSite(cntx, Here()))
+                << ',' << detail::jsonQuote_modelInput("isAllowedInnerTypeOfStatisticalProcessingAtStepZero", metkit::mars2grib::utils::profiling::callSite(cntx, Here())) << ':'
                 << (isAllowedInnerTypeOfStatisticalProcessingAtStepZero ? "true" : "false") << '}';
-            return out.str();
+            {
+                std::string result = out.str();
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
         catch (...) {
-            return std::string{
+            {
+                std::string result = std::string{
                 "{\"error\":\"ProductTimeSpecInput::to_json() failed while building diagnostic context\"}"};
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
     }
 };
@@ -403,10 +443,11 @@ struct ProductTimeSpecInput {
 ///         deduction, typed-option read, or aggregation failure, with the
 ///         original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
 ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
     tables::TypeOfStatisticalProcessing innerMostTypeOfStatisticalProcessing, const MarsDict_t& mars,
-    const ParDict_t& par, const OptDict_t& opt) {
+    const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::backend::models::product_time_spec::detail::
         isAllowed_InnerTypeOfStatisticalProcessingAtStepZero;
     using metkit::mars2grib::backend::models::product_time_spec::detail::
@@ -418,51 +459,55 @@ ProductTimeSpecInput make_ProductTimeSpecInput_or_throw(
 
     try {
         ProductTimeSpecInput input;
-        input.marsClass   = deductions::resolve_Class_or_throw(mars, par, opt);
-        input.marsStream  = deductions::resolve_Stream_or_throw(mars, par, opt);
-        input.marsType    = deductions::resolve_Type_or_throw(mars, par, opt);
-        input.marsParamId = deductions::resolve_ParamId_or_throw(mars, par, opt);
+        input.marsClass   = deductions::resolve_Class_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsStream  = deductions::resolve_Stream_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsType    = deductions::resolve_Type_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsParamId = deductions::resolve_ParamId_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         input.requiresFakeDoubleLoopSingleLoopRepresentation =
-            requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(mars, par, opt);
+            requiresFakeDoubleLoopSingleLoopRepresentation_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         input.requiresFakeSingleLoopDoubleLoopRepresentation =
-            requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(mars, par, opt);
-        input.marsYear    = deductions::resolve_Year_opt(mars, par, opt);
-        input.marsMonth   = deductions::resolve_Month_opt(mars, par, opt);
-        input.marsDate    = deductions::resolve_Date_opt(mars, par, opt);
-        input.marsTime    = deductions::resolve_Time_opt(mars, par, opt);
-        input.marsHdate   = deductions::resolve_Hdate_opt(mars, par, opt);
-        input.marsFcmonth = deductions::resolve_Fcmonth_opt(mars, par, opt);
+            requiresFakeSingleLoopDoubleLoopRepresentation_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsYear    = deductions::resolve_Year_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsMonth   = deductions::resolve_Month_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsDate    = deductions::resolve_Date_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsTime    = deductions::resolve_Time_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsHdate   = deductions::resolve_Hdate_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.marsFcmonth = deductions::resolve_Fcmonth_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        input.step          = deductions::resolve_Step_opt(mars, par, opt);
-        input.timespan      = deductions::resolve_Timespan_or_throw(mars, par, opt);
-        input.stattype      = deductions::resolve_Stattype_or_throw(mars, par, opt);
-        input.timeIncrement = deductions::resolve_TimeIncrement_opt(mars, par, opt);
+        input.step          = deductions::resolve_Step_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.timespan      = deductions::resolve_Timespan_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.stattype      = deductions::resolve_Stattype_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.timeIncrement = deductions::resolve_TimeIncrement_opt(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
 
-        input.isSynoptic     = deductions::resolve_IsSynoptic_or_throw(mars, par, opt);
-        input.regime         = deductions::resolve_SimulationRegime_or_throw(mars, par, opt);
-        input.simulationType = deductions::resolve_SimulationType_or_throw(mars, par, opt);
+        input.isSynoptic     = deductions::resolve_IsSynoptic_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.regime         = deductions::resolve_SimulationRegime_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.simulationType = deductions::resolve_SimulationType_or_throw(mars, par, opt, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
-        input.allowDefaultTimeIncrement = get_or_throw<bool>(opt, "allowDefaultTimeIncrement");
-        input.allowZeroLengthFsWindow   = get_or_throw<bool>(opt, "allowZeroLengthFsWindow");
+        input.allowDefaultTimeIncrement = get_or_throw<bool>(opt, "allowDefaultTimeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.allowZeroLengthFsWindow   = get_or_throw<bool>(opt, "allowZeroLengthFsWindow", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         input.allowExtendedSetOfOperationsForZeroLengthFsWindow =
-            get_or_throw<bool>(opt, "allowExtendedSetOfOperationsForZeroLengthFsWindow");
+            get_or_throw<bool>(opt, "allowExtendedSetOfOperationsForZeroLengthFsWindow", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         input.allowNonEnumeratedPositiveIntegerTimespanHours =
-            get_or_throw<bool>(opt, "allowNonEnumeratedPositiveIntegerTimespanHours");
-        input.allowRedundantTimeIncrement           = get_or_throw<bool>(opt, "allowRedundantTimeIncrement");
-        input.allowMissingTimespanForInstantProduct = get_or_throw<bool>(opt, "allowMissingTimespanForInstantProduct");
+            get_or_throw<bool>(opt, "allowNonEnumeratedPositiveIntegerTimespanHours", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.allowRedundantTimeIncrement           = get_or_throw<bool>(opt, "allowRedundantTimeIncrement", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+        input.allowMissingTimespanForInstantProduct = get_or_throw<bool>(opt, "allowMissingTimespanForInstantProduct", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         input.allowMissingTimespanForStatisticalProduct =
-            get_or_throw<bool>(opt, "allowMissingTimespanForStatisticalProduct");
+            get_or_throw<bool>(opt, "allowMissingTimespanForStatisticalProduct", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         input.innerMostTypeOfStatisticalProcessing = innerMostTypeOfStatisticalProcessing;
         input.isAllowedInnerTypeOfStatisticalProcessingAtStepZero =
             isAllowed_InnerTypeOfStatisticalProcessingAtStepZero(
-                input.innerMostTypeOfStatisticalProcessing, input.allowExtendedSetOfOperationsForZeroLengthFsWindow);
+                input.innerMostTypeOfStatisticalProcessing, input.allowExtendedSetOfOperationsForZeroLengthFsWindow, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
 
 
         MARS2GRIB_LOG_RESOLVE(
-            [&]() { return std::string{"`ProductTimeSpecInput` built from deductions: "} + input.to_json(); }());
+            [&]() { return std::string{"`ProductTimeSpecInput` built from deductions: "} + input.to_json(cntx); }());
 
-        return input;
+        {
+            ProductTimeSpecInput result = input;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(

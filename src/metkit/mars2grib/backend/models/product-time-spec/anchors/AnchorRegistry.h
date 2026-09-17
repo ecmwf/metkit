@@ -49,6 +49,8 @@
 ///
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include "metkit/mars2grib/backend/models/product-time-spec/ProductTimeSpecInput.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/AnchorDataTypes.h"
 #include "metkit/mars2grib/backend/models/product-time-spec/anchors/impl/ForecastAnalysis.h"
@@ -62,13 +64,16 @@ namespace metkit::mars2grib::backend::models::product_time_spec::anchor {
 namespace detail {
 
 /// @brief Function-pointer type shared by all anchor matchers.
-using AnchorMatcher = bool (*)(const ProductTimeSpecInput&);
+template <class Cntx_t>
+using AnchorMatcher = bool (*)(const ProductTimeSpecInput&, Cntx_t&);
 
 /// @brief Function-pointer type shared by all anchor builders.
-using AnchorBuilder = ProductTimeSpecAnchor (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&);
+template <class Cntx_t>
+using AnchorBuilder = ProductTimeSpecAnchor (*)(const ProductTimeSpecInput&, const ProductTimeSpecClassification&, Cntx_t&);
 
 /// @brief Function-pointer type shared by all anchor check callbacks.
-using AnchorChecker = bool (*)(const ProductTimeSpecInput&, const ProductTimeSpecAnchor&);
+template <class Cntx_t>
+using AnchorChecker = bool (*)(const ProductTimeSpecInput&, const ProductTimeSpecAnchor&, Cntx_t&);
 
 ///
 /// @brief Immutable registry row for one anchor case.
@@ -76,30 +81,25 @@ using AnchorChecker = bool (*)(const ProductTimeSpecInput&, const ProductTimeSpe
 /// The row keeps the classification value, diagnostic name, matcher, builder,
 /// and checker together so that independent arrays cannot become misaligned.
 ///
+template <class Cntx_t>
 struct AnchorCase {
     ProductTimeSpecAnchorKind classification;
     std::string_view name;
-    AnchorMatcher matcher;
-    AnchorBuilder builder;
-    AnchorChecker checker;
+    AnchorMatcher<Cntx_t> matcher;
+    AnchorBuilder<Cntx_t> builder;
+    AnchorChecker<Cntx_t> checker;
 };
 
-inline constexpr std::array<detail::AnchorCase, static_cast<std::size_t>(ProductTimeSpecAnchorKind::Count)> anchorCases{
+template <class Cntx_t>
+inline constexpr std::array<detail::AnchorCase<Cntx_t>, static_cast<std::size_t>(ProductTimeSpecAnchorKind::Count)> anchorCases{
     {
-        {ProductTimeSpecAnchorKind::ForecastAnalysis, "ForecastAnalysis", &match_ForecastAnalysis_Anchor,
-         &build_ForecastAnalysis_Anchor, &check_ForecastAnalysis_Anchor},
-        {ProductTimeSpecAnchorKind::Hindcast, "Hindcast", &match_Hindcast_Anchor, &build_Hindcast_Anchor,
-         &check_Hindcast_Anchor},
-        {ProductTimeSpecAnchorKind::SeasonalClimate, "SeasonalClimate", &match_SeasonalClimate_Anchor,
-         &build_SeasonalClimate_Anchor, &check_SeasonalClimate_Anchor},
+        {ProductTimeSpecAnchorKind::ForecastAnalysis, "ForecastAnalysis", &match_ForecastAnalysis_Anchor<Cntx_t>,
+         &build_ForecastAnalysis_Anchor<Cntx_t>, &check_ForecastAnalysis_Anchor<Cntx_t>},
+        {ProductTimeSpecAnchorKind::Hindcast, "Hindcast", &match_Hindcast_Anchor<Cntx_t>,
+         &build_Hindcast_Anchor<Cntx_t>, &check_Hindcast_Anchor<Cntx_t>},
+        {ProductTimeSpecAnchorKind::SeasonalClimate, "SeasonalClimate", &match_SeasonalClimate_Anchor<Cntx_t>,
+         &build_SeasonalClimate_Anchor<Cntx_t>, &check_SeasonalClimate_Anchor<Cntx_t>},
     }};
-
-static_assert(static_cast<std::size_t>(detail::anchorCases[0].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecAnchorKind::ForecastAnalysis));
-static_assert(static_cast<std::size_t>(detail::anchorCases[1].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecAnchorKind::Hindcast));
-static_assert(static_cast<std::size_t>(detail::anchorCases[2].classification) ==
-              static_cast<std::size_t>(ProductTimeSpecAnchorKind::SeasonalClimate));
 
 }  // namespace detail
 
@@ -118,17 +118,20 @@ static_assert(static_cast<std::size_t>(detail::anchorCases[2].classification) ==
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException
 ///         if matcher evaluation fails or classification is not unique.
 ///
-inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecInput& input) {
+template <class Cntx_t>
+inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecInput& input, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
-        std::array<bool, detail::anchorCases.size()> matches{};
+        const auto& cases = detail::anchorCases<Cntx_t>;
+        std::array<bool, static_cast<std::size_t>(ProductTimeSpecAnchorKind::Count)> matches{};
         std::size_t numberOfMatches = 0;
         std::size_t matchedIndex    = 0;
 
-        if (!detail::anchorCases.empty()) {
-            for (std::size_t i = 0; i < detail::anchorCases.size(); ++i) {
-                matches[i] = detail::anchorCases[i].matcher(input);
+        if (!cases.empty()) {
+            for (std::size_t i = 0; i < cases.size(); ++i) {
+                matches[i] = cases[i].matcher(input, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
                 if (matches[i]) {
                     ++numberOfMatches;
                     matchedIndex = i;
@@ -139,14 +142,18 @@ inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecI
         if (numberOfMatches != 1) {
             throw Mars2GribModelException("Anchor classification failed: expected exactly one match, but found " +
                                               std::to_string(numberOfMatches) + " matches",
-                                          input.to_json(), Here());
+                                          input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return detail::anchorCases[matchedIndex].classification;
+        {
+            ProductTimeSpecAnchorKind result = cases[matchedIndex].classification;
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to classify the ProductTimeSpec anchor", input.to_json(), Here()));
+            Mars2GribModelException("Failed to classify the ProductTimeSpec anchor", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -162,24 +169,31 @@ inline ProductTimeSpecAnchorKind classify_Anchor_or_throw(const ProductTimeSpecI
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException if
 ///         the classification is invalid or the selected builder fails.
 ///
+template <class Cntx_t>
 inline ProductTimeSpecAnchor build_Anchor_or_throw(ProductTimeSpecAnchorKind classification,
                                                    const ProductTimeSpecInput& input,
-                                                   const ProductTimeSpecClassification& fullClassification) {
+                                                   const ProductTimeSpecClassification& fullClassification, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         const std::size_t index          = static_cast<std::size_t>(classification);
-        const bool classificationIsValid = index < detail::anchorCases.size();
+        const auto& cases                 = detail::anchorCases<Cntx_t>;
+        const bool classificationIsValid = index < cases.size();
 
         if (!classificationIsValid) {
-            throw Mars2GribModelException("Invalid AnchorClassification value", input.to_json(), Here());
+            throw Mars2GribModelException("Invalid AnchorClassification value", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return detail::anchorCases[index].builder(input, fullClassification);
+        {
+            ProductTimeSpecAnchor result = cases[index].builder(input, fullClassification, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to build the ProductTimeSpec anchor", input.to_json(), Here()));
+            Mars2GribModelException("Failed to build the ProductTimeSpec anchor", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 
@@ -195,23 +209,30 @@ inline ProductTimeSpecAnchor build_Anchor_or_throw(ProductTimeSpecAnchorKind cla
 /// @throws metkit::mars2grib::utils::exceptions::Mars2GribModelException if
 ///         the classification is invalid or the selected checker fails.
 ///
+template <class Cntx_t>
 inline bool check_Anchor_or_throw(ProductTimeSpecAnchorKind classification, const ProductTimeSpecInput& input,
-                                  const ProductTimeSpecAnchor& anchor) {
+                                  const ProductTimeSpecAnchor& anchor, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::exceptions::Mars2GribModelException;
 
     try {
         const std::size_t index          = static_cast<std::size_t>(classification);
-        const bool classificationIsValid = index < detail::anchorCases.size();
+        const auto& cases                 = detail::anchorCases<Cntx_t>;
+        const bool classificationIsValid = index < cases.size();
 
         if (!classificationIsValid) {
-            throw Mars2GribModelException("Invalid AnchorClassification value", input.to_json(), Here());
+            throw Mars2GribModelException("Invalid AnchorClassification value", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here());
         }
 
-        return detail::anchorCases[index].checker(input, anchor);
+        {
+            bool result = cases[index].checker(input, anchor, metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
+            metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+            return result;
+        }
     }
     catch (...) {
         std::throw_with_nested(
-            Mars2GribModelException("Failed to check the ProductTimeSpec anchor", input.to_json(), Here()));
+            Mars2GribModelException("Failed to check the ProductTimeSpec anchor", input.to_json(metkit::mars2grib::utils::profiling::callSite(cntx, Here())), Here()));
     }
 }
 

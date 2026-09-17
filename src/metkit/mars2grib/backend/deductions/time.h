@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include "metkit/mars2grib/utils/profiling/Profiling.h"
+
 #include <optional>
 #include <sstream>
 #include <string>
@@ -76,8 +78,9 @@ namespace metkit::mars2grib::backend::deductions {
 ///         on malformed, unsupported, or invalid raw `time` input, with the
 ///         original cause attached via `std::throw_with_nested`.
 ///
-template <class MarsDict_t, class ParDict_t, class OptDict_t>
-std::optional<eckit::Time> resolve_Time_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt) {
+template <class MarsDict_t, class ParDict_t, class OptDict_t, class Cntx_t>
+std::optional<eckit::Time> resolve_Time_opt(const MarsDict_t& mars, const ParDict_t& par, const OptDict_t& opt, Cntx_t& cntx) {
+    metkit::mars2grib::utils::profiling::profileEnterFunction(cntx, Here());
     using metkit::mars2grib::utils::dict_traits::get_opt;
     using metkit::mars2grib::utils::dict_traits::has;
     using metkit::mars2grib::utils::exceptions::Mars2GribDeductionException;
@@ -86,16 +89,20 @@ std::optional<eckit::Time> resolve_Time_opt(const MarsDict_t& mars, const ParDic
     (void)opt;
 
     try {
-        if (!has(mars, "time")) {
-            return std::nullopt;
+        if (!has(mars, "time", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            {
+                std::optional<eckit::Time> result = std::nullopt;
+                metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
+                return result;
+            }
         }
 
         eckit::Time result{};
-        if (auto value = get_opt<long>(mars, "time")) {
-            result = detail::parseTimeLong(*value, "time");
+        if (auto value = get_opt<long>(mars, "time", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::parseTimeLong(*value, "time", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
-        else if (auto value = get_opt<std::string>(mars, "time")) {
-            result = detail::parseTimeString(*value, "time");
+        else if (auto value = get_opt<std::string>(mars, "time", metkit::mars2grib::utils::profiling::callSite(cntx, Here()))) {
+            result = detail::parseTimeString(*value, "time", metkit::mars2grib::utils::profiling::callSite(cntx, Here()));
         }
         else {
             throw Mars2GribDeductionException("Unsupported type for `time`", Here());
@@ -106,6 +113,7 @@ std::optional<eckit::Time> resolve_Time_opt(const MarsDict_t& mars, const ParDic
             out << result;
             return std::string{"`time` resolved from input dictionaries: value='"} + out.str() + "'";
         }());
+        metkit::mars2grib::utils::profiling::profileExitFunction(cntx, Here());
         return result;
     }
     catch (...) {
