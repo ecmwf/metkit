@@ -194,14 +194,14 @@ public:  // methods
 
     std::string tidy(const std::string& value, const MarsRequest& request = {}) const;
 
-    virtual void setDefaults(MarsRequest& request);
+    virtual void setDefaults(MarsRequest& request) const;
     virtual void check(const std::vector<std::string>& values) const;
     virtual void clearDefaults();
 
-    virtual void pass2(MarsRequest& request);
-    virtual void finalise(MarsRequest& request, bool strict);
+    virtual void pass2(MarsRequest& request) const;
+    virtual void finalise(MarsRequest& request, bool strict) const;
 
-    virtual const std::vector<std::string>& flattenValues(const MarsRequest& request);
+    virtual const std::vector<std::string>& flattenValues(const MarsRequest& request) const;
     virtual bool flatten() const;
     virtual bool multiple() const;
 
@@ -250,7 +250,7 @@ protected:  // members
 private:  // methods
 
     virtual void print(std::ostream& out) const = 0;
-    void patchRequest(MarsRequest& request, const std::vector<std::string>& values);
+    void patchRequest(MarsRequest& request, const std::vector<std::string>& values) const;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

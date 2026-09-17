@@ -59,12 +59,12 @@ public:
 
     MarsExpansion(bool inherit, bool strict = false);
 
-    MarsRequest expand(const MarsRequest&);
-    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&);
-    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&);
+    MarsRequest expand(const MarsRequest&) const;
+    std::vector<MarsRequest> expand(const std::vector<MarsParsedRequest>&) const;
+    std::vector<MarsRequest> expand(const std::vector<MarsRequest>&) const;
 
-    void expand(const MarsRequest&, ExpandCallback&);
-    void flatten(const MarsRequest&, FlattenCallback&);
+    void expand(const MarsRequest&, ExpandCallback&) const;
+    void flatten(const MarsRequest&, FlattenCallback&) const;
 
 private:
 

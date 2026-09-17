@@ -205,7 +205,7 @@ void MarsRequest::unsetValues(const std::string& name) {
     }
 }
 
-void MarsRequest::setValuesTyped(Type* type, const std::vector<std::string>& values) {
+void MarsRequest::setValuesTyped(const Type* type, const std::vector<std::string>& values) {
     std::list<Parameter>::iterator i = find(type->name());
     if (i != params_.end()) {
         (*i) = Parameter(values, type);

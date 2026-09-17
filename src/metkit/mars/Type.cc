@@ -181,7 +181,7 @@ void Type::set(std::shared_ptr<Context> context, const std::vector<std::string>&
 void Type::unset(std::shared_ptr<Context> context) {
     unsets_.insert(std::move(context));
 }
-void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) {
+void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) const {
     // Special case: inheritance from another key.
     // If the value is of the form _key, then copy values from that key
     if (values.size() == 1 && values[0][0] == '_') {
@@ -314,7 +314,7 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
     }
 }
 
-void Type::setDefaults(MarsRequest& request) {
+void Type::setDefaults(MarsRequest& request) const {
     bool unset = false;
     for (const auto& unsetContext : unsets_) {
         if (unsetContext->matches(request)) {
@@ -332,7 +332,7 @@ void Type::setDefaults(MarsRequest& request) {
     }
 }
 
-const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) {
+const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) const {
     return request.values(name_);
 }
 
@@ -348,9 +348,9 @@ const std::string& Type::category() const {
     return category_;
 }
 
-void Type::pass2(MarsRequest& request) {}
+void Type::pass2(MarsRequest& request) const {}
 
-void Type::finalise(MarsRequest& request, bool strict) {
+void Type::finalise(MarsRequest& request, bool strict) const {
 
     const std::vector<std::string>& values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "off") {

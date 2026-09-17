@@ -429,7 +429,7 @@ void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-void TypeParam::pass2(MarsRequest& request) {
+void TypeParam::pass2(MarsRequest& request) const {
 
     pthread_once(&once, init);
 

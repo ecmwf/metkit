@@ -111,7 +111,7 @@ public:  // methods
 
     void dump(std::ostream&, const char* cr = "\n", const char* tab = "\t", bool verb = true) const;
 
-    void setValuesTyped(Type*, const std::vector<std::string>&);
+    void setValuesTyped(const Type*, const std::vector<std::string>&);
 
     bool filter(const MarsRequest& filter);
     bool matches(const MarsRequest& filter) const;

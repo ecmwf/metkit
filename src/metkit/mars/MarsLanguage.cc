@@ -241,7 +241,14 @@ const MarsLanguage& MarsLanguage::get(const std::string& verb) {
     if (it != instances.end()) {
         return *(it->second);
     }
-    auto [newIt, inserted] = instances.emplace(verb, new MarsLanguage(verb));
+
+    auto v = expandVerb(verb);
+    it     = instances.find(v);
+    if (it != instances.end()) {
+        return *(it->second);
+    }
+
+    auto [newIt, inserted] = instances.emplace(v, new MarsLanguage(v));
     ASSERT(inserted);
     return *(newIt->second);
 }
@@ -272,7 +279,6 @@ static bool isnumeric(const std::string& s) {
 
     return s.length() > 0;
 }
-
 
 std::string MarsLanguage::bestMatch(const std::string& name, const std::vector<std::string>& values, bool fail,
                                     bool quiet, bool fullMatch, const std::map<std::string, std::string>& aliases) {
@@ -429,7 +435,6 @@ public:
     TypeHidden() : Type("hidden", eckit::Value()) { attach(); }
 };
 
-
 Type* MarsLanguage::type(const std::string& name) const {
     auto k = types_.find(name);
     if (k == types_.end()) {
@@ -443,8 +448,6 @@ Type* MarsLanguage::type(const std::string& name) const {
     return k->second;
 }
 
-
-// MarsRequest MarsLanguage::expand(const MarsRequest& r, bool inherit, bool strict) {
 MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool inherit, bool strict) const {
     MarsRequest result(verb_);
 
@@ -468,7 +471,8 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool in
                 }
             }
             if (!found) {
-                throw eckit::UserError("Cannot find a definition for '" + PP + "'");
+                // fall back to fuzzy matching, governed by METKIT_LANGUAGE_STRICT_MODE
+                p = bestMatch(p, keywords_, true, false, true, aliases_);
             }
             paramSet.emplace(p, PP);
         }
@@ -541,7 +545,6 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool in
     }
     return result;
 }
-
 
 const std::string& MarsLanguage::verb() const {
     return verb_;
