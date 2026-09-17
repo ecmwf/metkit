@@ -444,6 +444,13 @@ CASE("test_metkit_expand_multirequest-3") {
     expand(text, std::vector<std::string>{expected1, expected2});
 }
 
+CASE("test_metkit_expand_multirequest-4") {
+    const std::string text = "ret,class=dm,type=fc,levtype=ml,date=-2\nret,date=-1";
+    std::string expectedStr =
+        "retrieve,class=dm,type=fc,stream=oper,levtype=ml,time=0,step=0,expver=0001,domain=g,levelist=1,param=129";
+    expand(text, {expectedStr, expectedStr}, false, {{-2}, {-1}});
+}
+
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
     const metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
     EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
