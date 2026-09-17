@@ -11,24 +11,15 @@
 #include "metkit/pointdb/DataSource.h"
 #include "metkit/pointdb/PointIndex.h"
 
-
-namespace metkit {
-namespace pointdb {
-
-DataSource::~DataSource() {}
-
+namespace metkit::pointdb {
 
 size_t DataSource::batch() const {
     return 0;
 }
 
-
 void PointResult::print(std::ostream& s) const {
     s << "PointResult[lat=" << lat_ << ",lon=" << lon_ << ",value=" << value_ << "]";
 }
 
-
 //----------------------------------------------------------------------------------------------------------------------
-}  // namespace pointdb
-
-}  // namespace metkit
+}  // namespace metkit::pointdb

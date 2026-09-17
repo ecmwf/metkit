@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_GribHandleDataSource_H
-#define metkit_GribHandleDataSource_H
+#pragma once
 
 #include "metkit/pointdb/GribDataSource.h"
 #include "metkit/pointdb/GribFieldInfo.h"
@@ -18,8 +17,7 @@ namespace eckit {
 class DataHandle;
 }
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 
 class GribHandleDataSource : public GribDataSource {
@@ -29,8 +27,7 @@ public:
     GribHandleDataSource(eckit::DataHandle&, const eckit::Offset& = 0);
     GribHandleDataSource(eckit::DataHandle*, const eckit::Offset& = 0);
 
-
-    ~GribHandleDataSource();
+    ~GribHandleDataSource() override;
 
 private:
 
@@ -52,7 +49,4 @@ private:
     void open() const;
 };
 
-}  // namespace pointdb
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::pointdb
