@@ -68,10 +68,18 @@ inline void convertSFC2SOL(const InDict_t& in, OutDict_t& out, eckit::LocalConfi
             case 33:
             case 238:
             case 228038:
+            case 235077:
             case 235080:
+            case 235094:
+            case 237077:
             case 237080:
+            case 237094:
+            case 238077:
             case 238080:
+            case 238094:
+            case 239077:
             case 239080:
+            case 239094:
             case 260199:
             case 260360:
             case 262000:
