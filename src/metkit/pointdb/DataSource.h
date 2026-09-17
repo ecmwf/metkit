@@ -8,13 +8,10 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_DataSource_H
-#define metkit_DataSource_H
+#pragma once
 
 #include <iosfwd>
 #include <map>
-
-#include "eckit/memory/NonCopyable.h"
 
 namespace eckit {
 class JSON;
@@ -53,12 +50,17 @@ public:
     virtual void handle(DataSource*) = 0;
 };
 
-class DataSource : public eckit::NonCopyable {
+class DataSource {
 public:
 
-    virtual ~DataSource();
+    DataSource() = default;
+    virtual ~DataSource() = default;
 
-
+    DataSource(const DataSource&)            = delete;
+    DataSource(DataSource&&)                 = delete;
+    DataSource& operator=(const DataSource&) = delete;
+    DataSource& operator=(DataSource&&)      = delete;
+    
     virtual PointResult extract(double lat, double lon) const = 0;
 
     // Encode a MARS-like request representing the field
@@ -86,6 +88,3 @@ private:
 
 }  // namespace pointdb
 }  // namespace metkit
-
-
-#endif

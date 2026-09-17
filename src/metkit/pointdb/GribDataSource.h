@@ -8,8 +8,7 @@
  * does it submit to any jurisdiction.
  */
 
-#ifndef metkit_GribDataSource_H
-#define metkit_GribDataSource_H
+#pragma once
 
 #include "metkit/pointdb/DataSource.h"
 #include "metkit/pointdb/PointIndex.h"
@@ -18,15 +17,15 @@ namespace eckit {
 class Offset;
 }
 
-namespace metkit {
-namespace pointdb {
+namespace metkit::pointdb {
 
 class GribFieldInfo;
 
 class GribDataSource : public DataSource {
 public:
 
-    virtual PointResult extract(double lat, double lon) const;
+    ~GribDataSource() override = default;
+    PointResult extract(double lat, double lon) const override;
 
 private:
 
@@ -41,7 +40,4 @@ private:
     friend class GribFieldInfo;
 };
 
-}  // namespace pointdb
-}  // namespace metkit
-
-#endif
+}  // namespace metkit::pointdb
