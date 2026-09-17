@@ -28,7 +28,7 @@ public:
     FieldIndex(FieldIndex&&)                 = delete;
     FieldIndex& operator=(const FieldIndex&) = delete;
     FieldIndex& operator=(FieldIndex&&)      = delete;
-    
+
     FieldIndex(eckit::Stream&);
 
     virtual ~FieldIndex();

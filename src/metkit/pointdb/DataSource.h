@@ -53,14 +53,14 @@ public:
 class DataSource {
 public:
 
-    DataSource() = default;
+    DataSource()          = default;
     virtual ~DataSource() = default;
 
     DataSource(const DataSource&)            = delete;
     DataSource(DataSource&&)                 = delete;
     DataSource& operator=(const DataSource&) = delete;
     DataSource& operator=(DataSource&&)      = delete;
-    
+
     virtual PointResult extract(double lat, double lon) const = 0;
 
     // Encode a MARS-like request representing the field
