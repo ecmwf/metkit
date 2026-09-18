@@ -444,14 +444,87 @@ CASE("test_metkit_expand_multirequest-3") {
     expand(text, std::vector<std::string>{expected1, expected2});
 }
 
+CASE("test_metkit_expand_multirequest-4") {
+
+    MarsExpansion exp(true);
+
+    const char* text1 =
+        "retrieve,accuracy=16,area=14.8/-19.6/-14.5/19.8,class=od,date=20230810,expver=1,grid=0.09/0.09,levelist=1/"
+        "to/137,levtype=ml,number=-1,param=z,process=local,rotation=-78.8/-61.0,step=000,stream=scda,time=18,"
+        "type=an,target=\"reference.ect1qF.data\"";
+    const char* text2 = "ret,date=20230811,rotation=off,target=\"out\"";
+
+    std::istringstream in1(text1);
+    std::istringstream in2(text2);
+    MarsParser parser1(in1);
+    MarsParser parser2(in2);
+    auto r1                     = parser1.parse();
+    auto r2                     = parser2.parse();
+    std::vector<MarsRequest> v1 = exp.expand(r1);
+    std::vector<MarsRequest> v2 = exp.expand(r2);
+    exp.reset();
+    std::vector<MarsRequest> v2_after_reset = exp.expand(r2);
+
+    EXPECT_EQUAL(v1.size(), 1);
+    EXPECT_EQUAL(v2.size(), 1);
+    EXPECT_EQUAL(v2_after_reset.size(), 1);
+
+    const char* expected1 =
+        "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=SCDA,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/"
+        "12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/"
+        "47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/"
+        "82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/"
+        "113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,"
+        "PARAM=129,DATE=20230810,TIME=1800,STEP=0,DOMAIN=G,TARGET=reference.ect1qF.data,RESOL=AUTO,ACCURACY=16,"
+        "AREA=14.8/-19.6/-14.5/19.8,ROTATION=-78.8/-61,GRID=.09/.09,PROCESS=LOCAL";
+    const char* expected2 =
+        "RETRIEVE,CLASS=OD,TYPE=AN,STREAM=SCDA,EXPVER=0001,REPRES=SH,LEVTYPE=ML,LEVELIST=1/2/3/4/5/6/7/8/9/10/11/"
+        "12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40/41/42/43/44/45/46/"
+        "47/48/49/50/51/52/53/54/55/56/57/58/59/60/61/62/63/64/65/66/67/68/69/70/71/72/73/74/75/76/77/78/79/80/81/"
+        "82/83/84/85/86/87/88/89/90/91/92/93/94/95/96/97/98/99/100/101/102/103/104/105/106/107/108/109/110/111/112/"
+        "113/114/115/116/117/118/119/120/121/122/123/124/125/126/127/128/129/130/131/132/133/134/135/136/137,"
+        "PARAM=129,DATE=20230811,TIME=1800,STEP=0,DOMAIN=G,TARGET=out,RESOL=AUTO,ACCURACY=16,"
+        "AREA=14.8/-19.6/-14.5/19.8,GRID=.09/.09,PROCESS=LOCAL";
+    const char* expected2_after_reset =
+        "retrieve,target=out,class=od,type=an,stream=oper,levtype=pl,date=20230811,time=1200,step=0,expver=0001,domain="
+        "g,levelist=1000/850/700/500/400/300,param=129";
+
+    std::set<std::string> ignore;
+    std::string tt = eckit::StringTools::lower(text1);
+    for (const auto& i : ignore_) {
+        auto idx = tt.find(i);
+        if (idx == std::string::npos) {
+            ignore.insert(i);
+        }
+    }
+
+    ExpectedRequest out1;
+    ExpectedRequest out2;
+    ExpectedRequest out2_after_reset;
+
+    parse(expected1, out1);
+    parse(expected2, out2);
+    parse(expected2_after_reset, out2_after_reset);
+
+    expand(v1[0], out1, ignore);
+    expand(v2[0], out2, ignore);
+    EXPECT(!v2[0].has("rotation"));
+    expand(v2_after_reset[0], out2_after_reset, ignore);
+}
+
+CASE("test_metkit_expand_multirequest-5") {
+    const std::string text = "ret,class=dm,type=fc,levtype=ml,date=-2\nret,date=-1";
+    std::string expectedStr =
+        "retrieve,class=dm,type=fc,stream=oper,levtype=ml,time=0,step=0,expver=0001,domain=g,levelist=1,param=129";
+    expand(text, {expectedStr, expectedStr}, false, {{-2}, {-1}});
+}
+
 void expandKeyThrows(const std::string& key, std::vector<std::string> values) {
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type(key);
+    const metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
     EXPECT_THROWS_AS(t->expand(values), eckit::BadValue);
 }
 void expandKey(const std::string& key, std::vector<std::string> values, std::vector<std::string> expected) {
-    static metkit::mars::MarsLanguage language("retrieve");
-    metkit::mars::Type* t = language.type(key);
+    const metkit::mars::Type* t = metkit::mars::MarsLanguage::get("retrieve").type(key);
     t->expand(values);
     EXPECT_EQUAL(expected, values);
 }

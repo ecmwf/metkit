@@ -429,7 +429,7 @@ void TypeParam::print(std::ostream& out) const {
     out << "TypeParam[name=" << name_ << "]";
 }
 
-void TypeParam::pass2(MarsRequest& request) {
+void TypeParam::pass2(MarsRequest& request) const {
 
     pthread_once(&once, init);
 
@@ -509,11 +509,6 @@ void TypeParam::pass2(MarsRequest& request) {
 bool TypeParam::expand(std::string&, const MarsRequest&) const {
     // Work done on pass2()
     return true;
-}
-
-void TypeParam::reset() {
-    // cache_.clear();
-    Type::reset();
 }
 
 static TypeBuilder<TypeParam> type("param");

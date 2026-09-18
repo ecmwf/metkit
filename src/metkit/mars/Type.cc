@@ -181,7 +181,7 @@ void Type::set(std::shared_ptr<Context> context, const std::vector<std::string>&
 void Type::unset(std::shared_ptr<Context> context) {
     unsets_.insert(std::move(context));
 }
-void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) {
+void Type::patchRequest(MarsRequest& request, const std::vector<std::string>& values) const {
     // Special case: inheritance from another key.
     // If the value is of the form _key, then copy values from that key
     if (values.size() == 1 && values[0][0] == '_') {
@@ -314,43 +314,30 @@ void Type::expand(std::vector<std::string>& values, const MarsRequest& request) 
     }
 }
 
-void Type::setDefaults(MarsRequest& request) {
-    if (inheritance_) {
-        request.setValuesTyped(this, inheritance_.value());
+void Type::setDefaults(MarsRequest& request) const {
+    bool unset = false;
+    for (const auto& unsetContext : unsets_) {
+        if (unsetContext->matches(request)) {
+            unset = true;
+            break;
+        }
     }
-    else {
-        bool unset = false;
-        for (const auto& unsetContext : unsets_) {
-            if (unsetContext->matches(request)) {
-                unset = true;
+    if (!unset) {
+        for (const auto& [defaultContext, values] : defaults_) {
+            if (defaultContext->matches(request)) {
+                patchRequest(request, values);
                 break;
             }
         }
-        if (!unset) {
-            for (const auto& [defaultContext, values] : defaults_) {
-                if (defaultContext->matches(request)) {
-                    patchRequest(request, values);
-                    break;
-                }
-            }
-        }
     }
 }
 
-void Type::setInheritance(const std::vector<std::string>& inheritance) {
-    inheritance_ = inheritance;
-}
-
-const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) {
+const std::vector<std::string>& Type::flattenValues(const MarsRequest& request) const {
     return request.values(name_);
 }
 
 void Type::clearDefaults() {
     defaults_.clear();
-}
-
-void Type::reset() {
-    inheritance_.reset();
 }
 
 const std::string& Type::name() const {
@@ -361,9 +348,9 @@ const std::string& Type::category() const {
     return category_;
 }
 
-void Type::pass2(MarsRequest& request) {}
+void Type::pass2(MarsRequest& request) const {}
 
-void Type::finalise(MarsRequest& request, bool strict) {
+void Type::finalise(MarsRequest& request, bool strict) const {
 
     const std::vector<std::string>& values = request.values(name_, true);
     if (values.size() == 1 && values[0] == "off") {

@@ -28,8 +28,7 @@ using ::eckit::BadValue;
 
 void assertTypeExpansion(const std::string& name, std::vector<std::string> values,
                          const std::vector<std::string>& expected) {
-    static MarsLanguage language("retrieve");
-    language.type(name)->expand(values);
+    MarsLanguage::get("retrieve").type(name)->expand(values);
     EXPECT_EQUAL(expected, values);
 }
 

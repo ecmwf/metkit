@@ -43,7 +43,7 @@ public:  // methods
     Parameter();
     ~Parameter();
 
-    Parameter(const std::vector<std::string>& values, Type* = 0);
+    Parameter(const std::vector<std::string>& values, const Type* = 0);
     Parameter(const Parameter&);
 
     Parameter& operator=(const Parameter&);
@@ -58,7 +58,7 @@ public:  // methods
 
     void merge(const Parameter& p);
 
-    Type& type() const { return *type_; }
+    const Type& type() const { return *type_; }
     const std::string& name() const;
 
     size_t count() const;
@@ -74,7 +74,7 @@ private:  // methods
 
 private:  // members
 
-    Type* type_;
+    const Type* type_;
     std::vector<std::string> values_;
 };
 

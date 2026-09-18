@@ -14,21 +14,17 @@
 
 /// @date Sep 96
 
-#ifndef metkit_MarsExpansion_H
-#define metkit_MarsExpansion_H
-
-#include "eckit/memory/NonCopyable.h"
+#pragma once
 
 #include <map>
 #include <string>
 #include <vector>
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
-
-class MarsLanguage;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -54,11 +50,10 @@ protected:
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class MarsExpansion : public eckit::NonCopyable {
+class MarsExpansion {
 public:
 
     MarsExpansion(bool inherit, bool strict = false);
-    ~MarsExpansion();
 
     void reset();
 
@@ -71,15 +66,16 @@ public:
 
 private:
 
-    MarsLanguage& language(const std::string& verb);
+    ExpansionContext& ctxForVerb(const std::string& verb);
 
-    std::map<std::string, MarsLanguage*> languages_;
+private:
+
     bool inherit_;
     bool strict_;
+
+    std::map<std::string, ExpansionContext> ctx_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 }  // namespace metkit::mars
-
-#endif
