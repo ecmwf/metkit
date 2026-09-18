@@ -72,7 +72,7 @@ void assertTypeExpansion(const std::string& name, std::vector<std::string> value
                          const std::vector<std::string>& expected) {
     const MarsLanguage& language = MarsLanguage::get("retrieve");
     MarsRequest req;
-    MarsRequest ctx;
+    ExpansionContext ctx;
     req.setValuesTyped(language.type(name), values);
     req = language.expand(req, ctx, false, true);
     EXPECT_EQUAL(expected, req.values(name));

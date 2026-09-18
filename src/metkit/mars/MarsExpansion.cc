@@ -20,7 +20,7 @@ namespace metkit::mars {
 MarsExpansion::MarsExpansion(bool inherit, bool strict) : inherit_(inherit), strict_(strict) {}
 
 std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedRequest>& requests) const {
-    std::map<std::string, MarsRequest> ctx;
+    std::map<std::string, ExpansionContext> ctx;
     std::vector<MarsRequest> result;
     result.reserve(requests.size());
 
@@ -35,7 +35,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsParsedReque
 }
 
 std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& requests) const {
-    std::map<std::string, MarsRequest> ctx;
+    std::map<std::string, ExpansionContext> ctx;
     std::vector<MarsRequest> result;
     result.reserve(requests.size());
 
@@ -49,7 +49,7 @@ std::vector<MarsRequest> MarsExpansion::expand(const std::vector<MarsRequest>& r
 }
 
 MarsRequest MarsExpansion::expand(const MarsRequest& request) const {
-    MarsRequest ctx;
+    ExpansionContext ctx;
     auto verb = MarsLanguage::expandVerb(request.verb());
     return MarsLanguage::get(verb).expand(request, ctx, inherit_, strict_);
 }

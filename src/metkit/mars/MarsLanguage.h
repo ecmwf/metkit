@@ -40,6 +40,21 @@ enum class ModifierType {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class ExpansionContext {
+public:
+
+    ExpansionContext() = default;
+    ExpansionContext(const MarsRequest& request);
+    ExpansionContext& operator=(ExpansionContext&& other);
+
+    bool has(const std::string& key) const;
+    const std::vector<std::string>& values(const std::string& key) const;
+
+private:
+
+    std::map<std::string, std::vector<std::string>> values_;
+};
+
 class MarsLanguage {
 
 public:  // methods
@@ -48,7 +63,7 @@ public:  // methods
 
     ~MarsLanguage();
 
-    MarsRequest expand(const MarsRequest& r, MarsRequest& ctx, bool inherit, bool strict) const;
+    MarsRequest expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const;
 
     const std::string& verb() const;
 

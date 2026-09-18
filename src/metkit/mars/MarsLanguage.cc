@@ -59,6 +59,31 @@ static void init() {
 namespace metkit::mars {
 
 //----------------------------------------------------------------------------------------------------------------------
+
+ExpansionContext::ExpansionContext(const MarsRequest& request) {
+    for (const auto& param : request.parameters()) {
+        values_[param.name()] = param.values();
+    }
+}
+
+ExpansionContext& ExpansionContext::operator=(ExpansionContext&& other) {
+    values_ = std::move(other.values_);
+    return *this;
+}
+
+bool ExpansionContext::has(const std::string& key) const {
+    return values_.find(key) != values_.end();
+}
+
+const std::vector<std::string>& ExpansionContext::values(const std::string& key) const {
+    static const std::vector<std::string> empty;
+    auto it = values_.find(key);
+    if (it != values_.end()) {
+        return it->second;
+    }
+    return empty;
+}
+
 void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
                                  const eckit::Value& mod) {
     eckit::Value keys;
@@ -448,7 +473,7 @@ const Type* MarsLanguage::type(const std::string& name) const {
     return k->second;
 }
 
-MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool inherit, bool strict) const {
+MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bool inherit, bool strict) const {
     MarsRequest result(verb_);
 
     try {
@@ -496,7 +521,6 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool in
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
                     result.unsetValues(p);
-                    ctx.unsetValues(p);
                     continue;
                 }
                 if (s == "all" && type(p)->multiple()) {
@@ -541,7 +565,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, MarsRequest& ctx, bool in
         throw eckit::UserError(oss.str());
     }
     if (inherit) {
-        ctx = result;
+        ctx = ExpansionContext(result);
     }
     return result;
 }
