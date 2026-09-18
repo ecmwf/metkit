@@ -66,11 +66,7 @@ ExpansionContext& MarsExpansion::ctxForVerb(const std::string& verb) {
     if (!inherit_) {
         return dummy;
     }
-    auto it = ctx_.find(verb);
-    if (it == ctx_.end()) {
-        it = ctx_.emplace(verb, new ExpansionContext{}).first;
-    }
-    return *(it->second);
+    return ctx_[verb];
 }
 
 //----------------------------------------------------------------------------------------------------------------------

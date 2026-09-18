@@ -49,6 +49,7 @@ public:
 
     bool has(const std::string& key) const;
     const std::vector<std::string>& values(const std::string& key) const;
+    void unset(const std::string& key);
 
 private:
 

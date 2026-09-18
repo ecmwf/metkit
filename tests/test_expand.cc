@@ -508,6 +508,7 @@ CASE("test_metkit_expand_multirequest-4") {
 
     expand(v1[0], out1, ignore);
     expand(v2[0], out2, ignore);
+    EXPECT(!v2[0].has("rotation"));
     expand(v2_after_reset[0], out2_after_reset, ignore);
 }
 

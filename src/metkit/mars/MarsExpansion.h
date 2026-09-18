@@ -17,16 +17,14 @@
 #pragma once
 
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
+#include "metkit/mars/MarsLanguage.h"
 #include "metkit/mars/MarsParsedRequest.h"
 #include "metkit/mars/MarsRequest.h"
 
 namespace metkit::mars {
-
-class ExpansionContext;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -75,7 +73,7 @@ private:
     bool inherit_;
     bool strict_;
 
-    std::map<std::string, ExpansionContext*> ctx_;
+    std::map<std::string, ExpansionContext> ctx_;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

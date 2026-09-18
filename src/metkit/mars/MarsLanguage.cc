@@ -84,6 +84,10 @@ const std::vector<std::string>& ExpansionContext::values(const std::string& key)
     return empty;
 }
 
+void ExpansionContext::unset(const std::string& key) {
+    values_.erase(key);
+}
+
 void MarsLanguage::parseModifier(ModifierType typ, std::shared_ptr<Context> ctx, size_t maxIndex,
                                  const eckit::Value& mod) {
     eckit::Value keys;
@@ -521,6 +525,7 @@ MarsRequest MarsLanguage::expand(const MarsRequest& r, ExpansionContext& ctx, bo
                 const std::string& s = eckit::StringTools::lower(values[0]);
                 if (s == "off") {
                     result.unsetValues(p);
+                    ctx.unset(p);
                     continue;
                 }
                 if (s == "all" && type(p)->multiple()) {
