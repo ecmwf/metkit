@@ -123,7 +123,7 @@ class Roundtrip : public eckit::Tool {
         options.push_back(new Option<bool>("cmp", "Check message bytes (cmp-like) (default false)"));
         options.push_back(
             new Option<bool>("keys", "Check grib key values (grib_compare-like, in-memory) (default false)"));
-        
+
         options.push_back(new Option<std::string>("out", "Write encoded message to file (default empty, no output)"));
 
         eckit::option::CmdArgs args(usage, options, 1, 1);
@@ -191,7 +191,7 @@ class Roundtrip : public eckit::Tool {
                 ASSERT(std::memcmp(input_message, encoded.data(), size) == 0);
             }
 
-            if (args.getBool("keys", false)) {
+            if (args.getBool("keys", true)) {
                 auto& out = eckit::Log::error();
 
                 // release() is the last use of h, so ownership transfer is safe
@@ -201,7 +201,13 @@ class Roundtrip : public eckit::Tool {
                 auto diff = false;
                 while (codes_keys_iterator_next(kiter) != 0) {
                     const auto* key = codes_keys_iterator_get_name(kiter);
-                    auto err        = codes_compare_key(g, h2, key, 0);
+
+                    // Ignore key radius until ECC-2339 is resolved
+                    if (std::strcmp(key, "radius") == 0) {
+                        continue;
+                    }
+
+                    auto err = codes_compare_key(g, h2, key, 0);
                     if (err != CODES_SUCCESS && err != CODES_NOT_IMPLEMENTED /*key doesn't support comparison*/) {
                         out << "Key differs: '" << key << "' (" << codes_get_error_message(err) << ")" << std::endl;
                         print_key_value(g, key, out);
