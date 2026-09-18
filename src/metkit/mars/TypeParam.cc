@@ -45,7 +45,6 @@ class Matcher {
 
 public:
 
-    // Matcher(const std::string& name, const eckit::Value values);
     Matcher(const std::string& name, std::vector<std::string>&& values);
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
@@ -104,6 +103,7 @@ public:
     static void init();
 
     bool match(const metkit::mars::MarsRequest& request, bool partial = false) const;
+    std::string lookupAlternatives(const std::string& s) const;
     std::string lookup(const std::string& s) const;
     long toParamid(const std::string& param) const;
 
@@ -280,6 +280,21 @@ bool Rule::match(const metkit::mars::MarsRequest& request, bool partial) const {
         }
     }
     return true;
+}
+
+std::string Rule::lookupAlternatives(const std::string& s) const {
+    static eckit::Tokenizer tokenize{"|"};
+
+    std::vector<std::string> vv;
+    std::string out{};
+    std::string separator = "";
+    tokenize(s, vv);
+
+    for (const auto& v : vv) {
+        out += separator + lookup(v);
+        separator = "|";
+    }
+    return out;
 }
 
 std::string Rule::lookup(const std::string& s) const {
@@ -691,7 +706,7 @@ void TypeParam::pass2(MarsRequest& request) const {
                     for (std::vector<std::string>::iterator j = values.begin(); j != values.end() && !rule; ++j) {
                         std::string& s = (*j);
                         try {
-                            s    = r.lookup(s);
+                            s    = r.lookupAlternatives(s);
                             rule = &r;
                             Log::warning() << "TypeParam: using 'first matching rule' option " << r << std::endl;
                         }
@@ -727,7 +742,7 @@ void TypeParam::pass2(MarsRequest& request) const {
     for (std::vector<std::string>::iterator j = values.begin(); j != values.end(); ++j) {
         std::string& s = (*j);
         try {
-            s = rule->lookup(s);
+            s = rule->lookupAlternatives(s);
         }
         catch (...) {
             Log::error() << *rule << std::endl;
